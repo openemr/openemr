@@ -21,6 +21,14 @@
  * @link http://www.open-emr.org
 */
 
+
+/*
+*
+*   Notice: This will be eventually removed to accommodate for Bootstrap themes  
+*
+*/
+
+
 /*
     COLOR PALETTE
     #{$darkest} - Darkest #{$colorname}*
@@ -39,46 +47,46 @@
     ~ - common for all flat stylesheets
 */
 
+@import "core";
+
 * {
 	font-family: /* 1 */
 		-apple-system, BlinkMacSystemFont, /* 2 */
 		"Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", /* 3 */
-		"Helvetica Neue", sans-serif;
+		"Helvetica Neue", sans-serif !important;
 }
 html {
-	font-size: 14px;
+	font-size: 14px !important;
 }
 /* RP_MODIFIED  2/09/2015, 1/17/2016*/
 
 body {
-	margin: 0px 0px 0px 2px;
+	margin: 0px 0px 0px 2px !important;
 	/* set the base fontsize for all DOM children */
-	font-size: 1em;
+	font-size: 1em !important;
 	/* set the base font size for all DOM children */
 }
 
-@import "core";
-
 .menu {
 	font-style: italic;
-	font-size: 11pt;
+	font-size: 0.9375rem;
 }
 .menu_selected {
 	font-style: italic;
-	font-size: 11pt;
+	font-size: 0.9375rem;
 }
 .logout {
 	font-style: italic;
-	font-size: 11pt;
+	font-size: 0.9375rem;
 }
 .text {
-	font-size: 10pt;
+	font-size: 0.8125rem;
 }
 .required {
-	font-size: 10pt;
+	font-size: 0.8125rem;
 }
 .bold {
-	font-size: 10pt;
+	font-size: 0.8125rem;
 }
 .alert, .alert-custom {
 	font-size: 70%;
@@ -104,7 +112,7 @@ body {
 	font-size: 70%;
 }
 .link_submit {
-	font-size: 10pt;
+	font-size: 0.8125rem;
 }
 .items {
 	font-size: 6pt;
@@ -159,17 +167,17 @@ body {
 /* style taken out of the addressbook code and put here instead */
 
 #addressbook_list td {
-	font-family: Arial, Helvetica, sans-serif;
+	font-family: "Arial", "Helvetica", sans-serif;
 }
 #addressbook_list tr.search {
 	font-size: 9pt;
 }
 #addressbook_list tr.head {
-	font-size: 10pt;
+	font-size: 0.8125rem;
 	background-color:inherit;
 }
 #addressbook_list tr.detail {
-	font-size: 10pt;
+	font-size: 0.8125rem;
 }
 #addressbook_list .inputtext {
 	font-family:inherit;
@@ -196,18 +204,18 @@ body {
 
 #reports_list td {
 	font-size: 8pt;
-	font-family: helvetica;
+	font-family: "Helvetica", sans-serif;
 }
 #reports_list a {
 	font-size: 8pt;
-	font-family: helvetica;
+	font-family: "Helvetica", sans-serif;
 }
 
 #documents_list td {
-	font-family: helvetica;
+	font-family: "Helvetica", sans-serif;
 }
 #documents_list a {
-	font-family: helvetica;
+	font-family: "Helvetica", sans-serif;
 }
 #documents_list .treeMenuDefault {
 	font-style: italic;
@@ -223,10 +231,10 @@ body {
  *============================================================*/
 
 #patient_stats .head {
-	font-size: 10pt;
+	font-size: 0.8125rem;
 }
 #patient_stats .detail {
-	font-size: 10pt;
+	font-size: 0.8125rem;
 }
 /*=============================================================
  * Patient Past Encounters and Documents
@@ -357,7 +365,7 @@ ul.tabNav li.current a {
 **/
 
 .drug_lookup {
-	font-family: helvetica;
+	font-family: "Helvetica", sans-serif;
 	font-size: 8pt;
 	border: 2px outset rgb(102, 102, 102);
 	background-color: $paler;
@@ -366,7 +374,7 @@ ul.tabNav li.current a {
 
 /* Style for red font */
 .redtext {
-	font-size: 10pt;
+	font-size: 0.8125rem;
 }
 /* Style for red font */
 

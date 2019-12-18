@@ -5,6 +5,7 @@
 .chart-dygraphs {
     direction: ltr;
 }
+
 /**
 * Drug lookup
 **/
@@ -16,32 +17,39 @@
     position: absolute;
     display: block;
 }
+
 /* Form styles */
 
 .formtable {
     line-height: 24px;
 }
+
 .formtable tr td {
     line-height: 24px;
 }
+
 .report_search_bar {
     background-color: #EADDB4;
 }
+
 /* flow board filters*/
 
 #flow_board_parameters {
     margin: 25px auto;
     background-color: #ececec;
 }
+
 #flow_board_parameters td {
     padding: 10px;
 }
+
 #flow_board_parameters table {
     border: solid 1px;
     width: 100%;
     border-collapse: collapse;
 }
-.oe-empty-label{
+
+.oe-empty-label {
     display: inline-block;
     width: 100%;
     min-height: 21px;

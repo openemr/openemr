@@ -8,6 +8,13 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE General Public License 3
  */
 
+// Globally enable gradients for themes on Bootstrap
+$enable-gradients: true;
+// Enables responsive text for Bootstrap (Will need to fix up)
+$enable-responsive-font-sizes: true;
+// Import Bootstrap 4 SCSS Files before doing anything
+@import "../../node_modules/bootstrap/scss/bootstrap";
+
 @import "directional";
 
 @import url("themeBuilder.php"); // reads from user preferences and overrides fonts
@@ -36,5 +43,6 @@
 @import "core/reports";
 @import "core/list-table";
 @import "core/therapy-groups";
-@import "core/oe-mobile.scss";
-@import "core/edit_globals.scss";
+@import "core/oe-mobile";
+@import "core/edit_globals";
+@import "login_page"; // Added to theme the login page

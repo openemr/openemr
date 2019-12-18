@@ -18,8 +18,12 @@
  * @link    http://www.open-emr.org
  */
 
-html
-{
+/*
+*
+*   TODO: Find a way to implement this into the core to allow themes to work
+*/
+
+html {
     margin: 0;
     padding: 0;
     border: 0;
@@ -27,17 +31,17 @@ html
     display: flex;
     flex-direction: column;
 }
-body
-{
-    font-family: 'FontAwesome', Arial, Helvetica, sans-serif;
+
+body {
+    font-family: "FontAwesome", "Arial", "Helvetica", sans-serif;
     flex: 1 0 auto;
     display: flex;
     flex-direction: column;
     margin: 0px;
     font-size: 12px;
 }
-#mainBox
-{
+
+#mainBox {
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -47,6 +51,7 @@ body
     margin: 0;
     padding: 0;
 }
+
 #mainBox_vertical {
     align-items: stretch;
     align-content: space-between;
@@ -55,11 +60,11 @@ body
     padding: 0;
 }
 
-#mainBox  .logo{
+#mainBox .logo {
     float: left;
-    margin:7px 4px 0px 10px;
-    width:20px;
-    z-index:10000;
+    margin: 7px 4px 0px 10px;
+    width: 20px;
+    z-index: 10000;
 }
 
 #mainBox_vertical .logo {
@@ -68,14 +73,12 @@ body
     z-index: 10000;
 }
 
-#mainBox > div
-{
+#mainBox > div {
     flex: 0 1 auto;
     margin: 0 0 0 0;
 }
 
-#mainBox > div.mainFrames
-{
+#mainBox > div.mainFrames {
     display: flex;
     flex: 1 0 auto;
     flex-direction: column;
@@ -84,18 +87,16 @@ body
     margin: 0 0 0 0;
 }
 
-#framesDisplay
-{
+#framesDisplay {
     flex: 1 0 auto;
     display: flex;
     flex-direction: row;
 }
 
-#framesDisplay > div
-{
+#framesDisplay > div {
     flex: 1 0 auto;
     align-items: stretch;
-    align-content:stretch;
+    align-content: stretch;
     display: flex;
     flex-direction: column;
     margin: 0;
@@ -104,15 +105,12 @@ body
     border-right: 1pt solid black;
 }
 
-#framesDisplay > div > iframe
-{
+#framesDisplay > div > iframe {
     flex: 1 0 auto;
-    border: 0px solid black;
     width: 100%;
 }
 
-.tabControls
-{
+.tabControls {
     margin: -9px 0 0 0;
     padding: 9px 0 0 0;
     display: flex;
@@ -120,38 +118,30 @@ body
     overflow: auto;
 }
 
-.tabSpan
-{
+.tabSpan {
     margin: 0 0 0 0;
-    padding:  1px 7px;
+    padding: 1px 7px;
     border: 1pt solid black;
-    border-bottom:0pt;
+    border-bottom: 0pt;
     border-radius: 6px 6px 0 0;
     cursor: pointer;
     flex: 0 1 auto;
-    white-space:nowrap;
+    white-space: nowrap;
     box-shadow: 2px -2px 6px rgba(0, 0, 0, 0.6);
     overflow: visible;
 }
-.tabSpan .fa {
-    color: #888888;
-}
-.tabSpan:hover
-{
+
+.tabSpan:hover {
     color: red;
 }
-.tabHidden
-{
-    color: gray;
-}
+
 .tabNotchosen {
-    border-bottom:1pt solid black;
+    border-bottom: 1pt solid black;
     box-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
-    display:block;
+    display: block;
 }
 
-#attendantData
-{
+#attendantData {
     min-height: 4em;
 }
 
@@ -159,88 +149,61 @@ body
     display: inline;
 }
 
-.patientDataColumn
-{
+.patientDataColumn {
     width: 33%;
     float: left;
     display: block;
 }
 
-.messagesColumn
-{
+.messagesColumn {
     float: right;
     padding-right: 20px;
 }
 
-.patientEncountersColumn
-{
-}
-
-.patientEncounterList
-{
-    position:fixed;
+.patientEncounterList {
+    position: fixed;
     overflow: hidden;
     border: 1px solid black;
-    background: white;
     cursor: pointer;
-    z-index:1;
+    z-index: 1;
 }
 
-.patientEncounterList  table.encounters
-{
+.patientEncounterList table.encounters {
     display: none;
 }
 
 
-.patientEncounterList:hover table.encounters
-{
+.patientEncounterList:hover table.encounters {
     display: block;
 
 }
 
-.patientEncounterList > div
-{
+.patientEncounterList > div {
     padding: 2px;
 }
-.patientEncounterList:hover
-{
+
+.patientEncounterList:hover {
     overflow: visible;
     height: auto;
-    z-index:4;
+    z-index: 4;
 }
 
-
-.patientEncounterList > div:hover
-{
-    color: red;
-}
-
-.patientEncounterList table.encounters td:hover
-{
-    color:red;
-}
-
-.patientEncounterList .review
-{
+.patientEncounterList .review {
     font-size: x-small;
     padding: 2px;
-    border: 1px solid black;
-    background-color: lightgray;
     border-radius: 5px;
 }
 
-#userData
-{
+#userData {
     position: relative;
     float: right;
 }
-.patientInfo
-{
+
+.patientInfo {
     padding: 1px 1px 1px 10px;
 }
 
-.patientInfo .clear
-{
+.patientInfo .clear {
     font-size: x-small;
     margin: 1px;
     padding: 3px;
@@ -250,81 +213,77 @@ body
     cursor: pointer;
 }
 
-.patientInfo .clear:hover
-{
-    color:red;
-}
-
-.patientInfo .patientPicture
-{
+.patientInfo .patientPicture {
     margin-top: -1px;
     margin-right: 7px;
 }
 
-.patientInfo .patientPicture img
-{
+.patientInfo .patientPicture img {
     height: 75px;
 }
 
 .top {
-    vertical-align:top;
+    vertical-align: top;
 }
 
-.appMenu > span
-{
+.appMenu > span {
     float: left;
-    padding:0;
+    padding: 0;
     white-space: nowrap;
     text-shadow: none;
 }
+
 .appMenu_small > span {
     padding: 0;
     white-space: nowrap;
 }
-.appMenu > span:hover
-{
+
+.appMenu > span:hover {
     color: #fff;
     text-decoration: none;
     background-color: #1C5ECF;
     text-shadow: none;
 }
+
 .appMenu ul,
-.appMenu_small ul
-{
+.appMenu_small ul {
     list-style: none;
-    margin:0;
+    margin: 0;
     padding: 1px 5px 2px 1px;
 }
-.appMenu li
-{
+
+.appMenu li {
     padding-left: 14px;
 }
-.appMenu li:hover
-{
+
+.appMenu li:hover {
     color: #fff;
     text-decoration: none;
     background-color: #1C5ECF;
     text-shadow: none;
 }
-.appMenu li:hover > .menuDisabled
- {
+
+.appMenu li:hover > .menuDisabled {
     background-color: transparent;
 }
-.appMenu  .oe-show {
+
+.appMenu .oe-show {
     display: none;
 }
+
 .appMenu_small .oe-show {
     display: block;
 }
-.menuSection{
+
+.menuSection {
     position: relative;
 }
-.menuSection > .menuEntries{
-    background-color:#C9DBF2;
+
+.menuSection > .menuEntries {
     display: none;
     position: absolute;
     top: 19px;
-    z-index:1000;
+    z-index: 1000;
     box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.176);
     min-width: 175px;
     border: 0.5pt solid gray;
@@ -335,7 +294,7 @@ body
     padding-left: 0px;
     padding-right: 0px;
     padding-bottom: 4px;
-    whitespace:nowrap;
+    whitespace: nowrap;
 }
 
 .menuSection > .menuEntries .menuEntries {
@@ -345,83 +304,86 @@ body
     left: 159px;
     transition: 2s background-color;
 }
-.menuSection:hover > .menuEntries{
+
+.menuSection:hover > .menuEntries {
     display: block;
 }
 
-.menuLabel
-{
+.menuLabel {
     cursor: pointer;
     padding: 5px 12px 5px;
     transition: background-color 0.1s ease;
     width: 100%;
     float: none;
 }
-.menuDisabled
-{
-    color:gray !important;
+
+.menuDisabled {
+    color: gray !important;
 }
 
-#username
-{
+#username {
     cursor: pointer;
 }
-.userSection
-{
+
+.userSection {
     min-width: 200px;
-    right:10px;
+    right: 10px;
 }
+
 .body_top {
     background-color: #C9DBF2;
-    padding:0px;
-    box-shadow:0 0 10px #939393;
-    z-index:10;
+    padding: 0px;
+    box-shadow: 0 0 10px #939393;
+    z-index: 10;
 }
-#mainBox_vertical>.body_top {
+
+#mainBox_vertical > .body_top {
     background-color: #C9DBF2;
-    box-shadow:0 0 0 #939393;
+    box-shadow: 0 0 0 #939393;
     margin: 0 !important;
 }
+
 .body_title {
     color: black;
     background-color: #c9dbf2;
-    padding:10px 0px 0px 0px;
-}
-#username:hover > .userfunctions
-{
-    display: block;
-    Xwidth:98%;
+    padding: 10px 0px 0px 0px;
 }
 
-#username > .userfunctions > div:hover
-{
+#username:hover > .userfunctions {
+    display: block;
+    width: 98%;
+}
+
+#username > .userfunctions > div:hover {
     color: red;
 }
+
 .logo {
-  border-radius: 50%;
-  -webkit-transition: -webkit-transform .8s ease-in-out;
-  transition: transform .8s ease-in-out;
+    border-radius: 50%;
+    -webkit-transition: -webkit-transform .8s ease-in-out;
+    transition: transform .8s ease-in-out;
 }
+
 .logo:hover {
-  -webkit-transform: rotate(360deg);
-  transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
 }
-.acck {}
 
 .menu_arrow {
-    bottom:0px;
-    margin:     7px 7px 2px 7px;
+    bottom: 0px;
+    margin: 7px 7px 2px 7px;
 }
+
 .topToolbarRight {
-    border-top:0pt;
+    border-top: 0pt;
 }
 
 .closeButton {
-        display:inline-block;
-        float:right;
-        position:relative;
-        top:6px;
-        right:5px;
+    display: inline-block;
+    float: right;
+    position: relative;
+    top: 6px;
+    right: 5px;
 }
 
 .float-element {
@@ -429,31 +391,36 @@ body
 }
 
 /* main.php */
-.body_main{
-  background-color:#C9DBF2;
+.body_main {
+    background-color: #C9DBF2;
 }
-#logout_icon{
-    margin:12px 5px 0 10px;
+
+#logout_icon {
+    margin: 12px 5px 0 10px;
     cursor: pointer;
 }
+
 #menu_icon {
     margin: 12px 25px;
     cursor: pointer;
 }
+
 #patient_caret {
     font-size: 2em;
     margin-top: -5px;
 }
+
 @media (max-width: 768px) {
     .mainFrames {
         margin: 0;
         padding-left: 1px;
     }
+
     #tabs_div > div :first-child {
         width: 25px !important;
     }
-    #framesDisplay > div
-    {
+
+    #framesDisplay > div {
         height: 100vh;
         width: 100%;
     }

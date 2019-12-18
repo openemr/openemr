@@ -4,19 +4,23 @@
     float: $left;
     background: #f0f0f0;
 }
+
 #sddm li a {
     display: block;
     margin: 0 1px 0 0;
     text-align: $left;
     text-decoration: none;
 }
+
 #sddm li a:hover {
     background: #d7d7d7;
 }
+
 #sddm div {
     position: absolute;
     visibility: hidden;
 }
+
 #sddm div a {
     position: relative;
     display: block;
@@ -29,6 +33,7 @@
     font-size: 0.8em;
     font-weight: normal;
 }
+
 #sddm div a:hover {
-    color: #ffffff;
+    color: $white;
 }

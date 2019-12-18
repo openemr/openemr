@@ -1,38 +1,35 @@
-a {
-    color: #0000cc;
-    text-decoration: none;
-}
-a:visited {
-    color: #0000cc;
-}
-a:hover {
-    color: #ff5555;
-}
 .logout {
-    color: #000000;
+    color: $black;
     text-decoration: none;
     text-align: $left;
 }
+
 .more {
     text-decoration: none;
 }
+
 .back {
     text-decoration: none;
 }
+
 .link_selected {
     text-decoration: none;
     color: #0000FF;
 }
+
 .link_selected:visited {
     text-decoration: none;
     color: #0000FF;
 }
+
 .link_submit {
     text-decoration: none;
     color: #000077;
+
     a:visited {
         color: #000077;
     }
+
     a:hover {
         color: #ff5555;
     }

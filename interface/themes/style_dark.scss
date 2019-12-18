@@ -1,17 +1,29 @@
-@import "core";
-
 /*
 *
-*   TODO: Replace all colors with Bootstrap colors
-*
-*
+*   Dark Theme for OpenEMR
+*   @author Tyler Wrenn
+*   
 */
 
+/* Bootstrap Magic Code */
 
-body {
-    font-family: "Lato", "Helvetica", sans-serif !important;
-    font-size: 14px !important;
-}
+$white: #000;
+$gray-100: #070605;
+$gray-200: #161310;
+$gray-300: #211D19;
+$gray-400: #312B25;
+$gray-500: #524A42;
+$gray-600: #797169;
+$gray-700: #B6AFA8;
+$gray-800: #CBC5BF;
+$gray-900: #DEDAD6;
+$black: #fff;
+
+$font-family-sans-serif: "Lato", "Helvetica", sans-serif;
+$font-size-base: 0.875rem;
+$font-family-base: $font-family-sans-serif;
+
+@import "core";
 
 .menuBar {
     width: 100%;
@@ -27,7 +39,6 @@ body {
     margin-top: 95px;
 }
 
-
 .logout {
     color: $black;
     text-decoration: none;
@@ -35,7 +46,7 @@ body {
 }
 
 .alert-custom {
-    background-color: #FF0000 !important;
+    background-color: $danger !important;
     color: $white !important;
 }
 
@@ -90,7 +101,7 @@ span.bold {
 /* $GLOBALS['style']['BGCOLOR2'] */
 
 .body_title {
-    background-color: #f4f4f4;
+    background-color: $light;
 }
 
 /* $title_bg_line */
@@ -192,8 +203,6 @@ td.even {
     background-color: $white !important;
 }
 
-@import "buttons/_light";
-
 #logout_link span {
     display: none;
 }
@@ -205,7 +214,7 @@ ul.tabNav {
     margin: 0;
     padding: 0;
     padding-top: 4px;
-    background: #2672ec;
+    background: $primary;
 }
 
 ul.tabNav li {
@@ -214,7 +223,7 @@ ul.tabNav li {
 
 ul.tabNav li.current a {
     background: $white;
-    color: #2672ec;
+    color: $primary;
 }
 
 ul.tabNav a {
@@ -253,7 +262,7 @@ ul.tabNav a:focus {
     font-size: 0.8em;
 }
 
-@import "navigation-slide/_light";
+@import "navigation-slide/_future-bootstrap";
 
 #sddm li {
     background: #f0f0f0;
@@ -261,7 +270,7 @@ ul.tabNav a:focus {
 
 #sddm li a {
     padding: 12px;
-    color: #2672ec;
+    color: $primary;
 }
 
 #sddm li a:hover {
@@ -276,11 +285,11 @@ ul.tabNav a:focus {
 }
 
 #sddm div a {
-    color: #2875DE;
+    color: darken($primary, 15%);
 }
 
 #sddm div a:hover {
-    background: #2672ec;
+    background: $primary;
 }
 
 #sddm li.encounter-form-category-li {
@@ -343,7 +352,7 @@ div.category-display {
 }
 
 .chevron_color {
-    color: #2672ec;
+    color: $primary;
 }
 
 #create_patient_btn {
@@ -366,18 +375,18 @@ div.category-display {
 }
 
 #oe-nav-ul.tabNav li.current {
-    color: #2672ec;
+    color: $primary;
 }
 
 #oe-nav-ul.tabNav a {
-    background: #f4f4f4;
+    background: $light;
     border-left: 2px solid #1976d2;
     border-bottom: 1px solid #ccc;
 }
 
 #oe-nav-ul.tabNav a:hover {
     background-color: $white !important;
-    color: #2672ec;
+    color: $primary;
 }
 
 #oe-nav-ul.tabNav {
@@ -385,17 +394,17 @@ div.category-display {
 }
 
 #oe-nav-ul.tabNav .current a {
-    border-color: #2672ec;
+    border-color: $primary;
     background: $white;
-    color: #2672ec;
+    color: $primary;
 }
 
 #globals-div .tabContainer {
-    border-color: #2672ec;
+    border-color: $primary;
 }
 
 .oe-global-tab-heading {
-    color: #2672ec;
+    color: $primary;
 }
 
 /*openrmr5.0.2 edit_globals vertical menu*/
@@ -413,7 +422,7 @@ div.category-display {
 
 .navbar-default .navbar-nav > li > a:focus,
 .navbar-default .navbar-nav > li > a:hover {
-    color: #333;
+    color: $gray-800;
     background-color: #eee;
 }
 

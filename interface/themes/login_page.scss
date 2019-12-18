@@ -18,20 +18,20 @@
 */
 
 body.login {
-    background: #f4f4f4;
+    background: $light;
 }
 
 .login-failure {
-    background-color: #ff5d5a;
-    color: #fff;
+    background-color: $danger;
+    color: $white;
     font-weight: bold;
 }
 
 .login .container {
     margin-top: 75px;
-    padding:25px;
+    padding: 25px;
     max-width: 785px;
-    background: #fff;
+    background: $white;
 }
 
 .logo-left {
@@ -49,14 +49,13 @@ body.login {
     max-width: 400px;
 }
 
-.tinylogopng
-{
+.tinylogopng {
     width: 86px;
     height: 43px;
     margin-bottom: 10px;
 }
 
 #ui-id-1 > .message {
-    color: #ff0400;
+    color: $danger;
     font-weight: bold;
 }

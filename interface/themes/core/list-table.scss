@@ -5,21 +5,26 @@
 .showborder {
     width: 650px;
 }
+
 .showborder td {
-    border-bottom: 1px dashed #000000;
+    border-bottom: 1px dashed $black;
     text-align: $left;
 }
+
 .showborder_head th {
-    border-bottom: 1px solid #000000;
+    border-bottom: 1px solid $black;
     text-align: $left;
 }
+
 .shownoborder td {
     text-align: $left;
 }
+
 .showborder_long {
     width: 100%;
 }
+
 .showborder_long tr td {
-    border-bottom: 1px dashed #000000;
+    border-bottom: 1px dashed $black;
     text-align: $left;
 }

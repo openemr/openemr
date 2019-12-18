@@ -1,34 +1,41 @@
 .text {
-    color: #000000;
+    color: $black;
     text-decoration: none;
     font-size: 0.9em;
 }
+
 .required {
     text-decoration: none;
     font-size: 0.9em;
     color: #880000;
     font-weight: bold;
 }
+
 .bold {
     text-decoration: none;
     font-size: 0.9em;
-    color: #000000;
+    color: $black;
     font-weight: bold;
 }
+
 .small {
     text-decoration: none;
-    color: #000000;
+    color: $black;
     font-size: 0.8em;
 }
+
 .sellistclass {
     float: $left;
 }
+
 .disabled_button {
     color: grey;
 }
+
 a.disabled_button:hover {
     color: grey;
 }
+
 /* Password alert styles */
 
 .pwdalert {
@@ -36,47 +43,56 @@ a.disabled_button:hover {
     width: 390pt;
     margin-left: 100px;
     padding: 10px 10px 10px 15px;
-    color: black;
+    color: $black;
 }
+
 .alertmsg1 {
-    border: 3px solid #fe7b7a;
+    border: 3px solid $danger;
     background-color: #ffd6d6;
 }
+
 .alertmsg2 {
     border: 3px solid #f56fff;
     background-color: #fabfff;
 }
+
 .alertmsg3 {
-    border: 3px solid #9acc2e;
+    border: 3px solid $yellow;
     background-color: #eef7dd;
 }
+
 /* Password alert styles */
 
 /* Style for red font */
 
 .redtext {
     text-decoration: none;
-    color: #FF0000;
+    color: $danger;
 }
+
 /* Style for red font */
 
 .de_identification_status_message {
     width: 50%;
     border: 1px solid #0000FF;
 }
+
 .de_identification_input_controls_box {
     width: 100%;
     border: 1px solid #0000FF;
 }
+
 .de_id_upgrade_login {
     width: 40%;
-    border: 1px solid Black;
-    background-color: #ffffff;
+    border: 1px solid $black;
+    background-color: $white;
 }
+
 body.admin-layout input[type="button"] {
     display: inline-block;
     float: none;
 }
+
 /* error message = new validation */
 
 .error-message {
@@ -85,21 +101,26 @@ body.admin-layout input[type="button"] {
     white-space: nowrap;
     font-weight: normal;
 }
+
 .error-border {
-    border: 1px solid red !important;
+    border: 1px solid $danger !important;
 }
+
 .tinylogocontainer {
     display: inline-block;
     border: none;
 }
+
 .tinylogopng {
     display: inline-block;
     width: 44px;
     height: 22px;
 }
-.oe-text-to-right{
+
+.oe-text-to-right {
     text-align: $right;
 }
-.oe-text-to-left{
+
+.oe-text-to-left {
     text-align: $left;
 }

@@ -20,7 +20,8 @@ assets:
     bootstrap:
         basePath: %assets_static_relative%/bootstrap/dist/
         script: js/bootstrap.bundle.min.js
-        link: css/bootstrap.min.css
+        # Moving into SASS
+        # link: css/bootstrap.min.css
         autoload: true
         allowNoLoad: true # could also just edit Header.php to remove this check (unnecessary?)
         rtl:

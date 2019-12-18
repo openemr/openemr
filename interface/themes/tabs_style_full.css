@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
- * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
+ * Copyright (C) 2019 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,8 +20,12 @@
  * @link    http://www.open-emr.org
  */
 
-html
-{
+/*
+*
+*   TODO: Find a way to implement this into the core to allow themes to work
+*/
+
+html {
     margin: 0;
     padding: 0;
     border: 0;
@@ -29,17 +33,15 @@ html
     display: flex;
     flex-direction: column;
 }
-body
-{
-    /*font-family: 'FontAwesome', Arial, Helvetica, sans-serif;*/
+
+body {
     flex: 1 0 auto;
     display: flex;
     flex-direction: column;
     margin: 0px;
-    background-color: #f4f4f4;
 }
-#mainBox
-{
+
+#mainBox {
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -58,14 +60,12 @@ body
     padding: 0;
 }
 
-#mainBox > div
-{
+#mainBox > div {
     flex: 0 1 auto;
     margin: 0;
 }
 
-#mainBox > div.mainFrames
-{
+#mainBox > div.mainFrames {
     display: flex;
     flex: 1 0 auto;
     flex-direction: column;
@@ -74,11 +74,11 @@ body
     margin: 0;
 }
 
-#mainBox  .logo{
-float: left;
-margin:3px 4px 0px 10px;
-width:20px;
-z-index:10000;
+#mainBox .logo {
+    float: left;
+    margin: 3px 4px 0px 10px;
+    width: 20px;
+    z-index: 10000;
 }
 
 #mainBox_vertical .logo {
@@ -87,44 +87,37 @@ z-index:10000;
     z-index: 10000;
 }
 
-#framesDisplay
-{
+#framesDisplay {
     flex: 1 0 auto;
     display: flex;
     flex-direction: row;
 }
 
-#framesDisplay > div
-{
+#framesDisplay > div {
     flex: 1 0 auto;
     align-items: stretch;
-    align-content:stretch;
+    align-content: stretch;
     display: flex;
     flex-direction: column;
     margin: 0;
     padding: 0;
 }
 
-#framesDisplay > div > iframe
-{
+#framesDisplay > div > iframe {
     flex: 1 0 auto;
-    border: 0px solid black;
-    width: 100%
+    width: 100%;
 }
 
-.tabControls
-{
+.tabControls {
     margin: 0px;
     padding: 0px;
     padding-top: 4px;
     display: flex;
     flex-direction: row;
-    background: #f4f4f4;
     overflow: auto;
 }
 
-.tabSpan
-{
+.tabSpan {
     font-size: 0.9em;
     margin: 0px;
     padding: 8px 8px;
@@ -137,30 +130,20 @@ z-index:10000;
     white-space: nowrap;
     overflow: visible;
 }
+
 .tabSpan:last-child {
     /*border-right: 1pt solid #1976d2;*/
 }
 
-.tabSpan .fa {
-    color: #888888;
-}
-
-.tabSpan:hover
-{
-    /*color: red;*/
-}
-.tabHidden
-{
-    color: #888888;
-}
 .tabNotchosen {
     background: transparent;
     border-top: 3pt solid transparent;
     border-left: none;
     border-right: none;
     border-bottom: 1pt solid #1976d2;
-    display:block;
+    display: block;
 }
+
 .tabNotchosen:hover {
     background: #e9e9e9;
 }
@@ -171,11 +154,10 @@ z-index:10000;
     border-left: none;
     border-right: none;
     border-bottom: 1pt solid #1976d2;
-    display:block;
+    display: block;
 }
 
-#attendantData
-{
+#attendantData {
     background-color: #f4f4f4;
 }
 
@@ -183,14 +165,12 @@ z-index:10000;
     color: #333 !important;
 }
 
-.patientInfo .patientPicture
-{
+.patientInfo .patientPicture {
     margin-top: -1px;
     margin-right: 7px;
 }
 
-.patientInfo .patientPicture img
-{
+.patientInfo .patientPicture img {
     height: 75px;
 }
 
@@ -198,38 +178,26 @@ z-index:10000;
     display: inline;
 }
 
-.patientCurrentEncounter a {
-    color: #333 !important;
-}
-
-.patientDataColumn
-{
+.patientDataColumn {
     width: 33%;
     float: left;
     display: block;
 }
 
-.messagesColumn
-{
+.messagesColumn {
     float: right;
     padding-right: 20px;
 }
 
-.patientEncountersColumn
-{
-}
-
-.patientEncounterList
-{
-    position:fixed;
+.patientEncounterList {
+    position: fixed;
     overflow: hidden;
     border: 1px solid black;
-    background: white;
     cursor: pointer;
-    z-index:1;
+    z-index: 1;
 }
 
-.patientEncounterList  table.encounters {
+.patientEncounterList table.encounters {
     display: none;
 }
 
@@ -240,102 +208,85 @@ z-index:10000;
 .patientEncounterList > div {
     padding: 2px;
 }
-.patientEncounterList:hover
-{
+
+.patientEncounterList:hover {
     overflow: visible;
     height: auto;
-    z-index:4;
+    z-index: 4;
 }
 
-
-.patientEncounterList > div:hover
-{
-    color: red;
-}
-
-.patientEncounterList table.encounters td:hover
-{
-    color:red;
-}
-
-.patientEncounterList .review
-{
+.patientEncounterList .review {
     padding: 2px;
-    border: 1px solid black;
-    background-color: lightgray;
     border-radius: 5px;
 }
 
-#userData
-{
+#userData {
     position: relative;
     float: right;
 }
-.patientInfo
-{
+
+.patientInfo {
     padding: 1px 1px 1px 10px;
 }
 
-.patientInfo .clear:hover i {
-    color: #ff5d5a;
-}
-
 .top {
-    vertical-align:top;
+    vertical-align: top;
 }
 
-.appMenu > span
-{
+.appMenu > span {
     float: left;
     padding: 0;
     white-space: nowrap;
 }
+
 .appMenu_small > span {
     padding: 0;
     white-space: nowrap;
 }
 
-.appMenu
-.appMenu > span:hover
-{
+.appMenu .appMenu > span:hover {
     color: #fff;
     text-decoration: none;
     background-color: #1C5ECF;
     text-shadow: none;
 }
+
 .appMenu ul,
-.appMenu_small ul
-{
-    list-style:none;
-    margin:0;
+.appMenu_small ul {
+    list-style: none;
+    margin: 0;
     padding: 1px 5px 2px 1px;
 }
 
-.appMenu li:hover > .menuDisabled
- {
+.appMenu li:hover > .menuDisabled {
     background-color: transparent;
 }
+
 .appMenu_small .menuLabel {
     padding: 10px 10px;
 }
-.appMenu  .oe-show {
+
+.appMenu .oe-show {
     display: none;
 }
+
 .appMenu_small .oe-show {
     display: block;
 }
-.menuSection{
+
+.menuSection {
     position: relative;
 }
+
 .menuSection:hover {
     background-color: #CCE3F8;
 }
-.menuSection > .menuEntries{
-    background:#fff;
+
+.menuSection > .menuEntries {
     display: none;
     position: absolute;
     top: 40px;
-    z-index:1000;
+    z-index: 1000;
     min-width: 175px;
     box-shadow: 0px 5px 5px #adadad;
     padding: 0px;
@@ -348,21 +299,22 @@ z-index:10000;
     top: -3px;
     left: 161px;
 }
-.menuSection:hover > .menuEntries{
+
+.menuSection:hover > .menuEntries {
     display: block;
 }
 
 /* Need separate styling for top level vs submenu items
  * This currently controls ALL links in menu, no bueno
  * --Robert Down */
-.menuLabel
-{
+.menuLabel {
     color: #333;
     padding: 15px 10px;
     font-weight: 700;
     transition: background-color 0.1s ease;
     width: 100%;
 }
+
 .menuLabel:hover {
     background: #CCE3F8;
     color: #333;
@@ -379,6 +331,7 @@ div.menuLabel:hover {
     padding: 10px 20px;
     float: none;
 }
+
 .menuEntries li .menuLabel:hover {
     background-color: #CCE3F8;
     color: #333;
@@ -388,24 +341,23 @@ div.menuLabel:hover {
     padding: 10px 0px;
 }
 
-.menuDisabled
-{
+.menuDisabled {
     color: #d7d7d7 !important;
 }
+
 .menuDisabled:hover {
     color: #d7d7d7 !important;
     background-color: #f4f4f4 !important;
     cursor: not-allowed;
 }
 
-#username
-{
+#username {
     cursor: pointer;
 }
-.userSection
-{
+
+.userSection {
     min-width: 200px;
-    right:10px;
+    right: 10px;
 }
 
 /* Main menu bar */
@@ -416,66 +368,69 @@ div.menuLabel:hover {
     margin: 0px;
     z-index: 10;
 }
+
 .body_title {
     color: black;
     background-color: #f4f4f4;
-    padding:10px 0px 0px 0px;
-}
-#username:hover > .userfunctions
-{
-    display: block;
-    width:98%;
+    padding: 10px 0px 0px 0px;
 }
 
-#username > .userfunctions > div:hover
-{
+#username:hover > .userfunctions {
+    display: block;
+    width: 98%;
+}
+
+#username > .userfunctions > div:hover {
     color: red;
 }
 
-.acck {}
-
 .menu_arrow {
-    bottom:0px;
-    margin:     7px 7px 2px 7px;
+    bottom: 0px;
+    margin: 7px 7px 2px 7px;
 }
+
 .topToolbarRight {
-    border-top:0pt;
+    border-top: 0pt;
 }
 
 .closeButton {
-    display:inline-block;
-    float:right;
-    position:relative;
-    top:6px;
-    right:5px;
+    display: inline-block;
+    float: right;
+    position: relative;
+    top: 6px;
+    right: 5px;
 }
 
 .float-element {
     float: left;
 }
 
-#logout_icon{
-    margin:12px 5px 0 10px;
+#logout_icon {
+    margin: 12px 5px 0 10px;
     cursor: pointer;
 }
+
 #menu_icon {
     margin: 12px 25px;
     cursor: pointer;
 }
+
 #patient_caret {
     font-size: 2em;
     margin-top: -5px;
 }
+
 @media (max-width: 768px) {
     .mainFrames {
         margin: 0;
         padding-left: 1px;
     }
+
     #tabs_div > div :first-child {
         width: 25px !important;
     }
-    #framesDisplay > div
-    {
+
+    #framesDisplay > div {
         height: 100vh;
         width: 100%;
     }

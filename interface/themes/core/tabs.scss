@@ -7,81 +7,143 @@ ul.tabNav {
     list-style: none;
     width: 100%;
 }
+
 ul.tabNav li {
     float: $left;
     vertical-align: bottom;
     text-align: $left;
 }
+
 ul.tabNav a {
     display: block;
 }
+
 div.tabContainer {
     clear: both;
     float: $left;
     width: 100%;
 }
+
 div.tabContainer div.tab {
-    border: 1px solid #ffffff;
-    color: #000;
+    border: 1px solid $white;
+    color: $black;
     display: none;
     padding: 10px;
 }
+
 div.tabContainer div.current {
     display: block;
 }
 
 div.tab {
     min-height: 180px;
-    background: #ffffff none repeat scroll 0 0;
+    background: $white none repeat scroll 0 0;
     margin-bottom: 10px;
     width: 665px;
 }
+
 div.tab_long {
     min-height: 180px;
-    background: #ffffff none repeat scroll 0 0;
+    background: $white none repeat scroll 0 0;
     margin-bottom: 10px;
     width: 100%;
 }
+
 div.tab p:last-child {
     margin-bottom: 0;
 }
+
 div.tab table td {
     padding-right: 1px;
     padding-bottom: 0px;
 }
+
 div.tab table td.label_custom {
     min-width: 80px;
 }
+
 div.tab table td.data {
     min-width: 120px;
 }
+
 div.notab {
-    background: #FFFFFF none repeat scroll 0 0;
+    background: $white none repeat scroll 0 0;
     margin-bottom: 10px;
     width: 100%;
 }
+
 div.notab-right {
-    background: #FFFFFF none repeat scroll 0 0;
+    background: $white none repeat scroll 0 0;
     margin-bottom: 10px;
     width: 100%;
 }
+
 .section-header {
     margin-bottom: 5px;
     width: 685px;
     border-bottom: 1px solid;
 }
+
 .section-header-dynamic {
     margin-bottom: 5px;
     border-bottom: 1px solid;
 }
+
 .summary_item {
-    background: #FFFFFF;
+    background: $white;
     padding: 8px;
 }
 
+
+/* Temporary Stuff until we can find a replacement for tabs_style_full and compact with SASS */
+#framesDisplay > div > iframe {
+    border: 0px solid $black;
+}
+
+.tabControls {
+    /* On full but not compact but it should be in both */
+    background: $light;
+}
+
+.tabSpan .fa {
+    color: #888888;
+}
+
+.tabHidden {
+    color: $gray-700;
+}
+
+.patientEncounterList {
+    background: $white;
+}
+
+.patientEncounterList .review {
+    border: 1px solid $black;
+    background-color: lightgray;
+}
+
+.patientEncounterList > div:hover {
+    color: $danger;
+}
+
+.patientEncounterList table.encounters td:hover {
+    color: $danger;
+}
+
+.patientInfo .clear:hover i {
+    color: $danger;
+}
+
+.patientCurrentEncounter a {
+    color: $gray-700 !important;
+}
+
+.menuSection > .menuEntries {
+    background: $white;
+}
+
 @include if-rtl {
-    #sddm li a
-    {
+    #sddm li a {
         padding: 4px 10px;
     }
 }

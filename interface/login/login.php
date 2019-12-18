@@ -93,8 +93,6 @@ if (count($emr_app)) {
 
     <title><?php echo text($openemr_name) . " " . xlt('Login'); ?></title>
 
-    <link rel="stylesheet" href="../themes/login.css?v=<?php echo $v_js_includes; ?>" type="text/css">
-
     <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
     <script type="text/javascript">
@@ -109,13 +107,11 @@ if (count($emr_app)) {
             'registeredId' => xla('Registered id'),
             'genericError' => xla('Error. Try again later'),
             'closeTooltip' => ''
-        ));
-                                    ?>;
+        )); ?>;
 
         var registrationConstants = <?php echo json_encode(array(
             'webroot' => $GLOBALS['webroot']
-        ))
-                                    ?>;
+        )); ?>;
     </script>
 
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_service.js?v=<?php echo $v_js_includes; ?>"></script>

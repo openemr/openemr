@@ -9,6 +9,10 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+/*
+*   TODO: Fix when done with Bootstrap 4 update
+*/
+
 // need to skip auth to allow use of this script from the login script
 // this script is safe to ignore auth (takes no user input)
 $ignoreAuth=true;

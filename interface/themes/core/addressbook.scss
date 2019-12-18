@@ -5,29 +5,38 @@
         padding-left: 4px;
         padding-right: 4px;
     }
-    a, a:visited, a:hover {
+
+    a,
+    a:visited,
+    a:hover {
         color: #0000cc;
     }
+
     tr.search {
         font-weight: bold;
     }
+
     tr.head {
         background-color: #cccccc;
         font-weight: bold;
     }
+
     tr.evenrow {
         background-color: #ddddff;
     }
+
     tr.oddrow {
-        background-color: #ffffff;
+        background-color: $white;
     }
+
     .inputtext {
         font-weight: normal;
         border-style: solid;
         border-width: 1px;
-        border-color: #000000;
+        border-color: $black;
         background-color: transparent;
     }
+
     .button {
         font-size: 0.8em;
         font-weight: bold;

@@ -12,8 +12,9 @@ div.closeDlgIframe {
     cursor: pointer;
     z-index: 10010;
 }
+
 div.closeDlgIframe:before {
-    color: #fff;
+    color: $white;
     content: "\f00d";
     font-family: "FontAwesome";
     font-weight: bold;
@@ -24,8 +25,11 @@ div.closeDlgIframe:before {
     line-height: 25px;
     height: 25px;
 }
+
 /* important for drag and resizing */
-.drag-action, .resize-action, .drag-resize {
+.drag-action,
+.resize-action,
+.drag-resize {
     touch-action: none;
     user-select: none;
 }
