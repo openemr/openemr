@@ -11,17 +11,27 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 ?>
-<p class="row">
-    <span class="left_col colhead req" data-fld="fld_sex"><?php echo xlt('Sex');?></span>
-    <span class="end_col">
-    <?php echo render_select(array( "target"   =>  "fld_sex",
-                                     "name"     =>  "fld_sex",
-                                     "value"    =>  $criteria->value,
-                                     "options"  =>  $criteria->getOptions() )); ?>
-    </span>
-</p>
 
-<br/>
 
-<!-- optional/required and inclusion/exclusion fields -->
-<?php echo common_fields(array( "criteria" => $criteria)); ?>
+<div class="row">
+    <div class="col-12">
+        <span class="title2"><?php echo xlt('Gender Identity'); ?></span>
+    </div>
+
+    <div class="col-11 offfset-1">
+        <table class="table table-sm table-condensed table-hover">
+            <!-- category -->
+            <tr>
+                <td class="text-right"data-fld="fld_value">
+                    <?php echo render_select(array( "target"   =>  "fld_sex",
+                        "name"     =>  "fld_sex",
+                        "value"    =>  $criteria->value,
+                        "options"  =>  $criteria->getOptions() )); ?>
+                </td>
+            </tr>
+            <!-- optional/required and inclusion/exclusion fields -->
+            <?php echo common_fields(array( "criteria" => $criteria)); ?>
+        </table>
+
+    </div>
+</div>

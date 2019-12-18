@@ -39,18 +39,19 @@ class CdrAlertManager
     function populate()
     {
         $cdra = array();
-            
+        
+        //since this query has configurableOnly = true, we are not showing amc or cqm
+        // therefore we can offer a Delete button in the Manager
         $rules = resolve_rules_sql('', 0, true);
                 
         foreach ($rules as $rowRule) {
             $rule_id = $rowRule['id'];
-            $cdra[] = new CdrResults($rule_id, $rowRule['active_alert_flag'], $rowRule['passive_alert_flag'], $rowRule['patient_reminder_flag'], $rowRule['access_control']);
+            $cdra[] = new CdrResults($rule_id, $rowRule['active_alert_flag'], $rowRule['passive_alert_flag'], $rowRule['patient_reminder_flag'],$rowRule['provider_alert_flag'], $rowRule['access_control']);
         }
-                
         return $cdra;
     }
-        
-    function update($rule_ids, $active_alert_flags, $passive_alert_flags, $patient_reminder_flags, $access_controls)
+
+    function update($rule_ids, $active_alert_flags, $passive_alert_flags, $patient_reminder_flags, $provider_alert_flags, $access_controls)
     {
             
         for ($index=0; $index < count($rule_ids); $index++) {
@@ -58,8 +59,9 @@ class CdrAlertManager
             $active_alert_flag = $active_alert_flags[$index];
             $passive_alert_flag = $passive_alert_flags[$index];
             $patient_reminder_flag = $patient_reminder_flags[$index];
-                  $access_control = $access_controls[$index];
-            $cdra = new CdrResults($rule_id, $active_alert_flag, $passive_alert_flag, $patient_reminder_flag, $access_control);
+            $provider_alert_flag =  $provider_alert_flags[$index];
+            $access_control = $access_controls[$index];
+            $cdra = new CdrResults($rule_id, $active_alert_flag, $passive_alert_flag, $patient_reminder_flag,  $provider_alert_flag, $access_control);
             $cdra->update_table();
         }
     }

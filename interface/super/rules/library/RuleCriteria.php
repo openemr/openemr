@@ -51,9 +51,9 @@ abstract class RuleCriteria
 
     function getCharacteristics()
     {
-        $characteristics = $this->optional ? xl("Optional") : xl("Required");
+        $characteristics = $this->optional ? xl("may") : xl("must");
         $characteristics .= " ";
-        $characteristics .= $this->inclusion ? xl("Inclusion") : xl("Exclusion");
+        $characteristics .= $this->inclusion ? xl("include these patients") : xl("exclude these patients");
 
         return $characteristics;
     }

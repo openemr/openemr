@@ -4,6 +4,8 @@
 var bucket = function( args ) {
 
     var fn_work = function() {
+        //$('#change_category').trigger('click');
+        //$('#change_item').trigger("click");
     }
 
     var fn_handle_change = function() {
@@ -21,12 +23,19 @@ var bucket = function( args ) {
     var fn_prep_options = function( select, listType, hidden, showMe ) {
         select.append( "<option value=''></option>");
         top.restoreSession();
+        var current = $("#"+hidden).val();
+        var selected = '';
         $.getJSON('index.php?action=edit!' + listType,
             function(data) {
                 $.each( data, function(i, item) {
-                    select.append( "<option value='" + item.code + "'>" + item.lbl + "</option>");
+                    if (item.code == current) {
+                        selected="selected='selected'";
+                    } else {
+                        selected='';
+                    }
+                    select.append( "<option value='" + item.code + "' "+ selected +">" + item.lbl + "</option>");
                 });
-                select.val('');
+                //select.val('');
             }
         );
         select.attr("data-hidden", hidden );
@@ -37,19 +46,21 @@ var bucket = function( args ) {
     }
 
     var fn_wire_events = function() {
-        $('#change_category').on("click", function() {
-            $("#fld_category_lbl").hide();
-            var select = $("<select></select>");
-            $("#fld_category_lbl").parent().append( select );
-            fn_prep_options( select, 'categories', 'fld_category', $(this) );
+        $("[id^='change_category_']").on("click", function() {
+            var type = this.id.match(/change_category_(.*)/)[1];
+            $("#fld_category_lbl_"+type).hide();
+            var select = $("<select class='form-control tight'></select>");
+            $("#fld_category_lbl_"+type).parent().append( select );
+            fn_prep_options( select, 'categories', 'fld_category_'+type, $(this) );
             $(this).hide();
         });
-
-        $('#change_item').on("click", function() {
-            $("#fld_item_lbl").hide();
-            var select = $("<select></select>");
-            $("#fld_item_lbl").parent().append( select );
-            fn_prep_options( select, 'items', 'fld_item', $(this));
+        
+        $("[id^='change_item_']").on("click", function() {
+            var type = this.id.match(/change_item_(.*)/)[1];
+            $("#fld_item_lbl_"+type).hide();
+            var select = $("<select class='form-control tight'></select>");
+            $("#fld_item_lbl_"+type).parent().append( select );
+            fn_prep_options( select, 'items', 'fld_item_'+type, $(this));
             $(this).hide();
         });
     }

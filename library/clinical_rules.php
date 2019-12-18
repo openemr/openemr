@@ -67,11 +67,14 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 
   // Collect active actions
     $actions = test_rules_clinic('', 'passive_alert', $dateTarget, $mode, $patient_id, '', $organize_mode, array(), 'primary', null, null, $user);
-
+    
   // Display the actions
     $current_targets = array();
     foreach ($actions as $action) {
         // Deal with plan names first
+        $tooltip='';
+        $tooltip2='';
+        $tooltip_start='';
         if (isset($action['is_plan']) && $action['is_plan']) {
             echo "<br><b>";
             echo xlt("Plan") . ": ";
@@ -84,53 +87,70 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
         $tooltip = '';
         if (!empty($action['rule_id'])) {
             $rule_title = getListItemTitle("clinical_rules", $action['rule_id']);
-            $ruleData = sqlQuery("SELECT `developer`, `funding_source`, `release_version`, `web_reference` " .
+            $ruleData = sqlQuery("SELECT `developer`, `funding_source`, `release_version`, `web_reference`, `public_description` " .
                            "FROM `clinical_rules` " .
                            "WHERE  `id`=? AND `pid`=0", array($action['rule_id']));
             $developer = $ruleData['developer'];
             $funding_source = $ruleData['funding_source'];
             $release = $ruleData['release_version'];
             $web_reference = $ruleData['web_reference'];
+            $public_description = $ruleData['public_description'];
+            $tooltip_start ="<span data-toggle='popover'
+                                      data-title='".attr($rule_title)."'
+                                      data-html='true'
+                                      data-trigger='hover'
+                                      data-placement='auto'
+                                      data-content='";
+    
             if (!empty($rule_title)) {
-                  $tooltip = xla('Rule Title') . ": " . attr($rule_title) . "&#013;";
+                //$tooltip .= xla('Rule Title') . ": " . attr($rule_title) . "<br />";
             }
-
+            if (!empty($public_description)) {
+                $tooltip .= "<i>". attr($public_description) . "</i><br /><br />";
+            }
+    
             if (!empty($developer)) {
-                  $tooltip .= xla('Rule Developer') . ": " . attr($developer) . "&#013;";
+                  $tooltip .= xla('Rule Developer') . ": " . attr($developer) . "<br />";
             }
 
             if (!empty($funding_source)) {
-                  $tooltip .= xla('Rule Funding Source') . ": " . attr($funding_source) . "&#013;";
+                  $tooltip .= xla('Rule Funding Source') . ": " . attr($funding_source) . "<br />";
             }
 
             if (!empty($release)) {
-                  $tooltip .= xla('Rule Release') . ": " . attr($release);
+                  $tooltip .= xla('Rule Release') . ": " . attr($release)."<br />";
             }
 
             if ((!empty($tooltip)) || (!empty($web_reference))) {
                 if (!empty($web_reference)) {
-                    $tooltip = "<a href='".attr($web_reference)."' rel='noopener' target='_blank' style='white-space: pre-line;' title='".$tooltip."'>?</a>";
+                    $tooltip .= xla('This link') . ": ". attr($web_reference) ."<br />";
+                    $tooltip2 = "<a href='".attr($web_reference)."' rel='noopener' target='_blank'><i class='fa fa-link'></i></a></span><br />";
                 } else {
-                    $tooltip = "<span style='white-space: pre-line;' title='".$tooltip."'>?</span>";
+                    $tooltip2 = "<span class='btn btn-sm' style='white-space: pre-line;' title='".$tooltip."'><i class='fa fa-question'></i></span><br />";
                 }
             }
         }
-
+?>
+ <?php
+        //if (!empty($tooltip)) {
+            echo $tooltip_start.$tooltip . "'>";
+        //}
+ 
         if ($action['custom_flag']) {
             // Start link for reminders that use the custom rules input screen
             $url = "../rules/patient_data.php?category=" . attr_url($action['category']);
             $url .= "&item=" . attr_url($action['item']);
             echo "<a href='" . $url . "' class='medium_modal' onclick='return top.restoreSession()'>";
         } else if ($action['clin_rem_link']) {
-            // Start link for reminders that use the custom rules input screen
+            // Start link for reminders that have a link in their summary
             $pieces_url = parse_url($action['clin_rem_link']);
             $url_prefix = $pieces_url['scheme'];
             if ($url_prefix == 'https' || $url_prefix == 'http') {
                 echo "<a href='" . $action['clin_rem_link'] .
-                "' class='medium_modal' onclick='return top.restoreSession()'>";
+                "' target='_blank' onclick='return top.restoreSession()'>";
             } else {
                 echo "<a href='../../../" . $action['clin_rem_link'] .
-                "' class='medium_modal' onclick='return top.restoreSession()'>";
+                "' target='_blank' onclick='return top.restoreSession()'>";
             }
         } else {
             // continue since no link is needed
@@ -144,9 +164,19 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             // End link for reminders that use an html link
             echo "</a>";
         }
-
+        echo "</span>";
         // Display due status
         if ($action['due_status']) {
+            $dated = new DateTime($dateTarget);
+            $dated = $dated->format('Y-m-d');
+            $target_date = oeFormatShortDate($dated);
+    
+            echo "<span data-toggle='popover'
+                                      title='When is this due?'
+                                      data-html='true'
+                                      data-trigger='hover'
+                                      data-placement='auto'
+                                      data-content='The Due Date is ".$target_date."'>";
             // Color code the status (red for past due, purple for due, green for not due and black for soon due)
             if ($action['due_status'] == "past_due") {
                 echo "&nbsp;&nbsp;(<span style='color:red'>";
@@ -159,15 +189,11 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             }
 
             echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $action['due_status']) . "</span>)";
+        echo "</span><br />";
         }
 
         // Display the tooltip
-        if (!empty($tooltip)) {
-            echo "&nbsp;".$tooltip."<br>";
-        } else {
-            echo "<br>";
-        }
-
+       
         // Add the target(and rule id and room for future elements as needed) to the $current_targets array.
         // Only when $mode is reminders-due
         if ($mode == "reminders-due" && $GLOBALS['enable_alert_log']) {
@@ -175,11 +201,21 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             $current_targets[$target_temp] =  array('rule_id'=>$action['rule_id'],'due_status'=>$action['due_status']);
         }
     }
+    
+    ?>      <script>
+    $(function() {
+        $('[data-toggle="popover"]').popover({
+                                                 boundary:'window',
+                                                 html: true
+                                             });
+    });
+</script>
+    <?php
 
   // Compare the current with most recent action log (this function will also log the current actions)
   // Only when $mode is reminders-due
     if ($mode == "reminders-due" && $GLOBALS['enable_alert_log']) {
-        $new_targets = compare_log_alerts($patient_id, $current_targets, 'clinical_reminder_widget', $_SESSION['authUserID']);
+        $new_targets = compare_log_alerts($patient_id, $current_targets, 'clinical_reminder_widget', $_SESSION['authId']);
         if (!empty($new_targets) && $GLOBALS['enable_cdr_new_crp']) {
             // If there are new action(s), then throw a popup (if the enable_cdr_new_crp global is turned on)
             //  Note I am taking advantage of a slight hack in order to run javascript within code that
@@ -240,7 +276,7 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
         // Display Reminder Details
         $returnOutput .= generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $action['category']) .
         ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $action['item']);
-
+        
         // Display due status
         if ($action['due_status']) {
             // Color code the status (red for past due, purple for due, green for not due and black for soon due)
@@ -270,7 +306,7 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
   // Compare the current with most recent action log (this function will also log the current actions)
   // Only when $mode is reminders-due and $test is FALSE
     if (($mode == "reminders-due") && ($test === false) && ($GLOBALS['enable_alert_log'])) {
-        $new_targets = compare_log_alerts($patient_id, $current_targets, 'active_reminder_popup', $_SESSION['authUserID']);
+        $new_targets = compare_log_alerts($patient_id, $current_targets, 'active_reminder_popup', $_SESSION['authId']);
         if (!empty($new_targets)) {
             $returnOutput .="<br>" . xlt('New Items (see above for details)') . ":<br>";
             foreach ($new_targets as $key => $value) {
@@ -349,7 +385,7 @@ function allergy_conflict($patient_id, $mode, $user, $test = false)
   // If there are conflicts, $test is FALSE, and alert logging is on, then run through compare_log_alerts
     $new_conflicts = array();
     if ((!empty($conflicts_unique)) && $GLOBALS['enable_alert_log'] && ($test===false)) {
-        $new_conflicts = compare_log_alerts($patient_id, $conflicts_unique, 'allergy_alert', $_SESSION['authUserID'], $mode);
+        $new_conflicts = compare_log_alerts($patient_id, $conflicts_unique, 'allergy_alert', $_SESSION['authId'], $mode);
     }
 
     if ($mode == 'all') {
@@ -382,7 +418,7 @@ function compare_log_alerts($patient_id, $current_targets, $category = 'clinical
 {
 
     if (empty($userid)) {
-        $userid = $_SESSION['authUserID'];
+        $userid = $_SESSION['authId'];
     }
 
     if (empty($current_targets)) {
@@ -508,7 +544,7 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
   // Set ability to itemize report if this feature is turned on
     if (( ($type == "active_alert" || $type == "passive_alert")          && ($GLOBALS['report_itemizing_standard']) ) ||
        ( ($type == "cqm" || $type == "cqm_2011" || $type == "cqm_2014") && ($GLOBALS['report_itemizing_cqm'])      ) ||
-       ( ($type == "amc" || $type == "amc_2011" || $type == "amc_2014" || $type == "amc_2014_stage1" || $type == "amc_2014_stage2") && ($GLOBALS['report_itemizing_amc'])      )) {
+       ( ($type == "amc" || $type == "amc_2011" || $type == "amc_2014" || $type == "amc_2014_stage1" || $type == "amc_2014_stage2") && ($GLOBALS['report_itemizing_amc'])      ) ) {
         $GLOBALS['report_itemizing_temp_flag_and_id'] = $report_id;
     } else {
         $GLOBALS['report_itemizing_temp_flag_and_id'] = 0;
@@ -571,8 +607,9 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
  *   'plans' organize_mode:
  *     Returns similar to default, but organizes by the active plans
  * </pre>
+ *   $actions = test_rules_clinic('', 'passive_alert', $dateTarget, $mode, $patient_id, '', $organize_mode, array(), 'primary', null, null, $user);
  *
- * @param  integer      $provider      id of a selected provider. If blank, then will test entire clinic. If 'collate_outer' or 'collate_inner', then will test each provider in entire clinic; outer will nest plans  inside collated providers, while inner will nest the providers inside the plans (note inner and outer are only different if organize_mode is set to plans).
+ * @param  integer      $provider      id of a selected provider. If blank, then will test entire clinic. If 'collate_outer' or 'collate_inner', then will test each provider in entire clinic; outer will nest plans inside collated providers, while inner will nest the providers inside the plans (note inner and outer are only different if organize_mode is set to plans).
  * @param  string       $type          rule filter (active_alert,passive_alert,cqm,cqm_2011,cqm_2104,amc,amc_2011,amc_2014,patient_reminder). If blank then will test all rules.
  * @param  string/array $dateTarget    target date (format Y-m-d H:i:s). If blank then will test with current date as target. If an array, then is holding two dates ('dateBegin' and 'dateTarget').
  * @param  string       $mode          choose either 'report' or 'reminders-all' or 'reminders-due' (required)
@@ -583,7 +620,7 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
  * @param  string       $pat_prov_rel  How to choose patients that are related to a chosen provider. 'primary' selects patients that the provider is set as primary provider. 'encounter' selectes patients that the provider has seen. This parameter is only applicable if the $provider parameter is set to a provider or collation setting.
  * @param  integer      $start         applicable patient to start at (when batching process)
  * @param  integer      $batchSize     number of patients to batch (when batching process)
- * @param  string       $user          If a user is set, then will only show rules that user has permission to see(only applicable for per patient and not when do reports).
+ * @param  string       $user          If a user is set, then will only show rules that user has permission to see(only applicable for per patient and not when doing reports).
  * @return array                       See above for organization structure of the results.
  */
 function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = array(), $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
@@ -693,15 +730,14 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
   //  So for cases such as patient reminders on a clinic scale, the calling function
   //  will actually need rather than pass in a explicit patient_id for each patient in
   //  a separate call to this function.
-    if ($mode != "report") {
-        // Use per patient custom rules (if exist)
+    if ($mode != "report") {//these look the same to me.  is mode used as a global?
+        // Use per patient custom rules (if exist -- see Dashboard::Edit CR::Admin tab)
         // Note as discussed above, this only works for single patient instances.
         $rules = resolve_rules_sql($type, $patient_id, false, $plan, $user);
     } else { // $mode = "report"
         // Only use default rules (do not use patient custom rules)
         $rules = resolve_rules_sql($type, $patient_id, false, $plan, $user);
     }
-
     foreach ($rules as $rowRule) {
         // If using cqm or amc type, then use the hard-coded rules set.
         // Note these rules are only used in report mode.
@@ -726,23 +762,26 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
             continue;
         }
 
-        // If in reminder mode then need to collect the measurement dates
+        // If in reminder mode then we need to collect the measurement dates
         //  from rule_reminder table
         $target_dates = array();
         if ($mode != "report") {
             // Calculate the dates to check for
             if ($type == "patient_reminder") {
                 $reminder_interval_type = "patient_reminder";
-            } else { // $type == "passive_alert" or $type == "active_alert"
-                $reminder_interval_type = "clinical_reminder";
+            } elseif ($type == "provider_alert"){
+                $reminder_interval_type = "provider_alert";//$type == "provider_alert"
+            } else {
+                $reminder_interval_type = "clinical_reminder";// $type == "passive_alert" or $type == "active_alert"
             }
 
             $target_dates = calculate_reminder_dates($rowRule['id'], $dateTarget, $reminder_interval_type);
+            //0= due soon, 1= due date, 2= over due.
         } else { // $mode == "report"
             // Only use the target date in the report
             $target_dates[0] = $dateTarget;
         }
-
+        
         //Reset the counters
         $total_patients = 0;
         $pass_filter = 0;
@@ -751,7 +790,6 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
 
         // Find the number of target groups
         $targetGroups = returnTargetGroups($rowRule['id']);
-
         if ((count($targetGroups) == 1) || ($mode == "report")) {
             // If report itemization is turned on, then iterate the rule id iterator
             if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
@@ -777,14 +815,14 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                 if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
                     $temp_track_pass = 1;
                 }
-
+                
                 foreach ($target_dates as $dateFocus) {
                     //Skip if date is set to SKIP
                     if ($dateFocus == "SKIP") {
                         $dateCounter++;
                         continue;
                     }
-
+                    
                     //Set date counter and reminder token (applicable for reminders only)
                     if ($dateCounter == 1) {
                         $reminder_due = "soon_due";
@@ -793,7 +831,6 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                     } else { // $dateCounter == 3
                         $reminder_due = "past_due";
                     }
-
                     // Check if pass filter
                     $passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateFocus);
                     if ($passFilter === "EXCLUDED") {
@@ -803,7 +840,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         $exclude_filter++;
                         $passFilter = false;
                     }
-
+                    
                     if ($passFilter) {
                         // increment pass filter counter
                         $pass_filter++;
@@ -815,9 +852,9 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         $dateCounter++;
                         continue;
                     }
-
                     // Check if pass target
                     $passTarget = test_targets($rowPatient['pid'], $rowRule['id'], '', $dateFocus);
+                    
                     if ($passTarget) {
                         // increment pass target counter
                         $pass_target++;
@@ -853,9 +890,9 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                                 $action_plus['rule_id'] = $rowRule['id'];
                                 $results = reminder_results_integrate($results, $action_plus);
                             }
+                            break;//this stupid line was missing.
                         }
                     }
-
                     $dateCounter++;
                 }
 
@@ -2130,7 +2167,7 @@ function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget)
 
     if ($history[$lifestyle] &&
        $history[$lifestyle] != '|0|' &&
-       $stringFlag) {
+       $stringFlag ) {
         return true;
     } else {
         return false;
@@ -2446,22 +2483,23 @@ function calculate_reminder_dates($rule, $dateTarget = '', $type)
             $dateTarget = "SKIP";
         }
     }
-
-  // Collect the past_due date
+    
+    // Collect the past_due date
     $past_due_date = "";
     $res = resolve_reminder_sql($rule, $type.'_post');
+    
     if (!empty($res)) {
         $row = $res[0];
         if ($row ['method_detail'] == "week") {
-            $past_due_date = date("Y-m-d H:i:s", strtotime($dateTarget . " -" . $row ['value'] . " week"));
+            $past_due_date = date("Y-m-d H:i:s", strtotime($dateTarget . " +" . $row ['value'] . " week"));
         }
 
         if ($row ['method_detail'] == "month") {
-            $past_due_date = date("Y-m-d H:i:s", strtotime($dateTarget . " -" . $row ['value'] . " month"));
+            $past_due_date = date("Y-m-d H:i:s", strtotime($dateTarget . " +" . $row ['value'] . " month"));
         }
 
         if ($row ['method_detail'] == "hour") {
-            $past_due_date = date("Y-m-d H:i:s", strtotime($dateTarget . " -" . $row ['value'] . " hour"));
+            $past_due_date = date("Y-m-d H:i:s", strtotime($dateTarget . " +" . $row ['value'] . " hour"));
         }
 
         if ($row ['method_detail'] == "SKIP") {
@@ -2478,11 +2516,11 @@ function calculate_reminder_dates($rule, $dateTarget = '', $type)
     if (!empty($res)) {
         $row = $res[0];
         if ($row ['method_detail'] == "week") {
-            $soon_due_date = date("Y-m-d H:i:s", strtotime($dateTarget . " +" . $row ['value'] . " week"));
+            $soon_due_date = date("Y-m-d H:i:s", strtotime($dateTarget . " -" . $row ['value'] . " week"));
         }
 
         if ($row ['method_detail'] == "month") {
-            $soon_due_date = date("Y-m-d H:i:s", strtotime($dateTarget . " +" . $row ['value'] . " month"));
+            $soon_due_date = date("Y-m-d H:i:s", strtotime($dateTarget . " -" . $row ['value'] . " month"));
         }
 
         if ($row ['method_detail'] == "hour") {
@@ -2494,7 +2532,7 @@ function calculate_reminder_dates($rule, $dateTarget = '', $type)
         }
     } else {
         // empty settings, so use default of one month
-        $soon_due_date = date("Y-m-d H:i:s", strtotime($dateTarget . " +2 week"));
+        $soon_due_date = date("Y-m-d H:i:s", strtotime($dateTarget . " -2 week"));
     }
 
   // Return the array of three dates

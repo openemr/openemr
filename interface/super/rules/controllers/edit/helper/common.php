@@ -25,6 +25,7 @@ General Helpers
     ?>
 <select data-grp-tgt="<?php echo attr($args['target']); ?>"
         type="dropdown"
+        class="form-control"
         name="<?php echo attr($args['name']); ?>"
         id="<?php echo attr($args['id']); ?>">
 
@@ -49,17 +50,24 @@ General Helpers
 <?php function textfield_row($args)
 {
     ?>
-<p class="row">
-    <span class="left_col colhead req" data-field="<?php echo attr($args['name']); ?>"><?php echo text($args['title']); ?></span>
-    <span class="end_col">
+
         <input id="<?php echo $args['id'] ? attr($args['id']) : ""?>"
-               data-grp-tgt="<?php echo attr($args['target']); ?>" class="field <?php echo attr($args['class']); ?>"
+               data-grp-tgt="<?php echo attr($args['target']); ?>"
+               class="<?php echo attr($args['class']); ?>"
+               type="text"
+               name="<?php echo attr($args['name']); ?>">
+
+<?php }
+
+function textfield_simple($args) { ?>
+    <input id="<?php echo $args['id'] ? attr($args['id']) : ""?>"
+               data-grp-tgt="<?php echo attr($args['target']); ?>" class="form-control <?php echo attr($args['class']); ?>"
                type="text"
                name="<?php echo attr($args['name']); ?>"
                value="<?php echo attr($args['value']);?>" />
     </span>
-</p>
-<?php } ?>
+    <?php
+} ?>
 
 <!--
 
@@ -73,39 +81,56 @@ Compound Helpers
 <?php function common_fields($args)
 {
     ?>
-    <?php $criteria = $args['criteria'];  ?>
-    <p class="row">
-        <span class="left_col colhead req" data-field="fld_optional"><?php echo xlt('Optional'); ?></span>
-        <span class="end_col">
+    <?php
+        $criteria = $args['criteria'];
+        $type = $args['type'];
+        ?>
+    <tr>
+        <td class="text-right" rowspan="3">
+            How does this affect the criteria?
+            <br />
+        </td>
+    </tr>
+    <tr>
+        <td class="indent10 tight">
             <input id="fld_optional" type="radio" name="fld_optional" class="field" value="yes"
-                    <?php echo $criteria->optional ? "CHECKED" : ""?>> <?php echo xlt('Yes'); ?>
+                    <?php echo $criteria->optional ? "CHECKED" : ""?>> <?php echo xlt('may be'); ?>
             <input id="fld_optional" type="radio" name="fld_optional" class="field" value="no"
-                    <?php echo !$criteria->optional ? "CHECKED" : ""?>> <?php echo xlt('No'); ?>
-        </span>
-    </p>
+                    <?php echo !$criteria->optional ? "CHECKED" : ""?>> <?php echo xlt('must be'); ?>
+        </td>
+    </tr>
 
-    <p class="row">
-        <span class="left_col colhead req" data-field="fld_inclusion"><?php echo xlt('Inclusion'); ?></span>
-        <span class="end_col">
-            <input id="fld_inclusion" type="radio" name="fld_inclusion" class="field" value="yes"
-                    <?php echo $criteria->inclusion ? "CHECKED" : ""?>> <?php echo xlt('Yes'); ?>
-            <input id="fld_inclusion" type="radio" name="fld_inclusion" class="field" value="no"
-                    <?php echo !$criteria->inclusion ? "CHECKED" : ""?>> <?php echo xlt('No'); ?>
-        </span>
-    </p>
+    <tr>
+        <td class="indent10 tight">
+            <input id="fld_inclusion"
+                   data-field="fld_inclusion"
+                   type="radio"
+                   name="fld_inclusion"
+                   class=""
+                   value="yes"
+                    <?php echo $criteria->inclusion ? "CHECKED" : ""?>> <?php echo xlt('included'); ?>
+            <input id="fld_inclusion"
+                   type="radio"
+                   name="fld_inclusion"
+                   class=""
+                   value="no"
+                    <?php echo !$criteria->inclusion ? "CHECKED" : ""?>> <?php echo xlt('excluded'); ?>
+        </td>
+    </tr>
 
-    <?php if ($criteria->interval && $criteria->intervalType) { ?>
-    <p class="row">
-        <span class="left_col colhead req" data-field="fld_target_interval"><?php echo xlt('Interval'); ?></span>
-        <span class="end_col">
-            <input data-grp-tgt="flt_target_interval" class="field short"
+    <?php if (($type!='interval') && !empty($criteria->intervalType)) { ?>
+    <tr>
+        <td class="text-right">
+        <span class="" data-field="fld_target_interval"><?php echo xlt('How often should this occur for a given patient'); ?>?</span>
+        </td>
+        <td class="tight">
+            <input data-grp-tgt="flt_target_interval" class="tight"
                    type="text"
                    name="fld_target_interval"
                    value="<?php echo xlt($criteria->interval); ?>" />
-
             <?php echo timeunit_select(array( "context"=>"rule_target_intervals", "target"=>"fld_target_interval_", "name" => "fld_target_interval_type", "value" => $criteria->intervalType )); ?>
-        </span>
-    </p>
+        </td>
+    </tr>
     <?php } ?>
 <?php } ?>
 
@@ -122,7 +147,7 @@ Compound Helpers
         $args['value']->code,
         $args['name'],
         '',
-        '',
+        'small',
         '',
         $args['id'],
         array( "data-grp-tgt" => $args['target'] )

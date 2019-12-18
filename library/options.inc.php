@@ -2038,8 +2038,9 @@ function generate_display_field($frow, $currvalue)
         }
         // If match is not found in main and backup lists, return the key with exclamation mark
         if ($s == '') {
-            $s = nl2br(text(xl_list_label($currvalue))).
-            '<sup> <i class="fa fas fa-exclamation-circle ml-1"></i></sup>';
+            $s = nl2br(text(xl_list_label($currvalue)));
+            //  this messes up CDR
+            //  '<sup> <i class="fa fas fa-exclamation-circle ml-1"></i></sup>';
         }
     } elseif ($data_type == 2) { // simple text field
         $s = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));

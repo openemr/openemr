@@ -1,40 +1,58 @@
 <?php
-/**
- * interface/super/rules/controllers/edit/view/add_criteria.php
- *
- * @package   OpenEMR
- * @link      https://www.open-emr.org
- * @author    Aron Racho <aron@mi-squared.com>
- * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2010-2011 Aron Racho <aron@mi-squared.com>
- * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- */
+    /**
+     * interface/super/rules/controllers/edit/view/add_criteria.php
+     *
+     * @package   OpenEMR
+     * @link      https://www.open-emr.org
+     * @author    Aron Racho <aron@mi-squared.com>
+     * @author    Brady Miller <brady.g.miller@gmail.com>
+     * @copyright Copyright (c) 2010-2011 Aron Racho <aron@mi-squared.com>
+     * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+     * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+     */
 ?>
+
 <?php $allowed = $viewBean->allowed?>
 <?php $ruleId = $viewBean->id;?>
 <?php $groupId = $viewBean->groupId;?>
 
-<table class="header">
-  <tr>
-        <td class="title"><?php echo xlt('Rule Edit'); ?></td>
-        <td>
-            <a href="index.php?action=detail!view&id=<?php echo attr_url($ruleId); ?>" class="iframe_medium css_button" onclick="top.restoreSession()">
-                <span><?php echo xlt('Cancel'); ?></span>
-            </a>
-        </td>
-  </tr>
-</table>
+<?php
 
-<div class="rule_detail edit text">
-    <p class="header"><?php echo xlt('Add criteria'); ?> </p>
-    <ul>
-    <?php foreach ($allowed as $type) { ?>
-        <li>
-        <a href="index.php?action=edit!choose_criteria&id=<?php echo attr_url($ruleId); ?>&group_id=<?php echo attr_url($groupId); ?>&type=<?php echo attr_url($viewBean->type); ?>&criteriaType=<?php echo attr_url($type->code); ?>" onclick="top.restoreSession()">
-            <?php echo xlt($type->lbl); ?>
-        </a>
-        </li>
+if ($viewBean->type != 'filter') { ?>
+    <div class="col-12">
+        Now with the Target Group of patients defined in Step 1, you can look at the charts of these patients for a specific item.
+        This is a powerful search tool allowing criteria like  "if present", "if not present", "if it occurred more than a year ago", etc.
+        You can add multiple criteria to finely hone when this alert(s) will fire.
+    </div>
+    <?php }  else { ?>
+        <div class="col-12">
+        
+            Each <B>Clinical Reminder</B> can target one or more sub-groups of patients.
+            Refine your target groups by selecting one of the options below.
+            If you choose none, this CR applies to everyone in your practice.
+        </div>
     <?php } ?>
-    </ul>
-</div>
+        <div class="col-12 text-center">
+
+        <?php foreach ($allowed as $type) { ?>
+                     <label>
+                        <button class="btn btn-local btn-primary"
+                                type="button"
+                                id="edit_<?php echo attr($viewBean->type); ?>_<?php echo attr_url($ruleId); ?>"
+                                data-type="<?php echo attr_url($viewBean->type); ?>"
+                                data-group="<?php echo $groupId; ?>"
+                                data-criteriatype="<?php echo attr_url($type->code); ?>">
+                            <?php echo xlt($type->lbl); ?>
+                        </button>
+                    </label>
+            
+                
+            <?php } ?>
+        </div>
+    <script>
+$(function() {
+    $("#frm_targets_save_<?php echo $groupId; ?>").hide();
+    $("#frm_filters_save").hide();
+    
+})
+</script>

@@ -46,16 +46,18 @@ class Controller_alerts extends BaseController
         $actives = $_POST["active"];
         $passives =  $_POST["passive"];
         $reminders =  $_POST["reminder"];
-                $access_controls = $_POST["access_control"];
+        $providers = $_POST["provider"];
+        $access_controls = $_POST["access_control"];
         
             
         // The array of check-boxes we get from the POST are only those of the checked ones with value 'on'.
-        // So, we have to manually create the entitre arrays with right values.
+        // So, we have to manually create the entire arrays with right values.
         $actives_final = array();
         $passives_final = array();
         $reminders_final = array();
-
-            
+        $providers_final = array();
+    
+    
         $numrows = count($ids);
         for ($i = 0; $i < $numrows; ++$i) {
             if ($actives[$i] == "on") {
@@ -71,24 +73,29 @@ class Controller_alerts extends BaseController
                 $passives_final[] = "0";
                 ;
             }
-                
+    
             if ($reminders[$i] == "on") {
                 $reminders_final[] = "1";
             } else {
                 $reminders_final[] = "0";
                 ;
             }
+            if ($providers[$i] == "on") {
+                $providers_final[] = "1";
+            } else {
+                $providers_final[] = "0";
+                ;
+            }
         }
 
         // Reflect the changes to the database.
-         $c = new CdrAlertManager();
-         $c->update($ids, $actives_final, $passives_final, $reminders_final, $access_controls);
-         // Instantiating object if does not exist to avoid
-         //    "creating default object from empty value" warning.
+        $c = new CdrAlertManager();
+        $c->update($ids, $actives_final, $passives_final, $reminders_final, $providers_final, $access_controls);
+        // Instantiating object if does not exist to avoid
+        //    "creating default object from empty value" warning.
         if (!isset($this->viewBean)) {
               $this->viewBean = new stdClass();
         }
-
-         $this->forward("listactmgr");
+        $this->forward("listactmgr");
     }
 }

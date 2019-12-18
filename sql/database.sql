@@ -560,29 +560,33 @@ INSERT INTO `clinical_plans_rules` ( `plan_id`, `rule_id` ) VALUES ('prevent_pla
 
 DROP TABLE IF EXISTS `clinical_rules`;
 CREATE TABLE `clinical_rules` (
-  `id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Unique and maps to list_options list clinical_rules',
+  `uid` int(11) NOT NULL AUTO_INCREMENT,
+ `id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Unique and maps to list_options list clinical_rules',
   `pid` bigint(20) NOT NULL DEFAULT '0' COMMENT '0 is default for all patients, while > 0 is id from patient_data table',
-  `active_alert_flag` tinyint(1) COMMENT 'Active Alert Widget Module flag - note not yet utilized',
-  `passive_alert_flag` tinyint(1) COMMENT 'Passive Alert Widget Module flag',
-  `cqm_flag` tinyint(1) COMMENT 'Clinical Quality Measure flag (unable to customize per patient)',
-  `cqm_2011_flag` tinyint(1) COMMENT '2011 Clinical Quality Measure flag (unable to customize per patient)',
-  `cqm_2014_flag` tinyint(1) COMMENT '2014 Clinical Quality Measure flag (unable to customize per patient)',
-  `cqm_nqf_code` varchar(10) NOT NULL default '' COMMENT 'Clinical Quality Measure NQF identifier',
-  `cqm_pqri_code` varchar(10) NOT NULL default '' COMMENT 'Clinical Quality Measure PQRI identifier',
-  `amc_flag` tinyint(1) COMMENT 'Automated Measure Calculation flag (unable to customize per patient)',
-  `amc_2011_flag` tinyint(1) COMMENT '2011 Automated Measure Calculation flag for (unable to customize per patient)',
-  `amc_2014_flag` tinyint(1) COMMENT '2014 Automated Measure Calculation flag for (unable to customize per patient)',
-  `amc_code` varchar(10) NOT NULL default '' COMMENT 'Automated Measure Calculation indentifier (MU rule)',
-  `amc_code_2014` varchar(30) NOT NULL default '' COMMENT 'Automated Measure Calculation 2014 indentifier (MU rule)',
-  `amc_2014_stage1_flag` tinyint(1) COMMENT '2014 Stage 1 - Automated Measure Calculation flag for (unable to customize per patient)',
-  `amc_2014_stage2_flag` tinyint(1) COMMENT '2014 Stage 2 - Automated Measure Calculation flag for (unable to customize per patient)',
-  `patient_reminder_flag` tinyint(1) COMMENT 'Clinical Reminder Module flag',
-  `developer` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Developer',
-  `funding_source` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Funding Source',
-  `release_version` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Release Version',
-  `web_reference` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Web Reference',
-  `access_control` VARCHAR(255) NOT NULL DEFAULT 'patients:med' COMMENT 'ACO link for access control',
-  PRIMARY KEY  (`id`,`pid`)
+  `active_alert_flag` tinyint(1) DEFAULT NULL COMMENT 'Active Alert Widget Module flag',
+  `passive_alert_flag` tinyint(1) DEFAULT NULL COMMENT 'Passive Alert Widget Module flag',
+  `provider_alert_flag` bigint(20) DEFAULT NULL COMMENT 'Provider Alert Flag - contains provider_id to receive message',
+  `cqm_flag` tinyint(1) DEFAULT NULL COMMENT 'Clinical Quality Measure flag (unable to customize per patient)',
+  `cqm_nqf_code` varchar(10) NOT NULL DEFAULT '' COMMENT 'Clinical Quality Measure NQF identifier',
+  `cqm_pqri_code` varchar(10) NOT NULL DEFAULT '' COMMENT 'Clinical Quality Measure PQRI identifier',
+  `amc_flag` tinyint(1) DEFAULT NULL COMMENT 'Automated Measure Calculation flag (unable to customize per patient)',
+  `amc_code` varchar(10) NOT NULL DEFAULT '' COMMENT 'Automated Measure Calculation indentifier (MU rule)',
+  `patient_reminder_flag` tinyint(1) DEFAULT NULL COMMENT 'Clinical Reminder Module flag',
+  `developer` varchar(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Developer',
+  `funding_source` varchar(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Funding Source',
+  `release_version` varchar(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Release Version',
+  `cqm_2011_flag` tinyint(1) DEFAULT NULL COMMENT '2011 Clinical Quality Measure flag (unable to customize per patient)',
+  `cqm_2014_flag` tinyint(1) DEFAULT NULL COMMENT '2014 Clinical Quality Measure flag (unable to customize per patient)',
+  `amc_2014_stage1_flag` tinyint(1) DEFAULT NULL COMMENT '2014 Stage 1 - Automated Measure Calculation flag for (unable to customize per patient)',
+  `amc_2011_flag` tinyint(1) DEFAULT NULL COMMENT '2011 Automated Measure Calculation flag for (unable to customize per patient)',
+  `amc_2014_flag` tinyint(1) DEFAULT NULL COMMENT '2014 Automated Measure Calculation flag for (unable to customize per patient)',
+  `amc_code_2014` varchar(30) NOT NULL DEFAULT '' COMMENT 'Automated Measure Calculation 2014 indentifier (MU rule)',
+  `amc_2014_stage2_flag` tinyint(1) DEFAULT NULL COMMENT '2014 Stage 2 - Automated Measure Calculation flag for (unable to customize per patient)',
+  `web_reference` varchar(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Web Reference',
+  `access_control` varchar(255) NOT NULL DEFAULT 'patients:med' COMMENT 'ACO link for access control',
+  `public_description` text NOT NULL,
+  PRIMARY KEY  (`uid`),
+  UNIQUE KEY `id` (`id`,`pid`)
 ) ENGINE=InnoDB ;
 
 --
@@ -5810,11 +5814,13 @@ CREATE TABLE `report_results` (
 
 DROP TABLE IF EXISTS `rule_action`;
 CREATE TABLE `rule_action` (
+  `ra_uid` int(11) NOT NULL AUTO_INCREMENT,
   `id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to the id column in the clinical_rules table',
-  `group_id` bigint(20) NOT NULL DEFAULT 1 COMMENT 'Contains group id to identify collection of targets in a rule',
+  `group_id` bigint(20) NOT NULL DEFAULT '1' COMMENT 'Contains group id to identify collection of targets in a rule',
   `category` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to the category item in the rule_action_item table',
   `item` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to the item column in the rule_action_item table',
-  KEY  (`id`)
+  PRIMARY KEY (`ra_uid`),
+  KEY `id` (`id`)
 ) ENGINE=InnoDB ;
 
 --
@@ -5892,12 +5898,14 @@ INSERT INTO `rule_action_item` ( `category`, `item`, `clin_rem_link`, `reminder_
 
 DROP TABLE IF EXISTS `rule_filter`;
 CREATE TABLE `rule_filter` (
+  `rf_uid` int(11) NOT NULL AUTO_INCREMENT,
   `id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to the id column in the clinical_rules table',
-  `include_flag` tinyint(1) NOT NULL default 0 COMMENT '0 is exclude and 1 is include',
-  `required_flag` tinyint(1) NOT NULL default 0 COMMENT '0 is required and 1 is optional',
+  `include_flag` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 is exclude and 1 is include',
+  `required_flag` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 is required and 1 is optional',
   `method` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to list_options list rule_filters',
   `method_detail` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to list_options lists rule__intervals',
   `value` varchar(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (`rf_uid`),
   KEY  (`id`)
 ) ENGINE=InnoDB ;
 
@@ -6391,6 +6399,7 @@ INSERT INTO `rule_reminder` ( `id`, `method`, `method_detail`, `value` ) VALUES 
 
 DROP TABLE IF EXISTS `rule_target`;
 CREATE TABLE `rule_target` (
+  `rt_uid` int(11) NOT NULL AUTO_INCREMENT,
   `id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to the id column in the clinical_rules table',
   `group_id` bigint(20) NOT NULL DEFAULT 1 COMMENT 'Contains group id to identify collection of targets in a rule',
   `include_flag` tinyint(1) NOT NULL default 0 COMMENT '0 is exclude and 1 is include',
@@ -6398,6 +6407,7 @@ CREATE TABLE `rule_target` (
   `method` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to list_options list rule_targets',
   `value` varchar(255) NOT NULL DEFAULT '' COMMENT 'Data is dependent on the method',
   `interval` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Only used in interval entries',
+  PRIMARY KEY (`rt_uid`),
   KEY  (`id`)
 ) ENGINE=InnoDB ;
 

@@ -55,25 +55,9 @@ root {
  * browse rules
  */
 .rule_detail {
-    max-width: 100%;
+    Xmax-width: 100%;
 }
 
-.rule_detail .section {
-    margin-bottom: 30px;
-}
-
-.rule_detail .section .section {
-    margin-left: 30px;
-}
-
-.rule_detail .section .section .row {
-    margin-bottom: 20px;
-}
-
-.rule_detail .section .group {
-    margin-top: 12px;
-    border: 1px dotted;
-}
 
 .rule_detail .header, .rule_detail .ruletitle {
     font-size: 18px;
@@ -83,62 +67,9 @@ root {
     margin-top: 6px;
 }
 
-.left_col {
-    display:block;
-    float: left;
-    width: 100px;
-}
-
-.mid_col {
-    float: left;
-    display:block;
-    width: 33%;
-}
-
-.end_col {
-    display:block;
-}
-
-.rule_detail p {
-    margin-bottom: -10px;
-}
-
-.rule_detail table {
-}
-
-.colhead {
-}
-
-.action_link {
-    font-size: small;
-}
-
 /*
 * edit rule
 */
-
-.rule_detail input[type='text'] {
-    width:350px;
-    margin-top:-1px;
-}
-
-.rule_detail.edit.summry .left_col {
-    width: 120px;
-    text-align: right;
-    margin-right: 10px;
-    font-weight: bold;
-}
-
-#required_msg {
-    margin-top:30px;
-    width: 80%;
-    border-top: 1px solid;
-    display:none;
-}
-
-.rule_detail.edit p.header {
-    margin-bottom:5px;
-}
 
 .field_err_marker {
     background-color: red;
@@ -148,10 +79,6 @@ root {
     color: red;
 }
 
-.intervals .mid_col {
-    width:100px;
-}
-
 .intervals input[type='text'] {
     width:90px;
     margin-top:-1px;
@@ -159,4 +86,182 @@ root {
 
 input[type='text'].short {
     width: 80px;
+}
+
+.baseboard {
+    border-bottom: 0.5pt lightskyblue dotted;
+}
+.underline {
+    text-decoration: underline;
+}
+
+.icon_1 {
+    position:absolute;
+    top: 15px;
+    right: 33px;
+    z-index: 10;
+}
+.icon_2 {
+    position:absolute;
+    top: 15px;
+    right: 69px;
+    z-index: 10;
+}
+
+.icon_3 {
+    position:absolute;
+    top: 15px;
+    right: 109px;
+    z-index: 10;
+}
+.icon_A1 {
+    position:absolute;
+    top: 0px;
+    right: 33px;
+    z-index: 10;
+}
+.icon_A2 {
+    position:absolute;
+    top: 0px;
+    right: 69px;
+    z-index: 10;
+}
+
+.table {
+    display: block;
+    max-height: 500px;
+    overflow-y: scroll;
+}
+
+.table > tbody > tr > td {
+    vertical-align: middle !important
+}
+.title {
+    margin-bottom: 1.5rem;
+    width:75%;
+    float: left;
+    font-weight: bold;
+    padding: 3px 10px;
+    text-transform: uppercase;
+    line-height: 1.5em;
+    color: #18133a;
+    border-bottom: 1.5pt solid #455832;
+    margin: 0 auto 10px;
+
+}
+.title2 {
+    margin: 1.5rem;
+    width:75%;
+    float: left;
+    font-weight: 500;
+    padding: 3px 10px;
+    text-transform: uppercase;
+    line-height: 20px;
+    color: #660000;
+    border-bottom: 1pt solid #455832;
+
+}
+
+.rule_text {
+    margin: 0px 20px 10px;
+    text-align: justify-all;
+}
+
+.section {
+    margin: 1rem !important;
+    box-shadow: 5px 5px 9px #7b777760;
+    border: 1.00pt solid #000000;
+    background:#ffffff;
+    padding: 6px;
+    border-radius: 3px;
+    padding-bottom:10px;
+    min-height:275px;
+}
+
+.section2 {
+    margin: 1rem !important;
+    box-shadow: 5px 5px 9px #7b777760;
+    border: 1.00pt solid #000000;
+    background:#ffffff;
+    padding: 6px;
+    border-radius: 3px;
+    padding-bottom:10px;
+}
+
+#help_summary, #help_filters, #help_intervals, #help_targets {
+    Xposition: relative;
+}
+
+.Xmodal {
+    position: fixed;
+    width: 100%;
+    margin: 0;
+    padding: 10px;
+}
+.modal
+{
+    overflow: hidden;
+}
+.modal-dialog{
+    margin-right: 0;
+    margin-left: 0;
+}
+.modal-header{      /* not necessary but imo important for user */
+    cursor: move;
+}
+.in{
+    Xopacity:0;
+    Xbackground-color: unset;
+}
+
+input[type="text"] {
+    width:80%;
+}
+
+.indent10 {
+    padding-left:10px;
+}
+
+.red {
+    color: red;
+}
+.bolder {
+    font-weight: 500;
+}
+
+.tight {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+.tight  input[type="text"] {
+    max-width:30px;
+}
+.tight  select{
+    max-width:100px;
+    display:unset;
+    height:unset;
+}
+.nowrap {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+.table-100 {
+    width:100%;
+}
+.btn-local {
+    width:100px;
+}
+.dropdown-toggle:after { content: none !important; }
+
+td > textarea {
+    width:80%;
+}
+.button {
+    color:unset !important;
+}
+.inline {
+    display:inline;
+}
+.margin-auto {
+    margin:auto !important;
 }
