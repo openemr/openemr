@@ -10,6 +10,8 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+
 ?>
 <?php require_once($GLOBALS["srcdir"] . "/../interface/super/rules/controllers/edit/helper/common.php"); ?>
 <?php $rule = $viewBean->rule ?>

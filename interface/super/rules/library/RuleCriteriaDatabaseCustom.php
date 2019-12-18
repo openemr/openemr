@@ -47,12 +47,14 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
         $requirements = "";
         if ($this->value) {
             $requirements .= xl("Value") . ": ";
-            $requirements .= $this->decodeComparator($this->valueComparator) . " " . $this->value;
-            $requirements .= " | ";
+            $requirements .= text($this->decodeComparator($this->valueComparator) . " " . $this->value);
+            $requirements .= " <br /> ";
         }
 
-        $requirements .= xl("Frequency") . ": ";
-        $requirements .= $this->decodeComparator($this->frequencyComparator) . " " . $this->frequency;
+        $requirements .= xl("Occurs") . ": ";
+        $requirements .= text($this->decodeComparator($this->frequencyComparator) . " " . $this->frequency). " time";
+        if ($this->frequency <> '1') {
+            echo "s"; }
 
         return $requirements;
     }

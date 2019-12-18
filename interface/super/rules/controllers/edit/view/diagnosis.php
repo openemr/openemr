@@ -34,12 +34,19 @@
 </head>
 
 <!-- diagnosis -->
-<p class="row">
-    <span class="left_col colhead req" data-fld="fld_diagnosis"><?php echo text($criteria->getTitle()); ?></span>
-    <span class="end_col"><input id="fld_value" type="text" name="fld_value" class="form-control field" onclick="sel_diagnosis()" value="<?php echo attr($criteria->getRequirements()); ?>"></span>
-</p>
+<div class="col-12">
+    <span class="title2"><?php echo xlt('Add a'); ?> <?php echo text($criteria->getTitle()); ?></span>
+</div>
+<div class="col-12 indent10 text">
+    <span class="indent10"><input id="fld_value" type="text"
+                                  name="fld_value" class="field"
+                                  placeholder="</php echo xla('click to search for codes'); ?>"
+                                  onclick="sel_diagnosis()" value="<?php echo attr($criteria->getRequirements()); ?>"></span>
+</div>
 
-<br/>
-
-<!-- optional/required and inclusion/exclusion fields -->
-<?php echo common_fields(array( "criteria" => $criteria)); ?>
+<div class="col-10 ">
+    <table class="table table-100" >
+        <!-- optional/required and inclusion/exclusion fields -->
+        <?php echo common_fields(array( "criteria" => $criteria)); ?>
+    </table>
+</div>

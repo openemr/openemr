@@ -51,7 +51,7 @@ abstract class RuleCriteriaFactory
      */
     function build(
         $ruleId,
-        $guid,
+        $uid,
         $inclusion,
         $optional,
         $method,
@@ -78,7 +78,7 @@ abstract class RuleCriteriaFactory
 
         $criteria->inclusion = $inclusion;
         $criteria->optional = $optional;
-        $criteria->guid = $guid;
+        $criteria->uid = $uid;
         $criteria->criteriaType = $criteriaType;
         $this->modify($criteria, $ruleId);
 
@@ -95,7 +95,7 @@ abstract class RuleCriteriaFactory
         $strategyMap = $this->getStrategyMap();
         $builder = $this->getBuilderFor($criteriaType);
         if (is_null($builder)) {
-            // if no builder, then its an unrecognized critiera
+            // if no builder, then its an unrecognized criteria
             return null;
         }
 

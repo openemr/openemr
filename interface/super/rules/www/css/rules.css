@@ -1,146 +1,14 @@
-/* 
-    Document   : rules
-    Created on : Jan 19, 2011, 10:55:44 PM
-    Author     : aron
-*/
-
-/* 
- * browse rules
- */
-root {
-    display: block;
-}
-
-.rule_container {
-    min-width: 524px;
-    width: 100%;
-}
-
-.rule_row {
-    padding-bottom: 2px;
-    margin-left: 15px;
-}
-
-.rule_row span {
-    display: block;
-    float: left;
-}
-
-.rule_row .rule_title {
-    display: inline-block;
-}
-
-.rule_title {
-    width: 380px;
-}
-
-.rule_row .rule_type {
-    display: inline-block;
-    padding-left: 10px;
-    min-width: 70px;
-}
-
-.rule_row.header {
-    font-weight: bold;
-    text-decoration: underline;
-}
-
-.rule_container {
-    margin-top: 10px;
-}
-
-.template {
-    display: none;
-}
-
-/*
- * browse rules
- */
-.rule_detail {
-    max-width: 100%;
-}
-
-.rule_detail .section {
-    margin-bottom: 30px;
-}
-
-.rule_detail .section .section {
-    margin-left: 30px;
-}
-
-.rule_detail .section .section .row {
-    margin-bottom: 20px;
-}
-
-.rule_detail .section .group {
-    margin-top: 12px;
-    border: 1px dotted;
-}
-
-.rule_detail .header,
-.rule_detail .ruletitle {
-    font-size: 18px;
-}
-
-.rule_detail .ruletitle {
-    margin-top: 6px;
-}
-
-.left_col {
-    display: block;
-    float: left;
-    width: 100px;
-}
-
-.mid_col {
-    float: left;
-    display: block;
-    width: 33%;
-}
-
-.end_col {
-    display: block;
-}
-
-.rule_detail p {
-    margin-bottom: -10px;
-}
-
-.rule_detail table {}
-
-.colhead {}
-
-.action_link {
-    font-size: small;
-}
 
 /*
 * edit rule
 */
-
-.rule_detail input[type='text'] {
-    width: 350px;
-    margin-top: -1px;
+.container-fluid {
+    margin: 50px auto;
 }
 
-.rule_detail.edit.summry .left_col {
-    width: 120px;
-    text-align: right;
-    margin-right: 10px;
-    font-weight: bold;
+.heavy {
+    font-weight: 600;
 }
-
-#required_msg {
-    margin-top: 30px;
-    width: 80%;
-    border-top: 1px solid;
-    display: none;
-}
-
-.rule_detail.edit p.header {
-    margin-bottom: 5px;
-}
-
 .field_err_marker {
     background-color: red;
 }
@@ -149,15 +17,212 @@ root {
     color: red;
 }
 
-.intervals .mid_col {
-    width: 100px;
-}
-
 .intervals input[type='text'] {
-    width: 90px;
-    margin-top: -1px;
+    width:90px;
+    margin-top:-1px;
 }
 
 input[type='text'].short {
     width: 80px;
+}
+
+.baseboard {
+    border-bottom: 0.5pt lightskyblue dotted;
+}
+.underline {
+    text-decoration: underline;
+}
+
+.icon_1 {
+    position:absolute;
+    top: 15px;
+    right: 33px;
+    z-index: 10;
+}
+.icon_2 {
+    position:absolute;
+    top: 15px;
+    right: 69px;
+    z-index: 10;
+}
+
+.icon_3 {
+    position:absolute;
+    top: 15px;
+    right: 109px;
+    z-index: 10;
+}
+.icon_A1 {
+    position:absolute;
+    top: 0px;
+    right: 33px;
+    z-index: 10;
+}
+.icon_A2 {
+    position:absolute;
+    top: 0px;
+    right: 69px;
+    z-index: 10;
+}
+
+.table {
+    display: block;
+    max-height: 500px;
+    overflow-y: scroll;
+}
+
+.table > tbody > tr > td {
+    vertical-align: middle !important
+}
+.title {
+    width:75%;
+    float: left;
+    font-weight: bold;
+    padding: 3px 10px;
+    text-transform: uppercase;
+    line-height: 1.5em;
+    color: #18133a;
+    border-bottom: 1.5pt solid #455832;
+    margin: 0 auto 25px;
+
+}
+.title2 {
+    margin: 1.5rem;
+    width:75%;
+    float: left;
+    font-weight: 500;
+    padding: 3px 10px;
+    text-transform: uppercase;
+    line-height: 20px;
+    color: #660000;
+    border-bottom: 1pt solid #455832;
+}
+.title3 {
+    font-weight: 500;
+    padding: 10px 10px 3px;
+    text-transform: uppercase;
+    line-height: 20px;
+    color: #660000;
+    border-bottom: 1pt solid #455832;
+    text-align: center;
+}
+.title4 {
+    font-weight: 500;
+    padding: 40px 10px 3px;
+    line-height: 20px;
+    text-align: center;
+}
+
+.rule_text {
+    margin: 0px 20px 10px;
+    text-align: justify-all;
+}
+
+.section {
+    margin: 1rem !important;
+    box-shadow: 5px 5px 9px #7b777760;
+    border: 1.00pt solid #000000;
+    background:#ffffff;
+    padding: 6px;
+    border-radius: 3px;
+    padding-bottom:10px;
+    min-height:275px;
+}
+
+.section2 {
+    margin: 0 1rem !important;
+    box-shadow: 5px 5px 9px #7b777760;
+    border: 1.00pt solid #000000;
+    background:#ffffff;
+    padding: 6px;
+    border-radius: 3px;
+    padding-bottom:10px;
+}
+
+.modal
+{
+    overflow: hidden;
+}
+.modal-dialog{
+    margin-right: 0;
+    margin-left: 0;
+}
+.modal-header{      /* not necessary but imo important for user */
+    cursor: move;
+}
+
+input[type="text"] {
+    width:80%;
+}
+
+.indent10 {
+    padding-left:10px;
+}
+
+.red {
+    color: red;
+}
+.bolder {
+    font-weight: 500;
+}
+
+.tight {
+    white-space: nowrap;
+    vertical-align: middle;
+    height: unset;
+    font-size: 14px;
+    padding: unset;
+    vertical-align: baseline;
+}
+.tight  input[type="text"] {
+    max-width:30px;
+    text-align: center;
+    height: initial;
+    padding: initial;
+    margin: 1rem auto !important;
+}
+.tight  select{
+    max-width:100px;
+    display:unset;
+    height:initial;
+    font-size: 14px;
+    padding: initial;
+}
+.nowrap {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+.table-100 {
+    width:100%;
+}
+.btn-local {
+    width:100px;
+}
+.dropdown-toggle:after { content: none !important; }
+
+td > textarea {
+    width:80%;
+}
+.button {
+    color:initial;
+}
+.inline {
+    display:inline;
+}
+.margin-auto {
+    margin:auto !important;
+    float:unset; //remove this when css_button stuff removed from themes
+}
+
+.past_due {
+    color:red;
+}
+.due_now {
+    color:purple;
+}
+.not_due {
+    color: green;
+}
+.due_soon {
+    color:black;
 }

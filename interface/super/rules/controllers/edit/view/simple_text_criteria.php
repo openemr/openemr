@@ -11,15 +11,21 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 ?>
-<p class="row">
-    <span class="left_col colhead req" data-fld="fld_value"><?php echo text($criteria->getTitle()); ?></span>
-    <span class="end_col"><input id="fld_value" type="text" name="fld_value" class="form-control field" value="<?php echo attr($criteria->getRequirements()); ?>"></span>
-</p>
+<div class="row">
+    <div class="col-12">
+        <span class="title2"><?php echo text($criteria->getTitle()); ?></span>
+    </div>
 
-<?php //echo textfield_row(array("name" => "fld_value",
-      //                         "title" => $criteria->getTitle(),
-      //                         "value" =>$criteria->getRequirements() ) ); ?>
+    <div class="col-11 offfset-1">
+        <table class="table table-sm table-condensed table-hover">
+            <tr>
+                <td colspan="2" data-fld="fld_value">
+                    <input id="fld_value" type="text" name="fld_value" class="field" value="<?php echo attr($criteria->getRequirements()); ?>">
+                </td>
+            </tr>
+            <!-- optional/required and inclusion/exclusion fields -->
+            <?php echo common_fields(array( "criteria" => $criteria)); ?>
+        </table>
 
-
-<!-- optional/required and inclusion/exclusion fields -->
-<?php echo common_fields(array( "criteria" => $criteria)); ?>
+    </div>
+</div>
