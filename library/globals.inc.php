@@ -204,6 +204,7 @@ $GLOBALS_METADATA = array(
             xl('General Theme') .'*',
             'css',
             'style_light.css',
+            'style_dark.css',
             xl('Pick a general theme (need to logout/login after changing this setting).')
         ),
 
