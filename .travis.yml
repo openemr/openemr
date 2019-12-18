@@ -1,3 +1,5 @@
+services:
+  - mysql
 language: php
 php:
   - '7.2'

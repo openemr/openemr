@@ -31,7 +31,7 @@ if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
         "build_test")
             echo "Checking build and tests"
             cd $2
-            # build openemr (mimick standard build steps for production package)
+            echo "build openemr (mimick standard build steps for production package)"
             composer install
             npm install
             npm run build
@@ -40,7 +40,18 @@ if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
             $BIN_DIR/phing assets-clean
             composer global remove phing/phing
             composer dump-autoload -o
-            # run phpunit testing
+            rm -fr node_modules
+            echo "also install ccdaservice to allow ccdaservice testing (this step is not part of production build)"
+            cd ccdaservice
+            npm install
+            cd $2
+            echo "install/configure active openemr instance"
+            sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php
+            php -f contrib/util/installScripts/InstallerAutoTemp.php
+            rm -f contrib/util/installScripts/InstallerAutoTemp.php
+            echo "turn on the api to allow api testing"
+            mysql -u openemr --password="openemr" -h localhost -e "UPDATE `globals` SET `gl_value` = 1 WHERE `gl_name` = 'rest_api'" openemr
+            echo "run phpunit testing"
             composer global require "phpunit/phpunit=8.*"
             $BIN_DIR/phpunit --testdox
             ;;
