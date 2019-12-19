@@ -17,5 +17,6 @@ matrix:
       env: CI_JOB=lint_style
     - php: '7.3'
       env: CI_JOB=lint_style
+before_script: echo 'error_reporting = "E_ALL & ~E_NOTICE & ~E_STRICT"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
 script:
   - bash ci/ci.sh --dir ./
