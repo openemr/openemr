@@ -44,13 +44,15 @@ if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
             echo "also install ccdaservice to allow ccdaservice testing (this step is not part of production build)"
             cd ccdaservice
             npm install
-            cd $2
+            cd ../
             echo "install/configure active openemr instance"
+            chmod 666 sites/default/sqlconf.php
+            chown -R www-data:www-data sites/default/documents
             sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php
             php -f contrib/util/installScripts/InstallerAutoTemp.php
             rm -f contrib/util/installScripts/InstallerAutoTemp.php
             echo "turn on the api to allow api testing"
-            mysql -u openemr --password="openemr" -h localhost -e "UPDATE `globals` SET `gl_value` = 1 WHERE `gl_name` = 'rest_api'" openemr
+            mysql -u openemr --password="openemr" -h localhost -e "UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_api'" openemr
             echo "run phpunit testing"
             composer global require "phpunit/phpunit=8.*"
             $BIN_DIR/phpunit --testdox
