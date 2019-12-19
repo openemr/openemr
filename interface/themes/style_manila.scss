@@ -1,3 +1,8 @@
+/* Bootstrap Code */
+$font-family-sans-serif: "source_sans_pro", "FontAwesome", sans-serif;
+$font-size-base: 1rem;
+$font-family-base: $font-family-sans-serif;
+
 @import "core";
 
 .nav-menu-img {
@@ -5,12 +10,8 @@
 }
 
 body {
-    margin: 0px 0px 0px 2px;
-    /* set the base font and size for all DOM children */
-    font-family: 'source_sans_pro', 'FontAwesome', sans-serif;
-    content: "\f0c4";
-    font-size: 16px;
-    /* set the base font size for all DOM children */
+    margin: 0px 0px 0px 2px !important;
+    content: "\f0c4" !important;
 }
 
 .menu {
@@ -94,7 +95,7 @@ body {
 }
 
 #addressbook_list td {
-    font-family: 'source_sans_pro', 'FontAwesome', Arial, Helvetica, sans-serif;
+    font-family: "source_sans_pro", "FontAwesome", "Arial", "Helvetica", sans-serif;
 }
 
 #addressbook_list tr.search {
@@ -229,7 +230,7 @@ ul.tabNav li.current {
 
 ul.tabNav a {
     background: #F8E6CBE6;
-    color: #333;
+    color: $dark;
     padding: 8px;
     border-radius: 8px 8px 0 0;
     box-shadow: 2px -1px 1px #c0c0c0;
@@ -355,19 +356,19 @@ div.summary_item div {
 **/
 
 .showborder td {
-    font-size: 9pt;
+    font-size: 12px;
 }
 
 .showborder_head th {
-    font-size: 9pt;
+    font-size: 12px;
 }
 
 .shownoborder td {
-    font-size: 9pt;
+    font-size: 12px;
 }
 
 .showborder_long tr td {
-    font-size: 9pt;
+    font-size: 12px;
 }
 
 /**
@@ -375,13 +376,13 @@ div.summary_item div {
 **/
 .drug_lookup {
     font-family: 'source_sans_pro', 'FontAwesome', "Helvetica", sans-serif;
-    font-size: 8pt;
+    font-size: 11px;
 }
 
 /* Style for red font */
 .redtext {
     font-family: 'source_sans_pro', 'FontAwesome', sans-serif;
-    font-size: 10pt;
+    font-size: 13px;
 }
 
 /* Style for red font */
@@ -422,7 +423,7 @@ body dl {
     min-width: 175px;
     border: 0.5pt solid gray;
     border-radius: 0px 5px 5px 5px;
-    color: black;
+    color: $black;
     margin-top: 0px;
     padding-top: 3px;
     padding-left: 0px;
@@ -441,7 +442,7 @@ body dl {
 }
 
 #sddm td {
-    border-top: 0pt !important;
+    border-top: 0 !important;
 }
 
 .example_menu {
@@ -481,7 +482,7 @@ body dl {
 
 #theform table table {
     background: $white;
-    color: #333;
+    color: $dark;
     display: block;
     padding: 0px;
     text-decoration: none;
@@ -496,7 +497,7 @@ body dl {
 
 #pattrk {
     background: $white;
-    color: #333;
+    color: $dark;
     display: block;
     padding: 8px;
     text-decoration: none;
@@ -524,7 +525,7 @@ body dl {
 
 /* main.php*/
 .body_main {
-    background-color: #F4F4F4;
+    background-color: $light;
 }
 
 /*~~openemr5 tabs menu , user and logout icon~~*/
@@ -597,7 +598,7 @@ body dl {
 
 .navbar-default .navbar-nav > li > a:focus,
 .navbar-default .navbar-nav > li > a:hover {
-    color: #333;
+    color: $dark;
     background-color: #eee;
 }
 

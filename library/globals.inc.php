@@ -201,13 +201,14 @@ $GLOBALS_METADATA = array(
         ),
 
         'css_header' => array(
+            // Note: Do not change this as it is only for theme defaults and adding themes here does nothing
             xl('General Theme') .'*',
             'css',
             'style_light.css',
-            'style_dark.css',
             xl('Pick a general theme (need to logout/login after changing this setting).')
         ),
-
+        
+        // TODO: Make this work when we are done.
         'font-family' => array(
             xl('Default font') .'*',
             array(
@@ -225,6 +226,7 @@ $GLOBALS_METADATA = array(
             xl('Select the default font (need to logout/login after changing this setting).'),
         ),
 
+        // TODO: Make this work when we are done.
         'font-size' => array(
             xl('Default font size').'*',
             array(

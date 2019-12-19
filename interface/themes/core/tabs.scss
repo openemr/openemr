@@ -2,6 +2,16 @@
  * TABS
 */
 
+.body_top {
+    background-color: $light !important;
+    color: $dark !important;
+}
+
+.body_title {
+    color: $black !important;
+    background-color: $light !important;
+}
+
 ul.tabNav {
     float: $left;
     list-style: none;
@@ -138,8 +148,35 @@ div.notab-right {
     color: $gray-700 !important;
 }
 
+.menuLabel {
+    color: $dark;
+}
+
 .menuSection > .menuEntries {
     background: $white;
+}
+
+.menuEntries li .menuLabel:hover {
+    background-color: #CCE3F8;
+    color: $dark;
+}
+
+.menuDisabled {
+    color: #d7d7d7 !important;
+}
+
+.menuDisabled:hover {
+    color: #d7d7d7 !important;
+    background-color: $light !important;
+    cursor: not-allowed;
+}
+
+#attendantData {
+    background-color: $light;
+}
+
+#username > .userfunctions > div:hover {
+    color: $danger;
 }
 
 @include if-rtl {

@@ -2,24 +2,33 @@
  * the style sheet for the ajax_template calendar
  * ====================================*/
 
-a {
-    text-decoration:none;
+div.tiny {
+    width: 1px;
+    height: 1px;
+    font-size: 1px;
 }
-td {
-    font-family: Arial, Helvetica, sans-serif;
-}
-div.tiny { width:1px; height:1px; font-size:1px; }
+
 .currentview {
-    border: 2px solid blue;
+    border: 2px solid $primary;
     cursor: default;
 }
-#printview, #dayview, #weekview, #monthview {
-    cursor: pointer; cursor: hand;
+
+#printview,
+#dayview,
+#weekview,
+#monthview {
+    cursor: pointer;
+    cursor: hand;
 }
 
 .calsearch_body {
     padding: 0px 0px;
 }
+
+.calsearch_body td {
+    text-decoration: none;
+}
+
 .sidebar-wrapper {
     margin-left: -30rem;
     -webkit-transition: margin .25s ease-out;
@@ -27,216 +36,257 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     -o-transition: margin .25s ease-out;
     transition: margin .25s ease-out;
 }
+
 .page-content-wrapper {
     width: 100%;
 }
+
 #wrapper.toggled .sidebar-wrapper {
     margin-left: 0;
 }
+
 #functions {
     min-width: 20%;
     float: left;
     padding: 0px 5px 0px 5px;
-    margin-right: 0%; /* added because of the width issue above */
+    margin-right: 0%;
+    /* added because of the width issue above */
 }
-.rtl #functions{
+
+.rtl #functions {
     float: right;
 }
+
 #topToolbarRight {
     float: right;
     width: 100%;
-    border-bottom:1px solid black;
-    padding: 5px 0px 3px 0px; /*RP_ADDED_2017-02-19*/
+    border-bottom: 1px solid $black;
+    padding: 5px 0px 3px 0px;
+    /*RP_ADDED_2017-02-19*/
 }
+
 .rtl #topToolbarRight {
     float: right;
 }
+
 #dateNAV {
     float: left;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 14pt;
+    font-family: "Arial", "Helvetica", sans-serif;
+    font-size: 1.1875rem;
 }
+
 .rtl #dateNAV {
     float: right;
 }
+
 #dateDisplay {
     float: left;
     padding-left: 10px;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Arial", "Helvetica", sans-serif;
 }
-.rtl #dateDisplay{
+
+.rtl #dateDisplay {
     float: right;
 }
+
 #viewPicker {
     float: right;
     margin-right: 10px;
 }
+
 .rtl #viewPicker {
     float: left;
 }
+
 #bigCalHeader {
-    width:70%;
+    width: 70%;
     float: right;
-    text-align:center;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 14pt;
+    text-align: center;
+    font-family: "Arial", "Helvetica", sans-serif;
+    font-size: 1.1875rem;
 }
+
 .rtl #bigCalHeader {
     float: left;
 }
+
 #providerPicker {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Arial", "Helvetica", sans-serif;
     width: 100%;
 }
+
 #providerPicker #pc_facility {
     width: 100%;
 }
+
 #providerPicker #pc_username {
     width: 100%;
 }
+
 #facilityColor {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Arial", "Helvetica", sans-serif;
     width: 100%;
     float: left;
 }
-#facilityColor table{
-    width:100%;
+
+#facilityColor table {
+    width: 100%;
     border-collapse: collapse;
 }
-#bottom{
-    float:left;
+
+#bottom {
+    float: left;
     position: relative;
-    width:100%;
+    width: 100%;
 }
+
 #bigCal {
     overflow: hidden;
-    background-color: #FFF3D1;
-    border-left:1px solid black;
+    background-color: $light;
+    border-left: 1px solid $black;
 }
 
 #bigCal table {
     border-collapse: collapse;
     border: none;
-    vertical-align:middle;
+    vertical-align: middle;
     width: 100%;
 }
+
 #bigCal td {
     padding: 1px;
     margin: 0px;
 }
 
-#bottomLeft
-{
+#bottomLeft {
     width: 15%;
-    min-width:140px;
+    min-width: 140px;
     float: left;
     clear: left;
 
 }
+
 /* these are for the small datepicker DIV */
 #datePicker {
     width: 100%;
 }
+
 #datePicker table {
-    width:96%;
+    width: 96%;
     border-collapse: collapse;
     margin-left: 3px;
 }
+
 #datePicker td {
     width: 19.5px;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Arial", "Helvetica", sans-serif;
     font-size: 0.7em;
     text-align: center;
     /* font-size: 9pt;  */
 }
+
 #datePicker .tdMonthName-small {
     text-align: center;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Arial", "Helvetica", sans-serif;
     font-size: 12px;
     font-style: normal;
-    background-color: #FFF2E8;
+    background-color: $light;
+    color: $black;
     cursor: pointer;
 }
+
 #datePicker .tdDOW-small {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Arial", "Helvetica", sans-serif;
     font-size: 10px;
     vertical-align: top;
     text-align: center;
     border: none;
     padding: 2px 3px 2px 3px;
-    background-color: #FFF2E8;
+    background-color: $light;
+    color: $black;
 }
+
 #datePicker .tdDatePicker {
-    cursor: pointer; cursor: hand;
+    cursor: pointer;
+    cursor: hand;
 }
+
 #datePicker .tdWeekend-small {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Arial", "Helvetica", sans-serif;
     font-size: 10px;
     vertical-align: top;
     border: none;
     padding: 2px 3px 2px 3px;
-    background-color: #ffffff;
-    color: #999999;
+    background-color: $white;
+    color: $gray-500;
 }
+
 #datePicker .tdHoliday-small {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Arial", "Helvetica", sans-serif;
     font-size: 10px;
     vertical-align: top;
     border: none;
     padding: 2px 3px 2px 3px;
-    background-color: #ffffff;
-    color: red;
+    background-color: $white;
+    color: $danger;
 }
+
 #datePicker .tdOtherMonthDay-small {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Arial", "Helvetica", sans-serif;
     font-size: 10px;
     vertical-align: top;
     border: none;
     padding: 2px 3px 2px 3px;
-    background-color: #ffffff;
-    color: #999999;
+    background-color: $white;
+    color: $gray-500;
 }
+
 #datePicker .tdMonthDay-small {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Arial", "Helvetica", sans-serif;
     font-size: 10px;
     vertical-align: top;
     border: none;
     padding: 2px 3px 2px 3px;
-    background-color: #ffffff;
+    background-color: $white;
 }
+
 #datePicker .currentWeek {
-    background-color: #DBD5FF;
+    background-color: $gray-500;
 }
+
 #datePicker .currentDate {
-    background-color: #A79BE7;
+    background-color: $gray-500;
     color: #E8FAFF;
 }
+
 #datePicker .tdDatePickerHighlight {
-    background-color: #A79BE7;
+    background-color: $gray-500;
     color: #E8FAFF;
 }
 
 /* the DIV of times */
 #times {
-    border-right: 1px solid #999;
+    border-right: 1px solid $gray-500;
     width: 1%;
     background-color: #FFF3D1;
     padding: 0px;
 }
+
 #times table {
     border-collapse: collapse;
     width: 100%;
     margin: 0px;
     padding: 0px;
-    background-color: #E7D294;
     background-color: #FFF3D1;
 }
+
 #times table td {
-    border-bottom: 1px solid #999;
+    border-bottom: 1px solid $gray-500;
     margin: 0px;
     padding: 0px;
     font-size: 0.8em;
 }
+
 .timeslot {
     /* height value is tied to two PHP variables in the ajax_*.html files
      * if you change this value then be sure to change the matching value
@@ -246,13 +296,13 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     padding: 0px;
     text-align: center;
 }
+
 .schedule {
-    background-color: #FFF3D1;
-    background-color: #FFF;
+    background-color: $white;
     vertical-align: top;
     padding: 0px;
     margin: 0px;
-    border: 1px solid #999999;
+    border: 1px solid $gray-500;
     width: 25em;
 
 }
@@ -260,10 +310,10 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 /* for the header row with provider names */
 .providerheader {
     text-align: center;
-    background-color: #EDEAFF;
+    background-color: $light;
     width: 100%;
-    overflow:hidden;
-    border-bottom: 1px solid lightgrey;
+    overflow: hidden;
+    border-bottom: 1px solid $gray-500;
     white-space: nowrap;
 }
 
@@ -276,27 +326,30 @@ div.tiny { width:1px; height:1px; font-size:1px; }
 
 /* classes specific to the WEEK view */
 .week_dateheader {
-    border-left: 1px solid #999;
-    border-right: 1px solid #999;
+    border-left: 1px solid $gray-500;
+    border-right: 1px solid $gray-500;
     font-size: 0.7em;
     font-weight: bold;
 }
+
 .week_currday {
-    background-color: #DBD5FF;
+    background-color: $purple;
 }
 
 /* classes specific to the MONTH view */
 .month_daylink {
-    width:95%;
+    width: 95%;
     font-size: 0.8em;
-    text-align:right;
-    background-color: #FFF;
-    padding:1px 2px 1px 2px;
+    text-align: right;
+    background-color: $white;
+    padding: 1px 2px 1px 2px;
 }
+
 .month_dateheader {
     font-size: 0.7em;
-    width:13%;
+    width: 13%;
 }
+
 .month_event {
     font-size: 0.8em;
     width: 100%;
@@ -307,67 +360,73 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     position: absolute;
     width: 100%;
 }
+
 .event img {
-    vertical-align:middle;
+    vertical-align: middle;
 }
+
 .event_in {
-    background-color: white;
-    z-index:1;
+    background-color: $white;
+    z-index: 1;
     white-space: nowrap;
     width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
-    border: 1px solid #000000;
+    border: 1px solid $black;
 }
 
 .event_appointment {
-    background-color: white;
-    z-index:2;
+    background-color: $white;
+    z-index: 2;
     overflow: hidden;
     border: 1px solid #ccc;
     white-space: nowrap;
     width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
-    border: 1px solid #000000;
+    border: 1px solid $black;
 }
+
 .event_noshow {
-    background-color: pink;
-    z-index:2;
+    background-color: $pink;
+    z-index: 2;
     overflow: hidden;
     border: 1px solid #fcc;
 }
+
 .event_reserved {
-    background-color: pink;
-    z-index:2;
+    background-color: $pink;
+    z-index: 2;
     overflow: hidden;
     border: 1px solid #cfc;
 }
+
 .event_holiday {
-    background-color: mediumpurple;
-    z-index:2;
+    background-color: $gray-500;
+    z-index: 2;
     overflow: hidden;
     border: 1px solid #cfc;
 }
+
 .event_highlight {
     font-weight: bold;
-    border-top: 1px solid #999;
-    border-left: 1px solid #999;
-    border-right: 2px solid #666;
-    border-bottom: 2px solid #666;
+    border-top: 1px solid $gray-500;
+    border-left: 1px solid $gray-500;
+    border-right: 2px solid $gray-600;
+    border-bottom: 2px solid $gray-600;
     margin: -3px;
-    background-color: black;
+    background-color: $black;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    border: 1px solid #000000;
+    border: 1px solid $black;
 }
-.event_time
-{
+
+.event_time {
     cursor: pointer;
 }
-.event_time:hover
-{
+
+.event_time:hover {
     color: red;
 }
 
@@ -375,7 +434,7 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     position: absolute;
     bottom: 2px;
     right: 4px;
-    font-family: 'FontAwesome';
+    font-family: 'FontAwesome', sans-serif;
 }
 
 .show-appointment.unshown::before {
@@ -388,61 +447,65 @@ div.tiny { width:1px; height:1px; font-size:1px; }
     content: "\f070";
 }
 
-.view1 {
-    font-size:10px;
-}
-.view2 {
-    background-color:#94D6E7;
-    font-size:10px;
+.in_start {
+    background: transparent;
+    z-index: 2;
 }
 
-.in_start
-{
-    background: transparent;
-    z-index:2;
-}
-.event_out.event_highlight, .in_start.event_highlight {
+.event_out.event_highlight,
+.in_start.event_highlight {
     font-weight: bold;
-    border-top: 1px solid #999;
-    border-left: 1px solid #999;
-    border-right: 2px solid #666;
-    border-bottom: 2px solid #666;
+    border-top: 1px solid $gray-500;
+    border-left: 1px solid $gray-500;
+    border-right: 2px solid $gray-600;
+    border-bottom: 2px solid $gray-600;
     margin: 0px;
-    background-color: yellow;
+    background-color: $yellow;
     opacity: 1;
     z-index: 2;
     cursor: pointer;
 }
 
-.event_out{
+.event_out {
     z-index: 3;
-    background-color:#ff7533;
+    background-color: $orange;
 }
-.weekend-day{
+
+.weekend-day {
     background: rgba(146, 115, 214, 0.33);
 }
 
-.event_holiday{
-    width:100% !important;
+.event_holiday {
+    width: 100% !important;
 }
 
 .pop-up img {
     width: 150px;
     margin: 10px;
 }
+
 @media (max-width: 768px) {
-    #prevday, #nextday, #prevweek, #nextweek, #prevmonth, #nextmonth {
+
+    #prevday,
+    #nextday,
+    #prevweek,
+    #nextweek,
+    #prevmonth,
+    #nextmonth {
         font-size: 1.3em;
     }
 }
+
 @media (min-width: 768px) {
     .sidebar-wrapper {
         margin-left: 0;
     }
+
     .page-content-wrapper {
         min-width: 0;
         width: 100%;
     }
+
     #wrapper.toggled .sidebar-wrapper {
         margin-left: -30rem;
     }

@@ -101,8 +101,8 @@ body {
     flex-direction: column;
     margin: 0;
     padding: 0;
-    border-left: 1pt solid black;
-    border-right: 1pt solid black;
+    border-left: 1.33px solid black;
+    border-right: 1.33px solid black;
 }
 
 #framesDisplay > div > iframe {
@@ -121,8 +121,8 @@ body {
 .tabSpan {
     margin: 0 0 0 0;
     padding: 1px 7px;
-    border: 1pt solid black;
-    border-bottom: 0pt;
+    border: 1.33px solid black;
+    border-bottom: 0;
     border-radius: 6px 6px 0 0;
     cursor: pointer;
     flex: 0 1 auto;
@@ -136,7 +136,7 @@ body {
 }
 
 .tabNotchosen {
-    border-bottom: 1pt solid black;
+    border-bottom: 1.33px solid black;
     box-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
     display: block;
 }
@@ -286,7 +286,7 @@ body {
     z-index: 1000;
     box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.176);
     min-width: 175px;
-    border: 0.5pt solid gray;
+    border: 0.665px solid gray;
     border-radius: 0px 5px 5px 5px;
     color: black;
     margin-top: 4px;
@@ -317,10 +317,6 @@ body {
     float: none;
 }
 
-.menuDisabled {
-    color: gray !important;
-}
-
 #username {
     cursor: pointer;
 }
@@ -331,7 +327,6 @@ body {
 }
 
 .body_top {
-    background-color: #C9DBF2;
     padding: 0px;
     box-shadow: 0 0 10px #939393;
     z-index: 10;
@@ -344,18 +339,12 @@ body {
 }
 
 .body_title {
-    color: black;
-    background-color: #c9dbf2;
     padding: 10px 0px 0px 0px;
 }
 
 #username:hover > .userfunctions {
     display: block;
     width: 98%;
-}
-
-#username > .userfunctions > div:hover {
-    color: red;
 }
 
 .logo {
@@ -375,7 +364,7 @@ body {
 }
 
 .topToolbarRight {
-    border-top: 0pt;
+    border-top: 0;
 }
 
 .closeButton {

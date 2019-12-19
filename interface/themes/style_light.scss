@@ -1,3 +1,8 @@
+/* Bootstrap Code */
+$font-family-sans-serif: "Lato", "Helvetica", sans-serif;
+$font-size-base: 0.875rem;
+$font-family-base: $font-family-sans-serif;
+
 @import "core";
 
 /*
@@ -6,12 +11,6 @@
 *
 *
 */
-
-
-body {
-    font-family: "Lato", "Helvetica", sans-serif !important;
-    font-size: 14px !important;
-}
 
 .menuBar {
     width: 100%;
@@ -35,7 +34,7 @@ body {
 }
 
 .alert-custom {
-    background-color: #FF0000 !important;
+    background-color: $danger !important;
     color: $white !important;
 }
 
@@ -77,23 +76,11 @@ span.bold {
     font-size: 1.13em;
 }
 
-.body_top {
-    background-color: $white;
-}
-
-/* $top_bg_line */
-
 .bgcolor2 {
     background-color: $white;
 }
 
 /* $GLOBALS['style']['BGCOLOR2'] */
-
-.body_title {
-    background-color: #f4f4f4;
-}
-
-/* $title_bg_line */
 
 .body_nav {
     background-color: #f0f0f0;
@@ -205,7 +192,7 @@ ul.tabNav {
     margin: 0;
     padding: 0;
     padding-top: 4px;
-    background: #2672ec;
+    background: $primary;
 }
 
 ul.tabNav li {
@@ -214,7 +201,7 @@ ul.tabNav li {
 
 ul.tabNav li.current a {
     background: $white;
-    color: #2672ec;
+    color: $primary;
 }
 
 ul.tabNav a {
@@ -261,7 +248,7 @@ ul.tabNav a:focus {
 
 #sddm li a {
     padding: 12px;
-    color: #2672ec;
+    color: $primary;
 }
 
 #sddm li a:hover {
@@ -276,11 +263,11 @@ ul.tabNav a:focus {
 }
 
 #sddm div a {
-    color: #2875DE;
+    color: darken($primary, 15%);
 }
 
 #sddm div a:hover {
-    background: #2672ec;
+    background: $primary;
 }
 
 #sddm li.encounter-form-category-li {
@@ -343,7 +330,7 @@ div.category-display {
 }
 
 .chevron_color {
-    color: #2672ec;
+    color: $primary;
 }
 
 #create_patient_btn {
@@ -366,7 +353,7 @@ div.category-display {
 }
 
 #oe-nav-ul.tabNav li.current {
-    color: #2672ec;
+    color: $primary;
 }
 
 #oe-nav-ul.tabNav a {
@@ -377,7 +364,7 @@ div.category-display {
 
 #oe-nav-ul.tabNav a:hover {
     background-color: $white !important;
-    color: #2672ec;
+    color: $primary;
 }
 
 #oe-nav-ul.tabNav {
@@ -385,17 +372,17 @@ div.category-display {
 }
 
 #oe-nav-ul.tabNav .current a {
-    border-color: #2672ec;
+    border-color: $primary;
     background: $white;
-    color: #2672ec;
+    color: $primary;
 }
 
 #globals-div .tabContainer {
-    border-color: #2672ec;
+    border-color: $primary;
 }
 
 .oe-global-tab-heading {
-    color: #2672ec;
+    color: $primary;
 }
 
 /*openrmr5.0.2 edit_globals vertical menu*/
@@ -413,7 +400,7 @@ div.category-display {
 
 .navbar-default .navbar-nav > li > a:focus,
 .navbar-default .navbar-nav > li > a:hover {
-    color: #333;
+    color: $dark;
     background-color: #eee;
 }
 

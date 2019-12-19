@@ -2,26 +2,71 @@
 *
 *   Dark Theme for OpenEMR
 *   @author Tyler Wrenn
+*
+*   Colors that are declared below have been inverted to show the dark theme.
 *   
 */
 
 /* Bootstrap Magic Code */
-
+$blue: #007bff;
+$indigo: #6610f2;
+$purple: #6f42c1;
+$pink: #e83e8c;
+$red: #dc3545;
+$orange: #fd7e14;
+$yellow: #ffc107;
+$green: #28a745;
+$teal: #20c997;
+$cyan: #17a2b8;
 $white: #000;
-$gray-100: #070605;
-$gray-200: #161310;
-$gray-300: #211D19;
-$gray-400: #312B25;
-$gray-500: #524A42;
-$gray-600: #797169;
-$gray-700: #B6AFA8;
-$gray-800: #CBC5BF;
-$gray-900: #DEDAD6;
+$gray-100: #212529;
+$gray-200: #343a40;
+$gray-300: #495057;
+$gray-400: #868e96;
+$gray-500: #adb5bd;
+$gray-600: #ced4da;
+$gray-700: #dee2e6;
+$gray-800: #e9ecef;
+$gray-900: #f8f9fa;
 $black: #fff;
+$ovr-dark: $gray-100;
+$light: $gray-100;
+$dark: $gray-800;
 
+$theme-colors: (
+    primary: $blue,
+    secondary: $gray-900,
+    success: $green,
+    info: $cyan,
+    warning: $yellow,
+    danger: $red,
+    light: $gray-100,
+    dark: $gray-800,
+    ovr-dark: $gray-100 /* Adds override class in case we HAVE to have a dark color */
+);
+$colors: (
+    blue: $blue,
+    indigo: $indigo,
+    purple: $purple,
+    pink: $pink,
+    red: $red,
+    orange: $orange,
+    yellow: $yellow,
+    green: $green,
+    teal: $teal,
+    cyan: $cyan,
+    white: $white,
+    gray: $gray-600,
+    gray-dark: $gray-800
+);
+
+$body-bg: $white; /* This is actually dark */
+$body-color: $gray-900; /* This is actually light */
 $font-family-sans-serif: "Lato", "Helvetica", sans-serif;
 $font-size-base: 0.875rem;
 $font-family-base: $font-family-sans-serif;
+
+$btn-link-disabled-color: $gray-400;
 
 @import "core";
 
@@ -88,23 +133,11 @@ span.bold {
     font-size: 1.13em;
 }
 
-.body_top {
-    background-color: $white;
-}
-
-/* $top_bg_line */
-
 .bgcolor2 {
-    background-color: $white;
+    background-color: $white !important;
 }
 
 /* $GLOBALS['style']['BGCOLOR2'] */
-
-.body_title {
-    background-color: $light;
-}
-
-/* $title_bg_line */
 
 .body_nav {
     background-color: #f0f0f0;
@@ -445,7 +478,17 @@ div.category-display {
 /*vertical main menu */
 /*search any*/
 *.oe-expandable-search .any-search-legacy {
-    background: #FFFFFD;
+    background: $white;
+}
+
+
+/* Overrides go here */
+.btn-secondary {
+    color: $ovr-dark !important;
+}
+
+.menuEntries li .menuLabel:hover {
+    color: $ovr-dark !important;
 }
 
 /*search any*/

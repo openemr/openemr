@@ -346,20 +346,20 @@ if ($_SESSION['authorizeduser'] == 1) {
     $_SESSION['pc_facility'] = key($facilities);
 }
 if (count($facilities) > 1) {
-    echo "   <select name='pc_facility' id='pc_facility'  class='view1' >\n";
+    echo "   <select name='pc_facility' id='pc_facility'  class='view1 form-control' >\n";
     if ( !$_SESSION['pc_facility'] ) $selected = "selected='selected'";
     // echo "    <option value='0' $selected>" . xlt('All Facilities') . "</option>\n";
     if (!$GLOBALS['restrict_user_facility']) echo "    <option value='0' $selected>" . xlt('All Facilities') . "</option>\n";
     foreach ($facilities as $fa) {
         $selected = ( $_SESSION['pc_facility'] == $fa['id']) ? "selected='selected'" : "" ;
-        echo "    <option style=background-color:".htmlspecialchars($fa['color'],ENT_QUOTES)." value='" . attr($fa['id']). "' $selected>" . text($fa['name']). "</option>\n";
+        echo "    <option class='bg-info' value='" . attr($fa['id']). "' $selected>" . text($fa['name']). "</option>\n";
     }
     echo "   </select>\n";
 }
 // EOS FF
 // ==============================
  echo "</div>";
- echo "   <select multiple size='5' name='pc_username[]' id='pc_username' class='view2'>\n";
+ echo "   <select multiple size='5' name='pc_username[]' id='pc_username' class='view2 form-control'>\n";
  echo "    <option value='__PC_ALL__'>" . xlt("All Users") . "</option>\n";
  foreach ($provinfo as $doc) {
   $username = $doc['username'];
@@ -379,7 +379,7 @@ if($_SESSION['pc_facility'] == 0){
  <table>
 [-php-]
 foreach ($facilities as $f){
-echo "   <tr><td><div class='view1' style=background-color:".$f['color'].";font-weight:bold>" . text($f['name'])."</div></td></tr>";
+echo "   <tr><td><div class='view1 bg-info font-weight-bold text-ovr-dark'>" . text($f['name'])."</div></td></tr>";
 }
 [-/php-]
  </table>

@@ -121,9 +121,9 @@ body {
     font-size: 0.9em;
     margin: 0px;
     padding: 8px 8px;
-    border-top: 3pt solid #1976d2;
+    border-top: 3.99px solid #1976d2;
     border-left: 1px solid #1976d2;
-    border-bottom: 0pt;
+    border-bottom: 0;
     border-right: 1px solid #1976d2;
     cursor: pointer;
     flex: 0 1 auto;
@@ -132,15 +132,15 @@ body {
 }
 
 .tabSpan:last-child {
-    /*border-right: 1pt solid #1976d2;*/
+    /*border-right: 1.33px solid #1976d2;*/
 }
 
 .tabNotchosen {
     background: transparent;
-    border-top: 3pt solid transparent;
+    border-top: 3.99px solid transparent;
     border-left: none;
     border-right: none;
-    border-bottom: 1pt solid #1976d2;
+    border-bottom: 1.33px solid #1976d2;
     display: block;
 }
 
@@ -150,15 +150,11 @@ body {
 
 .tabsNoHover {
     background: transparent !important;
-    border-top: 3pt solid transparent;
+    border-top: 3.99px solid transparent;
     border-left: none;
     border-right: none;
-    border-bottom: 1pt solid #1976d2;
+    border-bottom: 1.33px solid #1976d2;
     display: block;
-}
-
-#attendantData {
-    background-color: #f4f4f4;
 }
 
 .patientInfo a {
@@ -308,7 +304,6 @@ body {
  * This currently controls ALL links in menu, no bueno
  * --Robert Down */
 .menuLabel {
-    color: #333;
     padding: 15px 10px;
     font-weight: 700;
     transition: background-color 0.1s ease;
@@ -332,23 +327,8 @@ div.menuLabel:hover {
     float: none;
 }
 
-.menuEntries li .menuLabel:hover {
-    background-color: #CCE3F8;
-    color: #333;
-}
-
 .logo {
     padding: 10px 0px;
-}
-
-.menuDisabled {
-    color: #d7d7d7 !important;
-}
-
-.menuDisabled:hover {
-    color: #d7d7d7 !important;
-    background-color: #f4f4f4 !important;
-    cursor: not-allowed;
 }
 
 #username {
@@ -362,16 +342,12 @@ div.menuLabel:hover {
 
 /* Main menu bar */
 .body_top {
-    background-color: #f4f4f4;
-    color: #333;
     padding: 0px;
     margin: 0px;
     z-index: 10;
 }
 
 .body_title {
-    color: black;
-    background-color: #f4f4f4;
     padding: 10px 0px 0px 0px;
 }
 
@@ -380,17 +356,13 @@ div.menuLabel:hover {
     width: 98%;
 }
 
-#username > .userfunctions > div:hover {
-    color: red;
-}
-
 .menu_arrow {
     bottom: 0px;
     margin: 7px 7px 2px 7px;
 }
 
 .topToolbarRight {
-    border-top: 0pt;
+    border-top: 0;
 }
 
 .closeButton {
