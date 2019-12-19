@@ -481,7 +481,7 @@ STP2TOP;
                             <div class="col-sm-4">
                                 <div class="clearfix form-group">
                                     <div class="label-div">
-                                        <label class="control-label font-weight-bold" for="server">Server Host:</label> <a href="#server_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="font-weight-bold" for="server">Server Host:</label> <a href="#server_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div>
                                         <input name='server' id='server' type='text' class='form-control' value='localhost'>
@@ -498,7 +498,7 @@ STP2TOP;
                             <div class="col-sm-4">
                                 <div class="clearfix form-group">
                                     <div class="label-div">
-                                        <label class="control-label font-weight-bold" for="port">Server Port:</label> <a href="#port_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="font-weight-bold" for="port">Server Port:</label> <a href="#port_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div>
                                         <input name='port' id='port' type='text' class='form-control' value='3306'>
@@ -513,7 +513,7 @@ STP2TOP;
                             <div class="col-sm-4">
                                 <div class="clearfix form-group">
                                     <div class="label-div">
-                                        <label class="control-label font-weight-bold" for="dbname">Database Name:</label> <a href="#dbname_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="font-weight-bold" for="dbname">Database Name:</label> <a href="#dbname_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div>
                                         <input name='dbname' id='dbname' type='text' class='form-control' value='openemr'>
@@ -531,7 +531,7 @@ STP2TOP;
                             <div class="col-sm-4">
                                 <div class="clearfix form-group">
                                     <div class="label-div">
-                                        <label class="control-label font-weight-bold" for="login">Login Name:</label> <a href="#login_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="font-weight-bold" for="login">Login Name:</label> <a href="#login_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div>
                                         <input name='login' ID='login' type='text' class='form-control' value='openemr'>
@@ -547,7 +547,7 @@ STP2TOP;
                             <div class="col-sm-4">
                                 <div class="clearfix form-group">
                                     <div class="label-div">
-                                        <label class="control-label font-weight-bold" for="pass">Password:</label> <a href="#pass_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="font-weight-bold" for="pass">Password:</label> <a href="#pass_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div>
                                         <input name='pass' id='pass' class='form-control' type='password' value='' required>
@@ -566,7 +566,7 @@ STP2TBLTOP1;
                             <div class="col-sm-4">
                                 <div class="clearfix form-group">
                                     <div class="label-div">
-                                        <label class="control-label font-weight-bold" for="root">Name for Root Account:</label> <a href="#root_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="font-weight-bold" for="root">Name for Root Account:</label> <a href="#root_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div>
                                         <input name='root' id='root' type='text' class='form-control' value='root'>
@@ -583,7 +583,7 @@ STP2TBLTOP1;
                             <div class="col-sm-4">
                                 <div class="clearfix form-group">
                                     <div class="label-div">
-                                        <label class="control-label font-weight-bold" for="rootpass">Root Password:</label> <a href="#rootpass_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="font-weight-bold" for="rootpass">Root Password:</label> <a href="#rootpass_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div>
                                         <input name='rootpass' id='rootpass' type='password' class='form-control' value=''>
@@ -598,7 +598,7 @@ STP2TBLTOP1;
                             <div class="col-sm-4">
                                 <div class="clearfix form-group">
                                     <div class="label-div">
-                                        <label class="control-label font-weight-bold" for="loginhost">User Hostname:</label> <a href="#loginhost_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="font-weight-bold" for="loginhost">User Hostname:</label> <a href="#loginhost_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div>
                                         <input name='loginhost' id='loginhost' type='text' class='form-control' value='localhost'>
@@ -613,7 +613,7 @@ STP2TBLTOP1;
                             <div class="col-sm-4">
                                 <div class="clearfix form-group">
                                     <div class="label-div">
-                                        <label class="control-label font-weight-bold" for="collate">UTF-8 Collation:</label> <a href="#collate_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="font-weight-bold" for="collate">UTF-8 Collation:</label> <a href="#collate_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div>
                                         <select name='collate' id=='collate' class='form-control'>
@@ -742,7 +742,7 @@ STP2TBLTOP2;
                             <div class="col-sm-4">
                                 <div class="clearfix form-group">
                                     <div class="label-div">
-                                        <label class="control-label font-weight-bold" for="source_site_id">Source Site:</label> <a href="#source_site_id_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="font-weight-bold" for="source_site_id">Source Site:</label> <a href="#source_site_id_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div>
                                         <select name='source_site_id'id='source_site_id' class='form-control'>
@@ -769,7 +769,7 @@ SOURCESITETOP;
                             <div class="col-sm-4">
                                 <div class="clearfix form-group">
                                     <div class="label-div">
-                                        <label class="control-label font-weight-bold" for="clone_database">Clone Source Database:</label> <a href="#clone_database_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="font-weight-bold" for="clone_database">Clone Source Database:</label> <a href="#clone_database_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div>
                                         <input type='checkbox' name='clone_database' id='clone_database' onclick='cloneClicked()' />
@@ -814,7 +814,7 @@ SOURCESITEBOT;
                             <div class="col-sm-4">
                                 <div class="clearfix form-group">
                                     <div class="label-div">
-                                        <label class="control-label font-weight-bold" for="iuser">Initial User Login Name:</label> <a href="#iuser_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="font-weight-bold" for="iuser">Initial User Login Name:</label> <a href="#iuser_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div>
                                         <input name='iuser' id='iuser' type='text' class='form-control' value='$randomusername' minlength='12'>
@@ -831,7 +831,7 @@ SOURCESITEBOT;
                             <div class="col-sm-4">
                                 <div class="clearfix form-group">
                                     <div class="label-div">
-                                        <label class="control-label font-weight-bold" for="iuserpass">Initial User Password:</label> <a href="#iuserpass_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="font-weight-bold" for="iuserpass">Initial User Password:</label> <a href="#iuserpass_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div>
                                         <input name='iuserpass' id='iuserpass' type='password' class='form-control' value='' minlength='12'>
@@ -845,7 +845,7 @@ SOURCESITEBOT;
                             <div class="col-sm-4">
                                 <div class="clearfix form-group">
                                     <div class="label-div">
-                                        <label class="control-label font-weight-bold" for="iufname">Initial User's First Name:</label> <a href="#iufname_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="font-weight-bold" for="iufname">Initial User's First Name:</label> <a href="#iufname_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div>
                                         <input name='iufname' id='iufname 'type='text' class='form-control' value='Administrator'>
@@ -861,7 +861,7 @@ SOURCESITEBOT;
                             <div class="col-sm-4">
                                 <div class="clearfix form-group">
                                     <div class="label-div">
-                                        <label class="control-label font-weight-bold" for="iuname">Initial User's Last Name:</label> <a href="#iuname_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="font-weight-bold" for="iuname">Initial User's Last Name:</label> <a href="#iuname_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div>
                                         <input name='iuname' id='iuname' type='text' class='form-control' value='Administrator'>
@@ -876,7 +876,7 @@ SOURCESITEBOT;
                             <div class="col-sm-4">
                                 <div class="clearfix form-group">
                                     <div class="label-div">
-                                        <label class="control-label font-weight-bold" for="igroup">Initial Group:</label> <a href="#igroup_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="font-weight-bold" for="igroup">Initial Group:</label> <a href="#igroup_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div>
                                         <input name='igroup' id='igroup' class='form-control' type='text' value='Default'>
@@ -897,7 +897,7 @@ SOURCESITEBOT;
                             <div class="col-sm-3">
                                 <div class="clearfix form-group">
                                     <div class="label-div">
-                                        <label class="control-label font-weight-bold" for="i2fa">Configure 2FA:</label> <a href="#i2fa_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="font-weight-bold" for="i2fa">Configure 2FA:</label> <a href="#i2fa_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div>
                                     <input name='i2faenable' id='i2faenable' type='checkbox' $disableCheckbox/> Enable 2FA
