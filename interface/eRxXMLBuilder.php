@@ -642,7 +642,7 @@ class eRxXMLBuilder
             $vitals['height_units']) {
             $element->appendChild($this->createElementText('height', $vitals['height']));
             $element->appendChild($this->createElementText('heightUnits', $vitals['height_units']));
-        } else if ($age['age'] < 19){
+        } else if ($age['age'] < 19) {
             $this->warningMessage('', xl('Patient Height Vital is required under age 19'));
         }
 
@@ -650,7 +650,7 @@ class eRxXMLBuilder
             $vitals['weight_units']) {
             $element->appendChild($this->createElementText('weight', $vitals['weight']));
             $element->appendChild($this->createElementText('weightUnits', $vitals['weight_units']));
-        }else if ($age['age'] < 19){
+        } else if ($age['age'] < 19) {
             $this->warningMessage('', xl('Patient Weight Vital  is required under age 19'));
         }
 

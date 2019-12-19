@@ -102,7 +102,8 @@ class eRxStore
             FROM form_vitals AS FORM_VITALS LEFT JOIN forms AS FORMS ON FORM_VITALS.id = FORMS.form_id 
             WHERE FORM_VITALS.pid=? AND FORMS.deleted != '1' 
             ORDER BY FORM_VITALS.date DESC",
-            array($patientId));
+            array($patientId)
+        );
 
         $data = formFetch("form_vitals", $result['id']);
 
