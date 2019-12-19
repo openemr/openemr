@@ -5,10 +5,12 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Sam Likins <sam.likins@wsi-services.com>
+ * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2013-2015 Sam Likins <sam.likins@wsi-services.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+require_once(__DIR__."/../library/api.inc");
 
 class eRxStore
 {
@@ -91,6 +93,28 @@ class eRxStore
 			WHERE pid = ?;',
             array($patientId)
         );
+    }
+
+    public function getPatientVitalsByPatientId($patientId)
+    {
+        $result=sqlQuery(
+            "SELECT FORM_VITALS.date, FORM_VITALS.id 
+            FROM form_vitals AS FORM_VITALS LEFT JOIN forms AS FORMS ON FORM_VITALS.id = FORMS.form_id 
+            WHERE FORM_VITALS.pid=? AND FORMS.deleted != '1' 
+            ORDER BY FORM_VITALS.date DESC",
+            array($patientId));
+
+        $data = formFetch("form_vitals", $result['id']);
+
+        $weight = number_format($data['weight']*0.45359237, 2);
+        $height = round(number_format($data['height']*2.54, 2), 1);
+
+        return [
+            'height' => $height,
+            'height_units' => 'cm',
+            'weight' => $weight,
+            'weight_units' => 'kg'
+        ];
     }
 
     public function getPatientHealthplansByPatientId($patientId)
