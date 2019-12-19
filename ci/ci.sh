@@ -29,10 +29,12 @@ if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
     case "$CI_JOB" in
 
         "build_test")
-            echo "Checking build and tests"
             cd $2
+            echo "------------------------"
+            echo "Checking build and tests"
 
-            echo "build openemr (mimick standard build steps for production package)"
+            echo "------------------------"
+            echo "Build openemr (mimick standard build steps for production package)"
             composer install
             npm install
             npm run build
@@ -43,28 +45,33 @@ if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
             composer dump-autoload -o
             rm -fr node_modules
 
-            echo "also install ccdaservice to allow ccdaservice testing (this step is not part of production build)"
+            echo "------------------------"
+            echo "Also build ccdaservice to allow ccdaservice testing (this step is not part of production build)"
             cd ccdaservice
             npm install
             cd ../
 
-            echo "install/configure active openemr instance"
+            echo "------------------------"
+            echo "Install/configure active openemr instance"
             chmod 666 sites/default/sqlconf.php
             sudo chown -R www-data:www-data sites/default/documents
             sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php
             php -f contrib/util/installScripts/InstallerAutoTemp.php
             rm -f contrib/util/installScripts/InstallerAutoTemp.php
 
-            echo "turn on the api to allow api testing"
+            echo "------------------------"
+            echo "Turn on the api to allow api testing"
             mysql -u openemr --password="openemr" -h localhost -e "UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_api'" openemr
 
-            echo "run phpunit testing"
+            echo "------------------------"
+            echo "Run phpunit testing"
             composer global require "phpunit/phpunit=8.*"
             $BIN_DIR/phpunit --testdox
             ;;
         "lint_syntax")
-            echo "Checking for PHP syntax errors"
             cd $2
+            echo "------------------------"
+            echo "Checking for PHP syntax errors"
             failSyntax=false;
             if find . -type f -name "*.php" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi;
             if find . -type f -name "*.inc" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi;
@@ -73,8 +80,9 @@ if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
             fi
             ;;
         "lint_style")
-            echo "Checking for PHP styling (PSR2) issues"
             cd $2
+            echo "------------------------"
+            echo "Checking for PHP styling (PSR2) issues"
             composer global require "squizlabs/php_codesniffer=3.*"
             $BIN_DIR/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=full .
             ;;
