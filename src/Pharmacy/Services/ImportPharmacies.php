@@ -15,9 +15,8 @@ use Address;
 use OpenEMR\Common\Http\oeHttp;
 use Pharmacy;
 
-
 /**
- * @package Import
+ * @package ImportPharmacies
  * This class extends the Pharmacy class to import pharmacies listed with CMS.
  * It can be adapted to work in other countries if a similar API is available.
  * There is a duplication check using the NPI number. If the NPI number exist in the table. The entry is skipped.
@@ -64,7 +63,7 @@ class ImportPharmacies
                 if (self::entryCheck($npi) === true) {
                     continue;
                 }
-               /*************Check Zip Code Length**********************/
+                /*************Check Zip Code Length**********************/
                 $zipCode = $show['addresses'][0]['postal_code'];
                 if (strlen($zipCode) > 5) {
                     $zip = substr($zipCode, 0, -4);
@@ -73,20 +72,19 @@ class ImportPharmacies
                 $identifiers = $show['identifiers'];
                 $ncpdp = self::findNcpdp($identifiers);
 
-                    $pharmacy = new Pharmacy();
-                    $pharmacy->set_id();
-                    $pharmacy->set_name($show['basic']['name']);
-                    $pharmacy->set_ncpdp($ncpdp);
-                    $pharmacy->set_npi($show['number']);
-                    $pharmacy->set_address_line1($show['addresses'][0]['address_1']);
-                    $pharmacy->set_city($show['addresses'][0]['city']);
-                    $pharmacy->set_state($show['addresses'][0]['state']);
-                    $pharmacy->set_zip($zip);
-                    $pharmacy->set_fax($show['addresses'][0]['fax_number']);
-                    $pharmacy->set_phone($show['addresses'][0]['telephone_number']);
-                    $pharmacy->persist();
-                    ++$i;
-
+                $pharmacy = new Pharmacy();
+                $pharmacy->set_id();
+                $pharmacy->set_name($show['basic']['name']);
+                $pharmacy->set_ncpdp($ncpdp);
+                $pharmacy->set_npi($show['number']);
+                $pharmacy->set_address_line1($show['addresses'][0]['address_1']);
+                $pharmacy->set_city($show['addresses'][0]['city']);
+                $pharmacy->set_state($show['addresses'][0]['state']);
+                $pharmacy->set_zip($zip);
+                $pharmacy->set_fax($show['addresses'][0]['fax_number']);
+                $pharmacy->set_phone($show['addresses'][0]['telephone_number']);
+                $pharmacy->persist();
+                ++$i;
             }
         }
         $response = $i;
@@ -101,7 +99,7 @@ class ImportPharmacies
     {
         foreach ($identifiers as $identifier => $value) {
             if ($value['desc'] == 'Other') {
-                    return $value['identifier'];
+                return $value['identifier'];
             }
         }
         return null;
@@ -123,6 +121,4 @@ class ImportPharmacies
             return false;
         }
     }
-
-
 }
