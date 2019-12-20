@@ -20,10 +20,12 @@ assets:
     bootstrap:
         basePath: %assets_static_relative%/bootstrap/dist/
         script: js/bootstrap.bundle.min.js
-        # Moving into SASS
-        # link: css/bootstrap.min.css
+        # Bootstrap is included in main themes via SASS
+        #  So will only use below css link if no_main-theme token is provided.
+        #  TODO - incorporate this mechanism for rtl when rtl bootrap SASS mechanism is up and running
+        link: css/bootstrap.min.css
         autoload: true
-        allowNoLoad: true # could also just edit Header.php to remove this check (unnecessary?)
+        allowNoLoad: true
         rtl:
             basePath: %assets_static_relative%/bootstrap-v4-rtl/dist/
             link: css/bootstrap-rtl.min.css

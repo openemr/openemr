@@ -13,7 +13,6 @@
 <html>
     <head>
         <link rel=stylesheet href="../../public/themes/style_light.css">
-        <link rel="stylesheet" href="../../public/assets/bootstrap/dist/css/bootstrap.min.css" type="text/css">
         <link rel="stylesheet" href="../../public/assets/jquery-ui/jquery-ui.css" type="text/css">
         <script type="text/javascript" src="../../public/assets/jquery/dist/jquery.min.js"></script>
         <script type="text/javascript" src="../../public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

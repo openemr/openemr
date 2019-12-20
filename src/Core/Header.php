@@ -147,8 +147,13 @@ class Header
                     self::$scripts[] = $s;
                 }
 
-                foreach ($tmp['links'] as $l) {
-                    self::$links[] = $l;
+                if (($k == "bootstrap") && (!in_array("no_main-theme", $selectedAssets))) {
+                    // Above comparison is to skip bootstrap theme loading when using a main theme
+                    //  since bootstrap theme is already including in main themes via SASS.
+                } else {
+                    foreach ($tmp['links'] as $l) {
+                        self::$links[] = $l;
+                    }
                 }
 
                 if ($rtl && $_SESSION['language_direction'] == 'rtl') {
