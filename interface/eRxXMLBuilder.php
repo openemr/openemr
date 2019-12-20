@@ -651,7 +651,7 @@ class eRxXMLBuilder
             $element->appendChild($this->createElementText('weight', $vitals['weight']));
             $element->appendChild($this->createElementText('weightUnits', $vitals['weight_units']));
         } else if ($age['age'] < 19) {
-            $this->warningMessage('', xl('Patient Weight Vital  is required under age 19'));
+            $this->warningMessage('', xl('Patient Weight Vital is required under age 19'));
         }
 
         return $element;
