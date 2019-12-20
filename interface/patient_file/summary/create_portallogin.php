@@ -32,8 +32,7 @@ $trustedEmail['email_direct'] = !empty(trim($trustedEmail['email_direct'])) ? te
 $trustedUserName = $trustedEmail['email_direct'];
 // check for duplicate username
 $dup_check = sqlQueryNoLog("SELECT * FROM patient_access_" . escape_identifier($portalsite, array("on","off"), true) .
-    "site WHERE pid != ? AND portal_login_username = ?", array($pid, $trustedUserName)
-);
+    "site WHERE pid != ? AND portal_login_username = ?", array($pid, $trustedUserName));
 // make unique if needed
 if (!empty($dup_check)) {
     if (strpos($trustedUserName, '@')) {
