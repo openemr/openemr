@@ -110,7 +110,7 @@ class AuthRestController
             return;
         }
         $encoded_token = base64_encode(json_encode(['token' => $encrypted_new_full_token, 'site_id' => trim($_SESSION['site_id']), 'api' => trim($_SESSION['api'])]));
-        $give = array("token_type" => "Bearer", "access_token" => $encoded_token, "expires_in" => "3600");
+        $give = array("token_type" => "Bearer", "access_token" => $encoded_token, "expires_in" => "3600", "user_data" => array("user_id" => $userId));
         $ip = collectIpAddresses();
         EventAuditLogger::instance()->newEvent('api', $authPayload["username"], $userGroup, 1, "API success for API token request: " . $ip['ip_string']);
         http_response_code(200);

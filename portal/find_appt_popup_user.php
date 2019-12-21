@@ -8,9 +8,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Ian Jardine ( github.com/epsdky )
  * @copyright Copyright (C) 2005-2013 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (C) 2019 Ian Jardine ( github.com/epsdky )
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -18,6 +20,9 @@
 // This module needs to be refactored to share the same code that is in
 // interface/main/calendar/find_appt_popup.php.  It contains an old version
 // of that logic and does not support exception dates for repeating events.
+
+// Rod mentioned in the previous comment that the code "does not support exception dates for repeating events".
+// This issue no longer exists - epsdky 2019
 
 //continue session
 // Will start the (patient) portal OpenEMR session/cookie.
@@ -44,6 +49,7 @@ $ignoreAuth = 1;
 
 require_once("../interface/globals.php");
 require_once("$srcdir/patient.inc");
+require_once(dirname(__FILE__)."/../library/appointments.inc.php");
 
 use OpenEMR\Core\Header;
 
@@ -154,135 +160,30 @@ if ($_REQUEST['startdate'] && preg_match(
     //
         $slots = array_pad(array(), $slotcount, 0);
 
-    // Note there is no need to sort the query results.
-    //  echo $sdate." -- ".$edate;
+        // Note there is no need to sort the query results.
+        //  echo $sdate." -- ".$edate;
         $query = "SELECT pc_eventDate, pc_endDate, pc_startTime, pc_duration, " .
             "pc_recurrtype, pc_recurrspec, pc_alldayevent, pc_catid, pc_prefcatid, pc_title " .
             "FROM openemr_postcalendar_events " .
             "WHERE pc_aid = ? AND " .
             "((pc_endDate >= ? AND pc_eventDate < ?) OR " .
             "(pc_endDate = '0000-00-00' AND pc_eventDate >= ? AND pc_eventDate < ?))";
-        $res = sqlStatement($query, array($providerid, $sdate, $edate, $sdate, $edate));
-   //  print_r($res);
 
-        while ($row = sqlFetchArray($res)) {
+        $sqlBindArray = array();
+        array_push($sqlBindArray, $providerid, $sdate, $edate, $sdate, $edate);
+        //////
+        $events2 = fetchEvents($sdate, $edate, null, null, false, 0, $sqlBindArray, $query);
+        foreach ($events2 as $row) {
             $thistime = strtotime($row['pc_eventDate'] . " 00:00:00");
-            if ($row['pc_recurrtype']) {
-                preg_match('/"event_repeat_freq_type";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
-                $repeattype = $matches[1];
-
-                preg_match('/"event_repeat_freq";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
-                $repeatfreq = $matches[1];
-                if ($row['pc_recurrtype'] == 2) {
-                    // Repeat type is 2 so frequency comes from event_repeat_on_freq.
-                    preg_match('/"event_repeat_on_freq";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
-                    $repeatfreq = $matches[1];
-                }
-
-                if (! $repeatfreq) {
-                    $repeatfreq = 1;
-                }
-
-                preg_match('/"event_repeat_on_num";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
-                $my_repeat_on_num = $matches[1];
-
-                preg_match('/"event_repeat_on_day";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
-                $my_repeat_on_day = $matches[1];
-
-                $endtime = strtotime($row['pc_endDate'] . " 00:00:00") + (24 * 60 * 60);
-                if ($endtime > $slotetime) {
-                    $endtime = $slotetime;
-                }
-
-                $repeatix = 0;
-                while ($thistime < $endtime) {
-                    // Skip the event if a repeat frequency > 1 was specified and this is
-                    // not the desired occurrence.
-                    if (! $repeatix) {
-                        doOneDay(
-                            $row['pc_catid'],
-                            $thistime,
-                            $row['pc_startTime'],
-                            $row['pc_duration'],
-                            $row['pc_prefcatid']
-                        );
-                    }
-
-                    if (++$repeatix >= $repeatfreq) {
-                        $repeatix = 0;
-                    }
-
-                    $adate = getdate($thistime);
-
-                    if ($row['pc_recurrtype'] == 2) {
-                        // Need to skip to nth or last weekday of the next month.
-                        $adate['mon'] += 1;
-                        if ($adate['mon'] > 12) {
-                            $adate['year'] += 1;
-                            $adate['mon'] -= 12;
-                        }
-
-                        if ($my_repeat_on_num < 5) { // not last
-                            $adate['mday'] = 1;
-                            $dow = jddayofweek(cal_to_jd(CAL_GREGORIAN, $adate['mon'], $adate['mday'], $adate['year']));
-                            if ($dow > $my_repeat_on_day) {
-                                $dow -= 7;
-                            }
-
-                            $adate['mday'] += ($my_repeat_on_num - 1) * 7 + $my_repeat_on_day - $dow;
-                        } else { // last weekday of month
-                            $adate['mday'] = cal_days_in_month(CAL_GREGORIAN, $adate['mon'], $adate['year']);
-                            $dow = jddayofweek(cal_to_jd(CAL_GREGORIAN, $adate['mon'], $adate['mday'], $adate['year']));
-                            if ($dow < $my_repeat_on_day) {
-                                $dow += 7;
-                            }
-
-                            $adate['mday'] += $my_repeat_on_day - $dow;
-                        }
-                    } else { // end recurrtype 2
-                        if ($repeattype == 0) { // daily
-                            $adate['mday'] += 1;
-                        } else if ($repeattype == 1) { // weekly
-                            $adate['mday'] += 7;
-                        } else if ($repeattype == 2) { // monthly
-                            $adate['mon'] += 1;
-                        } else if ($repeattype == 3) { // yearly
-                            $adate['year'] += 1;
-                        } else if ($repeattype == 4) { // work days
-                            if ($adate['wday'] == 5) {      // if friday, skip to monday
-                                $adate['mday'] += 3;
-                            } else if ($adate['wday'] == 6) { // saturday should not happen
-                                $adate['mday'] += 2;
-                            } else {
-                                $adate['mday'] += 1;
-                            }
-                        } else if ($repeattype == 5) { // monday
-                            $adate['mday'] += 7;
-                        } else if ($repeattype == 6) { // tuesday
-                            $adate['mday'] += 7;
-                        } else if ($repeattype == 7) { // wednesday
-                            $adate['mday'] += 7;
-                        } else if ($repeattype == 8) { // thursday
-                            $adate['mday'] += 7;
-                        } else if ($repeattype == 9) { // friday
-                            $adate['mday'] += 7;
-                        } else {
-                             die("Invalid repeat type '$repeattype'");
-                        }
-                    } // end recurrtype 1
-
-                    $thistime = mktime(0, 0, 0, $adate['mon'], $adate['mday'], $adate['year']);
-                }
-            } else {
-                doOneDay(
-                    $row['pc_catid'],
-                    $thistime,
-                    $row['pc_startTime'],
-                    $row['pc_duration'],
-                    $row['pc_prefcatid']
-                );
-            }
+            doOneDay(
+                $row['pc_catid'],
+                $thistime,
+                $row['pc_startTime'],
+                $row['pc_duration'],
+                $row['pc_prefcatid']
+            );
         }
+        //////
 
      // Mark all slots reserved where the provider is not in-office.
      // Actually we could do this in the display loop instead.

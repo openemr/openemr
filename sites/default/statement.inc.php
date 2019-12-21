@@ -403,10 +403,10 @@ function create_HTML_statement($stmt)
     $out .= "<br /><br />";
     $out .= $label_cardnum .': __________________________________  '.$label_expiry.': ___ / ____ '.$label_cvv.':____<br /><br />';
     $out .= $label_sign .'  ______________________________________________<br />';
-    $out .="      </td><td style=width:2.0in;vertical-align:middle;'>";
+    $out .="</td><td style='width:2.0in;vertical-align:middle;'>";
     $practice_cards = $GLOBALS['OE_SITE_DIR']. "/images/visa_mc_disc_credit_card_logos_176x35.gif";
     if (file_exists($GLOBALS['OE_SITE_DIR']."/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
-        $out .= "<img src='$practice_cards' style='width:100%; margin:4px auto;'><br /><p>\n<b>" .
+        $out .= "<img src='$practice_cards' style='width:90px;height:auto; margin:4px auto;'><br /><p>\n<b>" .
             $label_totaldue . "</b>: " . $stmt['amount']. "<br/>". xlt('Payment Tracking Id') . ": " .
             text($stmt['pid']);
         $out .= "<br />" . xlt('Amount Paid') . ": _______ " . xlt('Check') . " #:</p>";
