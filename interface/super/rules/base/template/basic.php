@@ -20,11 +20,11 @@ use OpenEMR\Core\Header;
 
     <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>" type="text/css">
     <link rel="stylesheet" href="<?php css_src('rules.css') ?>?v=<?php echo $v_js_includes; ?>" type="text/css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']; ?>/public/assets/bootstrap/BS4/css/bootstrap.css">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/www/js/BS4/css/bootstrap.css">
+    <script src="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/www/js/BS4/popper.min.js"></script>
     <?php Header::setupHeader([ 'jquery', 'jquery-ui','bootstrap', 'fontawesome', 'modals']); ?>
-    <script src="<?php echo $GLOBALS['web_root']; ?>/public/assets/bootstrap/BS4/js/bootstrap.bundle.js.map"></script>
-    <script src="https://oculoplasticsllc.com/openemr/public/assets/bootstrap/BS4/popper.min.js"></script>
-
+    <script src="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/www/js/BS4/js/bootstrap.bundle.js.map"></script>
+    
 
 </head>
 
@@ -42,11 +42,12 @@ use OpenEMR\Core\Header;
             </div>-->
             <div id="hide_nav" style="<?php if ($setting_bootstrap_submenu == 'hide') {
                 echo "display:none;"; } ?>">
-                <nav id="navbar_oe" class="navbar-expand-sm bgcolor2 fixed-top navbar-fixed-top justify-content-center "
-                 data-role="page banner navigation">
+                <nav id="navbar_oe"
+                     class="navbar-expand-sm bgcolor2 fixed-top navbar-fixed-top oe-pull-toward-unimportant"
+                     data-role="page banner navigation">
 
-                    <ul class="navbar-nav">
-                        <LI></LI>
+                    <ul class="navbar-nav menuSection">
+                        <li class="indent10">&nbsp; &nbsp;</li>
                         <li class="nav-item dropdown">
                             <a href="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/index.php?action=browse!plans_config"><?php echo xlt("Care Plans"); ?></a>
                         </li>
@@ -91,7 +92,7 @@ use OpenEMR\Core\Header;
     } else {
         echo 'up';
     } ?> menu_arrow" style="position:fixed;left:5px;top:5px;z-index:1099;" id="patient_caret" onclick='toggle_menu();' aria-hidden="true"></i>
-<br /><br />
+
 <div class="container-fluid">
 <?php
     require_once($GLOBALS["srcdir"] . "/../interface/super/rules/controllers/edit/helper/common.php");

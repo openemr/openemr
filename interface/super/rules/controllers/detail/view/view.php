@@ -13,12 +13,16 @@
     
     require_once($GLOBALS["srcdir"] . "/options.inc.php");
 ?>
-<div class="title" style="display:none"><a href="https://www.oculoplasticsllc.com/openemr/interface/super/rules/index.php?action=detail!view&id=<?php echo attr($rule->id); ?>"><?php
-            // this will display the TAB title
-            echo xlt('CR{{Clinical Reminder abbreviation}}'); ?>: <?php
-            $in = xlt($rule->title);
-            echo strlen($in) > 10 ? substr($in,0,10)."..." : $in;
-        ?></a>
+<div class="title hidden" style="display:none"><span
+            <?php // this will display the TAB title
+            echo xlt('CR{{Clinical Reminder abbreviation}}'); ?>:
+    <?php
+         if ($rule->title) {
+             $in = text($rule->title);
+             echo strlen($in) > 10 ? substr($in, 0, 10) . "..." : $in;
+         } else { echo xlt('Manager');
+         }
+        ?></span>
 </div>
 
 <input type="hidden" id="ruleId" name="ruleId" value="<?php echo attr($rule->id); ?>">
@@ -179,7 +183,7 @@
                                       data-content='References appear in the Dashboard CR widget as <i class="fa fa-link"></i>.  This is clickable link, taking you to the url added here.
                                       It is suggested to link out to relevant clinical information, perhaps a government publication explaining why this CR exists.
                                       However, you can link to anything desired.
-                                                    <img width="250px" src="<?php echo $GLOBAL['webroot'];?>/public/images/CR_widget.png">'>
+                                                    <img width="250px" src="<?php echo $GLOBAL['webroot'];?>/interface/super/rules/www/CR_widget.png">'>
                                     <span class="underline"> <i class="fa fa-link"></i> <?php echo xlt('Reference'); ?>:</span></span>
                             </td>
                             <td><a href="<?php echo attr($rule->web_ref); ?>"><?php echo text($rule->web_ref); ?></a></td>
@@ -278,7 +282,7 @@
                                         data-trigger='hover'
                                         data-placement='auto'
                                         data-content='References appear in the Dashboard CR widget as <i class="fa fa-link"></i> and can link to anything desired.
-                                                    <img width="250px" src="<?php echo $GLOBAL['webroot'];?>/public/images/CR_widget.png">'
+                                                    <img width="250px" src="<?php echo $GLOBAL['webroot'];?>/interface/super/rules/www/CR_widget.png">'
                                         class="underline"><?php echo xlt('Reference'); ?><i class="fa fa-link"></i>:
                             </td>
                             <td class="text-left">
