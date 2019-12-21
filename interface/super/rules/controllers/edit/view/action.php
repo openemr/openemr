@@ -132,7 +132,7 @@
             </tr>
             <tr>
                 <td><!-- reminder message  -->
-                         If this is a Patient Reminder, include this message:
+                         If this is a Patient Reminder,<br /> include this message:
                         <?php echo textfield_row(array("id" => "fld_message",
                             "name" => "fld_message",
                             "class" => "margin-auto",
@@ -143,14 +143,12 @@
             </tr>
             <tr>
                 <td colspan="2" class="text-center">
-                    <button class="btn btn-sm btn-primary"
-                            type="button"
+                    <button class="btn btn-primary margin-auto"
                             id="edit_action_cancel">
-                        <i class="fa fa-cancel">Cancel</i></button>
+                        <i class="fa fa-cancel heavy">Cancel</i></button>
                     <button id="submit_action_<?php echo attr($action->groupId); ?>"
-                            type="button"
-                            class="btn btn-sm btn-primary"
-                            title='<?php echo xla('Save Goal'); ?>'> <i class="fa fa-save"></i>
+                            class="btn btn-primary margin-auto"
+                            title='<?php echo xla('Save Goal'); ?>'> <i class="fa fa-save heavy"> Save</i>
                     </button>
                 </td>
             </tr>

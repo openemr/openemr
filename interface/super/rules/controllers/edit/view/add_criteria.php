@@ -36,7 +36,7 @@ if ($viewBean->type != 'filter') { ?>
 
         <?php foreach ($allowed as $type) { ?>
                      <label>
-                        <button class="btn btn-local btn-primary"
+                        <button class="btn btn-primary"
                                 type="button"
                                 id="edit_<?php echo attr($viewBean->type); ?>_<?php echo attr_url($ruleId); ?>"
                                 data-type="<?php echo attr_url($viewBean->type); ?>"

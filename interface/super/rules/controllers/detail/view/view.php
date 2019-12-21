@@ -248,7 +248,10 @@
                             </td>
                             <td>
                                 <?php
-                                    foreach (RuleType::values() as $type) {?>
+                                    foreach (RuleType::values() as $type) {
+                                        if (($GLOBALS['medex_enable'] !='1') && ($type =="provideralert") ) {
+                                            continue;
+                                        }?>
                                         <label><input name="fld_ruleTypes[]"
                                                       value="<?php echo attr($type); ?>"
                                                       type="checkbox" <?php echo $rule->hasRuleType(RuleType::from($type)) ? "CHECKED": "" ?>>
@@ -378,7 +381,7 @@
                                                 </button>
                                             </td>
                                             <td class="text-center"><?php echo( text($criteria->getTitle()) ); ?></td>
-                                            <td class="text-center"><?php echo( $criteria->getRequirements() ); ?></td>
+                                            <td class="text-center"><?php echo $criteria->getRequirements(); ?></td>
                                             <td class="text-center"><?php echo( text($criteria->getCharacteristics()) ); ?></td>
                                         </tr>
                                     <?php } ?>
@@ -491,8 +494,8 @@
                                                             </td>
                                                             <td colspan="3" class="text-center"><?php echo(text($criteria->getTitle())); ?></td>
                                                             <td colspan="3" class="nowrap"><?php
-                                                                    $show = str_replace('|','<br />', text($criteria->getRequirements()));
-                                                                    echo $show; ?>
+                                                                    echo $criteria->getRequirements(); //escaped in interface/super/rules/library/RuleCriteriaDatabaseBucket.php
+                                                                    ?>
                                                                 <?php echo is_null($criteria->getInterval()) ? "" : " <br /> " . xlt('Interval') . ": " . text($criteria->getInterval()); ?>
                                                             </td>
                                                             <td colspan="3" class="text-center"><?php echo(text($criteria->getCharacteristics())); ?></td>
@@ -561,7 +564,7 @@
                                 </button>
                                 <div class="title2 text-left col-12"><?php echo xlt('Prompting you to do this'); ?>:</div>
                                 <div class="col-12" id="show_actions_<?php echo xla($group->groupId); ?>">
-                                    <table class="table table-sm table-condensed bgcolor2 section2 text-center">
+                                    <table class="table table-sm bgcolor2 section2 text-center">
                                         <thead>
                                         <tr>
                                             <td class="underline">
@@ -853,7 +856,7 @@
         </div>
     </div>
     <div id="help_filters" class="modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title"><?php echo xlt('Who are we Targeting'); ?>?</h5>

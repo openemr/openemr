@@ -130,7 +130,7 @@ input[type='text'].short {
 }
 
 .section2 {
-    margin: 1rem !important;
+    margin: 0 1rem !important;
     box-shadow: 5px 5px 9px #7b777760;
     border: 1.00pt solid #000000;
     background:#ffffff;
@@ -205,6 +205,7 @@ td > textarea {
 }
 .margin-auto {
     margin:auto !important;
+    float:unset; //remove this when css_button stuff removed from themes
 }
 
 .menu_bottom
