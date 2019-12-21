@@ -19,24 +19,6 @@ require_once("$phpgacl_location/gacl_api.class.php");
     
     $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ');
 ?>
-<head>
-    <link rel="stylesheet" href="<?php css_src('rules.css') ?>" type="text/css">
-
-
-    <meta charset="utf-8">
-    <!-- Viewport Meta Tag -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>" type="text/css">
-    <link rel="stylesheet" href="<?php css_src('rules.css') ?>?v=<?php echo $v_js_includes; ?>" type="text/css">
-    <link rel="stylesheet" href="https://oculoplasticsllc.com/openemr/public/assets/bootstrap/BS4/css/bootstrap.css">
-    <?php Header::setupHeader([ 'jquery', 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor','bootstrap', 'fontawesome', 'modals', 'popper' ]); ?>
-    <!-- Popper -->
-
-    <script src="https://oculoplasticsllc.com/openemr/public/assets/bootstrap/BS4/popper.min.js"></script>
-
-
-</head>
 <div class="title" style="display:none">
     <?php
         // this will display the TAB title
