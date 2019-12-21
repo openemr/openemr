@@ -23,6 +23,7 @@ require_once(dirname(__FILE__) . "/forms.inc");
 require_once(dirname(__FILE__) . "/options.inc.php");
 require_once(dirname(__FILE__) . "/report_database.inc");
 
+
 /**
  * Return listing of CDR reminders in log.
  *
@@ -131,7 +132,11 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             }
         }
 ?>
- <?php
+        <script src="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/www/js/BS4/popper.min.js"></script>
+
+        <script src="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/www/js/BS4/js/bootstrap.bundle.js.map"></script>
+    
+        <?php
         //if (!empty($tooltip)) {
             echo $tooltip_start.$tooltip . "'>";
         //}
@@ -215,7 +220,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
   // Compare the current with most recent action log (this function will also log the current actions)
   // Only when $mode is reminders-due
     if ($mode == "reminders-due" && $GLOBALS['enable_alert_log']) {
-        $new_targets = compare_log_alerts($patient_id, $current_targets, 'clinical_reminder_widget', $_SESSION['authId']);
+        $new_targets = compare_log_alerts($patient_id, $current_targets, 'clinical_reminder_widget', $_SESSION['authUserID']);
         if (!empty($new_targets) && $GLOBALS['enable_cdr_new_crp']) {
             // If there are new action(s), then throw a popup (if the enable_cdr_new_crp global is turned on)
             //  Note I am taking advantage of a slight hack in order to run javascript within code that
@@ -227,6 +232,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
                 $item = $category_item[1];
                 echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
                    ': ' . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $item). '\n';
+                echo $public_description."\n<br />";
             }
 
             echo '\n' . '('. xls('See the Clinical Reminders widget for more details'). ')';
@@ -306,7 +312,7 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
   // Compare the current with most recent action log (this function will also log the current actions)
   // Only when $mode is reminders-due and $test is FALSE
     if (($mode == "reminders-due") && ($test === false) && ($GLOBALS['enable_alert_log'])) {
-        $new_targets = compare_log_alerts($patient_id, $current_targets, 'active_reminder_popup', $_SESSION['authId']);
+        $new_targets = compare_log_alerts($patient_id, $current_targets, 'active_reminder_popup', $_SESSION['authUserID']);
         if (!empty($new_targets)) {
             $returnOutput .="<br>" . xlt('New Items (see above for details)') . ":<br>";
             foreach ($new_targets as $key => $value) {
@@ -314,7 +320,8 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
                 $category = $category_item[0];
                 $item = $category_item[1];
                 $returnOutput .= generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
-                   ': ' . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $item). '<br>';
+                   ': ' . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $item). '<br>'.
+                $action['public_description']."<br />";
             }
         }
     }
@@ -385,7 +392,7 @@ function allergy_conflict($patient_id, $mode, $user, $test = false)
   // If there are conflicts, $test is FALSE, and alert logging is on, then run through compare_log_alerts
     $new_conflicts = array();
     if ((!empty($conflicts_unique)) && $GLOBALS['enable_alert_log'] && ($test===false)) {
-        $new_conflicts = compare_log_alerts($patient_id, $conflicts_unique, 'allergy_alert', $_SESSION['authId'], $mode);
+        $new_conflicts = compare_log_alerts($patient_id, $conflicts_unique, 'allergy_alert', $_SESSION['authUserID'], $mode);
     }
 
     if ($mode == 'all') {
@@ -418,7 +425,7 @@ function compare_log_alerts($patient_id, $current_targets, $category = 'clinical
 {
 
     if (empty($userid)) {
-        $userid = $_SESSION['authId'];
+        $userid = $_SESSION['authUserID'];
     }
 
     if (empty($current_targets)) {

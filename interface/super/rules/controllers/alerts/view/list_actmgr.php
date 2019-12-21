@@ -20,11 +20,8 @@ require_once("$phpgacl_location/gacl_api.class.php");
     $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ');
 ?>
 <div class="title" style="display:none">
-    <?php
-        // this will display the TAB title
-        echo xlt('CR Manager'); ?>:
+    <?php echo xlt('CR Manager'); ?>
 </div>
-<br /><br />
 <div class="container">
     <div class="row">
         <div class="col-12">

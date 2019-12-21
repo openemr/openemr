@@ -167,6 +167,9 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 <html>
 
 <head>
+    <script src="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/www/js/BS4/popper.min.js"></script>
+
+    <script src="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/www/js/BS4/js/bootstrap.bundle.js.map"></script>
 
     <?php Header::setupHeader(['common']); ?>
 

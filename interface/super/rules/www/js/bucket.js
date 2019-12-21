@@ -33,7 +33,7 @@ var bucket = function( args ) {
                     } else {
                         selected='';
                     }
-                    select.append( "<option value='" + item.code + "' "+ selected +">" + item.lbl + "</option>");
+                    select.append( "<option value='" + item.code + "' "+ selected +">" + item.lbl + "s</option>");
                 });
                 //select.val('');
             }

@@ -17,18 +17,17 @@ use OpenEMR\Core\Header;
    <meta charset="utf-8">
     <!-- Viewport Meta Tag -->
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/www/js/BS4/popper.min.js"></script>
+    <?php Header::setupHeader([ 'jquery', 'jquery-ui','bootstrap', 'fontawesome', 'modals']); ?>
+    <script src="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/www/js/BS4/js/bootstrap.bundle.js.map"></script>
 
     <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>" type="text/css">
     <link rel="stylesheet" href="<?php css_src('rules.css') ?>?v=<?php echo $v_js_includes; ?>" type="text/css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/www/js/BS4/css/bootstrap.css">
-    <script src="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/www/js/BS4/popper.min.js"></script>
-    <?php Header::setupHeader([ 'jquery', 'jquery-ui','bootstrap', 'fontawesome', 'modals']); ?>
-    <script src="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/www/js/BS4/js/bootstrap.bundle.js.map"></script>
-    
-
+  
 </head>
 
-<body class='body_top'>
+<body class='body_top' style="font-size:0.9rem;">
 
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="container-fluid">
@@ -54,8 +53,8 @@ use OpenEMR\Core\Header;
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_msg" aria-expanded="true"><?php echo xlt("Clinical Reminders"); ?> </a>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/index.php?action=alerts!listactmgr" onclick="top.restoreSession();"> <?php echo xlt("Reminders Manager"); ?></a>
-                                <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/index.php?action=edit!summary" onclick="top.restoreSession();"> <?php echo xlt("New Clinical Reminder"); ?></a>
+                                <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/index.php?action=alerts!listactmgr" onclick="top.restoreSession();"> <?php echo xlt("Manager"); ?></a>
+                                <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/index.php?action=edit!summary" onclick="top.restoreSession();"> <?php echo xlt("Add New"); ?></a>
                             </div>
                         </li>
                     </ul>
@@ -93,7 +92,7 @@ use OpenEMR\Core\Header;
         echo 'up';
     } ?> menu_arrow" style="position:fixed;left:5px;top:5px;z-index:1099;" id="patient_caret" onclick='toggle_menu();' aria-hidden="true"></i>
 
-<div class="container-fluid">
+<div class="container">
 <?php
     require_once($GLOBALS["srcdir"] . "/../interface/super/rules/controllers/edit/helper/common.php");
     $rule = $viewBean->rule;

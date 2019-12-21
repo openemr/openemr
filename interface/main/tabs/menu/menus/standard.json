@@ -861,10 +861,10 @@
         ]
       },
       {
-        "label": "Clinical Reminders",
+        "label": "Care Plans",
         "menu_id": "adm0",
-        "target": "adm_rem",
-        "url": "/interface/super/rules/index.php?action=browse!list",
+        "target": "adm_CP",
+        "url": "/interface/super/rules/index.php?action=browse!plans_config",
         "children": [],
         "requirement": 0,
         "acl_req": [
@@ -874,9 +874,9 @@
         "global_req": "enable_cdr"
       },
       {
-        "label": "Clinical Alerts",
+        "label": "Alert Manager",
         "menu_id": "adm0",
-        "target": "adm",
+        "target": "adm_CA",
         "url": "/interface/super/rules/index.php?action=alerts!listactmgr",
         "children": [],
         "requirement": 0,

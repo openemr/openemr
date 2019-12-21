@@ -23,6 +23,10 @@ use OpenEMR\Core\Header;
 <html>
 <head>
     <?php Header::setupHeader(['common']); ?>
+    <script src="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/www/js/BS4/popper.min.js"></script>
+
+    <script src="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/www/js/BS4/js/bootstrap.bundle.js.map"></script>
+
 </head>
 
 <?php

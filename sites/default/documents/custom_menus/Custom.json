@@ -874,7 +874,7 @@
         "global_req": "enable_cdr"
       },
       {
-        "label": "Clinical Alerts",
+        "label": "Alert Manager",
         "menu_id": "adm0",
         "target": "adm_CA",
         "url": "/interface/super/rules/index.php?action=alerts!listactmgr",

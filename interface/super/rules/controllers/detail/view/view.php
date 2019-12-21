@@ -13,7 +13,7 @@
     
     require_once($GLOBALS["srcdir"] . "/options.inc.php");
 ?>
-<div class="title hidden" style="display:none"><span
+<div class="title header" style="display:none">
             <?php // this will display the TAB title
             echo xlt('CR{{Clinical Reminder abbreviation}}'); ?>:
     <?php
@@ -22,7 +22,7 @@
              echo strlen($in) > 10 ? substr($in, 0, 10) . "..." : $in;
          } else { echo xlt('Manager');
          }
-        ?></span>
+        ?>
 </div>
 
 <input type="hidden" id="ruleId" name="ruleId" value="<?php echo attr($rule->id); ?>">
@@ -183,10 +183,18 @@
                                       data-content='References appear in the Dashboard CR widget as <i class="fa fa-link"></i>.  This is clickable link, taking you to the url added here.
                                       It is suggested to link out to relevant clinical information, perhaps a government publication explaining why this CR exists.
                                       However, you can link to anything desired.
-                                                    <img width="250px" src="<?php echo $GLOBAL['webroot'];?>/interface/super/rules/www/CR_widget.png">'>
-                                    <span class="underline"> <i class="fa fa-link"></i> <?php echo xlt('Reference'); ?>:</span></span>
+                                      <img width="250px" src="<?php echo $GLOBAL['webroot'];?>/interface/super/rules/www/CR_widget.png">'>
+                                    <span class="underline"> <i class="fa fa-link"></i> <?php echo xlt('Reference'); ?>:</span>
+                                </span>
                             </td>
-                            <td><a href="<?php echo attr($rule->web_ref); ?>"><?php echo text($rule->web_ref); ?></a></td>
+                            <td><a href="<?php echo attr($rule->web_ref); ?>"><?php
+                                 if ($rule->web_ref) {
+                                     $in = attr($rule->title);
+                                     echo strlen($in) > 30 ? substr($in, 0, 30) . "..." : $in;
+                                 } else {
+                                     echo "None";
+                                 }
+                                 ?></a></td>
                         </tr>
                         <tr>
                             <td class="text-right">
@@ -221,7 +229,7 @@
 
                 <button class="btn-sm btn-primary icon_1"
                         id="save_summary"
-                        title="<?php echo xla('Save this Rule'); ?>"><i class="fa fa-save"> <?php //echo xlt('Save'); ?></i>
+                        title="<?php echo xla('Refresh'); ?>"><i class="fa fa-refresh"> <?php //echo xlt('Save'); ?></i>
                 </button>
                 <div class="col-12 text-left">
                     <span class="title "><?php echo xlt('Summary'); ?> </span>
