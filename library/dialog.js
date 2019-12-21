@@ -312,7 +312,7 @@ if (typeof alertMsg !== "function") {
 // Test if supporting dialog callbacks and close dependencies are in scope.
 // This is useful when opening and closing the dialog is in the same scope. Still use include_opener.js
 // in script that will close a dialog that is not in the same scope dlgopen was used
-// or use parent.dlgclose() if known decendent.
+// or use parent.dlgclose() if known decedent.
 // dlgopen() will always have a name whether assigned by dev or created by function.
 // Callback, onClosed and button clicks are still available either way.
 // For a callback on close use: dlgclose(functionName, farg1, farg2 ...) which becomes: functionName(farg1,farg2, etc)
@@ -582,7 +582,7 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
             // events chain.
             dlgContainer.on('show.bs.modal', function () {
                 if (opts.allowResize || opts.allowDrag) {
-                    initDragResize(document, where.document);
+                    initDragResize(where.document, where.document);
                 }
             }).on('shown.bs.modal', function () {
                 // Remove waitHtml spinner/loader etc.

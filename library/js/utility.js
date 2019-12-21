@@ -97,6 +97,8 @@ function initDragResize(dragContext, resizeContext = document) {
         load().then(rtn => {
             initInteractors(dragContext, resizeContext);
         });
+    } else {
+        initInteractors(dragContext, resizeContext);
     }
 }
 
