@@ -11,8 +11,8 @@
 /* add ons testing */
 
 .css_button_small {
-    background: #063f80;
-    color: #ffffff !important;
+    background: $primary;
+    color: $white !important;
     display: inline-block;
     font-weight: 600;
     margin-#{$right}: 3px;
@@ -30,7 +30,7 @@
 }
 
 .css_button_small:hover {
-    background: #1050b6;
+    background: darken($primary, 15%);
     box-shadow: 0px 1px 3px #DDD;
     text-decoration: none;
 }
@@ -44,7 +44,7 @@ input[type="button"],
 input[type="submit"],
 button {
     background: #063f80;
-    color: #ffffff !important;
+    color: $white !important;
     display: inline-block;
     font-weight: 600;
     margin: 4px;
@@ -67,7 +67,7 @@ button span {
 .css_button[href*="deleter"],
 input[type="button"][href*="deleter"],
 button[href*="deleter"] {
-    background: red !important;
+    background: $danger !important;
 }
 
 .css_button:hover,
@@ -80,11 +80,11 @@ button:hover {
 }
 
 input[type="button"][style="background-color:#ffff55"] {
-    background: #2672ec !important;
+    background: $primary !important;
 }
 
 input[type="text"] {
-    background: #fff;
+    background: $white;
     border: 1px solid #444;
     padding: 3px;
     margin: 3px;

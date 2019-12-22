@@ -256,12 +256,12 @@ div.tiny {
 
 #datePicker .currentDate {
     background-color: $gray-500;
-    color: #E8FAFF;
+    color: $light;
 }
 
 #datePicker .tdDatePickerHighlight {
     background-color: $gray-500;
-    color: #E8FAFF;
+    color: $light;
 }
 
 /* the DIV of times */
@@ -485,7 +485,6 @@ div.tiny {
 }
 
 @media (max-width: 768px) {
-
     #prevday,
     #nextday,
     #prevweek,

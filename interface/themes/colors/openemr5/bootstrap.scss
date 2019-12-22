@@ -3,128 +3,179 @@
 fieldset {
     border-color: $darkest !important;
     background-color: $palepale !important;
-    margin-bottom: 10px!important;
+    margin-bottom: 10px !important;
     padding: 0px 0px 15px 0px !important;
 }
+
 legend {
     border-bottom: 2px solid $dark !important;
     background: $dark !important;
     padding: 0 10px !important;
     color: #000000 !important;
 }
+
 label {
     padding: 0px 5px !important;
 }
+
 textarea.form-control {
     height: auto !important;
 }
+
 :focus {
     outline: none !important;
 }
-.table>thead {
+
+.table > thead {
     background: $mid !important;
 }
-.table-striped>tbody>tr:nth-of-type(odd) {
+
+.table-striped > tbody > tr:nth-of-type(odd) {
     background-color: $white !important;
 }
+
 .btn-secondary {
     background: $darker !important;
     color: $white !important;
     /*border-color:$paler!important; $midpale*/
     border-color: $darker !important;
 }
+
 .btn-link {
     background: $paler !important;
     color: #8e8e8e !important;
     border-color: $darkest !important;
     border-radius: 2px !important;
 }
-.btn-secondary.active, .btn-secondary.focus, .btn-secondary:active, .btn-secondary:focus, .btn-secondary:hover, .open>.dropdown-toggle.btn-secondary {
+
+.btn-secondary.active,
+.btn-secondary.focus,
+.btn-secondary:active,
+.btn-secondary:focus,
+.btn-secondary:hover,
+.open > .dropdown-toggle.btn-secondary {
     border-color: $darkest !important;
     background: $darkest !important;
 }
-.btn-link:focus, .btn-link:hover {
+
+.btn-link:focus,
+.btn-link:hover {
     text-decoration: none !important;
 }
+
 .btn-link {
     border: 1px solid #ccc;
     border-radius: 3px !important;
 }
-.btn-link.active, .btn-link.focus, .btn-link:active, .btn-link:focus, .btn-link:hover, .open>.dropdown-toggle.btn-link {
+
+.btn-link.active,
+.btn-link.focus,
+.btn-link:active,
+.btn-link:focus,
+.btn-link:hover,
+.open > .dropdown-toggle.btn-link {
     color: #666666 !important;
     border-color: $darker !important;
     background: $palepale !important;
     box-shadow: 0px 0px 2px $darker inset;
     transition: border-color ease-in-out .3s, box-shadow ease-in-out .3s;
 }
-.btn-separate-left, .oe-opt-btn-separate-left {
+
+.btn-separate-left,
+.oe-opt-btn-separate-left {
     margin-left: 20px !important;
 }
+
 .btn-group .btn {
     margin-right: 2px !important;
 }
-.btn-group>.btn:first-child:not(:last-child):not(.dropdown-toggle) {
+
+.btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle) {
     border-top-right-radius: 0px !important;
     border-bottom-right-radius: 0px !important;
     border-bottom-left-radius: 3px !important;
     border-top-left-radius: 3px !important;
 }
-.btn-group-pinch>.btn:nth-last-child(2):not(.dropdown-toggle), .oe-opt-btn-group-pinch>.btn:nth-last-child(2):not(.dropdown-toggle) {
+
+.btn-group-pinch > .btn:nth-last-child(2):not(.dropdown-toggle),
+.oe-opt-btn-group-pinch > .btn:nth-last-child(2):not(.dropdown-toggle) {
     border-top-right-radius: 3px !important;
     border-bottom-right-radius: 3px !important;
 }
+
 .btn-sm {
     font-size: 10px !important;
 }
+
 .btn-lg {
     border-radius: 3px !important;
 }
+
 .control-label {
     font-weight: 600 !important;
 }
-input[type=checkbox], input[type=radio] {
-	margin: 4px;
+
+input[type=checkbox],
+input[type=radio] {
+    margin: 4px;
 }
+
 .form-group {
     margin-bottom: 5px !important;
 }
+
 .form-horizontal .control-label {
     padding-top: 2px !important;
 }
+
 .form-control {
     height: 24px !important;
     padding: 0px 6px !important;
 }
-.checkbox input[type=checkbox], .checkbox-inline input[type=checkbox], .radio input[type=radio], .radio-inline input[type=radio] {
+
+.checkbox input[type=checkbox],
+.checkbox-inline input[type=checkbox],
+.radio input[type=radio],
+.radio-inline input[type=radio] {
     margin-left: -20px !important;
 }
-.checkbox label, .radio label {
+
+.checkbox label,
+.radio label {
     padding-left: 20px !important;
 }
+
 .position-override {
     text-align: center !important;
     margin-left: 0px;
 }
+
 .oe-custom-line {
     padding-bottom: 5px;
 }
+
 .oe-large {
     display: inline-block;
 }
+
 .oe-small {
     display: none;
 }
+
 .oe-show-hide {
     display: none;
 }
+
 .oe-legend-radio {
     font-size: 12px;
     padding: 5px 5px 0px 0px;
 }
+
 .oe-bold-black {
     font-weight: 700 !important;
     color: black !important;
 }
+
 .oe-btn-circle {
     width: 30px;
     height: 30px;
@@ -137,7 +188,9 @@ input[type=checkbox], input[type=radio] {
     color: $white !important;
     border-color: $darkest !important;
 }
-.patientInfo a.btn, .patientDataColumn a.btn {
+
+.patientInfo a.btn,
+.patientDataColumn a.btn {
     width: 20px;
     height: 20px;
     text-align: center;
@@ -150,4 +203,5 @@ input[type=checkbox], input[type=radio] {
     border-color: $darkest !important;
     margin: 5px;
 }
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 bootstrap *~~~~~~~~~~~~~~~~~~~~~~~~~*/

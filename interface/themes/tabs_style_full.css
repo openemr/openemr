@@ -17,13 +17,9 @@
  * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @author  Robert Down <robertdown@live.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author  Tyler Wrenn <tyler@tylerwrenn.com>
  * @link    http://www.open-emr.org
  */
-
-/*
-*
-*   TODO: Find a way to implement this into the core to allow themes to work
-*/
 
 html {
     margin: 0;
@@ -39,6 +35,7 @@ body {
     display: flex;
     flex-direction: column;
     margin: 0px;
+    background-color: var(--light);
 }
 
 #mainBox {
@@ -105,60 +102,70 @@ body {
 
 #framesDisplay > div > iframe {
     flex: 1 0 auto;
+    border: 0px solid var(--black);
     width: 100%;
 }
 
 .tabControls {
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
     padding-top: 4px;
     display: flex;
     flex-direction: row;
+    background: var(--light);
     overflow: auto;
 }
 
 .tabSpan {
     font-size: 0.9em;
-    margin: 0px;
+    margin: 0;
     padding: 8px 8px;
-    border-top: 3.99px solid #1976d2;
-    border-left: 1px solid #1976d2;
+    border-top: 4px solid var(--primary);
+    border-left: 1px solid var(--primary);
     border-bottom: 0;
-    border-right: 1px solid #1976d2;
+    border-right: 1px solid var(--primary);
     cursor: pointer;
     flex: 0 1 auto;
     white-space: nowrap;
     overflow: visible;
 }
 
-.tabSpan:last-child {
-    /*border-right: 1.33px solid #1976d2;*/
+.tabSpan .fa {
+    color: var(--gray);
+}
+
+.tabHidden {
+    color: var(--gray);
 }
 
 .tabNotchosen {
-    background: transparent;
-    border-top: 3.99px solid transparent;
+    background-color: transparent !important;
+    border-top: 4px solid transparent !important;
     border-left: none;
     border-right: none;
-    border-bottom: 1.33px solid #1976d2;
+    border-bottom: 1px solid var(--primary);
     display: block;
 }
 
 .tabNotchosen:hover {
-    background: #e9e9e9;
+    background: var(--light);
 }
 
 .tabsNoHover {
     background: transparent !important;
-    border-top: 3.99px solid transparent;
+    border-top: 4px solid transparent;
     border-left: none;
     border-right: none;
-    border-bottom: 1.33px solid #1976d2;
+    border-bottom: 1px solid var(--primary);
     display: block;
 }
 
+#attendantData {
+    background-color: var(--light);
+}
+
 .patientInfo a {
-    color: #333 !important;
+    color: var(--dark) !important;
 }
 
 .patientInfo .patientPicture {
@@ -172,6 +179,10 @@ body {
 
 .patientCurrentEncounter {
     display: inline;
+}
+
+.patientCurrentEncounter a {
+    color: var(--dark) !important;
 }
 
 .patientDataColumn {
@@ -188,7 +199,8 @@ body {
 .patientEncounterList {
     position: fixed;
     overflow: hidden;
-    border: 1px solid black;
+    border: 1px solid var(--black);
+    background: var(--white);
     cursor: pointer;
     z-index: 1;
 }
@@ -211,8 +223,18 @@ body {
     z-index: 4;
 }
 
+.patientEncounterList > div:hover {
+    color: var(--danger);
+}
+
+.patientEncounterList table.encounters td:hover {
+    color: var(--danger);
+}
+
 .patientEncounterList .review {
     padding: 2px;
+    border: 1px solid var(--black);
+    background-color: lightgray;
     border-radius: 5px;
 }
 
@@ -223,6 +245,10 @@ body {
 
 .patientInfo {
     padding: 1px 1px 1px 10px;
+}
+
+.patientInfo .clear:hover i {
+    color: var(--danger);
 }
 
 .top {
@@ -241,9 +267,9 @@ body {
 }
 
 .appMenu .appMenu > span:hover {
-    color: #fff;
+    color: var(--white);
     text-decoration: none;
-    background-color: #1C5ECF;
+    background-color: var(--primary);
     text-shadow: none;
 }
 
@@ -279,14 +305,15 @@ body {
 }
 
 .menuSection > .menuEntries {
+    background: var(--white);
     display: none;
     position: absolute;
     top: 40px;
     z-index: 1000;
     min-width: 175px;
-    box-shadow: 0px 5px 5px #adadad;
+    box-shadow: 0px 5px 5px var(--gray);
     padding: 0px;
-    whitespace: nowrap;
+    white-space: nowrap;
 }
 
 .menuSection > .menuEntries .menuEntries {
@@ -304,6 +331,7 @@ body {
  * This currently controls ALL links in menu, no bueno
  * --Robert Down */
 .menuLabel {
+    color: var(--dark);
     padding: 15px 10px;
     font-weight: 700;
     transition: background-color 0.1s ease;
@@ -312,7 +340,7 @@ body {
 
 .menuLabel:hover {
     background: #CCE3F8;
-    color: #333;
+    color: var(--dark);
 }
 
 /** Only apply if not an actual link **/
@@ -327,8 +355,19 @@ div.menuLabel:hover {
     float: none;
 }
 
+.menuEntries li .menuLabel:hover {
+    background-color: #CCE3F8;
+    color: var(--dark);
+}
+
 .logo {
     padding: 10px 0px;
+}
+
+.menuDisabled {
+    color: var(--gray) !important;
+    pointer-events: none;
+    background-color: transparent;
 }
 
 #username {
@@ -342,12 +381,16 @@ div.menuLabel:hover {
 
 /* Main menu bar */
 .body_top {
-    padding: 0px;
-    margin: 0px;
+    background-color: var(--light);
+    color: var(--dark);
+    padding: 0;
+    margin: 0;
     z-index: 10;
 }
 
 .body_title {
+    color: var(--black);
+    background-color: var(--light);
     padding: 10px 0px 0px 0px;
 }
 
@@ -356,8 +399,12 @@ div.menuLabel:hover {
     width: 98%;
 }
 
+#username > .userfunctions > div:hover {
+    color: var(--danger);
+}
+
 .menu_arrow {
-    bottom: 0px;
+    bottom: 0;
     margin: 7px 7px 2px 7px;
 }
 

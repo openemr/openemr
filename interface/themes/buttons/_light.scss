@@ -9,8 +9,8 @@
 */
 
 .css_button_small {
-    background: #2672ec;
-    color: #ffffff !important;
+    background: $primary;
+    color: $white !important;
     display: block;
     float: $left;
     font-weight: 400;
@@ -28,7 +28,7 @@
 }
 
 .css_button_small:hover {
-    background: #1050b6;
+    background: darken($primary, 15%);
     text-decoration: none;
 }
 
@@ -36,8 +36,8 @@
 input[type="button"],
 input[type="submit"],
 button {
-    background: #2672ec;
-    color: #ffffff !important;
+    background: $primary;
+    color: $white !important;
     display: block;
     font-weight: 400;
     float: $left;
@@ -62,7 +62,7 @@ button span {
 .css_button[href*="deleter"],
 input[type="button"][href*="deleter"],
 button[href*="deleter"] {
-    background: red !important;
+    background: $danger !important;
 }
 
 .css_button:hover,
@@ -74,8 +74,8 @@ button:hover {
 }
 
 .css_btn {
-    background: #2672ec;
-    color: #ffffff !important;
+    background: $primary;
+    color: $white !important;
     display: block;
     float: left;
     font-weight: 400;
@@ -95,21 +95,16 @@ button:hover {
     float: none !important;
 }
 
-.btn-secondary {
-    background: rgba(0, 0, 0, 0.05) !important;
-    color: rgba(0, 0, 0, 0.87) !important;
-}
-
 .btn-link {
     color: #444 !important;
 }
 
 input[type="button"][style="background-color:#ffff55"] {
-    background: #2672ec !important;
+    background: $primary !important;
 }
 
 input[type="text"] {
-    background: #ffffff;
+    background: $white;
     border: 1px solid #444444;
     padding: 3px;
     margin: 3px;

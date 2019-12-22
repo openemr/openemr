@@ -293,17 +293,17 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'writ
     $(window).on('resize', function() {
      var win = $(this);
      var winWidth = $(this).width();
-        if (winWidth >  <?php echo js_escape($width); ?>) {
+        if (winWidth > <?php echo js_escape($width); ?>) {
             $("#tabs_div").removeClass('col-sm-10');
             $("#mainFrames_div").removeClass('col-sm-10');
             $("#menu_icon").addClass('fa-bars');
 
-            $("#username div:first-child" ).addClass("userSection");
+            $("#username div:first-child").addClass("userSection");
             $(".appMenu_small").addClass('appMenu');
             $(".appMenu_small").removeClass('appMenu_small');
 
-        } else if (winWidth <=  <?php echo js_escape($width); ?> ){
-            $("#username div:first-child" ).removeClass("userSection");
+        } else if (winWidth <= <?php echo js_escape($width); ?>){
+            $("#username div:first-child").removeClass("userSection");
             $(".appMenu").addClass('appMenu_small');
             $(".appMenu").removeClass('appMenu');
         }
@@ -315,18 +315,17 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'writ
 </script>
 
 <style>
-@media only screen and (max-width: <?php echo attr($width); ?>px) {
-    .patientDataColumn
-    {
+@media only screen and (max-width: <?php echo attr($width) . 'px'; ?>) {
+    .patientDataColumn {
         width: 100% !important;
         float: left;
         display: block;
     }
 }
 
-html, body{
-    min-height:100% !important;
-    height:100% !important;
+html, body {
+    min-height: 100% !important;
+    height: 100% !important;
 }
 </style>
 
@@ -360,23 +359,23 @@ if (isset($_SESSION['app1'])) {
             <div>
                 <i class="fa fa-2x fa-bars oe-hidden" aria-hidden="true" id='menu_icon' data-bind='css: responsiveDisplay.objWidth().menuIconHide, click: function(){ responsiveDisplay.verticalMenuObservable(); responsiveDisplay.menuIconObservable()}, css2: {"fa-bars" : !responsiveDisplay.oeMenuIcon(), "fa-eye-slash" : responsiveDisplay.oeMenuIcon}'></i>
             </div>
-            <div class="clearfix" data-bind="css: {'clearfix' : responsiveDisplay.winWidth() <= <?php echo attr($width); ?>}"></div>
+            <div class="clearfix" data-bind="css: {'clearfix': responsiveDisplay.winWidth() <= <?php echo attr($width); ?>}"></div>
         </div>
-        <div id="menu_items" class="oe-hidden" data-bind=" css2: {'oe-hidden' : !responsiveDisplay.oeVerticalMenu() && responsiveDisplay.winWidth() <= <?php echo attr($width); ?>}">
+        <div id="menu_items" class="oe-hidden" data-bind=" css2: {'oe-hidden': !responsiveDisplay.oeVerticalMenu() && responsiveDisplay.winWidth() <= <?php echo attr($width); ?>}">
             <span id="menu_logo" data-bind="template: {name: 'menu-template', data: application_data} "></span>
             <div>
                 <span id="userData" data-bind="template: {name: 'user-data-template', data:application_data} "></span>
                 <a href="../../logout.php" target="logoutinnerframe" id="logout_link" onclick="top.restoreSession()" data-bind="css: {'oe-hidden' :responsiveDisplay.oeLogoutIcon}" title="<?php echo xla("Logout"); ?>"><i class="fa fa-2x fa-sign-out oe-pull-toward" aria-hidden="true" id="logout_icon"></i></a>
             </div>
         </div>
-        <div class="clearfix" data-bind="css: {'clearfix' : responsiveDisplay.winWidth() <= <?php echo attr($width); ?>}"></div>
+        <div class="clearfix" data-bind="css: {'clearfix': responsiveDisplay.winWidth() <= <?php echo attr($width); ?>}"></div>
     </div>
     <div id="attendantData" class="body_title acck"  data-bind="template: {name: app_view_model.attendant_template_type, data: application_data}, css: responsiveDisplay.objWidth().attendantDataClear ">
     </div>
-
+    
     <div class="body_title" id="tabs_div" data-bind="template: {name: 'tabs-controls', data: application_data}, css: responsiveDisplay.objWidth().tabsDivWidth"> </div>
 
-    <div class="mainFrames" id="mainFrames_div" style="display: flex;" data-bind="css: responsiveDisplay.objWidth().mainFramesDivWidth  + ' ' +  responsiveDisplay.objWidth().mainFramesDivFill">
+    <div class="mainFrames d-flex" id="mainFrames_div" data-bind="css: responsiveDisplay.objWidth().mainFramesDivWidth  + ' ' +  responsiveDisplay.objWidth().mainFramesDivFill">
         <div id="framesDisplay" data-bind="template: {name: 'tabs-frames', data: application_data}, css: responsiveDisplay.objWidth().framesDisplayFill"> </div>
     </div>
 </div>
@@ -407,7 +406,7 @@ displayViewModel.objWidth = ko.computed(function() {
                 currWidth.bodyMain = "body_main";
             }
             if(this.oeVerticalMenu()){
-                if(this.winWidth() > 1440){
+                if(this.winWidth() > 1440) {
                     currWidth.tabsDivWidth = "col-sm-11";
                     currWidth.mainFramesDivWidth = "col-sm-11";
                     currWidth.bodyTopDivWidth = "col-sm-1";

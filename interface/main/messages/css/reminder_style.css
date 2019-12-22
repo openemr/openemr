@@ -40,7 +40,9 @@ h1 {
     border: none;
 }
 
-.nav-tabs > li.active > a, .nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover {
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover {
     border: unset;
 }
 
@@ -70,7 +72,7 @@ h1 {
 .flow tr:last-child {
     background-color: #C9DBF2;
     text-align: center;
-    color: #000;
+    color: var(--black);
     text-shadow: 0 1px 0 #f3f3f3;
     overflow: hidden;
     padding: 5px;
@@ -81,7 +83,7 @@ h1 {
 
 .flow th {
     text-align: center;
-    color: #000;
+    color: var(--black);
     overflow: hidden;
     padding: 5px;
     text-transform: uppercase;
@@ -91,7 +93,7 @@ h1 {
     background-color: #DAE8EF;
     text-shadow: 0 1px 0 #f3f3f3;
     border-radius: 0 0 2px 2px;
-    box-shadow: 0 4px 6px grey;
+    box-shadow: 0 4px 6px var(--gray);
 }
 
 .flow td {
@@ -104,7 +106,8 @@ h1 {
     overflow: hidden;
 }
 
-.flow tr:last-child:hover, .flow tr:first-child:hover {
+.flow tr:last-child:hover,
+.flow tr:first-child:hover {
     background-color: #DAE8EF;
 }
 
@@ -122,7 +125,7 @@ h1 {
 .newRecall {
     height: 300px;
     width: 400px;
-    background-color: white;
+    background-color: var(--white);
     display: inline-table;
     box-shadow: 2px 1px 2px #c0c0c0;
     margin: 15px auto;
@@ -135,7 +138,7 @@ h1 {
 .divTable {
     display: table;
     float: left;
-    background: white;
+    background: var(--white);
     border: 0.5px solid #c0c0c0;
     box-shadow: 2px 3px 9px #c0c0c0;
     border-radius: 8px;
@@ -144,7 +147,7 @@ h1 {
 }
 
 .divTable2 {
-    background: white;
+    background: var(--white);
     border: 0.5px solid #c0c0c0;
     box-shadow: 2px 3px 9px #c0c0c0;
     border-radius: 8px;
@@ -158,9 +161,9 @@ h1 {
 .divTable3 {
     display: table;
     float: left;
-    background: white;
-    border: 1px solid #000;
-    box-shadow: 2px 3px 9px #000;
+    background: var(--white);
+    border: 1px solid var(--black);
+    box-shadow: 2px 3px 9px var(--black);
     border-radius: 8px;
     padding: 10px;
     margin: 15px;
@@ -177,11 +180,12 @@ h1 {
 .divTableRow {
     display: table-row;
     border-radius: 8px;
-    background-color: white;
+    background-color: var(--white);
     text-align: left;
 }
 
-.divTableCell, .divTableHead {
+.divTableCell,
+.divTableHead {
     border: 0.5px solid #c0c0c0;
     display: table-cell;
     vertical-align: middle;
@@ -314,12 +318,12 @@ input[type="radio"] {
 }
 
 .scheduled {
-    background-color: white;
-    color: black;
+    background-color: var(--white);
+    color: var(--black);
 }
 
 .no_bot_border {
-    border-bottom: 1pt dotted rgba(255, 255, 255, 0);;
+    border-bottom: 1pt dotted rgba(255, 255, 255, 0);
     box-shadow: 3px -2px 4px #C0C0C0;
     top: 1px;
     text-decoration: underline;
@@ -329,7 +333,7 @@ input[type="radio"] {
     position: absolute;
     background-color: #C9DBF2;
     border-radius: 3px;
-    border: 1pt solid black;
+    border: 1pt solid var(--black);
     padding: 5px;
     top: 10px;
     right: 20px;
@@ -341,8 +345,8 @@ input[type="radio"] {
     padding: 3px 10px;
     text-transform: uppercase;
     line-height: 1.5em;
-    color: #455832;
-    border-bottom: 2px solid #455832;
+    color: var(--black);
+    border-bottom: 2px solid var(--black);
     margin: 0 auto;
     width: 70%;
 }
@@ -352,7 +356,7 @@ input[type="radio"] {
 }
 
 .red {
-    color: red;
+    color: var(--danger);
 }
 
 #save_prefs {
@@ -381,7 +385,10 @@ input[type="radio"] {
     width: 30px;
 }
 
-#phone_notification_hour, #postcard_notification_day, #EMAIL_NOTIFICATION_HOUR, #phone_recall_days {
+#phone_notification_hour,
+#postcard_notification_day,
+#EMAIL_NOTIFICATION_HOUR,
+#phone_recall_days {
     width: 30px;
 }
 
@@ -389,7 +396,7 @@ input[type="radio"] {
     text-align: center;
     margin: 0 auto;
     width: 100%;
-    background-color: #fff
+    background-color: var(--white);
 }
 
 .showReminders {
@@ -409,7 +416,7 @@ input[type="radio"] {
 #div_response {
     min-height: 25px;
     text-align: center;
-    color: red;
+    color: var(--danger);
 }
 
 #addRecall {
@@ -427,8 +434,8 @@ td.right {
 
 .borderShadow {
     box-shadow: 5px 5px 9px #7b777760;
-    border: 1.00pt solid #000000;
-    background: #ffffff;
+    border: 1.00pt solid var(--black);
+    background: var(--white);
     padding: 6px;
     border-radius: 6px;
     width: 80%;
@@ -446,8 +453,8 @@ td.right {
     border-radius: 3px;
     overflow-wrap: normal;
     box-shadow: 5px 5px 9px #888888;
-    border: 1.00pt solid #000000;
-    background: #ffffff;
+    border: 1.00pt solid var(--black);
+    background: var(--white);
     padding: 10px;
 }
 
@@ -465,7 +472,7 @@ td.right {
     max-width: 10px;
     font-size: x-small;
     vertical-align: super;
-    color: white;
+    color: var(--white);
     display: inline-block;
     text-align: center;
     margin: 2px;
@@ -508,7 +515,7 @@ td.right {
 }
 
 .signup_help {
-    color: red;
+    color: var(--danger);
     padding: 0 15px;
 }
 
@@ -521,7 +528,7 @@ td.right {
 
 #SMS_patients {
     display: block;
-    position: relative
+    position: relative;
 }
 
 .ui-autocomplete {

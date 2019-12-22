@@ -80,8 +80,8 @@ if (($_POST['setting_bootstrap_submenu']) ||
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
 
     <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico" />
-
-        <meta charset="utf-8">
+    
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="MedEx Bank">
     <meta name="author" content="OpenEMR: MedExBank">
@@ -90,48 +90,14 @@ if (($_POST['setting_bootstrap_submenu']) ||
         @media only screen and (max-width: 768px) {
             [class*="col-"] {
                 width: 100%;
-                text-align: left!important;
+                text-align: left !important;
             }
-            .navbar-toggle>span.icon-bar {
-                background-color: #68171A ! important;
-            }
-            .navbar-default .navbar-toggle {
-                border-color: #4a4a4a;
-            }
-            .navbar-default .navbar-toggle:focus, .navbar-default .navbar-toggle:hover {
-                background-color: #f2f2f2 !important;
-                font-weight: 900 !important;
-                color: #000000 !important;
-            }
-            .navbar-color {
-                background-color: #E5E5E5;
-            }
+
             .icon-bar {
                 background-color: #68171A;
             }
-            .navbar-header {
-                float: none;
-            }
-            .navbar-toggle {
-                display: block;
-                background-color: #f2f2f2;
-            }
-            .navbar-nav {
-                float: none!important;
-            }
-            .navbar-nav>li {
-                float: none;
-            }
-            .navbar-collapse.collapse.in {
-                z-index: 100;
-                background-color: #dfdfdf;
-                font-weight: 700;
-                color: #000000 !important;
-            }
-
         }
-
-        </style>
+    </style>
 
 <?php
 if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu'])) && ($GLOBALS['disable_rcb'] != '1')) {
@@ -209,40 +175,36 @@ if (!empty($_REQUEST['go'])) { ?>
                 </div>
             </div>
         </div>
-        <div class="row" >
+        <div class="row">
             <div class="col-sm-12">
-                <nav class="navbar navbar-default navbar-color navbar-static-top" >
-                    <div class="container-fluid">
-                        <div class="navbar-header">
-                            <button class="navbar-toggle" data-target="#myNavbar" data-toggle="collapse" type="button"><span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span></button>
-                        </div>
-                        <div class="collapse navbar-collapse" id="myNavbar" >
-                            <ul class="nav navbar-nav" >
-                                <li class="active oe-bold-black" id='li-mess'>
-                                    <a href='#'  style="font-weight:700; color:#000000" id='messages-li'><?php echo xlt('Messages'); ?></a>
-                                </li>
-                                <li class="oe-bold-black" id='li-remi' >
-                                    <a href='#' id='reminders-li' style="font-weight:700; color:#000000"><?php echo xlt('Reminders'); ?></a>
-                                </li>
-                                <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
-                                <li class="oe-bold-black" id='li-reca'>
-                                    <a href='#' id='recalls-li' style="font-weight:700; color:#000000"><?php echo xlt('Recalls'); ?></a>
-                                </li>
-                                <?php }?>
-                                <?php if ($logged_in) { ?>
-                                <li class="oe-bold-black" id='li-sms'>
-                                    <a href='#' id='sms-li' style="font-weight:700; color:#000000"><?php echo xlt('SMS Zone'); ?></a>
-                                </li>
-                                <?php }?>
-                            </ul>
-                        </div>
+                <nav class="navbar navbar-expand-md navbar-light bg-light">
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#messagesnav" aria-controls="messagesnav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                    <div class="collapse navbar-collapse" id="messagesnav">
+                        <ul class="nav navbar-nav">
+                            <li class="active nav-item" id='li-mess'>
+                                <a href='#' class="nav-link font-weight-bold" id='messages-li'><?php echo xlt('Messages'); ?></a>
+                            </li>
+                            <li class="nav-item" id='li-remi'>
+                                <a href='#' class="nav-link font-weight-bold" id='reminders-li'><?php echo xlt('Reminders'); ?></a>
+                            </li>
+                            <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
+                            <li class="nav-item" id='li-reca'>
+                                <a href='#' class="nav-link font-weight-bold" id='recalls-li'><?php echo xlt('Recalls'); ?></a>
+                            </li>
+                            <?php }?>
+                            <?php if ($logged_in) { ?>
+                            <li class="nav-item" id='li-sms'>
+                                <a href='#' class="nav-link font-weight-bold" id='sms-li'><?php echo xlt('SMS Zone'); ?></a>
+                            </li>
+                            <?php }?>
+                        </ul>
                     </div>
                 </nav>
             </div>
         </div>
         <div class="row" id="messages-div">
             <div class="col-sm-12">
-                <fieldset>
+                <div class="jumbotron jumbotron-fluid py-3">
                     <div class="col-sm-12 col-md-12 col-lg-12">
                         <?php
                         // Check to see if the user has Admin rights, and if so, allow access to See All.
@@ -411,8 +373,8 @@ if (!empty($_REQUEST['go'])) { ?>
 
                             ?>
                             <div class='col-md-12'>
-                                <fieldset>
-                                <legend><?php echo text($message_legend); ?></legend>
+                                <div class="jumbotron jumbotron-fluid py-3">
+                                <h4><?php echo text($message_legend); ?></h4>
                                     <div class="row">
                                         <div class="col-12 col-sm-12 col-md-12 col-lg-10 oe-custom-line offset-lg-1">
                                             <div class="row">
@@ -463,7 +425,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                         $background = '';
                                                     }
                                                     ?>
-                                                    <input type='text'  id='form_patient' name='form_patient' class='form-control <?php echo $cursor . " " .$background;?>' onclick="multi_sel_patient()" placeholder='<?php echo xla("Click to add patient"); ?>' value='<?php echo attr($patientname); ?>' readonly/>
+                                                    <input type='text' id='form_patient' name='form_patient' class='form-control <?php echo $cursor . " " .$background;?>' onclick="multi_sel_patient()" placeholder='<?php echo xla("Click to add patient"); ?>' value='<?php echo attr($patientname); ?>' readonly/>
                                                     <input type='hidden' class="form-control" name='reply_to' id='reply_to' value='<?php echo attr($reply_to); ?>'/>
                                                 </div>
                                                 <div class="col-2">
@@ -609,7 +571,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             ?>
                                         </div>
                                     </div>
-                                </fieldset>
+                                </div>
                             </div>
                             </form>
                             <?php
@@ -803,12 +765,12 @@ if (!empty($_REQUEST['go'])) { ?>
                         }
                         ?>
                     </div>
-                </fieldset>
+                </div>
             </div>
         </div><!--end of messages div-->
         <div class="row oe-display" id="reminders-div">
             <div class="col-sm-12">
-                <fieldset>
+                <div class="jumbotron jumbotron-fluid py-3">
                     <div class="col-sm-12 col-md-12 col-lg-12">
                         <div class="oe-margin-b-10">
                             <span class="title"><?php echo xlt('Reminders'); ?></span>
@@ -820,12 +782,12 @@ if (!empty($_REQUEST['go'])) { ?>
                         require_once '../dated_reminders/dated_reminders.php';
                         ?>
                     </div>
-                </fieldset>
+                </div>
             </div>
         </div><!--end of reminders div-->
         <div class="row oe-display" id="recalls-div">
             <div class="col-sm-12">
-                <fieldset>
+                <div class="jumbotron jumbotron-fluid py-3">
                     <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
                     <div class="col-sm-6 col-md-6 col-lg-6">
                         <div class="dr_container">
@@ -840,12 +802,12 @@ if (!empty($_REQUEST['go'])) { ?>
                         </div>
                     </div>
                     <?php } ?>
-                </fieldset>
+                </div>
             </div>
         </div><!--end of recalls div-->
         <div class="row oe-display" id="sms-div">
             <div class="col-sm-12">
-                <fieldset>
+                <div class="jumbotron jumbotron-fluid py-3">
                     <?php if ($logged_in) { ?>
                     <div class="col-sm-4 col-md-4 col-lg-4">
                         <span class="title"><?php echo xlt('SMS Zone'); ?></span>
@@ -861,7 +823,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         </form>
                     </div>
                     <?php } ?>
-                </fieldset>
+                </div>
             </div>
         </div><!--end of sms div-->
     </div><!--end of container div-->
@@ -875,7 +837,7 @@ if (!empty($_REQUEST['go'])) { ?>
         require "../../help_modal.php";
     }
     ?>
-    <script language="javascript">
+    <script type="text/javascript">
 
         var collectvalidation = <?php echo $collectthis; ?>;
 

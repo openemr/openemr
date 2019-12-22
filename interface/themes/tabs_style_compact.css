@@ -14,14 +14,10 @@
  *
  * @package OpenEMR
  * @author  Kevin Yeh <kevin.y@integralemr.com>
- * @author Ray Magauran <magauran@MedFetch.com>
+ * @author  Ray Magauran <magauran@MedFetch.com>
+ * @author  Tyler Wrenn <tyler@tylerwrenn.com>
  * @link    http://www.open-emr.org
  */
-
-/*
-*
-*   TODO: Find a way to implement this into the core to allow themes to work
-*/
 
 html {
     margin: 0;
@@ -33,11 +29,10 @@ html {
 }
 
 body {
-    font-family: "FontAwesome", "Arial", "Helvetica", sans-serif;
     flex: 1 0 auto;
     display: flex;
     flex-direction: column;
-    margin: 0px;
+    margin: 0;
     font-size: 12px;
 }
 
@@ -75,16 +70,16 @@ body {
 
 #mainBox > div {
     flex: 0 1 auto;
-    margin: 0 0 0 0;
+    margin: 0;
 }
 
 #mainBox > div.mainFrames {
     display: flex;
     flex: 1 0 auto;
     flex-direction: column;
-    padding: 0 0 0 0;
+    padding: 0;
     z-index: 3;
-    margin: 0 0 0 0;
+    margin: 0;
 }
 
 #framesDisplay {
@@ -101,12 +96,13 @@ body {
     flex-direction: column;
     margin: 0;
     padding: 0;
-    border-left: 1.33px solid black;
-    border-right: 1.33px solid black;
+    border-left: 1px solid var(--black);
+    border-right: 1px solid var(--black);
 }
 
 #framesDisplay > div > iframe {
     flex: 1 0 auto;
+    border: 0px solid var(--black);
     width: 100%;
 }
 
@@ -119,25 +115,37 @@ body {
 }
 
 .tabSpan {
-    margin: 0 0 0 0;
+    margin: 0;
     padding: 1px 7px;
-    border: 1.33px solid black;
+    border: 1px solid var(--black);
     border-bottom: 0;
     border-radius: 6px 6px 0 0;
     cursor: pointer;
     flex: 0 1 auto;
     white-space: nowrap;
-    box-shadow: 2px -2px 6px rgba(0, 0, 0, 0.6);
     overflow: visible;
 }
 
-.tabSpan:hover {
-    color: red;
+.tabSpan .fa {
+    color: var(--gray);
+}
+
+.tabHidden {
+    color: var(--gray);
 }
 
 .tabNotchosen {
-    border-bottom: 1.33px solid black;
-    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
+    background-color: transparent !important;
+    border-bottom: 1px solid var(--black);
+    display: block;
+}
+
+.tabsNoHover {
+    background: transparent !important;
+    border-top: 4px solid transparent;
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px solid var(--black);
     display: block;
 }
 
@@ -163,7 +171,8 @@ body {
 .patientEncounterList {
     position: fixed;
     overflow: hidden;
-    border: 1px solid black;
+    border: 1px solid var(--black);
+    background: var(--white);
     cursor: pointer;
     z-index: 1;
 }
@@ -172,10 +181,8 @@ body {
     display: none;
 }
 
-
 .patientEncounterList:hover table.encounters {
     display: block;
-
 }
 
 .patientEncounterList > div {
@@ -188,9 +195,19 @@ body {
     z-index: 4;
 }
 
+.patientEncounterList > div:hover {
+    color: var(--danger);
+}
+
+.patientEncounterList table.encounters td:hover {
+    color: var(--danger);
+}
+
 .patientEncounterList .review {
     font-size: x-small;
     padding: 2px;
+    border: 1px solid var(--black);
+    background-color: lightgray;
     border-radius: 5px;
 }
 
@@ -207,10 +224,14 @@ body {
     font-size: x-small;
     margin: 1px;
     padding: 3px;
-    border: 1px solid black;
+    border: 1px solid var(--black);
     background-color: lightgray;
     border-radius: 5px;
     cursor: pointer;
+}
+
+.patientInfo .clear:hover {
+    color: var(--danger);
 }
 
 .patientInfo .patientPicture {
@@ -239,9 +260,9 @@ body {
 }
 
 .appMenu > span:hover {
-    color: #fff;
+    color: var(--white);
     text-decoration: none;
-    background-color: #1C5ECF;
+    background-color: var(--primary);
     text-shadow: none;
 }
 
@@ -257,9 +278,9 @@ body {
 }
 
 .appMenu li:hover {
-    color: #fff;
+    color: var(--white);
     text-decoration: none;
-    background-color: #1C5ECF;
+    background-color: var(--primary);
     text-shadow: none;
 }
 
@@ -280,21 +301,22 @@ body {
 }
 
 .menuSection > .menuEntries {
+    background-color: var(--light);
     display: none;
     position: absolute;
     top: 19px;
     z-index: 1000;
     box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.176);
     min-width: 175px;
-    border: 0.665px solid gray;
+    border: 0.5px solid var(--gray);
     border-radius: 0px 5px 5px 5px;
-    color: black;
+    color: var(--black);
     margin-top: 4px;
     padding-top: 3px;
-    padding-left: 0px;
-    padding-right: 0px;
+    padding-left: 0;
+    padding-right: 0;
     padding-bottom: 4px;
-    whitespace: nowrap;
+    white-space: nowrap;
 }
 
 .menuSection > .menuEntries .menuEntries {
@@ -310,11 +332,23 @@ body {
 }
 
 .menuLabel {
+    color: var(--dark);
     cursor: pointer;
     padding: 5px 12px 5px;
     transition: background-color 0.1s ease;
     width: 100%;
     float: none;
+}
+
+.menuLabel:hover {
+    background: #CCE3F8;
+    color: var(--dark);
+}
+
+.menuDisabled {
+    color: var(--gray) !important;
+    pointer-events: none;
+    background-color: transparent;
 }
 
 #username {
@@ -327,24 +361,29 @@ body {
 }
 
 .body_top {
+    background-color: var(--light);
     padding: 0px;
-    box-shadow: 0 0 10px #939393;
     z-index: 10;
 }
 
 #mainBox_vertical > .body_top {
-    background-color: #C9DBF2;
-    box-shadow: 0 0 0 #939393;
+    background-color: var(--light);
     margin: 0 !important;
 }
 
 .body_title {
+    color: var(--black);
+    background-color: var(--light);
     padding: 10px 0px 0px 0px;
 }
 
 #username:hover > .userfunctions {
     display: block;
     width: 98%;
+}
+
+#username > .userfunctions > div:hover {
+    color: var(--danger);
 }
 
 .logo {
@@ -359,7 +398,7 @@ body {
 }
 
 .menu_arrow {
-    bottom: 0px;
+    bottom: 0;
     margin: 7px 7px 2px 7px;
 }
 
@@ -405,7 +444,7 @@ body {
         padding-left: 1px;
     }
 
-    #tabs_div > div :first-child {
+    #tabs_div > div:first-child {
         width: 25px !important;
     }
 

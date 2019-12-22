@@ -64,7 +64,7 @@ class BaseController extends AbstractActionController
     {
 
                 $this->jsFiles[] = '/datatables.net/js/jquery.dataTables.js';
-                $this->jsFiles[] = '/datatables.net-bs/js/dataTables.bootstrap.js';
+                $this->jsFiles[] = '/datatables.net-bs4/js/dataTables.bootstrap4.min.js';
 
         return $this->jsFiles;
     }
@@ -83,7 +83,7 @@ class BaseController extends AbstractActionController
         }
 
 
-                $this->cssFiles[] = '/datatables.net-bs/css/dataTables.bootstrap.css';
+                $this->cssFiles[] = '/datatables.net-bs4/css/dataTables.bootstrap4.min.css';
 
 
         return $this->cssFiles;

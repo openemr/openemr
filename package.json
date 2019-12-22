@@ -46,7 +46,7 @@
     "checklist-model": "1.0.0",
     "ckeditor4": "4.13.0",
     "datatables.net": "1.10.20",
-    "datatables.net-bs": "1.10.20",
+    "datatables.net-bs4": "1.10.20",
     "datatables.net-colreorder": "1.5.2",
     "datatables.net-colreorder-dt": "1.5.2",
     "datatables.net-dt": "1.10.20",
