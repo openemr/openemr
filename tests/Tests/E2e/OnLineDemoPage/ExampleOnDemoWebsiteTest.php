@@ -10,7 +10,7 @@ class ExampleOnDemoWebsiteTest extends PantherTestCase
     /** @test */
     public function check_openEmr_demo_page(): void
     {
-        $openEmrDemoPage = 'https://demo.openemr.io/openemr';
+        $openEmrDemoPage = 'http://localhost:9222/openemr';
         // ok - PantherClient
         $client = static::createPantherClient(['external_base_uri' => $openEmrDemoPage]);
         // ok - GoutteClient -> Goutte is not installed. Run "composer req fabpot/goutte".
@@ -29,7 +29,7 @@ class ExampleOnDemoWebsiteTest extends PantherTestCase
     /** @test */
     public function url_without_token_should_redirect_to_login_page(): void
     {
-        $openEmrDemoPage = 'https://demo.openemr.io/openemr';
+        $openEmrDemoPage = 'http://localhost:9222/openemr';
         $client = static::createPantherClient(['external_base_uri' => $openEmrDemoPage]);
         $crawler = $client->request('GET', '/interface/main/tabs/main.php');
         self::assertTrue($client->isFollowingRedirects());
@@ -40,7 +40,7 @@ class ExampleOnDemoWebsiteTest extends PantherTestCase
     /** @test */
     public function visitor_with_valid_credential_can_be_authenticated(): void
     {
-        $openEmrDemoPage = 'https://demo.openemr.io/openemr';
+        $openEmrDemoPage = 'http://localhost:9222/openemr';
         // ok - PantherClient
         $client = static::createPantherClient(['external_base_uri' => $openEmrDemoPage]);
         $crawler = $client->request('GET', '/interface/login/login.php?site=default');

@@ -66,6 +66,7 @@ addons:
       php vendor/bin/phpunit --testsuite api --testdox
 before_install:
   - echo "extension=ldap.so" >>php --ini | grep "Loaded Configuration" | sed -e "s|.:\s||"``
+  - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
 before_script:
   - echo 'error_reporting = "E_ALL & ~E_NOTICE & ~E_STRICT"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
 jobs:
