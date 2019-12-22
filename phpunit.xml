@@ -24,14 +24,14 @@
     <testsuites>
         <testsuite name="openemr">
             <directory>tests/Tests/Unit</directory>
-            <directory>tests/Tests/Functional</directory>
+            <directory>tests/Tests/E2e</directory>
             <directory>tests/Tests/Api</directory>
         </testsuite>
         <testsuite name="unit">
             <directory>tests/Tests/Unit</directory>
         </testsuite>
-        <testsuite name="functional">
-            <directory>tests/Tests/Functional</directory>
+        <testsuite name="e2e">
+            <directory>tests/Tests/E2e</directory>
         </testsuite>
         <testsuite name="api">
             <directory>tests/Tests/Api</directory>

@@ -1,91 +1,351 @@
+language: php
 services:
   - mysql
-language: php
+addons:
+  chrome: stable
 .steps:
   - &lint_style |
-      echo "------------------------"
+      failTest=false
+      echo "--------------------------------------"
       echo "Checking for PHP styling (PSR2) issues"
-      composer global require "squizlabs/php_codesniffer=3.*"
-      $HOME/.config/composer/vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=full .
-  - &lint_syntax |
-      echo "------------------------"
-      echo "Checking for PHP syntax errors"
-      failSyntax=false;
-      if find . -type f -name "*.php" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi;
-      if find . -type f -name "*.inc" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi;
-      if $failSyntax; then
-          exit 1;
+      echo "--------------------------------------"
+      composer global require "squizlabs/php_codesniffer=3.*" || failTest=true
+      $HOME/.config/composer/vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=full . || failTest=true
+      if $failTest; then
+        failJob=true
+        mes="FAILED"
+      else
+        mes="PASSED"
       fi
-  - &build_test |
-      echo "------------------------"
-      echo "Checking build and tests"
-      echo "------------------------"
-      echo "Build openemr (mimick standard build steps for production package)"
-      composer install
-      npm install
-      npm run build
-      composer global require phing/phing
-      $HOME/.config/composer/vendor/bin/phing vendor-clean
-      $HOME/.config/composer/vendor/bin/phing assets-clean
-      composer global remove phing/phing
-      composer dump-autoload -o
-      rm -fr node_modules
-      echo "------------------------"
-      echo "Also build ccdaservice to allow ccdaservice testing (this step is not part of production build)"
-      cd ccdaservice
-      npm install
-      cd ../
-      echo "------------------------"
-      echo "Install/configure active openemr instance"
-      chmod 666 sites/default/sqlconf.php
-      sudo chown -R www-data:www-data sites/default/documents
-      sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php
-      php -f contrib/util/installScripts/InstallerAutoTemp.php
-      rm -f contrib/util/installScripts/InstallerAutoTemp.php
-      echo "------------------------"
-      echo "Turn on the api to allow api testing"
-      mysql -u openemr --password="openemr" -h localhost -e "UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_api'" openemr
-      echo "------------------------"
-      echo "Prepare for testing"
-      composer require --dev "phpunit/phpunit=8.*"
-      composer require --dev "symfony/panther=^0.6"
-      composer dump-autoload -o
-      echo "------------------------"
-      echo "Run all tests (testsuite openemr: unit, functional, api)"
-      php vendor/bin/phpunit --testsuite openemr --testdox
-      echo "------------------------"
-      echo "Run only unit tests"
-      php vendor/bin/phpunit --testsuite unit --testdox
-      echo "------------------------"
-      echo "Run only functional tests"
-      php vendor/bin/phpunit --testsuite functional --testdox
-      echo "------------------------"
-      echo "Run only api tests"
-      php vendor/bin/phpunit --testsuite api --testdox
+      echo "-----------------------------------------------"
+      jobTest="${mes} - Checking for PHP styling (PSR2) issues"
+      jobTests+="${jobTest}\n"
+      echo "${jobTest}"
+      echo "-----------------------------------------------"
+  - &lint_syntax |
+      failTest=false
+      echo "------------------------------"
+      echo "Checking for PHP syntax errors"
+      echo "------------------------------"
+      failSyntax=false
+      if find . -type f -name "*.php" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi
+      if find . -type f -name "*.inc" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi
+      if $failSyntax; then
+        failTest=true
+      fi
+      if $failTest; then
+        failJob=true
+        mes="FAILED"
+      else
+        mes="PASSED"
+      fi
+      echo "---------------------------------------"
+      jobTest="${mes} - Checking for PHP syntax errors"
+      jobTests+="${jobTest}\n"
+      echo "${jobTest}"
+      echo "---------------------------------------"
+  - &dockers_env_start |
+      failTest=false
+      echo "---------------------------------------------------------------------"
+      echo "Start up the appropriate testing docker system to allow testing below"
+      echo "---------------------------------------------------------------------"
+      cd ci/${DOCKER_DIR} || failTest=true
+      docker-compose up -d || failTest=true
+      cd ../../ || failTest=true
+      if $failTest; then
+        failJob=true
+        mes="FAILED"
+      else
+        mes="PASSED"
+      fi
+      echo "------------------------------------------------------------------------------"
+      jobTest="${mes} - Start up the appropriate testing docker system to allow testing below"
+      jobTests+="${jobTest}\n"
+      echo "${jobTest}"
+      echo "------------------------------------------------------------------------------"
+  - &main_build |
+      failTest=false
+      echo "------------------"
+      echo "Main OpenEMR Build"
+      echo "------------------"
+      composer install || failTest=true
+      npm install || failTest=true
+      npm run build || failTest=true
+      composer global require phing/phing || failTest=true
+      $HOME/.config/composer/vendor/bin/phing vendor-clean || failTest=true
+      $HOME/.config/composer/vendor/bin/phing assets-clean || failTest=true
+      composer global remove phing/phing || failTest=true
+      composer dump-autoload -o || failTest=true
+      rm -fr node_modules || failTest=true
+      if $failTest; then
+        failJob=true
+        mes="FAILED"
+      else
+        mes="PASSED"
+      fi
+      echo "---------------------------"
+      jobTest="${mes} - Main OpenEMR Build"
+      jobTests+="${jobTest}\n"
+      echo "${jobTest}"
+      echo "---------------------------"
+  - &ccda_build |
+      failTest=false
+      echo "------------------"
+      echo "CCDA OpenEMR Build"
+      echo "------------------"
+      cd ccdaservice || failTest=true
+      npm install || failTest=true
+      cd ../ || failTest=true
+      if $failTest; then
+        failJob=true
+        mes="FAILED"
+      else
+        mes="PASSED"
+      fi
+      echo "---------------------------"
+      jobTest="${mes} - CCDA OpenEMR Build"
+      jobTests+="${jobTest}\n"
+      echo "${jobTest}"
+      echo "---------------------------"
+  - &install_configure |
+      failTest=false
+      echo "----------------------------------------------------------------------------------------------"
+      echo "Install and Configure OpenEMR for testing (remove registration modal on login and turn on api)"
+      echo "----------------------------------------------------------------------------------------------"
+      sudo chmod 666 sites/default/sqlconf.php || failTest=true
+      sudo chown -R www-data:www-data sites/default/documents || failTest=true
+      sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php || failTest=true
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "php -f ${OPENEMR_DIR}/contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=%" || failTest=true
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "rm -f ${OPENEMR_DIR}/contrib/util/installScripts/InstallerAutoTemp.php" || failTest=true
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "INSERT INTO product_registration (opt_out) VALUES (1)" openemr' || failTest=true
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_api\"" openemr' || failTest=true
+      if $failTest; then
+        failJob=true
+        mes="FAILED"
+      else
+        mes="PASSED"
+      fi
+      echo "-------------------------------------------------------------------------------------------------------"
+      jobTest="${mes} - Install and Configure OpenEMR for testing (remove registration modal on login and turn on api)"
+      jobTests+="${jobTest}\n"
+      echo "${jobTest}"
+      echo "-------------------------------------------------------------------------------------------------------"
+  - &dev_test_build |
+      failTest=false
+      echo "------------------"
+      echo "Dev Test OpenEMR Build"
+      echo "------------------"
+      composer require "phpunit/phpunit=8.*" || failTest=true
+      composer require "symfony/panther=^0.6" || failTest=true
+      composer dump-autoload -o || failTest=true
+      if $failTest; then
+        failJob=true
+        mes="FAILED"
+      else
+        mes="PASSED"
+      fi
+      echo "-------------------------------"
+      jobTest="${mes} - Dev Test OpenEMR Build"
+      jobTests+="${jobTest}\n"
+      echo "${jobTest}"
+      echo "-------------------------------"
+  - &build_test_unit |
+      failTest=false
+      echo "---------------"
+      echo "Run Unit Tests"
+      echo "---------------"
+      php vendor/bin/phpunit --testsuite unit --testdox || failTest=true
+      if $failTest; then
+        failJob=true
+        mes="FAILED"
+      else
+        mes="PASSED"
+      fi
+      echo "-----------------------"
+      jobTest="${mes} - Run Unit Tests"
+      jobTests+="${jobTest}\n"
+      echo "${jobTest}"
+      echo "-----------------------"
+  - &build_test_e2e |
+      failTest=false
+      echo "-------------"
+      echo "Run E2e Tests"
+      echo "-------------"
+      php vendor/bin/phpunit --testsuite e2e --testdox || failTest=true
+      if $failTest; then
+        failJob=true
+        mes="FAILED"
+      else
+        mes="PASSED"
+      fi
+      echo "----------------------"
+      jobTest="${mes} - Run E2e Tests"
+      jobTests+="${jobTest}\n"
+      echo "${jobTest}"
+      echo "----------------------"
+  - &build_test_api |
+      failTest=false
+      echo "-------------"
+      echo "Run Api Tests"
+      echo "-------------"
+      php vendor/bin/phpunit --testsuite api --testdox || failTest=true
+      if $failTest; then
+        failJob=true
+        mes="FAILED"
+      else
+        mes="PASSED"
+      fi
+      echo "----------------------"
+      jobTest="${mes} - Run Api Tests"
+      jobTests+="${jobTest}\n"
+      echo "${jobTest}"
+      echo "----------------------"
+  - &job_summary_prep |
+      if $failJob; then
+        mes="FAILED"
+      else
+        mes="PASSED"
+      fi
+      jobSummary="--------------------------------------------\n"
+      jobSummary+="--------------------------------------------\n"
+      jobSummary+="${mes} - JOB SUMMARY\n"
+      jobSummary+="--------------------------------------------\n"
+      jobSummary+="${jobTests}"
+      jobSummary+="--------------------------------------------"
 before_install:
   - echo "extension=ldap.so" >>php --ini | grep "Loaded Configuration" | sed -e "s|.:\s||"``
 before_script:
   - echo 'error_reporting = "E_ALL & ~E_NOTICE & ~E_STRICT"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
 jobs:
   include:
-    - env: CI_JOB=lint_style
+    - name: 'Psr2 style'
       php: '7.4'
-      script: *lint_style
-    - env: CI_JOB=lint_syntax
-      php: '7.2'
-      script: *lint_syntax
-    - env: CI_JOB=lint_syntax
+      script:
+        - failJob=false
+        - *lint_style
+        - *job_summary_prep
+        - echo -e "${jobSummary}"
+        - if $failJob; then travis_terminate 1; fi
+    - name: 'Build and test - PHP 7.3 - Apache'
       php: '7.3'
-      script: *lint_syntax
-    - env: CI_JOB=lint_syntax
-      php: '7.4'
-      script: *lint_syntax
-    - env: CI_JOB=build_test
+      env:
+        - DOCKER_DIR=apache_73
+        - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+      script:
+        - failJob=false
+        - *dockers_env_start
+        - *main_build
+        - *ccda_build
+        - *install_configure
+        - *dev_test_build
+        - *build_test_unit
+        - *build_test_e2e
+        - *build_test_api
+        - *job_summary_prep
+        - echo -e "${jobSummary}"
+        - if $failJob; then travis_terminate 1; fi
+    - name: 'Build and test - PHP 7.2 - Nginx'
       php: '7.2'
-      script: *build_test
-    - env: CI_JOB=build_test
+      env:
+        - DOCKER_DIR=nginx_72
+        - OPENEMR_DIR=/usr/share/nginx/html/openemr
+      script:
+        - failJob=false
+        - *dockers_env_start
+        - *main_build
+        - *ccda_build
+        - *install_configure
+        - *dev_test_build
+        - *build_test_unit
+        - *build_test_e2e
+        - *build_test_api
+        - *job_summary_prep
+        - echo -e "${jobSummary}"
+        - if $failJob; then travis_terminate 1; fi
+    - name: 'Build and test - PHP 7.3 - Nginx'
       php: '7.3'
-      script: *build_test
-    - env: CI_JOB=build_test
+      env:
+        - DOCKER_DIR=nginx_73
+        - OPENEMR_DIR=/usr/share/nginx/html/openemr
+      script:
+        - failJob=false
+        - *dockers_env_start
+        - *main_build
+        - *ccda_build
+        - *install_configure
+        - *dev_test_build
+        - *build_test_unit
+        - *build_test_e2e
+        - *build_test_api
+        - *job_summary_prep
+        - echo -e "${jobSummary}"
+        - if $failJob; then travis_terminate 1; fi
+    - name: 'Build and test - PHP 7.4 - Nginx'
       php: '7.4'
-      script: *build_test
+      env:
+        - DOCKER_DIR=nginx_74
+        - OPENEMR_DIR=/usr/share/nginx/html/openemr
+      script:
+        - failJob=false
+        - *dockers_env_start
+        - *main_build
+        - *ccda_build
+        - *install_configure
+        - *dev_test_build
+        - *build_test_unit
+        - *build_test_e2e
+        - *build_test_api
+        - *job_summary_prep
+        - echo -e "${jobSummary}"
+        - if $failJob; then travis_terminate 1; fi
+    - name: 'Build and test (only phpunit; no functional tests) - PHP 8.0'
+      php: 'nightly'
+      env:
+        - DOCKER_DIR=apache_73
+        - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+      script:
+        - failJob=false
+        - *dockers_env_start
+        - *main_build
+        - *ccda_build
+        - *install_configure
+        - *dev_test_build
+        - *build_test_unit
+        - *job_summary_prep
+        - echo -e "${jobSummary}"
+        - if $failJob; then travis_terminate 1; fi
+    - name: 'Syntax - PHP 7.2'
+      php: '7.2'
+      script:
+        - failJob=false
+        - *lint_syntax
+        - *job_summary_prep
+        - echo -e "${jobSummary}"
+        - if $failJob; then travis_terminate 1; fi
+    - name: 'Syntax - PHP 7.3'
+      php: '7.3'
+      script:
+        - failJob=false
+        - *lint_syntax
+        - *job_summary_prep
+        - echo -e "${jobSummary}"
+        - if $failJob; then travis_terminate 1; fi
+    - name: 'Syntax - PHP 7.4'
+      php: '7.4'
+      script:
+        - failJob=false
+        - *lint_syntax
+        - *job_summary_prep
+        - echo -e "${jobSummary}"
+        - if $failJob; then travis_terminate 1; fi
+    - name: 'Syntax - PHP 8.0'
+      php: 'nightly'
+      script:
+        - failJob=false
+        - *lint_syntax
+        - *job_summary_prep
+        - echo -e "${jobSummary}"
+        - if $failJob; then travis_terminate 1; fi
+  allow_failures:
+    - name: 'Build and test (only phpunit; no functional tests) - PHP 8.0'
+    - name: 'Syntax - PHP 8.0'
