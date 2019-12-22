@@ -2,6 +2,11 @@ services:
   - mysql
 language: php
 .steps:
+  - &lint_style |
+      echo "------------------------"
+      echo "Checking for PHP styling (PSR2) issues"
+      composer global require "squizlabs/php_codesniffer=3.*"
+      $HOME/.config/composer/vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=full .
   - &lint_syntax |
       echo "------------------------"
       echo "Checking for PHP syntax errors"
@@ -11,11 +16,6 @@ language: php
       if $failSyntax; then
           exit 1;
       fi
-  - &lint_style |
-      echo "------------------------"
-      echo "Checking for PHP styling (PSR2) issues"
-      composer global require "squizlabs/php_codesniffer=3.*"
-      $HOME/.config/composer/vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=full .
   - &build_test |
       echo "------------------------"
       echo "Checking build and tests"
@@ -55,24 +55,24 @@ before_script:
   - echo 'error_reporting = "E_ALL & ~E_NOTICE & ~E_STRICT"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
 jobs:
   include:
-    - env: CI_JOB=lint_syntax
-      php: '7.2'
-      script: *lint_syntax
-    - env: CI_JOB=lint_syntax
-      php: '7.3'
-      script: *lint_syntax
-    - env: CI_JOB=lint_syntax
-      php: '7.4'
-      script: *lint_syntax
-    - env: CI_JOB=build_test
-      php: '7.2'
-      script: *build_test
-    - env: CI_JOB=build_test
-      php: '7.3'
-      script: *build_test
-    - env: CI_JOB=build_test
-      php: '7.4'
-      script: *build_test
     - env: CI_JOB=lint_style
       php: '7.4'
       script: *lint_style
+    - env: CI_JOB=lint_syntax
+      php: '7.2'
+      script: *lint_syntax
+    - env: CI_JOB=lint_syntax
+      php: '7.3'
+      script: *lint_syntax
+    - env: CI_JOB=lint_syntax
+      php: '7.4'
+      script: *lint_syntax
+    - env: CI_JOB=build_test
+      php: '7.2'
+      script: *build_test
+    - env: CI_JOB=build_test
+      php: '7.3'
+      script: *build_test
+    - env: CI_JOB=build_test
+      php: '7.4'
+      script: *build_test
