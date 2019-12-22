@@ -58,12 +58,12 @@ if ($_POST['form_save']) {
     "from patient_data where pid = ? limit 1", array($patient_id));
     ?>
 <div class="container">
-    <div class = "row">
+    <div class="row">
         <div class="page-header">
                 <h2><?php echo xlt('Billing Note for '). text($row['fname']) . " " . text($row['lname']); ?></h2>
             </div>
     </div>
-    <div class = "row">
+    <div class="row">
         <form method='post' action='sl_eob_patient_note.php?patient_id=<?php echo attr_url($patient_id); ?>'>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <div class="col-xs-12" style="padding-bottom:5px">
@@ -71,7 +71,7 @@ if ($_POST['form_save']) {
             </div>
             <div class="col-xs-12" style="padding-bottom:5px">
                 <div class="col-xs-12">
-                    <input type='text' name='form_note' class='form-control' value='<?php echo attr($row['billing_note']) ?>' placeholder ='<?php echo xla('Max 255 characters')?>' />
+                    <input type='text' name='form_note' class='form-control' value='<?php echo attr($row['billing_note']); ?>' placeholder ='<?php echo xla('Max 255 characters'); ?>' />
                 </div>
             </div>
             <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets ?>
