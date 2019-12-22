@@ -1,6 +1,4 @@
 language: php
-services:
-  - mysql
 addons:
   chrome: stable
 .steps:
@@ -22,28 +20,10 @@ addons:
       echo "------------------------"
       echo "Checking build and tests"
       echo "------------------------"
-      echo "Build openemr (mimick standard build steps for production package)"
-      composer install
-      npm install
-      npm run build
-      composer global require phing/phing
-      $HOME/.config/composer/vendor/bin/phing vendor-clean
-      $HOME/.config/composer/vendor/bin/phing assets-clean
-      composer global remove phing/phing
-      composer dump-autoload -o
-      rm -fr node_modules
-      echo "------------------------"
-      echo "Also build ccdaservice to allow ccdaservice testing (this step is not part of production build)"
-      cd ccdaservice
-      npm install
+      echo "Build, install, and configure openemr via flex docker"
+      cd ci
+      docker-compose up
       cd ../
-      echo "------------------------"
-      echo "Install/configure active openemr instance"
-      chmod 666 sites/default/sqlconf.php
-      sudo chown -R www-data:www-data sites/default/documents
-      sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php
-      php -f contrib/util/installScripts/InstallerAutoTemp.php
-      rm -f contrib/util/installScripts/InstallerAutoTemp.php
       echo "------------------------"
       echo "Turn on the api to allow api testing"
       mysql -u openemr --password="openemr" -h localhost -e "UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_api'" openemr
@@ -52,7 +32,6 @@ addons:
       composer require --dev "phpunit/phpunit=8.*"
       composer require --dev "symfony/panther=^0.6"
       composer dump-autoload -o
-      sudo apt-get install apache2 libapache2-mod-php libtiff-tools php php-mysql php-cli php-gd php-xsl php-curl php-soap php-json php-gettext imagemagick php-mbstring php-zip php-ldap
       echo "------------------------"
       echo "Run all tests (testsuite openemr: unit, e2e, api)"
       php vendor/bin/phpunit --testsuite openemr --testdox
