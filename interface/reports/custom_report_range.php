@@ -327,7 +327,7 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
         print "<div id='superbill_insurancedata'>";
         print "<h1>".xlt('Insurance Data').":</h1>";
         print "<h2>".xlt('Primary').":</h2>";
-        printRecDataOne($insurance_data_array, getRecInsuranceData($pids[$iCounter], "primary"), $N);
+        printRecDataOne($insurance_data_array, getRecInsuranceData($pids[$iCounter],"primary"), $N);
         print "<h2>".xlt('Secondary').":</h2>";
         printRecDataOne($insurance_data_array, getRecInsuranceData($pids[$iCounter], "secondary"), $N);
         print "<h2>".xlt('Tertiary').":</h2>";
