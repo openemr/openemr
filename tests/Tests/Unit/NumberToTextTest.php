@@ -3,8 +3,6 @@
 /* Licensing information appears at the end of this file. */
 namespace OpenEMR\Tests\Unit;
 
-require_once dirname(__FILE__) . '/../../vendor/autoload.php';
-
 use NumberToText;
 use PHPUnit\Framework\TestCase;
 
