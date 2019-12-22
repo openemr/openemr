@@ -46,9 +46,22 @@ language: php
       echo "Turn on the api to allow api testing"
       mysql -u openemr --password="openemr" -h localhost -e "UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_api'" openemr
       echo "------------------------"
-      echo "Run phpunit testing"
-      composer global require "phpunit/phpunit=8.*"
-      $HOME/.config/composer/vendor/bin/phpunit --testdox
+      echo "Prepare for testing"
+      composer require --dev "phpunit/phpunit=8.*"
+      composer require --dev "symfony/panther=^0.6"
+      composer dump-autoload -o
+      echo "------------------------"
+      echo "Run all tests (testsuite openemr: unit, functional, api)"
+      php vendor/bin/phpunit --testsuite openemr --testdox
+      echo "------------------------"
+      echo "Run only unit tests"
+      php vendor/bin/phpunit --testsuite unit --testdox
+      echo "------------------------"
+      echo "Run only functional tests"
+      php vendor/bin/phpunit --testsuite functional --testdox
+      echo "------------------------"
+      echo "Run only api tests"
+      php vendor/bin/phpunit --testsuite api --testdox
 before_install:
   - echo "extension=ldap.so" >>php --ini | grep "Loaded Configuration" | sed -e "s|.:\s||"``
 before_script:

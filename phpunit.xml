@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/6.3/phpunit.xsd"
-         backupGlobals="true"
+         backupGlobals="false"
+         bootstrap="tests/bootstrap.php"
          backupStaticAttributes="false"
          cacheTokens="false"
          colors="false"
@@ -13,17 +14,27 @@
          stopOnRisky="false"
          verbose="false"
 >
-   <testsuites>
-       <!--
-       Fix all old test file, rename all folder (api -> Api, certification -> Certification)
-       add new namespace inside test files (example: namespace OpenEMR\Tests\Unit;) 
-       <testsuite name="openemr">
-         <directory suffix="Test.php">tests/unit</directory>
-       </testsuite>
-      -->
-       <testsuite name="openemr">
-         <directory>tests/Unit</directory>
-       </testsuite>
-
-   </testsuites>
-</phpunit> 
+    <php>
+        <ini name="error_reporting" value="-1" />
+        <server name="PANTHER_WEB_SERVER_DIR" value="interface"/>
+        <!-- ATTENTION use only on local machine you can not activate chrome visual mode on travis. -->
+        <!-- to disable browser's headless mode (will display the testing window, useful to debug) -->
+        <!--<server name="PANTHER_NO_HEADLESS" value="1"/>-->
+    </php>
+    <testsuites>
+        <testsuite name="openemr">
+            <directory>tests/Tests/Unit</directory>
+            <directory>tests/Tests/Functional</directory>
+            <directory>tests/Tests/Api</directory>
+        </testsuite>
+        <testsuite name="unit">
+            <directory>tests/Tests/Unit</directory>
+        </testsuite>
+        <testsuite name="functional">
+            <directory>tests/Tests/Functional</directory>
+        </testsuite>
+        <testsuite name="api">
+            <directory>tests/Tests/Api</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
