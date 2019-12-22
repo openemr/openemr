@@ -1,0 +1,27 @@
+# docker-compose.yml for travis ci testing
+version: '3.1'
+services:
+  mysql:
+    restart: always
+    image: mariadb:10.4
+    command: ['mysqld','--character-set-server=utf8']
+    ports:
+    - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  openemr:
+    restart: always
+    image: openemr/openemr:flex
+    ports:
+    - 80:80
+    - 443:443
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASS: root
+      MYSQL_USER: openemr
+      MYSQL_PASS: openemr
+      OE_USER: admin
+      OE_PASS: pass
+      EMPTY: "yes"
+    depends_on:
+    - mysql
