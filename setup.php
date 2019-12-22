@@ -222,7 +222,7 @@ if (is_dir($OE_SITE_DIR)) {
 $config = 0;
 if (file_exists($OE_SITE_DIR)) {
     include_once($installer->conffile);
-}
+} elseif ($state > 3) {
   // State 3 should have created the site directory if it is missing.
     die("Internal error, site directory is missing.");
 }
@@ -909,7 +909,7 @@ SOURCESITEBOT;
 					<br>
                     <fieldset class='noclone bg-danger oe-margin-b-5'>
                         <legend name="form_legend" id="form_legend" class='oe-setup-legend text-danger'>Enable 2 Factor Authentication for Initial User (more secure - optional) <i id="2fa-section" class="fa fa-info-circle oe-text-black oe-superscript 2fa-section-tooltip" aria-hidden="true"></i></legend>
-
+                       
                         <div class="row">
                             <div class="col-xs-12 ">
                                 <div class="col-sm-3">
