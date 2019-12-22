@@ -1,6 +1,8 @@
+language: php
 services:
   - mysql
-language: php
+addons:
+  chrome: stable
 .steps:
   - &lint_style |
       echo "------------------------"
@@ -51,14 +53,14 @@ language: php
       composer require --dev "symfony/panther=^0.6"
       composer dump-autoload -o
       echo "------------------------"
-      echo "Run all tests (testsuite openemr: unit, functional, api)"
+      echo "Run all tests (testsuite openemr: unit, e2e, api)"
       php vendor/bin/phpunit --testsuite openemr --testdox
       echo "------------------------"
       echo "Run only unit tests"
       php vendor/bin/phpunit --testsuite unit --testdox
       echo "------------------------"
       echo "Run only functional tests"
-      php vendor/bin/phpunit --testsuite functional --testdox
+      php vendor/bin/phpunit --testsuite e2e --testdox
       echo "------------------------"
       echo "Run only api tests"
       php vendor/bin/phpunit --testsuite api --testdox

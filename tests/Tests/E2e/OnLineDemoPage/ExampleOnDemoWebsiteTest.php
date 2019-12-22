@@ -1,8 +1,10 @@
 <?php
 declare(strict_types=1);
-namespace OpenEMR\Tests\Functional\OnLineDemoPage;
+namespace OpenEMR\Tests\E2e\OnLineDemoPage;
+
 use Symfony\Component\Panther\PantherTestCase;
 use Symfony\Component\Panther\Client;
+
 class ExampleOnDemoWebsiteTest extends PantherTestCase
 {
     /** @test */
@@ -54,4 +56,3 @@ class ExampleOnDemoWebsiteTest extends PantherTestCase
         // echo $client->getCurrentURL();
     }
 }
-

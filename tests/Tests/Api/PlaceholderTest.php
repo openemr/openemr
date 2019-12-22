@@ -1,7 +1,9 @@
 <?php
 declare(strict_types=1);
 namespace OpenEMR\Tests\Api;
+
 use Symfony\Component\Panther\PantherTestCase;
+
 class PlaceholderTest extends PantherTestCase
 {
     /** @test */
@@ -10,4 +12,3 @@ class PlaceholderTest extends PantherTestCase
         self::markTestSkipped();
     }
 }
-
