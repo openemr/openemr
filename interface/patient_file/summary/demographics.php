@@ -173,7 +173,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 <script type="text/javascript" language="JavaScript">
  function oldEvt(apptdate, eventid) {
    let title = <?php echo xlj('Appointments'); ?>;
-   dlgopen('../../main/calendar/add_edit_event.php?date=' + encodeURIComponent(apptdate) + '&eid=' + encodeURIComponent(eventid), '_blank', 725, 500, '', title);
+   dlgopen('../../main/calendar/add_edit_event.php?date=' + encodeURIComponent(apptdate) + '&eid=' + encodeURIComponent(eventid), '_blank', 800, 500, '', title);
  }
 
  function advdirconfigure() {
@@ -204,7 +204,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
  function newEvt() {
      let title = <?php echo xlj('Appointments'); ?>;
      let url = '../../main/calendar/add_edit_event.php?patientid=' + <?php echo js_url($pid); ?>;
-     dlgopen(url, '_blank', 725, 500, '', title);
+     dlgopen(url, '_blank', 800, 500, '', title);
      return false;
  }
 
