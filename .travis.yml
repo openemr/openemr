@@ -49,6 +49,7 @@ addons:
       mysql -u openemr --password="openemr" -h localhost -e "UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_api'" openemr
       echo "------------------------"
       echo "Prepare for testing"
+      google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
       composer require --dev "phpunit/phpunit=8.*"
       composer require --dev "symfony/panther=^0.6"
       composer dump-autoload -o
@@ -66,7 +67,6 @@ addons:
       php vendor/bin/phpunit --testsuite api --testdox
 before_install:
   - echo "extension=ldap.so" >>php --ini | grep "Loaded Configuration" | sed -e "s|.:\s||"``
-  - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
 before_script:
   - echo 'error_reporting = "E_ALL & ~E_NOTICE & ~E_STRICT"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
 jobs:
