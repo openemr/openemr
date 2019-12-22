@@ -30,7 +30,7 @@
         <testsuite name="unit">
             <directory>tests/Tests/Unit</directory>
         </testsuite>
-        <testsuite name="functional">
+        <testsuite name="e2e">
             <directory>tests/Tests/E2e</directory>
         </testsuite>
         <testsuite name="api">

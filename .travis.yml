@@ -59,7 +59,7 @@ addons:
       echo "Run only unit tests"
       php vendor/bin/phpunit --testsuite unit --testdox
       echo "------------------------"
-      echo "Run only functional tests"
+      echo "Run only e2e tests"
       php vendor/bin/phpunit --testsuite e2e --testdox
       echo "------------------------"
       echo "Run only api tests"
