@@ -302,11 +302,11 @@ if (typeof dlgclose !== "function") {
 *
 * @summary Stackable, resizable and draggable responsive ajax/iframe dialog modal.
 *
-* @param {url} string Content location.
+* @param {String} url Content location.
 * @param {String} winname If set becomes modal id and/or iframes name. Or, one is created/assigned(iframes).
-* @param {Number| String} width|modalSize(modal-xl) For sizing: an number will be converted to a percentage of view port width.
+* @param {Number|String} width|modalSize(modal-xl) For sizing: an number will be converted to a percentage of view port width.
 * @param {Number} height Initial minimum height. For iframe auto resize starts at this height.
-* @param {boolean} forceNewWindow Force using a native window.
+* @param {Boolean} forceNewWindow Force using a native window.
 * @param {String} title If exist then header with title is created otherwise no header and content only.
 * @param {Object} opts Dialogs options.
 * @returns {Object} dialog object reference.

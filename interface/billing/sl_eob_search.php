@@ -638,7 +638,13 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         }
 
         function npopup(pid) {
-            window.open('sl_eob_patient_note.php?patient_id=' + encodeURIComponent(pid), '_blank', 'width=750,height=250,resizable=1');
+            dlgopen('sl_eob_patient_note.php?patient_id=' + encodeURIComponent(pid),
+                '_blank',
+                '950',
+                '250',
+                true,
+                'Billing note',
+                resizable='1');
             return false;
         }
 
