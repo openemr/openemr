@@ -793,6 +793,13 @@ $GLOBALS_METADATA = array(
             xl('Define a default visit category'),
         ),
 
+        'enable_recurring_encounters' => array(
+            xl('Enable recurring encounters'),
+            'bool',
+            '0',
+            xl('Enable recurring encounters feature')
+        ),
+
         'disable_eligibility_log' => array(
             xl('Disable Insurance Eligibility Reports Download'),
             'bool',
