@@ -20,10 +20,17 @@ addons:
       echo "------------------------"
       echo "Checking build and tests"
       echo "------------------------"
-      echo "Build, install, and configure openemr via flex docker"
+      echo "Build openemr via flex docker"
       cd ci
       docker-compose up
       cd ../
+      echo "------------------------"
+      echo "Install/configure active openemr instance"
+      chmod 666 sites/default/sqlconf.php
+      sudo chown -R www-data:www-data sites/default/documents
+      sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php
+      php -f contrib/util/installScripts/InstallerAutoTemp.php rootpass=root loginhost=openemr server=mysql
+      rm -f contrib/util/installScripts/InstallerAutoTemp.php
       echo "------------------------"
       echo "Turn on the api to allow api testing"
       mysql -u openemr --password="openemr" -h localhost -e "UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_api'" openemr

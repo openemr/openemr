@@ -15,13 +15,9 @@ services:
     ports:
     - 80:80
     - 443:443
+    volumes:
+    - ..:/var/www/localhost/htdocs/openemr
     environment:
-      MYSQL_HOST: mysql
-      MYSQL_ROOT_PASS: root
-      MYSQL_USER: openemr
-      MYSQL_PASS: openemr
-      OE_USER: admin
-      OE_PASS: pass
       EMPTY: "yes"
     depends_on:
     - mysql
