@@ -18,6 +18,7 @@ services:
     volumes:
     - ..:/var/www/localhost/htdocs/openemr
     environment:
+      FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
     depends_on:
     - mysql

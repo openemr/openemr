@@ -20,16 +20,32 @@ addons:
       echo "------------------------"
       echo "Checking build and tests"
       echo "------------------------"
-      echo "Build openemr via flex docker"
+      echo "Start up the flex docker system to allow testing below"
       cd ci
-      docker-compose up
+      docker-compose up -d
+      cd ../
+      echo "------------------------"
+      echo "Build openemr (mimick standard build steps for production package)"
+      composer install
+      npm install
+      npm run build
+      composer global require phing/phing
+      $HOME/.config/composer/vendor/bin/phing vendor-clean
+      $HOME/.config/composer/vendor/bin/phing assets-clean
+      composer global remove phing/phing
+      composer dump-autoload -o
+      rm -fr node_modules
+      echo "------------------------"
+      echo "Also build ccdaservice to allow ccdaservice testing (this step is not part of production build)"
+      cd ccdaservice
+      npm install
       cd ../
       echo "------------------------"
       echo "Install/configure active openemr instance"
       chmod 666 sites/default/sqlconf.php
       sudo chown -R www-data:www-data sites/default/documents
       sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php
-      php -f contrib/util/installScripts/InstallerAutoTemp.php rootpass=root loginhost=openemr server=mysql
+      php -f contrib/util/installScripts/InstallerAutoTemp.php rootpass=root
       rm -f contrib/util/installScripts/InstallerAutoTemp.php
       echo "------------------------"
       echo "Turn on the api to allow api testing"
