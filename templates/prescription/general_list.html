@@ -215,9 +215,8 @@ $(function(){
         <th>{xlt t='Refills'}</th>
         <th>{xlt t='Provider'}</th>
         {if $GLOBALS.weno_rx_enable}
-            <th>{xlt t='Send NewRx'}</th>
-            <th>{xlt t='Refill Rx'}</th>
-            <th>{xlt t='Last Tx Date'}</th>
+        <th>{xlt t='Send'}</th>
+        <th>{xlt t='Last Tx Date'}</th>
         {/if}
     </tr>
     </thead>
@@ -276,14 +275,9 @@ $(function(){
     </td>
     {if $GLOBALS.weno_rx_enable}
         <td align="center">
-        {if $prescription->ntx == 0}
-            <input class="check_list" id="NewRx-{$smarty.foreach.rx.index|attr}" type="checkbox" {if $prescription->active < 1}disabled="disabled" {/if} value="{$prescription->id|attr}" {if $prescription->ntx > 0 && $prescription->active > 0}checked="checked" {/if} onClick="markTx(this,'NewRx-{$prescription->id|attr}'); changeLinkHrefAll(this.checked, this.value);" title="{xla t="Select to transmit"}">
-        {/if}
-        </td>
-        <td align="center">
-        {if $prescription->ntx == 1}
-            <input class="check_list" id="RefillRx-{$smarty.foreach.rx.index|attr}" type="checkbox" {if $prescription->active < 1}disabled="disabled" {/if} value="{$prescription->id|attr}" {if $prescription->ntx > 0 && $prescription->active > 0}checked="checked" {/if} onClick="markTx(this,'RefillRx-{$prescription->id|attr}'); changeLinkHrefAll(this.checked, this.value);" title="{xla t="Select to transmit"}">
-        {/if}
+            {if $prescription->txDate != $smarty.now|date_format:"%Y-%m-%d"}
+            <input class="check_list" id="NewRx-{$smarty.foreach.rx.index|attr}" type="checkbox" {if $prescription->active < 1}disabled="disabled" {/if} value="{$prescription->id|attr}" onClick="markTx(this,'NewRx-{$prescription->id|attr}'); changeLinkHrefAll(this.checked, this.value);" title="{xla t="Select to transmit"}">
+            {/if}
         </td>
         <td id="{$prescription->id|attr}" align="center">
         {$prescription->txDate|text}

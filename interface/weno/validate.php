@@ -16,110 +16,127 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Rx\Weno\TransmitData;
-use OpenEMR\Services\FacilityService;
+use OpenEMR\Rx\Weno\ValidateRxData;
 
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
-    
-$facilityService = new FacilityService();
-$facility = $facilityService->getPrimaryBillingLocation();
 
+$facility = getFacilities($first = '');
 $pid = $GLOBALS['pid'];
 $uid = $_SESSION['authUserID'];
 
-$validation = new TransmitData();
+$validation = new ValidateRxData();
 
+?>
+<html>
+<head>
+    <title><?php print xlt("Data Validation"); ?></title>
+</head>
+<body>
+<h3><?php xlt("Data Validation"); ?></h3>
+
+<?php
 $patient = $validation->validatePatient($pid);
 $pharmacy = $validation->patientPharmacyInfo($pid);
+$diagnosis = $validation->medicalProblem();
 
-if (empty($facility['name']) || $facility['name'] == "Your clinic name here") {
-    print xlt("Please fill out facility name properly");
-    exit;
+$i = 0;
+if (empty($facility[0]['name']) || $facility[0]['name'] == "Your clinic name here") {
+    print xlt("Please fill out facility name properly")."<br>";
+    ++$i;
 }
 
-if (empty($facility['phone'])) {
-    print xlt("Please fill out facility phone properly");
-    exit;
+if (empty($facility[0]['phone'])) {
+    print xlt("Please fill out facility phone properly")."<br>";
+    ++$i;
 }
 
-if (empty($facility['fax'])) {
-    print xlt("Please fill out facility fax properly");
-    exit;
+if (empty($facility[0]['fax'])) {
+    print xlt("Please fill out facility fax properly"."<br>");
+    ++$i;
 }
 
-if (empty($facility['street'])) {
-    print xlt("Please fill out facility street properly");
-    exit;
+if (empty($facility[0]['street'])) {
+    print xlt("Please fill out facility street properly")."<br>";
+    ++$i;
 }
 
-if (empty($facility['city'])) {
-    print xlt("Please fill out facility city properly");
-    exit;
+if (empty($facility[0]['city'])) {
+    print xlt("Please fill out facility city properly")."<br>";
+    ++$i;
 }
 
-if (empty($facility['state'])) {
-    print xlt("Please fill out facility state properly");
-    exit;
+if (empty($facility[0]['state'])) {
+    print xlt("Please fill out facility state properly")."<br>";
+    ++$i;
 }
 
-if (empty($facility['postal_code'])) {
-    print xlt("Please fill out facility postal code properly");
-    exit;
+if (empty($facility[0]['postal_code'])) {
+    print xlt("Please fill out facility postal code properly")."<br>";
+    ++$i;
 }
 
 if (empty($GLOBALS['weno_account_id'])) {
     print xlt("Weno Account ID information missing")."<br>";
-    exit;
+    ++$i;
 }
 if (empty($GLOBALS['weno_provider_id'])) {
     print xlt("Weno Account Clinic ID information missing")."<br>";
-    exit;
+    ++$i;
 }
 if (empty($patient['DOB'])) {
     print xlt("Patient DOB missing"). "<br>";
-    exit;
+    ++$i;
 }
 if (empty($patient['street'])) {
     print xlt("Patient street missing"). "<br>";
-    exit;
+    ++$i;
 }
 if (empty($patient['postal_code'])) {
     print xlt("Patient Zip Code missing"). "<br>";
-    exit;
+    ++$i;
 }
 if (empty($patient['city'])) {
     print xlt("Patient city missing"). "<br>";
-    exit;
+    ++$i;
 }
 if (empty($patient['state'])) {
     print xlt("Patient state missing"). "<br>";
-    exit;
+    ++$i;
 }
 if (empty($patient['sex'])) {
     print xlt("Patient sex missing"). "<br>";
-    exit;
+    ++$i;
 }
-if (empty($pharmacy['name'])) {
-    print xlt("Pharmacy not assigned to the patient"). "<br>";
-    exit;
+if (empty($diagnosis)) {
+    print xlt("Please enter a Medical Problem for this patient"). "<br>";
 }
+
+
 $ncpdpLength = strlen($pharmacy['ncpdp']);
 if (empty($pharmacy['ncpdp']) || $ncpdpLength < 7) {
     print xlt("Pharmacy missing NCPDP ID or less than 7 digits"). "<br>";
-    exit;
+    ++$i;
 }
 $npiLength = strlen($pharmacy['npi']);
 if (empty($pharmacy['npi'] || $npiLength < 10)) {
     print xlt("Pharmacy missing NPI  or less than 10 digits"). "<br>";
-    exit;
+    ++$i;
 }
 //validate NPI exist
 //Test if the NPI is a valid number on file
 $seekvalidation = $validation->validateNPI($pharmacy['npi']);
 if ($seekvalidation == 0) {
     print xlt("Please use valid NPI");
-    exit;
+    ++$i;
 }
-header('Location: confirm.php');
+if ($i < 1) {
+header('Location: prescriptionOrder.php');
+} else {
+    die("Review the above");
+}
+
+?>
+</body>
+</html>

@@ -1,0 +1,60 @@
+{% extends 'weno/layout.html.twig' %}
+{% block title %}{{ tabtitle }}{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="../../library/js/prescription-autocomplete/prescription-autocomplete.js"></script>
+    <script type="text/javascript" src="../../library/js/weno/sendRx.js"></script>
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="css/prescription-autocomplete.css">
+{% endblock %}
+{% block body %}
+
+<div class="container">
+    {#{ dump(referrer) }#}
+    {% set ids = [] %}
+
+    <h3>{{ pagetitle|text }}</h3>
+    <table class="table table-striped" id="prescriptions">
+        <thead>
+        <tr>
+            <th>{{ "Drug"|xlt }}</th>
+            <th>{{ "Dosage"|xlt }}</th>
+            <th>{{ "Quantity"|xlt }}</th>
+            <th>{{ "Refills"|xlt }}</th>
+        </tr>
+        </thead>
+        {% if prescriptions %}
+    {% for prescription in prescriptions  %}{% set ids = ids|merge([prescription.id]) %}
+        <tr>
+            <td>{{ prescription.drug|text }}</td>
+            <td>{{ prescription.dosage|text }}</td>
+            <td>{{ prescription.quantity|text }}</td>
+            <td>{{ prescription.refills|text }}</td>
+        </tr>
+    {% endfor %}
+        {% else %}
+        <h4>{{ "No prescriptions have been marked. Please click the send checkbox"|xlt }} </h4>
+        {% endif %}
+    </table>
+    <form class="form">
+    <div id="pharmacyselect" data-autocomplete-url="{{ url }}" class="form-group">
+        <input type="text" id="pharmacy-autocomplete" class="form-control" name="savePharmacy" value="{{ pharmacy|attr }}" placeholder="No pharmacy on file">
+    </div>
+    </form>
+    {% if prescriptions %}
+
+
+    {% endif %}
+    <a class="btn btn-primary" href='{{ referrer }}' >{{"Done"|xlt}}</a>
+    <a class="btn btn-primary" href="#" id="savePharmacy">{{"Confirm"|xlt}}</a>
+    <a class="btn btn-warning" href="#" id="sendScript">{{"Transmit"|xlt}}</a>
+    <div id="success"></div>
+</div>{# --end of container div--  #}
+    <div id="prescriptIds" data-ids="{{ ids | json_encode() }}"></div>
+    <div id="savePharmUrl" data-savePharm-url="{{ savePharmUrl }}"></div>
+{% endblock %}
+
+
