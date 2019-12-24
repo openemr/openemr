@@ -35,7 +35,7 @@ $info_msg = "";
         die(xlt("You cannot access this page directly."));
     }
 
-    $row = sqlQueryNoLog("Select billing_note From patient_data Where pid=?", [paitient_id]);
+    $row = sqlQuery("Select billing_note From patient_data Where pid=?", [$patient_id]);
     if (isset($_POST['form_save'])) {
         if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
             CsrfUtils::csrfNotVerified();
