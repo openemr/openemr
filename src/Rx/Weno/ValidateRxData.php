@@ -1,12 +1,12 @@
 <?php
 /**
- * TransmitData class.
+ * ValidateRxData class.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -14,26 +14,18 @@ namespace OpenEMR\Rx\Weno;
 
 use OpenEMR\Common\Http\oeHttp;
 
-class TransmitData
+class ValidateRxData
 {
 
-    public function __construct()
-    {
-    }
-
-    public function getDrugList($pid, $date)
-    {
-
-        $sql = "SELECT * FROM prescriptions WHERE patient_id = ? AND ntx = 1 AND txDate = ?";
-        $res = sqlStatement($sql, array($pid, $date));
-        return $res;
-    }
-
+    /**
+     * @param  $uid
+     * @return array
+     */
     public function getProviderFacility($uid)
     {
 
-        $sql = "SELECT a.fname, a.lname, a.npi, a.weno_prov_id, b.name, b.phone, b.fax, b.street, b.city, b.state, 
-				b.postal_code FROM `users` AS a, facility AS b WHERE a.id = ? AND 
+        $sql = "SELECT a.fname, a.lname, a.npi, a.weno_prov_id, b.name, b.phone, b.fax, b.street, b.city, b.state,
+				b.postal_code FROM `users` AS a, facility AS b WHERE a.id = ? AND
 				a.facility_id = b.id ";
 
         $pFinfo = sqlQuery($sql, array($uid));
@@ -41,6 +33,10 @@ class TransmitData
         return array($pFinfo);
     }
 
+    /**
+     * @param  $id
+     * @return array
+     */
     public function findPharmacy($id)
     {
         //$sql = "SELECT store_name, NCPDP, NPI, Pharmacy_Phone, Pharmacy_Fax FROM erx_pharmacies WHERE id = ?";
@@ -58,16 +54,20 @@ class TransmitData
         return array($find, $numberArray);
     }
 
-    public function oneDrug($id)
+    public function medicalProblem()
     {
-        $sql = "SELECT p.date_Added, p.date_Modified,p.drug, p.drug_id, p.dosage, p.refills, p.quantity, p.note,".
-               "ew.strength, ew.route, ew.potency_unit_code, ew.drug_db_code_qualifier,ew.dea_schedule FROM prescriptions AS p ".
-               "RIGHT JOIN erx_weno_drugs AS ew ON p.drug_id = ew.rxcui_drug_coded WHERE p.id = ?";
-        $res = sqlQuery($sql, array($id));
-        return $res;
+        $pid = $GLOBALS['pid'];
+        $sql = "SELECT `diagnosis` FROM `lists` WHERE `pid` = ? AND type LIKE 'medical_problem' " .
+               "ORDER BY date DESC LIMIT 1";
+        $diagnosis = sqlQuery($sql, [$pid]);
+        return $diagnosis['diagnosis'];
     }
 
 
+    /**
+     * @param  $pid
+     * @return array|null
+     */
     public function patientPharmacyInfo($pid)
     {
         $sql = "SELECT a.pharmacy_id, b.name, b.npi, b.ncpdp FROM patient_data AS a, pharmacies AS b WHERE a.pid = ? AND a.pharmacy_id = b.id";
@@ -75,14 +75,11 @@ class TransmitData
         return $res;
     }
 
-    public function mailOrderPharmacy()
-    {
-        $sql = "SELECT id FROM pharmacies WHERE name LIKE ?";
-        $res = sqlQuery($sql, 'CCS Medical');
-        return $res;
-    }
 
-
+    /**
+     * @param  $pid
+     * @return array|null
+     */
     public function validatePatient($pid)
     {
          $patientInfo = "SELECT DOB, street, postal_code, city, state, sex FROM patient_data WHERE pid = ?";
@@ -91,6 +88,10 @@ class TransmitData
          return $patientRes;
     }
 
+    /**
+     * @param  $npi
+     * @return mixed
+     */
     public function validateNPI($npi)
     {
         $query = [
