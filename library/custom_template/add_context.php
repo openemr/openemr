@@ -44,12 +44,24 @@ if (trim($_POST['contextname'])!='' && $_POST['action']=='add') {
     <head>
         <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
         <style>
-        .bottom{border-bottom:1px solid black;}
-        .top{border-top:1px solid black;}
-        .left{border-left:1px solid black;}
-        .right{border-right:1px solid black;}
-        .class1{background-color:#add9e9}
-        .class2{background-color:#b1c0a5}
+            .bottom {
+                border-bottom: 1px solid var(--black);
+            }
+            .top {
+                border-top: 1px solid var(--black);
+            }
+            .left {
+                border-left: 1px solid var(--black);
+            }
+            .right {
+                border-right:1px solid var(--black);
+            }
+            .class1 {
+                background-color: #add9e9;
+            }
+            .class2 {
+                background-color: #b1c0a5;
+            }
         </style>
         <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
         <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
@@ -150,7 +162,7 @@ if (trim($_POST['contextname'])!='' && $_POST['action']=='add') {
 
             <tr height="30">
               <td class='title_bar' colspan="4" align="center"><u><?php echo htmlspecialchars(xl('Add Context'), ENT_QUOTES);?></u></td>
-              <td class='title_bar' align="center"><a href="#" id="addcontextbtn" class="css_button"><span><?php echo htmlspecialchars(xl('Add'), ENT_QUOTES);?></span></a></td>
+              <td class='title_bar' align="center"><a href="#" id="addcontextbtn" class="btn btn-primary"><span><?php echo htmlspecialchars(xl('Add'), ENT_QUOTES);?></span></a></td>
             </tr>
             <tr id="contextlist">
                 <td colspan="4">
@@ -182,11 +194,11 @@ if (trim($_POST['contextname'])!='' && $_POST['action']=='add') {
             </tr>
             <tr id="contextadd">
                 <td colspan="3"><input type="text" name="contextname" id="contextname"></td>
-                <td colspan="1"><a href="#" onclick="checkSubmit()" class="css_button"><span><?php echo htmlspecialchars(xl('Save'), ENT_QUOTES);?><a href="#" id="cancel" class="css_button"><span><?php echo htmlspecialchars(xl('Cancel'), ENT_QUOTES);?></td>
+                <td colspan="1"><a href="#" onclick="checkSubmit()" class="btn btn-primary"><span><?php echo htmlspecialchars(xl('Save'), ENT_QUOTES);?><a href="#" id="cancel" class="btn btn-secondary"><span><?php echo htmlspecialchars(xl('Cancel'), ENT_QUOTES);?></span></a></span></a></td>
             </tr>
             <tr id="contextupdate">
                 <td colspan="3"><input type="text" name="updatecontextname" id="updatecontextname"></td>
-                <td colspan="1"><a href="#" onclick="checkUpdate()" class="css_button"><span><?php echo htmlspecialchars(xl('Update'), ENT_QUOTES);?><a href="#" id="ucancel" class="css_button"><span><?php echo htmlspecialchars(xl('Cancel'), ENT_QUOTES);?></td>
+                <td colspan="1"><a href="#" onclick="checkUpdate()" class="btn btn-primary"><span><?php echo htmlspecialchars(xl('Update'), ENT_QUOTES);?><a href="#" id="ucancel" class="btn btn-secondary"><span><?php echo htmlspecialchars(xl('Cancel'), ENT_QUOTES);?></span></a></span></a></td>
             </tr>
             <input type="hidden" name="action" id="action">
             <input type="hidden" name="item" id="item">

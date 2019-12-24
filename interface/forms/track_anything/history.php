@@ -69,9 +69,10 @@ echo "<html><head>";
 
 <?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
 
+<!-- TODO: Why is there no Bootstrap here??? !-->
 <?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog', 'dygraphs']); ?>
 
-<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="stylesheet" href="style.css" type="text/css" />
 
 <script type="text/javascript">
 //-------------- checkboxes checked checker --------------------
@@ -161,12 +162,12 @@ echo "<input type='hidden' name='fromencounter' value='" . attr($fromencounter) 
 // go to encounter or go to demographics
 //---------------------------------------------
 if ($fromencounter == 1) {
-    echo "<td>&nbsp;&nbsp;&nbsp;<a class='css_button' href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>".xlt('Back to encounter')."</span></a></td>";
+    echo "<td>&nbsp;&nbsp;&nbsp;<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>".xlt('Back to encounter')."</span></a></td>";
 }
 
 if ($fromencounter == 0) {
     echo "<td>&nbsp;&nbsp;&nbsp;<a href='../../patient_file/summary/demographics.php' ";
-    echo " class='css_button' onclick='top.restoreSession()'>";
+    echo " onclick='top.restoreSession()'>";
     echo "<span>" . xlt('Back to Patient') . "</span></a></td>";
 }
 
@@ -409,12 +410,12 @@ echo "<input type='hidden' name='fromencounter' value='" . attr($fromencounter) 
 // go to encounter or go to demographics
 //---------------------------------------------
 if ($fromencounter == 1) {
-    echo "<td>&nbsp;&nbsp;&nbsp;<a class='css_button' href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>".xlt('Back to encounter')."</span></a></td>";
+    echo "<td>&nbsp;&nbsp;&nbsp;<a href='".$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>".xlt('Back to encounter')."</span></a></td>";
 }
 
 if ($fromencounter == 0) {
     echo "<td>&nbsp;&nbsp;&nbsp;<a href='../../patient_file/summary/demographics.php' ";
-    echo " class='css_button' onclick='top.restoreSession()'>";
+    echo " onclick='top.restoreSession()'>";
     echo "<span>" . xlt('Back to Patient') . "</span></a></td>";
 }
 

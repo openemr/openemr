@@ -5,7 +5,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -147,12 +147,8 @@ if (isset($_GET["fid"])) {
             <span class="title"><?php echo xlt('Edit Facility'); ?></span>&nbsp;&nbsp;&nbsp;
         </td>
         <td>
-            <a class="css_button large_button" name='form_save' id='form_save' onclick='submitform()' href='#'>
-                <span class='css_button_span large_button_span'><?php echo xlt('Save'); ?></span>
-            </a>
-            <a class="css_button large_button" id='cancel' href='#'>
-                <span class='css_button_span large_button_span'><?php echo xlt('Cancel'); ?></span>
-            </a>
+            <a class="btn btn-primary btn-lg" name='form_save' id='form_save' onclick='submitform()' href='#'><?php echo xlt('Save'); ?></a>
+            <a class="btn btn-secondary btn-lg" id='cancel' href='#'><?php echo xlt('Cancel'); ?></a>
         </td>
     </tr>
 </table>

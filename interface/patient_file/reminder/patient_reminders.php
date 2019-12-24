@@ -6,7 +6,7 @@
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ensofttek, LLC
- * @copyright Copyright (c) 2011-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2011-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2011 Ensofttek, LLC
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -32,8 +32,8 @@ use OpenEMR\OeUI\OemrUI;
 
     <style>
         a.arrowhead, a:hover.arrowhead, a:visited.arrowhead{
-        color: black;
-    }
+            color: var(--black);
+        }
     </style>
 
 
@@ -56,7 +56,7 @@ if ($mode == "simple") {
 
 ?>
 
-<script language="javascript">
+<script>
     // This is for callback by the find-patient popup.
     function setpatient(pid, lname, fname, dob) {
         var f = document.forms[0];
@@ -190,21 +190,21 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                 <?php if ($mode == "simple") { // show the per patient rule setting option ?>
                   <ul class="tabNav">
-                    <li class='current'><a href='#'><?php echo xlt('Main'); ?></a></li>
-                    <li ><a href='#' onclick='top.restoreSession()'><?php echo xlt('Rules'); ?></a></li>
+                      <li class='current'><a href='#'><?php echo xlt('Main'); ?></a></li>
+                      <li ><a href='#' onclick='top.restoreSession()'><?php echo xlt('Rules'); ?></a></li>
                   </ul>
                   <div class="tabContainer">
                   <div class="tab current" style="height:auto;width:97%;">
                 <?php } ?>
-
+                      
                 <form method='post' name='theform' id='theform'>
 
                 <div id='report_parameters' class='hideaway'>
                   <table>
                     <tr>
                       <td width='410px'>
-                        <div style='float:left'>
-                          <table class='text'>
+                        <div class="float-left">
+                          <table class="text">
                             <tr>
                               <td class='label_custom'>
                                 <?php echo " "; ?>
@@ -214,27 +214,27 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         </div>
                       </td>
                       <td align='left' valign='middle' height="100%">
-                        <table style='border-left:1px solid; width:100%; height:100%' >
+                        <table class="w-100" style='border-left:1px solid; height:100%'>
                           <tr>
                             <td>
                               <div style='margin-left:15px'>
                                 <?php if ($mode == "admin") { ?>
-                                 <a id='process_button' href='#' class='css_button' onclick='return ReminderBatch("process")'>
+                                 <a id='process_button' href='#' class='btn btn-primary' onclick='return ReminderBatch("process")'>
                                    <span><?php echo xlt('Process Reminders'); ?></span>
                                  </a>
-                                 <a id='process_send_button' href='#' class='css_button' onclick='return ReminderBatch("process_send")'>
+                                 <a id='process_send_button' href='#' class='btn btn-primary' onclick='return ReminderBatch("process_send")'>
                                    <span><?php echo xlt('Process and Send Reminders'); ?></span>
                                  </a>
                                  <span id='status_span'></span>
-                                 <div id='processing' style='margin:10px;display:none;'><img src='../../pic/ajax-loader.gif'/></div>
+                                 <div id='processing' class="d-none" style='margin:10px;'><img src='../../pic/ajax-loader.gif'/></div>
                                 <?php } else { ?>
-                                <a href='patient_reminders.php?patient_id=<?php echo attr_url($patient_id); ?>&mode=<?php echo attr_url($mode); ?>' class='css_button' onclick='top.restoreSession()'>
+                                <a href='patient_reminders.php?patient_id=<?php echo attr_url($patient_id); ?>&mode=<?php echo attr_url($mode); ?>' class='btn btn-primary' onclick='top.restoreSession()'>
                                   <span><?php echo xlt('Refresh'); ?></span>
                                 </a>
                                 <?php } ?>
                               </div>
                             </td>
-                            <td align=right class='text'><?php echo $prevlink . " " . text($end) . " of " . text($total) . " " . $nextlink; ?></td>
+                            <td align="right" class="text"><?php echo $prevlink . " " . text($end) . " of " . text($total) . " " . $nextlink; ?></td>
                           </tr>
                         </table>
                       </td>
@@ -356,8 +356,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </div>
     </div><!--end of container div-->
 <?php $oemr_ui->oeBelowContainerDiv();?>
-<script language="javascript">
-
+<script>
 $(function(){
 
   tabbify();

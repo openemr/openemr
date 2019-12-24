@@ -75,7 +75,7 @@ span.bold {
 /* $GLOBALS['style']['BGCOLOR2'] */
 
 .body_nav {
-    background-color: #f0f0f0;
+    background-color: $gray-300;
 }
 
 /* $nav_bg_line */
@@ -100,8 +100,8 @@ span.bold {
 }
 
 .section {
-    background: #f0f0f0;
-    border-color: #d7d7d7 !important;
+    background: $gray-300;
+    border-color: $gray-400 !important;
 }
 
 /* styles taken out of templates/documents/general_list.html */
@@ -159,7 +159,7 @@ span.bold {
 }
 
 #addressbook_list tr.evenrow {
-    background-color: #ddddff;
+    background-color: $light;
 }
 
 #addressbook_list tr.oddrow {
@@ -412,4 +412,15 @@ div.category-display {
 /*search any*/
 *.oe-expandable-search .any-search-legacy {
     background: $white;
+}
+
+/* Fieldset Colors */
+legend {
+    background-color: $gray-300 !important;
+    color: $black !important;
+}
+
+fieldset {
+    background-color: $light !important;
+    color: $black !important;
 }

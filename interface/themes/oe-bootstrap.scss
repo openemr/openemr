@@ -1,4 +1,4 @@
-/*below section is override bootstrap 3 for openemr and some new classes all prefixed with oe-*/
+/*below section is override bootstrap 4 for openemr and some new classes all prefixed with oe-*/
 input[type=checkbox],
 input[type=radio] {
     margin: 4px;
@@ -8,41 +8,19 @@ input[type=radio] {
     margin-bottom: 5px !important;
 }
 
-legend {
-    border-bottom: 2px solid #E5E5E5 !important;
-    background: #E5E5E5 !important;
-    padding: 0 10px !important;
-}
-
 .form-horizontal .control-label {
     padding-top: 2px;
 }
 
+/* This code needs to be gone cuz it's terrible */
 fieldset {
-    background-color: #F2F2F2 !important;
-    margin-bottom: 10px !important;
-    padding: 0px 0px 15px 0px !important;
+    margin-bottom: 10px;
+    padding: 0px 0px 15px 0px;
 }
 
-.btn-link.btn-cancel:focus,
-.btn-link.btn-cancel:hover {}
-
-.btn-link.btn-cancel {}
-
-.btn-link.btn-cancel.active,
-.btn-link.btn-cancel.focus,
-.btn-link.btn-cancel:active,
-.btn-link.btn-cancel:focus,
-.btn-link.btn-cancel:hover,
-.open > .dropdown-toggle.btn-link.btn-cancel {}
-
-.btn-separate-left,
-.oe-opt-btn-separate-left {}
-
-.btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle) {}
-
-.btn-group-pinch > .btn:nth-last-child(2):not(.dropdown-toggle),
-.oe-opt-btn-group-pinch > .btn:nth-last-child(2):not(.dropdown-toggle) {}
+legend {
+    padding: 0 10px;
+}
 
 .oe-custom-line {
     padding-bottom: 5px;
@@ -99,4 +77,4 @@ fieldset {
     border-radius: 15px;
 }
 
-/*above section is override bootstrap 3 for openemr and some new classes all prefixed with oe-*/
+/*above section is override bootstrap 4 for openemr and some new classes all prefixed with oe-*/

@@ -107,7 +107,7 @@ $list_id = $_REQUEST['list_id'];
                     <input type="text" name="template_name" id="template_name">
                     </td>
                     <td>
-                    <a href="#" onclick="add_template()" class="css_button"><span><?php echo htmlspecialchars(xl('ADD'), ENT_QUOTES);?></span></a>
+                    <a href="#" onclick="add_template()" class="btn btn-primary"><span><?php echo htmlspecialchars(xl('ADD'), ENT_QUOTES);?></span></a>
                     </td>
                 </tr>
             </table>

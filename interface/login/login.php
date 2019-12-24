@@ -21,7 +21,7 @@
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
-$ignoreAuth=true;
+$ignoreAuth = true;
 require_once("../globals.php");
 
 // mdsupport - Add 'App' functionality for user interfaces without standard menu and frames
@@ -71,7 +71,7 @@ if (count($emr_app)) {
         $div_app = sprintf(
             '
 <div id="divApp" class="form-group">
-	<label for="appChoice" class="control-label text-right">%s:</label>
+	<label for="appChoice" class="text-right">%s:</label>
     <div>
         <select class="form-control" id="selApp" name="appChoice" size="1">%s</select>
     </div>
@@ -154,8 +154,7 @@ if (count($emr_app)) {
 </head>
 <body class="login">
     <div class="container">
-        <form method="POST" id="login_form" autocomplete="off"
-            action="../main/main_screen.php?auth=login&site=<?php echo attr($_SESSION['site_id']); ?>" target="_top" name="login_form">
+        <form method="POST" id="login_form" autocomplete="off" action="../main/main_screen.php?auth=login&site=<?php echo attr($_SESSION['site_id']); ?>" target="_top" name="login_form">
             <div class="row">
                 <div class="col-sm-12">
                     <div>
@@ -225,18 +224,16 @@ if (count($emr_app)) {
             <div class="row">
                 <div class="col-sm-12">
                     <?php if (isset($_SESSION['relogin']) && ($_SESSION['relogin'] == 1)) : // Begin relogin dialog ?>
-                    <div class="alert alert-info m-1">
-                        <strong>
-                            <?php echo xlt('Password security has recently been upgraded.').'&nbsp;&nbsp;'.xlt('Please login again.'); ?>
-                        </strong>
+                    <div class="alert alert-info m-1 font-weight-bold">
+                        <?php echo xlt('Password security has recently been upgraded.').'&nbsp;&nbsp;'.xlt('Please login again.'); ?>
                     </div>
                         <?php unset($_SESSION['relogin']);
                     endif;
                     if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)) : // Begin login failure block ?>
                     <div class="alert alert-danger login-failure m-1">
-                                            <?php echo xlt('Invalid username or password'); ?>
+                        <?php echo xlt('Invalid username or password'); ?>
                     </div>
-                                        <?php endif; // End login failure block?>
+                    <?php endif; // End login failure block ?>
                 </div>
             </div>
             <div class="row">
@@ -280,17 +277,17 @@ if (count($emr_app)) {
                         ?>
                     </div>
                     <div class="form-group">
-                        <label for="authUser" class="control-label text-right"><?php echo xlt('Username:'); ?></label>
-                        <input type="text" class="form-control" id="authUser" name="authUser" placeholder="<?php echo xla('Username:'); ?>">
+                        <label for="authUser" class="text-right"><?php echo xlt('Username:'); ?></label>
+                        <input type="text" class="form-control" id="authUser" name="authUser" placeholder="<?php echo xla('Username:'); ?>" />
                     </div>
                     <div class="form-group">
-                        <label for="clearPass" class="control-label text-right"><?php echo xlt('Password:'); ?></label>
-                        <input type="password" class="form-control" id="clearPass" name="clearPass" placeholder="<?php echo xla('Password:'); ?>">
+                        <label for="clearPass" class="text-right"><?php echo xlt('Password:'); ?></label>
+                        <input type="password" class="form-control" id="clearPass" name="clearPass" placeholder="<?php echo xla('Password:'); ?>" />
                     </div>
                     <?php echo $div_app ?>
                     <?php if ($GLOBALS['language_menu_login'] && (count($result3) != 1)) : // Begin language menu block ?>
                         <div class="form-group">
-                            <label for="language" class="control-label text-right"><?php echo xlt('Language'); ?>:</label>
+                            <label for="language" class="text-right"><?php echo xlt('Language'); ?>:</label>
                             <div>
                                 <select class="form-control" name="languageChoice" size="1">
                                     <?php
@@ -318,7 +315,7 @@ if (count($emr_app)) {
                     <?php endif; // End language menu block ?>
                     <?php if ($GLOBALS['login_into_facility']) : // Begin facilities menu block ?>
                         <div class="form-group">
-                            <label for="facility" class="control-label text-right"><?php echo xlt('Facility'); ?>:</label>
+                            <label for="facility" class="text-right"><?php echo xlt('Facility'); ?>:</label>
                             <div>
                                 <select class="form-control" name="facility" size="1">
                                     <option value="user_default"><?php echo xlt('My default facility'); ?></option>
@@ -346,8 +343,8 @@ if (count($emr_app)) {
                 </div>
                 <div class="product-registration-modal" style="display: none">
                     <p class="context"><?php echo xlt("Register your installation with OEMR to receive important notifications, such as security fixes and new release announcements."); ?></p>
-                    <input placeholder="<?php echo xlt('email'); ?>" type="email" class="email" style="width: 100%; color: black" />
-                    <p class="message" style="font-style: italic"></p>
+                    <input placeholder="<?php echo xlt('email'); ?>" type="email" class="email w-100 text-body" />
+                    <p class="message font-italic"></p>
                 </div>
             </div>
         </form>

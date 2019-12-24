@@ -170,11 +170,10 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
                         <input type="hidden" name="type" id="type" value="<?php echo  attr($type); ?>">
                         <input type="hidden" name="ccFlag" id="type" value="<?php echo  attr($cc_flag); ?>">
                         <input type="hidden" name="contextName" id="contextName" value="<?php echo attr($contextName); ?>">
-                        <table width=100%>
+                        <table class="w-100">
                             <tr class="text">
                                 <td>
-                                    <a href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)"
-                                       class="css_button"><span><?php echo xlt('SAVE'); ?></span></a>
+                                    <a href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)" class="btn btn-primary"><span><?php echo xlt('SAVE'); ?></span></a>
                                 </td>
                                 <?php if (!$isNN) { ?>
                                     <td>
@@ -192,10 +191,8 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
                             </tr>
                             <tr class="text">
                                 <td id="templateDD">
-                                    <select name="template" id="template" onchange="TemplateSentence(this.value)"
-                                            style="width:180px">
-                                        <option
-                                            value=""><?php echo htmlspecialchars(xl('Select category'), ENT_QUOTES); ?></option>
+                                    <select name="template" id="template" onchange="TemplateSentence(this.value)" style="width:180px">
+                                        <option value=""><?php echo htmlspecialchars(xl('Select category'), ENT_QUOTES); ?></option>
                                         <?php
                                         $resTemplates = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE tu.tu_user_id=? AND c.cl_list_type=3 AND cl_list_id=? AND cl_deleted=0 ORDER BY c.cl_list_item_long", array($_SESSION['authUserID'], $rowContext['cl_list_id']));
                                         while ($rowTemplates = sqlFetchArray($resTemplates)) {
@@ -207,38 +204,28 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
                                 <td>
                                     <div id="share" style="display:none"></div>
                                     <a href="#" id="enter" onclick="top.restoreSession();ascii_write('13','textarea1');"
-                                       title="<?php echo htmlspecialchars(xl('Enter Key'), ENT_QUOTES); ?>"><img
-                                            border=0 src="<?php echo $GLOBALS['images_static_relative']; ?>/enter.gif"></a>&nbsp;
-                                    <a href="#" id="quest"
-                                       onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('? ');"
-                                       title="<?php echo htmlspecialchars(xl('Question Mark'), ENT_QUOTES); ?>"><img
-                                            border=0 src="<?php echo $GLOBALS['images_static_relative']; ?>/question.png"></a>&nbsp;
+                                       title="<?php echo htmlspecialchars(xl('Enter Key'), ENT_QUOTES); ?>"><img border=0 src="<?php echo $GLOBALS['images_static_relative']; ?>/enter.gif"></a>&nbsp;
+                                    <a href="#" id="quest" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('? ');" title="<?php echo htmlspecialchars(xl('Question Mark'), ENT_QUOTES); ?>"><img border=0 src="<?php echo $GLOBALS['images_static_relative']; ?>/question.png"></a>&nbsp;
                                     <a href="#" id="para"
                                        onclick="top.restoreSession();ascii_write('para','textarea1');"
-                                       title="<?php echo htmlspecialchars(xl('New Paragraph'), ENT_QUOTES); ?>"><img
-                                            border=0 src="<?php echo $GLOBALS['images_static_relative']; ?>/paragraph.png"></a>&nbsp;
-                                    <a href="#" id="space" onclick="top.restoreSession();ascii_write('32','textarea1');"
-                                       class="css_button"
-                                       title="<?php echo htmlspecialchars(xl('Space'), ENT_QUOTES); ?>"><span><?php echo htmlspecialchars(xl('SPACE'), ENT_QUOTES); ?></span></a>
+                                       title="<?php echo htmlspecialchars(xl('New Paragraph'), ENT_QUOTES); ?>"><img border="0" src="<?php echo $GLOBALS['images_static_relative']; ?>/paragraph.png"></a>&nbsp;
+                                    <a href="#" id="space" onclick="top.restoreSession();ascii_write('32','textarea1');" class="btn btn-primary" title="<?php echo htmlspecialchars(xl('Space'), ENT_QUOTES); ?>"><span><?php echo htmlspecialchars(xl('SPACE'), ENT_QUOTES); ?></span></a>
                                     <?php
                                     $res = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS cl ON cl.cl_list_slno=tu.tu_template_id
 WHERE tu.tu_user_id=? AND cl.cl_list_type=6 AND cl.cl_deleted=0 ORDER BY cl.cl_order", array($_SESSION['authUserID']));
                                     while ($row = sqlFetchArray($res)) {
                                         ?>
-                                        <a href="#"
-                                           onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('<?php echo $row['cl_list_item_short']; ?>');"
-                                           class="css_button"
-                                           title="<?php echo htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES); ?>"><span><?php echo ucfirst(htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES)); ?></span></a>
+                                        <a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('<?php echo $row['cl_list_item_short']; ?>');" class="btn btn-primary" title="<?php echo htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES); ?>"><span><?php echo ucfirst(htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES)); ?></span></a>
                                         <?php
                                     }
                                     ?>
                                 </td>
                             </tr>
                             <tr>
-                                <td valign=top style="width:180px;">
-                                    <div style="background-color:#DFEBFE">
+                                <td valign="top" style="width:180px;">
+                                    <div class="bg-light">
                                         <div style="overflow-y:scroll;overflow-x:hidden;height:400px">
-                                            <ul id="menu5" class="example_menu" style="width:100%;">
+                                            <ul id="menu5" class="example_menu w-100">
                                                 <li>
                                                     <a class="expanded"><?php echo htmlspecialchars(xl('Components'), ENT_QUOTES); ?></a>
                                                     <ul>
@@ -288,12 +275,8 @@ WHERE tu.tu_user_id=? AND cl.cl_list_type=6 AND cl.cl_deleted=0 ORDER BY cl.cl_o
                                             </ul>
                                         </div>
                                     </div>
-                                    <a href="personalize.php?list_id=<?php echo $rowContext['cl_list_id']; ?>"
-                                       id="personalize_link"
-                                       class="iframe_medium css_button_small"><span><?php echo htmlspecialchars(xl('Personalize'), ENT_QUOTES); ?></span></a>
-                                    <a href="add_custombutton.php" id="custombutton"
-                                       class="iframe_medium css_button_small"
-                                       title="<?php echo htmlspecialchars(xl('Add Buttons for Special Chars,Texts to be Displayed on Top of the Editor for inclusion to the text on a Click'), ENT_QUOTES); ?>"><span><?php echo htmlspecialchars(xl('Add Buttons'), ENT_QUOTES); ?></span></a>
+                                    <a href="personalize.php?list_id=<?php echo $rowContext['cl_list_id']; ?>" id="personalize_link" class="iframe_medium btn btn-primary btn-sm"><span><?php echo htmlspecialchars(xl('Personalize'), ENT_QUOTES); ?></span></a>
+                                    <a href="add_custombutton.php" id="custombutton" class="iframe_medium btn btn-primary btn-sm" title="<?php echo htmlspecialchars(xl('Add Buttons for Special Chars,Texts to be Displayed on Top of the Editor for inclusion to the text on a Click'), ENT_QUOTES); ?>"><span><?php echo htmlspecialchars(xl('Add Buttons'), ENT_QUOTES); ?></span></a>
                                 </td>
                                 <td valign=top style="width:700px;">
                                     <textarea class="ckeditor" cols="100" id="textarea1" name="textarea1" rows="80"></textarea>
@@ -301,7 +284,7 @@ WHERE tu.tu_user_id=? AND cl.cl_list_type=6 AND cl.cl_deleted=0 ORDER BY cl.cl_o
                             </tr>
                         </table>
                         <span class="float-right">
-                            <a href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)" class="css_button"><span><?php echo xlt('SAVE'); ?></span></a>
+                            <a href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)" class="btn btn-primary"><span><?php echo xlt('SAVE'); ?></span></a>
                         </span>
                     </form>
                 </div>

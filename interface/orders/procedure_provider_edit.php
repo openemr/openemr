@@ -34,50 +34,45 @@ function invalue($name)
 <head>
 <?php Header::setupHeader(['opener','jquery-ui', 'jquery-ui-base']);?>
 <title><?php echo $ppid ? xlt('Edit') : xlt('Add New{{Provider}}') ?> <?php echo xlt('Procedure Provider'); ?></title>
-
-
-
 <style>
-    td { font-size:10pt; }
-
+    td {
+        font-size: 10pt;
+    }
+    
     .inputtext {
-     padding-left:2px;
-     padding-right:2px;
+        padding-left: 2px;
+        padding-right: 2px;
     }
-
+    
     .button {
-     font-family:sans-serif;
-     font-size:9pt;
-     font-weight:bold;
+        font-family: sans-serif;
+        font-size: 9pt;
+        font-weight: bold;
     }
-
-
+    
     .label-div > a {
-        display:none;
+        display: none;
     }
+    
     .label-div:hover > a {
-       display:inline-block;
+        display: inline-block;
     }
+    /* This is overridden on any theme */
     div[id$="_info"] {
         background: #F7FAB3;
+        color: #000;
         padding: 20px;
         margin: 10px 15px 0px 15px;
     }
     div[id$="_info"] > a {
-        margin-left:10px;
-    }
-    @media only screen {
-        fieldset > [class*="col-"] {
-        width: 100%;
-        text-align:left!Important;
-        }
+        margin-left: 10px;
     }
 </style>
 
 </head>
 
 <body class="body_top">
-    <div class= "container">
+    <div class="container">
         <?php
         // If we are saving, then save and close the window.
         //
@@ -151,14 +146,17 @@ function invalue($name)
         <div class="row">
             <div class="col-sm-12">
                 <form method='post' name='theform' action='procedure_provider_edit.php?ppid=<?php echo attr_url($ppid) ?>'>
-                    <fieldset>
-                        <legend name="form_legend" id="form_legend"><?php echo xlt('Enter Provider Details'); ?>  <i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript" aria-hidden="true"></i></legend>
+                    <div class="card">
+                        <div class="card-header" name="form_legend" id="form_legend"><?php echo xlt('Enter Provider Details'); ?>  <i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript" aria-hidden="true"></i></div>
+                        
+                        <div class="card-body">
+                        
                         <div class="row">
-                            <div class="col-12 ">
+                            <div class="col-12">
                                 <div class="col-sm-6">
                                     <div class="clearfix">
                                         <div class="label-div">
-                                            <label class="control-label" for="form_name"><?php echo xlt('Name'); ?>:</label> <a href="#name_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label for="form_name"><?php echo xlt('Name'); ?>:</label> <a href="#name_info" class="info-anchor icon-tooltip"  data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="">
                                             <select name='form_name' id='form_name' class='form-control'>
@@ -168,9 +166,9 @@ function invalue($name)
                                     </div>
                                     <div id="name_info" class="collapse">
                                         <a href="#name_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
-                                        <p><?php echo xlt("Name - Select a provider name from the drop-down list");?>
-                                        <p><?php echo xlt("For the name to appear on the drop-down list it must be first entered in Administration > Address Book ");?>
-                                        <p><?php echo xlt("Select Lab Service in the Type drop-down box and enter a name under organization");?>
+                                        <p><?php echo xlt("Name - Select a provider name from the drop-down list");?></p>
+                                        <p><?php echo xlt("For the name to appear on the drop-down list it must be first entered in Administration > Address Book ");?></p>
+                                        <p><?php echo xlt("Select Lab Service in the Type drop-down box and enter a name under organization");?></p>
                                         <p><?php echo xlt("For detailed instructions close the 'Enter Provider Details' popup and click on the Help icon on the main form. ");?><i class="fa fa-question-circle" aria-hidden="true"></i></p>
                                     </div>
                                 </div>
@@ -186,10 +184,10 @@ function invalue($name)
                                     </div>
                                     <div id="npi_info" class="collapse">
                                         <a href="#npi_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
-                                        <p><?php echo xlt("NPI - Enter the Provider's unique 10-digit National Provider Identifier or NPI identification number");?>
-                                        <p><?php echo xlt("It is issued to health care providers in the United States by the Centers for Medicare and Medicaid Services (CMS)");?>
-                                        <p><?php echo xlt("This has to entered once in this form");?>
-                                        <p><?php echo xlt("IMPORTANT: The NPI number also exists in the Address Book entry for the provider, take care to enter the correct NPI number");?>
+                                        <p><?php echo xlt("NPI - Enter the Provider's unique 10-digit National Provider Identifier or NPI identification number");?></p>
+                                        <p><?php echo xlt("It is issued to health care providers in the United States by the Centers for Medicare and Medicaid Services (CMS)");?></p>
+                                        <p><?php echo xlt("This has to entered once in this form");?></p>
+                                        <p><?php echo xlt("IMPORTANT: The NPI number also exists in the Address Book entry for the provider, take care to enter the correct NPI number");?></p>
                                     </div>
                                 </div>
                             </div>
@@ -198,7 +196,7 @@ function invalue($name)
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_DorP"><?php echo xlt('Usage'); ?>:</label> <a href="#usage_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="control-label" for="form_DorP"><?php echo xlt('Usage'); ?>:</label> <a href="#usage_info" class="info-anchor icon-tooltip"  data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <select name='form_DorP' id='form_DorP' class='form-control' title='<?php echo xla('HL7 - MSH-11 - Processing ID'); ?>'>
@@ -219,11 +217,11 @@ function invalue($name)
                                 </div>
                                 <div id="usage_info" class="collapse">
                                     <a href="#usage_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
-                                    <p><?php echo xlt("Usage - is only required if you are submitting an electronic order to an external facility");?>
-                                    <p><?php echo xlt("It is a field in the HL7 Message header known as Processing ID");?>
-                                    <p><?php echo xlt("Health Level-7 or HL7 refers to a set of international standards for transfer of clinical and administrative data between software applications used by various healthcare providers");?>
-                                    <p><?php echo xlt("This field is used to decide whether to process the message as defined in HL7 Application (level 7) Processing rules");?>
-                                    <p><?php echo xlt("Select the appropriate choice - Debugging or Production");?>
+                                    <p><?php echo xlt("Usage - is only required if you are submitting an electronic order to an external facility");?></p>
+                                    <p><?php echo xlt("It is a field in the HL7 Message header known as Processing ID");?></p>
+                                    <p><?php echo xlt("Health Level-7 or HL7 refers to a set of international standards for transfer of clinical and administrative data between software applications used by various healthcare providers");?></p>
+                                    <p><?php echo xlt("This field is used to decide whether to process the message as defined in HL7 Application (level 7) Processing rules");?></p>
+                                    <p><?php echo xlt("Select the appropriate choice - Debugging or Production");?></p>
                                 </div>
                             </div>
                         </div>
@@ -250,11 +248,11 @@ function invalue($name)
                                 </div>
                                 <div id="sender_id_info" class="collapse">
                                     <a href="#sender_id_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
-                                    <p><?php echo xlt("Sender IDs - is only required if you are submitting an electronic order to an external facility");?>
-                                    <p><?php echo xlt("It consists of two parts - the Sending application and Sending facility");?>
-                                    <p><?php echo xlt("These are used to populate fields 3 and 4 in the HL7 MSH - message header");?>
-                                    <p><?php echo xlt("Sending application name will be provided by the facility that you will be connecting to");?>
-                                    <p><?php echo xlt("Sending facility name is user defined");?>
+                                    <p><?php echo xlt("Sender IDs - is only required if you are submitting an electronic order to an external facility");?></p>
+                                    <p><?php echo xlt("It consists of two parts - the Sending application and Sending facility");?></p>
+                                    <p><?php echo xlt("These are used to populate fields 3 and 4 in the HL7 MSH - message header");?></p>
+                                    <p><?php echo xlt("Sending application name will be provided by the facility that you will be connecting to");?></p>
+                                    <p><?php echo xlt("Sending facility name is user defined");?></p>
                                 </div>
                             </div>
                         </div>
@@ -281,10 +279,10 @@ function invalue($name)
                                 </div>
                                 <div id="receiver_id_info" class="collapse">
                                     <a href="#receiver_id_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
-                                    <p><?php echo xlt("Receiver IDs - is only required if you are submitting an electronic order to an external facility");?>
-                                    <p><?php echo xlt("It consists of two parts - the Receiving application and Receiving facility");?>
-                                    <p><?php echo xlt("These are used to populate fields 5 and 6 in the HL7 MSH - message header");?>
-                                    <p><?php echo xlt("They will be provided by the facility that you will be connecting to");?>
+                                    <p><?php echo xlt("Receiver IDs - is only required if you are submitting an electronic order to an external facility");?></p>
+                                    <p><?php echo xlt("It consists of two parts - the Receiving application and Receiving facility");?></p>
+                                    <p><?php echo xlt("These are used to populate fields 5 and 6 in the HL7 MSH - message header");?></p>
+                                    <p><?php echo xlt("They will be provided by the facility that you will be connecting to");?></p>
                                 </div>
                             </div>
                         </div>
@@ -292,7 +290,7 @@ function invalue($name)
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_protocol"><?php echo xlt('Protocol'); ?>:</label> <a href="#protocol_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label for="form_protocol"><?php echo xlt('Protocol'); ?>:</label> <a href="#protocol_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-6">
                                         <select name='form_protocol' id='form_protocol' class='form-control'>
@@ -332,13 +330,13 @@ function invalue($name)
                                 </div>
                                 <div id="protocol_info" class="collapse">
                                     <a href="#protocol_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
-                                    <p><?php echo xlt("Protocol - consists of two parts - the method used to send orders and receive results and whether it is used to receive results only or is used to send orders and receive result i.e. bidirectional");?>
-                                    <p><?php echo xlt("If you do not submit orders electronically or receive result electronically leave it as the default value, Download");?>
-                                    <p><?php echo xlt("Download will download a text file containing the order in the HL7v2.3 message format to the downloads directory of your computer");?>
-                                    <p><?php echo xlt("SFTP will send the order as a HL7v2.3 message to the receiving lab using the SFTP protocol");?>
-                                    <p><?php echo xlt("Secure File Transfer Protocol, or SFTP is a network protocol that provides file access, file transfer, and file management over a secure connection");?>
-                                    <p><?php echo xlt("Local Filesystem will store the order as a HL7v2.3 message in a predefined location in the local server hosting openEMR");?>
-                                    <p><?php echo xlt("Select Bidirectional or Results Only as appropriate, again only used for electronic orders");?>
+                                    <p><?php echo xlt("Protocol - consists of two parts - the method used to send orders and receive results and whether it is used to receive results only or is used to send orders and receive result i.e. bidirectional");?></p>
+                                    <p><?php echo xlt("If you do not submit orders electronically or receive result electronically leave it as the default value, Download");?></p>
+                                    <p><?php echo xlt("Download will download a text file containing the order in the HL7v2.3 message format to the downloads directory of your computer");?></p>
+                                    <p><?php echo xlt("SFTP will send the order as a HL7v2.3 message to the receiving lab using the SFTP protocol");?></p>
+                                    <p><?php echo xlt("Secure File Transfer Protocol, or SFTP is a network protocol that provides file access, file transfer, and file management over a secure connection");?></p>
+                                    <p><?php echo xlt("Local Filesystem will store the order as a HL7v2.3 message in a predefined location in the local server hosting openEMR");?></p>
+                                    <p><?php echo xlt("Select Bidirectional or Results Only as appropriate, again only used for electronic orders");?></p>
                                 </div>
                             </div>
                         </div>
@@ -346,25 +344,19 @@ function invalue($name)
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_login"><?php echo xlt('Login'); ?>:</label> <a href="#login_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label for="form_login"><?php echo xlt('Login'); ?>:</label> <a href="#login_info" class="info-anchor icon-tooltip" data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-6">
-                                        <input type='text' name='form_login' id='form_login' maxlength='255'
-                                        value='<?php echo attr($row['login']); ?>'
-                                        placeholder='<?php echo xla('Enter User Login ID'); ?>'
-                                        class='form-control' />
+                                        <input type='text' name='form_login' id='form_login' maxlength='255' value='<?php echo attr($row['login']); ?>' placeholder='<?php echo xla('Enter User Login ID'); ?>' class='form-control' />
                                     </div>
                                     <div class="col-sm-6">
-                                        <input type='text' name='form_password' id='form_password' maxlength='255'
-                                        value='<?php echo attr($row['password']); ?>'
-                                        placeholder='<?php echo xla('Enter Password'); ?>'
-                                        class='form-control' />
+                                        <input type='text' name='form_password' id='form_password' maxlength='255' value='<?php echo attr($row['password']); ?>' placeholder='<?php echo xla('Enter Password'); ?>' class='form-control' />
                                     </div>
                                 </div>
                                 <div id="login_info" class="collapse">
                                     <a href="#login_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
-                                    <p><?php echo xlt("Login - details are only required if you are connecting to a facility using the SFTP protocol ");?>
-                                    <p><?php echo xlt("Type in the username and password provided by the facility");?>
+                                    <p><?php echo xlt("Login - details are only required if you are connecting to a facility using the SFTP protocol ");?></p>
+                                    <p><?php echo xlt("Type in the username and password provided by the facility");?></p>
                                 </div>
                             </div>
                         </div>
@@ -372,17 +364,16 @@ function invalue($name)
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_remote_host"><?php echo xlt('Remote Host'); ?>:</label> <a href="#remote_host_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="control-label" for="form_remote_host"><?php echo xlt('Remote Host'); ?>:</label> <a href="#remote_host_info"  class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
-                                        <input type='text' name='form_remote_host' id='form_remote_host' maxlength='255'
-                                        value='<?php echo attr($row['remote_host']); ?>' class='form-control' />
+                                        <input type='text' name='form_remote_host' id='form_remote_host' maxlength='255' value='<?php echo attr($row['remote_host']); ?>' class='form-control' />
                                     </div>
                                 </div>
                                 <div id="remote_host_info" class="collapse">
                                     <a href="#remote_host_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
-                                    <p><?php echo xlt("Remote Host - is only required if you are submitting an electronic order to an external facility or just receiving results from it");?>
-                                    <p><?php echo xlt("Type in the URL of the external facility to which the order will be sent, this will be provided by the facility");?>
+                                    <p><?php echo xlt("Remote Host - is only required if you are submitting an electronic order to an external facility or just receiving results from it");?></p>
+                                    <p><?php echo xlt("Type in the URL of the external facility to which the order will be sent, this will be provided by the facility");?></p>
                                 </div>
                             </div>
                         </div>
@@ -390,7 +381,7 @@ function invalue($name)
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_orders_path"><?php echo xlt('Orders Path'); ?>:</label> <a href="#orders_path_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="control-label" for="form_orders_path"><?php echo xlt('Orders Path'); ?>:</label> <a href="#orders_path_info"  class="info-anchor icon-tooltip" data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <input type='text' name='form_orders_path' id='form_orders_path' maxlength='255'
@@ -399,8 +390,8 @@ function invalue($name)
                                 </div>
                                 <div id="orders_path_info" class="collapse">
                                     <a href="#orders_path_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
-                                    <p><?php echo xlt("Orders Path - is only required if you are submitting an electronic order to an external facility");?>
-                                    <p><?php echo xlt("Type in the location of the directory or folder in which the created orders (HL7 messages) will be stored");?>
+                                    <p><?php echo xlt("Orders Path - is only required if you are submitting an electronic order to an external facility");?></p>
+                                    <p><?php echo xlt("Type in the location of the directory or folder in which the created orders (HL7 messages) will be stored");?></p>
                                 </div>
                             </div>
                         </div>
@@ -408,7 +399,7 @@ function invalue($name)
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_results_path"><?php echo xlt('Results Path'); ?>:</label> <a href="#results_path_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="control-label" for="form_results_path"><?php echo xlt('Results Path'); ?>:</label> <a href="#results_path_info"  class="info-anchor icon-tooltip" data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <input type='text' name='form_results_path' id='form_results_path' maxlength='255'
@@ -417,8 +408,8 @@ function invalue($name)
                                 </div>
                                 <div id="results_path_info" class="collapse">
                                     <a href="#results_path_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
-                                    <p><?php echo xlt("Results Path - is only required if you are submitting an electronic order to an external facility or just receiving results from it");?>
-                                    <p><?php echo xlt("Type in the location of the directory or folder in which the returned results (HL7 messages) will be stored");?>
+                                    <p><?php echo xlt("Results Path - is only required if you are submitting an electronic order to an external facility or just receiving results from it");?></p>
+                                    <p><?php echo xlt("Type in the location of the directory or folder in which the returned results (HL7 messages) will be stored");?></p>
                                 </div>
                             </div>
                         </div>
@@ -429,17 +420,17 @@ function invalue($name)
                                         <label class="control-label" for="form_notes"><?php echo xlt('Notes'); ?>:</label> <a href="#notes_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
-                                        <textarea rows='3' name='form_notes' id='form_notes'
-                                        wrap='virtual' class='form-control' /><?php echo text($row['notes']) ?></textarea>
+                                        <textarea rows='3' name='form_notes' id='form_notes' wrap='virtual' class='form-control'><?php echo text($row['notes']); ?></textarea>
                                     </div>
                                 </div>
                                 <div id="notes_info" class="collapse">
                                     <a href="#notes_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
-                                    <p><?php echo xlt("Any additional information pertaining to this provider");?>
+                                    <p><?php echo xlt("Any additional information pertaining to this provider");?></p>
                                 </div>
                             </div>
                         </div>
-                    </fieldset>
+                    </div>
+                    </div>
                     <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets ?>
                     <div class="form-group clearfix" id="button-container">
                         <div class="col-sm-12 text-left position-override">
@@ -447,7 +438,7 @@ function invalue($name)
                                 <button type='submit' name='form_save'  class="btn btn-secondary btn-save"  value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
                                 <button type="button" class="btn btn-link btn-cancel btn-separate-left" onclick='window.close()';><?php echo xlt('Cancel');?></button>
                                 <?php if ($ppid) { ?>
-                                    <button type='submit' name='form_delete'  class="btn btn-secondary btn-cancel btn-delete btn-separate-left" value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
+                                    <button type='submit' name='form_delete' class="btn btn-secondary btn-cancel btn-delete btn-separate-left" value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
                                 <?php } ?>
                             </div>
                         </div>

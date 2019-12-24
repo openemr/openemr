@@ -179,24 +179,24 @@ $eventlog=0;  // Eventlog Flag
 if ($form_step == 0) {
     echo "<table>\n";
     echo " <tr>\n";
-    echo "  <td><input type='submit' name='form_create' value='" . attr($BTN_TEXT_CREATE) . "' /></td>\n";
+    echo "  <td><input class='btn btn-secondary' type='submit' name='form_create' value='" . attr($BTN_TEXT_CREATE) . "' /></td>\n";
     echo "  <td>" . xlt('Create and download a full backup') . "</td>\n";
     echo " </tr>\n";
   // The config import/export feature is optional.
     if (!empty($GLOBALS['configuration_import_export'])) {
         echo " <tr>\n";
-        echo "  <td><input type='submit' name='form_export' value='" . attr($BTN_TEXT_EXPORT) . "' /></td>\n";
+        echo "  <td><input class='btn btn-secondary' type='submit' name='form_export' value='" . attr($BTN_TEXT_EXPORT) . "' /></td>\n";
         echo "  <td>" . xlt('Download configuration data') . "</td>\n";
         echo " </tr>\n";
         echo " <tr>\n";
-        echo "  <td><input type='submit' name='form_import' value='" . attr($BTN_TEXT_IMPORT) . "' /></td>\n";
+        echo "  <td><input class='btn btn-secondary' type='submit' name='form_import' value='" . attr($BTN_TEXT_IMPORT) . "' /></td>\n";
         echo "  <td>" . xlt('Upload configuration data') . "</td>\n";
         echo " </tr>\n";
     }
 
 // ViSolve : Add ' Create Log table backup Button'
     echo " <tr>\n";
-    echo "  <td><input type='submit' name='form_backup' value='" . attr($BTN_TEXT_CREATE_EVENTLOG) . "' /></td>\n";
+    echo "  <td><input class='btn btn-secondary' type='submit' name='form_backup' value='" . attr($BTN_TEXT_CREATE_EVENTLOG) . "' /></td>\n";
     echo "  <td>" . xlt('Create Eventlog Backup') . "</td>\n";
     echo " </tr>\n";
     echo " <tr>\n";
@@ -358,7 +358,7 @@ if ($form_step == 101) {
   // Multi-select for lists.
     echo "</td><td valign='top'>\n";
     echo "<b>" . xlt('Lists') . "</b><br />\n";
-    echo "<select multiple name='form_sel_lists[]' size='15'>";
+    echo "<select class='form-control' multiple name='form_sel_lists[]' size='15'>";
     $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
     "list_id = 'lists' AND activity = 1 ORDER BY title, seq");
     while ($lrow = sqlFetchArray($lres)) {
@@ -371,7 +371,7 @@ if ($form_step == 101) {
     // Multi-select for layouts.
     echo "</td><td valign='top'>\n";
     echo "<b>" . xlt('Layouts') . "</b><br />\n";
-    echo "<select multiple name='form_sel_layouts[]' size='15'>";
+    echo "<select class='form-control' multiple name='form_sel_layouts[]' size='15'>";
     $lres = sqlStatement("SELECT grp_form_id, grp_title FROM layout_group_properties WHERE " .
       "grp_group_id = '' AND grp_activity = 1 ORDER BY grp_form_id");
     while ($lrow = sqlFetchArray($lres)) {
@@ -383,7 +383,7 @@ if ($form_step == 101) {
     echo "</select>\n";
 
     echo "</td>\n</tr>\n</table>\n";
-    echo "&nbsp;<br /><input type='submit' value='" . xla('Continue') . "' />\n";
+    echo "&nbsp;<br /><input class='btn btn-primary' type='submit' value='" . xla('Continue') . "' />\n";
 }
 
 if ($form_step == 102) {
@@ -538,7 +538,7 @@ if ($form_step == 201) {
     echo xlt('File to upload') . ":\n";
     echo "<input type='hidden' name='MAX_FILE_SIZE' value='4000000' />\n";
     echo "<input type='file' name='userfile' /><br />&nbsp;<br />\n";
-    echo "<input type='submit' value='" . xla('Continue') . "' />\n";
+    echo "<input class='btn btn-primary' type='submit' value='" . xla('Continue') . "' />\n";
 }
 
 if ($form_step == 202) {
@@ -663,8 +663,8 @@ if ($file_to_compress) {
 </center>
 
 <?php if ($auto_continue) { ?>
-<script language="JavaScript">
- setTimeout("document.forms[0].submit();", 500);
+<script type="text/javascript">
+    setTimeout("document.forms[0].submit();", 500);
 </script>
 <?php }
 

@@ -119,12 +119,12 @@ if ($batch_log && !$GLOBALS['disable_eligibility_log']) {
 <body class="body_top">
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
     <?php if (isset($message) && !empty($message)) { ?>
-                <div style="margin-left:25%;width:50%;color:RED;text-align:center;font-family:arial;font-size:15px;background:#ECECEC;border:1px solid;" ><?php echo $message; ?></div>
+                <div class="text-danger text-center bg-light w-50" style="margin-left:25%; font-family: 'Arial', sans-serif; font-size:15px; border:1px solid;"><?php echo $message; ?></div>
         <?php
                 $message = "";
     }
     if (isset($messageEDI)) { ?>
-    <div style="margin-left:25%;width:50%;color:RED;text-align:center;font-family:arial;font-size:15px;background:#ECECEC;border:1px solid;" >
+    <div class="text-danger text-center bg-light w-50" style="margin-left:25%; font-family: 'Arial', sans-serif; font-size:15px; border:1px solid;">
             <?php echo xlt('Please choose the proper formatted EDI-271 file'); ?>
     </div>
         <?php
@@ -138,7 +138,7 @@ if ($batch_log && !$GLOBALS['disable_eligibility_log']) {
     <table>
         <tr>
             <td width='550px'>
-                <div style='float:left'>
+                <div class='float-left'>
                     <table class='text'>
                         <tr>
                             <td style='width:125px;' class='label_custom'> <?php echo xlt('Select EDI-271 file'); ?>:   </td>
@@ -148,11 +148,11 @@ if ($batch_log && !$GLOBALS['disable_eligibility_log']) {
                 </div>
             </td>
             <td align='left' valign='middle' height="100%">
-                <table style='border-left:1px solid; width:100%; height:100%' >
+                <table class='w-100 h-100' style='border-left:1px solid;'>
                     <tr>
                         <td>
                             <div style='margin-left:15px'>
-                                <a href='#' class='css_button' onclick='return edivalidation(); '><span><?php echo xlt('Upload'); ?></span>
+                                <a href='#' class='btn btn-primary' onclick='return edivalidation(); '><span><?php echo xlt('Upload'); ?></span>
                                 </a>
                             </div>
                         </td>

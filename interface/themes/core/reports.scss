@@ -13,7 +13,7 @@
 */
 
 #report_parameters {
-    background-color: #ececec;
+    background-color: $light;
     margin-top: 10px;
 }
 
@@ -50,7 +50,7 @@
 #report_results table thead {
     padding: 5px;
     display: table-header-group;
-    background-color: #ddd;
+    background-color: $gray-300;
     text-align: $left;
     font-weight: bold;
     font-size: 0.7em;

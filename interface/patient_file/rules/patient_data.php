@@ -5,7 +5,7 @@
  * @package OpenEMR
  * @link    http://www.open-emr.org
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2010-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -151,8 +151,8 @@ if (isset($entryID)) {
 <tr>
 <td><span class="title"><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
 " - " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $item); ?></span>&nbsp;&nbsp;&nbsp;</td>
-<td><a href="javascript:submitme();" class="css_button"><span><?php echo xlt('Save'); ?></span></a></td>
-<td><a href="#" id="cancel" class="css_button large_button"><span class='css_button_span large_button_span'><?php echo xlt('Cancel'); ?></span></a></td>
+<td><a href="javascript:submitme();" class="btn btn-primary btn-lg"><?php echo xlt('Save'); ?></a></td>
+<td><a href="#" id="cancel" class="btn btn-secondary btn-lg"><?php echo xlt('Cancel'); ?></a></td>
 </tr>
 </table>
 
@@ -231,7 +231,7 @@ if (sqlNumRows($res) >= 1) { //display table ?>
             attr_url($category) . "&item=" .
             attr_url($item) . "&entryID=" .
             attr_url($row['id']) .
-            "' onclick='top.restoreSession()' class='css_button_small'>" .
+            "' onclick='top.restoreSession()' class='btn btn-primary btn-sm'>" .
             "<span>" . xlt('Edit') . "</span></a>" .
             "</td>";
         }

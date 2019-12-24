@@ -406,9 +406,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 </head>
 
 <?php if ($userMode) { ?>
-    <body class="body_top" style="min-width: 700px; margin:0 !important">
+    <body class="body_top m-0" style="min-width: 700px;">
 <?php } else { ?>
-    <div class="body_top" style="margin:0 !important">
+    <div class="body_top m-0">
 <?php } ?>
 
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
@@ -519,9 +519,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             }
 
                                             if ($userMode) {
-                                                echo " <div class='row form-group" . $srch_cl  . "'><div class='col-sm-4 control-label'><b>" . text($fldname) . "</b></div><div class='col-sm-4 oe-input'  title='" . attr($flddesc) ."'>\n";
+                                                echo " <div class='row form-group" . $srch_cl  . "'><div class='col-sm-4'><b>" . text($fldname) . "</b></div><div class='col-sm-4 oe-input' title='" . attr($flddesc) ."'>\n";
                                             } else {
-                                                echo " <div class='row form-group" . $srch_cl . "'><div class='col-sm-6 control-label'><b>" . text($fldname) . "</b></div><div class='col-sm-6 oe-input'  title='" . attr($flddesc) ."'>\n";
+                                                echo " <div class='row form-group" . $srch_cl . "'><div class='col-sm-6'><b>" . text($fldname) . "</b></div><div class='col-sm-6 oe-input' title='" . attr($flddesc) ."'>\n";
                                             }
 
                                             if (is_array($fldtype)) {

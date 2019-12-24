@@ -16,6 +16,7 @@ use OpenEMR\Core\Header;
 ?>
 <html>
 <head>
+    <!-- TODO: Why no bootstrap here????? !-->
     <?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog']); ?>
 
     <link rel="stylesheet" href="<?php css_src('rules.css') ?>" type="text/css">
@@ -38,7 +39,7 @@ use OpenEMR\Core\Header;
             <a href="index.php?action=detail!view&id=<?php echo attr_url($rule->id); ?>" class="iframe_medium css_button" onclick="top.restoreSession()">
                 <span><?php echo xlt('Cancel'); ?></span>
             </a>
-            <a href="javascript:;" class="iframe_medium css_button" id="btn_save" onclick="top.restoreSession()"><span><?php echo xlt('Save'); ?></span></a>
+            <a href="javascript:;" class="iframe_medium btn btn-primary" id="btn_save" onclick="top.restoreSession()"><span><?php echo xlt('Save'); ?></span></a>
         </td>
   </tr>
 </table>

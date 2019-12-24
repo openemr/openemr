@@ -22,7 +22,7 @@ $rule = $viewBean->rule ?>
   <tr >
         <td class="title"><?php echo xlt('Rule Detail'); ?></td>
         <td>
-            <a href="index.php?action=browse!list" class="iframe_medium css_button" onclick="top.restoreSession()"><span><?php echo xlt('Back'); ?></span></a>
+            <a href="index.php?action=browse!list" class="iframe_medium btn btn-primary" onclick="top.restoreSession()"><span><?php echo xlt('Back'); ?></span></a>
         </td>
   </tr>
 </table>

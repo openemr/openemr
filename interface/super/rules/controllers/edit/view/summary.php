@@ -23,10 +23,10 @@ $rule = $viewBean->rule ?>
   <tr>
         <td class="title"><?php echo $rule->id ? xlt('Rule Edit') : xlt('Rule Add'); ?></td>
         <td>
-            <a href="index.php?action=detail!view&id=<?php echo attr_url($rule->id); ?>" class="iframe_medium css_button" onclick="top.restoreSession()">
+            <a href="index.php?action=detail!view&id=<?php echo attr_url($rule->id); ?>" class="iframe_medium btn btn-secondary" onclick="top.restoreSession()">
                 <span><?php echo xlt('Cancel'); ?></span>
             </a>
-            <a href="javascript:;" class="iframe_medium css_button" id="btn_save" onclick="top.restoreSession()"><span><?php echo xlt('Save'); ?></span></a>
+            <a href="javascript:;" class="iframe_medium btn btn-primary" id="btn_save" onclick="top.restoreSession()"><span><?php echo xlt('Save'); ?></span></a>
         </td>
   </tr>
 </table>

@@ -379,7 +379,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                         <div class="col-12 col-sm-12 col-md-12 col-lg-10 oe-custom-line offset-lg-1">
                                             <div class="row">
                                                 <div class="col-3 col-sm-3">
-                                                    <label class="control-label" for="form_note_type"><?php echo xlt('Type'); ?>:</label>
+                                                    <label for="form_note_type"><?php echo xlt('Type'); ?>:</label>
                                                     <?php
                                                     if ($title == "") {
                                                         $title = "Unassigned";
@@ -389,7 +389,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     ?>
                                                 </div>
                                                 <div class="col-3 col-sm-3">
-                                                    <label class="control-label" for="form_message_status"><?php echo xlt('Status'); ?>:</label>
+                                                    <label for="form_message_status"><?php echo xlt('Status'); ?>:</label>
                                                     <?php
                                                     if ($form_message_status == "") {
                                                         $form_message_status = 'New';
@@ -397,7 +397,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     generate_form_field(array('data_type' => 1, 'field_id' => 'message_status', 'list_id' => 'message_status', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'), $form_message_status); ?>
                                                 </div>
                                                 <div class="col-4">
-                                                    <label class="control-label" for="form_patient">
+                                                    <label for="form_patient">
                                                         <?php
                                                         if ($task != "addnew" && $result['pid'] != 0) { ?>
                                                             <a class="patLink"
@@ -431,7 +431,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 <div class="col-2">
                                                     <?php
                                                     if ($task=="addnew" || $result['pid']==0) {
-                                                        echo "<label class='control-label oe-empty-label' for='clear_patients'></label>";
+                                                        echo "<label class='oe-empty-label' for='clear_patients'></label>";
                                                         echo '<button type="button" id="clear_patients"  class="btn btn-secondary btn-undo float-left flip" value="' . xla('Clear') .'">' . xlt("Clear") . '</button>';
                                                     } ?>
                                                 </div>
@@ -443,18 +443,17 @@ if (!empty($_REQUEST['go'])) { ?>
                                             <div class="row">
                                                 <?php if ($GLOBALS['messages_due_date']) { ?>
                                                 <div class="col-6 col-sm-2">
-                                                    <label class="control-label" for="form_note_type"><?php echo xlt('Due date'); ?>:</label>
+                                                    <label for="form_note_type"><?php echo xlt('Due date'); ?>:</label>
                                                     <?php generate_form_field(array('data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'), empty($datetime) ? date('Y-m-d H:i') : $datetime) ?>
                                                 </div>
                                                 <?php } ?>
                                                 <div class="col-6 col-sm-4">
-                                                    <label class="control-label" for="assigned_to_text"><?php echo xlt('To{{Destination}}'); ?>:</label>
-                                                    <input type='text' name='assigned_to_text' class='form-control oe-cursor-stop' id='assigned_to_text' readonly='readonly'
-                                                        value='' placeholder='<?php echo xla("SELECT Users FROM The Dropdown LIST"); ?>'>
+                                                    <label for="assigned_to_text"><?php echo xlt('To{{Destination}}'); ?>:</label>
+                                                    <input type='text' name='assigned_to_text' class='form-control oe-cursor-stop' id='assigned_to_text' readonly='readonly' value='' placeholder='<?php echo xla("SELECT Users FROM The Dropdown LIST"); ?>'>
                                                     <input type='hidden' name='assigned_to' id='assigned_to'>
                                                 </div>
                                                 <div class="col-6 col-sm-4">
-                                                    <label class="control-label oe-empty-label" for="users"></label>
+                                                    <label class="oe-empty-label" for="users"></label>
                                                     <select name='users' id='users' class='form-control' onchange='addtolist(this);'>
                                                         <?php
                                                         echo "<option value='--'";
@@ -481,7 +480,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     </select>
                                                 </div>
                                                 <div class="col-6 col-sm-2">
-                                                    <label class="control-label oe-empty-label" for="users"></label>
+                                                    <label class="oe-empty-label" for="users"></label>
                                                     <button type="button" name="clear_user" id="clear_user" class="btn btn-secondary btn-undo float-left flip" value="<?php echo xla('Clear'); ?>"><?php echo xlt('Clear'); ?></button>
                                                 </div>
                                             </div>
@@ -545,12 +544,11 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 $body = preg_replace('/(:\d{2}\s\()' . $result['pid'] . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
                                                 $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
                                                 $body =nl2br(text(oeFormatPatientNote($body)));
-                                                echo "<div class='text oe-margin-t-3' style='background-color:white; color: gray; border:1px solid #999; padding: 5px;'>" . $body . "</div>";
+                                                echo "<div class='text oe-margin-t-3' style='border:1px solid #999; padding: 5px;'>" . $body . "</div>";
                                             }
 
                                             ?>
-                                            <textarea name='note' id='note' class='form-control oe-margin-t-3'
-                                                      style='margin-left:-1px !important; background-color:white; color: gray; border:1px solid #999; padding: 5px; height:100px!important;'><?php echo nl2br(text($note)); ?></textarea>
+                                            <textarea name='note' id='note' class='form-control oe-margin-t-3' style='margin-left:-1px !important; border:1px solid #999; padding: 5px; height:100px!important;'><?php echo nl2br(text($note)); ?></textarea>
                                         </div>
                                         <div class="col-12 position-override oe-margin-t-10">
                                             <?php if ($noteid) { ?>
@@ -630,13 +628,13 @@ if (!empty($_REQUEST['go'])) { ?>
                             }
                             // Display the Messages table header.
                             echo "
-                                <table width=100%>
+                                <table class=\"w-100\">
                                     <tr>
                                         <td>
                                             <form name='MessageList' id='MessageList' action=\"messages.php?showall=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($begin) . "&$activity_string_html\" method=post>
-                                                <table border=0 cellpadding=1 cellspacing=0   style=\"border-left: 1px #000000 solid;  width:100%; border-right: 1px #000000 solid; border-top: 1px #000000 solid;\">
+                                                <table border=0 cellpadding=1 cellspacing=0 class=\"w-100\" style=\"border-left: 1px #000000 solid; border-right: 1px #000000 solid; border-top: 1px #000000 solid;\">
                                                     <input type=hidden name=task value=delete>
-                                                    <tr height=\"24\" style=\"background:lightgrey\" class=\"head\">
+                                                    <tr height=\"24\" class=\"head bg-light\">
                                                         <td align=\"center\" width=\"25\" style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\"><input type=checkbox id=\"checkAll\" onclick=\"selectAll()\"></td>
                                                         <td width=\"20%\" style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\" class=bold>&nbsp;<b>" .
                                                         xlt('From') . "</b> $sortlink[0]</td>
@@ -669,7 +667,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 }
                                 $count++;
                                 echo "
-                                    <tr id=\"row" . attr($count) . "\" style=\"background:white\" height=\"24\">
+                                    <tr id=\"row" . attr($count) . "\" class=\"bg-white\" height=\"24\">
                                         <td align=\"center\" style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\">
                                             <input type=checkbox id=\"check" . attr($count) . "\" name=\"delete_id[]\" value=\"" .
                                             attr($myrow['id']) . "\" onclick=\"if(this.checked==true){ selectRow('row" . attr(addslashes($count)) . "'); }else{ deselectRow('row" . attr(addslashes($count)) . "'); }\"></td>
@@ -716,7 +714,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 <br>";
                             ?>
 
-                            <script language="javascript">
+                            <script type="text/javascript">
                                 // This is to confirm delete action.
                                 function confirmDeleteSelected() {
                                         var int_checked = 0;

@@ -70,21 +70,19 @@ if ($popup && $_POST['form_save']) {
 
     <title><?php echo xlt('Configure Orders and Results'); ?></title>
 
-    <style type="text/css">
+    <style>
         #con0 table {
             margin: 0;
             padding: 0;
             width: 100%;
         }
         #con0 td {
-            /*padding: 0;*/
             font-family: sans-serif;
             font-size: 11px;
             line-height: 25px;
         }
         .plusminus {
             font-family: monospace;
-            /*font-size: 11px;*/
         }
         .haskids {
             color: #0000dd;
@@ -93,14 +91,14 @@ if ($popup && $_POST['form_save']) {
         }
         tr.head {
             font-size: 14px;
-            background-color: #cccccc;
+            background-color: var(--light);
             font-weight: bold;
         }
         tr.evenrow {
-            background-color: #ddddff;
+            background-color: var(--light);
         }
         tr.oddrow {
-            background-color: #ffffff;
+            background-color: var(--white);
         }
         tr.outertr {
             padding: 0px 0px 0px 10px;
@@ -109,30 +107,23 @@ if ($popup && $_POST['form_save']) {
             line-height: 25px;
         }
         .col1 {
-            width: 33%
+            width: 33%;
         }
         .col2 {
-            width: 12%
+            width: 12%;
         }
         .col3 {
-            width: 8%
+            width: 8%;
         }
         .col4 {
-            width: 28%
+            width: 28%;
         }
         .col5 {
-            width: 5%
+            width: 5%;
         }
         .col6 {
-            width: 8%
+            width: 8%;
         }
-
-        @media only screen and (max-width: 768px) {
-           [class*="col-"] {
-           width: 100%;
-           }
-        }
-
     </style>
 
 
@@ -142,7 +133,7 @@ if ($popup && $_POST['form_save']) {
     <?php } ?>
 
 
-    <script language="JavaScript">
+    <script type="text/javascript">
 
     <?php
     if ($popup) {
@@ -283,7 +274,7 @@ if ($popup && $_POST['form_save']) {
 
 </head>
 
-<body class="body_nav">
+<body>
     <?php
     if ($GLOBALS['enable_help'] == 1) {
         $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
@@ -321,7 +312,7 @@ if ($popup && $_POST['form_save']) {
                     <br>
                     <br>
                     <div class = "table-responsive">
-                        <table class="table" style="margin-bottom:0">
+                        <table class="table mb-0">
                             <thead>
                                 <tr class='head'>
                                     <td class='col1' align='left'>&nbsp;&nbsp;<?php echo xlt('Name') ?> <i id="name-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>

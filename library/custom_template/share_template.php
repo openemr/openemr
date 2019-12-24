@@ -100,7 +100,7 @@ $list_id = $_REQUEST['list_id'];
                         </select>
                     </td>
                     <td>
-                    <a href="#" onclick="add_template()" class="css_button"><span><?php echo htmlspecialchars(xl('Save'), ENT_QUOTES);?></span></a>
+                    <a href="#" onclick="add_template()" class="btn btn-primary"><span><?php echo htmlspecialchars(xl('Save'), ENT_QUOTES);?></span></a>
                     </td>
                 </tr>
             </table>
