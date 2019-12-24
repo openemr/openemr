@@ -609,6 +609,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             opener.$('#btn-inv-search').click();
         }
         function editInvoice(e, id) {
+            e.preventDefault();
             let url = './sl_eob_invoice.php?isPosting=1&id=' + encodeURIComponent(id);
             dlgopen(url,'','modal-lg',750,false,'', {
                 onClosed: 'reSubmit'
@@ -637,9 +638,10 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             );
         }
 
-        function npopup(pid) {
-            window.open('sl_eob_patient_note.php?patient_id=' + encodeURIComponent(pid), '_blank', 'width=500,height=250,resizable=1');
-            return false;
+        function npopup(e, pid) {
+            e.preventDefault();
+            let url = 'sl_eob_patient_note.php?patient_id=' + encodeURIComponent(pid);
+            dlgopen(url, 'billnote', 'modal-sm', 275, '');
         }
 
         function toEncSummary(pid) {
@@ -793,12 +795,12 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                         &nbsp;<span><?php echo xlt('Select Method'); ?></span>&nbsp;<i id='select-method-tooltip'
                         class="fa fa-info-circle oe-superscript" aria-hidden="true"></i>
 
-                        <div id="radio-div" class="oe-pull-away oe-legend-radio">
-                            <label class="radio-inline">
+                        <div id="radio-div" class="form-check form-check-inline oe-legend-radio">
+                            <label class="radio-inline btn btn-sm btn-secondary">
                                 <input type="radio" id="invoice_search" name="radio-search" onclick=""
                                        value="inv-search"><?php echo xlt('Invoice Search'); ?>
                             </label>
-                            <label class="radio-inline">
+                            <label class="radio-inline btn btn-sm btn-secondary">
                                 <input type="radio" id="era_upload" name="radio-search" onclick=""
                                        value="era-upld"><?php echo xlt('ERA Upload'); ?>
                             </label>
@@ -861,7 +863,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                             </div>
                         </div>
                     </div>
-                    <div class="form-row oe-show-hide" id='era-upld'>
+                    <div class="form-row oe-show-hide" id='era-upld' style="display:none">
                         <div class="form-group col-lg oe-file-div">
                             <div class="input-group">
                                 <label class="input-group-btn">
@@ -883,10 +885,10 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                         <div class="btn-group" role="group">
                             <button type='submit' class="btn btn-secondary btn-search oe-show-hide" name='form_search'
                                     id="btn-inv-search"
-                                    value='<?php echo xla("Search"); ?>'><?php echo xlt("Search"); ?></button>
+                                    value='Search'><?php echo xlt("Search"); ?></button>
                             <button type='submit' class="btn btn-secondary btn-save oe-show-hide" name='form_search'
                                     id="btn-era-upld"
-                                    value='<?php echo xla("Upload"); ?>'><?php echo xlt("Upload"); ?></button>
+                                    value='Upload'><?php echo xlt("Upload"); ?></button>
                         </div>
                     </div>
                 </div>
@@ -1118,13 +1120,13 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 
                                 ?>
                                 <tr>
-                                    <td class="detail">
+                                    <td class="detail"> <!-- @todo these should be buttons. poor form for anchors.-->
                                         <a href=""
-                                            onclick="return npopup(<?php echo attr_js($row['pid']); ?>)"><?php echo text($row['pid']); ?></a>
+                                            onclick="npopup(event, <?php echo attr_js($row['pid']); ?>)"><?php echo text($row['pid']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;
                                         <a href=""
-                                            onclick="return npopup(<?php echo attr_js($row['pid']); ?>)"><?php echo text($row['lname']) . ', ' . text($row['fname']); ?></a>
+                                            onclick="npopup(event, <?php echo attr_js($row['pid']); ?>)"><?php echo text($row['lname']) . ', ' . text($row['fname']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;
                                         <a href=""
@@ -1217,8 +1219,9 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 }
                             }
                             ?>
-                            <input type='checkbox' class="btn-separate-left" name='form_without'
-                                   value='1'/><?php echo xlt('Without Update'); ?>
+                            <label class="radio-inline btn"><?php echo xlt('Without Update'); ?>
+                                <input type='checkbox' name='form_without' value='1'/>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -1271,8 +1274,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             $(".oe-show-hide").hide();
             $("#" + flip).show();
             if (flip == 'inv-search') {
-                $("#search-upload").insertAfter("#payment-allocate");
-                $('#payment-allocate').show();
+                $('#payment-allocate').hide();
                 $('#search-btn').show();
                 $('#btn-inv-search').show();
                 var legend_text = $('#hid1').val();
@@ -1309,22 +1311,21 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
     });
 </script>
 <?php
-$tr_str = xl('Search');
-if ($_REQUEST['form_search'] == "$tr_str") { ?>
+// not a good idea to do translate. it's a constant so pulling sjp.
+if ($_REQUEST['form_search'] == "Search") { ?>
     <script>
-        $("#payment-allocate").insertAfter("#search-upload");
-        $('#payment-allocate').show();
+        $('#payment-allocate').hide();
         $("#search-results").show();
-        $("#statement-download").show();
+        $("#statement-download").hide();
     </script>
     <?php
 }
-?>
-<?php
-$tr_str = xl('Upload');
-if ($_REQUEST['form_search'] == "$tr_str") { ?>
+if ($_REQUEST['form_search'] == "Upload") { ?>
     <script>
-        $('#era-upld').show();
+        $("#payment-allocate").insertAfter("#search-upload");
+        $('#era-upld').hide();
+        $('#payment-allocate').show();
+        $('#search-btn').hide();
         $('#search-results').show();
         $("#statement-download").show();
     </script>

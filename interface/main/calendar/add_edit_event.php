@@ -106,7 +106,7 @@ $g_view = acl_check("groups", "gcalendar", false, 'view');
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?php echo $eid ? xlt('Edit') : xlt('Add New{{Event}}') ?> <?php echo xlt('Event');?></title>
-<?php Header::setupHeader(['no_main-theme', 'common', 'datetime-picker', 'opener']); ?>
+<?php Header::setupHeader(['common', 'datetime-picker', 'opener']); ?>
 
 <!-- validation library -->
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
