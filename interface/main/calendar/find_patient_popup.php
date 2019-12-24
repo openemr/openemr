@@ -118,18 +118,6 @@ if (isset($_GET["res"])) {
 ?>
 <!-- ViSolve: Verify the noresult parameter -->
 
-<script language="text/javascript">
-
- function selpid(pid, lname, fname, dob) {
-  if (opener.closed || ! opener.setpatient)
-   alert("<?php echo htmlspecialchars(xl('The destination form was closed; I cannot act on your selection.'), ENT_QUOTES); ?>");
-  else
-   opener.setpatient(pid, lname, fname, dob);
-  dlgclose();
-  return false;
- }
-
-</script>
 </head>
 
 <body class="body_top">
@@ -170,10 +158,10 @@ if (isset($_GET["res"])) {
 <div id="searchstatus" class="bg-danger"><?php echo htmlspecialchars(xl('No records found. Please expand your search criteria.'), ENT_NOQUOTES); ?>
 <br>
 <!--VicarePlus :: If pflag is set the new patient create link will not be displayed -->
-<a class="noresult" href='find_patient_popup.php?res=noresult' 
+<a class="noresult" href='find_patient_popup.php?res=noresult'
     <?php
     if (isset($_GET['pflag']) || (!acl_check('patients', 'demo', '', array('write','addonly')))) {
-        ?> style="display:none;" 
+        ?> style="display:none;"
         <?php
     }
     ?>  >
@@ -261,6 +249,15 @@ $(function(){
         }
     });
 });
+
+function selpid(pid, lname, fname, dob) {
+    if (opener.closed || ! opener.setpatient)
+        alert("<?php echo htmlspecialchars(xl('The destination form was closed; I cannot act on your selection.'), ENT_QUOTES); ?>");
+    else
+        opener.setpatient(pid, lname, fname, dob);
+    dlgclose();
+    return false;
+}
 
 // show the 'searching...' status and submit the form
 var SubmitForm = function(eObj) {
