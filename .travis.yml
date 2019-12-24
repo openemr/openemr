@@ -1,4 +1,6 @@
 language: php
+services:
+  - mysql
 addons:
   chrome: stable
 .steps:
@@ -42,11 +44,13 @@ addons:
       cd ../
       echo "------------------------"
       echo "Install/configure active openemr instance"
-      sudo chmod 666 sites/default/sqlconf.php
-      sudo chown -R www-data:www-data sites/default/documents
-      sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php
-      php -f contrib/util/installScripts/InstallerAutoTemp.php rootpass=root loginhost=% port=8320
-      rm -f contrib/util/installScripts/InstallerAutoTemp.php
+      docker exec -i docker_openemr_1 sh -c "chmod 666 /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php"
+      docker exec -i docker_openemr_1 sh -c "chown -R apache /var/www/localhost/htdocs/openemr/"
+      docker exec -i docker_openemr_1 sh -c "find /var/www/localhost/htdocs/openemr/sites/default/documents -type d -print0 | xargs -0 chmod 700"
+      docker exec -i docker_openemr_1 sh -c "find /var/www/localhost/htdocs/openemr/sites/default/documents -type f -print0 | xargs -0 chmod 700"
+      docker exec -i docker_openemr_1 sh -c "sed -e 's@^exit;@ @' < /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAuto.php > /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAutoTemp.php"
+      docker exec -i docker_openemr_1 sh -c "php -f /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAutoTemp.php rootpass=root loginhost=%"
+      docker exec -i docker_openemr_1 sh -c "rm -f /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAutoTemp.php"
       echo "------------------------"
       echo "Turn on the api to allow api testing"
       mysql -u openemr --password="openemr" -h localhost -P 8320 -e "UPDATE globals SET gl_value = 1 WHERE gl_name = 'rest_api'" openemr
