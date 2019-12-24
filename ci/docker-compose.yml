@@ -6,7 +6,7 @@ services:
     image: mariadb:10.4
     command: ['mysqld','--character-set-server=utf8']
     ports:
-    - 3306:3306
+    - 8320:3306
     environment:
       MYSQL_ROOT_PASSWORD: root
   openemr:

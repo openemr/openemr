@@ -45,7 +45,7 @@ addons:
       sudo chmod 666 sites/default/sqlconf.php
       sudo chown -R www-data:www-data sites/default/documents
       sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php
-      php -f contrib/util/installScripts/InstallerAutoTemp.php rootpass=root loginhost=%
+      php -f contrib/util/installScripts/InstallerAutoTemp.php rootpass=root loginhost=% port=8320
       rm -f contrib/util/installScripts/InstallerAutoTemp.php
       echo "------------------------"
       echo "Turn on the api to allow api testing"
