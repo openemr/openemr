@@ -35,7 +35,10 @@ $billing_facility = (isset($_POST['billing_facility']))     ? $_POST['billing_fa
 $reason           = (isset($_POST['reason']))               ? $_POST['reason'] : '';
 $mode             = (isset($_POST['mode']))                 ? $_POST['mode'] : '';
 $referral_source  = (isset($_POST['form_referral_source'])) ? $_POST['form_referral_source'] : '';
-$pos_code         = (isset($_POST['pos_code']))              ? $_POST['pos_code'] : '';
+$pos_code         = (isset($_POST['pos_code']))             ? $_POST['pos_code'] : '';
+$parent_enc_id    = (isset($_POST['parent_enc_id']))       ? $_POST['parent_enc_id'] : null;
+
+
 //save therapy group if exist in external_id column
 $external_id         = isset($_POST['form_gid']) ? $_POST['form_gid'] : '';
 
@@ -67,7 +70,9 @@ if ($mode == 'new') {
                 encounter = ?,
                 pos_code = ?,
                 external_id = ?,
-                provider_id = ?",
+                provider_id = ?,
+                parent_encounter_id = ?",
+
             [
                 $date,
                 $onset_date,
@@ -82,7 +87,8 @@ if ($mode == 'new') {
                 $encounter,
                 $pos_code,
                 $external_id,
-                $provider_id
+                $provider_id,
+                $parent_enc_id
             ]
         ),
         "newpatient",
