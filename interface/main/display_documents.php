@@ -44,7 +44,7 @@ $display_collapse_msg = "display:inline;";
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'datetime-picker', 'common']); ?>
+<?php Header::setupHeader(['datetime-picker', 'common']); ?>
 
 <script type="text/javascript">
     var global_date_format = '<?php echo DateFormatRead(); ?>';

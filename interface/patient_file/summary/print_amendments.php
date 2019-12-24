@@ -81,7 +81,7 @@ function printAmendment($amendmentID, $lastAmendment)
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['no_bootstrap', 'no_fontawesome']); ?>
+    <?php Header::setupHeader(); ?>
 </head>
 
 <body class="body_top">

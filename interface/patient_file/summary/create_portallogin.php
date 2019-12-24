@@ -186,7 +186,7 @@ if (isset($_POST['form_save']) && $_POST['form_save']=='SUBMIT') {
 <html>
 <head>
 
-<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog', 'opener']); ?>
+<?php Header::setupHeader('opener'); ?>
 
 <script type="text/javascript">
 function transmit(){
@@ -234,7 +234,7 @@ function transmit(){
         <?php if ($GLOBALS['enforce_signin_email']) { ?>
         <tr class="text">
             <td><strong><?php echo xlt("Login Trusted Email") . ":" ?></strong></td>
-            <td><?php echo (!empty(trim($trustedEmail)) ? text($trustedEmail['email_direct']) : xlt("Is Required. Please Add in Contacts.")) ?></td>
+            <td><?php echo (!empty(trim($trustedEmail['email_direct'])) ? text($trustedEmail['email_direct']) : xlt("Is Required. Please Add in Contacts.")) ?></td>
         </tr>
         <?php } ?>
         <tr align="center"><td>&nbsp;</td><td><hr></td></tr>

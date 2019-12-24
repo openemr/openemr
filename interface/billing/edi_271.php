@@ -79,7 +79,7 @@ if ($batch_log && !$GLOBALS['disable_eligibility_log']) {
 <head>
 <title><?php echo xlt('EDI-271 Response File Upload'); ?></title>
 
-<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome']); ?>
+<?php Header::setupHeader(); ?>
 
 <style type="text/css">
 /* specifically include & exclude from printing */

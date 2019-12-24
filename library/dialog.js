@@ -230,6 +230,22 @@ function inDom(dependency, type, remove) {
     return false;
 }
 
+// test to see if bootstrap theming is loaded (via standard or custom bootstrap library)
+//  Will check for the badge-secondary class
+//   - if exist, then assume bootstrap loaded
+//   - if not exist, then assume bootstrap not loaded
+function isBootstrapCss() {
+    for (let i = 0; i < document.styleSheets.length; i++) {
+        let rules = document.styleSheets[i].rules || document.styleSheets[i].cssRules;
+        for (let x in rules) {
+            if (rules[x].selectorText == '.badge-secondary') {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 // These functions may be called from scripts that may be out of scope with top so...
 // if opener is tab then we need to be in tabs UI scope and while we're at it, let's bring webroot along...
 //
@@ -397,7 +413,7 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
             includeScript(jqurl, false, 'script');
             console.log('Replacing jQuery version:[ ' + version + ' ]');
         }
-        if (!inDom('bootstrap.min.css', 'link', false)) {
+        if (!isBootstrapCss()) {
             includeScript(bscss, false, 'link');
             if (top.jsLanguageDirection === 'rtl') {
                 includeScript(bscssRtl, false, 'link');

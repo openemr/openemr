@@ -47,7 +47,7 @@ function invalue($name)
 <head>
 <title><?php echo $userid ? xlt('Edit Entry') : xlt('Add New Entry') ?></title>
 
-    <?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog', 'opener']); ?>
+    <?php Header::setupHeader('opener'); ?>
 
 <style>
 td { font-size:10pt; }

@@ -47,7 +47,7 @@ if ($_POST['searchby'] && $_POST['searchparm']) {
 <html>
 <head>
     <title><?php echo xlt('Group Finder'); ?></title>
-    <?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog', 'opener']); ?>
+    <?php Header::setupHeader('opener'); ?>
 
     <style>
         form {
