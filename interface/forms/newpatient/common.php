@@ -53,6 +53,7 @@ if ($viewmode) {
 
     if ($mode === "followup") {
         $result['reason'] = '';
+        $result['date']=date('Y-m-d H:i:s');
         $encounterId = $result['id'];
     }
 
