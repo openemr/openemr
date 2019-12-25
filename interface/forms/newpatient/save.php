@@ -72,7 +72,6 @@ if ($mode == 'new') {
                 external_id = ?,
                 provider_id = ?,
                 parent_encounter_id = ?",
-
             [
                 $date,
                 $onset_date,

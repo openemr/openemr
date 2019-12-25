@@ -809,7 +809,7 @@ while ($result4 = sqlFetchArray($res4)) {
         echo "<td>" . xlt($encounter_type['pc_catname']) . "</td>\n";
     }
 
-    if ( $GLOBALS['enable_follow_up_encounters'] ) {
+    if ($GLOBALS['enable_follow_up_encounters']) {
         $symbol= ( !empty($result4['parent_encounter_id']) ) ? '<span class="fa fa-fw fa-undo" style="padding: 5px;"></span>' : null;
 
         echo "<td> ".$symbol." </td>\n";
@@ -821,7 +821,7 @@ while ($result4 = sqlFetchArray($res4)) {
     }
 
 
-    if ( $GLOBALS['enable_follow_up_encounters'] ) {
+    if ($GLOBALS['enable_follow_up_encounters']) {
         $encounterId= ( !empty($result4['parent_encounter_id']) ) ? $result4['parent_encounter_id'] : $result4['id'];
         echo "<td> <div style='z-index: 9999'>  <a href='#' class='css_button' onclick='createFollowUpEncounter(event,".$encounterId.")'><span>".xlt('Create follow-up encounter')."</span></a> </div></td>\n";
     }
