@@ -357,7 +357,7 @@ for ($idx=0; $idx<count($pagesizes); $idx++) {
     <th><?php echo xlt('Encounter type'); ?></th>
 <?php }?>
 
-<?php if ($GLOBALS['enable_recurring_encounters']) { ?>
+<?php if ($GLOBALS['enable_follow_up_encounters']) { ?>
     <th></th>
 <?php }?>
 
@@ -365,7 +365,7 @@ for ($idx=0; $idx<count($pagesizes); $idx++) {
     <th><?php echo xlt('Group name'); ?></th>
 <?php }?>
 
-<?php if ($GLOBALS['enable_recurring_encounters']) { ?>
+<?php if ($GLOBALS['enable_follow_up_encounters']) { ?>
     <th></th>
 <?php }?>
 
@@ -809,7 +809,7 @@ while ($result4 = sqlFetchArray($res4)) {
         echo "<td>" . xlt($encounter_type['pc_catname']) . "</td>\n";
     }
 
-    if ( $GLOBALS['enable_recurring_encounters'] ) {
+    if ( $GLOBALS['enable_follow_up_encounters'] ) {
         $symbol= ( !empty($result4['parent_encounter_id']) ) ? '<span class="fa fa-fw fa-undo" style="padding: 5px;"></span>' : null;
 
         echo "<td> ".$symbol." </td>\n";
@@ -821,9 +821,9 @@ while ($result4 = sqlFetchArray($res4)) {
     }
 
 
-    if ( $GLOBALS['enable_recurring_encounters'] ) {
+    if ( $GLOBALS['enable_follow_up_encounters'] ) {
         $encounterId= ( !empty($result4['parent_encounter_id']) ) ? $result4['parent_encounter_id'] : $result4['id'];
-        echo "<td> <div style='z-index: 9999'>  <a href='#' class='css_button' onclick='createRecurringEncounter(event,".$encounterId.")'><span>".xlt('Create recurring encounter')."</span></a> </div></td>\n";
+        echo "<td> <div style='z-index: 9999'>  <a href='#' class='css_button' onclick='createFollowUpEncounter(event,".$encounterId.")'><span>".xlt('Create recurring encounter')."</span></a> </div></td>\n";
     }
 
         echo "</tr>\n";
@@ -849,9 +849,9 @@ while ($drow /* && $count <= $N */) {
 
 <script language="javascript">
 // jQuery stuff to make the page a little easier to use
-function createRecurringEncounter(event,encId){
+function createFollowUpEncounter(event,encId){
     event.stopPropagation();
-    var data={encounterId:encId,mode:'recurring_encounter'};
+    var data={encounterId:encId,mode:'follow_up_encounter'};
     top.window.parent.newEncounter(data);
 }
 

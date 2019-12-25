@@ -290,14 +290,17 @@ if (!isset($_GET['attachid'])) {
  }
 
 
-// create new recurring Encounter.
-function createRecurringEncounter() {
+// create new follow-up Encounter.
+function createFollowUpEncounter() {
 
     <?php
-    $result =  sqlQuery("SELECT * FROM form_encounter WHERE pid = ? AND encounter = ?", array($_SESSION['pid'],$encounter));
-    $encounterId= ( !empty($result['parent_encounter_id']) ) ? $result['parent_encounter_id'] : $result['id'];
+    $result = sqlQuery("SELECT * FROM form_encounter WHERE pid = ? AND encounter = ?", array(
+        $_SESSION['pid'],
+        $encounter
+    ));
+    $encounterId = (!empty($result['parent_encounter_id'])) ? $result['parent_encounter_id'] : $result['id'];
     ?>
-    var data={encounterId:'<?php echo $encounterId; ?>',mode:'recurring_encounter'};
+    var data = {encounterId: '<?php echo $encounterId; ?>', mode: 'follow_up_encounter'};
     top.window.parent.newEncounter(data);
 }
 
@@ -766,8 +769,8 @@ if ($esign->isButtonViewable()) {
     <a href='#' class='css_button' onclick='return deleteme()'><span><?php echo xlt('Delete') ?></span></a>
 <?php } ?>
 
-<?php if ($GLOBALS['enable_recurring_encounters']) { ?>
-    <a href='#' class='css_button' onclick='return createRecurringEncounter()'><span><?php echo xlt('Create recurring encounter') ?></span></a>
+<?php if ($GLOBALS['enable_follow_up_encounters']) { ?>
+    <a href='#' class='css_button' onclick='return createFollowUpEncounter()'><span><?php echo xlt('Create follow-up encounter') ?></span></a>
 <?php } ?>
 &nbsp;&nbsp;&nbsp;<a href="#" onClick='expandcollapse("expand");' style="font-size:80%;"><?php echo xlt('Expand All'); ?></a>
 &nbsp;&nbsp;&nbsp;<a  style="font-size:80%;" href="#" onClick='expandcollapse("collapse");'><?php echo xlt('Collapse All'); ?></a>

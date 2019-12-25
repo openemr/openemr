@@ -36,7 +36,7 @@ $reason           = (isset($_POST['reason']))               ? $_POST['reason'] :
 $mode             = (isset($_POST['mode']))                 ? $_POST['mode'] : '';
 $referral_source  = (isset($_POST['form_referral_source'])) ? $_POST['form_referral_source'] : '';
 $pos_code         = (isset($_POST['pos_code']))             ? $_POST['pos_code'] : '';
-$parent_enc_id    = (isset($_POST['parent_enc_id']))       ? $_POST['parent_enc_id'] : null;
+$parent_enc_id    = (isset($_POST['parent_enc_id']))        ? $_POST['parent_enc_id'] : null;
 
 
 //save therapy group if exist in external_id column

@@ -793,11 +793,11 @@ $GLOBALS_METADATA = array(
             xl('Define a default visit category'),
         ),
 
-        'enable_recurring_encounters' => array(
-            xl('Enable recurring encounters'),
+        'enable_follow_up_encounters' => array(
+            xl('Enable follow-up encounters'),
             'bool',
             '0',
-            xl('Enable recurring encounters feature')
+            xl('Enable follow-up encounters feature')
         ),
 
         'disable_eligibility_log' => array(

@@ -214,17 +214,16 @@ function clickNewGroupEncounter(data,evt)
     newTherapyGroupEncounter();
 }
 
-function newEncounter(data,evt)
-{
-    var url='';
-    if(typeof(data)==="object" && data.mode==="recurring_encounter" ){
-        url=webroot_url+'/interface/forms/newpatient/new.php?mode=rec&enc='+data.encounterId+'&autoloaded=1&calenc=';
+function newEncounter(data, evt) {
+    var url = '';
+    if (typeof(data) === "object" && data.mode === "follow_up_encounter") {
+        url = webroot_url + '/interface/forms/newpatient/new.php?mode=rec&enc=' + data.encounterId + '&autoloaded=1&calenc=';
     }
-    else{
-        url=webroot_url+'/interface/forms/newpatient/new.php?autoloaded=1&calenc=';
+    else {
+        url = webroot_url + '/interface/forms/newpatient/new.php?autoloaded=1&calenc=';
     }
     navigateTab(url, "enc", function () {
-        activateTabByName("enc",true);
+        activateTabByName("enc", true);
     });
 
 }
