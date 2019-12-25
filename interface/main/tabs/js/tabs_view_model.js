@@ -217,7 +217,7 @@ function clickNewGroupEncounter(data,evt)
 function newEncounter(data, evt) {
     var url = '';
     if (typeof(data) === "object" && data.mode === "follow_up_encounter") {
-        url = webroot_url + '/interface/forms/newpatient/new.php?mode=rec&enc=' + data.encounterId + '&autoloaded=1&calenc=';
+        url = webroot_url + '/interface/forms/newpatient/new.php?mode=followup&enc=' + data.encounterId + '&autoloaded=1&calenc=';
     }
     else {
         url = webroot_url + '/interface/forms/newpatient/new.php?autoloaded=1&calenc=';
