@@ -66,7 +66,7 @@ if ($_POST['confirm']) {
 <html>
 
 <head>
-<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog' ]); ?>
+<?php Header::setupHeader(); ?>
 </head>
 
 <body class="body_top">

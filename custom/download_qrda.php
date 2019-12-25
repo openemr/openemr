@@ -37,7 +37,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
 <html>
 
 <head>
-<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'common', 'opener', 'jquery-ui']); ?>
+<?php Header::setupHeader(['common', 'opener', 'jquery-ui']); ?>
 
 <script language="JavaScript">
     var reportID = <?php echo js_escape($report_id); ?>;

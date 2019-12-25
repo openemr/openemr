@@ -323,7 +323,7 @@ function saveImmunizationObservationResults($id, $immunizationdata)
 <html>
 <head>
 
-<?php Header::setupHeader(['no_bootstrap', 'datetime-picker', 'jquery-ui', 'jquery-ui-base']); ?>
+<?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-base']); ?>
 
 <style>
 .highlight {

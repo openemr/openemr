@@ -37,7 +37,7 @@ if ($obj['date_of_signature'] != "") {
 <html><head>
 <title><?php echo "Form: note"?></title>
 
-<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog']); ?>
+<?php Header::setupHeader(); ?>
 
 </head>
 <body class="body_top">

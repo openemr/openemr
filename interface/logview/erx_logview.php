@@ -71,7 +71,7 @@ if ($filename) {
 ?>
 <html>
     <head>
-        <?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'datetime-picker']); ?>
+        <?php Header::setupHeader('datetime-picker'); ?>
 
         <script language="JavaScript">
             $(function(){
