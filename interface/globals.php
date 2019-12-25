@@ -258,25 +258,10 @@ require_once(dirname(__FILE__) . "/../version.php");
 //    - TRACE is useful when debugging hard to spot bugs
 $GLOBALS["log_level"] = "OFF";
 
-// @TODO This needs to be broken out to it's own function, but for time's sake
-// @TODO putting it here until we land on a good place. RD 2017-05-02
-$twigOptions = [
-    'debug' => false,
-];
-$twigLoader = new Twig_Loader_Filesystem();
-$twigEnv = new Twig_Environment($twigLoader, $twigOptions);
-if (array_key_exists('debug', $twigOptions) && $twigOptions['debug'] == true) {
-    $twigEnv->addExtension(new Twig_Extension_Debug());
-}
-$twigEnv->addGlobal('assets_dir', $GLOBALS['assets_static_relative']);
-$twigEnv->addGlobal('srcdir', $GLOBALS['srcdir']);
-$twigEnv->addGlobal('rootdir', $GLOBALS['rootdir']);
-$twigEnv->addFilter(new Twig_SimpleFilter('translate', function ($string) {
-    return xl($string);
-}));
-/** Twig_Loader */
-$GLOBALS['twigLoader'] = $twigLoader;
-/** Twig_Environment */
+// Load twig support
+$twigLoader = new Twig\Loader\FilesystemLoader($webserver_root.'/templates');
+$twigEnv = new Twig\Environment($twigLoader, ['autoescape' => false]);
+$twigEnv->addExtension(new OpenEMR\Core\TwigExtension());
 $GLOBALS['twig'] = $twigEnv;
 
 try {
