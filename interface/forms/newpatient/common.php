@@ -35,7 +35,7 @@ $years = array($thisyear-1, $thisyear, $thisyear+1, $thisyear+2);
 
 $mode = (!empty($_GET['mode'])) ? $_GET['mode'] : null;
 
-// "follow" mode is relevant when enable follow up encounters global is enabled
+// "followup" mode is relevant when enable follow up encounters global is enabled
 // it allows the user to duplicate past encounter and connect between the two
 // under this mode the facility and the visit category will be same as the origin and in readonly
 if ($mode === "followup") {
