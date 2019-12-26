@@ -47,7 +47,7 @@ addons:
       sudo chmod 666 sites/default/sqlconf.php
       sudo chown -R www-data:www-data sites/default/documents
       sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php
-      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "php -f /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAutoTemp.php rootpass=root loginhost=%"
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "php -f /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=%"
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "rm -f /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAutoTemp.php"
       echo "------------------------"
       echo "Turn on the api to allow api testing"
