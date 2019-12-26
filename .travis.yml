@@ -47,11 +47,11 @@ addons:
       sudo chmod 666 sites/default/sqlconf.php
       sudo chown -R www-data:www-data sites/default/documents
       sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php
-      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "php -f /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=openemr"
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "php -f /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=%"
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "rm -f /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAutoTemp.php"
       echo "------------------------"
       echo "Turn on the api to allow api testing"
-      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "mysql -u openemr --password='openemr' -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = \'rest_api\'' openemr"
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_api\"" openemr'
       echo "------------------------"
       echo "Prepare for testing"
       composer require --dev "phpunit/phpunit=8.*"
