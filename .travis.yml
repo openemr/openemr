@@ -44,11 +44,9 @@ addons:
       cd ../
       echo "------------------------"
       echo "Install/configure active openemr instance"
-      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "chmod 666 /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php"
-      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "chown -R apache /var/www/localhost/htdocs/openemr/"
-      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "find /var/www/localhost/htdocs/openemr/sites/default/documents -type d -print0 | xargs -0 chmod 700"
-      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "find /var/www/localhost/htdocs/openemr/sites/default/documents -type f -print0 | xargs -0 chmod 700"
-      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "sed -e 's@^exit;@ @' < /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAuto.php > /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAutoTemp.php"
+      sudo chmod 666 sites/default/sqlconf.php
+      sudo chown -R www-data:www-data sites/default/documents
+      sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "php -f /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAutoTemp.php rootpass=root loginhost=%"
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "rm -f /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAutoTemp.php"
       echo "------------------------"
