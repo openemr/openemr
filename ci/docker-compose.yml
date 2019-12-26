@@ -5,8 +5,6 @@ services:
     restart: always
     image: mariadb:10.4
     command: ['mysqld','--character-set-server=utf8']
-    ports:
-    - 8320:3306
     environment:
       MYSQL_ROOT_PASSWORD: root
   openemr:
