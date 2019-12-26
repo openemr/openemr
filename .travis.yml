@@ -44,6 +44,7 @@ addons:
       cd ../
       echo "------------------------"
       echo "Install/configure active openemr instance"
+      docker ps -a
       docker exec -i ci_openemr_1 sh -c "chmod 666 /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php"
       docker exec -i ci_openemr_1 sh -c "chown -R apache /var/www/localhost/htdocs/openemr/"
       docker exec -i ci_openemr_1 sh -c "find /var/www/localhost/htdocs/openemr/sites/default/documents -type d -print0 | xargs -0 chmod 700"
