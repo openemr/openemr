@@ -32,8 +32,8 @@
     detail.init();
 </script>
 
-<div class="container">
-    <div class="row">
+<div class="row">
+
         <div class="col-12">
             <div class="header">
                 <div class="title"><?php echo xlt('Clinical Reminder'); ?>: <i class="red"><?php echo xlt($rule->title); ?></i>  </div>
@@ -102,12 +102,27 @@
                                             $timing = "<div><span class='bolder red'>This is a Clinical Alert!</span></div>";
                                         }
                                         if ($rule->hasRuleType(RuleType::from('activealert')) && $rule->hasRuleType(RuleType::from('passivealert'))) {
-                                            $timing .= "<div class='indent10'>This CR has both an <span class='bold' data-toggle='popover' title='Active Alerts' data-content='A Pop-up will occur when the demographics page is opened.'>Active Alert</span> (pop-up) and a <span class='bold' data-toggle='popover' title='Passive Alerts' data-content='These alerts appear inside the CR widget.  There is a Global setting to create a Pop-up for Passive alerts also.'>Passive Alert</span>
-                                                (in the <a href='#' data-toggle='popover' data-trigger='hover' data-placement='auto' title='Clinical Reminders Widget(CR)' data-content='The CR Widget is located on the demographics page.'>CR Widget</a>).";
+                                            $timing .= "<div class='indent10'>".xlt('This CR has both an')."
+                                                            <span class='bold'
+                                                                  data-toggle='popover'
+                                                                  data-trigger='hover'
+                                                                  data-placement='auto'
+                                                                  title='Active Alerts'
+                                                                  data-content='".xla('A Pop-up will occur when the demographics page is opened').".'>".xlt('Active Alert')."</span>
+                                                            ".xlt('and a')."
+                                                            <span class='bold'
+                                                                  data-toggle='popover'
+                                                                  data-toggle='popover'
+                                                                  data-trigger='hover'
+                                                                  data-placement='auto'
+                                                                  title='".xla('Passive Alerts')."'
+                                                                  data-content='".xla('These alerts appear on the Dashboard page inside the CR widget').".'>
+                                                                  ". xlt('Passive Alert').".<br />
+                                                            </span>";
                                             // Look at Custom input in actions to see if true.  How do we find that in this OOP goop?  Help Brady please...
-                                            $timing .=" If any Treatment Goal in this CR needs to be marked 'Completed', a link in the CR widget will open a pop-up to do this and/or add a note.<br />";
-                                            $timing .= "After ".$timings['clinical']['pre']['amount'] . " " . $timings['clinical']['pre']['timeUnit2'] . ", this CR is marked Due.<br />";
-                                            $timing .= "After ".$timings['clinical']['post']['amount'] . " " . $timings['clinical']['post']['timeUnit2'] . ", this CR will be marked as Past Due.<br />";
+                                            //$timing .=" If any Treatment Goal in this CR needs to be marked 'Completed', a link in the CR widget will open a pop-up to do this and/or add a note.<br />";
+                                            $timing .= $timings['clinical']['pre']['amount'] . " " . $timings['clinical']['pre']['timeUnit2'] . " before its Due date, this CR is marked Due Soon.<br />";
+                                            $timing .= $timings['clinical']['post']['amount'] . " " . $timings['clinical']['post']['timeUnit2'] . " after its Due date, this CR will be marked as Past Due.<br />";
                                             $timing .= "</div>";
                                         } elseif ($rule->hasRuleType(RuleType::from('activealert'))) {
                                             $timing .= "<div class='indent10'>An <span class='bold'>Active Alert</span> will pop-up when the chart is opened.</div>";
@@ -174,23 +189,31 @@
                             <td class="text-right">
                                 <span class="underline"><?php echo xlt('Release'); ?>:</span></td>
                             <td><?php echo text($rule->release); ?></td>
-                            <td class="text-right">
+                            <td class="text-right underline">
                                 <span data-toggle='popover'
                                       title='Reference'
                                       data-html="true"
                                       data-trigger='hover'
-                                      data-placement='right'
-                                      data-content='References appear in the Dashboard CR widget as <i class="fa fa-link"></i>.  This is clickable link, taking you to the url added here.
+                                      data-placement='auto'
+                                      data-content='When present, References appear in the Dashboard CR widget as <i class="fa fa-link text-primary"></i>.
+                                      <hr>
+                                      <img width="250px" class="table-bordered" src="<?php echo $GLOBAL['webroot'];?>/interface/super/rules/www/CR_widget.png">
+                                      <hr>This clickable link leads to the url specified here.
                                       It is suggested to link out to relevant clinical information, perhaps a government publication explaining why this CR exists.
-                                      However, you can link to anything desired.
-                                      <img width="250px" src="<?php echo $GLOBAL['webroot'];?>/interface/super/rules/www/CR_widget.png">'>
-                                    <span class="underline"> <i class="fa fa-link"></i> <?php echo xlt('Reference'); ?>:</span>
+                                      However, you can link to anything desired. <?php
+                                      if ($rule->web_ref) {
+                                          echo xla('Currently this reference links to '). attr($rule->web_ref);
+                                      } else {
+                                          echo xla('Currently this reference does not link to anything.');
+                                      } ?>
+                                      '>
+                                    <i class="fa fa-link"></i> <?php echo xlt('Reference'); ?>:</span>
                                 </span>
                             </td>
                             <td><a href="<?php echo attr($rule->web_ref); ?>"><?php
                                  if ($rule->web_ref) {
-                                     $in = attr($rule->title);
-                                     echo strlen($in) > 30 ? substr($in, 0, 30) . "..." : $in;
+                                     $in = attr($rule->web_ref);
+                                     echo strlen($in) > 30 ? substr($in, 0, 25) . "..." : $in;
                                  } else {
                                      echo "None";
                                  }
@@ -205,8 +228,12 @@
                                       data-placement='auto'
                                       data-content='The text here will be displayed in the CR widget via a tooltip.
                                         Use it to describe to your staff what this CR means.
-                                        Note the text of the CR is also a link, either to a pop-up for a note/completion, or to an external link.
-                                        This value is set separately for each Treatment Goal and is defined in the last step of this process (see PROMPTING YOU TO DO THIS below). '>
+                                        <hr>
+                                        <img width="250px" src="<?php echo $GLOBAL['webroot'];?>/interface/super/rules/www/CR_tooltip.png">
+                                        <hr>
+                                        In the CR widget, the CR name carrying this tooltip is also a clickable link.  This link leads to either a pop-up (add a note and/or mark the task completed), or to an external link.
+                                        This link is set separately from the Reference link.  Each Treatment Goal can have a unique link that is defined in the last step of this process
+                                        (see PROMPTING YOU TO DO THIS below). '>
                                     <span class="underline"><?php echo xlt('Description'); ?></span>:
                                 </span>
                             </td>
@@ -220,13 +247,6 @@
         </div>
         <div class="col-6" id="show_summary_edit" style="display: none;">
             <div class="section row">
-                <button
-                        class="btn-sm btn-primary icon_2"
-                        id="show_intervals_help"
-                        data-toggle="modal" data-target="#help_intervals"
-                        title="Open the Help:: Actions Modal"><i class="fa fa-clock-o"></i>
-                </button>
-
                 <button class="btn-sm btn-primary icon_1"
                         id="save_summary"
                         title="<?php echo xla('Refresh'); ?>"><i class="fa fa-refresh"> <?php //echo xlt('Save'); ?></i>
@@ -406,8 +426,7 @@
                     }
                 ?>
                 <div class="col-12">
-                    <button type="button"
-                            id="new_group_<?php echo (int)($nextGroupId);?>"
+                    <span id="new_group_<?php echo (int)($nextGroupId);?>"
                             class="btn-sm btn-primary icon_2"
                             data-toggle='popover'
                             data-trigger="hover"
@@ -422,9 +441,8 @@
                             Remember each Treatment Goal is displayed separately in the Dashboard's CR widget
                             and each can trigger a separate Active Alert.  Be wary of Alert Fatigue!
                             If you wish to fire multiple Alerts for a Targeted group, consider using Care Plans to combine Alerts.
-                            Expert use only...</span>"
-                            title='<?php echo xla('Add New Group'); ?>'><i class="fa fa-plus"></i>
-                    </button>
+                            Expert use only...</span>"><i class="fa fa-plus"></i>
+                    </span>
                     <button type="button"
                             class="btn-sm btn-primary icon_1"
                             data-toggle="modal" data-target="#help_targets"
@@ -443,8 +461,29 @@
                                         class="btn-sm btn-primary icon_2"
                                         title='<?php echo xla('Add New Target'); ?>'><i class="fa fa-plus"></i>
                                 </button>
-                                <button
+                                <button type="button"
+                                        data-toggle='modal'
+                                        data-placement="auto left"
+                                        data-html="true"
+                                        data-content="<span class='text-justify'>Having narrowed your target group of patients in <span class='bold'>Step 1</span>,
+                            now in <span class='bold'>Step 2</span> you need to look for an item.
+                            If present, an alert fires prompting you to do something, usually a Treatment Goal.
+                            Most CRs only need to reference one Treatment Goal.
+                            You can create multiple <span class='bold'>Step 2</span> criteria for a given group of patients identified in <span class='bold'>Step 1</span>.
+                            Remember each Treatment Goal is displayed separately in the Dashboard's CR widget
+                            and each can trigger a separate Active Alert.  Be wary of Alert Fatigue!
+                            If you wish to fire multiple Alerts for a Targeted group, consider using Care Plans to combine Alerts.
+                            Expert use only...</span>"
+
                                         class="btn-sm btn-primary icon_1"
+                                        id="show_intervals_help"
+                                        data-target="#help_intervals"
+                                        title="Open the Help:: Actions Modal"><i class="fa fa-clock-o"></i>
+                                </button>
+
+
+                                <button
+                                        class="btn-sm btn-primary icon_1A"
                                         id="show_actions_help"
                                         data-toggle="modal" data-target="#help_alerts"
                                         title="Open the Help:: Actions Modal"><i class="fa fa-question"></i>
@@ -585,7 +624,6 @@
                                         <?php
                                             $actions = $group->ruleActions;
                                             
-                                            if ($actions) {
                                             if ($actions->actions) {
                                                 
                                                 foreach ($actions->actions as $action) {   ?>
@@ -633,15 +671,15 @@
                                                 </tr>
                                                 <?php
                                             }
-                                            }
-                                        // iteration over groups ?>
+                                        ?>
                                     </table>
                                 </div>
                                 <div class="col-12" id="show_actions_edit_<?php echo xla($group->groupId); ?>"></div>
                             </div>
                         </div>
                         <?php
-                    } ?>
+                    } // iteration over groups
+                ?>
                 <div class="row col-12" id="show_group_<?php echo xla($nextGroupId); ?>">
                     <div class="col-6 inline row">
                         <button type="button"
@@ -649,8 +687,29 @@
                                 class="btn-sm btn-primary icon_2"
                                 title='<?php echo xla('Add New Target'); ?>'><i class="fa fa-plus"></i>
                         </button>
-                        <button
+                        <button type="button"
+                                data-toggle='popover'
+                                data-trigger="hover"
+                                data-placement="auto left"
+                                data-html="true"
+                                data-content="<span class='text-justify'>Having narrowed your target group of patients in <span class='bold'>Step 1</span>,
+                            now in <span class='bold'>Step 2</span> you need to look for an item.
+                            If present, an alert fires prompting you to do something, usually a Treatment Goal.
+                            Most CRs only need to reference one Treatment Goal.
+                            You can create multiple <span class='bold'>Step 2</span> criteria for a given group of patients identified in <span class='bold'>Step 1</span>.
+                            Remember each Treatment Goal is displayed separately in the Dashboard's CR widget
+                            and each can trigger a separate Active Alert.  Be wary of Alert Fatigue!
+                            If you wish to fire multiple Alerts for a Targeted group, consider using Care Plans to combine Alerts.
+                            Expert use only...</span>"
+
                                 class="btn-sm btn-primary icon_1"
+                                id="show_intervals_help"
+                                data-toggle="modal" data-target="#help_intervals"
+                                title="Open the Help:: Actions Modal"><i class="fa fa-clock-o"></i>
+                        </button>
+
+                        <button
+                                class="btn-sm btn-primary icon_1A"
                                 id="show_actions_help"
                                 data-toggle="modal" data-target="#help_alerts"
                                 title="Open the Help:: Actions Modal"><i class="fa fa-question"></i>
@@ -705,8 +764,6 @@
                     </div>
                 </div>
             </div>
-
-    </div>
 
     <!-- Help Modals -->
     <div id="help_alerts" class="modal" tabindex="-1" role="dialog">
@@ -802,14 +859,14 @@
                     </div>
                     <div class="col-12">
                         <p>A Clinical Reminder usually looks for one item and if found, triggers an alert asking you to perform one task.
-                            For example, if they are diabetic, they need an eye exam annually.
-                            Once you document that it occurred, the alert stops until next year.</p>
+                            For example, diabetic patients need an eye exam annually.
+                            Once you document that the exam occurred, the alert stops until next year.</p>
                         <p>A CR may also look for one item and if found, trigger an alert until something is documented in the patient's chart.
                             For example, on each visit the blood pressure must be documented.
                             Once the BPs, both systolic and diastolic, are added to the record, the Alert stops until next visit.</p>
                         <p>Expert users will find they can create very complex Clinical Reminders, sorting the target patient group
                             along highly specific criteria.  Even more complexity can be added because a single CR can trigger multiple
-                            Alerts, each pointing to a different Treatment Goal.  While this approach is available, consider deploying Care Plan Sets instead.
+                            Alerts, with multiple Treatment Goals.  While this approach is available, consider deploying Care Plan Sets instead.
                             They combine multiple Clinical Reminders into logical groups more effectively.</p>
                     </div>
                     <div class="col-12">
@@ -818,34 +875,13 @@
                     <div class="col-12">
                         <ol>
                             <li> <span class="bold">Active alerts</span> generate a popup, but do not appear in the CR widget.</li>
-                            <ul>
-                                <li>A CR that is only an Active Alert will popup as requested, then stop when it is past due.</li>
-                            </ul>
                             <li> <span class="bold">Passive alerts</span> only appear in the CR widget.</li>
-                            <ul>
-                                <li>The only way to mark a CR as complete is through the CR widget.</li>
-                                <li>Ergo, If you want a popup alert that can be marked complete, it needs to be both active and passive.</li>
-                                <li>If a simple pop-up is desired, enable the <b>Enable Clinical Passive New Reminder(s) Popup</b> Global.  Doing this for a CR that is both Active and Passive will result in <b>two</b> pop-up alerts back-to-back (not recommended).</b></li>
-                            </ul>
-                            <li> <span class="bold">Patient Reminders</span> -- If this CR is triggered, a reminder for the patient is queued based on the patient’s HIPAA preferences (found in the Contact tab of the Demographics page)</li>
-                            <?php
+                            <li> <span class="bold">Patient Reminders</span> -- If this CR is triggered, a reminder can be sent to the patient
+                                <?php
                                 if ($GLOBALS['medex_enable']==1) {?>
                                     <li> <span class="bold">Provider Alerts</span> -- If this CR is triggered, a message will be sent to a provider</li>
                                 <?php } ?>
                         </ol>
-                    </div>
-                    <div class="col-12">
-                        <span class="title2"><?php echo xlt('Reference'); ?>:</span>
-                    </div>
-                    <div class="col-10 offset-1">
-                        <div class="indent10">References appears in the Dashboard CR widget as <i class="fa fa-link"></i> and can link to:</div>
-                        <ul>
-                            <li> a help file for this Clinical Reminder </li>
-                            <li> a developer's/support website</li>
-                            <li> an official published guideline</li>
-                            <li> a mail program</li>
-                            <li> anything you can imagine or develop</li>
-                        </ul>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -980,16 +1016,152 @@
         </div>
     </div>
     <div id="help_intervals" class="modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title title"><?php echo xlt('When this Clinical Reminder is triggered'); ?>:</h5>
+                    <h5 class="modal-title title"><?php echo xlt('When is this Clinical Reminder triggered'); ?>:</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
                 </div>
-                <div class="modal-body row">
+                <div class="modal-body container">
+                    <div class="row">
+                        <div class="col-12 text-center"><h5><?php echo xlt('In Step 2, we define the Reminder\'s criteria: what needs to happen and how often should it recur'); ?>.</h5></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-10 offset-1 text-center title2 "> TIME ----------&gt;</div>
+                        
+                        <div class="col-1 offset-1 text-right bold">Event --&gt;X</div>
+                        <div class="col-5 alert-success text-center text-nowrap"><h5>How often should this occur for a given patient?</h5></div>
+                        <div class="col-5 bold text-left"><h5 style="position:relative;left:-20px;">X &lt;-- Due Date</h5></div>
+
+                        <div class="col-1 text-center offset-1 alert-info">X</div>
+                        <div class="col-3"></div>
+                        <div class="col-2 alert-warning text-center"><span class="underline">Warning Period</span><br />
+                            <?php echo xlt('an interval of time').' <span class="bold">'.xlt('before').'</span> '.xlt('the due date'); ?>
+                        </div>
+                        <div class="col-2 text-center alert-primary"><span class="underline">Due Period</span><br />
+                            <?php echo xlt('an interval of time');?>
+                            <span class="bold"><?php echo xlt('from');?></span> <?php echo xlt(' the due date onward'); ?>
+                        </div>
+                        <div class="col-2 text-center alert-danger text-nowrap"><span class="underline"> Over Due Period</span> -----&gt;</div>
+                        <div class="col-1"></div>
+
+                        <div class="col-11 offset-1 text-center">&nbsp;</div>
+
+                        <div class="col-2 offset-5 alert-warning text-center bold tight">
+                            <input data-grp-tgt="clinical"
+                                   type="text"
+                                   id="clinical-pre"
+                                   value="<?php echo attr($timings['clinical']['pre']['amount']); ?>">
+                            <?php
+                                echo  generate_select_list(
+                                    "clinical",
+                                    "rule_reminder_intervals",
+                                    $timings['clinical']['pre']['timeUnit']."",
+                                    "clinical-pre-timeunit",
+                                    '',
+                                    'small',
+                                    '',
+                                    "clinical-pre-timeunit",
+                                    array( "data-grp-tgt" => "clinical" ));
+                            ?>
+                        </div>
+                        <div class="col-2 text-center alert-primary bold tight"><input data-grp-tgt="clinical" type="text" id="clinical-post" value="<?php echo attr($timings['clinical']['pre']['amount']); ?>">
+                            <?php
+                                echo  generate_select_list(
+                                    "clinical",
+                                    "rule_reminder_intervals",
+                                    $timings['clinical']['post']['timeUnit']."",
+                                    'clinical-post-timeunit',
+                                    '',
+                                    'small',
+                                    "",
+                                    "clinical-post-timeunit",
+                                    array( "data-grp-tgt" => "clinical" ));
+                            ?></div>
+                        <div class="col-2 text-center alert-danger text-nowrap"><span style="position:relative;left:-20px;"> </div>
+                        <div class="col-1"></div>
+
+                        
+                        <div class="col-2 text-center offset-3 text-right title3">Passive Alerts: </div>
+                        <div class="col-2 alert-warning text-center">Marked as <span class="red">Due soon</span><br /> in CR widget</div>
+                        <div class="col-2 text-center alert-primary">Marked as <span class="red">Due</span><br /> in CR widget</div>
+                        <div class="col-2 text-center alert-danger text-nowrap">Marked as <span class="red">Past Due</span><br /> in CR widget</div>
+                        <div class="col-1"></div>
+
+                        
+                        <div class="col-2 text-center offset-3 text-right title3">Active Alerts: </div>
+                        <div class="col-2 alert-warning text-center align-text-bottom"><br />Fire/Pop-up</div>
+                        <div class="col-2 text-center alert-primary align-text-bottom"><br />until </div>
+                        <div class="col-2 text-center alert-danger align-text-bottom"><br />satisfied</div>
+                        <div class="col-1"></div>
+
+                        <div class="col-11 offset-1 text-center">&nbsp;</div>
+
+                        
+                        <div class="col-2 text-center offset-3 text-right title3">Patient Reminders: </div>
+                        <div class="col-2 alert-warning text-center"><span class="tight"><input data-grp-tgt="patient" type="text" id="patient-pre" value="<?php echo attr($timings['patient']['pre']['amount']); ?>">
+                        <?php
+        
+                            /*generate_select_list(
+                                $tag_name,
+                                $list_id,
+                                $currvalue,
+                                $title,
+                                $empty_name = ' ',
+                                $class = '',
+                                $onchange = '',
+                                $tag_id = '',
+                                $custom_attributes = null,
+                                $multiple = false,
+                                $backup_list = ''
+                            */
+                            echo  generate_select_list(
+                                "patient",
+                                "rule_reminder_intervals",
+                                $timings['patient']['pre']['timeUnit']."",
+                                'patient-pre-timeunit',
+                                '',
+                                'small',
+                                "",
+                                "patient-pre-timeunit",
+                                array( "data-grp-tgt" => "patient" ));
+                        ?></span><br />
+                                    <?php echo xlt('If configured, a Message is sent informing the patient there is a Treatment Goal coming due soon.'); ?>*
+                            </div>
+                        <div class="col-2 text-center alert-primary">
+                            <?php echo xlt('If you have a Due message configured, it will be sent on the due date'); ?>*.</span>
+                        </div>
+                        <div class="col-2 alert-danger"><span class="tight">
+                            <input data-grp-tgt="patient" type="text" id="patient-post" value="<?php echo attr($timings['patient']['post']['amount']); ?>">
+                                <?php echo $timings['patient']['post']['timeunit'];
+                                    echo  generate_select_list(
+                                        "patient",
+                                        "rule_reminder_intervals",
+                                        $timings['patient']['post']['timeUnit']."",
+                                        "patient-post-timeunit",
+                                        '',
+                                        'small',
+                                        '',
+                                        "patient-post-timeunit",
+                                        array( "data-grp-tgt" => "patient" ));
+                                ?></span><br />
+                            <?php echo xlt('If you have an over-due message configured for this CR, it will be sent this long after the due date'); ?>*</span>
+                        </div>
+
+
+                    </div>
+                    <div class="row">
+                        <div class="col-10 offset-2 text-center small">
+                             *   <?php echo xlt('Currently the only Patient Reminder message available in OpenEMR is the "Due" message'); ?>.<br />
+                            <?php echo xlt('Due messages are sent out after you actively initiate the "Process Reminders" task.'); ?>
+                        </div>
+                    </div>
+                            
+                            <!--   <div class="row nodisplay">
+
                     <div class="col-12">
 
-                        <table class="table-100 tight" cellpadding="2">
+                        <table class="table-100" cellpadding="2">
                             <thead>
                             <tr>
                                 <td class="title3">
@@ -1001,12 +1173,13 @@
                                            title='Alert Intervals'
                                            data-content='There are three timing intervals:
                                            <ol>
-                                                <li>CR is first triggered and extends until 2nd interval</li>
-                                                <li>Period from interval 2 until interval 3</li>
-                                                <li>Interval 3, time since CR began and beyond</li>
+                                                <li>The warning time - an interval of time <span class="bold">before</span> the due date where the CR is considered "Due soon"</li>
+                                                <li>The actual due date - an interval of time which extends from the "Due" date until the CR is considered Past due</li>
+                                                <li>The Past Due interval - an interval of time <span class="bold">after</span> the Due date. After this interval the CR is considered "Past Due"</li>
                                             </ol>'><?php echo xlt('Intervals'); ?></span>
 
                                 </td>
+                                <td class="title3">Timeline</td>
                                 <td class="title3">
                                     <span data-toggle='popover'
                                           data-trigger="hover"
@@ -1031,61 +1204,30 @@
                             </thead>
                             <tbody class="text-center tight">
                             <tr>
-                                <td class="text-center"><br />
-                                    <span class="title4"><?php echo xlt('CR is triggered'); ?>:<br /><?php echo xlt('Timer begins');?></span>
-                                </td>
+                                <td class="alert-warning"> <?php echo xlt('Warning Period'); ?><br />
+ <?php echo xlt('an interval of time').' <span class="bold">'.xlt('before').'</span> '.xlt('the due date'); ?> </td>
+                                
                                 <td>
-                                    <?php echo xlt('Begins firing'); ?>
-                                </td>
-                                <td>
-                                    <?php echo xlt('Appears in widget as Due soon'); ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td> <i class="fa fa-plus"></i>
-                                    <input data-grp-tgt="clinical"
-                                           type="text"
-                                           id="clinical-pre"
-                                           value="<?php echo attr($timings['clinical']['pre']['amount']); ?>">
-                                    <?php
-                                        echo  generate_select_list(
-                                            "clinical",
-                                            "rule_reminder_intervals",
-                                            $timings['clinical']['pre']['timeUnit']."",
-                                            "clinical-pre-timeunit",
-                                            '',
-                                            'small',
-                                            '',
-                                            "clinical-pre-timeunit",
-                                            array( "data-grp-tgt" => "clinical" ));
-                                    ?>
-                                </td>
-                                <td class="text-center tight" nowrap>
-                                    Pop-ups stop
-                                </td>
-                                <td class="text-center tight" nowrap>
-                                    Marked as Due in CR widget
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-center tight">
-                                    <i class="fa fa-plus"></i>
-                                    <input data-grp-tgt="clinical" type="text" id="clinical-post" value="<?php echo attr($timings['clinical']['pre']['amount']); ?>">
-                                    <?php
-                                        echo  generate_select_list(
-                                            "clinical",
-                                            "rule_reminder_intervals",
-                                            $timings['clinical']['post']['timeUnit']."",
-                                            'clinical-post-timeunit',
-                                            '',
-                                            'small',
-                                            "",
-                                            "clinical-post-timeunit",
-                                            array( "data-grp-tgt" => "clinical" ));
-                                    ?>
+                                    <?php echo xlt('Pops-up'); ?>
                                 </td>
                                 <td class="text-center">
-                                    --
+                                    <span class="titl"><?php echo xlt('Marked as Due Soon in CR widget'); ?></span>
+                                </td>
+
+                               
+                            </tr>
+                            <tr>
+                                <td class="alert-primary"> <?php echo xlt('Due Period'); ?> </td>
+
+                                
+                            <tr>
+                                <td class="alert-danger"><?php echo xlt('Over due Period'); ?></td>
+
+                                <td class="text-center tight">
+                                    <h6>Any time after the Due Period ends</h6>
+                                </td>
+                                <td class="text-center">
+                                    Active Alert Stops
                                 </td>
                                 <td class="text-center">
                                     Marked as <span class="red">Past Due</span> in CR widget
@@ -1103,33 +1245,7 @@
                             <tr>
                                 <td class="text-center tight" nowrap>
                                     <i class="fa fa-plus"></i>
-                                    <input data-grp-tgt="patient" type="text" id="patient-pre" value="<?php echo attr($timings['patient']['pre']['amount']); ?>">
-                                    <?php
-                                        
-                                        /*generate_select_list(
-                                            $tag_name,
-                                            $list_id,
-                                            $currvalue,
-                                            $title,
-                                            $empty_name = ' ',
-                                            $class = '',
-                                            $onchange = '',
-                                            $tag_id = '',
-                                            $custom_attributes = null,
-                                            $multiple = false,
-                                            $backup_list = ''
-                                        */
-                                        echo  generate_select_list(
-                                            "patient",
-                                            "rule_reminder_intervals",
-                                            $timings['patient']['pre']['timeUnit']."",
-                                            'patient-pre-timeunit',
-                                            '',
-                                            'small',
-                                            "",
-                                            "patient-pre-timeunit",
-                                            array( "data-grp-tgt" => "patient" ));
-                                    ?>
+                                    
                                 </td>
                                 <td>Reminder is sent</td>
                                 <td>Alert is sent</td>
@@ -1163,34 +1279,7 @@
                         </table>
 
                     </div>
-                    <!--
-                    <div id="required_msg" class="small">
-                        <span class="required">*</span><?php echo xlt('Required fields'); ?>
-                    </div>
-                    <h5>Reminder Intervals</h5>
-                    When this Clinical Reminder is active, how do we tell the provider it is time to think about doing this?
-
-                    Say an A1c needs to be done yearly and it hasn't been done in 11 months.
-                    Perhaps one month before it is due we fire this alert.
-                    Then 1 month before it's actual due date, we trigger this CR and say "Dude it is time to do this!"
-
-
-                    Now everyone failed and it is PAST DUE.
-                    That could be another type of Reminder.  How long is too long?  When that is we are over-due.
-
-                    But what if it was due and now it is "overdue".  Man you are late to the game!
-                    How long are we going to let them slide before it is over due?
-
-                    <b>Type:</b>
-                    <ul>
-                        <li>Clinical == if a clinical event occurs, then fire this rule</li>
-                        <li>Patient == if a patient event matches this rule, fire it.</li>
-                    </ul>
-                    <b>Time Course/Detail:</b>
-                    <ul>
-                        <li> Number of months, weeks, days, hours</li>
-                    </ul>-->
-                </div>
+                </div> -->
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" data-dismiss="modal">Close</button>
                 </div>

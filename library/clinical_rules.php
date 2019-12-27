@@ -64,11 +64,12 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 {
 
   // Set date to current if not set
+    //echo "dateTarget = ".$dateTarget." mode=".$mode; die();
     $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
 
   // Collect active actions
     $actions = test_rules_clinic('', 'passive_alert', $dateTarget, $mode, $patient_id, '', $organize_mode, array(), 'primary', null, null, $user);
-    
+   // echo "<pre>".$mode; var_dump($actions);die();
   // Display the actions
     $current_targets = array();
     foreach ($actions as $action) {
@@ -124,7 +125,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 
             if ((!empty($tooltip)) || (!empty($web_reference))) {
                 if (!empty($web_reference)) {
-                    $tooltip .= xla('This link') . ": ". attr($web_reference) ."<br />";
+                    $tooltip .= xla('Reference') . ": ". attr($web_reference) ."<br />";
                     $tooltip2 = "<a href='".attr($web_reference)."' rel='noopener' target='_blank'><i class='fa fa-link'></i></a></span><br />";
                 } else {
                     $tooltip2 = "<span class='btn btn-sm' style='white-space: pre-line;' title='".$tooltip."'><i class='fa fa-question'></i></span><br />";
@@ -175,13 +176,35 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             $dated = new DateTime($dateTarget);
             $dated = $dated->format('Y-m-d');
             $target_date = oeFormatShortDate($dated);
+            
+            
+            $last_run = "2010-10-10";
+            if ($last_run) {
+                $last_run = new DateTime($last_run);
+                $last_run = $last_run->format('Y-m-d');
+                $last_run = oeFormatShortDate($last_run);
+                $last_run = "Last performed: " . $last_run;
+            } else {
+                $last_run = "There is no record this has ever happened so it is time!";
+            }
+            $wait= "<span data-toggle='popover'
+                                      title='When is this due?'
+                                      data-html='true'
+                                      data-trigger='hover'
+                                      data-placement='auto'
+                                      data-content='".$last_run." <br />
+                                      Due Date is ".$target_date."<br />
+                                      Past Due: ".$past_due."'>";
     
             echo "<span data-toggle='popover'
                                       title='When is this due?'
                                       data-html='true'
                                       data-trigger='hover'
                                       data-placement='auto'
-                                      data-content='The Due Date is ".$target_date."'>";
+                                      data-content='".$last_run." <br />
+                                      Alert begins: <br />
+                                      Due Date is ".$target_date."<br />
+                                      Past Due: ".$past_due."'>";
             // Color code the status (red for past due, purple for due, green for not due and black for soon due)
             if ($action['due_status'] == "past_due") {
                 echo "&nbsp;&nbsp;(<span style='color:red'>";
@@ -193,8 +216,8 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
                 echo "&nbsp;&nbsp;(<span>";
             }
 
-            echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $action['due_status']) . "</span>)";
-        echo "</span><br />";
+            echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $action['due_status']) . "</span>) ";
+        echo "</span> ".$tooltip2."<br />";
         }
 
         // Display the tooltip
@@ -617,7 +640,7 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
  *   $actions = test_rules_clinic('', 'passive_alert', $dateTarget, $mode, $patient_id, '', $organize_mode, array(), 'primary', null, null, $user);
  *
  * @param  integer      $provider      id of a selected provider. If blank, then will test entire clinic. If 'collate_outer' or 'collate_inner', then will test each provider in entire clinic; outer will nest plans inside collated providers, while inner will nest the providers inside the plans (note inner and outer are only different if organize_mode is set to plans).
- * @param  string       $type          rule filter (active_alert,passive_alert,cqm,cqm_2011,cqm_2104,amc,amc_2011,amc_2014,patient_reminder). If blank then will test all rules.
+ * @param  string       $type          rule filter (active_alert,passive_alert,cqm,cqm_2011,cqm_2104,amc,amc_2011,amc_2014,patient_reminder, provider_alert). If blank then will test all rules.
  * @param  string/array $dateTarget    target date (format Y-m-d H:i:s). If blank then will test with current date as target. If an array, then is holding two dates ('dateBegin' and 'dateTarget').
  * @param  string       $mode          choose either 'report' or 'reminders-all' or 'reminders-due' (required)
  * @param  integer      $patient_id    pid of patient. If blank then will check all patients.
@@ -632,7 +655,8 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
  */
 function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = array(), $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
 {
-
+// clin sum widget send this      mode= reminders-due
+    //    $actions = test_rules_clinic('', 'passive_alert', $dateTarget, $mode, $patient_id, '', $organize_mode, array(), 'primary', null, null, $user);
   // If dateTarget is an array, then organize them.
     if (is_array($dateTarget)) {
         $dateArray = $dateTarget;
@@ -737,7 +761,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
   //  So for cases such as patient reminders on a clinic scale, the calling function
   //  will actually need rather than pass in a explicit patient_id for each patient in
   //  a separate call to this function.
-    if ($mode != "report") {//these look the same to me.  is mode used as a global?
+    if ($mode != "report") { //reminders-due for cr widget
         // Use per patient custom rules (if exist -- see Dashboard::Edit CR::Admin tab)
         // Note as discussed above, this only works for single patient instances.
         $rules = resolve_rules_sql($type, $patient_id, false, $plan, $user);
@@ -774,6 +798,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
         $target_dates = array();
         if ($mode != "report") {
             // Calculate the dates to check for
+            // Some rules have all 3 types????  and they are different???
+            // well we are in renminders_due so that's how we get ==clinical_reminder
             if ($type == "patient_reminder") {
                 $reminder_interval_type = "patient_reminder";
             } elseif ($type == "provider_alert"){
@@ -783,7 +809,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
             }
 
             $target_dates = calculate_reminder_dates($rowRule['id'], $dateTarget, $reminder_interval_type);
-            //0= due soon, 1= due date, 2= over due.
+            //0= due soon = trigger date, 1= due date, 2= over due.
         } else { // $mode == "report"
             // Only use the target date in the report
             $target_dates[0] = $dateTarget;
@@ -797,6 +823,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
 
         // Find the number of target groups
         $targetGroups = returnTargetGroups($rowRule['id']);
+    
         if ((count($targetGroups) == 1) || ($mode == "report")) {
             // If report itemization is turned on, then iterate the rule id iterator
             if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
@@ -807,8 +834,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
             foreach ($patientData as $rowPatient) {
                 // First, deal with deceased patients
                 //  (for now will simply skip the patient)
-                // If want to support rules for deceased patients then will need to migrate this below
-                // in target_dates foreach(guessing won't ever need to do this, though).
+                // If you want to support rules for deceased patients then you will need to migrate this below
+                // in target_dates foreach(guessing you won't ever need to do this, though, unless you are a pathologist).
                 // Note using the dateTarget rather than dateFocus
                 if (is_patient_deceased($rowPatient['pid'], $dateTarget)) {
                     continue;
@@ -822,7 +849,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                 if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
                     $temp_track_pass = 1;
                 }
-                
+                //[0]=triggered, [1] = due, [2] =past due
                 foreach ($target_dates as $dateFocus) {
                     //Skip if date is set to SKIP
                     if ($dateFocus == "SKIP") {
@@ -840,6 +867,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                     }
                     // Check if pass filter
                     $passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateFocus);
+                   
                     if ($passFilter === "EXCLUDED") {
                         // increment EXCLUDED and pass_filter counters
                         //  and set as FALSE for reminder functionality.
@@ -902,16 +930,18 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                     }
                     $dateCounter++;
                 }
-
+                
                 // If report itemization is turned on, then record the "failed" item if it did not pass
                 if (!empty($GLOBALS['report_itemizing_temp_flag_and_id']) && !($temp_track_pass)) {
                     insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $rowPatient['pid']);
                 }
             }
         }
-
+        //echo "<pre>".$reminder_interval_type;var_dump($results); die();
+    
         // Calculate and save the data for the rule
         $percentage = calculate_percentage($pass_filter, $exclude_filter, $pass_target);
+    
         if ($mode == "report") {
             $newRow=array('is_main'=>true,'total_patients'=>$total_patients,'excluded'=>$exclude_filter,'pass_filter'=>$pass_filter,'pass_target'=>$pass_target,'percentage'=>$percentage);
             $newRow=array_merge($newRow, $rowRule);
@@ -1221,7 +1251,7 @@ function test_filter($patient_id, $rule, $dateTarget)
         return false;
     }
 
-  // -------- Procedure (labs,imaging,test,procedures,etc) Filter (inlcusion) ----
+  // -------- Procedure (labs,imaging,test,procedures,etc) Filter (inclusion) ----
   // Procedure Target (includes) (may need to include an interval in the future)
     $filter = resolve_filter_sql($rule, 'filt_proc');
     if ((!empty($filter)) && !procedure_check($patient_id, $filter, '', $dateTarget)) {
@@ -1978,7 +2008,9 @@ function exist_database_item($patient_id, $table, $column = '', $data_comp, $dat
         if ($whereTables=="" && strpos($table, 'form_')!== false) {
             //To handle standard forms starting with form_
             //In this case, we are assuming the date field is "date"
-            $sql =sqlStatementCdrEngine(
+            //--"date" is a reserved word and when doing overhaul consider changing this
+            /*
+             $sql =sqlStatementCdrEngine(
                 "SELECT b.`" . escape_sql_column_name($column, [$table]) . "` " .
                 "FROM forms a ".
                 "LEFT JOIN `" . escape_table_name($table) . "` " . " b ".
@@ -1987,6 +2019,18 @@ function exist_database_item($patient_id, $table, $column = '', $data_comp, $dat
                 "AND b.`" . escape_sql_column_name($column, [$table]) ."`" . $compSql .
                 "AND b." . add_escape_custom($patient_id_label) . "=? " . $customSQL
                 . str_replace("`date`", "b.`date`", $dateSql),
+                array($data, $patient_id)
+            );
+             */
+            $sql =sqlStatementCdrEngine(
+                "SELECT b.`" . escape_sql_column_name($column, [$table]) . "` " .
+                "FROM forms a ".
+                "LEFT JOIN `" . escape_table_name($table) . "` " . " b ".
+                "ON (a.form_id=b.id) ". //do we need the table? it breaks on eye form
+                "WHERE a.deleted != '1' ".
+                "AND b.`" . escape_sql_column_name($column, [$table]) ."`" . $compSql .
+                "AND b." . add_escape_custom($patient_id_label) . "=? " . $customSQL
+                . str_replace("`date`", "a.`date`", $dateSql),
                 array($data, $patient_id)
             );
         } else {

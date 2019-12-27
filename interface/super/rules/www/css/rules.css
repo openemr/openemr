@@ -173,14 +173,23 @@ input[type="text"] {
 .tight {
     white-space: nowrap;
     vertical-align: middle;
+    height: unset;
+    font-size: unset;
+    padding: unset;
 }
 .tight  input[type="text"] {
     max-width:30px;
+    text-align: center;
+    height: initial;
+    padding: initial;
+    margin: 1rem auto !important;
 }
 .tight  select{
     max-width:100px;
     display:unset;
-    height:unset;
+    height:initial;
+    font-size: initial;
+    padding: initial;
 }
 .nowrap {
     white-space: nowrap;
@@ -198,7 +207,7 @@ td > textarea {
     width:80%;
 }
 .button {
-    color:unset !important;
+    color:initial;
 }
 .inline {
     display:inline;

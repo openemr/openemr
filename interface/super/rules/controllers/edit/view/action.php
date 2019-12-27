@@ -103,7 +103,7 @@
                           data-trigger="hover"
                           data-placement="auto, top"
                           container="body"
-                          title='Action Link'
+                          title='Action Link for Passive Alerts'
                           data-html="true"
                           data-content='A Passive Alert is displayed in the CR widget with the values of "Category:Item".
                           These words can be linked to a pop-up to add a note and/or mark it completed if required.
@@ -111,11 +111,11 @@
                           link to anything desired by entering that url as an Action link.
                           This does not affect the References Link <i class="fa fa-link"></i> created in the CR Summary.
                           <img width="250px" src="<?php echo $GLOBAL['webroot'];?>/public/images/CR_widget.png">'>
-                        <?php echo xlt('Action Link'); ?></span>
+                        <?php echo xlt('Action Link for Passive Alerts'); ?></span>
 <br />
                     <!-- custom rules input -->
                     <span class="" data-field="fld_custom_input">
-                        <?php echo xlt('Do you need a pop-up to complete'); ?>:
+                        <?php echo xlt('Do you need a pop-up to add a note and/or mark this "complete"'); ?>:
        
                         <select data-grp-tgt="" type="dropdown" name="fld_custom_input">
                             <option id="Yes" value="yes" <?php echo $action->customRulesInput ? "SELECTED" : "" ?>><?php echo xlt('Yes'); ?></option>

@@ -119,7 +119,7 @@ use OpenEMR\Core\Header;
             $(this).parent().addClass('open');
             $(this).find('.dropdown-menu').first().stop(true, true).delay(250).slideDown();
         });
-        $('[data-toggle="popover"]').popover();
+        $('[data-toggle="popover"]').popover({ boundary: "window"});
     });
 </script>
 </body>
