@@ -16,7 +16,6 @@ namespace OpenEMR\Services;
 require_once(dirname(__FILE__)."/../../controllers/C_Document.class.php");
 
 use Document;
-use Particle\Validator\Validator;
 
 class DocumentService
 {
