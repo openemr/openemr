@@ -3,96 +3,273 @@ services:
   - mysql
 addons:
   chrome: stable
+cache:
+  directories:
+  - $HOME/.composer/cache
 .steps:
-  - &lint_style |
-      echo "------------------------"
-      echo "Checking for PHP styling (PSR2) issues"
-      composer global require "squizlabs/php_codesniffer=3.*"
-      $HOME/.config/composer/vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=full .
-  - &lint_syntax |
-      echo "------------------------"
-      echo "Checking for PHP syntax errors"
-      failSyntax=false;
-      if find . -type f -name "*.php" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi;
-      if find . -type f -name "*.inc" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi;
-      if $failSyntax; then
-          exit 1;
-      fi
-  - &build_test |
-      echo "------------------------"
-      echo "Checking build and tests"
-      echo "------------------------"
-      echo "Start up the flex docker system to allow testing below"
-      cd ci
-      docker-compose up -d
-      cd ../
-      echo "------------------------"
-      echo "Build openemr (mimick standard build steps for production package)"
-      composer install
-      npm install
-      npm run build
-      composer global require phing/phing
-      $HOME/.config/composer/vendor/bin/phing vendor-clean
-      $HOME/.config/composer/vendor/bin/phing assets-clean
-      composer global remove phing/phing
-      composer dump-autoload -o
-      rm -fr node_modules
-      echo "------------------------"
-      echo "Also build ccdaservice to allow ccdaservice testing (this step is not part of production build)"
-      cd ccdaservice
-      npm install
-      cd ../
-      echo "------------------------"
-      echo "Install/configure active openemr instance"
-      sudo chmod 666 sites/default/sqlconf.php
-      sudo chown -R www-data:www-data sites/default/documents
-      sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php
-      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "php -f /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=%"
-      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "rm -f /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAutoTemp.php"
-      echo "------------------------"
-      echo "Turn on the api to allow api testing"
-      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_api\"" openemr'
-      echo "------------------------"
-      echo "Prepare for testing"
-      composer require --dev "phpunit/phpunit=8.*"
-      composer require --dev "symfony/panther=^0.6"
-      composer dump-autoload -o
-      echo "------------------------"
-      echo "Run all tests (testsuite openemr: unit, e2e, api)"
-      php vendor/bin/phpunit --testsuite openemr --testdox
-      echo "------------------------"
-      echo "Run only unit tests"
-      php vendor/bin/phpunit --testsuite unit --testdox
-      echo "------------------------"
-      echo "Run only e2e tests"
-      php vendor/bin/phpunit --testsuite e2e --testdox
-      echo "------------------------"
-      echo "Run only api tests"
-      php vendor/bin/phpunit --testsuite api --testdox
+#  - &lint_style |
+#      echo "------------------------"
+#      echo "Checking for PHP styling (PSR2) issues"
+#      composer global require "squizlabs/php_codesniffer=3.*"
+#      $HOME/.config/composer/vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=full .
+#  - &lint_syntax |
+#      echo "------------------------"
+#      echo "Checking for PHP syntax errors"
+#      failSyntax=false;
+#      if find . -type f -name "*.php" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi;
+#      if find . -type f -name "*.inc" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi;
+#      if $failSyntax; then
+#          exit 1;
+#      fi
+#  - &build_test |
+#      echo "------------------------"
+#      echo "Checking build and tests"
+#      echo "------------------------"
+#      echo "Start up the flex docker system to allow testing below"
+#      cd ci
+#      docker-compose up -d
+#      cd ../
+#      echo "------------------------"
+#      echo "Build openemr (mimick standard build steps for production package)"
+#      composer install
+#      npm install
+#      npm run build
+#      composer global require phing/phing
+#      $HOME/.config/composer/vendor/bin/phing vendor-clean
+#      $HOME/.config/composer/vendor/bin/phing assets-clean
+#      composer global remove phing/phing
+#      composer dump-autoload -o
+#      rm -fr node_modules
+#      echo "------------------------"
+#      echo "Also build ccdaservice to allow ccdaservice testing (this step is not part of production build)"
+#      cd ccdaservice
+#      npm install
+#      cd ../
+#      echo "------------------------"
+#      echo "Install/configure active openemr instance"
+#      sudo chmod 666 sites/default/sqlconf.php
+#      sudo chown -R www-data:www-data sites/default/documents
+#      sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php
+#      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "php -f /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=%"
+#      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "rm -f /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAutoTemp.php"
+#      echo "------------------------"
+#      echo "Turn on the api to allow api testing"
+#      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_api\"" openemr'
+#      echo "------------------------"
+#      echo "Prepare for testing"
+#      composer require --dev "phpunit/phpunit=8.*"
+#      composer require --dev "symfony/panther=^0.6"
+#      composer dump-autoload -o
+#      echo "------------------------"
+#      echo "Run all tests (testsuite openemr: unit, e2e, api)"
+#      php vendor/bin/phpunit --testsuite openemr --testdox
+#      echo "------------------------"
+#      echo "Run only unit tests"
+#      php vendor/bin/phpunit --testsuite unit --testdox
+#      echo "------------------------"
+#      echo "Run only e2e tests"
+#      php vendor/bin/phpunit --testsuite e2e --testdox
+#      echo "------------------------"
+#      echo "Run only api tests"
+#      php vendor/bin/phpunit --testsuite api --testdox
+
+
+
+
+
+
+
+
+    # REMOVE THIS COMMENT
+############################################################################
+#
+#         Proposal step redefinition -
+#
+#         only one step 'build_test' add rigidity to the pipeline
+#         and we lost flexibility and composition capabilities.
+#         Inside of  travis step we need a separation between command from comment,
+#         otherwise, we have unexpected behavior in commands output,
+#         like a 'green' result in the pipeline even if there are  errors
+
+
+  - &install_php_dependencies |
+      {
+        composer install --no-progress --no-suggest;
+        composer require --dev "squizlabs/php_codesniffer=3.*";
+        composer require --dev "phpunit/phpunit=8.*";
+        composer require --dev "symfony/panther=^0.6";
+        composer dump-autoload -o;
+      } || {
+        echo "-----------------------------------";
+        echo "  INSTALL ALL PHP DEPENDECIES...   ";
+        echo "-----------------------------------";
+
+      }
+
+
+  - &install_npm_dependencies |
+      {
+        npm install;
+        npm run build;
+
+      } || {
+        echo "-----------------------------------";
+        echo "  INSTALL ALL NODE DEPENDECIES.. ";
+        echo "-----------------------------------";
+      }
+
+
+  - &run_lint_syle |
+      $HOME/.config/composer/vendor/bin/phpcs -p -n --extensions=php,inc --report-width=120 --standard=ci/phpcs.xml --report=full . || echo "Checking for PHP styling (PSR2) issues"
+
+
+  - &run_lint_syntax |
+      {
+        failSyntax=false;
+        if find . -type f -name "*.php" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi;
+        if find . -type f -name "*.inc" -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"; then failSyntax=true; fi;
+        if $failSyntax; then
+            exit 1;
+        fi
+      } || echo "Checking for PHP syntax errors"
+
+
+  - &start_openemr_docker_instance |
+      {
+
+        cp contrib/util/installScripts/InstallerAuto.php contrib/util/installScripts/InstallerAutoTemp.php
+        chmod 777 sites/default/sqlconf.php
+        cd ci/
+        docker-compose -p travis up -d
+        cd ..
+        docker-compose -p travis exec openemr sh -c "php -f /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=%"
+      } || echo "Start docker instance"
+
+
+  - &configure_openemr_docker_instance |
+      {
+        sudo chmod 666 sites/default/sqlconf.php
+        sudo chown -R www-data:www-data sites/default/documents
+        sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php
+        docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "php -f /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=%"
+        docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "rm -f /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAutoTemp.php"
+      } || echo "Configure openemr docker instance"
+
+
+  - &enable_ccda_service |
+      {
+        cd ccdaservice
+        npm install
+        cd ../
+        docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'mysql -u openemr --password="openemr" -h mysql -e "UPDATE globals SET gl_value = 1 WHERE gl_name = \"rest_api\"" openemr'
+      } || echo "Enable ccda service"
+
+
+  - &run_phing_cleaner |
+      {
+        composer global require phing/phing
+        $HOME/.config/composer/vendor/bin/phing vendor-clean
+        $HOME/.config/composer/vendor/bin/phing assets-clean
+        composer global remove phing/phing
+      } || echo "Clean vendor and assets directories"
+
+
 before_install:
   - echo "extension=ldap.so" >>php --ini | grep "Loaded Configuration" | sed -e "s|.:\s||"``
 before_script:
   - echo 'error_reporting = "E_ALL & ~E_NOTICE & ~E_STRICT"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
 jobs:
   include:
-    - env: CI_JOB=lint_style
-      php: '7.4'
-      script: *lint_style
-    - env: CI_JOB=lint_syntax
+#    - env: CI_JOB=lint_style
+#      php: '7.4'
+#      script: *lint_style
+#    - env: CI_JOB=lint_syntax
+#      php: '7.2'
+#      script: *lint_syntax
+#    - env: CI_JOB=lint_syntax
+#      php: '7.3'
+#      script: *lint_syntax
+#    - env: CI_JOB=lint_syntax
+#      php: '7.4'
+#      script: *lint_syntax
+#    - env: CI_JOB=build_test
+#      php: '7.2'
+#      script: *build_test
+#    - env: CI_JOB=build_test
+#      php: '7.3'
+#      script: *build_test
+#    - env: CI_JOB=build_test
+#      php: '7.4'
+#      script: *build_test
+
+
+
+    - name: '(PHP 7.2 | lint style + unit test)'
       php: '7.2'
-      script: *lint_syntax
-    - env: CI_JOB=lint_syntax
+      script:
+        - *install_php_dependencies
+        - *install_npm_dependencies
+        - *run_lint_syle
+        #- *run_phing_cleaner # THIS COMMAND SHOULD BE EXECUTED ONLY ONCE BEFORE DEPLOY PACKAGING | MOVE ON GCLOUD PIPELINE
+        - ./vendor/bin/phpunit --colors=always --testsuite unit
+
+
+    - name: '(PHP 7.3 | | lint style + unit test)'
       php: '7.3'
-      script: *lint_syntax
-    - env: CI_JOB=lint_syntax
+      script:
+        - *install_php_dependencies
+        - *install_npm_dependencies
+        - *run_lint_syle
+        #- *run_phing_cleaner # THIS COMMAND SHOULD BE EXECUTED ONLY ONCE BEFORE DEPLOY PACKAGING | MOVE ON GCLOUD PIPELINE
+        - ./vendor/bin/phpunit --colors=always --testsuite unit
+
+
+    - name: '(PHP 7.4 | lint style + lint syntax + unit test)'
       php: '7.4'
-      script: *lint_syntax
-    - env: CI_JOB=build_test
-      php: '7.2'
-      script: *build_test
-    - env: CI_JOB=build_test
-      php: '7.3'
-      script: *build_test
-    - env: CI_JOB=build_test
+      script:
+        - *run_lint_syntax # NOTE: IF YOU MOVE THIS COMMAND UNDER THE 'install_php_dependencies' IT GENERATE A LOT OF ERRORS, IT SCAN VENDOR FOLDER
+        - *install_php_dependencies
+        - *install_npm_dependencies
+        - *run_lint_syle
+        #- *run_phing_cleaner # THIS COMMAND SHOULD BE EXECUTED ONLY ONCE BEFORE DEPLOY PACKAGING | MOVE ON GCLOUD PIPELINE
+        - ./vendor/bin/phpunit --colors=always --testsuite unit
+
+
+    # This job can fail by design
+    - name: '(PHP 8-nightly | lint style + unit test)'
+      php: 'nightly'
+      script:
+        - *install_php_dependencies
+        - *install_npm_dependencies
+        - *run_lint_syle
+        - ./vendor/bin/phpunit --colors=always --testsuite unit
+
+
+    # This job can fail by design it's not stable. (INCOMPLETE)
+    - name: '(PHP 7.4 - Experimental for functional test | we need to find right setup)'
       php: '7.4'
-      script: *build_test
+      script:
+        - docker-compose -f ci/docker-compose.yml up -d
+
+        - *install_php_dependencies
+
+        - *install_npm_dependencies
+
+        #- *run_phing_cleaner # THIS COMMAND SHOULD BE EXECUTED ONLY ONCE BEFORE DEPLOY PACKAGING | MOVE ON GCLOUD PIPELINE
+
+        - *configure_openemr_docker_instance
+
+        - *enable_ccda_service
+
+        - ./vendor/bin/phpunit --colors=always --testsuite e2e
+
+        # quick tests, remove in future
+        - curl http://localhost/interface/login/login.php?site=default
+        - curl http://127.0.0.1/interface/login/login.php?site=default
+
+
+
+  allow_failures:
+    - name: '(PHP 7.4 - Experimental for functional test | we need to find right setup)'
+    - php: 'nightly'
+
