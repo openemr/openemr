@@ -12,9 +12,6 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Services\EncounterService;
-use OpenEMR\RestControllers\RestControllerHelper;
-
 class RestControllerHelper
 {
     public static function responseHandler($serviceResult, $customRespPayload, $idealStatusCode)
