@@ -22,7 +22,9 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("../history/history.inc.php");
+
 require_once("$srcdir/clinical_rules.php");
+
 require_once("$srcdir/options.js.php");
 require_once("$srcdir/group.inc");
 require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");

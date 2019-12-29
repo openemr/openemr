@@ -133,8 +133,8 @@
                                                                     data-placement='auto'
                                                                     title='Clinical Reminders Widget(CR)'
                                                                     data-content='The CR Widget is located on the demographics page.'>CR Widget</a>";
-                                                $timing .="<div class='indent10'>If not completed after ".$timings['clinical']['post']['amount']." ".$timings['clinical']['post']['timeUnit2'].", this pop-up will expire.</div>
-                                                                <small>Note: If you also make it a Passive Alert, it will appear in the CR widget. You can then elect to have a pop-up note appear as part of your work-flow prompts after this CR fires.  It will allow you where to add a Note and mark this as 'Completed'.
+                                                $timing .="<div class='indent10'>If not completed after ".$timings['clinical']['post']['amount']." ".$timings['clinical']['post']['timeUnit2'].", this pop-up will expire.</div>";
+$extra ="                                                                <small>Note: If you also make it a Passive Alert, it will appear in the CR widget. You can then elect to have a pop-up note appear as part of your work-flow prompts after this CR fires.  It will allow you where to add a Note and mark this as 'Completed'.
                                                                 When a Passive Alert goes 'Past due', instead of just expiring and no longer appearing, this alert will remain in the CR widget until the action you chose is completed, or you mark it completed..
                                                                  Remember also that an Alert can be limited to who receives the alert via <a href='../../usergroup/adminacl.php'>Access Control List Administration</a></small>";
                                             }
@@ -426,14 +426,21 @@
                     }
                 ?>
                 <div class="col-12">
-                    <span id="new_group_<?php echo (int)($nextGroupId);?>"
-                            class="btn-sm btn-primary icon_2"
-                            data-toggle='popover'
-                            data-trigger="hover"
-                            data-placement="auto left"
-                            data-html="true"
-                            data-title='Step 2: Add A New Group'
-                            data-content="<span class='text-justify'>Having narrowed your target group of patients in <span class='bold'>Step 1</span>,
+                    <button type="button"
+                            class="btn-sm btn-primary icon_3"
+                            id="show_intervals_help"
+                            data-toggle="modal" data-target="#help_intervals"
+                            title="Open the Help:: Actions Modal"><i class="fa fa-clock-o"></i>
+                    </button>
+                    <button id="new_group_<?php echo (int)($nextGroupId);?>"
+                          type="button"
+                          class="btn-sm btn-primary icon_2"
+                          data-toggle='popover'
+                          data-trigger="hover"
+                          data-placement="auto left"
+                          data-html="true"
+                          data-title='Step 2: Add A New Group'
+                          data-content="<span class='text-justify'>Having narrowed your target group of patients in <span class='bold'>Step 1</span>,
                             now in <span class='bold'>Step 2</span> you need to look for an item.
                             If present, an alert fires prompting you to do something, usually a Treatment Goal.
                             Most CRs only need to reference one Treatment Goal.
@@ -442,13 +449,13 @@
                             and each can trigger a separate Active Alert.  Be wary of Alert Fatigue!
                             If you wish to fire multiple Alerts for a Targeted group, consider using Care Plans to combine Alerts.
                             Expert use only...</span>"><i class="fa fa-plus"></i>
-                    </span>
+                    </button>
                     <button type="button"
                             class="btn-sm btn-primary icon_1"
                             data-toggle="modal" data-target="#help_targets"
                             title="<?php echo xla('Open the Help Page').":: ".xla('When will this CR fire?'); ?>"><i class="fa fa-question"></i>
                     </button>
-
+                    
                     <span class="title text-left"><?php echo xlt('Step 2').": ".xlt('When will this CR fire?'); ?></span>
                 </div>
                 <?php
@@ -456,40 +463,13 @@
                         ?>
                         <div class="row" id="show_group_<?php echo xla($group->groupId); ?>">
                             <div class="col-6 inline">
-                                <button type="button"
-                                        id="add_criteria_target_<?php echo xla($group->groupId);?>"
-                                        class="btn-sm btn-primary icon_2"
-                                        title='<?php echo xla('Add New Target'); ?>'><i class="fa fa-plus"></i>
-                                </button>
-                                <button type="button"
-                                        data-toggle='modal'
-                                        data-placement="auto left"
-                                        data-html="true"
-                                        data-content="<span class='text-justify'>Having narrowed your target group of patients in <span class='bold'>Step 1</span>,
-                            now in <span class='bold'>Step 2</span> you need to look for an item.
-                            If present, an alert fires prompting you to do something, usually a Treatment Goal.
-                            Most CRs only need to reference one Treatment Goal.
-                            You can create multiple <span class='bold'>Step 2</span> criteria for a given group of patients identified in <span class='bold'>Step 1</span>.
-                            Remember each Treatment Goal is displayed separately in the Dashboard's CR widget
-                            and each can trigger a separate Active Alert.  Be wary of Alert Fatigue!
-                            If you wish to fire multiple Alerts for a Targeted group, consider using Care Plans to combine Alerts.
-                            Expert use only...</span>"
-
-                                        class="btn-sm btn-primary icon_1"
-                                        id="show_intervals_help"
-                                        data-target="#help_intervals"
-                                        title="Open the Help:: Actions Modal"><i class="fa fa-clock-o"></i>
-                                </button>
-
-
-                                <button
-                                        class="btn-sm btn-primary icon_1A"
-                                        id="show_actions_help"
-                                        data-toggle="modal" data-target="#help_alerts"
-                                        title="Open the Help:: Actions Modal"><i class="fa fa-question"></i>
-                                </button>
                                 <div class="col-12 title2"> <?php echo xlt('If we need this to happen'); ?>:</div>
                                 <div class="col-12" id="show_targets_<?php echo xla($group->groupId); ?>">
+                                    <button type="button"
+                                            id="add_criteria_target_<?php echo xla($group->groupId);?>"
+                                            class="btn-sm btn-primary icon_1"
+                                            title='<?php echo xla('Add New Target'); ?>'><i class="fa fa-plus"></i>
+                                    </button>
                                     <table class="table table-sm table-condensed bgcolor2 section2">
                                         <thead>
                                         <tr>
@@ -576,33 +556,16 @@
                                 ?><br />
                                 </span>
                             </div>
-                            <div class="col-4 inline row">
-                                <button type="button"
-                                        class="btn-sm btn-primary icon_2"
-                                        data-toggle='popover'
-                                        data-trigger="hover"
-                                        data-placement="auto left"
-                                        data-html="true"
-                                        data-content="<span class='text-justify'>Having narrowed your target group of patients in <span class='bold'>Step 1</span>,
-                            now in <span class='bold'>Step 2</span> you need to look for an item.
-                            If present, an alert fires prompting you to do something, usually a Treatment Goal.
-                            Most CRs only need to reference one Treatment Goal.
-                            You can create multiple <span class='bold'>Step 2</span> criteria for a given group of patients identified in <span class='bold'>Step 1</span>.
-                            Remember each Treatment Goal is displayed separately in the Dashboard's CR widget
-                            and each can trigger a separate Active Alert.  Be wary of Alert Fatigue!
-                            If you wish to fire multiple Alerts for a Targeted group, consider using Care Plans to combine Alerts.
-                            Expert use only...</span>"
-                                        id="add_action_<?php echo (int)($group->groupId); ?>"
-                                        title='<?php echo xla('Add New Treatment Goal'); ?>'><i class="fa fa-plus"></i>
-                                </button>
-                                <button
-                                        class="btn-sm btn-primary icon_1"
-                                        id="show_actions_help"
-                                        data-toggle="modal" data-target="#help_intervals2"
-                                        title="Open the Help:: Actions Modal"><i class="fa fa-question"></i>
-                                </button>
-                                <div class="title2 text-left col-12"><?php echo xlt('Prompting you to do this'); ?>:</div>
+                            <div class="col-4 inline">
+                                <div class="col-12 title2"><?php echo xlt('Prompting you to do this'); ?>:</div>
                                 <div class="col-12" id="show_actions_<?php echo xla($group->groupId); ?>">
+                                    <button type="button"
+                                            class="btn-sm btn-primary icon_1"
+                                            id="add_action_<?php echo (int)($group->groupId); ?>"
+                                            title='<?php echo xla('Add New Treatment Goal'); ?>'><i class="fa fa-plus"></i>
+                                    </button>
+
+
                                     <table class="table table-sm bgcolor2 section2 text-center">
                                         <thead>
                                         <tr>
@@ -681,35 +644,17 @@
                     } // iteration over groups
                 ?>
                 <div class="row col-12" id="show_group_<?php echo xla($nextGroupId); ?>">
+                    
                     <div class="col-6 inline row">
                         <button type="button"
                                 id="add_criteria_target_<?php echo xla($nextGroupId);?>"
                                 class="btn-sm btn-primary icon_2"
                                 title='<?php echo xla('Add New Target'); ?>'><i class="fa fa-plus"></i>
                         </button>
-                        <button type="button"
-                                data-toggle='popover'
-                                data-trigger="hover"
-                                data-placement="auto left"
-                                data-html="true"
-                                data-content="<span class='text-justify'>Having narrowed your target group of patients in <span class='bold'>Step 1</span>,
-                            now in <span class='bold'>Step 2</span> you need to look for an item.
-                            If present, an alert fires prompting you to do something, usually a Treatment Goal.
-                            Most CRs only need to reference one Treatment Goal.
-                            You can create multiple <span class='bold'>Step 2</span> criteria for a given group of patients identified in <span class='bold'>Step 1</span>.
-                            Remember each Treatment Goal is displayed separately in the Dashboard's CR widget
-                            and each can trigger a separate Active Alert.  Be wary of Alert Fatigue!
-                            If you wish to fire multiple Alerts for a Targeted group, consider using Care Plans to combine Alerts.
-                            Expert use only...</span>"
-
-                                class="btn-sm btn-primary icon_1"
-                                id="show_intervals_help"
-                                data-toggle="modal" data-target="#help_intervals"
-                                title="Open the Help:: Actions Modal"><i class="fa fa-clock-o"></i>
-                        </button>
+                        
 
                         <button
-                                class="btn-sm btn-primary icon_1A"
+                                class="btn-sm btn-primary icon_1"
                                 id="show_actions_help"
                                 data-toggle="modal" data-target="#help_alerts"
                                 title="Open the Help:: Actions Modal"><i class="fa fa-question"></i>
@@ -967,15 +912,18 @@
         </div>
     </div>
     <div id="help_targets" class="modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-body row">
-                    <div class="col-3">
-                        <span class=" title2"><?php echo xlt('If this is true'); ?>:</span>
-                        <br />
+                    <div class="col-6">
+                        <span class="title2"><?php echo xlt('If this is true'); ?>:</span>
                     </div>
-                    <div class="col-9">
-                        <span class="text"><?php echo xlt('Define the items to trigger an alert'); ?></span>
+                    <div class="col-6">
+                        <span class=" title2"><?php echo xlt('Prompting you to do this'); ?>:</span>
+                    </div>
+                    
+                    <div class="col-6">
+                          <span class="text"><?php echo xlt('Define the items to trigger an alert'); ?>
                         <ul>
                             <li> <?php echo xlt('Social History: choose a "lifestyle" value'); ?> </li>
                             <li> <?php echo xlt('Did a specific Assessment occur?'); ?></li>
@@ -987,12 +935,10 @@
                             <li> <?php echo xlt('Did a specific Treatment happen?'); ?></li></select>
                             <li> <?php echo xlt('Custom Input:  link to any field in any table in the database'); ?></li>
                         </ul>
+                          </span>
                     </div>
-                    <div class="col-3">
-                        <span class=" title2"><?php echo xlt('Prompting you to do this'); ?>:</span>
-                        <br />
-                    </div>
-                    <div class="col-9">
+                    
+                    <div class="col-6">
                         <span class="text"><?php echo xlt('Define what needs to happen to satisfy this alert'); ?></span>
 
                         <ul>
@@ -1019,7 +965,7 @@
         <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title title"><?php echo xlt('When is this Clinical Reminder triggered'); ?>:</h5>
+                    <h4 class="modal-title title"><?php echo xlt('When is this Clinical Reminder triggered'); ?>?</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
                 </div>
                 <div class="modal-body container">
@@ -1029,7 +975,7 @@
                     <div class="row">
                         <div class="col-10 offset-1 text-center title2 "> TIME ----------&gt;</div>
                         
-                        <div class="col-1 offset-1 text-right bold">Event --&gt;X</div>
+                        <div class="col-1 offset-1 text-right bold">Last occurrence </div>
                         <div class="col-5 alert-success text-center text-nowrap"><h5>How often should this occur for a given patient?</h5></div>
                         <div class="col-5 bold text-left"><h5 style="position:relative;left:-20px;">X &lt;-- Due Date</h5></div>
 
@@ -1594,7 +1540,7 @@
             top.restoreSession();
             var group = this.id.match(/edit_target_(.*)_(.*)/)[1];
             var rt_uid = this.id.match(/edit_target_(.*)_(.*)/)[2];
-            var url = "index.php?action=edit!target&id=<?php echo attr_url($rule->id); ?>&rt_uid="+rt_uid;
+            var url = "index.php?action=edit!target&id=<?php echo attr_url($rule->id); ?>&group_id="+group+"&rt_uid="+rt_uid;
             $.ajax({
                        type: 'POST',
                        url: url,
@@ -1607,8 +1553,6 @@
                 $("#show_targets_edit_"+group).show();
             });
         });
-        
-        onclick="top.restoreSession();location.href='index.php?action=edit!target&id=<?php echo attr_url($rule->id); ?>&group_id=<?php echo attr_url($group->groupId); ?>&rt_uid=<?php echo attr_url($criteria->uid); ?>';"
         
         $("[id^='edit_action_'").click(function() {
             top.restoreSession();
@@ -1654,12 +1598,8 @@
                        url: url,
                        data: {}
                    }).done(function (data) {
-                $("#show_actions_edit_"+group).html(data);
+                $("#show_actions_edit_"+group).html(data).show();
                 $("#show_actions_"+group).hide();
-                //$("#show_targets_edit_"+group).show();
-                // $("#show_group").html(data);
-                //$("#show_targets_"+group).hide();
-                //$("#show_targets_edit_"+group).show();
             });
         });
         $('#help_intervals').on('show.bs.modal', function () {

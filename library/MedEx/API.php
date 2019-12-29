@@ -175,14 +175,14 @@ class Practice extends Base
                     `rule_action`.item =`rule_action_item`.item ";
         $sql = "SELECT * FROM `clinical_rules`,`list_options`,`rule_action`,`rule_action_item`
                     WHERE
-                    `clinical_rules`.`pid`=0 AND
                     (`clinical_rules`.`patient_reminder_flag` = 1 OR
                     `clinical_rules`.`provider_alert_flag` = 1 ) AND
                     `clinical_rules`.id = `list_options`.option_id AND
                     `clinical_rules`.id = `rule_action`.id AND
                     `rule_action`.category =`rule_action_item`.category AND
                     `rule_action`.item =`rule_action_item`.item ";
-
+// removed this from where clause:`clinical_rules`.`pid`=0 AND  on 12/20/19
+        
         $ures = sqlStatementCdrEngine($sql);
         while ($urow = sqlFetchArray($ures)) {
             $fields2['clinical_reminders'][] = $urow;
@@ -240,6 +240,9 @@ class Practice extends Base
 
         foreach ($responses['messages'] as $data) {
             $data['msg_extra'] = $data['msg_extra']?:'';
+            $this->MedEx->logging->log_this("About to look a message received.");
+            $this->MedEx->logging->log_this($data);
+            //if this is a clinical_reminder, we need to updte the patient_reminder table and MedEx?
             $sqlQuery ="SELECT * FROM medex_outgoing WHERE medex_uid=?";
             $checker = sqlStatement($sqlQuery, array($data['msg_uid']));
             if (sqlNumRows($checker)=='0') {
@@ -770,7 +773,6 @@ class Events extends Base
             else if ($event['M_group'] == 'CLINICAL_REMINDER') {
                 $sql = "SELECT * FROM `patient_reminders`,`patient_data`
                                   WHERE
-                                `patient_reminders`.pid ='".$event['PID']."' AND
                                 `patient_reminders`.active='1' AND
                                 `patient_reminders`.date_sent IS NULL AND
                                 `patient_reminders`.pid=`patient_data`.pid
@@ -778,11 +780,18 @@ class Events extends Base
                 $ures = sqlStatementCdrEngine($sql);
                 while ($urow = sqlFetchArray($ures)) {
                     list($response,$results) = $this->MedEx->checkModality($event, $urow, $icon);
+                    $this->MedEx->logging->log_this("yo dude over here response");
+                    $this->MedEx->logging->log_this($response);
+                    $this->MedEx->logging->log_this("yo dude over here results");
+                    $this->MedEx->logging->log_this($results);
                     if ($results==false) {
                         continue; //not happening - either not allowed or not possible
                     }
                     $fields2['clinical_reminders'][] = $urow;
                     $count_clinical_reminders++;
+                    $this->MedEx->logging->log_this($fields2);
+                    
+                    
                 }
                 //need to add in provider alerts
             }

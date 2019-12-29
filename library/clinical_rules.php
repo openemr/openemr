@@ -23,7 +23,6 @@ require_once(dirname(__FILE__) . "/forms.inc");
 require_once(dirname(__FILE__) . "/options.inc.php");
 require_once(dirname(__FILE__) . "/report_database.inc");
 
-
 /**
  * Return listing of CDR reminders in log.
  *
@@ -64,12 +63,11 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 {
 
   // Set date to current if not set
-    //echo "dateTarget = ".$dateTarget." mode=".$mode; die();
     $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
 
   // Collect active actions
     $actions = test_rules_clinic('', 'passive_alert', $dateTarget, $mode, $patient_id, '', $organize_mode, array(), 'primary', null, null, $user);
-   // echo "<pre>".$mode; var_dump($actions);die();
+    
   // Display the actions
     $current_targets = array();
     foreach ($actions as $action) {
@@ -84,7 +82,6 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             echo "</b><br>";
             continue;
         }
-
         // Collect the Rule Title, Rule Developer, Rule Funding Source, and Rule Release and show it when hover over the item.
         $tooltip = '';
         if (!empty($action['rule_id'])) {
@@ -126,18 +123,14 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             if ((!empty($tooltip)) || (!empty($web_reference))) {
                 if (!empty($web_reference)) {
                     $tooltip .= xla('Reference') . ": ". attr($web_reference) ."<br />";
-                    $tooltip2 = "<a href='".attr($web_reference)."' rel='noopener' target='_blank'><i class='fa fa-link'></i></a></span><br />";
+                    $tooltip2 = "<a href='".attr($web_reference)."' title='". xla('Reference') . ": ". attr($web_reference) ."'  rel='noopener' target='_blank'><i class='fa fa-link'></i></a></span>";
                 } else {
-                    $tooltip2 = "<span class='btn btn-sm' style='white-space: pre-line;' title='".$tooltip."'><i class='fa fa-question'></i></span><br />";
+                    $tooltip2 = "<span class='btn btn-sm' style='white-space: pre-line;' title='".$Xtooltip."'><i class='fa fa-question'></i></span>";
                 }
             }
         }
 ?>
-        <script src="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/www/js/BS4/popper.min.js"></script>
-
-        <script src="<?php echo $GLOBALS['web_root']; ?>/interface/super/rules/www/js/BS4/js/bootstrap.bundle.js.map"></script>
-    
-        <?php
+ <?php
         //if (!empty($tooltip)) {
             echo $tooltip_start.$tooltip . "'>";
         //}
@@ -176,33 +169,23 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             $dated = new DateTime($dateTarget);
             $dated = $dated->format('Y-m-d');
             $target_date = oeFormatShortDate($dated);
-            
-            
-            $last_run = "2010-10-10";
+    
+            $last_run = $action['latest'];
+            //$last_run = "2010-10-10";
             if ($last_run) {
                 $last_run = new DateTime($last_run);
                 $last_run = $last_run->format('Y-m-d');
                 $last_run = oeFormatShortDate($last_run);
-                $last_run = "Last performed: " . $last_run;
+                $last_run = "The last time this was performed was " . $last_run;
             } else {
                 $last_run = "There is no record this has ever happened so it is time!";
             }
-            $wait= "<span data-toggle='popover'
+                echo "<span data-toggle='popover'
                                       title='When is this due?'
                                       data-html='true'
                                       data-trigger='hover'
                                       data-placement='auto'
                                       data-content='".$last_run." <br />
-                                      Due Date is ".$target_date."<br />
-                                      Past Due: ".$past_due."'>";
-    
-            echo "<span data-toggle='popover'
-                                      title='When is this due?'
-                                      data-html='true'
-                                      data-trigger='hover'
-                                      data-placement='auto'
-                                      data-content='".$last_run." <br />
-                                      Alert begins: <br />
                                       Due Date is ".$target_date."<br />
                                       Past Due: ".$past_due."'>";
             // Color code the status (red for past due, purple for due, green for not due and black for soon due)
@@ -216,8 +199,8 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
                 echo "&nbsp;&nbsp;(<span>";
             }
 
-            echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $action['due_status']) . "</span>) ";
-        echo "</span> ".$tooltip2."<br />";
+            echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $action['due_status']) . "</span>)";
+        echo "</span>".$tooltip2 ."<br />";
         }
 
         // Display the tooltip
@@ -243,7 +226,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
   // Compare the current with most recent action log (this function will also log the current actions)
   // Only when $mode is reminders-due
     if ($mode == "reminders-due" && $GLOBALS['enable_alert_log']) {
-        $new_targets = compare_log_alerts($patient_id, $current_targets, 'clinical_reminder_widget', $_SESSION['authUserID']);
+        $new_targets = compare_log_alerts($patient_id, $current_targets, 'clinical_reminder_widget', $_SESSION['authId']);
         if (!empty($new_targets) && $GLOBALS['enable_cdr_new_crp']) {
             // If there are new action(s), then throw a popup (if the enable_cdr_new_crp global is turned on)
             //  Note I am taking advantage of a slight hack in order to run javascript within code that
@@ -255,7 +238,6 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
                 $item = $category_item[1];
                 echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
                    ': ' . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $item). '\n';
-                echo $public_description."\n<br />";
             }
 
             echo '\n' . '('. xls('See the Clinical Reminders widget for more details'). ')';
@@ -335,7 +317,7 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
   // Compare the current with most recent action log (this function will also log the current actions)
   // Only when $mode is reminders-due and $test is FALSE
     if (($mode == "reminders-due") && ($test === false) && ($GLOBALS['enable_alert_log'])) {
-        $new_targets = compare_log_alerts($patient_id, $current_targets, 'active_reminder_popup', $_SESSION['authUserID']);
+        $new_targets = compare_log_alerts($patient_id, $current_targets, 'active_reminder_popup', $_SESSION['authId']);
         if (!empty($new_targets)) {
             $returnOutput .="<br>" . xlt('New Items (see above for details)') . ":<br>";
             foreach ($new_targets as $key => $value) {
@@ -343,8 +325,7 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
                 $category = $category_item[0];
                 $item = $category_item[1];
                 $returnOutput .= generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
-                   ': ' . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $item). '<br>'.
-                $action['public_description']."<br />";
+                   ': ' . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $item). '<br>';
             }
         }
     }
@@ -415,7 +396,7 @@ function allergy_conflict($patient_id, $mode, $user, $test = false)
   // If there are conflicts, $test is FALSE, and alert logging is on, then run through compare_log_alerts
     $new_conflicts = array();
     if ((!empty($conflicts_unique)) && $GLOBALS['enable_alert_log'] && ($test===false)) {
-        $new_conflicts = compare_log_alerts($patient_id, $conflicts_unique, 'allergy_alert', $_SESSION['authUserID'], $mode);
+        $new_conflicts = compare_log_alerts($patient_id, $conflicts_unique, 'allergy_alert', $_SESSION['authId'], $mode);
     }
 
     if ($mode == 'all') {
@@ -448,6 +429,7 @@ function compare_log_alerts($patient_id, $current_targets, $category = 'clinical
 {
 
     if (empty($userid)) {
+      //  echo "<pre>";var_dump($_SESSION);
         $userid = $_SESSION['authUserID'];
     }
 
@@ -482,7 +464,7 @@ function compare_log_alerts($patient_id, $current_targets, $category = 'clinical
         if (!empty($new_targets)) {
             $new_targets_json = json_encode($new_targets);
         }
-
+//echo "hello =".$patient_id." -x- ".$userid." -x- ".$category." -x- ".$current_targets_json." -x- ".$new_targets_json."<br />";
         sqlStatement("INSERT INTO `clinical_rules_log` " .
               "(`date`,`pid`,`uid`,`category`,`value`,`new_value`) " .
               "VALUES (NOW(),?,?,?,?,?)", array($patient_id,$userid,$category,$current_targets_json,$new_targets_json));
@@ -640,7 +622,7 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
  *   $actions = test_rules_clinic('', 'passive_alert', $dateTarget, $mode, $patient_id, '', $organize_mode, array(), 'primary', null, null, $user);
  *
  * @param  integer      $provider      id of a selected provider. If blank, then will test entire clinic. If 'collate_outer' or 'collate_inner', then will test each provider in entire clinic; outer will nest plans inside collated providers, while inner will nest the providers inside the plans (note inner and outer are only different if organize_mode is set to plans).
- * @param  string       $type          rule filter (active_alert,passive_alert,cqm,cqm_2011,cqm_2104,amc,amc_2011,amc_2014,patient_reminder, provider_alert). If blank then will test all rules.
+ * @param  string       $type          rule filter (active_alert,passive_alert,cqm,cqm_2011,cqm_2104,amc,amc_2011,amc_2014,patient_reminder). If blank then will test all rules.
  * @param  string/array $dateTarget    target date (format Y-m-d H:i:s). If blank then will test with current date as target. If an array, then is holding two dates ('dateBegin' and 'dateTarget').
  * @param  string       $mode          choose either 'report' or 'reminders-all' or 'reminders-due' (required)
  * @param  integer      $patient_id    pid of patient. If blank then will check all patients.
@@ -655,14 +637,11 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
  */
 function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = array(), $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
 {
-// clin sum widget send this      mode= reminders-due
-    //    $actions = test_rules_clinic('', 'passive_alert', $dateTarget, $mode, $patient_id, '', $organize_mode, array(), 'primary', null, null, $user);
   // If dateTarget is an array, then organize them.
     if (is_array($dateTarget)) {
         $dateArray = $dateTarget;
         $dateTarget = $dateTarget['dateTarget'];
     }
-
   // Set date to current if not set
     $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
 
@@ -743,7 +722,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
   // Collect applicable patient pids
     $patientData = array();
     $patientData = buildPatientArray($patient_id, $provider, $pat_prov_rel, $start, $batchSize);
-
+ 
   // Go through each patient(s)
   //
   //  If in report mode, then tabulate for each rule:
@@ -761,7 +740,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
   //  So for cases such as patient reminders on a clinic scale, the calling function
   //  will actually need rather than pass in a explicit patient_id for each patient in
   //  a separate call to this function.
-    if ($mode != "report") { //reminders-due for cr widget
+    if ($mode != "report") {//these look the same to me.  is mode used as a global?
         // Use per patient custom rules (if exist -- see Dashboard::Edit CR::Admin tab)
         // Note as discussed above, this only works for single patient instances.
         $rules = resolve_rules_sql($type, $patient_id, false, $plan, $user);
@@ -769,6 +748,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
         // Only use default rules (do not use patient custom rules)
         $rules = resolve_rules_sql($type, $patient_id, false, $plan, $user);
     }
+    
     foreach ($rules as $rowRule) {
         // If using cqm or amc type, then use the hard-coded rules set.
         // Note these rules are only used in report mode.
@@ -798,8 +778,6 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
         $target_dates = array();
         if ($mode != "report") {
             // Calculate the dates to check for
-            // Some rules have all 3 types????  and they are different???
-            // well we are in renminders_due so that's how we get ==clinical_reminder
             if ($type == "patient_reminder") {
                 $reminder_interval_type = "patient_reminder";
             } elseif ($type == "provider_alert"){
@@ -807,9 +785,11 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
             } else {
                 $reminder_interval_type = "clinical_reminder";// $type == "passive_alert" or $type == "active_alert"
             }
-
             $target_dates = calculate_reminder_dates($rowRule['id'], $dateTarget, $reminder_interval_type);
-            //0= due soon = trigger date, 1= due date, 2= over due.
+            //0= due soon, 1= due date, 2= over due.
+            //switch these - check for over due 1st, then due, then due soon
+            //2= due soon, 1= due date, 0= over due.
+    
         } else { // $mode == "report"
             // Only use the target date in the report
             $target_dates[0] = $dateTarget;
@@ -820,10 +800,10 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
         $pass_filter = 0;
         $exclude_filter = 0;
         $pass_target = 0;
-
+        
         // Find the number of target groups
         $targetGroups = returnTargetGroups($rowRule['id']);
-    
+      
         if ((count($targetGroups) == 1) || ($mode == "report")) {
             // If report itemization is turned on, then iterate the rule id iterator
             if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
@@ -834,13 +814,13 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
             foreach ($patientData as $rowPatient) {
                 // First, deal with deceased patients
                 //  (for now will simply skip the patient)
-                // If you want to support rules for deceased patients then you will need to migrate this below
-                // in target_dates foreach(guessing you won't ever need to do this, though, unless you are a pathologist).
+                // If want to support rules for deceased patients then will need to migrate this below
+                // in target_dates foreach(guessing won't ever need to do this, though).
                 // Note using the dateTarget rather than dateFocus
                 if (is_patient_deceased($rowPatient['pid'], $dateTarget)) {
                     continue;
                 }
-
+                
                 // Count the total patients
                 $total_patients++;
 
@@ -849,14 +829,14 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                 if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
                     $temp_track_pass = 1;
                 }
-                //[0]=triggered, [1] = due, [2] =past due
+                
                 foreach ($target_dates as $dateFocus) {
                     //Skip if date is set to SKIP
                     if ($dateFocus == "SKIP") {
                         $dateCounter++;
                         continue;
                     }
-                    
+                    //echo $dateFocus."<br />";
                     //Set date counter and reminder token (applicable for reminders only)
                     if ($dateCounter == 1) {
                         $reminder_due = "soon_due";
@@ -867,7 +847,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                     }
                     // Check if pass filter
                     $passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateFocus);
-                   
+                   // echo "passfilter = ".$passFilter."<br />";
                     if ($passFilter === "EXCLUDED") {
                         // increment EXCLUDED and pass_filter counters
                         //  and set as FALSE for reminder functionality.
@@ -885,11 +865,12 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         }
                     } else {
                         $dateCounter++;
-                        continue;
+                        continue;//no alert needed...
                     }
                     // Check if pass target
                     $passTarget = test_targets($rowPatient['pid'], $rowRule['id'], '', $dateFocus);
-                    
+                 //   echo "<br /><pre>latest passTarget if positive, keep going = ".$passTarget."\n-x-".$rowPatient['pid']." -x- ".$rowRule['id']." -x- ". $dateFocus."</pre>";//var_dump($latest_date); ;
+    
                     if ($passTarget) {
                         // increment pass target counter
                         $pass_target++;
@@ -898,7 +879,6 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                             insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $rowPatient['pid']);
                             $temp_track_pass = 1;
                         }
-
                         // send to reminder results
                         if ($mode == "reminders-all") {
                             // place the completed actions into the reminder return array
@@ -912,8 +892,9 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                             }
                         }
 
-                        break;
+                        //break;//no alert needed
                     } else {
+                        //Alert is still needed
                         // send to reminder results
                         if ($mode != "report") {
                             // place the uncompleted actions into the reminder return array
@@ -930,18 +911,44 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                     }
                     $dateCounter++;
                 }
+                //when was this last done?
+                //when does the alert go live?
+                //when is it late
+                //when is it over due
+    
+                // $target_dates
+                // 2= due soon, 1= due date, 0= over due.
+    
+                // get last done.
+                // if $last_done empty/never                     =>   STOP - Past Due
+                // if $last_done >= (now + post - recur_interval)
+                //      ie. found here                           =>   STOP - No alert, no anything. It happened as requested.   It is fine. Go quietly.
+    
+                /*
+            
+            Now() < Last_done+interval- pre  --->|---pre---|--Due--|----post----->
+              NADA    <---- Now ---------------->|
+              
+            Now() > Last_done+ interval - pre AND < Last_done+ interval
+              Due Soon                           |<- Now ->|
+              
+            Now() > Last_done+interval AND < Last_done+interval+post
+                Due                                        |<-Now->|
+            
+            Now() > Last_done+interval AND < Last_done+interval+post
+               Over Due                                             |<---Now-------->
                 
+                */
+    
                 // If report itemization is turned on, then record the "failed" item if it did not pass
                 if (!empty($GLOBALS['report_itemizing_temp_flag_and_id']) && !($temp_track_pass)) {
                     insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $rowPatient['pid']);
                 }
             }
         }
-        //echo "<pre>".$reminder_interval_type;var_dump($results); die();
-    
+
         // Calculate and save the data for the rule
         $percentage = calculate_percentage($pass_filter, $exclude_filter, $pass_target);
-    
         if ($mode == "report") {
             $newRow=array('is_main'=>true,'total_patients'=>$total_patients,'excluded'=>$exclude_filter,'pass_filter'=>$pass_filter,'pass_target'=>$pass_target,'percentage'=>$percentage);
             $newRow=array_merge($newRow, $rowRule);
@@ -1012,7 +1019,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                                 $temp_track_pass = 0;
                             }
                         }
-
+                       
                         //Check if pass target
                         $passTarget = test_targets($rowPatient['pid'], $rowRule['id'], $i, $dateFocus);
                         if ($passTarget) {
@@ -1023,20 +1030,27 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                                 insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $rowPatient['pid']);
                                 $temp_track_pass = 1;
                             }
-
+    
+                            //wait, when did the last action item we are looking for happen?  That's what we want!'
+    
                             // send to reminder results
                             if ($mode == "reminders-all") {
                                 // place the completed actions into the reminder return array
                                 $actionArray = resolve_action_sql($rowRule['id'], $i);
                                 foreach ($actionArray as $action) {
                                     $action_plus = $action;
+                                    $latest = latest_test_targets($rowPatient['pid'], $rowRule['id'], $i, $dateFocus);
+                                    $action_plus['latest'] = $latest;
+                                 //   echo "latest1 = ".$latest."<br />";
+    
                                     $action_plus['due_status'] = "not_due";
                                     $action_plus['pid'] = $rowPatient['pid'];
                                     $action_plus['rule_id'] = $rowRule['id'];
                                     $results = reminder_results_integrate($results, $action_plus);
                                 }
                             }
-
+//$latest = test_targets($rowPatient['pid'], $rowRule['id'], $i, $dateFocus);
+                           // echo "latest1=".$latest; die();
                             break;
                         } else {
                             // send to reminder results
@@ -1045,6 +1059,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                                 $actionArray = resolve_action_sql($rowRule['id'], $i);
                                 foreach ($actionArray as $action) {
                                     $action_plus = $action;
+                                    $latest = latest_test_targets($rowPatient['pid'], $rowRule['id'], $i, $dateFocus);
+                                    $action_plus['latest'] = $latest;
                                     $action_plus['due_status'] = $reminder_due;
                                     $action_plus['pid'] = $rowPatient['pid'];
                                     $action_plus['rule_id'] = $rowRule['id'];
@@ -1060,11 +1076,11 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                     if ($GLOBALS['report_itemizing_temp_flag_and_id'] && !($temp_track_pass)) {
                         insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $rowPatient['pid']);
                     }
+                    
                 }
 
                 // Calculate and save the data for the rule
                 $percentage = calculate_percentage($pass_filter, $exclude_filter, $pass_target);
-
                 // Collect action for title (just use the first one, if more than one)
                 $actionArray = resolve_action_sql($rowRule['id'], $i);
                 $action = $actionArray[0];
@@ -1081,7 +1097,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
             }
         }
     }
-
+//echo "results = ";var_dump($results);die();
   // Return the data
     return $results;
 }
@@ -1251,7 +1267,7 @@ function test_filter($patient_id, $rule, $dateTarget)
         return false;
     }
 
-  // -------- Procedure (labs,imaging,test,procedures,etc) Filter (inclusion) ----
+  // -------- Procedure (labs,imaging,test,procedures,etc) Filter (inlcusion) ----
   // Procedure Target (includes) (may need to include an interval in the future)
     $filter = resolve_filter_sql($rule, 'filt_proc');
     if ((!empty($filter)) && !procedure_check($patient_id, $filter, '', $dateTarget)) {
@@ -1303,36 +1319,72 @@ function returnTargetGroups($rule)
  * @param  string   $dateTarget  target date (format Y-m-d H:i:s).
  * @return boolean               if target passes then true, otherwise false
  */
-function test_targets($patient_id, $rule, $group_id = '', $dateTarget)
-{
-
-  // -------- Interval Target ----
-    $interval = resolve_target_sql($rule, $group_id, 'target_interval');
-
-  // -------- Database Target ----
-  // Database Target (includes)
-    $target = resolve_target_sql($rule, $group_id, 'target_database');
-    if ((!empty($target)) && !database_check($patient_id, $target, $interval, $dateTarget)) {
+    function test_targets($patient_id, $rule, $group_id = '', $dateTarget)
+    {
+        
+        // -------- Interval Target ----
+        $interval = resolve_target_sql($rule, $group_id, 'target_interval');
+        //echo "interval=<span class='bold'><pre>".$group_id;var_dump($interval);echo "</pre></span><br>";
+        // -------- Database Target ----
+        // Database Target (includes)
+        $target = resolve_target_sql($rule, $group_id, 'target_database');
+        //echo $interval."target=<span class='bold'><pre>".$group_id;var_dump($target);var_dump($interval);echo "</pre></span><br>";
+        if ((!empty($target)) && !database_check($patient_id, $target, $interval, $dateTarget)) {
+            return false;
+        }
+        
+        // -------- Procedure (labs,imaging,test,procedures,etc) Target ----
+        // Procedure Target (includes)
+        $target = resolve_target_sql($rule, $group_id, 'target_proc');
+        if ((!empty($target)) && !procedure_check($patient_id, $target, $interval, $dateTarget)) {
+            return false;
+        }
+        
+        // -------- Appointment Target ----
+        // Appointment Target (includes) (Specialized functionality for appointment reminders)
+        $target = resolve_target_sql($rule, $group_id, 'target_appt');
+        if ((!empty($target)) && appointment_check($patient_id, $dateTarget)) {
+            return false;
+        }
+        
+        // Passed all target tests, so return true.
+        return true;
+    }
+    
+    function latest_test_targets($patient_id, $rule, $group_id = '', $dateTarget)
+    {
+        // -------- Interval Target ---- //does this need to prepend latest_?
+        $interval = resolve_target_sql($rule, $group_id, 'target_interval');
+        
+        // -------- Database Target ----
+        // Database Target (includes)
+        $target = resolve_target_sql($rule, $group_id, 'target_database');
+        if (!empty($target)) {
+            $latest_date = latest_database_check($patient_id, $target, $interval, $dateTarget);
+            return $latest_date;
+        }
+        
+        // -------- Procedure (labs,imaging,test,procedures,etc) Target ----
+        // Procedure Target (includes)
+        $target = resolve_target_sql($rule, $group_id, 'target_proc');
+        if (!empty($target)) {
+            //echo "okproc";
+            $latest_date = latest_procedure_check($patient_id, $target, $interval, $dateTarget);
+            return $latest_date;
+        }
+        
+        // -------- Appointment Target ----
+        // Appointment Target (includes) (Specialized functionality for appointment reminders)
+        $target = resolve_target_sql($rule, $group_id, 'target_appt');
+        if (!empty($target)) {
+            //
+            //echo "okappt";
+            $latest_date = latest_appointment_check($patient_id, $dateTarget);
+            return $latest_date;
+        }
+        // Passed all target tests, so return true.
         return false;
     }
-
-  // -------- Procedure (labs,imaging,test,procedures,etc) Target ----
-  // Procedure Target (includes)
-    $target = resolve_target_sql($rule, $group_id, 'target_proc');
-    if ((!empty($target)) && !procedure_check($patient_id, $target, $interval, $dateTarget)) {
-        return false;
-    }
-
-  // -------- Appointment Target ----
-  // Appointment Target (includes) (Specialized functionality for appointment reminders)
-    $target = resolve_target_sql($rule, $group_id, 'target_appt');
-    if ((!empty($target)) && appointment_check($patient_id, $dateTarget)) {
-        return false;
-    }
-
-  // Passed all target tests, so return true.
-    return true;
-}
 
 /**
  * Function to return active plans
@@ -1720,7 +1772,6 @@ function resolve_action_sql($rule, $group_id = '')
         "ON a.category = b.category AND a.item = b.item " .
         "WHERE a.id=?", array($rule));
     }
-
     $returnArray= array();
     for ($iter=0; $row=sqlFetchArray($sql); $iter++) {
         array_push($returnArray, $row);
@@ -1737,126 +1788,251 @@ function resolve_action_sql($rule, $group_id = '')
  * @param  array   $interval    array containing interval elements
  * @param  string  $dateTarget  target date(format Y-m-d H:i:s). blank is current date.
  * @return boolean              true if check passed, otherwise false
- */
-function database_check($patient_id, $filter, $interval = '', $dateTarget = '')
-{
-    $isMatch = false; //matching flag
-
-  // Set date to current if not set
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
-
-  // Unpackage interval information
-  // (Assume only one for now and only pertinent for targets)
-    $intervalType = '';
-    $intervalValue = '';
-    if (!empty($interval)) {
-        $intervalType = $interval[0]['value'];
-        $intervalValue = $interval[0]['interval'];
-    }
-
-    $cond_loop = 0;
-    foreach ($filter as $row) {
-        // Row description
-        //   [0]=>special modes
-        $temp_df = explode("::", $row['value']);
-
-        if ($temp_df[0] == "CUSTOM") {
-            // Row description
-            //   [0]=>special modes(CUSTOM) [1]=>category [2]=>item [3]=>complete? [4]=>number of hits comparison [5]=>number of hits
-            if (exist_custom_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $intervalType, $intervalValue, $dateTarget)) {
-                // Record the match
-                $isMatch = true;
-            } else {
-               // If this is a required entry then return false
-                if ($row['required_flag']) {
-                    return false;
-                }
-            }
-        } else if ($temp_df[0] == "LIFESTYLE") {
-            // Row description
-            //   [0]=>special modes(LIFESTYLE) [1]=>column [2]=>status
-            if (exist_lifestyle_item($patient_id, $temp_df[1], $temp_df[2], $dateTarget)) {
-                // Record the match
-                $isMatch = true;
-            } else {
-               // If this is a required entry then return false
-                if ($row['required_flag']) {
-                    return false;
-                }
-            }
-        } else {
-            // Default mode
-            // Row description
-            //   [0]=>special modes(BLANK) [1]=>table [2]=>column [3]=>value comparison [4]=>value [5]=>number of hits comparison [6]=>number of hits
-            if (exist_database_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $temp_df[6], $intervalType, $intervalValue, $dateTarget)) {
-                // Record the match
-                if ($cond_loop > 0) { // For multiple condition check
-                    $isMatch = $isMatch && true;
-                } else {
-                    $isMatch = true;
-                }
-            } else {
-               // If this is a required entry then return false
-                if ($row['required_flag']) {
-                    return false;
-                }
-            }
-        }
-
-        $cond_loop++;
-    }
-
-  // return results of check
-    return $isMatch;
-}
-
-/**
- * Function to check procedure filters and targets
  *
- * @param  string  $patient_id  pid of selected patient.
- * @param  array   $filter      array containing filter/target elements
- * @param  array   $interval    array containing interval elements
- * @param  string  $dateTarget  target date(format Y-m-d H:i:s). blank is current date.
- * @return boolean              true if check passed, otherwise false
+ * maybe return an array(boolean, and latest['date'])
  */
-function procedure_check($patient_id, $filter, $interval = '', $dateTarget = '')
-{
-    $isMatch = false; //matching flag
-
-  // Set date to current if not set
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
-
-  // Unpackage interval information
-  // (Assume only one for now and only pertinent for targets)
-    $intervalType = '';
-    $intervalValue = '';
-    if (!empty($interval)) {
-        $intervalType = $interval[0]['value'];
-        $intervalValue = $interval[0]['interval'];
+    function database_check($patient_id, $filter, $interval = '', $dateTarget = '')
+    {
+        $isMatch = false; //matching flag
+        
+        // Set date to current if not set
+        $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+        
+        // Unpackage interval information
+        // (Assume only one for now and only pertinent for targets)
+        $intervalType = '';
+        $intervalValue = '';
+        if (!empty($interval)) {
+            $intervalType = $interval[0]['value'];
+            $intervalValue = $interval[0]['interval'];
+        }
+        //var_dump($filter); this is the array $target when doing an alert step 2
+        $cond_loop = 0;
+        foreach ($filter as $row) {
+            // Row description
+            //   [0]=>special modes
+            $temp_df = explode("::", $row['value']);
+            
+            if ($temp_df[0] == "CUSTOM") {
+                // Row description
+                //   [0]=>special modes(CUSTOM) [1]=>category [2]=>item [3]=>complete? [4]=>number of hits comparison [5]=>number of hits
+                if (exist_custom_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $intervalType, $intervalValue, $dateTarget)) {
+                    // Record the match
+                    $isMatch = true;
+                } else {
+                    // If this is a required entry then return false
+                    if ($row['required_flag']) {
+                        return false;
+                    }
+                }
+            } else if ($temp_df[0] == "LIFESTYLE") {
+                // Row description
+                //   [0]=>special modes(LIFESTYLE) [1]=>column [2]=>status
+                if (exist_lifestyle_item($patient_id, $temp_df[1], $temp_df[2], $dateTarget)) {
+                    // Record the match
+                    $isMatch = true;
+                } else {
+                    // If this is a required entry then return false
+                    if ($row['required_flag']) {
+                        return false;
+                    }
+                }
+            } else {
+                // Default mode
+                // Row description
+                //   [0]=>special modes(BLANK) [1]=>table [2]=>column [3]=>value comparison [4]=>value [5]=>number of hits comparison [6]=>number of hits
+                if (exist_database_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $temp_df[6], $intervalType, $intervalValue, $dateTarget)) {
+                    // Record the match
+                    if ($cond_loop > 0) { // For multiple condition check
+                        $isMatch = $isMatch && true;
+                    } else {
+                        $isMatch = true;
+                    }
+                } else {
+                    // If this is a required entry then return false
+                    if ($row['required_flag']) {
+                        return false;
+                    }
+                }
+            }
+            
+            $cond_loop++;
+        }
+        
+        // return results of check
+        return $isMatch;
     }
-
-    foreach ($filter as $row) {
-        // Row description
-        // [0]=>title [1]=>code [2]=>value comparison [3]=>value [4]=>number of hits comparison [5]=>number of hits
-        //   code description
-        //     <type(ICD9,CPT4)>:<identifier>||<type(ICD9,CPT4)>:<identifier>||<identifier> etc.
-        $temp_df = explode("::", $row['value']);
-        if (exist_procedure_item($patient_id, $temp_df[0], $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $intervalType, $intervalValue, $dateTarget)) {
-            // Record the match
-            $isMatch = true;
-        } else {
-            // If this is a required entry then return false
-            if ($row['required_flag']) {
-                return false;
+    function latest_database_check($patient_id, $filter, $interval = '', $dateTarget = '')
+    {
+        
+        //need to do LATEST here
+        $isMatch = false; //matching flag
+        
+        // Set date to current if not set
+        $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+        
+        // Unpackage interval information
+        // (Assume only one for now and only pertinent for targets)
+        $intervalType = '';
+        $intervalValue = '';
+        if (!empty($interval)) {
+            $intervalType = $interval[0]['value'];
+            $intervalValue = $interval[0]['interval'];
+        }
+        
+        $cond_loop = 0;
+        foreach ($filter as $row) {
+            // Row description
+            //   [0]=>special modes
+            $temp_df = explode("::", $row['value']);
+            if ($temp_df[0] == "CUSTOM") {
+                // Row description
+                //   [0]=>special modes(CUSTOM) [1]=>category [2]=>item [3]=>complete? [4]=>number of hits comparison [5]=>number of hits
+                $latest = latest_custom_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $intervalType, $intervalValue, $dateTarget);
+                if ($latest) {
+                        // Record the match
+                    return $latest;
+                } else {
+                    // If this is a required entry then return false
+                    if ($row['required_flag']) {
+                        return false;
+                    }
+                }
+            } else if ($temp_df[0] == "LIFESTYLE") {
+                // Row description
+                //   [0]=>special modes(LIFESTYLE) [1]=>column [2]=>status
+                if ($latest = latest_lifestyle_item($patient_id, $temp_df[1], $temp_df[2], $dateTarget)) {
+                    // Record the match
+                    return $latest;
+                } else {
+                    // If this is a required entry then return false
+                    if ($row['required_flag']) {
+                        return false;
+                    }
+                }
+            } else {
+                // Default mode
+                // Row description
+                //   [0]=>special modes(BLANK) [1]=>table [2]=>column [3]=>value comparison [4]=>value [5]=>number of hits comparison [6]=>number of hits
+                $latest= latest_database_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $temp_df[6], $intervalType, $intervalValue, $dateTarget, '1');
+                if ($latest) {    // Record the match
+                    if ($cond_loop > 0) { // For multiple condition check
+                        $isMatch = $latest && true;
+                    } else {
+                        $isMatch = $latest;
+                    }
+                    $save_latest=$latest;
+                    return $save_latest;
+                } else {
+                    // If this is a required entry then return false
+                    if ($row['required_flag']) {
+                        return false;
+                    }
+                }
+            }
+            
+            $cond_loop++;
+        }
+        
+        // return results of check
+        return $save_latest;
+    }
+    
+    /**
+     * Function to check procedure filters and targets
+     *
+     * @param  string  $patient_id  pid of selected patient.
+     * @param  array   $filter      array containing filter/target elements
+     * @param  array   $interval    array containing interval elements
+     * @param  string  $dateTarget  target date(format Y-m-d H:i:s). blank is current date.
+     * @return boolean              true if check passed, otherwise false
+     */
+    function procedure_check($patient_id, $filter, $interval = '', $dateTarget = '')
+    {
+        $isMatch = false; //matching flag
+        
+        // Set date to current if not set
+        $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+        
+        // Unpackage interval information
+        // (Assume only one for now and only pertinent for targets)
+        $intervalType = '';
+        $intervalValue = '';
+        if (!empty($interval)) {
+            $intervalType = $interval[0]['value'];
+            $intervalValue = $interval[0]['interval'];
+        }
+        
+        foreach ($filter as $row) {
+            // Row description
+            // [0]=>title [1]=>code [2]=>value comparison [3]=>value [4]=>number of hits comparison [5]=>number of hits
+            //   code description
+            //     <type(ICD9,CPT4)>:<identifier>||<type(ICD9,CPT4)>:<identifier>||<identifier> etc.
+            $temp_df = explode("::", $row['value']);
+            if (exist_procedure_item($patient_id, $temp_df[0], $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $intervalType, $intervalValue, $dateTarget)) {
+                // Record the match
+                $isMatch = true;
+            } else {
+                // If this is a required entry then return false
+                if ($row['required_flag']) {
+                    return false;
+                }
             }
         }
+        
+        // return results of check
+        return $isMatch;
     }
-
-  // return results of check
-    return $isMatch;
-}
-
-/**
+    
+    /**
+     * Function to check procedure filters and targets
+     *
+     * @param  string  $patient_id  pid of selected patient.
+     * @param  array   $filter      array containing filter/target elements
+     * @param  array   $interval    array containing interval elements
+     * @param  string  $dateTarget  target date(format Y-m-d H:i:s). blank is current date.
+     * @return boolean              true if check passed, otherwise false
+     */
+    
+    function latest_procedure_check($patient_id, $filter, $interval = '', $dateTarget = '')
+    {
+        $isMatch = false; //matching flag
+        
+        // Set date to current if not set
+        $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+        
+        // Unpackage interval information
+        // (Assume only one for now and only pertinent for targets)
+        $intervalType = '';
+        $intervalValue = '';
+        if (!empty($interval)) {
+            $intervalType = $interval[0]['value'];
+            $intervalValue = $interval[0]['interval'];
+        }
+        
+        foreach ($filter as $row) {
+            // Row description
+            // [0]=>title [1]=>code [2]=>value comparison [3]=>value [4]=>number of hits comparison [5]=>number of hits
+            //   code description
+            //     <type(ICD9,CPT4)>:<identifier>||<type(ICD9,CPT4)>:<identifier>||<identifier> etc.
+            $temp_df = explode("::", $row['value']);
+            if (latest_procedure_item($patient_id, $temp_df[0], $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $intervalType, $intervalValue, $dateTarget)) {
+                // Record the match
+                $isMatch = true;
+            } else {
+                // If this is a required entry then return false
+                if ($row['required_flag']) {
+                    return false;
+                }
+            }
+        }
+        
+        // return results of check
+        return $isMatch;
+    }
+    
+    
+    /**
  * Function to check for appointment
  *
  * @todo Complete this to allow appointment reminders.
@@ -1864,43 +2040,78 @@ function procedure_check($patient_id, $filter, $interval = '', $dateTarget = '')
  * @param  string  $dateTarget  target date(format Y-m-d H:i:s). blank is current date.
  * @return boolean              true if appt exist, otherwise false
  */
-function appointment_check($patient_id, $dateTarget = '')
-{
-    $isMatch = false; //matching flag
-
-  // Set date to current if not set (although should always be set)
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
-    $dateTargetRound = date('Y-m-d', $dateTarget);
-
-  // Set current date
-    $currentDate = date('Y-m-d H:i:s');
-    $currentDateRound = date('Y-m-d', $dateCurrent);
-
-  // Basically, if the appointment is within the current date to the target date,
-  //  then return true. (will not send reminders on same day as appointment)
-    $sql = sqlStatementCdrEngine("SELECT openemr_postcalendar_events.pc_eid, " .
-    "openemr_postcalendar_events.pc_title, " .
-    "openemr_postcalendar_events.pc_eventDate, " .
-    "openemr_postcalendar_events.pc_startTime, " .
-    "openemr_postcalendar_events.pc_endTime " .
-    "FROM openemr_postcalendar_events " .
-    "WHERE openemr_postcalendar_events.pc_eventDate > ? " .
-    "AND openemr_postcalendar_events.pc_eventDate <= ? " .
-    "AND openemr_postcalendar_events.pc_pid = ?", array($currentDate,$dateTarget,$patient_id));
-
-  // return results of check
-  //
-  // TODO: Figure out how to have multiple appointment and changing appointment reminders.
-  //       Plan to send back array of appt info (eid, time, date, etc.)
-  //       to do this.
-    if (sqlNumRows($sql) > 0) {
-        $isMatch = true;
+    function appointment_check($patient_id, $dateTarget = '')
+    {
+        $isMatch = false; //matching flag
+        
+        // Set date to current if not set (although should always be set)
+        $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+        $dateTargetRound = date('Y-m-d', $dateTarget);
+        
+        // Set current date
+        $currentDate = date('Y-m-d H:i:s');
+        $currentDateRound = date('Y-m-d', $dateCurrent);
+        
+        // Basically, if the appointment is within the current date to the target date,
+        //  then return true. (will not send reminders on same day as appointment)
+        $sql = sqlStatementCdrEngine("SELECT openemr_postcalendar_events.pc_eid, " .
+            "openemr_postcalendar_events.pc_title, " .
+            "openemr_postcalendar_events.pc_eventDate, " .
+            "openemr_postcalendar_events.pc_startTime, " .
+            "openemr_postcalendar_events.pc_endTime " .
+            "FROM openemr_postcalendar_events " .
+            "WHERE openemr_postcalendar_events.pc_eventDate > ? " .
+            "AND openemr_postcalendar_events.pc_eventDate <= ? " .
+            "AND openemr_postcalendar_events.pc_pid = ?", array($currentDate,$dateTarget,$patient_id));
+        
+        // return results of check
+        //
+        // TODO: Figure out how to have multiple appointment and changing appointment reminders.
+        //       Plan to send back array of appt info (eid, time, date, etc.)
+        //       to do this.
+        if (sqlNumRows($sql) > 0) {
+            $isMatch = true;
+        }
+        
+        return $isMatch;
     }
-
-    return $isMatch;
-}
-
-/**
+    
+    function latest_appointment_check($patient_id, $dateTarget = '')
+    {
+        $isMatch = false; //matching flag
+    
+        // Set date to current if not set (although should always be set)
+        $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+        $dateTargetRound = date('Y-m-d', $dateTarget);
+    
+        // Set current date
+        $currentDate = date('Y-m-d H:i:s');
+        $currentDateRound = date('Y-m-d', $dateCurrent);
+    
+        // Basically, if the appointment is within the current date to the target date,
+        //  then return true. (will not send reminders on same day as appointment)
+        $sql = sqlStatementCdrEngine("SELECT openemr_postcalendar_events.pc_eventDate
+                                FROM openemr_postcalendar_events
+                                WHERE
+                                  openemr_postcalendar_events.pc_eventDate > ? AND
+                                  openemr_postcalendar_events.pc_eventDate <= ? AND
+                                  openemr_postcalendar_events.pc_pid = ?",
+            array($currentDate, $dateTarget, $patient_id));
+    
+        // return results of check
+        //
+        // TODO: Figure out how to have multiple appointment and changing appointment reminders.
+        //       Plan to send back array of appt info (eid, time, date, etc.)
+        //       to do this.
+        if (sqlNumRows($sql) > 0) {
+            while ($appt = sqlFetchArray($sql)) {
+                $latest = $appt['pc_eventDate'];
+            }
+            return $latest;
+        }
+        return false;
+    }
+    /**
  * Function to check lists filters and targets. Customizable and currently includes diagnoses, medications, allergies and surgeries.
  *
  * @param  string  $patient_id  pid of selected patient.
@@ -1932,7 +2143,7 @@ function lists_check($patient_id, $filter, $dateTarget)
 }
 
 /**
- * Function to check for existance of data in database for a patient
+ * Function to check for existence of data in database for a patient
  *
  * @param  string   $patient_id       pid of selected patient.
  * @param  string   $table            selected mysql table
@@ -2007,10 +2218,9 @@ function exist_database_item($patient_id, $table, $column = '', $data_comp, $dat
 
         if ($whereTables=="" && strpos($table, 'form_')!== false) {
             //To handle standard forms starting with form_
-            //In this case, we are assuming the date field is "date"
-            //--"date" is a reserved word and when doing overhaul consider changing this
+            //In this case, we are assuming the date field is "date" but use date field in forms table
             /*
-             $sql =sqlStatementCdrEngine(
+              $sql =sqlStatementCdrEngine(
                 "SELECT b.`" . escape_sql_column_name($column, [$table]) . "` " .
                 "FROM forms a ".
                 "LEFT JOIN `" . escape_table_name($table) . "` " . " b ".
@@ -2020,17 +2230,42 @@ function exist_database_item($patient_id, $table, $column = '', $data_comp, $dat
                 "AND b." . add_escape_custom($patient_id_label) . "=? " . $customSQL
                 . str_replace("`date`", "b.`date`", $dateSql),
                 array($data, $patient_id)
-            );
-             */
+                array($data, $patient_id)
+            );*/
+            if (!$latest_date) {
+                $query = "SELECT a.date " . "FROM forms a " . "LEFT JOIN `" . escape_table_name($table) . "` " . " b " . "ON (a.form_id=b.id) " .
+                    "WHERE a.deleted != '1' " . "AND b.`" . escape_sql_column_name($column,
+                        [$table]) . "`" . $compSql . "AND b." . add_escape_custom($patient_id_label) . "=? " . $customSQL . str_replace("`date`",
+                        "a.`date`", $dateSql);
+                $Xquery = "SELECT a.date " . "FROM forms a " . "LEFT JOIN `" . escape_table_name($table) . "` " . " b " . "ON (a.form_id=b.id) " . //do we need the table? it breaks on eye form
+                    "WHERE a.deleted != '1' " . "AND b.`" . escape_sql_column_name($column,
+                        [$table]) . "`" . $compSql . "AND b." . add_escape_custom($patient_id_label) . "=? " . $customSQL . " order by a.date desc limit 1";
+               // echo "<pre>" . $query . "</pre>";
+    
+                //$SESSION['latest'] = sqlQuery($query, array($data, $patient_id));
+                //echo "Hello latest date = ".$latest['date']."</pre>";
+                //if (!empty($latest_date)) {
+                //    return $latest['date'];
+                //}
+            }
+            //var_dump($latest['date']); die();
+            $hello = "SELECT b.`" . escape_sql_column_name($column, [$table]) . "` " .
+                "FROM forms a ".
+                "LEFT JOIN `" . escape_table_name($table) . "` " . " b ".
+                "ON (a.form_id=b.id) ".
+                "WHERE a.deleted != '1' ".
+                "AND b.`" . escape_sql_column_name($column, [$table]) ."`" . $compSql .
+                "AND b." . add_escape_custom($patient_id_label) . "=? " . $customSQL
+                . str_replace("`date`", "a.`date`", $dateSql);
             $sql =sqlStatementCdrEngine(
                 "SELECT b.`" . escape_sql_column_name($column, [$table]) . "` " .
                 "FROM forms a ".
                 "LEFT JOIN `" . escape_table_name($table) . "` " . " b ".
-                "ON (a.form_id=b.id) ". //do we need the table? it breaks on eye form
+                "ON (a.form_id=b.id) ".
                 "WHERE a.deleted != '1' ".
                 "AND b.`" . escape_sql_column_name($column, [$table]) ."`" . $compSql .
                 "AND b." . add_escape_custom($patient_id_label) . "=? " . $customSQL
-                . str_replace("`date`", "a.`date`", $dateSql),
+                . str_replace("`date`", "a.`date`", $dateSql),//use a.date - since forms always has it and b does not
                 array($data, $patient_id)
             );
         } else {
@@ -2049,11 +2284,106 @@ function exist_database_item($patient_id, $table, $column = '', $data_comp, $dat
               $dateSql, array($data, $patient_id));
         }
     }
-
+ //echo $hello."<br />interval matched $data + $patient_id = $num_items_comp, $num_items_thres, ".sqlNumRows($sql)." = ".itemsNumberCompare($num_items_comp, $num_items_thres, sqlNumRows($sql));
   // See if number of returned items passes the comparison
     return itemsNumberCompare($num_items_comp, $num_items_thres, sqlNumRows($sql));
 }
 
+function latest_database_item($patient_id, $table, $column = '', $data_comp, $data = '', $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget = '')
+    {
+      // Set date to current if not set
+        $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+        
+        // Collect the correct column label for patient id in the table
+        $patient_id_label = collect_database_label('pid', $table);
+        
+        // If just checking for existence (ie. data is empty),
+        //   then simply set the comparison operator to ne.
+        if (empty($data)) {
+            $data_comp = "ne";
+        }
+        // get the appropriate sql comparison operator
+        $compSql = convertCompSql($data_comp);
+        
+        // custom issues per table can be placed here
+        $customSQL = '';
+        if ($table == 'immunizations') {
+            $customSQL = " AND `added_erroneously` = '0' ";
+        }
+        
+        //adding table list for where condition
+        $whereTables = '';
+        if ($table == 'procedure_result') {
+            $whereTables = ", procedure_order_code, " .
+                "procedure_order, " .
+                "procedure_report " ;
+            $customSQL = " AND procedure_order.procedure_order_id = procedure_order_code.procedure_order_id AND " .
+                "procedure_report.procedure_order_id = procedure_order.procedure_order_id AND " .
+                "procedure_report.procedure_order_seq = procedure_order_code.procedure_order_seq AND " .
+                "procedure_result.procedure_report_id = procedure_report.procedure_report_id ";
+        }
+        
+        // check for items
+        if (empty($column)) {
+            // simple search for any table entries
+            
+            $sqlText = "SELECT * " .
+                "FROM `" . escape_table_name($table)  . "` " .
+                " ". $whereTables. " ".
+                "WHERE " . add_escape_custom($patient_id_label) . "=? " . $customSQL;
+            $sql = sqlQuery($sqlText, array($patient_id));
+        } else {
+            // mdsupport : Allow trailing '**' in the strings to perform LIKE searches
+            if ((substr($data, -2)=='**') && (($compSql == "=") || ($compSql == "!="))) {
+                $compSql = ($compSql == "!=" ? " NOT": "")." LIKE CONCAT('%',?,'%') ";
+                $data = substr_replace($data, '', -2);
+            } else {
+                $compSql = $compSql . "? ";
+            }
+            
+            if ($whereTables=="" && strpos($table, 'form_')!== false) {
+                //To handle standard forms starting with form_
+                //In this case, we are assuming the date field is "date"
+                /*
+                  $sql =sqlStatementCdrEngine(
+                    "SELECT b.`" . escape_sql_column_name($column, [$table]) . "` " .
+                    "FROM forms a ".
+                    "LEFT JOIN `" . escape_table_name($table) . "` " . " b ".
+                    "ON (a.form_id=b.id AND a.formdir LIKE '".add_escape_custom(substr($table, 5))."') ".
+                    "WHERE a.deleted != '1' ".
+                    "AND b.`" . escape_sql_column_name($column, [$table]) ."`" . $compSql .
+                    "AND b." . add_escape_custom($patient_id_label) . "=? " . $customSQL
+                    . str_replace("`date`", "b.`date`", $dateSql),
+                    array($data, $patient_id)
+                );*/
+                $query  = "SELECT a.date " .
+                    "FROM forms a ".
+                    "LEFT JOIN `" . escape_table_name($table) . "` " . " b ".
+                    "ON (a.form_id=b.id) ". //do we need the table? it breaks on eye form
+                    "WHERE a.deleted != '1' ".
+                    "AND b.`" . escape_sql_column_name($column, [$table]) ."`" . $compSql .
+                    "AND b." . add_escape_custom($patient_id_label) . "=? " . $customSQL .
+                    " order by a.date desc limit 1";
+                $sql =sqlQuery($query, array($data, $patient_id));
+            } else {
+                // This allows to enter the wild card #CURDATE# in the CDR Demographics filter criteria  at the value field
+                // #CURDATE# is replace by the Current date allowing a dynamic date filtering
+                // search for latest of specific items
+                //escape_sql_column_name($column, [$table])
+                $sqlText = "SELECT date " .
+                    "FROM `" . escape_table_name($table) . "` " .
+                    " " . $whereTables . " " .
+                    "WHERE `" . escape_sql_column_name($column, [$table]) . "`" . $compSql .
+                    "AND " . add_escape_custom($patient_id_label) . "=? " . $customSQL .
+                    " order by date desc limit 1";
+               // echo $sqlText;
+                $sql = sqlQuery($sqlText, array($patient_id));
+            }
+        }
+        
+        return $sql['date'];
+    }
+    
 /**
  * Function to check for existence of procedure(s) for a patient
  *
@@ -2072,85 +2402,168 @@ function exist_database_item($patient_id, $table, $column = '', $data_comp, $dat
  * (1) If result_data ends with **, operators ne/eq are replaced by (NOT)LIKE operators
  *
  */
-function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp, $result_data = '', $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget = '')
-{
-
-  // Set date to current if not set
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
-
-  // Set the table exception (for looking up pertinent date and pid sql columns)
-    $table = "PROCEDURE-EXCEPTION";
-
-  // Collect the correct column label for patient id in the table
-    $patient_id_label = collect_database_label('pid', $table);
-
-  // Get the interval sql query string
-    $dateSql = sql_interval_string($table, $intervalType, $intervalValue, $dateTarget);
-
-  // If just checking for existence (ie result_data is empty),
-  //   then simply set the comparison operator to ne.
-    if (empty($result_data)) {
-        $result_comp = "ne";
+    function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp, $result_data = '', $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget = '')
+    {
+        
+        // Set date to current if not set
+        $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+        
+        // Set the table exception (for looking up pertinent date and pid sql columns)
+        $table = "PROCEDURE-EXCEPTION";
+        
+        // Collect the correct column label for patient id in the table
+        $patient_id_label = collect_database_label('pid', $table);
+        
+        // Get the interval sql query string
+        $dateSql = sql_interval_string($table, $intervalType, $intervalValue, $dateTarget);
+        
+        // If just checking for existence (ie result_data is empty),
+        //   then simply set the comparison operator to ne.
+        if (empty($result_data)) {
+            $result_comp = "ne";
+        }
+        
+        // get the appropriate sql comparison operator
+        $compSql = convertCompSql($result_comp);
+        
+        // explode the code array
+        $codes= array();
+        if (!empty($proc_code)) {
+            $codes = explode("||", $proc_code);
+        } else {
+            $codes[0] = '';
+        }
+        
+        // ensure proc_title is at least blank
+        if (empty($proc_title)) {
+            $proc_title = '';
+        }
+        
+        // collect specific items (use both title and/or codes) that fulfill request
+        $sqlBindArray=array();
+        $sql_query = "SELECT procedure_result.result FROM " .
+            "procedure_order_code, " .
+            "procedure_order, " .
+            "procedure_type, " .
+            "procedure_report, " .
+            "procedure_result " .
+            "WHERE " .
+            "procedure_order_code.procedure_code = procedure_type.procedure_code AND " .
+            "procedure_order.procedure_order_id = procedure_order_code.procedure_order_id AND " .
+            "procedure_order.lab_id = procedure_type.lab_id AND " .
+            "procedure_report.procedure_order_id = procedure_order.procedure_order_id AND " .
+            "procedure_report.procedure_order_seq = procedure_order_code.procedure_order_seq AND " .
+            "procedure_result.procedure_report_id = procedure_report.procedure_report_id AND " .
+            "procedure_type.procedure_type = 'ord' AND ";
+        foreach ($codes as $tem) {
+            $sql_query .= "( ( (procedure_type.standard_code = ? AND procedure_type.standard_code != '') " .
+                "OR (procedure_type.procedure_code = ? AND procedure_type.procedure_code != '') ) OR ";
+            array_push($sqlBindArray, $tem, $tem);
+        }
+        
+        // mdsupport : Allow trailing '**' in the strings to perform LIKE searches
+        if ((substr($result_data, -2)=='**') && (($compSql == "=") || ($compSql == "!="))) {
+            $compSql = ($compSql == "!=" ? " NOT": "")." LIKE CONCAT('%',?,'%') ";
+            $result_data = substr_replace($result_data, '', -2);
+        } else {
+            $compSql = $compSql . "? ";
+        }
+        
+        $sql_query .= "(procedure_type.name = ? AND procedure_type.name != '') ) " .
+            "AND procedure_result.result " . $compSql .
+            "AND " . add_escape_custom($patient_id_label) . " = ? " . $dateSql;
+        array_push($sqlBindArray, $proc_title, $result_data, $patient_id);
+        
+        $sql = sqlStatementCdrEngine($sql_query, $sqlBindArray);
+        
+        // See if number of returned items passes the comparison
+        return itemsNumberCompare($num_items_comp, $num_items_thres, sqlNumRows($sql));
     }
-
-  // get the appropriate sql comparison operator
-    $compSql = convertCompSql($result_comp);
-
-  // explode the code array
-    $codes= array();
-    if (!empty($proc_code)) {
-        $codes = explode("||", $proc_code);
-    } else {
-        $codes[0] = '';
+    
+    function latest_procedure_item($patient_id, $proc_title, $proc_code, $result_comp, $result_data = '', $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget = '')
+    {
+        
+        // Set date to current if not set
+        $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+        
+        // Set the table exception (for looking up pertinent date and pid sql columns)
+        $table = "PROCEDURE-EXCEPTION";
+        
+        // Collect the correct column label for patient id in the table
+        $patient_id_label = collect_database_label('pid', $table);
+        
+        // Get the interval sql query string
+        $dateSql = sql_interval_string($table, $intervalType, $intervalValue, $dateTarget);
+        
+        // If just checking for existence (ie result_data is empty),
+        //   then simply set the comparison operator to ne.
+        if (empty($result_data)) {
+            $result_comp = "ne";
+        }
+        
+        // get the appropriate sql comparison operator
+        $compSql = convertCompSql($result_comp);
+        
+        // explode the code array
+        $codes= array();
+        if (!empty($proc_code)) {
+            $codes = explode("||", $proc_code);
+        } else {
+            $codes[0] = '';
+        }
+        
+        // ensure proc_title is at least blank
+        if (empty($proc_title)) {
+            $proc_title = '';
+        }
+        
+        // collect specific items (use both title and/or codes) that fulfill request
+        $sqlBindArray=array();
+        $sql_query = "SELECT procedure_result.date FROM " .
+            "procedure_order_code, " .
+            "procedure_order, " .
+            "procedure_type, " .
+            "procedure_report, " .
+            "procedure_result " .
+            "WHERE " .
+            "procedure_order_code.procedure_code = procedure_type.procedure_code AND " .
+            "procedure_order.procedure_order_id = procedure_order_code.procedure_order_id AND " .
+            "procedure_order.lab_id = procedure_type.lab_id AND " .
+            "procedure_report.procedure_order_id = procedure_order.procedure_order_id AND " .
+            "procedure_report.procedure_order_seq = procedure_order_code.procedure_order_seq AND " .
+            "procedure_result.procedure_report_id = procedure_report.procedure_report_id AND " .
+            "procedure_type.procedure_type = 'ord' AND ";
+        foreach ($codes as $tem) {
+            $sql_query .= "( ( (procedure_type.standard_code = ? AND procedure_type.standard_code != '') " .
+                "OR (procedure_type.procedure_code = ? AND procedure_type.procedure_code != '') ) OR ";
+            array_push($sqlBindArray, $tem, $tem);
+        }
+        
+        // mdsupport : Allow trailing '**' in the strings to perform LIKE searches
+        if ((substr($result_data, -2)=='**') && (($compSql == "=") || ($compSql == "!="))) {
+            $compSql = ($compSql == "!=" ? " NOT": "")." LIKE CONCAT('%',?,'%') ";
+            $result_data = substr_replace($result_data, '', -2);
+        } else {
+            $compSql = $compSql . "? ";
+        }
+        
+        $sql_query .= "(procedure_type.name = ? AND procedure_type.name != '') ) " .
+            "AND procedure_result.result " . $compSql .
+            "AND " . add_escape_custom($patient_id_label) . " = ? " . $dateSql;
+        array_push($sqlBindArray, $proc_title, $result_data, $patient_id);
+        
+        $sql = sqlStatementCdrEngine($sql_query, $sqlBindArray);
+        // See if number of returned items passes the comparison
+        if (itemsNumberCompare($num_items_comp, $num_items_thres, sqlNumRows($sql))) {
+            while ($procedure = sqlFetchArray($sql)) {
+                $latest = $procedure['date'];
+                return $latest;
+            }
+        }
+        return false;
     }
-
-  // ensure proc_title is at least blank
-    if (empty($proc_title)) {
-        $proc_title = '';
-    }
-
-  // collect specific items (use both title and/or codes) that fulfill request
-    $sqlBindArray=array();
-    $sql_query = "SELECT procedure_result.result FROM " .
-               "procedure_order_code, " .
-               "procedure_order, " .
-               "procedure_type, " .
-               "procedure_report, " .
-               "procedure_result " .
-               "WHERE " .
-               "procedure_order_code.procedure_code = procedure_type.procedure_code AND " .
-               "procedure_order.procedure_order_id = procedure_order_code.procedure_order_id AND " .
-               "procedure_order.lab_id = procedure_type.lab_id AND " .
-               "procedure_report.procedure_order_id = procedure_order.procedure_order_id AND " .
-               "procedure_report.procedure_order_seq = procedure_order_code.procedure_order_seq AND " .
-               "procedure_result.procedure_report_id = procedure_report.procedure_report_id AND " .
-               "procedure_type.procedure_type = 'ord' AND ";
-    foreach ($codes as $tem) {
-        $sql_query .= "( ( (procedure_type.standard_code = ? AND procedure_type.standard_code != '') " .
-                  "OR (procedure_type.procedure_code = ? AND procedure_type.procedure_code != '') ) OR ";
-        array_push($sqlBindArray, $tem, $tem);
-    }
-
-  // mdsupport : Allow trailing '**' in the strings to perform LIKE searches
-    if ((substr($result_data, -2)=='**') && (($compSql == "=") || ($compSql == "!="))) {
-        $compSql = ($compSql == "!=" ? " NOT": "")." LIKE CONCAT('%',?,'%') ";
-        $result_data = substr_replace($result_data, '', -2);
-    } else {
-        $compSql = $compSql . "? ";
-    }
-
-    $sql_query .= "(procedure_type.name = ? AND procedure_type.name != '') ) " .
-                "AND procedure_result.result " . $compSql .
-                "AND " . add_escape_custom($patient_id_label) . " = ? " . $dateSql;
-    array_push($sqlBindArray, $proc_title, $result_data, $patient_id);
-
-    $sql = sqlStatementCdrEngine($sql_query, $sqlBindArray);
-
-  // See if number of returned items passes the comparison
-    return itemsNumberCompare($num_items_comp, $num_items_thres, sqlNumRows($sql));
-}
-
-/**
+    
+    /**
  * Function to check for existance of data for a patient in the rule_patient_data table
  *
  * @param  string   $patient_id       pid of selected patient.
@@ -2164,33 +2577,63 @@ function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp
  * @param  string   $dateTarget       target date(format Y-m-d H:i:s).
  * @return boolean                    true if check passed, otherwise false
  */
-function exist_custom_item($patient_id, $category, $item, $complete, $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget)
-{
-
-  // Set the table
-    $table = 'rule_patient_data';
-
-  // Collect the correct column label for patient id in the table
-    $patient_id_label = collect_database_label('pid', $table);
-
-  // Get the interval sql query string
-    $dateSql = sql_interval_string($table, $intervalType, $intervalValue, $dateTarget);
-
-  // search for number of specific items
-    $sql = sqlStatementCdrEngine("SELECT `result` " .
-    "FROM `" . escape_table_name($table)  . "` " .
-    "WHERE `category`=? " .
-    "AND `item`=? " .
-    "AND `complete`=? " .
-    "AND `" . add_escape_custom($patient_id_label)  . "`=? " .
-    $dateSql, array($category,$item,$complete,$patient_id));
-
-  // See if number of returned items passes the comparison
-    return itemsNumberCompare($num_items_comp, $num_items_thres, sqlNumRows($sql));
-}
-
-/**
- * Function to check for existance of data for a patient in lifestyle section
+    function exist_custom_item($patient_id, $category, $item, $complete, $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget)
+    {
+        
+        // Set the table
+        $table = 'rule_patient_data';
+        
+        // Collect the correct column label for patient id in the table
+        $patient_id_label = collect_database_label('pid', $table);
+        
+        // Get the interval sql query string
+        $dateSql = sql_interval_string($table, $intervalType, $intervalValue, $dateTarget);
+        
+        // search for number of specific items
+        $sql = sqlStatementCdrEngine("SELECT `result` " .
+            "FROM `" . escape_table_name($table)  . "` " .
+            "WHERE `category`=? " .
+            "AND `item`=? " .
+            "AND `complete`=? " .
+            "AND `" . add_escape_custom($patient_id_label)  . "`=? " .
+            $dateSql, array($category,$item,$complete,$patient_id));
+        
+        // See if number of returned items passes the comparison
+        return itemsNumberCompare($num_items_comp, $num_items_thres, sqlNumRows($sql));
+    }
+    
+    function latest_custom_item($patient_id, $category, $item, $complete, $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget)
+    {
+        
+        // Set the table
+        $table = 'rule_patient_data';
+        
+        // Collect the correct column label for patient id in the table
+        $patient_id_label = collect_database_label('pid', $table);
+        
+        // Get the interval sql query string
+        $dateSql = sql_interval_string($table, $intervalType, $intervalValue, $dateTarget);
+        
+        // search for number of specific items
+        $sql = sqlStatement("SELECT `date` " .
+            "FROM `" . escape_table_name($table)  . "` " .
+            "WHERE `category`=? " .
+            "AND `item`=? " .
+            "AND `complete`=? " .
+            "AND `" . add_escape_custom($patient_id_label)  . "`=? " .
+            $dateSql, array($category,$item,$complete,$patient_id));
+        
+        // See if number of returned items passes the comparison
+        if (itemsNumberCompare($num_items_comp, $num_items_thres, sqlNumRows($sql))) {
+            while ($urow = sqlFetchArray($sql)) {
+                return $urow['date'];
+            }
+        }
+        return false;
+    }
+    
+    /**
+ * Function to check for existence of data for a patient in lifestyle section
  *
  * @param  string  $patient_id  pid of selected patient.
  * @param  string  $lifestyle   selected label of mysql column of patient history
@@ -2198,34 +2641,62 @@ function exist_custom_item($patient_id, $category, $item, $complete, $num_items_
  * @param  string  $dateTarget  target date(format Y-m-d H:i:s). blank is current date.
  * @return boolean              true if check passed, otherwise false
  */
-function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget)
-{
-
-  // Set date to current if not set
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
-
-  // Collect pertinent history data
-    // If illegal value in $lifestyle, then will die and report error (to prevent security vulnerabilities)
-    escape_sql_column_name($lifestyle, ['history_data']);
-    $history = getHistoryData($patient_id, $lifestyle, '', $dateTarget);
-
-  // See if match
-    $stringFlag = strstr($history[$lifestyle], "|".$status);
-    if (empty($status)) {
-        // Only ensuring any data has been entered into the field
-        $stringFlag = true;
+    function latest_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget)
+    {
+        
+        // Set date to current if not set
+        $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+        
+        // Collect pertinent history data
+        // If illegal value in $lifestyle, then will die and report error (to prevent security vulnerabilities)
+        escape_sql_column_name($lifestyle, ['history_data']);
+        $history = getHistoryData($patient_id, $lifestyle.', date', '', $dateTarget);
+        
+        // See if match
+        $stringFlag = strstr($history[$lifestyle], "|".$status);
+        if (empty($status)) {
+            // Only ensuring any data has been entered into the field
+            $stringFlag = true;
+        }
+        
+        if ($history[$lifestyle] &&
+            $history[$lifestyle] != '|0|' &&
+            $stringFlag ) {
+            return $history['date'];
+        } else {
+            return false;
+        }
     }
-
-    if ($history[$lifestyle] &&
-       $history[$lifestyle] != '|0|' &&
-       $stringFlag ) {
-        return true;
-    } else {
-        return false;
+    
+    function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget)
+    {
+        
+        // Set date to current if not set
+        $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+        
+        // Collect pertinent history data
+        // If illegal value in $lifestyle, then will die and report error (to prevent security vulnerabilities)
+        escape_sql_column_name($lifestyle, ['history_data']);
+        $history = getHistoryData($patient_id, $lifestyle, '', $dateTarget);
+        
+        // See if match
+        $stringFlag = strstr($history[$lifestyle], "|".$status);
+        if (empty($status)) {
+            // Only ensuring any data has been entered into the field
+            $stringFlag = true;
+        }
+        
+        if ($history[$lifestyle] &&
+            $history[$lifestyle] != '|0|' &&
+            $stringFlag ) {
+            return true;
+        } else {
+            return false;
+        }
     }
-}
-
-/**
+    
+    
+    /**
  * Function to check for lists item of a patient. Fully customizable and includes diagnoses, medications,
  * allergies, and surgeries.
  *
@@ -2238,85 +2709,163 @@ function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget)
  * (1) If value ends with **, operators ne/eq are replaced by (NOT)LIKE operators
  *
  */
-function exist_lists_item($patient_id, $type, $value, $dateTarget)
-{
-
-  // Set date to current if not set
-    $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
-
-  // Attempt to explode the value into a code type and code (if applicable)
-    $value_array = explode("::", $value);
-    if (count($value_array) == 2) {
-        // Collect the code type and code
-        $code_type = $value_array[0];
-        $code = $value_array[1];
-
-        // Modify $code for both 'CUSTOM' and diagnosis searches
-        // Note: Diagnosis is always 'LIKE' and should not have '**'
-        if (substr($code, -2)=='**') {
-            $sqloper = " LIKE CONCAT('%',?,'%') ";
-            $code = substr_replace($code, '', -2);
-        } else {
-            $sqloper = "=?";
-        }
-
-        if ($code_type=='CUSTOM') {
-            // Deal with custom code type first (title column in lists table)
+    function exist_lists_item($patient_id, $type, $value, $dateTarget)
+    {
+        
+        // Set date to current if not set
+        $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+        
+        // Attempt to explode the value into a code type and code (if applicable)
+        $value_array = explode("::", $value);
+        if (count($value_array) == 2) {
+            // Collect the code type and code
+            $code_type = $value_array[0];
+            $code = $value_array[1];
+            
+            // Modify $code for both 'CUSTOM' and diagnosis searches
+            // Note: Diagnosis is always 'LIKE' and should not have '**'
+            if (substr($code, -2)=='**') {
+                $sqloper = " LIKE CONCAT('%',?,'%') ";
+                $code = substr_replace($code, '', -2);
+            } else {
+                $sqloper = "=?";
+            }
+            
+            if ($code_type=='CUSTOM') {
+                // Deal with custom code type first (title column in lists table)
+                $response = sqlQueryCdrEngine("SELECT * FROM `lists` " .
+                    "WHERE `type`=? " .
+                    "AND `pid`=? " .
+                    "AND `title` $sqloper " .
+                    "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
+                    "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,$code,$dateTarget,$dateTarget,$dateTarget));
+                if (!empty($response)) {
+                    return true;
+                }
+            } else {
+                // Deal with the set code types (diagnosis column in lists table)
+                $response = sqlQueryCdrEngine("SELECT * FROM `lists` " .
+                    "WHERE `type`=? " .
+                    "AND `pid`=? " .
+                    "AND `diagnosis` LIKE ? " .
+                    "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
+                    "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,"%".$code_type.":".$code."%",$dateTarget,$dateTarget,$dateTarget));
+                if (!empty($response)) {
+                    return true;
+                }
+            }
+        } else { // count($value_array) == 1
+            // Search the title column in lists table
+            //   Yes, this is essentially the same as the code type listed as CUSTOM above. This provides flexibility and will ensure compatibility.
+            
+            // Check for '**'
+            if (substr($value, -2)=='**') {
+                $sqloper = " LIKE CONCAT('%',?,'%') ";
+                $value = substr_replace($value, '', -2);
+            } else {
+                $sqloper = "=?";
+            }
+            
             $response = sqlQueryCdrEngine("SELECT * FROM `lists` " .
-            "WHERE `type`=? " .
-            "AND `pid`=? " .
-            "AND `title` $sqloper " .
-            "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
-            "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,$code,$dateTarget,$dateTarget,$dateTarget));
+                "WHERE `type`=? " .
+                "AND `pid`=? " .
+                "AND `title` $sqloper ".
+                "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
+                "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,$value,$dateTarget,$dateTarget,$dateTarget));
             if (!empty($response)) {
                 return true;
             }
-        } else {
-            // Deal with the set code types (diagnosis column in lists table)
-            $response = sqlQueryCdrEngine("SELECT * FROM `lists` " .
-            "WHERE `type`=? " .
-            "AND `pid`=? " .
-            "AND `diagnosis` LIKE ? " .
-            "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
-            "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,"%".$code_type.":".$code."%",$dateTarget,$dateTarget,$dateTarget));
-            if (!empty($response)) {
-                return true;
+            
+            if ($type == 'medication') { // Special case needed for medication as it need to be looked into current medications (prescriptions table) from ccda import
+                $response = sqlQueryCdrEngine("SELECT * FROM `prescriptions` where `patient_id` = ? and `drug` $sqloper and `date_added` <= ?", array($patient_id,$value,$dateTarget));
+                if (!empty($response)) {
+                    return true;
+                }
             }
         }
-    } else { // count($value_array) == 1
-        // Search the title column in lists table
-        //   Yes, this is essentially the same as the code type listed as CUSTOM above. This provides flexibility and will ensure compatibility.
-
-        // Check for '**'
-        if (substr($value, -2)=='**') {
-            $sqloper = " LIKE CONCAT('%',?,'%') ";
-            $value = substr_replace($value, '', -2);
-        } else {
-            $sqloper = "=?";
-        }
-
-        $response = sqlQueryCdrEngine("SELECT * FROM `lists` " .
-        "WHERE `type`=? " .
-        "AND `pid`=? " .
-        "AND `title` $sqloper ".
-        "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
-        "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,$value,$dateTarget,$dateTarget,$dateTarget));
-        if (!empty($response)) {
-            return true;
-        }
-
-        if ($type == 'medication') { // Special case needed for medication as it need to be looked into current medications (prescriptions table) from ccda import
-              $response = sqlQueryCdrEngine("SELECT * FROM `prescriptions` where `patient_id` = ? and `drug` $sqloper and `date_added` <= ?", array($patient_id,$value,$dateTarget));
-            if (!empty($response)) {
-                return true;
-            }
-        }
+        
+        return false;
     }
-
-    return false;
-}
-
-/**
+    
+    function latest_lists_item($patient_id, $type, $value, $dateTarget)
+    {
+        
+        // Set date to current if not set
+        $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
+        
+        // Attempt to explode the value into a code type and code (if applicable)
+        $value_array = explode("::", $value);
+        if (count($value_array) == 2) {
+            // Collect the code type and code
+            $code_type = $value_array[0];
+            $code = $value_array[1];
+            
+            // Modify $code for both 'CUSTOM' and diagnosis searches
+            // Note: Diagnosis is always 'LIKE' and should not have '**'
+            if (substr($code, -2)=='**') {
+                $sqloper = " LIKE CONCAT('%',?,'%') ";
+                $code = substr_replace($code, '', -2);
+            } else {
+                $sqloper = "=?";
+            }
+            
+            if ($code_type=='CUSTOM') {
+                // Deal with custom code type first (title column in lists table)
+                $response = sqlQuery("SELECT * FROM `lists` " .
+                    "WHERE `type`=? " .
+                    "AND `pid`=? " .
+                    "AND `title` $sqloper " .
+                    "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
+                    "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,$code,$dateTarget,$dateTarget,$dateTarget));
+                if (!empty($response)) {
+                    return $response['date'];
+                }
+            } else {
+                // Deal with the set code types (diagnosis column in lists table)
+                $response = sqlQuery("SELECT * FROM `lists` " .
+                    "WHERE `type`=? " .
+                    "AND `pid`=? " .
+                    "AND `diagnosis` LIKE ? " .
+                    "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
+                    "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,"%".$code_type.":".$code."%",$dateTarget,$dateTarget,$dateTarget));
+                if (!empty($response)) {
+                    return $response['date'];
+                }
+            }
+        } else { // count($value_array) == 1
+            // Search the title column in lists table
+            //   Yes, this is essentially the same as the code type listed as CUSTOM above. This provides flexibility and will ensure compatibility.
+            
+            // Check for '**'
+            if (substr($value, -2)=='**') {
+                $sqloper = " LIKE CONCAT('%',?,'%') ";
+                $value = substr_replace($value, '', -2);
+            } else {
+                $sqloper = "=?";
+            }
+            
+            $response = sqlQuery("SELECT * FROM `lists` " .
+                "WHERE `type`=? " .
+                "AND `pid`=? " .
+                "AND `title` $sqloper ".
+                "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
+                "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,$value,$dateTarget,$dateTarget,$dateTarget));
+            if (!empty($response)) {
+                return $response['date'];
+            }
+            
+            if ($type == 'medication') { // Special case needed for medication as it need to be looked into current medications (prescriptions table) from ccda import
+                $response = sqlQuery("SELECT * FROM `prescriptions` where `patient_id` = ? and `drug` $sqloper and `date_added` <= ?", array($patient_id,$value,$dateTarget));
+                if (!empty($response)) {
+                    return $response['date'];
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
  * Function to return part of sql query to deal with interval
  *
  * @param  string  $table          selected mysql table (or EXCEPTION(s))

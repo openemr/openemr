@@ -13,32 +13,35 @@
 ?>
 
 <?php $allowed = $viewBean->allowed?>
-<?php $ruleId = $viewBean->id;?>
+<?php $ruleId = $viewBean->id;
+   
+    $ruleId = $viewBean->id;
+    ?>
 <?php $groupId = $viewBean->groupId;?>
 
 <?php
 
 if ($viewBean->type != 'filter') { ?>
-    <div class="col-12">
-        Now with the Target Group of patients defined in Step 1, you can look at the charts of these patients for a specific item.
+    <div class="col-12 text-justify">
+        <p>Now with the Target Group of patients defined in Step 1, you can look at the charts of these patients for a specific item.
         This is a powerful search tool allowing criteria like  "if present", "if not present", "if it occurred more than a year ago", etc.
-        You can add multiple criteria to finely hone when this alert(s) will fire.
+        You can add multiple criteria to finely hone when this alert(s) will fire.</p>
     </div>
     <?php }  else { ?>
-        <div class="col-12">
+        <div class="col-12 text-justify ">
         
             Each <B>Clinical Reminder</B> can target one or more sub-groups of patients.
             Refine your target groups by selecting one of the options below.
             If you choose none, this CR applies to everyone in your practice.
         </div>
     <?php } ?>
-        <div class="col-12 text-center">
+        <div class="col-12 title text-center">
 
         <?php foreach ($allowed as $type) { ?>
                      <label>
                         <button class="btn btn-primary"
                                 type="button"
-                                id="edit_<?php echo attr($viewBean->type); ?>_<?php echo attr_url($ruleId); ?>"
+                                id="edit_<?php echo attr($viewBean->type); ?>_<?php echo attr_url($rule->id); ?>"
                                 data-type="<?php echo attr_url($viewBean->type); ?>"
                                 data-group="<?php echo $groupId; ?>"
                                 data-criteriatype="<?php echo attr_url($type->code); ?>">

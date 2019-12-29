@@ -224,26 +224,30 @@ class Controller_edit extends BaseController
         $ruleId = _post('id');
         $groupId = _post('group_id');
         $rule = $this->getRuleManager()->getRule($ruleId);
-    
+        
         $rf_uid = _post('rf_uid');
         $rt_uid = _post('rt_uid');
         $type = _post('type');
-        if ($type == "filter") {
+        $criteriaTypeCode = _post('criteriaTypeCode');
+        if ( ($type == "filter") && (!empty($rf_uid)) ) {
             $criteria = $this->getRuleManager()->getRuleFilterCriteria($rule, $rf_uid);
-        } else { //then it looks like it must be a target ...
+        } else if (!empty($rt_uid)) { //then it looks like it must be a target ...
             $criteria = $this->getRuleManager()->getRuleTargetCriteria($rule, $rt_uid);
         }
-
+       
         if (is_null($criteria)) {
-            $criteriaType = RuleCriteriaType::from(_post('criteriaTypeCode'));
-            $criteria = $this->getRuleManager()->createFilterRuleCriteria($rule, $criteriaType);
+            $criteriaType = RuleCriteriaType::from($criteriaTypeCode);
+            if ($type == "filter") {
+                $criteria = $this->getRuleManager()->createFilterRuleCriteria($rule, $criteriaType);
+            } else {
+                $criteria = $this->getRuleManager()->createTargetRuleCriteria($rule, $criteriaType);
+            }
+    
         }
-
+     
         if (!is_null($criteria)) {
             $dbView = $criteria->getDbView();
             $criteria->updateFromRequest();
-            $dbView = $criteria->getDbView();
-
             if ($type == "filter") {
                 $this->ruleManager->updateFilterCriteria($rule, $criteria);
             } else {
@@ -340,10 +344,11 @@ class Controller_edit extends BaseController
 
     function _action_add_criteria()
     {
+        $ruleId = _get('id');
+        $rule = $this->getRuleManager()->getRule($ruleId);
         $type = _get("criteriaType");
-        $id = _get("id");
-        $groupId = _get("group_id");
-
+        $groupId = _get('group_id');
+    
         if ($type == "filter") {
             $allowed = $this->getRuleManager()->getAllowedFilterCriteriaTypes();
         }
@@ -351,11 +356,12 @@ class Controller_edit extends BaseController
         if ($type == "target") {
             $allowed = $this->getRuleManager()->getAllowedTargetCriteriaTypes();
         }
-//echo "<pre>";var_dump($allowed);die();
+
         $this->viewBean->allowed = $allowed;
-        $this->viewBean->id = $id;
-        $this->viewBean->groupId = $groupId;
         $this->viewBean->type = $type;
+        $this->viewBean->rule = $rule;
+        $this->viewBean->rule_id = $ruleId;
+        $this->viewBean->groupId = $groupId;
         $this->addHelper("common.php");
         $this->set_view("add_criteria.php","criteria_".$type.".php");
     }

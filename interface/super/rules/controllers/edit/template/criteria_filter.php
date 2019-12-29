@@ -32,46 +32,47 @@
     edit.init();
 </script>
 
-    <button type="submit" form="frm_submit"
-            class="btn btn-sm btn-primary icon_3"
-            id="frm_filters_save"
-            title="Save"><i class="fa fa-save"></i>
-    </button>
-    <button onclick="top.restoreSession();location.href='index.php?action=detail!view&amp;id=<?php echo attr_url($ruleId); ?>'"
-            class="btn btn-sm btn-primary icon_2"
-            title="Cancel"><i class="fa fa-times"></i>
-    </button>
-    <button class="btn btn-sm btn-primary icon_1"
-            id="show_filters_help"
-            data-toggle="modal"
-            data-target="#help_filters"
-            title="Open the Help:: Who will this CR affect?"><i class="fa fa-question"></i>
-    </button>
+<button type="submit" form="frm_submit"
+        class="btn btn-sm btn-primary icon_3"
+        id="frm_filters_save"
+        title="Save"><i class="fa fa-save"></i>
+</button>
+<button onclick="top.restoreSession();location.href='index.php?action=detail!view&amp;id=<?php echo attr_url($ruleId); ?>'"
+        class="btn btn-sm btn-primary icon_2"
+        title="Cancel"><i class="fa fa-times"></i>
+</button>
+<button class="btn btn-sm btn-primary icon_1"
+        id="show_filters_help"
+        data-toggle="modal"
+        data-target="#help_filters"
+        title="Open the Help:: Who will this CR affect?"><i class="fa fa-question"></i>
+</button>
 
-    <div class="col-12">
-        <span class="title text-left"><?php echo xlt('Step 1: Who are we targeting?'); ?> </span>
-    </div>
-    <div class="col-12">
-        <form action="index.php?action=edit!submit_criteria" method="post" id="frm_submit" onsubmit="return top.restoreSession()">
+<div class="col-12">
+    <span class="title text-left"><?php echo xlt('Step 1: Who are we targeting?'); ?> </span>
+</div>
+<div class="col-12">
+    <form action="index.php?action=edit!submit_criteria" method="post" id="frm_submit" onsubmit="return top.restoreSession()">
 
         <input type="hidden" name="id" value="<?php echo attr($rule->id); ?>"/>
         <input type="hidden" name="group_id" value="<?php echo attr($criteria->groupId); ?>"/>
         <input type="hidden" name="guid" value="<?php echo attr($criteria->guid); ?>"/>
+        <input type="hidden" name="rf_uid" value="<?php echo attr($criteria->rf_uid); ?>"/>
         <input type="hidden" name="type" value="<?php echo attr($viewBean->type); ?>"/>
         <input type="hidden" name="criteriaTypeCode" value="<?php echo attr($criteria->criteriaType->code); ?>"/>
-        
-                <!-- ----------------- -->
-                <?php
-                    if (file_exists($viewBean->_view_body)) {
-                        require_once($viewBean->_view_body);
-                    }
-                ?>
-                <!-- ----------------- -->
-        </form>
-    </div>
+
+        <!-- ----------------- -->
+        <?php
+            if (file_exists($viewBean->_view_body)) {
+                require_once($viewBean->_view_body);
+            }
+        ?>
+        <!-- ----------------- -->
+    </form>
+</div>
 
 <div id="required_msg" class="col-8 small hidden">
-    <span class="required">*</span><?php echo xlt('Required fields'); ?>
+    <!-- <span class="required">*</span><?php echo xlt('Required fields'); ?> -->
 </div>
 
 </body>

@@ -645,13 +645,14 @@ class RuleManager
      */
     function updateTargetCriteria($rule, $criteria)
     {
+        //var_dump($rule);
         $dbView = $criteria->getDbView();
         $method = "target_" . $dbView->method;
 
-        $guid = $criteria->guid;
         $group_id = $criteria->groupId;
-
-        if (is_null($guid)) {
+        $rt_uid = $criteria->rt_uid;
+        
+        if (is_null($rt_uid)) {
             /// insert
             if (!$group_id) {
                 $result = sqlQuery("SELECT max(group_id) AS group_id FROM rule_target WHERE id = ?", array($rule->id));
@@ -675,7 +676,7 @@ class RuleManager
                 $dbView->optional ? 1 : 0,
                 $dbView->method = $method,
                 $dbView->value = $dbView->value,
-                $criteria->guid ));
+                $criteria->rt_uid ));
         }
 
         // interval

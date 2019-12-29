@@ -14,10 +14,16 @@
 ?>
 
 <body class='body_top'>
-<?php $rule = $viewBean->rule; ?>
-<?php $ruleId = $viewBean->rule->id; ?>
-<?php $criteria = $viewBean->criteria; ?>
-<?php $groupId = _get('group_id'); ?>
+
+<?php
+    $rule = $viewBean->rule;
+    $ruleId = $viewBean->id;
+    $criteria = $viewBean->criteria;
+    $groupId = $criteria->groupId;
+    $rt_uid = $criteria->rt_uid;
+?>
+
+<?php $XgroupId = _get('group_id'); ?>
 
 <script language="javascript" src="<?php js_src('edit.js') ?>"></script>
 <script type="text/javascript">
@@ -28,8 +34,7 @@
 <!-- a href="javascript:;" class="iframe_medium css_button" id="btn_save" onclick="top.restoreSession()"><span><?php echo xlt('Save'); ?></span></a>
 -->
 
-
-<button onclick="top.restoreSession();location.href='index.php?action=detail!view&amp;id=<?php echo attr_url($ruleId); ?>'"
+<button onclick="top.restoreSession();location.href='index.php?action=detail!view&amp;id=<?php echo attr_url($rule->id); ?>'"
         class="btn btn-sm btn-primary icon_2"
         title="Cancel"><i class="fa fa-times"></i>
 </button>
@@ -50,10 +55,12 @@
         <input type="hidden" name="id" value="<?php echo attr($rule->id); ?>"/>
         <input type="hidden" name="group_id" value="<?php echo attr($groupId); ?>"/>
         <input type="hidden" name="type" value="<?php echo attr($viewBean->type); ?>"/>
+        <input type="hidden" name="rt_uid" value="<?php echo attr($criteria->rt_uid); ?>"/>
         <input type="hidden" name="criteriaTypeCode" value="<?php echo attr($criteria->criteriaType->code); ?>"/>
 
         <!-- ----------------- -->
         <?php
+    
             if (file_exists($viewBean->_view_body)) {
                 require_once($viewBean->_view_body);
             }
@@ -63,7 +70,7 @@
 </div>
 
 <div id="required_msg" class="col-8 small hidden">
-    <span class="required">*</span><?php echo xlt('Required fields'); ?>
+    <!-- <span class="required">*</span><?php echo xlt('Required fields'); ?> -->
 </div>
 
 </body>
