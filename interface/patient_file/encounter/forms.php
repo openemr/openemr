@@ -300,7 +300,7 @@ function createFollowUpEncounter() {
     ));
     $encounterId = (!empty($result['parent_encounter_id'])) ? $result['parent_encounter_id'] : $result['id'];
     ?>
-    var data = {encounterId: '<?php echo $encounterId; ?>', mode: 'follow_up_encounter'};
+    var data = {encounterId: '<?php echo attr($encounterId); ?>', mode: 'follow_up_encounter'};
     top.window.parent.newEncounter(data);
 }
 

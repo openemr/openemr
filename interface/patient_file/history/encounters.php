@@ -823,7 +823,7 @@ while ($result4 = sqlFetchArray($res4)) {
 
     if ($GLOBALS['enable_follow_up_encounters']) {
         $encounterId= ( !empty($result4['parent_encounter_id']) ) ? $result4['parent_encounter_id'] : $result4['id'];
-        echo "<td> <div style='z-index: 9999'>  <a href='#' class='css_button' onclick='createFollowUpEncounter(event,".$encounterId.")'><span>".xlt('Create follow-up encounter')."</span></a> </div></td>\n";
+        echo "<td> <div style='z-index: 9999'>  <a href='#' class='css_button' onclick='createFollowUpEncounter(event,".attr_js($encounterId).")'><span>".xlt('Create follow-up encounter')."</span></a> </div></td>\n";
     }
 
         echo "</tr>\n";
