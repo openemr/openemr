@@ -84,6 +84,26 @@ a:focus {
     color: #72afd2;
 }
 
+a.portal_appt:link {
+    color: #000000;
+    text-decoration: none;
+}
+
+a.portal_appt:visited {
+    color: #000000;
+    text-decoration: none;
+}
+
+a.portal_appt:hover {
+    color: #000000;
+    text-decoration: none;
+}
+
+a.portal_appt:active {
+    color: green;
+    text-decoration: none;
+}
+
 /* Layouts */
 .wrapper {
     min-height: 100%;

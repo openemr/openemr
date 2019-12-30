@@ -6,8 +6,10 @@
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Ian Jardine ( github.com/epsdky )
  * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019 Ian Jardine ( github.com/epsdky )
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -15,6 +17,7 @@ require_once("verify_session.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 require_once("lib/portal_mail.inc");
+require_once(dirname(__FILE__)."/../library/appointments.inc.php");
 
 
 if ($_SESSION['register'] === true) {
@@ -209,20 +212,20 @@ function changeCredentials(e) {
                         <header class="panel-heading"><?php echo xlt('Appointments'); ?>  </header>
                         <div id="appointmentslist" class="panel-body">
                         <?php
-                            $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
-                                "e.pc_startTime, e.pc_hometext, e.pc_apptstatus, u.fname, u.lname, u.mname, " .
-                                "c.pc_catname " . "FROM openemr_postcalendar_events AS e, users AS u, " .
-                                "openemr_postcalendar_categories AS c WHERE " . "e.pc_pid = ? AND e.pc_eventDate >= CURRENT_DATE AND " .
-                                "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " . "ORDER BY e.pc_eventDate, e.pc_startTime";
-                            $res = sqlStatement($query, array(
-                                $pid
-                            ));
-
-                        if (sqlNumRows($res) > 0) {
+                        //
+                        $current_date2 = date('Y-m-d');
+                        $apptLimit = 300;
+                        $appts = fetchNextXAppts($current_date2, $pid, $apptLimit);
+                        //
+                        if ($appts) {
+                            $stringCM = "(" . xl("Comments field entry present") . ")";
+                            $stringR = "(" . xl("Recurring appointment") . ")";
+                            //
                             $count = 0;
                             echo '<table id="appttable" style="width:100%;background:#eee;" class="table table-striped fixedtable"><thead>
                                 </thead><tbody>';
-                            while ($row = sqlFetchArray($res)) {
+
+                            foreach ($appts as $row) {
                                 $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
                                 $count++;
                                 $dayname = xl(date("l", strtotime($row ['pc_eventDate'])));
@@ -237,30 +240,50 @@ function changeCredentials(e) {
                                 }
 
                                 if ($row ['pc_hometext'] != "") {
-                                    $etitle = 'Comments' . ": " . $row ['pc_hometext'] . "\r\n";
+                                    $etitle = xl('Comments') . ": " . $row ['pc_hometext'] . "\r\n";
                                 } else {
                                     $etitle = "";
                                 }
 
                                 echo "<tr><td><p>";
-                                echo "<a href='#' onclick='editAppointment(0," . attr_js($row ['pc_eid']) . ")" .
-                                    "' title='" . attr($etitle) . "'>";
+                                //
+                                if ($row['pc_recurrtype'] == '0') {
+                                    echo "<a href='#' class='portal_appt' onclick='editAppointment(0," . attr_js($row ['pc_eid']) . ")" . "' title='" . attr($etitle) . "'>";
+                                    $apptClosingTags = "</a></p></td></tr>";
+                                }
+                                else if ($row['pc_recurrtype'] > '0') {
+                                    echo "<span style='color: #000000' title='" . attr($etitle) . "'>";
+                                    $apptClosingTags = "</span></p></td></tr>";
+                                }
+                                //
                                 echo "<b>" . text($dayname . ", " . $row ['pc_eventDate']) . "&nbsp;";
-                                echo text($disphour . ":" . $dispmin . " " . $dispampm) . "</b><br>";
-                                echo text($row ['pc_catname']) . "<br><b>";
-                                echo xlt("Provider") . ":</b> " . text($row ['fname'] . " " . $row ['lname']) . "<br><b>";
+                                echo text($disphour . ":" . $dispmin . " " . $dispampm) . "</b>";
+                                //
+                                if ($row['pc_hometext']) {
+                                    $etitleCM = $stringCM . "\r\n\r\n" . $etitle;
+                                    echo " <span style='cursor:default;color: green' title='" . attr($etitleCM) . "'>CM</span>";
+                                }
+                                if ($row['pc_recurrtype'] > '0') {
+                                    $etitleR = $stringR . "\r\n\r\n" . $etitle;
+                                    echo " <img src='" . $GLOBALS['webroot'] . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='" . attr($etitleR) . "' alt='" . attr($stringR) . "'>";
+                                }
+                                //
+                                echo "<br><b>" . xlt("Category") . ":</b> " . text($row ['pc_catname']) . "<br><b>";
+                                echo xlt("Provider") . ":</b> " . text($row ['ufname'] . " " . $row ['ulname']) . "<br><b>";
                                 echo xlt("Status") . ":</b> " . text($status_title);
-                                echo "</a></p></td></tr>";
+                                //
+                                echo $apptClosingTags;
                             }
-
-                            if (isset($res) && $res != null) {
-                                if ($count < 1) {
-                                    echo "&nbsp;&nbsp;" . xlt('None{{Appointment}}');
+                            //
+                            if ($count == $apptLimit) {
+                                echo "<tr><td><p><span style='color:red'>" . xlt("Arbitrary limit reached") . "<br>" . xlt("More appointments may exist") . "</span></p></td></tr>";
+                            }
+                            //
+                            } else {
+                                if ($resNotNull) {
+                                    echo xlt('No Appointments');
                                 }
                             }
-                        } else { // if no appts
-                            echo xlt('No Appointments');
-                        }
 
                             echo '</tbody></table>';
                         ?>
