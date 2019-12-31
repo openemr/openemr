@@ -65,14 +65,31 @@
                             "name" => "fld_item_lbl",
                             "title" => '',
                             "value" => $criteria->getItemLabel() )); ?>
-                    <a href="javascript:;" id="change_item" onclick="top.restoreSession()"><i class="fa fa-pencil"></i></a>
+                    <a href="javascript:;" id="change_item_<?php echo $viewBean->type; ?>" onclick="top.restoreSession()"><i class="fa fa-pencil"></i></a>
                     <input type="hidden" id="fld_item_<?php echo $viewBean->type; ?>" name="fld_item" value="<?php echo attr($criteria->item); ?>" />
                 </td>
             </tr>
             <!-- completed -->
             <tr>
                 <td class="text-right">
-                    <span data-field="fld_completed"><?php echo xlt('Does this need to be marked "Completed"'); ?>?</span>
+                    <span data-field="fld_completed"
+                          data-toggle='popover'
+                          data-trigger="hover"
+                          data-placement="right"
+                          data-container="body"
+                          data-html="true"
+                          title='<?php echo xla('How do we know if this was completed?'); ?>'
+                          data-content='<?php echo xla('<p>When a patient record is loaded, the CR widget in the Dashboard
+                            examines each active Clinical Reminder to determine if the required Treatment Goals were reached.
+                            Look at the "Prompting you to do this" section: when the goal is reached, what changes in the system?
+                            </p>A "completed goal" can be represented by:
+                            <ol>
+                                <li> a DB field being completed</li>
+                                <li> a specific Social History value</li>
+                                <li> or it can be marked as completed via a pop-up from within the CR widget</li>
+                            </ol>
+                            OpenEMR needs to know if it this is marked completed via a "Confirm pop-up?" in the CR widget.'); ?>'>
+                        <?php echo xlt('Does this need to be marked "Completed"'); ?>?</span>
                 </td>
                 <td class="nowrap"><select data-grp-tgt="" class="" type="dropdown" name="fld_completed" id="">
                         <option id="" value="">--<?php echo xlt('Select'); ?>--</option>
@@ -84,7 +101,7 @@
             <!-- frequency -->
             <tr>
                 <td class="text-right">
-                    <span data-field="fld_frequency"><?php echo xlt('Frequency'); ?></span>
+                    <span data-field="fld_frequency"><?php echo xlt('This item should happen')."<br />".xlt('this many times'); ?></span>
                 </td>
                 <td class="tight nowrap">
                     <select data-grp-tgt="" type="dropdown" name="fld_frequency_comparator" id="">

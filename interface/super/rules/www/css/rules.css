@@ -174,8 +174,9 @@ input[type="text"] {
     white-space: nowrap;
     vertical-align: middle;
     height: unset;
-    font-size: unset;
+    font-size: 14px;
     padding: unset;
+    vertical-align: baseline;
 }
 .tight  input[type="text"] {
     max-width:30px;
@@ -188,7 +189,7 @@ input[type="text"] {
     max-width:100px;
     display:unset;
     height:initial;
-    font-size: initial;
+    font-size: 14px;
     padding: initial;
 }
 .nowrap {

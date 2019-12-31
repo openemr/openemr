@@ -80,14 +80,27 @@ Compound Helpers
 <!-- -->
 <?php function common_fields($args)
 {
-    ?>
+    $criteria = $args['criteria'];
+    $type = $args['type'];
+    
+    if (($type!='interval') && !empty($criteria->intervalType)) { ?>
+        <tr>
+            <td class="text-right">
+                <span class="" data-field="fld_target_interval"><?php echo xlt('and this should occur every'); ?>:</span>
+            </td>
+            <td class="tight">
+                <input data-grp-tgt="flt_target_interval" class="tight"
+                       type="text"
+                       name="fld_target_interval"
+                       value="<?php echo xlt($criteria->interval); ?>" />
+                <?php echo timeunit_select(array( "context"=>"rule_target_intervals", "target"=>"fld_target_interval_", "name" => "fld_target_interval_type", "value" => $criteria->intervalType )); ?>
+            </td>
+        </tr>
     <?php
-        $criteria = $args['criteria'];
-        $type = $args['type'];
-        ?>
+    } ?>
     <tr>
         <td class="text-right" rowspan="3">
-            How does this affect the criteria?
+            Patients matching these criteria:
             <br />
         </td>
     </tr>
@@ -117,21 +130,8 @@ Compound Helpers
                     <?php echo !$criteria->inclusion ? "CHECKED" : ""?>> <?php echo xlt('excluded'); ?>
         </td>
     </tr>
-
-    <?php if (($type!='interval') && !empty($criteria->intervalType)) { ?>
-    <tr>
-        <td class="text-right">
-        <span class="" data-field="fld_target_interval"><?php echo xlt('How often should this occur for a given patient'); ?>?</span>
-        </td>
-        <td class="tight">
-            <input data-grp-tgt="flt_target_interval" class="tight"
-                   type="text"
-                   name="fld_target_interval"
-                   value="<?php echo xlt($criteria->interval); ?>" />
-            <?php echo timeunit_select(array( "context"=>"rule_target_intervals", "target"=>"fld_target_interval_", "name" => "fld_target_interval_type", "value" => $criteria->intervalType )); ?>
-        </td>
-    </tr>
-    <?php } ?>
+    
+    
 <?php } ?>
 
 <!--                  -->

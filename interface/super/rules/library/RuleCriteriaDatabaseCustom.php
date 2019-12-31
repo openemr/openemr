@@ -51,7 +51,7 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
             $requirements .= " <br /> ";
         }
 
-        $requirements .= xl("Frequency") . ": ";
+        $requirements .= xl("Occurs") . ": ";
         $requirements .= text($this->decodeComparator($this->frequencyComparator) . " " . $this->frequency);
 
         return $requirements;

@@ -68,7 +68,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
   // Collect active actions
     $actions = test_rules_clinic('', 'passive_alert', $dateTarget, $mode, $patient_id, '', $organize_mode, array(), 'primary', null, null, $user);
     
-  // Display the actions
+    // Display the actions
     $current_targets = array();
     foreach ($actions as $action) {
         // Deal with plan names first
@@ -82,6 +82,8 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             echo "</b><br>";
             continue;
         }
+        $interval = resolve_target_sql($action['rule_id'], '1', 'target_interval');
+        
         // Collect the Rule Title, Rule Developer, Rule Funding Source, and Rule Release and show it when hover over the item.
         $tooltip = '';
         if (!empty($action['rule_id'])) {
@@ -129,12 +131,9 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
                 }
             }
         }
-?>
- <?php
-        //if (!empty($tooltip)) {
-            echo $tooltip_start.$tooltip . "'>";
-        //}
- 
+        
+        echo $tooltip_start.$tooltip . "'>";
+        
         if ($action['custom_flag']) {
             // Start link for reminders that use the custom rules input screen
             $url = "../rules/patient_data.php?category=" . attr_url($action['category']);
@@ -165,7 +164,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
         }
         echo "</span>";
         // Display due status
-        if ($action['due_status']) {
+       // if ($action['due_status']) {
             $dated = new DateTime($dateTarget);
             $dated = $dated->format('Y-m-d');
             $target_date = oeFormatShortDate($dated);
@@ -175,19 +174,38 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             if ($last_run) {
                 $last_run = new DateTime($last_run);
                 $last_run = $last_run->format('Y-m-d');
-                $last_run = oeFormatShortDate($last_run);
-                $last_run = "The last time this was performed was " . $last_run;
+                $last_run_oe = oeFormatShortDate($last_run);
+                $last_run_oe = "Last performed " . $last_run_oe.".";
+                $was_run='1';
             } else {
-                $last_run = "There is no record this has ever happened so it is time!";
+                $last_run_oe = "There is no record this has ever happened so it is time!";
+                $was_run='';
             }
-                echo "<span data-toggle='popover'
-                                      title='When is this due?'
+            
+            echo "<span data-toggle='popover'
+                                     title='When is this due?'
                                       data-html='true'
                                       data-trigger='hover'
                                       data-placement='auto'
-                                      data-content='".$last_run." <br />
-                                      Due Date is ".$target_date."<br />
-                                      Past Due: ".$past_due."'>";
+                                      data-content='".$last_run_oe." <br />
+                                      ".xla('It should be performed')." ";
+            if ($interval[0]['value'] == 'flu_season') {
+                $interval[0]['value'] = "Flu Season";
+            }
+            if ($interval[0]['interval']=='1') {
+                echo xla("once per " . $interval[0]['value']).".<br />";
+            } else {
+                echo xla($interval[0]['interval']."x per ".$interval[0]['value']).".<br />";
+            }
+    
+        if (!empty($was_run)) {
+            
+            $effectiveDate = strtotime("+1 ".$interval[0]['value'], strtotime($last_run)); // returns timestamp
+            $date_here = date('Y-m-d',$effectiveDate);
+        
+            echo xla('Due Date is') . " " . oeFormatShortDate($date_here) . "<br />" . xla('Past Due') . ": " . $past_due ;
+        }
+            echo "'>";
             // Color code the status (red for past due, purple for due, green for not due and black for soon due)
             if ($action['due_status'] == "past_due") {
                 echo "&nbsp;&nbsp;(<span style='color:red'>";
@@ -201,7 +219,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 
             echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $action['due_status']) . "</span>)";
         echo "</span>".$tooltip2 ."<br />";
-        }
+        
 
         // Display the tooltip
        
@@ -213,12 +231,9 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
         }
     }
     
-    ?>      <script>
+    ?>    <script>
     $(function() {
-        $('[data-toggle="popover"]').popover({
-                                                 boundary:'window',
-                                                 html: true
-                                             });
+        $('[data-toggle="popover"]').popover();
     });
 </script>
     <?php
@@ -1324,11 +1339,10 @@ function returnTargetGroups($rule)
         
         // -------- Interval Target ----
         $interval = resolve_target_sql($rule, $group_id, 'target_interval');
-        //echo "interval=<span class='bold'><pre>".$group_id;var_dump($interval);echo "</pre></span><br>";
+        
         // -------- Database Target ----
         // Database Target (includes)
         $target = resolve_target_sql($rule, $group_id, 'target_database');
-        //echo $interval."target=<span class='bold'><pre>".$group_id;var_dump($target);var_dump($interval);echo "</pre></span><br>";
         if ((!empty($target)) && !database_check($patient_id, $target, $interval, $dateTarget)) {
             return false;
         }
@@ -1360,7 +1374,9 @@ function returnTargetGroups($rule)
         // Database Target (includes)
         $target = resolve_target_sql($rule, $group_id, 'target_database');
         if (!empty($target)) {
+            echo "ok dbTarget<pre>";var_dump($target);echo "</pre>";
             $latest_date = latest_database_check($patient_id, $target, $interval, $dateTarget);
+            echo $latest_date. " is the latest date.<br />";
             return $latest_date;
         }
         
@@ -2551,7 +2567,6 @@ function latest_database_item($patient_id, $table, $column = '', $data_comp, $da
             "AND procedure_result.result " . $compSql .
             "AND " . add_escape_custom($patient_id_label) . " = ? " . $dateSql;
         array_push($sqlBindArray, $proc_title, $result_data, $patient_id);
-        
         $sql = sqlStatementCdrEngine($sql_query, $sqlBindArray);
         // See if number of returned items passes the comparison
         if (itemsNumberCompare($num_items_comp, $num_items_thres, sqlNumRows($sql))) {
@@ -2615,14 +2630,18 @@ function latest_database_item($patient_id, $table, $column = '', $data_comp, $da
         $dateSql = sql_interval_string($table, $intervalType, $intervalValue, $dateTarget);
         
         // search for number of specific items
-        $sql = sqlStatement("SELECT `date` " .
+        $sql = "SELECT `date` " .
             "FROM `" . escape_table_name($table)  . "` " .
             "WHERE `category`=? " .
             "AND `item`=? " .
             "AND `complete`=? " .
             "AND `" . add_escape_custom($patient_id_label)  . "`=? " .
-            $dateSql, array($category,$item,$complete,$patient_id));
-        
+            $dateSql;
+        echo $sql."<br />";
+        $sql = sqlStatement($sql, array($category,$item,$complete,$patient_id));
+        while ($urow = sqlFetchArray($sql)) {
+            echo " here the latest is ". $urow['date']."<br />";
+        }
         // See if number of returned items passes the comparison
         if (itemsNumberCompare($num_items_comp, $num_items_thres, sqlNumRows($sql))) {
             while ($urow = sqlFetchArray($sql)) {

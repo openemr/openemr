@@ -515,7 +515,7 @@ $extra ="                                                                <small>
                                                             <td colspan="3" class="nowrap"><?php
                                                                     echo $criteria->getRequirements(); //escaped in interface/super/rules/library/RuleCriteriaDatabaseBucket.php
                                                                     ?>
-                                                                <?php echo is_null($criteria->getInterval()) ? "" : " <br /> " . xlt('Interval') . ": " . text($criteria->getInterval()); ?>
+                                                                <?php echo is_null($criteria->getInterval()) ? "" : " <br /> " . xlt('every') . " " . text($criteria->getInterval()); ?>
                                                             </td>
                                                             <td colspan="3" class="text-center"><?php echo(text($criteria->getCharacteristics())); ?></td>
 
@@ -970,14 +970,14 @@ $extra ="                                                                <small>
                 </div>
                 <div class="modal-body container">
                     <div class="row">
-                        <div class="col-12 text-center"><h5><?php echo xlt('In Step 2, we define the Reminder\'s criteria: what needs to happen and how often should it recur'); ?>.</h5></div>
+                        <div class="col-12 text-center"><h6><?php echo xlt('In Step 2, we define the Reminder\'s criteria: what needs to happen and how often should it recur'); ?>.</h6></div>
                     </div>
                     <div class="row">
-                        <div class="col-10 offset-1 text-center title2 "> TIME ----------&gt;</div>
+                        <div class="col-10 offset-1 text-center title"> TIME ----------&gt;</div>
                         
                         <div class="col-1 offset-1 text-right bold">Last occurrence </div>
-                        <div class="col-5 alert-success text-center text-nowrap"><h5>How often should this occur for a given patient?</h5></div>
-                        <div class="col-5 bold text-left"><h5 style="position:relative;left:-20px;">X &lt;-- Due Date</h5></div>
+                        <div class="col-5 alert-success text-center text-nowrap bold">This should occur once every:</div>
+                        <div class="col-5 bold text-left"><h6 style="position:relative;left:-20px;">X &lt;-- Due Date</h6></div>
 
                         <div class="col-1 text-center offset-1 alert-info">X</div>
                         <div class="col-3"></div>
@@ -1043,189 +1043,115 @@ $extra ="                                                                <small>
 
                         <div class="col-11 offset-1 text-center">&nbsp;</div>
 
-                        
+
                         <div class="col-2 text-center offset-3 text-right title3">Patient Reminders: </div>
-                        <div class="col-2 alert-warning text-center"><span class="tight"><input data-grp-tgt="patient" type="text" id="patient-pre" value="<?php echo attr($timings['patient']['pre']['amount']); ?>">
-                        <?php
-        
-                            /*generate_select_list(
-                                $tag_name,
-                                $list_id,
-                                $currvalue,
-                                $title,
-                                $empty_name = ' ',
-                                $class = '',
-                                $onchange = '',
-                                $tag_id = '',
-                                $custom_attributes = null,
-                                $multiple = false,
-                                $backup_list = ''
-                            */
-                            echo  generate_select_list(
-                                "patient",
-                                "rule_reminder_intervals",
-                                $timings['patient']['pre']['timeUnit']."",
-                                'patient-pre-timeunit',
-                                '',
-                                'small',
-                                "",
-                                "patient-pre-timeunit",
-                                array( "data-grp-tgt" => "patient" ));
-                        ?></span><br />
-                                    <?php echo xlt('If configured, a Message is sent informing the patient there is a Treatment Goal coming due soon.'); ?>*
-                            </div>
+                        <div class="col-2 alert-warning text-center">
+                            <?php
+                                /*
+                                 * Currently OpenEMR only sends one reminder for an action and its timing is set by
+                                 * GLOBALS::Notifications::Email/SMS Notification Hours
+                                 * So it apears that the reminder pre and post values are not used?
+                                <span class="tight"><input data-grp-tgt="patient" type="text" id="patient-pre" value="<?php echo attr($timings['patient']['pre']['amount']); ?>">
+                                <?php
+            
+                               echo  generate_select_list(
+                                    "patient",
+                                    "rule_reminder_intervals",
+                                    $timings['patient']['pre']['timeUnit']."",
+                                    'patient-pre-timeunit',
+                                    '',
+                                    'small',
+                                    "",
+                                    "patient-pre-timeunit",
+                                    array( "data-grp-tgt" => "patient" ));
+                            ?></span><br />
+                                        <?php echo xlt('If configured, a Message is sent informing the patient there is a Treatment Goal coming due soon.'); ?>*
+                                */
+                            ?>
+                        </div>
                         <div class="col-2 text-center alert-primary">
-                            <?php echo xlt('If you have a Due message configured, it will be sent on the due date'); ?>*.</span>
+                            <?php
+                                if (!$GLOBALS['medex_enable']) {
+                                    echo xlt('Patient Reminders are not delivered until you actively initiate the "Process Reminders" task');
+                                } else {
+                                    echo xlt("MedEx sends out email, SMS and/or Voice messages as configured");
+                                }
+                            ?>
                         </div>
                         <div class="col-2 alert-danger"><span class="tight">
-                            <input data-grp-tgt="patient" type="text" id="patient-post" value="<?php echo attr($timings['patient']['post']['amount']); ?>">
-                                <?php echo $timings['patient']['post']['timeunit'];
-                                    echo  generate_select_list(
-                                        "patient",
-                                        "rule_reminder_intervals",
-                                        $timings['patient']['post']['timeUnit']."",
-                                        "patient-post-timeunit",
-                                        '',
-                                        'small',
-                                        '',
-                                        "patient-post-timeunit",
-                                        array( "data-grp-tgt" => "patient" ));
-                                ?></span><br />
-                            <?php echo xlt('If you have an over-due message configured for this CR, it will be sent this long after the due date'); ?>*</span>
+                              <?php  /*
+                                        <input data-grp-tgt="patient" type="text" id="patient-post" value="<?php echo attr($timings['patient']['post']['amount']); ?>">
+                                            <?php echo $timings['patient']['post']['timeunit'];
+                                                echo  generate_select_list(
+                                                    "patient",
+                                                    "rule_reminder_intervals",
+                                                    $timings['patient']['post']['timeUnit']."",
+                                                    "patient-post-timeunit",
+                                                    '',
+                                                    'small',
+                                                    '',
+                                                    "patient-post-timeunit",
+                                                    array( "data-grp-tgt" => "patient" ));
+                                            ?></span><br />
+                                        <?php echo xlt('If you have an over-due message configured for this CR, it will be sent this long after the due date'); ?>*</span>
+                                   */
+                              ?>
                         </div>
 
+                        <?php
+                            if ($GLOBALS['medex_enable']) { ?>
+                                <div class="col-11 offset-1 text-center">&nbsp;</div>
 
-                    </div>
-                    <div class="row">
-                        <div class="col-10 offset-2 text-center small">
-                             *   <?php echo xlt('Currently the only Patient Reminder message available in OpenEMR is the "Due" message'); ?>.<br />
-                            <?php echo xlt('Due messages are sent out after you actively initiate the "Process Reminders" task.'); ?>
+                                <div class="col-2 text-center offset-3 text-right title3">Provider Reminders: </div>
+                        <div class="col-2 alert-warning text-center">
+                            <?php
+                                /*
+                                 * Currently OpenEMR only sends one reminder for an action and its timing is set by
+                                 * GLOBALS::Notifications::Email/SMS Notification Hours
+                                 * So it apears that the reminder pre and post values are not used?
+                                <span class="tight"><input data-grp-tgt="provider" type="text" id="provider-pre" value="<?php echo attr($timings['provider']['pre']['amount']); ?>">
+                                <?php
+            
+                               echo  generate_select_list(
+                                    "provider",
+                                    "rule_reminder_intervals",
+                                    $timings['provider']['pre']['timeUnit']."",
+                                    'provider-pre-timeunit',
+                                    '',
+                                    'small',
+                                    "",
+                                    "provider-pre-timeunit",
+                                    array( "data-grp-tgt" => "provider" ));
+                            ?></span><br />
+                                        <?php echo xlt('If configured, a Message is sent informing the patient there is a Treatment Goal coming due soon.'); ?>*
+                                */
+                            ?>
+                        </div>
+                        <div class="col-2 text-center alert-primary">
+                            <?php echo xlt("MedEx sends out email, SMS and/or Voice messages as configured"); ?>
+                        </div>
+                        <?php } ?>
+                        <div class="col-2 alert-danger"><span class="tight">
+                              <?php  /*
+                                        <input data-grp-tgt="provider" type="text" id="patient-post" value="<?php echo attr($timings['provider']['post']['amount']); ?>">
+                                            <?php echo $timings['provider']['post']['timeunit'];
+                                                echo  generate_select_list(
+                                                    "provider",
+                                                    "rule_reminder_intervals",
+                                                    $timings['provider']['post']['timeUnit']."",
+                                                    "provider-post-timeunit",
+                                                    '',
+                                                    'small',
+                                                    '',
+                                                    "provider-post-timeunit",
+                                                    array( "data-grp-tgt" => "provider" ));
+                                            ?></span><br />
+                                        <?php echo xlt('If you have an over-due message configured for this CR, it will be sent this long after the due date'); ?>*</span>
+                                   */
+                              ?>
                         </div>
                     </div>
-                            
-                            <!--   <div class="row nodisplay">
-
-                    <div class="col-12">
-
-                        <table class="table-100" cellpadding="2">
-                            <thead>
-                            <tr>
-                                <td class="title3">
-                                     <span data-toggle='popover'
-                                           data-trigger="hover"
-                                           data-placement="auto"
-                                           data-container="body"
-                                           data-html="true"
-                                           title='Alert Intervals'
-                                           data-content='There are three timing intervals:
-                                           <ol>
-                                                <li>The warning time - an interval of time <span class="bold">before</span> the due date where the CR is considered "Due soon"</li>
-                                                <li>The actual due date - an interval of time which extends from the "Due" date until the CR is considered Past due</li>
-                                                <li>The Past Due interval - an interval of time <span class="bold">after</span> the Due date. After this interval the CR is considered "Past Due"</li>
-                                            </ol>'><?php echo xlt('Intervals'); ?></span>
-
-                                </td>
-                                <td class="title3">Timeline</td>
-                                <td class="title3">
-                                    <span data-toggle='popover'
-                                          data-trigger="hover"
-                                          data-placement="auto"
-                                          data-container="body"
-                                          title='Active Alerts'
-                                          data-content='Once triggered, these pop-op alerts begin firing until the first time interval is reached.'><?php echo xlt('Active Alert'); ?></span>
-                                </td>
-                                <td class="title3">
-                                            <span data-toggle='popover'
-                                                  data-trigger="hover"
-                                                  data-placement="auto"
-                                                  title='Passive Alerts'
-                                                  data-container="body"
-
-                                                  data-content="Once triggered, this Passive Alert appears in the Dashboard's CR widget as 'Due soon'.
-                                                  After the first period of time has passed, the Clinical Reminder is considered 'Due'.
-                                                  The second period of time (which should be the same or longer than the first) marks the Alert as Past due.
-                                                  ">Passive Alert</span>
-                                </td>
-                            </tr>
-                            </thead>
-                            <tbody class="text-center tight">
-                            <tr>
-                                <td class="alert-warning"> <?php echo xlt('Warning Period'); ?><br />
- <?php echo xlt('an interval of time').' <span class="bold">'.xlt('before').'</span> '.xlt('the due date'); ?> </td>
-                                
-                                <td>
-                                    <?php echo xlt('Pops-up'); ?>
-                                </td>
-                                <td class="text-center">
-                                    <span class="titl"><?php echo xlt('Marked as Due Soon in CR widget'); ?></span>
-                                </td>
-
-                               
-                            </tr>
-                            <tr>
-                                <td class="alert-primary"> <?php echo xlt('Due Period'); ?> </td>
-
-                                
-                            <tr>
-                                <td class="alert-danger"><?php echo xlt('Over due Period'); ?></td>
-
-                                <td class="text-center tight">
-                                    <h6>Any time after the Due Period ends</h6>
-                                </td>
-                                <td class="text-center">
-                                    Active Alert Stops
-                                </td>
-                                <td class="text-center">
-                                    Marked as <span class="red">Past Due</span> in CR widget
-                                </td>
-                            </tr>
-                            <tr class="title4">
-                                <td>&nbsp;</td>
-                            
-                            </tr>
-                            <tr class="">
-                                <td></td>
-                                <td class="title3">Patient Reminders</td>
-                                <td class="title3">Provider Alerts</td>
-                            </tr>
-                            <tr>
-                                <td class="text-center tight" nowrap>
-                                    <i class="fa fa-plus"></i>
-                                    
-                                </td>
-                                <td>Reminder is sent</td>
-                                <td>Alert is sent</td>
-                            </tr>
-                            <tr>
-                                <td class="text-center tight" nowrap>
-                                    <i class="fa fa-plus"></i>
-                                    <input data-grp-tgt="patient" type="text" id="patient-post" value="<?php echo attr($timings['patient']['post']['amount']); ?>">
-                                    <?php echo $timings['patient']['post']['timeunit'];
-                                        echo  generate_select_list(
-                                            "patient",
-                                            "rule_reminder_intervals",
-                                            $timings['patient']['post']['timeUnit']."",
-                                            "patient-post-timeunit",
-                                            '',
-                                            'small',
-                                            '',
-                                            "patient-post-timeunit",
-                                            array( "data-grp-tgt" => "patient" ));
-                                    ?>
-
-
-                                </td>
-                                <td class="text-center tight" nowrap>2nd reminder sent<br /> if still active
-                                    <input type="hidden" data-grp-tgt="patient" id="patient-post" value="<?php echo attr($timings['patient']['post']['amount'])?:'1'; ?>">
-                                    <input type="hidden" name="patient-post-timeunit" id="patient-post-timeunit"  data-grp-tgt="patient" value="<?php echo attr($timings['patient']['post']['amount'])?:'1'; ?>">
-                                </td>
-                                <td>--</td>
-                            </tr>
-                            </tbody>
-                        </table>
-
-                    </div>
-                </div> -->
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" data-dismiss="modal">Close</button>
                 </div>
