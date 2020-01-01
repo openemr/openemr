@@ -820,12 +820,12 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
             $targetGroups[0] = "1";
         }
         foreach ($targetGroups as $i) {
-        
+    
             // If report itemization is turned on, then iterate the rule id iterator
             if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
                 $GLOBALS['report_itemized_test_id_iterator']++;
             }
-
+    
             //skip this section if not report and more than one target group
             foreach ($patientData as $rowPatient) {
                 if (is_patient_deceased($rowPatient['pid'], $dateTarget)) {
@@ -833,16 +833,16 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                 }
                 // Count the total patients
                 $total_patients++;
-                $dateCounter = 1; // for reminder mode to keep track of which date checking
+        
                 // If report itemization is turned on, reset flag.
                 if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
                     $temp_track_pass = 1;
                 }
                 //if they don't pass the filters then move on
-                $passFilter = test_filter($rowPatient['pid'], $rowRule['id'],'');
+                $passFilter = test_filter($rowPatient['pid'], $rowRule['id'], '');
                 if ($passFilter === "EXCLUDED") {
                     // increment EXCLUDED and pass_filter counters
-                    //  and set as FALSE for reminder functionality. <-- DO WE HAVE TO DO THIS?
+                    //  and set as FALSE for reminder functionality.
                     $pass_filter++;
                     $exclude_filter++;
                     $passFilter = false;
@@ -855,29 +855,30 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         $temp_track_pass = 0;
                     }
                 } else {
-                    //this rule does not apply to this patient
+                    // this rule does not apply to this patient
                     // echo "<b>".$rowRule['id']." does not apply to this patient</b><br />";
                     continue;//no alert or report needed...
                 }
                 //was this ever done? If so calculate due dates. If not then it is due.
-                $latest = latest_test_targets($rowPatient['pid'], $rowRule['id'], '1', '');
+                //echo "<br><br />New Patient:  PID=".$rowPatient['pid']." rule=".$rowRule['id']." and group=". $i."<br />";
+                $latest = latest_test_targets($rowPatient['pid'], $rowRule['id'], $i, '');
                 // echo "<b>PID</b>: ".$rowPatient['pid']." for rule=". $rowRule['id']."<br />";
                 // echo "<b>Latest:</b>".$latest."<br />";
                 if (empty($latest)) {
                     $reminder_due = "past_due";
                 } else {
                     $interval = resolve_target_sql($rowRule['id'], '1', 'target_interval');
-                    
+            
                     //     if latest + interval > $target_dates[2] ==> not due.
                     //else if latest + interval > $target_dates[1] ==> due_soon
                     //else if latest + interval > $target_dates[0] ==> due
                     //else                                         ==> past due
                     $interval1 = "+" . $interval[0]["interval"] . " " . $interval[0]["value"];
-                    $latest_int = strtotime( $latest." ".$interval1);//.$interval['interval'].$interval['value']);
-                    $not_due    = ($target_dates['2'] !=='SKIP')?strtotime($target_dates['2']):'';
-                    $due_soon   = ($target_dates['1'] !=='SKIP')?strtotime($target_dates['1']):'';
-                    $due        = ($target_dates['0'] !=='SKIP')?strtotime($target_dates['0']):'';
-                    // echo "<br>".$latest." " . $interval1.", -----=====----".$latest_int."=latest_int<br />".$not_due."=not_due<br/>".$due_soon."=due_soon<br />".$due."=due<br />";
+                    $latest_int = strtotime($latest . " " . $interval1);//.$interval['interval'].$interval['value']);
+                    $not_due = ($target_dates['2'] !== 'SKIP') ? strtotime($target_dates['2']) : '';
+                    $due_soon = ($target_dates['1'] !== 'SKIP') ? strtotime($target_dates['1']) : '';
+                    $due = ($target_dates['0'] !== 'SKIP') ? strtotime($target_dates['0']) : '';
+                  //   echo "<br>".$latest." " . $interval1.", -----=====----".$latest_int."=latest_int<br />".$not_due."=not_due<br/>".$due_soon."=due_soon<br />".$due."=due<br />";
                     if (!empty($not_due) && ($latest_int >= $not_due)) {
                         $reminder_due = "not_due";
                     } elseif (!empty($due_soon) && ($latest_int >= $due_soon)) {
@@ -888,79 +889,84 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         $reminder_due = "past_due";
                     }
                 }
-                // echo $rowRule['id']." -- Due Status = ".$reminder_due."<br />Group = 1<br />";
-                
-                        // send to reminder results
-                        if ($mode == "Xreminders-all") {
-                            // place the completed actions into the reminder return array
-                            $actionArray = resolve_action_sql($rowRule['id'], $i);
-                            foreach ($actionArray as $action) {
-                                $action_plus = $action;
-                                // echo "<li>category=".$action['category']."</li>";
-                                // echo "<li>item=".$action['item']."</li>";
-                                // echo "<li>custom_flag=".$action['custom_flag']."</li>";
-                                // echo "<li>due_status=".$reminder_due."--&gt; not_due</li>";
-                                //$latest = latest_test_targets($rowPatient['pid'], $rowRule['id'], $i, $dateFocus);
-                                $action_plus['latest'] = $latest;
-                                $action_plus['due_status'] = "not_due";
-                                $action_plus['pid'] = $rowPatient['pid'];
-                                $action_plus['rule_id'] = $rowRule['id'];
-                                $results = reminder_results_integrate($results, $action_plus);
-                            }
-            
-                        } else
-                         if ($mode != "report") {
-                            // place the actions into the reminder return array
-                             if ( ($mode != "reminders-all") && ($reminder_due == 'not_due') ) {
-                                 // echo "Not due yet<br />";
-                                 continue;
-                             }
-                             // echo "<ol>";
-                            $actionArray = resolve_action_sql($rowRule['id'], '1');
-                            foreach ($actionArray as $action) {
-                                $action_plus = $action;
-                                // echo "<li>category=".$action['category']."</li>";
-                                // echo "<li>item=".$action['item']."</li>";
-                                // echo "<li>custom_flag=".$action['custom_flag']."</li>";
-                                // echo "<li>due_status=".$reminder_due."</li>";
-                                $latest = latest_test_targets($rowPatient['pid'], $rowRule['id'], $i, $dateFocus);
-                                $action_plus['latest'] = $latest;
-                                $action_plus['due_status'] = $reminder_due;
-                                $action_plus['pid'] = $rowPatient['pid'];
-                                $action_plus['rule_id'] = $rowRule['id'];
-                                $results = reminder_results_integrate($results, $action_plus);
-                            }
-                        }
-                        // echo "</ol>";
-                    }
-
+//                echo $rowRule['id']." -- Due Status = ".$reminder_due."<br />Group = ".$i."<br />";
+                if (($reminder_due == 'not_due') || ($reminder_due == 'due_soon') || ($reminder_due == 'due')) {
+                    //surely for reporting purposes passed_targets should include all but those overdue?
+                    $pass_target++;
+                }
+        
                 // If report itemization is turned on, then record the "failed" item if it did not pass
                 if (!empty($GLOBALS['report_itemizing_temp_flag_and_id']) && !($temp_track_pass)) {
-                    insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $rowPatient['pid']);
+                    insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'],
+                        $GLOBALS['report_itemized_test_id_iterator'], 0, $rowPatient['pid']);
                 }
-        }
-
-        // Calculate and save the data for the rule
-        $percentage = calculate_percentage($pass_filter, $exclude_filter, $pass_target);
-        if ( ($mode == "report") && (count($targetGroups) == 1) ) {
-            $newRow=array('is_main'=>true,'total_patients'=>$total_patients,'excluded'=>$exclude_filter,'pass_filter'=>$pass_filter,'pass_target'=>$pass_target,'percentage'=>$percentage);
-            $newRow=array_merge($newRow, $rowRule);
-
-            // If itemization is turned on, then record the itemized_test_id
-            if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                $newRow=array_merge($newRow, array('itemized_test_id'=>$GLOBALS['report_itemized_test_id_iterator']));
+                if ($mode != "report") {
+                    // place the actions into the reminder return array
+                    if (($mode != "reminders-all") && ($reminder_due == 'not_due')) {
+  //                       echo "Not due yet<br />";
+                        continue;
+                    }
+                    // echo "<ol>";
+                    $actionArray = resolve_action_sql($rowRule['id'], $i);
+                    foreach ($actionArray as $action) {
+                        $action_plus = $action;
+    //                     echo "<li>category=".$action['category']."</li>";
+      //                   echo "<li>item=".$action['item']."</li>";
+        //                 echo "<li>custom_flag=".$action['custom_flag']."</li>";
+          //               echo "<li>due_status=".$reminder_due."</li>";
+                       // $latest = latest_test_targets($rowPatient['pid'], $rowRule['id'], $i, $dateFocus);
+                        $action_plus['latest'] = $latest;
+                        $action_plus['due_status'] = $reminder_due;
+                        $action_plus['pid'] = $rowPatient['pid'];
+                        $action_plus['rule_id'] = $rowRule['id'];
+                        $results = reminder_results_integrate($results, $action_plus);
+                    }
+                }
+                // echo "</ol>";
             }
-
-            array_push($results, $newRow);
-        } else if ($mode == "report") {
-            $newRow=array('is_sub'=>true,'action_category'=>$action['category'],'action_item'=>$action['item'],'total_patients'=>'','excluded'=>'','pass_filter'=>'','pass_target'=>$pass_target,'percentage'=>$percentage);
     
-            // If itemization is turned on, then record the itemized_test_id
-            if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                $newRow=array_merge($newRow, array('itemized_test_id'=>$GLOBALS['report_itemized_test_id_iterator']));
+            // Calculate and save the data for the rule
+            $percentage = calculate_percentage($pass_filter, $exclude_filter, $pass_target);
+            if (($mode == "report") && (count($targetGroups) == 1)) {
+                $newRow = array(
+                    'is_main' => true,
+                    'total_patients' => $total_patients,
+                    'excluded' => $exclude_filter,
+                    'pass_filter' => $pass_filter,
+                    'pass_target' => $pass_target,
+                    'percentage' => $percentage
+                );
+                $newRow = array_merge($newRow, $rowRule);
+        
+                // If itemization is turned on, then record the itemized_test_id
+                if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+                    $newRow = array_merge($newRow,
+                        array('itemized_test_id' => $GLOBALS['report_itemized_test_id_iterator']));
+                }
+        
+                array_push($results, $newRow);
+            } else {
+                if ($mode == "report") {
+                    $newRow = array(
+                        'is_sub' => true,
+                        'action_category' => $action['category'],
+                        'action_item' => $action['item'],
+                        'total_patients' => '',
+                        'excluded' => '',
+                        'pass_filter' => '',
+                        'pass_target' => $pass_target,
+                        'percentage' => $percentage
+                    );
+            
+                    // If itemization is turned on, then record the itemized_test_id
+                    if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
+                        $newRow = array_merge($newRow,
+                            array('itemized_test_id' => $GLOBALS['report_itemized_test_id_iterator']));
+                    }
+            
+                    array_push($results, $newRow);
+                }
             }
-    
-            array_push($results, $newRow);
         }
     }
 
@@ -1229,7 +1235,7 @@ function returnTargetGroups($rule)
         if (!empty($target)) {
             // echo $rule." db check--";
             $latest_date = latest_database_check($patient_id, $target, $interval, $dateTarget);
-            // echo $latest_date."<br />";
+            // echo "whooooooooo ".$latest_date."<br />";
             return $latest_date;
         }
         
@@ -1755,7 +1761,7 @@ function resolve_action_sql($rule, $group_id = '')
             // Row description
             //   [0]=>special modes
             $temp_df = explode("::", $row['value']);
-            // echo "type:".$temp_df[0]."<br />";
+            // echo "<br />type:".$temp_df[0]."<br />";
             if ($temp_df[0] == "CUSTOM") {
                 // Row description
                 //   [0]=>special modes(CUSTOM) [1]=>category [2]=>item [3]=>complete? [4]=>number of hits comparison [5]=>number of hits
@@ -1786,6 +1792,7 @@ function resolve_action_sql($rule, $group_id = '')
                 // Row description
                 //   [0]=>special modes(BLANK) [1]=>table [2]=>column [3]=>value comparison [4]=>value [5]=>number of hits comparison [6]=>number of hits
                 $latest= latest_database_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $temp_df[6], $intervalType, $intervalValue, $dateTarget);
+                // echo "<br />latest now is ".$latest." and cond_loop = ".$cond_loop."<br />";
                 if ($latest) {    // Record the match
                     if ($cond_loop > 0) { // For multiple condition check
                         $isMatch = $latest && true;
@@ -1806,7 +1813,7 @@ function resolve_action_sql($rule, $group_id = '')
         }
         
         // return results of check
-        return $save_latest;
+        return $latest;
     }
     
     /**
@@ -2075,8 +2082,14 @@ function exist_database_item($patient_id, $table, $column = '', $data_comp, $dat
     }
 
   // check for items
+    
+    // echo "column = ".$column;
     if (empty($column)) {
         // simple search for any table entries
+        /*echo "SELECT * " .
+            "FROM `" . escape_table_name($table)  . "` " .
+            " ". $whereTables. " ".
+            "WHERE " . add_escape_custom($patient_id_label) . "=? " . $customSQL. " -- ".$patient_id;*/
         $sql = sqlStatementCdrEngine("SELECT * " .
         "FROM `" . escape_table_name($table)  . "` " .
         " ". $whereTables. " ".
@@ -2094,20 +2107,16 @@ function exist_database_item($patient_id, $table, $column = '', $data_comp, $dat
             //To handle standard forms starting with form_
             //In this case, we are assuming the date field is "date" but use date field in forms table
             /*
-              $sql =sqlStatementCdrEngine(
-                "SELECT b.`" . escape_sql_column_name($column, [$table]) . "` " .
+            
+            echo "SELECT b.`" . escape_sql_column_name($column, [$table]) . "` " .
                 "FROM forms a ".
                 "LEFT JOIN `" . escape_table_name($table) . "` " . " b ".
-                "ON (a.form_id=b.id AND a.formdir LIKE '".add_escape_custom(substr($table, 5))."') ".
+                "ON (a.form_id=b.id) ".
                 "WHERE a.deleted != '1' ".
                 "AND b.`" . escape_sql_column_name($column, [$table]) ."`" . $compSql .
                 "AND b." . add_escape_custom($patient_id_label) . "=? " . $customSQL
-                . str_replace("`date`", "b.`date`", $dateSql),
-                array($data, $patient_id)
-                array($data, $patient_id)
-            );*/
-            
-            
+                . str_replace("`date`", "a.`date`", $dateSql). " -- ".$data. " -- ".$patient_id;
+            */
             $sql =sqlStatementCdrEngine(
                 "SELECT b.`" . escape_sql_column_name($column, [$table]) . "` " .
                 "FROM forms a ".
@@ -2172,7 +2181,7 @@ function latest_database_item($patient_id, $table, $column = '', $data_comp, $da
                 "procedure_report.procedure_order_seq = procedure_order_code.procedure_order_seq AND " .
                 "procedure_result.procedure_report_id = procedure_report.procedure_report_id ";
         }
-        // echo "column-".$column." and table=".$table." and <br >";
+        // echo "<b>in latest_database_item::</b><br/>column-".$column." and table=".$table." and data=".$data."<br >";
         // check for items
         if (empty($column)) {
             // simple search for any table entries
@@ -2181,6 +2190,7 @@ function latest_database_item($patient_id, $table, $column = '', $data_comp, $da
                 "FROM `" . escape_table_name($table)  . "` " .
                 " ". $whereTables. " ".
                 "WHERE " . add_escape_custom($patient_id_label) . "=? " . $customSQL;
+           // echo $sqlText;
             $sql = sqlQuery($sqlText, array($patient_id));
          } else {
             // mdsupport : Allow trailing '**' in the strings to perform LIKE searches
@@ -2237,11 +2247,11 @@ function latest_database_item($patient_id, $table, $column = '', $data_comp, $da
                     "WHERE `" . escape_sql_column_name($column, [$table]) . "`" . $compSql .
                     "AND " . add_escape_custom($patient_id_label) . "=? " . $customSQL .
                     " order by date desc limit 1";
-                // echo $sqlText." over here<br />";
+                 // echo $sqlText." over here<br />";
                 $sql = sqlQuery($sqlText, array($patient_id));
             }
         }
-        
+        // var_dump($sql)."<br />";
         return $sql['date'];
     }
     
@@ -2487,8 +2497,9 @@ function latest_database_item($patient_id, $table, $column = '', $data_comp, $da
             "WHERE `category`=? " .
             "AND `item`=? " .
             "AND `complete`=? " .
-            "AND `" . add_escape_custom($patient_id_label)  . "`=? " .
-            $dateSql;
+            "AND `" . add_escape_custom($patient_id_label)  . "`=? ";// .
+            
+        //$dateSql;
         //echo $sql.".<br />".$category."<br />".$item." // ".$complete." \\\\ ".$patient_id."<br />";
         $sql = sqlStatementCdrEngine($sql, array($category,$item,$complete,$patient_id));
          // See if number of returned items passes the comparison
