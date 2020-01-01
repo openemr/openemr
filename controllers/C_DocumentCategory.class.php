@@ -72,7 +72,7 @@ class C_DocumentCategory extends Controller
         $parent_is = $_POST['parent_is'];
         $parent_name = $this->tree->get_node_name($parent_is);
         $this->tree->add_node($parent_is, $name, $_POST['value'], $_POST['aco_spec']);
-            $trans_message = xl('Sub-category', '', '', ' ') . "'" . xl_document_category($name) . "'" . xl('successfully added to category,', '', ' ', ' ') . "'" . $parent_name . "'";
+        $trans_message = xlt('Sub-category') . " '" . text(xl_document_category($name)) . "' " . xlt('successfully added to category,') . " '" . text($parent_name) . "'";
         $this->assign("message", $trans_message);
         $this->_state = false;
         return $this->list_action();
