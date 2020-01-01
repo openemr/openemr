@@ -34,7 +34,7 @@
                 </button>
                 <button class="btn-sm btn-primary icon_1"
                         type="button"
-                        data-toggle="modal" data-backdrop="false" data-target="#help_summary" id="show_summary_help" title="Open the Help:: Summary Modal"><i class="fa fa-question"></i>
+                        data-toggle="modal" data-backdrop="false" data-target="#help_summary" id="show_summary_help" title="<?php echo xla('Open the Help:: Summary Modal'); ?>"><i class="fa fa-question"></i>
                 </button>
                 <table class="table table-sm table-condensed text-left">
                     <tr>
@@ -51,7 +51,11 @@
                         </td>
                         <td>
                             <?php
-                                foreach (RuleType::values() as $type) {?>
+                                foreach (RuleType::values() as $type) {
+                                    if (($GLOBALS['medex_enable'] !='1') && ($type =="provideralert") ) {
+                                        continue;
+                                    }
+                                    ?>
                                     <label><input name="fld_ruleTypes[]"
                                                   value="<?php echo attr($type); ?>"
                                                   type="checkbox" <?php echo $rule->hasRuleType(RuleType::from($type)) ? "CHECKED": "" ?>>
@@ -106,8 +110,14 @@
                                       title='Public Description'
                                       data-html="true"
                                       data-trigger='hover'
-                                      data-placement='auto'
-                                      data-content='The text here will be displayed in the Dashboard::CR widget (only Passive Alerts) via a tooltip.  Use it to describe to your staff what this CR means.'>
+                                      data-placement='left'
+                                      data-content='<?php echo xla("The text here will be displayed in the CR widget via a tooltip.
+                                        Use it to describe to your staff what this CR means."); ?>
+                                        <hr>
+                                        <img width="250px" src="<?php echo $GLOBAL['webroot'];?>/interface/super/rules/www/CR_tooltip.png">
+                                        <hr>
+                                        <?php echo xla('In the CR widget, the Treatment Goal carrying this tooltip is also a clickable link.  This link leads to either a pop-up (add a note and/or mark the task completed), or to an external link.
+                                        This link is set separately from the Reference link later in the creation process.'); ?>'>
                                     <span class="underline"><?php echo xlt('Description'); ?></span>:
                                 </span>
                         </td>

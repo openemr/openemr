@@ -69,10 +69,9 @@
                 <span class="underline"><?php echo xlt('Alert Type'); ?>:</span></td>
             
             <td><?php echo implode_funcs(", ", $rule->getRuleTypeLabels(), array('xlt')); ?><br />
-hello
             <?php echo $timing;
             
-            echo "globals['medex_enable'] =".$GLOBALS['medex_enable']; ?>
+            ?>
             </td>
         </tr>
         <tr>

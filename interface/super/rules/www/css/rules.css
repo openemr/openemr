@@ -218,4 +218,15 @@ td > textarea {
     float:unset; //remove this when css_button stuff removed from themes
 }
 
-.menu_bottom
+.past_due {
+    color:red;
+}
+.due_now {
+    color:purple;
+}
+.not_due {
+    color: green;
+}
+.due_soon {
+    color:black;
+}

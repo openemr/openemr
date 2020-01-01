@@ -36,7 +36,7 @@
 
         <div class="col-12">
             <div class="header">
-                <div class="title"><?php echo xlt('Clinical Reminder'); ?>: <i class="red"><?php echo xlt($rule->title); ?></i>  </div>
+                <div class="title"><?php echo xlt('Clinical Reminder'); ?>: <i class="bolder"><?php echo xlt($rule->title); ?></i>  </div>
                 <div id="show_summary_report" class="red">&nbsp;</div>
             </div>
         </div>
@@ -68,8 +68,7 @@
                         </tr>
                         <tr>
                             <td class="text-right">
-                                <span class="underline"><?php echo xlt('Alert Type'); ?>:</span></td>
-                            <td colspan="3"><?php
+                                <?php
                                     $intervals = $rule->reminderIntervals;
                                     $provider = $intervals->getDetailFor('provider');
                                     foreach (ReminderIntervalType::values() as $type) {
@@ -88,27 +87,35 @@
                                     }
                                     
                                     $more='';
-                                    $something='';
+                                    $something=0;
                                     
                                     foreach (RuleType::values() as $type) {
                                         if ($rule->hasRuleType(RuleType::from($type))) {
-                                            $something=1;
+                                            $something++;
                                         }
                                     }
-                                    
+                                    ?>
+                                <span class="underline"><?php
+                                        if ($something > '1') {
+                                            echo xlt('Alert Types');
+                                        } else {
+                                            echo xlt('Alert Type');
+                                        }
+                                        ?>:</span></td>
+                            <td colspan="3"><?php
                                     
                                     if ($something) {
                                         if ($rule->hasRuleType(RuleType::from('activealert')) || $rule->hasRuleType(RuleType::from('passivealert'))) {
-                                            $timing = "<div><span class='bolder red'>This is a Clinical Alert!</span></div>";
+                                            $clinical = '1';
                                         }
                                         if ($rule->hasRuleType(RuleType::from('activealert')) && $rule->hasRuleType(RuleType::from('passivealert'))) {
-                                            $timing .= "<div class='indent10'>".xlt('This CR has both an')."
+                                            $timing = "<div>".xlt('This CR has both an')."
                                                             <span class='bold'
                                                                   data-toggle='popover'
                                                                   data-trigger='hover'
                                                                   data-placement='auto'
                                                                   title='Active Alerts'
-                                                                  data-content='".xla('A Pop-up will occur when the demographics page is opened').".'>".xlt('Active Alert')."</span>
+                                                                  data-content='".xla('A Pop-up will occur daily when the demographics page is opened listing any Treatment Goals needing attention.')."'>".xlt('Active Alert')."</span>
                                                             ".xlt('and a')."
                                                             <span class='bold'
                                                                   data-toggle='popover'
@@ -121,38 +128,41 @@
                                                             </span>";
                                             // Look at Custom input in actions to see if true.  How do we find that in this OOP goop?  Help Brady please...
                                             //$timing .=" If any Treatment Goal in this CR needs to be marked 'Completed', a link in the CR widget will open a pop-up to do this and/or add a note.<br />";
-                                            $timing .= $timings['clinical']['pre']['amount'] . " " . $timings['clinical']['pre']['timeUnit2'] . " before its Due date, this CR is marked Due Soon.<br />";
-                                            $timing .= $timings['clinical']['post']['amount'] . " " . $timings['clinical']['post']['timeUnit2'] . " after its Due date, this CR will be marked as Past Due.<br />";
+                                            $timing .= $timings['clinical']['pre']['amount'] . " " . $timings['clinical']['pre']['timeUnit2'] . " ".xlt('before its Due date, this CR is marked ')."<span class='due_soon bolder'>".xlt('Due Soon')."</span>.<br />";
+                                            $timing .= xlt('Then for ')." ".$timings['clinical']['post']['amount'] . " " . $timings['clinical']['post']['timeUnit2'] ." ".xlt('it is ')."<span class='due_now'>".xlt('Due')."</span>. ".xlt('After this, it is marked as ')."<span class='past_due'>".xlt('Past due')."</span>.<br />";
                                             $timing .= "</div>";
                                         } elseif ($rule->hasRuleType(RuleType::from('activealert'))) {
-                                            $timing .= "<div class='indent10'>An <span class='bold'>Active Alert</span> will pop-up when the chart is opened.</div>";
+                                            //how to translate this?
+                                            $timing .= "<div>An <span class='bold'>Active Alert</span> will pop-up daily listing any Treatment Goals needing attention.</div>";
                                             if (empty($dueDate)) {
-                                                $dueDate = " will no longer pop-up or appear in the the <a href='#'
+                                                $dueDate = " ".xlt('will no longer pop-up or appear in the')." <a href='#'
                                                                     data-toggle='popover'
                                                                     data-trigger='hover'
                                                                     data-placement='auto'
-                                                                    title='Clinical Reminders Widget(CR)'
-                                                                    data-content='The CR Widget is located on the demographics page.'>CR Widget</a>";
-                                                $timing .="<div class='indent10'>If not completed after ".$timings['clinical']['post']['amount']." ".$timings['clinical']['post']['timeUnit2'].", this pop-up will expire.</div>";
-$extra ="                                                                <small>Note: If you also make it a Passive Alert, it will appear in the CR widget. You can then elect to have a pop-up note appear as part of your work-flow prompts after this CR fires.  It will allow you where to add a Note and mark this as 'Completed'.
-                                                                When a Passive Alert goes 'Past due', instead of just expiring and no longer appearing, this alert will remain in the CR widget until the action you chose is completed, or you mark it completed..
-                                                                 Remember also that an Alert can be limited to who receives the alert via <a href='../../usergroup/adminacl.php'>Access Control List Administration</a></small>";
-                                            }
+                                                                    title='".xla('Clinical Reminders Widget')."'
+                                                                    data-content='".xla('The CR Widget is located on the demographics page.')."'>".xlt('CR Widget')."</a>";
+                                           }
+                                            echo "</div>";
                                         } elseif ($rule->hasRuleType(RuleType::from('passivealert'))) {
                                             $timing .= "<div class='indent10'>A <span class='bold'>Passive Alert</span> will appear in the
                                                 <a href='#' data-toggle='popover'
                                                             data-trigger='hover'
                                                             data-placement='auto'
                                                             title='Clinical Reminders Widget(CR)'
-                                                            data-content='The CR Widget is located on the demographics page.'>CR Widget</a>.<BR />";
+                                                            data-content='The CR Widget is located on the demographics page.'>CR Widget</a> ";
                                             
-                                            $timing .="After ".$timings['clinical']['pre']['amount']." ".$timings['clinical']['pre']['timeUnit2'].", this CR will be marked as Due.<br />".
-                                                "After ".$timings['clinical']['post']['amount']." ".$timings['clinical']['post']['timeUnit2']." it is marked as Past Due.<br />";
-                                            $timing .="Alerts stop when their Treatment Goal is satisfied.  If any Treatment Goal in this CR needs to be marked 'Completed', a link in the CR widget will open a pop-up to do this and/or add a note.";
+                                            $timing .= $timings['clinical']['pre']['amount']." ".$timings['clinical']['pre']['timeUnit2']." ".xla('before it is due (Due soon)').". ";
+                                            $timing .= $timings['clinical']['post']['amount']." ".$timings['clinical']['post']['timeUnit2']." ".xla('after the Due Date, it is marked Past Due').".<br />";
+                                            $timing .= xla("Alerts stop when their Treatment Goals are completed.");
                                             $timing .= "</span></div>";
                                         }
                                         if ($rule->hasRuleType(RuleType::from('patientreminder'))) {
-                                            $timing .= "<div><span class='bolder red'>This is a Patient Reminder!</span></div>";
+                                            $timing .= "<div>".xlt('This CR')." ";
+                                            if ($clinical=='1') {
+                                                $timing .= xlt('also'). " ";
+                                            }
+                                            $timing .= xlt('triggers a ')."<span class='bold'>".xlt('Patient Reminder')."</span>.</div>";
+                                        
                                             $timing .= "<div class='indent10'><span class='bold'>Patient Reminder</span>: A message will ".$more." be sent to the patient. ";
                                             if ($GLOBALS['medex_enable'] == '1') {
                                                 $timing .="<br /><a href='https://medexbank.com/'>MedEx</a> will send an e-mail, SMS text and/or a voice message as requested.</div>";
@@ -222,18 +232,18 @@ $extra ="                                                                <small>
                         <tr>
                             <td class="text-right">
                                 <span data-toggle='popover'
-                                      title='Public Description'
+                                      title='<?php echo xla('Public Description'); ?>'
                                       data-html="true"
                                       data-trigger='hover'
                                       data-placement='auto'
-                                      data-content='The text here will be displayed in the CR widget via a tooltip.
-                                        Use it to describe to your staff what this CR means.
-                                        <hr>
-                                        <img width="250px" src="<?php echo $GLOBAL['webroot'];?>/interface/super/rules/www/CR_tooltip.png">
-                                        <hr>
-                                        In the CR widget, the CR name carrying this tooltip is also a clickable link.  This link leads to either a pop-up (add a note and/or mark the task completed), or to an external link.
-                                        This link is set separately from the Reference link.  Each Treatment Goal can have a unique link that is defined in the last step of this process
-                                        (see PROMPTING YOU TO DO THIS below). '>
+                                      data-content='<?php echo xla('The text here will be displayed in the CR widget via a tooltip.
+                                               Use it to describe to your staff what this CR means.'); ?>
+                                            <hr>
+                                            <img width="250px" src="<?php echo $GLOBAL['webroot'];?>/interface/super/rules/www/CR_tooltip.png">
+                                            <hr>
+                                        <?php echo xla('In the CR widget, each Treatment Goal in this CR carries this description as a tooltip.  It is also a clickable link.  This link leads to either a pop-up (add a note and/or mark the task completed), or to an external link.
+                                                This link is set separately from the Reference link.  Each Treatment Goal can have a unique link that is defined in the last step of this process
+                                                (see PROMPTING YOU TO DO THIS below).'); ?> '>
                                     <span class="underline"><?php echo xlt('Description'); ?></span>:
                                 </span>
                             </td>
@@ -249,7 +259,7 @@ $extra ="                                                                <small>
             <div class="section row">
                 <button class="btn-sm btn-primary icon_1"
                         id="save_summary"
-                        title="<?php echo xla('Refresh'); ?>"><i class="fa fa-refresh"> <?php //echo xlt('Save'); ?></i>
+                        title="<?php echo xla('Refresh'); ?>"><i class="fa fa-refresh"></i>
                 </button>
                 <div class="col-12 text-left">
                     <span class="title "><?php echo xlt('Summary'); ?> </span>
@@ -323,18 +333,26 @@ $extra ="                                                                <small>
                         <tr>
                             <td class="text-right">
                                 <span data-toggle='popover'
-                                      title='Public Description'
+                                      title='<?php echo xla('Public Description'); ?>'
                                       data-html="true"
                                       data-trigger='hover'
                                       data-placement='auto'
-                                      data-content='The text here will be displayed in the CR widget via a tooltip.  Use it to describe to your staff what this CR means.'>
+                                      data-content='<?php echo xla('The text here will be displayed in the CR widget via a tooltip.
+                                        Use it to describe to your staff what this CR means.'); ?>
+                                        <hr>
+                                        <img width="250px" src="<?php echo $GLOBAL['webroot'];?>/interface/super/rules/www/CR_tooltip.png">
+                                        <hr>
+                                        <?php echo xla('In the CR widget, each Treatment Goal in this CR carries this description as a tooltip.  It is also a clickable link.  This link leads to either a pop-up (add a note and/or mark the task completed), or to an external link.
+                                        This link is set separately from the Reference link.  Each Treatment Goal can have a unique link that is defined in the last step of this process
+                                        (see PROMPTING YOU TO DO THIS below).'); ?> '>
                                     <span class="underline"><?php echo xlt('Description'); ?></span>:
                                 </span>
                             </td>
                             <td>
                                 <textarea class="form-control"
                                           id="fld_public_description"
-                                          name="summary_public_description"><?php echo attr($rule->public_description); ?></textarea>
+                                          name="summary_public_description"
+                                          placeholder="<?php echo xla('Tooltip to explain to staff what this CR does. Hover mouse over Description for more help...'); ?>"><?php echo attr($rule->public_description); ?></textarea>
                             </td>
                         </tr>
                     </table>
@@ -711,159 +729,39 @@ $extra ="                                                                <small>
             </div>
 
     <!-- Help Modals -->
-    <div id="help_alerts" class="modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title title"><?php echo xlt('Step2: When will this CR Fire'); ?>:</h5>
-                    <button type="button" class="close" data-dismiss="modal"  aria-label="Close">&times;</button>
-                </div>
-                <div class="modal-body row text-justify">
-                    <div class="col-12">
-                        <p>How does OpenEMR determine when to show/stop showing an Alert?
-                        </p>
-                        <table class="table table-hover text-center">
-                            <tr>
-                                <td class="bold text-center" rowspan="2">Alert Type</tdclass>
-                                <td class="text-center" rowspan="2"><span class="title2">If This is True:</span><b>Completed</b></td>
-                                <td class="text-center" rowspan="2"><span class="title2">Action<br />Prompted</span><br /><b>Custom Input</b></td>
-                                <td colspan="3"> User Experiences:</td>
-                            </tr>
-                            <tr>
-                                <td  class="bold text-center"><?php echo xlt('Due soon'); ?></td>
-                                <td  class="bold text-center"><?php echo xlt('Due'); ?></td>
-                                <td  class="bold text-center"><?php echo xlt('Pas Due'); ?></td>
-                            </tr>
-                            <tr>
-                                <td>Active</td><td> No</td><td> No</td>
-                                <td colspan="3">No Pop-up and no way to satisfy criteria.
-                                    This stops popping-up when the Alert becomes "Due".</td>
-                            </tr>
-                            <tr>
-                                <td></td><td>Yes</td><td>No</td>
-                                <td colspan="3"> Since there is no custom input, setting "Completed" to Yes has no effect.</td>
-                            </tr>
-                            <tr>
-                                <td></td><td>No</td><td>Yes</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>
-                                </td>
-                                <td> Yes
-                                </td>
-                                <td> Yes
-                                </td>
-                                <td colspan="3"> A pop-up link will appear, allowing Notes and/or mark it as Completed
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Passive
-                                </td>
-                                <td> No
-                                </td>
-                                <td> No
-                                </td>
-                                <td>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td></td><td>Yes</td><td>No</td>
-                                <td colspan="3"> Since there is no custom input, setting "Completed" to Yes has no effect.</td>
-                            </tr>
-                            <tr>
-                                <td></td><td>No</td><td>Yes</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>
-                                </td>
-                                <td> Yes
-                                </td>
-                                <td> Yes
-                                </td>
-                                <td colspan="3"> A pop-up link will appear, allowing Notes and/or mark it as Completed
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id="help_summary" class="modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title title"><?php echo xlt('Completion Guidelines'); ?>:</h5>
-                    <button type="button" class="close" data-dismiss="modal"  aria-label="Close">&times;</button>
-                </div>
-                <div class="modal-body row text-justify">
-                    <div class="col-8 offset-2 text-center alert alert-info">
-                        <span class="bold">If this patient has <i>XYZ</i>, an alert will fire, until <i>this</i> happens.</span>
-                    </div>
-                    <div class="col-12">
-                        <p>A Clinical Reminder usually looks for one item and if found, triggers an alert asking you to perform one task.
-                            For example, diabetic patients need an eye exam annually.
-                            Once you document that the exam occurred, the alert stops until next year.</p>
-                        <p>A CR may also look for one item and if found, trigger an alert until something is documented in the patient's chart.
-                            For example, on each visit the blood pressure must be documented.
-                            Once the BPs, both systolic and diastolic, are added to the record, the Alert stops until next visit.</p>
-                        <p>Expert users will find they can create very complex Clinical Reminders, sorting the target patient group
-                            along highly specific criteria.  Even more complexity can be added because a single CR can trigger multiple
-                            Alerts, with multiple Treatment Goals.  While this approach is available, consider deploying Care Plan Sets instead.
-                            They combine multiple Clinical Reminders into logical groups more effectively.</p>
-                    </div>
-                    <div class="col-12">
-                        <span class="title2"><?php echo xlt('Alert Types'); ?>:</span>
-                    </div>
-                    <div class="col-12">
-                        <ol>
-                            <li> <span class="bold">Active alerts</span> generate a popup, but do not appear in the CR widget.</li>
-                            <li> <span class="bold">Passive alerts</span> only appear in the CR widget.</li>
-                            <li> <span class="bold">Patient Reminders</span> -- If this CR is triggered, a reminder can be sent to the patient
-                                <?php
-                                if ($GLOBALS['medex_enable']==1) {?>
-                                    <li> <span class="bold">Provider Alerts</span> -- If this CR is triggered, a message will be sent to a provider</li>
-                                <?php } ?>
-                        </ol>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-
-        </div>
-    </div>
     <div id="help_filters" class="modal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><?php echo xlt('Who are we Targeting'); ?>?</h5>
+                    <h4 class="modal-title title"><?php echo xlt('Who are we Targeting'); ?>?</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <h5>Rule Targets:
-                        <span class="underline">Define the cohort of patients that this CR affects</span></h5>
-                    <span class="bold">Target patients by the value of any criterion eg. age, sex, demographics, diagnosis, etc.
-                            <br />
-                            Criteria adjectives:</span>
-                    <ul>
-                        <li>may be included: include patients matching this criterion (among others).  </li>
-                        <ul>
-                            <li>If there is more than one criteria, patients matching any of the criteria are included.</li>
-                            <li>Used when there are <span class="bold">multiple optional inclusion</span> criteria to allow the inclusion of multiple sub groups of patients.</li>
-                        </ul>
-                        <li>must be included: targeted patients must meet this criterion</li>
-                        <li>may be excluded: If there is more than one criteria, patients matching any of the criteria are excluded.</li>
-                        <ul>
-                            <li>If there is more than one exclusion criteria, patients matching any of these exclusion criteria are excluded.</li>
-                        </ul></li>
-                        <li>must be excluded: If this matches, exclude these patients no matter if any other criteria match</li>
-                    </ul>
+                <div class="modal-body container">
+                    <div class="row">
+                        <div class="col-10 offset-1">
+                            <div class="title2">Define the cohort of patients that this CR affects</div>
+                        </div>
+                        <div class="col-10 offset-1">
+                            Target patients by the value of any criterion eg. <span class="bolder">age, sex, demographics, diagnosis, etc.</span>
+                                    <br />
+                                    Patients matching these criteria:
+                            <ul>
+                                <li><span class="bold">may be included</span>: include patients matching this criterion (among others).  </li>
+                                <ul>
+                                    <li>If there is more than one criteria, patients matching any of the criteria are included.</li>
+                                    <li>Used when there are <span class="bolder">multiple optional inclusion</span> criteria to allow the inclusion of multiple sub groups of patients.</li>
+                                </ul>
+                                <li><span class="bold">must be included</span>: targeted patients must meet this criterion</li>
+                                <li><span class="bold">may be excluded</span>: If there is more than one criteria, patients matching any of the criteria are excluded.</li>
+                                <ul>
+                                    <li>If there is more than one exclusion criteria, patients matching any of these exclusion criteria are excluded.</li>
+                                </ul></li>
+                                <li><span class="bold">must be excluded</span>: If this matches, exclude these patients no matter if any other criteria match</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" data-dismiss="modal">Close</button>
@@ -871,7 +769,7 @@ $extra ="                                                                <small>
             </div>
         </div>
     </div>
-    <div id="help_intervals2" class="modal" tabindex="-1" role="dialog">
+    <!-- <div id="help_intervals2" class="modal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -910,7 +808,7 @@ $extra ="                                                                <small>
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
     <div id="help_targets" class="modal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
             <div class="modal-content">
@@ -966,29 +864,30 @@ $extra ="                                                                <small>
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title title"><?php echo xlt('When is this Clinical Reminder triggered'); ?>?</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body container">
                     <div class="row">
                         <div class="col-12 text-center"><h6><?php echo xlt('In Step 2, we define the Reminder\'s criteria: what needs to happen and how often should it recur'); ?>.</h6></div>
                     </div>
                     <div class="row">
-                        <div class="col-10 offset-1 text-center title"> TIME ----------&gt;</div>
+                        <div class="col-10 offset-1 text-center title"> <?php echo xlt('TIME'); ?> ----------&gt;</div>
                         
-                        <div class="col-1 offset-1 text-right bold">Last occurrence </div>
-                        <div class="col-5 alert-success text-center text-nowrap bold">This should occur once every:</div>
-                        <div class="col-5 bold text-left"><h6 style="position:relative;left:-20px;">X &lt;-- Due Date</h6></div>
+                        <div class="col-1 offset-1 text-right bold"><?php echo xlt('Last event'); ?> </div>
+                        <div class="col-5 alert-success text-center text-nowrap bold"><?php echo xlt('This should occur once every day/week/month/year'); ?>:</div>
+                        <div class="col-5 bold text-left"><h6 style="position:relative;left:-20px;">X &lt;-- <?php echo xlt('Due Date'); ?></h6></div>
 
-                        <div class="col-1 text-center offset-1 alert-info">X</div>
-                        <div class="col-3"></div>
-                        <div class="col-2 alert-warning text-center"><span class="underline">Warning Period</span><br />
+                        <div class="col-3 offset-2"></div>
+                        <div class="col-2 alert-warning text-center"><span class="underline"><?php echo xlt('Warning Period'); ?></span><br />
                             <?php echo xlt('an interval of time').' <span class="bold">'.xlt('before').'</span> '.xlt('the due date'); ?>
                         </div>
-                        <div class="col-2 text-center alert-primary"><span class="underline">Due Period</span><br />
+                        <div class="col-2 text-center alert-primary"><span class="underline"><?php echo xlt('Due Period'); ?></span><br />
                             <?php echo xlt('an interval of time');?>
                             <span class="bold"><?php echo xlt('from');?></span> <?php echo xlt(' the due date onward'); ?>
                         </div>
-                        <div class="col-2 text-center alert-danger text-nowrap"><span class="underline"> Over Due Period</span> -----&gt;</div>
+                        <div class="col-2 text-center alert-danger text-nowrap"><span class="underline"><?php echo xlt('Over Due Period'); ?></span> -----&gt;</div>
                         <div class="col-1"></div>
 
                         <div class="col-11 offset-1 text-center">&nbsp;</div>
@@ -1028,23 +927,23 @@ $extra ="                                                                <small>
                         <div class="col-1"></div>
 
                         
-                        <div class="col-2 text-center offset-3 text-right title3">Passive Alerts: </div>
-                        <div class="col-2 alert-warning text-center">Marked as <span class="red">Due soon</span><br /> in CR widget</div>
-                        <div class="col-2 text-center alert-primary">Marked as <span class="red">Due</span><br /> in CR widget</div>
-                        <div class="col-2 text-center alert-danger text-nowrap">Marked as <span class="red">Past Due</span><br /> in CR widget</div>
+                        <div class="col-2 text-center offset-3 text-right title3"><?php echo xlt('Passive Alerts'); ?>: </div>
+                        <div class="col-2 alert-warning text-center"><?php echo xlt('Marked as'); ?> <span class="due_soon"><?php echo xlt('Due soon'); ?></span><br /> <?php echo xlt('in CR widget'); ?></div>
+                        <div class="col-2 text-center alert-primary"><?php echo xlt('Marked as'); ?> <span class="due_now"><?php echo xlt('Due'); ?></span><br /> <?php echo xlt('in CR widget'); ?></div>
+                        <div class="col-2 text-center alert-danger text-nowrap"><?php echo xlt('Marked as'); ?> <span class="past_due"><?php echo xlt('Past Due'); ?></span><br /><?php echo xlt('in CR widget'); ?></div>
                         <div class="col-1"></div>
 
                         
-                        <div class="col-2 text-center offset-3 text-right title3">Active Alerts: </div>
-                        <div class="col-2 alert-warning text-center align-text-bottom"><br />Fire/Pop-up</div>
-                        <div class="col-2 text-center alert-primary align-text-bottom"><br />until </div>
-                        <div class="col-2 text-center alert-danger align-text-bottom"><br />satisfied</div>
+                        <div class="col-2 text-center offset-3 text-right title3"><?php echo xlt('Active Alerts'); ?>: </div>
+                        <div class="col-2 alert-warning text-center align-text-bottom"><br /><?php echo xlt('Fire/Pop-up'); ?></div>
+                        <div class="col-2 text-center alert-primary align-text-bottom"><br /><?php echo xlt('until'); ?> </div>
+                        <div class="col-2 text-center alert-danger align-text-bottom"><br /><?php echo xlt('satisfied'); ?></div>
                         <div class="col-1"></div>
 
                         <div class="col-11 offset-1 text-center">&nbsp;</div>
 
 
-                        <div class="col-2 text-center offset-3 text-right title3">Patient Reminders: </div>
+                        <div class="col-2 text-center offset-3 text-right title3"><?php echo xlt('Patient Reminders'); ?>: </div>
                         <div class="col-2 alert-warning text-center">
                             <?php
                                 /*
@@ -1102,7 +1001,7 @@ $extra ="                                                                <small>
                             if ($GLOBALS['medex_enable']) { ?>
                                 <div class="col-11 offset-1 text-center">&nbsp;</div>
 
-                                <div class="col-2 text-center offset-3 text-right title3">Provider Reminders: </div>
+                                <div class="col-2 text-center offset-3 text-right title3"><?php echo xlt('Provider Reminders'); ?>: </div>
                         <div class="col-2 alert-warning text-center">
                             <?php
                                 /*
@@ -1153,7 +1052,7 @@ $extra ="                                                                <small>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn-secondary" data-dismiss="modal"><?php echo xlt('Close'); ?></button>
                 </div>
             </div>
         </div>
@@ -1175,19 +1074,24 @@ $extra ="                                                                <small>
                                     <span class="bold"><?php echo xlt('After this time has passed'); ?>: <i class="fa fa-plus"></i></span>
                                 </td>
                                 <td class="text-center">
-                                    <span class='bold' data-toggle='popover' data-trigger="hover" data-placement="auto" title='Alert Begins' data-content='Given a specific due date, an alert will fire this early before the due date.'>Active Alerts</span>
+                                    <span class='bold'
+                                          data-toggle='popover'
+                                          data-trigger="hover"
+                                          data-placement="auto"
+                                          title='<?php echo xla('Alert Begins'); ?>'
+                                          data-content='<?php echo xla('Given a specific due date, an alert will fire this early before the due date.'); ?>'><?php echo xlt('Active Alerts'); ?></span>
                                 </td>
                                 <td class="text-center">
                                             <span class='bold'
                                                   data-toggle='popover'
                                                   data-trigger="hover"
                                                   data-placement="auto"
-                                                  title='Alert is Past Due'
-                                                  data-content='Each Clinical Reminder has a specific "due date".
+                                                  title='<?php echo xla('Alert is Past Due'); ?>'
+                                                  data-content='<?php echo xlt('Each Clinical Reminder has a specific "due date".
                                                   After a certain period of time has passed, the Clinical Reminder is considered late.
                                                   Active alerts stop showing up altogether but Passive alerts (in the CR widget on the demographics page) are labelled "Past Due" after this time period.
                                                   Patient Reminders that are past due can trigger a second follow-up e-mail if desired.
-                                                  This setting has no effect on Provider Alerts.'>Passive Alerts</span>
+                                                  This setting has no effect on Provider Alerts.'); ?>'><?php echo xlt('Passive Alerts'); ?></span>
                                 </td>
                             </tr>
                             </thead>
@@ -1212,10 +1116,10 @@ $extra ="                                                                <small>
                                     ?>
                                 </td>
                                 <td class="text-center tight" nowrap>
-                                    Pop-ups stop
+                                    <?php echo xlt('Pop-ups stop'); ?>
                                 </td>
                                 <td class="text-center tight" nowrap>
-                                    Marked as Due in CR widget
+                                    <?php echo xlt('Marked as Due in CR widget'); ?>
                                 </td>
                             </tr>
                             <tr>
@@ -1238,13 +1142,13 @@ $extra ="                                                                <small>
                                 
                                 </td>
                                 <td class="text-center">
-                                    Marked as <span class="red">Past Due</span> in CR widget
+                                    <?php echo xlt('Marked as'); ?> <span class="past_due"><?php echo xlt('Past Due'); ?></span> <?php echo xlt('in CR widget'); ?>
                                 </td>
                             </tr>
                             <tr>
                                 <td></td>
-                                <td class="bold">Patient Reminders</td>
-                                <td class="bold">Provider Alerts</td>
+                                <td class="bold"><?php echo xlt('Patient Reminders'); ?></td>
+                                <td class="bold"><?php echo xlt('Provider Alerts'); ?></td>
                             </tr>
                             <tr>
                                 <td class="text-center tight" nowrap>
@@ -1276,8 +1180,8 @@ $extra ="                                                                <small>
                                             array( "data-grp-tgt" => "patient" ));
                                     ?>
                                 </td>
-                                <td>Reminder is sent</td>
-                                <td>Alert is sent</td>
+                                <td><?php echo xlt('Reminder is sent'); ?></td>
+                                <td><?php echo xlt('Alert is sent'); ?></td>
                             </tr>
                             <tr>
                                 <td class="text-center tight" nowrap>
@@ -1297,7 +1201,7 @@ $extra ="                                                                <small>
 
 
                                 </td>
-                                <td class="text-center tight" nowrap>2nd reminder sent<br /> if still active
+                                <td class="text-center tight" nowrap><?php echo xlt('2nd reminder sent'); ?><br /> <?php echo xlt('if still active'); ?>
                                     <input type="hidden" data-grp-tgt="patient" id="patient-post" value="<?php echo attr($timings['patient']['post']['amount'])?:'1'; ?>">
                                     <input type="hidden" name="patient-post-timeunit" id="patient-post-timeunit"  data-grp-tgt="patient" value="day">
                                 </td>
@@ -1306,36 +1210,9 @@ $extra ="                                                                <small>
                         </table>
 
                     </div>
-                    <!--
-                    <div id="required_msg" class="small">
-                        <span class="required">*</span><?php echo xlt('Required fields'); ?>
-                    </div>
-                    <h5>Reminder Intervals</h5>
-                    When this Clinical Reminder is active, how do we tell the provider it is time to think about doing this?
-
-                    Say an A1c needs to be done yearly and it hasn't been done in 11 months.
-                    Perhaps one month before it is due we fire this alert.
-                    Then 1 month before it's actual due date, we trigger this CR and say "Dude it is time to do this!"
-
-
-                    Now everyone failed and it is PAST DUE.
-                    That could be another type of Reminder.  How long is too long?  When that is we are over-due.
-
-                    But what if it was due and now it is "overdue".  Man you are late to the game!
-                    How long are we going to let them slide before it is over due?
-
-                    <b>Type:</b>
-                    <ul>
-                        <li>Clinical == if a clinical event occurs, then fire this rule</li>
-                        <li>Patient == if a patient event matches this rule, fire it.</li>
-                    </ul>
-                    <b>Time Course/Detail:</b>
-                    <ul>
-                        <li> Number of months, weeks, days, hours</li>
-                    </ul>-->
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn-secondary" data-dismiss="modal"><?php echo xlt('Close'); ?></button>
                 </div>
             </div>
         </div>
@@ -1493,7 +1370,7 @@ $extra ="                                                                <small>
                 $("#show_actions_edit_"+group).html(data);
                 $("#show_actions_"+group).hide();
                 $("#show_actions_edit_"+group).show();
-                //show_targets_edit_1
+                
             });
             
         });
@@ -1510,9 +1387,6 @@ $extra ="                                                                <small>
                 $("#show_targets_edit_"+group).html(data);
                 $("#show_targets_"+group).hide();
                 $("#show_targets_edit_"+group).show();
-                // $("#show_group").html(data);
-                //$("#show_targets_"+group).hide();
-                //$("#show_targets_edit_"+group).show();
             });
         });
         $("[id^='add_action_']").click(function() {
@@ -1557,8 +1431,7 @@ $extra ="                                                                <small>
                             top: 0,
                             left: 0
                         });
-            //$(".in").remove();
-            
+           
             
         });
         $("#timing_toggle").click(function() {

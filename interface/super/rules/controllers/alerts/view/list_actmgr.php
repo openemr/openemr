@@ -13,9 +13,6 @@
 require_once(dirname(__FILE__)."/../../../../../../library/acl.inc");
 global $phpgacl_location;
 require_once("$phpgacl_location/gacl_api.class.php");
-    require_once("../../globals.php");
-    
-    use OpenEMR\Core\Header;
     
     $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ');
 ?>

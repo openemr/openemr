@@ -55,10 +55,10 @@
             <!-- custom rules input -->
         
             <!-- category -->
-            <table class="table table-striped text-center">
+            <table class="table table-bordered table-info table-responsive table-hover text-center">
                 <tr>
                     <td nowrap="nowrap">
-                        <span class='req bold'
+                        <span class='bold'
                               data-field="Category"
                               data-toggle='popover'
                               data-trigger="hover"
@@ -86,7 +86,7 @@
                 <!-- item -->
                 <tr>
                     <td>
-                        <span class='req bold'
+                        <span class='bold'
                               data-field="Item"
                               data-toggle='popover'
                               data-trigger="hover"
@@ -105,14 +105,14 @@
                     </td>
                 </tr>
                 <tr>
-                    <td clas="text-center">
-                        <span class='req bold'
+                    <td class="text-center">
+                        <span class='bold'
                               data-field="Item"
                               data-toggle='popover'
                               data-trigger="hover"
                               data-placement="auto, top"
                               container="body"
-                              title='Action Link for Passive Alerts'
+                              title='Completing Passive Alerts'
                               data-html="true"
                               data-content='A Passive Alert is displayed in the CR widget with the values of "Category:Item".
                               These words can be linked to a pop-up to add a note and/or mark it completed if required.
@@ -120,34 +120,50 @@
                               link to anything desired by entering that url as an Action link.
                               This does not affect the References Link <i class="fa fa-link"></i> created in the CR Summary.
                               <img width="250px" src="<?php echo $GLOBAL['webroot'];?>/public/images/CR_widget.png">'>
-                            <?php echo xlt('Action Link for Passive Alerts'); ?></span>
-    <br />
+                            <?php echo xlt('Passive Alerts'); ?></span>
+                        <br />
                         <!-- custom rules input -->
                         <span class="" data-field="fld_custom_input">
-                            <?php echo xlt('Do you need a pop-up to add a note and/or mark this "complete"'); ?>:
+                            <?php echo xlt('How do we know this was completed'); ?>:
            
-                            <select data-grp-tgt="" type="dropdown" name="fld_custom_input">
-                                <option id="Yes" value="yes" <?php echo $action->customRulesInput ? "SELECTED" : "" ?>><?php echo xlt('Yes'); ?></option>
-                                <option id="No" value="no" <?php echo !$action->customRulesInput ? "SELECTED" : "" ?>><?php echo xlt('No'); ?></option>
+                            <select data-grp-tgt="" class="text-center" type="dropdown" id="fld_custom_input" name="fld_custom_input">
+                                <option id="Yes" value="yes" <?php echo $action->customRulesInput ? "SELECTED" : "" ?>><?php echo xlt('Link to a Pop-up to marked completed'); ?></option>
+                                <option id="No" value="no" <?php echo !$action->customRulesInput ? "SELECTED" : "" ?>><?php echo xlt('CR Manager Auto-checks DB'); ?></option>
                             </select>
-                        </span><br />
-                    <b>If No is selected, you can apply this link:</b>
-        <!-- reminder link  -->
-        <?php echo textfield_row(array("id" => "fld_link",
-                                       "name" => "fld_link",
-                                       "class" => "margin-auto",
-                                       "value" => $action->reminderLink)); ?>
+                        </span>
+                        <span id="no_PopUp_needed" class="bolder">
+                            <hr />
+                            <?php echo xlt('Option: add a personalized link to this Action in the CR widget'); ?>:
+                            <!-- reminder link  -->
+                            <?php echo textfield_row(array("id" => "fld_link",
+                                "name" => "fld_link",
+                                "class" => "margin-auto",
+                                "value" => $action->reminderLink)); ?>
+                        </span>
+             
                     </td>
                 </tr>
                 <tr>
-                    <td><!-- reminder message  -->
-                             If this is a Patient Reminder,<br /> include this message:
-                            <?php echo textfield_row(array("id" => "fld_message",
-                                "name" => "fld_message",
-                                "class" => "margin-auto",
-                                "value" => $action->reminderMessage));
-                                ?>
-                       
+                    <!-- reminder message  -->
+                    <td class="text-center">
+                        <span class='bold'
+                              data-field="Item"
+                              data-toggle='popover'
+                              data-trigger="hover"
+                              data-placement="auto, top"
+                              container="body"
+                              title='Delivering Patient Reminders'
+                              data-html="true"
+                              data-content=''>
+                            <?php echo xlt('Patient Reminders'); ?></span>
+                        <br />
+
+                        <?php echo ('If this CR includes a Patient Reminder (depending on your set-up) add this message');?>:
+                            <textarea class="margin-auto"
+                                      name="fld_message"
+                                      id="fld_message">
+                                <?php echo text($action->reminderMessage); ?>
+                            </textarea>
                     </td>
                 </tr>
                
@@ -171,7 +187,16 @@
             top.restoreSession();
             $("#frm_submit_action_"+group).submit();
         });
-        
+        $("#fld_custom_input").change(function() {
+           var item = $("#fld_custom_input").val();
+           if (item == 'yes') {
+               $("#no_PopUp_needed").hide();
+           } else {
+               $("#no_PopUp_needed").show();
+           }
+        });
+        $("#fld_custom_input").trigger('change');
+    
         $('[data-toggle="popover"]').popover();
     });
 </script>

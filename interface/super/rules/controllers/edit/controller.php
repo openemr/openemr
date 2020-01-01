@@ -24,7 +24,6 @@ class Controller_edit extends BaseController
         $ruleId = _get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
         if (is_null($rule)) {
-           // $this->redirect("index.php?action=detail!view&start=1");
             $rule = $this->getRuleManager()->newRule();
         }
         $this->viewBean->rule = $rule;
@@ -44,8 +43,6 @@ class Controller_edit extends BaseController
         $viewer ='';
         
         if ($ruleId) {
-            // it's not a new rule submit
-            //we want to see it in full view...
             $viewer = "undecorated.php";
         }
         
@@ -115,9 +112,8 @@ class Controller_edit extends BaseController
         if ($change) {
             $this->getRuleManager()->updateIntervals($rule, $intervals);
         }
-//        $dd = print_r($intervals, true);
-  //      echo "$dd";
-       $rule = $this->getRuleManager()->getRule($ruleId);
+
+        $rule = $this->getRuleManager()->getRule($ruleId);
         $this->viewBean->rule = $rule;
         $this->set_view("view_summary.php","undecorated.php");
     }
@@ -152,11 +148,11 @@ class Controller_edit extends BaseController
         $ruleId = _get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
         $rt_uid = _get('rt_uid');
-        $groupId = _get('group_id');
-       
+        $groupId = _get('group_id');//Not used?
         // Do we need group here?  We have it available as _get('group').
         // Theorectically, with more than one group there could be
         // same target w/ different criterion for a different action
+        
         $criteria = $this->getRuleManager()->getRuleTargetCriteria($rule, $rt_uid);
 
         $this->viewBean->type = "target";
@@ -164,7 +160,6 @@ class Controller_edit extends BaseController
         $this->viewBean->criteria = $criteria;
 
         $this->addHelper("common.php");
-//echo "<pre>".var_dump($criteria->getView());echo"</pre>";die();
         $this->set_view($criteria->getView(), "criteria_target.php");
     }
 
@@ -222,7 +217,7 @@ class Controller_edit extends BaseController
     {
         // parse results from response
         $ruleId = _post('id');
-        $groupId = _post('group_id');
+        $groupId = _post('group_id');//hold up, not being used... why not?
         $rule = $this->getRuleManager()->getRule($ruleId);
         
         $rf_uid = _post('rf_uid');
@@ -314,9 +309,6 @@ class Controller_edit extends BaseController
         $itemLbl = _post("fld_item_lbl");
         $link = _post("fld_link");
         $message = _post("fld_message");
-        //$fld_target_guid = _post("fld_target");//this is not being used anywhere
-        // // in super/rules/index.php?action=edit!action&id=rule_action??+guid
-        //so I commented it out for now...  prob meant to be guid and we are removing that so no biggy
         
         $customOption = _post("fld_custom_input") == "yes" ? 1 : 0;
 
@@ -335,8 +327,8 @@ class Controller_edit extends BaseController
         $action->customRulesInput = $customOption;
         $action->reminderLink = $link;
         $action->reminderMessage = $message;
-        $action->targetCriteria = $fld_target_criteria;//where is this from???
-        //again no wehere to be found around here...
+        //$action->targetCriteria = $fld_target_criteria;//where is this from???
+        //again no where to be found around here...
 
         $this->getRuleManager()->updateRuleAction($action);
         $this->redirect("index.php?action=detail!view&id=" . urlencode($ruleId));
@@ -372,8 +364,6 @@ class Controller_edit extends BaseController
         $id = _get("id");
         $groupId = _get("group_id");
         
-        //index.php?action=edit!choose_criteria&
-        //id=rule_inr_monitor&group_id=&type=filter&criteriaType=medication
         $criteriaType = RuleCriteriaType::from(_get("criteriaType"));
         $rule = $this->getRuleManager()->getRule($id);
         
@@ -394,7 +384,6 @@ class Controller_edit extends BaseController
         $this->viewBean->criteria = $criteria;
 
         $this->addHelper("common.php");
-//echo "<pre>".$id."\n";var_dump($criteria->groupId); echo "\n".var_dump($rule);echo"</pre>";die();
 
         $this->set_view($criteria->getView(), "criteria_".$type.".php");
     }

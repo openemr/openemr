@@ -593,7 +593,6 @@ class RuleManager
             foreach ($intervals->getTypes() as $type) {
                 $typeDetails = $intervals->getDetailFor($type);
                 foreach ($typeDetails as $detail) {
-                    echo "<pre>";var_dump($detail);
                     sqlStatement(self::SQL_INSERT_INTERVALS, array(
                         $rule->id,                                                      //id
                         $type->code . "_reminder_" . $detail->intervalRange->code,      // method
@@ -601,7 +600,6 @@ class RuleManager
                         $detail->amount                                                 // value
                     ));
                 }
-                die();
             }
         }
     }
