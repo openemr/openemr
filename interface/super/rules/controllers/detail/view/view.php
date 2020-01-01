@@ -576,7 +576,9 @@
                             </div>
                             <div class="col-4 inline">
                                 <div class="col-12 title2"><?php echo xlt('Prompting you to do this'); ?>:</div>
-                                <div class="col-12" id="show_actions_<?php echo xla($group->groupId); ?>">
+                                <div class="col-12"
+                                     id="show_actions_<?php echo xla($group->groupId); ?>"
+                                     name="show_actions">
                                     <button type="button"
                                             class="btn-sm btn-primary icon_1"
                                             id="add_action_<?php echo (int)($group->groupId); ?>"
@@ -655,7 +657,9 @@
                                         ?>
                                     </table>
                                 </div>
-                                <div class="col-12" id="show_actions_edit_<?php echo xla($group->groupId); ?>"></div>
+                                <div class="col-12"
+                                     id="show_actions_edit_<?php echo xla($group->groupId); ?>"
+                                     name="show_actions_edit"></div>
                             </div>
                         </div>
                         <?php
@@ -1361,6 +1365,9 @@
             top.restoreSession();
             var action = this.id.match(/edit_action_(.*)_(.*)/)[2];
             var group = this.id.match(/edit_action_(.*)_(.*)/)[1];
+            $("[name='show_actions_edit']").hide();
+            $("[name='show_actions']").show();
+    
             var url = 'index.php?action=edit!action&id=<?php echo attr_url($rule->id); ?>group_id='+group+'&ra_uid='+action;
             $.ajax({
                        type: 'POST',
