@@ -150,10 +150,6 @@ input[type='text'].short {
 .modal-header{      /* not necessary but imo important for user */
     cursor: move;
 }
-.in{
-    Xopacity:0;
-    Xbackground-color: unset;
-}
 
 input[type="text"] {
     width:80%;

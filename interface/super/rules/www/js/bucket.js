@@ -2,12 +2,7 @@
  *
  */
 var bucket = function( args ) {
-
-    var fn_work = function() {
-        //$('#change_category').trigger('click');
-        //$('#change_item').trigger("click");
-    }
-
+    
     var fn_handle_change = function() {
         var that = $(this);
         var selected = that.val();
@@ -35,7 +30,7 @@ var bucket = function( args ) {
                     }
                     select.append( "<option value='" + item.code + "' "+ selected +">" + item.lbl + "</option>");
                 });
-                //select.val('');
+             
             }
         );
         select.attr("data-hidden", hidden );
@@ -69,7 +64,6 @@ var bucket = function( args ) {
             init: function() {
                 $( document ).ready( function() {
                     fn_wire_events();
-                    fn_work();
                 });
             }
     };

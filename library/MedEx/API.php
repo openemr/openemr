@@ -187,16 +187,15 @@ class Practice extends Base
         while ($urow = sqlFetchArray($ures)) {
             $fields2['clinical_reminders'][] = $urow;
         }
-
+        
         $data = array($fields2);
-        if (!is_array($data)) {
-            return false; //throw new InvalidProductException('Invalid practice information');
+        if (is_array($data)) {
+            $this->curl->setUrl($this->MedEx->getUrl('custom/addpractice&token='.$token));
+            $this->curl->setData($fields2);
+            $this->curl->makeRequest();
+            $response = $this->curl->getResponse();
         }
-        $this->curl->setUrl($this->MedEx->getUrl('custom/addpractice&token='.$token));
-        $this->curl->setData($fields2);
-        $this->curl->makeRequest();
-        $response = $this->curl->getResponse();
-
+        
         $sql = "SELECT * FROM medex_outgoing WHERE msg_pc_eid != 'recall_%' AND msg_reply LIKE 'To Send'";
         $test = sqlStatement($sql);
         while ($result1 = sqlFetchArray($test)) {
@@ -240,7 +239,7 @@ class Practice extends Base
 
         foreach ($responses['messages'] as $data) {
             $data['msg_extra'] = $data['msg_extra']?:'';
-            $this->MedEx->logging->log_this("About to look a message received.");
+            $this->MedEx->logging->log_this("About to look at messages received.");
             $this->MedEx->logging->log_this($data);
             //if this is a clinical_reminder, we need to updte the patient_reminder table and MedEx?
             $sqlQuery ="SELECT * FROM medex_outgoing WHERE medex_uid=?";
@@ -363,7 +362,7 @@ class Events extends Base
                 $timing = (int)$event['E_fire_time']-1;
                 $today=date("l");
                 if (($today =="Sunday")||($today =="Saturday")) {
-                    //continue;
+                    continue;
                 }
                 if ($today == "Friday") {
                     $timing2 = ($timing + 3).":0:1";
@@ -780,18 +779,11 @@ class Events extends Base
                 $ures = sqlStatementCdrEngine($sql);
                 while ($urow = sqlFetchArray($ures)) {
                     list($response,$results) = $this->MedEx->checkModality($event, $urow, $icon);
-                    $this->MedEx->logging->log_this("yo dude over here response");
-                    $this->MedEx->logging->log_this($response);
-                    $this->MedEx->logging->log_this("yo dude over here results");
-                    $this->MedEx->logging->log_this($results);
                     if ($results==false) {
                         continue; //not happening - either not allowed or not possible
                     }
                     $fields2['clinical_reminders'][] = $urow;
                     $count_clinical_reminders++;
-                    $this->MedEx->logging->log_this($fields2);
-                    
-                    
                 }
                 //need to add in provider alerts
             }
@@ -952,7 +944,6 @@ class Events extends Base
                                         ".$no_dupes."
                                     ORDER BY cal.pc_eventDate,cal.pc_startTime";
                 try {
-                    $now_escapedArr = print_r($escapedArr, true);
                     $result = sqlStatement($sql_GOGREEN, $escapedArr);
                 } catch (\Exception $e) {
                     $this->MedEx->logging->log_this($sql_GOGREEN);
@@ -1169,14 +1160,14 @@ class Events extends Base
                                 SET msg_reply=?, msg_extra_text=?, msg_date=NOW()
                                 WHERE msg_pc_eid=? AND campaign_uid=? AND msg_type=? AND msg_reply='To Send'";
             sqlQuery($sqlUPDATE, array($appt['reply'],$appt['extra'],$appt['pc_eid'],$appt['C_UID'], $appt['M_type']));
-            if (count($data['Xappts'])>'100') {
+            /*if (count($data['appts'])>'100') {
                 $this->curl->setUrl($this->MedEx->getUrl('custom/loadAppts&token='.$token));
                 $this->curl->setData($data);
                 $this->curl->makeRequest();
                 $response   = $this->curl->getResponse();
                 $data       = array();
                 sleep(1);
-            }
+            }*/
         }
         $this->curl->setUrl($this->MedEx->getUrl('custom/loadAppts&token='.$token));
         $this->curl->setData($data);
@@ -1512,7 +1503,7 @@ class Logging extends base
     public function log_this($data)
     {
         //truly a debug function, that we will probably find handy to keep on end users' servers;)
-        //return;
+        return;
         $log = "/tmp/medex.log" ;
         $std_log = fopen($log, 'a');
         $timed = date('Y-m-d H:i:s');
@@ -1956,7 +1947,7 @@ class Display extends base
                         <div class=" text-center row divTable" style="width: 85%;float:unset;margin: 0 auto;">
 
                                 <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
-                                    <input placeholder="<?php echo attr('Patient ID'); ?>"
+                                    <input placeholder="<?php echo xla('Patient ID'); ?>"
                                         class="form-control input-sm"
                                         type="text" id="form_patient_id"
                                         name="form_patient_id"
@@ -1964,7 +1955,7 @@ class Display extends base
                                         onKeyUp="show_this();">
 
                                     <input type="text"
-                                        placeholder="<?php echo attr('Patient Name'); ?>"
+                                        placeholder="<?php echo xla('Patient Name'); ?>"
                                         class="form-control input-sm" id="form_patient_name"
                                         name="form_patient_name"
                                         value="<?php echo ( $form_patient_name ) ? attr($form_patient_name) : ""; ?>"
@@ -2034,7 +2025,7 @@ class Display extends base
 
                                           </td></tr>
                                           <tr><td class="text-right" style="vertical-align:bottom;">
-                                            <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To'); ?>:</label></td><td>
+                                            <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To{{Range}}'); ?>:</label></td><td>
                                             <input id="form_to_date" name="form_to_date"
                                                 class="datepicker form-control input-sm text-center"
                                                 value="<?php echo attr(oeFormatShortDate($to_date)); ?>"
