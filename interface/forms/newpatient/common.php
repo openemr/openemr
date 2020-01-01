@@ -33,10 +33,30 @@ $days = array("01","02","03","04","05","06","07","08","09","10","11","12","13","
 $thisyear = date("Y");
 $years = array($thisyear-1, $thisyear, $thisyear+1, $thisyear+2);
 
+$mode = (!empty($_GET['mode'])) ? $_GET['mode'] : null;
+
+// "followup" mode is relevant when enable follow up encounters global is enabled
+// it allows the user to duplicate past encounter and connect between the two
+// under this mode the facility and the visit category will be same as the origin and in readonly
+if ($mode === "followup") {
+    $encounter = (!empty($_GET['enc'])) ? intval($_GET['enc']) : null;
+    if (!is_null($encounter)) {
+        $viewmode = true;
+        $_REQUEST['id'] = $encounter;
+    }
+}
+
 if ($viewmode) {
     $id = (isset($_REQUEST['id'])) ? $_REQUEST['id'] : '';
     $result = sqlQuery("SELECT * FROM form_encounter WHERE id = ?", array($id));
     $encounter = $result['encounter'];
+
+    if ($mode === "followup") {
+        $result['reason'] = '';
+        $result['date']=date('Y-m-d H:i:s');
+        $encounterId = $result['id'];
+    }
+
     if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
         echo "<body>\n<html>\n";
         echo "<p>" . xlt('You are not authorized to see this encounter.') . "</p>\n";
@@ -226,20 +246,25 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <div class="row">
             <div class="col-sm-12">
                 <form id="new-encounter-form" method='post' action="<?php echo $rootdir ?>/forms/newpatient/save.php" name='new_encounter'>
-                <?php if ($viewmode) { ?>
+                <?php if ($viewmode && $mode !== "followup") { ?>
                     <input type=hidden name='mode' value='update'>
                     <input type=hidden name='id' value='<?php echo (isset($_GET["id"])) ? attr($_GET["id"]) : '' ?>'>
                 <?php } else { ?>
                     <input type='hidden' name='mode' value='new'>
                 <?php } ?>
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+
+                    <?php if ($mode === "followup") { ?>
+                        <input type=hidden name='parent_enc_id' value=' <?php echo attr($encounterId); ?>'>
+                    <?php } ?>
+
                     <fieldset>
                         <legend><?php echo xlt('Visit Details')?></legend>
                         <div id = "visit-details">
                             <div class="form-group ">
                                     <label for="pc_catid" class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Visit Category:'); ?></label>
                                     <div class="col-sm-3">
-                                        <select  name='pc_catid' id='pc_catid' class='form-control col-sm-12'>
+                                        <select  name='pc_catid' id='pc_catid' class='form-control col-sm-12' <?php echo ($mode === "followup") ? 'readonly' : ''; ?> >
                                             <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
                                             <?php
                                             //Bring only patient ang group categories
@@ -381,7 +406,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <div class="form-group">
                                     <label for='facility_id' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Facility'); ?>:</label>
                                     <div class="col-sm-8">
-                                        <select name='facility_id' id='facility_id' class='form-control col-sm-9' onChange="bill_loc()">
+                                        <select name='facility_id' id='facility_id' class='form-control col-sm-9' onChange="bill_loc()" <?php echo ($mode === "followup") ? 'readonly' : ''; ?> >
                                             <?php
                                             if ($viewmode) {
                                                 $def_facility = $result['facility_id'];

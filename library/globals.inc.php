@@ -793,6 +793,13 @@ $GLOBALS_METADATA = array(
             xl('Define a default visit category'),
         ),
 
+        'enable_follow_up_encounters' => array(
+            xl('Enable follow-up encounters'),
+            'bool',
+            '0',
+            xl('Enable follow-up encounters feature')
+        ),
+
         'disable_eligibility_log' => array(
             xl('Disable Insurance Eligibility Reports Download'),
             'bool',

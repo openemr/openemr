@@ -354,10 +354,21 @@ for ($idx=0; $idx<count($pagesizes); $idx++) {
 <?php } ?>
 
 <?php if ($GLOBALS['enable_group_therapy'] && !$billing_view && $therapy_group == 0) { ?>
-    <!-- Two new columns if therapy group is enable only in patient  encounter - encounter type and group name (empty if isn't group type) -->
     <th><?php echo xlt('Encounter type'); ?></th>
+<?php }?>
+
+<?php if ($GLOBALS['enable_follow_up_encounters']) { ?>
+    <th></th>
+<?php }?>
+
+<?php if ($GLOBALS['enable_group_therapy'] && !$billing_view && $therapy_group == 0) { ?>
     <th><?php echo xlt('Group name'); ?></th>
 <?php }?>
+
+<?php if ($GLOBALS['enable_follow_up_encounters']) { ?>
+    <th></th>
+<?php }?>
+
  </tr>
 
 <?php
@@ -796,8 +807,23 @@ while ($result4 = sqlFetchArray($res4)) {
     if ($GLOBALS['enable_group_therapy'] && !$billing_view && $therapy_group == 0) {
         $encounter_type = sqlQuery("SELECT pc_catname, pc_cattype FROM openemr_postcalendar_categories where pc_catid = ?", array($result4['pc_catid']));
         echo "<td>" . xlt($encounter_type['pc_catname']) . "</td>\n";
+    }
+
+    if ($GLOBALS['enable_follow_up_encounters']) {
+        $symbol= ( !empty($result4['parent_encounter_id']) ) ? '<span class="fa fa-fw fa-undo" style="padding: 5px;"></span>' : null;
+
+        echo "<td> ".$symbol." </td>\n";
+    }
+
+    if ($GLOBALS['enable_group_therapy'] && !$billing_view && $therapy_group == 0) {
         $group_name = ($encounter_type['pc_cattype'] == 3 && is_numeric($result4['external_id'])) ? getGroup($result4['external_id'])['group_name']  : "";
         echo "<td>". text($group_name) . "</td>\n";
+    }
+
+
+    if ($GLOBALS['enable_follow_up_encounters']) {
+        $encounterId= ( !empty($result4['parent_encounter_id']) ) ? $result4['parent_encounter_id'] : $result4['id'];
+        echo "<td> <div style='z-index: 9999'>  <a href='#' class='css_button' onclick='createFollowUpEncounter(event,".attr_js($encounterId).")'><span>".xlt('Create follow-up encounter')."</span></a> </div></td>\n";
     }
 
         echo "</tr>\n";
@@ -823,6 +849,11 @@ while ($drow /* && $count <= $N */) {
 
 <script language="javascript">
 // jQuery stuff to make the page a little easier to use
+function createFollowUpEncounter(event,encId){
+    event.stopPropagation();
+    var data={encounterId:encId,mode:'follow_up_encounter'};
+    top.window.parent.newEncounter(data);
+}
 
 $(function() {
     $(".encrow").on("mouseover", function() { $(this).toggleClass("highlight"); });

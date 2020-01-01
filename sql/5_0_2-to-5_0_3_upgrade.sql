@@ -387,3 +387,6 @@ UPDATE `globals` SET `gl_value`=3 WHERE `gl_name`='password_history' AND `gl_val
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('CQM_VALUESET', 'NIH_VSAC', '2018-09-17','ep_ec_eh_cms_20180917.xml.zip','a1e584714b080aced6ca73b4b7b076a1');
 #EndIf
 
+#IfMissingColumn form_encounter parent_encounter_id
+ALTER TABLE `form_encounter` ADD `parent_encounter_id` BIGINT(20) NULL DEFAULT NULL;
+#EndIf
