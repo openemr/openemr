@@ -18,8 +18,6 @@ namespace OpenEMR\Menu;
 
 require_once(dirname(__FILE__) . "/../../library/registry.inc");
 
-use OpenEMR\Services\UserService;
-
 class MenuRole
 {
 

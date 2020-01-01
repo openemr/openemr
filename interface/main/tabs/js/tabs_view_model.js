@@ -201,7 +201,7 @@ function reviewEncounterEvent(data,evt)
 }
 function clickNewEncounter(data,evt)
 {
-    newEncounter();
+    newEncounter(data,evt);
 }
 
 function clickEncounterList(data,evt)
@@ -214,11 +214,16 @@ function clickNewGroupEncounter(data,evt)
     newTherapyGroupEncounter();
 }
 
-function newEncounter()
-{
-    var url=webroot_url+'/interface/forms/newpatient/new.php?autoloaded=1&calenc='
+function newEncounter(data, evt) {
+    var url = '';
+    if (typeof(data) === "object" && data.mode === "follow_up_encounter") {
+        url = webroot_url + '/interface/forms/newpatient/new.php?mode=followup&enc=' + data.encounterId + '&autoloaded=1&calenc=';
+    }
+    else {
+        url = webroot_url + '/interface/forms/newpatient/new.php?autoloaded=1&calenc=';
+    }
     navigateTab(url, "enc", function () {
-        activateTabByName("enc",true);
+        activateTabByName("enc", true);
     });
 
 }
