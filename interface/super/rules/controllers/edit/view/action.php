@@ -161,9 +161,7 @@
                         <?php echo ('If this CR includes a Patient Reminder (depending on your set-up) add this message');?>:
                             <textarea class="margin-auto"
                                       name="fld_message"
-                                      id="fld_message">
-                                <?php echo text($action->reminderMessage); ?>
-                            </textarea>
+                                      id="fld_message"><?php echo text($action->reminderMessage); ?></textarea>
                     </td>
                 </tr>
                

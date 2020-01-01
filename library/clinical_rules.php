@@ -178,7 +178,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
                                   data-html='true'
                                   data-trigger='hover'
                                   data-placement='auto'
-                                  data-content='".xla($last_run_oe)." <br />
+                                  data-content='<span class=\"bold\">".xla($last_run_oe)."</span><br />
                                   ".xla('It should be performed')." ";
         if ($interval[0]['value'] == 'flu_season') {
             $interval[0]['value'] = "Flu Season";
@@ -194,22 +194,20 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
         }
 
         if (!empty($was_run)) {
-            $effectiveDate = '';
-            $date_here = date('Y-m-d',$effectiveDate);
             $effectiveDate = strtotime("+1 ".$interval[0]['value'], strtotime($last_run)); // returns timestamp
             $date_here = date('Y-m-d',$effectiveDate);
-        
-            echo xla('Due Date is') . " " . oeFormatShortDate($date_here) . "<br /> ";
+            echo '<span class="bold">'.xla('Due Date') . '</span>: ' . oeFormatShortDate($date_here) . '<br /> ';
             //past due date is date_here + clinical_reminder_post interval (different than $interval above...)
             $res = resolve_reminder_sql($action['rule_id'], 'clinical_reminder_post');
             $effectiveDate = strtotime("+".$res[0]['value']." ".$res[0]['method_detail'], strtotime($date_here)); // returns timestamp
             $past_due_date = date('Y-m-d',$effectiveDate);
             if (!empty($past_due_date)) {
-                echo xla('Past Due date is') . " " . oeFormatShortDate($past_due_date);
+                echo '<span class="bold">'.xla('Past Due') . '</span>: ' . oeFormatShortDate($past_due_date);
             }
         }
         echo "'>";
         // Color code the status (red for past due, purple for due, green for not due and black for soon due)
+        // rules.css has classes and BS4 has color styling so we could go style->class...
         if ($action['due_status'] == "past_due") {
             echo "&nbsp;&nbsp;(<span style='color:red'>";
         } else if ($action['due_status'] == "due") {
