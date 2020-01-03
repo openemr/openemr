@@ -127,8 +127,8 @@
                             <?php echo xlt('How do we know this was completed'); ?>:
            
                             <select data-grp-tgt="" class="text-center" type="dropdown" id="fld_custom_input" name="fld_custom_input">
-                                <option id="Yes" value="yes" <?php echo $action->customRulesInput ? "SELECTED" : "" ?>><?php echo xlt('Link to a Pop-up to marked completed'); ?></option>
-                                <option id="No" value="no" <?php echo !$action->customRulesInput ? "SELECTED" : "" ?>><?php echo xlt('CR Manager Auto-checks DB'); ?></option>
+                                <option id="Yes" value="yes" <?php echo $action->customRulesInput ? "SELECTED" : "" ?>><?php echo xlt('Link to a "Marked completed" pop-up'); ?></option>
+                                <option id="No" value="no" <?php echo !$action->customRulesInput ? "SELECTED" : "" ?>><?php echo xlt('Check DB field for "completed"'); ?></option>
                             </select>
                         </span>
                         <span id="no_PopUp_needed" class="bolder">

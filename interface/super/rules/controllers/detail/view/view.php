@@ -207,7 +207,7 @@
                                       data-placement='auto'
                                       data-content='When present, References appear in the Dashboard CR widget as <i class="fa fa-link text-primary"></i>.
                                       <hr>
-                                      <img width="250px" class="table-bordered" src="<?php echo $GLOBAL['webroot'];?>/interface/super/rules/www/CR_widget.png">
+                                      <img width="250px" class="table-bordered" src="<?php echo $GLOBALS['webroot'];?>/interface/super/rules/www/CR_widget.png">
                                       <hr>This clickable link leads to the url specified here.
                                       It is suggested to link out to relevant clinical information, perhaps a government publication explaining why this CR exists.
                                       However, you can link to anything desired. <?php
@@ -239,7 +239,7 @@
                                       data-content='<?php echo xla('The text here will be displayed in the CR widget via a tooltip.
                                                Use it to describe to your staff what this CR means.'); ?>
                                             <hr>
-                                            <img width="250px" src="<?php echo $GLOBAL['webroot'];?>/interface/super/rules/www/CR_tooltip.png">
+                                            <img width="250px" src="<?php echo $GLOBALs['webroot'];?>/interface/super/rules/www/CR_tooltip.png">
                                             <hr>
                                         <?php echo xla('In the CR widget, each Treatment Goal in this CR carries this description as a tooltip.  It is also a clickable link.  This link leads to either a pop-up (add a note and/or mark the task completed), or to an external link.
                                                 This link is set separately from the Reference link.  Each Treatment Goal can have a unique link that is defined in the last step of this process
@@ -323,7 +323,7 @@
                                         data-trigger='hover'
                                         data-placement='auto'
                                         data-content='References appear in the Dashboard CR widget as <i class="fa fa-link"></i> and can link to anything desired.
-                                                    <img width="250px" src="<?php echo $GLOBAL['webroot'];?>/interface/super/rules/www/CR_widget.png">'
+                                                    <img width="250px" src="<?php echo $GLOBALS['webroot'];?>/interface/super/rules/www/CR_widget.png">'
                                         class="underline"><?php echo xlt('Reference'); ?><i class="fa fa-link"></i>:
                             </td>
                             <td class="text-left">
@@ -340,7 +340,7 @@
                                       data-content='<?php echo xla('The text here will be displayed in the CR widget via a tooltip.
                                         Use it to describe to your staff what this CR means.'); ?>
                                         <hr>
-                                        <img width="250px" src="<?php echo $GLOBAL['webroot'];?>/interface/super/rules/www/CR_tooltip.png">
+                                        <img width="250px" src="<?php echo $GLOBALS['webroot'];?>/interface/super/rules/www/CR_tooltip.png">
                                         <hr>
                                         <?php echo xla('In the CR widget, each Treatment Goal in this CR carries this description as a tooltip.  It is also a clickable link.  This link leads to either a pop-up (add a note and/or mark the task completed), or to an external link.
                                         This link is set separately from the Reference link.  Each Treatment Goal can have a unique link that is defined in the last step of this process
@@ -1398,6 +1398,8 @@
         });
         $("[id^='add_action_']").click(function() {
             top.restoreSession();
+            $("[name='show_actions_edit']").hide();
+            $("[name='show_actions']").show();
             var group = this.id.match(/add_action_(.*)/)[1];
             var url = 'index.php?action=edit!add_action&id=<?php echo attr_url($rule->id); ?>&group_id='+group;
             $.ajax({
