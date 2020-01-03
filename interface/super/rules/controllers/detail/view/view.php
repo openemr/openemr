@@ -352,7 +352,7 @@
                                 <textarea class="form-control"
                                           id="fld_public_description"
                                           name="summary_public_description"
-                                          placeholder="<?php echo xla('Tooltip to explain to staff what this CR does. Hover mouse over Description for more help...'); ?>"><?php echo attr($rule->public_description); ?></textarea>
+                                          placeholder="<?php echo xla('Add text here to describe what this CR does.  It appears as a Tooltip in the CR widget.'); ?>"><?php echo attr($rule->public_description); ?></textarea>
                             </td>
                         </tr>
                     </table>
