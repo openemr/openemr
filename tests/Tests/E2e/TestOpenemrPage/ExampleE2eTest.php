@@ -8,7 +8,7 @@ use Symfony\Component\Panther\Client;
 class ExampleE2eTest extends PantherTestCase
 {
     /** @test */
-    public function check_openEmr_demo_page(): void
+    public function check_openEmr_login_page(): void
     {
         $openEmrPage = 'http://localhost';
         // ok - PantherClient
@@ -52,5 +52,21 @@ class ExampleE2eTest extends PantherTestCase
         self::assertTrue($client->isFollowingRedirects());
         $title = $client->getTitle();
         $this->assertSame('OpenEMR', $title);
+    }
+    /** @test */
+    public function visitor_without_valid_credential_is_not_authenticated(): void
+    {
+        $openEmrPage = 'http://localhost';
+        // ok - PantherClient
+        $client = static::createPantherClient(['external_base_uri' => $openEmrPage]);
+        $crawler = $client->request('GET', '/interface/login/login.php?site=default');
+
+        $form = $crawler->filter('#login_form')->form();
+        $form['authUser'] = 'admin';
+        $form['clearPass'] = 'wrongpassword';
+        $crawler = $client->submit($form);
+        self::assertTrue($client->isFollowingRedirects());
+        $title = $client->getTitle();
+        $this->assertSame('OpenEMR Login', $title);
     }
 }
