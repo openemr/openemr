@@ -55,8 +55,6 @@ if ($pid) {
 $CPR = 4; // cells per row
 
 // $statii = array('married','single','divorced','widowed','separated','domestic partner');
-// $langi = getLanguages();
-// $ethnoraciali = getEthnoRacials();
 // $provideri = getProviderInfo();
 if ($GLOBALS['insurance_information'] != '0') {
     $insurancei = getInsuranceProvidersExtra();
