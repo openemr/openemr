@@ -43,8 +43,8 @@ services:
       MYSQL_PASS: openemr
       OE_USER: admin
       OE_PASS: pass
-      FLEX_REPOSITORY: https://github.com/tywrenn/openemr.git
-      FLEX_REPOSITORY_BRANCH: bootstrap-updates
+      FLEX_REPOSITORY: https://github.com/openemr/openemr.git
+      FLEX_REPOSITORY_BRANCH: master
       EASY_DEV_MODE: "yes"
     depends_on:
     - mysql

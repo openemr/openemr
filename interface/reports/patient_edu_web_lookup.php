@@ -67,7 +67,7 @@ $form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] :
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <div class="form-group">
                         <label for='form_lookup_at' class='control-label col-sm-2'><?php echo xlt('Patient Resource'); ?></label>
-                        <div class='col-sm-10'>
+                        <div class='col-sm-12'>
                             <select name='form_lookup_at' id='form_lookup_at'  class='form-control'>
                                 <?php
                                 foreach ($websites as $key => $value) {
@@ -84,7 +84,7 @@ $form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] :
                     </div>
                     <div class="form-group">
                         <label for='form_diagnosis' class='control-label col-sm-2'><?php echo xlt('Search'); ?></label>
-                        <div class='col-sm-10'>
+                        <div class='col-sm-12'>
                             <input type='text' name='form_diagnosis' id='form_diagnosis' class='form-control' aria-describedby='searchHelpBox'
                                 value='<?php echo attr($form_diagnosis); ?>' title='<?php echo xla('Search Text'); ?>'>
                             <span id="searchHelpBox" class="help-block">
@@ -93,7 +93,7 @@ $form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] :
                         </div>
                     </div>
                     <div class="form-group">
-                        <div class='offset-sm-2 col-sm-10'>
+                        <div class='col-sm-12'>
                             <div class="btn-group" role="group">
                                 <button type='submit' class='btn btn-secondary btn-search'><?php echo xlt("Submit"); ?></button>
                             </div>

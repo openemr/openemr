@@ -50,179 +50,219 @@
 @import "core";
 
 * {
-	font-family: /* 1 */
-		-apple-system, BlinkMacSystemFont, /* 2 */
-		"Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", /* 3 */
-		"Helvetica Neue", sans-serif !important;
+    font-family:
+        /* 1 */
+        -apple-system, BlinkMacSystemFont,
+        /* 2 */
+        "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+        /* 3 */
+        "Helvetica Neue", sans-serif !important;
 }
+
 html {
-	font-size: 14px !important;
+    font-size: 14px !important;
 }
+
 /* RP_MODIFIED  2/09/2015, 1/17/2016*/
 
 body {
-	margin: 0px 0px 0px 2px !important;
-	/* set the base fontsize for all DOM children */
-	font-size: 1em !important;
-	/* set the base font size for all DOM children */
+    margin: 0px 0px 0px 2px !important;
+    /* set the base fontsize for all DOM children */
+    font-size: 1em !important;
+    /* set the base font size for all DOM children */
 }
 
 .menu {
-	font-style: italic;
-	font-size: 0.9375rem;
+    font-style: italic;
+    font-size: 0.9375rem;
 }
+
 .menu_selected {
-	font-style: italic;
-	font-size: 0.9375rem;
+    font-style: italic;
+    font-size: 0.9375rem;
 }
+
 .logout {
-	font-style: italic;
-	font-size: 0.9375rem;
+    font-style: italic;
+    font-size: 0.9375rem;
 }
+
 .text {
-	font-size: 0.8125rem;
+    font-size: 0.8125rem;
 }
+
 .required {
-	font-size: 0.8125rem;
+    font-size: 0.8125rem;
 }
+
 .bold {
-	font-size: 0.8125rem;
+    font-size: 0.8125rem;
 }
-.alert, .alert-custom {
-	font-size: 70%;
-	color: #FF0000;
-	text-decoration: none;
+
+.alert,
+.alert-custom {
+    font-size: 70%;
+    color: #FF0000;
+    text-decoration: none;
 }
+
 .small {
-	font-size: 80%;
+    font-size: 80%;
 }
+
 .link {
-	font-size: 70%;
+    font-size: 70%;
 }
+
 .more {
-	font-size: 70%;
+    font-size: 70%;
 }
+
 .back {
-	font-size: 70%;
+    font-size: 70%;
 }
+
 .link_selected {
-	font-size: 70%;
+    font-size: 70%;
 }
+
 .link_selected:visited {
-	font-size: 70%;
+    font-size: 70%;
 }
+
 .link_submit {
-	font-size: 0.8125rem;
+    font-size: 0.8125rem;
 }
+
 .items {
-	font-size: 6pt;
+    font-size: 6pt;
 }
+
 .title {
-	font-size: 12pt;
-	font-weight: bold;
-	text-decoration: none;
+    font-size: 12pt;
+    font-weight: bold;
+    text-decoration: none;
 }
 
 .title_bar {
-	font-size: 12pt;
+    font-size: 12pt;
 }
+
 .title_bar_top {
-	font-size: 13px;
+    font-size: 13px;
 }
 
 .body_top {
-	background-color: $paler;
+    background-color: $paler;
 }
+
 .body_main {
     background-color: $midpale !important;
     border-top: solid 8px $dark;
 }
+
 .body_main_widescreen {
     background-color: $midpale !important;
     border-top: solid 14px $dark;
 }
+
 /* $top_bg_line RP_MODIFIED 2/8/15 $paler*/
 
 .bgcolor2 {
-	background-color: $paler;
+    background-color: $paler;
 }
+
 /* $GLOBALS['style']['BGCOLOR2'] RP_MODIFIED 2/8/15 $paler*/
 
 
 .body_title {
-	background-color: $dark;
+    background-color: $dark;
 }
+
 /* $title_bg_line FFF RP_MODIFIED 12/22/2012 $dark*/
 
 .body_nav {
-	background-color: $paler;
+    background-color: $paler;
 }
+
 /* $nav_bg_line RP_MODIFIED 2/8/15 $paler */
 
 .logobar {
-	background-color: $midnightblue;
+    background-color: $midnightblue;
 }
+
 /* $GLOBALS['logoBarHeight'] RP_MODIFIED 12/22/2012 $midnightblue*/
 
 /* style taken out of the addressbook code and put here instead */
 
 #addressbook_list td {
-	font-family: "Arial", "Helvetica", sans-serif;
+    font-family: "Arial", "Helvetica", sans-serif;
 }
+
 #addressbook_list tr.search {
-	font-size: 9pt;
+    font-size: 9pt;
 }
+
 #addressbook_list tr.head {
-	font-size: 0.8125rem;
-	background-color:inherit;
+    font-size: 0.8125rem;
+    background-color: inherit;
 }
+
 #addressbook_list tr.detail {
-	font-size: 0.8125rem;
+    font-size: 0.8125rem;
 }
+
 #addressbook_list .inputtext {
-	font-family:inherit;
-	font-size:inherit;
-	font-weight:inherit;
-	border-style:inherit;
-	border-width:inherit;
-	border-color: inherit;
-	background-color:inherit;
-	/* RP_MODIFIED 1/18/2016*/
-	/* DES_OVERRIDE 5/14/2018 */
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    border-style: inherit;
+    border-width: inherit;
+    border-color: inherit;
+    background-color: inherit;
+    /* RP_MODIFIED 1/18/2016*/
+    /* DES_OVERRIDE 5/14/2018 */
 }
+
 #addressbook_list .button {
-	font-family: sans-serif;
-	font-size: 8pt;
-	font-weight: bold;
+    font-family: sans-serif;
+    font-size: 8pt;
+    font-weight: bold;
 }
+
 .address_names:hover {
-	color: magenta;
+    color: magenta;
 }
+
 .highlight {
-	color: magenta !important;
+    color: magenta !important;
 }
 
 #reports_list td {
-	font-size: 8pt;
-	font-family: "Helvetica", sans-serif;
+    font-size: 8pt;
+    font-family: "Helvetica", sans-serif;
 }
+
 #reports_list a {
-	font-size: 8pt;
-	font-family: "Helvetica", sans-serif;
+    font-size: 8pt;
+    font-family: "Helvetica", sans-serif;
 }
 
 #documents_list td {
-	font-family: "Helvetica", sans-serif;
+    font-family: "Helvetica", sans-serif;
 }
+
 #documents_list a {
-	font-family: "Helvetica", sans-serif;
+    font-family: "Helvetica", sans-serif;
 }
+
 #documents_list .treeMenuDefault {
-	font-style: italic;
+    font-style: italic;
 }
+
 #documents_list .treeMenuBold {
-	font-style: italic;
-	font-weight: bold;
+    font-style: italic;
+    font-weight: bold;
 }
 
 /*=============================================================
@@ -231,67 +271,75 @@ body {
  *============================================================*/
 
 #patient_stats .head {
-	font-size: 0.8125rem;
+    font-size: 0.8125rem;
 }
+
 #patient_stats .detail {
-	font-size: 0.8125rem;
+    font-size: 0.8125rem;
 }
+
 /*=============================================================
  * Patient Past Encounters and Documents
  * seen in the patient encounter screen
  *============================================================*/
 #patient_pastenc #tooltipdiv {
-	font-size: 9pt;
+    font-size: 9pt;
 }
 
-#addressbook_list tr.evenrow, #searchResults tr:nth-child(even) {
-	background-color: $white;
-	/*RP_MODIFIED 1/16/2016 :$pale */
-}
-#addressbook_list tr.oddrow, #searchResults tr:nth-child(odd), .signout-restore-subheading {
-	background-color: $palepale;
-	/*RP_MODIFIED 1/16/2016 $white */
+#addressbook_list tr.evenrow,
+#searchResults tr:nth-child(even) {
+    background-color: $white;
+    /*RP_MODIFIED 1/16/2016 :$pale */
 }
 
-@import "buttons/_color";
+#addressbook_list tr.oddrow,
+#searchResults tr:nth-child(odd),
+.signout-restore-subheading {
+    background-color: $palepale;
+    /*RP_MODIFIED 1/16/2016 $white */
+}
 
 /*
  * TABS A7A7A7
 */
 
 ul.tabNav {
-	margin: 0 0 -4 0;
-	padding: 0;
+    margin: 0 0 -4 0;
+    padding: 0;
 }
+
 /*RP_MODIFIED 7/16/2016*/
 
 ul.tabNav li {
-	margin: 0 1px 0 0;
-	padding: 6px 0 0;
-	font-size: 0.8em;
+    margin: 0 1px 0 0;
+    padding: 6px 0 0;
+    font-size: 0.8em;
 }
+
 ul.tabNav li.current {
-	padding-top: 0;
-	font-weight: bold;
-	font-size: 0.8em;
-	vertical-align: bottom;
-	text-align: left;
+    padding-top: 0;
+    font-weight: bold;
+    font-size: 0.8em;
+    vertical-align: bottom;
+    text-align: left;
 }
+
 ul.tabNav a {
-	background: $palepale;
-	border: solid $dark;
-	border-width: 3px 1px 0px 1px;
-	color: #333;
-	padding: 4px 4px 5px 4px;
-	border-top-left-radius: 5px;
-	/*#CFCCF7 RP_MODIFIED 2/11/2015*/
-	border-top-right-radius: 5px;
+    background: $palepale;
+    border: solid $dark;
+    border-width: 3px 1px 0px 1px;
+    color: #333;
+    padding: 4px 4px 5px 4px;
+    border-top-left-radius: 5px;
+    /*#CFCCF7 RP_MODIFIED 2/11/2015*/
+    border-top-right-radius: 5px;
 }
+
 /*added RP_MODIFIED */
 
 ul.tabNav a:hover {
-	background-color: $dark;
-	color: #000000;
+    background-color: $dark;
+    color: #000000;
 }
 
 div.tabContainer div.current {
@@ -311,151 +359,176 @@ ul.tabNav li.current a {
 */
 
 #report_parameters {
-	background-color: $palepale;
-	margin: 10px 0px 5px 0px;
+    background-color: $palepale;
+    margin: 10px 0px 5px 0px;
 }
+
 #report_parameters table {
-	border: solid 1px $darkest;
+    border: solid 1px $darkest;
 }
-#report_parameters>table>tbody>tr>td>table {
-	border-left: 1px solid $darkest !important;
-	/*openemr5*/
+
+#report_parameters > table > tbody > tr > td > table {
+    border-left: 1px solid $darkest !important;
+    /*openemr5*/
 }
+
 #report_parameters .form-control {
-	width: auto;
+    width: auto;
 }
+
 #report_results table {
-	margin-top: 1px;
+    margin-top: 1px;
 }
+
 #report_results table thead {
-	border: solid 1px $darkest;
-	background-color: inherit;
+    border: solid 1px $darkest;
+    background-color: inherit;
 }
+
 #report_results table th {
-	border-bottom: 2px solid $darkest;
-	background-color: inherit;
+    border-bottom: 2px solid $darkest;
+    background-color: inherit;
 }
+
 #report_results table td {
-	padding: 5px;
-	border-bottom: 1px dashed;
-	font-size: 0.8em;
+    padding: 5px;
+    border-bottom: 1px dashed;
+    font-size: 0.8em;
 }
+
 .report_totals td {
-	background-color: $palepale;
-	font-weight: bold;
+    background-color: $palepale;
+    font-weight: bold;
 }
+
 /**
 * List-table formatting
 **/
 
 .showborder td {
-	font-size: 9pt;
+    font-size: 9pt;
 }
+
 .showborder_head th {
-	font-size: 9pt;
+    font-size: 9pt;
 }
+
 .shownoborder td {
-	font-size: 9pt;
+    font-size: 9pt;
 }
+
 .showborder_long tr td {
-	font-size: 9pt;
+    font-size: 9pt;
 }
+
 /**
 * Drug lookup
 **/
 
 .drug_lookup {
-	font-family: "Helvetica", sans-serif;
-	font-size: 8pt;
-	border: 2px outset rgb(102, 102, 102);
-	background-color: $paler;
-	/*RP_MODIFIED 2/8/2014 $paler*/
+    font-family: "Helvetica", sans-serif;
+    font-size: 8pt;
+    border: 2px outset rgb(102, 102, 102);
+    background-color: $paler;
+    /*RP_MODIFIED 2/8/2014 $paler*/
 }
 
 /* Style for red font */
 .redtext {
-	font-size: 0.8125rem;
+    font-size: 0.8125rem;
 }
+
 /* Style for red font */
 
 @import "navigation-slide/_color";
 
 #sddm li {
-	padding: 0;
-	border: 1px solid $paler;
-	/*RP_MODIFIED 2/8/15 #EAE6FF*/
-	background: $dark;
-	/* for non-css3 browsers #999 RP_MODIFIED 2/11/2015 */
-	filter: unquote("progid:DXImageTransform.Microsoft.gradient(startColorstr='$dark', endColorstr='$dark')");
-	/* for IE b5cbff RP_MODIFIED 2/11/2015 #61a0ff*/
-	background: -webkit-gradient(linear, left top, left bottom, from($dark), to($dark));
-	/* for webkit browsers b5cbff RP_MODIFIED 2/11/2015 #61a0ff*/
-	background: -moz-linear-gradient(top, $dark, $dark);
-	/* for firefox 3.6+ b5cbff RP_MODIFIED 2/11/2015 #61a0ff*/
+    padding: 0;
+    border: 1px solid $paler;
+    /*RP_MODIFIED 2/8/15 #EAE6FF*/
+    background: $dark;
+    /* for non-css3 browsers #999 RP_MODIFIED 2/11/2015 */
+    filter: unquote("progid:DXImageTransform.Microsoft.gradient(startColorstr='$dark', endColorstr='$dark')");
+    /* for IE b5cbff RP_MODIFIED 2/11/2015 #61a0ff*/
+    background: -webkit-gradient(linear, left top, left bottom, from($dark), to($dark));
+    /* for webkit browsers b5cbff RP_MODIFIED 2/11/2015 #61a0ff*/
+    background: -moz-linear-gradient(top, $dark, $dark);
+    /* for firefox 3.6+ b5cbff RP_MODIFIED 2/11/2015 #61a0ff*/
 }
+
 #sddm li a {
-	padding: 4px 10px;
-	color: #004080;
-	font-size: 0.8em;
-	font-weight: bold;
+    padding: 4px 10px;
+    color: #004080;
+    font-size: 0.8em;
+    font-weight: bold;
 }
+
 #sddm li a:hover {
-	background: $palepale;
+    background: $palepale;
 }
+
 #sddm div {
-	display: none;
-	margin: 0;
-	padding: 0;
-	background: #C9F1B5;
-	border-left: 1px solid #000000;
-	border-right: 1px solid #000000;
-	border-bottom: 1px solid #000000;
+    display: none;
+    margin: 0;
+    padding: 0;
+    background: #C9F1B5;
+    border-left: 1px solid #000000;
+    border-right: 1px solid #000000;
+    border-bottom: 1px solid #000000;
 }
+
 #sddm div a {
-	background: $paler;
-	color: #2875DE;
-	z-index: 10;
+    background: $paler;
+    color: #2875DE;
+    z-index: 10;
 }
+
 #sddm div a:hover {
-	background: $palepale;
-	color: #000000;
+    background: $palepale;
+    color: #000000;
 }
+
 .encounter-form-category-li {
-	z-index: 100;
-	background-color: $paler !important;
+    z-index: 100;
+    background-color: $paler !important;
 }
 
 .example_menu {
-	font-size: 70%;
+    font-size: 70%;
 }
 
 .example_menu ul a:Subjective {
-	font-weight: normal;
+    font-weight: normal;
 }
+
 .example_menu ul a:hover {
-	background: #f5f5f5;
-	text-decoration: underline;
+    background: #f5f5f5;
+    text-decoration: underline;
 }
 
 .div-message {
-	background-color: white;
-	color: gray;
-	margin: 5 0 5 0px;
-	border: 1px solid $darker;
-	/*RP_ADDED 7/5/2016*/
-	padding: 5px;
-	width: 648px;
+    background-color: white;
+    color: gray;
+    margin: 5 0 5 0px;
+    border: 1px solid $darker;
+    /*RP_ADDED 7/5/2016*/
+    padding: 5px;
+    width: 648px;
 }
+
 .signout-content {
-	background: $paler;
-	/*RP_ADDED 8/27/2016*/
+    background: $paler;
+    /*RP_ADDED 8/27/2016*/
 }
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~search div ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-div.section, div.borderbox {
-	border-color: $darkest !important;
-	background-color: $palepale;
+div.section,
+div.borderbox {
+    border-color: $darkest !important;
+    background-color: $palepale;
 }
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~search div ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 @import "colors/openemr5/login";
@@ -465,29 +538,32 @@ div.section, div.borderbox {
 /* Form styles */
 
 .formtable {
-	font-size: 13px;
+    font-size: 13px;
 }
 
 .report_search_bar {
-	background-color: $palepale;
+    background-color: $palepale;
 }
 
 .error-message {
-	font-size: 11px;
+    font-size: 11px;
 }
+
 /* flow board filters*/
 
 #flow_board_parameters {
-	width: 1041px;
-	background-color: $palepale;
+    width: 1041px;
+    background-color: $palepale;
 }
+
 #flow_board_parameters table {
-	border: solid 1px $darkest;
+    border: solid 1px $darkest;
 }
 
 .divider {
-	border-color: $darkest !important;
+    border-color: $darkest !important;
 }
+
 /* flow board filters*/
 /*openemr 5 patient-finder*/
 @media screen and (max-width: 750px) {
@@ -495,20 +571,23 @@ div.section, div.borderbox {
         font-size: .9rem;
     }
 }
+
 /*openemr 5 patient-finder*/
 
 /*vertical main menu */
 
 .appMenu_small .menuSection > .menuEntries {
-    left:40px;
-    box-shadow:3px 5px 8px $darker !important;
+    left: 40px;
+    box-shadow: 3px 5px 8px $darker !important;
 }
+
 /*vertical main menu */
 
 /*search any*/
 *.oe-expandable-search .any-search-legacy {
     background: $paler;
 }
+
 /*search any*/
 @import "colors/openemr5/external-data";
 @import "colors/openemr5/ros";
@@ -520,20 +599,24 @@ div.section, div.borderbox {
 *.oe-expandable-search .any-search-legacy {
     background: $paler;
 }
+
 /*search any*/
 
-th.currentvalues, th.historicalvalues {
-	background: $dark !important;
+th.currentvalues,
+th.historicalvalues {
+    background: $dark !important;
 }
 
 #create_patient_btn {
-	float: right;
-	margin-top: 35px;
+    float: right;
+    margin-top: 35px;
 }
+
 /*search any*/
 *.oe-expandable-search .any-search-legacy {
     background: $paler;
 }
+
 /*search any*/
 
 @import "colors/openemr5/batch-payments";
@@ -544,5 +627,5 @@ th.currentvalues, th.historicalvalues {
 
 
 @include if-rtl {
-	@include rtl_style;
+    @include rtl_style;
 }

@@ -67,8 +67,8 @@ if (($_POST['setting_bootstrap_submenu']) ||
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
-    <link rel="stylesheet"  href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>" type="text/css">
+    <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>" type="text/css" />
+    <link rel="stylesheet"  href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>" type="text/css" />
 
     <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-redmond', 'opener', 'moment']); ?>
     <script>
@@ -81,11 +81,11 @@ if (($_POST['setting_bootstrap_submenu']) ||
 
     <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico" />
     
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="MedEx Bank">
-    <meta name="author" content="OpenEMR: MedExBank">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="description" content="MedEx Bank" />
+    <meta name="author" content="OpenEMR: MedExBank" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
         @media only screen and (max-width: 768px) {
             [class*="col-"] {
@@ -139,9 +139,9 @@ if (!empty($_REQUEST['go'])) { ?>
     //original message.php stuff
     
     if ($GLOBALS['enable_help'] == 1) {
-        $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 2) {
-        $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: #DCD6D0 !important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 0) {
          $help_icon = '';
     }
@@ -544,27 +544,22 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 $body = preg_replace('/(:\d{2}\s\()' . $result['pid'] . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
                                                 $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
                                                 $body =nl2br(text(oeFormatPatientNote($body)));
-                                                echo "<div class='text oe-margin-t-3' style='border:1px solid #999; padding: 5px;'>" . $body . "</div>";
+                                                echo "<div class='text oe-margin-t-3' style='border:1px solid var(--gray); padding: 5px;'>" . $body . "</div>";
                                             }
 
                                             ?>
-                                            <textarea name='note' id='note' class='form-control oe-margin-t-3' style='margin-left:-1px !important; border:1px solid #999; padding: 5px; height:100px!important;'><?php echo nl2br(text($note)); ?></textarea>
+                                            <textarea name='note' id='note' class='form-control oe-margin-t-3' style='margin-left: -1px !important; border: 1px solid var(--gray); padding: 5px; height: 100px !important;'><?php echo nl2br(text($note)); ?></textarea>
                                         </div>
                                         <div class="col-12 position-override oe-margin-t-10">
                                             <?php if ($noteid) { ?>
                                                 <!-- This is for displaying an existing note. -->
-                                                <button type="button" class="btn btn-secondary btn-send-msg" id="newnote"
-                                                        value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
-                                                <button type="button" class="btn btn-secondary btn-print" id="printnote"
-                                                        value="<?php echo xla('Print message'); ?>"><?php echo xlt('Print message'); ?></button>
-                                                <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" id="cancel"
-                                                        value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
+                                                <button type="button" class="btn btn-secondary btn-send-msg" id="newnote" value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
+                                                <button type="button" class="btn btn-secondary btn-print" id="printnote" value="<?php echo xla('Print message'); ?>"><?php echo xlt('Print message'); ?></button>
+                                                <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" id="cancel" value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
                                             <?php } else { ?>
                                                 <!-- This is for displaying a new note. -->
-                                                <button type="button" class="btn btn-secondary btn-send-msg" id="newnote"
-                                                        value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
-                                                <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" id="cancel"
-                                                        value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
+                                                <button type="button" class="btn btn-secondary btn-send-msg" id="newnote" value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
+                                                <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" id="cancel" value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
                                             <?php }
                                             ?>
                                         </div>
@@ -632,19 +627,19 @@ if (!empty($_REQUEST['go'])) { ?>
                                     <tr>
                                         <td>
                                             <form name='MessageList' id='MessageList' action=\"messages.php?showall=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($begin) . "&$activity_string_html\" method=post>
-                                                <table border=0 cellpadding=1 cellspacing=0 class=\"w-100\" style=\"border-left: 1px #000000 solid; border-right: 1px #000000 solid; border-top: 1px #000000 solid;\">
+                                                <table border=0 cellpadding=1 cellspacing=0 class=\"w-100\" style=\"border-left: 1px var(--black) solid; border-right: 1px var(--black) solid; border-top: 1px var(--black) solid;\">
                                                     <input type=hidden name=task value=delete>
                                                     <tr height=\"24\" class=\"head bg-light\">
-                                                        <td align=\"center\" width=\"25\" style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\"><input type=checkbox id=\"checkAll\" onclick=\"selectAll()\"></td>
-                                                        <td width=\"20%\" style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\" class=bold>&nbsp;<b>" .
+                                                        <td align=\"center\" width=\"25\" style=\"border-bottom: 1px var(--black) solid; border-right: 1px var(--black) solid;\"><input type=checkbox id=\"checkAll\" onclick=\"selectAll()\"></td>
+                                                        <td width=\"20%\" style=\"border-bottom: 1px var(--black) solid; border-right: 1px var(--black) solid;\" class=bold>&nbsp;<b>" .
                                                         xlt('From') . "</b> $sortlink[0]</td>
-                                                                                <td width=\"20%\" style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\" class=bold>&nbsp;<b>" .
+                                                                                <td width=\"20%\" style=\"border-bottom: 1px var(--black) solid; border-right: 1px var(--black) solid;\" class=bold>&nbsp;<b>" .
                                                         xlt('Patient') . "</b> $sortlink[1]</td>
-                                                                                <td style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\" class=bold>&nbsp;<b>" .
+                                                                                <td style=\"border-bottom: 1px var(--black) solid; border-right: 1px var(--black) solid;\" class=bold>&nbsp;<b>" .
                                                         xlt('Type') . "</b> $sortlink[2]</td>
-                                                                                <td width=\"15%\" style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\" class=bold>&nbsp;<b>" .
+                                                                                <td width=\"15%\" style=\"border-bottom: 1px var(--black) solid; border-right: 1px var(--black) solid;\" class=bold>&nbsp;<b>" .
                                                         xlt($GLOBALS['messages_due_date'] ? 'Due date' : 'Date') . "</b> $sortlink[3]</td>
-                                                                                <td width=\"15%\" style=\"border-bottom: 1px #000000 solid; \" class=bold>&nbsp;<b>" .
+                                                                                <td width=\"15%\" style=\"border-bottom: 1px var(--black) solid; \" class=bold>&nbsp;<b>" .
                                                         xlt('Status') . "</b> $sortlink[4]</td>
                                                     </tr>";
                             // Display the Messages table body.
@@ -668,28 +663,28 @@ if (!empty($_REQUEST['go'])) { ?>
                                 $count++;
                                 echo "
                                     <tr id=\"row" . attr($count) . "\" class=\"bg-white\" height=\"24\">
-                                        <td align=\"center\" style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\">
+                                        <td align=\"center\" style=\"border-bottom: 1px var(--black) solid; border-right: 1px var(--black) solid;\">
                                             <input type=checkbox id=\"check" . attr($count) . "\" name=\"delete_id[]\" value=\"" .
                                             attr($myrow['id']) . "\" onclick=\"if(this.checked==true){ selectRow('row" . attr(addslashes($count)) . "'); }else{ deselectRow('row" . attr(addslashes($count)) . "'); }\"></td>
-                                        <td style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\">
+                                        <td style=\"border-bottom: 1px var(--black) solid; border-right: 1px var(--black) solid;\">
                                             <table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td class=\"text\">" .
                                             text($name) . "</td><td width=5></td></tr>
                                             </table></td>
-                                        <td style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\">
+                                        <td style=\"border-bottom: 1px var(--black) solid; border-right: 1px var(--black) solid;\">
                                             <table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td class=\"text\"><a href=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&task=edit&noteid=" .
                                             attr_url($myrow['id']) . "&$activity_string_html\" onclick=\"top.restoreSession()\">" .
                                             text($patient) . "</a></td><td width=5></td></tr>
                                             </table></td>
-                                        <td style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\">
+                                        <td style=\"border-bottom: 1px var(--black) solid; border-right: 1px var(--black) solid;\">
                                             <table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td class=\"text\">" .
                                                 xlt($myrow['title']) . "</td><td width=5></td></tr>
                                             </table></td>
-                                        <td style=\"border-bottom: 1px #000000 solid; border-right: 1px #000000 solid;\">
+                                        <td style=\"border-bottom: 1px var(--black) solid; border-right: 1px var(--black) solid;\">
                                             <table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td class=\"text\">" .
                                                 text(oeFormatShortDate(substr($myrow['date'], 0, strpos($myrow['date'], " ")))) . "</td><td width=5></td></tr>
                                             </table>
                                         </td>
-                                        <td style=\"border-bottom: 1px #000000 solid;\">
+                                        <td style=\"border-bottom: 1px var(--black) solid;\">
                                             <table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td class=\"text\">" .
                                             text(getListItemTitle('message_status', $myrow['message_status'])) . "</td><td width=5></td></tr>
                                             </table>
@@ -813,8 +808,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         <form id="smsForm" class="input-group">
                             <input id="SMS_patient" type="text" style="margin:0;max-width:100%;" class="form-control"
                                    placeholder="<?php echo xla("Patient Name"); ?>" />
-                            <span class="input-group-addon" onclick="SMS_direct();"><i
-                                        class="glyphicon glyphicon-phone"></i></span>
+                            <span class="input-group-addon" onclick="SMS_direct();"><i class="glyphicon glyphicon-phone"></i></span>
                             <input type="hidden" id="sms_pid">
                             <input type="hidden" id="sms_mobile" value="">
                             <input type="hidden" id="sms_allow" value="">

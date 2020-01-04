@@ -985,7 +985,7 @@ if ($groupid) {
     }
 
     ?>
-<script language="JavaScript">
+<script>
 <?php require $GLOBALS['srcdir'] . "/formatting_DateToYYYYMMDD_js.js.php" ?>
 
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -1128,14 +1128,14 @@ function set_category() {
 // radio buttons are clicked.
 function set_allday() {
     var f = document.forms[0];
-    var color1 = '#777777';
-    var color2 = '#777777';
+    var color1 = 'var(--gray)';
+    var color2 = 'var(--gray)';
     var disabled2 = true;
     if (document.getElementById('rballday1').checked) {
-        color1 = '#000000';
+        color1 = 'var(--black)';
     }
     if (document.getElementById('rballday2').checked) {
-        color2 = '#000000';
+        color2 = 'var(--black)';
         disabled2 = false;
     }
     document.getElementById('tdallday1').style.color = color1;
@@ -1153,7 +1153,7 @@ function set_allday() {
 function set_repeat() {
     var f = document.forms[0];
     var isdisabled = true;
-    var mycolor = '#777777';
+    var mycolor = 'var(--gray)';
     var myvisibility = 'hidden';
     if (f.form_repeat.checked) {
         f.days_every_week.checked = false;
@@ -1165,7 +1165,7 @@ function set_repeat() {
             labels[i].style.color = mycolor;
         }
         isdisabled = false;
-        mycolor = '#000000';
+        mycolor = 'var(--black)';
         myvisibility = 'visible';
     }
     f.form_repeat_type.disabled = isdisabled;
@@ -1183,18 +1183,18 @@ function set_days_every_week() {
         f.form_repeat.checked = false;
         f.form_repeat_type.disabled = true;
         f.form_repeat_freq.disabled = true;
-        document.getElementById('tdrepeat1').style.color = '#777777';
+        document.getElementById('tdrepeat1').style.color = 'var(--gray)';
 
         //enable end_date setting
-        document.getElementById('tdrepeat2').style.color = '#000000';
+        document.getElementById('tdrepeat2').style.color = 'var(--black)';
         f.form_enddate.disabled = false;
 
         var isdisabled = false;
-        var mycolor = '#000000';
+        var mycolor = 'var(--black)';
         var myvisibility = 'visible';
     } else {
         var isdisabled = true;
-        var mycolor = '#777777';
+        var mycolor = 'var(--gray)';
         var myvisibility = 'hidden';
     }
     document.getElementById("days_label").style.color = mycolor;
@@ -1376,11 +1376,11 @@ function find_available(extra) {
         $group_class='';
         $normal='';
     if ($_GET['prov']==true) {
-        $provider_class=" current ";
+        $provider_class=" active ";
     } elseif ($_GET['group']==true) {
-        $group_class=" current";
+        $group_class=" active";
     } else {
-        $normal=" current";
+        $normal=" active";
     }
     ?>
     <ul class="nav nav-pills bg-light text-dark">
@@ -1393,18 +1393,15 @@ function find_available(extra) {
             $dt=$_REQUEST["date"];
             $cid=$_REQUEST["catid"];
         ?>
-        <li class="nav-item<?php echo $normal;?>">
-            <a class="nav-link" href='add_edit_event.php?startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
-                <?php echo xlt('Patient');?></a>
+        <li class="nav-item">
+            <a class="nav-link<?php echo $normal;?>" href='add_edit_event.php?startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'><?php echo xlt('Patient');?></a>
         </li>
-        <li  class="nav-item<?php echo $provider_class;?>">
-            <a class="nav-link" href='add_edit_event.php?prov=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
-                <?php echo xlt('Provider');?></a>
+        <li class="nav-item">
+            <a class="nav-link<?php echo $provider_class;?>" href='add_edit_event.php?prov=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'><?php echo xlt('Provider');?></a>
         </li>
         <?php if ($have_group_global_enabled) :?>
-            <li  class="nav-item<?php echo $group_class ;?>">
-                <a class="nav-link" href='add_edit_event.php?group=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
-                    <?php echo xlt('Group');?></a>
+            <li class="nav-item">
+                <a class="nav-link<?php echo $group_class ;?>" href='add_edit_event.php?group=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'><?php echo xlt('Group');?></a>
             </li>
         <?php endif ?>
     </ul>
@@ -1417,7 +1414,7 @@ function find_available(extra) {
 <?php
 if ($_POST["resname"]=="noresult") {
     echo '
-<script language="Javascript">
+<script>
     // refresh and redirect the parent window
     if (!opener.closed && opener.refreshme) opener.refreshme();
     top.restoreSession();
@@ -1827,14 +1824,14 @@ if ($_GET['prov'] != true) { ?>
     </div>
 </div>
 <div class='row'>
-    <div class="button-group buttonbar">
-        <input type='button' name='form_save' id='form_save' value='<?php echo xla('Save'); ?>' />
+    <div class="btn-group buttonbar">
+        <input class="btn btn-primary" type='button' name='form_save' id='form_save' value='<?php echo xla('Save'); ?>' />
         <?php if (!($GLOBALS['select_multi_providers'])) { //multi providers appt is not supported by check slot avail window, so skip ?>
-            <input type='button' id='find_available' value='<?php echo xla('Find Available{{Provider}}'); ?>' />
+            <input class="btn btn-primary" type='button' id='find_available' value='<?php echo xla('Find Available{{Provider}}'); ?>' />
         <?php } ?>
-        <input type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete'); ?>'<?php echo (!$eid) ? " disabled" : ""; ?> />
-        <input type='button' id='cancel' value='<?php echo xla('Cancel'); ?>' />
-        <input type='button' name='form_duplicate' id='form_duplicate' value='<?php echo xla('Create Duplicate'); ?>' />
+        <input class="btn btn-primary" type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete'); ?>'<?php echo (!$eid) ? " disabled" : ""; ?> />
+        <input class="btn btn-primary" type='button' id='cancel' value='<?php echo xla('Cancel'); ?>' />
+        <input class="btn btn-primary" type='button' name='form_duplicate' id='form_duplicate' value='<?php echo xla('Create Duplicate'); ?>' />
     </div>
 </div>
 <?php if ($informant) {

@@ -77,7 +77,7 @@ h1 {
     overflow: hidden;
     padding: 5px;
     border-radius: 5px;
-    box-shadow: 0 -4px 6px #6D798333;
+    box-shadow: 0 -4px 6px var(--gray);
     text-transform: uppercase;
 }
 
@@ -181,12 +181,13 @@ h1 {
     display: table-row;
     border-radius: 8px;
     background-color: var(--white);
+    color: var(--black);
     text-align: left;
 }
 
 .divTableCell,
 .divTableHead {
-    border: 0.5px solid #c0c0c0;
+    border: 0.5px solid var(--gray);
     display: table-cell;
     vertical-align: middle;
     min-height: 29px;
@@ -433,7 +434,7 @@ td.right {
 }
 
 .borderShadow {
-    box-shadow: 5px 5px 9px #7b777760;
+    box-shadow: 5px 5px 9px var(--gray);
     border: 1.00pt solid var(--black);
     background: var(--white);
     padding: 6px;
@@ -449,10 +450,10 @@ td.right {
     bottom: 0;
     left: 0;
     width: 60%;
-    max-height: 85vH;
+    max-height: 85vh;
     border-radius: 3px;
     overflow-wrap: normal;
-    box-shadow: 5px 5px 9px #888888;
+    box-shadow: 5px 5px 9px var(--gray);
     border: 1.00pt solid var(--black);
     background: var(--white);
     padding: 10px;
