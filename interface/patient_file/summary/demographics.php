@@ -9,9 +9,9 @@
  * @author    Sharon Cohen <sharonco@matrix.co.il>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
- * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Sharon Cohen <sharonco@matrix.co.il>
- * @copyright Copyright (c) 2018-2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2018-2020 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -741,7 +741,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <!-- start left column div -->
                         <div style='float:left; margin-right:20px'>
 
-                            <table cellspacing=0 cellpadding=0>
+                            <table cellspacing="0" cellpadding="0">
                                 <?php
                                 if (!$GLOBALS['hide_billing_widget']) { ?>
                                 <tr>
@@ -776,7 +776,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             $forceExpandAlways
                                         );
                                         ?>
-                                    <br>
+                                    <br />
                                     <?php
                                 //PATIENT BALANCE,INS BALANCE naina@capminds.com
                                     $patientbalance = get_patient_balance($pid, false);
@@ -786,40 +786,40 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                                 // Show current balance and billing note, if any.
                                     echo "<table border='0'><tr><td>" .
-                                    "<table ><tr><td><span class='bold'><font color='red'>" .
+                                    "<table ><tr><td><span class='font-weight-bold text-danger'>" .
                                     xlt('Patient Balance Due') .
                                     " : " . text(oeFormatMoney($patientbalance)) .
-                                    "</font></span></td></tr>".
-                                    "<tr><td><span class='bold'><font color='red'>" .
+                                    "</span></td></tr>".
+                                    "<tr><td><span class='font-weight-bold text-danger'>" .
                                     xlt('Insurance Balance Due') .
                                     " : " . text(oeFormatMoney($insurancebalance)) .
-                                    "</font></span></td></tr>".
-                                    "<tr><td><span class='bold'><font color='red'>" .
+                                    "</span></td></tr>".
+                                    "<tr><td><span class='font-weight-bold text-danger'>" .
                                     xlt('Total Balance Due').
                                     " : " . text(oeFormatMoney($totalbalance)) .
-                                    "</font></span></td></td></tr>";
+                                    "</span></td></td></tr>";
                                     if (!empty($result['billing_note'])) {
-                                        echo "<tr><td><span class='bold'><font color='red'>" .
+                                        echo "<tr><td><span class='font-weight-bold text-danger'>" .
                                         xlt('Billing Note') . ":" .
                                         text($result['billing_note']) .
-                                        "</font></span></td></tr>";
+                                        "</span></td></tr>";
                                     }
 
                                     if ($result3['provider']) {   // Use provider in case there is an ins record w/ unassigned insco
-                                        echo "<tr><td><span class='bold'>" .
+                                        echo "<tr><td><span class='font-weight-bold'>" .
                                         xlt('Primary Insurance') . ': ' . text($insco_name) .
                                         "</span>&nbsp;&nbsp;&nbsp;";
                                         if ($result3['copay'] > 0) {
-                                            echo "<span class='bold'>" .
+                                            echo "<span class='font-weight-bold'>" .
                                             xlt('Copay') . ': ' .  text($result3['copay']) .
                                             "</span>&nbsp;&nbsp;&nbsp;";
                                         }
-                                        echo "<span class='bold'>" .
+                                        echo "<span class='font-weight-bold'>" .
                                         xlt('Effective Date') . ': ' .  text(oeFormatShortDate($result3['effdate'])) .
                                         "</span></td></tr>";
                                     }
 
-                                    echo "</table></td></tr></td></tr></table><br>";
+                                    echo "</table></td></tr></td></tr></table><br />";
 
                                     ?>
                                         </div> <!-- required for expand_collapse_widget -->
@@ -983,45 +983,45 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                               <span class='text'>
                                                                 <?php
                                                                 if ($insco_name) {
-                                                                    echo text($insco_name) . '<br>';
+                                                                    echo text($insco_name) . '<br />';
                                                                     if (trim($adobj->get_line1())) {
-                                                                        echo text($adobj->get_line1()) . '<br>';
+                                                                        echo text($adobj->get_line1()) . '<br />';
                                                                         echo text($adobj->get_city() . ', ' . $adobj->get_state() . ' ' . $adobj->get_zip());
                                                                     }
                                                                 } else {
                                                                     echo "<font color='red'><b>" . xlt('Unassigned') . "</b></font>";
                                                                 }
                                                                 ?>
-                                                              <br>
-                                                                <?php echo xlt('Policy Number'); ?>: <?php echo text($row['policy_number']) ?><br>
-                                                                <?php echo xlt('Plan Name'); ?>: <?php echo text($row['plan_name']); ?><br>
+                                                              <br />
+                                                                <?php echo xlt('Policy Number'); ?>: <?php echo text($row['policy_number']) ?><br />
+                                                                <?php echo xlt('Plan Name'); ?>: <?php echo text($row['plan_name']); ?><br />
                                                                 <?php echo xlt('Group Number'); ?>: <?php echo text($row['group_number']); ?>
                                                               </span>
                                                              </td>
                                                              <td valign='top'>
-                                                                <span class='bold'><?php echo xlt('Subscriber'); ?>: </span><br>
+                                                                <span class='font-weight-bold'><?php echo xlt('Subscriber'); ?>: </span><br />
                                                                 <span class='text'><?php echo text($row['subscriber_fname'] . ' ' . $row['subscriber_mname'] . ' ' . $row['subscriber_lname']); ?>
                                                             <?php
                                                             if ($row['subscriber_relationship'] != "") {
                                                                 echo "(" . text($row['subscriber_relationship']) . ")";
                                                             }
                                                             ?>
-                                                          <br>
+                                                          <br />
                                                             <?php echo xlt('S.S.'); ?>:
-                                                            <?php echo text($row['subscriber_ss']); ?><br>
+                                                            <?php echo text($row['subscriber_ss']); ?><br />
                                                             <?php echo xlt('D.O.B.'); ?>:
                                                             <?php
                                                             if ($row['subscriber_DOB'] != "0000-00-00 00:00:00") {
                                                                 echo text($row['subscriber_DOB']);
                                                             }
-                                                            ?><br>
+                                                            ?><br />
                                                             <?php echo xlt('Phone'); ?>:
                                                             <?php echo text($row['subscriber_phone']); ?>
                                                           </span>
                                                          </td>
                                                          <td valign='top'>
-                                                          <span class='bold'><?php echo xlt('Subscriber Address'); ?>: </span><br>
-                                                          <span class='text'><?php echo text($row['subscriber_street']); ?><br>
+                                                          <span class='font-weight-bold'><?php echo xlt('Subscriber Address'); ?>: </span><br />
+                                                          <span class='text'><?php echo text($row['subscriber_street']); ?><br />
                                                             <?php echo text($row['subscriber_city']); ?>
                                                             <?php
                                                             if ($row['subscriber_state'] != "") {
@@ -1038,9 +1038,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                             <?php echo " " . text($row['subscriber_postal_code']); ?></span>
 
                                                         <?php if (trim($row['subscriber_employer'])) { ?>
-                                                          <br><span class='bold'><?php echo xlt('Subscriber Employer'); ?>: </span><br>
-                                                          <span class='text'><?php echo text($row['subscriber_employer']); ?><br>
-                                                            <?php echo text($row['subscriber_employer_street']); ?><br>
+                                                          <br /><span class='font-weight-bold'><?php echo xlt('Subscriber Employer'); ?>: </span><br />
+                                                          <span class='text'><?php echo text($row['subscriber_employer']); ?><br />
+                                                            <?php echo text($row['subscriber_employer_street']); ?><br />
                                                             <?php echo text($row['subscriber_employer_city']); ?>
                                                             <?php
                                                             if ($row['subscriber_employer_city'] != "") {
@@ -1063,11 +1063,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                         <tr>
                                                          <td>
                                                         <?php if ($row['copay'] != "") { ?>
-                                                          <span class='bold'><?php echo xlt('CoPay'); ?>: </span>
+                                                          <span class='font-weight-bold'><?php echo xlt('CoPay'); ?>: </span>
                                                           <span class='text'><?php echo text($row['copay']); ?></span>
                                           <br />
                                                         <?php } ?>
-                                                          <span class='bold'><?php echo xlt('Accept Assignment'); ?>:</span>
+                                                          <span class='font-weight-bold'><?php echo xlt('Accept Assignment'); ?>:</span>
                                                           <span class='text'>
                                                         <?php
                                                         if ($row['accept_assignment'] == "TRUE") {
@@ -1080,7 +1080,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                           </span>
                                                         <?php if (!empty($row['policy_type'])) { ?>
                                           <br />
-                                                          <span class='bold'><?php echo xlt('Secondary Medicare Type'); ?>: </span>
+                                                          <span class='font-weight-bold'><?php echo xlt('Secondary Medicare Type'); ?>: </span>
                                                           <span class='text'><?php echo text($policy_types[$row['policy_type']]); ?></span>
                                                         <?php } ?>
                                                          </td>
@@ -1106,7 +1106,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 echo "<div class='col col-sm-12'>";
                                                 echo "<button class='btn btn-success btn-sm btn-transmit float-right' name='status_update' value='true'>" .
                                                     xlt("Update Status") . "</button>";
-                                                echo "</div><br>\n";
+                                                echo "</div><br />\n";
                                                 if ($_POST['status_update'] === 'true') {
                                                     unset($_POST['status_update']);
                                                     $showEligibility = true;
@@ -1249,7 +1249,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         echo "<a class= '" . attr($widgetButtonClass) . "' href='" . $GLOBALS['webroot'] . "/interface/patient_file/summary/add_edit_amendments.php?id=" . attr_url($row['amendment_id']) . "' onclick='top.restoreSession()'>" . text($row['amendment_date']);
                                         echo "&nbsp; " . text($row['amendment_desc']);
 
-                                        echo "</a><br>\n";
+                                        echo "</a><br />\n";
                                 } ?>
                           </td>
                             </tr>
@@ -1491,7 +1491,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     attr_url($idDoc) . "&as_file=true' onclick='top.restoreSession()'>" .
                                     text(xl_document_category($nameDoc)) . "</a> " .
                                     text($dateDoc);
-                                    echo "<br>";
+                                    echo "<br />";
                                     $limitCounter = $limitCounter + 1;
                                     $counterFlag = true;
                                 }
@@ -1696,17 +1696,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
 
                             echo "<span title='" . generate_display_field(array('data_type'=>'1','list_id'=>'apptstat'), $row['pc_apptstatus']) . "'>";
-                            echo "<br>" . xlt('Status') . "( " . text($row['pc_apptstatus']) . " ) </span>";
+                            echo "<br />" . xlt('Status') . "( " . text($row['pc_apptstatus']) . " ) </span>";
                             echo text(xl_appt_category($row['pc_catname'])) . "\n";
                             if (in_array($row['pc_catid'], $therapyGroupCategories)) {
-                                echo "<br><span>" . xlt('Group name') .": " . text(getGroup($row['pc_gid'])['group_name']) . "</span>\n";
+                                echo "<br /><span>" . xlt('Group name') .": " . text(getGroup($row['pc_gid'])['group_name']) . "</span>\n";
                             }
 
                             if ($row['pc_hometext']) {
                                 echo " <span style='color:green'> Com</span>";
                             }
 
-                            echo "<br>" . text($row['ufname'] . " " . $row['ulname']);
+                            echo "<br />" . text($row['ufname'] . " " . $row['ulname']);
                             echo !in_array($row['pc_catid'], $therapyGroupCategories) ? '</a>' : '<span>';
                             echo "</div>\n";
                             //////
@@ -1771,12 +1771,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                                 echo "<div>";
                                 echo "<span>" . xlt('Appointment Category') . ": <b>" . xlt($row['pc_catname']) . "</b></span>";
-                                echo "<br>";
+                                echo "<br />";
                                 echo "<span>" . xlt('Recurrence') . ': ' . text($row['pc_recurrspec']) . "</span>";
-                                echo "<br>";
+                                echo "<br />";
                                 $red_text = ""; //if ends in a week, make font red
                                 if (ends_in_a_week($row['pc_endDate'])) {
-                                    $red_text = " style=\"color:red;\" ";
+                                    $red_text = " class=\"text-danger\" ";
                                 }
 
                                 echo "<span" . $red_text . ">" . xlt('End Date') . ': ' . text(oeFormatShortDate($row['pc_endDate'])) . "</span>";
@@ -1845,9 +1845,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             echo "<a href='javascript:oldEvt(" . attr_js(preg_replace("/-/", "", $row['pc_eventDate'])) . ', ' . attr_js($row['pc_eid']) . ")' title='" . attr($petitle) . "'>";
                             echo "<b>" . text(xl($dayname) . ", " . oeFormatShortDate($row['pc_eventDate'])) . "</b> " . xlt("Status") .  "(";
-                            echo " " .  generate_display_field(array('data_type'=>'1','list_id'=>'apptstat'), $row['pc_apptstatus']) . ")<br>";   // can't use special char parser on this
+                            echo " " .  generate_display_field(array('data_type'=>'1','list_id'=>'apptstat'), $row['pc_apptstatus']) . ")<br />";   // can't use special char parser on this
                             echo text("$disphour:$dispmin ") . xlt($dispampm) . " ";
-                            echo text($row['fname'] . " " . $row['lname']) . "</a><br>\n";
+                            echo text($row['fname'] . " " . $row['lname']) . "</a><br />\n";
                         }
 
                         if (isset($pres) && $res != null) {

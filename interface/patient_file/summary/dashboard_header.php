@@ -7,7 +7,7 @@
   * @author    Ranganath Pathak <pathak@scrs1.org>
   * @author    Brady Miller <brady.g.miller@gmail.com>
   * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
-  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+  * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
   * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
   */
 
@@ -25,7 +25,7 @@ $portal_login_href = $url_webroot ."/interface/patient_file/summary/create_porta
 // If patient is deceased, then show this (along with the number of days patient has been deceased for)
 $days_deceased = is_patient_deceased($pid);
 if ($days_deceased) { ?>
-    <p class="deceased" style="font-weight:bold;color:red">
+    <p class="deceased font-weight-bold text-danger">
 
         <?php
         $deceased_days = intval($days_deceased['days_deceased']);

@@ -231,7 +231,7 @@ ul.tabNav a:focus {
 }
 
 #sddm li {
-    background: #f0f0f0;
+    background: $light;
 }
 
 #sddm li a {
@@ -240,14 +240,14 @@ ul.tabNav a:focus {
 }
 
 #sddm li a:hover {
-    background: #d7d7d7;
+    background: darken($light, 15%);
 }
 
 #sddm div {
     display: none;
     margin: 0;
     padding: 0;
-    background: #f0f0f0;
+    background: $light;
 }
 
 #sddm div a {

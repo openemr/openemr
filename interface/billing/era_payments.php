@@ -89,7 +89,7 @@ if ($_FILES['form_erafile']['size']) {
 <head>
     <?php Header::setupHeader(['datetime-picker', 'common']);?>
     <?php require_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
-    <script language="javascript" type="text/javascript">
+    <script>
     function Validate()
     {
      if(document.getElementById('uploadedfile').value=='')
@@ -144,61 +144,33 @@ if ($_FILES['form_erafile']['size']) {
        });
     });
     </script>
-    <script language="javascript" type="text/javascript">
+    <script>
     document.onclick=HideTheAjaxDivs;
     </script>
     <style>
     #ajax_div_insurance {
-       position: absolute;
-       z-index:10;
-       background-color: #FBFDD0;
-       border: 1px solid #ccc;
-       padding: 10px;
+        position: absolute;
+        z-index: 10;
+        background-color: #FBFDD0;
+        border: 1px solid var(--gray);
+        padding: 10px;
     }
-    .bottom{border-bottom:1px solid black;}
-    .top{border-top:1px solid black;}
-    .left{border-left:1px solid black;}
-    .right{border-right:1px solid black;}
+    .bottom {
+        border-bottom:1px solid var(--black);
+    }
+    .top { 
+        border-top:1px solid var(--black);
+    }
+    .left {
+        border-left:1px solid var(--black);
+    }
+    .right {
+        border-right:1px solid var(--black);
+    }
     @media only screen and (max-width: 768px) {
         [class*="col-"] {
             width: 100%;
-            text-align: left!Important;
-        }
-        .navbar-toggle>span.icon-bar {
-            background-color: #68171A ! Important;
-        }
-        .navbar-default .navbar-toggle {
-            border-color: #4a4a4a;
-        }
-        .navbar-default .navbar-toggle:focus, .navbar-default .navbar-toggle:hover {
-            background-color: #f2f2f2 !Important;
-            font-weight: 900 !Important;
-            color: #000000 !Important;
-        }
-        .navbar-color {
-            background-color: #E5E5E5;
-        }
-        .icon-bar {
-            background-color: #68171A;
-        }
-        .navbar-header {
-            float: none;
-        }
-        .navbar-toggle {
-            display: block;
-            background-color: #f2f2f2;
-        }
-        .navbar-nav {
-            float: none!important;
-        }
-        .navbar-nav>li {
-            float: none;
-        }
-        .navbar-collapse.collapse.in {
-            z-index: 100;
-            background-color: #dfdfdf;
-            font-weight: 700;
-            color: #000000 !Important;
+            text-align: left !important;
         }
     }
 
@@ -206,19 +178,19 @@ if ($_FILES['form_erafile']['size']) {
     @media only screen and (max-width: 700px) {
         [class*="col-"] {
         width: 100%;
-        text-align:left!Important;
+        text-align: left !important;
         }
-        #form_without{
-        margin-left:0px !Important;
+        #form_without {
+        margin-left: 0px !important;
         }
 
     }
-    .input-group .form-control{
+    .input-group .form-control {
         margin-bottom: 3px;
-        margin-left:0px;
+        margin-left: 0px;
     }
-    #form_without{
-        margin-left:5px !Important;
+    #form_without {
+        margin-left: 5px !important;
     }
     </style>
     <?php
@@ -257,29 +229,24 @@ if ($_FILES['form_erafile']['size']) {
         </div>
         <div class="row">
             <div class="col-sm-12">
-                <nav class="navbar navbar-default navbar-color navbar-static-top" >
-                    <div class="container-fluid">
-                        <div class="navbar-header">
-                            <button class="navbar-toggle" data-target="#myNavbar" data-toggle="collapse" type="button"><span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span></button>
-                        </div>
-                        <div class="collapse navbar-collapse" id="myNavbar" >
-                            <ul class="nav navbar-nav" >
-                                <li class="oe-bold-black">
-                                    <a href='new_payment.php' style="font-weight:700; color:#000000"><?php echo xlt('New Payment'); ?></a>
-                                </li>
-                                <li class="oe-bold-black" >
-                                    <a href='search_payments.php' style="font-weight:700; color:#000000"><?php echo xlt('Search Payment'); ?></a>
-                                </li>
-                                <li class="active">
-                                    <a href='era_payments.php' style="font-weight:700; color:#000000"><?php echo xlt('ERA Posting'); ?></a>
-                                </li>
-                            </ul>
-                        </div>
+                <nav class="navbar navbar-nav navbar-expand-md navbar-light text-body bg-light static-top">
+                    <button class="navbar-toggler icon-bar" data-target="#myNavbar" data-toggle="collapse" type="button"> <span class="navbar-toggler-icon"></span></button>
+                    <div class="collapse navbar-collapse" id="myNavbar">
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item">
+                                <a class="nav-link font-weight-bold" href='new_payment.php'><?php echo xlt('New Payment'); ?></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link font-weight-bold" href='search_payments.php'><?php echo xlt('Search Payment'); ?></a>
+                            </li>
+                            <li class="nav-item active">
+                                <a class="nav-link font-weight-bold" href='era_payments.php'><?php echo xlt('ERA Posting'); ?></a>
+                            </li>
+                        </ul>
                     </div>
                 </nav>
             </div>
         </div>
-
         <div class="row">
             <div class="col-sm-12">
                 <form action='era_payments.php' enctype="multipart/form-data" method='post' style="display:inline">
@@ -290,39 +257,41 @@ if ($_FILES['form_erafile']['size']) {
                                 <div class="input-group">
                                     <label class="input-group-btn">
                                         <span class="btn btn-secondary">
-                                            <?php echo xlt('Browse'); ?>&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;" >
-                                            <input name="MAX_FILE_SIZE" type="hidden" value="5000000">
+                                            <?php echo xlt('Browse'); ?>&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;" />
+                                            <input name="MAX_FILE_SIZE" type="hidden" value="5000000" />
                                         </span>
                                     </label>
-                                    <input type="text" class="form-control" placeholder="<?php echo xla('Click Browse and select one Electronic Remittance Advice (ERA) file...'); ?>" readonly>
+                                    <input type="text" class="form-control" placeholder="<?php echo xla('Click Browse and select one Electronic Remittance Advice (ERA) file...'); ?>" readonly />
                                 </div>
                             </div>
                         </div>
                         <div class="col-12 oe-custom-line">
                             <div class="form-group col-3">
                                 <label class="control-label" for="check_date"><?php echo xlt('Date'); ?>:</label>
-                                <input class="form-control datepicker" id='check_date' name='check_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($check_date); ?>">
+                                <input class="form-control datepicker" id='check_date' name='check_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($check_date); ?>" />
                             </div>
                             <div class="form-group col-3">
                                 <label class="control-label" for="post_to_date"><?php echo xlt('Post To Date'); ?>:</label>
-                                <input class="form-control datepicker" id='post_to_date' name='post_to_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($post_to_date); ?>">
+                                <input class="form-control datepicker" id='post_to_date' name='post_to_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($post_to_date); ?>" />
                             </div>
                             <div class="form-group col-3 clearfix">
                                 <label class="control-label" for="form_without"><?php echo xlt('Select'); ?>:</label>
                                 <label class="checkbox">
-                                    <input name='form_without'  id='form_without' type='checkbox' value='1'> <span class="oe-ckbox-label"><?php echo xlt('Without Update'); ?></span>
+                                    <input name='form_without'  id='form_without' type='checkbox' value='1' />
+                                    <span class="oe-ckbox-label"><?php echo xlt('Without Update'); ?></span>
                                 </label>
                             </div>
                             <div class="form-group col-3">
                                 <label class="control-label" for="deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
-                                <input class="form-control datepicker" id='deposit_date' name='deposit_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($deposit_date); ?>">
+                                <input class="form-control datepicker" id='deposit_date' name='deposit_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($deposit_date); ?>" />
                             </div>
                         </div>
                         <div class="col-12 oe-custom-line">
                             <div class="form-group col-6">
                                 <label class="control-label" for="type_code"><?php echo xlt('Insurance'); ?>:</label>
-                                <input id="hidden_ajax_close_value" type="hidden" value="<?php echo attr($type_code); ?>">
-                                <input autocomplete="off" class="form-control" id='type_code' name='type_code' onkeydown="PreventIt(event)"  type="text" value="<?php echo attr($type_code); ?>"><br>
+                                <input id="hidden_ajax_close_value" type="hidden" value="<?php echo attr($type_code); ?>" />
+                                <input autocomplete="off" class="form-control" id='type_code' name='type_code' onkeydown="PreventIt(event)"  type="text" value="<?php echo attr($type_code); ?>" />
+                                <br />
                                 <!--onKeyUp="ajaxFunction(event,'non','search_payments.php');"-->
                                 <div id='ajax_div_insurance_section'>
                                     <div id='ajax_div_insurance_error'></div>
@@ -334,7 +303,7 @@ if ($_FILES['form_erafile']['size']) {
                                 <div class="form-control" id="div_insurance_or_patient" >
                                     <?php echo text($hidden_type_code); ?>
                                 </div>
-                                <input id="description" name="description" type="hidden">
+                                <input id="description" name="description" type="hidden" />
                             </div>
                         </div>
                     </fieldset>
@@ -346,8 +315,8 @@ if ($_FILES['form_erafile']['size']) {
                             </div>
                         </div>
                     </div>
-                    <input type="hidden" name="after_value" id="after_value" value="<?php echo attr($alertmsg); ?>"/>
-                    <input type="hidden" name="hidden_type_code" id="hidden_type_code" value="<?php echo attr($hidden_type_code); ?>"/>
+                    <input type="hidden" name="after_value" id="after_value" value="<?php echo attr($alertmsg); ?>" />
+                    <input type="hidden" name="hidden_type_code" id="hidden_type_code" value="<?php echo attr($hidden_type_code); ?>" />
                     <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
                 </form>
             </div>

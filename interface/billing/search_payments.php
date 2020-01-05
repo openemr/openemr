@@ -212,7 +212,7 @@ if (isset($_POST["mode"])) {
     <?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
     <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
 
-<script type='text/javascript'>
+<script>
 
 $(function() {
     $(".medium_modal").on('click', function (e) {
@@ -238,10 +238,10 @@ $(function() {
 });
 
 </script>
-<script language='JavaScript'>
+<script>
  var mypcc = '1';
 </script>
-<script language='JavaScript'>
+<script>
  function SearchPayment()
   {//Search  validations.
     if(document.getElementById('FromDate').value=='' && document.getElementById('ToDate').value=='' && document.getElementById('PaymentStatus').selectedIndex==0 && document.getElementById('payment_method').selectedIndex==0 && document.getElementById('type_name').selectedIndex==0 && document.getElementById('adjustment_code').selectedIndex==0 && document.getElementById('check_number').value==''  && document.getElementById('payment_amount').value==''  && document.getElementById('hidden_type_code').value=='' )
@@ -302,39 +302,47 @@ function SearchPayingEntityAction()
    }
  }
 </script>
-<script language="javascript" type="text/javascript">
+<script>
 document.onclick=HideTheAjaxDivs;
 </script>
 <style>
-.class1{width:125px;}
-.class2{width:250px;}
-.class3{width:100px;}
-.class4{width:103px;}
+.class1 {
+    width:125px;
+}
+.class2 {
+    width:250px;
+}
+.class3 {
+    width:100px;
+}
+.class4 {
+    width:103px;
+}
 #ajax_div_insurance {
     position: absolute;
     z-index:10;
     background-color: #FBFDD0;
-    border: 1px solid #ccc;
+    border: 1px solid var(--gray);
     padding: 10px;
 }
 #ajax_div_patient {
     position: absolute;
     z-index:10;
     background-color: #FBFDD0;
-    border: 1px solid #ccc;
+    border: 1px solid var(--gray);
     padding: 10px;
 }
 .bottom {
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid var(--black);
 }
 .top {
-    border-top: 1px solid black;
+    border-top: 1px solid var(--black);
 }
 .left {
-    border-left: 1px solid black;
+    border-left: 1px solid var(--black);
 }
 .right {
-    border-right: 1px solid black;
+    border-right: 1px solid var(--black);
 }
 .form-group {
     margin-bottom: 5px;
@@ -342,43 +350,7 @@ document.onclick=HideTheAjaxDivs;
 @media only screen and (max-width: 768px) {
     [class*="col-"] {
         width: 100%;
-        text-align: left!Important;
-    }
-    .navbar-toggle>span.icon-bar {
-        background-color: #68171A ! Important;
-    }
-    .navbar-default .navbar-toggle {
-        border-color: #4a4a4a;
-    }
-    .navbar-default .navbar-toggle:focus, .navbar-default .navbar-toggle:hover {
-        background-color: #f2f2f2 !Important;
-        font-weight: 900 !Important;
-        color: #000000 !Important;
-    }
-    .navbar-color {
-        background-color: #E5E5E5;
-    }
-    .icon-bar {
-        background-color: #68171A;
-    }
-    .navbar-header {
-        float: none;
-    }
-    .navbar-toggle {
-        display: block;
-        background-color: #f2f2f2;
-    }
-    .navbar-nav {
-        float: none!important;
-    }
-    .navbar-nav>li {
-        float: none;
-    }
-    .navbar-collapse.collapse.in {
-        z-index: 100;
-        background-color: #dfdfdf;
-        font-weight: 700;
-        color: #000000 !Important;
+        text-align: left !important;
     }
 }
 .table {
@@ -427,24 +399,20 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </div>
         <div class="row">
             <div class="col-sm-12">
-                <nav class="navbar navbar-default navbar-color navbar-static-top" >
-                    <div class="container-fluid">
-                        <div class="navbar-header">
-                            <button class="navbar-toggle" data-target="#myNavbar" data-toggle="collapse" type="button"><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
-                        </div>
-                        <div class="collapse navbar-collapse" id="myNavbar" >
-                            <ul class="nav navbar-nav" >
-                                <li class="oe-bold-black">
-                                    <a href='new_payment.php' style="font-weight:700; color:#000000"><?php echo xlt('New Payment'); ?></a>
-                                </li>
-                                <li class="active oe-bold-black" >
-                                    <a href='search_payments.php' style="font-weight:700; color:#000000"><?php echo xlt('Search Payment'); ?></a>
-                                </li>
-                                <li class="oe-bold-black">
-                                    <a href='era_payments.php' style="font-weight:700; color:#000000"><?php echo xlt('ERA Posting'); ?></a>
-                                </li>
-                            </ul>
-                        </div>
+                <nav class="navbar navbar-nav navbar-expand-md navbar-light text-body bg-light static-top">
+                    <button class="navbar-toggler icon-bar" data-target="#myNavbar" data-toggle="collapse" type="button"> <span class="navbar-toggler-icon"></span></button>
+                    <div class="collapse navbar-collapse" id="myNavbar">
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item">
+                                <a class="nav-link font-weight-bold" href='new_payment.php'><?php echo xlt('New Payment'); ?></a>
+                            </li>
+                            <li class="nav-item active">
+                                <a class="nav-link font-weight-bold" href='search_payments.php'><?php echo xlt('Search Payment'); ?></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link font-weight-bold" href='era_payments.php'><?php echo xlt('ERA Posting'); ?></a>
+                            </li>
+                        </ul>
                     </div>
                 </nav>
             </div>
@@ -463,25 +431,25 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             </div>
                             <div class="forms col-2">
                                 <label class="control-label" for="FromDate"><?php echo xlt('From'); ?>:</label>
-                                <input class="form-control datepicker" id='FromDate' name='FromDate'  type='text' value='<?php echo attr($FromDate); ?>' autocomplete="off">
+                                <input class="form-control datepicker" id='FromDate' name='FromDate'  type='text' value='<?php echo attr($FromDate); ?>' autocomplete="off" />
                             </div>
                             <div class="forms col-2">
                                 <label class="control-label" for="ToDate"><?php echo xlt('To{{Range}}'); ?>:</label>
-                                <input class="form-control datepicker" id='ToDate' name='ToDate' type='text' value='<?php echo attr($ToDate); ?>' autocomplete="off">
+                                <input class="form-control datepicker" id='ToDate' name='ToDate' type='text' value='<?php echo attr($ToDate); ?>' autocomplete="off" />
                             </div>
                             <div class="forms col-3">
                                 <label class="control-label" for="payment_method"><?php echo xlt('Payment Method'); ?>:</label>
-                                <?php  echo generate_select_list("payment_method", "payment_method", "$PaymentMethod", "Payment Method", " ", "");?>
+                                <?php echo generate_select_list("payment_method", "payment_method", "$PaymentMethod", "Payment Method", " ", ""); ?>
                             </div>
                             <div class="forms col-3">
                                 <label class="control-label" for="check_number"><?php echo xlt('Check Number'); ?>:</label>
-                                <input autocomplete="off" class="form-control" id="check_number" name="check_number" type="text" value="<?php echo attr($_POST['check_number']); ?>">
+                                <input autocomplete="off" class="form-control" id="check_number" name="check_number" type="text" value="<?php echo attr($_POST['check_number']); ?>" />
                             </div>
                         </div>
                         <div class="col-12 oe-custom-line">
                             <div class="forms col-4">
                                 <label class="control-label" for="payment_method"><?php echo xlt('Payment Amount'); ?>:</label>
-                                <input autocomplete="off" class="form-control" id="payment_amount" name="payment_amount" onkeyup="ValidateNumeric(this);"  type="text" value="<?php echo attr($_POST['payment_amount']);?>">
+                                <input autocomplete="off" class="form-control" id="payment_amount" name="payment_amount" onkeyup="ValidateNumeric(this);"  type="text" value="<?php echo attr($_POST['payment_amount']);?>" />
                             </div>
                             <div class="forms col-2">
                                 <label class="control-label" for="type_name"><?php echo xlt('Paying Entity'); ?>:</label>
@@ -499,8 +467,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <div class="col-12 oe-custom-line">
                             <div class="forms col-4">
                                 <label class="control-label" for="type_code"><?php echo xlt('Payment From'); ?>:</label>
-                                <input id="hidden_ajax_close_value" type="hidden" value="<?php echo attr($div_after_save);?>">
-                                <input autocomplete="off" class="form-control" id='type_code' name='type_code' onkeydown="PreventIt(event)" type="text" value="<?php echo attr($div_after_save);?>">
+                                <input id="hidden_ajax_close_value" type="hidden" value="<?php echo attr($div_after_save);?>" />
+                                <input autocomplete="off" class="form-control" id='type_code' name='type_code' onkeydown="PreventIt(event)" type="text" value="<?php echo attr($div_after_save);?>" />
                                 <!--onKeyUp="ajaxFunction(event,'non','search_payments.php');"-->
                                 <div id='ajax_div_insurance_section'>
                                     <div id='ajax_div_insurance_error'></div>
@@ -510,8 +478,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <div class="forms col-2">
                                 <label class="control-label" for="div_insurance_or_patient"><?php echo xlt('Payor ID'); ?>:</label>
                                 <div class="form-control" id="div_insurance_or_patient"><?php echo attr($_POST['hidden_type_code']);?></div>
-                                <input id="description" name="description" type="hidden">
-                                <input id="deposit_date" name="deposit_date" style="display:none" type="text">
+                                <input id="description" name="description" type="hidden" />
+                                <input id="deposit_date" name="deposit_date" style="display:none" type="text" />
                             </div>
                             <div class="forms col-3">
                                 <label class="control-label" for="PaymentSortBy"><?php echo xlt('Sort Result by'); ?>:</label>
@@ -531,12 +499,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if ($_POST["mode"] == "SearchPayment") {
                         echo "&nbsp;" ."<br>"; // do not remove else below div will not display !!
                         ?>
-                    <div class = "table-responsive">
+                <div class="table-responsive">
                   <table class="table">
                         <?php
                         if (sqlNumRows($ResultSearch)>0) {
                             ?>
-                  <thead bgcolor="#DDDDDD" class="">
+                  <thead class="bg-light">
                     <td class="left top" width="25">&nbsp;</td>
                     <td class="left top"><?php echo xlt('ID'); ?></td>
                         <td class="left top" ><?php echo xlt('Date'); ?></td>

@@ -5,7 +5,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -69,13 +69,13 @@ $form_doc_only = isset($_POST['mode']) ? (empty($_POST['form_doc_only']) ? 0 : 1
 if ($_REQUEST['s'] == '1') {
     $inbox = "";
     $outbox = "current";
-    $inbox_style = "style='display:none;border:5px solid #FFFFFF;'";
-    $outbox_style = "style='border:5px solid #FFFFFF;'";
+    $inbox_style = "style='display:none;border:5px solid var(--white);'";
+    $outbox_style = "style='border:5px solid var(--white);'";
 } else {
     $inbox = "current";
     $outbox = "";
-    $inbox_style = "style='border:5px solid #FFFFFF;'";
-    $outbox_style = "style='display:none;border:5px solid #FFFFFF;'";
+    $inbox_style = "style='border:5px solid var(--white);'";
+    $outbox_style = "style='display:none;border:5px solid var(--white);'";
 }
 
 if (!isset($offset)) {

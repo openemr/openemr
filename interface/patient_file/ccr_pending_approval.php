@@ -18,8 +18,8 @@ require_once(dirname(__FILE__) . "/../../library/options.inc.php");
 require_once(dirname(__FILE__) . "/../../library/patient.inc");
 require_once(dirname(__FILE__) . "/../../library/parse_patient_xml.php");
 
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (isset($_GET['approve']) && $_GET['approve'] == 1) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {

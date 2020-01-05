@@ -1,10 +1,78 @@
 /* Bootstrap Code */
+
+/* Default Colors */
+$blue: #007bff;
+$indigo: #6610f2;
+$purple: #6f42c1;
+$pink: #e83e8c;
+$red: #dc3545;
+$orange: #fd7e14;
+$yellow: #ffc107;
+$green: #28a745;
+$teal: #20c997;
+$cyan: #17a2b8;
+$white: #fff;
+$black: #000;
+
+/* Default Grays */
+$gray-100: #f8f9fa;
+$gray-200: #e9ecef;
+$gray-300: #dee2e6;
+$gray-400: #ced4da;
+$gray-500: #adb5bd;
+$gray-600: #868e96;
+$gray-700: #495057;
+$gray-800: #343a40;
+$gray-900: #212529;
+
+/* Equivalents to bg-light/dark as well as default for gray */
+$light: $gray-100;
+$dark: $gray-800;
+$gray: $gray-600;
+
+/* Array of theme colors that can be added to */
+$theme-colors: (
+    primary: $blue,
+    secondary: $gray-100,
+    success: $green,
+    info: $cyan,
+    warning: $yellow,
+    danger: $red,
+    light: $gray-100,
+    dark: $gray-800,
+);
+
+/* Array of random colors that can be added to */
+$colors: (
+    "blue": $blue,
+    "indigo": $indigo,
+    "purple": $purple,
+    "pink": $pink,
+    "red": $red,
+    "orange": $orange,
+    "yellow": $yellow,
+    "green": $green,
+    "teal": $teal,
+    "cyan": $cyan,
+    "white": $white,
+    "gray": $gray-600,
+    "gray-dark": $gray-800
+);
+
+$body-bg: $white;
+$body-color: $gray-900;
 $font-family-sans-serif: "source_sans_pro", "FontAwesome", sans-serif;
 $font-size-base: 1rem;
 $font-family-base: $font-family-sans-serif;
 
+$close-color: $black;
+$close-text-shadow: 0 1 0 $black;
+
 @import "core";
 
+@import "theme-defaults";
+
+/* All overrides */
 .nav-menu-img {
     display: none !important;
 }
@@ -419,7 +487,7 @@ body dl {
     background-color: #C9DBF2;
     box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.176);
     min-width: 175px;
-    border: 0.5pt solid gray;
+    border: 0.5pt solid $gray;
     border-radius: 0px 5px 5px 5px;
     color: $black;
     margin-top: 0px;
@@ -530,7 +598,7 @@ body dl {
 #menu_icon,
 #logout_icon,
 #user_icon {
-    color: #9c9c9c !important;
+    color: $gray !important;
 }
 
 /*~~openemr5 tabs menu , user and logout icon~~*/
@@ -546,13 +614,13 @@ body dl {
 
 #oe-nav-ul.tabNav a {
     background: #f4f4f4;
-    border-left: 2px solid #9c9c9c;
+    border-left: 2px solid $gray;
     border-bottom: 1px solid #ccc;
 }
 
 #oe-nav-ul.tabNav a:hover {
     background-color: $white !important;
-    color: #9c9c9c;
+    color: $gray;
 }
 
 #oe-nav-ul.tabNav {
@@ -560,13 +628,13 @@ body dl {
 }
 
 #oe-nav-ul.tabNav .current a {
-    border-color: #9c9c9c;
+    border-color: $gray;
     background: $white;
     color: #676666;
 }
 
 #globals-div .tabContainer {
-    border-color: #9c9c9c;
+    border-color: $gray;
 }
 
 .oe-global-tab-heading {
@@ -575,13 +643,13 @@ body dl {
 }
 
 .tabSpan {
-    border-top: 3pt solid #9c9c9c !important;
-    border-left: 1px solid #9c9c9c !important;
-    border-right: 1px solid #9c9c9c !important;
+    border-top: 3pt solid $gray !important;
+    border-left: 1px solid $gray !important;
+    border-right: 1px solid $gray !important;
 }
 
 .tabNotchosen {
-    border-bottom: 1pt solid #9c9c9c !important;
+    border-bottom: 1pt solid $gray !important;
     border-top: none !important;
     border-left: none !important;
     border-right: none !important;

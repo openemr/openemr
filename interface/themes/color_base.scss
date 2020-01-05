@@ -15,19 +15,11 @@
  *
  * @package OpenEMR
  * @author Ranganath Pathak <pathak@scrs1.org>
- * @copyright Copyright (c) 2018 Ranganath Pathak
+ * @copyright Copyright (c) 2018-2020 Ranganath Pathak
  * @version 1.1
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License
  * @link http://www.open-emr.org
 */
-
-
-/*
-*
-*   Notice: This will be eventually removed to accommodate for Bootstrap themes  
-*
-*/
-
 
 /*
     COLOR PALETTE
@@ -47,62 +39,130 @@
     ~ - common for all flat stylesheets
 */
 
+/* Bootstrap Code */
+
+/* Default Colors */
+$blue: #007bff;
+$indigo: #6610f2;
+$purple: #6f42c1;
+$pink: #e83e8c;
+$red: #dc3545;
+$orange: #fd7e14;
+$yellow: #ffc107;
+$green: #28a745;
+$teal: #20c997;
+$cyan: #17a2b8;
+$white: #fff;
+$black: #000;
+
+/* Default Grays */
+$gray-100: #f8f9fa;
+$gray-200: #e9ecef;
+$gray-300: #dee2e6;
+$gray-400: #ced4da;
+$gray-500: #adb5bd;
+$gray-600: #868e96;
+$gray-700: #495057;
+$gray-800: #343a40;
+$gray-900: #212529;
+
+/* Equivalents to bg-light/dark as well as default for gray */
+$light: $gray-100;
+/* Renamed to bs-dark to accommodate for color variables */
+$bs-dark: $gray-800;
+$gray: $gray-600;
+
+/* Array of theme colors that can be added to */
+$theme-colors: (
+    primary: $blue,
+    secondary: $gray-100,
+    success: $green,
+    info: $cyan,
+    warning: $yellow,
+    danger: $red,
+    light: $gray-100,
+    dark: $gray-800,
+    /* Addition of alternating colors to bootstrap (will come up as new classes) */
+    oe-darkest: $darkest,
+    oe-darker: $darker,
+    oe-dark: $dark,
+    oe-mid: $mid,
+    oe-midpale: $midpale,
+    oe-pale: $pale,
+    oe-midpalepale: $midpalepale,
+    oe-palepale: $palepale,
+    oe-palepurple: $palepurple,
+    oe-paler: $paler,
+    oe-midnightblue: $midnightblue
+);
+
+/* Array of random colors that can be added to */
+$colors: (
+    "blue": $blue,
+    "indigo": $indigo,
+    "purple": $purple,
+    "pink": $pink,
+    "red": $red,
+    "orange": $orange,
+    "yellow": $yellow,
+    "green": $green,
+    "teal": $teal,
+    "cyan": $cyan,
+    "white": $white,
+    "gray": $gray-600,
+    "gray-dark": $gray-800
+);
+
+$body-bg: $white;
+$body-color: $gray-900;
+$font-size-base: 1rem;
+$font-family-sans-serif: -apple-system, "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+$font-family-base: $font-family-sans-serif;
+
+$close-color: $black;
+$close-text-shadow: 0 1 0 $black;
+
 @import "core";
 
-* {
-    font-family:
-        /* 1 */
-        -apple-system, BlinkMacSystemFont,
-        /* 2 */
-        "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-        /* 3 */
-        "Helvetica Neue", sans-serif !important;
-}
 
-html {
-    font-size: 14px !important;
-}
+@import "theme-defaults";
 
-/* RP_MODIFIED  2/09/2015, 1/17/2016*/
-
+/* Huge list of overrides */
 body {
     margin: 0px 0px 0px 2px !important;
-    /* set the base fontsize for all DOM children */
-    font-size: 1em !important;
-    /* set the base font size for all DOM children */
 }
 
 .menu {
-    font-style: italic;
-    font-size: 0.9375rem;
+    font-style: italic !important;
+    font-size: 0.9375rem !important;
 }
 
 .menu_selected {
-    font-style: italic;
-    font-size: 0.9375rem;
+    font-style: italic !important;
+    font-size: 0.9375rem !important;
 }
 
 .logout {
-    font-style: italic;
-    font-size: 0.9375rem;
+    font-style: italic !important;
+    font-size: 0.9375rem !important;
 }
 
 .text {
-    font-size: 0.8125rem;
+    font-size: 0.8125rem !important;
 }
 
 .required {
-    font-size: 0.8125rem;
+    font-size: 0.8125rem !important;
 }
 
-.bold {
-    font-size: 0.8125rem;
+.bold, font-weight-bold {
+    font-size: 0.8125rem !important;
 }
 
 .alert,
 .alert-custom {
     font-size: 70%;
-    color: #FF0000;
+    color: $danger;
     text-decoration: none;
 }
 
@@ -166,32 +226,21 @@ body {
     border-top: solid 14px $dark;
 }
 
-/* $top_bg_line RP_MODIFIED 2/8/15 $paler*/
-
 .bgcolor2 {
     background-color: $paler;
 }
-
-/* $GLOBALS['style']['BGCOLOR2'] RP_MODIFIED 2/8/15 $paler*/
-
 
 .body_title {
     background-color: $dark;
 }
 
-/* $title_bg_line FFF RP_MODIFIED 12/22/2012 $dark*/
-
 .body_nav {
     background-color: $paler;
 }
 
-/* $nav_bg_line RP_MODIFIED 2/8/15 $paler */
-
 .logobar {
     background-color: $midnightblue;
 }
-
-/* $GLOBALS['logoBarHeight'] RP_MODIFIED 12/22/2012 $midnightblue*/
 
 /* style taken out of the addressbook code and put here instead */
 
@@ -220,8 +269,6 @@ body {
     border-width: inherit;
     border-color: inherit;
     background-color: inherit;
-    /* RP_MODIFIED 1/18/2016*/
-    /* DES_OVERRIDE 5/14/2018 */
 }
 
 #addressbook_list .button {
@@ -289,14 +336,12 @@ body {
 #addressbook_list tr.evenrow,
 #searchResults tr:nth-child(even) {
     background-color: $white;
-    /*RP_MODIFIED 1/16/2016 :$pale */
 }
 
 #addressbook_list tr.oddrow,
 #searchResults tr:nth-child(odd),
 .signout-restore-subheading {
     background-color: $palepale;
-    /*RP_MODIFIED 1/16/2016 $white */
 }
 
 /*
@@ -307,8 +352,6 @@ ul.tabNav {
     margin: 0 0 -4 0;
     padding: 0;
 }
-
-/*RP_MODIFIED 7/16/2016*/
 
 ul.tabNav li {
     margin: 0 1px 0 0;
@@ -328,26 +371,21 @@ ul.tabNav a {
     background: $palepale;
     border: solid $dark;
     border-width: 3px 1px 0px 1px;
-    color: #333;
+    color: $bs-dark;
     padding: 4px 4px 5px 4px;
     border-top-left-radius: 5px;
-    /*#CFCCF7 RP_MODIFIED 2/11/2015*/
     border-top-right-radius: 5px;
 }
 
-/*added RP_MODIFIED */
-
 ul.tabNav a:hover {
     background-color: $dark;
-    color: #000000;
+    color: $black;
 }
 
 div.tabContainer div.current {
     border: 1px solid $pale;
     background: $pale;
 }
-
-/*RP_MODIFIED 2/11/2015 */
 
 ul.tabNav li.current a {
     background: $pale;
@@ -430,7 +468,6 @@ ul.tabNav li.current a {
     font-size: 8pt;
     border: 2px outset rgb(102, 102, 102);
     background-color: $paler;
-    /*RP_MODIFIED 2/8/2014 $paler*/
 }
 
 /* Style for red font */
@@ -445,20 +482,15 @@ ul.tabNav li.current a {
 #sddm li {
     padding: 0;
     border: 1px solid $paler;
-    /*RP_MODIFIED 2/8/15 #EAE6FF*/
     background: $dark;
-    /* for non-css3 browsers #999 RP_MODIFIED 2/11/2015 */
     filter: unquote("progid:DXImageTransform.Microsoft.gradient(startColorstr='$dark', endColorstr='$dark')");
-    /* for IE b5cbff RP_MODIFIED 2/11/2015 #61a0ff*/
     background: -webkit-gradient(linear, left top, left bottom, from($dark), to($dark));
-    /* for webkit browsers b5cbff RP_MODIFIED 2/11/2015 #61a0ff*/
     background: -moz-linear-gradient(top, $dark, $dark);
-    /* for firefox 3.6+ b5cbff RP_MODIFIED 2/11/2015 #61a0ff*/
 }
 
 #sddm li a {
     padding: 4px 10px;
-    color: #004080;
+    color: darken($primary, 15%) !important;
     font-size: 0.8em;
     font-weight: bold;
 }
@@ -472,9 +504,9 @@ ul.tabNav li.current a {
     margin: 0;
     padding: 0;
     background: #C9F1B5;
-    border-left: 1px solid #000000;
-    border-right: 1px solid #000000;
-    border-bottom: 1px solid #000000;
+    border-left: 1px solid $black;
+    border-right: 1px solid $black;
+    border-bottom: 1px solid $black;
 }
 
 #sddm div a {
@@ -485,7 +517,7 @@ ul.tabNav li.current a {
 
 #sddm div a:hover {
     background: $palepale;
-    color: #000000;
+    color: $black;
 }
 
 .encounter-form-category-li {
@@ -507,18 +539,16 @@ ul.tabNav li.current a {
 }
 
 .div-message {
-    background-color: white;
-    color: gray;
+    background-color: $white;
+    color: $gray;
     margin: 5 0 5 0px;
     border: 1px solid $darker;
-    /*RP_ADDED 7/5/2016*/
     padding: 5px;
     width: 648px;
 }
 
 .signout-content {
     background: $paler;
-    /*RP_ADDED 8/27/2016*/
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~search div ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

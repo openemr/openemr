@@ -116,11 +116,12 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
     <?php Header::setupHeader(['common', 'datetime-picker']);?>
 
 
-    <script language='JavaScript'>
+    <script>
     var mypcc = '1';
-    </script><?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
-    </script><?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
-    <script language="javascript" type="text/javascript">
+    </script>
+    <?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
+    <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
+    <script>
     function CancelDistribute()
     {//Used in the cancel button.Helpful while cancelling the distribution.
        if(confirm(<?php echo xlj('Would you like to Cancel Distribution for this Patient?') ?>))
@@ -276,7 +277,7 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
        });
     });
     </script>
-    <script language="javascript" type="text/javascript">
+    <script>
     document.onclick=HideTheAjaxDivs;
     </script>
     <style>
@@ -293,104 +294,36 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
         width: 100px;
     }
     .bottom {
-        border-bottom: 1px solid black;
+        border-bottom: 1px solid var(--black);
     }
     .top {
-        border-top: 1px solid black;
+        border-top: 1px solid var(--black);
     }
     .left {
-        border-left: 1px solid black;
+        border-left: 1px solid var(--black);
     }
     .right {
-        border-right: 1px solid black;
+        border-right: 1px solid var(--black);
     }
     #ajax_div_insurance {
         position: absolute;
         z-index: 10;
         background-color: #FBFDD0;
-        border: 1px solid #ccc;
+        border: 1px solid var(--gray);
         padding: 10px;
     }
     #ajax_div_patient {
         position: absolute;
         z-index: 10;
         background-color: #FBFDD0;
-        border: 1px solid #ccc;
+        border: 1px solid var(--gray);
         padding: 10px;
     }
     @media only screen and (max-width: 768px) {
         [class*="col-"] {
             width: 100%;
-            text-align: left!Important;
+            text-align: left !important;
         }
-        .navbar-toggle>span.icon-bar {
-            background-color: #68171A ! Important;
-        }
-        .navbar-default .navbar-toggle {
-            border-color: #4a4a4a;
-        }
-        .navbar-default .navbar-toggle:focus, .navbar-default .navbar-toggle:hover {
-            background-color: #f2f2f2 !Important;
-            font-weight: 900 !Important;
-            color: #000000 !Important;
-        }
-        .navbar-color {
-            background-color: #E5E5E5;
-        }
-        .icon-bar {
-            background-color: #68171A;
-        }
-        .navbar-header {
-            float: none;
-        }
-        .navbar-toggle {
-            display: block;
-            background-color: #f2f2f2;
-        }
-        .navbar-nav {
-            float: none!important;
-        }
-        .navbar-nav>li {
-            float: none;
-        }
-        .navbar-collapse.collapse.in {
-            z-index: 100;
-            background-color: #dfdfdf;
-            font-weight: 700;
-            color: #000000 !Important;
-        }
-    }
-    */ .navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus, .navbar-default .navbar-nav>.active>a:hover {
-        color: #000000 !Important;
-        background-color: /*#F5D6D8 !Important;
-        font-weight: 900 !Important;
-    }*/
-    .navbar-default .navbar-nav>li>a {
-        color: #000000 !Important;
-        font-weight: 700 !Important;
-    }
-    /*.btn-file {
-        position: relative;
-        overflow: hidden;
-    }
-    .btn-file input[type=file] {
-        position: absolute;
-        top: 0;
-        right: 0;
-        min-width: 100%;
-        min-height: 100%;
-        font-size: 100px;
-        text-align: right;
-        filter: alpha(opacity=0);
-        opacity: 0;
-        outline: none;
-        background: white;
-        cursor: inherit;
-        display: block;
-    }*/
-
-    nav.navbar.navbar-default.navbar-color {
-        background: #c1c1c1;
     }
     </style>
     <title><?php echo xlt('New Payment'); ?></title>
@@ -420,24 +353,20 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
         </div>
         <div class="row">
             <div class="col-sm-12">
-                <nav class="navbar navbar-default navbar-color navbar-static-top" >
-                    <div class="container-fluid">
-                        <div class="navbar-header">
-                            <button class="navbar-toggle" data-target="#myNavbar" data-toggle="collapse" type="button"><span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span></button>
-                        </div>
-                        <div class="collapse navbar-collapse" id="myNavbar" >
-                            <ul class="nav navbar-nav" >
-                                <li class="active oe-bold-black">
-                                    <a href='new_payment.php' style="font-weight:700; color:#000000"><?php echo xlt('New Payment'); ?></a>
-                                </li>
-                                <li class="oe-bold-black" >
-                                    <a href='search_payments.php' style="font-weight:700; color:#000000"><?php echo xlt('Search Payment'); ?></a>
-                                </li>
-                                <li class="oe-bold-black">
-                                    <a href='era_payments.php' style="font-weight:700; color:#000000"><?php echo xlt('ERA Posting'); ?></a>
-                                </li>
-                            </ul>
-                        </div>
+                <nav class="navbar navbar-nav navbar-expand-md navbar-light text-body bg-light static-top">
+                    <button class="navbar-toggler icon-bar" data-target="#myNavbar" data-toggle="collapse" type="button"> <span class="navbar-toggler-icon"></span></button>
+                    <div class="collapse navbar-collapse" id="myNavbar">
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item active">
+                                <a class="nav-link font-weight-bold" href='new_payment.php'><?php echo xlt('New Payment'); ?></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link font-weight-bold" href='search_payments.php'><?php echo xlt('Search Payment'); ?></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link font-weight-bold" href='era_payments.php'><?php echo xlt('ERA Posting'); ?></a>
+                            </li>
+                        </ul>
                     </div>
                 </nav>
             </div>
