@@ -73,7 +73,7 @@ echo "<html><head>";
 
 <?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
 
-<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog', 'dygraphs']); ?>
+<?php Header::setupHeader('dygraphs'); ?>
 
 <link rel="stylesheet" href="<?php echo $web_root; ?>/interface/themes/labdata.css" type="text/css">
 

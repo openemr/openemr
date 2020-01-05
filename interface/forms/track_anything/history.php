@@ -69,7 +69,7 @@ echo "<html><head>";
 
 <?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
 
-<?php Header::setupHeader(['no_fontawesome', 'no_textformat', 'no_dialog', 'dygraphs']); ?>
+<?php Header::setupHeader('dygraphs'); ?>
 
 <link rel="stylesheet" href="style.css" type="text/css" />
 

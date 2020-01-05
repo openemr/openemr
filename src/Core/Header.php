@@ -27,6 +27,7 @@ class Header
 {
     private static $scripts;
     private static $links;
+    private static $isHeader = false;
 
     /**
      * Setup various <head> elements.
@@ -72,6 +73,17 @@ class Header
      * @return string
      */
     public static function setupHeader($assets = [])
+    {
+        self::$isHeader = true;
+        self::setupAssets($assets);
+    }
+
+    /**
+     * This function will not include the autoloaded assets if called directly.
+     *
+     * @param array $assets Asset(s) to include
+     */
+    public static function setupAssets($assets = [])
     {
         try {
             echo self::includeAsset($assets);
@@ -134,7 +146,7 @@ class Header
             $loadInFile = (isset($opts['loadInFile'])) ? $opts['loadInFile'] : false;
             $rtl = (isset($opts['rtl'])) ? $opts['rtl'] : false;
 
-            if ($autoload === true || in_array($k, $selectedAssets) || ($loadInFile && $loadInFile === self::getCurrentFile())) {
+            if ((self::$isHeader === true && $autoload === true) || in_array($k, $selectedAssets) || ($loadInFile && $loadInFile === self::getCurrentFile())) {
                 if ($allowNoLoad === true) {
                     if (in_array("no_" . $k, $selectedAssets)) {
                         continue;
