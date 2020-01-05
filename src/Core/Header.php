@@ -90,6 +90,9 @@ class Header
         } catch (\InvalidArgumentException $e) {
             error_log(errorLogEscape($e->getMessage()));
         }
+        // Need to do below to set it back to default setting in case this
+        //  static class is called again.
+        self::$isHeader = false;
     }
 
     /**
