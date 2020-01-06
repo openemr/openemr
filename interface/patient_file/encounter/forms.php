@@ -596,7 +596,7 @@ if (!empty($reg)) {
                 $old_category = $new_category;
                 $DivId++;
             }
-            $StringEcho .= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=\"openNewForm(" .
+            $StringEcho .= "<tr><td style='border-top: 1px solid var(--black);padding:0px;'><a onclick=\"openNewForm(" .
                 attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($entry['directory'])) .
                 ", " . attr_js(xl_form_title($nickname)) . ")\" href='JavaScript:void(0);'>" .
                 text(xl_form_title($nickname)) . "</a></td></tr>";
@@ -635,7 +635,7 @@ if ($encounterLocked === false) {
                     continue;
                 }
             }
-            $StringEcho .= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=\"openNewForm(" .
+            $StringEcho .= "<tr><td style='border-top: 1px solid var(--black);padding:0px;'><a onclick=\"openNewForm(" .
                 attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($option_id)) .
                 ", " . attr_js(xl_form_title($title)) . ")\" href='JavaScript:void(0);'>" .
                 text(xl_form_title($title)) . "</a></td></tr>";
@@ -674,7 +674,7 @@ if ($encounterLocked === false) {
             }
             $jid++;
             $modid = $modulerow['mod_id'];
-            $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=" .
+            $StringEcho.= "<tr><td style='border-top: 1px solid var(--black);padding:0px;'><a onclick=" .
                 "\"openNewForm(" . attr_js($relative_link) . ", " . attr_js(xl_form_title($nickname)) . ")\" " .
                 "href='JavaScript:void(0);'>" . text(xl_form_title($nickname)) . "</a></td></tr>";
         }

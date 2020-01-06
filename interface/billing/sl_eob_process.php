@@ -9,7 +9,7 @@
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019-2020 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -149,6 +149,8 @@ function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor)
 
     // This is called back by ParseERA::parse_era() once per claim.
     //
+
+// TODO: Sort colors here for Bootstrap themes
 function era_callback_check(&$out)
 {
     global $InsertionId;//last inserted ID of
@@ -156,8 +158,8 @@ function era_callback_check(&$out)
 
     if ($_GET['original']=='original') {
         $StringToEcho="<br/><br/><br/><br/><br/><br/>";
-        $StringToEcho.="<table border='1' cellpadding='0' cellspacing='0'  width='750'>";
-        $StringToEcho.="<tr bgcolor='#cccccc'><td width='50'></td><td class='dehead' width='150' align='center'>" . xlt('Check Number') . "</td><td class='dehead' width='400'  align='center'>" . xlt('Payee Name') . "</td><td class='dehead'  width='150' align='center'>" . xlt('Check Amount') . "</td></tr>";
+        $StringToEcho.="<table border='1' cellpadding='0' cellspacing='0' width='750'>";
+        $StringToEcho.="<tr bgcolor='#cccccc'><td width='50'></td><td class='dehead' width='150' align='center'>" . xlt('Check Number') . "</td><td class='dehead' width='400' align='center'>" . xlt('Payee Name') . "</td><td class='dehead' width='150' align='center'>" . xlt('Check Amount') . "</td></tr>";
         $WarningFlag=false;
         for ($check_count=1; $check_count<=$out['check_count']; $check_count++) {
             if ($check_count%2==1) {
@@ -180,9 +182,9 @@ function era_callback_check(&$out)
             $StringToEcho.="</tr>";
         }
 
-        $StringToEcho.="<tr bgcolor='#cccccc'><td colspan='4' align='center'><input type='submit'  name='CheckSubmit' value='Submit'/></td></tr>";
+        $StringToEcho.="<tr bgcolor='#cccccc'><td colspan='4' align='center'><input type='submit' name='CheckSubmit' value='Submit'/></td></tr>";
         if ($WarningFlag==true) {
-            $StringToEcho.="<tr bgcolor='#ff0000'><td colspan='4' align='center'>" . xlt('Warning, Check Number already exist in the database') . "</td></tr>";
+            $StringToEcho.="<tr class='bg-danger'><td colspan='4' align='center'>" . xlt('Warning, Check Number already exist in the database') . "</td></tr>";
         }
 
         $StringToEcho.="</table>";
@@ -212,13 +214,13 @@ function era_callback(&$out)
     if (isset($_REQUEST['chk'.$chk_123])) {
         if ($encount == 0) {
             writeMessageLine(
-                '#ffffff',
+                'var(--white)',
                 'infdetail',
                 "Payer: " . $out['payer_name']
             );
             if ($debug) {
                 writeMessageLine(
-                    '#ffffff',
+                    'var(--white)',
                     'infdetail',
                     "WITHOUT UPDATE is selected; no changes will be applied."
                 );
@@ -690,8 +692,8 @@ if (!$debug) {
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 <style type="text/css">
  body       { font-family:sans-serif; font-size:8pt; font-weight:normal }
- .dehead    { color:#000000; font-family:sans-serif; font-size:9pt; font-weight:bold }
- .olddetail { color:#000000; font-family:sans-serif; font-size:9pt; font-weight:normal }
+ .dehead    { color:var(--black); font-family:sans-serif; font-size:9pt; font-weight:bold }
+ .olddetail { color:var(--black); font-family:sans-serif; font-size:9pt; font-weight:normal }
  .newdetail { color:#00dd00; font-family:sans-serif; font-size:9pt; font-weight:normal }
  .errdetail { color:#dd0000; font-family:sans-serif; font-size:9pt; font-weight:normal }
  .infdetail { color:#0000ff; font-family:sans-serif; font-size:9pt; font-weight:normal }

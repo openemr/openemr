@@ -7,7 +7,7 @@
  * @author    Julia Longtin
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2012 Julia Longtin
- * @copyright Copyright (c) 2018-2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2018-2020 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,9 +17,10 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/report.inc");
 
 use OpenEMR\Billing\BillingReport;
+use OpenEMR\Core\Header;
 
 //how many columns to use when displaying information
-$COLS=6;
+$COLS = 6;
 
 //global variables:
 if (!isset($_GET["mode"])) {
@@ -65,13 +66,13 @@ if (!isset($_GET["mode"])) {
 <html>
 <head>
 
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 
 </head>
-<body bgcolor="#ffffff" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body bgcolor="var(--white)" topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
 
-<a href="javascript:window.close();" target=Main><font class=title><?php echo xlt('Billing Report')?></font></a>
-<br>
+<a href="javascript:window.close();" target="Main"><font class="title"><?php echo xlt('Billing Report')?></font></a>
+<br />
 
 <?php
 if ($my_authorized == "on") {
@@ -166,29 +167,29 @@ if ($ret = BillingReport::getBillsBetweenReport($code_type)) {
             if (!$first_time) {
                 print "</tr></table>\n";
                 print "</td><td>";
-                print "<table border=0><tr>\n";   // small table
+                print "<table border='0'><tr>\n";   // small table
             } else {
-                print "<table border=0><tr>\n";     // small table
+                print "<table border='0'><tr>\n";     // small table
                 $first_time=0;
             }
 
-            print "<tr><td colspan=5><hr><span class=bold>" . text($name["fname"]) . " " . text($name["lname"]) . "</span><br><br>\n";
+            print "<tr><td colspan='5'><hr /><span class='font-weight-bold'>" . text($name["fname"]) . " " . text($name["lname"]) . "</span><br /><br />\n";
             //==================================
 
 
-            print "<font class=bold>" . xlt("Patient Data") . ":</font><br>";
+            print "<font class='font-weight-bold'>" . xlt("Patient Data") . ":</font><br />";
             printRecDataOne($patient_data_array, getRecPatientData($iter["pid"]), $COLS);
 
-            print "<font class=bold>" . xlt("Employer Data") . ":</font><br>";
+            print "<font class='font-weight-bold'>" . xlt("Employer Data") . ":</font><br />";
             printRecDataOne($employer_data_array, getRecEmployerData($iter["pid"]), $COLS);
 
-            print "<font class=bold>" . xlt("Primary Insurance Data") . ":</font><br>";
+            print "<font class='font-weight-bold'>" . xlt("Primary Insurance Data") . ":</font><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($iter["pid"], "primary"), $COLS);
 
-            print "<font class=bold>" . xlt("Secondary Insurance Data") . ":</font><br>";
+            print "<font class='font-weight-bold'>" . xlt("Secondary Insurance Data") . ":</font><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($iter["pid"], "secondary"), $COLS);
 
-            print "<font class=bold>" . xlt("Tertiary Insurance Data") . ":</font><br>";
+            print "<font class='font-weight-bold'>" . xlt("Tertiary Insurance Data") . ":</font><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($iter["pid"], "tertiary"), $COLS);
 
             //==================================
@@ -196,7 +197,7 @@ if ($ret = BillingReport::getBillsBetweenReport($code_type)) {
             $old_pid = $iter["pid"];
         }
 
-        print "<td width=100><span class=text>" . text($iter["code_type"]) . ": </span></td><td width=100><span class=text>" . text($iter["code"]) . "</span></td><td width=100><span class=small>(" . text(date("Y-m-d", strtotime($iter["date"]))) . ")</span></td>\n";
+        print "<td width='100'><span class='text'>" . text($iter["code_type"]) . ": </span></td><td width='100'><span class='text'>" . text($iter["code"]) . "</span></td><td width='100'><span class='small'>(" . text(date("Y-m-d", strtotime($iter["date"]))) . ")</span></td>\n";
         $res_count++;
         if ($res_count == $N) {
             print "</tr><tr>\n";

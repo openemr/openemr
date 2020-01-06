@@ -10,10 +10,10 @@
  * @author    Terry Hill <terry@lilysystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2014-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2014-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
- * @copyright Copyright (c) 2017-2019 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2018-2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2017-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2018-2020 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -25,6 +25,7 @@ use OpenEMR\Billing\HCFA_1500;
 use OpenEMR\Billing\X12_5010_837P;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -495,9 +496,7 @@ function process_form($ar)
 ?>
 <html>
 <head>
-    <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-    <script type="text/javascript"
-        src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
+    <?php Header::setupHeader(); ?>
     <script>
         $(function () {
             $("#close-link").click(function () {

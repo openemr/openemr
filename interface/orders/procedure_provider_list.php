@@ -111,7 +111,7 @@ function doedclick_edit(ppid) {
                                 echo "  <td>" . text($row['protocol']) . "</td>\n";
                                 if (acl_check('admin', 'practice')) {
                                         $trTitle = xl('Edit') . ' ' . $row['name'];
-                                        echo "  <td class=\"text-center\"><span style=\"color:#000000; cursor: pointer;\"  onclick='doedclick_edit(" . attr_js($row['ppid']) . ")' class=\"haskids fa fa-pencil\" title='" . attr($trTitle) . "'></span></td>\n";
+                                        echo "  <td class=\"text-center\"><span style=\"color:var(--black); cursor: pointer;\"  onclick='doedclick_edit(" . attr_js($row['ppid']) . ")' class=\"haskids fa fa-pencil\" title='" . attr($trTitle) . "'></span></td>\n";
                                 } else {
                                         $trTitle = xl("Not Allowed to Edit") . ' ' . $row['name'];
                                         echo "  <td class=\"text-center\"><span style=\"color:#CACFD2;cursor: no-drop;\"  class=\"haskids fa fa-pencil\" title='" . attr($trTitle) . "'></span></td>\n";

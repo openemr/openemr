@@ -1,15 +1,15 @@
 <style>
 
 td.dayheader { background-color: [-$STYLE.BGCOLOR2-]; font-size: 10pt; font-weight: bold; }
-table.dayheader { background-color: [-$STYLE.BGCOLOR2-]; border: 1px solid #000000; }
+table.dayheader { background-color: [-$STYLE.BGCOLOR2-]; border: 1px solid var(--black); }
 .dayheader a:link { font-size: 10pt; font-weight: bold; text-decoration: none; padding-left: 10px; padding-right: 10px; }
 .dayheader a:active { font-size: 10pt; font-weight: bold; text-decoration: none; padding-left: 10px; padding-right: 10px; }
 .dayheader a:hover { font-size: 10pt; font-weight: bold; text-decoration: none; padding-left: 10px; padding-right: 10px; }
 .dayheader a:visited { font-size: 10pt; font-weight: bold; text-decoration: none; padding-left: 10px; padding-right: 10px; }
 table.eventslist { background-color: [- $STYLE.BGCOLOR1-]; padding: 10px; }
-td.eventslist { border-style: ridge;border-color:#ffffff ;font-size: 10pt; background-color: [- $STYLE.BGCOLOR1 -]; padding: 5px; }
-td.eventsentry { border-style: ridge;border-color:#ffffff ; font-size: 10pt;background-color: #EEEEEE; }
+td.eventslist { border-style: ridge;border-color:var(--white) ;font-size: 10pt; background-color: [- $STYLE.BGCOLOR1 -]; padding: 5px; }
+td.eventsentry { border-style: ridge;border-color:var(--white) ; font-size: 10pt;background-color: #EEEEEE; }
 table.eventsentry { background-color: #EEEEEE; }
-table.calcontainer { border: 1px solid #000000; }
-.framed {border: 1px solid #000000}
+table.calcontainer { border: 1px solid var(--black); }
+.framed {border: 1px solid var(--black)}
 </style>

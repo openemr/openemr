@@ -32,7 +32,7 @@ $first_issue = 1;
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
 </head>
 
-<body bgcolor="#ffffff" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body bgcolor="var(--white)" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <p>
 <?php
 $titleres = getPatientData($pid, "fname,lname,providerID");

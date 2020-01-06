@@ -1023,8 +1023,8 @@ if ($form_output == 3) {
 
 <style type="text/css">
 body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
-.dehead    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
-.detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
+.dehead    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold }
+.detail    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal }
 </style>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>

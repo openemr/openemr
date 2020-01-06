@@ -1462,7 +1462,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <button type='submit' name='bn_save' class='btn btn-secondary btn-save' value='<?php echo xla('Save');?>'
                                     <?php
                                     if ($rapid_data_entry) {
-                                        echo " style='background-color:#cc0000';color:#ffffff'";
+                                        echo " style='background-color:#cc0000';color:var(--white)'";
                                     } ?>><?php echo xla('Save');?></button>
                                     <button type='submit' name='bn_save_stay' class='btn btn-secondary btn-save' value='<?php echo xla('Save Current'); ?>'><?php echo xlt('Save Current'); ?></button>
                                     <?php if ($GLOBALS['ippf_specific']) { // start ippf-only stuff ?>

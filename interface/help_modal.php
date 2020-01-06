@@ -31,7 +31,7 @@ $help_modal = <<<HELP
             <div class="modal-content  oe-modal-content" style="height:700px">
                 <div class="modal-header clearfix">
                     <button type="button" class="close" data-dismiss="modal" aria-label=$close>
-                    <span aria-hidden="true" style="color:#000000; font-size:1.5em;">×</span></button>
+                    <span aria-hidden="true" style="color:var(--black); font-size:1.5em;">×</span></button>
                 </div>
                 <div class="modal-body" style="height:80%;">
                     <iframe src="" id="targetiframe" style="height:100%; width:100%; overflow-x: hidden; border:none"

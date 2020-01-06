@@ -13,8 +13,8 @@
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018-2019 Stephen Waite <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2020 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -255,7 +255,7 @@ function row_delete($table, $where)
         }
 
         .last_detail {
-            border-bottom: 1px black solid;
+            border-bottom: 1px var(--black) solid;
             margin-top: 2px;
         }
 
@@ -264,14 +264,6 @@ function row_delete($table, $where)
                 width: 1000px !Important;
             }
         }
-
-        /*.modalclass {
-        overflow-x: hidden !Important;
-        }
-        .oe-ckbox-label{
-        padding-left: 30px;
-        font-weight: 500;
-        }*/
     </style>
 </head>
 <body>
@@ -407,7 +399,7 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
         if ($_POST['form_secondary']) {
             SLEOB::arSetupSecondary($patient_id, $encounter_id, $debug);
         }
-        echo "<script language='JavaScript'>\n";
+        echo "<script>\n";
         echo " if (opener.document.forms[0] != undefined) {\n";
         echo "   if (opener.document.forms[0].form_amount) {\n";
         echo "     var tmp = opener.document.forms[0].form_amount.value - " . attr($paytotal) . ";\n";
@@ -415,7 +407,7 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
         echo "   }\n";
         echo " }\n";
     } else {
-        echo "<script language='JavaScript'>\n";
+        echo "<script>\n";
     }
     if ($info_msg) {
         echo " alert(" . js_escape($info_msg) . ");\n";
@@ -754,7 +746,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
     </div>
 </div><!--End of container div-->
 <?php if ($from_posting) { ?>
-<script language="JavaScript">
+<script>
     var f1 = opener.document.forms[0];
     var f2 = document.forms[0];
     if (f1.form_source) {

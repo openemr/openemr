@@ -12,12 +12,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+/* TODO: Code Cleanup */
+
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/daysheet.inc.php");
 
 use OpenEMR\Billing\BillingReport;
+use OpenEMR\Core\Header;
 
 //global variables:
 if (!isset($_GET["mode"])) {
@@ -63,13 +66,13 @@ if (!isset($_GET["mode"])) {
 <html>
 <head>
 
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 
 </head>
-<body bgcolor="#ffffff" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
 
-<a href="javascript:window.close();" target=Main><font class=title><?php echo xlt('Day Sheet Report')?></font></a>
-<br>
+<a href="javascript:window.close();" target="Main"><font class="title"><?php echo xlt('Day Sheet Report')?></font></a>
+<br />
 
 <?php
 if ($my_authorized === 'on') {

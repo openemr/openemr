@@ -111,8 +111,8 @@ if ($formid) {
 <head>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <style type="text/css">
- .dehead    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
- .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
+ .dehead    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold }
+ .detail    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal }
 </style>
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 

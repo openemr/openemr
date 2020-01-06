@@ -85,17 +85,17 @@ if ($Source=="add_template") {
     $cnt =sqlNumRows($res);
     if ($cnt) {
         echo "<table width='100%'>";
-        echo "<tr class='text'><th colspan=2  style='background-color:#ffffff'>".htmlspecialchars(xl('Preview of'), " ".$selcat['cl_list_item_long']."(".$selcont['cl_list_item_long'].")", ENT_QUOTES)."</th></tr>";
+        echo "<tr class='text'><th colspan=2  style='background-color:var(--white)'>".htmlspecialchars(xl('Preview of'), " ".$selcat['cl_list_item_long']."(".$selcont['cl_list_item_long'].")", ENT_QUOTES)."</th></tr>";
         $i=0;
         while ($row=sqlFetchArray($res)) {
             $i++;
             $class = ($class=='reportTableOddRow') ? 'reportTableEvenRow' : 'reportTableOddRow';
-            echo "<tr class='text'><td style='background-color:#ffffff'>".$i."</td><td style='background-color:#ffffff'>".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."</td></tr>";
+            echo "<tr class='text'><td style='background-color:var(--white)'>".$i."</td><td style='background-color:#ffffff'>".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."</td></tr>";
         }
         echo "</table>";
     } else {
         echo "<table width='100%'>";
-        echo "<tr class='text'><th colspan=2  style='background-color:#ffffff'>".htmlspecialchars(xl('No items under selected category'), ENT_QUOTES)."</th></tr>";
+        echo "<tr class='text'><th colspan=2  style='background-color:var(--white)'>".htmlspecialchars(xl('No items under selected category'), ENT_QUOTES)."</th></tr>";
         echo "</table>";
     }
     $Source="add_template";

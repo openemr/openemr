@@ -34,8 +34,8 @@ $code_type = empty($_POST['form_code_type']) ? '' : $_POST['form_code_type'];
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style type="text/css">
- .dehead { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
- .detail { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
+ .dehead { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold }
+ .detail { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal }
 </style>
 
 </head>

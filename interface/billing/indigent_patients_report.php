@@ -9,7 +9,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2005-2015 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -69,7 +69,7 @@ $form_end_date  = (!empty($_POST['form_end_date'])) ? DateToYYYYMMDD($_POST['for
 
 <title><?php echo xlt('Indigent Patients Report')?></title>
 
-<script language="JavaScript">
+<script>
 
     $(function() {
         var win = top.printLogSetup ? top : opener.top;
@@ -102,7 +102,7 @@ $form_end_date  = (!empty($_POST['form_end_date'])) ? DateToYYYYMMDD($_POST['for
 <table>
  <tr>
   <td width='410px'>
-    <div style='float:left'>
+    <div style='float: left'>
 
     <table class='text'>
         <tr>
@@ -125,7 +125,7 @@ $form_end_date  = (!empty($_POST['form_end_date'])) ? DateToYYYYMMDD($_POST['for
 
   </td>
   <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+    <table style='border-left: 1px solid; width:100%; height:100%'>
         <tr>
             <td>
                 <div class="text-center">
@@ -151,7 +151,7 @@ $form_end_date  = (!empty($_POST['form_end_date'])) ? DateToYYYYMMDD($_POST['for
 <div id="report_results">
 <table>
 
- <thead bgcolor="#dddddd">
+ <thead class="thead-light">
   <th>
    &nbsp;<?php echo xlt('Patient'); ?>
   </th>
@@ -262,7 +262,7 @@ if ($_POST['form_refresh']) {
         <?php
     }
     ?>
-<tr bgcolor='#dddddd'>
+<tr class="table-light">
 <td class="detail">
 &nbsp;<?php echo xlt('Totals'); ?>
 </td>

@@ -330,7 +330,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     }
 
     if (!$_POST['form_csvexport']) {
-        echo "<tr bgcolor='#ffffff'>\n";
+        echo "<tr bgcolor='var(--white)'>\n";
         echo " <td class='detail'>" . xlt("Grand Total") . "</td>\n";
         echo " <td class='detail'>" . text($grand_total_units) . "</td>\n";
         echo " <td class='detail'>" .

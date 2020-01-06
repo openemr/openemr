@@ -12,8 +12,8 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2005-2010 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -603,7 +603,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 <head>
     <?php Header::setupHeader(['datetime-picker']); ?>
     <title><?php echo xlt('EOB Posting - Search'); ?></title>
-    <script language="JavaScript">
+    <script>
         var mypcc = '1';
         function reSubmit() {
             opener.$('#btn-inv-search').click();
@@ -752,40 +752,26 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                         </div>
                         <div class="form-group col-lg">
                             <label class="control-label" for="form_source"><?php echo xlt('Source'); ?>:</label>
-                            <input type='text' name='form_source' id='form_source' class='form-control'
-                                   value='<?php echo attr($_REQUEST['form_source']); ?>'
-                                   title='<?php echo xla("A check number or claim number to identify the payment"); ?>'>
+                            <input type='text' name='form_source' id='form_source' class='form-control' value='<?php echo attr($_REQUEST['form_source']); ?>' title='<?php echo xla("A check number or claim number to identify the payment"); ?>' />
                         </div>
                         <div class="form-group col-lg">
                             <label class="control-label" for="form_paydate"><?php echo xlt('Pay Date'); ?>:</label>
-                            <input type='text' name='form_paydate' id='form_paydate' class='form-control datepicker'
-                                   value='<?php echo attr($_REQUEST['form_paydate']); ?>'
-                                   onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-                                   title='<?php echo xla("Date of payment yyyy-mm-dd"); ?>'>
+                            <input type='text' name='form_paydate' id='form_paydate' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_paydate']); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla("Date of payment yyyy-mm-dd"); ?>' />
                         </div>
                         <div class="form-group col-lg">
-                            <label class="control-label oe-large"
-                                   for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
-                            <label class="control-label oe-small" for="form_deposit_date"><?php echo xlt('Dep Date'); ?>
-                                :</label>
-                            <input type='text' name='form_deposit_date' id='form_deposit_date'
-                                   class='form-control datepicker'
-                                   value='<?php echo attr($_REQUEST['form_deposit_date']); ?>'
-                                   onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-                                   title='<?php echo xla("Date of bank deposit yyyy-mm-dd"); ?>'>
+                            <label class="control-label oe-large" for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
+                            <label class="control-label oe-small" for="form_deposit_date"><?php echo xlt('Dep Date'); ?>:</label>
+                            <input type='text' name='form_deposit_date' id='form_deposit_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_deposit_date']); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla("Date of bank deposit yyyy-mm-dd"); ?>' />
                         </div>
                         <div class="form-group col-lg">
                             <label class="control-label" for="form_amount"><?php echo xlt('Amount'); ?>:</label>
-                            <input type='text' name='form_amount' id='form_amount' class='form-control'
-                                   value='<?php echo attr($_REQUEST['form_amount']); ?>'
-                                   title='<?php echo xla("Paid amount that you will allocate"); ?>'>
+                            <input type='text' name='form_amount' id='form_amount' class='form-control' value='<?php echo attr($_REQUEST['form_amount']); ?>' title='<?php echo xla("Paid amount that you will allocate"); ?>' />
                         </div>
                         <div class="form-group col-lg">
                             <label class="control-label oe-large" for="only_with_debt"><?php echo xlt('Pt Debt'); ?>:</label>
                             <label class="control-label oe-small" for="only_with_debt"><?php echo xlt('Debt'); ?>:</label>
 
-                                <input <?php echo $_REQUEST['only_with_debt'] ? 'checked=checked' : ''; ?>
-                                    type="checkbox" name="only_with_debt" id="only_with_debt"/>
+                                <input <?php echo $_REQUEST['only_with_debt'] ? 'checked=checked' : ''; ?> type="checkbox" name="only_with_debt" id="only_with_debt" />
                         </div>
                     </div>
                 </fieldset>
@@ -797,55 +783,39 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 
                         <div id="radio-div" class="form-check form-check-inline oe-legend-radio">
                             <label class="radio-inline btn btn-sm btn-secondary">
-                                <input type="radio" id="invoice_search" name="radio-search" onclick=""
-                                       value="inv-search"><?php echo xlt('Invoice Search'); ?>
+                                <input type="radio" id="invoice_search" name="radio-search" onclick="" value="inv-search" /><?php echo xlt('Invoice Search'); ?>
                             </label>
                             <label class="radio-inline btn btn-sm btn-secondary">
-                                <input type="radio" id="era_upload" name="radio-search" onclick=""
-                                       value="era-upld"><?php echo xlt('ERA Upload'); ?>
+                                <input type="radio" id="era_upload" name="radio-search" onclick="" value="era-upld" /><?php echo xlt('ERA Upload'); ?>
                             </label>
                         </div>
 
-                        <input type="hidden" id="hid1" value="<?php echo xla('Invoice Search'); ?>">
-                        <input type="hidden" id="hid2" value="<?php echo xla('ERA Upload'); ?>">
-                        <input type="hidden" id="hid3" value="<?php echo xla('Select Method'); ?>">
+                        <input type="hidden" id="hid1" value="<?php echo xla('Invoice Search'); ?>" />
+                        <input type="hidden" id="hid2" value="<?php echo xla('ERA Upload'); ?>" />
+                        <input type="hidden" id="hid3" value="<?php echo xla('Select Method'); ?>" />
                     </legend>
                     <div class="oe-show-hide" id='inv-search'>
                         <div class="form-row">
                             <div class="form-group col-lg">
                                 <label class="control-label" for="form_name"><?php echo xlt('Name'); ?>:</label>
-                                <input type='text' name='form_name' id='form_name' class='form-control'
-                                    value='<?php echo attr($_REQUEST['form_name']); ?>'
-                                    title='<?php echo xla("Any part of the patient name, or \"last,first\", or \"X-Y\""); ?>'
-                                    placeholder='<?php echo xla('Last name, First name'); ?>'>
+                                <input type='text' name='form_name' id='form_name' class='form-control' value='<?php echo attr($_REQUEST['form_name']); ?>' title='<?php echo xla("Any part of the patient name, or \"last,first\", or \"X-Y\""); ?>' placeholder='<?php echo xla('Last name, First name'); ?>' />
                             </div>
                             <div class="form-group col-lg">
                                 <label class="control-label" for="form_pid"><?php echo xlt('Chart ID'); ?>:</label>
-                                <input type='text' name='form_pid' id='form_pid' class='form-control'
-                                    value='<?php echo attr($_REQUEST['form_pid']); ?>'
-                                    title='<?php echo xla("Patient chart ID"); ?>'>
+                                <input type='text' name='form_pid' id='form_pid' class='form-control' value='<?php echo attr($_REQUEST['form_pid']); ?>' title='<?php echo xla("Patient chart ID"); ?>' />
                             </div>
                             <div class="form-group col-lg">
                                 <label class="control-label" for="form_encounter"><?php echo xlt('Encounter'); ?>:</label>
-                                <input type='text' name='form_encounter' id='form_encounter' class='form-control'
-                                    value='<?php echo attr($_REQUEST['form_encounter']); ?>'
-                                    title='<?php echo xla("Encounter number"); ?>'>
+                                <input type='text' name='form_encounter' id='form_encounter' class='form-control' value='<?php echo attr($_REQUEST['form_encounter']); ?>' title='<?php echo xla("Encounter number"); ?>' />
                             </div>
                             <div class="form-group col-lg">
-                                <label class="control-label oe-large"
-                                    for="form_date"><?php echo xlt('Service Date From'); ?>:</label>
-                                <label class="control-label oe-small" for="form_date"><?php echo xlt('Svc Date'); ?>
-                                    :</label>
-                                <input type='text' name='form_date' id='form_date' class='form-control datepicker'
-                                    value='<?php echo attr($_REQUEST['form_date']); ?>'
-                                    title='<?php echo xla("Date of service mm/dd/yyyy"); ?>'>
+                                <label class="control-label oe-large" for="form_date"><?php echo xlt('Service Date From'); ?>:</label>
+                                <label class="control-label oe-small" for="form_date"><?php echo xlt('Svc Date'); ?>:</label>
+                                <input type='text' name='form_date' id='form_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_date']); ?>' title='<?php echo xla("Date of service mm/dd/yyyy"); ?>' />
                             </div>
                             <div class="form-group col-lg">
-                                <label class="control-label" for="form_to_date"><?php echo xlt('Service Date To'); ?>
-                                    :</label>
-                                <input type='text' name='form_to_date' id='form_to_date' class='form-control datepicker'
-                                    value='<?php echo attr($_REQUEST['form_to_date']); ?>'
-                                    title='<?php echo xla("Ending DOS mm/dd/yyyy if you wish to enter a range"); ?>'>
+                                <label class="control-label" for="form_to_date"><?php echo xlt('Service Date To'); ?>:</label>
+                                <input type='text' name='form_to_date' id='form_to_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_to_date']); ?>' title='<?php echo xla("Ending DOS mm/dd/yyyy if you wish to enter a range"); ?>' />
                             </div>
                             <div class="form-group col-lg" style="padding-right:0px">
                                 <label class="control-label" for="type_name"><?php echo xlt('Type'); ?>:</label>
@@ -863,17 +833,15 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                             </div>
                         </div>
                     </div>
-                    <div class="form-row oe-show-hide" id='era-upld' style="display:none">
+                    <div class="form-row oe-show-hide" id='era-upld' style="display: none">
                         <div class="form-group col-lg oe-file-div">
                             <div class="input-group">
                                 <label class="input-group-btn">
                         <span class="btn btn-secondary">Browse&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;">
-                            <input name="MAX_FILE_SIZE" type="hidden" value="5000000">
+                            <input name="MAX_FILE_SIZE" type="hidden" value="5000000" />
                         </span>
                                 </label>
-                                <input type="text" class="form-control"
-                                       placeholder="<?php echo xla('Click Browse and select one Electronic Remittance Advice (ERA) file...'); ?>"
-                                       readonly>
+                                <input type="text" class="form-control" placeholder="<?php echo xla('Click Browse and select one Electronic Remittance Advice (ERA) file...'); ?>" readonly />
                             </div>
                         </div>
                     </div>
@@ -883,12 +851,8 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 <div class="form-row clearfix">
                     <div class="form-group position-override oe-show-hide" id="search-btn">
                         <div class="btn-group" role="group">
-                            <button type='submit' class="btn btn-secondary btn-search oe-show-hide" name='form_search'
-                                    id="btn-inv-search"
-                                    value='Search'><?php echo xlt("Search"); ?></button>
-                            <button type='submit' class="btn btn-secondary btn-save oe-show-hide" name='form_search'
-                                    id="btn-era-upld"
-                                    value='Upload'><?php echo xlt("Upload"); ?></button>
+                            <button type='submit' class="btn btn-secondary btn-search oe-show-hide" name='form_search' id="btn-inv-search" value='Search'><?php echo xlt("Search"); ?></button>
+                            <button type='submit' class="btn btn-secondary btn-save oe-show-hide" name='form_search' id="btn-era-upld" value='Upload'><?php echo xlt("Upload"); ?></button>
                         </div>
                     </div>
                 </div>
@@ -896,11 +860,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                     <legend><span><?php echo xlt('Search Results'); ?></span>
                         <div class="oe-pull-away oe-legend-radio">
                             <label class="checkbox-inline">
-                                <input type="checkbox" id="posting_adj_disable" name="posting_adj_disable"
-                                       onchange='persistCriteria(this, event)'
-                                       title="<?php echo xlt("Disable automatically calculating balance adjustments for invoice posting") ?>"
-                                       value="<?php echo attr($posting_adj_disable); ?>"
-                                    <?php echo ' ' . attr($posting_adj_disable); ?> /><?php echo xlt('Disable Auto Adjustments'); ?>
+                                <input type="checkbox" id="posting_adj_disable" name="posting_adj_disable" onchange='persistCriteria(this, event)' title="<?php echo xlt("Disable automatically calculating balance adjustments for invoice posting") ?>" value="<?php echo attr($posting_adj_disable); ?>" <?php echo ' ' . attr($posting_adj_disable); ?> /><?php echo xlt('Disable Auto Adjustments'); ?>
                             </label>
                         </div>
                     </legend>
@@ -1153,7 +1113,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                                    name='form_cb[<?php echo attr($row['id']) ?>]'<?php echo text($isduept); ?> />
                                             <?php
                                             if ($in_collections) {
-                                                echo "<b><font color='red'>IC</font></b>";
+                                                echo "<span class='font-weight-bold text-danger'>IC</span>";
                                             } ?>
                                             <?php
                                             if (function_exists('is_auth_portal') ? is_auth_portal($row['pid']) : false) {
@@ -1187,34 +1147,21 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                         <div class="btn-group" role="group">
                             <?php
                             if ($eracount) { ?>
-                                <button type="button" class="btn btn-secondary btn-save" name="Submit"
-                                        onclick='processERA()' value="<?php echo xla('Process ERA File'); ?>">
+                                <button type="button" class="btn btn-secondary btn-save" name="Submit" onclick='processERA()' value="<?php echo xla('Process ERA File'); ?>">
                                     <?php echo xlt('Process ERA File'); ?></button>
                                 <?php
                             } else { ?>
-                                <button type="button" class="btn btn-secondary btn-save" name="Submit1"
-                                        onclick='checkAll(true)'><?php echo xlt('Select All'); ?></button>
-                                <button type="button" class="btn btn-secondary btn-undo" name="Submit2"
-                                        onclick='checkAll(false)'><?php echo xlt('Clear All'); ?></button>
+                                <button type="button" class="btn btn-secondary btn-save" name="Submit1" onclick='checkAll(true)'><?php echo xlt('Select All'); ?></button>
+                                <button type="button" class="btn btn-secondary btn-undo" name="Submit2" onclick='checkAll(false)'><?php echo xlt('Clear All'); ?></button>
                                 <?php if ($GLOBALS['statement_appearance'] != '1') { ?>
-                                    <button type="submit" class="btn btn-secondary btn-print" name='form_print'
-                                            value="<?php echo xla('Print Selected Statements'); ?>">
-                                        <?php echo xlt('Print Selected'); ?></button>
-                                    <button type="submit" class="btn btn-secondary btn-download" name='form_download'
-                                            value="<?php echo xla('Download Selected Statements'); ?>">
-                                        <?php echo xlt('Download Selected'); ?></button>
+                                    <button type="submit" class="btn btn-secondary btn-print" name='form_print' value="<?php echo xla('Print Selected Statements'); ?>"><?php echo xlt('Print Selected'); ?></button>
+                                    <button type="submit" class="btn btn-secondary btn-download" name='form_download' value="<?php echo xla('Download Selected Statements'); ?>"><?php echo xlt('Download Selected'); ?></button>
                                 <?php } ?>
-                                <button type="submit" class="btn btn-secondary btn-download" name='form_pdf'
-                                        value="<?php echo xla('PDF Download Selected Statements'); ?>">
-                                    <?php echo xlt('PDF Download Selected'); ?></button>
-                                <button type="submit" class="btn btn-secondary btn-mail" name='form_download'
-                                        value="<?php echo xla('Email Selected Statements'); ?>">
-                                    <?php echo xlt('Email Selected'); ?></button>
+                                <button type="submit" class="btn btn-secondary btn-download" name='form_pdf' value="<?php echo xla('PDF Download Selected Statements'); ?>"><?php echo xlt('PDF Download Selected'); ?></button>
+                                <button type="submit" class="btn btn-secondary btn-mail" name='form_download' value="<?php echo xla('Email Selected Statements'); ?>"><?php echo xlt('Email Selected'); ?></button>
                                 <?php
                                 if ($is_portal) { ?>
-                                    <button type="submit" class="btn btn-secondary btn-save" name='form_portalnotify'
-                                            value="<?php echo xla('Notify via Patient Portal'); ?>">
-                                        <?php echo xlt('Notify Patients Portal'); ?></button>
+                                    <button type="submit" class="btn btn-secondary btn-save" name='form_portalnotify' value="<?php echo xla('Notify via Patient Portal'); ?>"><?php echo xlt('Notify Patients Portal'); ?></button>
                                     <?php
                                 }
                             }
@@ -1231,7 +1178,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 </div> <!--End of Container div-->
 <?php $oemr_ui->oeBelowContainerDiv();?>
 
-<script language="JavaScript">
+<script>
 
     function processERA() {
         var f = document.forms[0];

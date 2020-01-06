@@ -14,8 +14,8 @@
  * @copyright Copyright (c) 2010 MMF Systems, Inc
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019-2020 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -399,7 +399,7 @@ if ($exclude_policy != "") {
                                                 }
                                                 ?>
                                             </select>
-                                                <span id='emptyVald' style='color:red;font-size:12px;visibility: <?php echo $X12info['id'] ? "hidden" : ""; ?>'> *
+                                                <span id='emptyVald' class='text-danger' style='font-size:12px;visibility: <?php echo $X12info['id'] ? "hidden" : ""; ?>'> *
                                                     <?php echo xlt('Clearing house info required for EDI 270 batch creation.'); ?></span>
                                         </td>
                                     </tr>
@@ -447,7 +447,7 @@ if ($exclude_policy != "") {
         ?>
     </body>
 
-    <script language='JavaScript'>
+    <script>
         <?php
         if ($alertmsg) {
             echo " alert(" . js_escape($alertmsg) . ");\n";

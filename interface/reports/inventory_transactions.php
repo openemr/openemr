@@ -192,8 +192,8 @@ if ($form_action == 'export') {
  }
 
  body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
- .dehead    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
- .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
+ .dehead    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold }
+ .detail    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal }
 
  #report_results table thead {
   font-size:10pt;

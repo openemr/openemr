@@ -471,7 +471,7 @@ function toencounter(enc, datestr, topframe) {
 }
 </script>
 </head>
-<body bgcolor='#ffffff'>
+<body bgcolor='var(--white)'>
     <center>
 
     <p><h2><?php echo xlt('Receipt for Payment'); ?></h2>
@@ -561,8 +561,8 @@ function toencounter(enc, datestr, topframe) {
 
 <style type="text/css">
  body    { font-family:sans-serif; font-size:10pt; font-weight:normal }
- .dehead { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
- .detail { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
+ .dehead { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold }
+ .detail { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal }
 #ajax_div_patient {
     position: absolute;
     z-index:10;
@@ -625,10 +625,10 @@ function coloring() {
                     document.getElementById('paying_' + i).style.background = '#99CC00';
                 }
                 else if (paying == patient_balance) {
-                    document.getElementById('paying_' + i).style.background = '#ffffff';
+                    document.getElementById('paying_' + i).style.background = 'var(--white)';
                 }
             } else {
-                document.getElementById('paying_' + i).style.background = '#ffffff';
+                document.getElementById('paying_' + i).style.background = 'var(--white)';
             }
         }
         else {

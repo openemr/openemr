@@ -7,7 +7,7 @@
  * @author    Kevin McCormick Longview, Texas
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2012 Kevin McCormick Longview, Texas
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -30,7 +30,8 @@ if (!acl_check('acct', 'eob')) {
 <head>
     <title><?php echo xlt("edi history"); ?></title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-
+    
+    <!-- TODO: Address no_bootstrap here !-->
     <?php Header::setupHeader(['no_main-theme', 'no_bootstrap', 'datetime-picker', 'datatables', 'datatables-jqui', 'datatables-jqui-theme', 'datatables-scroller', 'datatables-scroller-jqui-theme', 'jquery-ui', 'jquery-ui-sunny']); ?>
 
     <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history_v2.css" type="text/css" />
@@ -104,7 +105,7 @@ if (!acl_check('acct', 'eob')) {
                     <tr>
                         <td align='center'><?php echo xlt("Choose CSV table"); ?>:</td>
                         <td align='center'><?php echo xlt("From Period"); ?></td>
-                        <td align='center'><?php echo xlt("Start Date"); ?>: &nbsp;&nbsp <?php echo xlt("End Date"); ?>:</td>
+                        <td align='center'><?php echo xlt("Start Date"); ?>: &nbsp;&nbsp; <?php echo xlt("End Date"); ?>:</td>
                         <td align='center'><?php echo xlt("Submit"); ?></td>
                     </tr>
                     <tr height='1.5em'>
@@ -214,11 +215,11 @@ if (!acl_check('acct', 'eob')) {
     <div id="edinotes">
         <table>
             <tr>
-                <td colspan=2><a href="<?php echo $web_root?>/Documentation/Readme_edihistory.html" rel="noopener" target="_blank"><?php echo xlt("View the README file"); ?></a></td>
+                <td colspan="2"><a href="<?php echo $web_root; ?>/Documentation/Readme_edihistory.html" rel="noopener" target="_blank"><?php echo xlt("View the README file"); ?></a></td>
             </tr>
             <tr>
                 <td>
-                    <form id ="formlog" name="form_log" action="edih_main.php" enctype="multipart/form-data" method="post">
+                    <form id="formlog" name="form_log" action="edih_main.php" enctype="multipart/form-data" method="post">
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <fieldset><legend><?php echo xlt("Inspect the log"); ?></legend>
                     <label for="logfile"><?php echo xlt("View Log"); ?></label>
@@ -230,7 +231,7 @@ if (!acl_check('acct', 'eob')) {
                     </fieldset>
                     </form>
                 </td>
-                <td><form id ="formnotes" name="form_notes" action="edih_main.php" enctype="multipart/form-data" method="post">
+                <td><form id="formnotes" name="form_notes" action="edih_main.php" enctype="multipart/form-data" method="post">
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <fieldset><legend><?php echo xlt("Notes"); ?></legend>
                     <label for="notesget"><?php echo xlt("Notes"); ?></label>
@@ -252,10 +253,10 @@ if (!acl_check('acct', 'eob')) {
     <div id="archive">
         <table>
             <tr>
-                <td colspan=3><?php echo xlt("Selected files and data will be removed from folders and tables"); ?></td>
+                <td colspan="3"><?php echo xlt("Selected files and data will be removed from folders and tables"); ?></td>
             </tr>
             <tr>
-                <td colspan=2>
+                <td colspan="2">
                     <form id="formarchive" name="form_archive" action="edih_main.php" enctype="multipart/form-data" method="POST">
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <fieldset><legend><?php echo xlt("Archive old files"); ?></legend>
@@ -299,34 +300,34 @@ if (!acl_check('acct', 'eob')) {
 <!--  -->
 
 <!-- end DataTables js Begin local js -->
-<script type="text/javascript">
-    jQuery(function() {
+<script>
+    $(function() {
         // activate tab interface
-        jQuery("#tabs").tabs();
-        jQuery("#tabs").tabs().css('visibility','visible');
+        $("#tabs").tabs();
+        $("#tabs").tabs().css('visibility','visible');
         // set some button disabled
-        jQuery('#processfiles').prop('disabled', true);
-        jQuery('#archivesubmit').prop('disabled', true);
+        $('#processfiles').prop('disabled', true);
+        $('#archivesubmit').prop('disabled', true);
         // update list of available csv tables
-        jQuery(function() { csvlist() });
+        $(function() { csvlist() });
         // update list of available log files
-        jQuery(function() { loglist() });
+        $(function() { loglist() });
         // update list of archive files
-        jQuery(function() { archlist() });
+        $(function() { archlist() });
         // hide these div elements until used
-        jQuery("#fileupl1").toggle(false);
-        jQuery("#fileupl2").toggle(false);
+        $("#fileupl1").toggle(false);
+        $("#fileupl2").toggle(false);
 
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/$-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
 /* ************
- *   end of document ready() jquery
+ *   end of document ready() $
  * ************
  */
 /* ****  from http://scratch99.com/web-development/javascript/convert-bytes-to-mb-kb/ *** */
@@ -340,8 +341,8 @@ if (!acl_check('acct', 'eob')) {
 /* *** variables for upload maximums *** */
 /* *** phpserver: 'maxfsize''maxfuploads''postmaxsize''tmpdir'  phpserver['postmaxsize'] *** */
     var phpserver = [];
-    jQuery(function() {
-        jQuery.ajax({
+    $(function() {
+        $.ajax({
             url: 'edih_main.php',
             data: {
                 srvinfo: 'yes',
@@ -353,7 +354,7 @@ if (!acl_check('acct', 'eob')) {
     });
 /* *** update the list of available csv tables  *** */
     function csvlist() {
-        jQuery.ajax({
+        $.ajax({
             type: 'GET',
             url: 'edih_main.php',
             data: {
@@ -362,25 +363,25 @@ if (!acl_check('acct', 'eob')) {
             },
             dataType: 'json',
             success: function(data) {
-              var options = jQuery('#csvselect').attr('options');
-              var optct = jQuery.isPlainObject(data);  // data.length
+              var options = $('#csvselect').attr('options');
+              var optct = $.isPlainObject(data);  // data.length
               if (optct) {
                 var options = [];
                 options.push("<option value='' selected='selected'><?php echo xla("Choose from list"); ?></option>");
-                jQuery.each(data.claims, function(idx, value) {
+                $.each(data.claims, function(idx, value) {
                     options.push("<option value=" + value.fname + ">" + value.desc + "</option>");
                 });
-                jQuery.each(data.files, function(idx, value) {
+                $.each(data.files, function(idx, value) {
                     options.push("<option value=" + value.fname + ">" + value.desc + "</option>");
                 });
-                jQuery("#csvselect").html(options.join(''));
+                $("#csvselect").html(options.join(''));
               }
             }
         });
     };
 /* *** update the list of log files *** */
     function loglist() {
-        jQuery.ajax({
+        $.ajax({
             type: 'GET',
             url: 'edih_main.php',
             data: {
@@ -389,7 +390,7 @@ if (!acl_check('acct', 'eob')) {
             },
             dataType: 'json',
             success: function(data) {
-              var options = jQuery('#logselect').attr('options');
+              var options = $('#logselect').attr('options');
               var optct = data.length;
               if (optct) {
                 var options = [];
@@ -397,14 +398,14 @@ if (!acl_check('acct', 'eob')) {
                 for (var i=0; i<optct; i++) {
                   options.push('<option value=' + data[i] + '>' + data[i] + '</option>');
                 }
-                jQuery("#logselect").html(options.join(''));
+                $("#logselect").html(options.join(''));
               }
             }
         });
     };
 /* *** update the list of archive files *** id="archrestoresel name="archrestore_sel" */
     function archlist() {
-        jQuery.ajax({
+        $.ajax({
             type: 'GET',
             url: 'edih_main.php',
             data: {
@@ -413,8 +414,8 @@ if (!acl_check('acct', 'eob')) {
             },
             dataType: 'json',
             success: function(data) {
-                //var options = jQuery('#archrestoresel').attr('options');
-                jQuery('#archrestoresel').empty();
+                //var options = $('#archrestoresel').attr('options');
+                $('#archrestoresel').empty();
                 var optct = data.length;
                 var options = [];
                 if (optct) {
@@ -425,13 +426,13 @@ if (!acl_check('acct', 'eob')) {
                 } else {
                     options.push("<option selected='selected'><?php echo xla("No Archives"); ?></option>");
                 }
-                jQuery('#archrestoresel').html(options.join(""));
+                $('#archrestoresel').html(options.join(""));
             }
         });
     };
 
 /*
-jQuery-UI dialog
+jquery-UI dialog
     control visibility by designating to which div the dialog is appended
 */
     function dialogOptions(appendElem) {
@@ -445,56 +446,56 @@ jQuery-UI dialog
             title: 'Transaction Detail',
             close: function(event, ui)
             {
-                jQuery(this).dialog("close");
-                jQuery(this).remove();
+                $(this).dialog("close");
+                $(this).remove();
             }
         };
         return tblDialogOpts;
     }
 
 
-    jQuery('#tbcsvhist').on('click', 'a', function(e) {
+    $('#tbcsvhist').on('click', 'a', function(e) {
         e.preventDefault();
         e.stopPropagation();
         var options = dialogOptions('#tbcsvhist');
-        jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
-            .load(jQuery(this).attr('href')).appendTo('#tbcsvhist').dialog(options);
+        $('<div/>', {'class':'edihDlg', 'id':'link-'+($(this).index()+1)})
+            .load($(this).attr('href')).appendTo('#tbcsvhist').dialog(options);
     });
 /* #csvTable  ****  */
-    jQuery('#tblshow').on('click', 'a', function(e) {
+    $('#tblshow').on('click', 'a', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        var ttl = jQuery(this).attr('title');
+        var ttl = $(this).attr('title');
         var options = dialogOptions('#tblshow');
-        jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
-            .load(jQuery(this).attr('href')).appendTo('#tblshow').dialog(options);
+        $('<div/>', {'class':'edihDlg', 'id':'link-'+($(this).index()+1)})
+            .load($(this).attr('href')).appendTo('#tblshow').dialog(options);
     });
 /*
-    jQuery('#tbrpt').on('click', 'a', function(e) {
+    $('#tbrpt').on('click', 'a', function(e) {
         e.preventDefault();
         e.stopPropagation();
         var options = dialogOptions('#tblshow');
-        jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
-            .load(jQuery(this).attr('href')).appendTo('#tblshow').dialog(options);
+        $('<div/>', {'class':'edihDlg', 'id':'link-'+($(this).index()+1)})
+            .load($(this).attr('href')).appendTo('#tblshow').dialog(options);
     });
 */
 /* **** links in dialog in uploads - processed div  ****    */
-    jQuery('#processed').on('click', 'a', function(e) {
+    $('#processed').on('click', 'a', function(e) {
         e.preventDefault();
         e.stopPropagation();
         var options = dialogOptions('#processed');
-        jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
-            .load(jQuery(this).attr('href')).appendTo('#processed').dialog(options);
+        $('<div/>', {'class':'edihDlg', 'id':'link-'+($(this).index()+1)})
+            .load($(this).attr('href')).appendTo('#processed').dialog(options);
     });
 
 /*
 // **** script ****
 /* ****
- * jQuery-UI accordian -- for 27x file html (not used -- have not figured out how to invoke)
+ * jquery-UI accordian -- for 27x file html (not used -- have not figured out how to invoke)
  */
     function apply_accordion(selector) {
         var sel = selector + ' > #accordion';
-        jQuery( sel )
+        $( sel )
           .accordion({
             header: "h3",
             collapsible: true,
@@ -511,19 +512,19 @@ jQuery-UI dialog
 /* **** if files have been uploaded **** */
     var upld_ct = 0;
 /* ***** list files selected in the multifile upload input **** */
-    jQuery('#uplmulti').on('change', function(){
+    $('#uplmulti').on('change', function(){
         // clear uploaded files list, since new selected files list is coming
-        jQuery('#fileupl2').html('');
-        jQuery('#fileupl2').removeClass('flist');
-        jQuery('#processed').html('');
+        $('#fileupl2').html('');
+        $('#fileupl2').removeClass('flist');
+        $('#processed').html('');
         var uplfiles = this.files; //event.target.files;
         var fct = uplfiles.length;
         var fsize = 0;
-        var fl1 = jQuery('#fileupl1');
+        var fl1 = $('#fileupl1');
         fl1.html('');
         fl1.toggle(true);
         fl1.addClass('flist1');
-        var fmaxupl = phpserver['maxfuploads'];   // jQuery("#srvvals").data('mf');
+        var fmaxupl = phpserver['maxfuploads'];   // $("#srvvals").data('mf');
         var pmaxsize = phpserver['postmaxsize']
         var str = "<p><em><?php echo xla('Selected Files'); ?>:</em></p>";
         str = str + "<ul id='uplsel' class='fupl'>";
@@ -533,43 +534,43 @@ jQuery-UI dialog
             fsize += uplfiles[i].size;
         };
         str = str + '</ul><p><?php echo xla('Total size'); ?>: ' + bytesToSize(fsize) + ' (<?php echo xla('max'); ?> ' + pmaxsize + ')</p>';
-        jQuery('#uplsubmit').prop('disabled', false);
+        $('#uplsubmit').prop('disabled', false);
         if (upld_ct === 0 ) {
-            jQuery('#processupl').prop('disabled', true);
+            $('#processupl').prop('disabled', true);
         }
         fl1.html(str);
     });
     // uplreset button click the file input is reset and associated values cleared
-    jQuery('#uplreset').on('click', function( event ) {
+    $('#uplreset').on('click', function( event ) {
         event.preventDefault();
         event.stopPropagation();
-        jQuery('#fileupl1').html('');
-        jQuery('#fileupl2').html('');
-        jQuery('#fileupl1').hide();
-        jQuery('#fileupl2').hide();
-        jQuery('#processed').html('');
-        jQuery('#uplsubmit').prop('disabled', true);
+        $('#fileupl1').html('');
+        $('#fileupl2').html('');
+        $('#fileupl1').hide();
+        $('#fileupl2').hide();
+        $('#processed').html('');
+        $('#uplsubmit').prop('disabled', true);
         if (upld_ct == 0 ) {
-            jQuery('#fuplprocess').prop('disabled', true);
+            $('#fuplprocess').prop('disabled', true);
         } else {
-            jQuery('#fuplprocess').prop('disabled', false);
+            $('#fuplprocess').prop('disabled', false);
         }
-        // jQuery('#fupl').reset();
+        // $('#fupl').reset();
         document.getElementById('formupl').reset();
         return false;
     });
 
 /* ***** uplsubmit button click --upload files are scanned and copied into folders  *** */
 /* ***** files are listed next to file selected list by css  *** */
-    jQuery('#formupl').on('submit', function( event )  {
+    $('#formupl').on('submit', function( event )  {
         event.stopPropagation();
         event.preventDefault();
         var uplForm = document.getElementById("formupl");
         var upldata = new FormData( document.getElementById('formupl') );
-        var rspElem = jQuery('#fileupl2');
+        var rspElem = $('#fileupl2');
         rspElem.html('');
-        jQuery.ajax({
-                url: jQuery('#formupl').attr('action'),
+        $.ajax({
+                url: $('#formupl').attr('action'),
                 type: 'POST',
                 cache: false,
                 data: upldata,
@@ -579,8 +580,8 @@ jQuery-UI dialog
                 success: function(data) {
                     rspElem.html(data);
                     rspElem.show();
-                    jQuery('#fuplprocess').prop('disabled', false );
-                    jQuery('#fuplupload').prop('disabled', true);
+                    $('#fuplprocess').prop('disabled', false );
+                    $('#fuplupload').prop('disabled', true);
                     uplForm.reset();
                     upld_ct++;
                 },
@@ -589,33 +590,33 @@ jQuery-UI dialog
         return false;
     });
 /* **** process button, files parsed and csv rows displayed  *** */
-    jQuery('#processnew').on('submit', function(e) {
+    $('#processnew').on('submit', function(e) {
         e.stopPropagation();
         e.preventDefault();
-        jQuery.ajax({
-                url: jQuery('#processnew').attr('action'),
+        $.ajax({
+                url: $('#processnew').attr('action'),
                 type: 'GET',
-                data: jQuery('#processnew').serialize(),  //prcForm.serialize(),
+                data: $('#processnew').serialize(),  //prcForm.serialize(),
                 success: [
                     function(data) {
-                        jQuery('#fileupl1').html('');
-                        jQuery('#fileupl1').hide();
-                        jQuery('#fileupl2').html('');
-                        jQuery('#fileupl2').hide();
+                        $('#fileupl1').html('');
+                        $('#fileupl1').hide();
+                        $('#fileupl2').html('');
+                        $('#fileupl2').hide();
                         //
-                        jQuery('#processed').html(data);
-                        jQuery('#processed').show();
+                        $('#processed').html(data);
+                        $('#processed').show();
                     }
                 ],
                 error: function( xhr, status ) {
                     alert( <?php echo xlj('Sorry, there was a problem!'); ?> ),
-                    jQuery('#processed').html(status)
+                    $('#processed').html(status)
                 }
             });
         upld_ct = 0;
         /* ***  update list of csv tables *** */
         csvlist();
-        jQuery('#fuplprocess').prop('disabled', true );
+        $('#fuplprocess').prop('disabled', true );
         return false;
     });
 
@@ -631,9 +632,9 @@ jQuery-UI dialog
             return false;
         } else {
             matchElem.each(function( index ) {
-                if ( matchText == jQuery(this).text() ) {
-                    jQuery(this).siblings().css('font-weight', 'normal');
-                    jQuery(this).css('font-weight', 'bolder');
+                if ( matchText == $(this).text() ) {
+                    $(this).siblings().css('font-weight', 'normal');
+                    $(this).css('font-weight', 'bolder');
                     return false;
                 };
             });
@@ -642,31 +643,31 @@ jQuery-UI dialog
     }
 
 /* *** do not use .hover event   */
-    jQuery('#fileupl2').on('mouseenter', 'li', function(event){
-        var fl1 = jQuery('#fileupl1').find('li');
-        var fname = jQuery(this).text();
-        jQuery(this).css('font-weight', 'bolder');
-        jQuery(this).siblings().css('font-weight', 'normal');
+    $('#fileupl2').on('mouseenter', 'li', function(event){
+        var fl1 = $('#fileupl1').find('li');
+        var fname = $(this).text();
+        $(this).css('font-weight', 'bolder');
+        $(this).siblings().css('font-weight', 'normal');
         outlineMatch(fl1, fname);
     });
-    jQuery('#fileupl2').on('mouseleave', 'li', function(){
-        var fl1 = jQuery('#fileupl1').find('li');
-        jQuery(this).css('font-weight', 'normal');
+    $('#fileupl2').on('mouseleave', 'li', function(){
+        var fl1 = $('#fileupl1').find('li');
+        $(this).css('font-weight', 'normal');
         outlineMatch(fl1, 'none');
     });
-    jQuery('#fileupl1').on('mouseenter', 'li', function(event){
-        jQuery(this).css('font-weight', 'bolder');
-        if ( jQuery('#fileupl2').length ) {
-            var fl2 = jQuery('#fileupl2').find('li');
-            var fname = jQuery(this).text();
+    $('#fileupl1').on('mouseenter', 'li', function(event){
+        $(this).css('font-weight', 'bolder');
+        if ( $('#fileupl2').length ) {
+            var fl2 = $('#fileupl2').find('li');
+            var fname = $(this).text();
             outlineMatch(fl2, fname);
         }
     });
-    jQuery('#fileupl1').on('mouseleave', 'li', function(){
-        jQuery(this).css('font-weight', 'normal');
-        if ( jQuery('#fileupl2').length ) {
-            var fl2 = jQuery('#fileupl2').find('li');
-            var fname = jQuery(this).text();
+    $('#fileupl1').on('mouseleave', 'li', function(){
+        $(this).css('font-weight', 'normal');
+        if ( $('#fileupl2').length ) {
+            var fl2 = $('#fileupl2').find('li');
+            var fname = $(this).text();
             outlineMatch(fl2, 'none');
         }
     });
@@ -683,24 +684,24 @@ jQuery-UI dialog
  * the helper function bindlinks() applies jquery .on method
  * so most links will open a jquery-ui dialog
  */
-    jQuery('#formcsvtables').on('submit', function(e) {
+    $('#formcsvtables').on('submit', function(e) {
         e.preventDefault();
         e.stopPropagation();
         // verify a csv file is selected
-        if (jQuery('#csvselect').val() == '') {
-            jQuery("#tblshow").html('<?php echo xla("No table selected! Select a table."); ?>');
+        if ($('#csvselect').val() == '') {
+            $("#tblshow").html('<?php echo xla("No table selected! Select a table."); ?>');
             return false;
         }
-        jQuery.ajax({
+        $.ajax({
             type:'get',
             url: "edih_main.php",
-            data: jQuery('#formcsvtables').serialize(),
+            data: $('#formcsvtables').serialize(),
             dataType: "html",
             success: [
                 function(data){
-                    jQuery('#tblshow').html(data);
-                    jQuery('#tblshow').css('maxWidth', 'fit-contents');
-                    jQuery('#tblshow table#csvTable').DataTable({
+                    $('#tblshow').html(data);
+                    $('#tblshow').css('maxWidth', 'fit-contents');
+                    $('#tblshow table#csvTable').DataTable({
                         'processing': true,
                         'scrollY': '300px',
                         'scrollCollapse': true,
@@ -715,10 +716,10 @@ jQuery-UI dialog
     });
 
     // csv encounter history
-    jQuery('#formcsvhist').on('submit', function(e) {
+    $('#formcsvhist').on('submit', function(e) {
         e.preventDefault();
-        jQuery('#tbcsvhist').empty();
-        var chenctr = jQuery('#histenctr').value;
+        $('#tbcsvhist').empty();
+        var chenctr = $('#histenctr').value;
         var histopts = { modal: false,
                     appendTo: '#tbcsvhist',
                     height: 'auto',
@@ -726,26 +727,26 @@ jQuery-UI dialog
                     maxWidth: 616,
                     title: <?php echo xlj("Encounter EDI Record"); ?>,
                     close: function(event, ui) {
-                        jQuery(this).empty();
-                        jQuery(this).dialog('close');
+                        $(this).empty();
+                        $(this).dialog('close');
                     }
                 };
-        jQuery.ajax({
+        $.ajax({
             type: "GET",
-            url: jQuery('#formcsvhist').attr('action'),
-            data: jQuery('#formcsvhist').serialize(), //{ csvenctr: chenctr },
+            url: $('#formcsvhist').attr('action'),
+            data: $('#formcsvhist').serialize(), //{ csvenctr: chenctr },
             dataType: "html",
             success: [ function(data){
-                jQuery('<div/>', {'class':'edihDlg', 'id':'link-'+(jQuery(this).index()+1)})
-                    .appendTo('#tbcsvhist').html(jQuery.trim(data)).dialog(histopts).dialog('open');
+                $('<div/>', {'class':'edihDlg', 'id':'link-'+($(this).index()+1)})
+                    .appendTo('#tbcsvhist').html($.trim(data)).dialog(histopts).dialog('open');
                 }
             ]
         });
     });
     //
-    jQuery('#csvClear').on('click', function(e) {
+    $('#csvClear').on('click', function(e) {
         e.preventDefault();
-        jQuery("#tblshow").html('');
+        $("#tblshow").html('');
     });
 /* **************
  * === end of csv tables and claim history
@@ -753,14 +754,14 @@ jQuery-UI dialog
 /* ****************8
  * === view x12 file form  form"view_x12" file"x12file" submit"fx12" check"ifhtml" newWin"x12nwin"
  */
-    jQuery('#x12view').on('submit', function(e) {
+    $('#x12view').on('submit', function(e) {
         e.preventDefault();
         e.stopPropagation();
         //
-        var rspElem = jQuery('#x12rsp');
+        var rspElem = $('#x12rsp');
         var frmData = new FormData( document.getElementById('x12view') );
-        jQuery.ajax({
-            url: jQuery('#x12view').attr('action'),
+        $.ajax({
+            url: $('#x12view').attr('action'),
             type: 'POST',
             data: frmData,
             processData: false,
@@ -769,13 +770,13 @@ jQuery-UI dialog
             success: function(data) {
                 rspElem.html('');
                 rspElem.html(data);
-                jQuery('#x12filesbmt').prop('disabled', true);
+                $('#x12filesbmt').prop('disabled', true);
             },
             error: function( xhr, status ) { alert( <?php echo xlj('Sorry, there was a problem!'); ?> ); }
         });
-        // jQuery accordion requires html to be present at document ready
+        // jquery accordion requires html to be present at document ready
         // accordion does not work for added content, so no effect here
-        jQuery('#x12rsp > #accordion')
+        $('#x12rsp > #accordion')
           .accordion({
             header: "h3",
             collapsible: true,
@@ -785,31 +786,31 @@ jQuery-UI dialog
         return false;
     });
     //
-    jQuery('#x12file').on('change', function(){
+    $('#x12file').on('change', function(){
         // clear file display
-        jQuery('#x12rsp').html('');
-        jQuery('#x12filesbmt').prop('disabled', false);
+        $('#x12rsp').html('');
+        $('#x12filesbmt').prop('disabled', false);
     });
     //
-    jQuery('#x12filerst').on('click', function(e){
+    $('#x12filerst').on('click', function(e){
         e.preventDefault();
         e.stopPropagation();
         // clear file display
-        jQuery('#x12rsp').html('');
-        jQuery('#x12filesbmt').prop('disabled', true);
-        jQuery('#x12view').trigger('reset');
+        $('#x12rsp').html('');
+        $('#x12filesbmt').prop('disabled', true);
+        $('#x12view').trigger('reset');
     });
 
 /*
  * === functions for logs, notes, and archive "frm_archive" "archiveselect""archivesubmit"
  */
-    jQuery('#logarch').on('click', function(e) {
+    $('#logarch').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
         //
-        jQuery.ajax({
+        $.ajax({
             type: 'get',
-            url: jQuery('#formlog').attr('action'),
+            url: $('#formlog').attr('action'),
             data: {
                 archivelog: 'yes',
                 csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
@@ -826,10 +827,10 @@ jQuery-UI dialog
                     }
                 };
                 str = str + "</ul>";
-                jQuery('#notesrsp').hide();
-                jQuery('#logrsp').html('');
-                jQuery('#logrsp').html(str);
-                jQuery('#logrsp').show();
+                $('#notesrsp').hide();
+                $('#logrsp').html('');
+                $('#logrsp').html(str);
+                $('#logrsp').show();
             },
             error: function( xhr, status ) { alert( <?php echo xlj('Sorry, there was a problem!'); ?> ); }
         });
@@ -837,86 +838,86 @@ jQuery-UI dialog
 
     });
 
-    jQuery('#logclose').on('click', function(e) {
+    $('#logclose').on('click', function(e) {
         e.preventDefault();
-        jQuery('#logrsp').html('');
-        jQuery('#logrsp').hide();
-        jQuery('#notesrsp').show();
+        $('#logrsp').html('');
+        $('#logrsp').hide();
+        $('#notesrsp').show();
     });
 
-    jQuery('#logselect').on('change', function(e) {
-        jQuery('#logshow').prop('disabled', false );
+    $('#logselect').on('change', function(e) {
+        $('#logshow').prop('disabled', false );
     });
 
-    jQuery('#logshow').on('click', function(e) {
+    $('#logshow').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        var fn = jQuery('#logselect').val();
-        jQuery.ajax({
+        var fn = $('#logselect').val();
+        $.ajax({
             type: 'get',
-            url: jQuery('#formlog').attr('action'),
+            url: $('#formlog').attr('action'),
             //data: { archivelog: 'yes', logfile: fn },
-            data: jQuery('#formlog').serialize(),
+            data: $('#formlog').serialize(),
             dataType: "html",
             success: function(data){
-                jQuery('#notesrsp').hide();
-                jQuery('#logrsp').html(''),
-                jQuery('#logrsp').html(jQuery.trim(data));
-                jQuery('#logrsp').show();
+                $('#notesrsp').hide();
+                $('#logrsp').html(''),
+                $('#logrsp').html($.trim(data));
+                $('#logrsp').show();
             }
         });
     });
 
-    jQuery('#notesget').on('click', function(e) {
+    $('#notesget').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        jQuery.ajax({
+        $.ajax({
             type:'GET',
-            url: jQuery('#formnotes').attr('action'),
+            url: $('#formnotes').attr('action'),
             data: {
                 getnotes: "yes",
                 csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             },
             dataType: "text",
             success: function(data){
-                jQuery('#notesrsp').html('');
-                jQuery('#notesrsp').html("<H4>Notes:</H4>");
-                jQuery('#notesrsp').append("<textarea id='txtnotes', name='txtnotes',form='formnotes',rows='10',cols='600',wrap='hard' autofocus='autofocus'></textarea>");
+                $('#notesrsp').html('');
+                $('#notesrsp').html("<H4>Notes:</H4>");
+                $('#notesrsp').append("<textarea id='txtnotes', name='txtnotes',form='formnotes',rows='10',cols='600',wrap='hard' autofocus='autofocus'></textarea>");
                 // necessary to trim the data since php from script has leading newlines (UTF-8 issue) '|:|'
-                jQuery('#logrsp').hide();
-                jQuery('#notesrsp \\:textarea').val(jQuery.trim(data));
-                jQuery('#notesrsp').show();
+                $('#logrsp').hide();
+                $('#notesrsp \\:textarea').val($.trim(data));
+                $('#notesrsp').show();
             }
         });
     });
 
-    jQuery('#notessave').on('click', function(e) {
+    $('#notessave').on('click', function(e) {
         e.preventDefault();
-        var notetxt = jQuery('#notesrsp :textarea').val();
-        var noteURL = jQuery('#formnotes').attr('action');
-        jQuery.post(noteURL, { putnotes: 'yes', tnotes: notetxt, csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?> },
-            function(data){ jQuery('#notesrsp').append(data); });
+        var notetxt = $('#notesrsp :textarea').val();
+        var noteURL = $('#formnotes').attr('action');
+        $.post(noteURL, { putnotes: 'yes', tnotes: notetxt, csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?> },
+            function(data){ $('#notesrsp').append(data); });
     });
 
-    jQuery('#notesclose').on('click', function(e) {
+    $('#notesclose').on('click', function(e) {
         e.preventDefault();
-        jQuery('#notesrsp').html('');
-        jQuery('#notesrsp').toggle(false);
+        $('#notesrsp').html('');
+        $('#notesrsp').toggle(false);
     });
 
 /*
  * ==== Archive form id="formarchive"
  *
  */
-    jQuery('#formarchive').on('submit', function(e) {
+    $('#formarchive').on('submit', function(e) {
         //e.stopPropagation();
         e.preventDefault();
         var archForm = document.getElementById('formarchive');
         var archdata = new FormData(archForm);
-        var rspElem = jQuery('#archiversp');
+        var rspElem = $('#archiversp');
         rspElem.html('');
-        jQuery.ajax({
-            url: jQuery('#formarchive').attr('action'),
+        $.ajax({
+            url: $('#formarchive').attr('action'),
             type: 'POST',
             cache: false,
             data: archdata,
@@ -925,7 +926,7 @@ jQuery-UI dialog
             contentType: false,
             success: function(data) {
                 rspElem.html(data);
-                jQuery('#archivesubmit').prop('disabled', true );
+                $('#archivesubmit').prop('disabled', true );
                 archForm.reset();
 
             },
@@ -938,17 +939,17 @@ jQuery-UI dialog
         return false;
     });
     //
-    jQuery('#archiverpt').on('click', function(event) {
+    $('#archiverpt').on('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
         // id="#archiversp"
-        var rspElem = jQuery('#archiversp');
+        var rspElem = $('#archiversp');
         rspElem.html('');
-        var sprd = jQuery('#archiveselect').val();
-        var surl = jQuery('#formarchive').attr('action');
+        var sprd = $('#archiveselect').val();
+        var surl = $('#formarchive').attr('action');
         //
         //console.log(surl);
-        jQuery.ajax({
+        $.ajax({
             url: 'edih_main.php',
             type: 'GET',
             //cache: false,
@@ -958,7 +959,7 @@ jQuery-UI dialog
             success: function(data) {
                 //rspElem.html(data);
                 //rspElem.show();
-                jQuery('#archiversp').html(data);
+                $('#archiversp').html(data);
             },
             error: function( xhr, status ) {
                 alert( <?php echo xlj('Sorry, there was a problem!'); ?> );
@@ -969,16 +970,16 @@ jQuery-UI dialog
         return false;
     });
     //
-    jQuery('#archiveselect').on('change', function(e) {
-        jQuery('#archivesubmit').prop('disabled', false );
+    $('#archiveselect').on('change', function(e) {
+        $('#archivesubmit').prop('disabled', false );
     });
 
     //
-    jQuery('#formarchrestore').on('submit', function(e) {
+    $('#formarchrestore').on('submit', function(e) {
         //e.stopPropagation();
         e.preventDefault();
 
-        var sel = jQuery( "#archrestoresel option:selected" ).text();
+        var sel = $( "#archrestoresel option:selected" ).text();
         console.log( sel );
         if (sel == "No Archives") {
             alert(<?php echo xlj('No archive files present'); ?>);
@@ -986,11 +987,11 @@ jQuery-UI dialog
         }
         var archrstForm = document.getElementById('formarchrestore');
         var archrstdata = new FormData(archrstForm);
-        var rspElem = jQuery('#archiversp');
-        //var archf = jQuery('#archrestoresel').val();
+        var rspElem = $('#archiversp');
+        //var archf = $('#archrestoresel').val();
         //archrstdata = { archrestore: 'yes', archfile: archf };
-        jQuery.ajax({
-            url: jQuery('#formarchrestore').attr('action'),
+        $.ajax({
+            url: $('#formarchrestore').attr('action'),
             type: 'POST',
             data: archrstdata,
             dataType: 'html',

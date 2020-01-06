@@ -124,11 +124,11 @@ while ($row = sqlFetchArray($res)) {
     echo "<td class=\"col6\">" . text($level + 1) . "</td>";
     echo "<td class=\"col4\">" . text($row['description']) . "</td>";
     echo "<td class=\"col5\">";
-    echo "<span style=\"color:#000000;\" onclick=\"handleNode(" . attr_js($chid) . "," . attr_js($typeIs) . ",false," . attr_js($thislab) . ")\" class=\"haskids fa fa-pencil fa-lg\" title=".xla("Edit")."></span>";
+    echo "<span style=\"color:var(--black);\" onclick=\"handleNode(" . attr_js($chid) . "," . attr_js($typeIs) . ",false," . attr_js($thislab) . ")\" class=\"haskids fa fa-pencil fa-lg\" title=".xla("Edit")."></span>";
     echo "</td>";
     echo "<td class=\"col5\">";
     //if ($isOrder != 'for') {//RP_MODIFIED 2018-08-03 to allow for manual lab entry
-        echo "<span style=\"color:#000000; margin-left:30px\" onclick=\"handleNode(" . attr_js($chid) . "," . attr_js($typeIs) . ",true," . attr_js($thislab) . ")\" class=\"haskids fa fa-plus fa-lg\" title=" . xla("Add") . " ></span>";
+        echo "<span style=\"color:var(--black); margin-left:30px\" onclick=\"handleNode(" . attr_js($chid) . "," . attr_js($typeIs) . ",true," . attr_js($thislab) . ")\" class=\"haskids fa fa-plus fa-lg\" title=" . xla("Add") . " ></span>";
     //}//RP_MODIFIED 2018-08-03
     echo "</td>";
     echo "</tr>";

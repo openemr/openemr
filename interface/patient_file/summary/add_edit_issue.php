@@ -379,7 +379,7 @@ div.section {
 }
 
 /* Override theme's selected tab top color so it matches tab contents. */
-ul.tabNav li.current a { background:#ffffff; }
+ul.tabNav li.current a { background:var(--white); }
 
 </style>
 

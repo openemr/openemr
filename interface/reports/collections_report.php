@@ -1299,7 +1299,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
         // $alertmsg .= "$export_patient_count patients representing $" .
         //   sprintf("%.2f", $export_dollars) . " have been exported.";
     } else {
-        echo " <tr bgcolor='#ffffff'>\n";
+        echo " <tr bgcolor='var(--white)'>\n";
         if ($is_ins_summary) {
             echo "  <td class='dehead'>&nbsp;" . xlt('Report Totals') . ":</td>\n";
         } else {

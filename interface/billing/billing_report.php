@@ -9,9 +9,9 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
- * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019-2020 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -59,8 +59,8 @@ if (isset($_POST['mode'])) {
         $results = $db->Execute($sql);
         $billings = array();
         if ($results->RecordCount() == 0) {
-            echo "<fieldset id='error_info' style='border:1px solid #ff5d5a !Important; background-color: #ff5d5a !Important; color: #fff ! Important; font-weight: bold; font-family:sans-serif; border-radius:5px; padding:20px 5px !Important;'>";
-            echo xlt("No Bills Found to Include in OFX Export") . "<br>";
+            echo "<fieldset id='error_info' style='border:1px solid var(--danger) !important; background-color: var(--danger) !important; color: var(--white) !important; font-weight: bold; font-family: sans-serif; border-radius: 5px; padding: 20px 5px !important;'>";
+            echo xlt("No Bills Found to Include in OFX Export") . "<br />";
             echo "</fieldset>";
         } else {
             while (!$results->EOF) {
@@ -116,7 +116,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
     <?php Header::setupHeader(['datetime-picker', 'common']); ?>
     <style>
-        .btn-group-pinch>.btn:nth-last-child(4):not(.dropdown-toggle) {
+        .btn-group-pinch > .btn:nth-last-child(4):not(.dropdown-toggle) {
             border-top-right-radius: 3px !important;
             border-bottom-right-radius: 3px !important;
         }
@@ -513,7 +513,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
         button[type="submit"].subbtn-warning:hover {
             background: #da8104 !important;
-            color: #fff !important;
+            color: var(--white) !important;
         }
 
         @media only screen and (max-width: 1024px) {
@@ -542,7 +542,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         a:visited,
         a:hover {
             text-decoration: none;
-            color: #000000;
+            color: var(--black);
         }
     </style>
     <script>
@@ -1076,9 +1076,9 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
                                 }
                                 $lhtml .= "</div>";
                                 $divnos = $divnos + 1;
-                                $lhtml .= "&nbsp;&nbsp;&nbsp;<a onclick='divtoggle(" . attr_js("spanid_" . $divnos) . "," . attr_js("divid_" . $divnos) . ");' class='small' id='aid_" . attr($divnos) . "' href=\"JavaScript:void(0);" . "\">(<span id=spanid_" . attr($divnos) . " class=\"indicator\">" . xlt('Expand') . '</span>)<br></a>';
+                                $lhtml .= "&nbsp;&nbsp;&nbsp;<a onclick='divtoggle(" . attr_js("spanid_" . $divnos) . "," . attr_js("divid_" . $divnos) . ");' class='small' id='aid_" . attr($divnos) . "' href=\"JavaScript:void(0);" . "\">(<span id=spanid_" . attr($divnos) . " class=\"indicator\">" . xlt('Expand') . '</span>)<br /></a>';
                                 if ($GLOBALS['notes_to_display_in_Billing'] == 2 || $GLOBALS['notes_to_display_in_Billing'] == 3) {
-                                    $lhtml .= '<span style="margin-left: 20px; font-weight: bold; color: red">' . text($billing_note) . '</span>';
+                                    $lhtml .= '<span class="font-weight-bold text-danger" style="margin-left: 20px;">' . text($billing_note) . '</span>';
                                 }
 
                                 if ($iter['id']) {
@@ -1145,9 +1145,9 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
                                     $DivPut = 'yes';
 
                                     if ($GLOBALS['notes_to_display_in_Billing'] == 1 || $GLOBALS['notes_to_display_in_Billing'] == 3) {
-                                        $lhtml .= "<br><span style='margin-left: 20px; font-weight: bold; color: green'>" . text($enc_billing_note) . "</span>";
+                                        $lhtml .= "<br /><span class='font-weight-bold text-success' style='margin-left: 20px;'>" . text($enc_billing_note) . "</span>";
                                     }
-                                    $lhtml .= "<br>\n&nbsp;<div id='divid_" . attr($divnos) . "' style='display:none'>" . text(oeFormatShortDate(substr($iter['date'], 0, 10))) . text(substr($iter['date'], 10, 6)) . " " . xlt("Encounter was coded");
+                                    $lhtml .= "<br />\n&nbsp;<div id='divid_" . attr($divnos) . "' style='display:none'>" . text(oeFormatShortDate(substr($iter['date'], 0, 10))) . text(substr($iter['date'], 10, 6)) . " " . xlt("Encounter was coded");
 
                                     $query = "SELECT * FROM claims WHERE patient_id = ? AND encounter_id = ? ORDER BY version";
                                     $cres = sqlStatement(
@@ -1179,25 +1179,25 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
                                         );
 
                                         if ($crow['bill_process']) {
-                                                $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("Queued for") . " " . text($irow['type']) . " " . text($crow['target']) . " " . xlt("billing to ") . text($irow['name']);
+                                                $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("Queued for") . " " . text($irow['type']) . " " . text($crow['target']) . " " . xlt("billing to ") . text($irow['name']);
                                                 ++$lcount;
                                         } elseif ($crow['status'] < 6) {
                                             if ($crow['status'] > 1) {
-                                                $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("Marked as cleared");
+                                                $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("Marked as cleared");
                                                 ++$lcount;
                                             } else {
-                                                $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("Re-opened");
+                                                $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("Re-opened");
                                                 ++$lcount;
                                             }
                                         } elseif ($crow['status'] == 6) {
-                                            $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("This claim has been forwarded to next level.");
+                                            $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("This claim has been forwarded to next level.");
                                             ++$lcount;
                                         } elseif ($crow['status'] == 7) {
-                                            $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("This claim has been denied.Reason:-");
+                                            $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) . text(substr($crow['bill_time'], 10, 6)) . " " . xlt("This claim has been denied.Reason:-");
                                             if ($crow['process_file']) {
                                                 $code_array = explode(',', $crow['process_file']);
                                                 foreach ($code_array as $code_key => $code_value) {
-                                                    $lhtml .= "<br>\n&nbsp;&nbsp;&nbsp;";
+                                                    $lhtml .= "<br />\n&nbsp;&nbsp;&nbsp;";
                                                     $reason_array = explode('_', $code_value);
                                                     if (!isset($adjustment_reasons[$reason_array[3]])) {
                                                         $lhtml .= xlt("For code") . ' [' . text($reason_array[0]) . '] ' . xlt("and modifier") . ' [' . text($reason_array[1]) . '] ' . xlt("the Denial code is") . ' [' . text($reason_array[2]) . ' ' . text($reason_array[3]) . ']';
@@ -1212,7 +1212,7 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
                                         }
 
                                         if ($crow['process_time']) {
-                                            $lhtml .= "<br>\n&nbsp;" . text(oeFormatShortDate(substr($crow['process_time'], 0, 10))) . text(substr($crow['process_time'], 10, 6)) . " " . xlt("Claim was generated to file") . " " . "<a href='get_claim_file.php?key=" . attr_url($crow['process_file']) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($crow['process_file']) . "</a>";
+                                            $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr($crow['process_time'], 0, 10))) . text(substr($crow['process_time'], 10, 6)) . " " . xlt("Claim was generated to file") . " " . "<a href='get_claim_file.php?key=" . attr_url($crow['process_file']) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($crow['process_file']) . "</a>";
                                             ++$lcount;
                                         }
 
@@ -1220,12 +1220,12 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
                                     } // end while ($crow = sqlFetchArray($cres))
 
                                     if ($lastcrow && $lastcrow['status'] == 4) {
-                                        $lhtml .= "<br>\n&nbsp;" . xlt("This claim has been closed.");
+                                        $lhtml .= "<br />\n&nbsp;" . xlt("This claim has been closed.");
                                         ++$lcount;
                                     }
 
                                     if ($lastcrow && $lastcrow['status'] == 5) {
-                                        $lhtml .= "<br>\n&nbsp;" . xlt("This claim has been canceled.");
+                                        $lhtml .= "<br />\n&nbsp;" . xlt("This claim has been canceled.");
                                         ++$lcount;
                                     }
                                 } // end if ($iter['id'])
@@ -1251,7 +1251,7 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
                             }
                             $rhtml .= "<td width='50'>";
                             if ($iter['id'] && $oldcode != $iter['code_type']) {
-                                $rhtml .= "<span class=text>" . text($iter['code_type']) . ": </span>";
+                                $rhtml .= "<span class='text'>" . text($iter['code_type']) . ": </span>";
                             }
 
                             $oldcode = $iter['code_type'];
@@ -1296,14 +1296,14 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
                                 }
                             }
                             $rhtml .= "</span></td>\n";
-                            $rhtml .= '<td width=100>&nbsp;&nbsp;&nbsp;<span style="font-size:8pt;">';
+                            $rhtml .= '<td width="100">&nbsp;&nbsp;&nbsp;<span style="font-size:8pt;">';
                             if ($iter['id']) {
                                 $rhtml .= text(oeFormatSDFT(strtotime($iter["date"])));
                             }
                             $rhtml .= "</span></td>\n";
 // This error message is generated if the authorized check box is not checked
                             if ($iter['id'] && $iter['authorized'] != 1) {
-                                $rhtml .= "<td><span class=alert>" . xlt("Note: This code has not been authorized.") . "</span></td>\n";
+                                $rhtml .= "<td><span class='alert'>" . xlt("Note: This code has not been authorized.") . "</span></td>\n";
                             } else {
                                 $rhtml .= "<td></td>\n";
                             }
@@ -1356,7 +1356,7 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
                                         $rhtml2 .= text(oeFormatSDFT(strtotime($date)));
                                         $rhtml2 .= "</span></td>\n";
                                         if ($iter['id'] && $iter['authorized'] != 1) {
-                                            $rhtml2 .= "<td><span class=alert>" . xlt("Note: This copay was entered against billing that has not been authorized. Please review status.") . "</span></td>\n";
+                                            $rhtml2 .= "<td><span class='alert'>" . xlt("Note: This copay was entered against billing that has not been authorized. Please review status.") . "</span></td>\n";
                                         } else {
                                             $rhtml2 .= "<td></td>\n";
                                         }

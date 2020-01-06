@@ -156,9 +156,9 @@ if ($obj_bav['advies_beleid'] != '') {
 
 <style type="text/css">
  body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
-  .dehead    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold;
+  .dehead    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold;
                 padding-left:3px; padding-right:3px; }
-                 .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal;
+                 .detail    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal;
                                padding-left:3px; padding-right:3px; }
 </style>
 

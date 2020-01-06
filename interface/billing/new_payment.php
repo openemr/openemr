@@ -420,13 +420,14 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                         }
                         ?>
                     </fieldset>
-                    <input id="hidden_patient_code" name="hidden_patient_code" type="hidden" value="<?php echo attr($hidden_patient_code);?>">
-                    <input id='mode' name='mode' type='hidden' value=''>
-                    <input id='default_search_patient' name='default_search_patient' type='hidden' value='<?php echo attr($default_search_patient); ?>'>
-                    <input id='ajax_mode' name='ajax_mode' type='hidden' value=''>
-                    <input id="after_value" name="after_value" type="hidden" value="<?php echo attr($mode);?>">
-                    <input id="payment_id" name="payment_id" type="hidden" value="<?php echo attr($payment_id);?>"> <input id="hidden_type_code" name="hidden_type_code" type="hidden" value="<?php echo attr($hidden_type_code);?>">
-                    <input id='global_amount' name='global_amount' type='hidden' value=''>
+                    <input id="hidden_patient_code" name="hidden_patient_code" type="hidden" value="<?php echo attr($hidden_patient_code);?>" />
+                    <input id='mode' name='mode' type='hidden' value='' />
+                    <input id='default_search_patient' name='default_search_patient' type='hidden' value='<?php echo attr($default_search_patient); ?>' />
+                    <input id='ajax_mode' name='ajax_mode' type='hidden' value='' />
+                    <input id="after_value" name="after_value" type="hidden" value="<?php echo attr($mode);?>" />
+                    <input id="payment_id" name="payment_id" type="hidden" value="<?php echo attr($payment_id);?>" />
+                    <input id="hidden_type_code" name="hidden_type_code" type="hidden" value="<?php echo attr($hidden_type_code);?>" />
+                    <input id='global_amount' name='global_amount' type='hidden' value='' />
                 </form>
             </div>
         </div><!-- end of row div -->
@@ -436,7 +437,7 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
 <script src = '<?php echo $webroot;?>/library/js/oeUI/oeFileUploads.js'></script>
 <script>
 $(function() {
-    $('select').removeClass('class1 text')
+    $('select').removeClass('class1 text');
 });
 </script>
 </body>

@@ -8,7 +8,7 @@
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2005 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -47,7 +47,7 @@ $info_msg = "";
             "billing_note = ? " .
             "WHERE pid = ? ", array($thevalue, $patient_id));
 
-        echo "<script language='JavaScript'>\n";
+        echo "<script>\n";
         if ($info_msg) {
             echo " alert(" . js_escape($info_msg) . ");\n";
         }
