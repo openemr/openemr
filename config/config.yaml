@@ -49,6 +49,9 @@ assets:
         rtl:
             basePath: %webroot%/public/themes/
             link: rtl_%theme_tabs_layout%
+    pdf-style:
+        basePath: %webroot%/public/themes/
+        link: style_pdf.css
     patientportal-base:
         basePath: %webroot%/public/themes/
         link: patientportal-base.css
@@ -151,6 +154,9 @@ assets:
         basePath: %webroot%/library/ESign/
         script: js/jquery.esign.js
         link: css/esign.css
+    esign-theme-only:
+        basePath: %webroot%/library/ESign/
+        link: css/esign.css
     dygraphs:
         basePath: %assets_static_relative%/modified/dygraphs-2-0-0/
         script: dygraph.js
@@ -189,3 +195,9 @@ assets:
     underscore:
         basePath: %assets_static_relative%/underscore
         script: underscore-min.js
+    search-highlight:
+        basePath: %webroot%/library/js/
+        script: SearchHighlight.js
+    track-anything:
+        basePath: %webroot%/interface/forms/track_anything/
+        link: style.css

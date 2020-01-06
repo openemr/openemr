@@ -26,13 +26,14 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("../../../library/api.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 formHeader("Form: CAMOS");
 $textarea_rows = 22;
 $textarea_cols = 90;
 ?>
 <html><head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+    <?php Header::setupHeader(); ?>
 <script type="text/javascript">
 function checkall(){
   var f = document.my_form;
@@ -69,7 +70,6 @@ function show_edit(t) {
   }
 }
 </script>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 <body class="body_top">
 <form method=post action="<?php echo $rootdir?>/forms/CAMOS/save.php?mode=delete&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">

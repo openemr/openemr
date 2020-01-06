@@ -17,6 +17,7 @@ require_once($depth.'interface/globals.php');
 require_once("content_parser.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 ?>
 <?php
@@ -50,13 +51,7 @@ if (!$_POST['submit_pdf'] && !$_POST['submit_html'] && !($_GET['pid'] && $_GET['
     <?php echo xlt('Print Notes'); ?>
 </title>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-<script type="text/javascript" src="<?php echo $depth ?>library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $depth ?>library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+    <?php Header::setupHeader('datetime-picker'); ?>
 
 <script type="text/javascript">
 $(function(){

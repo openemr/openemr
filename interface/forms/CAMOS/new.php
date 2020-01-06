@@ -16,6 +16,7 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("../../../library/api.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $out_of_encounter = false;
 if ((($_SESSION['encounter'] == '') || ($_SESSION['pid'] == '')) || ($_GET['mode'] == 'external')) {
@@ -221,7 +222,7 @@ if ($preselect_category == '' && !$out_of_encounter) {
 ?>
 
 <html><head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 
 <script language="javascript" type="text/javascript">
 

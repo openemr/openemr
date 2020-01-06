@@ -32,6 +32,7 @@ require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 
 use ESign\Api;
 use Mpdf\Mpdf;
+use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -135,13 +136,11 @@ function postToGet($arin)
 ?>
 
 <?php if ($PDF_OUTPUT) { ?>
-<link rel="stylesheet" href="<?php echo  $web_root . '/interface/themes/style_pdf.css' ?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="<?php echo $web_root; ?>/library/ESign/css/esign_report.css" />
+    <?php Header::setupAssets(['pdf-style', 'esign-theme-only']); ?>
 <?php } else {?>
-<html>
-<head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign_report.css" />
+    <html>
+    <head>
+    <?php Header::setupHeader(['esign-theme-only', 'search-highlight']); ?>
 <?php } ?>
 
 <?php // do not show stuff from report.php in forms that is encaspulated
@@ -167,21 +166,18 @@ function postToGet($arin)
 </style>
 
 <?php if (!$PDF_OUTPUT) { ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/SearchHighlight.js"></script>
-
     <?php // if the track_anything form exists, then include the styling
     if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
- <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css" type="text/css">
+        <?php Header::setupAssets('track-anything'); ?>
     <?php  } ?>
 
-</head>
+    </head>
     <?php
-// remove blank header for printable version to conserve space
-// adjust this if you are printing to letterhead to appropriate height
+    // remove blank header for printable version to conserve space
+    // adjust this if you are printing to letterhead to appropriate height
     ($printable) ? ($style = ''):($style='padding-top:95px;');
     ?>
-<body class="body_top" style="<?php echo $style; ?>">
+    <body class="body_top" style="<?php echo $style; ?>">
 <?php } ?>
 <div id="report_custom" style="width: 100%;">  <!-- large outer DIV -->
 
