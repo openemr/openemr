@@ -37,7 +37,7 @@
         id="frm_filters_save"
         title="Save"><i class="fa fa-save"></i>
 </button>
-<button onclick="top.restoreSession();location.href='index.php?action=detail!view&amp;id=<?php echo attr_url($ruleId); ?>'"
+<button id="form_filters_cancel"
         class="btn btn-sm btn-primary icon_2"
         title="Cancel"><i class="fa fa-times"></i>
 </button>
@@ -95,6 +95,10 @@
                 $("#show_filters_edit").html(data);
             });
             
+        });
+        $("#form_filters_cancel").click(function() {
+            $("#show_filters_edit").hide();
+            $("#show_filters").show();
         });
     });
 

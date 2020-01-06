@@ -24,7 +24,7 @@
         <span class="title2"><?php echo xlt($title); ?></span>
     </div>
 
-    <div class="col-11 offfset-1">
+    <div class="col-8 offset-2">
         <table class="table table-sm table-condensed table-hover">
             <!-- category -->
             <tr>
@@ -38,7 +38,7 @@
                 </td>
             </tr>
             <!-- optional/required and inclusion/exclusion fields -->
-            <?php echo common_fields(array( "criteria" => $criteria)); ?>
+            <?php //echo common_fields(array( "criteria" => $criteria)); ?>
         </table>
 
     </div>
