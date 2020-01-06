@@ -758,9 +758,13 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
         // Use per patient custom rules (if exist -- see Dashboard::Edit CR::Admin tab)
         // Note as discussed above, this only works for single patient instances.
         $rules = resolve_rules_sql($type, $patient_id, false, $plan, $user);
-    } else { // $mode = "report"
+        // configurableOnly = false only ignores the cqm and amc
+        // "SELECT * FROM `clinical_rules` WHERE `pid`=0 AND `cqm_flag` !=1 AND `amc_flag` !=1 ORDER BY `id`"
+    } else {
         // Only use default rules (do not use patient custom rules)
-        $rules = resolve_rules_sql($type, $patient_id, false, $plan, $user);
+        $rules = resolve_rules_sql($type, $patient_id, true, $plan, $user);
+        // configurableOnly = true -->
+        // "SELECT * FROM `clinical_rules` WHERE `pid`=0 ORDER BY `id`"
     }
     
     foreach ($rules as $rowRule) {
