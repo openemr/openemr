@@ -89,8 +89,7 @@ if (!empty($_GET['attachid'])) {
 ?>
 
 <script type="text/javascript">
-$.noConflict();
-jQuery(document).ready( function($) {
+$( function() {
     var formConfig = <?php echo $esignApi->formConfigToJson(); ?>;
     $(".esign-button-form").esign(
         formConfig,

@@ -13,7 +13,9 @@ namespace OpenEMR\OeUI;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-Header::setupHeader(['jquery-ui', 'jquery-ui-base', 'no_jquery', 'no_bootstrap', 'no_fontawesome', 'no_main-theme', 'no_textformat', 'no_dialog' ]);
+// Special case where not setting up the header for a script, so using setupAssets function,
+//  which does not autoload anything. The actual header is set up in another script.
+Header::setupAssets(['jquery-ui', 'jquery-ui-base']);
 
 class OemrUI
 {

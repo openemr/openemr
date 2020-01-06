@@ -1,10 +1,16 @@
-<html>
-<head>
-	{headerTemplate assets='no_bootstrap|no_fontawesome|no_textformat|no_dialog|jquery-ui|jquery-ui-lightness'}
-    <script type="text/javascript" src="{php}echo $GLOBALS['webroot'];{/php}/library/js/clickmap.js"></script>
-    <link rel="stylesheet" type="text/css" href="{$form->template_dir}/css/clickmap.css" />
-</head>
-<body>
+{if !$reportMode}
+    <html>
+    <head>
+	{headerTemplate assets='jquery-ui|jquery-ui-lightness'}
+{else}
+    {assetsTemplate assets='jquery-ui|jquery-ui-lightness'}
+{/if}
+<script type="text/javascript" src="{php}echo $GLOBALS['webroot'];{/php}/library/js/clickmap.js"></script>
+<link rel="stylesheet" type="text/css" href="{$form->template_dir}/css/clickmap.css" />
+{if !$reportMode}
+	</head>
+	<body>
+{/if}
 <div class="outer-container">
 	<div id="container" class="container graphic-pain-map">
 		<img src="{$form->image}"/>
@@ -69,6 +75,7 @@ var cancellink = '{$DONT_SAVE_LINK}';
     <input type="hidden" name="process" value="true" />
     <input type="hidden" name="data" id="data" value=""/>
 </form>
-</body>
-
-</html>
+{if !$reportMode}
+	</body>
+	</html>
+{/if}

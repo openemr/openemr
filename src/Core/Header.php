@@ -27,7 +27,7 @@ class Header
 {
     private static $scripts;
     private static $links;
-    private static $isHeader = false;
+    private static $isHeader;
 
     /**
      * Setup various <head> elements.
@@ -74,25 +74,30 @@ class Header
      */
     public static function setupHeader($assets = [])
     {
-        self::$isHeader = true;
-        self::setupAssets($assets);
+        self::setupAssets($assets, true);
     }
 
     /**
-     * This function will not include the autoloaded assets if called directly.
+     * Can call this function directly rather than using above setupHeader function
+     *  if do not want to include the autoloaded assets.
      *
      * @param array $assets Asset(s) to include
+     * @param boolean $headerMode - if true, then include autoloaded assets
+     *                              if false, then do not include autoloaded assets
      */
-    public static function setupAssets($assets = [])
+    public static function setupAssets($assets = [], $headerMode = false)
     {
+        if ($headerMode) {
+            self::$isHeader = true;
+        } else {
+            self::$isHeader = false;
+        }
+
         try {
             echo self::includeAsset($assets);
         } catch (\InvalidArgumentException $e) {
             error_log(errorLogEscape($e->getMessage()));
         }
-        // Need to do below to set it back to default setting in case this
-        //  static class is called again.
-        self::$isHeader = false;
     }
 
     /**
