@@ -1,6 +1,4 @@
 language: php
-services:
-  - mysql
 addons:
   chrome: stable
 .steps:
