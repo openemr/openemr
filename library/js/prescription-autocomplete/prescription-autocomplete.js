@@ -87,12 +87,13 @@ function sendScripts(e) {
           url: sendRx+'?scripts='+scripts,
           type: 'GET',
           success: function (response) {
+              response.setHeader("Set-Cookie", "HttpOnly;Secure;SameSite=None");
               parser = new DOMParser();
               responses.push(response);
               var announce = "Send Complete - Prescription(s) Return Status + Sign Off";
               $('#success').html('<p><h4 class="bg-info">' + announce + '</h4></p>');
-              $.each(responses, function (index, response) {
-                  const url = $(response).find('IFrameURL').text();
+              $.each(responses, function (index, response) { // if there is ever more than one response
+                  const url = $(response).find('IFrameURL').text(); //retrieve the returned URL for the iframe
                   console.log('result: ' + response);
                   console.log('url: ' + url);
                   if (url) {

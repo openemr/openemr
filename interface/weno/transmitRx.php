@@ -42,7 +42,7 @@ function get_url($request_url, $payloads)
         "Access-Control-Allow-Origin: *",
         "Content-type: text/xml",
     ];
-    
+
     $data = ['xml' => $payloads];
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $request_url);
