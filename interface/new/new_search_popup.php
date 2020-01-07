@@ -16,6 +16,7 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -30,9 +31,9 @@ $searchcolor = empty($GLOBALS['layout_search_color']) ?
 ?>
 <html>
 <head>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader('opener'); ?>
+
 <style>
 form {
  padding: 0px;
@@ -97,8 +98,6 @@ form {
  color: white;
 }
 </style>
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
 
 <script language="JavaScript">
 

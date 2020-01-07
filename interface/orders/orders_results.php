@@ -16,6 +16,8 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lab.inc");
 
+use OpenEMR\Core\Header;
+
 // Indicates if we are entering in batch mode.
 $form_batch = empty($_GET['batch']) ? 0 : 1;
 
@@ -151,8 +153,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
 
 <head>
 
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+<?php Header::setupHeader('datetime-picker'); ?>
 
 <title><?php echo xlt('Procedure Results'); ?></title>
 
@@ -200,10 +201,6 @@ a, a:visited, a:hover { color:#0000cc; }
 }
 
 </style>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
 

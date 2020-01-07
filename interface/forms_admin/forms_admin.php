@@ -14,6 +14,7 @@ require_once("$phpgacl_location/gacl_api.class.php");
 require_once("$srcdir/registry.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if ($_GET['method'] == "enable") {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -48,7 +49,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 </head>
 <body class="body_top">
 <span class="title"><?php echo xlt('Forms Administration');?></span>

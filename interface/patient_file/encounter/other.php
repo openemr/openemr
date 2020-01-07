@@ -12,6 +12,7 @@
 require_once("../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 //the number of rows to display before resetting and starting a new column:
 $N=10
@@ -19,8 +20,7 @@ $N=10
 
 <html>
 <head>
-
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 </head>
 <body class="body_bottom">
 

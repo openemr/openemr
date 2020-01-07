@@ -16,6 +16,7 @@ require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 //if the edit button for editing disclosure is set.
 if (isset($_GET['editlid'])) {
@@ -25,13 +26,7 @@ if (isset($_GET['editlid'])) {
 <!DOCTYPE html>
 <html>
 <head>
-<link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
-
-<!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+<?php Header::setupHeader(['datetime-picker', 'opener']); ?>
 
 <script type="text/javascript">
 //function to validate fields in record disclosure page

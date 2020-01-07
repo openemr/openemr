@@ -30,6 +30,8 @@ set_time_limit(0);
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 
+use OpenEMR\Core\Header;
+
 // This array is an important reference for the supported labs and their NPI
 // numbers as known to this program.  The clinic must define at least one
 // procedure provider entry for a lab that has a supported NPI number.
@@ -80,7 +82,7 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
 <html>
 
 <head>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<?php Header::setupHeader(); ?>
 <title><?php echo xlt('Load Lab Configuration'); ?></title>
 </head>
 

@@ -19,6 +19,7 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!acl_check('admin', 'super')) {
     die(xlt('Not authorized'));
@@ -28,9 +29,8 @@ if (!acl_check('admin', 'super')) {
 <html>
 <head>
 <title><?php echo xlt('Re Identification'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+    <?php Header::setupHeader(); ?>
 
 <style type="text/css">
 .style1 {

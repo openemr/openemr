@@ -16,6 +16,7 @@ require_once("$srcdir/report.inc");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 if (!empty($_POST)) {
@@ -51,8 +52,7 @@ if ($form_patient == '') {
 
 <head>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+<?php Header::setupHeader('datetime-picker'); ?>
 
 <style>
 
@@ -151,9 +151,6 @@ if ($form_patient == '') {
 #superbill_logo {
 }
 </style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="Javascript">
  $(function() {

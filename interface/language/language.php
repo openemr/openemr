@@ -18,12 +18,13 @@ require_once("language.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Core\Header;
 
 //START OUT OUR PAGE....
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 </head>
 
 <body class="body_top">

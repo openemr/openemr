@@ -18,6 +18,7 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 if (!acl_check('admin', 'super')) {
@@ -679,7 +680,7 @@ if ($selmonth < 1) {
 <html>
 
 <head>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<?php Header::setupHeader(); ?>
 <title><?php echo xlt('Backup'); ?></title>
 </head>
 

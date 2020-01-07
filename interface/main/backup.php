@@ -37,6 +37,7 @@ require_once("$srcdir/acl.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -143,7 +144,7 @@ if ($form_step == 104) {
 <html>
 
 <head>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<?php Header::setupHeader(); ?>
 <title><?php echo xlt('Backup'); ?></title>
 </head>
 

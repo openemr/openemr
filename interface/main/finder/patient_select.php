@@ -16,6 +16,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/report_database.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
 use OpenEMR\Events\BoundFilter;
 
@@ -34,9 +35,7 @@ $from_page = isset($_REQUEST['from_page']) ? $_REQUEST['from_page'] : "";
 <!DOCTYPE html>
 <html>
 <head>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+    <?php Header::setupHeader('opener'); ?>
 <style>
 form {
     padding: 0px;
@@ -101,10 +100,8 @@ form {
 }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-
 <?php if ($popup) { ?>
-<script type="text/javascript" src="../../../library/topdialog.js"></script>
+    <?php Header::setupAssets('topdialog'); ?>
 <?php } ?>
 
 <script language="JavaScript">

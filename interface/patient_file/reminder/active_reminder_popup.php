@@ -14,11 +14,12 @@ require_once("../../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/clinical_rules.php");
 
+use OpenEMR\Core\Header;
+
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+<?php Header::setupHeader('opener'); ?>
 </head>
 
 <body class="body_top">

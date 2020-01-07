@@ -28,15 +28,15 @@
 
 
 require_once("../../interface/globals.php");
+
+use OpenEMR\Core\Header;
+
 $res=sqlStatement("SELECT * FROM customlists as cl left outer join users as u on cl_creator=u.id WHERE cl_list_type=3 AND cl_deleted=0");
 ?>
 <html>
     <head>
         <title><!-- Insert your title here --></title>
-        <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-        <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
+        <?php Header::setupHeader('opener'); ?>
         <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajax_functions_writer.js"></script>
 
         <script type='text/javascript'>

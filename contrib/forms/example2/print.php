@@ -16,6 +16,7 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 /** CHANGE THIS - name of the database table associated with this form **/
 $table_name = "form_example";
@@ -51,12 +52,8 @@ if ($record['sig_date'] != "") {
 
 <html><head>
 
-<!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
+<?php Header::setupHeader(); ?>
 
-<!-- page styles -->
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css" type="text/css">
 
 </head>

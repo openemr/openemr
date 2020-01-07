@@ -13,8 +13,9 @@
 
 
 require_once("../../globals.php");
-
 require_once("../../../library/api.inc");
+
+use OpenEMR\Core\Header;
 
 formHeader("Pediatric Fever Evaluation");
 
@@ -22,7 +23,7 @@ formHeader("Pediatric Fever Evaluation");
 
 <html><head>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 
 </head>
 

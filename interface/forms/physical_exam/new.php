@@ -18,6 +18,7 @@ require_once("$srcdir/forms.inc");
 require_once("lines.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (! $encounter) { // comes from globals.php
     die("Internal error: we do not seem to be in an encounter!");
@@ -139,8 +140,7 @@ if ($formid) {
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<?php Header::setupHeader(); ?>
 <script language="JavaScript">
 
  function seldiag(selobj, line_id) {

@@ -14,6 +14,7 @@ require_once("../../globals.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $mode = $_GET['mode'];
 $id   = $_GET['id'];
@@ -34,7 +35,7 @@ if (isset($mode)) {
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 </head>
 
 <body class="body_top">

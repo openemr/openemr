@@ -27,6 +27,8 @@ require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'].'/csv_like_join.php');
 require_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
 
+use OpenEMR\Core\Header;
+
 $pid = 0 + (empty($_REQUEST['pid']) ? $pid : $_REQUEST['pid']);
 $info_msg = "";
 
@@ -89,13 +91,7 @@ foreach (explode(',', $given) as $item) {
 ?><html>
   <head>
     <title><?php echo xlt('Add New Issue'); ?></title>
-    <script language="JavaScript">
-                    <?php       require_once("$srcdir/restoreSession.php");  ?>
-    </script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
     <script language="JavaScript">
      var aitypes = new Array(); // issue type attributes
      var aopts   = new Array(); // Option objects
@@ -576,13 +572,9 @@ foreach (explode(',', $given) as $item) {
     </script>
     <!-- Add Font stuff for the look and feel.  -->
 
-      <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap/dist/css/bootstrap.min.css">
-      <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-      <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-themes/themes/excite-bike/jquery-ui.min.css">
-      <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
-      <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/purecss/pure-min.css">
-      <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome/css/font-awesome.min.css">
+      <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-excite-bike', 'purecss', 'shortcut', 'opener']); ?>
       <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
+
       <style>
           td, select, textarea, input  {
          font-family: Fontawesome, Arial, Helvetica, sans-serif;
@@ -636,11 +628,6 @@ foreach (explode(',', $given) as $item) {
       </style>
 
       <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
-      <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery/dist/jquery.min.js"></script>
-      <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-      <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui/jquery-ui.min.js"></script>
-      <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/manual-added-packages/shortcut.js-2-01-B/shortcut.js"></script>
-      <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
       <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
   </head>
   <body>

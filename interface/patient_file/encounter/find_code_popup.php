@@ -18,6 +18,7 @@ require_once($GLOBALS['srcdir'].'/csv_like_join.php');
 require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -51,12 +52,11 @@ $target_element = $_GET['target_element'];
 <html>
 <head>
 <title><?php echo xlt('Code Finder'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<?php Header::setupHeader('opener'); ?>
 
 <style>
 td { font-size:10pt; }
 </style>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 
 <script language="JavaScript">
 

@@ -38,6 +38,7 @@ require_once(dirname(__FILE__) ."/../../../library/patient.inc");
 require_once(dirname(__FILE__) ."/../../../controllers/C_Document.class.php");
 
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Core\Header;
 
 $form_name = "eye_mag";
 $form_folder = "eye_mag";
@@ -252,7 +253,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
     $visit_date = oeFormatShortDate($dated);
     ?>
 
-  <link rel="stylesheet" href="<?php echo attr($css_header);?>" type="text/css">
+    <?php Header::setupHeader(); ?>
   <link rel="stylesheet" href="../../forms/<?php echo attr($form_folder); ?>/css/report.css" type="text/css">
   <style>
 

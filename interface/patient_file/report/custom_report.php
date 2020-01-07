@@ -856,7 +856,7 @@ if ($PDF_OUTPUT) {
         $ptdata = getPatientData($pid, 'cmsportal_login');
         $contents = $pdf->Output('', true);
         echo "<html><head>\n";
-        echo "<link rel='stylesheet' href='$css_header' type='text/css'>\n";
+        Header::setupHeader();
         echo "</head><body class='body_top'>\n";
         $result = cms_portal_call(array(
             'action' => 'putmessage',

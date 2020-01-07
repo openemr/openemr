@@ -17,6 +17,7 @@ require_once("$srcdir/patient.inc");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $info_msg = "";
 $codetype = $_REQUEST['codetype'];
@@ -25,7 +26,8 @@ $form_code_type = $_POST['form_code_type'];
 <html>
 <head>
 <title><?php echo xlt('Code Finder'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+
+<?php Header::setupHeader(); ?>
 
 <style>
 td { font-size:10pt; }

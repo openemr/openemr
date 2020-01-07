@@ -17,6 +17,7 @@ require_once(dirname(__FILE__) . "/../globals.php");
 require_once(dirname(__FILE__) . "/../../library/parse_patient_xml.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $patient_data = array(
     'sex'                       => 'Sex',
@@ -39,7 +40,7 @@ if ($_POST["setval"] == 'approve') {
     <html>
         <head>
             <title><?php echo xlt('CCR Review and Approve');?></title>
-            <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css" >
+            <?php Header::setupHeader(); ?>
         </head>
         <body class="body_top" >
             <center><?php echo xlt('Approved Successfully'); ?></center>
@@ -58,7 +59,7 @@ if ($_POST["setval"] == 'approve') {
     <html>
         <head>
             <title><?php echo xlt('CCR Review and Approve');?></title>
-            <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css" >
+            <?php Header::setupHeader(); ?>
         </head>
         <body class="body_top" >
             <center><?php echo xlt('Discarded'); ?></center>
@@ -76,7 +77,7 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
 <html>
 <head>
 <title><?php echo xlt('CCR Review and Approve');?></title>
-<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css" >
+<?php Header::setupHeader(); ?>
 <style>
 
 table {

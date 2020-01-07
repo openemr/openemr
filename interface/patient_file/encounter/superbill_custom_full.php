@@ -18,6 +18,7 @@ require_once("../../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 // gacl control
 $thisauthview = acl_check('admin', 'superbill', false, 'view');
@@ -281,12 +282,8 @@ if ($fend > $count) {
 <head>
     <title><?php echo xlt("Codes"); ?></title>
 
-    <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-    <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript" src="../../../library/textformat.js"></script>
-    <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-    <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-themes/themes/base/jquery-ui.min.css" rel="stylesheet" type="text/css" />
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui/jquery-ui.min.js"></script>
+    <?php Header::setupHeader(['jquery-ui', 'jquery-ui-base']); ?>
+
 <style>
     .ui-autocomplete { max-height: 350px; max-width: 35%; overflow-y: auto; overflow-x: hidden; }
 </style>

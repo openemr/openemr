@@ -28,6 +28,9 @@
 
 
 require_once("../../interface/globals.php");
+
+use OpenEMR\Core\Header;
+
 if (trim($_POST['contextname'])!='' && $_POST['action']=='add') {
     $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0 AND cl_list_item_long=?", array($_POST['contextname']));
     if (!sqlNumRows($res)) {
@@ -42,7 +45,7 @@ if (trim($_POST['contextname'])!='' && $_POST['action']=='add') {
 ?>
 <html>
     <head>
-        <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+        <?php Header::setupHeader(); ?>
         <style>
             .bottom {
                 border-bottom: 1px solid var(--black);

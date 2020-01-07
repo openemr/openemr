@@ -17,6 +17,7 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -90,7 +91,7 @@ if (preg_match(
 <html>
 <head>
 <title><?php echo xlt('List Insurance Companies');?></title>
-<link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
+<?php Header::setupHeader(); ?>
 
 <style>
 td { font-size:10pt; }

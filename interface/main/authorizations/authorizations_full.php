@@ -15,6 +15,7 @@ require_once("$srcdir/patient.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\Header;
 
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -30,7 +31,7 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 </head>
 <body class="body_top">
 

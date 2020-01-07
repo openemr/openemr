@@ -18,6 +18,7 @@ require_once($GLOBALS['srcdir'] . '/acl.inc');
 require_once("Holidays_Controller.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!acl_check('admin', 'super')) {
     die(xlt('Not authorized'));
@@ -89,7 +90,7 @@ if (!empty($_POST['sync'])) {
 <html>
 <head>
     <title><?php echo xlt('Holidays management'); ?></title>
-    <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+    <?php Header::setupHeader(); ?>
 
 </head>
 

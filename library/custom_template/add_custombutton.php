@@ -27,6 +27,9 @@
 
 
 require_once("../../interface/globals.php");
+
+use OpenEMR\Core\Header;
+
 if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_POST['form_delete']) && $_POST['form_delete'] == 'Delete')) {
     $count = $_POST['count'];
     $k = 1;
@@ -63,9 +66,7 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
 ?>
 <html>
 <head>
-    <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-    <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
+    <?php Header::setupHeader('opener'); ?>
     <style>
         .bottom {
             border-bottom: 1px solid var(--black);

@@ -20,6 +20,7 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 formHeader("Form: bronchitis");
 $returnurl = 'encounter_top.php';
@@ -52,7 +53,7 @@ $returnurl = 'encounter_top.php';
    }
 </SCRIPT>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 </head>
 <body class="body_top">
 

@@ -17,6 +17,8 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Core\Header;
+
 function getListItem($listid, $value)
 {
     $lrow = sqlQuery(
@@ -334,7 +336,7 @@ $orderid = intval($_GET['orderid']);
 ?>
 <html>
 <head>
-<link rel="stylesheet" href='<?php echo $css_header; ?>' type='text/css'>
+<?php Header::setupHeader(); ?>
 <title><?php echo xlt('Order Summary'); ?></title>
 <style>
 body {
