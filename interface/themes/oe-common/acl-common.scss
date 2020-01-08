@@ -3,13 +3,13 @@
 #adminacl .loading {
     text-decoration: blink;
     font-size: 10px;
-    color: red;
+    color: $danger;
     font-weight: bold;
 }
 
 #adminacl .alert {
     font-size: 10px;
-    color: red;
+    color: $danger;
     font-weight: bold;
 }
 
@@ -30,7 +30,7 @@
 .section a:visited,
 .section a:hover {
     text-decoration: none;
-    color: #000000 !important;
+    color: $black !important;
 }
 
 #membership_show,

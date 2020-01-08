@@ -61,9 +61,7 @@
 
 .menuLabel {
     color: $black !important;
-    font-weight: 700 !important;
     font-size: 14px !important;
-    /*padding: 5px 10px !important;*/
 }
 
 .patientEncounterList {
@@ -71,10 +69,7 @@
     background: $white;
 }
 
-.appMenu > span:hover {
-    background-color: $palepale !important;
-}
-
+.appMenu > span:hover,
 .menuSection:hover {
     background-color: $palepale !important;
 }

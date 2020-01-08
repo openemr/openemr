@@ -1,20 +1,18 @@
-
-
 //    RTL adjustments for style*.css files
+//    Author: Amiel Elboim, Matrix
 
-//    Author     : Amiel Elboim, Matrix
-
+// Warning: Do not put Bootstrap variables in here as the file will break
 
 /* General RTL calsses */
 @mixin rtl_style {
-
-    body{
+    body {
         direction: rtl;
     }
 
-    tr, td, th{
+    tr,
+    td,
+    th {
         text-align: right !important;
-
     }
 
     /*Bootstrap 3 classes modified for rtl*/
@@ -26,193 +24,185 @@
         padding: 5px 0 5px 10px;
     }
 
-    #navigation-slide, #navigation-slide *{
-        padding-right:0px;
-        margin-right:0px;
+    #navigation-slide,
+    #navigation-slide * {
+        padding-right: 0px;
+        margin-right: 0px;
     }
 
-    #navigation-slide a{
-
+    #navigation-slide a {
         padding: 5px 2px 5px 10px;
     }
 
     /* Calander */
-    #bottomLeft{
-
+    #bottomLeft {
         float: right !important;
     }
-    #bigCal{
-        border-right: 1px solid black !important;
-    }
-
 
     /*miscellaneous*/
-    .misc-internet-search{
+    .misc-internet-search {
         float: right !important;
     }
 
     /* record_disclosure.php */
-    #record-disclosure, #record-disclosure>div {
-
-        float:none !important;
+    #record-disclosure,
+    #record-disclosure > div {
+        float: none !important;
 
     }
 
     /* /patient_file/encounter/forms.php  */
-    #encounter_forms .encounter-summary-column{
+    #encounter_forms .encounter-summary-column {
         float: right !important;
     }
-    #encounter_forms .form_header_controls, #encounter_forms .form_header{
+
+    #encounter_forms .form_header_controls,
+    #encounter_forms .form_header {
         float: none !important;
     }
 
     /* /interface/patient_file/summary/demographics.php */
-    .demographics-box{
-        position: relative
+    .demographics-box {
+        position: relative;
     }
-    .demographics-box>div{
+
+    .demographics-box > div {
         float: none !important;
         position: absolute;
     }
-    .demographics-box>div:first-child{
+
+    .demographics-box > div:first-child {
         width: 55% !important;
     }
-    .demographics-box>div:last-child{
-        margin-right: 75%
+
+    .demographics-box > div:last-child {
+        margin-right: 75%;
     }
 
-
-    #tdallday3>span{
+    #tdallday3 > span {
         direction: ltr;
         display: inline-block;
     }
-    #tdallday3>span>input{
+
+    #tdallday3 > span > input {
         text-align: right;
     }
 
     /* /interface/clickmap/template/general_new.html */
-    .graphic-pain-map{
+    .graphic-pain-map {
         float: none !important;
         width: 600px;
     }
-    .graphic-pain-map img{
+
+    .graphic-pain-map img {
         width: 100%;
     }
-    body>.nav{
+
+    body > .nav {
         margin-right: 40px;
     }
 
-
     /* ajax_template.html */
 
-    #dateNAV img{
+    #dateNAV img {
         display: none;
     }
-    #dateNav>a:nth-child(2), #dateNav>a:nth-child(3){
+
+    #dateNav > a:nth-child(2),
+    #dateNav > a:nth-child(3) {
         display: inline-block;
         width: 16px;
         height: 15.5px;
     }
-    #dateNav>a:nth-child(2){
 
+    #dateNav > a:nth-child(2) {
         background-image: url(../../public/images/rightbtn.gif);
         margin-right: 10px;
     }
-    #dateNav>a:nth-child(3){
 
+    #dateNav > a:nth-child(3) {
         background-image: url(../../public/images/leftbtn.gif);
-
     }
 
     /* /main/messages/messages.php */
-    td.amount-msg{
-
+    td.amount-msg {
         text-align: left !important;
         direction: ltr;
     }
 
     /*  /interface/billing/edih_view.php  */
-    #tabs ul.ui-tabs-nav li.ui-state-default{
+    #tabs ul.ui-tabs-nav li.ui-state-default {
         float: right;
     }
 
-
     /* /interface/code_systems/dataloads_ajax.php */
 
-    #accordion .left_wrpr, #accordion .wrpr{
+    #accordion .left_wrpr,
+    #accordion .wrpr {
         float: right !important;
     }
-    .ui-dialog .ui-dialog-title{
 
+    .ui-dialog .ui-dialog-title,
+    .cancel-float {
         float: none !important;
     }
-
-    .cancel-float{
-        float: none !important;
-    }
-
+    
     /* /templates/documents/general_view.html */
-    #documents_actions form[name^=document]>div>div, #documents_actions form[name=notes]>div>div{
-
+    #documents_actions form[name^=document] > div > div,
+    #documents_actions form[name=notes] > div > div {
         float: none !important;
         display: inline-block;
     }
 
-
-    #documents_list img[src*=branch], #documents_list img[src*=line], #documents_list img[src*=plus], #documents_list img[src*=minus]{
+    #documents_list img[src*=branch],
+    #documents_list img[src*=line],
+    #documents_list img[src*=plus],
+    #documents_list img[src*=minus] {
         -webkit-transform: rotate(180deg);
         -moz-transform: rotate(180deg);
         -o-transform: rotate(180deg);
         -ms-transform: rotate(180deg);
         transform: rotate(180deg);
     }
-    #documents_list img[src*=branchbottom]{
-        -webkit-transform:  translate(2px ,0) rotate(-90deg);
-        -moz-transform:  translate(2px ,0) rotate(-90deg);
-        -o-transform:  translate(2px ,0) rotate(-90deg);
-        -ms-transform:  translate(2px ,0) rotate(-90deg);
-        transform: translate(2px ,0) rotate(-90deg);
+
+    #documents_list img[src*=branchbottom] {
+        -webkit-transform: translate(2px, 0) rotate(-90deg);
+        -moz-transform: translate(2px, 0) rotate(-90deg);
+        -o-transform: translate(2px, 0) rotate(-90deg);
+        -ms-transform: translate(2px, 0) rotate(-90deg);
+        transform: translate(2px, 0) rotate(-90deg);
     }
 
-
-    .tabs-container ul.tabs{
+    .tabs-container ul.tabs {
         width: 100%;
     }
 
-    .tabs-container ul.tabs li{
-
+    .tabs-container ul.tabs li {
         float: none !important;
     }
-    .container_body .viewport .overview{
+
+    .container_body .viewport .overview {
         left: initial !important;
     }
 
-    .top-menu-carecoordination li{
+    .top-menu-carecoordination li,
+    .setup-carecoordination .top-menu-carecoordination li,
+    .setup-carecoordination .ca-ca-in-1,
+    .setup-carecoordination ul.virtualpage_system_based_forms {
         float: right !important;
     }
 
-
-    .setup-carecoordination .top-menu-carecoordination li{
-        float: right !important;
-    }
-    .setup-carecoordination .ca-ca-in-1{
-        float: right !important;
-    }
-    .setup-carecoordination ul.virtualpage_system_based_forms{
-
-        float: right !important;
-    }
-    .setup-carecoordination .ca-ca-in-2{
-
-        float: right;
+    .setup-carecoordination .ca-ca-in-2 {
         padding-right: 2% !important;
         float: right !important;
     }
-    .setup-carecoordination #paginatediv_database_tables a[rel=next]{
+
+    .setup-carecoordination #paginatediv_database_tables a[rel=next] {
         float: left !important;
         transform: rotate(180deg);
     }
-    .setup-carecoordination #paginatediv_database_tables a[rel=previous]{
+
+    .setup-carecoordination #paginatediv_database_tables a[rel=previous] {
         float: right !important;
         transform: rotate(180deg);
     }
@@ -220,19 +210,21 @@
     /* online - portal */
 
     /* patients/summary_pat_portal.php */
-    div#portal-buttons-bottom{
+    div#portal-buttons-bottom {
         padding: 5px 15px;
     }
 
-    #DEM .label_custom, #report_parameters table table td.label_custom {
+    #DEM .label_custom,
+    #report_parameters table table td.label_custom {
         text-align: left !important;
     }
 
     /* flow board */
-    form#pattrk h2>span{
+    form#pattrk h2 > span {
         float: right !important;
     }
-    form#pattrk #inanewwindow>span{
+
+    form#pattrk #inanewwindow > span {
         float: left !important;
     }
 
@@ -253,37 +245,40 @@
         display: inline-block;
     }
 
-    #namecontainer_preminders {
-        float: right !important;
-    }
-
+    #namecontainer_preminders,
     #namecontainer_creminders {
         float: right !important;
     }
 
-    .xdsoft_datepicker .xdsoft_mounthpicker button, .xdsoft_datepicker .xdsoft_mounthpicker > div{
+    .xdsoft_datepicker .xdsoft_mounthpicker button,
+    .xdsoft_datepicker .xdsoft_mounthpicker > div {
         float: right;
     }
 
-    .xdsoft_datepicker .xdsoft_mounthpicker button.xdsoft_prev, .xdsoft_datepicker .xdsoft_mounthpicker button.xdsoft_next{
-        -webkit-transform: rotate(180deg);     /* Chrome and other webkit browsers */
-        -moz-transform: rotate(180deg);        /* FF */
-        -o-transform: rotate(180deg);          /* Opera */
-        -ms-transform: rotate(180deg);         /* IE9 */
-        transform: rotate(180deg);             /* W3C compliant browsers */
+    .xdsoft_datepicker .xdsoft_mounthpicker button.xdsoft_prev,
+    .xdsoft_datepicker .xdsoft_mounthpicker button.xdsoft_next {
+        -webkit-transform: rotate(180deg);
+        /* Chrome and other webkit browsers */
+        -moz-transform: rotate(180deg);
+        /* FF */
+        -o-transform: rotate(180deg);
+        /* Opera */
+        -ms-transform: rotate(180deg);
+        /* IE9 */
+        transform: rotate(180deg);
+        /* W3C compliant browsers */
 
         /* IE8 and below */
         filter: progid:DXImageTransform.Microsoft.Matrix(M11=-1, M12=0, M21=0, M22=-1, DX=0, DY=0, SizingMethod='auto expand');
     }
 
-
-
-    div.formname{
+    div.formname {
         float: right !important;
         padding-left: 10px !important;
     }
 
-    .select2-search, .select2-results{
+    .select2-search,
+    .select2-results {
         direction: rtl !important;
     }
 
@@ -295,26 +290,31 @@
         float: left;
     }
 }
+
 /*expandable search rtl in main.php*/
 .oe-expandable-search button.btn-search1 {
     right: 0;
     padding: 4px 6px 4px 0 !important;
 }
 
-.oe-expandable-search input:focus~button.btn-search1 {
+.oe-expandable-search input:focus ~ button.btn-search1 {
     right: 245px;
     outline: 0;
 }
+
 .oe-expandable-search button.btn-globals-legacy {
     right: 110px;
 }
+
 .oe-expandable-search button.btn-globals-modern {
     right: 0;
 }
+
 /*expandable search rtl in main.php*/
 /*vertical main menu */
 
 .appMenu_small .menuSection > .menuEntries {
-    right:40px ! important;
+    right: 40px ! important;
 }
+
 /*vertical main menu */

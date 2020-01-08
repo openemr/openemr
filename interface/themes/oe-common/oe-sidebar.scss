@@ -4,7 +4,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -24,19 +26,20 @@
 .body-topnav {
     overflow-x: hidden !important;
     -webkit-font-smoothing: antialiased;
-    padding-top: 50px
+    padding-top: 50px;
 }
 
 .body-topnav .nav-sidebar {
     top: unset;
     bottom: unset;
-    left: unset
+    left: unset;
 }
+
 /* if not a grid then main available */
 main {
     margin-left: 225px;
     padding: 1rem 15px;
-    width: 100%
+    width: 100%;
 }
 
 /*
@@ -93,26 +96,26 @@ main {
     transition: all .5s ease;
     -webkit-transition: all .5s ease;
     -moz-transition: all .5s ease;
-    -o-transition: all .5s ease
+    -o-transition: all .5s ease;
 }
 
 .sidebar-h-40 {
-    max-height: 40% !important
+    max-height: 40% !important;
 }
 
 .sidebar-h-60 {
-    max-height: 60% !important
+    max-height: 60% !important;
 }
 
 .sidebar-expand {
     display: inline-flex;
-    margin: 0 0 1rem
+    margin: 0 0 1rem;
 }
 
 .sidebar-expand button {
     font-size: 2rem !important;
     line-height: .9;
-    color: #000;
+    color: $black;
     background: 0 0;
     border-width: 0;
     border-color: rgba(255, 255, 255, .1);
@@ -120,38 +123,40 @@ main {
     transition: all .5s ease;
     -webkit-transition: all .5s ease;
     -moz-transition: all .5s ease;
-    -o-transition: all .5s ease
+    -o-transition: all .5s ease;
 }
 
 .sidebar-header {
-    padding: 0 1rem
+    padding: 0 1rem;
 }
 
 @media (max-width: 767px) {
-    #nav-topbar .brand-container, .nav-sidebar {
-        width: 30px
+    #nav-topbar .brand-container,
+    .nav-sidebar {
+        width: 30px;
     }
 
     .body-topnav .nav-sidebar {
         width: 0;
     }
 
-    #nav-topbar .brand-container.active, .nav-sidebar.active {
+    #nav-topbar .brand-container.active,
+    .nav-sidebar.active {
         width: 225px;
         min-width: 30px;
-        max-width: 225px
+        max-width: 225px;
     }
 
     .nav-sidebar.active .sidebar-content {
-        display: block !important
+        display: block !important;
     }
 
     main {
-        margin-left: 30px
+        margin-left: 30px;
     }
 
     .main-full {
-        margin-left: 0
+        margin-left: 0;
     }
 
 }
@@ -160,40 +165,40 @@ main {
     transform: rotate(90deg);
     -webkit-transform: rotate(90deg);
     -moz-transform: rotate(90deg);
-    -ms-transform: rotate(90deg)
+    -ms-transform: rotate(90deg);
 }
 
 .rotate-180cw {
     transform: rotate(180deg);
     -webkit-transform: rotate(180deg);
     -moz-transform: rotate(180deg);
-    -ms-transform: rotate(180deg)
+    -ms-transform: rotate(180deg);
 }
 
 .rotate-90ccw {
     transform: rotate(-90deg);
     -webkit-transform: rotate(-90deg);
     -moz-transform: rotate(-90deg);
-    -ms-transform: rotate(-90deg)
+    -ms-transform: rotate(-90deg);
 }
 
 .rotate-180ccw {
     transform: rotate(-180deg);
     -webkit-transform: rotate(-180deg);
     -moz-transform: rotate(-180deg);
-    -ms-transform: rotate(-180deg)
+    -ms-transform: rotate(-180deg);
 }
 
 .flip-y {
     transform: perspective(100px) rotateY(180deg);
     -webkit-transform: perspective(100px) rotateY(180deg);
     -moz-transform: perspective(100px) rotateY(180deg);
-    -ms-transform: perspective(100px) rotateY(180deg)
+    -ms-transform: perspective(100px) rotateY(180deg);
 }
 
 .flip-x {
     transform: perspective(100px) rotateX(180deg);
     -webkit-transform: perspective(100px) rotateX(180deg);
     -moz-transform: perspective(100px) rotateX(180deg);
-    -ms-transform: perspective(100px) rotateX(180deg)
+    -ms-transform: perspective(100px) rotateX(180deg);
 }

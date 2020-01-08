@@ -35,7 +35,7 @@ let config = {
     // Source file locations
     src: {
         styles: {
-            style_uni: 'interface/themes/style_*.scss',
+            style_uni: 'interface/themes/oe-styles/style_*.scss',
             style_color: 'interface/themes/colors/*.scss',
             directional: 'interface/themes/directional.scss'
         }
@@ -105,7 +105,8 @@ const styles = gulp.parallel(styles_style_uni, styles_style_color);
 // rtl standard themes css compilation
 function rtl_style_uni() {
     return gulp.src(config.src.styles.style_uni)
-        .pipe(gap.prependText('@import "./rtl.scss";\n')) // watch out for this relative path!
+        .pipe(gap.prependText('@import "../rtl";\n')) // watch out for this relative path!
+        .pipe(gap.appendText('@include if-rtl { @include rtl_style; #bigCal { border-right: 1px solid $black !important; } }\n'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
         .pipe(prefix('last 1 version'))
@@ -121,7 +122,8 @@ function rtl_style_uni() {
 // rtl color themes css compilation
 function rtl_style_color() {
     return gulp.src(config.src.styles.style_color)
-        .pipe(gap.prependText('@import "../rtl.scss";\n')) // watch out for this relative path!
+        .pipe(gap.prependText('@import "../rtl";\n')) // watch out for this relative path!
+        .pipe(gap.appendText('@include if-rtl { @include rtl_style; #bigCal { border-right: 1px solid $black !important; } }\n'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
         .pipe(prefix('last 1 version'))
@@ -190,8 +192,8 @@ function install(done) {
                     .pipe(gulp.dest(config.dist.assets + key + '/decoders'));
                 gulp.src('node_modules/' + key + '/locales/**/*')
                     .pipe(gulp.dest(config.dist.assets + key + '/locales'));
-            } else if (key == 'bootstrap' || key == 'bootstrap-v4-rtl') {
-                // bootstrap and bootstrap-v4-rtl are special and need to copy dist and scss
+            } else if (key == 'bootstrap' || key == 'bootstrap-v4-rtl' || key == 'bootswatch') {
+                // bootstrap, bootstrap-v4-rtl, and bootswatch are special and need to copy dist and scss
                 gulp.src('node_modules/' + key + '/dist/**/*')
                     .pipe(gulp.dest(config.dist.assets + key + '/dist'));
                 gulp.src('node_modules/' + key + '/scss/**/*')

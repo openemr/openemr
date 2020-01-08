@@ -42,6 +42,7 @@
     "backbone": "1.4.0",
     "bootstrap": "4.4.1",
     "bootstrap-v4-rtl": "4.4.1-1",
+    "bootswatch": "4.4.1",
     "chart.js": "2.9.3",
     "checklist-model": "1.0.0",
     "ckeditor4": "4.13.0",

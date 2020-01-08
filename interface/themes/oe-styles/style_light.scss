@@ -39,7 +39,7 @@ $theme-colors: (
     warning: $yellow,
     danger: $red,
     light: $gray-100,
-    dark: $gray-800,
+    dark: $gray-800
 );
 
 /* Array of random colors that can be added to */
@@ -61,19 +61,19 @@ $colors: (
 
 $body-bg: $white;
 $body-color: $gray-900;
-$font-family-sans-serif: "Lato", "Helvetica", sans-serif;
+$font-family-sans-serif: "Lato", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 $font-size-base: 0.875rem;
 $font-family-base: $font-family-sans-serif;
 
 $close-color: $black;
 $close-text-shadow: 0 1 0 $black;
 
-@import "core";
+@import "../core";
 
-@import "theme-defaults";
+@import "../theme-defaults";
 
 /* Temporary solution */
-@import "navigation-slide/_light";
+@import "../navigation-slide/_light";
 
 /* Overrides go here */
 
@@ -84,9 +84,5 @@ $close-text-shadow: 0 1 0 $black;
 }
 
 /* search any */
-@import "oe-bootstrap";
-@import "oe-common/all-common-import";
-
-@include if-rtl {
-    @include rtl_style;
-}
+@import "../oe-bootstrap";
+@import "../oe-common/all-common-import";

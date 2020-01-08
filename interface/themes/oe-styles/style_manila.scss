@@ -25,6 +25,9 @@ $gray-700: #495057;
 $gray-800: #343a40;
 $gray-900: #212529;
 
+/* Manilla Theme-Specific Colors */
+$manilla-gray: #c0c0c0;
+
 /* Equivalents to bg-light/dark as well as default for gray */
 $light: $gray-100;
 $dark: $gray-800;
@@ -39,7 +42,7 @@ $theme-colors: (
     warning: $yellow,
     danger: $red,
     light: $gray-100,
-    dark: $gray-800,
+    dark: $gray-800
 );
 
 /* Array of random colors that can be added to */
@@ -61,16 +64,16 @@ $colors: (
 
 $body-bg: $white;
 $body-color: $gray-900;
-$font-family-sans-serif: "source_sans_pro", "FontAwesome", sans-serif;
+$font-family-sans-serif: "source_sans_pro", "FontAwesome", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 $font-size-base: 1rem;
 $font-family-base: $font-family-sans-serif;
 
 $close-color: $black;
 $close-text-shadow: 0 1 0 $black;
 
-@import "core";
+@import "../core";
 
-@import "theme-defaults";
+@import "../theme-defaults";
 
 /* All overrides */
 .nav-menu-img {
@@ -82,29 +85,21 @@ body {
     content: "\f0c4" !important;
 }
 
-.menu {
-    font-style: italic;
-    font-size: 0.95em;
-}
-
-.menu_selected {
-    font-style: italic;
-    font-size: 0.95em;
-}
-
+.menu,
+.menu_selected,
 .logout {
     font-style: italic;
     font-size: 0.95em;
 }
 
 .text {
-    color: #4C2222;
+    color: #4C2222 !important;
 }
 
 .alert-custom {
-    font-size: 0.8em;
-    color: #FF0000;
-    text-decoration: none;
+    font-size: 0.8em !important;
+    color: #FF0000 !important;
+    text-decoration: none !important;
 }
 
 .link {
@@ -113,20 +108,13 @@ body {
     font-size: 0.8em;
 }
 
-.more {
-    font-size: 0.8em;
-}
-
-.back {
-    font-size: 0.8em;
-}
-
-.link_selected {
-    font-size: 0.8em;
-}
-
-.link_selected:visited {
-    font-size: 0.8em;
+.more,
+.back,
+.link_selected,
+.link_selected:visited,
+#addressbook_list tr.search,
+#addressbook_list tr.detail {
+    font-size: 0.8em !important;
 }
 
 .link_submit {
@@ -163,36 +151,23 @@ body {
 }
 
 #addressbook_list td {
-    font-family: "source_sans_pro", "FontAwesome", "Arial", "Helvetica", sans-serif;
-}
-
-#addressbook_list tr.search {
-    font-size: 0.8em;
+    font-family: "source_sans_pro", "FontAwesome", "Arial", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
 }
 
 #addressbook_list tr.head {
     font-size: 0.9em;
 }
 
-#addressbook_list tr.detail {
-    font-size: 0.8em;
-}
-
 #addressbook_list .inputtext {
-    font-family: 'source_sans_pro', 'FontAwesome', monospace;
+    font-family: 'source_sans_pro', 'FontAwesome', monospace, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
     font-size: 0.8em;
 }
 
-#addressbook_list .button {
-    font-family: 'source_sans_pro', 'FontAwesome', sans-serif;
-}
-
-#reports_list td {
-    font-family: "source_sans_pro", "FontAwesome", "Helvetica", sans-serif;
-}
-
-#reports_list a {
-    font-family: "source_sans_pro", "FontAwesome", "Helvetica", sans-serif;
+#reports_list td,
+#reports_list a,
+#documents_list td,
+#documents_list a {
+    font-family: "source_sans_pro", "FontAwesome", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
 }
 
 /* styles taken out of templates/documents/general_list.html */
@@ -204,14 +179,6 @@ body {
     border-right: dashed 1px;
 }
 
-#documents_list td {
-    font-family: "source_sans_pro", "FontAwesome", "Helvetica", sans-serif;
-}
-
-#documents_list a {
-    font-family: "source_sans_pro", "FontAwesome", "Helvetica", sans-serif;
-}
-
 /*=============================================================
  * Patient Stats
  * seen in the patient stats screens
@@ -220,10 +187,10 @@ body {
     width: 100%;
     background-color: $white;
     padding: 1em;
-    border: 1pt solid $black;
-    -moz-box-shadow: 2px 2px 2px #c0c0c0;
-    -webkit-box-shadow: 2px 2px 2px #c0c0c0;
-    box-shadow: 2px 2px 2px #c0c0c0;
+    border: 1px solid $black;
+    -moz-box-shadow: 2px 2px 2px $manilla-gray;
+    -webkit-box-shadow: 2px 2px 2px $manilla-gray;
+    box-shadow: 2px 2px 2px $manilla-gray;
     border-radius: 5px;
 }
 
@@ -231,12 +198,9 @@ body {
     border: none;
 }
 
-#patient_stats .head {
-    font-size: 0.9em;
-}
-
+#patient_stats .head,
 #patient_stats .detail {
-    font-size: 0.9em;
+    font-size: 0.9em !important;
 }
 
 /*=============================================================
@@ -248,7 +212,7 @@ body {
 }
 
 tr.odd {
-    background-color: grey;
+    background-color: $gray;
 }
 
 td.even {
@@ -264,13 +228,14 @@ td.even {
 */
 
 ul.tabNav {
-    margin: 0;
+    padding-top: 0 !important;
+    background: inherit !important;
 }
 
 ul.tabNav li {
     float: left;
     margin: 0 3px 0 0;
-    padding: 0.5px 0 0;
+    padding: 0.5px 0 0 !important;
     font-size: 0.8em;
     vertical-align: bottom;
     text-align: left;
@@ -278,9 +243,9 @@ ul.tabNav li {
     position: relative;
     z-index: 1;
     top: 2px;
-    border-left: 1pt solid $black;
-    border-top: 1pt solid $black;
-    border-right: 1pt solid $black;
+    border-left: 1px solid $black;
+    border-top: 1px solid $black;
+    border-right: 1px solid $black;
 }
 
 ul.tabNav li.current {
@@ -291,19 +256,15 @@ ul.tabNav li.current {
     position: relative;
     z-index: 3;
     top: 0.0875em;
-    border-left: 1pt solid $black;
+    border-left: 1px solid $black;
 }
 
 ul.tabNav a {
-    background: #F8E6CBE6;
+    background: #F8E6CB;
     color: $dark;
     padding: 8px;
     border-radius: 8px 8px 0 0;
-    box-shadow: 2px -1px 1px #c0c0c0;
-}
-
-ul.tabNav li.current a {
-    background: $white;
+    box-shadow: 2px -1px 1px $manilla-gray;
 }
 
 div.tabContainer {
@@ -312,7 +273,7 @@ div.tabContainer {
     width: 100%;
     border-radius: 0px 8px 8px 8px;
     box-shadow: 0px 0px 10px #f0f0f0;
-    border: 1pt solid #c0c0c0;
+    border: 1px solid $manilla-gray;
     position: relative;
     z-index: 1;
     background-color: $white;
@@ -329,7 +290,7 @@ div.tabContainer div.tab {
 }
 
 div.tabContainer div.current {
-    box-shadow: 0pt;
+    box-shadow: 0;
     display: block;
 }
 
@@ -338,7 +299,7 @@ div.tab {
     background: $white none repeat scroll 0 0;
     margin-bottom: 10px;
     width: 800px;
-    border: 1pt solid $black;
+    border: 1px solid $black;
     border-radius: 5px;
 }
 
@@ -358,26 +319,26 @@ table {
 }
 
 td .div {
-    border-left: 1pt solid $black;
+    border-left: 1px solid $black;
 }
 
 div.notab {
     background: $white none repeat scroll 0 0;
     margin-bottom: 10px;
-    border: 1px solid #c0c0c0;
+    border: 1px solid $manilla-gray;
     background-color: $white;
     border-radius: 0 0 5px 5px;
-    box-shadow: 1px 2px 4px #c0c0c0;
+    box-shadow: 1px 2px 4px $manilla-gray;
     padding-left: 10px;
     margin-bottom: 2em;
     width: initial;
 }
 
 div.notab-right {
-    border: 1px solid #c0c0c0;
+    border: 1px solid $manilla-gray;
     background-color: $white;
     border-radius: 0 0 5px 5px;
-    box-shadow: 1px 2px 4px #c0c0c0;
+    box-shadow: 1px 2px 4px $manilla-gray;
     padding-left: 10px;
     margin-bottom: 2em;
     width: initial;
@@ -388,7 +349,7 @@ div.notab-right {
     border: 1px solid $black;
     background-color: #f8e8cb;
     border-radius: 5px 5px 0px 0px;
-    box-shadow: 2px 0px 5px #c0c0c0;
+    box-shadow: 2px 0px 5px $manilla-gray;
     padding: 6px;
     margin: initial;
 }
@@ -398,7 +359,7 @@ div.notab-right {
     border: 1px solid $black;
     background-color: #f8e8cb;
     border-radius: 5px 5px 0px 0px;
-    box-shadow: 2px 0px 5px #c0c0c0;
+    box-shadow: 2px 0px 5px $manilla-gray;
     padding: 6px;
     margin: inherit;
 }
@@ -407,10 +368,10 @@ div.notab-right {
     margin: 0 auto 10px;
     background: $white none repeat scroll 0 0;
     margin-bottom: 10px;
-    border: 1px solid #c0c0;
+    border: 1px solid $manilla-gray;
     background-color: $white;
     border-radius: 0 0 5px 5px;
-    box-shadow: 1px 2px 4px #c0c0c0;
+    box-shadow: 1px 2px 4px $manilla-gray;
 }
 
 div.summary_item div {
@@ -421,39 +382,29 @@ div.summary_item div {
 * List-table formatting
 **/
 
-.showborder td {
-    font-size: 12px;
-}
-
-.showborder_head th {
-    font-size: 12px;
-}
-
-.shownoborder td {
-    font-size: 12px;
-}
-
+.showborder td,
+.showborder_head th,
+.shownoborder td,
 .showborder_long tr td {
-    font-size: 12px;
+    font-size: 12px !important;
 }
 
 /**
 * Drug lookup
 **/
 .drug_lookup {
-    font-family: 'source_sans_pro', 'FontAwesome', "Helvetica", sans-serif;
+    font-family: 'source_sans_pro', 'FontAwesome', "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
     font-size: 11px;
 }
 
 /* Style for red font */
 .redtext {
-    font-family: 'source_sans_pro', 'FontAwesome', sans-serif;
     font-size: 13px;
 }
 
 /* Style for red font */
 
-@import "navigation-slide/_manilla";
+@import "../navigation-slide/_manilla";
 
 body dl {
     background-color: #C9DBF2;
@@ -520,7 +471,7 @@ body dl {
 }
 
 .example_menu ul a:hover {
-    background: #f5f5f5;
+    background: $light;
     text-decoration: underline;
 }
 
@@ -553,7 +504,7 @@ body dl {
     padding: 0px;
     text-decoration: none;
     border-bottom: 0.1pt solid $black;
-    box-shadow: 0px 0px 2px #c0c0c0;
+    box-shadow: 0px 0px 2px $manilla-gray;
     margin: 3px;
 }
 
@@ -568,17 +519,14 @@ body dl {
     padding: 8px;
     text-decoration: none;
     border-radius: 8px;
-    border: 1pt solid $black;
-    box-shadow: 2px 2px 2px #c0c0c0;
+    border: 1px solid $black;
+    box-shadow: 2px 2px 2px $manilla-gray;
     margin: 0px auto;
 }
 
-#refreshme {
-    font-size: 0.7em;
-}
-
+#refreshme,
 #setting_cog {
-    font-size: 0.7em;
+    font-size: 0.7em !important;
 }
 
 .calendar {
@@ -613,7 +561,7 @@ body dl {
 }
 
 #oe-nav-ul.tabNav a {
-    background: #f4f4f4;
+    background: $light;
     border-left: 2px solid $gray;
     border-bottom: 1px solid #ccc;
 }
@@ -658,7 +606,7 @@ body dl {
 /*openrmr5.0.2 edit_globals vertical menu*/
 /*bootstrap navbar */
 .navbar-collapse.collapse.in {
-    background-color: #F5F5F5 !important;
+    background-color: $light !important;
     color: $black !important;
 }
 
@@ -692,9 +640,5 @@ body dl {
 }
 
 /*search any*/
-@import "oe-bootstrap";
-@import "oe-common/all-common-import";
-
-@include if-rtl {
-    @include rtl_style;
-}
+@import "../oe-bootstrap";
+@import "../oe-common/all-common-import";

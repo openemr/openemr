@@ -33,39 +33,24 @@
 .small span.text,
 span.required,
 span.bold {
-    font-size: 1em;
+    font-size: 1em !important;
 }
 
-.link {
-    font-size: 0.7em;
-}
-
-.more {
-    font-size: 0.7em;
-}
-
-.back {
-    font-size: 0.7em;
-}
-
-.link_selected {
-    font-size: 0.7em;
-}
-
-.link_selected:visited {
-    font-size: 0.7em;
-}
-
+.link,
+.more,
+.back,
+.link_selected,
+.link_selected:visited,
 .items {
-    font-size: 0.7em;
+    font-size: 0.7em !important;
 }
 
 .title {
-    font-size: 1.5em;
+    font-size: 1.5em !important;
 }
 
 .title_bar {
-    font-size: 1.13em;
+    font-size: 1.13em !important;
 }
 
 .bgcolor2 {
@@ -86,12 +71,9 @@ span.bold {
 
 /* $login_body_line */
 
-#addressbook_list tr.search {
-    font-size: 0.9em;
-}
-
+#addressbook_list tr.search,
 #addressbook_list .inputtext {
-    font-size: 0.9em;
+    font-size: 0.9em !important;
 }
 
 [href~="deleter"],
@@ -113,10 +95,7 @@ span.bold {
     border-right: dashed 1px;
 }
 
-#documents_list td {
-    font-size: 0.8em;
-}
-
+#documents_list td,
 #documents_list a {
     font-size: 0.8em;
 }
@@ -126,16 +105,10 @@ span.bold {
 }
 
 /* Patient History */
-#HIS .groupname {
-    font-size: 0.9em;
-}
-
-#HIS .label_custom {
-    font-size: 0.9em;
-}
-
+#HIS .groupname,
+#HIS .label_custom,
 #HIS .data {
-    font-size: 0.9em;
+    font-size: 0.9em !important;
 }
 
 /*=============================================================
@@ -143,7 +116,7 @@ span.bold {
  * seen in the patient encounter screen
  *============================================================*/
 #patient_pastenc #tooltipdiv {
-    font-size: 0.9em;
+    font-size: 0.9em !important;
 }
 
 /*=============================================================
@@ -207,20 +180,11 @@ ul.tabNav a:focus {
 * List-table formatting
 **/
 
-.showborder td {
-    font-size: 0.9em;
-}
-
-.showborder_head th {
-    font-size: 0.9em;
-}
-
-.shownoborder td {
-    font-size: 0.9em;
-}
-
+.showborder td,
+.showborder_head th,
+.shownoborder td,
 .showborder_long tr td {
-    font-size: 0.9em;
+    font-size: 0.9em !important;
 }
 
 /**
@@ -356,7 +320,7 @@ div.category-display {
 }
 
 #oe-nav-ul.tabNav {
-    background: rgba(0, 0, 0, .05) !important;
+    background: rgba($black, .05) !important;
 }
 
 #oe-nav-ul.tabNav .current a {

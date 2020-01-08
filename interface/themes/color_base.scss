@@ -15,7 +15,9 @@
  *
  * @package OpenEMR
  * @author Ranganath Pathak <pathak@scrs1.org>
+ * @author Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2018-2020 Ranganath Pathak
+ * @copyright Copyright (c) 2020 Tyler Wrenn
  * @version 1.1
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License
  * @link http://www.open-emr.org
@@ -114,9 +116,9 @@ $colors: (
 );
 
 $body-bg: $white;
-$body-color: $gray-900;
+$body-color: $black;
 $font-size-base: 1rem;
-$font-family-sans-serif: -apple-system, "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+$font-family-sans-serif: -apple-system, "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 $font-family-base: $font-family-sans-serif;
 
 $close-color: $black;
@@ -132,30 +134,22 @@ body {
     margin: 0px 0px 0px 2px !important;
 }
 
-.menu {
-    font-style: italic !important;
-    font-size: 0.9375rem !important;
-}
-
-.menu_selected {
-    font-style: italic !important;
-    font-size: 0.9375rem !important;
-}
-
+.menu,
+.menu_selected,
 .logout {
     font-style: italic !important;
     font-size: 0.9375rem !important;
 }
 
-.text {
-    font-size: 0.8125rem !important;
-}
-
-.required {
-    font-size: 0.8125rem !important;
-}
-
-.bold, font-weight-bold {
+.text,
+.required,
+.bold,
+.font-weight-bold,
+.link_submit,
+#addressbook_list tr.detail,
+.redtext,
+#patient_stats .head,
+#patient_stats .detail {
     font-size: 0.8125rem !important;
 }
 
@@ -170,28 +164,13 @@ body {
     font-size: 80%;
 }
 
-.link {
-    font-size: 70%;
-}
-
-.more {
-    font-size: 70%;
-}
-
-.back {
-    font-size: 70%;
-}
-
-.link_selected {
-    font-size: 70%;
-}
-
-.link_selected:visited {
-    font-size: 70%;
-}
-
-.link_submit {
-    font-size: 0.8125rem;
+.link,
+.more,
+.back,
+.link_selected,
+.link_selected:visited,
+.example_menu {
+    font-size: 70% !important;
 }
 
 .items {
@@ -212,10 +191,6 @@ body {
     font-size: 13px;
 }
 
-.body_top {
-    background-color: $paler;
-}
-
 .body_main {
     background-color: $midpale !important;
     border-top: solid 8px $dark;
@@ -226,16 +201,14 @@ body {
     border-top: solid 14px $dark;
 }
 
-.bgcolor2 {
-    background-color: $paler;
+.body_top,
+.bgcolor2,
+.body_nav {
+    background-color: $paler !important;
 }
 
 .body_title {
-    background-color: $dark;
-}
-
-.body_nav {
-    background-color: $paler;
+    background-color: $dark !important;
 }
 
 .logobar {
@@ -245,7 +218,7 @@ body {
 /* style taken out of the addressbook code and put here instead */
 
 #addressbook_list td {
-    font-family: "Arial", "Helvetica", sans-serif;
+    font-family: "Arial", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 #addressbook_list tr.search {
@@ -255,10 +228,6 @@ body {
 #addressbook_list tr.head {
     font-size: 0.8125rem;
     background-color: inherit;
-}
-
-#addressbook_list tr.detail {
-    font-size: 0.8125rem;
 }
 
 #addressbook_list .inputtext {
@@ -278,29 +247,22 @@ body {
 }
 
 .address_names:hover {
-    color: magenta;
+    color: magenta !important;
 }
 
 .highlight {
     color: magenta !important;
 }
 
-#reports_list td {
-    font-size: 8pt;
-    font-family: "Helvetica", sans-serif;
-}
-
+#reports_list td,
 #reports_list a {
     font-size: 8pt;
-    font-family: "Helvetica", sans-serif;
+    font-family: "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
 }
 
-#documents_list td {
-    font-family: "Helvetica", sans-serif;
-}
-
+#documents_list td,
 #documents_list a {
-    font-family: "Helvetica", sans-serif;
+    font-family: "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
 }
 
 #documents_list .treeMenuDefault {
@@ -310,19 +272,6 @@ body {
 #documents_list .treeMenuBold {
     font-style: italic;
     font-weight: bold;
-}
-
-/*=============================================================
- * Patient Stats
- * seen in the patient stats screens
- *============================================================*/
-
-#patient_stats .head {
-    font-size: 0.8125rem;
-}
-
-#patient_stats .detail {
-    font-size: 0.8125rem;
 }
 
 /*=============================================================
@@ -443,18 +392,9 @@ ul.tabNav li.current a {
 * List-table formatting
 **/
 
-.showborder td {
-    font-size: 9pt;
-}
-
-.showborder_head th {
-    font-size: 9pt;
-}
-
-.shownoborder td {
-    font-size: 9pt;
-}
-
+.showborder td,
+.showborder_head th,
+.shownoborder td,
 .showborder_long tr td {
     font-size: 9pt;
 }
@@ -464,16 +404,12 @@ ul.tabNav li.current a {
 **/
 
 .drug_lookup {
-    font-family: "Helvetica", sans-serif;
+    font-family: "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     font-size: 8pt;
     border: 2px outset rgb(102, 102, 102);
     background-color: $paler;
 }
 
-/* Style for red font */
-.redtext {
-    font-size: 0.8125rem;
-}
 
 /* Style for red font */
 
@@ -511,7 +447,7 @@ ul.tabNav li.current a {
 
 #sddm div a {
     background: $paler;
-    color: #2875DE;
+    color: $primary;
     z-index: 10;
 }
 
@@ -523,10 +459,6 @@ ul.tabNav li.current a {
 .encounter-form-category-li {
     z-index: 100;
     background-color: $paler !important;
-}
-
-.example_menu {
-    font-size: 70%;
 }
 
 .example_menu ul a:Subjective {
@@ -548,7 +480,7 @@ ul.tabNav li.current a {
 }
 
 .signout-content {
-    background: $paler;
+    background: $paler !important;
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~search div ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -598,7 +530,7 @@ div.borderbox {
 /*openemr 5 patient-finder*/
 @media screen and (max-width: 750px) {
     #pt_table {
-        font-size: .9rem;
+        font-size: .9rem !important;
     }
 }
 
@@ -615,7 +547,7 @@ div.borderbox {
 
 /*search any*/
 *.oe-expandable-search .any-search-legacy {
-    background: $paler;
+    background: $paler !important;
 }
 
 /*search any*/
@@ -624,13 +556,6 @@ div.borderbox {
 @import "colors/openemr5/codes";
 @import "colors/openemr5/bootstrap-nav-menu";
 @import "colors/openemr5/bootstrap";
-
-/*search any*/
-*.oe-expandable-search .any-search-legacy {
-    background: $paler;
-}
-
-/*search any*/
 
 th.currentvalues,
 th.historicalvalues {
@@ -644,7 +569,7 @@ th.historicalvalues {
 
 /*search any*/
 *.oe-expandable-search .any-search-legacy {
-    background: $paler;
+    background: $paler !important;
 }
 
 /*search any*/
@@ -654,8 +579,3 @@ th.historicalvalues {
 @import "colors/openemr5/help-files";
 @import "oe-common/all-common-import";
 @import "colors/openemr5/edit_globals_colors";
-
-
-@include if-rtl {
-    @include rtl_style;
-}

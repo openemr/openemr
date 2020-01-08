@@ -130,10 +130,7 @@ body {
     overflow: visible;
 }
 
-.tabSpan .fa {
-    color: var(--gray);
-}
-
+.tabSpan .fa,
 .tabHidden {
     color: var(--gray);
 }
@@ -223,11 +220,9 @@ body {
     z-index: 4;
 }
 
-.patientEncounterList > div:hover {
-    color: var(--danger);
-}
-
-.patientEncounterList table.encounters td:hover {
+.patientEncounterList > div:hover,
+.patientEncounterList table.encounters td:hover,
+.patientInfo .clear:hover i {
     color: var(--danger);
 }
 
@@ -245,10 +240,6 @@ body {
 
 .patientInfo {
     padding: 1px 1px 1px 10px;
-}
-
-.patientInfo .clear:hover i {
-    color: var(--danger);
 }
 
 .top {

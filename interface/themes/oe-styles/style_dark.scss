@@ -66,7 +66,7 @@ $body-bg: $white;
 /* This is actually dark */
 $body-color: $gray-900;
 /* This is actually light */
-$font-family-sans-serif: "Lato", "Helvetica", sans-serif;
+$font-family-sans-serif: "Lato", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 $font-size-base: 0.875rem;
 $font-family-base: $font-family-sans-serif;
 
@@ -74,13 +74,13 @@ $btn-link-disabled-color: $gray-400;
 $close-color: $black;
 $close-text-shadow: 0 1 0 $black;
 
-@import "core";
+@import "../core";
 
 /* Core defaults for themes */
-@import "theme-defaults";
+@import "../theme-defaults";
 
 /* Temporary Solution */
-@import "navigation-slide/_future-bootstrap";
+@import "../navigation-slide/_future-bootstrap";
 
 /* Overrides go here */
 .btn-secondary {
@@ -100,9 +100,5 @@ $close-text-shadow: 0 1 0 $black;
 }
 
 /*search any*/
-@import "oe-bootstrap";
-@import "oe-common/all-common-import";
-
-@include if-rtl {
-    @include rtl_style;
-}
+@import "../oe-bootstrap";
+@import "../oe-common/all-common-import";
