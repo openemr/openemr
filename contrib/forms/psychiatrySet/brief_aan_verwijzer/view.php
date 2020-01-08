@@ -24,6 +24,8 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Core\Header;
+
 $returnurl = 'encounter_top.php';
 
 $result = getPatientData($pid, "fname,lname,pid,pubpid,phone_home,sex,pharmacy_id,DOB,DATE_FORMAT(DOB,'%Y%m%d') as DOB_YMD");
@@ -69,8 +71,7 @@ if ($vectAutosave['id'] && $vectAutosave['id'] != "" && $vectAutosave['id'] > 0)
 
 <html>
     <head>
-        <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+        <?php Header::setupHeader('datetime-picker'); ?>
     </head>
 
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
@@ -82,11 +83,6 @@ if ($vectAutosave['id'] && $vectAutosave['id'] != "" && $vectAutosave['id'] > 0)
                  .detail    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal;
                                padding-left:3px; padding-right:3px; }
 </style>
-
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
 <?php
 

@@ -34,6 +34,8 @@ require_once($GLOBALS['srcdir'].'/api.inc');
 /* for display_layout_rows(), ?? */
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 
+use OpenEMR\Core\Header;
+
 ]]></xsl:text>
 <!-- These templates generate PHP code -->
 <xsl:apply-templates select="table|RealName|safename|acl|style"/>
@@ -64,15 +66,8 @@ $returnurl = "../../forms/$form_folder/view.php?mode=noencounter";
 <!-- declare this document as being encoded in UTF-8 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" ></meta>
 
-<!-- supporting javascript code -->
-<!-- for dialog -->
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<!-- For jquery, required by edit, print, and delete buttons. -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js"></script>
-
-<!-- Global Stylesheet -->
-<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css"/>
+<!-- assets -->
+<?php Header::setupHeader(); ?>
 <!-- Form Specific Stylesheet. -->
 <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css" type="text/css"/>
 

@@ -302,7 +302,6 @@
 </script>
     <?php    $use_validate_js = 1;?>
     <?php validateUsingPageRules($_SERVER['PHP_SELF'] . '?method=groupParticipants');?>
-<script src="<?php echo $GLOBALS['webroot']?>/library/dialog.js"></script>
     <?php require 'footer.php'; ?>
 
 <?php else :?>

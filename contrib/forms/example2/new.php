@@ -14,6 +14,7 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 /** CHANGE THIS name to the name of your form **/
 $form_name = "My Example Form";
@@ -28,15 +29,9 @@ $returnurl = 'encounter_top.php';
 
 <html><head>
 
-<!-- other supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-
-<!-- page styles -->
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<!-- assets -->
+<?php Header::setupHeader('datetime-picker'); ?>
 <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
 </head>
 

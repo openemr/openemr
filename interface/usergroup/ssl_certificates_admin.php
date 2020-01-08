@@ -19,6 +19,7 @@ require_once("../globals.php");
 require_once("../../library/create_ssl_certificate.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -578,7 +579,8 @@ if ($_POST["mode"] == "create_client_certificate") {
 
     </script>
 
-    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+    <?php Header::setupHeader(); ?>
+
     <style type="text/css">
       div.borderbox {
         margin: 5px 5px;

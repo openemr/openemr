@@ -18,10 +18,12 @@ exit;
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
+
 ?>
 <html>
 <head>
-    <script src="../../public/assets/jquery/dist/jquery.min.js"></script>
+    <?php Header::setupAssets('jquery'); ?>
 
     <script language="JavaScript">
         function testAjaxApi() {

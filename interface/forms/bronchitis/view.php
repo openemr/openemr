@@ -19,11 +19,12 @@
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
 ?>
 <html><head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+    <?php Header::setupHeader(); ?>
 </head>
 <body class="body_top">
 <?php

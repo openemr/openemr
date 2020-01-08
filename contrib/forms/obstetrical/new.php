@@ -17,10 +17,13 @@
 <?php
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
+
+use OpenEMR\Core\Header;
+
 formHeader("Form: obstetrical");
 ?>
 <html><head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+    <?php Header::setupHeader(); ?>
 </head>
 <body class="body_top">
 <form method=post action="<?php echo $rootdir;?>/forms/obstetrical/save.php?mode=new" name="my_form">

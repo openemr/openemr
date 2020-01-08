@@ -19,6 +19,8 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
+
 
 if (!acl_check('admin', 'super')) {
     die(xlt('Not authorized'));
@@ -29,12 +31,7 @@ if (!acl_check('admin', 'super')) {
 <html>
 <head>
 <title><?php echo xlt('De Identification'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+    <?php Header::setupHeader('datetime-picker'); ?>
 <style type="text/css">
 .style1 {
     text-align: center;

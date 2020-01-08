@@ -18,6 +18,7 @@ require_once($GLOBALS['srcdir'] . '/acl.inc');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!acl_check('admin', 'super')) {
     die(xlt('Not authorized'));
@@ -39,7 +40,7 @@ function applyCode($layoutid, $codetype, $code, $description)
 
 <head>
 <title><?php echo xlt('Install Layout Service Codes'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<?php Header::setupHeader(); ?>
 
 <style type="text/css">
  .dehead { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold }

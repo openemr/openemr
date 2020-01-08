@@ -38,6 +38,8 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Core\Header;
+
 // get various authorization levels
 $auth_notes_a  = true; //acl_check('encounters', 'notes_a');
 $auth_notes    = true; //acl_check('encounters', 'notes');
@@ -56,7 +58,7 @@ if ($GLOBALS['gbl_portal_cms_enable']) {
 $ignoreAuth = 1;
 ?>
 
-<script type="text/javascript" src="../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<?php Header::setupAssets('textformat'); ?>
 
 <style>
 input[type="checkbox"], input[type="radio"] {

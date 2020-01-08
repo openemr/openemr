@@ -23,6 +23,7 @@ use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 use OpenEMR\Services\InsuranceService;
 
 $debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
@@ -689,7 +690,7 @@ if (!$debug) {
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 <style type="text/css">
  body       { font-family:sans-serif; font-size:8pt; font-weight:normal }
  .dehead    { color:var(--black); font-family:sans-serif; font-size:9pt; font-weight:bold }

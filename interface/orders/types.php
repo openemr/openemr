@@ -129,7 +129,7 @@ if ($popup && $_POST['form_save']) {
 
     <?php
     if ($popup) { ?>
-        <script type="text/javascript" src="../../library/topdialog.js"></script>
+        <?php Header::setupAssets('topdialog'); ?>
     <?php } ?>
 
 

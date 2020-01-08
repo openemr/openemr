@@ -18,6 +18,7 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/acl.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $row = array();
 
@@ -109,12 +110,11 @@ if ($formid) {
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+    <?php Header::setupHeader(); ?>
 <style type="text/css">
  .dehead    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold }
  .detail    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal }
 </style>
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language='JavaScript'>
 

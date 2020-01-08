@@ -15,6 +15,7 @@ require_once "../library/options.inc.php";
 require_once("../library/clinical_rules.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -182,8 +183,7 @@ $xml->close_submission();
 
 <html>
 <head>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader('opener'); ?>
 <title><?php echo xlt('Export PQRI Report'); ?></title>
 </head>
 <body>

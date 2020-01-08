@@ -22,6 +22,8 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
+use OpenEMR\Core\Header;
+
 $row = array();
 
 if (! $encounter) { // comes from globals.php
@@ -89,8 +91,7 @@ if ($formid) {
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+    <?php Header::setupHeader(); ?>
 <script language='JavaScript'>
  function newEvt() {
   dlgopen('../../main/calendar/add_edit_event.php?patientid=' + <?php echo js_url($pid); ?>,

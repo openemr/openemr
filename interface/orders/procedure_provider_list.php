@@ -33,7 +33,7 @@ $res = sqlStatement($query);
 <title><?php echo xlt('Procedure Providers'); ?></title>
 
 <?php if ($popup) { ?>
-<script type="text/javascript" src="../../library/topdialog.js"></script>
+    <?php Header::setupAssets('topdialog'); ?>
 <?php } ?>
 
 <script language="JavaScript">

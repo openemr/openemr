@@ -17,6 +17,7 @@ require_once("$srcdir/acl.inc");
 require_once("drugs.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $drug_id = $_REQUEST['drug'];
 $lot_id  = $_REQUEST['lot'];
@@ -37,17 +38,12 @@ if (!$lot_id) {
 <html>
 <head>
 <title><?php echo xlt('Destroy Lot') ?></title>
-<link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+
+<?php Header::setupHeader('datetime-picker'); ?>
 
 <style>
 td { font-size:10pt; }
 </style>
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-
 
 <script language="JavaScript">
     $(function(){

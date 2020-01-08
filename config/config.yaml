@@ -204,3 +204,27 @@ assets:
     track-anything:
         basePath: %webroot%/interface/forms/track_anything/
         link: style.css
+    i18next-xhr-backend:
+        basePath: %assets_static_relative%/i18next-xhr-backend/dist/umd/
+        script: i18nextXHRBackend.min.js
+    i18next-browser-languagedetector:
+        basePath: %assets_static_relative%/i18next-browser-languagedetector/dist/umd/
+        script: i18nextBrowserLanguageDetector.min.js
+    konva:
+        basePath: %assets_static_relative%/konva/
+        script: konva.min.js
+    magic-wand:
+        basePath: %assets_static_relative%/magic-wand-js/js/
+        script: magic-wand-min.js
+    jszip:
+        basePath: %assets_static_relative%/jszip/dist/
+        script: jszip.min.js
+    dwv:
+        basePath: %assets_static_relative%/dwv/
+        script:
+            - decoders/pdfjs/jpx.js
+            - decoders/pdfjs/util.js
+            - decoders/pdfjs/arithmetic_decoder.js
+            - decoders/pdfjs/jpg.js
+            - decoders/rii-mango/lossless-min.js
+            - dist/dwv.min.js

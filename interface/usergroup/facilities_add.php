@@ -140,7 +140,7 @@ $(function(){
     $("#cancel").click(function() {
           dlgclose();
      });
-    
+
     /**
      * add required/star sign to required form fields
      */
@@ -170,7 +170,6 @@ function displayAlert() {
     }
 }
 </script>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 </head>
 <body class="body_top">
@@ -184,7 +183,7 @@ function displayAlert() {
 <form name='facility-add' id='facility-add' method='post' action="facilities.php">
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <input type="hidden" name="mode" value="facility" />
-    
+
     <div class="row">
         <div class="col-sm-6">
             <div class="form-group">
@@ -273,9 +272,9 @@ function displayAlert() {
             </div>
         </div>
     </div>
-    
+
     <hr />
-    
+
     <?php
     $disabled='';
     $resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => $my_fid));

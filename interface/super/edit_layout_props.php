@@ -17,6 +17,7 @@ require_once("$srcdir/acl.inc");
 require_once("$phpgacl_location/gacl_api.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $alertmsg = "";
 
@@ -32,16 +33,11 @@ $group_id  = empty($_GET['group_id' ]) ? '' : $_GET['group_id' ];
 <html>
 <head>
 <title><?php echo xlt("Edit Layout Properties"); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+    <?php Header::setupHeader('opener'); ?>
 
 <style>
 td { font-size:10pt; }
 </style>
-
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 

@@ -76,7 +76,8 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
 <head>
 <title><?php echo $drug_id ? xlt("Edit") : xlt("Add New");
 echo ' ' . xlt('Drug'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+
+<?php Header::setupHeader(["jquery-ui","opener"]); ?>
 
 <style>
 td { font-size:10pt; }
@@ -94,7 +95,6 @@ td { font-size:10pt; }
 <?php } ?>
 
 </style>
-    <?php Header::setupHeader(["jquery-ui","opener"]); ?>
 
 <script language="JavaScript">
 

@@ -584,7 +584,7 @@ function toencounter(enc, datestr, topframe) {
     document.onclick=HideTheAjaxDivs;
 </script>
 
-<script type="text/javascript" src="../../library/topdialog.js"></script>
+<?php Header::setupAssets('topdialog'); ?>
 
 <script language="JavaScript">
     <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>

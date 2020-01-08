@@ -337,10 +337,6 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
 }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-
 <script language="JavaScript">
 
  var ssChanged = false; // if they have changed anything in the spreadsheet

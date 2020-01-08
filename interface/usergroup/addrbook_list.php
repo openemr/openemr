@@ -205,10 +205,8 @@ while ($row = sqlFetchArray($res)) {
 </div>
 
 <?php if ($popup) { ?>
-<script type="text/javascript" src="../../library/topdialog.js"></script>
+    <?php Header::setupAssets('topdialog'); ?>
 <?php } ?>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-
 <script language="JavaScript">
 
 <?php if ($popup) {
