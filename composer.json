@@ -96,10 +96,5 @@
         "psr-4" : {
             "OpenEMR\\" : "src"
         }
-    },
-    "extra": {
-        "asset-vcs-driver-options": {
-            "github-no-api": true
-        }
     }
 }
