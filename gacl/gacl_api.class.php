@@ -1945,7 +1945,7 @@ class gacl_api extends gacl {
 
 		// test to see if object & group exist and if object is already a member
 		$query  = '
-				SELECT		o.id AS id,g.id AS group_id,gm.group_id AS member
+				SELECT		o.id AS id,g.id AS group_id,gm.group_id AS `member`
 				FROM		'. $object_table .' o
 				LEFT JOIN	'. $group_table .' g ON g.id='. $group_id .'
 				LEFT JOIN	'. $table .' gm ON (gm.'. $group_type .'_id=o.id AND gm.group_id=g.id)
