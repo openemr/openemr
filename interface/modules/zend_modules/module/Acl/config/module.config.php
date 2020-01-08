@@ -11,8 +11,8 @@
  */
 namespace Acl;
 
-use Zend\ServiceManager\Factory\InvokableFactory;
-use Zend\Router\Http\Segment;
+use Laminas\ServiceManager\Factory\InvokableFactory;
+use Laminas\Router\Http\Segment;
 use Interop\Container\ContainerInterface;
 
 return array(
@@ -64,7 +64,7 @@ return array(
     'service_manager' => [
         'factories' => [
             Model\AclTable::class =>  function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get(\Zend\Db\Adapter\Adapter::class);
+                $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
                 $table = new Model\AclTable($dbAdapter);
                 return $table;
             },

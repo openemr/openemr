@@ -10,9 +10,9 @@
  */
 namespace Carecoordination\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Zend\View\Model\JsonModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
+use Laminas\View\Model\JsonModel;
 use Application\Listener\Listener;
 use Documents\Controller\DocumentsController;
 use Carecoordination\Model\CcdTable;
@@ -113,13 +113,13 @@ class CcdController extends AbstractActionController
         $document_id                      =    $_REQUEST["document_id"];
         $xml_content                      =    $this->getCarecoordinationTable()->getDocument($document_id);
 
-        $xmltoarray                       =    new \Zend\Config\Reader\Xml();
+        $xmltoarray                       =    new \Laminas\Config\Reader\Xml();
         $array                            =    $xmltoarray->fromString((string) $xml_content);
 
         $this->getCcdTable()->import($array, $document_id);
 
         // we return just empty Json, otherwise it triggers an error if we don't return some kind of HTTP response.
-        $view = new \Zend\View\Model\JsonModel();
+        $view = new \Laminas\View\Model\JsonModel();
         $view->setTerminal(true);
         return $view;
     }

@@ -11,7 +11,7 @@
 namespace Documents\Plugin;
 
 use OpenEMR\Common\Crypto\CryptoGen;
-use Zend\Mvc\Controller\Plugin\AbstractPlugin;
+use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 use Documents\Model\DocumentsTable;
 use Application\Model\ApplicationTable;
 use Application\Listener\Listener;
@@ -29,7 +29,7 @@ class Documents extends AbstractPlugin
    **/
     public function __construct($sm)
     {
-        $sm->get('Zend\Db\Adapter\Adapter');
+        $sm->get('Laminas\Db\Adapter\Adapter');
         $this->documentsTable = new DocumentsTable();
     }
 

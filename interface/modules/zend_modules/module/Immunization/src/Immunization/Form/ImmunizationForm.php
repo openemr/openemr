@@ -11,7 +11,7 @@
 
 namespace Immunization\Form;
 
-use Zend\Form\Form;
+use Laminas\Form\Form;
 
 class ImmunizationForm extends Form
 {
@@ -24,7 +24,7 @@ class ImmunizationForm extends Form
      // Codes
         $this->add(array(
                 'name'          => 'codes',
-                'type'          => 'Zend\Form\Element\Select',
+                'type'          => 'Laminas\Form\Element\Select',
                 'attributes'        => array(
                                         'multiple'      => 'multiple',
                                         'size'          => '3',
@@ -41,7 +41,7 @@ class ImmunizationForm extends Form
 
         $this->add(array(
                             'name' => 'from_date',
-                            'type' => 'Zend\Form\Element\Text',
+                            'type' => 'Laminas\Form\Element\Text',
                             'attributes' => array(
                                             'id'          => 'from_date',
                                             'placeholder' => 'From Date',

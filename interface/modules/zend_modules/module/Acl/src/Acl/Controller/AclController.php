@@ -12,8 +12,8 @@
 
 namespace Acl\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 use Application\Listener\Listener;
 
 class AclController extends AbstractActionController
@@ -26,7 +26,7 @@ class AclController extends AbstractActionController
     protected $listenerObject;
     private $htmlEscaper;
 
-    public function __construct(\Zend\View\Helper\HelperInterface $htmlEscaper, \Acl\Model\AclTable $aclTable)
+    public function __construct(\Laminas\View\Helper\HelperInterface $htmlEscaper, \Acl\Model\AclTable $aclTable)
     {
         $this->htmlEscaper = $htmlEscaper;
         // TODO: we should probably inject the Listener object as well so we can mock it in unit tests or at least make the dependency explicit.

@@ -13,14 +13,14 @@
 
 namespace Installer\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Zend\View\Model\JsonModel;
-use Zend\Json\Json;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
+use Laminas\View\Model\JsonModel;
+use Laminas\Json\Json;
 use Installer\Model\InstModule;
 use Application\Listener\Listener;
 use Installer\Model\InstModuleTable;
-use Zend\Db\Adapter\Adapter;
+use Laminas\Db\Adapter\Adapter;
 
 class InstallerController extends AbstractActionController
 {
@@ -31,7 +31,7 @@ class InstallerController extends AbstractActionController
     protected $listenerObject;
 
     /**
-     * @var Zend\Db\Adapter\Adapter
+     * @var Laminas\Db\Adapter\Adapter
      */
     private $dbAdapter;
 

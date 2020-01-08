@@ -11,8 +11,8 @@
 
 namespace Application\Model;
 
-use Zend\Db\TableGateway\AbstractTableGateway;
-use Zend\Db\ResultSet\ResultSet;
+use Laminas\Db\TableGateway\AbstractTableGateway;
+use Laminas\Db\ResultSet\ResultSet;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 class ApplicationTable extends AbstractTableGateway
@@ -22,12 +22,12 @@ class ApplicationTable extends AbstractTableGateway
 
     /**
      *
-     * @param \Zend\Db\Adapter\Adapter $adapter
+     * @param \Laminas\Db\Adapter\Adapter $adapter
      */
     public function __construct()
     {
         // TODO: I can't find any reason why we grab the static adapter instead of injecting a regular DB adapter here...
-        $adapter = \Zend\Db\TableGateway\Feature\GlobalAdapterFeature::getStaticAdapter();
+        $adapter = \Laminas\Db\TableGateway\Feature\GlobalAdapterFeature::getStaticAdapter();
         $this->adapter = $adapter;
         $this->resultSetPrototype = new ResultSet();
         $this->resultSetPrototype->setArrayObjectPrototype(new Application());
@@ -60,7 +60,7 @@ class ApplicationTable extends AbstractTableGateway
             $statement  = $this->adapter->query($sql);
             $return     = $statement->execute($params);
             $result     = true;
-        } catch (\Zend\Db\Adapter\ExceptionInterface $e) {
+        } catch (\Laminas\Db\Adapter\ExceptionInterface $e) {
             if ($error) {
                 $this->errorHandler($e, $sql, $params);
             }
@@ -98,7 +98,7 @@ class ApplicationTable extends AbstractTableGateway
      */
     public function errorHandler($e, $sql, $binds = '')
     {
-        $escaper = new \Zend\Escaper\Escaper('utf-8');
+        $escaper = new \Laminas\Escaper\Escaper('utf-8');
         $trace  = $e->getTraceAsString();
         $nLast = strpos($trace, '[internal function]');
         $trace = substr($trace, 0, ($nLast - 3));
@@ -153,7 +153,7 @@ class ApplicationTable extends AbstractTableGateway
 
     /**
      * Function zAclCheck
-     * Check ACL in Zend
+     * Check ACL in Laminas
      *
      * Same Functionality in the OpemEMR
      * for Left Nav ACL Check

@@ -33,7 +33,7 @@ Then you can access these named adapters in your code by injecting them in your 
                 $dbWriter = $container->get('OpenEMR\Modules\Db\WriteAdapter'); 
                 /**
                  * the constructor for SomeModuleClass would have the signature of
-                 * public function __construct(Zend\Db\Adapter\Adapter $dbReader, Zend\Db\Adapter\Adapter $dbWriter) {}
+                 * public function __construct(Laminas\Db\Adapter\Adapter $dbReader, Laminas\Db\Adapter\Adapter $dbWriter) {}
                  */
                 return new SomeModuleClass($dbReader, $dbWriter);
             }
@@ -47,6 +47,6 @@ the ContainerInterface into your class instead of the database adapters.  This l
 You must enable the Multiple databases flag in the OpenEMR globals settings in order to use this feature.
 You can do this by editing Administration > Globals > Security > Allow multiple databases.
 
-This module leverages the named adapter's functionality of the Zend-DB module.  You can learn more about it here: https://docs.zendframework.com/tutorials/db-adapter/
+This module leverages the named adapter's functionality of the Laminas-DB module.  You can learn more about it here: https://docs.zendframework.com/tutorials/db-adapter/
 
 The injection of the database adapters happens in the oemr_install/interface/modules/zend_modules/config/autoload/global.php file.  This is the last step before the zend application / modules are executed.  It will override all prior service factory configuration so if a Namespace name is added that conflicts with an existing module Namespace class it WILL replace and overwrite it.  This could lead to unexpected or fatal system behavior if the database adapter namespaces are not named carefully.

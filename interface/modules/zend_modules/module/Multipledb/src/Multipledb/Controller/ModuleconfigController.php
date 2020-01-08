@@ -18,7 +18,7 @@
  */
 namespace Multipledb\Controller;
 
-use Zend\View\Model\ViewModel;
+use Laminas\View\Model\ViewModel;
 
 /**
  * This is is the configuration for the openemr module installer.

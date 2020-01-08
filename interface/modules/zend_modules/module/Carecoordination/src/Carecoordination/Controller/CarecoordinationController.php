@@ -12,9 +12,9 @@
  */
 namespace Carecoordination\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Zend\View\Model\JsonModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
+use Laminas\View\Model\JsonModel;
 use Application\Listener\Listener;
 use Documents\Controller\DocumentsController;
 use Carecoordination\Model\CarecoordinationTable;
@@ -49,7 +49,7 @@ class CarecoordinationController extends AbstractActionController
      * @param int   $id     menu id
      * $param array $data   menu details
      * @param string $slug  controller name
-     * @return \Zend\View\Model\ViewModel
+     * @return \Laminas\View\Model\ViewModel
      */
     public function indexAction()
     {
@@ -110,7 +110,7 @@ class CarecoordinationController extends AbstractActionController
      * Function to import the data CCDA file to audit tables.
      *
      * @param    document_id     integer value
-     * @return \Zend\View\Model\JsonModel
+     * @return \Laminas\View\Model\JsonModel
      */
     public function importAction()
     {
@@ -129,7 +129,7 @@ class CarecoordinationController extends AbstractActionController
         // Note the behavior of this relies on PHP's XMLReader
         // @see https://docs.zendframework.com/zend-config/reader/
         // @see https://php.net/xmlreader
-        $xmltoarray = new \Zend\Config\Reader\Xml();
+        $xmltoarray = new \Laminas\Config\Reader\Xml();
         $array = $xmltoarray->fromString((string) $xml_content_new);
 
         $patient_role = $array['recordTarget']['patientRole'];
@@ -239,7 +239,7 @@ class CarecoordinationController extends AbstractActionController
 
         $this->getCarecoordinationTable()->import($array, $document_id);
 
-        $view = new \Zend\View\Model\JsonModel();
+        $view = new \Laminas\View\Model\JsonModel();
         $view->setTerminal(true);
         return $view;
         // $view = new ViewModel(array());

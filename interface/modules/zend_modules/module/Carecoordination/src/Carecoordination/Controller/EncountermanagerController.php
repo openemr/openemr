@@ -11,9 +11,9 @@
  */
 namespace Carecoordination\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Zend\Filter\Compress\Zip;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
+use Laminas\Filter\Compress\Zip;
 use Application\Listener\Listener;
 
 class EncountermanagerController extends AbstractActionController
@@ -216,7 +216,7 @@ class EncountermanagerController extends AbstractActionController
             return $view;
         } else {
         // we return just empty Json, otherwise it triggers an error if we don't return some kind of HTTP response.
-            $view = new \Zend\View\Model\JsonModel();
+            $view = new \Laminas\View\Model\JsonModel();
             $view->setTerminal(true);
             return $view;
         }
