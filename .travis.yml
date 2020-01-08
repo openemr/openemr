@@ -438,21 +438,15 @@ jobs:
         - if $failJob; then travis_terminate 1; fi
     - name: 'Build and test (only phpunit; no functional tests) - PHP 8.0'
       php: 'nightly'
-      env:
-        - DOCKER_DIR=apache_73
-        - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
       script:
         - failJob=false
-        - *dockers_env_start
         - *main_build
         - *ccda_build
-        - *install_configure
         - *dev_test_build
         - *build_test_unit
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
   allow_failures:
-    - name: 'Build and test - PHP 7.3 - Apache - MySQL 8'
     - name: 'Build and test (only phpunit; no functional tests) - PHP 8.0'
     - name: 'Syntax - PHP 8.0'
