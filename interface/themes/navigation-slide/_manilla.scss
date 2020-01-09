@@ -1,10 +1,13 @@
-#navigation-slide, #navigation-slide * {
+#navigation-slide,
+#navigation-slide * {
     padding-left: 1px;
     margin-left: 0px;
 }
+
 #navigation-slide li {
     list-style: none;
 }
+
 #navigation-slide a {
     background: #FFFFFF;
     border-top: 0px solid #EAE6FF;
@@ -15,20 +18,25 @@
     padding: 5px 2px 5px 10px;
     width: 150px;
 }
+
 #navigation-slide li a.collapsed {
     color: #fff;
     background: none repeat scroll 0% 0% #16558C;
 }
+
 #navigation-slide li a.expanded {
     background: none repeat scroll 0% 0% rgb(22, 85, 140);
     color: rgb(255, 255, 51);
 }
+
 #navigation-slide ul li a.collapsed_lv2 {
     background: none repeat scroll 0% 0% #FEF3CF;
 }
+
 #navigation-slide ul li a.collapsed_lv3 {
     background: none repeat scroll 0% 0% #eeeeee;
 }
+
 #navigation-slide ul li a.expanded_lv2 {
     background: #999;
     /* for non-css3 browsers */
@@ -39,6 +47,7 @@
     background: -moz-linear-gradient(center top, #fefdcf, #fefdcf) repeat scroll 0% 0% transparent;
     background: none repeat scroll 0% 0% #fefdcf;
 }
+
 #navigation-slide ul li a.expanded_lv3 {
     background: #999;
     /* for non-css3 browsers */

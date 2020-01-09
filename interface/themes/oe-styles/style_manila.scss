@@ -88,24 +88,18 @@ body {
 .menu,
 .menu_selected,
 .logout {
-    font-style: italic;
-    font-size: 0.95em;
+    font-style: italic !important;
+    font-size: 0.95em !important;
 }
 
 .text {
-    color: #4C2222 !important;
+    color: darken($danger, 40%) !important;
 }
 
-.alert-custom {
-    font-size: 0.8em !important;
-    color: #FF0000 !important;
-    text-decoration: none !important;
-}
-
+.alert-custom,
 .link {
-    text-decoration: none;
-    color: #0000cc;
-    font-size: 0.8em;
+    text-decoration: none !important;
+    font-size: 0.8em !important;
 }
 
 .more,
@@ -118,36 +112,36 @@ body {
 }
 
 .link_submit {
-    font-size: 0.85em;
+    font-size: 0.85em !important;
 }
 
 .items {
-    font-size: 0.6em;
+    font-size: 0.6em !important;
 }
 
 .title {
-    font-size: 1.2em;
+    font-size: 1.2em !important;
 }
 
 .title_bar {
-    font-size: 1.0em;
+    font-size: 1.0em !important;
 }
 
 .title_bar_top {
-    font-size: 1.1em;
+    font-size: 1.1em !important;
 }
 
 .sidebar {
-    background: #fffbeb;
-    font-size: 95%;
+    background: #fffbeb !important;
+    font-size: 95% !important;
 }
 
 .sidebar .submenu {
-    font-size: 90%;
+    font-size: 90% !important;
 }
 
 .navbar-custom {
-    padding: 0px;
+    padding: 0 !important;
 }
 
 #addressbook_list td {
@@ -155,12 +149,12 @@ body {
 }
 
 #addressbook_list tr.head {
-    font-size: 0.9em;
+    font-size: 0.9em !important;
 }
 
 #addressbook_list .inputtext {
     font-family: 'source_sans_pro', 'FontAwesome', monospace, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
-    font-size: 0.8em;
+    font-size: 0.8em !important;
 }
 
 #reports_list td,
@@ -168,15 +162,6 @@ body {
 #documents_list td,
 #documents_list a {
     font-family: "source_sans_pro", "FontAwesome", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
-}
-
-/* styles taken out of templates/documents/general_list.html */
-#documents_list {
-    width: 100%;
-    height: 95%;
-    overflow: auto;
-    float: left;
-    border-right: dashed 1px;
 }
 
 /*=============================================================
@@ -208,19 +193,15 @@ body {
  * seen in the patient encounter screen
  *============================================================*/
 #patient_pastenc #tooltipdiv {
-    font-size: 0.85em;
+    font-size: 0.85em !important;
 }
 
 tr.odd {
-    background-color: $gray;
+    background-color: $gray !important;
 }
 
 td.even {
-    background-color: $white;
-}
-
-#logout_link span {
-    display: none;
+    background-color: $white !important;
 }
 
 /*
@@ -261,8 +242,8 @@ ul.tabNav li.current {
 
 ul.tabNav a {
     background: #F8E6CB;
-    color: $dark;
-    padding: 8px;
+    color: $dark !important;
+    padding: 8px !important;
     border-radius: 8px 8px 0 0;
     box-shadow: 2px -1px 1px $manilla-gray;
 }
@@ -386,7 +367,7 @@ div.summary_item div {
 .showborder_head th,
 .shownoborder td,
 .showborder_long tr td {
-    font-size: 12px !important;
+    font-size: 0.75rem !important;
 }
 
 /**
@@ -394,12 +375,12 @@ div.summary_item div {
 **/
 .drug_lookup {
     font-family: 'source_sans_pro', 'FontAwesome', "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
-    font-size: 11px;
+    font-size: 0.6875rem !important;
 }
 
 /* Style for red font */
 .redtext {
-    font-size: 13px;
+    font-size: 0.8125rem !important;
 }
 
 /* Style for red font */
@@ -408,7 +389,7 @@ div.summary_item div {
 
 body dl {
     background-color: #C9DBF2;
-    border-bottom: 0.1pt solid $black;
+    border-bottom: 0.1px solid $black;
     -moz-box-shadow: 0 0 10px $black;
     -webkit-box-shadow: 0 0 10px $black;
     box-shadow: 0 0 10px $black;
@@ -426,7 +407,7 @@ body dl {
 #sddm li a {
     padding: 4px 10px;
     color: $black;
-    font-size: 0.8em;
+    font-size: 0.8em !important;
 }
 
 #sddm li a:hover {
@@ -436,7 +417,7 @@ body dl {
 
 #sddm div {
     background-color: #C9DBF2;
-    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.176);
+    box-shadow: 0px 6px 12px rgba($black, 0.176);
     min-width: 175px;
     border: 0.5pt solid $gray;
     border-radius: 0px 5px 5px 5px;
@@ -463,7 +444,7 @@ body dl {
 }
 
 .example_menu {
-    font-size: 70%;
+    font-size: 70% !important;
 }
 
 .example_menu ul a:Subjective {
@@ -477,11 +458,11 @@ body dl {
 
 /* Form styles */
 .formtable {
-    font-size: 13px;
+    font-size: 0.8125rem !important;
 }
 
 .error-message {
-    font-size: 11px;
+    font-size: 0.6875rem !important;
 }
 
 /* flow board filters*/
@@ -489,7 +470,7 @@ body dl {
     padding: 8px;
     text-decoration: none;
     border-radius: 8px;
-    border: 1pt solid $black;
+    border: 1px solid $black;
     box-shadow: 2px 2px 2px rgb(192, 192, 192);
 }
 
@@ -503,7 +484,7 @@ body dl {
     display: block;
     padding: 0px;
     text-decoration: none;
-    border-bottom: 0.1pt solid $black;
+    border-bottom: 0.1px solid $black;
     box-shadow: 0px 0px 2px $manilla-gray;
     margin: 3px;
 }
@@ -563,7 +544,7 @@ body dl {
 #oe-nav-ul.tabNav a {
     background: $light;
     border-left: 2px solid $gray;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid $gray-400;
 }
 
 #oe-nav-ul.tabNav a:hover {
@@ -572,7 +553,7 @@ body dl {
 }
 
 #oe-nav-ul.tabNav {
-    background: rgba(0, 0, 0, .05) !important;
+    background: rgba($black, .05) !important;
 }
 
 #oe-nav-ul.tabNav .current a {
@@ -597,7 +578,7 @@ body dl {
 }
 
 .tabNotchosen {
-    border-bottom: 1pt solid $gray !important;
+    border-bottom: 1px solid $gray !important;
     border-top: none !important;
     border-left: none !important;
     border-right: none !important;
@@ -614,29 +595,6 @@ body dl {
 .navbar-default .navbar-nav > li > a:hover {
     color: $dark;
     background-color: #eee;
-}
-
-/*bootstrap navbar */
-/*openemr 5 patient-finder*/
-@media screen and (max-width: 750px) {
-    #pt_table {
-        font-size: 1.2rem;
-    }
-}
-
-/*openemr 5 patient-finder*/
-
-/*vertical main menu */
-
-.appMenu_small .menuSection > .menuEntries {
-    left: 40px;
-    box-shadow: 3px 5px 8px #adadad;
-}
-
-/*vertical main menu */
-/*search any*/
-*.oe-expandable-search .any-search-legacy {
-    background: #FFFFE0;
 }
 
 /*search any*/

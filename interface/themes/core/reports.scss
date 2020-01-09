@@ -68,6 +68,6 @@
 }
 
 .report_totals td {
-    background-color: #77ff77;
+    background-color: lighten($green, 30%);
     font-weight: bold;
 }

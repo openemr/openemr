@@ -28,7 +28,6 @@
 }
 
 #oe-nav-ul.tabNav {
-    /*float: left;*/
     margin: 0;
     padding: 4px 0 0;
 }
@@ -56,5 +55,5 @@
 
 .mark,
 mark {
-    background-color: #FBFB03;
+    background-color: $yellow;
 }

@@ -11,8 +11,8 @@
 **/
 
 .drug_lookup {
-    border: 2px outset #666666;
-    background-color: #eae6ff;
+    border: 2px outset $gray-600;
+    background-color: lighten($gray-200, 10%);
     padding: 5px;
     position: absolute;
     display: block;
@@ -29,14 +29,14 @@
 }
 
 .report_search_bar {
-    background-color: #EADDB4;
+    background-color: lighten($yellow, 60%);
 }
 
 /* flow board filters*/
 
 #flow_board_parameters {
     margin: 25px auto;
-    background-color: #ececec;
+    background-color: $gray-200;
 }
 
 #flow_board_parameters td {

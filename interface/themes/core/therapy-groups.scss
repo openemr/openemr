@@ -9,11 +9,11 @@
 }
 
 .group-error-msg {
-    color: #ff6643;
+    color: $orange;
 }
 
 .group-success-msg {
-    color: #4c8029;
+    color: $green;
 }
 
 #component-border {
@@ -44,7 +44,7 @@ table.dataTable#therapy_groups_list tbody td {
 }
 
 .therapy_group #therapy_groups_list_container input[type="text"] {
-    border-color: #ccc;
+    border-color: $gray-400;
 }
 
 .therapy_group #therapy_groups_list_container input[type=number] {
@@ -59,7 +59,7 @@ table.dataTable#therapy_groups_list tbody td {
 
 .therapy_group .delete_btn button,
 .therapy_group .delete_btn span {
-    background-color: #ef3935;
+    background-color: lighten($danger, 20%);
     font-size: 15px;
     padding: 2px 10px;
 }
@@ -94,7 +94,7 @@ table.dataTable#therapy_groups_list tbody td {
 }
 
 .groups-error-msg {
-    color: #ff542d;
+    color: $orange;
     font-size: 1.3em;
     padding: 8px;
     text-align: center;
@@ -166,7 +166,7 @@ table.dataTable#therapy_groups_list tbody td {
 }
 
 #file_type_whitelist option:hover {
-    background: #EEEEEE;
+    background: lighten($gray-200, 10%);
 }
 
 #file_type_whitelist .subject-info-arrows {

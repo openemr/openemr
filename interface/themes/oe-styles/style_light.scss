@@ -72,14 +72,13 @@ $close-text-shadow: 0 1 0 $black;
 
 @import "../theme-defaults";
 
-/* Temporary solution */
-@import "../navigation-slide/_light";
+@import "../navigation-slide/_future-bootstrap";
 
 /* Overrides go here */
 
 .btn-secondary {
-    background-color: rgba(0, 0, 0, .05) !important;
-    color: rgba(0, 0 , 0, .87) !important;
+    background-color: rgba($black, .05) !important;
+    color: rgba($black, .87) !important;
     border-color: $gray-500 !important;
 }
 

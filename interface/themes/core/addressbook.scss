@@ -9,7 +9,7 @@
     a,
     a:visited,
     a:hover {
-        color: #0000cc;
+        color: $primary;
     }
 
     tr.search {
@@ -17,12 +17,12 @@
     }
 
     tr.head {
-        background-color: #cccccc;
+        background-color: $gray-400;
         font-weight: bold;
     }
 
     tr.evenrow {
-        background-color: #ddddff;
+        background-color: $light;
     }
 
     tr.oddrow {

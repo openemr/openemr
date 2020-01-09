@@ -14,23 +14,23 @@
 
 .link_selected {
     text-decoration: none;
-    color: #0000FF;
+    color: $primary;
 }
 
 .link_selected:visited {
     text-decoration: none;
-    color: #0000FF;
+    color: $primary;
 }
 
 .link_submit {
     text-decoration: none;
-    color: #000077;
+    color: darken($primary, 20%);
 
     a:visited {
-        color: #000077;
+        color: darken($primary, 20%);
     }
 
     a:hover {
-        color: #ff5555;
+        color: lighten($danger, 10%);
     }
 }

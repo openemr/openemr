@@ -66,7 +66,7 @@ span.bold {
 /* $nav_bg_line */
 
 .body_filler {
-    background-color: #f7f0d5;
+    background-color: lighten($yellow, 30%) !important;
 }
 
 /* $login_body_line */
@@ -237,16 +237,16 @@ ul.tabNav a:focus {
 }
 
 .example_menu {
-    font-size: 0.7em;
+    font-size: 0.7em !important;
 }
 
 .example_menu ul a:hover {
-    background: #f5f5f5;
+    background: darken($light, 15%);
     text-decoration: underline;
 }
 
 .error-message {
-    font-size: 0.8em;
+    font-size: 0.8em !important;
 }
 
 
@@ -263,16 +263,16 @@ ul.tabNav a:focus {
 }
 
 .sidebar {
-    background-color: #f8f8f8;
-    font-size: 0.95em;
+    background-color: lighten($light, 10%);
+    font-size: 0.95em !important;
 }
 
 .sidebar .submenu {
-    font-size: 0.9em;
+    font-size: 0.9em !important;
 }
 
 .alert-danger-custom {
-    background-color: #FF0000 !important;
+    background-color: lighten($danger, 20%) !important;
     color: $white !important;
 }
 
@@ -300,9 +300,10 @@ div.category-display {
 /*~~openemr5 tabs menu , user and logout icon~~*/
 /*openrmr5.0.2 edit_globals vertical menu*/
 #theform input[type="text"] {
-    border: 1px solid #ccc;
+    border: 1px solid $gray-400;
     margin: 0;
 }
+
 
 #oe-nav-ul.tabNav li.current {
     color: $primary;
@@ -311,7 +312,7 @@ div.category-display {
 #oe-nav-ul.tabNav a {
     background: $light;
     border-left: 2px solid $primary;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid $gray-400;
 }
 
 #oe-nav-ul.tabNav a:hover {
@@ -340,27 +341,27 @@ div.category-display {
 /*openrmr5.0.2 edit_globals vertical menu*/
 /*main.php expandable search*/
 #search_globals {
-    background: #e8e8e8 !important;
+    background: lighten($gray-200, 10%) !important;
 }
 
 /*main.php expandable search*/
 /*bootstrap navbar */
 .navbar-collapse.collapse.in {
-    background-color: #F5F5F5 !important;
+    background-color: lighten($light, 20%) !important;
     color: $black !important;
 }
 
-.navbar-default .navbar-nav > li > a:focus,
-.navbar-default .navbar-nav > li > a:hover {
-    color: $gray-800;
-    background-color: #eee;
+.navbar-light .navbar-nav > li > a:focus,
+.navbar-light .navbar-nav > li > a:hover {
+    color: $gray-800 !important;
+    background-color: $gray-200 !important;
 }
 
 /*bootstrap navbar */
 /*openemr 5 patient-finder*/
 @media screen and (max-width: 750px) {
     #pt_table {
-        font-size: 1.2rem;
+        font-size: 1.2rem !important;
     }
 }
 
@@ -375,7 +376,7 @@ div.category-display {
 /*vertical main menu */
 /*search any*/
 *.oe-expandable-search .any-search-legacy {
-    background: $white;
+    background: $white !important;
 }
 
 /* Fieldset Colors */

@@ -1,8 +1,3 @@
-/*
-*   This file will consolidate all other navigation slide files into one
-*   due to the Bootstrap 4 update
-*/
-
 #navigation-slide,
 #navigation-slide * {
     padding-left: 0px;
@@ -27,7 +22,7 @@
 
 #navigation-slide li a:hover,
 #navigation-slide * li a:hover {
-    background-color: #d7d7d7;
+    background-color: $gray-200;
 }
 
 #navigation-slide li a.collapsed_lv2:before,
@@ -41,7 +36,7 @@
     /* left arrow slant */
     border-top: 5px solid transparent;
     /* right arrow slant */
-    border-left: 5px solid #2f2f2f;
+    border-left: 5px solid $dark;
     /* bottom, add background color here */
     font-size: 0;
     line-height: 10px;
@@ -49,7 +44,7 @@
 
 #navigation-slide li a.expanded,
 #navigation-slide * li a.expanded {
-    background: #cbe6f7;
+    background: $light;
 }
 
 #navigation-slide li a.expanded_lv2:before,
@@ -63,7 +58,7 @@
     /* left arrow slant */
     border-top: 5px solid transparent;
     /* right arrow slant */
-    border-left: 5px solid #2f2f2f;
+    border-left: 5px solid $dark;
     /* bottom, add background color here */
     font-size: 0;
     line-height: 0px;

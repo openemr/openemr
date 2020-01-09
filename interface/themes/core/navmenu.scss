@@ -1,5 +1,5 @@
 .menu {
-    color: #0000cc;
+    color: $primary;
     text-decoration: none;
     text-align: $left;
 }
@@ -26,7 +26,7 @@
 }
 
 .sidebar {
-    background: #fffbeb;
+    background: darken($light, 10%);
     font-size: 95%;
     padding-left: 0 !important;
     padding-right: 0 !important;
@@ -50,14 +50,14 @@ body {
 }
 
 .body_top {
-    background-color: #fffbeb;
+    background-color: darken($light, 10%);
     margin: 8px;
 }
 
 /* $top_bg_line */
 
 .bgcolor2 {
-    background-color: #fffbeb;
+    background-color: darken($light, 10%);
 }
 
 /* $GLOBALS['style']['BGCOLOR2'] */
@@ -70,19 +70,19 @@ body {
 /* $bottom_bg_line */
 
 .body_title {
-    background-color: #fedf98;
+    background-color: lighten($yellow, 50%);
 }
 
 /* $title_bg_line */
 
 .body_nav {
-    background-color: #fefdcf;
+    background-color: lighten($yellow, 60%);
 }
 
 /* $nav_bg_line */
 
 .body_filler {
-    background-color: #f7f0d5;
+    background-color: lighten($yellow, 70%);
 }
 
 /* $login_filler_line */
@@ -92,27 +92,23 @@ body {
 }
 
 /* $login_body_line */
-
-.table_bg {
-    background-color: #ccc;
-}
-
 /* $table_bg */
 
+.table_bg,
 .bgcolor1 {
-    background-color: #ccc;
+    background-color: $gray-400;
 }
 
 /* $GLOBALS['style']['BGCOLOR1'] */
 
 .textcolor11 {
-    background-color: #222;
+    background-color: $dark;
 }
 
 /* $GLOBALS['style']['TEXTCOLOR11'] */
 
 .highlightcolor {
-    background-color: #ddd;
+    background-color: $gray-300;
 }
 
 /* $GLOBALS['style']['HIGHLIGHTCOLOR'] */
@@ -124,7 +120,7 @@ body {
 /* $GLOBALS['style']['BOTTOM_BG_LINE'] */
 
 .logobar {
-    background-color: #24262c;
+    background-color: $dark;
     height: 110px;
 }
 
@@ -205,11 +201,11 @@ body {
 }
 
 .example_menu a.expanded {
-    background: #bbb url('collapse.gif') no-repeat 3px 50%;
+    background: $gray-300 url('collapse.gif') no-repeat 3px 50%;
 }
 
 .example_menu a.collapsed {
-    background: #bbb url('expand.gif') no-repeat 3px 50%;
+    background: $gray-300 url('expand.gif') no-repeat 3px 50%;
 }
 
 .example_menu a:hover {
@@ -217,7 +213,7 @@ body {
 }
 
 .example_menu ul li span {
-    background: #d9d1a4;
+    background: lighten($yellow, 60%);
     color: $black;
     display: block;
     font-weight: normal;
@@ -229,7 +225,7 @@ body {
 }
 
 .example_menu ul a:hover {
-    background: #f5f5f5;
+    background: lighten($light, 20%);
     text-decoration: underline;
 }
 
@@ -238,7 +234,7 @@ body {
 }
 
 .example_menu li.active li a {
-    background: #e8e8e8;
+    background: $gray-200;
 }
 
 #menu1 li.footer,

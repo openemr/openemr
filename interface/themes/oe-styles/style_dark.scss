@@ -30,6 +30,7 @@ $gray-800: #e9ecef;
 $gray-900: #f8f9fa;
 $black: #fff;
 $ovr-dark: $gray-100;
+$ovr-light: $gray-800;
 $light: $gray-100;
 $dark: $gray-800;
 $gray: $gray-600;
@@ -43,8 +44,9 @@ $theme-colors: (
     danger: $red,
     light: $gray-100,
     dark: $gray-800,
-    ovr-dark: $gray-100
-    /* Adds override class in case we HAVE to have a dark color */
+    ovr-dark: $ovr-dark,
+    ovr-light: $ovr-light
+    /* Adds override class in case we HAVE to have a dark/light color */
 );
 $colors: (
     "blue": $blue,
@@ -79,7 +81,6 @@ $close-text-shadow: 0 1 0 $black;
 /* Core defaults for themes */
 @import "../theme-defaults";
 
-/* Temporary Solution */
 @import "../navigation-slide/_future-bootstrap";
 
 /* Overrides go here */
