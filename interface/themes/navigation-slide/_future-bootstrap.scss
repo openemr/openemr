@@ -2,7 +2,7 @@
 #navigation-slide * {
     padding-left: 0px;
     margin-left: 0px;
-    font-size: 0.75rem !important;
+    @include font-size("0.75rem !important");
 }
 
 #navigation-slide li,
@@ -15,7 +15,7 @@
     background-color: none;
     color: $black;
     display: block;
-    font-size: 1.13em;
+    @include font-size("1.13rem !important");
     padding: 8px 0px 8px 0px;
     width: 100%;
 }

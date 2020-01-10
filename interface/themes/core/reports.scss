@@ -1,11 +1,8 @@
 /* styles taken out of templates/report/general_default.html */
 
-#reports_list td {
-    font-size: 0.8em;
-}
-
+#reports_list td,
 #reports_list a {
-    font-size: 0.8em;
+    @include font-size("0.8rem !important");
 }
 
 /*
@@ -30,7 +27,7 @@
 #report_parameters table table {
     border: 0px;
     border-collapse: collapse;
-    font-size: 0.8em;
+    @include font-size("0.8rem !important");
 }
 
 #report_parameters table table td.label_custom {
@@ -53,7 +50,7 @@
     background-color: $gray-300;
     text-align: $left;
     font-weight: bold;
-    font-size: 0.7em;
+    @include font-size("0.7rem !important");
 }
 
 #report_results table th {
@@ -64,7 +61,7 @@
 #report_results table td {
     padding: 5px;
     border-bottom: 1px dashed;
-    font-size: 0.8em;
+    @include font-size("0.8rem !important");
 }
 
 .report_totals td {

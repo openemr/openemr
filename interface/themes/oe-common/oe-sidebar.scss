@@ -67,7 +67,7 @@ main {
 }
 
 .navbar-toggler {
-    font-size: 1.5rem;
+    @include font-size("1.5rem !important");
     margin-top: .25rem;
 }
 
@@ -91,7 +91,7 @@ main {
     z-index: 1000;
     overflow-x: hidden;
     overflow-y: auto;
-    border-right: 1px solid #eee;
+    border-right: 1px solid $gray-200;
     white-space: nowrap;
     transition: all .5s ease;
     -webkit-transition: all .5s ease;
@@ -113,12 +113,12 @@ main {
 }
 
 .sidebar-expand button {
-    font-size: 2rem !important;
+    @include font-size("2rem !important");
     line-height: .9;
     color: $black;
     background: 0 0;
     border-width: 0;
-    border-color: rgba(255, 255, 255, .1);
+    border-color: rgba($white, .1);
     cursor: pointer;
     transition: all .5s ease;
     -webkit-transition: all .5s ease;

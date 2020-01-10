@@ -4,7 +4,7 @@
 }
 
 .oe-grp {
-    font-size: 16px !important;
+    @include font-size("16px !important");
     font-weight: 900;
 }
 
@@ -13,7 +13,7 @@
 }
 
 .oe-pink-background {
-    background: #ffd2da !important;
+    background: lighten($pink, 60%) !important;
 }
 
 .oe-pl0 {

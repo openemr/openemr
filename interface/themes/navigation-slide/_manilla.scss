@@ -9,18 +9,18 @@
 }
 
 #navigation-slide a {
-    background: #FFFFFF;
+    background: $white;
     border-top: 0px solid #EAE6FF;
-    border-left: 1pt solid black;
-    border-bottom: 1pt solid black;
-    color: #000;
+    border-left: 1px solid $black;
+    border-bottom: 1px solid $black;
+    color: $black;
     display: block;
     padding: 5px 2px 5px 10px;
     width: 150px;
 }
 
 #navigation-slide li a.collapsed {
-    color: #fff;
+    color: $white;
     background: none repeat scroll 0% 0% #16558C;
 }
 

@@ -34,7 +34,7 @@ a:visited.arrowhead {
 }
 
 .oe-patient-background {
-    background: #ffff9e !important;
+    background: lighten($yellow, 80%) !important;
 }
 
 /*---------------------------openemr5.0.2 messages--------------------------- */

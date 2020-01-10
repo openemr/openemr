@@ -40,7 +40,7 @@
 }
 
 .oe-expandable-search button.btn-search1 {
-    border: 1px solid #ccc;
+    border: 1px solid $gray-400;
     border-radius: 50%;
     height: 31px;
     left: 0;
@@ -78,10 +78,7 @@
     display: inline;
 }
 
-.oe-expandable-search .any-search-none {
-    display: none;
-}
-
+.oe-expandable-search .any-search-none,
 .oe-expandable-search button.btn-globals-none {
     display: none;
 }

@@ -371,15 +371,19 @@ function validate_file() {
     display: flex !important;
     flex-flow: column !important;
 }
+
 #oe-nav-ul.tabNav.tabWidthFull {
     width: 10%;
 }
+
 #oe-nav-ul.tabNav.tabWidthUser {
     width: 12%;
 }
+
 #oe-nav-ul.tabNav.tabWidthWide {
     width: 15%;
 }
+
 #oe-nav-ul.tabNav.tabWidthVertical {
     width: 25%;
 }
@@ -466,12 +470,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $srch_item = 0;
                             foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                                 if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
-                                    echo " <div class='tab" . ($i ? "" : " current") .
-                                      "' style='height:auto;width:100%;font-size:0.9em'>\n";
+                                    echo " <div class='tab w-100 h-auto" . ($i ? "" : " current") . "' style='font-size: 0.9rem'>\n";
 
                                     echo "<div class=''>";
                                     $addendum = $grpname == 'Appearance' ? ' (*'. xl("need to logout/login after changing these settings") .')' : '';
-                                    echo "<div class='col-sm-12 oe-global-tab-heading'><div class='oe-pull-toward' style='font-size: 1.4em'>". xlt($grpname) ." &nbsp;</div><div style='margin-top: 5px'>" . text($addendum) ."</div></div>";
+                                    echo "<div class='col-sm-12 oe-global-tab-heading'><div class='oe-pull-toward' style='font-size: 1.4rem'>". xlt($grpname) ." &nbsp;</div><div style='margin-top: 5px'>" . text($addendum) ."</div></div>";
                                     echo "<div class='clearfix'></div>";
                                     if ($userMode) {
                                         echo "<div class='row'>";
@@ -519,9 +522,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             }
 
                                             if ($userMode) {
-                                                echo " <div class='row form-group" . $srch_cl  . "'><div class='col-sm-4'><b>" . text($fldname) . "</b></div><div class='col-sm-4 oe-input' title='" . attr($flddesc) ."'>\n";
+                                                echo " <div class='row form-group" . $srch_cl  . "'><div class='col-sm-4 font-weight-bold'>" . text($fldname) . "</div><div class='col-sm-4 oe-input' title='" . attr($flddesc) ."'>\n";
                                             } else {
-                                                echo " <div class='row form-group" . $srch_cl . "'><div class='col-sm-6'><b>" . text($fldname) . "</b></div><div class='col-sm-6 oe-input' title='" . attr($flddesc) ."'>\n";
+                                                echo " <div class='row form-group" . $srch_cl . "'><div class='col-sm-6 font-weight-bold'>" . text($fldname) . "</div><div class='col-sm-6 oe-input' title='" . attr($flddesc) ."'>\n";
                                             }
 
                                             if (is_array($fldtype)) {
@@ -819,7 +822,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     </div><!--End of container div-->
 <?php $oemr_ui->oeBelowContainerDiv();?>
 </div>
-</body>
 <?php
 $post_srch_desc = $_POST['srch_desc'];
 if (!empty($post_srch_desc) && $srch_item == 0) {
@@ -827,7 +829,7 @@ if (!empty($post_srch_desc) && $srch_item == 0) {
 }
 ?>
 
-<script language="JavaScript">
+<script>
 $(function() {
     tabbify();
     <?php // mdsupport - Highlight search results ?>
@@ -912,5 +914,6 @@ $('.scroll').click(function() {
     return false;
 });
 </script>
+</body>
 </html>
 

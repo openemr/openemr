@@ -6,24 +6,28 @@
 #patient_reports {
     width: 100%;
 }
+
 #patient_reports .issues {
     padding-right: 30px;
 }
+
 #patient_reports .issues table {
     margin: 10px 0px 10px 0px;
 }
-#patient_reports .issues td {
-    padding: 2px;
-}
+
+#patient_reports .issues td,
 #patient_reports .encounters td {
     padding: 2px;
 }
+
 #patient_reports .encounter_forms {
     margin: 5px 15px 5px 15px;
 }
+
 #patient_reports td {
     vertical-align: top;
 }
+
 #patient_reports ul {
     list-style: none;
 }

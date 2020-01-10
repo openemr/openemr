@@ -30,7 +30,7 @@
     white-space: normal;
     text-align: $left;
     text-decoration: none;
-    font-size: 0.8em;
+    @include font-size("0.8rem !important");
     font-weight: normal;
 }
 

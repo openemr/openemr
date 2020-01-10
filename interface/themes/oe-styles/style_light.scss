@@ -56,13 +56,14 @@ $colors: (
     "cyan": $cyan,
     "white": $white,
     "gray": $gray-600,
-    "gray-dark": $gray-800
+    "gray-dark": $gray-800,
 );
 
 $body-bg: $white;
 $body-color: $gray-900;
 $font-family-sans-serif: "Lato", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 $font-size-base: 0.875rem;
+$rfs-base-value: 0.875rem;
 $font-family-base: $font-family-sans-serif;
 
 $close-color: $black;

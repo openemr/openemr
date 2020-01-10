@@ -229,7 +229,7 @@ body {
 .patientEncounterList .review {
     padding: 2px;
     border: 1px solid var(--black);
-    background-color: lightgray;
+    background-color: var(--gray);
     border-radius: 5px;
 }
 

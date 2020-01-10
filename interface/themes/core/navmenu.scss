@@ -13,7 +13,7 @@
 /* see .titlebar below */
 
 .title_bar {
-    font-size: 1.0em;
+    @include font-size("1.0rem !important");
     font-weight: bold;
     text-decoration: none;
     color: $black;
@@ -50,7 +50,6 @@ body {
 }
 
 .body_top {
-    background-color: darken($light, 10%);
     margin: 8px;
 }
 
@@ -142,7 +141,7 @@ body {
 
 .top-nav-icons {
     margin-right: 15px;
-    margin-top: 5px
+    margin-top: 5px;
 }
 
 .text-area {

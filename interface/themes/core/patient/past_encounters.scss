@@ -6,48 +6,58 @@
 #patient_pastenc {
     width: 100%;
 }
+
 #patient_pastenc .billing_note {
     width: 25%;
 }
+
 #patient_pastenc .billing_note_text {
     padding: 5px;
-    border: 2px outset black;
-    background-color: lightgrey;
+    border: 2px outset $black;
+    background-color: $gray;
 }
+
 #patient_pastenc .billing_note_text_highlight {
-    background-color: #f7f5d1;
+    background-color: lighten($yellow, 70%);
 }
+
 #patient_pastenc table {
     border-collapse: collapse;
     width: 100%;
 }
+
 #patient_pastenc tr {
     cursor: pointer;
 }
+
 #patient_pastenc td {
-    border-top: 1px solid black;
+    border-top: 1px solid $black;
     vertical-align: top;
 }
+
 #patient_pastenc th {
     text-align: $left;
 }
+
 #patient_pastenc #tooltipdiv {
     position: absolute;
     width: 500px;
-    border: 1px solid black;
+    border: 1px solid $black;
     padding: 2px;
-    background-color: #ffffaa;
+    background-color: lighten($yellow, 60%);
     visibility: hidden;
     z-index: 1000;
 }
+
 #patient_pastenc .highlight {
-    background-color: #fff;
+    background-color: $white;
 }
+
 #patient_pastenc .tooltip {
     position: absolute;
-    border: 1px solid #333;
-    background: #f7f5d1;
+    border: 1px solid $dark;
+    background: lighten($yellow, 70%);
     padding: 2px 5px;
-    color: #333;
+    color: $dark;
     display: none;
 }

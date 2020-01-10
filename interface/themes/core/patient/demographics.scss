@@ -6,23 +6,22 @@
 
 #DEM .groupname {
     font-weight: bold;
-    color: #080;
-    font-size: 0.8em;
+    color: $success;
+    @include font-size("0.8rem !important");
     padding-right: 5px;
     vertical-align: top;
 }
 
 #DEM .label_custom {
     font-weight: bold;
-    font-size: 0.8em;
+    @include font-size("0.8rem !important");
     vertical-align: top;
     text-align: $right;
 }
 
 #DEM .data {
-    font-size: 0.8em;
+    @include font-size("0.8rem !important");
     vertical-align: top;
     text-align: $left;
     padding-right: 6px;
-    /*30px - ie 6 fix*/
 }

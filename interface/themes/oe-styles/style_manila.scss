@@ -66,6 +66,7 @@ $body-bg: $white;
 $body-color: $gray-900;
 $font-family-sans-serif: "source_sans_pro", "FontAwesome", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 $font-size-base: 1rem;
+$rfs-base-value: 1rem;
 $font-family-base: $font-family-sans-serif;
 
 $close-color: $black;
@@ -89,7 +90,7 @@ body {
 .menu_selected,
 .logout {
     font-style: italic !important;
-    font-size: 0.95em !important;
+    @include font-size("0.95rem !important");
 }
 
 .text {
@@ -99,7 +100,7 @@ body {
 .alert-custom,
 .link {
     text-decoration: none !important;
-    font-size: 0.8em !important;
+    @include font-size("0.8rem !important");
 }
 
 .more,
@@ -108,27 +109,27 @@ body {
 .link_selected:visited,
 #addressbook_list tr.search,
 #addressbook_list tr.detail {
-    font-size: 0.8em !important;
+    @include font-size("0.8rem !important");
 }
 
 .link_submit {
-    font-size: 0.85em !important;
+    @include font-size("0.85rem !important");
 }
 
 .items {
-    font-size: 0.6em !important;
+    @include font-size("0.6rem !important");
 }
 
 .title {
-    font-size: 1.2em !important;
+    @include font-size("1.2rem !important");
 }
 
 .title_bar {
-    font-size: 1.0em !important;
+    @include font-size("1.0rem !important");
 }
 
 .title_bar_top {
-    font-size: 1.1em !important;
+    @include font-size("1.1rem !important");
 }
 
 .sidebar {
@@ -149,12 +150,12 @@ body {
 }
 
 #addressbook_list tr.head {
-    font-size: 0.9em !important;
+    @include font-size("0.9rem !important");
 }
 
 #addressbook_list .inputtext {
     font-family: 'source_sans_pro', 'FontAwesome', monospace, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
-    font-size: 0.8em !important;
+    @include font-size("0.8rem !important");
 }
 
 #reports_list td,
@@ -185,7 +186,7 @@ body {
 
 #patient_stats .head,
 #patient_stats .detail {
-    font-size: 0.9em !important;
+    @include font-size("0.9rem !important");
 }
 
 /*=============================================================
@@ -193,7 +194,7 @@ body {
  * seen in the patient encounter screen
  *============================================================*/
 #patient_pastenc #tooltipdiv {
-    font-size: 0.85em !important;
+    @include font-size("0.85rem !important");
 }
 
 tr.odd {
@@ -217,7 +218,7 @@ ul.tabNav li {
     float: left;
     margin: 0 3px 0 0;
     padding: 0.5px 0 0 !important;
-    font-size: 0.8em;
+    @include font-size("0.8rem !important");
     vertical-align: bottom;
     text-align: left;
     border-radius: 8px 8px 0 0;
@@ -231,7 +232,7 @@ ul.tabNav li {
 
 ul.tabNav li.current {
     font-weight: bold;
-    font-size: 0.8em;
+    @include font-size("0.8rem !important");
     vertical-align: bottom;
     text-align: left;
     position: relative;
@@ -367,7 +368,7 @@ div.summary_item div {
 .showborder_head th,
 .shownoborder td,
 .showborder_long tr td {
-    font-size: 0.75rem !important;
+    @include font-size("0.75rem !important");
 }
 
 /**
@@ -375,12 +376,12 @@ div.summary_item div {
 **/
 .drug_lookup {
     font-family: 'source_sans_pro', 'FontAwesome', "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
-    font-size: 0.6875rem !important;
+    @include font-size("0.6875rem !important");
 }
 
 /* Style for red font */
 .redtext {
-    font-size: 0.8125rem !important;
+    @include font-size("0.8125rem !important");
 }
 
 /* Style for red font */
@@ -407,7 +408,7 @@ body dl {
 #sddm li a {
     padding: 4px 10px;
     color: $black;
-    font-size: 0.8em !important;
+    @include font-size("0.8rem !important");
 }
 
 #sddm li a:hover {
@@ -458,11 +459,11 @@ body dl {
 
 /* Form styles */
 .formtable {
-    font-size: 0.8125rem !important;
+    @include font-size("0.8125rem !important");
 }
 
 .error-message {
-    font-size: 0.6875rem !important;
+    @include font-size("0.6875rem !important");
 }
 
 /* flow board filters*/
@@ -507,7 +508,7 @@ body dl {
 
 #refreshme,
 #setting_cog {
-    font-size: 0.7em !important;
+    @include font-size("0.7rem !important");
 }
 
 .calendar {

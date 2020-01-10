@@ -5,7 +5,7 @@
 div.tiny {
     width: 1px;
     height: 1px;
-    font-size: 1px;
+    @include font-size("1px !important");
 }
 
 .currentview {
@@ -59,7 +59,7 @@ div.tiny {
 #dateNAV {
     float: left;
     font-family: "Arial", "Helvetica", sans-serif;
-    font-size: 1.1875rem;
+    @include font-size("1.1875rem !important");
 }
 
 .rtl #functions,
@@ -90,7 +90,7 @@ div.tiny {
     float: right;
     text-align: center;
     font-family: "Arial", "Helvetica", sans-serif;
-    font-size: 1.1875rem;
+    @include font-size("1.1875rem !important");
 }
 
 #providerPicker {
@@ -160,14 +160,14 @@ div.tiny {
 #datePicker td {
     width: 19.5px;
     font-family: "Arial", "Helvetica", sans-serif;
-    font-size: 0.7em;
+    @include font-size("0.7rem !important");
     text-align: center;
 }
 
 #datePicker .tdMonthName-small {
     text-align: center;
     font-family: "Arial", "Helvetica", sans-serif;
-    font-size: 12px;
+    @include font-size("12px !important");
     font-style: normal;
     background-color: lighten($light, 20%);
     color: $black;
@@ -176,7 +176,7 @@ div.tiny {
 
 #datePicker .tdDOW-small {
     font-family: "Arial", "Helvetica", sans-serif;
-    font-size: 10px;
+    @include font-size("10px !important");
     vertical-align: top;
     text-align: center;
     border: none;
@@ -191,7 +191,7 @@ div.tiny {
 
 #datePicker .tdWeekend-small {
     font-family: "Arial", "Helvetica", sans-serif;
-    font-size: 10px;
+    @include font-size("10px !important");
     vertical-align: top;
     border: none;
     padding: 2px 3px 2px 3px;
@@ -201,7 +201,7 @@ div.tiny {
 
 #datePicker .tdHoliday-small {
     font-family: "Arial", "Helvetica", sans-serif;
-    font-size: 10px;
+    @include font-size("10px !important");
     vertical-align: top;
     border: none;
     padding: 2px 3px 2px 3px;
@@ -211,7 +211,7 @@ div.tiny {
 
 #datePicker .tdOtherMonthDay-small {
     font-family: "Arial", "Helvetica", sans-serif;
-    font-size: 10px;
+    @include font-size("10px !important");
     vertical-align: top;
     border: none;
     padding: 2px 3px 2px 3px;
@@ -221,7 +221,7 @@ div.tiny {
 
 #datePicker .tdMonthDay-small {
     font-family: "Arial", "Helvetica", sans-serif;
-    font-size: 10px;
+    @include font-size("10px !important");
     vertical-align: top;
     border: none;
     padding: 2px 3px 2px 3px;
@@ -306,7 +306,7 @@ div.tiny {
 .week_dateheader {
     border-left: 1px solid $gray-600;
     border-right: 1px solid $gray-600;
-    font-size: 0.7em;
+    @include font-size("0.7rem !important");
     font-weight: bold;
 }
 
@@ -317,19 +317,19 @@ div.tiny {
 /* classes specific to the MONTH view */
 .month_daylink {
     width: 95%;
-    font-size: 0.8em;
+    @include font-size("0.8rem !important");
     text-align: right;
     background-color: $white;
     padding: 1px 2px 1px 2px;
 }
 
 .month_dateheader {
-    font-size: 0.7em;
+    @include font-size("0.7rem !important");
     width: 13%;
 }
 
 .month_event {
-    font-size: 0.8em;
+    @include font-size("0.8rem !important");
     width: 100%;
 }
 
@@ -480,7 +480,7 @@ div.tiny {
     #nextweek,
     #prevmonth,
     #nextmonth {
-        font-size: 1.3em !important;
+        @include font-size("1.3rem !important");
     }
 }
 

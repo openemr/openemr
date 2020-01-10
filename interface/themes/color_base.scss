@@ -118,6 +118,7 @@ $colors: (
 $body-bg: $white;
 $body-color: $black;
 $font-size-base: 1rem;
+$rfs-base-value: 1rem;
 $font-family-sans-serif: -apple-system, "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 $font-family-base: $font-family-sans-serif;
 
@@ -138,7 +139,7 @@ body {
 .menu_selected,
 .logout {
     font-style: italic !important;
-    font-size: 0.9375rem !important;
+    @include font-size("0.9375rem !important");
 }
 
 .text,
@@ -150,7 +151,7 @@ body {
 .redtext,
 #patient_stats .head,
 #patient_stats .detail {
-    font-size: 0.8125rem !important;
+    @include font-size("0.8125rem !important");
 }
 
 .alert,
@@ -174,21 +175,21 @@ body {
 }
 
 .items {
-    font-size: 6pt;
+    @include font-size("8px !important");
 }
 
 .title {
-    font-size: 12pt;
+    @include font-size("16px !important");
     font-weight: bold;
     text-decoration: none;
 }
 
 .title_bar {
-    font-size: 12pt;
+    @include font-size("16px !important");
 }
 
 .title_bar_top {
-    font-size: 13px;
+    @include font-size("13px !important");
 }
 
 .body_main {
@@ -222,11 +223,11 @@ body {
 }
 
 #addressbook_list tr.search {
-    font-size: 9pt;
+    @include font-size("12px !important");
 }
 
 #addressbook_list tr.head {
-    font-size: 0.8125rem;
+    @include font-size("0.8125rem !important");
     background-color: inherit;
 }
 
@@ -242,7 +243,7 @@ body {
 
 #addressbook_list .button {
     font-family: sans-serif;
-    font-size: 8pt;
+    @include font-size("11px !important");
     font-weight: bold;
 }
 
@@ -256,7 +257,7 @@ body {
 
 #reports_list td,
 #reports_list a {
-    font-size: 8pt;
+    @include font-size("11px !important");
     font-family: "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
 }
 
@@ -279,7 +280,7 @@ body {
  * seen in the patient encounter screen
  *============================================================*/
 #patient_pastenc #tooltipdiv {
-    font-size: 9pt;
+    @include font-size("12px !important");
 }
 
 #addressbook_list tr.evenrow,
@@ -305,13 +306,13 @@ ul.tabNav {
 ul.tabNav li {
     margin: 0 1px 0 0;
     padding: 6px 0 0;
-    font-size: 0.8em;
+    @include font-size("0.8rem !important");
 }
 
 ul.tabNav li.current {
     padding-top: 0;
     font-weight: bold;
-    font-size: 0.8em;
+    @include font-size("0.8rem !important");
     vertical-align: bottom;
     text-align: left;
 }
@@ -380,7 +381,7 @@ ul.tabNav li.current a {
 #report_results table td {
     padding: 5px;
     border-bottom: 1px dashed;
-    font-size: 0.8em;
+    @include font-size("0.8rem !important");
 }
 
 .report_totals td {
@@ -396,7 +397,7 @@ ul.tabNav li.current a {
 .showborder_head th,
 .shownoborder td,
 .showborder_long tr td {
-    font-size: 9pt;
+    @include font-size("12px !important");
 }
 
 /**
@@ -405,7 +406,7 @@ ul.tabNav li.current a {
 
 .drug_lookup {
     font-family: "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    font-size: 8pt;
+    @include font-size("11px !important");
     border: 2px outset rgb(102, 102, 102);
     background-color: $paler;
 }
@@ -427,7 +428,7 @@ ul.tabNav li.current a {
 #sddm li a {
     padding: 4px 10px;
     color: darken($primary, 15%) !important;
-    font-size: 0.8em;
+    @include font-size("0.8rem !important");
     font-weight: bold;
 }
 
@@ -500,7 +501,7 @@ div.borderbox {
 /* Form styles */
 
 .formtable {
-    font-size: 13px;
+    @include font-size("13px !important");
 }
 
 .report_search_bar {
@@ -508,7 +509,7 @@ div.borderbox {
 }
 
 .error-message {
-    font-size: 11px;
+    @include font-size("11px !important");
 }
 
 /* flow board filters*/
@@ -530,7 +531,7 @@ div.borderbox {
 /*openemr 5 patient-finder*/
 @media screen and (max-width: 750px) {
     #pt_table {
-        font-size: .9rem !important;
+        @include font-size("0.9rem !important");
     }
 }
 

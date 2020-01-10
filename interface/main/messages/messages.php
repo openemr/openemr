@@ -5,10 +5,11 @@
  * @Package OpenEMR
  * @link http://www.open-emr.org
  * @author OpenEMR Support LLC
- * @author Roberto Vasquez robertogagliotta@gmail.com
- * @author Rod Roark rod@sunsetsystems.com
- * @author Brady Miller brady.g.miller@gmail.com
- * @author Ray Magauran magauran@medfetch.com
+ * @author Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author Rod Roark <rod@sunsetsystems.com>
+ * @author Brady Miller <brady.g.miller@gmail.com>
+ * @author Ray Magauran <magauran@medfetch.com>
+ * @author Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2010 OpenEMR Support LLC
  * @copyright Copyright (c) 2017 MedEXBank.com
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
@@ -29,9 +30,6 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
-//validation library
-$use_validate_js = 1;
-require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php");
 //Gets validation rules from Page Validation list.
 $collectthis = collectValidationPageRules("/interface/main/messages/messages.php");
 if (empty($collectthis)) {
@@ -67,10 +65,14 @@ if (($_POST['setting_bootstrap_submenu']) ||
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>" type="text/css" />
-    <link rel="stylesheet"  href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>" type="text/css" />
-
+    <?php 
+    //validation library
+    $use_validate_js = 1;
+    require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php");
+    ?>
     <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-redmond', 'opener', 'moment']); ?>
+    <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>" type="text/css" />
+    
     <script>
         var xljs1 = '<?php echo xla('Preferences updated successfully'); ?>';
         var format_date_moment_js = '<?php echo attr(DateFormatRead("validateJS")); ?>';
@@ -175,33 +177,29 @@ if (!empty($_REQUEST['go'])) { ?>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <nav class="navbar navbar-expand-md navbar-light bg-light">
-                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#messagesnav" aria-controls="messagesnav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-                    <div class="collapse navbar-collapse" id="messagesnav">
-                        <ul class="nav navbar-nav">
-                            <li class="active nav-item" id='li-mess'>
-                                <a href='#' class="nav-link font-weight-bold" id='messages-li'><?php echo xlt('Messages'); ?></a>
-                            </li>
-                            <li class="nav-item" id='li-remi'>
-                                <a href='#' class="nav-link font-weight-bold" id='reminders-li'><?php echo xlt('Reminders'); ?></a>
-                            </li>
-                            <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
-                            <li class="nav-item" id='li-reca'>
-                                <a href='#' class="nav-link font-weight-bold" id='recalls-li'><?php echo xlt('Recalls'); ?></a>
-                            </li>
-                            <?php }?>
-                            <?php if ($logged_in) { ?>
-                            <li class="nav-item" id='li-sms'>
-                                <a href='#' class="nav-link font-weight-bold" id='sms-li'><?php echo xlt('SMS Zone'); ?></a>
-                            </li>
-                            <?php }?>
-                        </ul>
-                    </div>
-                </nav>
+        <nav class="navbar navbar-expand-md navbar-light bg-light">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#messagesnav" aria-controls="messagesnav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="messagesnav">
+                <ul class="nav navbar-nav">
+                    <li class="active nav-item" id='li-mess'>
+                        <a href='#' class="nav-link font-weight-bold" id='messages-li'><?php echo xlt('Messages'); ?></a>
+                    </li>
+                    <li class="nav-item" id='li-remi'>
+                        <a href='#' class="nav-link font-weight-bold" id='reminders-li'><?php echo xlt('Reminders'); ?></a>
+                    </li>
+                    <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
+                    <li class="nav-item" id='li-reca'>
+                        <a href='#' class="nav-link font-weight-bold" id='recalls-li'><?php echo xlt('Recalls'); ?></a>
+                    </li>
+                    <?php }?>
+                    <?php if ($logged_in) { ?>
+                    <li class="nav-item" id='li-sms'>
+                        <a href='#' class="nav-link font-weight-bold" id='sms-li'><?php echo xlt('SMS Zone'); ?></a>
+                    </li>
+                    <?php }?>
+                </ul>
             </div>
-        </div>
+        </nav>
         <div class="row" id="messages-div">
             <div class="col-sm-12">
                 <div class="jumbotron jumbotron-fluid py-3">

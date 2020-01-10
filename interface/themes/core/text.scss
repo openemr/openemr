@@ -1,19 +1,19 @@
 .text {
     color: $black;
     text-decoration: none;
-    font-size: 0.9em;
+    @include font-size("0.9rem !important");
 }
 
 .required {
     text-decoration: none;
-    font-size: 0.9em;
+    @include font-size("0.9rem !important");
     color: darken($danger, 20%);
     font-weight: bold;
 }
 
 .bold {
     text-decoration: none;
-    font-size: 0.9em;
+    @include font-size("0.9rem !important");
     color: $black;
     font-weight: bold;
 }
@@ -21,7 +21,7 @@
 .small {
     text-decoration: none;
     color: $black;
-    font-size: 0.8em;
+    @include font-size("0.8rem !important");
 }
 
 .sellistclass {
@@ -93,7 +93,7 @@ body.admin-layout input[type="button"] {
 /* error message = new validation */
 
 .error-message {
-    color: red;
+    color: $danger;
     display: block;
     white-space: nowrap;
     font-weight: normal;

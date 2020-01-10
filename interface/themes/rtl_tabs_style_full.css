@@ -20,13 +20,12 @@
  * @link    http://www.open-emr.org
  */
 
-#mainBox
-{
+#mainBox {
     padding: 0px 5px 0px 0px;
 }
 
 #mainBox .logo {
-    margin:3px 10px 0px 4px;
+    margin: 3px 10px 0px 4px;
     float: right;
 }
 
@@ -36,8 +35,8 @@
     margin-left: 12px;
 }
 
-#attendantData .patientDataColumn{
-    float:right;
+#attendantData .patientDataColumn {
+    float: right;
 }
 
 #attendantData .patientDataColumn:nth-child(1) .patientInfo .ptName span {
@@ -72,17 +71,15 @@
     padding-right: 7px;
 }
 
-#userData
-{
+#userData {
     float: left;
 }
-.userSection
-{
+
+.userSection {
     right: 0;
 }
 
-.messagesColumn
-{
+.messagesColumn {
     float: left;
     padding-left: 20px;
 }

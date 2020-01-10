@@ -2,13 +2,13 @@
 
 #adminacl .loading {
     text-decoration: blink;
-    font-size: 10px;
+    @include font-size("10px !important");
     color: $danger;
     font-weight: bold;
 }
 
 #adminacl .alert {
-    font-size: 10px;
+    @include font-size("10px !important");
     color: $danger;
     font-weight: bold;
 }
