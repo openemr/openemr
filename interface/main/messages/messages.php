@@ -65,7 +65,7 @@ if (($_POST['setting_bootstrap_submenu']) ||
 <!DOCTYPE html>
 <html>
 <head>
-    <?php 
+    <?php
     //validation library
     $use_validate_js = 1;
     require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php");

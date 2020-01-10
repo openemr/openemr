@@ -21,7 +21,6 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-
 if (!acl_check('admin', 'super')) {
     die(xlt('Not authorized'));
 }
