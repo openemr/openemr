@@ -41,6 +41,14 @@ function getUserFacilities($uID)
     return $returnVal;
 }
 
+//retrieve the name based on the username
+function getNameFromUsername($username)
+{
+    $query = "select * from users where username like ? and username != ''";
+    $res = sqlQuery($query, [$username]);
+    return $res;
+}
+
  /**
  * Check if day is weekend day
  * @param (int) $day
