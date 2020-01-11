@@ -114,6 +114,40 @@ docker-compose down -v
 docker-compose up -d
 ```
 
+#### Updating Dockers
+To ensure you are using the most recent dockers, recommend running below set of commands intermittently:
+```console
+docker pull openemr/openemr:flex-3.7
+docker pull openemr/openemr:flex-3.9
+docker pull openemr/openemr:flex-3.10
+docker pull openemr/openemr:flex-edge
+docker pull openemr/dev-php-fpm:5.6
+docker pull openemr/dev-php-fpm:7.0
+docker pull openemr/dev-php-fpm:7.1
+docker pull openemr/dev-php-fpm:7.2
+docker pull openemr/dev-php-fpm:7.3
+docker pull openemr/dev-php-fpm:7.4
+docker pull openemr/dev-php-fpm:5.6-redis
+docker pull openemr/dev-php-fpm:7.0-redis
+docker pull openemr/dev-php-fpm:7.1-redis
+docker pull openemr/dev-php-fpm:7.2-redis
+docker pull openemr/dev-php-fpm:7.3-redis
+docker pull openemr/dev-php-fpm:7.4-redis
+docker pull openemr/dev-nginx
+docker pull mariadb:10.4
+docker pull mariadb:10.3
+docker pull mariadb:10.2
+docker pull mariadb:10.1
+docker pull mysql:8
+docker pull mysql:5.7
+docker pull mysql:5.6
+docker pull phpmyadmin/phpmyadmin
+docker pull couchdb
+docker pull jodogne/orthanc-plugins
+docker pull redis
+
+```
+
 #### Usage
 
 ##### Examine Containers
