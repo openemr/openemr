@@ -117,6 +117,7 @@ docker-compose up -d
 #### Updating Dockers
 To ensure you are using the most recent dockers, recommend running below set of commands intermittently:
 ```console
+docker pull openemr/openemr:flex
 docker pull openemr/openemr:flex-3.7
 docker pull openemr/openemr:flex-3.9
 docker pull openemr/openemr:flex-3.10
