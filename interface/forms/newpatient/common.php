@@ -264,7 +264,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <div class="form-group ">
                                     <label for="pc_catid" class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Visit Category:'); ?></label>
                                     <div class="col-sm-3">
-                                        <select  name='pc_catid' id='pc_catid' class='form-control col-sm-12' <?php echo ($mode === "followup") ? 'readonly' : ''; ?> >
+                                        <select  name='pc_catid' id='pc_catid' class='form-control col-sm-12' <?php echo ($mode === "followup") ? 'disabled' : ''; ?> >
                                             <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
                                             <?php
                                             //Bring only patient ang group categories
@@ -319,6 +319,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             }
                                             ?>
                                         </select>
+                                        <?php if ($mode === "followup") {?>
+                                            <input name="pc_catid" value="<?php echo attr($result['pc_catid']); ?>" hidden/>
+                                        <?php } ?>
                                     </div>
                                     <?php
                                         $sensitivities = acl_get_sensitivities();
@@ -406,7 +409,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <div class="form-group">
                                     <label for='facility_id' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Facility'); ?>:</label>
                                     <div class="col-sm-8">
-                                        <select name='facility_id' id='facility_id' class='form-control col-sm-9' onChange="bill_loc()" <?php echo ($mode === "followup") ? 'readonly' : ''; ?> >
+                                        <select name='facility_id' id='facility_id' class='form-control col-sm-9' onChange="bill_loc()" <?php echo ($mode === "followup") ? 'disabled' : ''; ?> >
                                             <?php
                                             if ($viewmode) {
                                                 $def_facility = $result['facility_id'];
@@ -433,6 +436,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             }
                                             ?>
                                         </select>
+                                        <?php if ($mode === "followup") {?>
+                                            <input name="facility_id" value="<?php echo attr($result['facility_id']); ?>" hidden/>
+                                        <?php } ?>
                                     </div>
                                     <div class="clearfix"></div>
                                 </div>
