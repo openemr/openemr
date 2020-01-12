@@ -1263,7 +1263,7 @@ if ($_REQUEST['form_search'] == "Search") { ?>
     <script>
         $('#payment-allocate').hide();
         $("#search-results").show();
-        $("#statement-download").hide();
+        $("#statement-download").show();
     </script>
     <?php
 }
