@@ -320,7 +320,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             ?>
                                         </select>
                                         <?php if ($mode === "followup") {?>
-                                            <input name="pc_catid" value="<?php echo $result['pc_catid'] ?>" hidden/>
+                                            <input name="pc_catid" value="<?php echo attr($result['pc_catid']); ?>" hidden/>
                                         <?php } ?>
                                     </div>
                                     <?php
@@ -437,7 +437,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             ?>
                                         </select>
                                         <?php if ($mode === "followup") {?>
-                                            <input name="facility_id" value="<?php echo $result['facility_id'] ?>" hidden/>
+                                            <input name="facility_id" value="<?php echo attr($result['facility_id']); ?>" hidden/>
                                         <?php } ?>
                                     </div>
                                     <div class="clearfix"></div>
