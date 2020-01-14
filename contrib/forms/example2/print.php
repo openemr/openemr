@@ -65,7 +65,7 @@ Printed on <?php echo date("F d, Y", time()); ?>
 <form method=post action="">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<span class="title"><?php echo xlt($form_name); ?></span><br>
+<span class="title"><?php echo xlt($form_name); ?></span><br />
 
 <!-- container for the main body of the form -->
 <div id="print_form_container">
@@ -97,9 +97,9 @@ Address: <input name="address" id="address" type="text" size="80" maxlength="250
 </div>
 
 <div id="print_bottom">
-Use this space to express notes <br>
+Use this space to express notes <br />
 <textarea name="notes" id="notes" cols="80" rows="4"><?php echo attr($record['notes']);?></textarea>
-<br><br>
+<br /><br />
 <div style="text-align:right;">
 Signature?
 <input type="radio" id="sig" name="sig" value="y" <?php if ($record["sig"] == 'y') {

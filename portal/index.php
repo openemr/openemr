@@ -511,7 +511,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                     } else {
                         // After error alert app exit to landing page.
                         var message = <?php echo xlj('Unable to find your records. Be sure to use your correct Dob, First and Last name and Email of record.') ?>;
-                        message += "<br>" + <?php echo xlj('All search inputs are case sensitive and must match entries in your profile.'); ?>;
+                        message += "<br />" + <?php echo xlj('All search inputs are case sensitive and must match entries in your profile.'); ?>;
                         dialog.alert(message, <?php echo xlj("Alert") ?>)
                             .then(function(result) {
                                 console.error('Reset failed to vaidate');
@@ -521,7 +521,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                 } else if (action === 'do_signup') {
                     if (rtn.indexOf('ERROR') !== -1) {
                         var message = <?php echo xlj('Unable to either create credentials or send email.'); ?>;
-                        message += "<br><br>" + <?php echo xlj('Here is what we do know.'); ?> +": " + rtn + "<br>";
+                        message += "<br /><br />" + <?php echo xlj('Here is what we do know.'); ?> +": " + rtn + "<br />";
                         dialog.alert(message);
                         return false;
                     }

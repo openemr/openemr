@@ -57,31 +57,31 @@ function messageCreate($uname, $luname, $pass, $site)
 {
     global $trustedEmail;
 
-    $message = xlt("Patient Portal Web Address") . ":<br>";
+    $message = xlt("Patient Portal Web Address") . ":<br />";
     if ($site == "on") {
         if ($GLOBALS['portal_onsite_two_enable']) {
             $message .= "<a href='" . attr($GLOBALS['portal_onsite_two_address']) . "'>" .
-                text($GLOBALS['portal_onsite_two_address']) . "</a><br>";
+                text($GLOBALS['portal_onsite_two_address']) . "</a><br />";
         }
 
-        $message .= "<br>";
+        $message .= "<br />";
     } else { // $site == "off"
         $offsite_portal_patient_link = $GLOBALS['portal_offsite_address_patient_link'] ? $GLOBALS['portal_offsite_address_patient_link'] : "https://mydocsportal.com";
         $message .= "<a href='" . attr($offsite_portal_patient_link) . "'>" .
-            text($offsite_portal_patient_link) . "</a><br><br>";
+            text($offsite_portal_patient_link) . "</a><br /><br />";
         $message .= xlt("Provider Id") . ": " .
-            text($GLOBALS['portal_offsite_providerid']) . "<br><br>";
+            text($GLOBALS['portal_offsite_providerid']) . "<br /><br />";
     }
     $sub = '';
     if ($GLOBALS['enforce_signin_email']) {
         $sub = xlt("Login Trusted Email") . ":" .
             (!empty(trim($trustedEmail['email_direct'])) ? text(trim($trustedEmail['email_direct'])) : xlt("Is Required. Contact Provider."));
-        $sub .= "<br><br>";
+        $sub .= "<br /><br />";
     }
-    $message .= xlt("Portal Account Name") . ": " . text($uname) . "<br><br><strong>" .
-        xlt("Login User Name") . ":</strong> " . text($luname) . "<br><strong>" .
+    $message .= xlt("Portal Account Name") . ": " . text($uname) . "<br /><br /><strong>" .
+        xlt("Login User Name") . ":</strong> " . text($luname) . "<br /><strong>" .
         xlt("Password") . ":</strong> " .
-        text($pass) . "<br><br>" . $sub;
+        text($pass) . "<br /><br />" . $sub;
     return $message;
 }
 
@@ -99,10 +99,10 @@ function emailLogin($patient_id, $message)
     if (!(validEmail($GLOBALS['patient_reminder_sender_email']))) {
         return false;
     }
-    $message .= "<strong>" . xlt("You may be required to change your password during first login.") . "</strong><br>";
-    $message .= xlt("This is required for your security as well as ours.") . "<br>";
-    $message .= xlt("Afterwards however, you may change your portal credentials anytime from portal menu.") . ":<br><br>";
-    $message .= xlt("Thank you for allowing us to serve you.") . ":<br>";
+    $message .= "<strong>" . xlt("You may be required to change your password during first login.") . "</strong><br />";
+    $message .= xlt("This is required for your security as well as ours.") . "<br />";
+    $message .= xlt("Afterwards however, you may change your portal credentials anytime from portal menu.") . ":<br /><br />";
+    $message .= xlt("Thank you for allowing us to serve you.") . ":<br />";
 
     $mail = new MyMailer();
     $pt_name=$patientData['fname'].' '.$patientData['lname'];
@@ -130,9 +130,9 @@ function displayLogin($patient_id, $message, $emailFlag)
 {
     $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id));
     if ($emailFlag) {
-        $message = "<br><br>" .
+        $message = "<br /><br />" .
             xlt("Email was sent to following address") . ": " .
-            text($patientData['email']) . "<br><br>" .
+            text($patientData['email']) . "<br /><br />" .
             $message;
     }
 
@@ -229,7 +229,7 @@ function transmit(){
             $pwd = RandomGenUtils::generatePortalPassword();
             ?>
             <td><input type="text" name="pwd" id="pwd" value="<?php echo attr($pwd); ?>" size="14"/></td>
-            <td><a href="#" class="css_button" onclick="top.restoreSession(); javascript:document.location.reload()"><span><?php echo xlt('Change'); ?></span></a></td>
+            <td><a href="#" class="btn btn-primary" onclick="top.restoreSession(); javascript:document.location.reload()"><span><?php echo xlt('Change'); ?></span></a></td>
         </tr>
         <?php if ($GLOBALS['enforce_signin_email']) { ?>
         <tr class="text">
@@ -242,9 +242,9 @@ function transmit(){
         <tr class="text">
             <td><input type="hidden" name="form_save" id="form_save"></td>
             <td colspan="5" align="center">
-                <a href="#" class="css_button" onclick="return transmit()"><span><?php echo xlt('Save');?></span></a>
+                <a href="#" class="btn btn-primary" onclick="return transmit()"><span><?php echo xlt('Save');?></span></a>
                 <input type="hidden" name="form_cancel" id="form_cancel">
-                <a href="#" class="css_button" onclick="top.restoreSession(); dlgclose();"><span><?php echo xlt('Cancel');?></span></a>
+                <a href="#" class="btn btn-secondary" onclick="top.restoreSession(); dlgclose();"><span><?php echo xlt('Cancel');?></span></a>
             </td>
         </tr>
     </table>

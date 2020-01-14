@@ -19,7 +19,7 @@ use OpenEMR\Core\Header;
 //  which does not autoload anything. The actual header is set up in another script.
 Header::setupAssets(['jquery-ui', 'jquery-ui-base']);
 ?>
- <br>
+ <br />
 <?php
 $close =  xla("Close");
 $print = xla("Print");

@@ -217,7 +217,7 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
                 <?php } ?>
             </div>
             </div>
-        <br>
+        <br />
         <div class="row">
             <div class="col-sm-12">
                 <div id="dynamic"><!-- TBD: id seems unused, is this div required? -->

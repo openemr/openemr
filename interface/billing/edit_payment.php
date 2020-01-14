@@ -817,8 +817,8 @@ fieldset {
                                 $Table='yes';
                                 ?>
                     <input id="HiddenRemainderTd<?php echo attr($CountIndex); ?>" name="HiddenRemainderTd<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr(round($RemainderJS, 2)); ?>">
-                <br>
-                <br>
+                <br />
+                <br />
                 <div class="col-12">
                 <div class = "table-responsive">
                 <table class="table-sm" id="TableDistributePortion" >
@@ -1117,7 +1117,7 @@ fieldset {
             <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
             <div class="form-group clearfix">
                 <div class="col-sm-12 text-left position-override">
-                <br>
+                <br />
                     <div class="btn-group" role="group">
                         <a class="btn btn-secondary btn-save" href="#" onclick="javascript:return ModifyPayments();"><span><?php echo xlt('Modify Payments');?></span></a>
                         <a class="btn btn-secondary btn-save" href="#" onclick="javascript:return FinishPayments();"><span><?php echo xlt('Finish Payments');?></span></a>

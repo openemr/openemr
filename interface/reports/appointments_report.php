@@ -480,7 +480,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
                 $new_line = '';
                 foreach ($rems as $rem_due => $rem_items) {
                     echo "$new_line<b>$rem_due</b>: ".attr($rem_items);
-                    $new_line = '<br>';
+                    $new_line = '<br />';
                 }
 
                 echo "</td>";

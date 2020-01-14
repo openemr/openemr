@@ -172,21 +172,21 @@ if ($mode == 'list') {
     echo "checked='checked' ";
 }
 
-    echo " value='list'> " . xlt('List') . "<br>";
+    echo " value='list'> " . xlt('List') . "<br />";
 
     echo "<input type='radio' name='mode' ";
 if ($mode != 'list') {
     echo "checked='checked' ";
 }
 
-    echo " value='matrix'> " . xlt('Matrix') . "<br>";
+    echo " value='matrix'> " . xlt('Matrix') . "<br />";
 
     echo "<td></td></td>";
     echo "</tr><tr>";
     echo "<td>";
 
     echo "<a href='../summary/demographics.php' ";
-    echo " class='css_button' onclick='top.restoreSession()'>";
+    echo " class='btn btn-secondary' onclick='top.restoreSession()'>";
     echo "<span>" . xlt('Back to Patient') . "</span></a>";
 
     echo "</td>";
@@ -194,7 +194,7 @@ if ($mode != 'list') {
     echo "</tr></table>";
     echo "</form>";
 } // end "if printable"
-    echo "<br><br><hr><br>";
+    echo "<br /><br /><hr><br />";
 
 // print results of patient's items
 //-------------------------------------------
@@ -325,7 +325,7 @@ if ($value_select) {
             $item_graph++;
         }
 
-        echo "</table><br>";
+        echo "</table><br />";
     }// end if mode = list
 
     //##########################################################################################################################
@@ -453,8 +453,8 @@ if (!$printable) {
 
         echo "<input type='submit' name='print' value='" . xla('View Printable Version') . "' />";
         echo "</form>";
-        echo "<br><a href='../summary/demographics.php' ";
-        echo " class='css_button' onclick='top.restoreSession()'>";
+        echo "<br /><a href='../summary/demographics.php' ";
+        echo " class='btn btn-secondary' onclick='top.restoreSession()'>";
         echo "<span>" . xlt('Back to Patient') . "</span></a>";
     }
 } else {
@@ -462,7 +462,7 @@ if (!$printable) {
 }
 
 echo "</span>";
-echo "<br><br>";
+echo "<br /><br />";
 echo "</div>";
 echo "</body></html>";
 ?>

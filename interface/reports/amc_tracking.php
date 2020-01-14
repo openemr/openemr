@@ -289,7 +289,7 @@ $provider  = trim($_POST['form_provider']);
 
 </div>  <!-- end of search parameters -->
 
-<br>
+<br />
 
 <?php
 if ($_POST['form_refresh']) {

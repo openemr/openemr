@@ -202,7 +202,7 @@ if (!$_REQUEST['flb_table']) {
             display: table;
             font-size: 0.9em;
             background: var(--white);
-            box-shadow: 2px 3px 9px #c0c0c0;
+            box-shadow: 2px 3px 9px var(--gray400);
             border-radius: 8px;
             padding: 10px;
             margin: 15px auto;
@@ -212,7 +212,7 @@ if (!$_REQUEST['flb_table']) {
         .head {
             font-size: 0.9em;
             background: var(--white);
-            box-shadow: 2px 3px 9px #c0c0c0;
+            box-shadow: 2px 3px 9px var(--gray400);
             border-radius: 8px;
             padding: 10px;
             margin: 10px auto;
@@ -241,7 +241,7 @@ if (!$_REQUEST['flb_table']) {
         }
         
         .ui-widget {
-            font-size: 1.0em;
+            font-size: 1.0rem;
         }
         
         body_top {
@@ -489,7 +489,7 @@ if (!$_REQUEST['flb_table']) {
 
                     <table class="table table-responsive table-sm table-hover table-bordered">
                     <thead>
-                    <tr bgcolor="#cccff" class="small bold text-center">
+                    <tr bgcolor="#cccff" class="small font-weight-bold text-center">
                         <?php if ($GLOBALS['ptkr_show_pid']) { ?>
                             <td class="dehead d-none text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('PID'); ?>

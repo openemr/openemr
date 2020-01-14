@@ -365,7 +365,7 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
                                 </tr>
                                 <tr>
                                     <td>Both Brows/Forehead</td><td>fh or FH<br />bb or BB</td>
-                                    <td><b style="color:red;">fh</b>:+3 fh rhytids<br><b style="color:red;">BB</b>:+3 glab rhytids</td>
+                                    <td><b style="color:red;">fh</b>:+3 fh rhytids<br /><b style="color:red;">BB</b>:+3 glab rhytids</td>
                                     <td>+3 forehead rhytids<br />+3 glabellar rhytids</td>
                                 </tr>
                                 <tr>
@@ -526,7 +526,7 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
                                 </tr>
                                 <tr>
                                     <td>Anterior Chamber</td><td>Right = rac<br />Left = lac<br />Both = bac or ac</td>
-                                    <td><span class="field">rac:</span>+1 fc<br><span class="field">ac:</span>+2 flare</td>
+                                    <td><span class="field">rac:</span>+1 fc<br /><span class="field">ac:</span>+2 flare</td>
                                     <td>"+1 flare/cell" (right A/C field only)<br />"+2 flare" (both A/C fields)</td>
                                 </tr>
                                 <tr>
@@ -571,7 +571,7 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
                             Adding <b>".a"</b> at the end of a <b>text</b> section will append the current text instead of replacing it.
                             <br >For example, entering <b>"bk:+2 str scarring.a"</b> will <class="underline bold">append</class> "+2 stromal scarring"</b>
                             to both the right (rk) and left cornea fields (lk).</i></small>
-                            <br>
+                            <br />
 
                             <br />
                             <a name="abbrev_antseg"></a>
@@ -660,7 +660,7 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
                                     </tr>
                                     <tr>
                                         <td>Macula</td><td>Right = rmac<br />Left = lmac<br />Both = bmac or mac</td>
-                                        <td><span class="field">rmac:</span>central scar 500um<br><span class="field">mac:</span>soft drusen, - heme.a</td>
+                                        <td><span class="field">rmac:</span>central scar 500um<br /><span class="field">mac:</span>soft drusen, - heme.a</td>
                                         <td>"central scar 500um" (right macular field only)<br />"soft drusen, - heme" (appended to both macular fields)</td>
                                     </tr>
                                     <tr>
@@ -685,7 +685,7 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
                             Adding <b>".a"</b> at the end of a <b>text</b> section will append the current text instead of replacing it.
                             <br >For example, entering <b>"bcup:0.5 w/ inf notch.a"</b> will <class="underline bold">append</class> "0.5 with inferior notch"</b>
                             to both the right (rcup) and left cup fields (lcup).</i></small>
-                            <br>
+                            <br />
 
                             <br />
                             <a name="abbrev_retina"></a>
@@ -801,7 +801,7 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
                             Adding <b>".a"</b> at the end of a <b>text</b> section will append the current text instead of replacing it.
                             <br >For example, entering <b>"4:5ix.a"</b> will <class="underline bold">append</class> "5 X(T)"</b>
                             to any measurements previously entered into the right gaze field.</i></small>
-                            <br>
+                            <br />
 
                             <br />
                             <a name="abbrev_neuro"></a>

@@ -15,7 +15,6 @@ require_once("$srcdir/patient.inc");
 require_once("history.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
-require_once("$srcdir/options.js.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
@@ -27,11 +26,12 @@ use OpenEMR\OeUI\OemrUI;
     <title><?php echo xlt("History"); ?></title>
     <?php Header::setupHeader('common'); ?>
 
-<script type="text/javascript">
+<script>
 $(function(){
     tabbify();
 });
-<?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
+<?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal
+require_once("$srcdir/options.js.php"); ?>
 </script>
 
 <style type="text/css">
@@ -106,15 +106,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <?php require_once("$include_root/patient_file/summary/dashboard_header.php");?>
             </div>
         </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <?php
-                $list_id = "history"; // to indicate nav item is active, count and give correct id
-                $menuPatient = new PatientMenuRole();
-                $menuPatient->displayHorizNavBarMenu();
-                ?>
-            </div>
-        </div>
+        <?php
+        $list_id = "history"; // to indicate nav item is active, count and give correct id
+        $menuPatient = new PatientMenuRole();
+        $menuPatient->displayHorizNavBarMenu();
+        ?>
         <div class="row">
             <div class="col-sm-12">
                 <div class="btn-group">
@@ -148,7 +144,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         $(listId).addClass("active");
     });
 </script>
-<script type="text/javascript">
+<script>
     // Array of skip conditions for the checkSkipConditions() function.
     var skipArray = [<?php echo !empty($condition_str) ? js_escape($condition_str) : ''; ?>];
     checkSkipConditions();

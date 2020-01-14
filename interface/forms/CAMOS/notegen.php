@@ -30,7 +30,7 @@ if (!($_POST['submit_pdf'] || $_POST['submit_html']) && ($_GET['pid'] && $_GET['
 </title>
 </head>
 <body>
-    <?php echo xlt('Choose print format for this encounter report.'); ?><br><br>
+    <?php echo xlt('Choose print format for this encounter report.'); ?><br /><br />
 <form method=post name=choose_patients>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type='submit' name='submit_pdf' value='<?php echo xla('Print (PDF)'); ?>'>

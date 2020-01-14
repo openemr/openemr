@@ -226,7 +226,7 @@ function cron_updateentry($type, $pid, $pc_eid)
     }
 
     $query .=" where pc_pid=? and pc_eid=? ";
-    //echo "<br>".$query;
+    //echo "<br />".$query;
     $db_sql = (sqlStatement($query, [$pid, $pc_eid]));
 }
 
@@ -271,7 +271,7 @@ function cron_getAlertpatientData($type)
 		order by 
 			ope.pc_eventDate,ope.pc_endDate,pd.pid";
 
-    //echo "<br>".$query;
+    //echo "<br />".$query;
 
     $db_patient = (sqlStatement($query));
     $patient_array = array();
@@ -295,7 +295,7 @@ function cron_getNotificationData($type)
     //$db_email_msg['sms_gateway_type'] = '';
 
     $query = "select * from automatic_notification where type=? ";
-    //echo "<br>".$query;
+    //echo "<br />".$query;
     $db_email_msg = sqlFetchArray(sqlStatement($query, [$type]));
     return $db_email_msg;
 }

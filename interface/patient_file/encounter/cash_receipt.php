@@ -54,13 +54,13 @@ if (file_exists($practice_logo)) {
 }
 ?>
 <h2><?php echo text($facility['name']); ?></h2>
-<?php echo text($facility['street']); ?><br>
+<?php echo text($facility['street']); ?><br />
 <?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><br clear='all'>
-<?php echo text($facility['phone']); ?><br>
+<?php echo text($facility['phone']); ?><br />
 
 </p>
 
-<a href="javascript:window.close();"><font class=title><?php print text($titleres["fname"]) . " " . text($titleres["lname"]); ?></font></a><br><br>
+<a href="javascript:window.close();"><font class=title><?php print text($titleres["fname"]) . " " . text($titleres["lname"]); ?></font></a><br /><br />
 
 <table>
 <tr><td><?php echo xlt('Generated on'); ?>:</td><td> <?php print text(oeFormatShortDate(date("Y-m-d")));?></td></tr>
@@ -72,11 +72,11 @@ if ($date_result = sqlQuery("select date from form_encounter where encounter=? a
 ?>
 <tr><td><?php echo xlt('Date Of Service'); ?>: </td><td> <?php print text(oeFormatShortDate($raw_encounter_date));?></td></tr>
 </table>
-<br><br>
+<br /><br />
 <?php
  //$provider = getProviderName($titleres['providerID']);
 
- //print "Provider: " . $provider  . "</br>";
+ //print "Provider: " . $provider  . "<br />";
 
  $inclookupres = sqlStatement("select distinct formdir from forms where pid=?", array($pid));
 while ($result = sqlFetchArray($inclookupres)) {

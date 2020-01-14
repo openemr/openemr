@@ -308,7 +308,7 @@ function csv_notes_file($content = '', $open = true)
         // the text 'empty' is put in content in save operation
         $ftxt = file_get_contents($fp);
         if ($ftxt === false) {
-            $str_html .= 'csv_notes_file: file error <br>'.PHP_EOL;
+            $str_html .= 'csv_notes_file: file error <br />'.PHP_EOL;
             csv_edihist_log('csv_notes_file: file error');
         }
 
@@ -321,21 +321,21 @@ function csv_notes_file($content = '', $open = true)
         $str_html .= PHP_EOL . text($ftxt) . PHP_EOL;
     // next stanza for saving content
     } elseif (strlen($content)) {
-        //echo "csv_notes_file: we have content<br>".PHP_EOL;
+        //echo "csv_notes_file: we have content<br />".PHP_EOL;
         // use finfo php class
         if (class_exists('finfo')) {
             $finfo = new finfo(FILEINFO_MIME);
             $mimeinfo = $finfo->buffer($content);
             if (strncmp($mimeinfo, 'text/plain; charset=us-ascii', 28) !== 0) {
                 csv_edihist_log('csv_notes_file: invalid mime-type '.$mimeinfo);
-                $str_html = 'csv_notes_file: invalid mime-type <br>' . text($mimeinfo);
+                $str_html = 'csv_notes_file: invalid mime-type <br />' . text($mimeinfo);
                 //
                 return $str_html;
             }
         } elseif (preg_match('/[^\x20-\x7E\x0A\x0D]|(<\?)|(<%)|(<asp)|(<ASP)|(#!)|(\$\{)|(<scr)|(<SCR)/', $content, $matches, PREG_OFFSET_CAPTURE)) {
             csv_edihist_log('csv_notes_file: Filtered character in file content -- character: '.$matches[0][0].' position: '.$matches[0][1]);
-            $str_html .= 'Filtered character in file content not accepted <br>'. PHP_EOL;
-            $str_html .= ' character: ' . text($matches[0][0]) . '  position: ' . text($matches[0][1]) . '<br>' . PHP_EOL;
+            $str_html .= 'Filtered character in file content not accepted <br />'. PHP_EOL;
+            $str_html .= ' character: ' . text($matches[0][0]) . '  position: ' . text($matches[0][1]) . '<br />' . PHP_EOL;
             //
             return $str_html;
         }
@@ -359,7 +359,7 @@ function csv_edih_basedir()
     // should be something like /var/www/htdocs/openemr/sites/default
     if (isset($GLOBALS['OE_SITE_DIR'])) {
         // debug
-        //echo 'csv_edih_basedir OE_SITE_DIR '.$GLOBALS['OE_SITE_DIR'].'<br>'.PHP_EOL;
+        //echo 'csv_edih_basedir OE_SITE_DIR '.$GLOBALS['OE_SITE_DIR'].'<br />'.PHP_EOL;
         return $GLOBALS['OE_SITE_DIR'].DS.'documents'.DS.'edi'.DS.'history';
     } else {
         csv_edihist_log('csv_edih_basedir: failed to obtain OpenEMR Site directory');
@@ -425,7 +425,7 @@ function csv_setup()
         $tmp_dir = $edihist_dir.DS.'tmp';
     } else {
        //csv_edihist_log('setup: failed to obtain OpenEMR Site directory');
-        echo 'setup: failed to obtain OpenEMR Site directory<br>'.PHP_EOL;
+        echo 'setup: failed to obtain OpenEMR Site directory<br />'.PHP_EOL;
         return false;
     }
 
@@ -433,36 +433,36 @@ function csv_setup()
     if (is_writable($basedir)) {
         $isOK = true;
         //csv_edihist_log('setup: directory '.$basedir);
-        $out_str .= 'EDI_History Setup should not overwrite existing data.<br>'.PHP_EOL;
-        $out_str .= 'Setup: directory ' . text($basedir) . '<br>'.PHP_EOL;
+        $out_str .= 'EDI_History Setup should not overwrite existing data.<br />'.PHP_EOL;
+        $out_str .= 'Setup: directory ' . text($basedir) . '<br />'.PHP_EOL;
         //
         if (is_dir($edihist_dir) || mkdir($edihist_dir, 0755)) {
-            $out_str .= 'created folder ' . text($edihist_dir) . '<br>'.PHP_EOL;
+            $out_str .= 'created folder ' . text($edihist_dir) . '<br />'.PHP_EOL;
             $isOK = true;
             if (is_dir($csv_dir) || mkdir($csv_dir, 0755)) {
-                $out_str .= 'created folder ' . text($csv_dir) . '<br>'.PHP_EOL;
+                $out_str .= 'created folder ' . text($csv_dir) . '<br />'.PHP_EOL;
                 $isOK = true;
             } else {
                 $isOK = false;
-                $out_str .= 'Setup: Failed to create csv folder... '.'<br>'.PHP_EOL;
+                $out_str .= 'Setup: Failed to create csv folder... '.'<br />'.PHP_EOL;
                 die('Failed to create csv folder... ' . text($archive_dir));
             }
 
             if (is_dir($archive_dir) || mkdir($archive_dir, 0755)) {
-                $out_str .= 'created folder ' . text($archive_dir) . '<br>'.PHP_EOL;
+                $out_str .= 'created folder ' . text($archive_dir) . '<br />'.PHP_EOL;
                 $isOK = true;
             } else {
                 $isOK = false;
-                $out_str .= 'Setup: Failed to create archive folder... '.'<br>'.PHP_EOL;
+                $out_str .= 'Setup: Failed to create archive folder... '.'<br />'.PHP_EOL;
                 die('Failed to create archive folder... ');
             }
 
             if (is_dir($log_dir) || mkdir($log_dir, 0755)) {
-                $out_str .= 'created folder ' . text($log_dir) . '<br>'.PHP_EOL;
+                $out_str .= 'created folder ' . text($log_dir) . '<br />'.PHP_EOL;
                 $isOK = true;
             } else {
                 $isOK = false;
-                $out_str .= 'Setup: Failed to create log folder... '.'<br>'.PHP_EOL;
+                $out_str .= 'Setup: Failed to create log folder... '.'<br />'.PHP_EOL;
                 die('Failed to create log folder... ');
             }
 
@@ -471,17 +471,17 @@ function csv_setup()
                 $isOK = true;
             } else {
                 $isOK = false;
-                $out_str .= 'Setup: Failed to create tmp folder... '.'<br>'.PHP_EOL;
+                $out_str .= 'Setup: Failed to create tmp folder... '.'<br />'.PHP_EOL;
                 die('Failed to create tmp folder... ');
             }
         } else {
             $isOK = false;
-            $out_str .= 'Setup failed: cannot write to folder ' . text($basedir) . '<br>'.PHP_EOL;
+            $out_str .= 'Setup failed: cannot write to folder ' . text($basedir) . '<br />'.PHP_EOL;
             die('Setup failed: cannot write to ' . text($basedir));
         }
     } else {
         $isOK = false;
-        $out_str .= 'Setup: Failed to create history folder... '.'<br>'.PHP_EOL;
+        $out_str .= 'Setup: Failed to create history folder... '.'<br />'.PHP_EOL;
         die('Failed to create history folder... ' . text($edihist_dir));
     }
 
@@ -511,7 +511,7 @@ function csv_setup()
             $type_dir = $p_ar[$key]['directory'];
             //
             if (is_dir($type_dir)) {
-                $out_str .= 'folder for ' . text($tp) . ' exists ' . text($type_dir) . '<br>'.PHP_EOL;
+                $out_str .= 'folder for ' . text($tp) . ' exists ' . text($type_dir) . '<br />'.PHP_EOL;
             } elseif (mkdir($type_dir, 0755)) {
                 if ($tp == 'f835') {
                     // in upgrade case the f835 directory should not exist
@@ -529,17 +529,17 @@ function csv_setup()
                             }
                         }
 
-                        $out_str .= 'created type folder ' . text($type_dir) . ' and moved ' . text($fct) . ' of ' . text($rct) . ' files from /era<br>'.PHP_EOL;
+                        $out_str .= 'created type folder ' . text($type_dir) . ' and moved ' . text($fct) . ' of ' . text($rct) . ' files from /era<br />'.PHP_EOL;
                     }
                 } else {
-                    $out_str .= 'created type folder ' . text($type_dir) . '<br>'.PHP_EOL;
+                    $out_str .= 'created type folder ' . text($type_dir) . '<br />'.PHP_EOL;
                 }
             } else {
-                $out_str .= 'Setup failed to create directory for ' . text($tp) . '<br>'.PHP_EOL;
+                $out_str .= 'Setup failed to create directory for ' . text($tp) . '<br />'.PHP_EOL;
             }
         }
     } else {
-        $out_str .= 'Setup failed: Can not create directories <br>'.PHP_EOL;
+        $out_str .= 'Setup failed: Can not create directories <br />'.PHP_EOL;
     }
 
     if ($isOK) {
@@ -1798,7 +1798,7 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
     // return array of [i](pid_encounter, filename), there may be more than one file
     //
     if (!$clm01) {
-        return 'invalid encounter data<br>' . PHP_EOL;
+        return 'invalid encounter data<br />' . PHP_EOL;
     }
 
     //

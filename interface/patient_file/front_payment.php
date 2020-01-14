@@ -477,10 +477,10 @@ function toencounter(enc, datestr, topframe) {
     <p><h2><?php echo xlt('Receipt for Payment'); ?></h2>
 
     <p><?php echo text($frow['name']) ?>
-    <br><?php echo text($frow['street']) ?>
-    <br><?php echo text($frow['city'] . ', ' . $frow['state']) . ' ' .
+    <br /><?php echo text($frow['street']) ?>
+    <br /><?php echo text($frow['city'] . ', ' . $frow['state']) . ' ' .
         text($frow['postal_code']) ?>
-    <br><?php echo text($frow['phone']) ?>
+    <br /><?php echo text($frow['phone']) ?>
 
     <p>
     <table border='0' cellspacing='8'>
@@ -1015,7 +1015,7 @@ function make_insurance() {
                                       <input checked="checked" id="radio_type_of_payment1" name="radio_type_of_payment" onclick="make_visible_row();cursor_pointer();" type="radio" value="copay"><?php echo xlt('Co Pay'); ?>
                                     </label>
                                     <label class="radio-inline">
-                                      <input id="radio_type_of_payment2" name="radio_type_of_payment" onclick="make_visible_row();" type="radio" value="invoice_balance"><?php echo xlt('Invoice Balance'); ?><br>
+                                      <input id="radio_type_of_payment2" name="radio_type_of_payment" onclick="make_visible_row();" type="radio" value="invoice_balance"><?php echo xlt('Invoice Balance'); ?><br />
                                     </label>
                                     <label class="radio-inline">
                                       <input id="radio_type_of_payment4" name="radio_type_of_payment" onclick="make_hide_row();" type="radio" value="pre_payment"><?php echo xlt('Pre Pay'); ?>

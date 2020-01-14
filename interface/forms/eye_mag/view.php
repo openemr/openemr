@@ -3436,7 +3436,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                             echo "<br /><span class='bold'>";
                                             echo xlt("The Past Ocular History (POH) and Past Medical History (PMH) are negative.");
                                             echo xlt('and').' '.xlt('no diagnosis was auto-generated from the clinical findings.');
-                                            echo "</span><br /><br>";
+                                            echo "</span><br /><br />";
                                             echo xlt("Update the chart to activate the Builder.")."<br />";
                                         }
                                         ?>

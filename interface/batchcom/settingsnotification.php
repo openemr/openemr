@@ -34,19 +34,19 @@ if ($_POST['form_action']=='save') {
     }
 
     if ($_POST['Send_SMS_Before_Hours']=="") {
-        $form_err .= xl('Empty value in "SMS Hours"') . '<br>';
+        $form_err .= xl('Empty value in "SMS Hours"') . '<br />';
     }
 
     if ($_POST['Send_Email_Before_Hours']=="") {
-        $form_err .= xl('Empty value in "Email Hours"') . '<br>';
+        $form_err .= xl('Empty value in "Email Hours"') . '<br />';
     }
 
     if ($_POST['SMS_gateway_username']=="") {
-        $form_err .= xl('Empty value in "Username"') . '<br>';
+        $form_err .= xl('Empty value in "Username"') . '<br />';
     }
 
     if ($_POST['SMS_gateway_password']=="") {
-        $form_err .= xl('Empty value in "Password"') . '<br>';
+        $form_err .= xl('Empty value in "Password"') . '<br />';
     }
 
     //process sql

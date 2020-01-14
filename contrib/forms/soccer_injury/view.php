@@ -415,7 +415,7 @@ if ($formid) {
  </tr>
 
  <tr>
-  <td nowrap>Removed from<br>Play/Training<br>after Injury</td>
+  <td nowrap>Removed from<br />Play/Training<br />after Injury</td>
   <td nowrap>
    <table width='100%'>
     <tr>
@@ -429,7 +429,7 @@ if ($formid) {
  </tr>
 
  <tr>
-  <td nowrap>Medical Treatment<br>Sought from</td>
+  <td nowrap>Medical Treatment<br />Sought from</td>
   <td nowrap>
    <table width='100%'>
     <tr>

@@ -857,7 +857,7 @@ if ($issue) {
                         <?php } ?>
                     </div>
                 </div>
-                <br>
+                <br />
                 <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets ?>
                     <div class="form-group clearfix" id="button-container">
                         <div class="col-sm-12 text-left position-override">

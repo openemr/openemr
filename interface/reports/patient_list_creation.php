@@ -546,7 +546,7 @@ $communication = trim($_POST["communication"]);
                 }
                 ?>
 
-                <br>
+                <br />
 
                 <input type="hidden" name="sortby" id="sortby" value="<?php echo attr($sortby); ?>" />
                 <input type="hidden" name="sortorder" id="sortorder" value="<?php echo attr($sortorder); ?>" />

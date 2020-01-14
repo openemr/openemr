@@ -20,9 +20,9 @@
 /**
  * Smarty {datetimepickerSupport} function plugin.
  *
- * Type:     function<br>
- * Name:     datetimepickerSupport<br>
- * Purpose:  datetimepickerSupport in OpenEMR - Smarty templates<br>
+ * Type:     function<br />
+ * Name:     datetimepickerSupport<br />
+ * Purpose:  datetimepickerSupport in OpenEMR - Smarty templates<br />
  *
  * @param array
  * @param Smarty

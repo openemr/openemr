@@ -94,7 +94,7 @@ if (isset($_POST['lognext']) && $_POST['lognext']) {
     </table>
 </div>  <!-- end of search parameters -->
 
-<br>
+<br />
 
 
 

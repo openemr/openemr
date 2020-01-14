@@ -1005,31 +1005,16 @@ function writeITLine($it_array)
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <input type="hidden" id="list_from" name="list_from" value="<?php echo attr($list_from);?>"/>
     <input type="hidden" id="list_to" name="list_to" value="<?php echo attr($list_to);?>"/>
-    <nav class="navbar navbar-default navbar-fixed-top">
+    <nav class="navbar navbar-light bg-light navbar-expand-md fixed-top py-4">
         <div class="container-fluid">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed"
-                        data-toggle="collapse" data-target="#navbar-list"
-                        aria-expanded="false">
-                    <span class="sr-only"><?php echo xlt('Toggle navigation'); ?></span>
-                    <i class="fa fa-bars"></i>
-                </button>
-                <a class="navbar-brand"
-                   href="#"><?php echo xlt('Manage Lists'); ?></a>
-            </div>
+              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-list" aria-controls="navbar-list" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <a class="navbar-brand" href="#"><?php echo xlt('Manage Lists'); ?></a>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="navbar-list">
                 <ul class="nav navbar-nav">
-                    <li><a href="#" data-toggle="modal"
-                           data-target="#modal-new-list"><i class="fa fa-plus"></i>&nbsp;<?php echo xlt('New List'); ?>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="deletelist" id="<?php echo attr($list_id); ?>">
-                            <i class="fa fa-trash"></i>&nbsp;<?php echo xlt('Delete List'); ?>
-                        </a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="#" data-toggle="modal" data-target="#modal-new-list"><i class="fa fa-plus"></i>&nbsp;<?php echo xlt('New List'); ?></a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" class="deletelist" id="<?php echo attr($list_id); ?>"><i class="fa fa-trash"></i>&nbsp;<?php echo xlt('Delete List'); ?></a></li>
                 </ul>
                 <input type="hidden" name="formaction" id="formaction">
                 <div class="form-group navbar-left">
@@ -1373,12 +1358,8 @@ function writeITLine($it_array)
             <form action="edit_list.php" method="post" class="form">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal"
-                            aria-label="<?php echo xla('Close'); ?>"><i
-                                class="fa fa-times"
-                                aria-hidden="true"></i>
-                    </button>
                     <h4 class="modal-title"><?php echo xlt('New List'); ?></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="<?php echo xla('Close'); ?>"><i class="fa fa-times" aria-hidden="true"></i></button>
                 </div>
                 <div class="modal-body">
                     <label for="newlistname"
@@ -1389,10 +1370,8 @@ function writeITLine($it_array)
 
                 </div>
                 <div class="modal-footer text-right">
-                    <button type="submit"
-                            class="btn btn-secondary btn-save"><?php echo xlt('Save'); ?></button>
-                    <button type="button" class="btn btn-link btn-cancel"
-                            data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
+                    <button type="submit" class="btn btn-secondary btn-save"><?php echo xlt('Save'); ?></button>
+                    <button type="button" class="btn btn-link btn-cancel" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
                 </div>
             </form>
         </div><!-- /.modal-content -->

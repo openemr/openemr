@@ -468,11 +468,11 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
             $rwct = count($csv_ar);
         } else {
             csv_edihist_log("edih_csv_to_html: error opening csv file $file_type $csv_type");
-            $csv_html .= "error opening csv file " . text($file_type) . " " . text($csv_type) . "<br>";
+            $csv_html .= "error opening csv file " . text($file_type) . " " . text($csv_type) . "<br />";
             return false;
         }
     } else {
-        $csv_html .= "invalid arguments for opening csv table<br>";
+        $csv_html .= "invalid arguments for opening csv table<br />";
         return false;
     }
 

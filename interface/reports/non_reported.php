@@ -498,7 +498,7 @@ if ($_POST['form_refresh']) {
 </div> <!-- end of results -->
 <?php } else { ?>
 <div class='text'>
-    <?php echo xlt('Click Refresh to view all results, or please input search criteria above to view specific results.'); ?><br>
+    <?php echo xlt('Click Refresh to view all results, or please input search criteria above to view specific results.'); ?><br />
   (<?php echo xlt('This report currently only works for ICD9 codes.'); ?>)
 </div>
 <?php } ?>

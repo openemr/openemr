@@ -235,7 +235,7 @@ if (isset($_GET["fid"])) {
                 <input type='checkbox' name='billing_location' value='1' <?php echo ($facility['billing_location'] != 0) ? 'checked' : ''; ?>>
             </td>
             <td rowspan='2'>
-                <span class='text'><?php echo xlt('Accepts Assignment'); ?><br>(<?php echo xlt('only if billing location'); ?>): </span>
+                <span class='text'><?php echo xlt('Accepts Assignment'); ?><br />(<?php echo xlt('only if billing location'); ?>): </span>
             </td>
             <td>
                 <input type='checkbox' name='accepts_assignment' value='1' <?php echo ($facility['accepts_assignment'] == 1) ? 'checked' : ''; ?>>

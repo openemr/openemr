@@ -31,7 +31,7 @@ use OpenEMR\OeUI\OemrUI;
     <?php Header::setupHeader('common'); ?>
 
     <style>
-        a.arrowhead, a:hover.arrowhead, a:visited.arrowhead{
+        a.arrowhead, a:hover.arrowhead, a:visited.arrowhead {
             color: var(--black);
         }
     </style>
@@ -194,17 +194,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                       <li ><a href='#' onclick='top.restoreSession()'><?php echo xlt('Rules'); ?></a></li>
                   </ul>
                   <div class="tabContainer">
-                  <div class="tab current" style="height:auto;width:97%;">
+                  <div class="tab current h-auto" style="width: 97%;">
                 <?php } ?>
                       
                 <form method='post' name='theform' id='theform'>
 
                 <div id='report_parameters' class='hideaway'>
-                  <table>
+                  <table class='table'>
                     <tr>
                       <td width='410px'>
                         <div class="float-left">
-                          <table class="text">
+                          <table class="table text">
                             <tr>
                               <td class='label_custom'>
                                 <?php echo " "; ?>
@@ -213,24 +213,18 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                           </table>
                         </div>
                       </td>
-                      <td align='left' valign='middle' height="100%">
-                        <table class="w-100" style='border-left:1px solid; height:100%'>
+                      <td class="h-100" align='left' valign='middle'>
+                        <table class="w-100 h-100">
                           <tr>
                             <td>
-                              <div style='margin-left:15px'>
+                              <div style='margin-left: 15px'>
                                 <?php if ($mode == "admin") { ?>
-                                 <a id='process_button' href='#' class='btn btn-primary' onclick='return ReminderBatch("process")'>
-                                   <span><?php echo xlt('Process Reminders'); ?></span>
-                                 </a>
-                                 <a id='process_send_button' href='#' class='btn btn-primary' onclick='return ReminderBatch("process_send")'>
-                                   <span><?php echo xlt('Process and Send Reminders'); ?></span>
-                                 </a>
+                                 <a id='process_button' href='#' class='btn btn-primary' onclick='return ReminderBatch("process")'><?php echo xlt('Process Reminders'); ?></a>
+                                 <a id='process_send_button' href='#' class='btn btn-primary' onclick='return ReminderBatch("process_send")'><?php echo xlt('Process and Send Reminders'); ?></a>
                                  <span id='status_span'></span>
-                                 <div id='processing' class="d-none" style='margin:10px;'><img src='../../pic/ajax-loader.gif'/></div>
+                                 <div id='processing' style='margin: 10px; display: none;'><img src='../../pic/ajax-loader.gif'/></div>
                                 <?php } else { ?>
-                                <a href='patient_reminders.php?patient_id=<?php echo attr_url($patient_id); ?>&mode=<?php echo attr_url($mode); ?>' class='btn btn-primary' onclick='top.restoreSession()'>
-                                  <span><?php echo xlt('Refresh'); ?></span>
-                                </a>
+                                <a href='patient_reminders.php?patient_id=<?php echo attr_url($patient_id); ?>&mode=<?php echo attr_url($mode); ?>' class='btn btn-primary' onclick='top.restoreSession()'><?php echo xlt('Refresh'); ?></a>
                                 <?php } ?>
                               </div>
                             </td>
@@ -243,8 +237,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 </div>
 
                 <div id='report_results'>
-                    <table>
-                      <thead>
+                    <table class='table table-bordered'>
+                      <thead class='thead-light'>
                         <th><?php echo xlt('Item') . " " . $sortlink[0]; ?></th>
                         <th><?php echo xlt('Patient') . " " . $sortlink[1]; ?></th>
                         <th><?php echo xlt('Due Status') . " " . $sortlink[2]; ?></th>
@@ -298,20 +292,20 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                 <?php if ($mode == "simple") { // show the per patient rule setting option ?>
                   </div>
-                  <div class="tab" style="height:auto;width:97%;">
+                  <div class="tab h-auto" style="width:97%;">
                     <div id='report_results'>
-                      <table>
+                      <table class="table table-bordered">
                         <tr>
                           <th rowspan="2"><?php echo xlt('Rule'); ?></th>
                           <th colspan="2"><?php echo xlt('Patient Reminder'); ?></th>
                         </tr>
                         <tr>
                           <th><?php echo xlt('Patient Setting'); ?></th>
-                          <th style="left-margin:1em;"><?php echo xlt('Practice Default Setting'); ?></th>
+                          <th style="left-margin: 1rem;"><?php echo xlt('Practice Default Setting'); ?></th>
                         </tr>
                         <?php foreach ($rules_default as $rule) { ?>
                           <tr>
-                            <td style="border-right:1px solid black;"><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $rule['id']); ?></td>
+                            <td ><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $rule['id']); ?></td>
                             <td align="center">
                                 <?php
                                 $patient_rule = collect_rule($rule['id'], $patient_id);
@@ -333,7 +327,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <option value="off" <?php echo ($select == "off") ? "selected" : ""; ?>><?php echo xlt('Off'); ?></option>
                               </select>
                             </td>
-                            <td align="center" style="border-right:1px solid black;">
+                            <td align="center">
                                 <?php
                                 if ($rule['patient_reminder_flag'] == "1") {
                                     echo xlt('On');

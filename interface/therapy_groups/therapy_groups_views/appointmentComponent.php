@@ -64,7 +64,7 @@
                             <a onclick="goToEvent(<?php echo attr_js("{$GLOBALS['rootdir']}/main/calendar/add_edit_event.php?group=true&groupid=".urlencode($groupId)."&date=".urlencode($date_for_url)."&eid=".urlencode($event['pc_eid'])); ?>)">
                         <?php endif;?>
                         <span><b><?php echo text($event['pc_eventDate']) . " (" . xlt($dayname) . ")" ;?></b></span>
-                        </br>
+                        <br />
                         <span>
                             <?php echo text($disphour) . ":" . text($dispmin) . " " . text($dispampm);
                             if ($event['pc_recurrtype'] > 0) {
@@ -72,11 +72,11 @@
                             }
 
                             echo " (  " . text($event['pc_apptstatus']) . "  )" ;?></span>
-                        </br>
+                        <br />
                         <span><?php echo xlt($event['pc_catname']);?></span>
-                        </br>
+                        <br />
                         <span><?php echo text($event['ufname']) . "  " . text($event['ulname']) ;?></span>
-                        </br></br>
+                        <br /><br />
                     </a>
                 </div>
             <?php } ?>

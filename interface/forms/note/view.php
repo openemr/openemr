@@ -57,7 +57,7 @@ function PrintForm() {
 <form method=post action="<?php echo $rootdir."/forms/".$form_name."/save.php?mode=update&id=".attr_url($_GET["id"]);?>" name="my_form" id="my_form">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<span class="title"><?php echo xlt('Work/School Note'); ?></span><br></br>
+<span class="title"><?php echo xlt('Work/School Note'); ?></span><br /><br />
 
 <div style="margin: 10px;">
 <input type="button" class="save" value="    <?php echo xla('Save'); ?>    "> &nbsp;
@@ -73,11 +73,11 @@ function PrintForm() {
     echo " SELECTED";
                             } ?>><?php echo xlt('SCHOOL NOTE'); ?></option>
 </select>
-<br>
+<br />
 <b><?php echo xlt('MESSAGE:'); ?></b>
-<br>
+<br />
 <textarea name="message" id="message" cols ="67" rows="4"><?php echo text($obj["message"]);?></textarea>
-<br> <br>
+<br /> <br />
 
 <table>
 <tr><td>

@@ -247,7 +247,7 @@ function auto_populate_employer_address(){
 </tr>
 </table>
 
-<br>
+<br />
 <a href="javascript:auto_populate_employer_address();" class=link_submit><?php echo xlt('Copy Values'); ?></a>
 
     <?php

@@ -43,9 +43,9 @@ if ($obj['date_of_signature'] != "") {
 <body class="body_top">
 
 <form method=post action="">
-<span class="title"><?php echo xlt('Work/School Note'); ?></span><br></br>
+<span class="title"><?php echo xlt('Work/School Note'); ?></span><br /><br />
 <?php echo xlt('Printed'); ?> <?php echo text(dateformat()); ?>
-<br><br>
+<br /><br />
 <select name="note_type">
 <option value="WORK NOTE" <?php if ($obj['note_type']=="WORK NOTE") {
     echo " SELECTED";
@@ -54,11 +54,11 @@ if ($obj['date_of_signature'] != "") {
     echo " SELECTED";
                             } ?>><?php echo xlt('SCHOOL NOTE'); ?></option>
 </select>
-<br>
+<br />
 <b><?php echo xlt('MESSAGE:'); ?></b>
-<br>
+<br />
 <div style="border: 1px solid black; padding: 5px; margin: 5px;"><?php echo text($obj["message"]);?></div>
-<br></br>
+<br /><br />
 
 <table>
 <tr><td>

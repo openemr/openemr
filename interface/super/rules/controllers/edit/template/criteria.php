@@ -32,13 +32,11 @@ use OpenEMR\Core\Header;
     edit.init();
 </script>
 
-<table class="header">
+<table class="table header">
   <tr>
         <td class="title"><?php echo xlt('Rule Edit'); ?></td>
         <td>
-            <a href="index.php?action=detail!view&id=<?php echo attr_url($rule->id); ?>" class="iframe_medium css_button" onclick="top.restoreSession()">
-                <span><?php echo xlt('Cancel'); ?></span>
-            </a>
+            <a href="index.php?action=detail!view&id=<?php echo attr_url($rule->id); ?>" class="iframe_medium btn btn-secondary" onclick="top.restoreSession()"><?php echo xlt('Cancel'); ?></a>
             <a href="javascript:;" class="iframe_medium btn btn-primary" id="btn_save" onclick="top.restoreSession()"><span><?php echo xlt('Save'); ?></span></a>
         </td>
   </tr>

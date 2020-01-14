@@ -40,7 +40,7 @@
     <button id="clear_filters" class="btn"><?php echo xlt("Clear Filters")?></button>
     <?php endif;?>
 
-    </br></br></br>
+    <br /><br /><br />
     <div id="filters">
         <div class="row">
             <div class=" form-group col-md-2">
@@ -105,7 +105,7 @@
     </div>
     <!---------- END OF FILTERS SECTION ------------->
 
-    </br></br>
+    <br /><br />
 
     <!---------- TABLE SECTION -------------->
     <div class="row">
@@ -134,7 +134,7 @@
                     <td><?php echo ($group['group_end_date'] == '0000-00-00' or $group['group_end_date'] == '00-00-0000' or empty($group['group_end_date'])) ? '' : text(oeFormatShortDate($group['group_end_date'])); ?></td>
                     <td>
                         <?php foreach ($group['counselors'] as $counselor) {
-                            echo text($counselor) . " </br> ";
+                            echo text($counselor) . " <br /> ";
                         } ;?>
                     </td>
                     <td><?php echo text($group['group_notes']);?></td>

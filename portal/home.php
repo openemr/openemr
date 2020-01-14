@@ -405,9 +405,9 @@ foreach ($msgs as $i) {
                                         echo "<div class='card-header clearfix'><a href='#' onclick='editAppointment(0," . attr_js($row ['pc_eid']) . ")" .
                                             "' title='" . attr($etitle) . "'><i class='float-right fa fa-edit'></i></a></div>";
                                         echo "<div class='body'><p><b>" . text($dayname . ", " . $row ['pc_eventDate']) . "&nbsp;";
-                                        echo text($disphour . ":" . $dispmin . " " . $dispampm) . "</b><br><b>";
-                                        echo xlt("Type") . ":</b> " . text($row ['pc_catname']) . "<br><b>";
-                                        echo xlt("Provider") . ":</b> " . text($row ['fname'] . " " . $row ['lname']) . "<br><b>";
+                                        echo text($disphour . ":" . $dispmin . " " . $dispampm) . "</b><br /><b>";
+                                        echo xlt("Type") . ":</b> " . text($row ['pc_catname']) . "<br /><b>";
+                                        echo xlt("Provider") . ":</b> " . text($row ['fname'] . " " . $row ['lname']) . "<br /><b>";
                                         echo xlt("Status") . ":</b> " . text($status_title);
                                         echo "</p></div></div>";
                                     }

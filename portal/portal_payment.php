@@ -483,9 +483,9 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
         <p>
         <h2><?php echo xlt('Receipt for Payment'); ?></h2>
         <p><?php echo text($frow['name']) ?>
-            <br><?php echo text($frow['street']) ?>
-            <br><?php echo text($frow['city'] . ', ' . $frow['state']) . ' ' . text($frow['postal_code']) ?>
-            <br><?php echo text($frow['phone']) ?>
+            <br /><?php echo text($frow['street']) ?>
+            <br /><?php echo text($frow['city'] . ', ' . $frow['state']) . ' ' . text($frow['postal_code']) ?>
+            <br /><?php echo text($frow['phone']) ?>
         <p>
         <div class="text-center" style="margin: auto;">
             <table border='0' cellspacing='8' class="text-center" style="margin: auto;">
@@ -1246,26 +1246,26 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
         }
         ?>
         <div class="card-body">
-            <strong><?php echo xlt('Card Name'); ?>: </strong><span id="cn"><?php echo text($ccdata["cc_type"]) ?></span><br>
+            <strong><?php echo xlt('Card Name'); ?>: </strong><span id="cn"><?php echo text($ccdata["cc_type"]) ?></span><br />
             <strong><?php echo xlt('Name on Card'); ?>: </strong><span id="nc"><?php echo text($ccdata["cardHolderName"]) ?></span>
-            <strong><?php echo xlt('Card Holder Zip'); ?>: </strong><span id="czip"><?php echo text($ccdata["zip"]) ?></span><br>
+            <strong><?php echo xlt('Card Holder Zip'); ?>: </strong><span id="czip"><?php echo text($ccdata["zip"]) ?></span><br />
             <strong><?php echo xlt('Card Number'); ?>: </strong><span id="ccn">
         <?php
         if (isset($_SESSION['authUserID']) || isset($ccdata["transId"])) {
-            echo text($ccdata["cardNumber"]) . "</span><br>";
+            echo text($ccdata["cardNumber"]) . "</span><br />";
         } else {
-            echo "**********  " . text(substr($ccdata["cardNumber"], -4)) . "</span><br>";
+            echo "**********  " . text(substr($ccdata["cardNumber"], -4)) . "</span><br />";
         }
         ?>
         <?php
         if (!isset($ccdata["transId"])) { ?>
                 <strong><?php echo xlt('Exp Date'); ?>:  </strong><span id="ed"><?php echo text($ccdata["month"]) . "/" . text($ccdata["year"]) ?></span>
-                <strong><?php echo xlt('CVV'); ?>:  </strong><span id="cvvpin"><?php echo text($ccdata["cardCode"]) ?></span><br>
+                <strong><?php echo xlt('CVV'); ?>:  </strong><span id="cvvpin"><?php echo text($ccdata["cardCode"]) ?></span><br />
         <?php } else { ?>
                 <strong><?php echo xlt('Transaction Id'); ?>:  </strong><span id="ed"><?php echo text($ccdata["transId"]) . "/" . text($ccdata["year"]) ?></span>
-                <strong><?php echo xlt('Authorization'); ?>:  </strong><span id="cvvpin"><?php echo text($ccdata["authCode"]) ?></span><br>
+                <strong><?php echo xlt('Authorization'); ?>:  </strong><span id="cvvpin"><?php echo text($ccdata["authCode"]) ?></span><br />
         <?php } ?>
-        <strong><?php echo xlt('Charge Total'); ?>:  </strong><span id="ct"><?php echo text($invdata["form_paytotal"]) ?></span><br>
+        <strong><?php echo xlt('Charge Total'); ?>:  </strong><span id="ct"><?php echo text($invdata["form_paytotal"]) ?></span><br />
         </div>
         </div>
         </div>

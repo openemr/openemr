@@ -42,7 +42,7 @@ $gacl = new gacl_api();
 // Create the ACO sections.  Every ACO must have a section.
 //
 if ($gacl->add_object_section('Accounting', 'acct', 10, 0, 'ACO') === false) {
-    echo "Unable to create the access controls for OpenEMR.  You have likely already run this script (acl_setup.php) successfully.<br>Other possible problems include php-GACL configuration file errors (gacl.ini.php or gacl.class.php).<br>";
+    echo "Unable to create the access controls for OpenEMR.  You have likely already run this script (acl_setup.php) successfully.<br />Other possible problems include php-GACL configuration file errors (gacl.ini.php or gacl.class.php).<br />";
     return;
 }
 // xl('Accounting')
@@ -570,7 +570,7 @@ $gacl->add_acl(
 </head>
 <body>
 <b>OpenEMR ACL Setup</b>
-<br>
+<br />
 All done configuring and installing access controls (php-GACL)!
 </body>
 </html>

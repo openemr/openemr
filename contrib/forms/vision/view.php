@@ -28,8 +28,8 @@ require_once("$srcdir/api.inc");
 $obj = formFetch("form_vision", $_GET["id"]);
 ?>
 <form method=post action="<?php echo $rootdir?>/forms/vision/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">
-<span class="title">Vision</span><Br><br>
-<span class=bold>Keratometry</span><br>
+<span class="title">Vision</span><Br><br />
+<span class=bold>Keratometry</span><br />
 
 <table>
 <tr>
@@ -61,10 +61,10 @@ $obj = formFetch("form_vision", $_GET["id"]);
 </table>
 
 
-<span class=text>Additional Notes: </span><br><textarea cols=40 rows=8 wrap=virtual name="additional_notes" ><?php echo text($obj["additional_notes"]);?></textarea>
-<br>
+<span class=text>Additional Notes: </span><br /><textarea cols=40 rows=8 wrap=virtual name="additional_notes" ><?php echo text($obj["additional_notes"]);?></textarea>
+<br />
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
-<br>
+<br />
 <a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" onclick="top.restoreSession()">[Don't Save Changes]</a>
 </form>
 <?php

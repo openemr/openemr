@@ -618,7 +618,7 @@ function checkSubmit() {
             echo " </tr>\n";
             ?>
         </table>
-      <tr><td>&nbsp;</td></tr><br><br>
+      <tr><td>&nbsp;</td></tr><br /><br />
             <?php if ($GLOBALS['print_next_appointment_on_ledger'] == 1) {
                         $next_day = mktime(0, 0, 0, date('m'), date('d')+1, date('Y'));
                         # add one day to date so it will not get todays appointment

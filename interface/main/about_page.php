@@ -106,9 +106,9 @@ $version = $versionService->fetch();
                     <h1><?php echo xlt("About");?>&nbsp;OpenEMR</h1>
                 </div>
                 <h4><?php echo xlt('Version Number'); ?>: <?php echo "v".text($openemr_version); ?></h4>
-                <span class="text product-registration"><span class="email"></span> <span class="id"></span></span><br>
+                <span class="text product-registration"><span class="email"></span> <span class="id"></span></span><br />
                 <?php if (!empty($GLOBALS['support_phone_number'])) { ?>
-                    <span class="text"><?php  echo xlt('Support Phone Number'); ?>: <?php echo text($GLOBALS['support_phone_number']); ?></span><br>
+                    <span class="text"><?php  echo xlt('Support Phone Number'); ?>: <?php echo text($GLOBALS['support_phone_number']); ?></span><br />
                 <?php } ?>
                 <a href="<?php echo "https://open-emr.org/wiki/index.php/OpenEMR_" . attr($version->getMajor()) . "." . attr($version->getMinor()) . "." . attr($version->getPatch()) . "_Users_Guide"; ?>" rel="noopener" target="_blank" class="btn btn-block btn-secondary"><i class="fa fa-fw fa-book"></i>&nbsp;<?php echo xlt('User Manual'); ?></a>
                 <?php if (!empty($GLOBALS['online_support_link'])) { ?>
@@ -116,7 +116,7 @@ $version = $versionService->fetch();
                 <?php } ?>
                 <a href="../../acknowledge_license_cert.html" rel="noopener" target="_blank" class="btn btn-secondary btn-block"><i class="fa fa-fw fa-info-circle"></i><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></a>
                 <div class="donations-needed">
-                    <span class="text"><?php echo xlt("Please consider sending in a donation to"); ?> OpenEMR:</span><br>
+                    <span class="text"><?php echo xlt("Please consider sending in a donation to"); ?> OpenEMR:</span><br />
                     <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=UA3UDABCAUZ2S" rel="noopener" target="_blank" class="btn btn-lg btn-block"><i class="fa fa-2x fa-heart"></i><br/><?php echo xlt("DONATE NOW!"); ?></a>
                 </div>
                 <div class="review">

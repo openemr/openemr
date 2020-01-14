@@ -449,7 +449,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         </span>
                         </div><!-- /input-group -->
                     </div>
-                    <br>
+                    <br />
                     <div id="globals-div">
                         <ul class="tabNav tabWidthWide" id="oe-nav-ul">
                         <?php

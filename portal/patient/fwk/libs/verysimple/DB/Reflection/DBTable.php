@@ -198,7 +198,7 @@ class DBTable
      */
     public function RemovePrefix($name)
     {
-        // print "remove prefix $name: " . $this->ColumnPrefix . "<br>";
+        // print "remove prefix $name: " . $this->ColumnPrefix . "<br />";
         return substr($name, strlen($this->ColumnPrefix));
     }
     

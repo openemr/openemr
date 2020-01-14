@@ -36,14 +36,14 @@ if ($_POST['add']) {
     //validate
     $pat="^[a-z]{2}\$";
     if (!check_pattern($_POST['lang_code'], $pat)) {
-        echo xlt("Code must be two letter lowercase").'<br>';
+        echo xlt("Code must be two letter lowercase").'<br />';
         $err='y';
     }
 
     $sql="SELECT * FROM lang_languages WHERE lang_code LIKE ? or lang_description LIKE ? limit 1" ;
     $res=SqlQuery($sql, array("%".$_POST['lang_code']."%","%".$_POST['lang_name']));
     if ($res) {
-        echo xlt("Data Alike is already in database, please change code and/or description").'<br>';
+        echo xlt("Data Alike is already in database, please change code and/or description").'<br />';
         $err='y';
     }
 
@@ -58,7 +58,7 @@ if ($_POST['add']) {
         //insert into the log table - to allow persistant customizations
         insert_language_log($_POST['lang_name'], $_POST['lang_code'], '', '');
 
-            echo xlt('Language definition added').'<br>';
+            echo xlt('Language definition added').'<br />';
     }
 }
 

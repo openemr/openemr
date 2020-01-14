@@ -140,7 +140,7 @@ if (isset($_POST['submit'])) {
     </style>
 </head>
 <body>
-    <br><br>
+    <br /><br />
     <div class="container">
         <form action="" method="POST" onsubmit="return process_new_pass()">
             <input style="display:none" type="text" name="dummyuname" />
@@ -194,7 +194,7 @@ if (isset($_POST['submit'])) {
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="2"><br><input class="btn btn-primary float-right" type="submit" name="submit" value="<?php echo xla('Save'); ?>" /></td>
+                    <td colspan="2"><br /><input class="btn btn-primary float-right" type="submit" name="submit" value="<?php echo xla('Save'); ?>" /></td>
                 </tr>
             </table>
             <div><strong><?php echo '* ' . xlt("All credential fields are case sensitive!") ?></strong></div>

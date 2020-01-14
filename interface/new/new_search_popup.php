@@ -6,8 +6,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2010-2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -36,27 +38,19 @@ $searchcolor = empty($GLOBALS['layout_search_color']) ?
 
 <style>
 form {
- padding: 0px;
- margin: 0px;
+    padding: 0;
+    margin: 0;
 }
 #searchCriteria {
  text-align: center;
  width: 100%;
- font-size: 0.8em;
- background-color: #ddddff;
+ font-size: 0.8rem;
+ background-color: var(--gray300);
  font-weight: bold;
  padding: 3px;
 }
-#searchResultsHeader {
- width: 100%;
- background-color: lightgrey;
-}
-#searchResultsHeader table {
- width: 96%;  /* not 100% because the 'searchResults' table has a scrollbar */
- border-collapse: collapse;
-}
 #searchResultsHeader th {
- font-size: 0.7em;
+ font-size: 0.7rem;
 }
 #searchResults {
  width: 100%;
@@ -64,42 +58,33 @@ form {
  overflow: auto;
 }
 
-.srName  { width: 12%; }
-.srPhone { width: 11%; }
-.srSS    { width: 11%; }
-.srDOB   { width:  8%; }
-.srID    { width:  7%; }
-.srMisc  { width: 10%; }
-
 #searchResults table {
  width: 100%;
  border-collapse: collapse;
- background-color: white;
+ background-color: var(--white);
 }
 #searchResults tr {
  cursor: hand;
  cursor: pointer;
 }
 #searchResults td {
- font-size: 0.7em;
- border-bottom: 1px solid #eee;
-}
-.oneResult {
+ font-size: 0.7rem;
+ border-bottom: 1px solid var(--gray200);
 }
 .topResult {
  background-color: <?php echo attr($searchcolor); ?>;
 }
 .billing {
- color: red;
+ color: var(--danger);
  font-weight: bold;
 }
 .highlight {
- background-color: #336699;
- color: white;
+ background-color: var(--info);
+ color: var(--white);
 }
 </style>
 
-<script language="JavaScript">
+<script>
 
 // This is called when forward or backward paging is done.
 //
@@ -178,17 +163,18 @@ _set_patient_inc_count($MAXSHOW, count($result), $where, $sqlBindArraySpecial);
 
 </form>
 
-<table border='0' cellpadding='5' cellspacing='0' width='100%'>
+<div class="table-responsive">
+<table class="table border-0" cellpadding='5' cellspacing='0'>
  <tr>
   <td class='text'>
    &nbsp;
   </td>
-  <td class='text' align='center'>
+  <td class='text text-center'>
 <?php if ($message) {
-    echo "<font color='red'><b>".text($message)."</b></font>\n";
+    echo "<span class='text-danger font-weight-bold'>".text($message)."</span>\n";
 } ?>
   </td>
-  <td class='text' align='right'>
+  <td class='text text-right'>
 <?php
 // Show start and end row number, and number of rows, with paging links.
 $count = $GLOBALS['PATIENT_INC_COUNT'];
@@ -213,12 +199,14 @@ if ($fend > $count) {
   </td>
  </tr>
 </table>
+</div>
 
-<div id="searchResultsHeader" class="head">
-<table>
+<div id="searchResultsHeader" class="table-responsive">
+<table class="table">
+<thead class="thead-light">
 <tr>
-<th class="srID"   ><?php echo xlt('Hits');?></th>
-<th class="srName" ><?php echo xlt('Name');?></th>
+<th class="srID" scope="col"><?php echo xlt('Hits');?></th>
+<th class="srName" scope="col"><?php echo xlt('Name');?></th>
 <?php
 // This gets address plus other fields that are mandatory, up to a limit of 5.
 $extracols = array();
@@ -231,18 +219,13 @@ $tres = sqlStatement("SELECT field_id, title FROM layout_options " .
 
 while ($trow = sqlFetchArray($tres)) {
     $extracols[$trow['field_id']] = $trow['title'];
-    echo "<th class='srMisc'>" . text(xl_layout_label($trow['title'])) . "</th>\n";
+    echo "<th class='srMisc' scope='col'>" . text(xl_layout_label($trow['title'])) . "</th>\n";
 }
 ?>
 
 </tr>
-</table>
-</div>
-
-<div id="searchResults">
-
-<table>
-<tr>
+</thead>
+<tr id="searchResults">
 <?php
 $pubpid_matched = false;
 if ($result) {
@@ -265,20 +248,19 @@ if ($result) {
     }
 }
 ?>
+</tr>
 </table>
-</div>  <!-- end searchResults DIV -->
 
 <center>
 <?php if ($pubpid_matched) { ?>
-<input type='button' value='<?php echo xla('Cancel'); ?>'
+<input class='btn btn-primary' type='button' value='<?php echo xla('Cancel'); ?>'
  onclick='dlgclose();' />
 <?php } else { ?>
-<input type='button' value='<?php echo xla('Confirm Create New Patient'); ?>'
- onclick='dlgclose("srcConfirmSave", false);' />
+<input class='btn btn-primary' type='button' value='<?php echo xla('Confirm Create New Patient'); ?>' onclick='dlgclose("srcConfirmSave", false);' />
 <?php } ?>
 </center>
 
-<script language="javascript">
+<script>
 
 // jQuery stuff to make the page a little easier to use
 

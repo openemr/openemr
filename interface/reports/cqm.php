@@ -557,7 +557,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
                 <?php if (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) { ?>
                   <tr>
                         <td>
-                                <?php echo xlt('Number labs'); ?>:<br>
+                                <?php echo xlt('Number labs'); ?>:<br />
                                (<?php echo xlt('Non-electronic'); ?>)
                         </td>
                         <td>
@@ -625,7 +625,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
 
 </div>  <!-- end of search parameters -->
 
-<br>
+<br />
 
 <?php
 if (!empty($report_id)) {

@@ -97,29 +97,25 @@ if ($_POST['form_xmit']) {
 <style>
 
 tr.head {
-    font-size: 10pt;
-    background-color: grey;
+    font-size: 13px;
+    background-color: var(--gray);
     text-align: center;
-    color: white;
+    color: var(--white);
 }
 
 tr.subhead {
-    font-size: 10pt;
-    background-color: #e6e6e6;
+    font-size: 13px;
+    background-color: var(--gray200);
     text-align: center;
 }
 
 tr.detail {
-    margin:0 0;padding: 0 0;
-    font-size: 10pt;
+    margin:0 0;
+    padding: 0 0;
+    font-size: 13px;
 }
-
-a, a:visited, a:hover {
-    color: #0000cc;
-}
-
 </style>
-<script language="JavaScript">
+<script>
 var dlgtitle = <?php echo xlj("Match Patient") ?>;
 
 function openResults(orderid) {
@@ -177,7 +173,7 @@ $(function () {
     <?php
 
     if ($errmsg) {
-        echo "<font color='red'>" . text($errmsg) . "</font><br />\n";
+        echo "<span class='text-danger'>" . text($errmsg) . "</span><br />\n";
     }
 
     $info = array('select' => array());
@@ -230,9 +226,9 @@ $(function () {
             $s .= xlt('Click to match patient') . ' "' . text($tmp['lname']) . ', ' . text($tmp['fname']) . '"';
             $s .= "</a>";
             $s .= "</td>\n";
-            $s .= "  <td style='width:1%'><input type='text' name='select[" .
+            $s .= "  <td style='width: 1%'><input type='text' name='select[" .
                 attr($matchkey) . "]' size='3' value='' " .
-                "style='background-color:transparent' readonly /></td>\n";
+                "style='background-color: transparent' readonly /></td>\n";
             $s .= " </tr>\n";
         }
     }
@@ -261,7 +257,7 @@ $(function () {
                     // Informational message starts with '>'
                     $s .= "  <td>&nbsp;</td>\n";
                     $s .= "  <td>" . text($infokey) . "</td>\n";
-                    $s .= "  <td colspan='2' style='color:green'>" . text(substr($message, 1)) . "</td>\n";
+                    $s .= "  <td colspan='2' class='text-success'>" . text(substr($message, 1)) . "</td>\n";
                 }
                 $s .= " </tr>\n";
             }
@@ -271,7 +267,7 @@ $(function () {
     if ($s) {
         if ($matchreqs || $errors) {
             $orphan_orders = true;
-            echo "<p class='bold' style='color:#008800'>";
+            echo "<p class='font-weight-bold text-success'>";
             echo xlt('Incoming results requiring attention:');
             echo "</p>\n";
         }
@@ -286,7 +282,7 @@ $(function () {
         echo $s;
         echo "</table>\n";
         if ($matchreqs || $errors) {
-            echo "<p class='bold' style='color:#008800'>";
+            echo "<p class='font-weight-bold text-success'>";
             if ($matchreqs) {
                 echo xlt('Click where indicated above to match the patient.') . ' ';
                 echo xlt('After that the Match column will show the selected patient ID, or 0 to create.') . ' ';
@@ -314,60 +310,49 @@ $(function () {
 
     $form_provider = empty($_POST['form_provider']) ? '' : intval($_POST['form_provider']);
     ?>
-    <hr>
-    <table>
-        <tr>
-            <td class='text' align='center'>
-                <label><?php echo xlt('From'); ?>:</label>
-                <input type='text' size='9' name='form_from_date' id='form_from_date'
-                       class='form-control datepicker'
-                       value='<?php echo attr($form_from_date); ?>'
-                       title='<?php echo xla('yyyy-mm-dd'); ?>'/>
+    <div class='w-100 form-inline'>
+        <label for="form_from_date"><?php echo xlt('From'); ?>:</label>
+        <input type='text' size='9' name='form_from_date' id='form_from_date' class='form-control datepicker' value='<?php echo attr($form_from_date); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>'/>
 
-                <label><?php echo xlt('To{{Range}}'); ?>:</label>
-                <input type='text' size='9' name='form_to_date' id='form_to_date'
-                       class='form-control datepicker'
-                       value='<?php echo attr($form_to_date); ?>'
-                       title='<?php echo xla('yyyy-mm-dd'); ?>'/>
+        <label for="form_to_date"><?php echo xlt('To{{Range}}'); ?>:</label>
+        <input type='text' size='9' name='form_to_date' id='form_to_date' class='form-control datepicker' value='<?php echo attr($form_to_date); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>'/>
 
-                <input class="form-control" type='checkbox' name='form_patient' id="ck_patient" value='1'
-                    <?php if ($form_patient) {
-                        echo 'checked ';
-                    } ?>/>
-                <label for="ck_patient"><?php echo xlt('Current Pt Only'); ?></label>
+        <input class="form-control" type='checkbox' name='form_patient' id="ck_patient" value='1'
+            <?php if ($form_patient) {
+                echo 'checked ';
+            } ?>/>
+        <label for="ck_patient"><?php echo xlt('Current Pt Only'); ?></label>
 
-                <select class="form-control input-sm" name='form_reviewed'>
-                    <?php
-                    foreach (array(
-                                 '1' => xl('All'),
-                                 '2' => xl('Reviewed'),
-                                 '3' => xl('Received, unreviewed'),
-                                 '4' => xl('Sent, not received'),
-                                 '5' => xl('Not sent'),
-                             ) as $key => $value) {
-                        echo "<option value='" . attr($key) . "'";
-                        if ($key == $form_reviewed) {
-                            echo " selected";
-                        }
+        <select class="form-control input-sm" name='form_reviewed'>
+            <?php
+            foreach (array(
+                         '1' => xl('All'),
+                         '2' => xl('Reviewed'),
+                         '3' => xl('Received, unreviewed'),
+                         '4' => xl('Sent, not received'),
+                         '5' => xl('Not sent'),
+                     ) as $key => $value) {
+                echo "<option value='" . attr($key) . "'";
+                if ($key == $form_reviewed) {
+                    echo " selected";
+                }
 
-                        echo ">" . text($value) . "</option>\n";
-                    }
-                    ?>
-                </select>
+                echo ">" . text($value) . "</option>\n";
+            }
+            ?>
+        </select>
 
-                <?php
-                generate_form_field(array('data_type' => 10, 'field_id' => 'provider',
-                    'empty_title' => '-- All Providers --'), $form_provider);
-                ?>
-                &nbsp;
-                <?php if (!$orphan_orders) { ?>
-                    <input type='submit' name='form_refresh' value='<?php echo xla('Submit'); ?>'>
-                <?php } else { ?>
-                    <input type='submit' name='form_manual' value='<?php echo xla('Resolve Orphan Results'); ?>'>
-                <?php } ?>
-            </td>
-        </tr>
-    </table>
+        <?php
+        generate_form_field(array('data_type' => 10, 'field_id' => 'provider',
+            'empty_title' => '-- All Providers --'), $form_provider);
+        ?>
+        &nbsp;
+        <?php if (!$orphan_orders) { ?>
+            <input class='btn btn-primary' type='submit' name='form_refresh' value='<?php echo xla('Submit'); ?>' />
+        <?php } else { ?>
+            <input class='btn btn-primary' type='submit' name='form_manual' value='<?php echo xla('Resolve Orphan Results'); ?>' />
+        <?php } ?>
+    </div>
     <table class="table table-bordered table-sm table-striped table-hover">
         <thead>
         <tr class='head'>

@@ -141,7 +141,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 
 </div>  <!-- end of search parameters -->
 
-<br>
+<br />
 
 
 

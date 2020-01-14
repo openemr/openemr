@@ -28,7 +28,7 @@
     <span class="end_col">
         <input type="radio" name="fld_value_type" class="field" value="match"
                 <?php echo !is_null($criteria->matchValue) ? "CHECKED" : ""?>> <?php echo xlt('Match'); ?>
-        <input type="text" name="fld_value" class="field short" value="<?php echo attr($criteria->matchValue); ?>" />
+        <input type="text" name="fld_value" class="form-control field short" value="<?php echo attr($criteria->matchValue); ?>" />
     </span>
 </p>
 

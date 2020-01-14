@@ -131,7 +131,7 @@ $N = 7;
             echo text($row['administered_formatted']) . ' : ';
             echo text($row['code_text']) . ' : ';
             echo text($row['note']) . ' : ';
-            echo text($row['completion_status']) . '<br>';
+            echo text($row['completion_status']) . '<br />';
         }
         ?>
         </div>

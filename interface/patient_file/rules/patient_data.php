@@ -153,7 +153,7 @@ if (isset($entryID)) {
 </tr>
 </table>
 
-<br>
+<br />
 <form action='patient_data.php' name='patient_data' method='post' onsubmit='return top.restoreSession()'>
   <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
@@ -201,7 +201,7 @@ $res = sqlStatement("SELECT `id`, `date`, `complete`, `result` " .
   "ORDER BY `date` DESC", array($category,$item,$pid));
 ?>
 <hr />
-<br>
+<br />
 <div>
 <?php
 if (sqlNumRows($res) >= 1) { //display table ?>

@@ -478,7 +478,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                             $payerid = SLEOB::arGetPayerID($patient_id, $svcdate, $i);
                             if ($payerid) {
                                 $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE id = ?", array($payerid));
-                                echo "$i: " . $tmp['name'] . "<br>";
+                                echo "$i: " . $tmp['name'] . "<br />";
                             }
                         }
                         ?>

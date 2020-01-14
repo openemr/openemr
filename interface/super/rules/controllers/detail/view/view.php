@@ -18,7 +18,7 @@ $rule = $viewBean->rule ?>
     detail.init();
 </script>
 
-<table class="header">
+<table class="table header">
   <tr >
         <td class="title"><?php echo xlt('Rule Detail'); ?></td>
         <td>

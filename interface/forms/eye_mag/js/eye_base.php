@@ -1201,7 +1201,7 @@ function build_DX_list(obj) {
     if (typeof obj.PMSFH === "undefined") return;
     if (typeof obj.Clinical === "undefined") submit_form('obj.clinical is undefined');
     if (!obj.PMSFH['POH']  && !obj.PMSFH['PMH'] && !obj.Clinical) {
-        out = '<br /><span class="bold">The Past Ocular History (POH) and Past Medical History (PMH) are negative and no diagnosis was auto-generated from the clinical findings.</span><br /><br>Update the chart to activate the Builder.<br />';
+        out = '<br /><span class="bold">The Past Ocular History (POH) and Past Medical History (PMH) are negative and no diagnosis was auto-generated from the clinical findings.</span><br /><br />Update the chart to activate the Builder.<br />';
         $( "#build_DX_list" ).html(out);
         return;
     }
@@ -1256,7 +1256,7 @@ function build_DX_list(obj) {
             //this places the handle for the user to drag the item around.
         .prepend( "<div class='handle '><i class='fa fa-arrows fa-1'></i></div>" );
     } else {
-        out = '<br /><span class="bold"><?php echo xlt("Build Your Plan")."."; ?></span><br /><br>';
+        out = '<br /><span class="bold"><?php echo xlt("Build Your Plan")."."; ?></span><br /><br />';
         out += '<?php echo xlt('Suggestions for the Imp/Plan are built from the Exam, the Past Ocular History (POH and POS) and the Past Medical History (PMH)')."."; ?><br />';
         out += '<?php echo xlt('Update the chart to build this list')."."; ?><br />';
         $( "#build_DX_list" ).html(out);

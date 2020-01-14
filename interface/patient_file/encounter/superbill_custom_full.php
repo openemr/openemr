@@ -460,13 +460,13 @@ if ($fend > $count) {
 
     <input type='hidden' name='mode' value=''>
 
-    <br>
+    <br />
 
     <center>
         <table border='0' cellpadding='0' cellspacing='0'>
 
             <tr>
-                <td colspan="3"> <?php echo xlt('Not all fields are required for all codes or code types.'); ?><br><br></td>
+                <td colspan="3"> <?php echo xlt('Not all fields are required for all codes or code types.'); ?><br /><br /></td>
             </tr>
 
             <tr>
@@ -651,7 +651,7 @@ if ($fend > $count) {
 
             <tr>
                 <td colspan="3" align="center">
-                    <input type="hidden" name="code_id" value="<?php echo attr($code_id) ?>"><br>
+                    <input type="hidden" name="code_id" value="<?php echo attr($code_id) ?>"><br />
                     <input type="hidden" name="code_type_name_external" value="<?php echo attr($code_type_name_external) ?>">
                     <input type="hidden" name="code_external" value="<?php echo attr($code_external) ?>">
                     <?php if ($thisauthwrite) { ?>
@@ -666,7 +666,7 @@ if ($fend > $count) {
                 </td>
             </tr>
         </table>
-        <br>
+        <br />
         <table border='0' cellpadding='5' cellspacing='0' width='96%'>
             <tr>
 

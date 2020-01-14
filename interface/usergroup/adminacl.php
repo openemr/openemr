@@ -133,7 +133,7 @@ if (!isset($phpgacl_location)) {
                         //Remove Loading indicator and show errors
                         $("#div_acl_add_form span.loading").hide();
                         $("#acl_error").empty();
-                        $("#acl_error").append("<span class='alert'>" + <?php echo xlj('ERROR, unable to collect data from server'); ?> + "<br></span>");
+                        $("#acl_error").append("<span class='alert'>" + <?php echo xlj('ERROR, unable to collect data from server'); ?> + "<br /></span>");
                         $("#acl_error").show();
                     }
                 });
@@ -203,7 +203,7 @@ if (!isset($phpgacl_location)) {
                         //Remove Loading indicator and show errors
                         $("#div_acl_remove_form span.loading").hide();
                         $("#acl_error").empty();
-                        $("#acl_error").append("<span class='alert'>" + <?php echo xlj('ERROR, unable to collect data from server'); ?> + "<br></span>");
+                        $("#acl_error").append("<span class='alert'>" + <?php echo xlj('ERROR, unable to collect data from server'); ?> + "<br /></span>");
                         $("#acl_error").show();
                     }
                 });
@@ -248,7 +248,7 @@ if (!isset($phpgacl_location)) {
                         //Remove Loading indicator and previous error, if any, then show error
                         $("#membership_edit span.loading:first").hide();
                         $("#membership_error").empty();
-                        $("#membership_error").append("<span class='alert'>" + <?php echo xlj('ERROR, unable to collect data from server'); ?> + "<br><br></span>");
+                        $("#membership_error").append("<span class='alert'>" + <?php echo xlj('ERROR, unable to collect data from server'); ?> + "<br /><br /></span>");
                         $("#membership_error").show();
                     }
                 });
@@ -301,7 +301,7 @@ if (!isset($phpgacl_location)) {
                         //Remove Loading indicator and previous error, if any, then show error
                         $("#acl_edit div span.loading:first").hide();
                         $("#acl_error").empty();
-                        $("#acl_error").append("<span class='alert'>" + <?php echo xlj('ERROR, unable to collect data from server'); ?> + "<br><br></span>");
+                        $("#acl_error").append("<span class='alert'>" + <?php echo xlj('ERROR, unable to collect data from server'); ?> + "<br /><br /></span>");
                         $("#acl_error").show();
                     }
                 });
@@ -487,7 +487,7 @@ if (!isset($phpgacl_location)) {
                         //Remove old errors, then display any new errors to user
                         $(errorPointer).empty();
                         $(xml).find("error").each(function(){
-                            $(errorPointer).append("<span class='alert'>" + $(this).text() + "<br></span>");
+                            $(errorPointer).append("<span class='alert'>" + $(this).text() + "<br /></span>");
                             $(errorPointer).show();
                         });
                     },
@@ -499,7 +499,7 @@ if (!isset($phpgacl_location)) {
                         //Remove Loading indicator and show errors
                         $(linkPointer + " span.loading" + linkPointerPost).hide();
                         $(errorPointer).empty();
-                        $(errorPointer).append("<span class='alert'>" + <?php echo xlj('ERROR, unable to collect data from server'); ?> + "<br></span>");
+                        $(errorPointer).append("<span class='alert'>" + <?php echo xlj('ERROR, unable to collect data from server'); ?> + "<br /></span>");
                         $(errorPointer).show();
                     }
                 });
@@ -558,7 +558,7 @@ if (!isset($phpgacl_location)) {
                                         <input id="title_field" type="text" class="form-control">
                                     </div>
                                     <div class='col-6'>
-                                        <br><span class="alert" id="title_error"></span>
+                                        <br /><span class="alert" id="title_error"></span>
                                     </div>
                                 </div>
                                 <div class='row'>
@@ -567,7 +567,7 @@ if (!isset($phpgacl_location)) {
                                         <input id="id_field" type="text" class="form-control">
                                     </div>
                                     <div class='col-6'>
-                                       <br><span class="alert" id="identifier_error"></span>
+                                       <br /><span class="alert" id="identifier_error"></span>
                                     </div>
                                 </div>
                                 <div class='row'>
@@ -577,7 +577,7 @@ if (!isset($phpgacl_location)) {
                                         </select>
                                     </div>
                                     <div class='col-6'>
-                                        <br><span class="alert" id="return_error"></span>
+                                        <br /><span class="alert" id="return_error"></span>
                                     </div>
                                 </div>
                                 <div class='row'>
@@ -586,7 +586,7 @@ if (!isset($phpgacl_location)) {
                                         <input id="desc_field" type="text" class="form-control">
                                     </div>
                                     <div class='col-6'>
-                                        <br><span class="alert" id="description_error"></span>
+                                        <br /><span class="alert" id="description_error"></span>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -613,23 +613,23 @@ if (!isset($phpgacl_location)) {
                                         </select>
                                     </div>
                                     <div class='col-6'>
-                                        <br><span class="alert" id="aclTitle_error"></span>
+                                        <br /><span class="alert" id="aclTitle_error"></span>
                                     </div>
                                 </div>
                                 <div class='row'>
                                     <div class='col-12'>
-                                        <br>
+                                        <br />
                                         <span class='text'><?php echo xlt('Do you really want to delete this group'); ?>?</span>
                                     </div>
                                 </div>
                                 <div class='row'>
                                     <div class='col-4'>
-                                        <br>
+                                        <br />
                                         <input type="radio" name="acl_remove_confirm" value="yes"><span class='text'><?php echo xlt('Yes'); ?></span>
                                         <input type="radio" name="acl_remove_confirm" value="no" checked><span class='text'><?php echo xlt('No'); ?></span>
                                     </div>
                                     <div class='col-6'>
-                                        <br><span class="alert" id="remove_confirm_error"></span>
+                                        <br /><span class="alert" id="remove_confirm_error"></span>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -646,7 +646,7 @@ if (!isset($phpgacl_location)) {
             </div>
         </div>
     </div><!--end of container div-->
-    <br>
+    <br />
     <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>
 </html>

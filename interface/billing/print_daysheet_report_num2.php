@@ -369,7 +369,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 }
 
                 // Displays name
-                print "<tr><td colspan=50><hr><span class=bold>" . "     " . text($name["fname"]) . " " . text($name["lname"]) . "</span><br><br></td></tr><tr>\n";
+                print "<tr><td colspan=50><hr><span class=bold>" . "     " . text($name["fname"]) . " " . text($name["lname"]) . "</span><br /><br /></td></tr><tr>\n";
                 //==================================
 
                 if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment') {
@@ -730,13 +730,13 @@ if ($us19_fee != 0 || $us19_inspay != 0 || $us19_insadj != 0 || $us19_patadj != 
 if ($totals_only == 1) {
     $from_date = oeFormatShortDate(substr($query_part_day, 37, 10));
     $to_date = oeFormatShortDate(substr($query_part_day, 63, 10));
-    print "<br><br>";
+    print "<br /><br />";
     ?><font size = 5 ><?php echo xlt('Totals for '). text($from_date) . ' ' . xlt('To{{Range}}') . ' ' . text($to_date) ?></font><?php
 }
 
 for ($i=1; $i<$k;) {
     print "<table border=1><tr>\n";
-    print "<br><br>";
+    print "<br /><br />";
 
     Printf("<td width=70><span class=text><b>". xlt("User "). "</center></b><center>".text($user_info['user'][$i])). "</center>";
     Printf("<td width=140><span class=text><b><center>". xlt("Charges") . ' ' ."</center></b><center>"." %1\$.2f", text($user_info['fee'][$i])). "</center>";
@@ -753,11 +753,11 @@ for ($i=1; $i<$k;) {
 
     ++$i;
 
-    print "</br></td>";
+    print "<br /></td>";
 }
 
 print "<table border=1><tr>\n";
-print "<br><br>";
+print "<br /><br />";
 
 Printf("<td width=70><span class=text><b><center>". xlt("Grand Totals").' ');
 Printf("<td width=140><span class=text><b><center>". xlt("Total Charges").' '."</center></b><center>"." %1\$.2f", text($gtotal_fee)). "</center>";
@@ -766,7 +766,7 @@ Printf("<td width=140><span class=text><b><center>". xlt("Insurance Payments") .
 Printf("<td width=140><span class=text><b><center>". xlt("Patient Adj").'. '."</center></b><center>"."%1\$.2f", text($gtotal_patadj)). "</center>";
 Printf("<td width=140><span class=text><b><center>". xlt("Patient Payments"). ' ' . "</center></b><center>"."%1\$.2f", text($gtotal_patpay)). "</center>";
 
-print "</br></td>";
+print "<br /></td>";
 print "</table>";
 
 ?>

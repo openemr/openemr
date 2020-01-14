@@ -106,7 +106,7 @@ if ($imauthorized && $see_auth > 1) {
             foreach ($result1 as $iter) {
                 $authorize[$iter["pid"]]["billing"] .= "<span class=text>" .
                 text($iter["code_text"] . " " . date("n/j/Y", strtotime($iter["date"]))) .
-                "</span><br>\n";
+                "</span><br />\n";
             }
         }
     }
@@ -122,7 +122,7 @@ if ($imauthorized && $see_auth > 1) {
             foreach ($result2 as $iter) {
                 $authorize[$iter["pid"]]["transaction"] .= "<span class=text>" .
                 text($iter["title"] . ": " . (strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime($iter["date"]))) .
-                "</span><br>\n";
+                "</span><br />\n";
             }
         }
     }
@@ -139,7 +139,7 @@ if ($imauthorized && $see_auth > 1) {
                 foreach ($result3 as $iter) {
                     $authorize[$iter["pid"]]["pnotes"] .= "<span class=text>" .
                     text((strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime($iter["date"]))) .
-                    "</span><br>\n";
+                    "</span><br />\n";
                 }
             }
         }
@@ -156,7 +156,7 @@ if ($imauthorized && $see_auth > 1) {
             foreach ($result4 as $iter) {
                 $authorize[$iter["pid"]]["forms"] .= "<span class=text>" .
                 text($iter["form_name"] . " " . date("n/j/Y", strtotime($iter["date"]))) .
-                "</span><br>\n";
+                "</span><br />\n";
             }
         }
     }
@@ -193,7 +193,7 @@ if ($imauthorized && $see_auth > 1) {
             attr_url($ppid) . "' target='RTop' onclick='top.restoreSession()'>";
 
             echo "<span class='bold'>" . text($name["fname"]) . " " .
-            text($name["lname"]) . "</span></a><br>" .
+            text($name["lname"]) . "</span></a><br />" .
             "<a class=link_submit href='authorizations.php?mode=authorize" .
             "&pid=" . attr_url($ppid) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" .
             xlt('Authorize') . "</a></td>\n";
@@ -213,15 +213,15 @@ if ($imauthorized && $see_auth > 1) {
                 array($name['providerID'])
             ));
 
-            echo "<td valign=top><span class=bold>".xlt('Provider').":</span><span class=text><br>" .
+            echo "<td valign=top><span class=bold>".xlt('Provider').":</span><span class=text><br />" .
               text($providerName["lname"]) . "</td>\n";
-            echo "<td valign=top><span class=bold>".xlt('Billing').":</span><span class=text><br>" .
+            echo "<td valign=top><span class=bold>".xlt('Billing').":</span><span class=text><br />" .
               $patient["billing"] . "</td>\n";
-            echo "<td valign=top><span class=bold>".xlt('Transactions').":</span><span class=text><br>" .
+            echo "<td valign=top><span class=bold>".xlt('Transactions').":</span><span class=text><br />" .
               $patient["transaction"] . "</td>\n";
-            echo "<td valign=top><span class=bold>".xlt('Patient Notes').":</span><span class=text><br>" .
+            echo "<td valign=top><span class=bold>".xlt('Patient Notes').":</span><span class=text><br />" .
               $patient["pnotes"] . "</td>\n";
-            echo "<td valign=top><span class=bold>".xlt('Encounter Forms').":</span><span class=text><br>" .
+            echo "<td valign=top><span class=bold>".xlt('Encounter Forms').":</span><span class=text><br />" .
               $patient["forms"] . "</td>\n";
             echo "</tr>\n";
 

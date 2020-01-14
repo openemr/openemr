@@ -71,7 +71,7 @@ if (!acl_check('acct', 'eob')) {
                 <fieldset>
                 <legend><?php echo xlt("Process new files for CSV records"); ?>:</legend>
                 <input type="checkbox" id="processhtml" name="process_html" form="processnew"  value="htm" checked /> <?php echo xlt("HTML Output?"); ?>
-                <input type="checkbox" id="processerr" name="process_err" form="processnew"  value="err" checked /> <?php echo xlt("Show Errors Only?"); ?> &nbsp;&nbsp;<br>
+                <input type="checkbox" id="processerr" name="process_err" form="processnew"  value="err" checked /> <?php echo xlt("Show Errors Only?"); ?> &nbsp;&nbsp;<br />
                 <input type="hidden" name="ProcessFiles" form="processnew" value="ProcessNew" />
                 <label for="process"><?php echo xlt("Process New Files"); ?></label>
                 <input type="submit" id="fuplprocess" name="process" form="processnew" value="<?php echo xla("Process"); ?>" />
@@ -529,7 +529,7 @@ jquery-UI dialog
         var str = "<p><em><?php echo xla('Selected Files'); ?>:</em></p>";
         str = str + "<ul id='uplsel' class='fupl'>";
         for(var i = 0; i < fct; i++) {
-            if (i == fmaxupl) str = str + '</ul><p><?php echo xla('max file count reached'); ?><br> - <?php echo xla('reload names below'); ?> </p><ul class=fupl>';
+            if (i == fmaxupl) str = str + '</ul><p><?php echo xla('max file count reached'); ?><br /> - <?php echo xla('reload names below'); ?> </p><ul class=fupl>';
             str = str + "<li>" + uplfiles[i].name + "</li>";  //' ' +
             fsize += uplfiles[i].size;
         };

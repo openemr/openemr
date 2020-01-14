@@ -74,7 +74,7 @@ ksort($versions);
 <body>
 <center>
 <span class='title'>OpenEMR Database Upgrade</span>
-<br>
+<br />
 </center>
 <?php
 if (!empty($_POST['form_submit'])) {

@@ -92,7 +92,7 @@ function eventTypeChange(eventname)
 </head>
 <body class="body_top">
 <font class="title"><?php echo xlt('Audit Log Tamper Report'); ?></font>
-<br>
+<br />
 <?php
 $err_message=0;
 
@@ -121,7 +121,7 @@ if ($form_patient == '') {
 }
 
 ?>
-<br>
+<br />
 <FORM METHOD="GET" name="theform" id="theform" onSubmit='top.restoreSession()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <?php

@@ -182,9 +182,9 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                                 <?php echo xlt('Your current TOTP key QR code is displayed below.'); ?>
                                             </p>
                                         <?php } ?>
-                                            <br>
+                                            <br />
                                             <img src="<?php echo attr($qr); ?>" class="img-responsive center-block" style="height:200px !Important"/>
-                                            <br>
+                                            <br />
                                             <p><?php echo xlt('Example authenticator apps include'); ?></p>:
                                             <div class="col-sm-4 offset-sm-4">
                                                 <ul>

@@ -93,7 +93,7 @@ class SLEOB
             "payer_id,user_id,closed,reference,check_date,pay_total,post_to_date,deposit_date,patient_id,payment_type,adjustment_code,payment_method " .
             ") VALUES (?, ?, 0, ?, ?, ?, ? ,?, 0, 'insurance', 'insurance_payment', 'electronic')";
         if ($debug) {
-            echo text($query) . "<br>\n";
+            echo text($query) . "<br />\n";
         } else {
             $sessionId = sqlInsert($query, array($payer_id, $_SESSION['authUserID'], 'ePay - ' . $check_number, $check_date, $pay_total, $post_to_date, $deposit_date));
             return $sessionId;

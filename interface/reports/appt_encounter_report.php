@@ -500,7 +500,7 @@ if ($_POST['form_refresh']) {
       &nbsp;<?php
          /*****************************************************************
          if ($form_to_date) {
-            echo $row['pc_eventDate'] . '<br>';
+            echo $row['pc_eventDate'] . '<br />';
             echo substr($row['pc_startTime'], 0, 5);
          }
          *****************************************************************/

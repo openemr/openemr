@@ -87,72 +87,61 @@ if ($form_patient == '') {
     }
     .pagebreak {
         width: 100%;
-        border: 2px dashed black;
+        border: 2px dashed var(--black);
     }
     #report_parameters {
         visibility: visible;
     }
 }
-#superbill_description {
-   margin: 10px;
-}
-#superbill_startingdate {
-    margin: 10px;
-}
+#superbill_description,
+#superbill_startingdate,
 #superbill_endingdate {
     margin: 10px;
 }
-
-#superbill_patientdata {
-}
 #superbill_patientdata h1 {
     font-weight: bold;
-    font-size: 1.2em;
+    font-size: 1.2rem;
     margin: 0px;
     padding: 5px;
     width: 100%;
-    background-color: #eee;
-    border: 1px solid black;
+    background-color: var(--gray200);
+    border: 1px solid var(--black);
 }
 #superbill_insurancedata {
     margin-top: 10px;
 }
 #superbill_insurancedata h1 {
     font-weight: bold;
-    font-size: 1.2em;
+    font-size: 1.2rem;
     margin: 0px;
     padding: 5px;
     width: 100%;
-    background-color: #eee;
-    border: 1px solid black;
+    background-color: var(--gray200);
+    border: 1px solid var(--black);
 }
 #superbill_insurancedata h2 {
     font-weight: bold;
-    font-size: 1.0em;
+    font-size: 1.0rem;
     margin: 0px;
     padding: 0px;
     width: 100%;
-    background-color: #eee;
+    background-color: var(--gray200);
 }
 #superbill_billingdata {
     margin-top: 10px;
 }
 #superbill_billingdata h1 {
     font-weight: bold;
-    font-size: 1.2em;
+    font-size: 1.2rem;
     margin: 0px;
     padding: 5px;
     width: 100%;
-    background-color: #eee;
-    border: 1px solid black;
-}
-#superbill_signature {
-}
-#superbill_logo {
+    background-color: var(--gray200);
+    border: 1px solid var(--black);
 }
 </style>
 
-<script language="Javascript">
+<script>
  $(function() {
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
@@ -197,7 +186,7 @@ if ($form_patient == '') {
 <table>
  <tr>
   <td width='650px'>
-    <div style='float:left'>
+    <div style='float: left'>
 
     <table class='text'>
         <tr>
@@ -229,19 +218,19 @@ if ($form_patient == '') {
     </div>
 
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+  <td class='h-100' align='left' valign='middle'>
+    <table class="w-100 h-100" style='border-left:1px solid;' >
         <tr>
             <td>
                 <div style='margin-left:15px'>
-                    <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                    <a href='#' class='btn btn-primary' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                     <span>
                         <?php echo xlt('Submit'); ?>
                     </span>
                     </a>
 
                     <?php if ($_POST['form_refresh']) { ?>
-                    <a href='#' class='css_button' id='printbutton'>
+                    <a href='#' class='btn btn-primary' id='printbutton'>
                         <span>
                             <?php echo xlt('Print'); ?>
                         </span>
@@ -266,8 +255,8 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
     ?>
 <p>
 <h2><?php echo text($facility['name'])?></h2>
-    <?php echo text($facility['street'])?><br>
-    <?php echo text($facility['city'])?>, <?php echo text($facility['state'])?> <?php echo text($facility['postal_code'])?><br>
+    <?php echo text($facility['street'])?><br />
+    <?php echo text($facility['city'])?>, <?php echo text($facility['state'])?> <?php echo text($facility['postal_code'])?><br />
 
 </p>
     <?php

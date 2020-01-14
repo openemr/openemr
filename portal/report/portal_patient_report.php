@@ -222,9 +222,9 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 <input type='hidden' name='ccrAction'>
 <input type='hidden' name='raw'>
 <input type="checkbox" name="show_date" id="show_date" onchange="show_date_fun();" ><span class='text'><?php echo xlt('Use Date Range'); ?></span>
-<br>
+<br />
 <div id="date_div" style="display:none" >
-  <br>
+  <br />
   <table border="0" cellpadding="0" cellspacing="0" >
     <tr>
       <td>
@@ -247,7 +247,7 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
     </tr>
   </table>
 </div>
-<br>
+<br />
 
 <!-- <button data-target="#reportdialog" data-toggle="modal" class="btn btn-secondary">
     <?php //echo xla('Generate Report'); ?></button> -->
@@ -256,9 +256,9 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 <input type="button" class="generateCCR_download_p" value="<?php echo xla('Download'); ?>" />
     <?php if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccr_enable']==true) { ?>
 <input type="button" class="viewCCR_send_dialog" value="<?php echo xla('Transmit'); ?>" />
-             <br>
+             <br />
              <div id="ccr_send_dialog" style="display:none" >
-              <br>
+              <br />
               <table border="0" cellpadding="0" cellspacing="0" >
                <tr>
                 <td>
@@ -284,9 +284,9 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 <input type="button" class="viewCCD_download" value="<?php echo xla('Download'); ?>" />
     <?php if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { ?>
 <input type="button" class="viewCCD_send_dialog" value="<?php echo xla('Transmit'); ?>" />
-             <br>
+             <br />
              <div id="ccd_send_dialog" style="display:none" >
-              <br>
+              <br />
               <table border="0" cellpadding="0" cellspacing="0" >
                <tr>
                 <td>
@@ -321,32 +321,32 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 <table class="table includes">
  <tr>
   <td class='text'>
-   <input type='checkbox' name='include_demographics' id='include_demographics' value="demographics" checked><?php echo xlt('Demographics'); ?><br>
-   <input type='checkbox' name='include_history' id='include_history' value="history"><?php echo xlt('History'); ?><br>
-   <input type='checkbox' name='include_insurance' id='include_insurance' value="insurance"><?php echo xlt('Insurance'); ?><br>
+   <input type='checkbox' name='include_demographics' id='include_demographics' value="demographics" checked><?php echo xlt('Demographics'); ?><br />
+   <input type='checkbox' name='include_history' id='include_history' value="history"><?php echo xlt('History'); ?><br />
+   <input type='checkbox' name='include_insurance' id='include_insurance' value="insurance"><?php echo xlt('Insurance'); ?><br />
    <input type='checkbox' name='include_billing' id='include_billing' value="billing"
     <?php if (!$GLOBALS['simplified_demographics']) {
         echo 'checked';
-    } ?>><?php echo xlt('Billing'); ?><br>
+    } ?>><?php echo xlt('Billing'); ?><br />
   </td>
   <td class='text'>
    <!--
-   <input type='checkbox' name='include_allergies' id='include_allergies' value="allergies">Allergies<br>
-   <input type='checkbox' name='include_medications' id='include_medications' value="medications">Medications<br>
+   <input type='checkbox' name='include_allergies' id='include_allergies' value="allergies">Allergies<br />
+   <input type='checkbox' name='include_medications' id='include_medications' value="medications">Medications<br />
    -->
-   <input type='checkbox' name='include_immunizations' id='include_immunizations' value="immunizations"><?php echo xlt('Immunizations'); ?><br>
+   <input type='checkbox' name='include_immunizations' id='include_immunizations' value="immunizations"><?php echo xlt('Immunizations'); ?><br />
    <!--
-   <input type='checkbox' name='include_medical_problems' id='include_medical_problems' value="medical_problems">Medical Problems<br>
+   <input type='checkbox' name='include_medical_problems' id='include_medical_problems' value="medical_problems">Medical Problems<br />
    -->
-   <input type='checkbox' name='include_notes' id='include_notes' value="notes"><?php echo xlt('Patient Notes'); ?><br>
-   <input type='checkbox' name='include_transactions' id='include_transactions' value="transactions"><?php echo xlt('Transactions'); ?><br>
-   <input type='checkbox' name='include_batchcom' id='include_batchcom' value="batchcom"><?php echo xlt('Communications'); ?><br>
+   <input type='checkbox' name='include_notes' id='include_notes' value="notes"><?php echo xlt('Patient Notes'); ?><br />
+   <input type='checkbox' name='include_transactions' id='include_transactions' value="transactions"><?php echo xlt('Transactions'); ?><br />
+   <input type='checkbox' name='include_batchcom' id='include_batchcom' value="batchcom"><?php echo xlt('Communications'); ?><br />
   </td>
  </tr>
 </table>
 
 <input type='hidden' name='pdf' value='0'>
-<br>
+<br />
 
 <!-- old ccr button position -->
 
@@ -357,8 +357,8 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
   <td class='text'>
   <div class="issues">
   <span class='bold'><?php echo xlt('Issues'); ?>:</span>
-   <br>
-   <br>
+   <br />
+   <br />
 
    <table>
 
@@ -427,7 +427,7 @@ while ($prow = sqlFetchArray($pres)) {
 <td class='text'>
 <div class='encounters'>
 <span class='bold'><?php echo xlt('Encounters &amp; Forms'); ?>:</span>
-<br><br>
+<br /><br />
 
 <?php if (!($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) : ?>
 (Encounters not authorized)
@@ -464,7 +464,7 @@ while ($prow = sqlFetchArray($pres)) {
                 $html_strings = array();
                 echo "</div>\n"; // end DIV encounter_forms
                 echo "</div>\n\n";  //end DIV encounter_data
-                echo "<br>";
+                echo "<br />";
             }
 
             $isfirst = 0;
@@ -519,7 +519,7 @@ while ($prow = sqlFetchArray($pres)) {
                                                 " id='" . attr($result["formdir"]) . "_" . attr($result["form_id"]) . "'".
                                                 " value='" . attr($result["encounter"]) . "'" .
                                                 " class='encounter_form' ".
-                                                ">" . text(xl_form_title($result["form_name"])) . "<br>\n");
+                                                ">" . text(xl_form_title($result["form_name"])) . "<br />\n");
         }
     }
 
@@ -588,7 +588,7 @@ while ($row = sqlFetchArray($res)) {
 </table>
 
 <hr/>
-<span class="bold"><?php echo xlt('Documents'); ?></span>:<br>
+<span class="bold"><?php echo xlt('Documents'); ?></span>:<br />
 <ul>
 <?php
 // show available documents

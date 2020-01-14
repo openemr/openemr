@@ -341,7 +341,7 @@ function setappt(year,mon,mday,hours,minutes) {
 
             $lastdate = $thisdate;
             echo " <tr class='oneresult'>\n";
-            echo "  <td class='srDate'>" . date("l", $utime)."<br>".date("Y-m-d", $utime) . "</td>\n";
+            echo "  <td class='srDate'>" . date("l", $utime)."<br />".date("Y-m-d", $utime) . "</td>\n";
             echo "  <td class='srTimes'>";
             echo "<div id='am'>AM ";
             $ampmFlag = "am";  // reset the AMPM flag

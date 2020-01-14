@@ -24,7 +24,7 @@
     bucket.init();
 </script>
 
-<table class="header">
+<table class="table header">
   <tr>
         <td class="title"><?php echo xlt('Rule Edit'); ?></td>
         <td>

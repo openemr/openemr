@@ -61,14 +61,14 @@ if (!empty($active_alerts) && empty($all_allergy_alerts)) {
 </td>
 </tr>
 </table>
-<br>
+<br />
 <?php
 foreach ($all_allergy_alerts as $allergy) {
-    echo xlt("ALLERGY WARNING") . ":" . text($allergy) ."<br>";
+    echo xlt("ALLERGY WARNING") . ":" . text($allergy) ."<br />";
 }
 
 if (!empty($all_allergy_alerts)) {
-    echo "<br>";
+    echo "<br />";
 }
 
 echo $active_alerts;

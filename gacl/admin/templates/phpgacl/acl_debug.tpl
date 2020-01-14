@@ -72,17 +72,17 @@
     </td>
 
     <td nowrap>
-		{$acl.aro_section_value|escape:'html'}<br>
+		{$acl.aro_section_value|escape:'html'}<br />
     </td>
     <td nowrap>
-		{$acl.aro_value|escape:'html'}<br>
+		{$acl.aro_value|escape:'html'}<br />
     </td>
 
     <td nowrap>
-		{$acl.axo_section_value|escape:'html'}<br>
+		{$acl.axo_section_value|escape:'html'}<br />
     </td>
     <td nowrap>
-		{$acl.axo_value|escape:'html'}<br>
+		{$acl.axo_value|escape:'html'}<br />
     </td>
 
     <td valign="middle" class="{if $acl.allow}green{else}red{/if}" align="center">
@@ -98,7 +98,7 @@
   </tr>
   <tr valign="middle" align="left">
     <td colspan="4">
-        <b>Return Value:</b> {$acl.return_value|escape:'html'}<br>
+        <b>Return Value:</b> {$acl.return_value|escape:'html'}<br />
     </td>
     <td colspan="4">
         <b>Note:</b> {$acl.note|escape:'html'}

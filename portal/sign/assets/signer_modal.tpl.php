@@ -37,7 +37,7 @@ $msg10 = xlt('Please provide a signature first');
 $msg11 = xlt('Signer Pad Checked In and Available');
 $msg12 = xlt('Transaction Failed');
 // why tempt fate 13 a no no....
-$msg14 = xlt("A Remote Signing Device is not answering.") . "<br><h4>" . xlt("Using this device until remote becomes available.") . "</h4>";
+$msg14 = xlt("A Remote Signing Device is not answering.") . "<br /><h4>" . xlt("Using this device until remote becomes available.") . "</h4>";
 $msg15 = xlt("Remote is Currently Busy");
 // module translations
 $vars = "<script>const msgSignator='" . $msg7 . "';const msgNoSign='" . $msg8 . "';const msgWaiting='" . $msg9 . "';const msgBusy='" . $msg15 . "';</script>\n";

@@ -414,7 +414,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             </td>
             <td align="center">
                 <input type="button" name="remove" value=&raquo;
-                       onclick="jsub_selected(document.myform,'personalized','topersonalized')"></br>
+                       onclick="jsub_selected(document.myform,'personalized','topersonalized')"><br />
                 <input type="button" name="remove" value=&laquo;
                        onclick="check_user_category(document.myform,'topersonalized','personalized')">
             </td>

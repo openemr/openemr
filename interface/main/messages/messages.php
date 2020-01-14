@@ -72,6 +72,7 @@ if (($_POST['setting_bootstrap_submenu']) ||
     ?>
     <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-redmond', 'opener', 'moment']); ?>
     <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>" type="text/css" />
+    <link rel="stylesheet"  href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>" type="text/css" />
     
     <script>
         var xljs1 = '<?php echo xla('Preferences updated successfully'); ?>';
@@ -143,7 +144,7 @@ if (!empty($_REQUEST['go'])) { ?>
     if ($GLOBALS['enable_help'] == 1) {
         $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 2) {
-        $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: #DCD6D0 !important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray300) !important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 0) {
          $help_icon = '';
     }
@@ -177,29 +178,35 @@ if (!empty($_REQUEST['go'])) { ?>
                 </div>
             </div>
         </div>
-        <nav class="navbar navbar-expand-md navbar-light bg-light">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#messagesnav" aria-controls="messagesnav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-            <div class="collapse navbar-collapse" id="messagesnav">
-                <ul class="nav navbar-nav">
-                    <li class="active nav-item" id='li-mess'>
-                        <a href='#' class="nav-link font-weight-bold" id='messages-li'><?php echo xlt('Messages'); ?></a>
-                    </li>
-                    <li class="nav-item" id='li-remi'>
-                        <a href='#' class="nav-link font-weight-bold" id='reminders-li'><?php echo xlt('Reminders'); ?></a>
-                    </li>
-                    <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
-                    <li class="nav-item" id='li-reca'>
-                        <a href='#' class="nav-link font-weight-bold" id='recalls-li'><?php echo xlt('Recalls'); ?></a>
-                    </li>
-                    <?php }?>
-                    <?php if ($logged_in) { ?>
-                    <li class="nav-item" id='li-sms'>
-                        <a href='#' class="nav-link font-weight-bold" id='sms-li'><?php echo xlt('SMS Zone'); ?></a>
-                    </li>
-                    <?php }?>
-                </ul>
+        <div class="row">
+            <div class="col-sm-12">
+                <nav class="navbar navbar-light navbar-expand-md navbar-color py-3">
+                    <div class="container-fluid">
+                          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#myNavbar" aria-controls="myNavbar" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                        <div class="collapse navbar-collapse" id="myNavbar">
+                            <ul class="nav navbar-nav">
+                                <li class="active nav-item" id='li-mess'>
+                                    <a href='#' class="nav-link font-weight-bold text-body" id='messages-li'><?php echo xlt('Messages'); ?></a>
+                                </li>
+                                <li class="nav-item" id='li-remi'>
+                                    <a href='#' id='reminders-li' class="nav-link font-weight-bold text-body"><?php echo xlt('Reminders'); ?></a>
+                                </li>
+                                <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
+                                <li class="nav-item" id='li-reca'>
+                                    <a href='#' id='recalls-li' class="nav-link font-weight-bold text-body"><?php echo xlt('Recalls'); ?></a>
+                                </li>
+                                <?php }?>
+                                <?php if ($logged_in) { ?>
+                                <li class="nav-item" id='li-sms'>
+                                    <a href='#' id='sms-li' class="nav-link font-weight-bold text-body"><?php echo xlt('SMS Zone'); ?></a>
+                                </li>
+                                <?php }?>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
             </div>
-        </nav>
+        </div>
         <div class="row" id="messages-div">
             <div class="col-sm-12">
                 <div class="jumbotron jumbotron-fluid py-3">
@@ -704,7 +711,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                         </td>
                                     </tr>
                                 </table>
-                                <br>";
+                                <br />";
                             ?>
 
                             <script type="text/javascript">

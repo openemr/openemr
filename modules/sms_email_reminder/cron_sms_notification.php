@@ -61,7 +61,7 @@ $CRON_TIME = $vectNotificationSettings['Send_SMS_Before_Hours'];
 $mysms = new sms($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY);
 
 $db_patient = cron_getAlertpatientData($TYPE);
-echo "\n<br>Total ".text(count($db_patient))." Records Found";
+echo "\n<br />Total ".text(count($db_patient))." Records Found";
 
 // for every event found
 for ($p=0; $p<count($db_patient); $p++) {

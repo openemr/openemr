@@ -14,8 +14,8 @@ h1 {
     text-align: center;
     font-weight: normal;
     font-size: 150%;
-    line-height: 1.5em;
-    color: #693;
+    line-height: 1.5rem;
+    color: var(--success);
 }
 
 .nav-tabs {
@@ -23,7 +23,7 @@ h1 {
 }
 
 .nav-tabs > li {
-    border: 0.5px solid #c0c0c0;
+    border: 0.5px solid var(--gray400);
     margin-bottom: 0;
 }
 
@@ -60,20 +60,20 @@ h1 {
 }
 
 .flow tr:nth-child(even) {
-    background-color: #f1f8ee;
+    background-color: var(--light);
     overflow: hidden;
 }
 
 .flow tr:nth-child(odd) {
-    background-color: #d0e1c9b3;
+    background-color: var(--gray300);
     overflow: hidden;
 }
 
 .flow tr:last-child {
-    background-color: #C9DBF2;
+    background-color: var(--gray400);
     text-align: center;
     color: var(--black);
-    text-shadow: 0 1px 0 #f3f3f3;
+    text-shadow: 0 1px 0 var(--light);
     overflow: hidden;
     padding: 5px;
     border-radius: 5px;
@@ -90,8 +90,8 @@ h1 {
 }
 
 .flow tr:first-child {
-    background-color: #DAE8EF;
-    text-shadow: 0 1px 0 #f3f3f3;
+    background-color: var(--gray300);
+    text-shadow: 0 1px 0 var(--light);
     border-radius: 0 0 2px 2px;
     box-shadow: 0 4px 6px var(--gray);
 }
@@ -102,22 +102,22 @@ h1 {
 }
 
 .flow tr:hover {
-    background-color: #FFFBEB;
+    background-color: var(--light);
     overflow: hidden;
 }
 
 .flow tr:last-child:hover,
 .flow tr:first-child:hover {
-    background-color: #DAE8EF;
+    background-color: var(--gray300);
 }
 
 .flow {
     border-collapse: unset;
     text-align: center;
-    box-shadow: 2px 1px 2px #7b777760;
+    box-shadow: 2px 1px 2px var(--gray);
     margin: 15px;
     overflow: hidden;
-    border: 2px ridge #839E99;
+    border: 2px ridge var(--gray);
     border-radius: 8px;
     width: 98%;
 }
@@ -127,11 +127,11 @@ h1 {
     width: 400px;
     background-color: var(--white);
     display: inline-table;
-    box-shadow: 2px 1px 2px #c0c0c0;
+    box-shadow: 2px 1px 2px var(--gray400);
     margin: 15px auto;
     overflow: hidden;
     border-radius: 8px;
-    border: 0.5px ridge #c0c0c0;
+    border: 0.5px ridge var(--gray400);
     padding: 10px;
 }
 
@@ -139,8 +139,8 @@ h1 {
     display: table;
     float: left;
     background: var(--white);
-    border: 0.5px solid #c0c0c0;
-    box-shadow: 2px 3px 9px #c0c0c0;
+    border: 0.5px solid var(--gray400);
+    box-shadow: 2px 3px 9px var(--gray400);
     border-radius: 8px;
     padding: 10px;
     margin: 15px auto;
@@ -148,8 +148,8 @@ h1 {
 
 .divTable2 {
     background: var(--white);
-    border: 0.5px solid #c0c0c0;
-    box-shadow: 2px 3px 9px #c0c0c0;
+    border: 0.5px solid var(--gray400);
+    box-shadow: 2px 3px 9px var(--gray400);
     border-radius: 8px;
     padding: 10px;
     position: relative;
@@ -196,7 +196,7 @@ h1 {
 }
 
 .divTableHeading {
-    background-color: #EEE;
+    background-color: var(--gray200);
     font-weight: 600;
     text-align: right;
     padding: 5px;
@@ -225,7 +225,7 @@ h1 {
 }
 
 .divTableFoot {
-    background-color: #EEE;
+    background-color: var(--gray200);
     display: table-footer-group;
     font-weight: bold;
 }
@@ -281,7 +281,7 @@ h1 {
 }
 
 .s_pwd {
-    font-size: 0.8em;
+    font-size: 0.8rem;
     padding-left: 150px;
     text-align: center;
     font-style: italic;
@@ -315,7 +315,7 @@ input[type="radio"] {
     z-index: 1;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    font-size: 1.2em;
+    font-size: 1.2rem;
 }
 
 .scheduled {
@@ -324,15 +324,15 @@ input[type="radio"] {
 }
 
 .no_bot_border {
-    border-bottom: 1pt dotted rgba(255, 255, 255, 0);
-    box-shadow: 3px -2px 4px #C0C0C0;
+    border-bottom: 1px dotted rgba(255, 255, 255, 0);
+    box-shadow: 3px -2px 4px var(--gray400);
     top: 1px;
     text-decoration: underline;
 }
 
 .search {
     position: absolute;
-    background-color: #C9DBF2;
+    background-color: var(--gray400);
     border-radius: 3px;
     border: 1pt solid var(--black);
     padding: 5px;
@@ -345,7 +345,7 @@ input[type="radio"] {
     font-weight: bold;
     padding: 3px 10px;
     text-transform: uppercase;
-    line-height: 1.5em;
+    line-height: 1.5rem;
     color: var(--black);
     border-bottom: 2px solid var(--black);
     margin: 0 auto;
@@ -467,7 +467,7 @@ td.right {
 
 .help {
     border-radius: 10px;
-    background-color: #DEEDF7;
+    background-color: var(--gray300);
     cursor: pointer;
     height: 10px;
     max-width: 10px;

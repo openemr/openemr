@@ -2455,7 +2455,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         }
     } else { ?>
         <span href="#PMH_anchor"
-        onclick="alter_issue2('0','PMH','');" class="disabled_button"><?php echo xlt("None"); ?></br></span>
+        onclick="alter_issue2('0','PMH','');" class="disabled_button"><?php echo xlt("None"); ?><br /></span>
         <?php
     }
 

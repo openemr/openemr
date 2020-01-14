@@ -165,11 +165,11 @@ function getDocument(docname, mode, content) {
 <div  class='container' style='display: block;'>
 <hr>
 <h3><?php echo xlt('Patient Document Template Upload'); ?></h3>
-<h4><em><?php echo xlt('File base name becomes Menu selection'); ?>.<br><?php echo xlt('Automatically applies correct extension on successful upload'); ?>.<br>
+<h4><em><?php echo xlt('File base name becomes Menu selection'); ?>.<br /><?php echo xlt('Automatically applies correct extension on successful upload'); ?>.<br />
 <?php echo xlt('Example Privacy_Agreement.txt becomes Privacy Agreement button in Patient Documents'); ?>.</em></h4>
 <form id="form_upload" class="form" action="import_template.php" method="post" enctype="multipart/form-data">
 <input class="btn btn-info" type="file" name="tplFile">
-<br>
+<br />
 <button class="btn btn-primary" type="button" onclick="location.href='./patient/provider'"><?php echo xlt('Home'); ?></button>
 <input type='hidden' name="up_dir" value='<?php global $getdir;
 echo $getdir;?>' />

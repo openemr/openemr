@@ -50,7 +50,7 @@ $obj = $formid ? formFetch("form_transfer_summary", $formid) : array();
 
 <body class="body_top">
 <p><span class="forms-title"><?php echo xlt('Transfer Summary'); ?></span></p>
-</br>
+<br />
 <?php
 echo "<form method='post' name='my_form' " .
   "action='$rootdir/forms/transfer_summary/save.php?id=" . attr_url($formid) ."'>\n";

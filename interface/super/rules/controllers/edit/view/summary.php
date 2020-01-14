@@ -19,7 +19,7 @@ $rule = $viewBean->rule ?>
     edit.init();
 </script>
 
-<table class="header">
+<table class="table header">
   <tr>
         <td class="title"><?php echo $rule->id ? xlt('Rule Edit') : xlt('Rule Add'); ?></td>
         <td>
@@ -37,42 +37,40 @@ $rule = $viewBean->rule ?>
     <form action="index.php?action=edit!submit_summary" method="post" id="frm_submit" onsubmit="return top.restoreSession()">
     <input type="hidden" name="id" value="<?php echo attr($rule->id); ?>"/>
 
-    <p class="row">
+    <div class="row">
     <span class="left_col colhead req" data-fld="fld_title"><?php echo xlt('Title'); ?></span>
-    <span class="end_col"><input type="text" name="fld_title" class="field" id="fld_title" value="<?php echo attr($rule->title); ?>"></span>
-    </p>
+    <span class="end_col"><input type="text" name="fld_title" class="form-control field" id="fld_title" value="<?php echo attr($rule->title); ?>"></span>
+    </div>
 
-    <p class="row">
+    <div class="row">
     <span class="left_col colhead" data-fld="fld_ruleTypes[]"><?php echo xlt('Type'); ?></span>
     <span class="end_col">
         <?php foreach (RuleType::values() as $type) {?>
-        <input name="fld_ruleTypes[]"
-               value="<?php echo attr($type); ?>"
-               type="checkbox" <?php echo $rule->hasRuleType(RuleType::from($type)) ? "CHECKED": "" ?>>
+        <input name="fld_ruleTypes[]" value="<?php echo attr($type); ?>" type="checkbox" <?php echo $rule->hasRuleType(RuleType::from($type)) ? "CHECKED": "" ?>>
             <?php echo text(RuleType::from($type)->lbl); ?>
         <?php } ?>
     </span>
-    </p>
+    </div>
 
-    <p class="row">
+    <div class="row">
     <span class="left_col colhead" data-fld="fld_developer"><?php echo xlt('Developer'); ?></span>
-    <span class="end_col"><input type="text" name="fld_developer" class="field" id="fld_developer" value="<?php echo attr($rule->developer); ?>" maxlength="255"></span>
-    </p>
+    <span class="end_col"><input type="text" name="fld_developer" class="form-control field" id="fld_developer" value="<?php echo attr($rule->developer); ?>" maxlength="255" /></span>
+    </div>
 
-    <p class="row">
+    <div class="row">
     <span class="left_col colhead" data-fld="fld_funding_source"><?php echo xlt('Funding Source'); ?></span>
-    <span class="end_col"><input type="text" name="fld_funding_source" class="field" id="fld_funding_source" value="<?php echo attr($rule->funding_source); ?>" maxlength="255"></span>
-    </p>
+    <span class="end_col"><input type="text" name="fld_funding_source" class="form-control field" id="fld_funding_source" value="<?php echo attr($rule->funding_source); ?>" maxlength="255" /></span>
+    </div>
 
-    <p class="row">
+    <div class="row">
     <span class="left_col colhead" data-fld="fld_release"><?php echo xlt('Release'); ?></span>
-    <span class="end_col"><input type="text" name="fld_release" class="field" id="fld_release" value="<?php echo attr($rule->release); ?>" maxlength="255"></span>
-    </p>
+    <span class="end_col"><input type="text" name="fld_release" class="form-control field" id="fld_release" value="<?php echo attr($rule->release); ?>" maxlength="255" /></span>
+    </div>
 
-    <p class="row">
+    <div class="row">
     <span class="left_col colhead" data-fld="fld_web_reference"><?php echo xlt('Web Reference'); ?></span>
-    <span class="end_col"><input type="text" name="fld_web_reference" class="field" id="fld_web_reference" value="<?php echo attr($rule->web_ref); ?>" maxlength="255"></span>
-    </p>
+    <span class="end_col"><input type="text" name="fld_web_reference" class="form-control field" id="fld_web_reference" value="<?php echo attr($rule->web_ref); ?>" maxlength="255" /></span>
+    </div>
 
     </form>
 

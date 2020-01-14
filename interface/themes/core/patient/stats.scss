@@ -8,29 +8,15 @@
 }
 
 #patient_stats table {
-    width: 100%;
     border-collapse: collapse;
-}
-
-#patient_stats td {
-    padding: 3px;
 }
 
 #patient_stats .statrow {
     cursor: pointer;
 }
 
-#patient_stats .head {
-    background-color: $gray-400;
-    text-align: center;
-}
-
 #patient_stats .detail {
     vertical-align: top;
-}
-
-#patient_stats .btn {
-    background-color: transparent;
 }
 
 #patient_stats .bg1 {
@@ -39,8 +25,4 @@
 
 #patient_stats .bg2 {
     background-color: lighten($light, 20%);
-}
-
-#patient_stats .center {
-    text-align: center;
 }

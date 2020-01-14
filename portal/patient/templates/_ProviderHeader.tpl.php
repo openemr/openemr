@@ -10,7 +10,8 @@
  */
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<!-- Language grabbed by PDF var that has the correct format !-->
+<html lang="<?php echo $GLOBALS['pdf_language']; ?>">
     <head>
         <meta charset="utf-8">
 
@@ -46,22 +47,18 @@
         </script>
     </head>
 
-    <body class="skin-blue">
-        <div class="navbar navbar-default navbar-fixed-top">
+    <body class="skin-blue pt-2">
+ <!--      Removed until we can find a use for this 
+<div class="navbar navbar-light navbar-expand-md bg-light fixed-top">
             <div class="container">
-                    <div class="navbar-header"><a class="navbar-brand" href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/provider"><?php echo xlt('Home'); ?></a>
-                        <a class="navbar-toggle btn-secondary" data-toggle="collapse" data-target=".navbar-collapse">
-                            <span class="glyphicon glyphicon-bar"></span>
-                            <span class="glyphicon glyphicon-bar"></span>
-                            <span class="glyphicon glyphicon-bar"></span>
-                        </a>
-                        </div>
+                    <a class="navbar-brand" href="<?php// echo $GLOBALS['web_root']; ?>/portal/patient/provider"><?php //echo xlt('Home'); ?></a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#provider-home" aria-controls="provider-home" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                         <div class="container">
-                        <div class="navbar-collapse">
+                        <div class="collapse navbar-collapse" id="provider-home">
                             <ul class="nav navbar-nav">
-                                <!-- Reserved -->
+                                !--><!-- Reserved !--><!--
                                 </ul>
-                        </div><!--/.nav-collapse -->
+                        </div>!--><!--/.nav-collapse !--><!--
                     </div>
                 </div>
-            </div>
+            </div> !-->

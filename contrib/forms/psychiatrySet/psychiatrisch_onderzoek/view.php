@@ -188,7 +188,7 @@ require_once("$srcdir/api.inc");
 
 
 <form method=post action="<?php echo $rootdir?>/forms/psychiatrisch_onderzoek/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">
-<span class="title"><?php echo xlt('Psychiatric Examination'); ?></span><Br><br>
+<span class="title"><?php echo xlt('Psychiatric Examination'); ?></span><Br><br />
 
 <table>
 <tr>
@@ -203,20 +203,20 @@ require_once("$srcdir/api.inc");
 </tr>
 </table>
 
-<br><span class=text><?php echo xlt('Reason for Visit'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo text($obj["reden_van_aanmelding"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Intake Conclusion'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="conclusie_van_intake" id="conclusie_van_intake"><?php echo text($obj["conclusie_van_intake"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Medications'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="medicatie" id="medicatie"><?php echo text($obj["medicatie"]);?></textarea><br>
-<br><span class=text><?php echo xlt('History'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="anamnese" id="anamnese"><?php echo text($obj["anamnese"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Psychiatric Examination'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="psychiatrisch_onderzoek" id="psychiatrisch_onderzoek"><?php echo text($obj["psychiatrisch_onderzoek"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Conclusions'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="beschrijvende_conclusie" id="beschrijvende_conclusie"><?php echo text($obj["beschrijvende_conclusie"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Treatment Plan'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="behandelvoorstel" id="behandelvoorstel"><?php echo text($obj["behandelvoorstel"]);?></textarea><br>
+<br /><span class=text><?php echo xlt('Reason for Visit'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo text($obj["reden_van_aanmelding"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Intake Conclusion'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="conclusie_van_intake" id="conclusie_van_intake"><?php echo text($obj["conclusie_van_intake"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Medications'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="medicatie" id="medicatie"><?php echo text($obj["medicatie"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('History'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="anamnese" id="anamnese"><?php echo text($obj["anamnese"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Psychiatric Examination'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="psychiatrisch_onderzoek" id="psychiatrisch_onderzoek"><?php echo text($obj["psychiatrisch_onderzoek"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Conclusions'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="beschrijvende_conclusie" id="beschrijvende_conclusie"><?php echo text($obj["beschrijvende_conclusie"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Treatment Plan'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="behandelvoorstel" id="behandelvoorstel"><?php echo text($obj["behandelvoorstel"]);?></textarea><br />
 
 <table><tr>
 <?php
@@ -224,9 +224,9 @@ require_once("$srcdir/api.inc");
 ?>
 </tr></table>
 
-<br><br>
+<br /><br />
 <a href="javascript:document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
-<br>
+<br />
 <a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link_submit"
  onclick="delete_autosave();top.restoreSession()">[<?php echo xlt('Don\'t Save Changes'); ?>]</a>
 </form>

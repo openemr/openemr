@@ -497,7 +497,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     </div>
                     <?php
                     if ($_POST["mode"] == "SearchPayment") {
-                        echo "&nbsp;" ."<br>"; // do not remove else below div will not display !!
+                        echo "&nbsp;" ."<br />"; // do not remove else below div will not display !!
                         ?>
                 <div class="table-responsive">
                   <table class="table">

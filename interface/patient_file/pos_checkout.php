@@ -235,9 +235,9 @@ function generate_receipt($patient_id, $encounter = 0)
             </div>
             <div class= "row">
                 <div class= 'col-6 offset-lg-2'>
-                    <?php echo text($patdata['fname']) . ' ' . text($patdata['mname']) . ' ' . text($patdata['lname']) ?><br>
-                    <?php echo text($patdata['street']) ?><br>
-                    <?php echo text($patdata['city']) . ', ' . text($patdata['state']) . ' ' . text($patdata['postal_code']) ?><br>
+                    <?php echo text($patdata['fname']) . ' ' . text($patdata['mname']) . ' ' . text($patdata['lname']) ?><br />
+                    <?php echo text($patdata['street']) ?><br />
+                    <?php echo text($patdata['city']) . ', ' . text($patdata['state']) . ' ' . text($patdata['postal_code']) ?><br />
                 </div>
             </div>
             <div class= "row ">
@@ -360,7 +360,7 @@ function generate_receipt($patient_id, $encounter = 0)
                     </table>
                 </div>
             </div>
-            <br>
+            <br />
             <div class= "row ">
                 <div class="form-group clearfix">
                     <div class="col-sm-12 text-center" id="hideonprint">
@@ -445,22 +445,22 @@ function generate_receipt($patient_id, $encounter = 0)
     function printFacilityHeader($frow)
     {
         echo "<p><b>" . text($frow['name']) .
-        "<br>" . text($frow['street']) .
-        "<br>" . text($frow['city']) . ', ' . text($frow['state']) . ' ' . text($frow['postal_code']) .
-        "<br>" . text($frow['phone']) .
-        "<br>&nbsp" .
-        "<br>";
+        "<br />" . text($frow['street']) .
+        "<br />" . text($frow['city']) . ', ' . text($frow['state']) . ' ' . text($frow['postal_code']) .
+        "<br />" . text($frow['phone']) .
+        "<br />&nbsp" .
+        "<br />";
     }
 
     // Pring receipt header for Provider
     function printProviderHeader($pvdrow)
     {
         echo "<p><b>" . text($pvdrow['title']) . " " . text($pvdrow['fname']) . " " . text($pvdrow['mname']) . " " . text($pvdrow['lname']) . " " .
-        "<br>" . text($pvdrow['street']) .
-        "<br>" . text($pvdrow['city']) . ', ' . text($pvdrow['state']) . ' ' . text($pvdrow['postal_code']) .
-        "<br>" . text($pvdrow['phone']) .
-        "<br>&nbsp" .
-        "<br>";
+        "<br />" . text($pvdrow['street']) .
+        "<br />" . text($pvdrow['city']) . ', ' . text($pvdrow['state']) . ' ' . text($pvdrow['postal_code']) .
+        "<br />" . text($pvdrow['phone']) .
+        "<br />&nbsp" .
+        "<br />";
     }
 
     // Mark the tax rates that are referenced in this invoice.

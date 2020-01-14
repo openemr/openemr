@@ -20,7 +20,7 @@
     edit.init();
 </script>
 
-<table class="header">
+<table class="table header">
   <tr>
         <td class="title"><?php echo xlt('Rule Edit'); ?></td>
         <td>
@@ -52,10 +52,7 @@
             <span class="left_col <?php echo $first ? "req" : ""?>" data-grp="<?php echo attr($type->code); ?>"><?php echo text($type->lbl); ?></span>
             <span class="mid_col"><?php echo xlt($range->lbl); ?></span>
             <span class="mid_col">
-                <input data-grp-tgt="<?php echo attr($type->code) ?>"
-                       type="text"
-                       name="<?php echo attr($type->code); ?>-<?php echo attr($range->code); ?>"
-                       value="<?php echo is_null($detail) ? "" : attr($detail->amount); ?>" />
+                <input class="form-control" data-grp-tgt="<?php echo attr($type->code) ?>" type="text" name="<?php echo attr($type->code); ?>-<?php echo attr($range->code); ?>" value="<?php echo is_null($detail) ? "" : attr($detail->amount); ?>" />
             </span>
             <span class="end_col">
             <?php echo timeunit_select(array( "context"=>"rule_reminder_intervals", "target"=>$type->code, "name"=>$type->code."-".$range->code."-timeunit", "value" => $detail->timeUnit )); ?>

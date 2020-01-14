@@ -49,7 +49,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
 </head>
 <body class="body_top">
 <p><span class="forms-title"><?php echo xlt('AfterCare Planning'); ?></span></p>
-</br>
+<br />
 <?php
 echo "<form method='post' name='my_form' " .
   "action='$rootdir/forms/aftercare_plan/save.php?id=" . attr_url($formid) ."'>\n";

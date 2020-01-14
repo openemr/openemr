@@ -270,7 +270,7 @@ if (isset($_POST["mode"])) {
                 </table>
                 </div>
                 </div>
-                <br>
+                <br />
                     <?php
                 }//if($RowSearch = sqlFetchArray($ResultSearchNew))
                 ?>

@@ -719,7 +719,7 @@ if ($_POST['form_refresh']) {
            //Added on 6-jun-2k14(regarding displaying smoking code descriptions)
            $smoke_codes_arr = getSmokeCodes();
         ?>
-    <br>
+    <br />
     <div id = "report_results">
 
         <?php $pidarr = array();

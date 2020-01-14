@@ -3333,7 +3333,7 @@ if (typeof process !== 'undefined') {
         "description": "A function to call when the zoom window is changed (either by zooming in or out). When animatedZooms is set, zoomCallback is called once at the end of the transition (it will not be called for intermediate frames)."
       },
       "pointClickCallback": {
-        "snippet": "function(e, point){<br>&nbsp;&nbsp;alert(point);<br>}",
+        "snippet": "function(e, point){<br />&nbsp;&nbsp;alert(point);<br />}",
         "default": "null",
         "labels": ["Callbacks", "Interactive Elements"],
         "type": "function(e, point)",
@@ -3704,7 +3704,7 @@ if (typeof process !== 'undefined') {
         "description": "Function to call to format the tick values that appear along an axis. This is usually set on a <a href='per-axis.html'>per-axis</a> basis."
       },
       "clickCallback": {
-        "snippet": "function(e, date_millis){<br>&nbsp;&nbsp;alert(new Date(date_millis));<br>}",
+        "snippet": "function(e, date_millis){<br />&nbsp;&nbsp;alert(new Date(date_millis));<br />}",
         "default": "null",
         "labels": ["Callbacks"],
         "type": "function(e, x, points)",
@@ -3721,7 +3721,7 @@ if (typeof process !== 'undefined') {
         "default": "Full range of the input is shown",
         "labels": ["Axis display"],
         "type": "Array of two numbers",
-        "example": "[<br>&nbsp;&nbsp;Date.parse('2006-01-01'),<br>&nbsp;&nbsp;(new Date()).valueOf()<br>]",
+        "example": "[<br />&nbsp;&nbsp;Date.parse('2006-01-01'),<br />&nbsp;&nbsp;(new Date()).valueOf()<br />]",
         "description": "Initially zoom in on a section of the graph. Is of the form [earliest, latest], where earliest/latest are milliseconds since epoch. If the data for the x-axis is numeric, the values in dateWindow must also be numbers."
       },
       "showRoller": {
@@ -8540,7 +8540,7 @@ Legend.defaultFormatter = function (data) {
   for (var i = 0; i < data.series.length; i++) {
     var series = data.series[i];
     if (!series.isVisible) continue;
-    if (sepLines) html += '<br>';
+    if (sepLines) html += '<br />';
     var cls = series.isHighlighted ? ' class="highlight"' : '';
     html += "<span" + cls + "> <b><span style='color: " + series.color + ";'>" + series.labelHTML + "</span></b>:&#160;" + series.yHTML + "</span>";
   }

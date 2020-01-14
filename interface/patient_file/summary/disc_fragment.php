@@ -41,7 +41,7 @@ function getDisclosureByDate($pid, $limit)
 }
 ?>
 <div id='pnotes' style='margin-top: 3px; margin-left: 10px; margin-right: 10px'><!--outer div-->
-<br>
+<br />
 <table width='100%'>
 <tr style='border-bottom:2px solid #000;' class='text'>
     <td valign='top' class='text'><b><?php  echo xlt('Type'); ?></b></td>
@@ -104,7 +104,7 @@ if ($has_disclosure == 0) { //If there are no disclosures recorded
     ?>
     <br />
     <span class='text'> <?php
-    echo xlt('Displaying the following number of most recent disclosures:');?><b><?php echo " " . text($N); ?></b><br>
+    echo xlt('Displaying the following number of most recent disclosures:');?><b><?php echo " " . text($N); ?></b><br />
     <a href='disclosure_full.php'><?php echo xlt('Click here to view them all.');?></a>
     </span><?php
 } ?>

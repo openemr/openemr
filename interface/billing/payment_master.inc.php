@@ -261,7 +261,7 @@ if (($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && 
                             <button onClick="javascript:return SavePayment();" class="btn btn-secondary btn-save"><?php echo xlt('Save Changes');?></button>
                             <button class="btn btn-secondary btn-save" onClick="javascript:OpenEOBEntry();"><?php echo xlt('Allocate');?></button>
                             <button onclick="ResetForm(); return false;" class="btn btn-link btn-cancel btn-separate-left"><?php echo xlt('Cancel Changes');?></button>
-                            <br>
+                            <br />
                         </div>
                     </div>
                 </div>

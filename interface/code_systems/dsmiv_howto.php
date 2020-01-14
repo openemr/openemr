@@ -31,6 +31,6 @@ require_once("../../interface/globals.php");
 <ol>
 <li><?php echo xlt("This feature is not yet available"); ?> </li>
 </ol>
-<br>
+<br />
 </p>
 </div>

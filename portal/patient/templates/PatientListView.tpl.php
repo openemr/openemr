@@ -68,7 +68,7 @@ $this->display('_modalFormHeader.tpl.php');
 
 <div id='profileHelp' class='jumbotron jumbotron-fluid' style='display:none;width: 650px; margin: 0 auto;'>
 <p>
-<?php echo xlt('Any changes here will be reviewed by provider staff before commiting to chart. The following apply'); ?>:<br>
+<?php echo xlt('Any changes here will be reviewed by provider staff before commiting to chart. The following apply'); ?>:<br />
 <?php echo xlt('Change any item available and when ready click Send for review. The changes will be flagged and staff notified to review changes before commiting them to chart. During the time period before changes are reviewed the Revised button will show Pending and profile data is still available for changes. When accessing profile in pending state all previous edits will appear in Blue and current chart values in Red. You may revert any edit to chart value by clicking that red item (or vica versa) but remember that when you click Send for Review then items that populate the field items are the ones that are sent. Revert Edits button changes everything back to chart values and you may make changes from there. So to recap: Items in BLUE are patient edits with items in RED being original values before any edits.'); ?>
 </p>
         <button class="btn btn-primary btn-sm" type="button"  id='dismissHelp'><?php echo xlt('Dismiss'); ?></button>
@@ -90,7 +90,7 @@ $this->display('_modalFormHeader.tpl.php');
                 </div>
             </div>
             <div class="form-group" id="titleInputContainer">
-                <label for="title"><?php echo xlt('Title')?></label><br>
+                <label for="title"><?php echo xlt('Title')?></label><br />
                 <div class="controls">
                     <?php
                   # Generate drop down list for Title
@@ -158,7 +158,7 @@ $this->display('_modalFormHeader.tpl.php');
                     </div>
                 </div>
                 <div class="form-group" id="sexInputContainer">
-                    <label for="sex"><?php echo xlt('Gender')?></label><br>
+                    <label for="sex"><?php echo xlt('Gender')?></label><br />
                     <div class="controls">
                         <?php
                       # Generate drop down list for Sex
@@ -175,7 +175,7 @@ $this->display('_modalFormHeader.tpl.php');
                     </div>
                 </div>-->
                 <div class="form-group" id="statusInputContainer">
-                    <label for="status"><?php echo xlt('Marital Status')?></label><br>
+                    <label for="status"><?php echo xlt('Marital Status')?></label><br />
                     <div class="controls">
                     <?php
                   # Generate drop down list for Marital Status
@@ -199,7 +199,7 @@ $this->display('_modalFormHeader.tpl.php');
                     </div>
                 </div>
             <div class="form-group" id="stateInputContainer">
-                <label for="state"><?php echo xlt('State')?></label><br>
+                <label for="state"><?php echo xlt('State')?></label><br />
                 <div class="controls">
                     <?php
                   # Generate drop down list for State
@@ -302,7 +302,7 @@ $this->display('_modalFormHeader.tpl.php');
                     </div>
                 </div>
             <div class="form-group" id="raceInputContainer">
-                <label for="race"><?php echo xlt('Race')?></label><br>
+                <label for="race"><?php echo xlt('Race')?></label><br />
                 <div class="controls">
                     <?php
                   # Generate drop down list for Race
@@ -312,7 +312,7 @@ $this->display('_modalFormHeader.tpl.php');
                 </div>
            </div>
            <div class="form-group" id="ethnicityInputContainer">
-                    <label for="ethnicity"><?php echo xlt('Ethnicity')?></label><br>
+                    <label for="ethnicity"><?php echo xlt('Ethnicity')?></label><br />
                     <div class="controls">
                         <?php
                       # Generate drop down list for Ethnicity
@@ -322,7 +322,7 @@ $this->display('_modalFormHeader.tpl.php');
                     </div>
             </div>
             <div class="form-group" id="religionInputContainer">
-                <label for="religion"><?php echo xlt('Religion')?></label><br>
+                <label for="religion"><?php echo xlt('Religion')?></label><br />
                 <div class="controls">
                     <?php
                   # Generate drop down list for Religion
@@ -339,7 +339,7 @@ $this->display('_modalFormHeader.tpl.php');
                     </div>
                 </div>
                 <div class="form-group" id="referralSourceInputContainer">
-                    <label for="referralSource"><?php echo xlt('How Referred')?></label><br>
+                    <label for="referralSource"><?php echo xlt('How Referred')?></label><br />
                     <div class="controls">
                         <?php
                       # Generate drop down list for Referral Source
@@ -487,7 +487,7 @@ $this->display('_modalFormHeader.tpl.php');
 </body>
 </html>
                 <!-- <div class="form-group" id="ethnoracialInputContainer">
-                    <label for="ethnoracial"><?php echo xlt('Ethnoracial')?></label><br>
+                    <label for="ethnoracial"><?php echo xlt('Ethnoracial')?></label><br />
                     <div class="controls">
                     <?php
                       # Generate drop down list for Ethnoracial

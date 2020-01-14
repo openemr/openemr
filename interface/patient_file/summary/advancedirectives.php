@@ -127,7 +127,7 @@ use OpenEMR\Core\Header;
                             $dateTimeDoc = $myrows4['date'];
                             $idDoc = $myrows4['id'];
                             ?>
-                            <br>
+                            <br />
                             <a href='<?php echo $web_root; ?>/controller.php?document&retrieve&patient_id=<?php echo attr_url($pid); ?>&document_id=<?php echo attr_url($idDoc); ?>&as_file=true'>
                                 <?php echo text(xl_document_category($nameDoc)); ?>
                             </a>
@@ -138,7 +138,7 @@ use OpenEMR\Core\Header;
                           // if no associated docs with category then show it's empty
                         if (!$counterFlag) {
                             ?>
-                            <br><?php echo text($nameDoc); ?><span style='color:red;'>[<?php echo xlt('EMPTY'); ?>]</span>
+                            <br /><?php echo text($nameDoc); ?><span style='color:red;'>[<?php echo xlt('EMPTY'); ?>]</span>
                             <?php
                         }
                     }

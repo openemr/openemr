@@ -180,7 +180,7 @@ function check_search_str()
               $itercode = $row['drug_id'];
               $itertext = ucfirst(strtolower(trim($row['name'])));
             ?>
-               <input type="checkbox" id="chkbox" name ="chkbox" value= "<?php echo attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "</br>";
+               <input type="checkbox" id="chkbox" name ="chkbox" value= "<?php echo attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "<br />";
         }
     }
 

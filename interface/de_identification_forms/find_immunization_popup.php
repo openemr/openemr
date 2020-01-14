@@ -178,7 +178,7 @@ function check_search_str()
             $itercode = $row['option_id'];
             $itertext = ucfirst(strtolower(trim($row['title'])));
             ?>
-       <input type="checkbox" id="chkbox" value= "<?php echo attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "</br>";
+       <input type="checkbox" id="chkbox" value= "<?php echo attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "<br />";
         }
     }
 

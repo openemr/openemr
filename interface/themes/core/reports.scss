@@ -10,12 +10,10 @@
 */
 
 #report_parameters {
-    background-color: $light;
     margin-top: 10px;
 }
 
 #report_parameters table {
-    border: solid 1px;
     width: 100%;
     border-collapse: collapse;
 }
@@ -35,33 +33,22 @@
 }
 
 #report_results table {
-    border-top: 1px solid $black;
-    border-bottom: 1px solid $black;
-    border-left: 1px solid $black;
-    border-right: 1px solid $black;
     width: 100%;
     border-collapse: collapse;
     margin-top: 1px;
 }
 
 #report_results table thead {
-    padding: 5px;
-    display: table-header-group;
-    background-color: $gray-300;
     text-align: $left;
     font-weight: bold;
-    @include font-size("0.7rem !important");
 }
 
 #report_results table th {
-    border-bottom: 1px solid $black;
     padding: 5px;
 }
 
 #report_results table td {
     padding: 5px;
-    border-bottom: 1px dashed;
-    @include font-size("0.8rem !important");
 }
 
 .report_totals td {

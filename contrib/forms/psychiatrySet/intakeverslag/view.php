@@ -204,7 +204,7 @@ function autosave( )
 
 
 <form method=post action="<?php echo $rootdir?>/forms/intakeverslag/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">
-<span class="title"><?php echo xlt('Psychiatric Intake'); ?></span><Br><br>
+<span class="title"><?php echo xlt('Psychiatric Intake'); ?></span><Br><br />
 
 <table>
 <tr>
@@ -219,27 +219,27 @@ function autosave( )
 </tr>
 </table>
 
-<br><span class=text><?php echo xlt('Reason for Visit'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo text($obj["reden_van_aanmelding"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Problem List'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="klachten_probleemgebieden" id="klachten_probleemgebieden"><?php echo text($obj["klachten_probleemgebieden"]);?></textarea><br>
+<br /><span class=text><?php echo xlt('Reason for Visit'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo text($obj["reden_van_aanmelding"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Problem List'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="klachten_probleemgebieden" id="klachten_probleemgebieden"><?php echo text($obj["klachten_probleemgebieden"]);?></textarea><br />
 
-<br><span class=text><?php echo xlt('Psychiatric History'); ?></span><br>
-<textarea cols=80 rows=10 wrap=virtual name="hulpverlening_onderzoek" id="hulpverlening_onderzoek"><?php echo text($obj["hulpverlening_onderzoek"]);?></textarea><br>
+<br /><span class=text><?php echo xlt('Psychiatric History'); ?></span><br />
+<textarea cols=80 rows=10 wrap=virtual name="hulpverlening_onderzoek" id="hulpverlening_onderzoek"><?php echo text($obj["hulpverlening_onderzoek"]);?></textarea><br />
 
-<br><span class=text><?php echo xlt('Treatment Goals'); ?></span><br>
-<textarea cols=80 rows=10 wrap=virtual name="hulpvraag_en_doelen" id="hulpvraag_en_doelen"><?php echo text($obj["hulpvraag_en_doelen"]);?></textarea><br>
+<br /><span class=text><?php echo xlt('Treatment Goals'); ?></span><br />
+<textarea cols=80 rows=10 wrap=virtual name="hulpvraag_en_doelen" id="hulpvraag_en_doelen"><?php echo text($obj["hulpvraag_en_doelen"]);?></textarea><br />
 
-<br><span class=text><?php echo xlt('Specialty Systems'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="bijzonderheden_systeem" id="bijzonderheden_systeem"><?php echo text($obj["bijzonderheden_systeem"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Work/ Education/ Hobbies'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="werk_opleiding_vrije_tijdsbesteding" id="werk_opleiding_vrije_tijdsbesteding"><?php echo text($obj["werk_opleiding_vrije_tijdsbesteding"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Relation(s) / Children'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="relatie_kinderen" id="relatie_kinderen"><?php echo text($obj["relatie_kinderen"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Somatic Context'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="somatische_context" id="somatische_context"><?php echo text($obj["somatische_context"]);?></textarea><br>
+<br /><span class=text><?php echo xlt('Specialty Systems'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="bijzonderheden_systeem" id="bijzonderheden_systeem"><?php echo text($obj["bijzonderheden_systeem"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Work/ Education/ Hobbies'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="werk_opleiding_vrije_tijdsbesteding" id="werk_opleiding_vrije_tijdsbesteding"><?php echo text($obj["werk_opleiding_vrije_tijdsbesteding"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Relation(s) / Children'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="relatie_kinderen" id="relatie_kinderen"><?php echo text($obj["relatie_kinderen"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Somatic Context'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="somatische_context" id="somatische_context"><?php echo text($obj["somatische_context"]);?></textarea><br />
 
-<br>
+<br />
 <table>
 <tr>
 <td align="right"  class=text><?php echo xlt('Alcohol'); ?></td>
@@ -253,16 +253,16 @@ function autosave( )
 </tr>
 </table>
 
-<br><span class=text><?php echo xlt('Medications'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="medicatie" id="medicatie"><?php echo text($obj["medicatie"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Family History'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="familieanamnese" id="familieanamnese"><?php echo text($obj["familieanamnese"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Assessment'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="indruk_observaties" id="indruk_observaties"><?php echo text($obj["indruk_observaties"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Conclusions'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="beschrijvende_conclusie" id="beschrijvende_conclusie"><?php echo text($obj["beschrijvende_conclusie"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Treatment Plan'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="behandelvoorstel" id="behandelvoorstel"><?php echo text($obj["behandelvoorstel"]);?></textarea><br>
+<br /><span class=text><?php echo xlt('Medications'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="medicatie" id="medicatie"><?php echo text($obj["medicatie"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Family History'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="familieanamnese" id="familieanamnese"><?php echo text($obj["familieanamnese"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Assessment'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="indruk_observaties" id="indruk_observaties"><?php echo text($obj["indruk_observaties"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Conclusions'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="beschrijvende_conclusie" id="beschrijvende_conclusie"><?php echo text($obj["beschrijvende_conclusie"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Treatment Plan'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="behandelvoorstel" id="behandelvoorstel"><?php echo text($obj["behandelvoorstel"]);?></textarea><br />
 
 <table><tr>
 <?php
@@ -270,9 +270,9 @@ function autosave( )
 ?>
 </tr></table>
 
-<br><br>
+<br /><br />
 <a href="javascript:document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
-<br>
+<br />
 <a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link_submit"
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save Changes'); ?>]</a>
 </form>

@@ -489,12 +489,12 @@ if ($result != "") {
 
 
         echo "  <td><a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) .
-        "' class='css_button_small note_modal' onclick='return top.restoreSession()'><span>" . xlt('Edit') ."</span></a>\n";
+        "' class='btn btn-primary btn-sm note_modal' onclick='return top.restoreSession()'><span>" . xlt('Edit') ."</span></a>\n";
 
         // display, or not, a button to delete the note
         // if the user is an admin or if they are the author of the note, they can delete it
         if (($iter['user'] == $_SESSION['authUser']) || (acl_check('admin', 'super', '', 'write'))) {
-            echo " <a href='#' class='deletenote css_button_small' id='del" . attr($row_note_id) .
+            echo " <a href='#' class='deletenote btn btn-danger btn-sm' id='del" . attr($row_note_id) .
             "' title='" . xla('Delete this note') . "' onclick='return top.restoreSession()'><span>" .
             xlt('Delete') . "</span>\n";
         }
@@ -656,12 +656,12 @@ if ($result_sent != "") {
         }
 
         echo "  <td><a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) .
-        "' class='css_button_small note_modal' onclick='return top.restoreSession()'><span>" . xlt('Edit') . "</span></a>\n";
+        "' class='btn btn-primary btn-sm note_modal' onclick='return top.restoreSession()'><span>" . xlt('Edit') . "</span></a>\n";
 
         // display, or not, a button to delete the note
         // if the user is an admin or if they are the author of the note, they can delete it
         if (($iter['user'] == $_SESSION['authUser']) || (acl_check('admin', 'super', '', 'write'))) {
-            echo " <a href='#' class='deletenote css_button_small' id='del" . attr($row_note_id) .
+            echo " <a href='#' class='deletenote btn btn-danger btn-sm' id='del" . attr($row_note_id) .
             "' title='" . xla('Delete this note') . "' onclick='return restoreSession()'><span>" .
             xlt('Delete') . "</span>\n";
         }

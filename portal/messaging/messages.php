@@ -709,12 +709,12 @@ function getAuthPortalUsers()
                     <div class="btn-group">
                         <button type="button" class="btn btn-secondary btn-lg"
                             ng-class="{disabled: currentPage == 0}" ng-click="prevPage()">
-                            <span class="glyphicon glyphicon-chevron-left"></span>
+                            <i class="fa fa-chevron-left"></i>
                         </button>
                         <button type="button" class="btn btn-secondary btn-lg"
                             ng-class="{disabled: currentPage == pagedItems.length - 1}"
                             ng-click="nextPage()">
-                            <span class="glyphicon glyphicon-chevron-right"></span>
+                            <i class="fa fa-chevron-right"></i>
                         </button>
                     </div>
                 </div>

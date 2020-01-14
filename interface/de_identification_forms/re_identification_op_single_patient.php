@@ -97,11 +97,11 @@ system($sh_cmd);
     <tr valign="top">
 
         <td>&nbsp;</td>
-        <td rowspan="3"><br>
+        <td rowspan="3"><br />
         <?php echo xlt('Re Identification Process is ongoing');
-        echo "</br></br>";
+        echo "<br /><br />";
         echo xlt('Please visit Re Identification screen after some time');
-        echo "</br>";   ?> </br>
+        echo "<br />";   ?> <br />
         </td>
         <td>&nbsp;</td>
     </tr>
@@ -147,11 +147,11 @@ system($sh_cmd);
     <table class="de_identification_status_message" align="center">
     <tr valign="top">
         <td>&nbsp;</td>
-        <td rowspan="3"><br>
+        <td rowspan="3"><br />
         <?php echo xlt('No match Patient record found for the given Re Idenitification code');
-        echo "</br></br>";
+        echo "<br /><br />";
         echo xlt('Please enter correct Re Identification code');
-        echo "</br>";   ?> </br>
+        echo "<br />";   ?> <br />
         </td>
         <td>&nbsp;</td>
     </tr>

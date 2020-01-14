@@ -266,7 +266,7 @@ if (isset($_REQUEST['cktime'])) {
             echo " opener.document.forms[0].submit();\n";
             echo " dlgclose();\n";
             echo "}\n";
-            echo "</script></head><body onload='setTimeout(\"mytimeout()\",2500);'><h4></br>..." .
+            echo "</script></head><body onload='setTimeout(\"mytimeout()\",2500);'><h4><br />..." .
         xlt('Time slot is available, saving event') . "...</h4></body></html>";
             exit();
     }
@@ -385,7 +385,7 @@ form {
             $lastdate = $thisdate;
             $dayName = date("l", $utime);
             echo " <tr class='oneresult'>\n";
-            echo "  <td class='srDate'>" . xlt($dayName)."<br>". text(oeFormatSDFT($utime)) . "</td>\n";
+            echo "  <td class='srDate'>" . xlt($dayName)."<br />". text(oeFormatSDFT($utime)) . "</td>\n";
             echo "  <td class='srTimes'>";
             echo "<div id='am'>AM ";
             $ampmFlag = "am";  // reset the AMPM flag

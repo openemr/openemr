@@ -1814,7 +1814,7 @@ if ($_GET['prov'] != true) { ?>
 <div class="row">
     <div id="recurr_popup" class="input-group alert bg-warning text-left" style="display: none;position: relative; max-width:400px;">
         <p class="lead small" style="font-size:16px;"><strong><?php echo xlt('Option one, apply the changes to only the Current event. Option two, apply to this event and all Future occurrences or lastly, apply to All event occurrences?') ?></strong></p>
-        <br>
+        <br />
         <?php if ($GLOBALS['submit_changes_for_all_appts_at_once']) {?>
             <input type="button" name="all_events" id="all_events" value="  <?php echo xla('All'); ?>  ">
         <?php } ?>

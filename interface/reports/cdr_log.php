@@ -136,7 +136,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 
 </div>  <!-- end of search parameters -->
 
-<br>
+<br />
 
 <?php if ($_POST['search'] == 1) { ?>
  <div id="report_results">
@@ -208,9 +208,9 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
                   generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
                   ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $target) .
                   " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $alert['due_status']) . ")" .
-                  "<span><br>";
+                  "<span><br />";
             } else { // $row['category'] == 'allergy_alert'
-                 echo $alert . "<br>";
+                 echo $alert . "<br />";
             }
         }
         ?>
@@ -229,9 +229,9 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
                       generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
                       ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $target) .
                       " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $alert['due_status']) . ")" .
-                      "<span><br>";
+                      "<span><br />";
                 } else { // $row['category'] == 'allergy_alert'
-                    echo $alert . "<br>";
+                    echo $alert . "<br />";
                 }
             }
         } else {

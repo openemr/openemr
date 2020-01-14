@@ -519,17 +519,17 @@ table.mymaintable td, table.mymaintable th {
    </table>
   </td>
   <td align='left' valign='middle'>
-   <table style='border-left:1px solid; width:100%; height:100%'>
+   <table class='w-100 h-100' style='border-left:1px solid;'>
     <tr>
      <td valign='middle'>
-      <a href='#' class='css_button' onclick='mysubmit("submit")' style='margin-left:1em'>
+      <a href='#' class='btn btn-primary' onclick='mysubmit("submit")' style='margin-left:1em'>
        <span><?php echo xlt('Submit'); ?></span>
       </a>
     <?php if ($form_action) { ?>
-      <a href='#' class='css_button' id='printbutton' style='margin-left:1em'>
+      <a href='#' class='btn btn-primary' id='printbutton' style='margin-left:1em'>
        <span><?php echo xlt('Print'); ?></span>
       </a>
-      <a href='#' class='css_button' onclick='mysubmit("export")' style='margin-left:1em'>
+      <a href='#' class='btn btn-primary' onclick='mysubmit("export")' style='margin-left:1em'>
        <span><?php echo xlt('CSV Export'); ?></span>
       </a>
 <?php } ?>

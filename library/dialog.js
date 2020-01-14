@@ -284,7 +284,7 @@ if (typeof alertMsg !== "function") {
                 '<button type="button" class="btn btn-link ' + oHidden + '" id="dontShowAgain" data-dismiss="alert">' +
                 xl.alert.gotIt + '&nbsp;<i class="fa fa-thumbs-up"></i></button>' +
                 '<h4 class="alert-heading text-center">' + xl.alert.title + '!</h4><hr>' + '<p style="color:#000;">' + message + '</p>' +
-                '<button type="button" class="pull-right btn btn-link" data-dismiss="alert">' + xl.alert.dismiss + '</button></br></div>';
+                '<button type="button" class="pull-right btn btn-link" data-dismiss="alert">' + xl.alert.dismiss + '</button><br /></div>';
             $('#alert_box').append(mHtml);
             $('#alertmsg').on('closed.bs.alert', function () {
                 clearTimeout(AlertMsg);

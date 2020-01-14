@@ -1495,8 +1495,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         </div>
                     </div>
                 </form>
-                <br>
-                <br>
+                <br />
+                <br />
             </div>
         </div>
     </div><!--End of div container -->

@@ -242,7 +242,7 @@ class gacl {
 	function debug_text($text) {
 
 		if ($this->_debug) {
-			echo "$text<br>\n";
+			echo "$text<br />\n";
 		}
 
 		return true;

@@ -38,7 +38,7 @@ formHeader("Pediatric GI Evaluation");
 
 
 
-<br>
+<br />
 
 <form method='post' action="<?php echo $rootdir;?>/forms/ped_GI/save.php?mode=new" name='ped_GI' >
 
@@ -62,7 +62,7 @@ formHeader("Pediatric GI Evaluation");
 
 <a href="javascript:top.restoreSession();document.ped_GI.submit();" class="link_submit">[Save]</a>
 
-<br>
+<br />
 
 
 

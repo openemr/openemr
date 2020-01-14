@@ -17,9 +17,9 @@
 /**
  * Smarty {amcCollect} function plugin
  *
- * Type:     function<br>
- * Name:     amcCollect<br>
- * Purpose:  amcCollect in OpenEMR - Smarty templates<br>
+ * Type:     function<br />
+ * Name:     amcCollect<br />
+ * Purpose:  amcCollect in OpenEMR - Smarty templates<br />
  *
  * @param array
  * @param Smarty

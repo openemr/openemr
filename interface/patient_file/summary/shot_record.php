@@ -131,7 +131,7 @@ function printHTML($res, $res2, $data)
 
   //convert end of line characters to html (escape for html output first)
     $patterns = array ('/\n/');
-    $replace = array ('<br>');
+    $replace = array ('<br />');
     $res['facility_address'] = text($res['facility_address']);
     $res['facility_address'] = preg_replace($patterns, $replace, $res['facility_address']);
     $res2['patient_address'] = text($res2['patient_address']);
@@ -219,8 +219,8 @@ function printHTML($res, $res2, $data)
         echo "<div class='clinicAddress'>" . $res['facility_address'] . "</div>\n";
 
         //display patient information (Note patient address is already escaped)
-        echo "<div class='patientAddress'>" . text($res2['patient_name']) . "<br>" .
-        text(xl('Date of Birth') . ": " . $res2['patient_DOB']) . "<br>" .
+        echo "<div class='patientAddress'>" . text($res2['patient_name']) . "<br />" .
+        text(xl('Date of Birth') . ": " . $res2['patient_DOB']) . "<br />" .
         $res2['patient_address'] . "</div>\n";
 
         //display table title

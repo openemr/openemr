@@ -196,8 +196,8 @@ switch ($_POST['action']) {
 			}
 		}
 
-		//echo "Section ID: $section_id<br>\n";
-		//echo "Section Value: ". $acl_section_value ."<br>\n";
+		//echo "Section ID: $section_id<br />\n";
+		//echo "Section Value: ". $acl_section_value ."<br />\n";
 
 		$smarty->assign('options_acl_sections', $options_acl_sections);
 		$smarty->assign('acl_section_value', $acl_section_value);

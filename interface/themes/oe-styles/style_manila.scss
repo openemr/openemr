@@ -59,7 +59,16 @@ $colors: (
     "cyan": $cyan,
     "white": $white,
     "gray": $gray-600,
-    "gray-dark": $gray-800
+    "gray-dark": $gray-800,
+    /* Overrides to allow regular CSS coloring */
+    "black": $black,
+    "gray100": $gray-100,
+    "gray200": $gray-200,
+    "gray300": $gray-300,
+    "gray400": $gray-400,
+    "gray500": $gray-500,
+    "gray700": $gray-700,
+    "gray900": $gray-900
 );
 
 $body-bg: $white;

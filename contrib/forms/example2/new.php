@@ -42,7 +42,7 @@ $returnurl = 'encounter_top.php';
 <form method=post action="<?php echo $rootdir;?>/forms/<?php echo $form_folder; ?>/save.php?mode=new" name="my_form">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<span class="title"><?php echo xlt($form_name); ?></span><br>
+<span class="title"><?php echo xlt($form_name); ?></span><br />
 
 <!-- Save/Cancel buttons -->
 <input type="button" class="save" value="<?php echo xla('Save'); ?>"> &nbsp;
@@ -76,9 +76,9 @@ Address: <input name="address" id="address" type="text" size="80" maxlength="250
 </div>
 
 <div id="bottom">
-Use this space to express notes <br>
+Use this space to express notes <br />
 <textarea name="notes" id="notes" cols="80" rows="4"></textarea>
-<br><br>
+<br /><br />
 <div style="text-align:right;">
 Signature?
 <input type="radio" id="sig" name="sig" value="y">Yes

@@ -1163,15 +1163,15 @@ if ($error != '') {
 <tr>
   <td>
   <div id=id_category_column style="display:inline">
-    <select name=select_category size=<?php echo attr($select_size); ?> onchange="click_category()"></select><br>
+    <select name=select_category size=<?php echo attr($select_size); ?> onchange="click_category()"></select><br />
 <?php
 
 if (myAuth() == 1) {//root user only can see administration option
     ?>
-    <input type=text name=change_category><br>
+    <input type=text name=change_category><br />
     <input type=button name=add1 value='<?php echo xla('add'); ?>' onClick="js_button('add','change_category')">
     <input type=button name=alter1 value='<?php echo xla('alter'); ?>' onClick="js_button('alter','change_category')">
-    <input type=button name=del1 value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_category')"><br>
+    <input type=button name=del1 value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_category')"><br />
     <?php
 }
 ?>
@@ -1179,15 +1179,15 @@ if (myAuth() == 1) {//root user only can see administration option
   </td>
   <td>
   <div id=id_subcategory_column style="display:inline">
-    <select name=select_subcategory size=<?php echo attr($select_size); ?> onchange="click_subcategory()"></select><br>
+    <select name=select_subcategory size=<?php echo attr($select_size); ?> onchange="click_subcategory()"></select><br />
 <?php
 
 if (myAuth() == 1) {//root user only can see administration option
     ?>
-    <input type=text name=change_subcategory><br>
+    <input type=text name=change_subcategory><br />
     <input type=button name=add2 value='<?php echo xla('add'); ?>' onClick="js_button('add','change_subcategory')">
     <input type=button name=alter1 value='<?php echo xla('alter'); ?>' onClick="js_button('alter','change_subcategory')">
-    <input type=button name=del2 value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_subcategory')"><br>
+    <input type=button name=del2 value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_subcategory')"><br />
     <?php
 }
 ?>
@@ -1195,15 +1195,15 @@ if (myAuth() == 1) {//root user only can see administration option
   </td>
   <td>
   <div id=id_item_column style="display:inline">
-    <select name=select_item[] size=<?php echo attr($select_size); ?> onchange="click_item()" multiple="multiple"></select><br>
+    <select name=select_item[] size=<?php echo attr($select_size); ?> onchange="click_item()" multiple="multiple"></select><br />
 <?php
 
 if (myAuth() == 1) {//root user only can see administration option
     ?>
-    <input type=text name=change_item><br>
+    <input type=text name=change_item><br />
     <input type=button name=add3 value='<?php echo xla('add'); ?>' onClick="js_button('add','change_item')">
     <input type=button name=alter1 value='<?php echo xla('alter'); ?>' onClick="js_button('alter','change_item')">
-    <input type=button name=del3 value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_item')"><br>
+    <input type=button name=del3 value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_item')"><br />
     <?php
 }
 ?>

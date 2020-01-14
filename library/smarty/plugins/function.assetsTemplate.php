@@ -20,9 +20,9 @@ use OpenEMR\Core\Header;
  *
  *   Basically is headerTemplate without any autoloaded assets
  *
- * Type:     function<br>
- * Name:     assetsTemplate<br>
- * Purpose:  assetsTemplate in OpenEMR - Smarty templates<br>
+ * Type:     function<br />
+ * Name:     assetsTemplate<br />
+ * Purpose:  assetsTemplate in OpenEMR - Smarty templates<br />
  *
  * @param array
  * @param Smarty

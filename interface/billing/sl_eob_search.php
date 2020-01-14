@@ -246,7 +246,7 @@ function upload_file_to_client_email($ppid, $file_to_send)
     while (!feof($file)) {
         $OneLine = fgets($file);//one line is read
 
-        $message = $message . $OneLine . '<br>';
+        $message = $message . $OneLine . '<br />';
 
         $countline++;
     }

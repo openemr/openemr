@@ -92,7 +92,7 @@ if (!$thisauth) {
     </tr>
     </form>
   </table>
-  <br>
+  <br />
 <?php
 
 // set up the mysql collation string to ensure case is sensitive (or insensitive) in the mysql queries

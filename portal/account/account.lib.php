@@ -121,7 +121,7 @@ function messageCreate($uname, $pass, $encoded_link = '')
     $message .= sprintf('<a href="%s">%s</a>', attr($encoded_link), text($encoded_link));
     $message .= "<p><strong>" . xlt("One Time verification PIN") . ": </strong>" . text($pass) . "</p>";
     $message .= "<p><strong>" . xlt("Your Portal Login Web Address. Bookmark for future logins.") . ": </strong></p>";
-    $message .= '<a href=' . attr($GLOBALS['portal_onsite_two_address']) . '>' . text($GLOBALS['portal_onsite_two_address']) . "</a><br>";
+    $message .= '<a href=' . attr($GLOBALS['portal_onsite_two_address']) . '>' . text($GLOBALS['portal_onsite_two_address']) . "</a><br />";
     $message .= "<p>" . xlt("Thank You.") . "</p>";
 
     return $message;

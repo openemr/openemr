@@ -22,7 +22,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 
 ?>
 <div id='labdata' style='margin-top: 3px; margin-left: 10px; margin-right: 10px'><!--outer div-->
-<br>
+<br />
 <?php
 //retrieve tracks.
 $spell = "SELECT form_name, MAX(form_track_anything_results.track_timestamp) as maxdate, form_id " .

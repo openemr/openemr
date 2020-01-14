@@ -384,7 +384,7 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                         <?php
                             require_once("payment_master.inc.php"); //Check/cash details are entered here.
                         ?>
-                        <br>
+                        <br />
                         <?php
                         if ($payment_id*1>0) {
                             ?>
@@ -402,10 +402,10 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                             if ($CountIndexBelow>0) {
                                 ?>
                                 <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
-                            <br>
+                            <br />
                             <div class="form-group clearfix">
                             <div class="col-sm-12 text-left position-override">
-                                <br>
+                                <br />
                                 <div class="btn-group btn-group-pinch" role="group">
                                     <button class="btn btn-secondary btn-save" href="#" onclick="return PostPayments();"><?php echo xlt('Post Payments');?></button>
                                     <button class="btn btn-secondary btn-save" href="#" onclick="return FinishPayments();"><?php echo xlt('Finish Payments');?></button>

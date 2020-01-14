@@ -478,11 +478,11 @@ function authorized_clicked() {
         <div class="col-12">
             <?php
             if ($set_active_msg == 1) {
-                echo "<div class='alert alert-danger'>".xlt('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation.')."</div><br>";
+                echo "<div class='alert alert-danger'>".xlt('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation.')."</div><br />";
             }
 
             if ($show_message == 1) {
-                echo "<div class='alert alert-danger'>".xlt('The following Emergency Login User is activated:')." "."<b>".text($_GET['fname'])."</b>"."</div><br>";
+                echo "<div class='alert alert-danger'>".xlt('The following Emergency Login User is activated:')." "."<b>".text($_GET['fname'])."</b>"."</div><br />";
                 echo "<div class='alert alert-danger'>".xlt('Emergency Login activation email will be circulated only if following settings in the interface/globals.php file are configured:')." \$GLOBALS['Emergency_Login_email'], \$GLOBALS['Emergency_Login_email_id']</div>";
             }
 
@@ -583,8 +583,8 @@ function authorized_clicked() {
                 }
 
                 foreach ($grouplist as $groupname => $list) {
-                    print "<span class='bold'>" . text($groupname) . "</span><br>\n<span>" .
-                        substr($list, 0, strlen($list)-2) . "</span><br>\n";
+                    print "<span class='bold'>" . text($groupname) . "</span><br />\n<span>" .
+                        substr($list, 0, strlen($list)-2) . "</span><br />\n";
                 }
             }
             ?>

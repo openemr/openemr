@@ -187,7 +187,7 @@ foreach ($pelines as $sysname => $sysarray) {
     if ($sysname == '*') {
        // TBD: Show any remaining entries in $rows (should not be any).
         echo " <tr><td colspan='6'>\n";
-        echo "   &nbsp;<br><b>" . xlt('Treatment:') . "</b>\n";
+        echo "   &nbsp;<br /><b>" . xlt('Treatment:') . "</b>\n";
         echo " </td></tr>\n";
     } else {
         $sysnamedisp = xl($sysname);

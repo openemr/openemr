@@ -116,16 +116,16 @@ $customAttributes = ( $onlyRead ) ? array("disabled" => "true") : null;
 
 <style>
 .highlight {
-  color: green;
+  color: var(--success);
 }
 tr.selected {
-  background-color: white;
+  background-color: var(--white);
 }
 .historytbl {
  border-collapse: collapse;
 }
 .historytbl td th{
-  border: 1px solid #000;
+  border: 1px solid var(--black);
 }
 </style>
 
@@ -172,19 +172,19 @@ $(function() {
         </td>
         <?php if (! $onlyRead) { ?>
         <td>
-            <a href=# onclick="formValidation()" class="css_button_small"><span><?php echo xlt('Save');?></span></a>
+            <a href=# onclick="formValidation()" class="btn btn-primary btn-sm"><span><?php echo xlt('Save');?></span></a>
         </td>
         <?php } ?>
         <td>
-            <a href="list_amendments.php" class="css_button_small"><span><?php echo xlt('Back');?></span></a>
+            <a href="list_amendments.php" class="btn btn-secondary btn-sm"><span><?php echo xlt('Back');?></span></a>
         </td>
     </tr>
     </table>
 
-    <br>
-    <table border=0 cellpadding=1 cellspacing=1>
+    <br />
+    <table border='0' cellpadding='1' cellspacing='1'>
         <tr>
-            <td><span class=text ><?php echo xlt('Requested Date'); ?></span></td>
+            <td><span class='text'><?php echo xlt('Requested Date'); ?></span></td>
             <td>
             <?php if (! $onlyRead) { ?>
                 <input type='text' size='10' class='datepicker' name="amendment_date" id="amendment_date"

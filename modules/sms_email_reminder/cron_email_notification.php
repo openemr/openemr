@@ -39,7 +39,7 @@ $db_email_msg = cron_getNotificationData($TYPE);
 
 // get patient data for send alert
 $db_patient = cron_getAlertpatientData($TYPE);
-echo "<br>Total ".count($db_patient)." Records Found\n";
+echo "<br />Total ".count($db_patient)." Records Found\n";
 for ($p=0; $p<count($db_patient); $p++) {
     $prow =$db_patient[$p];
     //my_print_r($prow);

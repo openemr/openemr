@@ -86,7 +86,7 @@ function append_claim(&$segs)
             }
             continue;
         } elseif (!$bat_content) {
-            die("Error:<br>\nInput must begin with 'ISA'; " . "found '" . text($elems[0]) . "' instead");
+            die("Error:<br />\nInput must begin with 'ISA'; " . "found '" . text($elems[0]) . "' instead");
         }
         if ($elems[0] == 'GS') {
             if ($bat_gscount == 0) {
@@ -506,7 +506,7 @@ function process_form($ar)
     </script>
 </head>
 <body class="body_top">
-    <br>
+    <br />
     <p>
     <h3><?php echo xlt('Billing queue results'); ?>:</h3><a href="#" id="close-link"><?php echo xlt('Close'); ?></a>
     <ul>

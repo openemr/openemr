@@ -95,7 +95,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                 <fieldset>
                     <legend><?php echo xlt('Select Options for Current Encounter') ?></legend>
                     <div class='col-sm-11 col-offset-sm-1'>
-                        <span class="text"><?php echo xlt('Checked box = yes, empty = no'); ?><br><br></span>
+                        <span class="text"><?php echo xlt('Checked box = yes, empty = no'); ?><br /><br /></span>
                         <div class="form-group">
                             <label><?php echo xlt('Box 10 A. Employment related'); ?>:
                                 <input type="checkbox" name="employment_related" id="box10a" value="1"
@@ -269,8 +269,8 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                     </div>
                 </div>
             </form>
-            <br>
-            <br>
+            <br />
+            <br />
         </div>
     </div>
 </div><!--End of container div-->

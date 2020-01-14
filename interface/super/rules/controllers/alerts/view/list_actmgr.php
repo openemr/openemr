@@ -15,10 +15,9 @@ global $phpgacl_location;
 require_once("$phpgacl_location/gacl_api.class.php");
 ?>
 
-<table class="header">
+<table class="table header">
   <tr>
         <td class="title"><?php echo xlt('Clinical Decision Rules Alert Manager'); ?></td>
-
   </tr>
   <tr>
         <td>
@@ -30,7 +29,7 @@ require_once("$phpgacl_location/gacl_api.class.php");
 &nbsp;
 
 <form name="cdralertmgr" method="post" action="index.php?action=alerts!submitactmgr" onsubmit="return top.restoreSession()">
-<table cellpadding="1" cellspacing="0" class="showborder">
+<table cellpadding="1" cellspacing="0" class="table table-bordered">
         <tr class="showborder_head">
                 <th width="250px"><?php echo xlt('Title'); ?></th>
                 <th width="40px">&nbsp;</th>

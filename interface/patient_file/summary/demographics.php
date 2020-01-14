@@ -23,7 +23,6 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("../history/history.inc.php");
 require_once("$srcdir/clinical_rules.php");
-require_once("$srcdir/options.js.php");
 require_once("$srcdir/group.inc");
 require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
 
@@ -137,7 +136,7 @@ function image_widget($doc_id, $doc_catg)
     } else {
         $to_url = "<td> <a href='" . $web_root . "/controller.php?document&retrieve" .
             "&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "'" .
-            " onclick='top.restoreSession()' class='css_button_small'>" .
+            " onclick='top.restoreSession()' class='btn btn-primary btn-sm'>" .
             "<span>" .
             xlt("View") . "</a> &nbsp;" .
             text("$doc_catg - $image_file") .
@@ -168,9 +167,11 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 
 <head>
 
-    <?php Header::setupHeader(['common']); ?>
-
-<script type="text/javascript" language="JavaScript">
+    <?php
+        Header::setupHeader(['common']);
+        require_once("$srcdir/options.js.php");
+    ?>
+<script>
  function oldEvt(apptdate, eventid) {
    let title = <?php echo xlj('Appointments'); ?>;
    dlgopen('../../main/calendar/add_edit_event.php?date=' + encodeURIComponent(apptdate) + '&eid=' + encodeURIComponent(eventid), '_blank', 800, 500, '', title);
@@ -210,7 +211,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 
 </script>
 
-<script type="text/javascript">
+<script>
 
 function toggleIndicator(target,div) {
 // <i id="show_hide" class="fa fa-lg small fa-eye-slash" title="Click to Hide"></i>
@@ -718,28 +719,24 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             } // $thisauth
             ?>
 
-        <div class="row" >
-            <div class="col-sm-12">
-                <?php
-                    $list_id = "dashboard"; // to indicate nav item is active, count and give correct id
-                    // Collect the patient menu then build it
-                    $menuPatient = new PatientMenuRole();
-                    $menuPatient->displayHorizNavBarMenu();
-                     // Get the document ID of the patient ID card if access to it is wanted here.
-                    $idcard_doc_id = false;
-                if ($GLOBALS['patient_id_category_name']) {
-                    $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name']);
-                }
-                ?>
-            </div>
-        </div>
+        <?php
+            $list_id = "dashboard"; // to indicate nav item is active, count and give correct id
+            // Collect the patient menu then build it
+            $menuPatient = new PatientMenuRole();
+            $menuPatient->displayHorizNavBarMenu();
+             // Get the document ID of the patient ID card if access to it is wanted here.
+            $idcard_doc_id = false;
+        if ($GLOBALS['patient_id_category_name']) {
+            $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name']);
+        }
+        ?>
 
-        <div style='margin-top:10px' class="main"> <!-- start main content div -->
-            <table border="0" cellspacing="0" cellpadding="0" width="100%">
+        <div style='margin-top: 10px' class="main"> <!-- start main content div -->
+            <table class="w-100 border-0" cellspacing="0" cellpadding="0">
                 <tr>
-                    <td class="demographics-box" align="left" valign="top">
+                    <td class="demographics-box align-top" align="left">
                         <!-- start left column div -->
-                        <div style='float:left; margin-right:20px'>
+                        <div style='float: left; margin-right: 20px'>
 
                             <table cellspacing="0" cellpadding="0">
                                 <?php
@@ -785,7 +782,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $totalbalance=$patientbalance + $insurancebalance;
 
                                 // Show current balance and billing note, if any.
-                                    echo "<table border='0'><tr><td>" .
+                                    echo "<table class='border-0'><tr><td>" .
                                     "<table ><tr><td><span class='font-weight-bold text-danger'>" .
                                     xlt('Patient Balance Due') .
                                     " : " . text(oeFormatMoney($patientbalance)) .
@@ -1925,7 +1922,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </div> <!-- end main content div -->
     </div><!-- end container div -->
     <?php $oemr_ui->oeBelowContainerDiv();?>
-<script language='JavaScript'>
+<script>
 // Array of skip conditions for the checkSkipConditions() function.
 var skipArray = [
 <?php echo $condition_str; ?>

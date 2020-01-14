@@ -37,36 +37,36 @@ use OpenEMR\Core\Header;
 
 <table>
  <tr>
-  <td class='text' align='left' colspan="3"><br>
+  <td class='text' align='left' colspan="3"><br />
 
     <?php $update_rem_log = update_reminders(); ?>
 
-    <span class="text"><?php echo xlt('The patient reminders have been updated') . ":"?></span><br>
-      <span class="text"><?php echo xlt('Total active actions') . ": " . text($update_rem_log['total_active_actions']); ?></span><br>
-      <span class="text"><?php echo xlt('Total active reminders before update') . ": " . text($update_rem_log['total_pre_active_reminders']); ?></span><br>
-      <span class="text"><?php echo xlt('Total unsent reminders before update') . ": " . text($update_rem_log['total_pre_unsent_reminders']); ?></span><br>
-      <span class="text"><?php echo xlt('Total active reminders after update') . ": " . text($update_rem_log['total_post_active_reminders']); ?></span><br>
-      <span class="text"><?php echo xlt('Total unsent reminders after update') . ": " . text($update_rem_log['total_post_unsent_reminders']); ?></span><br>
-      <span class="text"><?php echo xlt('Total new reminders') . ": " . text($update_rem_log['number_new_reminders']); ?></span><br>
-      <span class="text"><?php echo xlt('Total updated reminders') . ": " . text($update_rem_log['number_updated_reminders']); ?></span><br>
-      <span class="text"><?php echo xlt('Total inactivated reminders') . ": " . text($update_rem_log['number_inactivated_reminders']); ?></span><br>
-      <span class="text"><?php echo xlt('Total unchanged reminders') . ": " . text($update_rem_log['number_unchanged_reminders']) ;?></span><br>
+    <span class="text"><?php echo xlt('The patient reminders have been updated') . ":"?></span><br />
+      <span class="text"><?php echo xlt('Total active actions') . ": " . text($update_rem_log['total_active_actions']); ?></span><br />
+      <span class="text"><?php echo xlt('Total active reminders before update') . ": " . text($update_rem_log['total_pre_active_reminders']); ?></span><br />
+      <span class="text"><?php echo xlt('Total unsent reminders before update') . ": " . text($update_rem_log['total_pre_unsent_reminders']); ?></span><br />
+      <span class="text"><?php echo xlt('Total active reminders after update') . ": " . text($update_rem_log['total_post_active_reminders']); ?></span><br />
+      <span class="text"><?php echo xlt('Total unsent reminders after update') . ": " . text($update_rem_log['total_post_unsent_reminders']); ?></span><br />
+      <span class="text"><?php echo xlt('Total new reminders') . ": " . text($update_rem_log['number_new_reminders']); ?></span><br />
+      <span class="text"><?php echo xlt('Total updated reminders') . ": " . text($update_rem_log['number_updated_reminders']); ?></span><br />
+      <span class="text"><?php echo xlt('Total inactivated reminders') . ": " . text($update_rem_log['number_inactivated_reminders']); ?></span><br />
+      <span class="text"><?php echo xlt('Total unchanged reminders') . ": " . text($update_rem_log['number_unchanged_reminders']) ;?></span><br />
 
     <?php $send_rem_log = send_reminders(); ?>
 
-    <br><span class="text"><?php echo xlt('The patient reminders have been sent') . ":"?></span><br>
-      <span class="text"><?php echo xlt('Total unsent reminders before sending process') . ": " . text($send_rem_log['total_pre_unsent_reminders']); ?></span><br>
-      <span class="text"><?php echo xlt('Total unsent reminders after sending process') . ": " . text($send_rem_log['total_post_unsent_reminders']); ?></span><br>
-      <span class="text"><?php echo xlt('Total successful reminders sent via email') . ": " . text($send_rem_log['number_success_emails']); ?></span><br>
-      <span class="text"><?php echo xlt('Total failed reminders sent via email') . ": " . text($send_rem_log['number_failed_emails']); ?></span><br>
-      <span class="text"><?php echo xlt('Total successful reminders sent via phone') . ": " . text($send_rem_log['number_success_calls']); ?></span><br>
-      <span class="text"><?php echo xlt('Total failed reminders sent via phone') . ": " . text($send_rem_log['number_unchanged_reminders']); ?></span><br>
+    <br /><span class="text"><?php echo xlt('The patient reminders have been sent') . ":"?></span><br />
+      <span class="text"><?php echo xlt('Total unsent reminders before sending process') . ": " . text($send_rem_log['total_pre_unsent_reminders']); ?></span><br />
+      <span class="text"><?php echo xlt('Total unsent reminders after sending process') . ": " . text($send_rem_log['total_post_unsent_reminders']); ?></span><br />
+      <span class="text"><?php echo xlt('Total successful reminders sent via email') . ": " . text($send_rem_log['number_success_emails']); ?></span><br />
+      <span class="text"><?php echo xlt('Total failed reminders sent via email') . ": " . text($send_rem_log['number_failed_emails']); ?></span><br />
+      <span class="text"><?php echo xlt('Total successful reminders sent via phone') . ": " . text($send_rem_log['number_success_calls']); ?></span><br />
+      <span class="text"><?php echo xlt('Total failed reminders sent via phone') . ": " . text($send_rem_log['number_unchanged_reminders']); ?></span><br />
 
-    <br><span class="text"><?php echo xlt('(Email delivery is immediate, while automated VOIP is sent to the service provider for further processing.)'); ?></span><br><br>
+    <br /><span class="text"><?php echo xlt('(Email delivery is immediate, while automated VOIP is sent to the service provider for further processing.)'); ?></span><br /><br />
   </td>
  </tr>
 </table>
-<br><br>
+<br /><br />
 </body>
 </html>
 

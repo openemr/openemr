@@ -24,7 +24,7 @@ use OpenEMR\OeUI\OemrUI;
     <title><?php echo xlt('Patient Transactions');?></title>
     <?php Header::setupHeader('common'); ?>
 
-<script type="text/javascript">
+<script>
     // Called by the deleteme.php window on a successful delete.
     function imdeleted() {
         top.restoreSession();
@@ -61,16 +61,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <?php require_once("$include_root/patient_file/summary/dashboard_header.php");?>
             </div>
         </div>
-        <div class="row" >
-            <div class="col-sm-12">
-                <?php
-                $list_id = "transactions"; // to indicate nav item is active, count and give correct id
-                // Collect the patient menu then build it
-                $menuPatient = new PatientMenuRole();
-                $menuPatient->displayHorizNavBarMenu();
-                ?>
-            </div>
-        </div>
+        <?php
+        $list_id = "transactions"; // to indicate nav item is active, count and give correct id
+        // Collect the patient menu then build it
+        $menuPatient = new PatientMenuRole();
+        $menuPatient->displayHorizNavBarMenu();
+        ?>
         <div class="row">
             <div class="col-sm-12">
                 <div class="btn-group">
@@ -83,7 +79,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 </div>
             </div>
         </div>
-        <br>
+        <br />
         <div class="row">
             <div class="col-sm-12 text">
 
@@ -94,11 +90,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>&nbsp;</th>
-                            <th><?php echo xlt('Type'); ?></th>
-                            <th><?php echo xlt('Date'); ?></th>
-                            <th><?php echo xlt('User'); ?></th>
-                            <th><?php echo xlt('Details'); ?></th>
+                            <th scope="col">&nbsp;</th>
+                            <th scope="col"><?php echo xlt('Type'); ?></th>
+                            <th scope="col"><?php echo xlt('Date'); ?></th>
+                            <th scope="col"><?php echo xlt('User'); ?></th>
+                            <th scope="col"><?php echo xlt('Details'); ?></th>
                         </tr>
                     </thead>
                     <tbody>

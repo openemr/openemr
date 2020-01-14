@@ -257,7 +257,7 @@ class BillingReport
             ''.attr_js($TPSCriteriaKey[$TPSCriteriaIndex]).','.
             'document.getElementById(\'type_code\').value,document.getElementById(\'div_insurance_or_patient\').innerHTML,'.
             '\' = \','.
-            '\'text\')" onblur="show_frame_to_hide()" onKeyDown="PreventIt(event)" value="'.attr($_POST['type_code']).'"  autocomplete="off"   /><br>'.
+            '\'text\')" onblur="show_frame_to_hide()" onKeyDown="PreventIt(event)" value="'.attr($_POST['type_code']).'"  autocomplete="off"   /><br />'.
             '<!--onKeyUp="ajaxFunction(event,\'non\',\'search_payments.php\');"-->'.
             '<div id="ajax_div_insurance_section">'.
             '<div id="ajax_div_insurance_error">            </div>'.

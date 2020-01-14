@@ -243,7 +243,7 @@ if ($_POST['form_action']=='process') {
                     <div class="text-center"><?php echo xlt('to{{Range}}'); ?></div>
                     <input type="text" class="datepicker form-control" name="app_e" placeholder="<?php echo xla('any date'); ?>">
             </div>
-            <!-- later gator    <br>Insurance: <SELECT multiple NAME="insurance" Rows="10" cols="20"></SELECT> -->
+            <!-- later gator    <br />Insurance: <SELECT multiple NAME="insurance" Rows="10" cols="20"></SELECT> -->
             <div class="col-md card p-3 m-1 form-group">
                 <label for="app_s"><?php echo xlt('Seen within')?>:</label>
                     <input type="text" class="datepicker form-control" name="seen_since" placeholder="<?php echo xla('any date'); ?>">

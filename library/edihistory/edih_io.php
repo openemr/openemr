@@ -151,7 +151,7 @@ function edih_disp_archive_report()
     if ($la == 'yes') {
         $str_html = edih_archive_report($pd);
     } else {
-        $str_html = "File Information report input parameter error<br>";
+        $str_html = "File Information report input parameter error<br />";
     }
 
     //
@@ -393,7 +393,7 @@ function edih_disp_x12trans()
     $summary = isset($_GET['summary']) ? filter_input(INPUT_GET, 'summary', FILTER_DEFAULT) : false;
     //
     // debug
-    //$str_htm .= "<p>edih_disp_x12trans values: <br>".PHP_EOL;
+    //$str_htm .= "<p>edih_disp_x12trans values: <br />".PHP_EOL;
     //$str_htm .= "qs $qs fmt $fmt fn $fn ft $ft icn $icn rsptype $rsptype clm01 $clm01 trace $trace bht03 $bht03 err $err summary $summary</p>".PHP_EOL;
     //
     if ($ft) {
@@ -560,7 +560,7 @@ function edih_disp_x12file()
                 $fn = (count($f_array['reject'][0])) ? $f_array['reject'][0]['name'] : '';
                 $cmt = (count($f_array['reject'][0])) ? $f_array['reject'][0]['comment'] : '';
                 $str_htm .= "<p>Rejected file:</p>".PHP_EOL;
-                $str_htm .= "<p>" . text($fn) . "<br>".PHP_EOL;
+                $str_htm .= "<p>" . text($fn) . "<br />".PHP_EOL;
                 $str_htm .= " -- " . text($cmt) . "</p>".PHP_EOL;
                 //
                 csv_edihist_log("edih_disp_x12file: rejected file $fn comment: $cmt");

@@ -1227,7 +1227,7 @@ Calendar UI
 Calendar View
 calendar_external to events
 Call Back Notes
-Call to addForm() goes here.<br>
+Call to addForm() goes here.<br />
 Callback
 Callback Performed
 Callback requested
@@ -6178,7 +6178,7 @@ No audit log tampering detected in the selected date range.
 No automatic refresh
 No billing system is currently active
 No Bills Found to Include in OFX Export
-No Bills Found to Include in OFX Export<br>
+No Bills Found to Include in OFX Export<br />
 No Changes Detected
 No code was specified!
 No Configuration Defined for this Module
@@ -9180,7 +9180,7 @@ SMS OK
 SMS send before
 SMS Sent
 SMS Text Usable Tags
-SMS Text, Usable Tag: ***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***<br> i.e. Dear ***NAME***
+SMS Text, Usable Tag: ***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***<br /> i.e. Dear ***NAME***
 SMS Text, Usable Tags: 
 SMS Zone
 SMS zone - This section lets use send and receive SMS texts

@@ -133,7 +133,7 @@ if (isset($_GET['docUpdateId'])) {
             <br/>
             <span class='text'>
             <?php echo xlt('Displaying the following number of most recent messages'); ?>:
-            <b><?php echo text($N);?></b><br>
+            <b><?php echo text($N);?></b><br />
             <a href='pnotes_full.php?s=0' onclick='top.restoreSession()'>
             <?php echo xlt('Click here to view them all.'); ?></a>
         </span><?php
@@ -222,7 +222,7 @@ if (isset($_GET['docUpdateId'])) {
                     <br/>
                     <span class='text'>
                     <?php echo text('Displaying the following number of most recent notes') . ":"; ?>
-                        <b><?php echo text($M);?></b><br>
+                        <b><?php echo text($M);?></b><br />
         <a href='pnotes_full.php?s=1' onclick='top.restoreSession()'><?php echo xlt('Click here to view them all.'); ?></a>
         </span>
                     <?php

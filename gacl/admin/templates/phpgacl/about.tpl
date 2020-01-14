@@ -15,7 +15,7 @@
 			<td>
 				Please join the <a href="https://sourceforge.net/mail/?group_id=57103">Mailing Lists</a> if you have
 				any questions, comments, or support questions.
-				<p><b>TIP</b>: Searching the Mailing List archives may be a good idea prior to emailing the list, <br>
+				<p><b>TIP</b>: Searching the Mailing List archives may be a good idea prior to emailing the list, <br />
 				as well the below "Report" information may be helpful in any support questions.</p>
 				<p>PLEASE DO NOT EMAIL ME DIRECTLY REGARDING SUPPORT QUESTIONS<br />
 				You will receive answers faster on the mailing list, and any answers given may benefit others.</p>

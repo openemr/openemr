@@ -245,7 +245,7 @@ function authorized_clicked() {
     <a class="btn btn-link btn-cancel" id='cancel' href='#'><span><?php echo xlt('Cancel');?></span></a>
 </td></tr>
 </table>
-<br>
+<br />
 <FORM NAME="user_form" id="user_form" METHOD="POST" ACTION="usergroup_admin.php">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 

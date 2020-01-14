@@ -167,7 +167,7 @@ $(function(){
             <a href="facilities_add.php" class="addfac_modal btn btn-secondary btn-add"><span><?php echo xlt('Add Facility');?></span></a>
             </div>
         </div>
-        <br>
+        <br />
         <div class="row">
             <div class="col-12">
                 <div class="table-responsive">

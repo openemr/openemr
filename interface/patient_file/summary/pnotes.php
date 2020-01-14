@@ -73,11 +73,11 @@ if (!$thisauth) {
     }
     ?>
 </span>
-<span class=more><?php echo text($tmore);?></span>
+<span class="more"><?php echo text($tmore);?></span>
 </a>
 <?php endif; ?>
 
-<br>
+<br />
 
 <table>
 

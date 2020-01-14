@@ -45,9 +45,9 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
   </a>
 </div>
 
-<br>
-<br>
-<br>
+<br />
+<br />
+<br />
 
 <?php
   // collect the pertinent plans and rules
@@ -130,8 +130,8 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
           </tr>
         <?php } ?>
       </table>
-      <br>
-      <br>
+      <br />
+      <br />
       <table>
         <tr>
           <th rowspan="2"><?php echo xlt('Rule'); ?></th>

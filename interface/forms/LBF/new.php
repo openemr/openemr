@@ -1470,7 +1470,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             } // End Diagnoses Section
 
             ?>
-            <br>
+            <br />
 
             <div class="col-12">
                 <div class="btn-group">

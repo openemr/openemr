@@ -64,11 +64,11 @@ $error_msg = "";
     global $error_msg;
 
     if ($Authority_key != "" && !file_exists($Authority_key)) {
-        $error_msg .= xl('Error: the file does not exist') . ' ' . $Authority_key . '<br>';
+        $error_msg .= xl('Error: the file does not exist') . ' ' . $Authority_key . '<br />';
     }
 
     if ($Authority_crt != "" && !file_exists($Authority_crt)) {
-        $error_msg .= xl('Error, the file does not exist') . ' ' . $Authority_crt . '<br>';
+        $error_msg .= xl('Error, the file does not exist') . ' ' . $Authority_crt . '<br />';
     }
 
     if ($error_msg != "") {
@@ -593,7 +593,7 @@ if ($_POST["mode"] == "create_client_certificate") {
   </head>
   <body class="body_top">
   <span class='title'><b><?php echo xlt('SSL Certificate Administration'); ?></b></span>
-  </br> </br>
+  <br /> <br />
     <?php if ($_SESSION["zip_error"]) { ?>
   <div>  <table align="center" >
   <tr valign="top"> <td rowspan="3"> <?php echo "<font class='redtext'>" . xlt($_SESSION["zip_error"]) ?> </td> </tr>
@@ -603,7 +603,7 @@ if ($_POST["mode"] == "create_client_certificate") {
   <span class='text'>
         <?php
         if ($error_msg != "") {
-            echo "<font class='redtext'>" . text($error_msg) . "</font><br><br>";
+            echo "<font class='redtext'>" . text($error_msg) . "</font><br /><br />";
         }
         ?>
         <?php echo xlt('To setup https access with client certificate authentication, do the following'); ?>
@@ -614,7 +614,7 @@ if ($_POST["mode"] == "create_client_certificate") {
     <li><?php echo xlt('Import certificate to the browser.'); ?>
     <li><?php echo xlt('Create a Client side SSL certificate for each user or client machine.'); ?>
   </ul>
-  <br>
+  <br />
         <?php
         if ($GLOBALS['certificate_authority_crt'] != "" && $GLOBALS['is_client_ssl_enabled']) {
             echo xlt('OpenEMR already has a Certificate Authority configured.');
@@ -624,13 +624,13 @@ if ($_POST["mode"] == "create_client_certificate") {
   <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
   <input type='hidden' name='mode' value='download_certificates'>
   <div class='borderbox'>
-    <b><?php echo xlt('Create the SSL Certificate Authority and Server certificates.'); ?></b><br>
-    <br>
-    1. <?php echo xlt('Fill in the values below'); ?><br>
-    2. <?php echo xlt('Click Download Certificate to download the certificates in the file ssl.zip'); ?> <br>
+    <b><?php echo xlt('Create the SSL Certificate Authority and Server certificates.'); ?></b><br />
+    <br />
+    1. <?php echo xlt('Fill in the values below'); ?><br />
+    2. <?php echo xlt('Click Download Certificate to download the certificates in the file ssl.zip'); ?> <br />
     3. <?php echo xlt('Extract the zip file');
-    echo ": ssl.zip "; ?><br></br>
-        <?php echo xlt('The zip file will contain the following items'); ?> <br>
+    echo ": ssl.zip "; ?><br /><br />
+        <?php echo xlt('The zip file will contain the following items'); ?> <br />
     <ul>
       <li>Server.crt : <?php echo xlt('The Apache SSL server certificate and public key'); ?>
       <li>Server.key : <?php echo xlt('The corresponding private key'); ?>
@@ -697,39 +697,39 @@ if ($_POST["mode"] == "create_client_certificate") {
     </table>
   </div>
   </form>
-  <br>
+  <br />
 
   <div class="borderbox">
-    <b><?php echo xlt('Configure Apache to use HTTPS.'); ?></b><br>
-    <br>
-        <?php echo xlt('Add new certificates to the Apache configuration file'); ?>:<br>
-    <br>
-    SSLEngine on<br>
-    SSLCertificateFile   /path/to/Server.crt<br>
-    SSLCertificateKeyFile /path/to/Server.key<br>
-    SSLCACertificateFile /path/to/CertificateAuthority.crt<br>
-    <br>
+    <b><?php echo xlt('Configure Apache to use HTTPS.'); ?></b><br />
+    <br />
+        <?php echo xlt('Add new certificates to the Apache configuration file'); ?>:<br />
+    <br />
+    SSLEngine on<br />
+    SSLCertificateFile   /path/to/Server.crt<br />
+    SSLCertificateKeyFile /path/to/Server.key<br />
+    SSLCACertificateFile /path/to/CertificateAuthority.crt<br />
+    <br />
         <?php echo xlt('Note'); ?>:
     <ul>
-      <li><?php echo xlt('To Enable only HTTPS, perform the above changes and restart Apache server. If you want to configure client side certificates also, please configure them in the next section.'); ?></br>
+      <li><?php echo xlt('To Enable only HTTPS, perform the above changes and restart Apache server. If you want to configure client side certificates also, please configure them in the next section.'); ?><br />
     <li> <?php echo xlt('To Disable HTTPS, comment the above lines in Apache configuration file and restart Apache server.'); ?>
     <ul/>
   </div>
 
-  <br>
+  <br />
   <div class="borderbox">
     <form name='ssl_frm' method='post'>
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <b><?php echo xlt('Configure Apache to use Client side SSL certificates'); ?> </b>
-    <br></br>
-        <?php echo xlt('Add following lines to the Apache configuration file'); ?>:<br>
-    </br>
-    SSLVerifyClient require<br>
-    SSLVerifyDepth 2<br>
-    SSLOptions +StdEnvVars<br>
-    <!--/br> <b><?php echo xlt('Configure Openemr to use Client side SSL certificates'); ?> </b></br>
+    <br /><br />
+        <?php echo xlt('Add following lines to the Apache configuration file'); ?>:<br />
+    <br />
+    SSLVerifyClient require<br />
+    SSLVerifyDepth 2<br />
+    SSLOptions +StdEnvVars<br />
+    <!--/br> <b><?php echo xlt('Configure Openemr to use Client side SSL certificates'); ?> </b><br />
     <input type='hidden' name='clientCertValidity_hidden' value=''>
-      <input type='hidden' name='mode' value='save_ssl_settings'></br>
+      <input type='hidden' name='mode' value='save_ssl_settings'><br />
       <table cellpadding=0 cellspacing=0>
         <tr class='text'>
           <td><?php echo xlt('Enable User Certificate Authentication'); ?>:</td>
@@ -755,37 +755,37 @@ if ($_POST["mode"] == "create_client_certificate") {
           </td>
         </tr>
       </table>
-      </br>
+      <br />
       <input type='submit' value='<?php echo xla('Save Certificate Settings'); ?>' onclick='return save_click();'-->
-    </br> <b><?php echo xlt('Configure Openemr to use Client side SSL certificates'); ?> </b></br>
+    <br /> <b><?php echo xlt('Configure Openemr to use Client side SSL certificates'); ?> </b><br />
       <input type='hidden' name='clientCertValidity_hidden' value=''>
-      </br>
+      <br />
 
-            <?php echo xlt('Update the following variables in file'); ?>: globals.php</br></br>
-        <?php echo xlt('To enable Client side ssl certificates'); ?></br>
-        <?php echo xlt('Set'); ?> 'is_client_ssl_enabled' <?php echo xlt('to{{Destination}}'); ?> 'true' </br></br>
-        <?php echo xlt('Provide absolute path of file'); ?> CertificateAuthority.key</br>
-        <?php echo xlt('Set'); ?> 'certificate_authority_key' <?php echo xlt('to absolute path of file'); ?> 'CertificateAuthority.key'</br></br>
-        <?php echo xlt('Provide absolute path of file'); ?> CertificateAuthority.crt</br>
-            <?php echo xlt('Set'); ?> 'certificate_authority_crt' <?php echo xlt('to absolute path of file'); ?> 'CertificateAuthority.crt'</br>
-     <br>
-    </br><?php echo xlt('Note'); ?>:
+            <?php echo xlt('Update the following variables in file'); ?>: globals.php<br /><br />
+        <?php echo xlt('To enable Client side ssl certificates'); ?><br />
+        <?php echo xlt('Set'); ?> 'is_client_ssl_enabled' <?php echo xlt('to{{Destination}}'); ?> 'true' <br /><br />
+        <?php echo xlt('Provide absolute path of file'); ?> CertificateAuthority.key<br />
+        <?php echo xlt('Set'); ?> 'certificate_authority_key' <?php echo xlt('to absolute path of file'); ?> 'CertificateAuthority.key'<br /><br />
+        <?php echo xlt('Provide absolute path of file'); ?> CertificateAuthority.crt<br />
+            <?php echo xlt('Set'); ?> 'certificate_authority_crt' <?php echo xlt('to absolute path of file'); ?> 'CertificateAuthority.crt'<br />
+     <br />
+    <br /><?php echo xlt('Note'); ?>:
     <ul>
       <li><?php echo xlt('To Enable Client side SSL certificates authentication, HTTPS should be enabled.'); ?>
       <li><?php echo xlt('After performing above configurations, import the admin client certificate to the browser and restart Apache server (empty password).'); ?>
       <li><?php echo xlt('To Disable client side SSL certificates, comment above lines in Apache configuration file and set'); ?> 'false' <?php echo xlt('for variable'); ?> 'is_client_ssl_enabled' (globals.php) <?php echo xlt('and restart Apache server.'); ?>
     </form>
   </div>
-  <br>
+  <br />
   <div class="borderbox">
-    <b><?php echo xlt('Create Client side SSL certificates'); ?></b><br>
-    <br>
+    <b><?php echo xlt('Create Client side SSL certificates'); ?></b><br />
+    <br />
         <?php echo xlt('Create a client side SSL certificate for either a user or a client hostname.'); ?>
-    <br>
+    <br />
         <?php
         if (!$GLOBALS['is_client_ssl_enabled'] ||
            $GLOBALS['certificate_authority_crt'] == "") {
-            echo "<font class='redtext'>" . xlt('OpenEMR must be configured to use certificates before it can create client certificates.') . "</font><br>";
+            echo "<font class='redtext'>" . xlt('OpenEMR must be configured to use certificates before it can create client certificates.') . "</font><br />";
         }
         ?>
     <form name='client_cert_frm' method='post' action='ssl_certificates_admin.php'>
@@ -801,12 +801,12 @@ if ($_POST["mode"] == "create_client_certificate") {
           <td><input type='text' name='client_cert_email' size=20 />
         </tr>
       </table>
-      </br> <input type='submit' onclick='return create_client_certificate_click();' value='<?php echo xla('Create Client Certificate'); ?>'>
+      <br /> <input type='submit' onclick='return create_client_certificate_click();' value='<?php echo xla('Create Client Certificate'); ?>'>
     </form>
   </div>
-  <br>
-  <br>&nbsp;
-  <br>&nbsp;
+  <br />
+  <br />&nbsp;
+  <br />&nbsp;
   </span>
     <?php } ?>
   </body>

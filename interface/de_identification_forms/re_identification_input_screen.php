@@ -76,11 +76,11 @@ function download_file()
     <tr valign="top">
         <td>&nbsp;</td>
         <td rowspan="3">
-        <br>
+        <br />
         <?php echo xlt('Please upgrade OpenEMR Database to include De Identification procedures, function, tables'); ?>
-       </br></br><a  target="Blank" href="../../contrib/util/de_identification_upgrade.php"><?php echo xlt('Click here');?></a>
+       <br /><br /><a  target="Blank" href="../../contrib/util/de_identification_upgrade.php"><?php echo xlt('Click here');?></a>
         <?php echo xlt('to run');
-        echo " de_identification_upgrade.php</br>";?><br>
+        echo " de_identification_upgrade.php<br />";?><br />
            </td>
            <td>&nbsp;</td>
        </tr>
@@ -122,11 +122,11 @@ function download_file()
         <table class="de_identification_status_message" align="center">
         <tr valign="top">
             <td>&nbsp;</td>
-            <td rowspan="3"><br>
+            <td rowspan="3"><br />
                 <?php echo xlt('Re Identification Process is ongoing');
-                echo "</br></br>";
+                echo "<br /><br />";
                 echo xlt('Please visit Re Identification screen after some time');
-                echo "</br>";   ?> <br>
+                echo "<br />";   ?> <br />
             </td>
             <td>&nbsp;</td>
         </tr>
@@ -143,12 +143,12 @@ function download_file()
         } else if ($reIdentificationStatus == 0) {
            //0 - There is no Re Identification in progress. (start new Re Identification process)
             ?>
-        <center></br>
-        </br>
+        <center><br />
+        <br />
                 <?php echo xlt('Enter the Re Identification code'); ?> <input
         type='text' size='50' name='re_id_code' id='re_id_code'
-           title='<?php echo xla('Enter the Re Identification code'); ?>' /> </br>
-        </br>
+           title='<?php echo xla('Enter the Re Identification code'); ?>' /> <br />
+        <br />
            <Input type="Submit" Name="Submit" Value=<?php echo xla("submit");?>></center>
             <?php
         } else if ($reIdentificationStatus == 2) {
@@ -177,11 +177,11 @@ function download_file()
          <table class="de_identification_status_message" align="center">
          <tr valign="top">
              <td>&nbsp;</td>
-             <td rowspan="3"><br>
+             <td rowspan="3"><br />
                 <?php echo xlt('No Patient record found for the given Re Identification code');
-                echo "</br></br>";
+                echo "<br /><br />";
                 echo xlt('Please enter the correct Re Identification code');
-                echo "</br>";   ?> </br>
+                echo "<br />";   ?> <br />
              </td>
              <td>&nbsp;</td>
          </tr>
@@ -217,11 +217,11 @@ function download_file()
          <table class="de_identification_status_message"" align="center">
          <tr valign="top">
              <td>&nbsp;</td>
-             <td rowspan="3"><br>
+             <td rowspan="3"><br />
                 <?php echo xlt('Re Identification Process is completed');
-                echo "</br></br>";
+                echo "<br /><br />";
                 echo xlt('Please Click download button to download the Re Identified data');
-                echo "</br>";   ?> <br>
+                echo "<br />";   ?> <br />
              </td>
              <td>&nbsp;</td>
          </tr>

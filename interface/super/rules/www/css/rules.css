@@ -15,20 +15,22 @@ root {
     min-width: 524px;
     width: 100%;
 }
+
 .rule_row {
     padding-bottom: 2px;
     margin-left: 15px;
 }
+
 .rule_row span {
     display: block;
-    float:left;
+    float: left;
 }
 
 .rule_row .rule_title {
     display: inline-block;
 }
 
-.rule_title{
+.rule_title {
     width: 380px;
 }
 
@@ -75,7 +77,8 @@ root {
     border: 1px dotted;
 }
 
-.rule_detail .header, .rule_detail .ruletitle {
+.rule_detail .header,
+.rule_detail .ruletitle {
     font-size: 18px;
 }
 
@@ -84,30 +87,28 @@ root {
 }
 
 .left_col {
-    display:block;
+    display: block;
     float: left;
     width: 100px;
 }
 
 .mid_col {
     float: left;
-    display:block;
+    display: block;
     width: 33%;
 }
 
 .end_col {
-    display:block;
+    display: block;
 }
 
 .rule_detail p {
     margin-bottom: -10px;
 }
 
-.rule_detail table {
-}
+.rule_detail table {}
 
-.colhead {
-}
+.colhead {}
 
 .action_link {
     font-size: small;
@@ -118,8 +119,8 @@ root {
 */
 
 .rule_detail input[type='text'] {
-    width:350px;
-    margin-top:-1px;
+    width: 350px;
+    margin-top: -1px;
 }
 
 .rule_detail.edit.summry .left_col {
@@ -130,14 +131,14 @@ root {
 }
 
 #required_msg {
-    margin-top:30px;
+    margin-top: 30px;
     width: 80%;
     border-top: 1px solid;
-    display:none;
+    display: none;
 }
 
 .rule_detail.edit p.header {
-    margin-bottom:5px;
+    margin-bottom: 5px;
 }
 
 .field_err_marker {
@@ -149,12 +150,12 @@ root {
 }
 
 .intervals .mid_col {
-    width:100px;
+    width: 100px;
 }
 
 .intervals input[type='text'] {
-    width:90px;
-    margin-top:-1px;
+    width: 90px;
+    margin-top: -1px;
 }
 
 input[type='text'].short {

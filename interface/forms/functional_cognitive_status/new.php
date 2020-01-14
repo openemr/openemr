@@ -175,7 +175,7 @@ $check_res = $formid ? $check_res : array();
                                         </div>
                                         <div class="forms col-2">
                                             <label for="activity_1" class="h5"><?php echo xlt('Active'); ?>:&nbsp;</label>
-                                            <br>
+                                            <br />
                                             <input type="checkbox" name="activity[]" onclick="checkVal(this.id);" id="activity_<?php echo $key + 1; ?>" value="<?php echo attr($obj["activity"]); ?>" <?php echo ($obj["activity"] == 1) ? "checked='checked'" : ""; ?> class="activity">
                                             <input  type="hidden" name="activity1[]" id="activity1_<?php echo $key + 1; ?>" value="<?php echo attr($obj["activity"]); ?>" class="activity1">
                                         </div>
@@ -208,7 +208,7 @@ $check_res = $formid ? $check_res : array();
                                 </div>
                                 <div class="forms col-1">
                                     <label for="activity_1" class="h5"><?php echo xlt('Active'); ?>:&nbsp;</label>
-                                    <br>
+                                    <br />
                                     <input type="checkbox" name="activity[]" onclick="checkVal(this.id);" id="activity_1" value="0" class="activity">
                                     <input type="hidden" name="activity1[]" id="activity1_1" value="0" class="activity1">
                                 </div>

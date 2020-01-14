@@ -38,7 +38,7 @@ formHeader("Pediatric Pain Evaluation");
 
 
 
-<br>
+<br />
 
 <form method='post' action="<?php echo $rootdir;?>/forms/ped_pain/save.php?mode=new" name='ped_pain' >
 
@@ -62,7 +62,7 @@ formHeader("Pediatric Pain Evaluation");
 
 <a href="javascript:top.restoreSession();document.ped_pain.submit();" class="link_submit">[Save]</a>
 
-<br>
+<br />
 
 
 

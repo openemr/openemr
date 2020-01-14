@@ -71,7 +71,7 @@ use OpenEMR\Core\Header;
     </table>
 </div>  <!-- end of search parameters -->
 
-<br>
+<br />
 
 
 

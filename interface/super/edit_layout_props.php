@@ -221,15 +221,14 @@ if ($layout_id) {
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <center>
 
-<table border='0' width='100%'>
+<table class='w-100 border-0'>
 <?php if (empty($layout_id)) { ?>
  <tr>
   <td valign='top' width='1%' nowrap>
     <?php echo xlt('Layout ID'); ?>
   </td>
   <td>
-   <input type='text' size='31' maxlength='31' name='form_form_id'
-    value='' /><br />
+   <input type='text' class='form-control' size='31' maxlength='31' name='form_form_id' value='' /><br />
     <?php echo xlt('Visit form ID must start with LBF. Transaction form ID must start with LBT.') ?>
   </td>
  </tr>
@@ -241,8 +240,7 @@ if ($layout_id) {
     <?php echo xlt('Title'); ?>
   </td>
   <td>
-   <input type='text' size='40' name='form_title' style='width:100%'
-    value='<?php echo attr($row['grp_title']); ?>' />
+   <input type='text' class='form-control' size='40' name='form_title' value='<?php echo attr($row['grp_title']); ?>' />
   </td>
  </tr>
 <?php } ?>
@@ -252,8 +250,7 @@ if ($layout_id) {
     <?php echo xlt('Subtitle'); ?>
   </td>
   <td>
-   <input type='text' size='40' name='form_subtitle' style='width:100%'
-    value='<?php echo attr($row['grp_subtitle']); ?>' />
+   <input type='text' class='form-control' size='40' name='form_subtitle' value='<?php echo attr($row['grp_subtitle']); ?>' />
   </td>
  </tr>
 
@@ -263,8 +260,7 @@ if ($layout_id) {
     <?php echo xlt('Category'); ?>
   </td>
   <td>
-   <input type='text' size='40' name='form_mapping' style='width:100%'
-    value='<?php echo attr($row['grp_mapping']); ?>' />
+   <input type='text' class='form-control' size='40' name='form_mapping' value='<?php echo attr($row['grp_mapping']); ?>' />
   </td>
  </tr>
 
@@ -282,8 +278,7 @@ if ($layout_id) {
     <?php echo xlt('Sequence'); ?>
   </td>
   <td>
-   <input type='text' size='4' name='form_seq'
-    value='<?php echo attr($row['grp_seq']); ?>' />
+   <input type='text' class='form-control' size='4' name='form_seq' value='<?php echo attr($row['grp_seq']); ?>' />
   </td>
  </tr>
 
@@ -292,7 +287,7 @@ if ($layout_id) {
     <?php echo xlt('Repeats'); ?>
   </td>
   <td>
-   <input type='text' size='4' name='form_repeats'
+   <input type='text' class='form-control' size='4' name='form_repeats'
     value='<?php echo attr($row['grp_repeats']); ?>' />
   </td>
  </tr>
@@ -304,7 +299,7 @@ if ($layout_id) {
     <?php echo xlt('Layout Columns'); ?>
   </td>
   <td>
-   <select name='form_columns'>
+   <select name='form_columns' class='form-control'>
 <?php
   echo "<option value='0'>" . xlt('Default') . "</option>\n";
 for ($cols = 2; $cols <= 10; ++$cols) {
@@ -325,7 +320,7 @@ for ($cols = 2; $cols <= 10; ++$cols) {
     <?php echo xlt('Font Size'); ?>
   </td>
   <td>
-   <select name='form_size'>
+   <select name='form_size' class='form-control'>
     <?php
     echo "<option value='0'>" . xlt('Default') . "</option>\n";
     for ($size = 5; $size <= 15; ++$size) {
@@ -345,7 +340,7 @@ for ($cols = 2; $cols <= 10; ++$cols) {
     <?php echo xlt('Issue Type'); ?>
   </td>
   <td>
-   <select name='form_issue'>
+   <select name='form_issue' class='form-control'>
     <option value=''></option>
     <?php
     $itres = sqlStatement(
@@ -370,7 +365,7 @@ for ($cols = 2; $cols <= 10; ++$cols) {
     <?php echo xlt('Access Control'); ?>
   </td>
   <td>
-   <select name='form_aco' style='width:100%'>
+   <select name='form_aco' class='form-control'>
     <option value=''></option>
     <?php
     $gacl = new gacl_api();
@@ -408,8 +403,7 @@ for ($cols = 2; $cols <= 10; ++$cols) {
     <?php echo xlt('Show Services Section'); ?>
   </td>
   <td>
-   <input type='text' size='40' name='form_services_codes' onclick='sel_related(this, "MA")' style='width:100%'
-    value='<?php echo ($row['grp_services'] != '*') ? attr($row['grp_services']) : ""; ?>' />
+   <input type='text' class='form-control' size='40' name='form_services_codes' onclick='sel_related(this, "MA")' value='<?php echo ($row['grp_services'] != '*') ? attr($row['grp_services']) : ""; ?>' />
   </td>
  </tr>
 
@@ -419,8 +413,7 @@ for ($cols = 2; $cols <= 10; ++$cols) {
     <?php echo xlt('Show Products Section'); ?>
   </td>
   <td>
-   <input type='text' size='40' name='form_products_codes' onclick='sel_related(this, "PROD")' style='width:100%'
-    value='<?php echo ($row['grp_products'] != '*') ? attr($row['grp_products']) : ""; ?>' />
+   <input type='text' class='form-control' size='40' name='form_products_codes' onclick='sel_related(this, "PROD")' value='<?php echo ($row['grp_products'] != '*') ? attr($row['grp_products']) : ""; ?>' />
   </td>
  </tr>
 
@@ -430,8 +423,7 @@ for ($cols = 2; $cols <= 10; ++$cols) {
     <?php echo xlt('Show Diagnoses Section'); ?>
   </td>
   <td>
-   <input type='text' size='40' name='form_diags_codes' onclick='sel_related(this, "ICD10")' style='width:100%'
-    value='<?php echo ($row['grp_diags'] != '*') ? attr($row['grp_diags']) : ""; ?>' />
+   <input type='text' class='form-control' size='40' name='form_diags_codes' onclick='sel_related(this, "ICD10")' value='<?php echo ($row['grp_diags'] != '*') ? attr($row['grp_diags']) : ""; ?>' />
   </td>
  </tr>
 
@@ -439,16 +431,11 @@ for ($cols = 2; $cols <= 10; ++$cols) {
 
 </table>
 
-<p>
-<input type='submit' name='form_submit' value='<?php echo xla('Submit'); ?>' />
-
-&nbsp;
-<input type='button' value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
-</p>
-
+<input type='submit' class='btn btn-primary' name='form_submit' value='<?php echo xla('Submit'); ?>' />
+<input type='button' class='btn btn-secondary' value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
 </center>
 </form>
-<script language='JavaScript'>
+<script>
 <?php
 if ($alertmsg) {
     echo " alert(" . js_escape($alertmsg) . ");\n";

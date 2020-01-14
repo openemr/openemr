@@ -3,98 +3,113 @@
  *
  * @package MedEx
  * @author MedEx <support@MedExBank.com>
+ * @author Tyler Wrenn <tyler@tylerwrenn.com>
  * @link http://www.MedExBank.com
  * @copyright Copyright (c) 2018 MedEx <support@MedExBank.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-.little_image { width:20px; }
-.navbar { height: 22px; z-index:1100;}
-.navbar-fixed-top {
-    background-color: #C9DBF2;
-padding: 0px;
-border-bottom: 0.1pt solid #7b777760;
--moz-box-shadow: 0 0 10px #000;
--webkit-box-shadow: 0 0 10px #000;
-box-shadow: 0 0 10px #7b777760;
-z-index: 1000;
+/*
+*   TODO: Deprecate most of this
+*/
+
+
+.little_image {
+    width: 20px !important;
+}
+
+.navbar {
+    height: 22px !important;
+    z-index: 1100 !important;
+}
+
+.fixed-top {
+    background-color: var(--gray400) !important;
+    padding: 0px !important;
+    border-bottom: 0.1px solid var(--gray) !important;
+    -moz-box-shadow: 0 0 10px var(--black) !important;
+    -webkit-box-shadow: 0 0 10px var(--black) !important;
+    box-shadow: 0 0 10px var(--gray) !important;
+    z-index: 1000 !important;
 }
 
 .navbar-custom {
-    padding:0px;
-    color:black;
+    padding: 0px !important;
+    color: var(--black) !important;
 }
 
-.navbar-nav > li > a {
-    color:black; /* just changes the base font color */
-    padding-top:6px;
-    padding-left:10px;
-    padding-right: 20px;
-    padding-bottom: 5px;
+.navbar-nav > .nav-item > a {
+    color: var(--black) !important;
+    /* just changes the base font color */
+    padding-top: 6px !important;
+    padding-left: 10px !important;
+    padding-right: 20px !important;
+    padding-bottom: 5px !important;
 }
+
 .navbar-nav > li .open > a {
-    color: #fff !important;
-    background-color: #1C5ECF !important;
+    color: var(--white) !important;
+    background-color: var(--primary) !important;
 }
-.nav .navbar-right:last-child > li{
-    margin-right:20px;
-    margin-left:20px;
+
+.nav .navbar-right:last-child > li {
+    margin-right: 20px !important;
+    margin-left: 20px !important;
 }
-.nav > li > a:focus, .nav > li:focus {
-    text-decoration: none;
-    background-color: #1C5ECF; /* this is the "hover" blue */
-    color:#fff; /*#33aa33; <--- this is kelly green */
+
+.nav > li > a:focus,
+.nav > li:focus {
+    text-decoration: none !important;
+    background-color: var(--primary) !important;
+    /* this is the "hover" blue */
+    color: var(--white) !important;
 }
-.nav > .active > a, .navbar-nav > .open > a {
-    color: white  !important;
-    background-color:#1C5ECF  !important; /* Mac Menu title bar background color */
+
+.nav > .active > a,
+.navbar-nav > .open > a {
+    color: var(--white) !important;
+    background-color: var(--primary) !important;
+    /* Mac Menu title bar background color */
 }
 
 .dropdown-menu {
-    background-color:#dee9f7; /* Mac Menu dropdown bar background color */
+    background-color: var(--gray300) !important;
+    /* Mac Menu dropdown bar background color */
 }
 
-.dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
-    color: #fff; /*#262626;*/
-    text-decoration: none;
-    background-color: #1C5ECF; /*#3E76C2;*/
-    text-shadow: none;
+.dropdown-menu > li > a:hover,
+.dropdown-menu > li > a:focus {
+    color: var(--white) !important;
+    text-decoration: none !important;
+    background-color: var(--primary) !important;
+    text-shadow: none !important;
 }
+
 .navbar-brand {
-    color:black;
-    height:24px;
-    padding:10 5 0 10;
-    margin: 10px 0px 2px 0px;
+    color: var(--black) !important;
+    height: 24px !important;
+    padding: 10 5 0 10 !important;
+    margin: 10px 0px 2px 0px !important;
 }
 
 li.open > a:first {
-    color:#fff  !important;
-}
-.navbar-nav > li > .dropdown .open {
-    margin-top: 1px;
-    background-color:red;
-}
-.dropdown-menu .divider {
-    height: 1px;
-    margin: 9px 0px;
-    Xoverflow: hidden;
-    background-color: #C0C0C0; /*gba(131, 135, 146, 0.61);*/
-}
-.navbar-toggle {
-    /* this is the responsive view shown when the screen is very narrow
-    background-color:yellow;
-    height:24px;
-    */
-}
-a:hover, a:focus {
-    text-decoration:none;
+    color: var(--white) !important;
 }
 
-.Xnavbar-nav > li > a:hover {
-	color: #ffffff;
+.dropdown-menu .dropdown-divider {
+    height: 1px !important;
+    margin: 9px 0px !important;
+    overflow: hidden !important;
+    background-color: var(--gray400) !important;
 }
+
+.navbar-nav > li > a:hover {
+    color: var(--white) !important;
+}
+
 .dropdown {
-	margin-bottom: 0px;
-	padding: 1px;
-    list-style:none;
+    margin-bottom: 0px !important;
+    padding: 1px !important;
+    list-style: none !important;
 }

@@ -73,10 +73,10 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
     foreach ($actions as $action) {
         // Deal with plan names first
         if (isset($action['is_plan']) && $action['is_plan']) {
-            echo "<br><b>";
+            echo "<br /><b>";
             echo xlt("Plan") . ": ";
             echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'), $action['id']);
-            echo "</b><br>";
+            echo "</b><br />";
             continue;
         }
 
@@ -163,9 +163,9 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 
         // Display the tooltip
         if (!empty($tooltip)) {
-            echo "&nbsp;".$tooltip."<br>";
+            echo "&nbsp;".$tooltip."<br />";
         } else {
-            echo "<br>";
+            echo "<br />";
         }
 
         // Add the target(and rule id and room for future elements as needed) to the $current_targets array.
@@ -232,10 +232,10 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
     foreach ($actions as $action) {
         // Deal with plan names first
         if ($action['is_plan']) {
-            $returnOutput .= "<br><b>";
+            $returnOutput .= "<br /><b>";
             $returnOutput .= xlt("Plan") . ": ";
             $returnOutput .= generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'), $action['id']);
-            $returnOutput .= "</b><br>";
+            $returnOutput .= "</b><br />";
             continue;
         }
 
@@ -256,9 +256,9 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
                 $returnOutput .= "&nbsp;&nbsp;(<span>";
             }
 
-            $returnOutput .= generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $action['due_status']) . "</span>)<br>";
+            $returnOutput .= generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $action['due_status']) . "</span>)<br />";
         } else {
-            $returnOutput .= "<br>";
+            $returnOutput .= "<br />";
         }
 
         // Add the target(and rule id and room for future elements as needed) to the $current_targets array.
@@ -274,13 +274,13 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
     if (($mode == "reminders-due") && ($test === false) && ($GLOBALS['enable_alert_log'])) {
         $new_targets = compare_log_alerts($patient_id, $current_targets, 'active_reminder_popup', $_SESSION['authUserID']);
         if (!empty($new_targets)) {
-            $returnOutput .="<br>" . xlt('New Items (see above for details)') . ":<br>";
+            $returnOutput .="<br />" . xlt('New Items (see above for details)') . ":<br />";
             foreach ($new_targets as $key => $value) {
                 $category_item = explode(":", $key);
                 $category = $category_item[0];
                 $item = $category_item[1];
                 $returnOutput .= generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
-                   ': ' . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $item). '<br>';
+                   ': ' . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $item). '<br />';
             }
         }
     }

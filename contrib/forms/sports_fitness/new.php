@@ -184,7 +184,7 @@ if ($formid) {
  </tr>
 
  <tr>
-  <td>Body<br>Composition</td>
+  <td>Body<br />Composition</td>
   <td nowrap>
    <table width='100%'>
     <tr>

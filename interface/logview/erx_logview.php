@@ -90,7 +90,7 @@ if ($filename) {
         <form method="post">
         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-        <font class="title"><?php echo xlt('eRx Logs'); ?></font><br><br>
+        <font class="title"><?php echo xlt('eRx Logs'); ?></font><br /><br />
         <table>
             <tr>
                 <td>

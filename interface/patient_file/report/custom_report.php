@@ -149,17 +149,21 @@ function postToGet($arin)
       // encounter listings output, but not in the custom report. ?>
 <style>
   div.navigateLink {display:none;}
-  .hilite {background-color: #FFFF00;}
+  .hilite {background-color: var(--yellow);}
   .hilite2 {background-color: transparent;}
-  mark {background-color: #FFFF00;}
-  .css_button{cursor:pointer;}
-  .next {background-color: #FFFF00;}
+  mark {background-color: var(--yellow);}
+  .btn {
+      cursor:pointer;
+    }
+  .next {
+      background-color: var(--yellow);
+    }
   #search_options{
     position:fixed;
     left:0px;
     top:0px;
     z-index:10;
-    border-bottom: solid thin #6D6D6D;
+    border-bottom: solid thin var(--gray);
     padding:0% 2% 0% 2.5%;
   }
   img { max-width:700px; }
@@ -225,11 +229,11 @@ if ($printable) {
     }
     ?>
     <h2><?php echo text($facility['name']); ?></h2>
-    <?php echo text($facility['street']); ?><br>
+    <?php echo text($facility['street']); ?><br />
     <?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><br clear='all'>
-    <?php echo text($facility['phone']); ?><br>
+    <?php echo text($facility['phone']); ?><br />
 
-<a href="javascript:window.close();"><span class='title'><?php echo xlt('Patient') . ": " . text($titleres['fname']) . " " . text($titleres['lname']); ?></span></a><br>
+<a href="javascript:window.close();"><span class='title'><?php echo xlt('Patient') . ": " . text($titleres['fname']) . " " . text($titleres['lname']); ?></span></a><br />
 <span class='text'><?php echo xlt('Generated on'); ?>: <?php echo text(oeFormatShortDate()); ?></span>
     <?php echo "</td></tr></tbody></table></div>";?>
 
@@ -240,10 +244,10 @@ if ($printable) {
     <a href="patient_report.php" onclick='top.restoreSession()'>
  <span class='title'><?php echo xlt('Patient Report'); ?></span>
  <span class='back'><?php echo text($tback); ?></span>
-</a><br><br>
+</a><br /><br />
 <a href="custom_report.php?printable=1&<?php print postToGet($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
  [<?php echo xlt('Printable Version'); ?>]
-</a><br>
+</a><br />
 <div class="report_search_bar" style="width: 100%;" id="search_options">
   <table style="width: 100%;">
     <tr>
@@ -251,13 +255,13 @@ if ($printable) {
     <input type="text" onKeyUp="clear_last_visit();remove_mark_all();find_all();" name="search_element" id="search_element" style="width: 180px;"/>
   </td>
   <td>
-     <a class="css_button" onClick="clear_last_visit();remove_mark_all();find_all();" ><span><?php echo xlt('Find'); ?></span></a>
+     <a class="btn btn-secondary" onClick="clear_last_visit();remove_mark_all();find_all();" ><span><?php echo xlt('Find'); ?></span></a>
   </td>
   <td>
-     <a class="css_button" onClick="next_prev('prev');" ><span><?php echo xlt('Prev'); ?></span></a>
+     <a class="btn btn-secondary" onClick="next_prev('prev');" ><span><?php echo xlt('Prev'); ?></span></a>
   </td>
   <td>
-     <a class="css_button" onClick="next_prev('next');" ><span><?php echo xlt('Next'); ?></span></a>
+     <a class="btn btn-secondary" onClick="next_prev('next');" ><span><?php echo xlt('Next'); ?></span></a>
   </td>
   <td>
     <input type="checkbox" onClick="clear_last_visit();remove_mark_all();find_all();" name="search_case" id="search_case" />
@@ -267,7 +271,7 @@ if ($printable) {
   </td>
   <td style="padding-left: 10px;">
     <span class="text"><b><?php echo xlt('Search In'); ?>:</b></span>
-    <br>
+    <br />
     <?php
     $form_id_arr = array();
     $form_dir_arr = array();
@@ -349,7 +353,7 @@ foreach ($ar as $key => $val) {
                 echo "<div class='text' >";
                 echo "<span>" . xlt('None{{Appointment}}') . "</span>";
                 echo "</div>";
-                echo "<br>";
+                echo "<br />";
             } else {
                 foreach ($recurrences as $row) {
                     //checks if there are recurrences and if they are current (git didn't end yet)
@@ -359,9 +363,9 @@ foreach ($ar as $key => $val) {
 
                     echo "<div class='text' >";
                     echo "<span>" . xlt('Appointment Category') . ': ' . xlt($row['pc_catname']) . "</span>";
-                    echo "<br>";
+                    echo "<br />";
                     echo "<span>" . xlt('Recurrence') . ': ' .text($row['pc_recurrspec']) . "</span>";
-                    echo "<br>";
+                    echo "<br />";
                     $red_text = ""; //if ends in a week, make font red
                     if (ends_in_a_week($row['pc_endDate'])) {
                         $red_text = " style=\"color:red;\" ";
@@ -369,11 +373,11 @@ foreach ($ar as $key => $val) {
 
                     echo "<span" . $red_text . ">" . xlt('End Date') . ': ' . text($row['pc_endDate']) . "</span>";
                     echo "</div>";
-                    echo "<br>";
+                    echo "<br />";
                 }
             }
 
-            echo "</div><br>";
+            echo "</div><br />";
         } elseif ($val == "demographics") {
             echo "<hr />";
             echo "<div class='text demographics' id='DEM'>\n";
@@ -400,17 +404,17 @@ foreach ($ar as $key => $val) {
             echo "</div>";
 
             // } elseif ($val == "employer") {
-            //   print "<br><span class='bold'>".xl('Employer Data').":</span><br>";
+            //   print "<br /><span class='bold'>".xl('Employer Data').":</span><br />";
             //   printRecDataOne($employer_data_array, getRecEmployerData ($pid), $N);
         } elseif ($val == "insurance") {
             echo "<hr />";
             echo "<div class='text insurance'>";
             echo "<h1>".xlt('Insurance Data').":</h1>";
-            print "<br><span class=bold>".xlt('Primary Insurance Data').":</span><br>";
+            print "<br /><span class=bold>".xlt('Primary Insurance Data').":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
-            print "<span class=bold>".xlt('Secondary Insurance Data').":</span><br>";
+            print "<span class=bold>".xlt('Secondary Insurance Data').":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
-            print "<span class=bold>".xlt('Tertiary Insurance Data').":</span><br>";
+            print "<span class=bold>".xlt('Tertiary Insurance Data').":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
             echo "</div>";
         } elseif ($val == "billing") {
@@ -461,17 +465,17 @@ foreach ($ar as $key => $val) {
 
         } elseif ($val == "allergies") {
 
-            print "<span class=bold>Patient Allergies:</span><br>";
+            print "<span class=bold>Patient Allergies:</span><br />";
             printListData($pid, "allergy", "1");
 
         } elseif ($val == "medications") {
 
-            print "<span class=bold>Patient Medications:</span><br>";
+            print "<span class=bold>Patient Medications:</span><br />";
             printListData($pid, "medication", "1");
 
         } elseif ($val == "medical_problems") {
 
-            print "<span class=bold>Patient Medical Problems:</span><br>";
+            print "<span class=bold>Patient Medical Problems:</span><br />";
             printListData($pid, "medical_problem", "1");
 
     ****/
@@ -504,7 +508,7 @@ foreach ($ar as $key => $val) {
                          echo " - " . text($row['immunization_note']);
                     }
 
-                    echo "<br>\n";
+                    echo "<br />\n";
                 }
 
                 echo "</div>\n";
@@ -519,7 +523,7 @@ foreach ($ar as $key => $val) {
             // echo $sql;
             $result = sqlStatement($sql, array($pid));
             while ($row=sqlFetchArray($result)) {
-                echo text($row['batchcom_data']) . ", By: " . text($row['user_name']) . "<br>Text:<br> " . text($row['msg_txt']) . "<br>\n";
+                echo text($row['batchcom_data']) . ", By: " . text($row['user_name']) . "<br />Text:<br /> " . text($row['msg_txt']) . "<br />\n";
             }
 
             echo "</div>\n";
@@ -571,7 +575,7 @@ foreach ($ar as $key => $val) {
                     echo '<td>' . xlt('Date') . ': ' . text(oeFormatShortDate($note->get_date())) . '</td>';
                     echo '</tr>';
                     echo '<tr>';
-                    echo '<td>' . text($note->get_note()) . '<br><br></td>';
+                    echo '<td>' . text($note->get_note()) . '<br /><br /></td>';
                     echo '</tr>';
                 }
 
@@ -607,11 +611,11 @@ foreach ($ar as $key => $val) {
                             echo " class='bigimage'";
                         }
                         $tmp_files_remove[] = $from_file_tmp_web_name;
-                        echo " /><br><br>";
+                        echo " /><br /><br />";
                     } else {
                         echo "<img src='" . $GLOBALS['webroot'] .
                         "/controller.php?document&retrieve&patient_id=&document_id=" .
-                        attr_url($document_id) . "&as_file=false&original_file=true&disable_exit=false&show_original=true'><br><br>";
+                        attr_url($document_id) . "&as_file=false&original_file=true&disable_exit=false&show_original=true'><br /><br />";
                     }
                 } else {
                     // Most clinic documents are expected to be PDFs, and in that happy case
@@ -655,10 +659,10 @@ foreach ($ar as $key => $val) {
                             // tmp file in ../documents/temp since need to be available via webroot
                             $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'].'/documents/temp', "oer");
                             file_put_contents($from_file_tmp_web_name, $fileTemp);
-                            echo "<img src='$from_file_tmp_web_name'><br><br>";
+                            echo "<img src='$from_file_tmp_web_name'><br /><br />";
                             $tmp_files_remove[] = $from_file_tmp_web_name;
                         } else {
-                            echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br><br>";
+                            echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br /><br />";
                         }
                     }
                 } // end if-else
@@ -706,11 +710,11 @@ foreach ($ar as $key => $val) {
             // Show issue's chief diagnosis and its description:
             if ($diagnosis) {
                 echo "<div class='text issue_diag'>";
-                echo "<span class='bold'>[" . xlt('Diagnosis') . "]</span><br>";
+                echo "<span class='bold'>[" . xlt('Diagnosis') . "]</span><br />";
                 $dcodes = explode(";", $diagnosis);
                 foreach ($dcodes as $dcode) {
                     echo "<span class='italic'>" . text($dcode) . "</span>: ";
-                    echo text(lookup_code_descriptions($dcode)) . "<br>\n";
+                    echo text(lookup_code_descriptions($dcode)) . "<br />\n";
                 }
 
                 //echo $diagnosis." -- ".lookup_code_descriptions($diagnosis)."\n";
@@ -759,7 +763,7 @@ foreach ($ar as $key => $val) {
                     echo ' '. xlt('Provider') . ': ' . text(getProviderName(getProviderIdOfEncounter($form_encounter)));
                 }
 
-                echo "<br>\n";
+                echo "<br />\n";
 
                 // call the report function for the form
                 ?>
@@ -795,7 +799,7 @@ foreach ($ar as $key => $val) {
                     );
                     while ($brow=sqlFetchArray($bres)) {
                         echo "<div class='bold' style='display: inline-block'>&nbsp;" . xlt('Procedure') . ": </div><div class='text' style='display: inline-block'>" .
-                            text($brow['code']) . " " . text($brow['code_text']) . "</div><br>\n";
+                            text($brow['code']) . " " . text($brow['code_text']) . "</div><br />\n";
                     }
                 }
 

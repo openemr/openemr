@@ -72,32 +72,32 @@ $mailOrder = $tData->mailOrderPharmacy();
 </table>
 </div>
 <?php if (empty($drug)) {
-    echo "<br> <p class='text-danger'><strong> ".xlt("No prescriptions selected"). "</strong></p>";
+    echo "<br /> <p class='text-danger'><strong> ".xlt("No prescriptions selected"). "</strong></p>";
     exit;
 }
 ?>
 <div id="fields">
     <h3><?php echo xlt("Select Pharmacy"); ?></h3>
-    <?php echo xlt("Patient Default"); ?> <br>
+    <?php echo xlt("Patient Default"); ?> <br />
     <input type = 'radio' name = "pharmacy" id = 'patientPharmacy' value="<?php print attr($patientPharmacy['pharmacy_id']) ?>" checked="checked">
     <?php
     if (!$patientPharmacy['name']) {
-        print "<b>".xlt("Please set pharmacy in patient\'s chart!")."</b><br> <br>";
+        print "<b>".xlt("Please set pharmacy in patient\'s chart!")."</b><br /> <br />";
     } else {
         print text($patientPharmacy['name']);
     }
-    ?><br> <br>
+    ?><br /> <br />
 
-    <?php print xlt("Mail Order") ?> <br>
-    <input type = 'radio' name = 'pharmacy' id = 'mailOrder' value = "<?php print attr($mailOrder['id']) ?>"><?php print "CCS Medical 	14255 49th Street, North, Clearwater, FL 33762 <br>" ?>
+    <?php print xlt("Mail Order") ?> <br />
+    <input type = 'radio' name = 'pharmacy' id = 'mailOrder' value = "<?php print attr($mailOrder['id']) ?>"><?php print "CCS Medical 	14255 49th Street, North, Clearwater, FL 33762 <br />" ?>
 
     <div id="confirm" show>
-        <br><br>
+        <br /><br />
         <input type='submit' id='confirm_btn' value='<?php print xla("Approve Order"); ?>' >
     </div>
 
     <div id="transmit" hidden>
-        <br><br>
+        <br /><br />
         <input type='submit' id='order' value='<?php print xla("Transmit Order"); ?>' >
     </div>
     <div id="success"></div>
@@ -211,9 +211,9 @@ $mailOrder = $tData->mailOrderPharmacy();
     }); //end of doc ready
 
 </script>
-<br>
-<br>
-<br>
+<br />
+<br />
+<br />
 
 <footer>
     <p><?php print xlt("Open Med Practice and its suppliers use their commercially reasonable efforts to provide the most current and complete data available to them concerning prescription histories, drug interactions and formularies, patient allergies and other factors, but by your use of this service you acknowledge that (1) the completeness and accuracy of such data depends upon the completeness and accuracy with which it is entered into connected electronic databases by physicians, physician’s offices, pharmaceutical benefits managers, electronic medical records firms, and other network participants, (2) such data is subject to error or omission in input, storage or retrieval, transmission and display, technical disruption, power or service outages, or other interruptions in electronic communication, any or all of which may be beyond the control of Open Med Practice and its suppliers, and (3) some information may be unavailable due to regulatory, contractual, privacy or other legal restrictions. You are responsible to use your clinical judgment at all times in rendering medical service and advice."); ?></p>

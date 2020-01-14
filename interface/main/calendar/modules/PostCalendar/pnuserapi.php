@@ -974,7 +974,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
   //======================================================================
   //  END SEARCH FUNCTIONALITY
   //======================================================================
-  //echo "<br>sq: $sql<br />";
+  //echo "<br />sq: $sql<br />";
 
   // echo "<!-- " . $sql . " -->\n"; // debugging
 

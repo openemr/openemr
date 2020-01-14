@@ -343,7 +343,7 @@ while ($xrow = sqlFetchArray($xres)) {
 
 </table>
 
-<p>&nbsp;<br>
+<p>&nbsp;<br />
 <input type='button' value='<?php echo xla('Search'); ?>' class='search' onclick='dosearch()' />
 &nbsp;
 <input type='submit' value='<?php echo xla('Save as New'); ?>' name='form_save' onmousedown='save_clicked=true' />

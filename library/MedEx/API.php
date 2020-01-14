@@ -1515,39 +1515,31 @@ class Display extends base
                 echo 'down';
             } else {
                 echo 'up';
-            } ?> menu_arrow" style="position:fixed;left:5px;top:5px;z-index:1099;" id="patient_caret" onclick='toggle_menu();' aria-hidden="true"></i>
+            } ?> menu_arrow" style="position: fixed; left: 5px; top: 5px; z-index: 1099;" id="patient_caret" onclick='toggle_menu();' aria-hidden="true"></i>
             <div id="hide_nav" style="<?php if ($setting_bootstrap_submenu == 'hide') {
                 echo "display:none;"; } ?>">
-                <nav id="navbar_oe" class="bgcolor2 navbar-fixed-top navbar-custom navbar-bright navbar-inner" name="kiosk_hide"
-                    data-role="page banner navigation">
+                <nav id="navbar_oe" class="bgcolor2 fixed-top navbar-expand-md navbar-custom navbar-bright navbar-inner" name="kiosk_hide" data-role="page banner navigation">
                     <!-- Brand and toggle get grouped for better mobile display -->
                         <div class="container-fluid">
-                        <div class="navbar-header brand">
-                            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#oer-navbar-collapse-1">
-                                <span class="sr-only"><?php echo xlt("Toggle navigation"); ?></span>
-                                <span class="icon-bar"></span>
-                                <span class="icon-bar"></span>
-                                <span class="icon-bar"></span>
-                            </button>
-                        </div>
+                          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#oer-navbar-collapse-1" aria-controls="oer-navbar-collapse-1" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                         <div class="navbar-collapse collapse" id="oer-navbar-collapse-1">
                             <ul class="navbar-nav">
                                 <?php
                                 if ($GLOBALS['medex_enable'] == '1') {
                                     ?>
-                                    <li class="dropdown">
-                                        <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
-                                        <ul class="bgcolor2 dropdown-menu" role="menu">
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
+                                        <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_file">
                                             <?php
                                             if ($logged_in) {
                                                 ?>
-                                                <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class=""><a onclick="tabYourIt('prefs','main/messages/messages.php?go=Preferences');"><?php echo xlt("Preferences"); ?></a></li>
-                                                <li id="icons" name="icons"><a onclick="doRecallclick_edit('icons');"><?php echo xlt('Icon Legend'); ?></a></li>
+                                                <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class=""><a class="dropdown-item" onclick="tabYourIt('prefs','main/messages/messages.php?go=Preferences');"><?php echo xlt("Preferences"); ?></a></li>
+                                                <li id="icons" name="icons"><a class="dropdown-item" onclick="doRecallclick_edit('icons');"><?php echo xlt('Icon Legend'); ?></a></li>
                                                 <?php
                                             } else {
                                                 ?>
                                                 <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class="">
-                                                <a href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=setup&stage=1"><?php echo xlt("Setup MedEx"); ?></a></li>
+                                                <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=setup&stage=1"><?php echo xlt("Setup MedEx"); ?></a></li>
                                                 <?php
                                             }
                                             ?>
@@ -1557,39 +1549,40 @@ class Display extends base
                                 }
                                 ?>
 
-                                <li class="dropdown">
-                                <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_msg" role="button" aria-expanded="true"><?php echo xlt("Messages"); ?> </a>
-                                <ul class="bgcolor2 dropdown-menu" role="menu">
-                                    <li id="menu_new_msg"> <a href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?showall=no&sortby=users.lname&sortorder=asc&begin=0&task=addnew&form_active=1"> <?php echo xlt("New Message"); ?></a></li>
+                                <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_msg" role="button" aria-expanded="true"><?php echo xlt("Messages"); ?> </a>
+                                <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_msg">
+                                    <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?showall=no&sortby=users.lname&sortorder=asc&begin=0&task=addnew&form_active=1"> <?php echo xlt("New Message"); ?></a></li>
 
-                                    <li class="divider"><hr /></li>
+                                    <li class="dropdown-divider"></li>
 
-                                    <li id="menu_new_msg"> <a href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=no&form_active=1"> <?php echo xlt("My Messages"); ?></a></li>
-                                    <li id="menu_all_msg"> <a href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("All Messages"); ?></a></li>
+                                    <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=no&form_active=1"> <?php echo xlt("My Messages"); ?></a></li>
+                                    <li id="menu_all_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("All Messages"); ?></a></li>
 
-                                    <li class="divider"><hr /></li>
+                                    <li class="dropdown-divider"></li>
 
-                                    <li id="menu_active_msg"> <a href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("Active Messages"); ?></a></li>
-                                    <li id="menu_inactive_msg"> <a href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?form_inactive=1"> <?php echo xlt("Inactive Messages"); ?></a></li>
-                                    <li id="menu_log_msg"> <a onclick="openLogScreen();" > <?php echo xlt("Message Log"); ?></a></li>
+                                    <li id="menu_active_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("Active Messages"); ?></a></li>
+                                    <li id="menu_inactive_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?form_inactive=1"> <?php echo xlt("Inactive Messages"); ?></a></li>
+                                    <li id="menu_log_msg"> <a class="dropdown-item" onclick="openLogScreen();" > <?php echo xlt("Message Log"); ?></a></li>
                                 </ul>
                                 </li>
-                                <li class="dropdown" > <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Appt. Reminders"); ?> </a>
-                                <ul class="bgcolor2 dropdown-menu" role="menu">
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Appt. Reminders"); ?></a>
+                                <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_recalls">
                                     <?php
                                     if ($GLOBALS['disable_calendar'] != '1') {  ?>
-                                        <li><a id="BUTTON_ApRem_menu" onclick="tabYourIt('cal','main/main_info.php');"> <?php echo xlt("Calendar"); ?></a></li>
-                                        <li class="divider"><hr /></li>
+                                        <li><a class="dropdown-item" id="BUTTON_ApRem_menu" onclick="tabYourIt('cal','main/main_info.php');"> <?php echo xlt("Calendar"); ?></a></li>
+                                        <li class="dropdown-divider"></li>
                                         <?php
                                     }
                                     if ($GLOBALS['disable_pat_trkr'] != '1') {
                                         ?>
-                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> <a id="BUTTON_pend_recalls_menu" onclick="tabYourIt('flb','patient_tracker/patient_tracker.php?skip_timeout_reset=1');"> <?php echo xlt("Flow Board"); ?></a></li>
+                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> <a class="dropdown-item" id="BUTTON_pend_recalls_menu" onclick="tabYourIt('flb','patient_tracker/patient_tracker.php?skip_timeout_reset=1');"> <?php echo xlt("Flow Board"); ?></a></li>
                                         <?php }
                                     if ($logged_in) {
                                         ?>
-                                        <li class="divider"><hr /></li>
-                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns&g=rem' target="_medex" class='nowrap text-left' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Reminder Campaigns"); ?></a></li>
+                                        <li class="dropdown-divider"></li>
+                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns&g=rem' target="_medex" class='dropdown-item nowrap text-left' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Reminder Campaigns"); ?></a></li>
                                             <?php
                                     }
                                     ?>
@@ -1598,16 +1591,16 @@ class Display extends base
                                     <?php
 
                                     if ($GLOBALS['disable_rcb'] != '1') { ?>
-                                        <li class="dropdown">
-                                            <a class="dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Patient Recalls"); ?> </a>
-                                            <ul class="bgcolor2 dropdown-menu" role="menu">
-                                                <li id="menu_new_recall" name="menu_new_recall"> <a id="BUTTON_new_recall_menu" onclick="tabYourIt('rcb','main/messages/messages.php?go=addRecall');"> <?php echo xlt("New Recall"); ?></a></li>
-                                                <li id="menu_pend_recalls" name="menu_pend_recalls"> <a  onclick="goReminderRecall('Recalls');" id="BUTTON_pend_recalls_menu" href="#"> <?php echo xlt("Recall Board"); ?></a></li>
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Patient Recalls"); ?> </a>
+                                            <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_recalls">
+                                                <li id="menu_new_recall" name="menu_new_recall"> <a class="dropdown-item" id="BUTTON_new_recall_menu" onclick="tabYourIt('rcb','main/messages/messages.php?go=addRecall');"> <?php echo xlt("New Recall"); ?></a></li>
+                                                <li id="menu_pend_recalls" name="menu_pend_recalls"> <a class="dropdown-item" onclick="goReminderRecall('Recalls');" id="BUTTON_pend_recalls_menu" href="#"> <?php echo xlt("Recall Board"); ?></a></li>
                                             <?php
                                             if ($logged_in) {
                                                 ?>
-                                                <li class="divider"><hr /></li>
-                                                <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns&g=rec' target="_medex" class='nowrap text-left' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Recall Campaigns"); ?></a></li>
+                                                <li class="dropdown-divider"></li>
+                                                <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns&g=rec' target="_medex" class='dropdown-item nowrap text-left' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Recall Campaigns"); ?></a></li>
                                                 <?php
                                             }
                                             ?>
@@ -1634,7 +1627,7 @@ class Display extends base
                 $error=$this->MedEx->getLastError();
                 if (!empty($error['ip'])) {
                     ?>
-                    <div class="alert alert-danger" style="width:50%;margin:30px auto 5px;font-size:0.9em;text-align:center;">
+                    <div class="alert alert-danger text-center" style="width:50%; margin:30px auto 5px; font-size:0.9rem;">
                     <?php
                     echo $error['ip'];
                     ?>
@@ -1818,7 +1811,7 @@ class Display extends base
                                                     <?php
                                                     if ($service['product_id'] =='54') {
                                                         ?>
-                        <div style="margin-left:10px;">Appointment Reminders<br />Patient Recalls<br />SMS Bot<br />Go Green Messages</div>
+                        <div style="margin-left: 10px;">Appointment Reminders<br />Patient Recalls<br />SMS Bot<br />Go Green Messages</div>
                                                         <?php
                                                     }
                                                 } ?>
@@ -1831,7 +1824,7 @@ class Display extends base
                                     </div>
                                    <div class="col-sm-1"></div>
                                 </div>
-                                <div style="clear:both;text-align:center;" id="msg bottom"><br />
+                                <div class="clearfix text-center" id="msg bottom"><br />
                                 </div>
                         </form>
                     </div>
@@ -1896,7 +1889,7 @@ class Display extends base
                     <br />
                     <form name="rcb" id="rcb" method="post">
                         <input type="hidden" name="go" value="Recalls">
-                        <div class=" text-center row divTable" style="width: 85%;float:unset;margin: 0 auto;">
+                        <div class=" text-center row divTable" style="width: 85%; float:unset; margin: 0 auto;">
 
                                 <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
                                     <input placeholder="<?php echo xla('Patient ID'); ?>"
@@ -1986,8 +1979,8 @@ class Display extends base
 
                                           <tr>
                                             <td class="text-center" colspan="2">
-                                                <button class="btn btn-secondary btn-filter" style="float:none;" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>"><?php echo xlt('Filter'); ?></button>
-                                                <button class="btn btn-secondary btn-add" onclick="goReminderRecall('addRecall');return false;"><span><?php echo xlt('New Recall'); ?></span></>
+                                                <button class="btn btn-secondary btn-filter" style="float: none;" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>"><?php echo xlt('Filter'); ?></button>
+                                                <button class="btn btn-secondary btn-add" onclick="goReminderRecall('addRecall');return false;"><span><?php echo xlt('New Recall'); ?></span></button>
                                             </td>
                                           </tr>
                                         </table>
@@ -2041,8 +2034,7 @@ class Display extends base
                 <div class="col-sm-12 text-center">
                     <div class="showRecalls" id="show_recalls" style="margin:0 auto;">
                         <div name="message" id="message" class="warning"></div>
-                        <span class="text-right fa-stack fa-lg pull_right small" id="rcb_caret" onclick="toggleRcbSelectors();" data-toggle="tooltip" data-placement="auto" title="Show/Hide the Filters"
-                            style="color:<?php echo $color = ($setting_selectors=='none') ? 'red' : 'black'; ?>;position:relative;float:right;right:0;top:0;">
+                        <span class="text-right fa-stack fa-lg pull_right small" id="rcb_caret" onclick="toggleRcbSelectors();" data-toggle="tooltip" data-placement="auto" title="Show/Hide the Filters" style="color:<?php echo $color = ($setting_selectors=='none') ? 'var(--danger)' : 'var(--black)'; ?>;position:relative;float:right;right:0;top:0;">
                         <i class="fa fa-square-o fa-stack-2x"></i>
                         <i id="print_caret" class='fa fa-caret-<?php echo $caret = ($rcb_selectors==='none') ? 'down' : 'up'; ?> fa-stack-1x'></i>
                     </span>

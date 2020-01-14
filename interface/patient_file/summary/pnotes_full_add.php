@@ -210,9 +210,9 @@ $urlparms = "docid=" . attr_url($docid) . "&orderid= " . attr_url($orderid);
     <div>
         <?php if ($noteid) { ?>
             <!-- existing note -->
-            <a href="#" class="css_button" id="printnote"><span><?php echo xlt('View Printable Version'); ?></span></a>
+            <a href="#" class="btn btn-primary" id="printnote"><span><?php echo xlt('View Printable Version'); ?></span></a>
         <?php } ?>
-        <a class="css_button large_button" id='cancel' href='javascript:;'><span class='css_button_span large_button_span'><?php echo xlt('Cancel'); ?></span></a>
+        <a class="btn btn-primary btn-lg" id='cancel' href='javascript:;'><?php echo xlt('Cancel'); ?></a>
     </div>
 </div>
 <br/>
@@ -301,17 +301,17 @@ if ($noteid) {
     <td>
         <?php if ($noteid) { ?>
             <!-- existing note -->
-            <a href="#" class="css_button" id="newnote" title="<?php echo xla('Add as a new message'); ?>" ><span><?php echo xlt('Save as new message'); ?></span></a>
-            <a href="#" class="css_button" id="appendnote" title="<?php echo xla('Append to the existing message'); ?>"><span><?php echo xlt('Append this message'); ?></span></a>
+            <a href="#" class="btn btn-primary" id="newnote" title="<?php echo xla('Add as a new message'); ?>" ><span><?php echo xlt('Save as new message'); ?></span></a>
+            <a href="#" class="btn btn-rprimary" id="appendnote" title="<?php echo xla('Append to the existing message'); ?>"><span><?php echo xlt('Append this message'); ?></span></a>
         <?php } else { ?>
-            <a href="#" class="css_button" id="newnote" title="<?php echo xla('Add as a new message'); ?>" ><span><?php echo xlt('Save as new message'); ?></span></a>
+            <a href="#" class="btn btn-primary" id="newnote" title="<?php echo xla('Add as a new message'); ?>" ><span><?php echo xlt('Save as new message'); ?></span></a>
         <?php } ?>
     </td>
 </tr>
 
 </table>
-<br>
-<br>
+<br />
+<br />
 </form>
 <form border='0' method='post' name='update_activity' id='update_activity'
  action="pnotes_full.php?<?php echo $urlparms; ?>">

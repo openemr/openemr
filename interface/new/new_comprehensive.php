@@ -428,7 +428,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 </div>
             </div>
         </div>
-        <br>
+        <br />
         <div class="row">
             <div class="col-sm-12">
                 <form action='new_comprehensive_save.php' name='demographics_form' id="DEM"  method='post' onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM",constraints)'>
@@ -673,8 +673,8 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                         </tr>
 
                                         <tr <?php echo ($GLOBALS['omit_employers']) ? " style='display:none'" : ""; ?>>
-                                            <td class='required'><?php echo xlt('Subscriber Employer (SE)'); ?><br><span style='font-weight:normal'>
-                                              (<?php echo xlt('if unemployed enter Student'); ?>,<br><?php echo xlt('PT Student, or leave blank'); ?>): </span>
+                                            <td class='required'><?php echo xlt('Subscriber Employer (SE)'); ?><br /><span style='font-weight:normal'>
+                                              (<?php echo xlt('if unemployed enter Student'); ?>,<br /><?php echo xlt('PT Student, or leave blank'); ?>): </span>
                                             </td>
                                             <td><input type=entry class='form-control' size=25 name=i<?php echo attr($i); ?>subscriber_employer
                                                 value="<?php echo attr($result3["subscriber_employer"]); ?>"
@@ -734,7 +734,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                     <input type=entry class='form-control' size=10 name=i<?php echo attr($i); ?>subscriber_lname
                                     value="<?php echo attr($result3["subscriber_lname"]); ?>"
                                     onchange="capitalizeMe(this);" />
-                                    <br>
+                                    <br />
                                     <span class=required><?php echo xlt('Relationship'); ?>: </span>
                                     <?php
                                     // Modified 6/2009 by BM to use list_options and function
@@ -754,11 +754,11 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                     // Modified 6/2009 by BM to use list_options and function
                                     generate_form_field(array('data_type'=>1,'field_id'=>('i'.$i.'subscriber_sex'),'list_id'=>'sex'), $result3['subscriber_sex']);
                                     ?>
-                                    <br>
+                                    <br />
                                     <span class=required><?php echo xlt('Subscriber Address'); ?>: </span>
                                     <input type=entry class='form-control' size=25 name=i<?php echo attr($i); ?>subscriber_street
                                     value="<?php echo attr($result3["subscriber_street"]); ?>"
-                                    onchange="capitalizeMe(this);" /><br>
+                                    onchange="capitalizeMe(this);" /><br />
                                     <span class=required><?php echo xlt('City'); ?>: </span>
                                     <input type=entry class='form-control' size=15 name=i<?php echo attr($i); ?>subscriber_city
                                     value="<?php echo attr($result3["subscriber_city"]); ?>"

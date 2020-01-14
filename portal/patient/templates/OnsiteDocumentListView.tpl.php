@@ -84,7 +84,7 @@ $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore/unders
 </script>
 </head>
 
-<body class="body-topnav">
+<body class="body-topnav pt-5">
 <script type="text/javascript">
 $LAB.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsitedocuments.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait().script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsiteportalactivities.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(
     function () {
@@ -311,11 +311,11 @@ function restoreDocumentEdits() {
         <ul class="navbar-nav mr-auto">
             <?php require_once(dirname(__FILE__) . '/../../lib/template_menu.php'); ?>
             <?php if (!$is_module) { ?>
-                <li class="nav-item">
+                <li class="nav-item px-1">
                     <a class="btn btn-outline-danger" href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Home'); ?></a>
                 </li>
             <?php } else { ?>
-                <li class="nav-item">
+                <li class="nav-item px-1">
                     <a class="btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
                 </li>
             <?php } ?>

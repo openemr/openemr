@@ -33,7 +33,7 @@ $oNoteService = new ONoteService();
 <font class="title"><?php echo xlt('Office Notes'); ?></font>
 <font class="more"><?php echo text($tmore);?></font></a>
 
-<br>
+<br />
 
 <table border=0 width=100%>
 

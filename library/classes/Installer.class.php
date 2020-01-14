@@ -329,7 +329,7 @@ class Installer
             return false;
         }
 
-        $sql_results .= "OK<br>\n";
+        $sql_results .= "OK<br />\n";
         fclose($fd);
         return $sql_results;
     }
@@ -914,7 +914,7 @@ FDIV;
                 case 5://end row
                     echo $img_div . "\r\n";
                     echo $div_end . "\r\n";
-                    echo "<br>" . "\r\n";
+                    echo "<br />" . "\r\n";
                     break;
 
                 default:
@@ -946,7 +946,7 @@ FDIV;
                                 </div>
                             </div>
                         </div>
-                        <br>
+                        <br />
 DSTD;
         echo $display_selected_theme_div . "\r\n";
         return;
@@ -970,7 +970,7 @@ DSTD;
                                 </div>
                             </div>
                         </div>
-                        <br>
+                        <br />
 DSTD;
         echo $display_selected_theme_div . "\r\n";
         return;

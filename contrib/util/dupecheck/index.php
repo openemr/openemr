@@ -101,7 +101,7 @@ Matching criteria:
 <label for="match_sex">Gender</label>
 <input type="checkbox" name="match_ssn" id="match_ssn" <?php echo ($parameters['match_ssn']) ? "CHECKED" : ""; ?>>
 <label for="match_ssn">SSN</label>
-<br>
+<br />
 Order results by:
 <input type='radio' name='sortby' value='name' id="name" <?php echo ($parameters['sortby']=='name') ? "CHECKED" : ""; ?>>
 <label for="name">Name</label>
@@ -111,7 +111,7 @@ Order results by:
 <label for="sex">Gender</label>
 <input type='radio' name='sortby' value='ssn' id="ssn" <?php echo ($parameters['sortby']=='ssn') ? "CHECKED" : ""; ?>>
 <label for="ssn">SSN</label>
-<br>
+<br />
 Limit search to first <input type='textbox' size='5' name='limit' id="limit" value='<?php echo attr($parameters['limit']); ?>'> records
 <input type="button" name="do_search" id="do_search" value="Go">
 </form>

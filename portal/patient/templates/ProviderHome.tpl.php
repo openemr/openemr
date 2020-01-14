@@ -22,11 +22,11 @@ echo "<script>var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cu
     });
 </script>
 <div class="modal fade" id="formdialog" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg" style="background:white">
+    <div class="modal-dialog modal-lg bg-light">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title"><?php echo xlt('About Portal Dashboard') ?></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
         </div>
         <div class="modal-body">
@@ -37,18 +37,17 @@ echo "<script>var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cu
         </div>
     </div>
 </div>
-<div class="container bg-info">
-    <div class='jumbotron jumbotron-fluid'>
+<div class="container bg-info p-3">
+    <div class='jumbotron jumbotron-fluid p-4'>
     <div class="jumbotron text-center">
         <h3>
-            <?php echo xlt('Portal Dashboard') ?><i class="fa fa-user-md" style="font-size:60px;color:red"></i>
+            <?php echo xlt('Portal Dashboard') ?><i class="fa fa-user-md text-danger" style="font-size:60px;"></i>
         </h3>
         <p>
-        <a class="btn btn-info" data-toggle="modal"
-            data-target="#formdialog" href="#"><?php echo xlt('Tell me more') ?> »</a></p>
+        <a class="btn btn-info" data-toggle="modal" data-target="#formdialog" href="#"><?php echo xlt('Tell me more') ?> »</a></p>
     </div>
 </div>
-<div class='jumbotron jumbotron-fluid'>
+<div class='jumbotron jumbotron-fluid p-4'>
     <div class="row">
         <div class="col-sm-3 col-md-3">
             <h4>

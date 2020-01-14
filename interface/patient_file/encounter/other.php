@@ -55,7 +55,7 @@ return true;  }
 </script>
 <dt><span class=title><?php echo xlt('Other'); ?></span></dt>
 
-<br>
+<br />
 <table>
 <tr>
 <td class="text"><?php echo xlt('code'); ?></td>

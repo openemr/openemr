@@ -71,15 +71,14 @@ if (isset($_GET['deletelid'])) {
     echo text($pname); ?></a></span>
 </div>
 <div>
-    <a href="record_disclosure.php" class="css_button iframe" onclick="top.restoreSession()"><span><?php echo xlt('Record'); ?></span></a>
+    <a href="record_disclosure.php" class="btn btn-primary iframe" onclick="top.restoreSession()"><?php echo xlt('Record'); ?></a>
 </div>
 <div>
-    <a href="demographics.php"
-    class="css_button" onclick="top.restoreSession()"> <span><?php echo xlt('View Patient') ?></span></a>
+    <a href="demographics.php" class="btn btn-primary" onclick="top.restoreSession()"> <?php echo xlt('View Patient') ?></a>
 </div>
 </div>
-<br>
-<br>
+<br />
+<br />
 <?php
 $N=15;
 $offset = $_REQUEST['offset'];
@@ -112,10 +111,10 @@ if ($n>0) {?>
     <table border='0' cellpadding="1" width='80%'>
         <tr class="showborder_head" align='left' height="22">
             <th style='width: 120px';>&nbsp;</th>
-            <th style="border-style: 1px solid #000" width="140px"><?php echo xlt('Recipient Name'); ?></th>
-            <th style="border-style: 1px solid #000" width="140px"><?php echo xlt('Disclosure Type'); ?></th>
-            <th style="border-style: 1px solid #000"><?php echo xlt('Description'); ?></th>
-            <th style="border-style: 1px solid #000"><?php echo xlt('Provider'); ?></th>
+            <th style="border-style: 1px solid var(--black)" width="140px"><?php echo xlt('Recipient Name'); ?></th>
+            <th style="border-style: 1px solid var(--black)" width="140px"><?php echo xlt('Disclosure Type'); ?></th>
+            <th style="border-style: 1px solid var(--black)"><?php echo xlt('Description'); ?></th>
+            <th style="border-style: 1px solid var(--black)"><?php echo xlt('Provider'); ?></th>
         </tr>
     <?php
     $result2 = array();
@@ -125,12 +124,10 @@ if ($n>0) {?>
 
     foreach ($result2 as $iter) { ?>
         <!-- List the recipient name, description, date and edit and delete options-->
-        <tr  class="noterow" height='25'>
+        <tr class="noterow" height='25'>
             <!--buttons for edit and delete.-->
-            <td valign='top'><a href='record_disclosure.php?editlid=<?php echo attr_url($iter['id']); ?>'
-            class='css_button_small iframe' onclick='top.restoreSession()'><span><?php echo xlt('Edit');?></span></a>
-            <a href='#' class='deletenote css_button_small'
-            id='<?php echo attr($iter['id']); ?>' onclick='top.restoreSession()'><span><?php echo xlt('Delete');?></span></a></td>
+            <td valign='top'><a href='record_disclosure.php?editlid=<?php echo attr_url($iter['id']); ?>' class='btn btn-primary btn-sm iframe' onclick='top.restoreSession()'><?php echo xlt('Edit');?></a>
+            <a href='#' class='deletenote btn btn-primary btn-sm' id='<?php echo attr($iter['id']); ?>' onclick='top.restoreSession()'><?php echo xlt('Delete');?></a></td>
             <td class="text" valign='top'><?php echo text($iter['recipient']);?>&nbsp;</td>
             <td class='text' valign='top'><?php echo text(getListItemTitle('disclosure_type', $iter['event'])); ?>&nbsp;</td>
             <td class='text'><?php echo text($iter['date']) . " " . nl2br(text($iter['description']));?>&nbsp;</td>
@@ -139,7 +136,7 @@ if ($n>0) {?>
         <?php
     }
 } else {?>
-    <br>
+    <br />
     <!-- Display None, if there is no disclosure -->
     <span class='text' colspan='3'><?php echo xlt('None{{Disclosure}}');?></span>
     <?php
@@ -169,8 +166,6 @@ if ($n >= $N && $noOfRecordsLeft!=$N) {
  </tr>
 </table>
 </div>
-</body>
-
 <script type="text/javascript">
 $(function() {
     // todo, move this to a common library
@@ -212,6 +207,7 @@ function refreshme() {
     document.location.reload();
 }
 </script>
+</body>
 </html>
 
 

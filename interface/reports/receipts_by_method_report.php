@@ -370,7 +370,7 @@ $form_proc_code = $tmp_code_array[1];
                 if ($GLOBALS['simplified_demographics']) {
                     echo "style='display:none'";
                 } ?> />
-                                <br>
+                                <br />
           <div class="checkbox">
                   <label><input type='checkbox' name='form_details' value='1'<?php echo ($_POST['form_details']) ? " checked" : ""; ?> /><?php echo xlt('Details')?></label>
           </div>

@@ -369,7 +369,7 @@ class FormHpTjePrimary extends ORDataObject
                 if (!empty($check)) {
                     $sql = "INSERT INTO form_hp_tje_checks set foreign_id=?, name = ?";
                     sqlQuery($sql, [$this->id, $check]);
-                    //echo "$sql<br>";
+                    //echo "$sql<br />";
                 }
             }
         }
@@ -396,7 +396,7 @@ class FormHpTjePrimary extends ORDataObject
                             $history['date']
                         ]
                     );
-                    //echo "$sql<br>";
+                    //echo "$sql<br />";
                 }
             }
         }
@@ -421,7 +421,7 @@ class FormHpTjePrimary extends ORDataObject
                             $pa['date']
                         ]
                     );
-                    //echo "$sql<br>";
+                    //echo "$sql<br />";
                 }
             }
         }

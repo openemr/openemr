@@ -594,7 +594,7 @@ if ($form_step == 301) {
     $res=sqlStatement("rename table log to log_backup,log_new to log");
     $res=sqlStatement("create table if not exists log_validator_new like log_validator");
     $res=sqlStatement("rename table log_validator to log_validator_backup, log_validator_new to log_validator");
-    echo "<br>";
+    echo "<br />";
     $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($sqlconf["login"]) .
     " -p" . escapeshellarg($sqlconf["pass"]) .
     " -h " . escapeshellarg($sqlconf["host"]) .
@@ -644,7 +644,7 @@ if ($cmd) {
         $res=sqlStatement("drop table if exists log_backup");
         $res=sqlStatement("drop table if exists log_comment_encrypt_backup");
         $res=sqlStatement("drop table if exists log_validator_backup");
-        echo "<br><b>";
+        echo "<br /><b>";
         echo xlt('Backup Successfully taken in') . " ";
         echo text($BACKUP_EVENTLOG_DIR);
         echo "</b>";

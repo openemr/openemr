@@ -335,7 +335,7 @@ if ($GLOBALS['language_menu_login']) {
                 } else if (action == 'do_signup') {
                     if (rtn.indexOf('ERROR') !== -1) {
                         message = <?php echo xlj('Unable to either create credentials or send email.'); ?>;
-                        message += "<br><br>" + <?php echo xlj('Here is what we do know.'); ?> +": " + rtn + "<br>";
+                        message += "<br /><br />" + <?php echo xlj('Here is what we do know.'); ?> +": " + rtn + "<br />";
                         dialog.alert(message);
                         return false;
                     }

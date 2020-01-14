@@ -67,7 +67,7 @@
 {/section}
           <tr class="controls" align="center">
             <td colspan="5">
-              <input type="submit" class="button" name="action" value="Submit"> <input type="reset" class="button" value="Reset"><br>
+              <input type="submit" class="button" name="action" value="Submit"> <input type="reset" class="button" value="Reset"><br />
             </td>
             <td colspan="2">
               <input type="submit" class="button" name="action" value="Delete">

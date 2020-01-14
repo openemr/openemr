@@ -59,7 +59,7 @@
                 <!-- /ko -->
             </div>
             <!-- ko if: encounterArray().length > 0 -->
-            <br>
+            <br />
             <div class="btn-group dropdown">
                 <button class="btn btn-secondary btn-sm dropdown-toggle"
                         type="button" id="pastEncounters"

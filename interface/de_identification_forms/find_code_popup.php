@@ -192,7 +192,7 @@ if ($codetype) {
             $selector = $row['selector'];
             $desc = $row['name'];
             ?>
-             <input type="checkbox" name="diagnosis[row_count]" value="<?php echo attr($desc); ?>" > <?php echo text($drug_id) . "    " . text($selector) . "     " . text($desc) . "</br>";
+             <input type="checkbox" name="diagnosis[row_count]" value="<?php echo attr($desc); ?>" > <?php echo text($drug_id) . "    " . text($selector) . "     " . text($desc) . "<br />";
         }
     } else {
         $query = "SELECT count(*) as count FROM codes " .
@@ -223,7 +223,7 @@ if ($codetype) {
                 $itercode = $row['code'];
                 $itertext = ucfirst(strtolower(trim($row['code_text'])));
                 ?>
-                 <input type="checkbox" id="chkbox" value= "<?php echo attr($form_code_type) . ":" . attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "</br>";
+                 <input type="checkbox" id="chkbox" value= "<?php echo attr($form_code_type) . ":" . attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "<br />";
             }
         }
     }
@@ -232,7 +232,7 @@ if ($codetype) {
  </tr>
  </table>
 <center>
-</br>
+<br />
  <input type='button' id='select_all' value='<?php echo xla('Select All'); ?>' onclick="chkbox_select_all(document.select_diagonsis.chkbox);"/>
 
  <input type='button' id='unselect_all' value='<?php echo xla('Unselect All'); ?>' onclick="chkbox_select_none(document.select_diagonsis.chkbox);"/>

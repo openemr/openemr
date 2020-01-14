@@ -69,7 +69,7 @@ function row_delete($table, $where)
     if ($count) {
         $query = "DELETE FROM " . escape_table_name($table) . " WHERE $where";
         if (!$GLOBALS['sql_string_no_show_screen']) {
-            echo text($query) . "<br>\n";
+            echo text($query) . "<br />\n";
         }
 
         sqlStatement($query);
@@ -85,7 +85,7 @@ function row_modify($table, $set, $where)
         EventAuditLogger::instance()->newEvent("deactivate", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $where");
         $query = "UPDATE " . escape_table_name($table) . " SET $set WHERE $where";
         if (!$GLOBALS['sql_string_no_show_screen']) {
-            echo text($query) . "<br>\n";
+            echo text($query) . "<br />\n";
         }
 
         sqlStatement($query);
@@ -445,7 +445,7 @@ if ($_POST['form_submit']) {
 
 <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo attr_url($patient) ?>&encounterid=<?php echo attr_url($encounterid) ?>&formid=<?php echo attr_url($formid) ?>&issue=<?php echo attr_url($issue) ?>&document=<?php echo attr_url($document) ?>&payment=<?php echo attr_url($payment) ?>&billing=<?php echo attr_url($billing) ?>&transaction=<?php echo attr_url($transaction); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>' onsubmit="javascript:alert('1');document.deleform.submit();">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-<p class="lead">&nbsp;<br><?php echo xlt('Do you really want to delete'); ?>
+<p class="lead">&nbsp;<br /><?php echo xlt('Do you really want to delete'); ?>
 
 <?php
 if ($patient) {

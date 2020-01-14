@@ -43,21 +43,21 @@ if ($_POST['form_action']=='save') {
     //validation uses the functions in notification.inc.php
     //validate dates
     if (!check_date_format($_POST['next_app_date'])) {
-        $form_err .= xl('Date format for "Next Appointment" is not valid') . '<br>';
+        $form_err .= xl('Date format for "Next Appointment" is not valid') . '<br />';
     }
 
     // validate selections
     if ($_POST['sms_gateway_type'] == "") {
-        $form_err .= xl('Error in "SMS Gateway" selection') . '<br>';
+        $form_err .= xl('Error in "SMS Gateway" selection') . '<br />';
     }
 
     // validates and or
     if ($_POST['provider_name'] == "") {
-        $form_err .= xl('Empty value in "Name of Provider"') . '<br>';
+        $form_err .= xl('Empty value in "Name of Provider"') . '<br />';
     }
 
     if ($_POST['message'] == "") {
-        $form_err .= xl('Empty value in "SMS Text"') . '<br>';
+        $form_err .= xl('Empty value in "SMS Text"') . '<br />';
     }
 
     //process sql

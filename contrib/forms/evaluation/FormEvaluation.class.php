@@ -300,7 +300,7 @@ class FormEvaluation extends ORDataObject
                 if (!empty($check)) {
                     $sql = "INSERT INTO form_evaluation_checks set foreign_id= ?, name = ?";
                     sqlQuery($sql, array($this->id, $check));
-                    //echo "$sql<br>";
+                    //echo "$sql<br />";
                 }
             }
         }

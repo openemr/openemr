@@ -269,8 +269,7 @@ if (!isset($_GET['attachid'])) {
     <?php if ($reviewMode) { ?>
         $("body table:first").hide();
         $(".encounter-summary-column").hide();
-        $(".css_button").hide();
-        $(".css_button_small").hide();
+        $(".btn").hide();
         $(".encounter-summary-column:first").show();
         $(".title:first").text(<?php echo xlj("Review"); ?> + " " + $(".title:first").text() + " ( " + <?php echo js_escape($encounter); ?> + " )");
     <?php } ?>
@@ -765,11 +764,11 @@ if ($esign->isButtonViewable()) {
 }
 ?>
 <?php if (acl_check('admin', 'super')) { ?>
-    <a href='#' class='css_button' onclick='return deleteme()'><span><?php echo xlt('Delete') ?></span></a>
+    <a href='#' class='btn btn-danger' onclick='return deleteme()'><span><?php echo xlt('Delete') ?></span></a>
 <?php } ?>
 
 <?php if ($GLOBALS['enable_follow_up_encounters']) { ?>
-    <a href='#' class='css_button' onclick='return createFollowUpEncounter()'><span><?php echo xlt('Create follow-up encounter') ?></span></a>
+    <a href='#' class='btn btn-primary' onclick='return createFollowUpEncounter()'><span><?php echo xlt('Create follow-up encounter') ?></span></a>
 <?php } ?>
 &nbsp;&nbsp;&nbsp;<a href="#" onClick='expandcollapse("expand");' style="font-size:80%;"><?php echo xlt('Expand All'); ?></a>
 &nbsp;&nbsp;&nbsp;<a  style="font-size:80%;" href="#" onClick='expandcollapse("collapse");'><?php echo xlt('Collapse All'); ?></a>
@@ -922,7 +921,7 @@ if (!empty($docs_list) && count($docs_list) > 0) {
             }
         }
         ?>
-<br>
+<br />
 <a href="<?php echo $doc_url;?>" style="font-size:small;" onsubmit="return top.restoreSession()"><?php echo text(oeFormatShortDate($doc_iter['docdate'])) . ": " . text(basename($doc_iter['url']));?></a>
         <?php if ($note != '') {?>
             <a href="javascript:void(0);" title="<?php echo attr($note);?>"><img src="<?php echo $GLOBALS['images_static_relative']; ?>/info.png"/></a>
@@ -1027,11 +1026,11 @@ if ($pass_sens_squad &&
 
         // If the form is locked, it is no longer editable
         if ($esign->isLocked()) {
-                 echo "<a href=# class='css_button_small form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><span>" . xlt('Locked') . "</span></a>";
+                 echo "<a href=# class='btn btn-primary btn-sm form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><span>" . xlt('Locked') . "</span></a>";
         } else {
             if ((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '', 'write') and $is_group == 0 and $authPostCalendarCategoryWrite)
             or (((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '', 'write')) and $is_group and acl_check("groups", "glog", false, 'write')) and $authPostCalendarCategoryWrite)) {
-                echo "<a class='css_button_small form-edit-button' " .
+                echo "<a class='btn btn-primary btn-sm form-edit-button' " .
                     "id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "' " .
                     "href='#' " .
                     "title='" . xla('Edit this form') . "' " .
@@ -1055,7 +1054,7 @@ if ($pass_sens_squad &&
             "&formid="    . attr_url($iter['form_id']) .
             "&visitid="   . attr_url($encounter)       .
             "&patientid=" . attr_url($pid)             .
-            "' class='css_button_small' title='" . xla('Print this form') .
+            "' class='btn btn-primary btn-sm' title='" . xla('Print this form') .
             "' onclick='top.restoreSession()'><span>" . xlt('Print') . "</span></a>";
         }
 
@@ -1067,7 +1066,7 @@ if ($pass_sens_squad &&
                     "&id=" . attr_url($iter['id']) .
                     "&encounter=". attr_url($encounter) .
                     "&pid=" . attr_url($pid) .
-                    "' class='css_button_small' title='" . xla('Delete this form') . "' onclick='top.restoreSession()'><span>" . xlt('Delete') . "</span></a>";
+                    "' class='btn btn-danger btn-sm' title='" . xla('Delete this form') . "' onclick='top.restoreSession()'><span>" . xlt('Delete') . "</span></a>";
             } else {
                 // do not show delete button for main encounter here since it is displayed at top
             }

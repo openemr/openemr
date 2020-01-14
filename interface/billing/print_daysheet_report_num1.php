@@ -1676,13 +1676,13 @@ if ($run_provider === 1) {
 if ($totals_only === 1) {
     $from_date = oeFormatShortDate(substr($query_part_day, 37, 10));
     $to_date = oeFormatShortDate(substr($query_part_day, 63, 10));
-    print "<br><br>";
+    print "<br /><br />";
     ?><font size = 5 ><?php echo xlt('Totals for '). text($from_date) . ' '. xlt('To{{Range}}'). ' ' . text($to_date) ?></font><?php
 }
 
 if ($run_provider != 1) {
     print "<table border='0'><tr>\n";
-    print "<br><br>";
+    print "<br /><br />";
     print  "<td width='25'><span class='text'>";
     print  "</span></td><td width='250'><span class='text'><b><center>". xlt("User"). "</center></b>";
     print  "</span></td><td width='125'><span class='text'>";
@@ -1692,7 +1692,7 @@ if ($run_provider != 1) {
     print  "</span></td><td width='25'><span class='text'>";
 
     for ($i=1; $i<$k;) {
-        print "</br></td>";
+        print "<br /></td>";
         print "<table border='0'><tr>\n";
         print  "<td width='25'><span class='text'>" ;
         Printf("</span></td><td width='250'><span class='text'><center>".text($user_info['user'][$i])). "</center>";
@@ -1701,7 +1701,7 @@ if ($run_provider != 1) {
         print  "</span></td><td width='125'><span class='text'>";
         printf("</span></td><td width='250'><span class='text'><b>"  . xlt("Total Payments").': '. "(%1\$.2f)", text($user_info['inspay'][$i] + $user_info['patpay'][$i])) . "</b>";
         print  "</span></td><td width='25'><span class='text'>" ;
-        print "</br></td>";
+        print "<br /></td>";
         print "<table border='0'><tr>\n";
         print "<td width='25'><span class='text'>" ;
         print "</span></td><td width='250'><span class='text'>";
@@ -1710,7 +1710,7 @@ if ($run_provider != 1) {
         print "</span></td><td width='125'><span class='text'>" ;
         printf("</span></td><td width='250'><span class='text'><b>" . xlt("Refund").': '."(%1\$.2f)", text($user_info['patref'][$i] + $user_info['insref'][$i]))."</b>";
         print "</span></td><td width='25'><span class='text'>";
-        print "</br></td>";
+        print "<br /></td>";
         print "<table border='0'><tr>\n";
         print "<td width='25'><span class='text'>" ;
         print "</span></td><td width='250'><span class='text'>";
@@ -1719,7 +1719,7 @@ if ($run_provider != 1) {
         print "</span></td><td width='125'><span class='text'>";
         print "</span></td><td width=175 height=5><span class='text'><b><hr noshade size=3>";
         print "</b></hr></span></td><td width='25'><span class='text'>";
-        print "</br></td>";
+        print "<br /></td>";
         print "<table border='0'><tr>\n";
         print "<td width='25'><span class='text'>";
         print "</span></td><td width='250'><span class='text'>";
@@ -1728,7 +1728,7 @@ if ($run_provider != 1) {
         print "</span></td><td width='125'><span class='text'>";
         printf("</span></td><td width='250'><span class='text'><b>" . xlt("Actual Receipts").': '."(%1\$.2f)", text($user_info['patref'][$i] + $user_info['insref'][$i] + $user_info['inspay'][$i] + $user_info['patpay'][$i])). "</b>";
         print "</span></td><td width='25'><span class='text'>";
-        print "</br></td>";
+        print "<br /></td>";
         print "<table border='0'><tr>\n";
         print "<td width='25'><span class='text'>";
         print "</span></td><td width='250'><span class='text'>";
@@ -1746,14 +1746,14 @@ if ($run_provider != 1) {
 
         ++$i;
 
-        print "</br></td></tr>";
+        print "<br /></td></tr>";
     }
 
-    print "</br></td>";
+    print "<br /></td>";
     print "</table>";
 } else {
     print "<table border='0'><tr>\n";
-    print "<br><br>";
+    print "<br /><br />";
     print  "<td width='25'><span class='text'>";
     print  "</span></td><td width='250'><span class='text'><b><center>". xlt("Provider"). "</center></b>";
     print  "</span></td><td width='125'><span class='text'>";
@@ -1763,7 +1763,7 @@ if ($run_provider != 1) {
     print  "</span></td><td width='25'><span class='text'>";
 
     for ($i=1; $i<$k;) {
-        print "</br></td>";
+        print "<br /></td>";
         print "<table border='0'><tr>\n";
         print  "<td width='25'><span class='text'>";
         Printf("</span></td><td width='250'><span class='text'><center>".text($provider_info['user'][$i])). "</center>";
@@ -1772,7 +1772,7 @@ if ($run_provider != 1) {
         print  "</span></td><td width='125'><span class='text'>";
         printf("</span></td><td width='250'><span class='text'><b>"  . xlt("Total Payments").': '. "(%1\$.2f)", text($provider_info['inspay'][$i] + $provider_info['patpay'][$i])) . "</b>";
         print  "</span></td><td width='25'><span class='text'>";
-        print "</br></td>";
+        print "<br /></td>";
         print "<table border='0'><tr>\n";
         print "<td width='25'><span class='text'>";
         print "</span></td><td width='250'><span class='text'>";
@@ -1781,7 +1781,7 @@ if ($run_provider != 1) {
         print "</span></td><td width='125'><span class='text'>";
         printf("</span></td><td width='250'><span class='text'><b>" . xlt("Refund").': '."(%1\$.2f)", text($provider_info['patref'][$i] + $provider_info['insref'][$i]))."</b>";
         print "</span></td><td width='25'><span class='text'>";
-        print "</br></td>";
+        print "<br /></td>";
         print "<table border='0'><tr>\n";
         print "<td width='25'><span class='text'>";
         print "</span></td><td width='250'><span class='text'>";
@@ -1790,7 +1790,7 @@ if ($run_provider != 1) {
         print "</span></td><td width='125'><span class='text'>";
         print "</span></td><td width='175' height='5'><span class='text'><b><hr noshade size='3'>";
         print "</b></hr></span></td><td width='25'><span class='text'>";
-        print "</br></td>";
+        print "<br /></td>";
         print "<table border='0'><tr>\n";
         print "<td width='25'><span class='text'>";
         print "</span></td><td width='250'><span class='text'>";
@@ -1799,7 +1799,7 @@ if ($run_provider != 1) {
         print "</span></td><td width='125'><span class='text'>";
         printf("</span></td><td width='250'><span class='text'><b>" . xlt("Actual Receipts").': '."(%1\$.2f)", text($provider_info['patref'][$i] + $provider_info['insref'][$i] + $provider_info['inspay'][$i] + $provider_info['patpay'][$i])). "</b>";
         print "</span></td><td width='25'><span class='text'>";
-        print "</br></td>";
+        print "<br /></td>";
         print "<table border='0'><tr>\n";
         print "<td width='25'><span class='text'>";
         print "</span></td><td width='250'><span class='text'>";
@@ -1819,10 +1819,10 @@ if ($run_provider != 1) {
 
         ++$i;
 
-        print "</br></td></tr>";
+        print "<br /></td></tr>";
     }
 
-    print "</br></td>";
+    print "<br /></td>";
     print "</table>";
 }
 ?>

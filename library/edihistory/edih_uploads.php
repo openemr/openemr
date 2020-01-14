@@ -569,9 +569,9 @@ function edih_sort_upload($files_array, $html_out = true, $err_only = true)
                     $prc_htm .= "<li> --" . text($nf['comment']) . "</li>".PHP_EOL;
                 }
             } elseif ($key == 'remark') {
-                $rmk_htm .= "<p><bd>Remarks:</bd><br>".PHP_EOL;
+                $rmk_htm .= "<p><bd>Remarks:</bd><br />".PHP_EOL;
                 foreach ($val as $idx => $r) {
-                    $rmk_htm .= text($r) . "<br>".PHP_EOL;
+                    $rmk_htm .= text($r) . "<br />".PHP_EOL;
                 }
 
                 $rmk_htm .= "</p>".PHP_EOL;

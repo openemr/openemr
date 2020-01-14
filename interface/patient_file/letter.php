@@ -181,7 +181,7 @@ if ($_POST['formaction']=="generate") {
         exit;
     } else { // $form_format = html
         $cpstring = text($cpstring); //escape to prevent stored cross script attack
-        $cpstring = str_replace("\n", "<br>", $cpstring);
+        $cpstring = str_replace("\n", "<br />", $cpstring);
         $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
         ?>
         <html>
@@ -488,10 +488,10 @@ function insertAtCursor(myField, myValue) {
 
  <tr>
   <td colspan='4' align='center'>
-   &nbsp;<br>
+   &nbsp;<br />
    <b><?php echo xlt('Generate Letter regarding ') . text($patdata['fname']) . " " .
     text($patdata['lname']) . " (" . text($patdata['pubpid']) . ")" ?></b>
-    <br>&nbsp;
+    <br />&nbsp;
   </td>
  </tr>
 
@@ -675,7 +675,7 @@ closedir($dh);
 <!-- template DIV that appears when user chooses to add a new letter template -->
 <div id="newtemplatedetail" style="margin-top: 4em; display: none; visibility: hidden;">
     <span class='control-label'><?php echo xlt('Template Name'); ?>:</span> <input type="textbox" size="20" maxlength="30" name="newtemplatename" id="newtemplatename" class="form-control">
-    <br>
+    <br />
     <div class="btn-group" role="group">
         <button type="button" class="savenewtemplate btn btn-secondary btn-save"><?php echo xlt('Save new template'); ?></button>
         <button type="button" class="cancelnewtemplate btn btn-link btn-cancel"><?php echo xlt('Cancel'); ?></button>

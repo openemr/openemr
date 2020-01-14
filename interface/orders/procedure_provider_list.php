@@ -91,8 +91,8 @@ function doedclick_edit(ppid) {
                         <button type="button" name="form_search" class="btn btn-secondary btn-refresh" onclick="refreshme()"><?php echo xlt('Refresh');?></button>
                         <button type="button" class="btn btn-secondary btn-add" onclick="doedclick_add()"><?php echo xlt('Add New{{Provider}}');?></button>
                     </div>
-                    <br>
-                    <br>
+                    <br />
+                    <br />
                     <table class="table table-striped table-hover">
                         <thead>
                             <tr>
@@ -125,7 +125,7 @@ function doedclick_edit(ppid) {
             </div>
         </div>
     </div><!-- End of container div -->
-    <br>
+    <br />
     <?php
     //home of the help modal ;)
     //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page

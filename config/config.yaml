@@ -165,7 +165,7 @@ assets:
         basePath: '%assets_static_relative%/moment/'
         script: moment.js # should this be the minified file?
     purecss:
-        basePath: '%assets_static_relative%/purecss/'
+        basePath: '%assets_static_relative%/purecss/build/'
         link: pure-min.css
     angular:
         basePath: '%assets_static_relative%/angular/'

@@ -43,7 +43,7 @@ $code_type = $_GET['type'];
 
 <input type="hidden" name="mode" value="search">
 
-<span class="title"><?php echo text($code_type); ?> <?php echo xlt('Codes'); ?></span><br>
+<span class="title"><?php echo text($code_type); ?> <?php echo xlt('Codes'); ?></span><br />
 
 <input type="textbox" id="text" name="text" size=15>
 
@@ -126,7 +126,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
                     "' onclick='top.restoreSession()'>";
                 echo ucwords("<b>" . text(strtoupper($iter["code"])) . "&nbsp;" . text($iter['modifier']) .
                     "</b>" . " " . text(strtolower($iter["code_text"])));
-                echo "</a><br>\n";
+                echo "</a><br />\n";
                 echo "</div>";
 
                 $count++;

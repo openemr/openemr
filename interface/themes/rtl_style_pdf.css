@@ -703,59 +703,8 @@ a:hover {
     background-color: #ffffff;
 }
 
-/*
- * CSS BUTTONS
-*/
-.css_button_small {
-    background: transparent url("../../public/images/bg_button_a_small.gif") no-repeat scroll top right;
-    color: #444;
-    display: block;
-    float: left;
-    font: bold 9px Arial;
-    height: 19px;
-    margin-right: 3px;
-    padding-right: 10px;
-    /* sliding doors padding */
-    text-decoration: none;
-}
-
-.css_button_small span {
-    background: transparent url("../../public/images/bg_button_span_small.gif") no-repeat;
-    display: block;
-    line-height: 20px;
-    padding: 0px 0px 0px 10px;
-}
-
-.css_button {
-    background: transparent url("../../public/images/bg_button_a.gif") no-repeat scroll top right;
-    color: #444;
-    display: block;
-    float: left;
-    font: bold 10px Arial;
-    height: 24px;
-    margin-right: 3px;
-    padding-right: 10px;
-    /* sliding doors padding */
-    text-decoration: none;
-}
-
-.css_button span {
-    background: transparent url("../../public/images/bg_button_span.gif") no-repeat;
-    display: block;
-    line-height: 14px;
-    padding: 5px 0 5px 10px;
-}
-
 .sellistclass {
     float: left;
-}
-
-.disabled_button {
-    color: grey;
-}
-
-a.disabled_button:hover {
-    color: grey;
 }
 
 /*
@@ -1590,33 +1539,6 @@ body {
     margin: 10px;
     padding: 10px;
     border-top: 1px solid gray;
-}
-
-
-
-/*
- * CSS BUTTONS
-*/
-.css_button_small {
-    float: right;
-    margin-right: 3px;
-    padding-right: 10px;
-    /* sliding doors padding */
-}
-
-.css_button_small span {
-    padding: 0px 0px 0px 10px;
-}
-
-.css_button {
-    float: right;
-    margin-right: 3px;
-    padding-right: 10px;
-    /* sliding doors padding */
-}
-
-.css_button span {
-    padding: 5px 0 5px 10px;
 }
 
 .sellistclass {

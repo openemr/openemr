@@ -85,7 +85,7 @@ foreach ($parameters['otherid'] as $otherID) {
     $orow = sqlFetchArray($qResults);
     $otherPID = $orow['pid'];
 
-    echo "Merging PID " . text($otherPID) . " into the master PID " . text($masterPID) . "<br>";
+    echo "Merging PID " . text($otherPID) . " into the master PID " . text($masterPID) . "<br />";
 
     UpdateTable("batchcom", "patient_id", $otherPID, $masterPID);
     UpdateTable("immunizations", "patient_id", $otherPID, $masterPID);
@@ -149,7 +149,7 @@ foreach ($parameters['otherid'] as $otherID) {
 
     echo "<li>Added entry to log</li>";
 
-    echo "<br><br>";
+    echo "<br /><br />";
 } // end of otherID loop
 
 function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue)
@@ -169,7 +169,7 @@ function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue)
 
             $rowsupdated = generic_sql_affected_rows();
             echo "<li>";
-            echo "" . text($tablename) . ": " . text($rowsupdated) . " row(s) updated<br>";
+            echo "" . text($tablename) . ": " . text($rowsupdated) . " row(s) updated<br />";
             echo "</li>";
         }
     }
@@ -178,7 +178,7 @@ function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue)
 ?>
 
 <?php if ($commitchanges == false) : ?>
-Nothing has been changed yet. What you see above are the changes that will be made if you choose to commit them.<br>
+Nothing has been changed yet. What you see above are the changes that will be made if you choose to commit them.<br />
 Do you wish to commit these changes to the database?
 <form method="post" action="mergerecords.php">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
