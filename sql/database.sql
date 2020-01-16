@@ -4856,6 +4856,8 @@ CREATE TABLE `modules` (
   `date` DATETIME NOT NULL,
   `sql_run` TINYINT(4) DEFAULT '0',
   `type` TINYINT(4) DEFAULT '0',
+  `sql_version` VARCHAR(150) NOT NULL,
+  `acl_version` VARCHAR(150) NOT NULL,
   PRIMARY KEY (`mod_id`,`mod_directory`)
 ) ENGINE=InnoDB;
 
