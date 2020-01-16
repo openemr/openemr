@@ -17,8 +17,8 @@ function upgradeAclFromVersion($version)
 {
     global $ACL_UPGRADE;
     $toVersion = '';
-    foreach ($ACL_UPGRADE as $toVersion => $function){
-        if (version_compare($version, $toVersion) < 0){
+    foreach ($ACL_UPGRADE as $toVersion => $function) {
+        if (version_compare($version, $toVersion) < 0) {
             $function();
         }
     }
@@ -39,7 +39,6 @@ return $ACL_UPGRADE = array(
         updateAcl($accounting_view, 'Accounting', 'pfeh', 'Fields Filter', 'field_filter', 'Fields Filter', 'write');
         updateAcl($accounting_view, 'Accounting', 'pfeh', 'Hook Filter', 'hooks', 'Hook Filter', 'write');
         updateAcl($accounting_view, 'Accounting', 'pfeh', 'Parameters', 'params', 'Parameters', 'write');
-
     },
     '0.2.1' => function () {
         $physicians_write = getAclIdNumber('Physicians', 'write');
