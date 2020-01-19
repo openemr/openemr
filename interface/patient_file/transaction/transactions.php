@@ -108,13 +108,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $item['body'] = '';
                             }
 
-                            if (getdate() == strtotime($item['date'])) {
-                                $date = "Today, " . date('D F ds', strtotime($item['date']));
+                            // Collect date
+                            if (!empty($item['refer_date'])) {
+                                // Special case for referrals, which uses refer_date stored in lbt_data table
+                                //  rather than date in transactions table.
+                                //  (note this only contains a date without a time)
+                                $date = oeFormatShortDate($item['refer_date']);
                             } else {
-                                $date = date('D F ds', strtotime($item['date']));
+                                $date = oeFormatDateTime($item['date']);
                             }
 
-                            $date = oeFormatShortDate($item['refer_date']);
                             $id = $item['id'];
                             $edit = xl('View/Edit');
                             $view = xl('Print'); //actually prints or displays ready to print
