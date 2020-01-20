@@ -47,3 +47,8 @@
 
 --  #EndIf
 --    all blocks are terminated with and #EndIf statement.
+
+#IfMissingColumn categories parent_seq
+ALTER TABLE categories
+  ADD parent_seq TINYINT DEFAULT '0' AFTER parent COMMENT 'Display seq within parent node';
+#EndIf

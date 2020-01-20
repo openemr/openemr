@@ -71,7 +71,7 @@ class Tree
         $right = array();
 
         // now, retrieve all descendants of the root node
-        $sql = "SELECT * FROM " . $this->_table . " WHERE lft BETWEEN ? AND ? ORDER BY parent,name ASC;";
+        $sql = "SELECT * FROM " . $this->_table . " WHERE lft BETWEEN ? AND ? ORDER BY parent,parent_seq,name ASC;";
         $result = $this->_db->Execute($sql, [$row['lft'], $row['rght']]);
         $this->_id_name = array();
 
