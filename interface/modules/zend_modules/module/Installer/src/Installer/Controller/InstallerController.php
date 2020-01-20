@@ -170,8 +170,6 @@ class InstallerController extends AbstractActionController
                 $versions = $this->getFilesForUpgrade($Module->modDirectory);
                 $values = [];
 
-                include_once($GLOBALS['srcdir'].'/sql_upgrade_fx.php');
-
                 foreach ($versions as $version => $filename) {
                     if (version_compare($version, $Module->sql_version) < 0) {
                         continue;

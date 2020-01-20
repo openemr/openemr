@@ -604,7 +604,7 @@ function upgradeFromSqlFile($filename, $path = '')
     flush();
     echo "<font color='green'>Processing $filename ...</font><br />\n";
 
-    $fullname = (is_dir($path) ? $path : $webserver_root)."/sql/$filename";
+    $fullname = ( (!empty($path) && is_dir($path)) ? $path : $webserver_root)."/sql/$filename";
 
     $fd = fopen($fullname, 'r');
     if ($fd == false) {
