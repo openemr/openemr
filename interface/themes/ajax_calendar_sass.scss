@@ -2,10 +2,18 @@
  * the style sheet for the ajax_template calendar
  * ====================================*/
 
+/* Bootstrap Breakpoints */
+@each $breakpoint in map-keys($grid-breakpoints) {
+  @include media-breakpoint-up($breakpoint) {
+      $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
+      
+    }
+}
+
 div.tiny {
-    width: 1px;
-    height: 1px;
-    @include font-size("1px !important");
+    width: 0.0625rem;
+    height: 0.0625rem;
+    @include font-size("0.0625rem !important");
 }
 
 .currentview {
@@ -21,7 +29,7 @@ div.tiny {
 }
 
 .calsearch_body {
-    padding: 0px 0px;
+    padding: 0 !important;
 }
 
 .sidebar-wrapper {
@@ -43,7 +51,7 @@ div.tiny {
 #functions {
     min-width: 20%;
     float: left;
-    padding: 0px 5px 0px 5px;
+    padding: 0 0.3125rem 0 0.3125rem;
     margin-right: 0%;
     /* added because of the width issue above */
 }
@@ -53,7 +61,7 @@ div.tiny {
     float: right;
     width: 100%;
     border-bottom: 1px solid $black;
-    padding: 5px 0px 3px 0px;
+    padding: 0.3125rem 0 0.1875rem 0;
 }
 
 #dateNAV {
@@ -71,13 +79,13 @@ div.tiny {
 
 #dateDisplay {
     float: left;
-    padding-left: 10px;
+    padding-left: 0.625rem;
     font-family: "Arial", "Helvetica", sans-serif;
 }
 
 #viewPicker {
     float: right;
-    margin-right: 10px;
+    margin-right: 0.625rem;
 }
 
 .rtl #viewPicker,
@@ -134,16 +142,15 @@ div.tiny {
 }
 
 #bigCal td {
-    padding: 1px;
-    margin: 0px;
+    padding: 0.0625rem;
+    margin: 0;
 }
 
 #bottomLeft {
     width: 15%;
-    min-width: 140px;
+    min-width: 8.75rem;
     float: left;
     clear: left;
-
 }
 
 /* these are for the small datepicker DIV */
@@ -152,13 +159,14 @@ div.tiny {
 }
 
 #datePicker table {
-    width: 96%;
     border-collapse: collapse;
-    margin-left: 3px;
+    /* margin-left: 0.1875rem;
+    border-right: 1px solid $black; */
+    width: 100%;
 }
 
 #datePicker td {
-    width: 19.5px;
+    width: 1.21875rem;
     font-family: "Arial", "Helvetica", sans-serif;
     @include font-size("0.7rem !important");
     text-align: center;
@@ -167,7 +175,7 @@ div.tiny {
 #datePicker .tdMonthName-small {
     text-align: center;
     font-family: "Arial", "Helvetica", sans-serif;
-    @include font-size("12px !important");
+    @include font-size("0.75rem !important");
     font-style: normal;
     background-color: lighten($light, 20%);
     color: $black;
@@ -176,11 +184,11 @@ div.tiny {
 
 #datePicker .tdDOW-small {
     font-family: "Arial", "Helvetica", sans-serif;
-    @include font-size("10px !important");
+    @include font-size("0.625rem !important");
     vertical-align: top;
     text-align: center;
     border: none;
-    padding: 2px 3px 2px 3px;
+    padding: 0.125rem 0.1875rem 0.125rem 0.1875rem;
     background-color: lighten($light, 20%);
 }
 
@@ -191,40 +199,40 @@ div.tiny {
 
 #datePicker .tdWeekend-small {
     font-family: "Arial", "Helvetica", sans-serif;
-    @include font-size("10px !important");
+    @include font-size("0.625rem !important");
     vertical-align: top;
     border: none;
-    padding: 2px 3px 2px 3px;
+    padding: 0.125rem 0.1875rem 0.125rem 0.1875rem;
     background-color: $white;
     color: $gray-600;
 }
 
 #datePicker .tdHoliday-small {
     font-family: "Arial", "Helvetica", sans-serif;
-    @include font-size("10px !important");
+    @include font-size("0.625rem !important");
     vertical-align: top;
     border: none;
-    padding: 2px 3px 2px 3px;
+    padding: 0.125rem 0.1875rem 0.125rem 0.1875rem;
     background-color: $white;
     color: $danger;
 }
 
 #datePicker .tdOtherMonthDay-small {
     font-family: "Arial", "Helvetica", sans-serif;
-    @include font-size("10px !important");
+    @include font-size("0.625rem !important");
     vertical-align: top;
     border: none;
-    padding: 2px 3px 2px 3px;
+    padding: 0.125rem 0.1875rem 0.125rem 0.1875rem;
     background-color: $white;
     color: $gray-600;
 }
 
 #datePicker .tdMonthDay-small {
     font-family: "Arial", "Helvetica", sans-serif;
-    @include font-size("10px !important");
+    @include font-size("0.625rem !important");
     vertical-align: top;
     border: none;
-    padding: 2px 3px 2px 3px;
+    padding: 0.125rem 0.1875rem 0.125rem 0.1875rem;
     background-color: $white;
 }
 
@@ -247,48 +255,49 @@ div.tiny {
     border-right: 1px solid $gray-600;
     width: 1%;
     background-color: lighten($yellow, 40%);
-    padding: 0px;
+    padding: 0;
 }
 
 #times table {
     border-collapse: collapse;
     width: 100%;
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
     background-color: lighten($yellow, 40%);
 }
 
 #times table td {
     border-bottom: 1px solid $gray-600;
-    margin: 0px;
-    padding: 0px;
-    font-size: 0.8em;
+    margin: 0;
+    padding: 0;
+    @include font-size("0.8rem !important");
 }
 
 .timeslot {
     /* height value is tied to two PHP variables in the ajax_*.html files
      * if you change this value then be sure to change the matching value
      * in those files */
-    height: 20px;
-    margin: 0px;
-    padding: 0px;
+    height: 1.25rem;
+    margin: 0;
+    padding: 0;
     text-align: center;
 }
 
 .schedule {
     background-color: $white;
     vertical-align: top;
-    padding: 0px;
-    margin: 0px;
+    padding: 0;
+    margin: 0;
     border: 1px solid $gray-600;
-    width: 25em;
+    width: 25rem;
 
 }
 
 /* for the header row with provider names */
 .providerheader {
     text-align: center;
-    background-color: lighten($dark, 50%);
+    background-color: $primary;
+    color: $white;
     width: 100%;
     overflow: hidden;
     border-bottom: 1px solid $gray-300;
@@ -310,8 +319,34 @@ div.tiny {
     font-weight: bold;
 }
 
+.week_dateheader a,
+.week_dateheader a:link,
+.week_dateheader a:visited,
+.week_dateheader a:active {
+    color: $body-color;
+}
+
+.week_dateheader a:hover {
+    color: $dark;
+}
+
 .week_currday {
-    background-color: lighten($dark, 30%);
+    background-color: $primary;
+}
+
+.week_currday a,
+.week_currday a:link,
+.week_currday a:visited,
+.week_currday a:active {
+    color: $white;
+}
+
+.week_currday a:hover {
+    color: $light;
+}
+
+.weekend-day {
+    /* background: lighten($dark, 50%); */
 }
 
 /* classes specific to the MONTH view */
@@ -320,7 +355,7 @@ div.tiny {
     @include font-size("0.8rem !important");
     text-align: right;
     background-color: $white;
-    padding: 1px 2px 1px 2px;
+    padding: 0.0625rem 0.125rem 0.0625rem 0.125rem;
 }
 
 .month_dateheader {
@@ -392,7 +427,7 @@ div.tiny {
     border-left: 1px solid $gray-600;
     border-right: 2px solid $gray-700;
     border-bottom: 2px solid $gray-700;
-    margin: -3px;
+    margin: -0.1875rem;
     background-color: $black;
     white-space: nowrap;
     overflow: hidden;
@@ -410,8 +445,8 @@ div.tiny {
 
 .show-appointment {
     position: absolute;
-    bottom: 2px;
-    right: 4px;
+    bottom: 0.125rem;
+    right: 0.25rem;
     font-family: 'FontAwesome', sans-serif;
 }
 
@@ -437,7 +472,7 @@ div.tiny {
     border-left: 1px solid $gray-600;
     border-right: 2px solid $gray-700;
     border-bottom: 2px solid $gray-700;
-    margin: 0px;
+    margin: 0;
     background-color: $yellow;
     opacity: 1;
     z-index: 2;
@@ -449,17 +484,13 @@ div.tiny {
     background-color: $orange;
 }
 
-.weekend-day {
-    background: lighten($dark, 50%);
-}
-
 .event_holiday {
     width: 100% !important;
 }
 
 .pop-up img {
-    width: 150px;
-    margin: 10px;
+    width: 9.375rem;
+    margin: 0.625rem;
 }
 
 @use "sass:meta";

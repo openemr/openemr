@@ -196,15 +196,15 @@ function getRemindersHTML($today, $reminders = array())
 
 // --------- check if reminder is  overdue
         if (strtotime($r['dueDate']) < $today) {
-            $warning = '<i class=\'fa fa-exclamation-triangle fa-lg\' style=\'color:red\' aria-hidden=\'true\'></i> ' . xlt('OVERDUE');
+            $warning = '<i class=\'fa fa-exclamation-triangle fa-lg text-danger\' aria-hidden=\'true\'></i> ' . xlt('OVERDUE');
             //$class = 'bold alert dr';
             $class = '';
         } elseif (strtotime($r['dueDate']) == $today) {
             // --------- check if reminder is due
-            $warning = '<i class=\'fa fa-exclamation-circle fa-lg\' style=\'color:orange\' aria-hidden=\'true\'></i> ' . xlt('TODAY');
+            $warning = '<i class=\'fa fa-exclamation-circle fa-lg\' style=\'color: var(--orange)\' aria-hidden=\'true\'></i> ' . xlt('TODAY');
             $class = '';
         } elseif (strtotime($r['dueDate']) > $today) {
-            $warning = '<i class=\'fa fa-exclamation-circle fa-lg\' style=\'color:green\' aria-hidden=\'true\'></i> ' . xlt('UPCOMING');
+            $warning = '<i class=\'fa fa-exclamation-circle fa-lg text-success\' aria-hidden=\'true\'></i> ' . xlt('UPCOMING');
             $class = '';
         }
 
@@ -225,7 +225,7 @@ function getRemindersHTML($today, $reminders = array())
             </p>';
     }
 
-    return ($pdHTML == '' ? '<i class=\'fa fa-exclamation-circle fa-lg\' style=\'color:green\' aria-hidden=\'true\'></i> ' . xlt('No Reminders') : $pdHTML);
+    return ($pdHTML == '' ? '<i class=\'fa fa-exclamation-circle fa-lg text-success\' aria-hidden=\'true\'></i> ' . xlt('No Reminders') : $pdHTML);
 }
 
 // ------------------------------------------------

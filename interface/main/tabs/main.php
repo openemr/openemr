@@ -38,12 +38,11 @@ if ($GLOBALS['prevent_browser_refresh'] > 1) {
 
 $esignApi = new Api();
 
-?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
 <title><?php echo text($openemr_name); ?></title>
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script type="text/javascript">
 
@@ -290,9 +289,21 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'writ
 
 </script>
 <script>
+    function fixIframe() {
+        // Set height dynamically
+        $(".frameDisplay > iframe").height($(".frameDisplay > iframe").contents().find("body").height());
+        if ($(".frameDisplay > iframe").height() == '0px') {
+            // Give minimum if zero height exists
+            $(".frameDisplay > iframe").height('100%');
+        }
+    }
     $(window).on('resize', function() {
-     var win = $(this);
-     var winWidth = $(this).width();
+        var win = $(this);
+        var winWidth = $(this).width();
+        
+        // Set height dynamically
+        fixIframe();
+        
         if (winWidth > <?php echo js_escape($width); ?>) {
             $("#tabs_div").removeClass('col-sm-10');
             $("#mainFrames_div").removeClass('col-sm-10');
@@ -309,24 +320,30 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'writ
         }
     });
     $(function() {
+        // Set height dynamically
+        fixIframe();
         $(window).trigger('resize');// to avoid repeating code triggers above on page open
     });
-
 </script>
 
 <style>
-@media only screen and (max-width: <?php echo attr($width) . 'px'; ?>) {
-    .patientDataColumn {
-        width: 100% !important;
-        float: left;
-        display: block;
+    @media only screen and (max-width: <?php echo attr($width) . 'px'; ?>) {
+        .patientDataColumn {
+            width: 100% !important;
+            float: left;
+            display: block;
+        }
     }
-}
 
-html, body {
-    min-height: 100% !important;
-    height: 100% !important;
-}
+    html, body {
+        min-height: 100% !important;
+        height: 100% !important;
+    }
+    
+    /* Minimum requirement */
+    .frameDisplay > iframe {
+        height: 100%;
+    }
 </style>
 
 </head>
@@ -375,8 +392,8 @@ if (isset($_SESSION['app1'])) {
     
     <div class="body_title" id="tabs_div" data-bind="template: {name: 'tabs-controls', data: application_data}, css: responsiveDisplay.objWidth().tabsDivWidth"> </div>
 
-    <div class="mainFrames d-flex" id="mainFrames_div" data-bind="css: responsiveDisplay.objWidth().mainFramesDivWidth  + ' ' +  responsiveDisplay.objWidth().mainFramesDivFill">
-        <div id="framesDisplay" data-bind="template: {name: 'tabs-frames', data: application_data}, css: responsiveDisplay.objWidth().framesDisplayFill"> </div>
+    <div class="mainFrames d-flex" id="mainFrames_div">
+        <div id="framesDisplay" data-bind="template: {name: 'tabs-frames', data: application_data}"> </div>
     </div>
 </div>
 <script>
@@ -392,8 +409,6 @@ displayViewModel.objWidth = ko.computed(function() {
         if(this.winWidth() <= <?php echo js_escape($width); ?>){
             currWidth = {
                mainBoxId: "mainBox_vertical",
-               mainFramesDivFill: "oe-fill",
-               framesDisplayFill: "oe-fill",
                menuItemsHide: "oe-hidden",
                menuIconHide: "",
                menuHideHide: "oe-hidden"
@@ -408,16 +423,13 @@ displayViewModel.objWidth = ko.computed(function() {
             if(this.oeVerticalMenu()){
                 if(this.winWidth() > 1440) {
                     currWidth.tabsDivWidth = "col-sm-11";
-                    currWidth.mainFramesDivWidth = "col-sm-11";
                     currWidth.bodyTopDivWidth = "col-sm-1";
                 } else {
                     currWidth.tabsDivWidth = "col-sm-10";
-                    currWidth.mainFramesDivWidth = "col-sm-10";
                     currWidth.bodyTopDivWidth = "col-sm-2";
                 }
             } else {
                currWidth.tabsDivWidth = "col-sm-12";
-               currWidth.mainFramesDivWidth = "col-sm-12";
             }
             if (this.winWidth() <= 767){
                 currWidth.attendantDataClear = "clearfix";
@@ -435,9 +447,6 @@ displayViewModel.objWidth = ko.computed(function() {
                mainBoxId: "mainBox",
                bodyTopDivWidth : "",
                tabsDivWidth: "",
-               mainFramesDivWidth: "",
-               mainFramesDivFill: "",
-               framesDisplayFill: "",
                menuItemsHide: "",
                menuIconHide: "oe-hidden",
                menuHideHide: "oe-hidden",

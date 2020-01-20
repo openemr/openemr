@@ -216,6 +216,8 @@ if (!empty($row)) {
             </div>
         </div>
     </div>
+    </div>
+    </div>
 </form>
 
 </div>

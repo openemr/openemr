@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-[-headerTemplate-]
+    <meta charset="utf-8" />
+    [-headerTemplate-]
+    <title>[-php-] echo xlt('Calendar'); [-/php-]</title>
 <!--[if IE]>
         <link rel="stylesheet" href="[-php-]echo $GLOBALS['webroot'].'/interface/themes/ajax_calendar_ie.css';[-/php-]" type="text/css"/>
 <![endif]-->
@@ -28,5 +28,5 @@ function create_event_time_anchor($displayString)
 [-/php-]
 </head>
 [-php-]
-echo "<body class = '" . attr($_SESSION['language_direction']) . " calsearch_body'>";
+echo "<body class = '" . attr($_SESSION['language_direction']) . " calsearch_body w-100'>";
 [-/php-]

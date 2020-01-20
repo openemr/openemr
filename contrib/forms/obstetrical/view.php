@@ -31,7 +31,7 @@ include_once("$srcdir/api.inc");
 $obj = formFetch("form_obstetrical", $_GET["id"]);
 ?>
 <form method=post action="<?php echo $rootdir?>/forms/obstetrical/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">
-<span class="title">Obstetrical Form</span><Br><br />
+<span class="title">Obstetrical Form</span><br /><br />
 <table>
 <tr>
 <td><span class=text>Name: </span></td><td><input type=entry name="name" value="<?php echo attr($obj["name"]); ?>" ></td>

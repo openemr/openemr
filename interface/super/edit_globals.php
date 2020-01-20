@@ -409,11 +409,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
 
-<?php if ($userMode) { ?>
-    <body class="body_top m-0" style="min-width: 700px;">
-<?php } else { ?>
-    <div class="body_top m-0">
-<?php } ?>
+<body class="body_top m-0" <?php if ($userMode) {
+    echo 'style="min-width: 700px;"'; } ?>>
 
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <div class="row">
@@ -916,4 +913,3 @@ $('.scroll').click(function() {
 </script>
 </body>
 </html>
-

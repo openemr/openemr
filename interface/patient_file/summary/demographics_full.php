@@ -67,12 +67,10 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 ?>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-<title><?php echo xlt('Edit Current Patient'); ?></title>
-
 <?php Header::setupHeader(['datetime-picker','common','select2']);
     require_once("$srcdir/erx_javascript.inc.php");
 ?>
+<title><?php echo xlt('Edit Current Patient'); ?></title>
 
 <style>
     .form-control {

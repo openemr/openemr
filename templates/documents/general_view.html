@@ -10,7 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *}
 
-<script language="JavaScript">
+<script>
  {if $GLOBALS.oefax_enable}
  {dispatchPatientDocumentEvent event="javascript_ready_fax_dialog"}
  {/if}
@@ -164,7 +164,7 @@ function ImgProcedure() {literal}{{/literal}
                 <div>
                     {xlt t='Pass Phrase'}:
                     <input title="{xla t='Supports TripleDES encryption/decryption only.'} {xla t='Leaving the pass phrase blank will not encrypt the document'}" type='text' size='20' name='passphrase' id='passphrase' value=''/>
-                    <input type="hidden" name="encrypted" value="true"></input>
+                    <input type="hidden" name="encrypted" value="true" />
               	</div>
                 </form>
             </div>
@@ -200,8 +200,7 @@ function ImgProcedure() {literal}{{/literal}
               	</div>
                 <div>
                     {xlt t='Date'}:
-                    <input type='text' size='10' class='datepicker' name='docdate' id='docdate'
-                     value='{$DOCDATE|attr}' title='{xla t='yyyy-mm-dd document date'}' />
+                    <input type='text' size='10' class='datepicker' name='docdate' id='docdate' value='{$DOCDATE|attr}' title="{xla t='yyyy-mm-dd document date'}" />
                     <select name="issue_id">{$ISSUES_LIST}</select>
                 </div>
                 </form>
@@ -223,8 +222,7 @@ function ImgProcedure() {literal}{{/literal}
                 <div>
                         <select name="new_category_id">{$tree_html_listbox}</select>&nbsp;
                         {xlt t='Move to Patient'} # <input type="text" name="new_patient_id" size="4" />
-                        <a href="javascript:{literal}{}{/literal}"
-                         onclick="top.restoreSession();var URL='controller.php?patient_finder&find&form_id={"document_move['new_patient_id']"|attr_url}&form_name={"document_move['new_patient_name']"|attr_url}'; window.open(URL, 'document_move', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left=425,top=250');">
+                        <a href="javascript:{literal}{}{/literal}" onclick="top.restoreSession();var URL='controller.php?patient_finder&find&form_id={"document_move['new_patient_id']"|attr_url}&form_name={"document_move['new_patient_name']"|attr_url}'; window.open(URL, 'document_move', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left=425,top=250');">
                         <img src="{$IMAGES_STATIC_RELATIVE}/stock_search-16.png" border="0" /></a>
                         <input type="hidden" name="new_patient_name" value="" />
                 </div>

@@ -69,33 +69,163 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
         top: -20px;
         width: auto;
         margin: 0;
-        color: red;
+        color: var(--danger);
         transform: translateX(-50%);
     }
+    
     @media screen and (max-width: 640px) {
         .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter {
             float: inherit;
             text-align: justify;
         }
     }
-    .dataTables_wrapper .dataTables_length,
-    .dataTables_wrapper .dataTables_filter,
-    .dataTables_wrapper .dataTables_info,
-    .dataTables_wrapper .dataTables_processing,
-    .dataTables_wrapper .dataTables_paginate {
-        color: var(--dark) !important;
-    }
-    .dataTables_wrapper .dataTables_paginate .paginate_button {
-        color: var(--dark) !important;
-    }
     
-    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
-    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover,
-    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:active {
-        color: var(--gray) !important;
-    }
+/* Color Overrides for jQuery-DT */
+table.dataTable thead th,
+table.dataTable thead td {
+    border-bottom: 1px solid var(--gray900) !important;
+}
+table.dataTable tfoot th,
+table.dataTable tfoot td {
+    border-top: 1px solid var(--gray900) !important;
+}
+table.dataTable tbody tr {
+  background-color: var(--white) !important;
+}
+table.dataTable.row-border tbody th,
+table.dataTable.row-border tbody td,
+table.dataTable.display tbody th,
+table.dataTable.display tbody td {
+  border-top: 1px solid var(--gray300) !important;
+}
+table.dataTable.cell-border tbody th,
+table.dataTable.cell-border tbody td {
+  border-top: 1px solid var(--gray300) !important;
+  border-right: 1px solid var(--gray300) !important;
+}
+table.dataTable.cell-border tbody tr th:first-child,
+table.dataTable.cell-border tbody tr td:first-child {
+  border-left: 1px solid var(--gray300) !important;
+}
+table.dataTable.stripe tbody tr.odd,
+table.dataTable.display tbody tr.odd {
+  background-color: var(--light) !important;
+}
+
+table.dataTable.hover tbody tr:hover,
+table.dataTable.display tbody tr:hover {
+  background-color: var(--light) !important;
+}
+table.dataTable.order-column tbody tr > .sorting_1,
+table.dataTable.order-column tbody tr > .sorting_2,
+table.dataTable.order-column tbody tr > .sorting_3,
+table.dataTable.display tbody tr > .sorting_1,
+table.dataTable.display tbody tr > .sorting_2,
+table.dataTable.display tbody tr > .sorting_3 {
+  background-color: var(--light) !important;
+}
+table.dataTable.display tbody tr.odd > .sorting_1,
+table.dataTable.order-column.stripe tbody tr.odd > .sorting_1 {
+  background-color: var(--light) !important;
+}
+table.dataTable.display tbody tr.odd > .sorting_2,
+table.dataTable.order-column.stripe tbody tr.odd > .sorting_2 {
+  background-color: var(--light) !important;
+}
+table.dataTable.display tbody tr.odd > .sorting_3,
+table.dataTable.order-column.stripe tbody tr.odd > .sorting_3 {
+  background-color: var(--light) !important;
+}
+table.dataTable.display tbody tr.even > .sorting_1,
+table.dataTable.order-column.stripe tbody tr.even > .sorting_1 {
+  background-color: var(--light) !important;
+}
+table.dataTable.display tbody tr.even > .sorting_2,
+table.dataTable.order-column.stripe tbody tr.even > .sorting_2 {
+  background-color: var(--light) !important;
+}
+table.dataTable.display tbody tr.even > .sorting_3,
+table.dataTable.order-column.stripe tbody tr.even > .sorting_3 {
+  background-color: var(--light) !important;
+}
+table.dataTable.display tbody tr:hover > .sorting_1,
+table.dataTable.order-column.hover tbody tr:hover > .sorting_1 {
+  background-color: var(--gray200) !important;
+}
+table.dataTable.display tbody tr:hover > .sorting_2,
+table.dataTable.order-column.hover tbody tr:hover > .sorting_2 {
+  background-color: var(--gray200) !important;
+}
+table.dataTable.display tbody tr:hover > .sorting_3,
+table.dataTable.order-column.hover tbody tr:hover > .sorting_3 {
+  background-color: var(--gray200) !important;
+}
+table.dataTable.no-footer {
+  border-bottom: 1px solid var(--gray900) !important;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  color: var(--dark) !important;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+  color: var(--dark) !important;
+  border: 1px solid var(--gray600) !important;
+  background-color: var(--white) !important;
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, var(--white)), color-stop(100%, var(--gray300))) !important;
+  background: -webkit-linear-gradient(top, var(--white) 0%, var(--gray300) 100%) !important;
+  background: -moz-linear-gradient(top, var(--white) 0%, var(--gray300) 100%) !important;
+  background: -ms-linear-gradient(top, var(--white) 0%, var(--gray300) 100%) !important;
+  background: -o-linear-gradient(top, var(--white) 0%, var(--gray300) 100%) !important;
+  background: linear-gradient(to bottom, var(--white) 0%, var(--gray300) 100%) !important;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled.
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover, .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:active {
+  color: var(--gray700) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  color: var(--white) !important;
+  border: 1px solid var(--gray900) !important;
+  background-color: var(--gray700) !important;
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #585858), color-stop(100%, var(--gray900))) !important;
+  background: -webkit-linear-gradient(top, var(--gray700) 0%, var(--gray900) 100%) !important;
+  background: -moz-linear-gradient(top, var(--gray700) 0%, var(--gray900) 100%) !important;
+  background: -ms-linear-gradient(top, var(--gray700) 0%, var(--gray900) 100%) !important;
+  background: -o-linear-gradient(top, var(--gray700) 0%, var(--gray900) 100%) !important;
+  background: linear-gradient(to bottom, var(--gray700) 0%, var(--gray900) 100%) !important;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button:active {
+  background-color: var(--dark) !important;
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, var(--dark)), color-stop(100%, var(--gray900))) !important;
+  background: -webkit-linear-gradient(top, var(--dark) 0%, var(--gray900) 100%) !important;
+  background: -moz-linear-gradient(top, var(--dark) 0%, var(--gray900) 100%) !important;
+  background: -ms-linear-gradient(top, var(--dark) 0%, var(--gray900) 100%) !important;
+  background: -o-linear-gradient(top, var(--dark) 0%, var(--gray900) 100%) !important;
+  background: linear-gradient(to bottom, var(--dark) 0%, var(--gray900) 100%) !important;
+  box-shadow: inset 0 0 3px var(--gray900) !important;
+}
+.dataTables_wrapper .dataTables_processing {
+  background-color: var(--white) !important;
+  background: -webkit-gradient(linear, left top, right top, color-stop(0%, transparent), color-stop(25%, rgba(var(--black), 0.9)), color-stop(75%, rgba(var(--black), 0.9)), color-stop(100%, transparent)) !important;
+  background: -webkit-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
+  background: -moz-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
+  background: -ms-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
+  background: -o-linear-gradient(left, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
+  background: linear-gradient(to right, transparent 0%, rgba(var(--black), 0.9) 25%, rgba(var(--black), 0.9) 75%, transparent 100%) !important;
+}
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_processing,
+.dataTables_wrapper .dataTables_paginate {
+    color: var(--dark) !important;
+}
+.dataTables_wrapper.no-footer .dataTables_scrollBody {
+    border-bottom: 1px solid var(--gray900) !important;
+}
+    
 </style>
-<script type="text/javascript">
+<script>
 
     var uspfx = '<?php echo attr($uspfx); ?>';
 

@@ -20,7 +20,7 @@
 }
 
 .logout {
-    color: $black;
+    color: $body-color;
     text-decoration: none;
     text-align: $right;
 }
@@ -347,7 +347,7 @@ div.category-display {
 /*bootstrap navbar */
 .navbar-collapse.collapse.in {
     background-color: lighten($light, 20%) !important;
-    color: $black !important;
+    color: $body-color !important;
 }
 
 .navbar-light .navbar-nav > li > a:focus,
@@ -381,10 +381,27 @@ div.category-display {
 /* Fieldset Colors */
 legend {
     background-color: $gray-300 !important;
-    color: $black !important;
+    color: $body-color !important;
 }
 
 fieldset {
     background-color: $light !important;
-    color: $black !important;
+    color: $body-color !important;
+}
+
+/* Select2 Theme Overrides - The BS theme Doesn't cover it all! */
+.select2-close-mask {
+    background-color: $white !important;
+}
+
+.select2-dropdown {
+    background-color: $white !important;
+}
+
+.select2-container--bootstrap4 .select2-selection--single {
+    background-color: $white !important;
+}
+
+.select2-container--bootstrap4 .select2-selection--multiple {
+    background-color: $white !important;
 }

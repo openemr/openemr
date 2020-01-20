@@ -187,7 +187,10 @@ function includeScript(url, async, type) {
             console.log('Needed to load:[ ' + url + ' ] For: [ ' + location + ' ]');
             return false;
         }
-
+        
+        if (async === false) {
+            console.log("The url of " + url + " is deprecated due to synchronous requests. Let's find a way to remediate this soon!");
+        }
         rqit.open("GET", url, async); // false = synchronous.
         rqit.send(null);
 

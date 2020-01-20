@@ -46,11 +46,12 @@ $form_regdate   = $_POST['regdate'  ] ? trim($_POST['regdate'  ]) : date('Y-m-d'
 
 <head>
 
-<?php Header::setupHeader('datetime-picker'); ?>>
+<?php
+    Header::setupHeader('datetime-picker');
+    include_once($GLOBALS['srcdir'] . "/options.js.php");
+?>
 
-<?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
-
-<script LANGUAGE="JavaScript">
+<script>
 
  function validate() {
   var f = document.forms[0];
@@ -113,12 +114,12 @@ $(function (){
    <input type='hidden' name='title' value='' />
 <?php } ?>
 
-<table border='0'>
+<table class="border-0">
 
 <?php if (!$GLOBALS['omit_employers']) { ?>
  <tr>
   <td>
-   <span class='bold'><?php echo xlt('Title'); ?>: </span>
+   <span class='font-weight-bold'><?php echo xlt('Title'); ?>: </span>
   </td>
   <td>
    <select name='title'>

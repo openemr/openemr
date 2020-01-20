@@ -1678,9 +1678,8 @@ class Display extends base
                                                             <?php echo xlt('Assume patients receive HIPAA policy'); ?>
                                                      </label><br />
                                                      <input type="checkbox" class="update" name="MSGS_default_yes" id="MSGS_default_yes" value="1" <?php if ($prefs['MSGS_default_yes']=='1') {
-                                                                echo "checked='checked'";} ?>>
-                                                        <label for="MSGS_default_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Default: Checked. When checked, messages are processed for patients with Patient Demographic Choice (Phone/Text/Email) set to \'Unassigned\' or \'Yes\'. If this is unchecked, a given type of message can only be sent if its Demographic Choice = \'Yes\'.'); ?>">
-                                                            <?php echo xlt('Assume patients permit Messaging'); ?></label>
+                                                                echo "checked='checked'";} ?>><label for="MSGS_default_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Default: Checked. When checked, messages are processed for patients with Patient Demographic Choice (Phone/Text/Email) set to \'Unassigned\' or \'Yes\'. If this is unchecked, a given type of message can only be sent if its Demographic Choice = \'Yes\'.'); ?>">
+                                                           <?php echo xlt('Assume patients permit Messaging'); ?></label>
                                                     </div>
                                                 </div>
                                                 <div class="divTableRow">
@@ -1889,22 +1888,12 @@ class Display extends base
                     <br />
                     <form name="rcb" id="rcb" method="post">
                         <input type="hidden" name="go" value="Recalls">
-                        <div class=" text-center row divTable" style="width: 85%; float:unset; margin: 0 auto;">
+                        <div class="text-center row divTable" style="width: 85%; float:unset; margin: 0 auto;">
 
                                 <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
-                                    <input placeholder="<?php echo xla('Patient ID'); ?>"
-                                        class="form-control input-sm"
-                                        type="text" id="form_patient_id"
-                                        name="form_patient_id"
-                                        value="<?php echo ( $form_patient_id ) ? attr($form_patient_id) : ""; ?>"
-                                        onKeyUp="show_this();">
+                                    <input placeholder="<?php echo xla('Patient ID'); ?>" class="form-control form-control-sm" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ( $form_patient_id ) ? attr($form_patient_id) : ""; ?>" onKeyUp="show_this();" />
 
-                                    <input type="text"
-                                        placeholder="<?php echo xla('Patient Name'); ?>"
-                                        class="form-control input-sm" id="form_patient_name"
-                                        name="form_patient_name"
-                                        value="<?php echo ( $form_patient_name ) ? attr($form_patient_name) : ""; ?>"
-                                        onKeyUp="show_this();">
+                                    <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control form-control-sm" id="form_patient_name" name="form_patient_name" value="<?php echo ( $form_patient_name ) ? attr($form_patient_name) : ""; ?>" onKeyUp="show_this();">
                                 </div>
 
                                 <div class="col-sm-<?php echo $col_width; ?> text-center" style="margin-top:15px;">
@@ -1964,17 +1953,14 @@ class Display extends base
                                           <tr><td class="text-right" style="vertical-align:bottom;">
                                             <label for="flow_from"><?php echo xlt('From'); ?>:</label></td><td>
                                             <input id="form_from_date" name="form_from_date"
-                                                class="datepicker form-control input-sm text-center"
+                                                class="datepicker form-control form-control-sm text-center"
                                                 value="<?php echo attr(oeFormatShortDate($from_date)); ?>"
                                                 style="max-width:140px;min-width:85px;">
 
                                           </td></tr>
                                           <tr><td class="text-right" style="vertical-align:bottom;">
                                             <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To{{Range}}'); ?>:</label></td><td>
-                                            <input id="form_to_date" name="form_to_date"
-                                                class="datepicker form-control input-sm text-center"
-                                                value="<?php echo attr(oeFormatShortDate($to_date)); ?>"
-                                                style="max-width:140px;min-width:85px;">
+                                            <input id="form_to_date" name="form_to_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($to_date)); ?>" style="max-width:140px;min-width:85px;">
                                           </td></tr>
 
                                           <tr>
@@ -2544,7 +2530,7 @@ class Display extends base
             <div class="row-fluid showReminders clear text-center">
                 <div id="add_recall" class="col-sm-12">
                     <div class="title"><?php echo xlt('New Recall'); ?></div>
-                    <div name="div_response" id="div_response"><?php echo xlt('Create a reminder to schedule a future visit'); ?> .</div>
+                    <div name="div_response" id="div_response"><?php echo xlt('Create a reminder to schedule a future visit.'); ?></div>
                 </div>
             </div>
             <div class="row-fluid divTable float_center">
@@ -2571,20 +2557,16 @@ class Display extends base
                                     <input type="radio" name="new_recall_when" id="new_recall_when_6mos" value="180">
                                     <label for="new_recall_when_6mos" class="input-helper input-helper--checkbox">+ 6 <?php echo xlt('months'); ?></label><br />
                                     -->
-                                    <label for="new_recall_when_1yr" class="indent20 input-helper input-helper--checkbox"><input type="radio" name="new_recall_when" id="new_recall_when_1yr" value="365" class="form-control">
-                                    <?php echo xlt('plus 1 year'); ?></label><br />
-                                    <label for="new_recall_when_2yr" class="indent20 input-helper input-helper--checkbox"><input type="radio" name="new_recall_when" id="new_recall_when_2yr" value="730" class="form-control">
-                                        <?php echo xlt('plus 2 years'); ?></label><br />
-                                    <label for="new_recall_when_3yr" class="indent20 input-helper input-helper--checkbox"><input type="radio" name="new_recall_when" id="new_recall_when_3yr" value="1095" class="form-control">
-                                        <?php echo xlt('plus 3 years'); ?></label><br />
-                                        <span class="bold"> <?php echo xlt('Date'); ?>:</span> <input class="datepicker form-control input-sm text-center" type="text" id="form_recall_date" name="form_recall_date" value="">
+                                    <label for="new_recall_when_1yr" class="input-helper input-helper--checkbox"><input type="radio" name="new_recall_when" id="new_recall_when_1yr" value="365" /><?php echo xlt('plus 1 year'); ?></label><br />
+                                    <label for="new_recall_when_2yr" class="input-helper input-helper--checkbox"><input type="radio" name="new_recall_when" id="new_recall_when_2yr" value="730" /><?php echo xlt('plus 2 years'); ?></label><br />
+                                    <label for="new_recall_when_3yr" class="input-helper input-helper--checkbox"><input type="radio" name="new_recall_when" id="new_recall_when_3yr" value="1095" /><?php echo xlt('plus 3 years'); ?></label><br />
+                                        <span class="font-weight-bold"> <?php echo xlt('Date'); ?>:</span> <input class="datepicker form-control form-control-sm text-center" type="text" id="form_recall_date" name="form_recall_date" value="" />
                                 </div>
                             </div>
                             <div class="divTableRow">
                                 <div class="divTableCell divTableHeading"><?php echo xlt('Recall Reason'); ?></div>
                                 <div class="divTableCell">
-                                    <input class="form-control" type="text"  style="width:225px;" name="new_reason" id="new_reason" value="<?php
-                                    if ($result_pat['PLAN'] > '') {
+                                    <input class="form-control" type="text"  style="width:225px;" name="new_reason" id="new_reason" value="<?php if ($result_pat['PLAN'] > '') {
                                         echo attr(rtrim("|", trim($result_pat['PLAN']))); } ?>">
                                     </div>
                                 </div>
@@ -2608,7 +2590,7 @@ class Display extends base
                                             $defaultProvider = $userid;
                                         }
 
-                                        echo "<select  class='form-control' name='new_provider' id='new_provider' style='width:95%;'>";
+                                        echo "<select class='form-control' name='new_provider' id='new_provider' style='width: 95%;'>";
                                         while ($urow = sqlFetchArray($ures)) {
                                             echo "    <option value='" . attr($urow['id']) . "'";
                                             if ($urow['id'] == $defaultProvider) {
@@ -2627,7 +2609,7 @@ class Display extends base
                                 <div class="divTableRow">
                                     <div class="divTableCell divTableHeading"><?php echo xlt('Facility'); ?></div>
                                     <div class="divTableCell">
-                                    <select  class="form-control ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" name="new_facility" id="new_facility" style="width:95%;">
+                                    <select class="form-control ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" name="new_facility" id="new_facility" style="width: 95%;">
                                         <?php
                                             $qsql = sqlStatement("SELECT id, name, primary_business_entity FROM facility WHERE service_location != 0");
                                         while ($facrow = sqlFetchArray($qsql)) {
@@ -2655,13 +2637,13 @@ class Display extends base
                                     <?php
                                     $DOB = oeFormatShortDate($result_pat['DOB']);
                                     ?>
-                                    <span name="new_DOB" id="new_DOB" style="width:90px;"><?php echo text($DOB); ?></span> -
+                                    <span name="new_DOB" id="new_DOB" style="width: 90px;"><?php echo text($DOB); ?></span> -
                                      <span id="new_age" name="new_age"><?php echo text($result_pat['age']); ?></span></div>
                                 </div>
                                 <div class="divTableRow news">
                                     <div class="divTableCell divTableHeading"><?php echo xlt('Address'); ?></div>
                                     <div class="divTableCell">
-                                    <input type="text"  class="form-control" name="new_address" id="new_address" style="width:240px;" value="<?php echo attr($result_pat['street']); ?>"><br />
+                                    <input type="text" class="form-control" name="new_address" id="new_address" style="width:240px;" value="<?php echo attr($result_pat['street']); ?>"><br />
                                     <input type="text"  class="form-control" name="new_city" id="new_city" style="width:100px;" value="<?php echo attr($result_pat['city']); ?>">
                                     <input type="text"  class="form-control" name="new_state" id="new_state" style="width:40px;" value="<?php echo attr($result_pat['state']); ?>">
                                     <input type="text"  class="form-control" name="new_postal_code" id="new_postal_code" style="width:65px;" value="<?php echo attr($result_pat['postal_code']); ?>"></div>
@@ -2677,18 +2659,27 @@ class Display extends base
                                 <div class="divTableRow news">
                                     <div class="divTableCell divTableHeading msg_sent" data-placement="auto" title="<?php echo xla('Text Message permission'); ?>"><?php echo xlt('SMS OK'); ?></div>
 
-                                    <div class="divTableCell indent20">
-                                    <input type="radio" class="form-control" name="new_allowsms" id="new_allowsms_yes" value="YES"> <label for="new_allowsms_yes"><?php echo xlt('YES'); ?></label>
-                                    &nbsp;&nbsp;
-                                    <input type="radio" class="form-control" name="new_allowsms" id="new_allowsms_no" value="NO"> <label for="new_allowsms_no"><?php echo xlt('NO'); ?></label>
+                                    <div class="divTableCell">
+                                    <div class="form-check">
+                                        <input type="radio" class="form-check-input" name="new_allowsms" id="new_allowsms_yes" value="YES" />
+                                        <label class="form-check-label" for="new_allowsms_yes"><?php echo xlt('YES'); ?></label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="new_allowsms" id="new_allowsms_no" value="NO">
+                                        <label class="form-check-label" for="new_allowsms_no"><?php echo xlt('NO'); ?></label>
+                                    </div>
                                     </div>
                                 </div>
-                                <div class="divTableRow indent20">
+                                <div class="divTableRow">
                                     <div class="divTableCell divTableHeading msg_how" data-placement="auto" title="<?php echo xla('Automated Voice Message permission'); ?>"><?php echo xlt('AVM OK'); ?></div>
-                                    <div class="divTableCell indent20">
-                                    <input type="radio" class="form-control" name="new_voice" id="new_voice_yes" value="YES"> <label for="new_voice_yes"><?php echo xlt('YES'); ?></label>
-                                    &nbsp;&nbsp;
-                                    <input type="radio" class="form-control" name="new_voice" id="new_voice_no" value="NO"> <label for="new_voice_no"><?php echo xlt('NO'); ?></label>
+                                    <div class="divTableCell">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="new_voice" id="new_voice_yes" value="YES" />
+                                        <label class="form-check-label" for="new_voice_yes"><?php echo xlt('YES'); ?></label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="new_voice" id="new_voice_no" value="NO" /> <label class="form-check-label" for="new_voice_no"><?php echo xlt('NO'); ?></label>
+                                    </div>
                                     </div>
                                 </div>
                                 <div class="divTableRow news">
@@ -2698,10 +2689,15 @@ class Display extends base
 
                                 <div class="divTableRow news">
                                     <div class="divTableCell divTableHeading msg_when"><?php echo xlt('E-mail OK'); ?></div>
-                                    <div class="divTableCell indent20">
-                                    <input type="radio" class="form-control" name="new_email_allow" id="new_email_yes" value="YES"> <label for="new_email_yes"><?php echo xlt('YES'); ?></label>
-                                    &nbsp;&nbsp;
-                                    <input type="radio" class="form-control" name="new_email_allow" id="new_email_no" value="NO"> <label for="new_email_no"><?php echo xlt('NO'); ?></label>
+                                    <div class="divTableCell">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="new_email_allow" id="new_email_yes" value="YES" />
+                                        <label class="form-check-label" for="new_email_yes"><?php echo xlt('YES'); ?></label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="new_email_allow" id="new_email_no" value="NO" />
+                                        <label class="form-check-label" for="new_email_no"><?php echo xlt('NO'); ?></label>
+                                    </div>
                                     </div>
                                 </div>
                             </div>
@@ -2709,7 +2705,7 @@ class Display extends base
                     </form>
                 </div>
                 <div class="row-fluid text-center">
-                    <button class="btn btn-secondary btn-add" style="float:none;" onclick="add_this_recall();" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new"><?php echo xlt('Add Recall'); ?></button>
+                    <button class="btn btn-secondary btn-add" style="float: none;" onclick="add_this_recall();" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new"><?php echo xlt('Add Recall'); ?></button>
                     <p>
                         <em class="small text-muted">* <?php echo xlt('N.B.{{Nota bene}}')." ".xlt('Demographic changes made here are recorded system-wide'); ?>.</em>
                     </p>

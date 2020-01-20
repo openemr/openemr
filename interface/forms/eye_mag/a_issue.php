@@ -16,6 +16,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+/* TODO: Code cleanup */
+
 
 $form_folder= "eye_mag";
 require_once('../../globals.php');
@@ -91,8 +93,7 @@ foreach (explode(',', $given) as $item) {
 ?><html>
   <head>
     <title><?php echo xlt('Add New Issue'); ?></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script language="JavaScript">
+    <script>
      var aitypes = new Array(); // issue type attributes
      var aopts   = new Array(); // Option objects
         <?php
@@ -576,51 +577,58 @@ foreach (explode(',', $given) as $item) {
       <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
 
       <style>
-          td, select, textarea, input  {
-         font-family: Fontawesome, Arial, Helvetica, sans-serif;
-         font-size: 8pt;
-         }
-
-         input[type="text"],textarea{
-            text-align: left;
-            display: inline-block;
-            border: 1px solid #CCC !important;
-            box-shadow: 0px 1px 3px #DDD inset !important;
-            border-radius: 4px;
-            margin:3px 3px 3px 5px;
-            box-sizing: border-box;
-            width:95%;
-           }
+          td,
+          select,
+          textarea,
+          input {
+              font-family: "Fontawesome", "Arial", "Helvetica", sans-serif;
+              font-size: 11px;
+          }
+          
+          input[type="text"],
+          textarea {
+              text-align: left;
+              display: inline-block;
+              border: 1px solid #CCC !important;
+              box-shadow: 0px 1px 3px #DDD inset !important;
+              border-radius: 4px;
+              margin: 3px 3px 3px 5px;
+              box-sizing: border-box;
+              width: 95%;
+          }
+          
           div.section {
-           border: solid;
-           border-width: 1px;
-           border-color: #0000ff;
-           margin: 0 0 0 10pt;
-           padding: 5pt;
+              border: 1px solid var(--primary);
+              margin: 0 0 0 13px;
+              padding: 7px;
           }
+          
           .ROS_class input[type="text"] {
-            width:100px;
+            width: 100px;
           }
+          
           .label {
-            color:black;
+            color: var(--black);
           }
+          
           .issues {
-            font-size:0.8em;
+            font-size: 0.8rem;
             text-align: center;
-            width:100%;
+            width: 100%;
           }
-         select {
-            text-align: left;
-            border: 1px solid #CCC !important;
-            box-shadow: 0px 1px 3px #DDD inset !important;
-            border-radius: 4px;
-            margin:1px 3px 1px 5px;
-            box-sizing: border-box;
-            width:80%;
+          select {
+              text-align: left;
+              border: 1px solid #CCC !important;
+              box-shadow: 0px 1px 3px #DDD inset !important;
+              border-radius: 4px;
+              margin: 1px 3px 1px 5px;
+              box-sizing: border-box;
+              width: 80%;
          }
          #form_comments {
              height: 22px;
          }
+          
          .navy {
           background-color: navy !important;
          }
@@ -689,7 +697,7 @@ foreach (explode(',', $given) as $item) {
             ?>
         </div>
       <div class="borderShadow" style="text-align:left;">
-        <table  border='0' width='100%'>
+        <table border='0' width='100%'>
           <tr id='row_quick_picks'>
             <td valign='top' nowrap>&nbsp;</td>
             <td valign='top'  colspan="1">
@@ -724,10 +732,7 @@ foreach (explode(',', $given) as $item) {
             <td id='row_enddate' nowrap><input type='checkbox' name='form_active' id='form_active' value='1' <?php echo attr($irow['enddate']) ? " checked" : ""; ?>
               onclick='top.restoreSession();resolvedClicked(this);'
               title='<?php echo xla('Indicates if this issue is currently active'); ?>' />
-              <b id="resolved"><?php echo xlt('Resolved'); ?>:</b>&nbsp;<input type='text' class='datepicker' size='10' name='form_end' id='form_end'
-                                                                               style="max-width: 100px;"
-                                                                               value='<?php echo attr(oeFormatShortDate($irow['enddate'])); ?>'
-              title='<?php echo xla('Date of recovery or end of medication'); ?>' />
+              <b id="resolved"><?php echo xlt('Resolved'); ?>:</b>&nbsp;<input type='text' class='datepicker' size='10' name='form_end' id='form_end' style="max-width: 100px;" value='<?php echo attr(oeFormatShortDate($irow['enddate'])); ?>' title='<?php echo xla('Date of recovery or end of medication'); ?>' />
             </td>
            </tr>
 
@@ -745,7 +750,7 @@ foreach (explode(',', $given) as $item) {
            </tr>
 
            <tr id='row_classification'>
-            <td valign='top'  class="right" nowrap><b><?php echo xlt('Classification'); ?>:</b></td>
+            <td valign='top' class="right" nowrap><b><?php echo xlt('Classification'); ?>:</b></td>
             <td colspan="3">
              <select name='form_classification' id='form_classification'>
                 <?php
@@ -762,7 +767,7 @@ foreach (explode(',', $given) as $item) {
             </td>
           </tr>
           <tr id='row_reaction'>
-             <td valign='top'  class="right" nowrap><b><?php echo xlt('Reaction'); ?>:</b></td>
+             <td valign='top' class="right" nowrap><b><?php echo xlt('Reaction'); ?>:</b></td>
              <td  colspan="3">
               <input type='text' size='40' name='form_reaction' id='form_reaction' value='<?php echo attr($irow['reaction']) ?>'
                title='<?php echo xla('Allergy Reaction'); ?>' />
@@ -1116,11 +1121,9 @@ foreach (explode(',', $given) as $item) {
                                                                                                                                                                       } ?>><?php echo xlt('Quit') ?>&nbsp;</td>
                         <td class="text"><input type="text" size="6" class="datepicker" name="date_hazardous_activities" id="date_hazardous_activities" value="" title="<?php echo xla('Hazardous activities') ?>">&nbsp;</td>
                         <td class="text-center"><input type="radio" name="radio_hazardous_activities" id="radio_hazardous_activities[never]" value="neverhazardous_activities" <?php if ($PMSFH[0]['SOCH']['hazardous_activities']['restype'] =='neverhazardous_activities') {
-                            echo " checked";
-                                                                                                                                                                               } ?>></td>
+                            echo " checked"; } ?>></td>
                         <td class="text-center"><input name="radio_hazardous_activities" type="radio" id="radio_hazardous_activities[not_applicable]" <?php if ($PMSFH[0]['SOCH']['hazardous_activities']['restype'] =='not_applicable') {
-                            echo " checked";
-                                                                                                                                                      } ?> value="not_applicablehazardous_activities" onclick="hazardous_activities_statusClicked(this)"></td>
+                            echo " checked"; } ?> value="not_applicablehazardous_activities" onclick="hazardous_activities_statusClicked(this)"></td>
                         </tr>
                         </tbody>
                       </table>

@@ -41,62 +41,89 @@ form {
     padding: 0px;
     margin: 0px;
 }
+
 #searchCriteria {
     text-align: center;
     width: 100%;
-    font-size: 0.8em;
-    background-color: #ddddff;
+    font-size: 0.8rem;
+    background-color: var(--gray300);
     font-weight: bold;
     padding: 3px;
 }
+
 #searchResultsHeader {
     width: 100%;
-    background-color: lightgrey;
+    background-color: var(--gray);
 }
+
 #searchResultsHeader table {
     width: 96%;  /* not 100% because the 'searchResults' table has a scrollbar */
     border-collapse: collapse;
 }
+
 #searchResultsHeader th {
-    font-size: 0.7em;
+    font-size: 0.7rem;
 }
+
 #searchResults {
     width: 100%;
     height: 80%;
     overflow: auto;
 }
 
-.srName { width: 12%; }
-.srGender { width: 5%; }
-.srPhone { width: 11%; }
-.srSS { width: 11%; }
-.srDOB { width: 8%; }
-.srID { width: 7%; }
-.srPID { width: 7%; }
-.srNumEnc { width: 11%; }
-.srNumDays { width: 11%; }
-.srDateLast { width: 11%; }
-.srDateNext { width: 11%; }
-.srMisc { width: 10%; }
+.srName {
+    width: 12%;
+}
+
+.srGender { 
+    width: 5%;
+}
+
+.srDOB {
+    width: 8%;
+}
+
+.srID,
+.srPID {
+    width: 7%;
+}
+
+.srNumEnc,
+.srNumDays,
+.srDateLast,
+.srDateNext,
+.srPhone,
+.srSS {
+    width: 11%;
+}
+
+.srMisc {
+    width: 10%;
+}
 
 #searchResults table {
     width: 100%;
     border-collapse: collapse;
-    background-color: white;
+    background-color: var(--white);
 }
+
 #searchResults tr {
     cursor: hand;
     cursor: pointer;
 }
+
 #searchResults td {
-    font-size: 0.7em;
-    border-bottom: 1px solid #eee;
+    font-size: 0.7rem;
+    border-bottom: 1px solid var(--gray200);
 }
-.oneResult { }
-.billing { color: red; font-weight: bold; }
+
+.billing {
+    color: var(--danger);
+    font-weight: bold;
+}
 .highlight {
-    background-color: #336699;
-    color: white;
+    background-color: var(--primary);
+    color: var(--white);
 }
 </style>
 
@@ -104,7 +131,7 @@ form {
     <?php Header::setupAssets('topdialog'); ?>
 <?php } ?>
 
-<script language="JavaScript">
+<script>
 <?php if ($popup) {
     require($GLOBALS['srcdir'] . "/restoreSession.php");
 } ?>
@@ -278,7 +305,7 @@ if ($popup) {
 
 </form>
 
-<table border='0' cellpadding='5' cellspacing='0' width='100%'>
+<table class="w-100 border-0" cellpadding='5' cellspacing='0'>
  <tr>
   <td class='text'>
     <?php if ($from_page == "cdr_report") { ?>
@@ -527,7 +554,7 @@ if ($result) {
 </table>
 </div>  <!-- end searchResults DIV -->
 
-<script language="javascript">
+<script>
 
 // jQuery stuff to make the page a little easier to use
 

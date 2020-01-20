@@ -174,7 +174,7 @@ require_once("$srcdir/api.inc");
 ?>
 
 <form method=post action="<?php echo $rootdir?>/forms/brief_aan_verwijzer/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">
-<span class="title"><?php echo xlt('Psychiatric Brief Letter'); ?></span><Br><br />
+<span class="title"><?php echo xlt('Psychiatric Brief Letter'); ?></span><br /><br />
 
 <br /><span class=text><?php echo xlt('Introduction'); ?></span><br />
 <textarea cols=80 rows=5 wrap=virtual name="introductie" id="introductie"><?php echo text($obj["introductie"]);?></textarea><br />

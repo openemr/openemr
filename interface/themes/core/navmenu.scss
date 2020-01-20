@@ -5,7 +5,7 @@
 }
 
 .menu_selected {
-    color: $black;
+    color: $body-color;
     text-decoration: none;
     text-align: $left;
 }
@@ -16,13 +16,13 @@
     @include font-size("1.0rem !important");
     font-weight: bold;
     text-decoration: none;
-    color: $black;
+    color: $body-color;
 }
 
 .title_bar_top {
     font-weight: bold;
     text-decoration: none;
-    color: $black;
+    color: $body-color;
 }
 
 .sidebar {
@@ -213,7 +213,7 @@ body {
 
 .example_menu ul li span {
     background: lighten($yellow, 60%);
-    color: $black;
+    color: $body-color;
     display: block;
     font-weight: normal;
     width: 100%;

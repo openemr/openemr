@@ -11,7 +11,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
+/* TODO: Cleanup code */
 
 require_once("../../globals.php");
 require_once("$srcdir/acl.inc");
@@ -32,12 +32,9 @@ if ($showit=='ext') {
 ?>
 <html>
     <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Eye Exam Help">
-    <meta name="author" content="openEMR: ophthalmology help">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="description" content="Eye Exam Help" />
+    <meta name="author" content="openEMR: ophthalmology help" />
     <?php Header::setupHeader(['jquery-ui', 'jquery-ui-excite-bike']); ?>
 
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/purecss/pure-min.css">
@@ -45,7 +42,7 @@ if ($showit=='ext') {
 
     <script>
      $(function() {
-        $("[id^='accordion_']" ).accordion({
+        $("[id^='accordion_']").accordion({
         heightStyle: "content",
         collapsible: true,
         header: "h3",
@@ -77,92 +74,90 @@ if ($showit=='ext') {
 
     <style>
         body {
-            font: 12px/18px FontAwesome, normal helvetica, sans-serif;
-            font-family: FontAwesome,Arial,sans-serif;
+            font-family: "FontAwesome", "Arial", sans-serif;
          }
          .nodisplay {
-            display:none;
+            display: none;
          }
             table th {
-                text-align:center;
+                text-align: center;
                 vertical-align: middle;
-                margin:20;
-                border:1pt solid black;
-                padding:5 ;
+                margin: 20px;
+                border: 1px solid var(--black);
+                padding: 5px;
             }
             table td {
-                text-align:left;
+                text-align: left;
                 vertical-align: top;
-                margin:20;
-                border:1pt solid black;
-                padding:5;
-                font-size:0.7em;
+                margin: 20px;
+                border: 1px solid var(--black);
+                padding: 5px;
+                font-size:0.7rem;
             }
             blockquote.style2 {
-                margin-top: 0px;
+                margin-top: 0;
                 margin-bottom: 10px;
                 margin-left: 20px;
-                margin-right:20px;
+                margin-right: 20px;
                 padding: 10px;
-                border:none;
-                width:98%;
-                font-size:1em;
-                display:inline-block;
+                border: none;
+                width: 98%;
+                font-size: 1rem;
+                display: inline-block;
             }
             .style3 {
-                margin:20;
-                border-bottom:1pt solid black;
-                background-color:#c0C0c0;
+                margin: 20px;
+                border-bottom: 1px solid var(--black);
+                background-color: #c0C0c0;
                 text-align: left;
             }
             .underline {
                 text-decoration: underline;
             }
             .kb_entry {
-                width:85%;
-                min-height:0.3in;
-                text-align:center;
-                margin:2 5 20 5;
-                border:1pt solid #129FEA;
-                background-color:#ff9;
-                padding:10;
+                width: 85%;
+                min-height: 0.3in;
+                text-align: center;
+                margin: 2px 5px 20px 5px;
+                border: 1px solid #129FEA;
+                background-color: #ff9;
+                padding: 10px;
                 vertical-align: middle;
-                top:50%;
+                top: 50%;
             }
             .output_EMR {
-                clear:both;float:left;border:1pt solid black;width:50%;padding:0 10;margin:5;
-                height: 340;
+                clear: both;
+                float: left;
+                border: 1px solid var(--black);
+                width: 50%;
+                padding: 0 10px;
+                margin: 5px;
+                height: 340px;
             }
             .output_reports {
-                float:left;border:1pt solid black;width:45%;padding:0 10;margin:5;
-                height: 340;
+                float: left;
+                border:1px solid var(--black);
+                width: 45%;
+                padding: 0 10px;
+                margin: 5px;
+                height: 340px;
             }
             .ui-state-active {
                 background: #97C4FE;
 
             }
             .field {
-                color:red;
-                font-weight:600;
+                color: var(--danger);
+                font-weight: 600;
             }
             .bold {
-                font-weight:600;
+                font-weight: 600;
             }
     </style>
     </head>
-    <body style="font-size:1.2em;padding:25;">
-        <div style="position:absolute;
-        top:0in;
-        left:0in;
-        width:100%;
-        height:30px;
-        background-color:#C9DBF2;
-        color:black;
-        font-family: FontAwesome;
-        font-weight:400;
-        font-size:1.1em;
-        padding:5 10 5 10;">
-<img class="little_image left" height="18" src="<?php echo $GLOBALS['webroot']; ?>/sites/default/images/login_logo.gif"></img>  OpenEMR: Eye Exam <span class="bold">Shorthand Help</span>
+    <body style="font-size:1.2em; padding:25px;">
+        <div class="w-100" style="position:absolute; top: 0; left: 0; width: 100%; height: 30px; background-color:#C9DBF2; font-family: 'FontAwesome', sans-serif; font-weight:400; font-size:1.1rem; padding:5px 10px 5px 10px;">
+<img class="little_image left" height="18" src="<?php echo $GLOBALS['webroot']; ?>/sites/default/images/login_logo.gif" />  OpenEMR: Eye Exam <span class="bold">Shorthand Help</span>
         </div>
 <br />
         <button id="general_button">Introduction</button>
@@ -232,7 +227,7 @@ Trazadone 50mg PO QHS.Famvir 500mg PO TID;Surg:Appendectomy 1998. Choly 2010.Lap
                         <textarea class="kb_entry">scDist;5:8ix 1rht;4:10ix;6:6ix;2:15xt;8:5ix;ccDist;4:5ix;5:ortho;6:ortho</textarea>
                         <button id="neuro_button2">Details</button>
 
-                        <hr>
+                        <hr />
                         Below all these lines are strung together. Copy and paste this into a test patient's chart.  <br />
                         Voila! HPI, PMH, POH, Medications Allergies and 40 clinical findings + normals, are documented.
                         <hr />
@@ -338,10 +333,10 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
                         </blockquote>
                     </div>
                     <h3>External: Field Codes and Shorthand/Abbreviations</h3>
-                    <div id="external_codes" style="clear:both; border:0pt solid black;text-align:left;">
+                    <div id="external_codes" style="clear:both; border: 0; text-align:left;">
                         <a name="output_external"></a>
                         <blockquote class="style2">
-                            <table style="border:0pt solid black;margin:10;">
+                            <table style="border: 0; margin: 10;">
                                 <tr class="style3"><th>Clinical Field</th><th>Shorthand* Field</th><th>Example Shorthand**</th><th>EMR: Field text</th></tr>
                                 <tr >
                                     <td>Default values</td><td>D or d</td>
@@ -499,10 +494,10 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
                         </blockquote>
                     </div>
                     <h3>Anterior Segment: Field Codes and Shorthand/Abbreviations</h3>
-                    <div id="antseg_codes" style="clear:both; border:0pt solid black;text-align:left;">
+                    <div id="antseg_codes" style="clear:both; border: 0;text-align:left;">
                         <a name="output_antseg"></a>
                         <blockquote class="style2">
-                            <table style="border:0pt solid black;margin:10;padding:10;">
+                            <table style="border: 0;margin:10;padding:10;">
                                 <tr class="style3"><th>Clinical Field</th><th>Shorthand* Field</th><th>Example Shorthand**</th><th>EMR: Field text</th></tr>
                                 <tr >
                                     <td>Default values</td><td>D or d</td>
@@ -569,8 +564,7 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
                             **<i>The default action is to replace the field with the new text.
                             <br />
                             Adding <b>".a"</b> at the end of a <b>text</b> section will append the current text instead of replacing it.
-                            <br >For example, entering <b>"bk:+2 str scarring.a"</b> will <class="underline bold">append</class> "+2 stromal scarring"</b>
-                            to both the right (rk) and left cornea fields (lk).</i></small>
+                            <br >For example, entering <b>"bk:+2 str scarring.a" will <span class="underline bold">append</span> "+2 stromal scarring"</b> to both the right (rk) and left cornea fields (lk).</i>
                             <br />
 
                             <br />
@@ -601,10 +595,10 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
                 </div>
             </div>
 
-            <div id="accordion_retina_group" name="accordion_group" class="ui-accordion" style="text-align:left;margin:10;padding:20;">
+            <div id="accordion_retina_group" name="accordion_group" class="ui-accordion" style="text-align:left; margin:10; padding:20;">
                 <div name="retina">
                     <h3 class="retina">Retina: Shorthand Walk Through</h3>
-                    <div id="retina_input" class="RETINA" style="text-align:left;margin:0;padding:0;">
+                    <div id="retina_input" class="RETINA" style="text-align:left; margin:0; padding:0;">
                         <blockquote class="style2">
                             <h4 class="underline">Shorthand</h4>
                             <textarea class="kb_entry">D;bd.+2 bowtie pallor;rcup.0.6Vx0.4H w/ inf notch;lcup.0.5;rmac.+2 BDR, +CSME;lmac.flat, tr BDR;v.+PPDR, ++venous beading;rp.ht 1 o,no vh;
@@ -624,19 +618,24 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
                             <br /><br />
                             <div class="output_EMR">
                                 <h4>Eye Exam</h4>
-                                <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_retina_EMR.png" width="95%" alt="Shorthand Example: openEMR">
+                                <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_retina_EMR.png" width="95%" alt="Shorthand Example: openEMR" />
                             </div>
                             <div class="output_reports">
                                 <h4>Reports</h4>
-                                <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_retina_report.png" width="95%" alt="Shorthand Example: Reports">
+                                <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_retina_report.png" width="95%" alt="Shorthand Example: Reports" />
                             </div>
                         </blockquote>
                     </div>
                     <h3>Retina: Field Codes and Shorthand/Abbreviations</h3>
-                    <div id="retina_codes" style="clear:both; border:0pt solid black;text-align:left;">
+                    <div id="retina_codes" style="clear:both; border: 0; text-align:left;">
                         <blockquote class="style2">
-                            <table style="border:1pt solid black;margin:10;width:85%;">
-                                    <tr class="style3"><th>Clinical Field</th><th>Shorthand* Field</th><th>Example Shorthand**</th><th>EMR: Field text</th></tr>
+                            <table style="border:1px solid black; margin:10; width:85%;">
+                                <tr class="style3">
+                                        <th>Clinical Field</th>
+                                        <th>Shorthand* Field</th>
+                                        <th>Example Shorthand**</th>
+                                        <th>EMR: Field text</th>
+                                </tr>
                                     <tr >
                                         <td>Default values</td><td>D or d</td>
                                         <td><span class="field">d</span>;<br /><span class="field">D</span>;</td>
@@ -683,8 +682,7 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
                             **<i>The default action is to replace the field with the new text.
                             <br />
                             Adding <b>".a"</b> at the end of a <b>text</b> section will append the current text instead of replacing it.
-                            <br >For example, entering <b>"bcup:0.5 w/ inf notch.a"</b> will <class="underline bold">append</class> "0.5 with inferior notch"</b>
-                            to both the right (rcup) and left cup fields (lcup).</i></small>
+                            <br >For example, entering <b>"bcup:0.5 w/ inf notch.a" will <span class="underline bold">append</span> "0.5 with inferior notch"</b> to both the right (rcup) and left cup fields (lcup).</i>
                             <br />
 
                             <br />
@@ -694,46 +692,145 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
                             The following terms will be expanded from their shorthand to full expression in the EMR fields:
 
                             <table style="border:1pt solid black;margin:10;width:85%;">
-                                <tr class="style3"><th>Enter this:</th><th>Get this:</th></tr>
-                                <tr><td>inf</td><td>inferior</td></tr>
-                                                            <tr><td>sup</td><td>superior</td></tr>
-                                                            <tr><td>nas</td><td>nasal</td></tr>
-                                                            <tr><td>temp</td><td>temporal</td></tr>
-                                                            <tr><td>med</td><td>medial</td></tr>
-                                                            <tr><td>lat</td><td>lateral</td></tr>
-                                                            <tr><td>csme</td><td>CSME</td></tr>
-                                                            <tr><td>w/</td><td>with</td></tr>
-                                                            <tr><td>bdr</td><td>BDR</td></tr>
-                                                            <tr><td>ppdr</td><td>PPDR</td></tr>
-                                                            <tr><td>ht</td><td>horsheshoe tear</td></tr>
-                                                            <tr><td>ab</td><td>air bubble</td></tr>
-                                                            <tr><td>c3f8</td><td>C3F8</td></tr>
-                                                            <tr><td>ma</td><td>macroaneurysm</td></tr>
-                                                            <tr><td>tr</td><td>trace</td></tr>
-                                                            <tr><td>mias</td><td>microaneurysm</td></tr>
-                                                            <tr><td>ped</td><td>PED</td></tr>
-                                                            <tr><td>1 o</td><td> 1 o'clock</td></tr>
-                                                            <tr><td>2 o</td><td>2 o'clock</td></tr>
-                                                            <tr><td>3 o</td><td> 3 o'clock</td></tr>
-                                                            <tr><td>4 o</td><td> 4 o'clock</td></tr>
-                                                            <tr><td>5 o</td><td> 5 o'clock</td></tr>
-                                                            <tr><td>6 o</td><td> 6 o'clock</td></tr>
-                                                            <tr><td>7 o</td><td> 7 o'clock</td></tr>
-                                                            <tr><td>8 o</td><td> 8 o'clock</td></tr>
-                                                            <tr><td>9 o</td><td> 9 o'clock</td></tr>
-                                                            <tr><td>10 o</td><td> 10 o'clock</td></tr>
-                                                            <tr><td>11 o</td><td> 11 o'clock</td></tr>
-                                                            <tr><td>12 o</td><td> 12 o'clock</td></tr>
-                                                            <tr><td>mac</td><td>macula</td></tr>
-                                                            <tr><td>fov</td><td>fovea</td></tr>
-                                                            <tr><td>vh</td><td>vitreous hemorrhage</td></tr>
+                                <tr class="style3">
+                                    <th>Enter this:</th>
+                                    <th>Get this:</th>
+                                </tr>
+                                <tr>
+                                    <td>inf</td>
+                                    <td>inferior</td>
+                                </tr>
+                                <tr>
+                                    <td>sup</td>
+                                    <td>superior</td>
+                                </tr>
+                                <tr>
+                                    <td>nas</td>
+                                    <td>nasal</td>
+                                </tr>
+                                <tr>
+                                    <td>temp</td>
+                                    <td>temporal</td>
+                                </tr>
+                                <tr>
+                                    <td>med</td>
+                                    <td>medial</td>
+                                </tr>
+                                <tr>
+                                    <td>lat</td>
+                                    <td>lateral</td>
+                                </tr>
+                                <tr>
+                                    <td>csme</td>
+                                    <td>CSME</td>
+                                </tr>
+                                <tr>
+                                    <td>w/</td>
+                                    <td>with</td>
+                                </tr>
+                                <tr>
+                                    <td>bdr</td>
+                                    <td>BDR</td>
+                                </tr>
+                                <tr>
+                                    <td>ppdr</td>
+                                    <td>PPDR</td>
+                                </tr>
+                                <tr>
+                                    <td>ht</td>
+                                    <td>horsheshoe tear</td>
+                                </tr>
+                                <tr>
+                                    <td>ab</td>
+                                    <td>air bubble</td>
+                                </tr>
+                                <tr>
+                                    <td>c3f8</td>
+                                    <td>C3F8</td>
+                                </tr>
+                                <tr>
+                                    <td>ma</td>
+                                    <td>macroaneurysm</td>
+                                </tr>
+                                <tr>
+                                    <td>tr</td>
+                                    <td>trace</td>
+                                </tr>
+                                <tr>
+                                    <td>mias</td>
+                                    <td>microaneurysm</td>
+                                </tr>
+                                <tr>
+                                    <td>ped</td>
+                                    <td>PED</td>
+                                </tr>
+                                <tr>
+                                    <td>1 o</td>
+                                    <td> 1 o'clock</td>
+                                </tr>
+                                <tr>
+                                    <td>2 o</td>
+                                    <td>2 o'clock</td>
+                                </tr>
+                                <tr>
+                                    <td>3 o</td>
+                                    <td> 3 o'clock</td>
+                                </tr>
+                                <tr>
+                                    <td>4 o</td>
+                                    <td> 4 o'clock</td>
+                                </tr>
+                                <tr>
+                                    <td>5 o</td>
+                                    <td> 5 o'clock</td>
+                                </tr>
+                                <tr>
+                                    <td>6 o</td>
+                                    <td> 6 o'clock</td>
+                                </tr>
+                                <tr>
+                                    <td>7 o</td>
+                                    <td> 7 o'clock</td>
+                                </tr>
+                                <tr>
+                                    <td>8 o</td>
+                                    <td> 8 o'clock</td>
+                                </tr>
+                                <tr>
+                                    <td>9 o</td>
+                                    <td> 9 o'clock</td>
+                                </tr>
+                                <tr>
+                                    <td>10 o</td>
+                                    <td> 10 o'clock</td>
+                                </tr>
+                                <tr>
+                                    <td>11 o</td>
+                                    <td> 11 o'clock</td>
+                                </tr>
+                                <tr>
+                                    <td>12 o</td>
+                                    <td> 12 o'clock</td>
+                                </tr>
+                                <tr>
+                                    <td>mac</td>
+                                    <td>macula</td>
+                                </tr>
+                                <tr>
+                                    <td>fov</td>
+                                    <td>fovea</td>
+                                </tr>
+                                <tr>
+                                    <td>vh</td>
+                                    <td>vitreous hemorrhage</td>
+                                </tr>
                             </table>
                         </blockquote>
                     </div>
                 </div>
             </div>
 
-            <div id="accordion_neuro_group" name="accordion_group" class="ui-accordion" style="text-align:left;margin:10;padding:20;">
+            <div id="accordion_neuro_group" name="accordion_group" class="ui-accordion" style="text-align:left; margin:10px; padding:20px;">
                 <div name="neuro">
                     <h3 class="neuro">Neuro: Shorthand Walk Through</h3>
                     <div id="neuro_input" class="neuro" style="text-align:left;margin:0;padding:0;">
@@ -741,12 +838,12 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
                             <h4 class="underline">Shorthand</h4>
                             <textarea class="kb_entry">scDist;5:8ix 1rht;4:10ix;6:6ix;2:15xt;8:5ix;ccDist;4:5ix;5:ortho;6:ortho;
                             </textarea>
-                            <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_neuro.png" alt="Shorthand Example: Anterior Segment">
+                            <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_neuro.png" alt="Shorthand Example: Anterior Segment" />
                             <br />
                         </blockquote>
                     </div>
                     <h3>Neuro: Example Output</h3>
-                    <div id="neuro_output" style="text-align:left;margin:0;padding:20;">
+                    <div id="neuro_output" style="text-align:left; margin:0; padding:20px;">
                         <a name="output_neuro"></a>
                         <blockquote class="style2">
                             Input:<br /><br />
@@ -756,17 +853,17 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
                             <br /><br />
                             <div class="output_EMR">
                                 <h4>Eye Exam</h4>
-                                <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_neuro_EMR1.png"  style="height: 200;width:45%;margin:12 0 0 20;padding-left:10" alt="Shorthand Example: openEMR">
-                                <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_neuro_EMR2.png"  style="float:right;height: 200;width:45%;margin:10 0 0 20;padding-left:10" alt="Shorthand Example: openEMR">
+                                <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_neuro_EMR1.png"  style="height: 200px; width:45%; margin:12px 0 0 20px; padding-left:10" alt="Shorthand Example: openEMR" />
+                                <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_neuro_EMR2.png"  style="float:right; height: 200px; width:45%;margin:10px 0 0 20px; padding-left:10px" alt="Shorthand Example: openEMR" />
                             </div>
                             <div class="output_reports">
                                 <h4>Reports</h4>
-                                <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_neuro_report.png" width="75%" alt="Shorthand Example: Reports">
+                                <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_neuro_report.png" width="75%" alt="Shorthand Example: Reports" />
                             </div>
                         </blockquote>
                     </div>
                     <h3>Neuro: Field Codes and Shorthand/Abbreviations</h3>
-                    <div id="neuro_codes" style="clear:both; border:0pt solid black;text-align:left;">
+                    <div id="neuro_codes" style="clear:both; border: 0;text-align:left;">
                         <blockquote class="style2">
                             <table style="border:1pt solid black;margin:10;width:85%;">
                                     <tr class="style3"><th>Clinical Field</th><th>Shorthand* Field</th><th>Example Shorthand**</th><th>EMR: Field text</th></tr>
@@ -777,21 +874,21 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
                                     </tr>
                                     <tr>
                                         <td>Without correction at Distance</td><td>scDist</td>
-                                        <td><b style="color:red;">scdist</b><b style="color:green;">;</a></td>
+                                        <td><b style="color:red;">scdist</b><b style="color:green;">;</b></td>
                                         <td>scDIST is selected for ensuing values.</td>
                                     </tr>
                                     <tr>
                                         <td>With correction at Distance</td><td>scDist</td>
-                                        <td><b style="color:red;">ccdist</b><b style="color:green;">;</a></td>
+                                        <td><b style="color:red;">ccdist</b><b style="color:green;">;</b></td>
                                         <td>ccDIST is selected for ensuing values.</td>
                                     </tr><tr>
                                         <td>Without correction at Near</td><td>scNear</td>
-                                        <td><b style="color:red;">scdist</b><b style="color:green;">;</a></td>
+                                        <td><b style="color:red;">scdist</b><b style="color:green;">;</b></td>
                                         <td>scDIST is selected for ensuing values.</td>
                                     </tr>
                                     <tr>
                                         <td>With correction at Near</td><td>scNear</td>
-                                        <td><b style="color:red;">scdist</b><b style="color:green;">;</a></td>
+                                        <td><b style="color:red;">scdist</b><b style="color:green;">;</b></td>
                                         <td>scDIST is selected for ensuing values.</td>
                                     </tr>
                             </table>
@@ -799,8 +896,8 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
                             **<i>The default action is to replace the field with the new text.
                             <br />
                             Adding <b>".a"</b> at the end of a <b>text</b> section will append the current text instead of replacing it.
-                            <br >For example, entering <b>"4:5ix.a"</b> will <class="underline bold">append</class> "5 X(T)"</b>
-                            to any measurements previously entered into the right gaze field.</i></small>
+                            <br >For example, entering <b>"4:5ix.a" will <span class="underline bold">append</span> "5 X(T)"</b>
+                            to any measurements previously entered into the right gaze field.</i>
                             <br />
 
                             <br />
@@ -809,19 +906,62 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
 
                             The following terms will be expanded from their shorthand to full expression in the EMR fields:
 
-                            <table style="border:1pt solid black;margin:10;width:85%;">
-                                <tr class="style3"><th>Strabismus</th><th>Enter this:</th><th>Get this:</th></tr>
-                                <tr><td>Exophoria</td><td>x</td><td>X</td></tr>
-                                <tr><td>Intermittent Esotropia</td><td>ie or e(t)</td><td>E(T)</td></tr>
-                                <tr><td>Esoptropia</td><td>et</td><td>ET</td></tr>
-                                <tr><td>Esophoria</td><td>e</td><td>E</td></tr>
-                                <tr><td>Intermittent Exotropia</td><td>ix or x(t)</td><td>X(T)</td></tr>
-                                <tr><td>Exoptropia</td><td>xt</td><td>XT</td></tr>
-                                <tr><td>Hyperphoria</td><td>h</td><td>H</td></tr>
-                                <tr><td>Intermittent Hypertropia</td><td>H(T)</td><td>H(T)</td></tr>
-                                <tr><td>Hypertropia</td><td>rht<br />lht</td><td>RHT<br />LHT</td></tr>
-                                <tr><td>Hypotropia</td><td>hyt</td><td>HyT</td></tr>
-
+                            <table style="border:1px solid black; margin:10px; width:85%;">
+                                <tr class="style3">
+                                    <th>Strabismus</th>
+                                    <th>Enter this:</th>
+                                    <th>Get this:</th>
+                                </tr>
+                                <tr>
+                                    <td>Exophoria</td>
+                                    <td>x</td>
+                                    <td>X</td>
+                                </tr>
+                                <tr>
+                                    <td>Intermittent Esotropia</td>
+                                    <td>ie or e(t)</td>
+                                    <td>E(T)</td>
+                                </tr>
+                                <tr>
+                                    <td>Esoptropia</td>
+                                    <td>et</td>
+                                    <td>ET</td>
+                                </tr>
+                                <tr>
+                                    <td>Esophoria</td>
+                                    <td>e</td>
+                                    <td>E</td>
+                                </tr>
+                                <tr>
+                                    <td>Intermittent Exotropia</td>
+                                    <td>ix or x(t)</td>
+                                    <td>X(T)</td>
+                                </tr>
+                                <tr>
+                                    <td>Exoptropia</td>
+                                    <td>xt</td>
+                                    <td>XT</td>
+                                </tr>
+                                <tr>
+                                    <td>Hyperphoria</td>
+                                    <td>h</td>
+                                    <td>H</td>
+                                </tr>
+                                <tr>
+                                    <td>Intermittent Hypertropia</td>
+                                    <td>H(T)</td>
+                                    <td>H(T)</td>
+                                </tr>
+                                <tr>
+                                    <td>Hypertropia</td>
+                                    <td>rht<br />lht</td>
+                                    <td>RHT<br />LHT</td>
+                                </tr>
+                                <tr>
+                                    <td>Hypotropia</td>
+                                    <td>hyt</td>
+                                    <td>HyT</td>
+                                </tr>
                             </table>
                         </blockquote>
                     </div>
@@ -831,9 +971,4 @@ Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;</textarea>
         </div>
     </body>
 </html>
-    <?php
-    exit;
-
-
-
-    ?>
+<?php exit; ?>

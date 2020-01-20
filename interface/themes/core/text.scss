@@ -1,5 +1,5 @@
 .text {
-    color: $black;
+    color: $body-color;
     text-decoration: none;
     @include font-size("0.9rem !important");
 }
@@ -7,20 +7,20 @@
 .required {
     text-decoration: none;
     @include font-size("0.9rem !important");
-    color: darken($danger, 20%);
+    color: $danger;
     font-weight: bold;
 }
 
 .bold {
     text-decoration: none;
     @include font-size("0.9rem !important");
-    color: $black;
+    color: $body-color;
     font-weight: bold;
 }
 
 .small {
     text-decoration: none;
-    color: $black;
+    color: $body-color;
     @include font-size("0.8rem !important");
 }
 
@@ -40,12 +40,12 @@ a.disabled_button:hover {
     width: 390pt;
     margin-left: 100px;
     padding: 10px 10px 10px 15px;
-    color: $black;
+    color: $body-color;
 }
 
 .alertmsg1 {
     border: 3px solid $danger;
-    background-color: lighten($orange, 60%);
+    background-color: rgba(lighten($orange, 60%), 0.5);
 }
 
 .alertmsg2 {

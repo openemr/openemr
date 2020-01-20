@@ -4,7 +4,7 @@
 .oe-help-container a:not(.btn),
 .oe-help-container a:not(oe-help-redirect) {
     text-decoration: none !important;
-    color: #676666;
+    color: $gray;
     font-weight: 700;
 }
 
@@ -13,15 +13,15 @@
 }
 
 .oe-help-heading {
-    color: #676666;
-    background-color: #E4E2E0;
-    border-color: #DADADA;
+    color: $gray;
+    background-color: $gray-200;
+    border-color: $gray-300;
     padding: 10px 5px;
     border-radius: 5px;
 }
 
 .oe-text-orange {
-    color: orange;
+    color: $orange;
 }
 
 .oe-text-red {
@@ -29,7 +29,7 @@
 }
 
 .oe-text-green {
-    color: green;
+    color: $success;
 }
 
 .oe-text-black {

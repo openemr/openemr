@@ -37,7 +37,7 @@ $obj = formFetch("form_contacts", $_GET["id"]);
 ?>
 <form method=post action="<?php echo $rootdir?>/forms/contacts/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-<span class="title">Contacts</span><Br><br />
+<span class="title">Contacts</span><br /><br />
 <table>
 <tr>
 <td valign=top>

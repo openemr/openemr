@@ -244,7 +244,7 @@ function generate_select_list(
             $s .= "</select>";
             $fontTitle = xlt('Please choose a valid selection from the list.');
             $fontText = xlt('Fix this');
-            $s .= " <font color='red' title='$fontTitle'>$fontText!</font>";
+            $s .= " <span class='text-danger' title='$fontTitle'>$fontText!</span>";
         }
     } elseif (!$got_selected && strlen($currvalue) > 0 && $multiple) {
         //if not found in main list, display all selected values that exist in backup list
@@ -279,7 +279,7 @@ function generate_select_list(
             $s .= "</select>";
             $fontTitle = xlt('Please choose a valid selection from the list.');
             $fontText = xlt('Fix this');
-            $s .= " <font color='red' title='$fontTitle'>$fontText!</font>";
+            $s .= " <span class='text-danger' title='$fontTitle'>$fontText!</span>";
         }
     } else {
         $s .= "</select>";
@@ -508,7 +508,7 @@ function generate_form_field($frow, $currvalue)
         if (!$got_selected && $currvalue) {
             echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
             echo "</select>";
-            echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
+            echo " <span class='text-danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
         } else {
             echo "</select>";
         }
@@ -536,7 +536,7 @@ function generate_form_field($frow, $currvalue)
         if (!$got_selected && $currvalue) {
             echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
             echo "</select>";
-            echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
+            echo " <span class='text-danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
         } else {
             echo "</select>";
         }
@@ -572,7 +572,7 @@ function generate_form_field($frow, $currvalue)
         if (!$got_selected && $currvalue) {
             echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
             echo "</select>";
-            echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
+            echo " <span class='text-danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
         } else {
             echo "</select>";
         }
@@ -748,7 +748,7 @@ function generate_form_field($frow, $currvalue)
         if (!$got_selected && $currvalue) {
             echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
             echo "</select>";
-            echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
+            echo " <span class='text-danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
         } else {
             echo "</select>";
         }
@@ -771,7 +771,7 @@ function generate_form_field($frow, $currvalue)
         if (!$got_selected && strlen($currvalue) > 0) {
             echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
             echo "</select>";
-            echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
+            echo " <span class='text-danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
         } else {
             echo "</select>";
         }
@@ -800,7 +800,7 @@ function generate_form_field($frow, $currvalue)
         if (!$got_selected && $currvalue) {
             echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
             echo "</select>";
-            echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
+            echo " <span class='text-danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
         } else {
             echo "</select>";
         }
@@ -1105,7 +1105,7 @@ function generate_form_field($frow, $currvalue)
         if (!$got_selected && strlen($currvalue) > 0) {
             $fontTitle = htmlspecialchars(xl('Please choose a valid selection.'), ENT_QUOTES);
             $fontText = htmlspecialchars(xl('Fix this'), ENT_NOQUOTES);
-            echo "$currescaped <font color='red' title='$fontTitle'>$fontText!</font>";
+            echo "$currescaped <span class='text-danger' title='$fontTitle'>$fontText!</span>";
         }
     } elseif ($data_type == 28 || $data_type == 32) { // special case for history of lifestyle status; 3 radio buttons
         // and a date text field:
@@ -1268,8 +1268,8 @@ function generate_form_field($frow, $currvalue)
         // $data_type == 33
 
         $arr = explode("|*|*|*|", $currvalue);
-        echo "<a href='../../../library/custom_template/custom_template.php?type=form_{$field_id}&contextName=".htmlspecialchars($list_id_esc, ENT_QUOTES)."' class='iframe_medium' style='text-decoration:none;color:black;'>";
-        echo "<div id='form_{$field_id}_div' class='text-area' style='min-width:100pt'>" . $arr[0] . "</div>";
+        echo "<a href='../../../library/custom_template/custom_template.php?type=form_{$field_id}&contextName=".htmlspecialchars($list_id_esc, ENT_QUOTES)."' class='iframe_medium' style='text-decoration: none; color: var(--black);'>";
+        echo "<div id='form_{$field_id}_div' class='text-area' style='min-width: 133px'>" . $arr[0] . "</div>";
         echo "<div style='display:none'><textarea name='form_{$field_id}' id='form_{$field_id}' class='form-control' style='display:none' $lbfonchange $disabled>" . $currvalue . "</textarea></div>";
         echo "</a>";
     } elseif ($data_type == 35) { //facilities drop-down list
@@ -1922,7 +1922,7 @@ function generate_print_field($frow, $currvalue)
     } elseif ($data_type == 31) { // static text.  read-only, of course.
         echo parse_static_text($frow);
     } elseif ($data_type == 34) {
-        echo "<a href='../../../library/custom_template/custom_template.php?type=form_{$field_id}&contextName=".htmlspecialchars($list_id_esc, ENT_QUOTES)."' class='iframe_medium' style='text-decoration:none;color:black;'>";
+        echo "<a href='../../../library/custom_template/custom_template.php?type=form_{$field_id}&contextName=".htmlspecialchars($list_id_esc, ENT_QUOTES)."' class='iframe_medium' style='text-decoration: none; color: var(--black);'>";
         echo "<div id='form_{$field_id}_div' class='text-area'></div>";
         echo "<div style='display:none'><textarea name='form_{$field_id}' class='form-control' id='form_{$field_id}' stye='display:none'></textarea></div>";
         echo "</a>";
@@ -3141,8 +3141,8 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                     disp_end_row();
                     if ($subtitle) {
                         // Group subtitle exists and is not displayed yet.
-                        echo "<tr><td class='label' style='background-color:#dddddd;padding:3pt' colspan='$CPR'>" . text($subtitle) . "</td></tr>\n";
-                        echo "<tr><td class='label' style='height:4pt' colspan='$CPR'></td></tr>\n";
+                        echo "<tr><td class='label' style='background-color: #dddddd; padding: 4px' colspan='$CPR'>" . text($subtitle) . "</td></tr>\n";
+                        echo "<tr><td class='label' style='height: 5px' colspan='$CPR'></td></tr>\n";
                         $subtitle = '';
                     }
                     if ($prepend_blank_row) {
@@ -3306,8 +3306,8 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                     disp_end_row();
                     if ($subtitle) {
                         // Group subtitle exists and is not displayed yet.
-                        echo "<tr><td class='label' style='background-color:#dddddd;padding:3pt' colspan='$CPR'>" . text($subtitle) . "</td></tr>\n";
-                        echo "<tr><td class='label' style='height:4pt' colspan='$CPR'></td></tr>\n";
+                        echo "<tr><td class='label' style='background-color:#dddddd;padding: 4px' colspan='$CPR'>" . text($subtitle) . "</td></tr>\n";
+                        echo "<tr><td class='label' style='height: 5px' colspan='$CPR'></td></tr>\n";
                         $subtitle = '';
                     }
                     if ($prepend_blank_row) {
@@ -3563,8 +3563,8 @@ function generate_layout_validation($form_id)
                 echo
                 " if (trimlen(f.$fldname.value) == 0) {\n" .
                 "  		if (f.$fldname.focus) f.$fldname.focus();\n" .
-                "  		$('#" . $fldname . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','red'); } ); " .
-                "  		$('#" . $fldname . "').attr('style','background:red'); \n" .
+                "  		$('#" . $fldname . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','var(--danger)'); } ); " .
+                "  		$('#" . $fldname . "').attr('style','background: var(--danger)'); \n" .
                 "  		errMsgs[errMsgs.length] = " . js_escape(xl_layout_label($fldtitle)) . "; \n" .
                 " } else { " .
                 " 		$('#" . $fldname . "').attr('style',''); " .
@@ -3966,28 +3966,34 @@ EOD;
  * This makes the widget 25% less tall and adjusts some other things accordingly.
  */
 .literally {
-  min-height:100%;min-width:300px;        /* Was 400, unspecified */
+  min-height: 100%;
+  min-width: 300px;        /* Was 400, unspecified */
 }
 .literally .lc-picker .toolbar-button {
-  width:20px;height:20px;line-height:20px; /* Was 26, 26, 26 */
+  width: 20px;
+  height: 20px;
+  line-height: 20px; /* Was 26, 26, 26 */
 }
 .literally .color-well {
-  font-size:8px;width:49px;                /* Was 10, 60 */
+  font-size: 8px;
+  width: 49px; /* Was 10, 60 */
 }
 .literally .color-well-color-container {
-  width:21px;height:21px;                  /* Was 28, 28 */
+  width: 21px;
+  height: 21px; /* Was 28, 28 */
 }
 .literally .lc-picker {
-  width:50px;                              /* Was 61 */
+  width: 50px; /* Was 61 */
 }
 .literally .lc-drawing.with-gui {
-  left:50px;                               /* Was 61 */
+  left: 50px;                               /* Was 61 */
 }
 .literally .lc-options {
-  left:50px;                               /* Was 61 */
+  left: 50px;                               /* Was 61 */
 }
 .literally .color-picker-popup {
-  left:49px;bottom:0px;                   /* Was 60, 31 */
+  left: 49px;
+  bottom: 0px;                   /* Was 60, 31 */
 }
 </style>
 EOD;

@@ -74,9 +74,8 @@ function get_history_codes($pid)
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><?php xlt("Find Code History"); ?></title>
+    <meta charset="utf-8" />
     <?php Header::setupHeader(['opener']); ?>
     <style>
         body {
@@ -89,7 +88,7 @@ function get_history_codes($pid)
         .loading {
              position: relative;
              top: 40vh;
-             background: #fff;
+             background: var(--white);
          }
     </style>
     <script>

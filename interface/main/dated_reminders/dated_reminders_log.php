@@ -92,11 +92,11 @@ if ($_GET) {
         @media only screen and (max-width: 680px) {
             [class*="col-"] {
                 width: 100%;
-                text-align: left!Important;
+                text-align: left !important;
             }
         }
     </style>
-    <script language="JavaScript">
+    <script>
       $(function (){
         $("#submitForm").click(function(){
           // top.restoreSession(); --> can't use this as it negates this ajax refresh

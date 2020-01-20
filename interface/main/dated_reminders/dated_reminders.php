@@ -59,32 +59,32 @@ if (isset($_POST['drR'])) {
 
 ?>
 
-      <style type="text/css">
-         div.dr{
-           margin:0;
-           font-size:0.6em;
+      <style>
+         div.dr {
+           margin: 0;
+           font-size: 0.6rem;
          }
-         .dr_container a{
-           font-size:0.8em;
+         .dr_container a {
+           font-size: 0.8rem;
          }
-         .dr_container{
+         .dr_container {
            padding:5px 5px 8px 5px;
          }
-         .dr_container p{
-           margin:6px 0 0 0;
+         .dr_container p {
+           margin: 6px 0 0 0;
          }
-         .patLink{
+         .patLink {
            font-weight: bolder;
-           cursor:pointer;
+           cursor: pointer;
            text-decoration: none;
          }
          .patLink:hover{
            font-weight: bolder;
-           cursor:pointer;
+           cursor: pointer;
            text-decoration: underline;
          }
       </style>
-      <script type="text/javascript">
+      <script>
          $(function (){
             $(".hideDR").click(function(){
               if($(this).html() == "<span><?php echo xla('Hide Reminders') ?></span>"){
@@ -113,10 +113,10 @@ if (isset($_POST['drR'])) {
            function updateme(id){
              refreshInterval = <?php echo attr($updateDelay); ?>;
              if(id > 0){
-              $(".drTD").html('<p style="text-size:3em; margin-left:200px; color:black; font-weight:bold;"><?php echo xla("Processing") ?>...</p>');
+              $(".drTD").html('<p style="text-size:3rem; margin-left:200px; color: var(--black); font-weight:bold;"><?php echo xla("Processing") ?>...</p>');
              }
              if(id == 'new'){
-              $(".drTD").html('<p style="text-size:3em; margin-left:200px; color:black; font-weight:bold;"><?php echo xla("Processing") ?>...</p>');
+              $(".drTD").html('<p style="text-size:3rem; margin-left:200px; color: var(--black); font-weight:bold;"><?php echo xla("Processing") ?>...</p>');
              }
              top.restoreSession();
              // Send the skip_timeout_reset parameter to not count this as a manual entry in the
@@ -132,7 +132,7 @@ if (isset($_POST['drR'])) {
                   alert("<?php echo xls('Error Removing Message') ?>");
                 }else{
                   if(id > 0){
-                    $(".drTD").html('<p style="text-size:3em; margin-left:200px; color:black; font-weight:bold;"><?php echo xla("Refreshing Reminders") ?> ...</p>');
+                    $(".drTD").html('<p style="text-size:3rem; margin-left:200px; color:var(--black); font-weight:bold;"><?php echo xla("Refreshing Reminders") ?> ...</p>');
                   }
                   $(".drTD").html(data);
                 }

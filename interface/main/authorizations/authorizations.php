@@ -54,14 +54,16 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
     float: right;
     padding: 3px;
     margin: 2px;
-    cursor: pointer; cursor: hand;
+    cursor: pointer;
+    cursor: hand;
     <?php echo "display: none;"; ?>
 }
 #max {
     float: right;
     padding: 3px;
     margin: 2px;
-    cursor: pointer; cursor: hand;
+    cursor: pointer;
+    cursor: hand;
     <?php echo "display: none;"; ?>
 }
 </style>
@@ -213,15 +215,15 @@ if ($imauthorized && $see_auth > 1) {
                 array($name['providerID'])
             ));
 
-            echo "<td valign=top><span class=bold>".xlt('Provider').":</span><span class=text><br />" .
+            echo "<td valign='top'><span class='bold'>".xlt('Provider').":</span><span class='text'><br />" .
               text($providerName["lname"]) . "</td>\n";
-            echo "<td valign=top><span class=bold>".xlt('Billing').":</span><span class=text><br />" .
+            echo "<td valign='top'><span class='bold'>".xlt('Billing').":</span><span class='text'><br />" .
               $patient["billing"] . "</td>\n";
-            echo "<td valign=top><span class=bold>".xlt('Transactions').":</span><span class=text><br />" .
+            echo "<td valign='top'><span class='bold'>".xlt('Transactions').":</span><span class='text'><br />" .
               $patient["transaction"] . "</td>\n";
-            echo "<td valign=top><span class=bold>".xlt('Patient Notes').":</span><span class=text><br />" .
+            echo "<td valign='top'><span class='bold'>".xlt('Patient Notes').":</span><span class='text'><br />" .
               $patient["pnotes"] . "</td>\n";
-            echo "<td valign=top><span class=bold>".xlt('Encounter Forms').":</span><span class=text><br />" .
+            echo "<td valign='top'><span class='bold'>".xlt('Encounter Forms').":</span><span class='text'><br />" .
               $patient["forms"] . "</td>\n";
             echo "</tr>\n";
 
@@ -238,7 +240,7 @@ if ($imauthorized && $see_auth > 1) {
 <?php } ?>
 
 </body>
-<script language='JavaScript'>
+<script>
 
 /* added to adjust the height of this frame by the min/max buttons */
 var origRows = null;

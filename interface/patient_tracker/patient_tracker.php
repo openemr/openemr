@@ -162,10 +162,11 @@ if (!$_REQUEST['flb_table']) {
     ?>
 <html>
 <head>
-    <title><?php echo xlt('Flow Board'); ?></title>
-
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="author" content="OpenEMR: MedExBank">
     <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-cupertino', 'opener', 'purecss']); ?>
-
+    <title><?php echo xlt('Flow Board'); ?></title>
     <script type="text/javascript">
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>
@@ -174,11 +175,6 @@ if (!$_REQUEST['flb_table']) {
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
 
     <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico" />
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="author" content="OpenEMR: MedExBank">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         label {
             font-weight: 400;
@@ -200,7 +196,7 @@ if (!$_REQUEST['flb_table']) {
 
         .divTable {
             display: table;
-            font-size: 0.9em;
+            font-size: 0.9rem;
             background: var(--white);
             box-shadow: 2px 3px 9px var(--gray400);
             border-radius: 8px;
@@ -210,7 +206,7 @@ if (!$_REQUEST['flb_table']) {
         }
         
         .head {
-            font-size: 0.9em;
+            font-size: 0.9rem;
             background: var(--white);
             box-shadow: 2px 3px 9px var(--gray400);
             border-radius: 8px;
@@ -395,7 +391,7 @@ if (!$_REQUEST['flb_table']) {
                                     </tr>
                                     <tr>
                                         <td class="text-center" colspan="2">
-                                            <a  id="filter_submit" class="btn btn-primary"><?php echo xlt('Filter'); ?></a>
+                                            <a  id="filter_submit" class="btn btn-primary text-white"><?php echo xlt('Filter'); ?></a>
                                             <input type="hidden" id="kiosk" name="kiosk" value="<?php echo attr($_REQUEST['kiosk']); ?>">
                                         </td>
                                     </tr>
@@ -429,7 +425,7 @@ if (!$_REQUEST['flb_table']) {
             <div class="text-center row divTable" style="width: 85%; padding: 10px 10px 0; margin: 10px auto;">
                 <div class="col-sm-12" id="loader">
                     <div class="text-center">
-                        <i class="fa fa-spinner fa-pulse fa-fw" style="font-size: 140px; color: #0000cc; padding: 20px"></i>
+                        <i class="fa fa-spinner fa-pulse fa-fw" style="font-size: 140px; color: var(--gray700); padding: 20px"></i>
                         <h2 ><?php echo xlt('Loading data'); ?>...</h2>
                     </div>
                 </div>
@@ -471,17 +467,14 @@ if (!$_REQUEST['flb_table']) {
                         <?php echo xlt('Open Patient in New Window'); ?>
                   </label>
                   <a id='refreshme'><i class="fa fa-refresh fa-2x fa-fw">&nbsp;</i></a>
-                  <span class="fa-stack fa-lg" id="flb_caret" onclick="toggleSelectors();"
-                        title="<?php echo xla('Show/Hide the Selection Area'); ?>"
-                        style="color:<?php echo $color = ($setting_selectors == 'none') ? 'red' : 'black'; ?>;">
+                  <span class="fa-stack fa-lg" id="flb_caret" onclick="toggleSelectors();" title="<?php echo xla('Show/Hide the Selection Area'); ?>" style="color:<?php echo $color = ($setting_selectors == 'none') ? 'var(--danger)' : 'var(--black)'; ?>;">
                     <i class="fa fa-square-o fa-stack-2x"></i>
-                    <i id="print_caret"
-                       class='fa fa-caret-<?php echo $caret = ($setting_selectors == 'none') ? 'down' : 'up'; ?> fa-stack-1x'></i>
+                    <i id="print_caret" class='fa fa-caret-<?php echo $caret = ($setting_selectors == 'none') ? 'down' : 'up'; ?> fa-stack-1x'></i>
                   </span>
 
-                  <a class='btn btn-primary' onclick="print_FLB();"> <?php echo xlt('Print'); ?> </a>
+                  <a class='btn btn-primary text-white' onclick="print_FLB();"> <?php echo xlt('Print'); ?> </a>
 
-                  <a class='btn btn-primary' onclick="kiosk_FLB();"> <?php echo xlt('Kiosk'); ?> </a>
+                  <a class='btn btn-primary text-white' onclick="kiosk_FLB();"> <?php echo xlt('Kiosk'); ?> </a>
                 </span>
             </div>
 
@@ -489,13 +482,13 @@ if (!$_REQUEST['flb_table']) {
 
                     <table class="table table-responsive table-sm table-hover table-bordered">
                     <thead>
-                    <tr bgcolor="#cccff" class="small font-weight-bold text-center">
+                    <tr bgcolor="#cccfff" class="small font-weight-bold text-center">
                         <?php if ($GLOBALS['ptkr_show_pid']) { ?>
                             <td class="dehead d-none text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('PID'); ?>
                             </td>
                         <?php } ?>
-                        <td class="dehead text-center text-ovr-dark" style="max-width:150px;">
+                        <td class="dehead text-center text-ovr-dark" style="max-width: 150px;">
                             <?php echo xlt('Patient'); ?>
                         </td>
                         <?php if ($GLOBALS['ptkr_visit_reason'] == '1') { ?>
@@ -747,14 +740,12 @@ if (!$_REQUEST['flb_table']) {
                         </td>
                         <td class="detail text-center visible-xs d-sm-none d-md-none d-lg-none"
                             style="white-space: normal;" name="kiosk_hide">
-                            <a href="#"
-                               onclick="return topatient(<?php echo attr_js($appt_pid); ?>,<?php echo attr_js($appt_enc); ?>)">
+                            <a href="#" onclick="return topatient(<?php echo attr_js($appt_pid); ?>,<?php echo attr_js($appt_enc); ?>)">
                                 <?php echo text($ptname_short); ?></a>
                         </td>
 
                         <td class="detail text-center" style="white-space: normal;" name="kiosk_show">
-                            <a href="#"
-                               onclick="return topatient(<?php echo attr_js($appt_pid); ?>,<?php echo attr_js($appt_enc); ?>)">
+                            <a href="#" onclick="return topatient(<?php echo attr_js($appt_pid); ?>,<?php echo attr_js($appt_enc); ?>)">
                                 <?php echo text($ptname_short); ?></a>
                         </td>
 
@@ -969,7 +960,7 @@ function myLocalJS()
                 }).done(
                     function (data) {
                         $("#flb_selectors").slideToggle();
-                        $("#flb_caret").css('color', '#000');
+                        $("#flb_caret").css('color', 'var(--black)');
                 });
             } else {
                 $.post("<?php echo $GLOBALS['webroot'] . "/interface/patient_tracker/patient_tracker.php"; ?>", {
@@ -978,7 +969,7 @@ function myLocalJS()
                 }).done(
                     function (data) {
                         $("#flb_selectors").slideToggle();
-                        $("#flb_caret").css('color', 'red');
+                        $("#flb_caret").css('color', 'var(--danger)');
                 });
             }
             $("#print_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');

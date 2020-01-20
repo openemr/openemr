@@ -28,7 +28,7 @@ require_once("$srcdir/api.inc");
 $obj = formFetch("form_vision", $_GET["id"]);
 ?>
 <form method=post action="<?php echo $rootdir?>/forms/vision/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">
-<span class="title">Vision</span><Br><br />
+<span class="title">Vision</span><br /><br />
 <span class=bold>Keratometry</span><br />
 
 <table>

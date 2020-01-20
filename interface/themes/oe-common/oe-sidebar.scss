@@ -115,7 +115,7 @@ main {
 .sidebar-expand button {
     @include font-size("2rem !important");
     line-height: .9;
-    color: $black;
+    color: $body-color;
     background: 0 0;
     border-width: 0;
     border-color: rgba($white, .1);

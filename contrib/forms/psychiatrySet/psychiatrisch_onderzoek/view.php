@@ -188,7 +188,7 @@ require_once("$srcdir/api.inc");
 
 
 <form method=post action="<?php echo $rootdir?>/forms/psychiatrisch_onderzoek/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">
-<span class="title"><?php echo xlt('Psychiatric Examination'); ?></span><Br><br />
+<span class="title"><?php echo xlt('Psychiatric Examination'); ?></span><br /><br />
 
 <table>
 <tr>

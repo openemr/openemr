@@ -110,6 +110,10 @@ $close-text-shadow: 0 1 0 $black;
     color: $ovr-dark !important;
 }
 
+.documents_list a {
+    color: $body-color !important;
+}
+
 /*search any*/
 @import "../oe-bootstrap";
 @import "../oe-common/all-common-import";

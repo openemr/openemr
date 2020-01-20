@@ -30,9 +30,8 @@ if (isset($_GET['approve']) && $_GET['approve'] == 1) {
     ?>
 <html>
     <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <title><?php echo xlt('CCR Approve');?></title>
         <?php Header::setupHeader(); ?>
+        <title><?php echo xlt('CCR Approve');?></title>
         </head>
         <body class="body_top">
             <center><?php echo xlt('Approved Successfully'); ?></center>
@@ -45,12 +44,8 @@ if (isset($_GET['approve']) && $_GET['approve'] == 1) {
 ?>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title><?php echo xlt('Pending Approval');?></title>
     <?php Header::setupHeader(); ?>
-<script type="text/javascript">
-
-</script>
+    <title><?php echo xlt('Pending Approval');?></title>
 </head>
 <body class="body_top">
 <div class="container">
