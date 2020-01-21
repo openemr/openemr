@@ -198,6 +198,28 @@ function install(done) {
                     .pipe(gulp.dest(config.dist.assets + key + '/dist'));
                 gulp.src('node_modules/' + key + '/scss/**/*')
                     .pipe(gulp.dest(config.dist.assets + key + '/scss'));
+            } else if (key == 'select2-bootstrap4-theme') {
+                // select2-bootstrap4-theme is special and need to copy dist and src
+                //  modify src/layout.scss in order for sass build to work by removing:
+                //   @import "~bootstrap/scss/functions";
+                //   @import "~bootstrap/scss/variables";
+                //   @import "~bootstrap/scss/mixins";
+                gulp.src('node_modules/' + key + '/dist/**/*')
+                    .pipe(gulp.dest(config.dist.assets + key + '/dist'));
+                gulp.src('node_modules/' + key + '/src/**/*')
+                    .pipe(gulp.dest(config.dist.assets + key + '/src'))
+                    .on('end', function() {
+                        replace({
+                            files: config.dist.assets + key + '/src/layout.scss',
+                            from:
+                                [
+                                    /@import "~bootstrap\/scss\/functions";/,
+                                    /@import "~bootstrap\/scss\/variables";/,
+                                    /@import "~bootstrap\/scss\/mixins";/
+                                ],
+                            to: '',
+                        });
+                    });
             } else if (fs.existsSync('node_modules/' + key + '/dist')) {
                 // only copy dist directory, if it exists
                 gulp.src('node_modules/' + key + '/dist/**/*')

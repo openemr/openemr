@@ -13,7 +13,7 @@ $enable-responsive-font-sizes: true;
 // Import Bootstrap 4 SCSS Files before doing anything
 @import "../../public/assets/bootstrap/scss/bootstrap";
 // Import Select2 BS4 Theme
-@import "select2-bootstrap-theme";
+@import "../../public/assets/select2-bootstrap4-theme/src/layout.scss";
 
 @import "directional";
 
