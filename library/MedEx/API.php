@@ -1915,7 +1915,8 @@ class Display extends base
                                       //a year ago @matrix-amiel Adding filters to flow board and counting of statuses
                                         $count_provs = count(sqlFetchArray($ures));
                                         ?>
-                                    <select class="form-group ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" id="form_provider" name="form_provider" <?php if ($count_provs <'2') { echo "disabled"; } ?> onchange="show_this();">
+                                    <select class="form-group ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" id="form_provider" name="form_provider" <?php if ($count_provs <'2') {
+                                        echo "disabled"; } ?> onchange="show_this();">
                                     <option value="" selected><?php echo xlt('All Providers'); ?></option>
 
                                         <?php
