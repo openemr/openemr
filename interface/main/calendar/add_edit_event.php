@@ -1705,7 +1705,7 @@ function isRegularRepeat($repeat)
         </div>
         <input type='hidden' name='form_repeat_exdate' id='form_repeat_exdate'
             value='<?php echo attr($repeatexdate); ?>' /> <!-- dates excluded from the repeat -->
-        <select class='form-control input-sm' name='form_repeat_freq' title='<?php echo xla('Every, every other, every 3rd, etc.'); ?>'>
+        <select class='form-control form-control-sm' name='form_repeat_freq' title='<?php echo xla('Every, every other, every 3rd, etc.'); ?>'>
             <?php
             foreach (array(1 => xl('every'), 2 => xl('2nd{{every}}'), 3 => xl('3rd{{every}}'), 4 => xl('4th{{every}}'), 5 => xl('5th{{every}}'), 6 => xl('6th{{every}}')) as $key => $value) {
                 echo "<option value='" . attr($key) . "'";
@@ -1716,7 +1716,7 @@ function isRegularRepeat($repeat)
             }
             ?>
         </select>
-        <select class='form-control input-sm' name='form_repeat_type'>
+        <select class='form-control form-control-sm' name='form_repeat_type'>
             <?php
             // See common.api.php for these. Options 5 and 6 will be dynamically filled in
             // when the start date is set.
@@ -1753,7 +1753,7 @@ function isRegularRepeat($repeat)
     <div class="row">
         <div class="form-group">
             <label id='tdrepeat2'><?php echo xlt('until date'); ?></label>
-            <input class="form-control input-sm input-sm datepicker" type='text' size='10' name='form_enddate' id='form_enddate' value='<?php echo attr(oeFormatShortDate($recurrence_end_date)) ?>' title='<?php echo xla('last date of this event'); ?>' />
+            <input class="form-control form-control-sm datepicker" type='text' size='10' name='form_enddate' id='form_enddate' value='<?php echo attr(oeFormatShortDate($recurrence_end_date)) ?>' title='<?php echo xla('last date of this event'); ?>' />
             <?php
             if ($repeatexdate != "") {
                 $tmptitle = "The following dates are excluded from the repeating series";
@@ -1789,7 +1789,7 @@ function isRegularRepeat($repeat)
         ?>
         <!-- The following list will be invisible unless this is an In Office
          event, in which case form_apptstatus (above) is to be invisible. -->
-        <select class='form-control input-sm' name='form_prefcat' style='display:none' title='<?php echo xla('Preferred Event Category'); ?>'>
+        <select class='form-control form-control-sm' name='form_prefcat' style='display:none' title='<?php echo xla('Preferred Event Category'); ?>'>
             <?php echo $prefcat_options ?>
         </select>
     </div>
@@ -1904,8 +1904,8 @@ $(function (){
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
     // add wanted classes to api generated elements.
-    $("#form_apptstatus").addClass('input-sm');
-    $("#form_room").addClass('input-sm');
+    $("#form_apptstatus").addClass('form-control-sm');
+    $("#form_room").addClass('form-control-sm');
     $(".current a").addClass('active');
 });
 

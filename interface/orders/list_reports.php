@@ -168,7 +168,7 @@ $(function () {
 <body class="body_top">
 <form class="form-inline" method='post' action='list_reports.php' enctype='multipart/form-data'>
     <!-- This might be set by the results window: -->
-    <input type='hidden' name='form_external_refresh' value=''/>
+    <input type='hidden' name='form_external_refresh' value='' />
 
     <?php
 
@@ -252,7 +252,7 @@ $(function () {
                         $s .= "  <td>&nbsp;</td>\n";
                         $s .= "  <td>&nbsp;</td>\n";
                     }
-                    $s .= "  <td colspan='2' style='color:red'>" . text(substr($message, 1)) . "</td>\n";
+                    $s .= "  <td colspan='2' class='text-danger'>" . text(substr($message, 1)) . "</td>\n";
                 } else {
                     // Informational message starts with '>'
                     $s .= "  <td>&nbsp;</td>\n";
@@ -297,7 +297,7 @@ $(function () {
 
     // If there was a fatal error display that.
     if ($errmsg) {
-        echo "<font color='red'>" . text($errmsg) . "</font><br />\n";
+        echo "<span class='text-danger'>" . text($errmsg) . "</span><br />\n";
     }
 
     $form_from_date = empty($_POST['form_from_date']) ? '' : trim($_POST['form_from_date']);
@@ -323,7 +323,7 @@ $(function () {
             } ?>/>
         <label for="ck_patient"><?php echo xlt('Current Pt Only'); ?></label>
 
-        <select class="form-control input-sm" name='form_reviewed'>
+        <select class="form-control form-control-sm" name='form_reviewed'>
             <?php
             foreach (array(
                          '1' => xl('All'),

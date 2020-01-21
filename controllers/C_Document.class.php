@@ -397,8 +397,8 @@ class C_Document extends Controller
         // Added by Rod to support document delete:
         $delete_string = '';
         if (acl_check('patients', 'docs_rm')) {
-            $delete_string = "<a href='' class='css_button' onclick='return deleteme(" . attr_js($d->get_id()) .
-                ")'><span><font color='red'>" . xlt('Delete') . "</font></span></a>";
+            $delete_string = "<a href='' class='btn btn-danger' onclick='return deleteme(" . attr_js($d->get_id()) .
+                ")'>" . xlt('Delete') . "</a>";
         }
         $this->assign("delete_string", $delete_string);
         $this->assign("REFRESH_ACTION", $this->_link("list"));

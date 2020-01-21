@@ -221,7 +221,7 @@ if (!$_REQUEST['flb_table']) {
             font-weight: bold;
             padding: 3px 10px;
             text-transform: uppercase;
-            line-height: 1.5em;
+            line-height: 1.5rem;
             color: var(--black);
             border-bottom: 2px solid var(--black);
             margin: 0 auto;
@@ -306,7 +306,7 @@ if (!$_REQUEST['flb_table']) {
                                 ?>
                             </select>
 
-                            <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control input-sm" id="form_patient_name" name="form_patient_name" value="<?php echo ($form_patient_name) ? attr($form_patient_name) : ""; ?>" onKeyUp="refineMe();">
+                            <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control form-control-sm" id="form_patient_name" name="form_patient_name" value="<?php echo ($form_patient_name) ? attr($form_patient_name) : ""; ?>" onKeyUp="refineMe();">
                         </div>
                         <div class="col-sm-<?php echo attr($col_width); ?> text-center">
                             <select class="form-group ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" id="form_facility" name="form_facility"

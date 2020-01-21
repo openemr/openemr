@@ -691,7 +691,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
                 <td nowrap>
                     <b><?php echo xlt('Patient'); ?>:</b>
                 </td>
-                <td style='padding:0px 5px 5px 0' nowrap>
+                <td style='padding: 0px 5px 5px 0' nowrap>
                     <input class="form-control" type='text' id='form_patient' name='form_patient' value='<?php echo attr($patientname); ?>' title='Patient' readonly />
                     <input type='hidden' name='form_pid' value='<?php echo attr($patientid); ?>' />
                 </td>
@@ -700,8 +700,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
                 </td>
                 <td nowrap id='tdallday4'><?php echo xlt('Duration'); ?></td>
                 <td nowrap id='tdallday5'>
-                    <input class="form-control input-sm" type='text' size='1' name='form_duration'
-                        value='<?php echo $row['pc_duration'] ? ($row['pc_duration'] * 1 / 60) : attr($thisduration) ?>' readonly /><?php echo "&nbsp" . xlt('minutes'); ?>
+                    <input class="form-control form-control-sm" type='text' size='1' name='form_duration' value='<?php echo $row['pc_duration'] ? ($row['pc_duration'] * 1 / 60) : attr($thisduration) ?>' readonly /><?php echo "&nbsp" . xlt('minutes'); ?>
                 </td>
             </tr>
             <tr>
@@ -733,7 +732,9 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
                 </td>
                 <td nowrap style='font-size:8pt'>
                 </td>
-                <td><input type='button' class='btn btn-success btn-sm' value='<?php echo xla('Openings'); ?>' onclick='find_available()' /></td>
+                <td>
+                    <input type='button' class='btn btn-success btn-sm' value='<?php echo xla('Openings'); ?>' onclick='find_available()' />
+                </td>
                 <td></td>
             </tr>
             <tr>
@@ -741,7 +742,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
                     <b><?php echo xlt('Reason'); ?>:</b>
                 </td>
                 <td style='padding:0px 5px 5px 0' colspan='4' nowrap>
-                    <input class="form-control" type='text' size='40' name='form_comments' style='width:100%' value='<?php echo attr($hometext); ?>' title='<?php echo xla('Optional information about this event'); ?>' />
+                    <input class="form-control w-100" type='text' size='40' name='form_comments' value='<?php echo attr($hometext); ?>' title='<?php echo xla('Optional information about this event'); ?>' />
                 </td>
             </tr>
         </table>

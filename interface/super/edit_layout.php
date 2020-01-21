@@ -851,7 +851,7 @@ function writeFieldLine($linedata)
     }
 
     // The "?" to click on for yet more field attributes.
-    echo "  <td class='bold' id='querytd_" . attr($fld_line_no) . "' style='cursor:pointer;";
+    echo "  <td class='font-weight-bold' id='querytd_" . attr($fld_line_no) . "' style='cursor:pointer;";
     if (!empty($linedata['conditions']) || !empty($linedata['validation'])) {
         echo "background-color:#77ff77;";
     }
@@ -876,7 +876,7 @@ function writeFieldLine($linedata)
       "z-index:1000;left:-1000px;top:0px;font-size:8pt;'>\n" .
       "<table width='100%'>\n" .
       " <tr>\n" .
-      "  <th colspan='3' align='left' class='bold'>" .
+      "  <th colspan='3' align='left' class='font-weight-bold'>" .
       xlt('For') . " " . text($linedata['field_id']) . " " .
       "<select name='fld[" . attr($fld_line_no) . "][action]' onchange='actionChanged(" . attr_js($fld_line_no) . ")'>" .
       "<option value='skip'  " . ($action == 'skip' ? 'selected' : '') . ">" . xlt('hide this field') . "</option>" .
@@ -889,11 +889,11 @@ function writeFieldLine($linedata)
       "value='" . xla('Close') . "' onclick='extShow(" . attr_js($fld_line_no) . ", false)' />&nbsp;</th>\n" .
       " </tr>\n" .
       " <tr>\n" .
-      "  <th align='left' class='bold'>" . xlt('Field ID') . "</th>\n" .
-      "  <th align='left' class='bold'>" . xlt('List item ID') . "</th>\n" .
-      "  <th align='left' class='bold'>" . xlt('Operator') . "</th>\n" .
-      "  <th align='left' class='bold'>" . xlt('Value if comparing') . "</th>\n" .
-      "  <th align='left' class='bold'>&nbsp;</th>\n" .
+      "  <th align='left' class='font-weight-bold'>" . xlt('Field ID') . "</th>\n" .
+      "  <th align='left' class='font-weight-bold'>" . xlt('List item ID') . "</th>\n" .
+      "  <th align='left' class='font-weight-bold'>" . xlt('Operator') . "</th>\n" .
+      "  <th align='left' class='font-weight-bold'>" . xlt('Value if comparing') . "</th>\n" .
+      "  <th align='left' class='font-weight-bold'>&nbsp;</th>\n" .
       " </tr>\n";
     // There may be multiple condition lines for each field.
     foreach ($conditions as $i => $condition) {
@@ -970,11 +970,11 @@ function writeFieldLine($linedata)
 
     $extra_html .=  "<table width='100%'>\n" .
     " <tr>\n" .
-    "  <td colspan='3' align='left' class='bold'>\"" . text($linedata['field_id']) . "\" " .
+    "  <td colspan='3' align='left' class='font-weight-bold'>\"" . text($linedata['field_id']) . "\" " .
     xlt('will have the following validation rules') . ":</td>\n" .
     " </tr>\n" .
     " <tr>\n" .
-    "  <td align='left' class='bold'>" . xlt('Validation rule') . "  </td>\n" .
+    "  <td align='left' class='font-weight-bold'>" . xlt('Validation rule') . "  </td>\n" .
     " </tr>\n".
     " <tr>\n" .
     "  <td align='left' title='" . xla('Select a validation rule') . "'>\n" .
@@ -1013,17 +1013,40 @@ function writeFieldLine($linedata)
 <title><?php echo xlt('Layout Editor'); ?></title>
 
 <style>
-.orgTable tr.head   { font-size:8pt; background-color:#cccccc; }
-.orgTable tr.detail { font-size:8pt; }
-.orgTable td        { font-size:8pt; }
-.orgTable input     { font-size:8pt; }
-.orgTable select    { font-size:8pt; }
-a, a:visited, a:hover { color:#0000cc; }
-.optcell  { }
-.optin    { background: transparent; }
+.orgTable tr.head {
+    font-size: 11px;
+    background-color: var(--gray400);
+}
+
+.orgTable tr.detail {
+    font-size: 11px;
+}
+
+.orgTable td {
+    font-size: 11px;
+}
+
+.orgTable input {
+    font-size: 11px;
+}
+
+.orgTable select {
+    font-size: 11px;
+}
+
+a,
+a:visited,
+a:hover {
+    color: var(--primary);
+}
+
+.optin {
+    background: transparent;
+}
+
 .group {
-    margin: 0pt 0pt 8pt 0pt;
-    padding :0pt;
+    margin: 0 0 11px 0;
+    padding: 0;
     width: 100%;
 }
 
@@ -1032,46 +1055,72 @@ a, a:visited, a:hover { color:#0000cc; }
     width: 100%;
 
 }
+
 .orgTable .odd td {
-    background-color: #ddddff;
+    background-color: var(--gray300);
     padding: 3px 0px 3px 0px;
 }
+
 .orgTable .even td {
-    background-color: #ffdddd;
+    background-color: var(--light);
     padding: 3px 0px 3px 0px;
 }
-.help { cursor: help; }
-.layouts_title { font-size: 110%; }
+
+.help {
+    cursor: help;
+}
+
+.layouts_title {
+    font-size: 110%;
+}
+
 .translation {
-    color: green;
-    font-size:8pt;
+    color: var(--success);
+    font-size: 11px;
 }
+
 .highlight * {
-    border: 2px solid blue;
-    background-color: yellow;
-    color: black;
+    border: 2px solid var(--primary);
+    background-color: var(--yellow);
+    color: var(--black);
 }
+
 .select2-container--default .select2-selection--multiple {
     cursor: pointer;
 }
+
 .select2-search__field {
     cursor: pointer;
     width: 0 !important;
 }
+
 .select2-selection__choice {
     font-size: 12px;
 }
+
 .select2-container {
     cursor: pointer;
     opacity: 0.99 !important;
 }
+
 .select2-dropdown {
     opacity: 0.99 !important;
 }
+
 .tips {
     display: none;
 }
 
+.select2-container--default .select2-selection--multiple {
+    background-color: var(--white) !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: var(--light) !important;
+}
+.optin {
+    color: var(--black) !important;
+}
 </style>
 
 <script>
@@ -1382,7 +1431,7 @@ while ($row = sqlFetchArray($res)) {
         } else { // making first group flag useful for maintaining top fixed nav bar.
             echo "<div id='" . attr($group_id) . "' class='group' style='padding-top:40px'>";
         }
-        echo "<div class='text font-weight-bold layouts_title p-2' style='position:relative; background-color: #c9dbf2;'>";
+        echo "<div class='text font-weight-bold layouts_title p-2 bg-light' style='position:relative;'>";
 
         // Get the fully qualified descriptive name of this group (i.e. including ancestor names).
         $gdispname = '';

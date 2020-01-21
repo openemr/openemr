@@ -325,6 +325,13 @@ function generate_form_field($frow, $currvalue)
     $list_id     = $frow['list_id'];
     $backup_list = $frow['list_backup_id'];
 
+    // Get if we want a smaller form field
+    $smallform = $frow['smallform'];
+
+    if ($smallform === 'true') {
+        $smallform = ' form-control-sm';
+    }
+
     // escaped variables to use in html
     $field_id_esc= htmlspecialchars($field_id, ENT_QUOTES);
     $list_id_esc = htmlspecialchars($list_id, ENT_QUOTES);
@@ -380,7 +387,7 @@ function generate_form_field($frow, $currvalue)
             $currvalue,
             $description,
             ($showEmpty ? $empty_title : ''),
-            '',
+            $smallform,
             $lbfchange,
             '',
             ($disabled ? array('disabled' => 'disabled') : null),
@@ -397,7 +404,7 @@ function generate_form_field($frow, $currvalue)
         }
 
         echo "<input type='text'" .
-        " class='form-control'" .
+        " class='form-control$smallform'" .
         " name='form_$field_id_esc'" .
         " id='form_$field_id_esc'" .
         " size='$fldlength'" .
@@ -439,7 +446,7 @@ function generate_form_field($frow, $currvalue)
         $textRows = htmlspecialchars($frow['fld_rows'], ENT_QUOTES);
         echo "<textarea" .
         " name='form_$field_id_esc'" .
-        " class='form-control'" .
+        " class='form-control$smallform'" .
         " id='form_$field_id_esc'" .
         " title='$description'" .
         " cols='$textCols'" .
@@ -462,12 +469,10 @@ function generate_form_field($frow, $currvalue)
             $modtmp = isOption($frow['edit_options'], 'F') === false ? 0 : 1;
             if (!$modtmp) {
                 $dateValue  = oeFormatShortDate(substr($currescaped, 0, 10));
-                echo "<input type='text' size='10' class='datepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
-                " value='" .  attr($dateValue)  ."'";
+                echo "<input type='text' size='10' class='datepicker form-control$smallform' name='form_$field_id_esc' id='form_$field_id_esc'" . " value='" .  attr($dateValue)  ."'";
             } else {
                 $dateValue  = oeFormatDateTime(substr($currescaped, 0, 20), 0);
-                echo "<input type='text' size='20' class='datetimepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
-                    " value='" . attr($dateValue) . "'";
+                echo "<input type='text' size='20' class='datetimepicker form-control$smallform' name='form_$field_id_esc' id='form_$field_id_esc'" . " value='" . attr($dateValue) . "'";
             }
         }
         if (!$agestr) {
@@ -490,7 +495,7 @@ function generate_form_field($frow, $currvalue)
         "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
         "AND authorized = 1 " .
         "ORDER BY lname, fname");
-        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' $lbfonchange $disabled class='form-control'>";
+        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' $lbfonchange $disabled class='form-control$smallform'>";
         echo "<option value=''>" . xlt($empty_title) . "</option>";
         $got_selected = false;
         while ($urow = sqlFetchArray($ures)) {
@@ -517,7 +522,7 @@ function generate_form_field($frow, $currvalue)
         "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
         "AND ( authorized = 1 OR ( username = '' AND npi != '' ) ) " .
         "ORDER BY lname, fname");
-        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control'";
+        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
         echo " $lbfonchange $disabled>";
         echo "<option value=''>" . xlt('Unassigned') . "</option>";
         $got_selected = false;
@@ -541,7 +546,7 @@ function generate_form_field($frow, $currvalue)
             echo "</select>";
         }
     } elseif ($data_type == 12) { // pharmacy list
-        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control'";
+        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
         echo " $lbfonchange $disabled>";
         echo "<option value='0'></option>";
         $pres = get_pharmacies();
@@ -577,7 +582,7 @@ function generate_form_field($frow, $currvalue)
             echo "</select>";
         }
     } elseif ($data_type == 13) { // squads
-        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control'";
+        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
         echo " $lbfonchange $disabled>";
         echo "<option value=''>&nbsp;</option>";
         $squads = acl_get_squads();
@@ -626,7 +631,7 @@ function generate_form_field($frow, $currvalue)
         "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
         "AND $tmp " .
         "ORDER BY organization, lname, fname");
-        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control'";
+        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
         echo " $lbfonchange $disabled>";
         echo "<option value=''>" . htmlspecialchars(xl('Unassigned'), ENT_NOQUOTES) . "</option>";
         while ($urow = sqlFetchArray($ures)) {
@@ -711,7 +716,7 @@ function generate_form_field($frow, $currvalue)
                 echo " onclick='sel_related(this," . attr_js($codetype) . ")'";
             }
 
-            echo "class='form-control'";
+            echo "class='form-control$smallform'";
             echo " readonly $disabled />";
         } else {
             echo "<input type='text'" .
@@ -725,11 +730,11 @@ function generate_form_field($frow, $currvalue)
                 echo " onclick='sel_related(this," . attr_js($codetype) . ")'";
             }
 
-            echo "class='form-control'";
+            echo "class='form-control$smallform'";
             echo " $lbfonchange readonly $disabled />";
         }
     } elseif ($data_type == 16) { // insurance company list
-        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' class='form-control' title='$description'>";
+        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' class='form-control$smallform' title='$description'>";
         echo "<option value='0'></option>";
         $insprovs = getInsuranceProviders();
         $got_selected = false;
@@ -753,7 +758,7 @@ function generate_form_field($frow, $currvalue)
             echo "</select>";
         }
     } elseif ($data_type == 17) { // issue types
-        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' class='form-control' title='$description'>";
+        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' class='form-control$smallform' title='$description'>";
         echo "<option value='0'></option>";
         $got_selected = false;
         foreach ($ISSUE_TYPES as $key => $value) {
@@ -778,7 +783,7 @@ function generate_form_field($frow, $currvalue)
     } elseif ($data_type == 18) { // Visit categories.
         $cres = sqlStatement("SELECT pc_catid, pc_catname " .
         "FROM openemr_postcalendar_categories ORDER BY pc_catname");
-        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' class='form-control' title='$description'" .
+        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' class='form-control$smallform' title='$description'" .
         " $lbfonchange $disabled>";
         echo "<option value=''>" . xlt($empty_title) . "</option>";
         $got_selected = false;
@@ -833,7 +838,7 @@ function generate_form_field($frow, $currvalue)
                 }
                 echo "<td width='" . attr($tdpct) . "%' nowrap>";
                 echo "<input type='checkbox' name='form_{$field_id_esc}[$option_id_esc]'" .
-                "id='form_{$field_id_esc}[$option_id_esc]' class='form-control' value='1' $lbfonchange";
+                "id='form_{$field_id_esc}[$option_id_esc]' class='form-control$smallform' value='1' $lbfonchange";
                 if (in_array($option_id, $avalue)) {
                     echo " checked";
                 }
@@ -883,7 +888,7 @@ function generate_form_field($frow, $currvalue)
             " name='form_{$field_id_esc}[$option_id_esc]'" .
             " id='form_{$field_id_esc}[$option_id_esc]'" .
             " size='$fldlength'" .
-            " class='form-control'" .
+            " class='form-control$smallform'" .
             " $string_maxlength" .
             " value='$optionValue'";
             echo " $lbfonchange $disabled /></td></tr>";
@@ -1000,7 +1005,7 @@ function generate_form_field($frow, $currvalue)
 
             $option_id = htmlspecialchars($option_id, ENT_QUOTES);
             echo "<td><input type='checkbox' name='check_{$field_id_esc}[$option_id_esc]'" .
-            " id='check_{$field_id_esc}[$option_id_esc]' class='form-control' value='1' $lbfonchange";
+            " id='check_{$field_id_esc}[$option_id_esc]' class='form-control$smallform' value='1' $lbfonchange";
             if ($restype) {
                 echo " checked";
             }
@@ -1012,7 +1017,7 @@ function generate_form_field($frow, $currvalue)
             " name='form_{$field_id_esc}[$option_id_esc]'" .
             " id='form_{$field_id_esc}[$option_id_esc]'" .
             " size='$fldlength'" .
-            " class='form-control' " .
+            " class='form-control$smallform' " .
             " $string_maxlength" .
             " value='$resnote' $disabled /></td>";
             echo "</tr>";
@@ -1026,7 +1031,7 @@ function generate_form_field($frow, $currvalue)
             $currvalue,
             $description,
             ($showEmpty ? $empty_title : ''),
-            'addtolistclass_'.$list_id,
+            'addtolistclass_'.$list_id . $smallform,
             $lbfchange,
             '',
             ($disabled ? array('disabled' => 'disabled') : null),
@@ -1075,12 +1080,12 @@ function generate_form_field($frow, $currvalue)
             " value='$option_id_esc' $lbfonchange";
             // Support for edit options M and m.
             if (isOption($frow['edit_options'], 'M')) {
-                echo " class='form-control'";
+                echo " class='form-control$smallform'";
                 echo " onclick='checkGroupMembers(this, $membership_group_number);'";
             } else if (isOption($frow['edit_options'], 'm')) {
-                echo " class='form-control lbf_memgroup_$membership_group_number'";
+                echo " class='form-control$smallform lbf_memgroup_$membership_group_number'";
             } else {
-                echo " class='form-control'";
+                echo " class='form-control$smallform'";
             }
             //
             if ((strlen($currvalue) == 0 && $lrow['is_default']) ||
@@ -1168,7 +1173,7 @@ function generate_form_field($frow, $currvalue)
             " name='form_text_$field_id_esc'" .
             " id='form_text_$field_id_esc'" .
             " size='$fldlength'" .
-            " class='form-control'" .
+            " class='form-control$smallform'" .
             " $string_maxlength" .
             " value='$resnote' $disabled />&nbsp;</td></tr>";
             echo "<td>";
@@ -1180,7 +1185,7 @@ function generate_form_field($frow, $currvalue)
                 $reslist,
                 $description,
                 ($showEmpty ? $empty_title : ''),
-                '',
+                $smallform,
                 $onchange,
                 '',
                 ($disabled ? array('disabled' => 'disabled') : null)
@@ -1193,7 +1198,7 @@ function generate_form_field($frow, $currvalue)
         echo "<td class='text' ><input type='radio'" .
         " name='radio_{$field_id_esc}'" .
         " id='radio_{$field_id_esc}[current]'" .
-        " class='form-control'" .
+        " class='form-control$smallform'" .
         " value='current" . $field_id_esc . "' $lbfonchange";
         if ($restype == "current" . $field_id) {
             echo " checked";
@@ -1208,7 +1213,7 @@ function generate_form_field($frow, $currvalue)
         echo "<td class='text'><input type='radio'" .
         " name='radio_{$field_id_esc}'" .
         " id='radio_{$field_id_esc}[quit]'" .
-        " class='form-control'" .
+        " class='form-control$smallform'" .
         " value='quit".$field_id_esc."' $lbfonchange";
         if ($restype == "quit" . $field_id) {
             echo " checked";
@@ -1228,7 +1233,7 @@ function generate_form_field($frow, $currvalue)
         // never
         echo "<td class='text'><input type='radio'" .
         " name='radio_{$field_id_esc}'" .
-        " class='form-control'" .
+        " class='form-control$smallform'" .
         " id='radio_{$field_id_esc}[never]'" .
         " value='never" . $field_id_esc . "' $lbfonchange";
         if ($restype == "never" . $field_id) {
@@ -1242,7 +1247,7 @@ function generate_form_field($frow, $currvalue)
         echo " />" . xlt('Never') . "&nbsp;</td>";
         // Not Applicable
         echo "<td class='text'><input type='radio'" .
-        " class='form-control' " .
+        " class='form-control$smallform' " .
         " name='radio_{$field_id}'" .
         " id='radio_{$field_id}[not_applicable]'" .
         " value='not_applicable" . $field_id . "' $lbfonchange";
@@ -1270,7 +1275,7 @@ function generate_form_field($frow, $currvalue)
         $arr = explode("|*|*|*|", $currvalue);
         echo "<a href='../../../library/custom_template/custom_template.php?type=form_{$field_id}&contextName=".htmlspecialchars($list_id_esc, ENT_QUOTES)."' class='iframe_medium' style='text-decoration: none; color: var(--black);'>";
         echo "<div id='form_{$field_id}_div' class='text-area' style='min-width: 133px'>" . $arr[0] . "</div>";
-        echo "<div style='display:none'><textarea name='form_{$field_id}' id='form_{$field_id}' class='form-control' style='display:none' $lbfonchange $disabled>" . $currvalue . "</textarea></div>";
+        echo "<div style='display:none'><textarea name='form_{$field_id}' id='form_{$field_id}' class='form-control$smallform' style='display:none' $lbfonchange $disabled>" . $currvalue . "</textarea></div>";
         echo "</a>";
     } elseif ($data_type == 35) { //facilities drop-down list
         if (empty($currvalue)) {
@@ -1292,7 +1297,7 @@ function generate_form_field($frow, $currvalue)
             $currvalue,
             $description,
             $showEmpty ? $empty_title : '',
-            '',
+            $smallform,
             $lbfchange,
             '',
             null,
@@ -3708,9 +3713,9 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
         // show button, since authorized
         // first prepare class string
         if ($buttonClass) {
-            $class_string = "css_button_small " . $buttonClass;
+            $class_string = "btn btn-primary btn-sm " . $buttonClass;
         } else {
-            $class_string = "css_button_small";
+            $class_string = "btn btn-primary btn-sm";
         }
 
         // next, create the link

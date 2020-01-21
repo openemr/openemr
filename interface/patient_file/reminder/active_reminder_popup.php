@@ -29,7 +29,7 @@ use OpenEMR\Core\Header;
 $_SESSION['alert_notify_pid'] = $pid;
 
 ?>
-<table cellspacing='0' cellpadding='0' border='0'>
+<table class="border-0" cellspacing='0' cellpadding='0'>
 <tr>
 
 <?php
@@ -55,9 +55,7 @@ if (!empty($active_alerts) && empty($all_allergy_alerts)) {
 ?>
 </span>&nbsp;&nbsp;&nbsp;</td>
 <td>
-    <a href="#" id="close" class="css_button large_button" onclick="dlgclose(); return false;">
-        <span class='css_button_span large_button_span'><?php echo xlt('Close');?></span>
-    </a>
+    <a href="#" id="close" class="btn btn-secondary btn-lg" onclick="dlgclose(); return false;"><?php echo xlt('Close');?></a>
 </td>
 </tr>
 </table>

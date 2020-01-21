@@ -550,24 +550,25 @@ echo xlt($CapInstype); ?></a></li><?php
             <label class='required'><?php echo text($insurance_headings[$i -1])."&nbsp;"?></label>
             </td>
             <td class='required'>:</td>
-            <td>
-             <a href="../../practice/ins_search.php" class="medium_modal btn btn-primary" onclick="ins_search(<?php echo attr_js($i); ?>)">
-             <span><?php echo xlt('Search/Add') ?></span>
-                  </a>
-             <select name="i<?php echo attr($i); ?>provider" class="form-control sel2" style="width: 300;">
-             <option value=""><?php echo xlt('Unassigned'); ?></option>
-                <?php
-                foreach ($insurancei as $iid => $iname) {
-                    echo "<option value='" . attr($iid) . "'";
-                    if (strtolower($iid) == strtolower($result3["provider"])) {
-                        echo " selected";
-                    }
+            <td class="form-row align-items-center">
+                <div class="col-auto">
+                    <a href="../../practice/ins_search.php" class="medium_modal btn btn-primary" onclick="ins_search(<?php echo attr_js($i); ?>)"><?php echo xlt('Search/Add') ?></a>
+                </div>
+                <div class="col-auto">
+                     <select name="i<?php echo attr($i); ?>provider" class="form-control sel2" style="width: 250px;">
+                     <option value=""><?php echo xlt('Unassigned'); ?></option>
+                        <?php
+                        foreach ($insurancei as $iid => $iname) {
+                            echo "<option value='" . attr($iid) . "'";
+                            if (strtolower($iid) == strtolower($result3["provider"])) {
+                                echo " selected";
+                            }
 
-                    echo ">" . text($iname) . "</option>\n";
-                }
-                ?>
-               </select>
-
+                            echo ">" . text($iname) . "</option>\n";
+                        }
+                        ?>
+                       </select>
+                </div>
               </td>
              </tr>
 
@@ -577,8 +578,7 @@ echo xlt($CapInstype); ?></a></li><?php
              </td>
              <td class='required'>:</td>
              <td>
-              <input type='entry' class='form-control' size='20' name='i<?php echo attr($i); ?>plan_name' value="<?php echo attr($result3["plan_name"]); ?>"
-               onchange="capitalizeMe(this);" />&nbsp;&nbsp;
+              <input type='entry' class='form-control' size='20' name='i<?php echo attr($i); ?>plan_name' value="<?php echo attr($result3["plan_name"]); ?>" onchange="capitalizeMe(this);" />&nbsp;&nbsp;
              </td>
             </tr>
 
@@ -588,17 +588,14 @@ echo xlt($CapInstype); ?></a></li><?php
              </td>
              <td class='required'>:</td>
              <td>
-              <input type='entry' size='16' class='datepicker form-control' id='i<?php echo attr($i); ?>effective_date' name='i<?php echo attr($i); ?>effective_date'
-               value='<?php echo attr(oeFormatShortDate($result3['date'])); ?>'
-                />
+              <input type='entry' size='16' class='datepicker form-control' id='i<?php echo attr($i); ?>effective_date' name='i<?php echo attr($i); ?>effective_date' value='<?php echo attr(oeFormatShortDate($result3['date'])); ?>' />
              </td>
             </tr>
 
             <tr>
              <td><label class='required'><?php echo xlt('Policy Number'); ?></label></td>
              <td class='required'>:</td>
-             <td><input type='entry' class='form-control' size='16' name='i<?php echo attr($i); ?>policy_number' value="<?php echo attr($result3["policy_number"]); ?>"
-              onkeyup='policykeyup(this)'></td>
+             <td><input type='entry' class='form-control' size='16' name='i<?php echo attr($i); ?>policy_number' value="<?php echo attr($result3["policy_number"]); ?>" onkeyup='policykeyup(this)'></td>
             </tr>
 
             <tr>
@@ -641,9 +638,9 @@ echo xlt($CapInstype); ?></a></li><?php
                 </td>
                </tr>
                <tr>
-                <td><label class='required'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('SE Zip Code') : xlt('SE Postal Code') ?>: </label></td>
-                <td><input type='entry' class='form-control' size=15 name='i<?php echo attr($i); ?>subscriber_employer_postal_code' value="<?php echo attr($result3["subscriber_employer_postal_code"]); ?>"></td>
-                <td><label class='required'><?php echo xlt('SE Country'); ?>: </label></td>
+                <td><label for='i<?php echo attr($i); ?>subscriber_employer_postal_code' class='required'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('SE Zip Code') : xlt('SE Postal Code') ?>: </label></td>
+                <td><input type='entry' class='form-control' size='15' name='i<?php echo attr($i); ?>subscriber_employer_postal_code' value="<?php echo attr($result3["subscriber_employer_postal_code"]); ?>"></td>
+                <td><label for='i<?php echo attr($i); ?>subscriber_employer_country' class='required'><?php echo xlt('SE Country'); ?>: </label></td>
             <td>
                     <?php
                   // Modified 7/2009 by BM to incorporate data types
@@ -659,7 +656,7 @@ echo xlt($CapInstype); ?></a></li><?php
           </div>
 
           <div class="col-md-6">
-        <table border="0">
+        <table class="border-0">
             <tr>
                 <td><label class='required'><?php echo xlt('Relationship'); ?></label></td>
                 <td class='required'>:</td>

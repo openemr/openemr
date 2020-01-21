@@ -45,7 +45,7 @@ if ($form_newuser) {
 <?php Header::setupHeader(); ?>
 <title><?php echo xlt('Chart Tracker'); ?></title>
 
-<script language="JavaScript">
+<script>
 
 function locationSelect() {
  var f = document.forms[0];

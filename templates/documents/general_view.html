@@ -121,34 +121,34 @@ function ImgProcedure() {literal}{{/literal}
  }{/literal}
 </script>
 
-<table valign="top" width="100%">
+<table class="w-100" valign="top">
     <tr>
         <td>
-            <div style="margin-bottom: 6px;padding-bottom: 6px;border-bottom:3px solid gray;">
+            <div style="margin-bottom: 6px; padding-bottom: 6px; border-bottom: 3px solid var(--gray);">
             <h4>{$file->get_url_web()|text}
               <div class="btn-group btn-toggle">
                 <button class="btn btn-sm btn-secondary properties">{xlt t='Properties'}</button>
                 <button class="btn btn-sm btn-primary active">{xlt t='Contents'}</button>
               </div>
-            <span style="float:right;">
+            <span style="float: right;">
             <script>var file = {$file->get_url()|js_escape};</script>
             {if $GLOBALS.oefax_enable}
             {dispatchPatientDocumentEvent event="actions_render_fax_anchor"}
             {/if}
-            <a class="css_button" href='' onclick='return popoutcontent(this)' title="{xla t='Pop Out Full Screen.'}">{xlt t='Pop Out'}</a>
-            <a class="css_button" href="{$web_path|attr}" title="{xla t='Original file'}" onclick="top.restoreSession()"><span>{xlt t='Download'}</span></a>
-            <a class="css_button" href='' onclick='return showpnotes({$file->get_id()|attr_js})'><span>{xlt t='Show Notes'}</span></a>
+            <a class="btn btn-primary" href='' onclick='return popoutcontent(this)' title="{xla t='Pop Out Full Screen.'}">{xlt t='Pop Out'}</a>
+            <a class="btn btn-primary" href="{$web_path|attr}" title="{xla t='Original file'}" onclick="top.restoreSession()">{xlt t='Download'}</a>
+            <a class="btn btn-primary" href='' onclick='return showpnotes({$file->get_id()|attr_js})'>{xlt t='Show Notes'}</a>
             {$delete_string}
             {if $file->get_ccr_type($file->get_id()) eq "CCR" and ($file->get_mimetype($file->get_id()) eq "application/xml" or $file->get_mimetype($file->get_id()) eq "text/xml") and
             $file->get_imported($file->get_id()) eq 0 }
-            <a class="css_button" href='javascript:' onclick='return import_ccr({$file->get_id()|attr_js})'><span>{xlt t='Import'}</span></a>
+            <a class="btn btn-primary" href='javascript:' onclick='return import_ccr({$file->get_id()|attr_js})'>{xlt t='Import'}</a>
             {/if}
             </span>
             </h4>
             </div>
         </td>
     </tr>
-    <tr id="DocProperties" style="display:none;">
+    <tr id="DocProperties" style="display: none;">
 		<td valign="top">
 			{if !$hide_encryption}
 			<div class="text">
@@ -338,12 +338,12 @@ function ImgProcedure() {literal}{{/literal}
 		</td>
 	</tr>
 </table>
-<script language='JavaScript'>
+<script>
 {literal}
 $('.btn-toggle').click(function() {
     $(this).find('.btn').toggleClass('active');
 
-    if ($(this).find('.btn-primary').length >0) {
+    if ($(this).find('.btn-primary').length > 0) {
         $(this).find('.btn').toggleClass('btn-primary');
     }
 

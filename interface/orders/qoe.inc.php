@@ -69,7 +69,7 @@ function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
         $s .= "<tr>";
         $s .= "<td valign='top'";
         if ($qrow['required']) {
-            $s .= " style='color:#880000'"; // TBD: move to stylesheet
+            $s .= " style='color: #880000'"; // TBD: move to stylesheet
         }
 
         $s .= ">" . text($qrow['question_text']) . "</td>";

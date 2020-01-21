@@ -365,22 +365,24 @@ if (!empty($irow['type'])) {
 
 <style>
 
-td, input, select, textarea {
- font-family: Arial, Helvetica, sans-serif;
- font-size: 10pt;
+td,
+input,
+select
+textarea {
+ font-family: "Arial", "Helvetica", sans-serif;
+ font-size: 13px;
 }
 
 div.section {
- border: solid;
- border-width: 1px;
- border-color: #0000ff;
- margin: 0 0 0 10pt;
- padding: 5pt;
+ border: 1px solid var(--primary) !important;
+ margin: 0 0 0 13px;
+ padding: 7px;
 }
 
 /* Override theme's selected tab top color so it matches tab contents. */
-ul.tabNav li.current a { background:var(--white); }
-
+ul.tabNav li.current a {
+    background: var(--white);
+}
 </style>
 
 <script language="JavaScript">

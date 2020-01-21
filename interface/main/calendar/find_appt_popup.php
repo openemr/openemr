@@ -260,7 +260,7 @@ if (isset($_REQUEST['cktime'])) {
     if ($ckavail) {
             // The chosen appointment time is available.
             echo "<html>"
-        . "<script language='JavaScript'>\n";
+        . "<script>\n";
             echo "function mytimeout() {\n";
             echo " opener.top.restoreSession();\n";
             echo " opener.document.forms[0].submit();\n";
@@ -276,7 +276,7 @@ if (isset($_REQUEST['cktime'])) {
 }
 ?>
 
-<script language="JavaScript">
+<script>
 
  function setappt(year,mon,mday,hours,minutes) {
   if (opener.closed || ! opener.setappt)
@@ -306,7 +306,7 @@ form {
 #searchResultsHeader {
     width: 100%;
     border-collapse: collapse;
-    background-color: #fff;
+    background-color: var(--white);
 }
 #searchResultsHeader th {
     /*font-size: 0.7em;*/
@@ -315,37 +315,44 @@ form {
     width: 100%;
     overflow: auto;
     border-collapse: collapse;
-    background-color: white;
+    background-color: var(--white);
 }
 #searchResults td {
     font-size: 0.9em;
-    border-bottom: 1px solid gray;
+    border-bottom: 1px solid var(--gray);
     padding: 1px 5px 1px 5px;
 }
-.highlight { background-color: #ff9; }
-.blue_highlight { background-color: #336699; color: white; }
-#am {
-    border-bottom: 1px solid lightgrey;
-    color: #00c;
+.highlight {
+    background-color: #ff9;
 }
-#pm { color: #c00; }
-#pm a { color: #c00; }
+.blue_highlight {
+    background-color: #336699;
+    color: var(--white);
+}
+#am {
+    border-bottom: 1px solid var(--gray);
+    color: var(--primary);
+}
+#pm {
+    color: var(--danger);
+}
+#pm a {
+    color: var(--danger);
+}
 </style>
 
 </head>
 
 <body class="body_top">
-<div class="container-responsive">
+<div class="container-fluid">
 <div id="searchCriteria">
 <form class="form-inline" method='post' name='theform' action='find_appt_popup.php?providerid=<?php echo attr_url($providerid) ?>&catid=<?php echo attr_url($input_catid) ?>'>
     <?php echo xlt('Start date:'); ?>
-   <input type='text' class='datepicker input-sm' name='startdate' id='startdate' size='10' value='<?php echo attr(oeFormatShortDate($sdate)); ?>'
-    title='<?php echo xla('Starting date for search'); ?> '/>
+   <input type='text' class='datepicker input-sm' name='startdate' id='startdate' size='10' value='<?php echo attr(oeFormatShortDate($sdate)); ?>' title='<?php echo xla('Starting date for search'); ?> '/>
     <?php echo xlt('for'); ?>
-   <input type='text' class="input-sm" name='searchdays' size='3' value='<?php echo attr($searchdays) ?>'
-    title='<?php echo xla('Number of days to search from the start date'); ?>' />
+   <input type='text' class="input-sm" name='searchdays' size='3' value='<?php echo attr($searchdays) ?>' title='<?php echo xla('Number of days to search from the start date'); ?>' />
     <?php echo xlt('days'); ?>&nbsp;
-   <input type='submit' value='<?php echo xla('Search'); ?>'>
+   <input type='submit' value='<?php echo xla('Search'); ?>' />
 </form>
 </div>
 <?php if (!empty($slots)) : ?>
@@ -427,7 +434,7 @@ form {
 </table>
 <?php endif; ?>
 
-<script language='text/javascript'>
+<script>
 
 // jQuery stuff to make the page a little easier to use
 

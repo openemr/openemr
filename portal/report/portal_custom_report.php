@@ -165,20 +165,22 @@ function postToGet($arin)
 
 <style>
 
-.h3, h3 {
+.h3,
+h3 {
     font-size: 20px;
 }
-.report_search_div{
+.report_search_div {
 font-size: 20px !important;
-font-style:bold;
+font-style: bold;
 }
 .label {
-color:black;
+color: black;
 }/*
 .groupname {
 color:green;
 }*/
-input[type="checkbox"], input[type="radio"] {
+input[type="checkbox"],
+input[type="radio"] {
     margin: 0 5px 5px;
     line-height: normal;
 }
@@ -188,14 +190,14 @@ input[type="checkbox"], input[type="radio"] {
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign_report.css?v=<?php echo $v_js_includes; ?>" />
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/SearchHighlight.js?v=<?php echo $v_js_includes; ?>"></script>
     <!-- Unclear where a conflict occurs but if jquery is already in scope then !!!! removed noconflict sjp 12-1-2019-->
-<script type="text/javascript">var $j = '$';</script>
+<script>var $j = '$';</script>
 
     <?php // if the track_anything form exists, then include the styling
     if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
  <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
     <?php  } ?>
 
-<script type="text/javascript">
+<script>
 
   // Code for search & Highlight
   function reset_highlight(form_id,form_dir,class_name) { // Removes <span class='hilite' id=''>VAL</span> with VAL
@@ -561,13 +563,13 @@ if ($printable) {
     <input type="text" onKeyUp="clear_last_visit();remove_mark_all();find_all();" name="search_element" id="search_element" style="width:180px;"/>
   </td>
   <td>
-     <a class="css_button" onClick="clear_last_visit();remove_mark_all();find_all();" ><span><?php //echo xlt('Find'); ?></span></a>
+     <a class="btn btn-primary" onClick="clear_last_visit();remove_mark_all();find_all();" ><span><?php //echo xlt('Find'); ?></span></a>
   </td>
   <td>
-     <a class="css_button" onClick="next_prev('prev');" ><span><?php //echo xlt('Prev'); ?></span></a>
+     <a class="btn btn-primary" onClick="next_prev('prev');" ><span><?php //echo xlt('Prev'); ?></span></a>
   </td>
   <td>
-     <a class="css_button" onClick="next_prev('next');" ><span><?php //echo xlt('Next'); ?></span></a>
+     <a class="btn btn-primary" onClick="next_prev('next');" ><span><?php //echo xlt('Next'); ?></span></a>
   </td>
   <td>
     <input type="checkbox" onClick="clear_last_visit();remove_mark_all();find_all();" name="search_case" id="search_case" />
@@ -671,11 +673,11 @@ foreach ($ar as $key => $val) {
             echo "<hr />";
             echo "<div class='text insurance'>";
             echo "<h1>".xlt('Insurance Data').":</h1>";
-            print "<br /><span class=bold>".xlt('Primary Insurance Data').":</span><br />";
+            print "<br /><span class='font-weight-bold'>".xlt('Primary Insurance Data').":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
-            print "<span class=bold>".xlt('Secondary Insurance Data').":</span><br />";
+            print "<span class='font-weight-bold'>".xlt('Secondary Insurance Data').":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
-            print "<span class=bold>".xlt('Tertiary Insurance Data').":</span><br />";
+            print "<span class='font-weight-bold'>".xlt('Tertiary Insurance Data').":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
             echo "</div>";
         } elseif ($val == "billing") {
@@ -685,7 +687,7 @@ foreach ($ar as $key => $val) {
             if ((!empty($ar['newpatient'])) && (count($ar['newpatient']) > 0)) {
                 $billings = array();
                 echo "<table>";
-                echo "<tr><td width='400' class='bold'>" . xlt('Code') . "</td><td class='bold'>".xlt('Fee')."</td></tr>\n";
+                echo "<tr><td width='400' class='font-weight-bold'>" . xlt('Code') . "</td><td class='font-weight-bold'>".xlt('Fee')."</td></tr>\n";
                 $total = 0.00;
                 $copays = 0.00;
                 foreach ($ar['newpatient'] as $be) {
@@ -694,10 +696,10 @@ foreach ($ar as $key => $val) {
                     $billings[] = $billing;
                     foreach ($billing as $b) {
                         echo "<tr>\n";
-                        echo "<td class=text>";
+                        echo "<td class='text'>";
                         echo text($b['code_type']) . ":\t" . text($b['code']) . "&nbsp;". text($b['modifier']) . "&nbsp;&nbsp;&nbsp;" . text($b['code_text']) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
                         echo "</td>\n";
-                        echo "<td class=text>";
+                        echo "<td class='text'>";
                         echo text(oeFormatMoney($b['fee']));
                         echo "</td>\n";
                         echo "</tr>\n";
@@ -709,9 +711,9 @@ foreach ($ar as $key => $val) {
                 }
 
                 echo "<tr><td>&nbsp;</td></tr>";
-                echo "<tr><td class=bold>".xlt('Sub-Total')."</td><td class=text>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
-                echo "<tr><td class=bold>".xlt('Paid')."</td><td class=text>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
-                echo "<tr><td class=bold>".xlt('Total')."</td><td class=text>" . text(oeFormatMoney($total)) . "</td></tr>";
+                echo "<tr><td class='font-weight-bold'>".xlt('Sub-Total')."</td><td class='text'>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
+                echo "<tr><td class='font-weight-bold'>".xlt('Paid')."</td><td class='text'>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
+                echo "<tr><td class='font-weight-bold'>".xlt('Total')."</td><td class='text'>" . text(oeFormatMoney($total)) . "</td></tr>";
                 echo "</table>";
                 echo "<pre>";
                 //print_r($billings);
@@ -726,17 +728,17 @@ foreach ($ar as $key => $val) {
 
         } elseif ($val == "allergies") {
 
-            print "<span class=bold>Patient Allergies:</span><br />";
+            print "<span class='font-weight-bold'>Patient Allergies:</span><br />";
             printListData($pid, "allergy", "1");
 
         } elseif ($val == "medications") {
 
-            print "<span class=bold>Patient Medications:</span><br />";
+            print "<span class='font-weight-bold'>Patient Medications:</span><br />";
             printListData($pid, "medication", "1");
 
         } elseif ($val == "medical_problems") {
 
-            print "<span class=bold>Patient Medical Problems:</span><br />";
+            print "<span class='font-weight-bold'>Patient Medical Problems:</span><br />";
             printListData($pid, "medical_problem", "1");
 
     ****/

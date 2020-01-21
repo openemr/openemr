@@ -39,7 +39,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
 <head>
 <?php Header::setupHeader(['common', 'opener', 'jquery-ui']); ?>
 
-<script language="JavaScript">
+<script>
     var reportID = <?php echo js_escape($report_id); ?>;
     var provider_id = <?php echo js_escape($provider_id);?>;
     var zipFileArray = new Array();
@@ -139,8 +139,8 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
     <tr>
         <td><span class="title"><?php echo xlt("Generate/Download QRDA I - 2014"); ?>&nbsp;</span></td>
         <td>
-            <a class="css_button multiDownload" href="#" onclick="downloadSelected();"><span><?php echo xlt("Download"); ?></span></a>
-            <a class="css_button" href="#" onclick="closeMe();"><span><?php echo xlt("Close"); ?></span></a>
+            <a class="btn btn-primary multiDownload" href="#" onclick="downloadSelected();"><?php echo xlt("Download"); ?></a>
+            <a class="btn btn-secondary" href="#" onclick="closeMe();"><?php echo xlt("Close"); ?></a>
         </td>
     </tr>
 </table>

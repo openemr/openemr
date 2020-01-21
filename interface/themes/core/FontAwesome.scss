@@ -16,12 +16,6 @@
     color: $gray !important;
 }
 
-.css_button[href*="deleter"]:before, input[type="button"][href*="deleter"] [type="submit"]:before, button[href*="deleter"]:before {
-    font-family: "FontAwesome";
-    content: "\f014";
-    display: inline-block;
-}
-
 .btn::before {
     font-family: "FontAwesome";
     display: inline;
