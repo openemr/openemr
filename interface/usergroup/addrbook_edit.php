@@ -12,9 +12,9 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -277,7 +277,7 @@ if ($type) { // note this only happens when its new
 
 <table border='0' width='100%'>
 
-<?php if (acl_check('admin', 'practice')) { // allow choose type option if have admin access ?>
+<?php if (AclMain::aclCheckCore('admin', 'practice')) { // allow choose type option if have admin access ?>
  <tr>
   <td width='1%' nowrap><b><?php echo xlt('Type'); ?>:</b></td>
   <td>

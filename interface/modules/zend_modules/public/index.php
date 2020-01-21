@@ -38,7 +38,6 @@ if ($_REQUEST['recipient'] === 'patient' && $_REQUEST['site'] && $controllerName
 require_once(dirname(__FILE__)."/../../../globals.php");
 require_once(dirname(__FILE__)."/../../../../library/forms.inc");
 require_once(dirname(__FILE__)."/../../../../library/options.inc.php");
-require_once(dirname(__FILE__)."/../../../../library/acl.inc");
 
 chdir(dirname(__DIR__));
 

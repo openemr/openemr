@@ -29,7 +29,6 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/../controllers/C_Document.class.php");
 require_once("$srcdir/documents.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/acl.inc");
 require_once "$srcdir/user.inc";
 
 use Mpdf\Mpdf;
@@ -794,9 +793,9 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 </fieldset>
                 <fieldset id="search-upload">
                     <legend>
-                        &nbsp;<span><?php echo xlt('Select Method'); ?></span>&nbsp;<i id='select-method-tooltip' 
+                        &nbsp;<span><?php echo xlt('Select Method'); ?></span>&nbsp;<i id='select-method-tooltip'
                         class="fa fa-info-circle oe-superscript" aria-hidden="true"></i>
-                                      
+
                         <div id="radio-div" class="oe-pull-away oe-legend-radio">
                             <label class="radio-inline">
                                 <input type="radio" id="invoice_search" name="radio-search" onclick=""

@@ -15,21 +15,15 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
 //ensure user has proper access
-if (!acl_check('admin', 'acl')) {
+if (!AclMain::aclCheckCore('admin', 'acl')) {
     echo "(" . xlt('ACL Administration Not Authorized') . ")";
-    exit;
-}
-
-//ensure phpgacl is installed
-if (!isset($phpgacl_location)) {
-    echo "(" . xlt('PHP-gacl is not installed') . ")";
     exit;
 }
 ?>

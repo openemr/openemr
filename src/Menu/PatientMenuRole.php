@@ -13,6 +13,7 @@
 
 namespace OpenEMR\Menu;
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Services\UserService;
 
 class PatientMenuRole extends MenuRole
@@ -143,7 +144,7 @@ class PatientMenuRole extends MenuRole
                     $modulePath = $GLOBALS['zendModDir'];
                 }
 
-                if (zh_acl_check($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {
+                if (AclMain::zhAclCheck($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {
                     continue;
                 }
 
@@ -166,7 +167,7 @@ class PatientMenuRole extends MenuRole
     /**
      * displays a bootstrap3 horizontal nav bar
      */
-    
+
     public function displayHorizNavBarMenu()
     {
         $pid = $_SESSION['pid'];

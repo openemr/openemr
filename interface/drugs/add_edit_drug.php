@@ -7,10 +7,10 @@
  // of the License, or (at your option) any later version.
 
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("drugs.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -19,7 +19,7 @@ $drug_id = $_REQUEST['drug'];
 $info_msg = "";
 $tmpl_line_no = 0;
 
-if (!acl_check('admin', 'drugs')) {
+if (!AclMain::aclCheckCore('admin', 'drugs')) {
     die(xlt('Not authorized'));
 }
 
@@ -214,7 +214,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
             );
             sqlStatement("DELETE FROM drug_templates WHERE drug_id = ?", array($drug_id));
         } else { // deleting
-            if (acl_check('admin', 'super')) {
+            if (AclMain::aclCheckCore('admin', 'super')) {
                 sqlStatement("DELETE FROM drug_inventory WHERE drug_id = ?", array($drug_id));
                 sqlStatement("DELETE FROM drug_templates WHERE drug_id = ?", array($drug_id));
                 sqlStatement("DELETE FROM drugs WHERE drug_id = ?", array($drug_id));
@@ -628,7 +628,7 @@ for ($i = 0; $i < $blank_lines; ++$i) {
 <p>
 <input type='submit' name='form_save' value='<?php echo xla('Save'); ?>' />
 
-<?php if (acl_check('admin', 'super')) { ?>
+<?php if (AclMain::aclCheckCore('admin', 'super')) { ?>
 &nbsp;
 <input type='submit' name='form_delete' value='<?php echo xla('Delete'); ?>' style='color:red' />
 <?php } ?>

@@ -16,11 +16,11 @@
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/globals.inc.php");
 require_once("$srcdir/user.inc");
 require_once(dirname(__FILE__)."/../../myportal/soap_service/portal_connectivity.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -35,7 +35,7 @@ $userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');
 
 if (!$userMode) {
   // Check authorization.
-    $thisauth = acl_check('admin', 'super');
+    $thisauth = AclMain::aclCheckCore('admin', 'super');
     if (!$thisauth) {
         die(xlt('Not authorized'));
     }

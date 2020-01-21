@@ -20,8 +20,8 @@ require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/sql.inc");
 require_once("$srcdir/encounter.inc");
-require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\FacilityService;
 
@@ -97,7 +97,7 @@ if ($mode == 'new') {
 } else if ($mode == 'update') {
     $id = $_POST["id"];
     $result = sqlQuery("SELECT encounter, sensitivity FROM form_groups_encounter WHERE id = ?", array($id));
-    if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
+    if ($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) {
         die(xlt("You are not authorized to see this encounter."));
     }
 
@@ -105,7 +105,7 @@ if ($mode == 'new') {
     // See view.php to allow or disallow updates of the encounter date.
     $datepart = "";
     $sqlBindArray = array();
-    if (acl_check('encounters', 'date_a')) {
+    if (AclMain::aclCheckCore('encounters', 'date_a')) {
         $datepart = "date = ?, ";
         $sqlBindArray[] = $date;
     }

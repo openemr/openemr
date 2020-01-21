@@ -12,19 +12,20 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/pnotes.inc");
+
+use OpenEMR\Common\Acl\AclMain;
 
 $prow = getPatientData($pid, "squad, title, fname, mname, lname");
 
 // Check authorization.
-$thisauth = acl_check('patients', 'notes');
+$thisauth = AclMain::aclCheckCore('patients', 'notes');
 if (!$thisauth) {
     die(xlt('Not authorized'));
 }
 
-if ($prow['squad'] && ! acl_check('squads', $prow['squad'])) {
+if ($prow['squad'] && ! AclMain::aclCheckCore('squads', $prow['squad'])) {
     die(xlt('Not authorized for this squad.'));
 }
 

@@ -32,6 +32,8 @@
 
 namespace OpenEMR\Common\Auth;
 
+use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Utils\RandomGenUtils;
@@ -148,15 +150,8 @@ class AuthUtils
         }
 
         // Check to ensure user is in a acl group
-        if (function_exists('acl_get_group_titles')) {
-            if (acl_get_group_titles($username) == 0) {
-                EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user not in any phpGACL groups");
-                $this->clearFromMemory($password);
-                $this->preventTimingAttack();
-                return false;
-            }
-        } else {
-            EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". phpGACL is not properly set up");
+        if (AclExtended::aclGetGroupTitles($username) == 0) {
+            EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user not in any phpGACL groups");
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
@@ -330,7 +325,7 @@ class AuthUtils
             }
         } else {
             // If this is an administrator changing someone else's password, then check that they have this privilege
-            if (!acl_check('admin', 'users')) {
+            if (!AclMain::aclCheckCore('admin', 'users')) {
                 $this->errorMessage = xl("Not authorized to manage users!");
                 $this->clearFromMemory($currentPwd);
                 $this->clearFromMemory($newPwd);

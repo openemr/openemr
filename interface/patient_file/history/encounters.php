@@ -16,12 +16,12 @@ require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/lists.inc");
-require_once("$srcdir/acl.inc");
 require_once("../../../custom/code_types.inc.php");
 if ($GLOBALS['enable_group_therapy']) {
     require_once("$srcdir/group.inc");
 }
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -42,17 +42,17 @@ $issue = empty($_GET['issue']) ? 0 : 0 + $_GET['issue'];
  $default_encounter = $GLOBALS['default_encounter_view']; //'0'=clinical, '1' = billing
 
  // Get relevant ACL info.
- $auth_notes_a  = acl_check('encounters', 'notes_a');
- $auth_notes    = acl_check('encounters', 'notes');
- $auth_coding_a = acl_check('encounters', 'coding_a');
- $auth_coding   = acl_check('encounters', 'coding');
- $auth_relaxed  = acl_check('encounters', 'relaxed');
- $auth_med      = acl_check('patients', 'med');
- $auth_demo     = acl_check('patients', 'demo');
- $glog_view_write = acl_check("groups", "glog", false, array('view','write'));
+ $auth_notes_a  = AclMain::aclCheckCore('encounters', 'notes_a');
+ $auth_notes    = AclMain::aclCheckCore('encounters', 'notes');
+ $auth_coding_a = AclMain::aclCheckCore('encounters', 'coding_a');
+ $auth_coding   = AclMain::aclCheckCore('encounters', 'coding');
+ $auth_relaxed  = AclMain::aclCheckCore('encounters', 'relaxed');
+ $auth_med      = AclMain::aclCheckCore('patients', 'med');
+ $auth_demo     = AclMain::aclCheckCore('patients', 'demo');
+ $glog_view_write = AclMain::aclCheckCore("groups", "glog", false, array('view','write'));
 
  $tmp = getPatientData($pid, "squad");
-if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
     $auth_notes_a = $auth_notes = $auth_coding_a = $auth_coding = $auth_med = $auth_demo = $auth_relaxed = 0;
 }
 
@@ -457,10 +457,10 @@ while ($result4 = sqlFetchArray($res4)) {
         $encounter_date = date("D F jS", strtotime($result4["date"]));
 
         //fetch acl for given pc_catid
-        $postCalendarCategoryACO = fetchPostCalendarCategoryACO($result4['pc_catid']);
+        $postCalendarCategoryACO = AclMain::fetchPostCalendarCategoryACO($result4['pc_catid']);
     if ($postCalendarCategoryACO) {
         $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
-        $authPostCalendarCategory = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
+        $authPostCalendarCategory = AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
     } else { // if no aco is set for category
         $authPostCalendarCategory = true;
     }
@@ -474,7 +474,7 @@ while ($result4 = sqlFetchArray($res4)) {
         //   $reason_string = "(No access)";
 
     if ($result4['sensitivity']) {
-        $auth_sensitivity = acl_check('sensitivities', $result4['sensitivity']);
+        $auth_sensitivity = AclMain::aclCheckCore('sensitivities', $result4['sensitivity']);
         if (!$auth_sensitivity || !$authPostCalendarCategory) {
             $reason_string = "(" . xlt("No access") . ")";
         }

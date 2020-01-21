@@ -13,6 +13,7 @@
 require_once("../../../interface/globals.php");
 require_once("./Utils.php");
 
+use OpenEMR\Events\PatientDemographics\ViewEvent;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -25,7 +26,7 @@ if (!empty($_POST)) {
     }
 }
 
-if (!acl_check('admin', 'super')) {
+if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt("Not Authorized"));
 }
 
