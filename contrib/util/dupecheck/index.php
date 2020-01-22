@@ -13,7 +13,7 @@
 require_once("../../../interface/globals.php");
 require_once("./Utils.php");
 
-use OpenEMR\Events\PatientDemographics\ViewEvent;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 

@@ -2,7 +2,7 @@
 /**
  * This program is run by the OpenEMR setup.php script to install phpGACL
  * and creates the Access Control Objects and their sections.
- * See openemr/library/acl.inc file for the list of
+ * See src/Common/Acl/AclMain.php file for the list of
  * currently supported Access Control Objects(ACO), which this
  * script will install.  This script also creates several
  * ARO groups, an "admin" ARO, and some reasonable ACL entries for

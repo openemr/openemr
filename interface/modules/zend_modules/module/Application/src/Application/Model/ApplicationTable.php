@@ -157,7 +157,7 @@ class ApplicationTable extends AbstractTableGateway
      *
      * Same Functionality in the OpemEMR
      * for Left Nav ACL Check
-     * Path openemr/src/Common/Acl/AclMain
+     * Path openemr/src/Common/Acl/AclMain.php
      * Function Name zhAclCheck
      *
      * @param int     $user_id Auth user Id
