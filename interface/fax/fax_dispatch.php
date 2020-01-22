@@ -44,8 +44,8 @@ if ($_GET['file']) {
 
     // ensure the file variable has no illegal characters
     check_file_dir_name($filename);
-
-    $filepath = $GLOBALS['scanner_output_directory'] . '/' . $filename;
+ 
+    $filepath = $GLOBALS['scanner_output_directory'] . "/" . $filename;
 } else {
     die("No filename was given.");
 }
@@ -53,6 +53,7 @@ if ($_GET['file']) {
 $ext = substr($filename, strrpos($filename, '.'));
 $filebase = basename("/$filename", $ext);
 $faxcache = $GLOBALS['OE_SITE_DIR'] . "/faxcache/$mode/$filebase";
+
 
 $info_msg = "";
 
@@ -156,7 +157,7 @@ if ($_POST['form_save']) {
             $info_msg .= mergeTiffs();
             // The -j option here requires that libtiff is configured with libjpeg.
             // It could be omitted, but the output PDFs would then be quite large.
-            $tmp0 = exec("tiff2pdf -j -p letter -o " . escapeshellarg($target) . " " . escapeshellarg($faxcache.'/temp.tif'), $tmp1, $tmp2);
+            $tmp0 = exec("tiff2pdf -p letter -F -o " . escapeshellarg($target) . " " . escapeshellarg($faxcache.'/temp.tif'), $tmp1, $tmp2);
 
             if ($tmp2) {
                 $info_msg .= "tiff2pdf returned $tmp2: $tmp0 ";
@@ -255,7 +256,7 @@ if ($_POST['form_save']) {
 
                 // TBD: There may be a faster way to create this file, given that
                 // we already have a jpeg for each page in faxcache.
-                $cmd = "convert -resize 800 -density 96 " . escapeshellarg($tmp_name) . " -append " . escapeshellarg($imagepath);
+                $cmd = "gm convert -resize 800 -density 96 " . escapeshellarg($tmp_name) . " -append " . escapeshellarg($imagepath);
                 $tmp0 = exec($cmd, $tmp1, $tmp2);
                 if ($tmp2) {
                     die("\"" . text($cmd) . "\" returned " . text($tmp2) . ": " . text($tmp0));
@@ -322,10 +323,10 @@ if ($_POST['form_save']) {
         unlink($tmpfn1);
 
         // Send the fax as the cover page followed by the selected pages.
-        $info_msg .= mergeTiffs();
+	$info_msg .= mergeTiffs();
         $tmp0 = exec(
-            "sendfax -A -n " . escapeshellarg($form_finemode) . " -d " .
-            escapeshellarg($form_fax) . " " . escapeshellarg($tmpfn2) . " " . escapeshellarg($faxcache.'/temp.tif'),
+            "sendfax -n " . escapeshellarg($form_finemode) . " -d " .
+            escapeshellarg($form_fax) . " " . escapeshellarg($tmpfn2) . " " . escapeshellarg($filepath),
             $tmp1,
             $tmp2
         );
@@ -429,9 +430,9 @@ if (! is_dir($faxcache)) {
         // convert's default density for PDF-to-TIFF conversion is 72 dpi which is
         // not very good, so we upgrade it to "fine mode" fax quality.  It's really
         // better and faster if the scanner produces TIFFs instead of PDFs.
-        $tmp0 = exec("convert -density 203x196 " . escapeshellarg($filepath) . " " . escapeshellarg($faxcache.'/deleteme.tif'), $tmp1, $tmp2);
+        $tmp0 = exec("gm convert -density 203x196 " . escapeshellarg($filepath) . " " . escapeshellarg($faxcache.'/deleteme.tif'), $tmp1, $tmp2);
         if ($tmp2) {
-            die("convert returned " . text($tmp2) . ": " . text($tmp0));
+            die("gm convert returned " . text($tmp2) . ": " . text($tmp0));
         }
 
         $tmp0 = exec("cd " . escapeshellarg($faxcache) . "; tiffsplit 'deleteme.tif'; rm -f 'deleteme.tif'", $tmp1, $tmp2);
@@ -445,9 +446,9 @@ if (! is_dir($faxcache)) {
         }
     }
 
-    $tmp0 = exec("cd " . escapeshellarg($faxcache) . "; mogrify -resize 750x970 -format jpg *.tif", $tmp1, $tmp2);
+    $tmp0 = exec("cd " . escapeshellarg($faxcache) . "; gm mogrify -resize 750x970 -format jpg *.tif", $tmp1, $tmp2);
     if ($tmp2) {
-        die("mogrify returned " . text($tmp2) . ": " . text($tmp0) . "; ext is '" . text($ext) . "'; filepath is '" . text($filepath) . "'");
+        die("gm mogrify returned " . text($tmp2) . ": " . text($tmp0) . "; ext is '" . text($ext) . "'; filepath is '" . text($filepath) . "'");
     }
 }
 
@@ -763,7 +764,7 @@ while ($urow = sqlFetchArray($ures)) {
    </td>
   </tr>
   <tr>
-   <td class='itemtitle' nowrap><?php echo xlt('To{{Destination}}'); ?></td>
+   <td class='itemtitle' nowrap><?php echo xlt('To'); ?></td>
    <td>
     <input type='text' size='10' name='form_to' style='width:100%'
      title='Type the recipient name here' />
