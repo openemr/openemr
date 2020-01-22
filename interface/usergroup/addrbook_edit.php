@@ -450,8 +450,8 @@ if ($type) { // note this only happens when its new
         <label for="form_street form_streetb" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Main Address'); ?>:</label>
     </div>
     <div class="col-10">
-        <input type='text' size='40' name='form_street' maxlength='60' value='<?php echo attr($row['street']); ?>' class='form-control form-control-sm inputtext mb-1' placeholder="<?php echo xlt('Address Line 1'); ?>" />
-        <input type='text' size='40' name='form_streetb' maxlength='60' value='<?php echo attr($row['streetb']); ?>' class='form-control form-control-sm inputtext mt-1' placeholder="<?php echo xlt('Address Line 2'); ?>" />
+        <input type='text' size='40' name='form_street' maxlength='60' value='<?php echo attr($row['street']); ?>' class='form-control form-control-sm inputtext mb-1' placeholder="<?php echo xla('Address Line 1'); ?>" />
+        <input type='text' size='40' name='form_streetb' maxlength='60' value='<?php echo attr($row['streetb']); ?>' class='form-control form-control-sm inputtext mt-1' placeholder="<?php echo xla('Address Line 2'); ?>" />
     </div>
 </div>
 
@@ -460,19 +460,19 @@ if ($type) { // note this only happens when its new
         <label for="form_city" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('City'); ?>:</label>
     </div>
     <div class="col">
-        <input type='text' size='10' name='form_city' maxlength='30' value='<?php echo attr($row['city']); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xlt('City'); ?>" />
+        <input type='text' size='10' name='form_city' maxlength='30' value='<?php echo attr($row['city']); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('City'); ?>" />
     </div>
     <div class="col-2">
         <label for="form_state" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('State')."/".xlt('county'); ?>:</label>
     </div>
     <div class="col">
-        <input type='text' size='10' name='form_state' maxlength='30' value='<?php echo attr($row['state']); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xlt('State')."/".xlt('county'); ?>" />
+        <input type='text' size='10' name='form_state' maxlength='30' value='<?php echo attr($row['state']); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('State')."/".xla('county'); ?>" />
     </div>
     <div class="col-2">
         <label for="form_zip" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Postal code'); ?>:</label>
     </div>
     <div class="col">
-        <input type='text' size='10' name='form_zip' maxlength='20' value='<?php echo attr($row['zip']); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xlt('Postal code'); ?>" />
+        <input type='text' size='10' name='form_zip' maxlength='20' value='<?php echo attr($row['zip']); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('Postal code'); ?>" />
     </div>
 </div>
 
@@ -481,8 +481,8 @@ if ($type) { // note this only happens when its new
         <label for="form_street2 form_streetb2" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Alt Address'); ?>:</label>
     </div>
     <div class="col-10">
-        <input type='text' size='40' name='form_street2' maxlength='60' value='<?php echo attr($row['street2']); ?>' class='form-control form-control-sm mb-1 inputtext' placeholder="<?php echo xlt('Address Line 1'); ?>" />
-        <input type='text' size='40' name='form_streetb2' maxlength='60' value='<?php echo attr($row['streetb2']); ?>' class='form-control form-control-sm mt-1 inputtext' placeholder="<?php echo xlt('Address Line 2'); ?>" />
+        <input type='text' size='40' name='form_street2' maxlength='60' value='<?php echo attr($row['street2']); ?>' class='form-control form-control-sm mb-1 inputtext' placeholder="<?php echo xla('Address Line 1'); ?>" />
+        <input type='text' size='40' name='form_streetb2' maxlength='60' value='<?php echo attr($row['streetb2']); ?>' class='form-control form-control-sm mt-1 inputtext' placeholder="<?php echo xla('Address Line 2'); ?>" />
     </div>
 </div>
 
@@ -491,19 +491,19 @@ if ($type) { // note this only happens when its new
         <label for="form_city2" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Alt City'); ?>:</label>
     </div>
     <div class="col-auto">
-        <input type='text' size='10' name='form_city2' maxlength='30' value='<?php echo attr($row['city2']); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xlt('Alt City'); ?>" />
+        <input type='text' size='10' name='form_city2' maxlength='30' value='<?php echo attr($row['city2']); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('Alt City'); ?>" />
     </div>
     <div class="col-auto">
         <label for="form_state2" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Alt State')."/".xlt('county'); ?>:</label>
     </div>
     <div class="col-auto">
-        <input type='text' size='10' name='form_state2' maxlength='30' value='<?php echo attr($row['state2']); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xlt('Alt State')."/".xlt('county'); ?>" />
+        <input type='text' size='10' name='form_state2' maxlength='30' value='<?php echo attr($row['state2']); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('Alt State')."/".xla('county'); ?>" />
     </div>
     <div class="col-auto">
         <label for="form_zip2" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Alt Postal code'); ?>:</label>
     </div>
     <div class="col-auto">
-        <input type='text' size='10' name='form_zip2' maxlength='20' value='<?php echo attr($row['zip2']); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xlt('Alt Postal code'); ?>" />
+        <input type='text' size='10' name='form_zip2' maxlength='20' value='<?php echo attr($row['zip2']); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('Alt Postal code'); ?>" />
     </div>
 </div>
 
