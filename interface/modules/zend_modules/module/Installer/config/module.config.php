@@ -51,7 +51,21 @@ return array(
 
                 ),
             ),
-
+    'console' => array(
+        'router' => array(
+            'routes' => array(
+                'zfc-module' => array(
+                    'options' => array(
+                        'route' => 'zfc-module <moduleAction> <moduleName>',
+                        'defaults' => array(
+                            'controller' => Installer\Controller\InstallerController::class,
+                            'action' => 'command-install-module',
+                        ),
+                    )
+                ),
+            )
+        )
+    ),
     'view_manager' => array(
         'template_map' => array(
              'site/layout' => __DIR__ . '/../view/layout/layout.phtml',

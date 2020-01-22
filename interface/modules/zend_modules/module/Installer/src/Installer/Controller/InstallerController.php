@@ -21,6 +21,7 @@ use Installer\Model\InstModule;
 use Application\Listener\Listener;
 use Installer\Model\InstModuleTable;
 use Zend\Db\Adapter\Adapter;
+use Zend\Console\Request as ConsoleRequest;
 
 class InstallerController extends AbstractActionController
 {
@@ -156,97 +157,25 @@ class InstallerController extends AbstractActionController
                     $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not open table") . '.' . $this->listenerObject->z_xlt("sql").', ' . $this->listenerObject->z_xlt("broken form") . "?";
                 }
             } elseif ($request->getPost('modAction') == 'install_sql') {
-                $dirModule = $this->getInstallerTable()->getRegistryEntry($request->getPost('modId'), "mod_directory");
-                if ($this->getInstallerTable()->installSQL($GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$dirModule -> modDirectory."/sql")) {
-                    $values[2] = $this->getModuleVersionFromFile($request->getPost('modId'));
-                    $this -> getInstallerTable() -> updateRegistered($request->getPost('modId'), '', $values);
+                if ($this->InstallModuleSQL($request->getPost('modId'))) {
                     $status = $this->listenerObject->z_xlt("Success");
                 } else {
                     $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not open table") . '.' . $this->listenerObject->z_xlt("sql").', ' . $this->listenerObject->z_xlt("broken form") . "?";
                 }
             } elseif ($request->getPost('modAction') == 'upgrade_sql') {
-                $Module = $this->getInstallerTable()->getRegistryEntry($request->getPost('modId'), "mod_directory");
-                $modDir = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$Module -> modDirectory;
-                $versions = $this->getFilesForUpgrade($Module->modDirectory);
-                $values = [];
-
-                foreach ($versions as $version => $filename) {
-                    if (version_compare($version, $Module->sql_version) < 0) {
-                        continue;
-                    }
-                    if (preg_match('/^\d+_\d+_\d+-to-(\d)+_(\d)+_(\d)+_upgrade.sql$/', $filename, $matches)) {
-                        $values[2] = $matches[1] . '.' . $matches[2] . '.' . $matches[3];
-                    }
-
-                    ob_start();
-                    upgradeFromSqlFile($filename, $modDir);
-                    $outputToBrowser .= ob_get_contents();
-                    ob_end_clean();
-                }
-
-                if (preg_match_all("/(.*)\<br \/\>\n/i", $outputToBrowser, $matches)) {
-                    $div = [];
-                    $add_query_string = 0;
-                    $add_ended_divs = 0;
-                    $k = 0;
-                    foreach ($matches[1] as $string) {
-                        $prev_html_tag = false;
-                        if (preg_match("/<([a-z]+).*?>([^<]+)<\/([a-z]+)>/i", $string, $mm)) {
-                            if ($add_query_string > 0) {
-                                $div[] = "</div>";
-                                $add_ended_divs++;
-                            }
-                            $div[] = $string;
-                            $prev_html_tag = true;
-                            $curr_html_tag = true;
-                        }
-                        if (!$prev_html_tag && $curr_html_tag) {
-                            $div[] = "<div class='show_hide_log'>".xlt("show/hide executed query log")."</div><div class='spoiler' style='margin-left: 10px' >".$string;
-                            $curr_html_tag = false;
-                        } elseif (!$prev_html_tag && !$curr_html_tag) {
-                            $div[] = $string;
-                            $add_query_string++;
-                        }
-                        if (count($matches[1]) == (count($div) - $add_ended_divs) && (!$prev_html_tag && !$curr_html_tag )) {
-                            $div[] = "</div>";
-                        }
-                        $k++;
-                    }
-                }
-                $this -> getInstallerTable() -> updateRegistered($request->getPost('modId'), '', $values);
-
+                $div = $this->UpgradeModuleSQL($request->getPost('modId'));
                 $status = $this->listenerObject->z_xlt("Success");
             } elseif ($request->getPost('modAction') == 'install_acl') {
-                $Module = $this->getInstallerTable()->getRegistryEntry($request->getPost('modId'), "mod_directory");
-                $modDir = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$Module -> modDirectory;
-                if (file_exists($modDir."/acl/acl_setup.php") && empty($modDir->acl_version)) {
-                    global $phpgacl_location, $gacl;
-                    ob_start();
-                    include_once($modDir."/acl/acl_setup.php");
-                    $div[] = ob_get_contents();
-                    ob_end_clean();
-                    $values[2] = $Module->sql_version;
-                    $values[3] = $this->getModuleVersionFromFile($request->getPost('modId'));
-                    $this -> getInstallerTable() -> updateRegistered($request->getPost('modId'), '', $values);
+                if ($div = $this->InstallModuleACL($request->getPost('modId'))) {
                     $status = $this->listenerObject->z_xlt("Success");
+                } else {
+                    $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not install ACL ");
                 }
             } elseif ($request->getPost('modAction') == 'upgrade_acl') {
-                $Module = $this->getInstallerTable()->getRegistryEntry($request->getPost('modId'), "mod_directory");
-                $modDir = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$Module -> modDirectory;
-                if (file_exists($modDir."/acl/acl_upgrade.php") && !empty($Module->acl_version)) {
-                    global $phpgacl_location, $gacl, $ACL_UPGRADE;
-                    ob_start();
-                    include_once($modDir."/acl/acl_upgrade.php");
-                    $version = upgradeAclFromVersion($Module->acl_version);
-                    $div[] = ob_get_contents();
-                    ob_end_clean();
-
-                    if (strlen($version) > 0) {
-                        $values[2] = $Module->sql_version;
-                        $values[3] = $version;
-                        $this -> getInstallerTable() -> updateRegistered($request->getPost('modId'), '', $values);
-                    }
+                if ($div = $this->UpgradeModuleACL($request->getPost('modId'))) {
                     $status = $this->listenerObject->z_xlt("Success");
+                } else {
+                    $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not install ACL ");
                 }
             }
         }
@@ -526,5 +455,196 @@ class InstallerController extends AbstractActionController
             }
         }
         return $mod;
+    }
+
+    /**
+     * @param $moduleName
+     * @return bool
+     */
+    public function getModuleId($moduleName)
+    {
+        if (empty($moduleName)) {
+            return false;
+        }
+        $allModules = $this->getInstallerTable()->allModules();
+        foreach ($allModules as $module) {
+            if ($module["mod_directory"] === $moduleName) {
+                return $module["mod_id"];
+            }
+        }
+    }
+
+    /**
+     * @param string $modId
+     * @return bool
+     */
+    public function InstallModuleSQL($modId = '')
+    {
+        $dirModule = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
+        if ($this->getInstallerTable()->installSQL($GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$dirModule -> modDirectory."/sql")) {
+            $values[2] = $this->getModuleVersionFromFile($modId);
+            $this -> getInstallerTable() -> updateRegistered($modId, '', $values);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @param string $modId
+     * @return array
+     */
+    public function UpgradeModuleSQL($modId = '')
+    {
+        $Module = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
+        $modDir = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$Module -> modDirectory;
+        $versions = $this->getFilesForUpgrade($Module->modDirectory);
+        $values = [];
+        $div = [];
+        $outputToBrowser = '';
+
+        foreach ($versions as $version => $filename) {
+            if (version_compare($version, $Module->sql_version) < 0) {
+                continue;
+            }
+            if (preg_match('/^\d+_\d+_\d+-to-(\d)+_(\d)+_(\d)+_upgrade.sql$/', $filename, $matches)) {
+                $values[2] = $matches[1] . '.' . $matches[2] . '.' . $matches[3];
+            }
+
+            ob_start();
+            upgradeFromSqlFile($filename, $modDir);
+            $outputToBrowser .= ob_get_contents();
+            ob_end_clean();
+        }
+
+        if (preg_match_all("/(.*)\<br \/\>\n/i", $outputToBrowser, $matches)) {
+            $add_query_string = 0;
+            $add_ended_divs = 0;
+            $k = 0;
+            foreach ($matches[1] as $string) {
+                $prev_html_tag = false;
+                if (preg_match("/<([a-z]+).*?>([^<]+)<\/([a-z]+)>/i", $string, $mm)) {
+                    if ($add_query_string > 0) {
+                        $div[] = "</div>";
+                        $add_ended_divs++;
+                    }
+                    $div[] = $string;
+                    $prev_html_tag = true;
+                    $curr_html_tag = true;
+                }
+                if (!$prev_html_tag && $curr_html_tag) {
+                    $div[] = "<div class='show_hide_log'>".xlt("show/hide executed query log")."</div><div class='spoiler' style='margin-left: 10px' >".$string;
+                    $curr_html_tag = false;
+                } elseif (!$prev_html_tag && !$curr_html_tag) {
+                    $div[] = $string;
+                    $add_query_string++;
+                }
+                if (count($matches[1]) == (count($div) - $add_ended_divs) && (!$prev_html_tag && !$curr_html_tag )) {
+                    $div[] = "</div>";
+                }
+                $k++;
+            }
+        }
+        $this -> getInstallerTable() -> updateRegistered($modId, '', $values);
+        return $div;
+    }
+
+    /**
+     * @param string $modId
+     * @return bool
+     */
+    public function InstallModuleACL($modId = '')
+    {
+        $Module = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
+        $modDir = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$Module -> modDirectory;
+        $div = [];
+        if (file_exists($modDir."/acl/acl_setup.php") && empty($modDir->acl_version)) {
+            global $phpgacl_location, $gacl;
+            ob_start();
+            include_once($modDir."/acl/acl_setup.php");
+            $div[] = ob_get_contents();
+            ob_end_clean();
+            $values[2] = $Module->sql_version;
+            $values[3] = $this->getModuleVersionFromFile($modId);
+            $this -> getInstallerTable() -> updateRegistered($modId, '', $values);
+            return $div;
+        }
+        return false;
+    }
+
+    /**
+     * @param string $modId
+     * @return array|bool
+     */
+    public function UpgradeModuleACL($modId = '')
+    {
+        $Module = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
+        $modDir = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$Module -> modDirectory;
+        $div = [];
+        if (file_exists($modDir."/acl/acl_upgrade.php") && !empty($Module->acl_version)) {
+            global $phpgacl_location, $gacl, $ACL_UPGRADE;
+            ob_start();
+            include_once($modDir."/acl/acl_upgrade.php");
+            $version = upgradeAclFromVersion($Module->acl_version);
+            $div[] = ob_get_contents();
+            ob_end_clean();
+
+            if (strlen($version) > 0) {
+                $values[2] = $Module->sql_version;
+                $values[3] = $version;
+                $this -> getInstallerTable() -> updateRegistered($modId, '', $values);
+            }
+            return $div;
+        }
+        return false;
+    }
+
+    /**
+     *
+     */
+    public function commandInstallModuleAction()
+    {
+        $request = $this->getRequest();
+        if (! $request instanceof ConsoleRequest) {
+            throw new RuntimeException('You can only use this action from a console!');
+        }
+
+        $moduleName     = $request->getParam('moduleName');
+        $moduleAction   = $request->getParam('moduleAction');
+        $moduleId       = null;
+        $div            = [];
+
+        echo PHP_EOL . '--- Run command in modules:  '.$moduleAction.'---' . PHP_EOL;
+        echo 'start process - ' . date('Y-m-d H:i:s') . PHP_EOL;
+
+
+        if (!empty($moduleAction) && !empty($moduleName) && $moduleName != "all") {
+            $moduleId = $this->getModuleId($moduleName);
+        }
+
+//
+//        if($moduleName === "all" && $moduleId !== null) {
+//
+//        }
+
+        if($moduleAction === "install_sql" && $moduleId !== null) {
+            $this->InstallModuleSQL($moduleId);
+        }
+
+        if ($moduleAction === "upgrade_sql") {
+           $div = $this->UpgradeModuleSQL($moduleId);
+        }
+
+        if ($moduleAction === "install_acl") {
+           $div = $this->InstallModuleACL($moduleId);
+        }
+
+        if ($moduleAction === "upgrade_acl") {
+           $div = $this->UpgradeModuleACL($moduleId);
+        }
+
+        echo implode("<br />\n", $div).PHP_EOL;
+        echo $moduleAction. " ----- ".$moduleName."-----".PHP_EOL;
+        exit('command completed successfully' . PHP_EOL);
     }
 }
