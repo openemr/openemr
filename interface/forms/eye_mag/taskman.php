@@ -36,7 +36,6 @@ if (php_sapi_name() === 'cli') {
 }
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("php/".$form_name."_functions.php");
@@ -45,7 +44,6 @@ require_once($srcdir . "/documents.php");
 
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/report.inc");
 require_once("php/taskman_functions.php");

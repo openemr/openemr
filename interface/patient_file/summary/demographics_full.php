@@ -10,13 +10,13 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
 require_once("$srcdir/patientvalidation.inc.php");
 require_once("$srcdir/pid.inc");
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
@@ -38,15 +38,15 @@ if ($pid) {
     $updateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(UpdateEvent::EVENT_HANDLE, $updateEvent, 10);
 
     if (!$updateEvent->authorized() ||
-        !acl_check('patients', 'demo', '', 'write')) {
+        !AclMain::aclCheckCore('patients', 'demo', '', 'write')) {
         die(xlt('Updating demographics is not authorized.'));
     }
 
-    if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
+    if ($result['squad'] && ! AclMain::aclCheckCore('squads', $result['squad'])) {
         die(xlt('You are not authorized to access this squad.'));
     }
 } else {
-    if (!acl_check('patients', 'demo', '', array('write','addonly'))) {
+    if (!AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) {
         die(xlt('Adding demographics is not authorized.'));
     }
 }

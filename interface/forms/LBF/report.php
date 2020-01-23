@@ -14,6 +14,8 @@
 require_once(dirname(__FILE__).'/../../globals.php');
 require_once($GLOBALS["srcdir"] . "/api.inc");
 
+use OpenEMR\Common\Acl\AclMain;
+
 // This function is invoked from printPatientForms in report.inc
 // when viewing a "comprehensive patient report".  Also from
 // interface/patient_file/encounter/forms.php.
@@ -29,8 +31,8 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false)
     if (!empty($grparr['']['grp_aco_spec'])) {
         $LBF_ACO = explode('|', $grparr['']['grp_aco_spec']);
     }
-    if (!acl_check('admin', 'super') && !empty($LBF_ACO)) {
-        if (!acl_check($LBF_ACO[0], $LBF_ACO[1])) {
+    if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
+        if (!AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1])) {
             die(xlt('Access denied'));
         }
     }

@@ -16,19 +16,19 @@
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $patdata = getPatientData($pid, "fname,lname,squad");
 
-$thisauth = ((acl_check('encounters', 'notes', '', 'write') ||
-            acl_check('encounters', 'notes_a', '', 'write')) &&
-            acl_check('patients', 'med', '', 'write'));
+$thisauth = ((AclMain::aclCheckCore('encounters', 'notes', '', 'write') ||
+            AclMain::aclCheckCore('encounters', 'notes_a', '', 'write')) &&
+            AclMain::aclCheckCore('patients', 'med', '', 'write'));
 
-if ($patdata['squad'] && ! acl_check('squads', $patdata['squad'])) {
+if ($patdata['squad'] && ! AclMain::aclCheckCore('squads', $patdata['squad'])) {
      $thisauth = 0;
 }
 

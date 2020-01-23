@@ -33,8 +33,8 @@
 
 set_time_limit(0);
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
@@ -60,7 +60,7 @@ if (!function_exists('gzopen') && function_exists('gzopen64')) {
     }
 }
 
-if (!acl_check('admin', 'super')) {
+if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt('Not authorized'));
 }
 
@@ -247,18 +247,7 @@ if ($form_step == 1) {
 }
 
 if ($form_step == 2) {
-    if (!empty($phpgacl_location) && $gacl_object->_db_name != $sqlconf["dbase"]) {
-        $form_status .= xla('Dumping phpGACL database') . "...<br />";
-        echo nl2br($form_status);
-        $file_to_compress = "$BACKUP_DIR/phpgacl.sql";   // gzip this file after creation
-        $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($gacl_object->_db_user) .
-        " -p" . escapeshellarg($gacl_object->_db_password) .
-        " --opt --quote-names -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
-        escapeshellarg($gacl_object->_db_name);
-        $auto_continue = true;
-    } else {
-        ++$form_step;
-    }
+    ++$form_step;
 }
 
 if ($form_step == 3) {
@@ -300,22 +289,7 @@ if ($form_step == 3) {
 }
 
 if ($form_step == 4) {
-    if ((!empty($phpgacl_location)) && ($phpgacl_location != $srcdir."/../gacl")) {
-        $form_status .= xla('Dumping phpGACL web directory tree') . "...<br />";
-        echo nl2br($form_status);
-        $cur_dir = getcwd();
-        chdir($phpgacl_location);
-        $file_list = array('.');    // archive entire directory
-        $arch_file = $BACKUP_DIR . DIRECTORY_SEPARATOR . "phpgacl.tar.gz";
-        if (!create_tar_archive($arch_file, "gz", $file_list)) {
-            die(xlt("An error occurred while dumping phpGACL web directory tree"));
-        }
-
-        chdir($cur_dir);
-        $auto_continue = true;
-    } else {
-        ++$form_step;
-    }
+     ++$form_step;
 }
 
 if ($form_step == 5) {   // create the final compressed tar containing all files

@@ -11,7 +11,6 @@
 
 
 require_once("../../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/clinical_rules.php");
 
 use OpenEMR\Core\Header;

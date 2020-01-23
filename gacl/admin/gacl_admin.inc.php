@@ -28,11 +28,11 @@
  *
  */
 
-require_once(dirname(__FILE__).'/../gacl.class.php');
-require_once(dirname(__FILE__).'/../gacl_api.class.php');
-require_once(dirname(__FILE__).'/gacl_admin_api.class.php');
+
+// Include standard libraries/classes
 require_once(dirname(__FILE__).'/../../vendor/autoload.php');
 
+use OpenEMR\Gacl\GaclAdminApi;
 
 // phpGACL Configuration file.
 if ( !isset($config_file) ) {
@@ -54,7 +54,7 @@ if ( file_exists($config_file) ) {
 	unset($config);
 }
 
-$gacl_api = new gacl_admin_api($gacl_options);
+$gacl_api = new GaclAdminApi($gacl_options);
 
 $gacl = &$gacl_api;
 

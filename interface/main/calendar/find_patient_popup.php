@@ -13,9 +13,10 @@
  *
  */
 
-include_once('../../globals.php');
-include_once("$srcdir/patient.inc");
+require_once('../../globals.php');
+require_once("$srcdir/patient.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 
 $info_msg = "";
@@ -157,7 +158,7 @@ if (isset($_GET["res"])) {
 <!--VicarePlus :: If pflag is set the new patient create link will not be displayed -->
 <a class="noresult" href='find_patient_popup.php?res=noresult'
     <?php
-    if (isset($_GET['pflag']) || (!acl_check('patients', 'demo', '', array('write','addonly')))) {
+    if (isset($_GET['pflag']) || (!AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly')))) {
         ?> style="display: none;"
         <?php
     }

@@ -1,53 +1,27 @@
 <?php
 /**
- * phpGACL - Generic Access Control List
- * Copyright (C) 2002,2003 Mike Benoit
+ * GaclApi class - phpGACL extended API Class
+ *
+ * Original code from phpGACL - Generic Access Control List
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- * For questions, help, comments, discussion, etc., please join the
- * phpGACL mailing list. http://sourceforge.net/mail/?group_id=57103
- *
- * You may contact the author of phpGACL by e-mail at:
- * ipso@snappymail.ca
- *
- * The latest version of phpGACL can be obtained from:
- * http://phpgacl.sourceforge.net/
- *
- * @package phpGACL
- *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Mike Benoit <ipso@snappymail.ca>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2002-2003 Mike Benoit <ipso@snappymail.ca>
+ * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html GNU Lesser General Public License 2.1
  */
 
-/*
- *
- * For examples, see example.php or the Administration interface,
- * as it makes use of nearly every API Call.
- *
- */
-/**
- * gacl_api Extended API Class
- *
- * Class gacl_api should be used for applications that must interface directly with
- * phpGACL's data structures, objects, and rules.
- *
- * @package phpGACL
- * @author Mike Benoit <ipso@snappymail.ca>
- *
- */
 
-class gacl_api extends gacl {
+namespace OpenEMR\Gacl;
+
+class GaclApi extends Gacl {
 
 	/*
 	 *

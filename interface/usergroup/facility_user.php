@@ -14,8 +14,8 @@
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -26,7 +26,7 @@ if (!empty($_POST)) {
 }
 
 // Ensure authorized
-if (!acl_check('admin', 'users')) {
+if (!AclMain::aclCheckCore('admin', 'users')) {
     die(xlt("Unauthorized"));
 }
 

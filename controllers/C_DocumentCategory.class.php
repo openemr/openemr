@@ -1,5 +1,6 @@
 <?php
 
+use OpenEMR\Common\Acl\AclExtended;
 
 class C_DocumentCategory extends Controller
 {
@@ -58,7 +59,7 @@ class C_DocumentCategory extends Controller
         $this->assign("edit_node", false);
         $this->assign("VALUE", '');
     // Access control defaults to that of the parent.
-        $this->assign("ACO_OPTIONS", "<option value=''></option>" . gen_aco_html_options($info['aco_spec']));
+        $this->assign("ACO_OPTIONS", "<option value=''></option>" . AclExtended::genAcoHtmlOptions($info['aco_spec']));
         return $this->list_action();
     }
 
@@ -84,7 +85,7 @@ class C_DocumentCategory extends Controller
         $this->assign("parent_is", $parent_is);
         $this->assign("NAME", $this->tree->get_node_name($parent_is));
         $this->assign("VALUE", $info['value']);
-        $this->assign("ACO_OPTIONS", "<option value=''></option>" . gen_aco_html_options($info['aco_spec']));
+        $this->assign("ACO_OPTIONS", "<option value=''></option>" . AclExtended::genAcoHtmlOptions($info['aco_spec']));
         $this->assign("add_node", false);
         $this->assign("edit_node", true);
         return $this->list_action();

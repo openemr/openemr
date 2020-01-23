@@ -17,9 +17,9 @@
 
 
 require_once('../globals.php');
-require_once($GLOBALS['srcdir'].'/acl.inc');
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
@@ -230,7 +230,7 @@ if ($_POST['form_submit']) {
     }
 
     if ($patient) {
-        if (!acl_check('admin', 'super') || !$GLOBALS['allow_pat_delete']) {
+        if (!AclMain::aclCheckCore('admin', 'super') || !$GLOBALS['allow_pat_delete']) {
             die(xlt("Not authorized!"));
         }
 
@@ -266,7 +266,7 @@ if ($_POST['form_submit']) {
 
         row_delete("patient_data", "pid = '" . add_escape_custom($patient) . "'");
     } else if ($encounterid) {
-        if (!acl_check('admin', 'super')) {
+        if (!AclMain::aclCheckCore('admin', 'super')) {
             die("Not authorized!");
         }
 
@@ -282,7 +282,7 @@ if ($_POST['form_submit']) {
 
         row_delete("forms", "encounter = '" . add_escape_custom($encounterid) . "'");
     } else if ($formid) {
-        if (!acl_check('admin', 'super')) {
+        if (!AclMain::aclCheckCore('admin', 'super')) {
             die("Not authorized!");
         }
 
@@ -294,20 +294,20 @@ if ($_POST['form_submit']) {
         form_delete($formdir, $row['form_id'], $row['pid'], $row['encounter']);
         row_delete("forms", "id = '" . add_escape_custom($formid) . "'");
     } else if ($issue) {
-        if (!acl_check('admin', 'super')) {
+        if (!AclMain::aclCheckCore('admin', 'super')) {
             die("Not authorized!");
         }
 
         row_delete("issue_encounter", "list_id = '" . add_escape_custom($issue) ."'");
         row_delete("lists", "id = '" . add_escape_custom($issue) ."'");
     } else if ($document) {
-        if (!acl_check('patients', 'docs_rm')) {
+        if (!AclMain::aclCheckCore('patients', 'docs_rm')) {
             die("Not authorized!");
         }
 
         delete_document($document);
     } else if ($payment) {
-        if (!acl_check('admin', 'super')) {
+        if (!AclMain::aclCheckCore('admin', 'super')) {
             die("Not authorized!");
         }
 
@@ -385,7 +385,7 @@ if ($_POST['form_submit']) {
             row_delete("payments", "id = '" . add_escape_custom($payrow['id']) . "'");
         }
     } else if ($billing) {
-        if (!acl_check('acct', 'disc')) {
+        if (!AclMain::aclCheckCore('acct', 'disc')) {
             die("Not authorized!");
         }
 
@@ -410,7 +410,7 @@ if ($_POST['form_submit']) {
         "pid = ? AND encounter = ?", array($patient_id, $encounter_id));
         BillingUtilities::updateClaim(true, $patient_id, $encounter_id, -1, -1, 1, 0, ''); // clears for rebilling
     } else if ($transaction) {
-        if (!acl_check('admin', 'super')) {
+        if (!AclMain::aclCheckCore('admin', 'super')) {
             die("Not authorized!");
         }
 

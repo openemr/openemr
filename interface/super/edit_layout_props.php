@@ -13,16 +13,16 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
-require_once("$phpgacl_location/gacl_api.class.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Gacl\GaclApi;
 
 $alertmsg = "";
 
 // Check authorization.
-$thisauth = acl_check('admin', 'super');
+$thisauth = AclMain::aclCheckCore('admin', 'super');
 if (!$thisauth) {
     die(xlt('Not authorized'));
 }
@@ -368,8 +368,8 @@ for ($cols = 2; $cols <= 10; ++$cols) {
    <select name='form_aco' class='form-control'>
     <option value=''></option>
     <?php
-    $gacl = new gacl_api();
-  // collect and sort all aco objects
+    $gacl = new GaclApi();
+    // collect and sort all aco objects
     $list_aco_objects = $gacl->get_objects(null, 0, 'ACO');
     ksort($list_aco_objects);
     foreach ($list_aco_objects as $seckey => $dummy) {

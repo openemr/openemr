@@ -1,40 +1,28 @@
 <?php
-// $Id$
-
 /**
- * phpGACL - Generic Access Control List
- * Copyright (C) 2002,2003 Mike Benoit
+ * Gacl class - phpGACL main class
+ *
+ * Original code from phpGACL - Generic Access Control List
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- * For questions, help, comments, discussion, etc., please join the
- * phpGACL mailing list. http://sourceforge.net/mail/?group_id=57103
- *
- * You may contact the author of phpGACL by e-mail at:
- * ipso@snappymail.ca
- *
- * The latest version of phpGACL can be obtained from:
- * http://phpgacl.sourceforge.net/
- *
- * @package phpGACL
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Mike Benoit <ipso@snappymail.ca>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2002-2003 Mike Benoit <ipso@snappymail.ca>
+ * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html GNU Lesser General Public License 2.1
  */
+
+namespace OpenEMR\Gacl;
 
 /*
  * Path to ADODB.
  */
-
 if ( !defined('ADODB_DIR') ) {
 	define('ADODB_DIR', dirname(__FILE__).'/../vendor/adodb/adodb-php');
 }
@@ -42,21 +30,12 @@ if ( !defined('ADODB_DIR') ) {
 //openemr configuration file - bm - 05-2009
 // to collect sql database login info and the utf8 flag
 // also collect the adodb libraries to support mysqli_mod that is needed for mysql ssl support
-require_once(dirname(__FILE__) . "/../library/sqlconf.php");
-require_once(dirname(__FILE__) . "/../vendor/adodb/adodb-php/adodb.inc.php");
-require_once(dirname(__FILE__) . "/../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
-require_once(dirname(__FILE__) . "/../library/ADODB_mysqli_mod.php");
+require_once(dirname(__FILE__) . "/../../library/sqlconf.php");
+require_once(dirname(__FILE__) . "/../../vendor/adodb/adodb-php/adodb.inc.php");
+require_once(dirname(__FILE__) . "/../../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
+require_once(dirname(__FILE__) . "/../../library/ADODB_mysqli_mod.php");
 
-/**
-* phpGACL main class
-*
-* Class gacl should be used in applications where only querying the phpGACL
-* database is required.
-*
-* @package phpGACL
-* @author Mike Benoit <ipso@snappymail.ca>
-*/
-class gacl {
+class Gacl {
 	/*
 	--- phpGACL Configuration path/file ---
 	*/
@@ -190,7 +169,7 @@ class gacl {
 		        if ($this->_db_utf8_flag) {
 			        $success_flag = $this->db->Execute("SET NAMES 'utf8'");
 			        if (!$success_flag) {
-			                error_log("PHP custom error: from gacl gacl/gacl.class.php  - Unable to set up UTF8 encoding with mysql database" . htmlspecialchars($this->db->ErrorMsg(), ENT_QUOTES), 0);
+			                error_log("PHP custom error: from gacl src/Gacl/Gacl.php - Unable to set up UTF8 encoding with mysql database" . htmlspecialchars($this->db->ErrorMsg(), ENT_QUOTES), 0);
 				}
 			}
 		        // ---------------------------------------

@@ -540,7 +540,6 @@ class UserService extends Userforms
         global $pid;
         if (UserService::valid($data_credentials)) {
             require_once("../../library/options.inc.php");
-            require_once("../../library/acl.inc");
             require_once("../../library/patient.inc");
             if ($func=='InvoiceSummary::ar_responsible_party') {
                 $patient_id=$pid;

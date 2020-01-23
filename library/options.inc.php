@@ -45,6 +45,8 @@ require_once("patient.inc");
 require_once("lists.inc");
 require_once(dirname(dirname(__FILE__)) . "/custom/code_types.inc.php");
 
+use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -585,7 +587,7 @@ function generate_form_field($frow, $currvalue)
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
         echo " $lbfonchange $disabled>";
         echo "<option value=''>&nbsp;</option>";
-        $squads = acl_get_squads();
+        $squads = AclExtended::aclGetSquads();
         if ($squads) {
             foreach ($squads as $key => $value) {
                 $optionValue = htmlspecialchars($key, ENT_QUOTES);
@@ -1042,14 +1044,14 @@ function generate_form_field($frow, $currvalue)
         $inputValue = htmlspecialchars(xl('Add'), ENT_QUOTES);
         $outputAddButton = "<input type='button' id='addtolistid_" . $list_id_esc . "' fieldid='form_" .
         $field_id_esc . "' class='addtolist' value='$inputValue' $disabled />";
-        if (aco_exist('lists', $list_id)) {
+        if (AclExtended::acoExist('lists', $list_id)) {
             // a specific aco exist for this list, so ensure access
-            if (acl_check('lists', $list_id)) {
+            if (AclMain::aclCheckCore('lists', $list_id)) {
                 echo $outputAddButton;
             }
         } else {
             // no specific aco exist for this list, so check for access to 'default' list
-            if (acl_check('lists', 'default')) {
+            if (AclMain::aclCheckCore('lists', 'default')) {
                 echo $outputAddButton;
             }
         }
@@ -1508,7 +1510,7 @@ function generate_print_field($frow, $currvalue)
     } elseif ($data_type == 13) { // squads
         $tmp = '';
         if ($currvalue) {
-            $squads = acl_get_squads();
+            $squads = AclExtended::aclGetSquads();
             if ($squads) {
                 foreach ($squads as $key => $value) {
                     if ($currvalue == $key) {
@@ -2084,7 +2086,7 @@ function generate_display_field($frow, $currvalue)
             }
         }
     } elseif ($data_type == 13) { // squads
-        $squads = acl_get_squads();
+        $squads = AclExtended::aclGetSquads();
         if ($squads) {
             foreach ($squads as $key => $value) {
                 if ($currvalue == $key) {

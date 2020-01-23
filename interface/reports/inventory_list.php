@@ -13,10 +13,10 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$include_root/drugs/drugs.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -27,7 +27,7 @@ if (!empty($_POST)) {
 }
 
 // Check authorization.
-$thisauth = acl_check('admin', 'drugs');
+$thisauth = AclMain::aclCheckCore('admin', 'drugs');
 if (!$thisauth) {
     die(xlt('Not authorized'));
 }

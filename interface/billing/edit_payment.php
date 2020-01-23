@@ -18,7 +18,6 @@
 
 
 require_once("../globals.php");
-require_once("../../library/acl.inc");
 require_once("$srcdir/auth.inc");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/patient.inc");
@@ -1150,6 +1149,6 @@ fieldset {
      document.getElementById('div_insurance_or_patient').innerHTML='&nbsp;';
      CheckVisible('yes');//Payment Method is made 'Check Payment' and the Check box is made visible.
      PayingEntityAction();//Paying Entity is made 'insurance' and Payment Category is 'Insurance Payment'
-    }                                                                
+    }
 </script>
 </html>

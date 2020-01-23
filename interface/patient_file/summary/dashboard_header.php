@@ -13,6 +13,7 @@
 
 require_once("$srcdir/display_help_icon_inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 $url_webroot = $GLOBALS['webroot'];
@@ -58,7 +59,7 @@ if ($days_deceased) { ?>
             <div class="btn-group oe-opt-btn-group-pinch" role="group">
 
             <?php
-            if (acl_check('admin', 'super') && $GLOBALS['allow_pat_delete']) { ?>
+            if (AclMain::aclCheckCore('admin', 'super') && $GLOBALS['allow_pat_delete']) { ?>
                 <a class='btn btn-secondary btn-sm btn-delete deleter delete'
                    href='<?php echo attr($url_webroot)?>/interface/patient_file/deleter.php?patient=<?php echo attr_url($pid);?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>'
                    onclick='return top.restoreSession()'>

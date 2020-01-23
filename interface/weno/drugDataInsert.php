@@ -14,13 +14,14 @@
 
 require_once('../globals.php');
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 // check to make sure only administrators access this page.
-if (!acl_check('admin', 'super')) {
+if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt("You are not authorized!"));
 }
 

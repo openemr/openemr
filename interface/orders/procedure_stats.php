@@ -17,16 +17,16 @@
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
-require_once("../../library/acl.inc");
 require_once("../../custom/code_types.inc.php");
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // Might want something different here.
 //
-if (! acl_check('acct', 'rep')) {
+if (! AclMain::aclCheckCore('acct', 'rep')) {
     die(xlt("Unauthorized access."));
 }
 

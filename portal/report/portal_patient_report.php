@@ -34,20 +34,19 @@ global $ignoreAuth;
 
 require_once('../../interface/globals.php');
 require_once("$srcdir/lists.inc");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/patient.inc");
 
 use OpenEMR\Core\Header;
 
 // get various authorization levels
-$auth_notes_a  = true; //acl_check('encounters', 'notes_a');
-$auth_notes    = true; //acl_check('encounters', 'notes');
-$auth_coding_a = true; //acl_check('encounters', 'coding_a');
-$auth_coding   = true; //acl_check('encounters', 'coding');
-$auth_relaxed  = true; //acl_check('encounters', 'relaxed');
-$auth_med      = true; //acl_check('patients'  , 'med');
-$auth_demo     = true; //acl_check('patients'  , 'demo');
+$auth_notes_a  = true; //AclMain::aclCheckCore('encounters', 'notes_a');
+$auth_notes    = true; //AclMain::aclCheckCore('encounters', 'notes');
+$auth_coding_a = true; //AclMain::aclCheckCore('encounters', 'coding_a');
+$auth_coding   = true; //AclMain::aclCheckCore('encounters', 'coding');
+$auth_relaxed  = true; //AclMain::aclCheckCore('encounters', 'relaxed');
+$auth_med      = true; //AclMain::aclCheckCore('patients'  , 'med');
+$auth_demo     = true; //AclMain::aclCheckCore('patients'  , 'demo');
 
 $cmsportal = false;
 if ($GLOBALS['gbl_portal_cms_enable']) {

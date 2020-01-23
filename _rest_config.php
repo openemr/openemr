@@ -13,6 +13,7 @@
 
 require_once(dirname(__FILE__) . "/src/Common/Session/SessionUtil.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\RestControllers\AuthRestController;
 
 // also a handy place to add utility methods
@@ -145,7 +146,7 @@ class RestConfig
     static function authorization_check($section, $value)
     {
         if (self::$notRestCall || self::$localCall) {
-            $result = acl_check($section, $value, $_SESSION['authUser']);
+            $result = AclMain::aclCheckCore($section, $value, $_SESSION['authUser']);
         } else {
             $authRestController = new AuthRestController();
             $result = $authRestController->aclCheck($_SERVER["HTTP_X_API_TOKEN"], $section, $value);

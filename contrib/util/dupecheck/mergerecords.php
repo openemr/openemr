@@ -14,6 +14,7 @@ require_once("../../../interface/globals.php");
 require_once("../../../library/pnotes.inc");
 require_once("./Utils.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
@@ -35,7 +36,7 @@ if (!empty($_GET)) {
     }
 }
 
-if (!acl_check('admin', 'super')) {
+if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt("Not Authorized"));
 }
 

@@ -11,9 +11,9 @@
 
 
 require_once("../../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -80,7 +80,7 @@ $(function(){
 <?php
 
 // Ensure user is authorized
-if (!acl_check('patients', 'med')) {
+if (!AclMain::aclCheckCore('patients', 'med')) {
     echo "<p>(" . xlt('Not authorized') . ")</p>\n";
     echo "</body>\n</html>\n";
     exit();

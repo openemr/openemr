@@ -45,17 +45,17 @@ require_once($GLOBALS['srcdir'].'/forms.inc');
 require_once($GLOBALS['srcdir'].'/calendar.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['srcdir'].'/encounter_events.inc.php');
-require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/patient_tracker.inc.php');
 require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
 require_once($GLOBALS['srcdir'].'/group.inc');
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\Header;
+
  //Check access control
-if (!acl_check('patients', 'appt', '', array('write','wsome'))) {
+if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {
     die(xl('Access not allowed'));
 }
-
-use OpenEMR\Core\Header;
 
 /* Things that might be passed by our opener. */
 $eid           = $_GET['eid'];         // only for existing events
@@ -97,8 +97,8 @@ if (isset($_GET['starttimeh'])) {
 /* some defaults to start */
 $startampm = '';
 $info_msg = "";
-$g_edit = acl_check("groups", "gcalendar", false, 'write');
-$g_view = acl_check("groups", "gcalendar", false, 'view');
+$g_edit = AclMain::aclCheckCore("groups", "gcalendar", false, 'write');
+$g_view = AclMain::aclCheckCore("groups", "gcalendar", false, 'view');
 ?>
 <!DOCTYPE html>
 <html>

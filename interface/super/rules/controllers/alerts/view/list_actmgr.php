@@ -10,9 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__)."/../../../../../../library/acl.inc");
-global $phpgacl_location;
-require_once("$phpgacl_location/gacl_api.class.php");
+use OpenEMR\Gacl\GaclApi;
+
 ?>
 
 <table class="table header">
@@ -68,7 +67,7 @@ require_once("$phpgacl_location/gacl_api.class.php");
                  <td>&nbsp;</td>
                  <td>
                         <?php //Place the ACO selector here
-                        $gacl_temp = new gacl_api();
+                        $gacl_temp = new GaclApi();
                         $list_aco_objects = $gacl_temp->get_objects(null, 0, 'ACO');
                         foreach ($list_aco_objects as $key => $value) {
                             asort($list_aco_objects[$key]);

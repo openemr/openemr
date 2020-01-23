@@ -14,6 +14,7 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -90,7 +91,7 @@ if ($has_disclosure == 0) { //If there are no disclosures recorded
     <span class='text'>
     <?php
     echo xlt("There are no disclosures recorded for this patient.");
-    if (acl_check('patients', 'disclosure', '', array('write', 'addonly'))) {
+    if (AclMain::aclCheckCore('patients', 'disclosure', '', array('write', 'addonly'))) {
         echo " ";
         echo xlt("To record disclosures, please click");
         echo " <a href='disclosure_full.php'>";

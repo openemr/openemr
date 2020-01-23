@@ -12,9 +12,9 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -265,7 +265,7 @@ if ($type) { // note this only happens when its new
 
 <form method='post' name='theform' id="theform" action='addrbook_edit.php?userid=<?php echo attr_url($userid) ?>'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-<?php if (acl_check('admin', 'practice')) { // allow choose type option if have admin access ?>
+<?php if (AclMain::aclCheckCore('admin', 'practice')) { // allow choose type option if have admin access ?>
 <div class="form-row">
     <div class='col-2'>
         <label class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Type'); ?>:</label>

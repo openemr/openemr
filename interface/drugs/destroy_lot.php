@@ -13,9 +13,9 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("drugs.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -23,7 +23,7 @@ $drug_id = $_REQUEST['drug'];
 $lot_id  = $_REQUEST['lot'];
 $info_msg = "";
 
-if (!acl_check('admin', 'drugs')) {
+if (!AclMain::aclCheckCore('admin', 'drugs')) {
     die(xlt('Not authorized'));
 }
 

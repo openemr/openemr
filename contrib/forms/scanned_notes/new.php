@@ -15,8 +15,8 @@
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
-require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -187,7 +187,7 @@ if ($formid && is_file($imagepath)) {
 <input type='button' value='Add Appointment' onclick='newEvt()' />
 &nbsp;
 <input type='button' value='Back' onclick="parent.closeTab(window.name, false)" />
-<?php if ($formrow['id'] && acl_check('admin', 'super')) { ?>
+<?php if ($formrow['id'] && AclMain::aclCheckCore('admin', 'super')) { ?>
 &nbsp;
 <input type='button' value='Delete' onclick='deleteme()' style='color:red' />
 <?php } ?>

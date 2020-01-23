@@ -14,8 +14,8 @@ require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("history.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
@@ -78,9 +78,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <div class="row">
         <div class="col-sm-12">
             <?php
-            if (acl_check('patients', 'med')) {
+            if (AclMain::aclCheckCore('patients', 'med')) {
                 $tmp = getPatientData($pid, "squad");
-                if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+                if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
                     echo "<p>(" . xlt('History not authorized') . ")</p>\n";
                     echo "</body>\n</html>\n";
                     exit();
@@ -100,7 +100,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </div>
     </div>
     <?php
-    if (acl_check('patients', 'med', '', array('write','addonly'))) {?>
+    if (AclMain::aclCheckCore('patients', 'med', '', array('write','addonly'))) {?>
         <div class="row">
             <div class="col-sm-12">
                 <?php require_once("$include_root/patient_file/summary/dashboard_header.php");?>

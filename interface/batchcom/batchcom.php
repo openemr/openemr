@@ -14,13 +14,13 @@
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
 require_once("../globals.php");
 require_once("$srcdir/registry.inc");
-require_once("../../library/acl.inc");
 require_once("batchcom.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-if (!acl_check('admin', 'batchcom')) {
+if (!AclMain::aclCheckCore('admin', 'batchcom')) {
     echo "<html>\n<body>\n<h1>";
     echo xlt('You are not authorized for this.');
     echo "</h1>\n</body>\n</html>";

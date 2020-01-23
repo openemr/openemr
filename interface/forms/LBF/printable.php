@@ -15,13 +15,13 @@
 
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/encounter.inc");
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 use Mpdf\Mpdf;
+use OpenEMR\Common\Acl\AclMain;
 
 // Font size in points for table cell data.
 $FONTSIZE = 9;
@@ -74,8 +74,8 @@ if ($lobj['grp_diags'   ]) {
 if (!empty($lobj['aco_spec'])) {
     $LBF_ACO = explode('|', $lobj['aco_spec']);
 }
-if (!acl_check('admin', 'super') && !empty($LBF_ACO)) {
-    if (!acl_check($LBF_ACO[0], $LBF_ACO[1])) {
+if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
+    if (!AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1])) {
         die(xlt('Access denied'));
     }
 }

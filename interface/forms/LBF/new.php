@@ -23,6 +23,7 @@ if ($GLOBALS['gbl_portal_cms_enable']) {
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 require_once("$srcdir/FeeSheetHtml.class.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -129,9 +130,9 @@ if ($lobj['grp_diags']) {
 }
 
 // Check access control.
-if (!acl_check('admin', 'super') && !empty($LBF_ACO)) {
-    $auth_aco_write = acl_check($LBF_ACO[0], $LBF_ACO[1], '', 'write');
-    $auth_aco_addonly = acl_check($LBF_ACO[0], $LBF_ACO[1], '', 'addonly');
+if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
+    $auth_aco_write = AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1], '', 'write');
+    $auth_aco_addonly = AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1], '', 'addonly');
     // echo "\n<!-- '$auth_aco_write' '$auth_aco_addonly' -->\n"; // debugging
     if (!$auth_aco_write && !($auth_aco_addonly && !$formid)) {
         die(xlt('Access denied'));

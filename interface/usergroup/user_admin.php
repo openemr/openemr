@@ -12,11 +12,12 @@
 
 
 require_once("../globals.php");
-require_once("../../library/acl.inc");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 
+use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\MainMenuRole;
@@ -31,7 +32,7 @@ if (!empty($_GET)) {
 
 $facilityService = new FacilityService();
 
-if (!$_GET["id"] || !acl_check('admin', 'users')) {
+if (!$_GET["id"] || !AclMain::aclCheckCore('admin', 'users')) {
     exit();
 }
 
@@ -222,8 +223,8 @@ function authorized_clicked() {
 <div class="container">
     <?php
     /*  Get the list ACL for the user */
-    $is_super_user = acl_check('admin', 'super');
-    $acl_name=acl_get_group_titles($iter["username"]);
+    $is_super_user = AclMain::aclCheckCore('admin', 'super');
+    $acl_name=AclExtended::aclGetGroupTitles($iter["username"]);
     $bg_name='';
     $bg_count=count($acl_name);
     $selected_user_is_superuser = false;
@@ -232,7 +233,7 @@ function authorized_clicked() {
             $bg_name=$acl_name[$i];
         }
         //check if user member on group with superuser rule
-        if (is_group_include_superuser($acl_name[$i])) {
+        if (AclExtended::isGroupIncludeSuperuser($acl_name[$i])) {
             $selected_user_is_superuser = true;
         }
     }
@@ -457,8 +458,8 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
  <td><select id="access_group_id" name="access_group[]" multiple style="width:150px;" class="form-control">
 <?php
 // Collect the access control group of user
-$list_acl_groups = acl_get_group_title_list($is_super_user || $selected_user_is_superuser);
-$username_acl_groups = acl_get_group_titles($iter["username"]);
+$list_acl_groups = AclExtended::aclGetGroupTitleList($is_super_user || $selected_user_is_superuser);
+$username_acl_groups = AclExtended::aclGetGroupTitles($iter["username"]);
 foreach ($list_acl_groups as $value) {
     if (($username_acl_groups) && in_array($value, $username_acl_groups)) {
         // Modified 6-2009 by BM - Translate group name if applicable

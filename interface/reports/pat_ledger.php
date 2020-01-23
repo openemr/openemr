@@ -16,10 +16,10 @@
 
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');
-require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['srcdir'].'/appointments.inc.php');
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
@@ -45,7 +45,7 @@ $orow = 0;
 $pat_pid = $_GET['patient_id'];
 $type_form = $_GET['form'];
 
-if (! acl_check('acct', 'rep')) {
+if (! AclMain::aclCheckCore('acct', 'rep')) {
     die(xlt("Unauthorized access."));
 }
 

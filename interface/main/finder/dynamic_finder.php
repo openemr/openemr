@@ -20,6 +20,7 @@ require_once(dirname(__FILE__) . "/../../globals.php");
 require_once "$srcdir/user.inc";
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
@@ -342,7 +343,7 @@ table.dataTable.no-footer {
         </div>
         <div class="row">
             <div class="col-sm-12">
-                <?php if (acl_check('patients', 'demo', '', array('write','addonly'))) { ?>
+                <?php if (AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) { ?>
                     <button id="create_patient_btn1" class="btn btn-secondary btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
                 <?php } ?>
             </div>
@@ -401,8 +402,8 @@ table.dataTable.no-footer {
                 $("#pt_table_length").addClass ("hidden");
                 $("#show_hide").addClass ("hidden");
                 $("#search_hide").addClass ("hidden");
-                
-                
+
+
             } else {
                 $("#pt_table_filter").removeClass ("hidden");
                 $("#pt_table_length").removeClass ("hidden");
@@ -411,7 +412,7 @@ table.dataTable.no-footer {
             }
         });
     </script>
-    
+
     <script>
         document.addEventListener('touchstart', {});
     </script>

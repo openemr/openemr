@@ -21,7 +21,6 @@ global $ignoreAuth;
 
 require_once('../../interface/globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');
-require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['srcdir'].'/appointments.inc.php');
 
@@ -34,8 +33,6 @@ $enc_adj = $total_adj = 0;
 $enc_bal = $total_bal = 0;
 $bgcolor = "#FFFFDD";
 $orow = 0;
-
-//if (! acl_check('acct', 'rep')) die(xlt("Unauthorized access."));
 
 function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
 {

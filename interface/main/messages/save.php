@@ -10,11 +10,12 @@
  */
 
 require_once "../../globals.php";
-require_once "$srcdir/acl.inc";
 require_once "$srcdir/lists.inc";
 require_once "$srcdir/forms.inc";
 require_once "$srcdir/patient.inc";
 require_once "$srcdir/MedEx/API.php";
+
+use OpenEMR\Common\Acl\AclMain;
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 if ($_REQUEST['go'] == 'sms_search') {
@@ -34,13 +35,13 @@ if ($_REQUEST['go'] == 'sms_search') {
         $data['medex_uid'] = $result2['medex_uid'];
         $results[] = $data;
     }
-    
+
     echo json_encode($results);
     exit;
 }
 //you need admin privileges to update this.
 if ($_REQUEST['go'] == 'Preferences') {
-    if (acl_check('admin', 'super')) {
+    if (AclMain::aclCheckCore('admin', 'super')) {
         $sql = "UPDATE `medex_prefs` SET `ME_facilities`=?,`ME_providers`=?,`ME_hipaa_default_override`=?,
 			`PHONE_country_code`=? ,`MSGS_default_yes`=?,
 			`POSTCARDS_local`=?,`POSTCARDS_remote`=?,
@@ -68,7 +69,7 @@ if ($_REQUEST['go'] == 'Preferences') {
     exit;
 }
 if ($_REQUEST['MedEx'] == "start") {
-    if (acl_check('admin', 'super')) {
+    if (AclMain::aclCheckCore('admin', 'super')) {
         $query = "SELECT * FROM users WHERE id = ?";
         $user_data = sqlQuery($query, array($_SESSION['authUserID']));
         $query = "SELECT * FROM facility WHERE primary_business_entity='1' LIMIT 1";

@@ -18,11 +18,12 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("functions.php");
 require_once(dirname(__FILE__) . "/../../../library/group.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 
 //Check acl
-$can_view = acl_check("groups", "gadd", false, 'view');
-$can_edit = acl_check("groups", "gadd", false, 'write');
+$can_view = AclMain::aclCheckCore("groups", "gadd", false, 'view');
+$can_edit = AclMain::aclCheckCore("groups", "gadd", false, 'write');
 
 if (!$can_view && !$can_edit) {
     formJump();
