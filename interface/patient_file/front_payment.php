@@ -536,12 +536,8 @@ function toencounter(enc, datestr, topframe) {
         }
         ?>
 
-<<<<<<< HEAD
         <?php if (acl_check('admin', 'super') || acl_check('acct', 'bill')) {
             // allowing biller to delete payments ?>
-=======
-        <?php if (AclMain::aclCheckCore('admin', 'super')) { ?>
->>>>>>> bb493577557f55bc549383b425a6b509f7911f62
         &nbsp;
         <input type='button' value='<?php echo xla('Delete'); ?>' style='color:red' onclick='deleteme()' />
         <?php } ?>
