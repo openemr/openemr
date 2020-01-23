@@ -13,12 +13,12 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
-require_once("$phpgacl_location/gacl_api.class.php");
 require_once("$srcdir/lists.inc");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -39,7 +39,7 @@ if (empty($_REQUEST['list_id'])) {
 }
 
 // Check authorization.
-$thisauth = acl_check('admin', 'super');
+$thisauth = AclMain::aclCheckCore('admin', 'super');
 if (!$thisauth) {
     die(xlt('Not authorized'));
 }
@@ -735,7 +735,7 @@ function writeITLine($it_array)
     echo "<td>";
     echo "<select name='opt[" . attr($opt_line_no) . "][aco_spec]' class='optin'>";
     echo "<option value=''></option>";
-    echo gen_aco_html_options($it_array['aco_spec']);
+    echo AclExtended::genAcoHtmlOptions($it_array['aco_spec']);
     echo "</select>";
     echo "</td>";
 

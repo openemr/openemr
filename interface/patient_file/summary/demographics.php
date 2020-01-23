@@ -19,7 +19,6 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("../history/history.inc.php");
 require_once("$srcdir/clinical_rules.php");
@@ -28,12 +27,13 @@ require_once("$srcdir/group.inc");
 require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
 
 use OpenEMR\Billing\EDI_270;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\Menu\PatientMenuRole;
-use OpenEMR\Reminder\BirthdayReminder;
-use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Events\PatientDemographics\ViewEvent;
+use OpenEMR\Menu\PatientMenuRole;
+use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Reminder\BirthdayReminder;
 
 if (isset($_GET['set_pid'])) {
     include_once("$srcdir/pid.inc");
@@ -405,7 +405,7 @@ $(function(){
       );
     <?php } // end prw?>
 
-<?php if ($vitals_is_registered && acl_check('patients', 'med')) { ?>
+<?php if ($vitals_is_registered && AclMain::aclCheckCore('patients', 'med')) { ?>
     // Initialize the Vitals form if it is registered and user is authorized.
     $("#vitals_ps_expand").load("vitals_fragment.php",
         {
@@ -689,9 +689,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <a href='../birthday_alert/birthday_pop.php?pid=<?php echo attr_url($pid); ?>&user_id=<?php echo attr_url($_SESSION['authUserID']); ?>' id='birthday_popup' style='display: none;' onclick='top.restoreSession()'></a>
         <?php
 
-        $thisauth = acl_check('patients', 'demo');
+        $thisauth = AclMain::aclCheckCore('patients', 'demo');
         if ($thisauth) {
-            if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
+            if ($result['squad'] && ! AclMain::aclCheckCore('squads', $result['squad'])) {
                 $thisauth = 0;
             }
         }
@@ -827,7 +827,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 </tr>
                                 <?php } ?>
 
-                        <?php if (acl_check('patients', 'demo')) { ?>
+                        <?php if (AclMain::aclCheckCore('patients', 'demo')) { ?>
                               <tr>
                                <td>
                             <?php
@@ -839,7 +839,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $widgetButtonClass = "";
                             $linkMethod = "html";
                             $bodyClass = "";
-                            $widgetAuth = acl_check('patients', 'demo', '', 'write');
+                            $widgetAuth = AclMain::aclCheckCore('patients', 'demo', '', 'write');
                             $fixedWidth = true;
                             expand_collapse_widget(
                                 $widgetTitle,
@@ -891,7 +891,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $widgetButtonClass = "";
                                 $linkMethod = "html";
                                 $bodyClass = "";
-                                $widgetAuth = acl_check('patients', 'demo', '', 'write');
+                                $widgetAuth = AclMain::aclCheckCore('patients', 'demo', '', 'write');
                                 $fixedWidth = true;
                                 expand_collapse_widget(
                                     $widgetTitle,
@@ -1135,7 +1135,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 </tr>
                         <?php } // end if demographics authorized ?>
 
-                        <?php if (acl_check('patients', 'notes')) { ?>
+                        <?php if (AclMain::aclCheckCore('patients', 'notes')) { ?>
                                 <tr>
                                     <td width='650px'>
                             <?php
@@ -1147,7 +1147,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $widgetButtonClass = "";
                             $linkMethod = "html";
                             $bodyClass = "notab";
-                            $widgetAuth = acl_check('patients', 'notes', '', 'write');
+                            $widgetAuth = AclMain::aclCheckCore('patients', 'notes', '', 'write');
                             $fixedWidth = true;
                             expand_collapse_widget(
                                 $widgetTitle,
@@ -1168,7 +1168,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 </tr>
                         <?php } // end if notes authorized ?>
 
-                        <?php if (acl_check('patients', 'reminder') && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_prw']) {
+                        <?php if (AclMain::aclCheckCore('patients', 'reminder') && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_prw']) {
                                         echo "<tr><td width='650px'>";
                                         // patient reminders collapse widget
                                         $widgetTitle = xl("Patient Reminders");
@@ -1178,7 +1178,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         $widgetButtonClass = "";
                                         $linkMethod = "html";
                                         $bodyClass = "notab";
-                                        $widgetAuth = acl_check('patients', 'reminder', '', 'write');
+                                        $widgetAuth = AclMain::aclCheckCore('patients', 'reminder', '', 'write');
                                         $fixedWidth = true;
                                         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
                                             <br/>
@@ -1188,7 +1188,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         </tr>
                         <?php } //end if prw is activated  ?>
 
-                        <?php if (acl_check('patients', 'disclosure')) { ?>
+                        <?php if (AclMain::aclCheckCore('patients', 'disclosure')) { ?>
                                <tr>
                                <td width='650px'>
                             <?php
@@ -1200,7 +1200,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $widgetButtonClass = "";
                             $linkMethod = "html";
                             $bodyClass = "notab";
-                            $widgetAuth = acl_check('patients', 'disclosure', '', 'write');
+                            $widgetAuth = AclMain::aclCheckCore('patients', 'disclosure', '', 'write');
                             $fixedWidth = true;
                             expand_collapse_widget(
                                 $widgetTitle,
@@ -1221,7 +1221,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             </tr>
                         <?php } // end if disclosures authorized ?>
 
-                        <?php if ($GLOBALS['amendments'] && acl_check('patients', 'amendment')) { ?>
+                        <?php if ($GLOBALS['amendments'] && AclMain::aclCheckCore('patients', 'amendment')) { ?>
                           <tr>
                                <td width='650px'>
                                 <?php // Amendments widget
@@ -1232,7 +1232,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $widgetButtonClass = "rx_modal";
                                 $linkMethod = "html";
                                 $bodyClass = "summary_item small";
-                                $widgetAuth = acl_check('patients', 'amendment', '', 'write');
+                                $widgetAuth = AclMain::aclCheckCore('patients', 'amendment', '', 'write');
                                 $fixedWidth = false;
                                 expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
                                 $sql = "SELECT * FROM amendments WHERE pid = ? ORDER BY amendment_date DESC";
@@ -1255,7 +1255,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             </tr>
                         <?php } // end amendments authorized ?>
 
-                        <?php if (acl_check('patients', 'lab')) { ?>
+                        <?php if (AclMain::aclCheckCore('patients', 'lab')) { ?>
                             <tr>
                              <td width='650px'>
                             <?php // labdata expand collapse widget
@@ -1299,7 +1299,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             </tr>
                         <?php } // end labs authorized ?>
 
-                        <?php if ($vitals_is_registered && acl_check('patients', 'med')) { ?>
+                        <?php if ($vitals_is_registered && AclMain::aclCheckCore('patients', 'med')) { ?>
                             <tr>
                              <td width='650px'>
                             <?php // vitals expand collapse widget
@@ -1336,7 +1336,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                               </div>
                              </td>
                             </tr>
-                        <?php } // end if ($vitals_is_registered && acl_check('patients', 'med')) ?>
+                        <?php } // end if ($vitals_is_registered && AclMain::aclCheckCore('patients', 'med')) ?>
 
                         <?php
                         // This generates a section similar to Vitals for each LBF form that
@@ -1349,7 +1349,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         while ($gfrow = sqlFetchArray($gfres)) {
                             // $jobj = json_decode($gfrow['notes'], true);
                             $LBF_ACO = empty($gfrow['grp_aco_spec']) ? false : explode('|', $gfrow['grp_aco_spec']);
-                            if ($LBF_ACO && !acl_check($LBF_ACO[0], $LBF_ACO[1])) {
+                            if ($LBF_ACO && !AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1])) {
                                 continue;
                             } ?>
                             <tr>
@@ -1364,7 +1364,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $linkMethod = "html";
                             $bodyClass = "notab";
                             $widgetAuth = false;
-                            if (!$LBF_ACO || acl_check($LBF_ACO[0], $LBF_ACO[1], '', 'write')) {
+                            if (!$LBF_ACO || AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1], '', 'write')) {
                                 // check to see if any instances exist for this patient
                                 $existVitals = sqlQuery(
                                     "SELECT * FROM forms WHERE pid = ? AND formdir = ? AND deleted = 0",
@@ -1508,7 +1508,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     // Show Clinical Reminders for any user that has rules that are permitted.
                     $clin_rem_check = resolve_rules_sql('', '0', true, '', $_SESSION['authUser']);
                     if (!empty($clin_rem_check) && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw'] &&
-                        acl_check('patients', 'alert')) {
+                        AclMain::aclCheckCore('patients', 'alert')) {
                         // clinical summary expand collapse widget
                         $widgetTitle = xl("Clinical Reminders");
                         $widgetLabel = "clinical_reminders";
@@ -1518,7 +1518,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $widgetButtonClass = "";
                         $linkMethod = "html";
                         $bodyClass = "summary_item small";
-                        $widgetAuth = acl_check('patients', 'alert', '', 'write');
+                        $widgetAuth = AclMain::aclCheckCore('patients', 'alert', '', 'write');
                         $fixedWidth = false;
                         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
                         echo "<br/>";
@@ -1531,7 +1531,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                       // Recurring appointment support and Appointment Display Sets
                       // added to Appointments by Ian Jardine ( epsdky ).
                       //
-                    if (isset($pid) && !$GLOBALS['disable_calendar'] && acl_check('patients', 'appt')) {
+                    if (isset($pid) && !$GLOBALS['disable_calendar'] && AclMain::aclCheckCore('patients', 'appt')) {
                       //
                         $current_date2 = date('Y-m-d');
                         $events = array();
@@ -1633,7 +1633,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $linkMethod = "javascript";
                         $bodyClass = "summary_item small";
                         $widgetAuth = $resNotNull // $resNotNull reflects state of query in fetchAppointments
-                        && (acl_check('patients', 'appt', '', 'write') || acl_check('patients', 'appt', '', 'addonly'));
+                        && (AclMain::aclCheckCore('patients', 'appt', '', 'write') || AclMain::aclCheckCore('patients', 'appt', '', 'addonly'));
                         $fixedWidth = false;
                         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
                         $count = 0;
@@ -1741,7 +1741,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     /* Widget that shows recurrences for appointments. */
                     if (isset($pid) && !$GLOBALS['disable_calendar'] && $GLOBALS['appt_recurrences_widget'] &&
-                        acl_check('patients', 'appt')) {
+                        AclMain::aclCheckCore('patients', 'appt')) {
                          $widgetTitle = xl("Recurrent Appointments");
                          $widgetLabel = "recurrent_appointments";
                          $widgetButtonLabel = xl("Add");
@@ -1800,7 +1800,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
 
                     if (isset($pid) && !$GLOBALS['disable_calendar'] && $showpast > 0 &&
-                      acl_check('patients', 'appt')) {
+                      AclMain::aclCheckCore('patients', 'appt')) {
                         $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
                         "e.pc_startTime, e.pc_hometext, u.fname, u.lname, u.mname, " .
                         "c.pc_catname, e.pc_apptstatus " .

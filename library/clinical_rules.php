@@ -23,6 +23,8 @@ require_once(dirname(__FILE__) . "/forms.inc");
 require_once(dirname(__FILE__) . "/options.inc.php");
 require_once(dirname(__FILE__) . "/report_database.inc");
 
+use OpenEMR\Common\Acl\AclMain;
+
 /**
  * Return listing of CDR reminders in log.
  *
@@ -1443,13 +1445,13 @@ function resolve_rules_sql($type = '', $patient_id = '0', $configurableOnly = fa
             $access_control = explode(':', $rule['access_control']);
             if (!empty($access_control[0]) && !empty($access_control[1])) {
                 // Section and ACO filters are not empty, so do the test for access.
-                if (!acl_check($access_control[0], $access_control[1], $user)) {
+                if (!AclMain::aclCheckCore($access_control[0], $access_control[1], $user)) {
                     // User does not have access to this rule, so skip the rule.
                     continue;
                 }
             } else {
                 // Section or ACO filters are empty, so use default patients:med aco
-                if (!acl_check('patients', 'med', $user)) {
+                if (!AclMain::aclCheckCore('patients', 'med', $user)) {
                     // User does not have access to this rule, so skip the rule.
                     continue;
                 }

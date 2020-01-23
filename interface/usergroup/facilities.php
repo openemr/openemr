@@ -12,7 +12,6 @@
  */
 
 require_once("../globals.php");
-require_once("../../library/acl.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;

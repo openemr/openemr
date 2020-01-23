@@ -12,10 +12,10 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/pnotes.inc");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -48,10 +48,10 @@ if (isset($_GET['docUpdateId'])) {
     <?php
 
      $has_note = 0;
-     $thisauth = acl_check('patients', 'notes');
+     $thisauth = AclMain::aclCheckCore('patients', 'notes');
     if ($thisauth) {
         $tmp = getPatientData($pid, "squad");
-        if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+        if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
             $thisauth = 0;
         }
     }
@@ -121,7 +121,7 @@ if (isset($_GET['docUpdateId'])) {
             <span class='text'>
             <?php
                 echo xlt("There are no messages on file for this patient.");
-            if (acl_check('patients', 'notes', '', array('write', 'addonly'))) {
+            if (AclMain::aclCheckCore('patients', 'notes', '', array('write', 'addonly'))) {
                 echo " ";
                 echo "<a href='pnotes_full.php' onclick='top.restoreSession()'>";
                 echo xlt("To add messages, please click here");
@@ -210,7 +210,7 @@ if (isset($_GET['docUpdateId'])) {
                     <span class='text'>
                     <?php
                     echo xlt("There are no notes on file for this patient.");
-                    if (acl_check('patients', 'notes', '', array('write', 'addonly'))) {
+                    if (AclMain::aclCheckCore('patients', 'notes', '', array('write', 'addonly'))) {
                         echo " ";
                         echo "<a href='pnotes_full.php' onclick='top.restoreSession()'>";
                         echo xlt("To add notes, please click here");

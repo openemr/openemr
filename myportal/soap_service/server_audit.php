@@ -192,7 +192,6 @@ class UserAudit extends UserMail
                     }
 
                     require_once("../../library/options.inc.php");
-                    require_once("../../library/acl.inc");
                     require_once("../../library/patient.inc");
                     if ($table=='patient_data') {
                         $pdrow = sqlQuery("SELECT id from patient_data WHERE pid=?", array($pid));

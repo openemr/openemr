@@ -23,11 +23,11 @@ if (!empty($GLOBALS['gbl_rapid_workflow']) &&
     exit();
 }
 
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 
 use Mpdf\Mpdf;
+use OpenEMR\Common\Acl\AclMain;
 
 $patientid = empty($_REQUEST['patientid']) ? 0 : 0 + $_REQUEST['patientid'];
 if ($patientid < 0) {
@@ -78,11 +78,11 @@ if ($patientid) {
     $prow = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
     $erow = getEmployerData($pid);
   // Check authorization.
-    $thisauth = acl_check('patients', 'demo');
+    $thisauth = AclMain::aclCheckCore('patients', 'demo');
     if (!$thisauth) {
         die(xlt('Demographics not authorized'));
     }
-    if ($prow['squad'] && ! acl_check('squads', $prow['squad'])) {
+    if ($prow['squad'] && ! AclMain::aclCheckCore('squads', $prow['squad'])) {
         die(xlt('You are not authorized to access this squad'));
     }
   // $irow = getInsuranceProviders(); // needed?

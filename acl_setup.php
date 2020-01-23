@@ -2,7 +2,7 @@
 /**
  * This program is run by the OpenEMR setup.php script to install phpGACL
  * and creates the Access Control Objects and their sections.
- * See openemr/library/acl.inc file for the list of
+ * See src/Common/Acl/AclMain.php file for the list of
  * currently supported Access Control Objects(ACO), which this
  * script will install.  This script also creates several
  * ARO groups, an "admin" ARO, and some reasonable ACL entries for
@@ -29,20 +29,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__).'/library/acl.inc');
+use OpenEMR\Gacl\GaclApi;
 
-if (empty($phpgacl_location)) {
-    die("You must first set up library/acl.inc to use phpGACL!");
-}
-
-require_once("$phpgacl_location/gacl_api.class.php");
-
-$gacl = new gacl_api();
+$gacl = new GaclApi();
 
 // Create the ACO sections.  Every ACO must have a section.
 //
 if ($gacl->add_object_section('Accounting', 'acct', 10, 0, 'ACO') === false) {
-    echo "Unable to create the access controls for OpenEMR.  You have likely already run this script (acl_setup.php) successfully.<br>Other possible problems include php-GACL configuration file errors (gacl.ini.php or gacl.class.php).<br>";
+    echo "Unable to create the access controls for OpenEMR.  You have likely already run this script (acl_setup.php) successfully.<br>Other possible problems include php-GACL configuration file errors (gacl.ini.php or Gacl.php).<br>";
     return;
 }
 // xl('Accounting')

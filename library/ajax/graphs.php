@@ -14,6 +14,7 @@
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -33,8 +34,8 @@ $is_lbf = substr($table, 0, 3) === 'LBF';
 // acl checks here
 //  For now, only allow access for med aco.
 //  This can be expanded depending on which table is accessed.
-if (!acl_check('patients', 'med')) {
-      exit;
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    exit;
 }
 
 // Conversion functions/constants

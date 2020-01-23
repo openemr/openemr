@@ -13,8 +13,8 @@
 
 require_once("../interface/globals.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -52,7 +52,7 @@ function setInsurance($pid, $ainsurance, $asubscriber, $seq)
 }
 
  // Check authorization.
-if (!acl_check('patients', 'demo', '', 'write')) {
+if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {
     die("Updating demographics is not authorized.");
 }
 
@@ -125,7 +125,7 @@ if ($_POST['form_import']) {
 
     $olddata = getPatientData($pid);
 
-    if ($olddata['squad'] && ! acl_check('squads', $olddata['squad'])) {
+    if ($olddata['squad'] && ! AclMain::aclCheckCore('squads', $olddata['squad'])) {
         die("You are not authorized to access this squad.");
     }
 

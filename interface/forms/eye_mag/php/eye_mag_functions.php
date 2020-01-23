@@ -16,6 +16,7 @@ require_once(dirname(__FILE__)."/../../../../custom/code_types.inc.php");
 require_once(dirname(__FILE__)."/../../../../library/options.inc.php");
 global $PMSFH;
 
+    use OpenEMR\Common\Acl\AclMain;
     use OpenEMR\Services\FacilityService;
 
     $facilityService = new FacilityService();
@@ -1557,7 +1558,7 @@ margin: 2px 0 2px 2px;">
         echo $selector = priors_select($zone, $orig_id, $id_to_show, $pid);
     } elseif ($zone =="PMSFH") {
         // Check authorization.
-        if (acl_check('patients', 'med')) {
+        if (AclMain::aclCheckCore('patients', 'med')) {
             $tmp = getPatientData($pid);
         }
 

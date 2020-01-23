@@ -13,10 +13,10 @@
 require_once("../../globals.php");
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/gprelations.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
@@ -41,12 +41,12 @@ if ($docid) {
 }
 
 // Check authorization.
-if (!acl_check('patients', 'notes', '', array('write','addonly'))) {
+if (!AclMain::aclCheckCore('patients', 'notes', '', array('write','addonly'))) {
     die(xlt('Not authorized'));
 }
 
 $tmp = getPatientData($patient_id, "squad");
-if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+if ($tmp['squad'] && !AclMain::aclCheckCore('squads', $tmp['squad'])) {
     die(xlt('Not authorized for this squad.'));
 }
 
