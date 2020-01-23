@@ -11,13 +11,14 @@
 
 
 require_once("../../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
+
+use OpenEMR\Common\Acl\AclMain;
 
 $disabled = "disabled";
 
 // If we are allowed to change encounter dates...
-if (acl_check('encounters', 'date_a')) {
+if (AclMain::aclCheckCore('encounters', 'date_a')) {
     $disabled = "";
 }
 

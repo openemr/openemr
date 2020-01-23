@@ -28,7 +28,8 @@ set_time_limit(0);
 
 
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
+
+use OpenEMR\Common\Acl\AclMain;
 
 // This array is an important reference for the supported labs and their NPI
 // numbers as known to this program.  The clinic must define at least one
@@ -60,7 +61,7 @@ function getLabID($npi)
     return intval($lrow['ppid']);
 }
 
-if (!acl_check('admin', 'super')) {
+if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt('Not authorized', '', '', '!'));
 }
 

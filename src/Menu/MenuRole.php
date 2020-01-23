@@ -18,6 +18,8 @@ namespace OpenEMR\Menu;
 
 require_once(dirname(__FILE__) . "/../../library/registry.inc");
 
+use OpenEMR\Common\Acl\AclMain;
+
 class MenuRole
 {
 
@@ -219,22 +221,22 @@ class MenuRole
         if (isset($arr[2])) {
             for ($i = 2; isset($arr[$i]); ++$i) {
                 if (substr($arr[0], 0, 1) == '!') {
-                    if (!acl_check(substr($arr[0], 1), $arr[1], '', $arr[$i])) {
+                    if (!AclMain::aclCheckCore(substr($arr[0], 1), $arr[1], '', $arr[$i])) {
                         return true;
                     }
                 } else {
-                    if (acl_check($arr[0], $arr[1], '', $arr[$i])) {
+                    if (AclMain::aclCheckCore($arr[0], $arr[1], '', $arr[$i])) {
                         return true;
                     }
                 }
             }
         } else {
             if (substr($arr[0], 0, 1) == '!') {
-                if (!acl_check(substr($arr[0], 1), $arr[1])) {
+                if (!AclMain::aclCheckCore(substr($arr[0], 1), $arr[1])) {
                     return true;
                 }
             } else {
-                if (acl_check($arr[0], $arr[1])) {
+                if (AclMain::aclCheckCore($arr[0], $arr[1])) {
                     return true;
                 }
             }

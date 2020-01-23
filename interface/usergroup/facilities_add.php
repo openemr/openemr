@@ -11,7 +11,6 @@
 
 
 require_once("../globals.php");
-require_once("../../library/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 

@@ -12,13 +12,13 @@
 
 
     require_once("../../globals.php");
-    require_once("$srcdir/acl.inc");
     require_once("$srcdir/dated_reminder_functions.php");
 
+    use OpenEMR\Common\Acl\AclMain;
     use OpenEMR\Common\Csrf\CsrfUtils;
     use OpenEMR\Core\Header;
 
-    $isAdmin =acl_check('admin', 'users');
+    $isAdmin =AclMain::aclCheckCore('admin', 'users');
 ?>
 <?php
   /*

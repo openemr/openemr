@@ -14,10 +14,12 @@ require_once("../../globals.php");
 require_once("$srcdir/transactions.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
+
 ?>
 <html>
 <head>
@@ -132,7 +134,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             class='btn btn-default btn-edit'>
                                             <?php echo text($edit); ?>
                                         </a>
-                                        <?php if (acl_check('admin', 'super')) { ?>
+                                        <?php if (AclMain::aclCheckCore('admin', 'super')) { ?>
                                             <a href='#'
                                                 onclick='deleteme(<?php echo attr_js($id); ?>)'
                                                 class='btn btn-default btn-delete'>

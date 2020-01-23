@@ -18,6 +18,7 @@ require_once('../../globals.php');
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 
 use Esign\Api;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -259,8 +260,8 @@ if ($GLOBALS['erx_enable']) {
 $track_anything_sql = sqlQuery("SELECT `state` FROM `registry` WHERE `directory` = 'track_anything'");
 $GLOBALS['track_anything_state'] = $track_anything_sql['state'];
 // prepare Issues popup link global that is used in creating the menu
-$GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'write') || acl_check('encounters', 'notes_a', '', 'write')) &&
-  acl_check('patients', 'med', '', 'write'));
+$GLOBALS['allow_issue_menu_link'] = ((AclMain::aclCheckCore('encounters', 'notes', '', 'write') || AclMain::aclCheckCore('encounters', 'notes_a', '', 'write')) &&
+  AclMain::aclCheckCore('patients', 'med', '', 'write'));
 ?>
 
 <?php require_once("templates/tabs_template.php"); ?>

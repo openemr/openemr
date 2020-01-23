@@ -28,10 +28,12 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 /* for $GLOBALS[], ?? */
 require_once(dirname(__FILE__).'/../../globals.php');
-/* for acl_check(), ?? */
 require_once($GLOBALS['srcdir'].'/api.inc');
 /* for generate_display_field() */
 require_once($GLOBALS['srcdir'].'/options.inc.php');
+
+use OpenEMR\Common\Acl\AclMain;
+
 /* The name of the function is significant and must match the folder name */
 function ]]></xsl:text>
 <xsl:value-of select="safename" />
@@ -97,7 +99,7 @@ $lists = array(]]></xsl:text>
 
             if ($key == 'id' || $key == 'pid' || $key == 'user' ||
                 $key == 'groupname' || $key == 'authorized' ||
-                $key == 'activity' || $key == 'date' || 
+                $key == 'activity' || $key == 'date' ||
                 $value == '' || $value == '0000-00-00 00:00:00' ||
                 $value == 'n')
             {
@@ -118,13 +120,13 @@ $lists = array(]]></xsl:text>
             }
 
 	    echo $td_style;
-            
-]]></xsl:text> 
+
+]]></xsl:text>
 <xsl:for-each select="//field">
 <xsl:text disable-output-escaping="yes"><![CDATA[
             if ($key == ']]></xsl:text>
-<xsl:value-of select="@name" /><xsl:text disable-output-escaping="yes"><![CDATA[' ) 
-            { 
+<xsl:value-of select="@name" /><xsl:text disable-output-escaping="yes"><![CDATA[' )
+            {
                 echo xl_layout_label(']]></xsl:text><xsl:value-of select="@label"/><xsl:text disable-output-escaping="yes"><![CDATA[').":";
             }
 ]]></xsl:text>

@@ -19,12 +19,13 @@ require_once("codes.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
 //acl check
-if (!acl_check_form('fee_sheet')) {
+if (!AclMain::aclCheckForm('fee_sheet')) {
     ?>
     <script>alert(<?php echo xlj("Not authorized"); ?>)</script>;
     <?php
@@ -224,7 +225,7 @@ function echoServiceLines()
                     echo "  <td class='billcell' align='right'>" .
                     "<input type='text' name='bill[$lino][price]' " .
                     "value='" . attr($li['price']) . "' size='6' onchange='setSaveAndClose()'";
-                    if (acl_check('acct', 'disc')) {
+                    if (AclMain::aclCheckCore('acct', 'disc')) {
                         echo " style='text-align:right'";
                     } else {
                         echo " style='text-align:right;background-color:transparent' readonly";
@@ -404,7 +405,7 @@ function echoProductLines()
                 echo "  <td class='billcell' align='right'>" .
                 "<input type='text' name='prod[" . attr($lino) . "][price]' " .
                 "value='" . attr($price) . "' size='6' onchange='setSaveAndClose()'";
-                if (acl_check('acct', 'disc')) {
+                if (AclMain::aclCheckCore('acct', 'disc')) {
                     echo " style='text-align:right'";
                 } else {
                     echo " style='text-align:right;background-color:transparent' readonly";

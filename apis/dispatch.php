@@ -76,7 +76,6 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
 }
 
 require_once("./../interface/globals.php");
-require_once("./../library/acl.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRouteHandler;

@@ -13,14 +13,14 @@
 
 
 require_once("../../globals.php");
-require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 $line_id = $_REQUEST['lineid'];
 $info_msg = "";
 
-if ($issue && !acl_check('patients', 'med', '', 'write')) {
+if ($issue && !AclMain::aclCheckCore('patients', 'med', '', 'write')) {
     die("Edit is not authorized!");
 }
 ?>

@@ -13,10 +13,10 @@
 require_once('../../globals.php');
 require_once($GLOBALS['srcdir'].'/pnotes.inc');
 require_once($GLOBALS['srcdir'].'/patient.inc');
-require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['srcdir'].'/gprelations.inc.php');
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
@@ -46,12 +46,12 @@ if ($docid) {
 }
 
 // Check authorization.
-if (!acl_check('patients', 'notes', '', array('write','addonly'))) {
+if (!AclMain::aclCheckCore('patients', 'notes', '', array('write','addonly'))) {
     die(xlt('Not authorized'));
 }
 
 $tmp = getPatientData($patient_id, "squad");
-if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
     die(xlt('Not authorized for this squad.'));
 }
 
@@ -493,7 +493,7 @@ if ($result != "") {
 
         // display, or not, a button to delete the note
         // if the user is an admin or if they are the author of the note, they can delete it
-        if (($iter['user'] == $_SESSION['authUser']) || (acl_check('admin', 'super', '', 'write'))) {
+        if (($iter['user'] == $_SESSION['authUser']) || (AclMain::aclCheckCore('admin', 'super', '', 'write'))) {
             echo " <a href='#' class='deletenote css_button_small' id='del" . attr($row_note_id) .
             "' title='" . xla('Delete this note') . "' onclick='return top.restoreSession()'><span>" .
             xlt('Delete') . "</span>\n";
@@ -660,7 +660,7 @@ if ($result_sent != "") {
 
         // display, or not, a button to delete the note
         // if the user is an admin or if they are the author of the note, they can delete it
-        if (($iter['user'] == $_SESSION['authUser']) || (acl_check('admin', 'super', '', 'write'))) {
+        if (($iter['user'] == $_SESSION['authUser']) || (AclMain::aclCheckCore('admin', 'super', '', 'write'))) {
             echo " <a href='#' class='deletenote css_button_small' id='del" . attr($row_note_id) .
             "' title='" . xla('Delete this note') . "' onclick='return restoreSession()'><span>" .
             xlt('Delete') . "</span>\n";

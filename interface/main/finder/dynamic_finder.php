@@ -20,6 +20,7 @@ require_once(dirname(__FILE__) . "/../../globals.php");
 require_once "$srcdir/user.inc";
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
@@ -78,7 +79,7 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
             text-align: justify;
         }
     }
-    
+
 </style>
 <script language="JavaScript">
 
@@ -197,7 +198,7 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
         </div>
         <div class="row">
             <div class="col-sm-12">
-                <?php if (acl_check('patients', 'demo', '', array('write','addonly'))) { ?>
+                <?php if (AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) { ?>
                     <button id="create_patient_btn1" class="btn btn-default btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
                 <?php } ?>
             </div>
@@ -256,8 +257,8 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
                 $("#pt_table_length").addClass ("hidden");
                 $("#show_hide").addClass ("hidden");
                 $("#search_hide").addClass ("hidden");
-                
-                
+
+
             } else {
                 $("#pt_table_filter").removeClass ("hidden");
                 $("#pt_table_length").removeClass ("hidden");
@@ -266,7 +267,7 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
             }
         });
     </script>
-    
+
     <script>
         document.addEventListener('touchstart', {});
     </script>

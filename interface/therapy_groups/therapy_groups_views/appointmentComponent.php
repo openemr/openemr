@@ -14,11 +14,14 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Common\Acl\AclMain;
+
 ?>
 
 
-<?php $edit = acl_check("groups", "gcalendar", false, 'write');?>
-<?php $view = acl_check("groups", "gcalendar", false, 'view');?>
+<?php $edit = AclMain::aclCheckCore("groups", "gcalendar", false, 'write');?>
+<?php $view = AclMain::aclCheckCore("groups", "gcalendar", false, 'view');?>
 
 
 <?php if ($view || $edit) :?>
