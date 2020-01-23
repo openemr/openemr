@@ -220,7 +220,6 @@ class InstallerController extends AbstractActionController
                 $Module = $this->getInstallerTable()->getRegistryEntry($request->getPost('modId'), "mod_directory");
                 $modDir = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$Module -> modDirectory;
                 if (file_exists($modDir."/acl/acl_setup.php") && empty($modDir->acl_version)) {
-                    global $phpgacl_location, $gacl;
                     ob_start();
                     include_once($modDir."/acl/acl_setup.php");
                     $div[] = ob_get_contents();
@@ -234,7 +233,7 @@ class InstallerController extends AbstractActionController
                 $Module = $this->getInstallerTable()->getRegistryEntry($request->getPost('modId'), "mod_directory");
                 $modDir = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$Module -> modDirectory;
                 if (file_exists($modDir."/acl/acl_upgrade.php") && !empty($Module->acl_version)) {
-                    global $phpgacl_location, $gacl, $ACL_UPGRADE;
+                    global $ACL_UPGRADE;
                     ob_start();
                     include_once($modDir."/acl/acl_upgrade.php");
                     $version = upgradeAclFromVersion($Module->acl_version);
