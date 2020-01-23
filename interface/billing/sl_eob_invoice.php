@@ -145,7 +145,7 @@ function row_delete($table, $where)
                 allempty = false;
             }
             if(adjDisable) {
-                if ((cAdjust == 0 && f[pfx + '[reason]'].value)) {
+                if ((cAdjust == 0 && ins_done.value == 'changed'))) {
                     allempty = false;
                 }
             }
@@ -234,6 +234,10 @@ function row_delete($table, $where)
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
+    });
+
+    $("#ins_done").on("change", function() {
+        $("#ins_done").val('changed');
     });
 
     </script>
@@ -544,7 +548,7 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                             <input name='form_eobs' type='hidden' value='<?php echo attr($arrow['shipvia']) ?>'/>
                         </div>
                     </div>
-                    <div class="form-group col-lg">
+                    <div class="form-group col-lg" id='ins_done'>
                         <label class="control-label" for=""><?php echo xlt('Done with'); ?>:</label>
                         <div style="padding-left:15px">
                             <?php

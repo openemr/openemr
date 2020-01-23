@@ -986,12 +986,11 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                             // out encounters that are paid up.  Also the use of sub-selects
                             // will require MySQL 4.1 or greater.
 
-                            // echo "<!-- $query -->\n"; // debugging
-                                $num_invoices = 0;
-                            if (!$alertmsg) {
-                                $t_res = sqlStatement($query);
-                                $num_invoices = sqlNumRows($t_res);
-                            }
+                            $num_invoices = 0;
+                            // was previously disallowed but should allow biller to proceed with era posting
+                            // even with alerts
+                            $t_res = sqlStatement($query);
+                            $num_invoices = sqlNumRows($t_res);
 
                             if ($eracount && $num_invoices != $eracount) {
                                 $alertmsg .= "Of $eracount remittances, there are $num_invoices " .

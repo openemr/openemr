@@ -240,17 +240,17 @@ function process_form($ar)
                     $tmp = BillingUtilities::updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 2); // $sql .= " billed = 1, ";
                 }
                 if (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter']) && !$clear_claim) {
-                    $tmp = BillingUtilities::updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', $target, $claim_array['partner']);
+                    $tmp = BillingUtilities::updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 2, 1, '', $target, $claim_array['partner']);
                 } elseif (isset($ar['bn_ub04_x12'])) {
                     $ub04id = get_ub04_array($patient_id, $encounter);
                     $ub_save = json_encode($ub04id);
-                    $tmp = BillingUtilities::updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', $target, $claim_array['partner'] . '-837I', 0, $ub_save);
+                    $tmp = BillingUtilities::updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 2, 1, '', $target, $claim_array['partner'] . '-837I', 0, $ub_save);
                 } elseif (isset($ar['bn_process_ub04_form']) || isset($ar['bn_process_ub04'])) {
                     $ub04id = get_ub04_array($patient_id, $encounter);
                     $ub_save = json_encode($ub04id);
-                    $tmp = BillingUtilities::updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', 'ub04', -1, 0, $ub_save);
+                    $tmp = BillingUtilities::updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 2, 1, '', 'ub04', -1, 0, $ub_save);
                 } elseif (isset($ar['bn_process_hcfa']) || isset($ar['bn_hcfa_txt_file']) || isset($ar['bn_process_hcfa_form']) && !$clear_claim) {
-                    $tmp = BillingUtilities::updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 1, 1, '', 'hcfa');
+                    $tmp = BillingUtilities::updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 2, 1, '', 'hcfa');
                 } elseif (isset($ar['bn_mark'])) {
                     // $sql .= " billed = 1, ";
                     $tmp = BillingUtilities::updateClaim(true, $patient_id, $encounter, $payer_id, $payer_type, 2);

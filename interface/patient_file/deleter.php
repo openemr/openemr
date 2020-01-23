@@ -308,7 +308,10 @@ if ($_POST['form_submit']) {
         delete_document($document);
     } else if ($payment) {
         if (!acl_check('admin', 'super')) {
-            die("Not authorized!");
+            // allow biller to delete misapplied payments
+            if (!acl_check('acct', 'bill')) {
+                die("Not authorized!");
+            }
         }
 
         list($patient_id, $timestamp, $ref_id) = explode(".", $payment);
