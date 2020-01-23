@@ -12,6 +12,7 @@
 
 require_once("language.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 // Ensure this script is not called separately
@@ -23,7 +24,7 @@ if ((empty($_SESSION['lang_module_unique_id'])) ||
 unset($_SESSION['lang_module_unique_id']);
 
 // gacl control
-$thisauth = acl_check('admin', 'language');
+$thisauth = AclMain::aclCheckCore('admin', 'language');
 if (!$thisauth) {
     echo "<html>\n<body>\n";
     echo "<p>" . xlt('You are not authorized for this.') . "</p>\n";

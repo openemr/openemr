@@ -17,12 +17,13 @@ require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 // gacl control
-$thisauthview = acl_check('admin', 'superbill', false, 'view');
-$thisauthwrite = acl_check('admin', 'superbill', false, 'write');
+$thisauthview = AclMain::aclCheckCore('admin', 'superbill', false, 'view');
+$thisauthwrite = AclMain::aclCheckCore('admin', 'superbill', false, 'write');
 
 if (!($thisauthwrite || $thisauthview)) {
     echo "<html>\n<body>\n";

@@ -17,6 +17,8 @@ require_once("$srcdir/api.inc");
 require_once("$srcdir/group.inc");
 require_once("$srcdir/classes/POSRef.class.php");
 
+use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
@@ -33,7 +35,7 @@ if ($viewmode) {
     $id = (isset($_REQUEST['id'])) ? $_REQUEST['id'] : '';
     $result = sqlQuery("SELECT * FROM form_groups_encounter WHERE id = ?", array($id));
     $encounter = $result['encounter'];
-    if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
+    if ($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) {
         echo "<body>\n<html>\n";
         echo "<p>" . xlt('You are not authorized to see this encounter.') . "</p>\n";
         echo "</body>\n</html>\n";
@@ -213,7 +215,7 @@ $help_icon = '';
                                 </select>
                             </div>
                             <?php
-                            $sensitivities = acl_get_sensitivities();
+                            $sensitivities = AclExtended::aclGetSensitivities();
                             if ($sensitivities && count($sensitivities)) {
                                 usort($sensitivities, "sensitivity_compare");
                                 ?>
@@ -223,7 +225,7 @@ $help_icon = '';
                                     <?php
                                     foreach ($sensitivities as $value) {
                                         // Omit sensitivities to which this user does not have access.
-                                        if (acl_check('sensitivities', $value[1])) {
+                                        if (AclMain::aclCheckCore('sensitivities', $value[1])) {
                                             echo "       <option value='" . attr($value[1]) . "'";
                                             if ($viewmode && $result['sensitivity'] == $value[1]) {
                                                 echo " selected";

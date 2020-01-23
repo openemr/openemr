@@ -21,6 +21,7 @@ namespace Multipledb\Controller;
 
 use Multipledb\Model\MultipledbData;
 use Multipledb\Model\MultipledbTable;
+use OpenEMR\Common\Acl\AclMain;
 use Zend\Json\Server\Exception\ErrorException;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
@@ -167,11 +168,11 @@ class MultipledbController extends BaseController
     public function checkAcl($mode = null)
     {
         if ($mode == 'view' or $mode == 'write') {
-            if (!acl_check('admin', 'multipledb', false, $mode)) {
+            if (!AclMain::aclCheckCore('admin', 'multipledb', false, $mode)) {
                 $this->redirect()->toRoute("multipledb", array("action"=>"error"));
             }
         } else {
-            if (!acl_check('admin', 'multipledb')) {
+            if (!AclMain::aclCheckCore('admin', 'multipledb')) {
                 $this->redirect()->toRoute("multipledb", array("action"=>"error"));
             }
         }

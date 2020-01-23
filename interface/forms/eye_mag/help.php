@@ -14,7 +14,6 @@
 /* TODO: Cleanup code */
 
 require_once("../../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/api.inc");
 

@@ -28,10 +28,11 @@
 
 
 require_once("../../interface/globals.php");
-require_once("$srcdir/acl.inc");
+
+use OpenEMR\Common\Acl\AclMain;
 
 // Control access
-if (!acl_check('admin', 'super')) {
+if (!AclMain::aclCheckCore('admin', 'super')) {
     echo xlt('Not Authorized');
     exit;
 }

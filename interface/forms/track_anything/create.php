@@ -13,7 +13,8 @@
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
-require_once("$srcdir/acl.inc");
+
+use OpenEMR\Common\Acl\AclMain;
 
 use OpenEMR\Core\Header;
 
@@ -87,7 +88,7 @@ if ($dbaction == 'edit') {
 // end edit -----------------------------
 
 //-----------------------------
-if ($dbaction == 'delete' && acl_check('admin', 'super')) {
+if ($dbaction == 'delete' && AclMain::aclCheckCore('admin', 'super')) {
         $the_item   = $_POST['itemid'];
         $deletespell  = "DELETE FROM form_track_anything_type ";
         $deletespell .= "WHERE track_anything_type_id = ? ";
@@ -292,7 +293,7 @@ while ($myrow = sqlFetchArray($result)) {
         echo "<input type='submit' class='ta_button' name='act' value='" . xla('Enable') . "'>\n";
     }
 
-    if (acl_check('admin', 'super')) {
+    if (AclMain::aclCheckCore('admin', 'super')) {
         echo "<input type='submit' class='delete_button' name='delete' value='" . xla('Delete') . "'>\n";
     }
 
@@ -329,7 +330,7 @@ while ($myrow = sqlFetchArray($result)) {
             echo "<input type='submit' class='ta_button' name='act' value='" . xla('Enable') . "'>\n";
         }
 
-        if (acl_check('admin', 'super')) {
+        if (AclMain::aclCheckCore('admin', 'super')) {
             echo "<input type='submit' class='delete_button' name='delete' value='" . xla('Delete') . "'>\n";
         }
 

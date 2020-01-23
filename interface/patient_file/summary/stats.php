@@ -12,9 +12,9 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/lists.inc");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -45,7 +45,7 @@ $display_current_medications_below=1;
 
 foreach ($ISSUE_TYPES as $key => $arr) {
   // Skip if user has no access to this issue type.
-    if (!acl_check_issue($key)) {
+    if (!AclMain::aclCheckIssue($key)) {
         continue;
     }
 
@@ -163,7 +163,7 @@ if ($row_currentMed['size'] > 0) {
             $widgetButtonClass = "";
             $linkMethod = "javascript";
             $bodyClass = "summary_item small";
-            $widgetAuth = acl_check_issue($key, '', array('write', 'addonly'));
+            $widgetAuth = AclMain::aclCheckIssue($key, '', array('write', 'addonly'));
             $fixedWidth = false;
             expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
         } else { // end embeddedScreen
@@ -339,7 +339,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
 </div>
 <?php } ?>
 
-<?php if (!$GLOBALS['disable_prescriptions'] && acl_check('patients', 'rx')) { ?>
+<?php if (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx')) { ?>
 <div>
 <table id="patient_stats_prescriptions">
     <?php if ($GLOBALS['erx_enable'] && $display_current_medications_below==1) { ?>
@@ -414,7 +414,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
         }
 
         $bodyClass = "summary_item small";
-        $widgetAuth=acl_check('patients', 'rx', '', array('write','addonly'));
+        $widgetAuth=AclMain::aclCheckCore('patients', 'rx', '', array('write','addonly'));
         $fixedWidth = false;
         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
     } else { ?>

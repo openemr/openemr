@@ -12,7 +12,6 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/payment.inc.php");
 require_once("$srcdir/forms.inc");
@@ -21,6 +20,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
@@ -536,8 +536,12 @@ function toencounter(enc, datestr, topframe) {
         }
         ?>
 
+<<<<<<< HEAD
         <?php if (acl_check('admin', 'super') || acl_check('acct', 'bill')) {
             // allowing biller to delete payments ?>
+=======
+        <?php if (AclMain::aclCheckCore('admin', 'super')) { ?>
+>>>>>>> bb493577557f55bc549383b425a6b509f7911f62
         &nbsp;
         <input type='button' value='<?php echo xla('Delete'); ?>' style='color:red' onclick='deleteme()' />
         <?php } ?>

@@ -14,8 +14,9 @@
 
 namespace Application\Listener;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Menu\MenuEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Class ModuleMenuSubscriber
@@ -106,7 +107,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                 if (sqlNumRows($module_hooks) == 0) {
                     // module without hooks in module section
                     $acl_section = strtolower($modulerow['mod_directory']);
-                    if (zh_acl_check($_SESSION['authUserID'], $acl_section) ?  "" : "1") {
+                    if (AclMain::zhAclCheck($_SESSION['authUserID'], $acl_section) ?  "" : "1") {
                         continue;
                     }
 
@@ -126,7 +127,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                     $jid = 0;
                     $modid = '';
                     while ($hookrow = sqlFetchArray($module_hooks)) {
-                        if (zh_acl_check($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {
+                        if (AclMain::zhAclCheck($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {
                             continue;
                         }
 
@@ -187,7 +188,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                     array_unshift($menu_list->children, $newEntry);
                 }
 
-                if (zh_acl_check($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {
+                if (AclMain::zhAclCheck($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {
                     continue;
                 }
 

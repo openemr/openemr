@@ -38,7 +38,6 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/report.inc");
 require_once("$srcdir/classes/Document.class.php");
@@ -86,13 +85,13 @@ if ($PDF_OUTPUT) {
 }
 
 // get various authorization levels
-$auth_notes_a  = true; //acl_check('encounters', 'notes_a');
-$auth_notes    = true; //acl_check('encounters', 'notes');
-$auth_coding_a = true; //acl_check('encounters', 'coding_a');
-$auth_coding   = true; //acl_check('encounters', 'coding');
-$auth_relaxed  = true; //acl_check('encounters', 'relaxed');
-$auth_med      = true; //acl_check('patients'  , 'med');
-$auth_demo     = true; //acl_check('patients'  , 'demo');
+$auth_notes_a  = true; //AclMain::aclCheckCore('encounters', 'notes_a');
+$auth_notes    = true; //AclMain::aclCheckCore('encounters', 'notes');
+$auth_coding_a = true; //AclMain::aclCheckCore('encounters', 'coding_a');
+$auth_coding   = true; //AclMain::aclCheckCore('encounters', 'coding');
+$auth_relaxed  = true; //AclMain::aclCheckCore('encounters', 'relaxed');
+$auth_med      = true; //AclMain::aclCheckCore('patients'  , 'med');
+$auth_demo     = true; //AclMain::aclCheckCore('patients'  , 'demo');
 
 $esignApi = new Api();
 
@@ -656,7 +655,7 @@ foreach ($ar as $key => $val) {
         } elseif ($val == "history") {
             echo "<hr />";
             echo "<div class='text history' id='HIS'>\n";
-            //if (acl_check('patients', 'med')) {
+            //if (AclMain::aclCheckCore('patients', 'med')) {
                 print "<h1>".xlt('History Data').":</h1>";
                 // printRecDataOne($history_data_array, getRecHistoryData ($pid), $N);
                 $result1 = getHistoryData($pid);
@@ -743,7 +742,7 @@ foreach ($ar as $key => $val) {
 
     ****/
         } elseif ($val == "immunizations") {
-            //if (acl_check('patients', 'med')) {
+            //if (AclMain::aclCheckCore('patients', 'med')) {
                 echo "<hr />";
                 echo "<div class='text immunizations'>\n";
                 print "<h1>".xlt('Patient Immunization').":</h1>";

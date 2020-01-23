@@ -13,9 +13,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// added for the phpGACL group check -- JRM
-require_once("{$GLOBALS['srcdir']}/acl.inc");
-
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 

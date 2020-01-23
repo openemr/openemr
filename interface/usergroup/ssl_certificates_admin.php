@@ -18,6 +18,7 @@
 require_once("../globals.php");
 require_once("../../library/create_ssl_certificate.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -432,7 +433,7 @@ function create_and_download_certificates()
 
 
 
-if (!acl_check('admin', 'users')) {
+if (!AclMain::aclCheckCore('admin', 'users')) {
     exit();
 }
 

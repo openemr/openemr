@@ -15,6 +15,7 @@
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -102,7 +103,7 @@ if ($amendment_id) {
 }
 
 // Check the ACL
-$haveAccess = acl_check('patients', 'trans');
+$haveAccess = AclMain::aclCheckCore('patients', 'trans');
 $onlyRead = ( $haveAccess ) ? 0 : 1;
 $onlyRead = ( $onlyRead || $amendment_status ) ? 1 : 0;
 $customAttributes = ( $onlyRead ) ? array("disabled" => "true") : null;

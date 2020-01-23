@@ -13,9 +13,10 @@
 
 
 require_once("../globals.php");
-require_once("../../library/acl.inc");
 require_once("$srcdir/auth.inc");
 
+use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -33,14 +34,14 @@ if (!empty($_GET)) {
     }
 }
 
-if (!acl_check('admin', 'users')) {
+if (!AclMain::aclCheckCore('admin', 'users')) {
     die(xlt('Access denied'));
 }
 
-if (!acl_check('admin', 'super')) {
+if (!AclMain::aclCheckCore('admin', 'super')) {
     //block non-administrator user from create administrator
     foreach ($_POST['access_group'] as $aro_group) {
-        if (is_group_include_superuser($aro_group)) {
+        if (AclExtended::isGroupIncludeSuperuser($aro_group)) {
             die(xlt('Saving denied'));
         };
     }
@@ -48,9 +49,9 @@ if (!acl_check('admin', 'super')) {
         //block non-administrator user from update administrator
         $user_service = new UserService();
         $user = $user_service->getUser($_POST['id']);
-        $aro_groups = acl_get_group_titles($user->getUsername());
+        $aro_groups = AclExtended::aclGetGroupTitles($user->getUsername());
         foreach ($aro_groups as $aro_group) {
-            if (is_group_include_superuser($aro_group)) {
+            if (AclExtended::isGroupIncludeSuperuser($aro_group)) {
                 die(xlt('Saving denied'));
             };
         }
@@ -226,7 +227,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
 
         // Set the access control group of user
         $user_data = sqlFetchArray(sqlStatement("select username from users where id= ?", array($_POST["id"])));
-        set_user_aro(
+        AclExtended::setUserAro(
             $_POST['access_group'],
             $user_data["username"],
             (isset($_POST['fname']) ? $_POST['fname'] : ''),
@@ -314,7 +315,7 @@ if (isset($_POST["mode"])) {
 
                 if (trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))) {
                               // Set the access control group of user
-                              set_user_aro(
+                              AclExtended::setUserAro(
                                   $_POST['access_group'],
                                   trim((isset($_POST['rumple']) ? $_POST['rumple'] : '')),
                                   trim((isset($_POST['fname']) ? $_POST['fname'] : '')),

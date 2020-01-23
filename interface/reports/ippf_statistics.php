@@ -15,8 +15,8 @@
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
-require_once("../../library/acl.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
@@ -29,7 +29,7 @@ if (!empty($_POST)) {
 
 // Might want something different here.
 //
-if (! acl_check('acct', 'rep')) {
+if (!AclMain::aclCheckCore('acct', 'rep')) {
     die("Unauthorized access.");
 }
 

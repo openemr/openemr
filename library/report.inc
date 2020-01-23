@@ -10,8 +10,9 @@
  */
 
 
-require_once($GLOBALS['srcdir'] . "/acl.inc");
 require_once($GLOBALS["srcdir"] . "/options.inc.php");
+
+use OpenEMR\Common\Acl\AclMain;
 
 $patient_data_array = array(
 'title' => xl('Title') . ": ",
@@ -338,7 +339,7 @@ function printPatientForms($pid, $cols)
 
         echo "(" . text(oeFormatSDFT(strtotime($result["date"]))) . ") ";
 
-        if (acl_check('acct', 'rep') || acl_check('acct', 'eob') || acl_check('acct', 'bill')) {
+        if (AclMain::aclCheckCore('acct', 'rep') || AclMain::aclCheckCore('acct', 'eob') || AclMain::aclCheckCore('acct', 'bill')) {
             if ($result["form_name"] == "New Patient Encounter") {
                 // display billing info
                 echo "<br/>";

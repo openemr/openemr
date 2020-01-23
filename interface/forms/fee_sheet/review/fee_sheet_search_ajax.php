@@ -14,7 +14,9 @@ require_once("../../../globals.php");
 require_once("fee_sheet_classes.php");
 require_once("fee_sheet_search_queries.php");
 
-if (!acl_check('acct', 'bill')) {
+use OpenEMR\Common\Acl\AclMain;
+
+if (!AclMain::aclCheckCore('acct', 'bill')) {
     header("HTTP/1.0 403 Forbidden");
     echo "Not authorized for billing";
     return false;

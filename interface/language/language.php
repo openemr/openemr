@@ -13,7 +13,6 @@
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
 require_once("../globals.php");
 require_once("$srcdir/registry.inc");
-require_once("../../library/acl.inc");
 require_once("language.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;

@@ -13,7 +13,6 @@
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
-require_once("../../library/acl.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -23,10 +22,6 @@ if (!empty($_POST)) {
         CsrfUtils::csrfNotVerified();
     }
 }
-
-// Might want something different here.
-//
-// if (! acl_check('acct', 'rep')) die("Unauthorized access.");
 
 $form_from_date = (!empty($_POST['form_from_date'])) ?  DateToYYYYMMDD($_POST['form_from_date']) : '';
 $form_to_date   = (!empty($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');

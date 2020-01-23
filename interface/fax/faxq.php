@@ -7,7 +7,6 @@
  // of the License, or (at your option) any later version.
 
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;

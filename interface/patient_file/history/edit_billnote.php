@@ -13,8 +13,8 @@
 
 
 require_once("../../globals.php");
-require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -22,7 +22,7 @@ $feid = $_GET['feid'] + 0; // id from form_encounter table
 
 $info_msg = "";
 
-if (!acl_check('acct', 'bill', '', 'write')) {
+if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
     die(xlt('Not authorized'));
 }
 ?>

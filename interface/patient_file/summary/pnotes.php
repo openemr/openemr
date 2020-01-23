@@ -12,10 +12,10 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/pnotes.inc");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 
 // form parameter docid can be passed to restrict the display to a document.
@@ -42,10 +42,10 @@ if ($docid) {
 <body class="body_bottom">
 
 <?php
-$thisauth = acl_check('patients', 'notes');
+$thisauth = AclMain::aclCheckCore('patients', 'notes');
 if ($thisauth) {
     $tmp = getPatientData($patient_id, "squad");
-    if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+    if ($tmp['squad'] && !AclMain::aclCheckCore('squads', $tmp['squad'])) {
         $thisauth = 0;
     }
 }
@@ -59,7 +59,7 @@ if (!$thisauth) {
 
 <div id='pnotes'>
 
-<?php if (acl_check('patients', 'notes', '', array('write','addonly'))) : ?>
+<?php if (AclMain::aclCheckCore('patients', 'notes', '', array('write','addonly'))) : ?>
 <a href="pnotes_full.php?<?php echo $urlparms; ?>" onclick="top.restoreSession()">
 
 <span class="title"><?php echo xlt('Notes'); ?>

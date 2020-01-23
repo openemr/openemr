@@ -10,11 +10,14 @@
  * @copyright Copyright (c) 2017 Jason 'Toolbox' Oettinger <jason@oettinger.email>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Common\Acl\AclMain;
+
 ?>
 <nav class="w-100 m-3">
     <ul class="nav nav-tabs">
         <?php
-        if (acl_check('admin', 'batchcom')) { ?>
+        if (AclMain::aclCheckCore('admin', 'batchcom')) { ?>
             <li class="nav-item" role="presentation" title="<?php echo xla('BatchCom'); ?>">
                 <a class="nav-link text-body" href="<?php echo $GLOBALS['rootdir']; ?>/batchcom/batchcom.php">
                     <?php echo xlt('BatchCom'); ?>
@@ -23,7 +26,7 @@
             <?php
         }
 
-        if (acl_check('admin', 'notification')) { ?>
+        if (AclMain::aclCheckCore('admin', 'notification')) { ?>
             <li class="nav-item" role="presentation" title="<?php echo xla('SMS Notification'); ?>">
                 <a class="nav-link text-body" href="<?php echo $GLOBALS['rootdir']; ?>/batchcom/smsnotification.php">
                     <?php echo xlt('SMS Notification'); ?>
@@ -42,7 +45,7 @@
                 <?php echo xlt('SMS/Email Alert Settings'); ?>
             </a>
         </li>
-       
+
     </ul>
 </nav>
 

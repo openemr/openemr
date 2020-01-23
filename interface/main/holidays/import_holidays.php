@@ -14,13 +14,13 @@
 set_time_limit(0);
 
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'] . '/acl.inc');
 require_once("Holidays_Controller.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-if (!acl_check('admin', 'super')) {
+if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt('Not authorized'));
 }
 

@@ -13,9 +13,10 @@
 
 
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 
+use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
@@ -57,7 +58,7 @@ if ($viewmode) {
         $encounterId = $result['id'];
     }
 
-    if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
+    if ($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) {
         echo "<body>\n<html>\n";
         echo "<p>" . xlt('You are not authorized to see this encounter.') . "</p>\n";
         echo "</body>\n</html>\n";
@@ -264,7 +265,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <div class="form-group ">
                                     <label for="pc_catid" class="col-sm-2 oe-text-to-right"><?php echo xlt('Visit Category:'); ?></label>
                                     <div class="col-sm-3">
-                                        <select  name='pc_catid' id='pc_catid' class='form-control col-sm-12' <?php echo ($mode === "followup") ? 'readonly' : ''; ?> >
+                                        <select  name='pc_catid' id='pc_catid' class='form-control col-sm-12' <?php echo ($mode === "followup") ? 'disabled' : ''; ?> >
                                             <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
                                             <?php
                                             //Bring only patient ang group categories
@@ -292,10 +293,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 }
 
                                                 // Fetch acl for category of given encounter. Only if has write auth for a category, then can create an encounter of that category.
-                                                $postCalendarCategoryACO = fetchPostCalendarCategoryACO($catId);
+                                                $postCalendarCategoryACO = AclMain::fetchPostCalendarCategoryACO($catId);
                                                 if ($postCalendarCategoryACO) {
                                                     $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
-                                                    $authPostCalendarCategoryWrite = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1], '', 'write');
+                                                    $authPostCalendarCategoryWrite = AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1], '', 'write');
                                                 } else { // if no aco is set for category
                                                     $authPostCalendarCategoryWrite = true;
                                                 }
@@ -319,9 +320,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             }
                                             ?>
                                         </select>
+                                        <?php if ($mode === "followup") {?>
+                                            <input name="pc_catid" value="<?php echo attr($result['pc_catid']); ?>" hidden/>
+                                        <?php } ?>
                                     </div>
                                     <?php
-                                        $sensitivities = acl_get_sensitivities();
+                                        $sensitivities = AclExtended::aclGetSensitivities();
                                     if ($sensitivities && count($sensitivities)) {
                                         usort($sensitivities, "sensitivity_compare");
                                         ?>
@@ -331,7 +335,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             <?php
                                             foreach ($sensitivities as $value) {
                                                 // Omit sensitivities to which this user does not have access.
-                                                if (acl_check('sensitivities', $value[1])) {
+                                                if (AclMain::aclCheckCore('sensitivities', $value[1])) {
                                                     echo "       <option value='" . attr($value[1]) . "'";
                                                     if ($viewmode && $result['sensitivity'] == $value[1]) {
                                                         echo " selected";
@@ -406,7 +410,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <div class="form-group">
                                     <label for='facility_id' class="col-sm-2 oe-text-to-right"><?php echo xlt('Facility'); ?>:</label>
                                     <div class="col-sm-8">
-                                        <select name='facility_id' id='facility_id' class='form-control col-sm-9' onChange="bill_loc()" <?php echo ($mode === "followup") ? 'readonly' : ''; ?> >
+                                        <select name='facility_id' id='facility_id' class='form-control col-sm-9' onChange="bill_loc()" <?php echo ($mode === "followup") ? 'disabled' : ''; ?> >
                                             <?php
                                             if ($viewmode) {
                                                 $def_facility = $result['facility_id'];
@@ -433,6 +437,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             }
                                             ?>
                                         </select>
+                                        <?php if ($mode === "followup") {?>
+                                            <input name="facility_id" value="<?php echo attr($result['facility_id']); ?>" hidden/>
+                                        <?php } ?>
                                     </div>
                                     <div class="clearfix"></div>
                                 </div>
@@ -481,7 +488,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     // To see issues stuff user needs write access to all issue types.
                     $issuesauth = true;
                     foreach ($ISSUE_TYPES as $type => $dummy) {
-                        if (!acl_check_issue($type, '', 'write')) {
+                        if (!AclMain::aclCheckIssue($type, '', 'write')) {
                             $issuesauth = false;
                             break;
                         }
@@ -496,7 +503,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             <div class="col-sm-12">
                                                 <div class="col-sm-12 float-left" style="padding-bottom:5px">
                                                     <div class="btn-group" role="group">
-                                                        <?php if (acl_check('patients', 'med', '', 'write')) { ?>
+                                                        <?php if (AclMain::aclCheckCore('patients', 'med', '', 'write')) { ?>
                                                        <a href="../../patient_file/summary/add_edit_issue.php" class="btn btn-primary btn-sm link_submit enc_issue"
                                                         onclick="top.restoreSession()"><span><?php echo xlt('Add Issue'); ?></span></a>
                                                         <?php } ?>

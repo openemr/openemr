@@ -20,7 +20,8 @@ require_once("../../globals.php");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/patient.inc");
 require_once 'includes/pnAPI.php';
-require_once("$srcdir/acl.inc");
+
+use OpenEMR\Common\Acl\AclMain;
 
 // From Michael Brinson 2006-09-19:
 if (isset($_POST['pc_username'])) {
@@ -105,7 +106,7 @@ if ($module != "PostCalendar") {
 }
 
 if ($type == "admin") {
-    if (!acl_check('admin', 'calendar')) {
+    if (!AclMain::aclCheckCore('admin', 'calendar')) {
         // exit if do not have access
         exit;
     }

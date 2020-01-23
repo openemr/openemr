@@ -14,11 +14,11 @@ FROM php:7.2-fpm
 # Update
 RUN apt-get update
 
-# Add mysql-client package that is needed in the OpenEMR Backup gui, which does direct command mysql commands
+# Add mariadb-client package that is needed in the OpenEMR Backup gui, which does direct command mysql commands
 # Add imagemagick that is needed for some image processing in OpenEMR
 # Note this basically add 160MB of space to the docker, so would be nice for OpenEMR to not require this stuff
 #  and instead rely on php scripts, if possible.
-RUN apt-get install -y mysql-client \
+RUN apt-get install -y mariadb-client \
                        imagemagick
 
 # Add the php extensions (note using a very cool script by mlocati to do this)

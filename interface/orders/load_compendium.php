@@ -28,7 +28,8 @@ set_time_limit(0);
 
 
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
+
+use OpenEMR\Common\Acl\AclMain;
 
 use OpenEMR\Core\Header;
 
@@ -62,7 +63,7 @@ function getLabID($npi)
     return intval($lrow['ppid']);
 }
 
-if (!acl_check('admin', 'super')) {
+if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt('Not authorized', '', '', '!'));
 }
 

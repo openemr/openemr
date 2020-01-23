@@ -14,7 +14,6 @@
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/options.inc.php");

@@ -11,6 +11,7 @@
 
 require_once(dirname(__FILE__) . "/../library/forms.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\FacilityService;
@@ -374,11 +375,8 @@ class C_Document extends Controller
 
     function view_action($patient_id = "", $doc_id)
     {
-        // Added by Rod to support document delete:
-        global $gacl_object, $phpgacl_location;
         global $ISSUE_TYPES;
 
-        require_once(dirname(__FILE__) . "/../library/acl.inc");
         require_once(dirname(__FILE__) . "/../library/lists.inc");
 
         $d = new Document($doc_id);
@@ -396,7 +394,7 @@ class C_Document extends Controller
 
         // Added by Rod to support document delete:
         $delete_string = '';
-        if (acl_check('patients', 'docs_rm')) {
+        if (AclMain::aclCheckCore('patients', 'docs_rm')) {
             $delete_string = "<a href='' class='btn btn-danger' onclick='return deleteme(" . attr_js($d->get_id()) .
                 ")'>" . xlt('Delete') . "</a>";
         }
@@ -1281,7 +1279,7 @@ class C_Document extends Controller
                 foreach ($categories[$id] as $doc) {
                     $link = $this->_link("view") . "doc_id=" . urlencode($doc['document_id']) . "&";
           // If user has no access then there will be no link.
-                    if (!acl_check_aco_spec($doc['aco_spec'])) {
+                    if (!AclMain::aclCheckAcoSpec($doc['aco_spec'])) {
                         $link = '';
                     }
                     if ($this->tree->get_node_name($id) == "CCR") {

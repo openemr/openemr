@@ -20,12 +20,12 @@
 require_once("../../globals.php");
 require_once("$srcdir/pnotes.inc");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/gprelations.inc.php");
 require_once "$srcdir/user.inc";
 require_once("$srcdir/MedEx/API.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
@@ -138,7 +138,7 @@ if (!empty($_REQUEST['go'])) { ?>
     }
 } else {
     //original message.php stuff
-    
+
     if ($GLOBALS['enable_help'] == 1) {
         $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 2) {
@@ -150,7 +150,7 @@ if (!empty($_REQUEST['go'])) { ?>
     if ($GLOBALS['disable_rcb'] != '1') {
         $heading_caption .= ', ' . xlt('Recalls');
     }
-    
+
     $arrOeUiSettings = array(
         'heading_title' => $heading_caption,
         'include_patient_name' => false,// use only in appropriate pages
@@ -223,7 +223,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         }
                         //collect the task setting
                         $task = isset($_REQUEST['task']) ? $_REQUEST['task'] : "";
-                        if (acl_check('admin', 'super')) {
+                        if (AclMain::aclCheckCore('admin', 'super')) {
                             if ($show_all == 'yes') {
                                 $showall = "yes";
                                 $lnkvar = "messages.php?show_all=no&" . $activity_string_html;

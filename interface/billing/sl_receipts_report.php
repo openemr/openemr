@@ -21,7 +21,6 @@
 
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');
-require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 // This determines if a particular procedure code corresponds to receipts
@@ -32,6 +31,7 @@ require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 //
 require_once('../forms/fee_sheet/codes.php');
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -55,7 +55,7 @@ function bucks($amount)
     }
 }
 
-if (! acl_check('acct', 'rep')) {
+if (! AclMain::aclCheckCore('acct', 'rep')) {
     die(xlt("Unauthorized access."));
 }
 
@@ -184,7 +184,7 @@ $form_facility   = $_POST['form_facility'];
             </td>
             <td>
                 <?php
-                if (acl_check('acct', 'rep_a')) {
+                if (AclMain::aclCheckCore('acct', 'rep_a')) {
                     // Build a drop-down list of providers.
                     //
                     $query = "select id, lname, fname from users where " .

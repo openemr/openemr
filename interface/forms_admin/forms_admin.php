@@ -9,10 +9,9 @@
 
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
-require_once("$phpgacl_location/gacl_api.class.php");
 require_once("$srcdir/registry.inc");
 
+use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -148,7 +147,7 @@ if ($bigdata != false) {
           echo "<td>";
           echo "<select name='aco_spec_" . attr($registry['id']) . "'>";
           echo "<option value=''></option>";
-          echo gen_aco_html_options($priority_category['aco_spec']);
+          echo AclExtended::genAcoHtmlOptions($priority_category['aco_spec']);
           echo "</select>";
           echo "</td>";
         ?>

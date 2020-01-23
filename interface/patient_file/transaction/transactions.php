@@ -14,10 +14,12 @@ require_once("../../globals.php");
 require_once("$srcdir/transactions.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
+
 ?>
 <html>
 <head>
@@ -104,13 +106,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $item['body'] = '';
                             }
 
-                            if (getdate() == strtotime($item['date'])) {
-                                $date = "Today, " . date('D F ds', strtotime($item['date']));
+                            // Collect date
+                            if (!empty($item['refer_date'])) {
+                                // Special case for referrals, which uses refer_date stored in lbt_data table
+                                //  rather than date in transactions table.
+                                //  (note this only contains a date without a time)
+                                $date = oeFormatShortDate($item['refer_date']);
                             } else {
-                                $date = date('D F ds', strtotime($item['date']));
+                                $date = oeFormatDateTime($item['date']);
                             }
 
-                            $date = oeFormatShortDate($item['refer_date']);
                             $id = $item['id'];
                             $edit = xl('View/Edit');
                             $view = xl('Print'); //actually prints or displays ready to print
@@ -125,7 +130,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             class='btn btn-secondary btn-edit'>
                                             <?php echo text($edit); ?>
                                         </a>
-                                        <?php if (acl_check('admin', 'super')) { ?>
+                                        <?php if (AclMain::aclCheckCore('admin', 'super')) { ?>
                                             <a href='#'
                                                 onclick='deleteme(<?php echo attr_js($id); ?>)'
                                                 class='btn btn-secondary btn-delete'>

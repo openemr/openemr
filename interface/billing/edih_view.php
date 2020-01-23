@@ -14,11 +14,12 @@
 
 require_once(dirname(__FILE__) . '/../globals.php');
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 //
-if (!acl_check('acct', 'eob')) {
+if (!AclMain::aclCheckCore('acct', 'eob')) {
     die(xlt("Access Not Authorized"));
 }
 
