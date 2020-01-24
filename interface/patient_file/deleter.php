@@ -307,9 +307,9 @@ if ($_POST['form_submit']) {
 
         delete_document($document);
     } else if ($payment) {
-        if (!acl_check('admin', 'super')) {
+        if (!AclMain::aclCheckCore('admin', 'super')) {
             // allow biller to delete misapplied payments
-            if (!acl_check('acct', 'bill')) {
+            if (!AclMain::aclCheckCore('acct', 'bill')) {
                 die("Not authorized!");
             }
         }
