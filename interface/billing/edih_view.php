@@ -39,10 +39,10 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
 
 </head>
 <!-- style for OpenEMR color -->
-<body style='background-color:#fefdcf'>
+<body style='background-color: #fefdcf'>
 
 <!-- Begin tabs section  class="Clear"-->
-<div id="tabs" style="visibility:hidden">
+<div id="tabs" style="visibility: hidden">
   <ul>
    <li><a href="#newfiles" id="btn-newfiles"><?php echo xlt("New Files"); ?></a></li>
    <li><a href="#csvdatatables" id="btn-csvdatatables"><?php echo xlt("CSV Tables"); ?></a></li>
@@ -101,7 +101,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                 <legend><?php echo xlt("View CSV tables"); ?>:</legend>
                 <table>
                     <tr>
-                        <td colspan=4><?php echo xlt("Choose a period or dates (YYYY-MM-DD)"); ?></td>
+                        <td colspan='4'><?php echo xlt("Choose a period or dates (YYYY-MM-DD)"); ?></td>
                     </tr>
                     <tr>
                         <td align='center'><?php echo xlt("Choose CSV table"); ?>:</td>

@@ -638,8 +638,8 @@ $(window).on('load', function() {
 <style type="css/text">
 
 #pnotes_ps_expand {
-  height:auto;
-  width:100%;
+  height: auto;
+  width: 100%;
 }
 
 <?php
@@ -647,20 +647,21 @@ $(window).on('load', function() {
 $grparr = array();
 getLayoutProperties('DEM', $grparr, 'grp_size');
 if (!empty($grparr['']['grp_size'])) {
-    $FONTSIZE = $grparr['']['grp_size'];
-    ?>
+    $FONTSIZE = round($grparr['']['grp_size'] * 1.333333);
+    $FONTSIZE = round($FONTSIZE * 0.0625, 2);
+?>
 /* Override font sizes in the theme. */
 #DEM .groupname {
-  font-size: <?php echo attr($FONTSIZE); ?>pt;
+  font-size: <?php echo attr($FONTSIZE); ?>rem;
 }
 #DEM .label {
-  font-size: <?php echo attr($FONTSIZE); ?>pt;
+  font-size: <?php echo attr($FONTSIZE); ?>rem;
 }
 #DEM .data {
-  font-size: <?php echo attr($FONTSIZE); ?>pt;
+  font-size: <?php echo attr($FONTSIZE); ?>rem;
 }
 #DEM .data td {
-  font-size: <?php echo attr($FONTSIZE); ?>pt;
+  font-size: <?php echo attr($FONTSIZE); ?>rem;
 }
 <?php } ?>
 
@@ -1179,7 +1180,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         $fixedWidth = true;
                                         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
                                             <br/>
-                                            <div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>
+                                            <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
                                         </div>
                                                 </td>
                                         </tr>

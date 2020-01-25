@@ -227,33 +227,29 @@ if ($_FILES['form_erafile']['size']) {
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <nav class="navbar navbar-nav navbar-expand-md navbar-light text-body bg-light static-top">
-                    <button class="navbar-toggler icon-bar" data-target="#myNavbar" data-toggle="collapse" type="button"> <span class="navbar-toggler-icon"></span></button>
-                    <div class="collapse navbar-collapse" id="myNavbar">
-                        <ul class="navbar-nav mr-auto">
-                            <li class="nav-item">
-                                <a class="nav-link font-weight-bold" href='new_payment.php'><?php echo xlt('New Payment'); ?></a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link font-weight-bold" href='search_payments.php'><?php echo xlt('Search Payment'); ?></a>
-                            </li>
-                            <li class="nav-item active">
-                                <a class="nav-link font-weight-bold" href='era_payments.php'><?php echo xlt('ERA Posting'); ?></a>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
+        <nav class="navbar navbar-nav navbar-expand-md navbar-light text-body bg-light mb-4 p-4">
+            <button class="navbar-toggler icon-bar" data-target="#myNavbar" data-toggle="collapse" type="button"> <span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="myNavbar">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link font-weight-bold" href='new_payment.php'><?php echo xlt('New Payment'); ?></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link font-weight-bold" href='search_payments.php'><?php echo xlt('Search Payment'); ?></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active font-weight-bold" href='era_payments.php'><?php echo xlt('ERA Posting'); ?></a>
+                    </li>
+                </ul>
             </div>
-        </div>
+        </nav>
         <div class="row">
             <div class="col-sm-12">
                 <form action='era_payments.php' enctype="multipart/form-data" method='post' style="display:inline">
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <fieldset>
                         <div class="col-12 oe-custom-line">
-                            <div class="form-group col-xs9 oe-file-div">
+                            <div class="form-group col-9 oe-file-div">
                                 <div class="input-group">
                                     <label class="input-group-btn">
                                         <span class="btn btn-secondary">
@@ -311,7 +307,7 @@ if ($_FILES['form_erafile']['size']) {
                     <div class="form-group clearfix">
                         <div class="col-sm-12 text-left position-override">
                             <div class="btn-group" role="group">
-                                <a class="btn btn-secondary btn-save" href="#" onclick="javascript:return Validate();"><span><?php echo xlt('Process ERA File');?></span></a>
+                                <a class="btn btn-secondary btn-save" href="#" onclick="javascript:return Validate();"><?php echo xlt('Process ERA File');?></a>
                             </div>
                         </div>
                     </div>

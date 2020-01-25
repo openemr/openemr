@@ -94,7 +94,7 @@ if ($result) {
             <small><?php echo xlt('SMS/Email Alert Settings'); ?></small>
         </h1>
     </header>
-    <main>
+    <main class="mx-4">
         <?php
         if ($form_err) {
             echo '<div class="alert alert-danger">' . xlt('The following errors occurred') . ': ' . text($form_err) . '</div>';

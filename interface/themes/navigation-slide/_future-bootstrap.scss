@@ -1,7 +1,7 @@
 #navigation-slide,
 #navigation-slide * {
-    padding-left: 0px;
-    margin-left: 0px;
+    padding-left: 0;
+    margin-left: 0;
     @include font-size("0.75rem !important");
 }
 
@@ -16,7 +16,7 @@
     color: $body-color;
     display: block;
     @include font-size("1.13rem !important");
-    padding: 8px 0px 8px 0px;
+    padding: 8px 0 8px 0;
     width: 100%;
 }
 
@@ -61,7 +61,7 @@
     border-left: 5px solid $dark;
     /* bottom, add background color here */
     font-size: 0;
-    line-height: 0px;
+    line-height: 0;
 }
 
 #navigation-slide li a img,

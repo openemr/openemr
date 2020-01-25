@@ -205,7 +205,7 @@ if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
     } else {//WEBSERVICE CALL FAILED AND RETURNED AN ERROR MESSAGE
         ob_end_clean();
         ?>
-      <script type="text/javascript">
+    <script>
         alert(<?php echo xlj('Offsite Portal web Service Failed') ?> + ":\\n" + <?php echo js_escape($response['value']); ?>);
     </script>
         <?php
@@ -319,7 +319,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
         EventAuditLogger::instance()->auditSQLAuditTamper('gbl_force_log_breakglass', $forceBreakglassLogStatusFieldNew);
     }
 
-    echo "<script type='text/javascript'>";
+    echo "<script>";
     echo "if (parent.left_nav.location) {";
     echo "  parent.left_nav.location.reload();";
     echo "  parent.Title.location.reload();";
@@ -342,7 +342,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
 
 <?php Header::setupHeader(['common','jscolor']); ?>
 
-<script type="text/javascript">
+<script>
 function validate_file() {
     $.ajax({
         type: "POST",
@@ -854,6 +854,7 @@ $(function() {
 });
 </script>
 <script>
+// TODO: We shouldn't even need this code! Probably need to redo this entire file
 var userMode = <?php echo json_encode($userMode); ?>;
 $(window).on('resize', function() {
     var win = $(this);

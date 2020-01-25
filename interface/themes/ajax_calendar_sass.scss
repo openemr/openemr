@@ -178,7 +178,7 @@ div.tiny {
     @include font-size("0.75rem !important");
     font-style: normal;
     background-color: lighten($light, 20%);
-    color: $black;
+    color: $body-color;
     cursor: pointer;
 }
 

@@ -72,6 +72,35 @@ $rfs-base-value: 0.875rem;
     color: $black !important;
 }
 
+.fa-oe-sm {
+    color: $white !important;
+}
+
+.tabSpan .fa,
+.tabHidden {
+    color: $white !important;
+}
+
+.bgcolor2 {
+    background-color: $dark !important;
+}
+
+div.tab,
+div.tab_long {
+    background: $dark none repeat scroll 0 0 !important;
+}
+
+.login .container {
+    background: $black !important;
+}
+
+/* Experimental */
+.login-emr-logo > #red-color,
+.login-emr-logo > #blue-color,
+.login-emr-logo > #gray-color {
+    fill: $white !important;
+}
+
 /* search any */
 @import "../oe-bootstrap";
 @import "../oe-common/all-common-import";

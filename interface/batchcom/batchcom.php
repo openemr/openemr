@@ -172,15 +172,15 @@ if ($_POST['form_action']=='process') {
 ?>
 <html>
 <head>
-<title><?php echo xlt('BatchCom'); ?></title>
-<?php Header::setupHeader(['datetime-picker']); ?>
+    <?php Header::setupHeader(['datetime-picker']); ?>
+    <title><?php echo xlt('BatchCom'); ?></title>
 </head>
 <body class="body_top container">
 <header>
     <?php require_once("batch_navigation.php");?>
     <h1 class="text-center"><?php echo xlt('Batch Communication Tool')?></h1>
 </header>
-<main>
+<main class="mx-4">
     <?php
     if ($form_err) {
         echo '<div class="alert alert-danger">' . xlt('The following errors occurred') . ': ' . text($form_err) . '</div>';
@@ -239,28 +239,28 @@ if ($_POST['form_action']=='process') {
             </div>
             <div class="col-md card p-3 m-1 form-group">
                 <label for="app_s"><?php echo xlt('Appointment within') ?>:</label>
-                    <input type="text" class="datepicker form-control" name="app_s" placeholder="<?php echo xla('any date'); ?>">
+                    <input type="text" class="datepicker form-control" name="app_s" placeholder="<?php echo xla('any date'); ?>" />
                     <div class="text-center"><?php echo xlt('to{{Range}}'); ?></div>
-                    <input type="text" class="datepicker form-control" name="app_e" placeholder="<?php echo xla('any date'); ?>">
+                    <input type="text" class="datepicker form-control" name="app_e" placeholder="<?php echo xla('any date'); ?>" />
             </div>
             <!-- later gator    <br />Insurance: <SELECT multiple NAME="insurance" Rows="10" cols="20"></SELECT> -->
             <div class="col-md card p-3 m-1 form-group">
                 <label for="app_s"><?php echo xlt('Seen within')?>:</label>
-                    <input type="text" class="datepicker form-control" name="seen_since" placeholder="<?php echo xla('any date'); ?>">
+                    <input type="text" class="datepicker form-control" name="seen_since" placeholder="<?php echo xla('any date'); ?>" />
                     <div class="text-center"><?php echo xlt('to{{Range}}'); ?></div>
-                    <input type="text" class="datepicker form-control" name="seen_before" placeholder="<?php echo xla('any date'); ?>">
+                    <input type="text" class="datepicker form-control" name="seen_before" placeholder="<?php echo xla('any date'); ?>" />
             </div>
         </div>
         <div class="email row form-group">
             <div class="col-md-6 offset-md-3 card p-3 m-1">
                 <div class="col-md-6">
                     <label for="email_sender"><?php echo xlt('Email Sender'); ?>:</label>
-                    <input class="form-control" type="text" name="email_sender" placeholder="your@email.email">
+                    <input class="form-control" type="text" name="email_sender" placeholder="your@email.email" />
                 </div>
 
                 <div class="col-md-6">
                     <label for="email_subject"><?php echo xlt('Email Subject'); ?>:</label>
-                    <input class="form-control" type="text" name="email_subject" placeholder="From your clinic">
+                    <input class="form-control" type="text" name="email_subject" placeholder="<?php echo xla('From your clinic'); ?>" />
                 </div>
                 <div class="col-md-12">
                     <label for="email_subject"><?php echo xlt('Email Text, Usable Tag: ***NAME*** , i.e. Dear ***NAME***{{Do Not translate the ***NAME*** elements of this constant.}}'); ?>:</label>
@@ -272,7 +272,7 @@ if ($_POST['form_action']=='process') {
         </div>
         <div class="row">
             <div class="col-md form-group">
-                <input type="hidden" name="form_action" value="process">
+                <input type="hidden" name="form_action" value="process" />
                 <button type="submit" name="submit" class="btn btn-secondary btn-save">
                     <?php echo xla("Process"); ?>
                 </button>

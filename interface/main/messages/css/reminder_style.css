@@ -4,7 +4,9 @@
  * @package MedEx
  * @link    http://www.MedExBank.com
  * @author  MedEx <support@MedExBank.com>
+ * @author  Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2017 MedEx <support@MedExBank.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -221,7 +223,7 @@ h1 {
 
 .name {
     text-align: left;
-    padding-left: 1em;
+    padding-left: 1rem;
 }
 
 .divTableFoot {
@@ -324,7 +326,7 @@ input[type="radio"] {
 }
 
 .no_bot_border {
-    border-bottom: 1px dotted rgba(255, 255, 255, 0);
+    border-bottom: 1px dotted transparent;
     box-shadow: 3px -2px 4px var(--gray400);
     top: 1px;
     text-decoration: underline;
@@ -334,7 +336,7 @@ input[type="radio"] {
     position: absolute;
     background-color: var(--gray400);
     border-radius: 3px;
-    border: 1pt solid var(--black);
+    border: 1px solid var(--black);
     padding: 5px;
     top: 10px;
     right: 20px;
@@ -346,7 +348,6 @@ input[type="radio"] {
     padding: 3px 10px;
     text-transform: uppercase;
     line-height: 1.5rem;
-    color: var(--black);
     border-bottom: 2px solid var(--black);
     margin: 0 auto;
     width: 70%;
@@ -435,7 +436,7 @@ td.right {
 
 .borderShadow {
     box-shadow: 5px 5px 9px var(--gray);
-    border: 1.00pt solid var(--black);
+    border: 1px solid var(--black);
     background: var(--white);
     padding: 6px;
     border-radius: 6px;
@@ -454,13 +455,13 @@ td.right {
     border-radius: 3px;
     overflow-wrap: normal;
     box-shadow: 5px 5px 9px var(--gray);
-    border: 1.00pt solid var(--black);
+    border: 1px solid var(--black);
     background: var(--white);
     padding: 10px;
 }
 
 .prefs_default {
-    margin: 0 0 1em 0;
+    margin: 0 0 1rem 0;
     text-decoration: underline;
     font-weight: 600;
 }
@@ -486,7 +487,7 @@ td.right {
 
 .messages {
     padding: 20px;
-    font-size: 1.0em;
+    font-size: 1.0rem;
     margin: 2px auto;
 }
 
@@ -500,7 +501,7 @@ td.right {
 }
 
 .color_me {
-    background-color: cornsilk;
+    background-color: #fff8dc;
 }
 
 .nowrap {

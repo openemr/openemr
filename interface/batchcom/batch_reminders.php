@@ -60,7 +60,7 @@ if (empty($report_id) && !empty($GLOBALS['pat_rem_clin_nice'])) {
     // $email_address
     //
     ?>
-    <main class="row">
+    <main class="row mx-4">
         <div class="col-md-12">
             <table class="table table-striped table-bordered">
             <tr>

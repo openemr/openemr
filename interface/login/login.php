@@ -157,7 +157,7 @@ if (count($emr_app)) {
             <div class="row">
                 <div class="col-sm-12">
                     <div>
-                        <img class="img-fluid mx-auto d-block" style="max-width:400px" src="<?php echo $GLOBALS['images_static_relative']; ?>/login-logo.png" />
+                        <img class="img-fluid mx-auto d-block" src="<?php echo $GLOBALS['images_static_relative']; ?>/login-logo.svg" />
 
                         <input type='hidden' name='new_login_session_management' value='1' />
 

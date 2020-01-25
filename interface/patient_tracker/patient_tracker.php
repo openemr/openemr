@@ -306,7 +306,7 @@ if (!$_REQUEST['flb_table']) {
                                 ?>
                             </select>
 
-                            <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control form-control-sm" id="form_patient_name" name="form_patient_name" value="<?php echo ($form_patient_name) ? attr($form_patient_name) : ""; ?>" onKeyUp="refineMe();">
+                            <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control form-control-sm" id="form_patient_name" name="form_patient_name" value="<?php echo ($form_patient_name) ? attr($form_patient_name) : ""; ?>" onKeyUp="refineMe();" />
                         </div>
                         <div class="col-sm-<?php echo attr($col_width); ?> text-center">
                             <select class="form-group ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" id="form_facility" name="form_facility"
@@ -354,11 +354,7 @@ if (!$_REQUEST['flb_table']) {
                                 echo $select_provs;
                                 ?>
                             </select>
-                            <input placeholder="<?php echo xla('Patient ID'); ?>"
-                                   class="form-control input-sm" type="text"
-                                   id="form_patient_id" name="form_patient_id"
-                                   value="<?php echo ($form_patient_id) ? attr($form_patient_id) : ""; ?>"
-                                   onKeyUp="refineMe();">
+                            <input placeholder="<?php echo xla('Patient ID'); ?>" class="form-control input-sm" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ($form_patient_id) ? attr($form_patient_id) : ""; ?>" onKeyUp="refineMe();" />
                         </div>
                         <div class="col-sm-<?php echo attr($col_width); ?>">
                             <div class="input-append">
@@ -375,24 +371,20 @@ if (!$_REQUEST['flb_table']) {
                                         <td class="text-right align-bottom">
                                             <label for="flow_from"><?php echo xlt('From'); ?>:</label></td>
                                         <td>
-                                            <input type="text" id="form_from_date" name="form_from_date" class="datepicker form-control input-sm text-center" value="<?php echo attr(oeFormatShortDate($from_date)); ?>" style="max-width:140px; min-width:85px;">
+                                            <input type="text" id="form_from_date" name="form_from_date" class="datepicker form-control input-sm text-center" value="<?php echo attr(oeFormatShortDate($from_date)); ?>" style="max-width:140px; min-width:85px;" />
                                         </td>
                                     </tr>
                                     <tr style="<?php echo $style; ?>">
                                         <td class="text-right">
                                             <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To{{Range}}'); ?>:</label></td>
                                         <td>
-                                            <input type="text"
-                                                   id="form_to_date" name="form_to_date"
-                                                   class="datepicker form-control input-sm text-center"
-                                                   value="<?php echo attr(oeFormatShortDate($to_date)); ?>"
-                                                   style="max-width:140px; min-width:85px;">
+                                            <input type="text" id="form_to_date" name="form_to_date" class="datepicker form-control input-sm text-center" value="<?php echo attr(oeFormatShortDate($to_date)); ?>" style="max-width:140px; min-width:85px;" />
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-center" colspan="2">
-                                            <a  id="filter_submit" class="btn btn-primary text-white"><?php echo xlt('Filter'); ?></a>
-                                            <input type="hidden" id="kiosk" name="kiosk" value="<?php echo attr($_REQUEST['kiosk']); ?>">
+                                            <a id="filter_submit" class="btn btn-primary text-white"><?php echo xlt('Filter'); ?></a>
+                                            <input type="hidden" id="kiosk" name="kiosk" value="<?php echo attr($_REQUEST['kiosk']); ?>" />
                                         </td>
                                     </tr>
                                 </table>
@@ -426,7 +418,7 @@ if (!$_REQUEST['flb_table']) {
                 <div class="col-sm-12" id="loader">
                     <div class="text-center">
                         <i class="fa fa-spinner fa-pulse fa-fw" style="font-size: 140px; color: var(--gray700); padding: 20px"></i>
-                        <h2 ><?php echo xlt('Loading data'); ?>...</h2>
+                        <h2><?php echo xlt('Loading data'); ?>...</h2>
                     </div>
                 </div>
                 <div id="flb_table" name="flb_table">

@@ -120,7 +120,7 @@ switch ($search_any_type) {
                             <span data-bind="text:date"></span>
                             <span data-bind="text:category"></span>
                         </a>
-                        <a href="#" data-bind="click:reviewEncounterEvent">
+                        <a href="#" class="dropdown-item" data-bind="click:reviewEncounterEvent">
                             <i class="fa fa-rotate-left"></i>&nbsp;<?php echo xlt("Review"); ?>
                         </a>
                     </li>

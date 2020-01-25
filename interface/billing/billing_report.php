@@ -704,9 +704,9 @@ $partners = $x->_utility_array($x->x12_partner_factory());
     </div>
     <div class="container mt-1">
         <form class="form-inline" name='update_form' method='post' action='billing_process.php'>
-            <nav class="nav navbar-expand-md navbar-light bg-light">
+            <nav class="nav navbar-expand-md navbar-light bg-light px-3 py-2">
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#billing-nav-detail" aria-controls="" aria-expanded="false" aria-label="Actions">
-                    <span class="navbar-toggler-icon"></span>
+                    <span><?php echo xlt('More Actions'); ?></span>
                 </button>
                 <!-- begin detail nav -->
                 <div class="collapse navbar-collapse clearfix" id="billing-nav-detail" role="group">

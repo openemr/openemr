@@ -117,7 +117,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
             <small><?php echo xlt('Email Notification'); ?></small>
         </h1>
     </header>
-    <main>
+    <main class="mx-4">
         <?php
         if ($form_err) {
             echo '<div class="alert alert-danger">' . xlt('The following errors occurred') . ': ' . text($form_err) . '</div>';

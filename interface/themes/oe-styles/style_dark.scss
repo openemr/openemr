@@ -114,6 +114,13 @@ $close-text-shadow: 0 1 0 $black;
     color: $body-color !important;
 }
 
+/* Experimental */
+.login-emr-logo > #red-color,
+.login-emr-logo > #blue-color,
+.login-emr-logo > #gray-color {
+    fill: $black !important;
+}
+
 /*search any*/
 @import "../oe-bootstrap";
 @import "../oe-common/all-common-import";
