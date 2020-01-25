@@ -650,8 +650,8 @@ echo xlt($CapInstype); ?></a></li><?php
                    <td>
                        <?php
                   // Modified 7/2009 by BM to incorporate data types
-                    generate_form_field(array('data_type'=>$GLOBALS['country_data_type'],'field_id'=>('i'.$i.'subscriber_employer_country'),'list_id'=>$GLOBALS['country_list'],'fld_length'=>'10','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_employer_country']);
-                    ?>
+                        generate_form_field(array('data_type'=>$GLOBALS['country_data_type'],'field_id'=>('i'.$i.'subscriber_employer_country'),'list_id'=>$GLOBALS['country_list'],'fld_length'=>'10','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_employer_country']);
+                        ?>
                    </td>
                </tr>
               </table>
@@ -756,7 +756,8 @@ echo xlt($CapInstype); ?></a></li><?php
                     <input type='entry' class='form-control' size='11' name='i<?php echo attr($i); ?>subscriber_city' value="<?php echo attr($result3["subscriber_city"]); ?>" onchange="capitalizeMe(this);" />
                 </td>
                 <td class='leftborder'>
-                    <label class='required'<?php if ($GLOBALS['omit_employers']) { echo " style='display:none'"; } ?>><?php echo xlt('Country'); ?>: </label>
+                    <label class='required'<?php if ($GLOBALS['omit_employers']) {
+                        echo " style='display:none'"; } ?>><?php echo xlt('Country'); ?>: </label>
                 </td>
                 <td>
                     <?php
@@ -800,8 +801,10 @@ echo xlt($CapInstype); ?></a></li><?php
                 <td class='required'>:</td>
                 <td colspan='2'>
                     <select class='form-control' name='i<?php echo attr($i); ?>accept_assignment'>
-                     <option value="TRUE" <?php if (strtoupper($result3["accept_assignment"]) == "TRUE") { echo "selected"; }?>><?php echo xlt('YES'); ?></option>
-                     <option value="FALSE" <?php if (strtoupper($result3["accept_assignment"]) == "FALSE") { echo "selected"; }?>><?php echo xlt('NO'); ?></option>
+                     <option value="TRUE" <?php if (strtoupper($result3["accept_assignment"]) == "TRUE") {
+                            echo "selected"; }?>><?php echo xlt('YES'); ?></option>
+                     <option value="FALSE" <?php if (strtoupper($result3["accept_assignment"]) == "FALSE") {
+                            echo "selected"; }?>><?php echo xlt('NO'); ?></option>
                     </select>
                 </td>
                 <td></td>

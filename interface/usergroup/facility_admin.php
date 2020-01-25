@@ -227,7 +227,9 @@ if (isset($_GET["fid"])) {
             </div>
             <div class="form-row custom-control custom-switch text-center my-2">
                 <div class="col">
-                    <input type='checkbox' class='custom-control-input' name='accepts_assignment' value='1' <?php if ($facility['accepts_assignment'] == 1) { echo 'checked="checked"'; }; ?> />
+                    <input type='checkbox' class='custom-control-input' name='accepts_assignment' value='1' <?php if ($facility['accepts_assignment'] == 1) {
+                        echo 'checked="checked"';
+                                                                                                            }; ?> />
                     <label for='accepts_assignment' class='custom-control-label'><?php echo xlt('Accepts Assignment'); ?></label>
                 </div>
                 <div class="col">
@@ -245,11 +247,12 @@ if (isset($_GET["fid"])) {
                     <?php
                         $disabled = '';
                         $resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => $my_fid));
-                        if ($resPBE) {
-                            $disabled = 'disabled';
-                        }
+                    if ($resPBE) {
+                        $disabled = 'disabled';
+                    }
                     ?>
-                    <input type='checkbox' class='custom-control-input' name='primary_business_entity' id='primary_business_entity' value='1' <?php echo ($facility['primary_business_entity'] == 1) ? 'checked' : ''; ?> <?php if ($GLOBALS['erx_enable']) { ?> onchange='return displayAlert()' <?php } ?> <?php echo $disabled; ?> />
+                    <input type='checkbox' class='custom-control-input' name='primary_business_entity' id='primary_business_entity' value='1' <?php echo ($facility['primary_business_entity'] == 1) ? 'checked' : ''; ?> <?php if ($GLOBALS['erx_enable']) {
+                        ?> onchange='return displayAlert()' <?php } ?> <?php echo $disabled; ?> />
                     <label for='primary_business_entity' class='custom-control-label'><?php echo xlt('Primary Business Entity'); ?></label>
                 </div>
             </div>
@@ -327,11 +330,11 @@ if (isset($_GET["fid"])) {
                 <?php
                     $ssn = '';
                     $ein = '';
-                    if ($facility['tax_id_type'] == 'SY') {
-                        $ssn = 'selected';
-                    } else {
-                        $ein = 'selected';
-                    }
+                if ($facility['tax_id_type'] == 'SY') {
+                    $ssn = 'selected';
+                } else {
+                    $ein = 'selected';
+                }
                 ?>
                 <div class="col-2">
                     <label for='federal_ein' class='col-form-label col-form-label-sm'><?php echo xlt('Tax ID'); ?>:</label>

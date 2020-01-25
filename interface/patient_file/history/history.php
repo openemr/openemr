@@ -30,7 +30,7 @@ use OpenEMR\OeUI\OemrUI;
 $(function(){
     tabbify();
 });
-<?php 
+<?php
     require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal
     require_once("$srcdir/options.js.php");
 ?>
@@ -44,7 +44,7 @@ getLayoutProperties('HIS', $grparr, 'grp_size');
 if (!empty($grparr['']['grp_size'])) {
     $FONTSIZE = round($grparr['']['grp_size'] * 1.333333);
     $FONTSIZE = round($FONTSIZE * 0.0625, 2);
-?>
+    ?>
 /* Override font sizes in the theme. */
 #HIS .groupname {
   font-size: <?php echo attr($FONTSIZE); ?>rem;

@@ -649,7 +649,7 @@ getLayoutProperties('DEM', $grparr, 'grp_size');
 if (!empty($grparr['']['grp_size'])) {
     $FONTSIZE = round($grparr['']['grp_size'] * 1.333333);
     $FONTSIZE = round($FONTSIZE * 0.0625, 2);
-?>
+    ?>
 /* Override font sizes in the theme. */
 #DEM .groupname {
   font-size: <?php echo attr($FONTSIZE); ?>rem;

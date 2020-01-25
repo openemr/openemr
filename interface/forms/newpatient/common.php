@@ -357,12 +357,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         ?>
                                     </select>
                                     <?php
-                                } else {
-                                    ?>
-
-                                    <?php
-                                }
+                            } else {
                                 ?>
+
+                                <?php
+                            }
+                            ?>
                             </div>
                         </div>
                         <div class="form-group w-50 mx-auto text-center">
@@ -370,7 +370,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <input type='text' class='form-control datepicker' name='form_date' id='form_date' <?php echo $disabled ?> value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : attr(oeFormatShortDate(date('Y-m-d'))); ?>' title='<?php echo xla('Date of service'); ?>'/>
                         </div>
                         <div class="form-group w-50 mx-auto text-center">
-                            <span <?php if ($GLOBALS['ippf_specific']) { echo " style='visibility:hidden;'"; } ?>>
+                            <span <?php if ($GLOBALS['ippf_specific']) {
+                                echo " style='visibility:hidden;'"; } ?>>
                                 <label for='form_onset_date' class="oe-text-to-right"><?php echo xlt('Onset/hosp. date:'); ?> &nbsp;<i id='onset-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
                                 <input type='text' class='form-control datepicker' name='form_onset_date' id='form_onset_date' value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr($result['onset_date'], 0, 10))) : ''; ?>' title='<?php echo xla('Date of onset or hospitalization'); ?>' />
                             </span>
