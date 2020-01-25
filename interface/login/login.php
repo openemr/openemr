@@ -149,7 +149,6 @@ if (count($emr_app)) {
             document.forms[0].submit();
         }
     </script>
-
 </head>
 <body class="login">
     <div class="container">
@@ -157,8 +156,10 @@ if (count($emr_app)) {
             <div class="row">
                 <div class="col-sm-12">
                     <div>
-                        <img class="img-fluid mx-auto d-block" src="<?php echo $GLOBALS['images_static_relative']; ?>/login-logo.svg" />
-
+                        <div style="width: 50%;" class="mx-auto m-4">
+                            <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?>
+                        </div>
+                        
                         <input type='hidden' name='new_login_session_management' value='1' />
 
                         <?php
