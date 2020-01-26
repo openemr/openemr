@@ -21,6 +21,7 @@ use Installer\Model\InstModule;
 use Application\Listener\Listener;
 use Installer\Model\InstModuleTable;
 use Zend\Db\Adapter\Adapter;
+use OpenEMR\Common\Utils\RandomGenUtils;
 
 class InstallerController extends AbstractActionController
 {
@@ -112,6 +113,11 @@ class InstallerController extends AbstractActionController
 
     public function manageAction()
     {
+        // Pass a unique variable, so below scripts can
+        // not be run on their own
+        $unique_id = RandomGenUtils::createUniqueToken();
+        $_SESSION['lang_module_unique_id'] = $unique_id;
+
         $outputToBrowser = '';
         $request = $this->getRequest();
         $status  = $this->listenerObject->z_xlt("Failure");
@@ -514,7 +520,10 @@ class InstallerController extends AbstractActionController
             $mod->acl_action = "install";
         }
         if (file_exists($sqldir."/acl_upgrade.php") && file_exists($ModulePath."/version.php") && !empty($mod->acl_version)) {
-            global $phpgacl_location, $ACL_UPGRADE;
+            global $ACL_UPGRADE;
+            $unique_id = RandomGenUtils::createUniqueToken();
+            $_SESSION['lang_module_unique_id'] = $unique_id;
+
             include_once($sqldir."/acl_upgrade.php");
 
             foreach ($ACL_UPGRADE as $toVersion => $function) {

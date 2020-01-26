@@ -1,5 +1,12 @@
 <?php
-use OpenEMR\Gacl\GaclApi;
+// Ensure this script is not called separately
+if ((empty($_SESSION['lang_module_unique_id'])) ||
+    (empty($unique_id)) ||
+    ($unique_id != $_SESSION['lang_module_unique_id'])) {
+    die('Authentication Error');
+}
+unset($_SESSION['lang_module_unique_id']);
+
 use OpenEMR\Common\Acl\AclExtended;
 
 AclExtended::addObjectSectionAcl('pfeh', 'PatientFilterEventHook');
