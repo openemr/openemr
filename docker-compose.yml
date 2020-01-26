@@ -31,8 +31,7 @@ services:
     volumes:
     - .:/openemr:ro
     - .:/var/www/localhost/htdocs/openemr:rw
-    - assetsvolume:/var/www/localhost/htdocs/openemr/public/assets:rw
-    - themesvolume:/var/www/localhost/htdocs/openemr/public/themes:rw
+    - publicvolume:/var/www/localhost/htdocs/openemr/public:rw
     - sitesvolume:/var/www/localhost/htdocs/openemr/sites/default:rw
     - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
@@ -58,8 +57,7 @@ services:
       PMA_HOSTS: mysql
 volumes:
   databasevolume: {}
-  assetsvolume: {}
-  themesvolume: {}
+  publicvolume: {}
   sitesvolume: {}
   nodemodules: {}
   vendordir: {}
