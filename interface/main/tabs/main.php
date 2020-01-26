@@ -370,10 +370,11 @@ if (isset($_SESSION['app1'])) {
 <div id="mainBox" <?php echo $disp_mainBox ?> data-bind='attr: {id: responsiveDisplay.objWidth().mainBoxId}  '>
 
     <div id="dialogDiv"></div>
-
+    
     <div class="body_top" id="body_top_div" data-bind='css: responsiveDisplay.objWidth().bodyTopDivWidth'>
         <div id="logo_menu">
-            <a href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank"><img class="logo oe-pull-toward" id='oemr_logo' alt="openEMR small logo" style="width:20px" border="0" src="<?php echo $GLOBALS['images_static_relative']; ?>/menu-logo.png"></a>
+            <a href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank">
+                <?php echo file_get_contents($GLOBALS['images_static_relative'] . "/menu-logo.svg"); ?></a>
             <div>
                 <i class="fa fa-2x fa-bars oe-hidden" aria-hidden="true" id='menu_icon' data-bind='css: responsiveDisplay.objWidth().menuIconHide, click: function(){ responsiveDisplay.verticalMenuObservable(); responsiveDisplay.menuIconObservable()}, css2: {"fa-bars" : !responsiveDisplay.oeMenuIcon(), "fa-eye-slash" : responsiveDisplay.oeMenuIcon}'></i>
             </div>

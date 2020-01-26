@@ -73,9 +73,11 @@ body {
 
 #mainBox .logo {
     float: left;
-    margin: 3px 4px 0px 10px;
+    margin-top: 14px !important;
     width: 20px;
+    height: 20px;
     z-index: 10000;
+    padding: 0 !important;
 }
 
 #mainBox_vertical .logo {
