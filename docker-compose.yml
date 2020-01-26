@@ -33,12 +33,10 @@ services:
     - .:/var/www/localhost/htdocs/openemr:rw
     - assetsvolume:/var/www/localhost/htdocs/openemr/public/assets:rw
     - themesvolume:/var/www/localhost/htdocs/openemr/public/themes:rw
-    - sqlconfigvolume:/var/www/localhost/htdocs/openemr/sites/default/sqlconf.php:rw
-    - documentsvolume:/var/www/localhost/htdocs/openemr/sites/default/documents:rw
+    - sitesvolume:/var/www/localhost/htdocs/openemr/sites/default:rw
     - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
-    - ccdamodule01:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
-    - ccdamodule02:/var/www/localhost/htdocs/openemr/ccdaservice/package-lock.json:rw
+    - ccdamodule:/var/www/localhost/htdocs/openemr/ccdaservice:rw
     - logvolume:/var/log
     environment:
       MYSQL_HOST: mysql
@@ -62,10 +60,8 @@ volumes:
   databasevolume: {}
   assetsvolume: {}
   themesvolume: {}
-  sqlconfigvolume: {}
-  documentsvolume: {}
+  sitesvolume: {}
   nodemodules: {}
   vendordir: {}
-  ccdamodule01: {}
-  ccdamodule02: {}
+  ccdamodule: {}
   logvolume: {}
