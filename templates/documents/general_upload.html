@@ -13,7 +13,7 @@
 <input type="hidden" name="MAX_FILE_SIZE" value="64000000" />
 
 {if (!($patient_id > 0)) }
-  <div class="text" style="color:red;">
+  <div class="text text-danger">
     {xlt t="IMPORTANT: This upload tool is only for uploading documents on patients that are not yet entered into the system. To upload files for patients whom already have been entered into the system, please use the upload tool linked within the Patient Summary screen."}
     <br/>
     <br/>
@@ -50,7 +50,7 @@
 <!-- Drag and drop uploader -->
 <div id="autouploader">
 <form method="post" enctype="multipart/form-data" action="{$GLOBALS.webroot}/library/ajax/upload.php?patient_id={$patient_id|attr_url}&parent_id={$category_id|attr_url}&csrf_token_form={$CSRF_TOKEN_FORM|attr_url}" class="dropzone">
-<input type="hidden" name="MAX_FILE_SIZE" value="64000000" >
+<input type="hidden" name="MAX_FILE_SIZE" value="64000000" />
 </form>
 </div>
 
@@ -63,7 +63,7 @@
 		{xlt t="Download document template for this patient and visit"}
 	</p>
 	<div class="input-group">
-		<span class="input-group-btn">
+		<span class="input-group-prepend">
         	<button type="submit" class="btn btn-download">{xlt t="Fetch"}</button>
         </span>
 		<select class="form-control" name='form_filename'>{$TEMPLATES_LIST}</select>
@@ -78,7 +78,7 @@
 		{xlt t="Patient Document Template Forms"}
 	</p>
 	<div class="input-group">
-		<span class="input-group-btn">
+		<span class="input-group-prepend">
 			<button class="btn btn-download" onclick="callTemplateModule()">{xlt t="Open"}</button>
 		</span>
 		<select class="form-control" id='template_filename'>{$TEMPLATES_LIST_PATIENT}</select>

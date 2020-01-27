@@ -34,8 +34,8 @@
             <div class="col-sm-3 col-md-3 float-right">
         <form class="navbar-form" role="search">
         <div class="input-group">
-            <input type="text" class="form-control" placeholder="<?php echo xla('Search'); ?>" name="srch-term" id="srch-term">
-            <div class="input-group-btn">
+            <input type="text" class="form-control" placeholder="<?php echo xla('Search'); ?>" name="srch-term" id="srch-term" />
+            <div class="input-group-append">
                 <button class="btn btn-secondary" type="submit"><i class="glyphicon glyphicon-search"></i></button>
             </div>
         </div>

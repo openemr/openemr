@@ -21,13 +21,15 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    use OpenEMR\Core\Header;
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $_SESSION['pid']);
 } else {
     \OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
-    if (! isset($_SESSION['authUserID'])) {
+    use OpenEMR\Core\Header;
+    if (!isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
         header('Location: '.$landingpage);
         exit;
@@ -255,10 +257,7 @@ abstract class Controller
     }
 }
 
-abstract class Helper
-{
-
-}
+abstract class Helper {}
 
 namespace SMA_Msg;
 
@@ -494,29 +493,11 @@ $msgApp = new Controller();
 <!doctype html>
 <html ng-app="MsgApp">
 <head>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-    <meta charset="utf-8">
-
+    <meta charset="utf-8" />
+    <?php Header::setupHeader(['no_main-theme', 'summernote', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model']); ?>
     <title><?php echo xlt('Secure Patient Chat'); ?></title>
-    <meta name="author" content="Jerry Padgett sjpadgett{{at}} gmail {{dot}} com">
-
-    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-
-    <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-    <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
-        <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-v4-rtl/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
-    <?php } ?>
-
-    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote/dist/summernote.css" />
-    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/summernote/dist/summernote.js"></script>
-
-    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/angular/angular.min.js"></script>
-    <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/angular-summernote/dist/angular-summernote.js"></script>
-     <script type='text/javascript' src="<?php echo $GLOBALS['assets_static_relative']; ?>/angular-sanitize/angular-sanitize.min.js"></script>
-    <script src='<?php echo $GLOBALS['assets_static_relative']; ?>/checklist-model/checklist-model.js'></script>
-
+    <meta name="author" content="Jerry Padgett sjpadgett{{at}} gmail {{dot}} com" />
+    
 </head>
 <script type="text/javascript">
 (function() {
@@ -827,150 +808,155 @@ $msgApp = new Controller();
 <style>
 .direct-chat-text {
     border-radius:5px;
-    position:relative;
-    padding:5px 10px;
-    background:#FBFBFB;
-    border:1px solid #6a6a6a;
+    position: relative;
+    padding: 5px 10px;
+    background: #FBFBFB;
+    border: 1px solid var(--gray);
     margin:5px 0 0 50px;
-    color:#444;
+    color: var(--dark);
 }
 .direct-chat-msg,.direct-chat-text {
-    display:block;
+    display: block;
     word-wrap: break-word;
 }
 .direct-chat-img {
-    border-radius:50%;
-    float:left;
-    width:40px;
+    border-radius: 50%;
+    float: left;
+    width: 40px;
     height:40px;
 }
 .direct-chat-info {
-    display:block;
-    margin-bottom:2px;
-    font-size:12px;
+    display: block;
+    margin-bottom: 2px;
+    font-size: 12px;
 }
 .direct-chat-msg {
-    margin-bottom:5px;
+    margin-bottom: 5px;
 }
-.direct-chat-messages,.direct-chat-contacts {
-    -webkit-transition:-webkit-transform .5s ease-in-out;
-    -moz-transition:-moz-transform .5s ease-in-out;
-    -o-transition:-o-transform .5s ease-in-out;
-    transition:transform .5s ease-in-out;
+.direct-chat-messages,
+.direct-chat-contacts {
+    -webkit-transition: -webkit-transform .5s ease-in-out;
+    -moz-transition: -moz-transform .5s ease-in-out;
+    -o-transition: -o-transform .5s ease-in-out;
+    transition: transform .5s ease-in-out;
 }
 .direct-chat-messages {
-    -webkit-transform:translate(0,0);
-    -ms-transform:translate(0,0);
-    -o-transform:translate(0,0);
-    transform:translate(0,0);
+    -webkit-transform: translate(0,0);
+    -ms-transform: translate(0,0);
+    -o-transform: translate(0,0);
+    transform: translate(0,0);
     padding: 5px;
     height: calc(100vh - 175px);
-    /* height: 400px; */
-    /*height:100%; */
-    overflow:auto;
+    overflow: auto;
     word-wrap: break-word;
 }
 .direct-chat-text:before {
-    border-width:6px;
-    margin-top:-6px;
+    border-width: 6px;
+    margin-top: -6px;
 }
 .direct-chat-text:after {
-    border-width:5px;
-    margin-top:-5px;
+    border-width: 5px;
+    margin-top: -5px;
 }
-.direct-chat-text:after,.direct-chat-text:before {
-    position:absolute;
-    right:100%;
-    top:15px;
-    border:solid rgba(0,0,0,0);
-    border-right-color:#D2D6DE;
-    content:' ';
-    height:0;
-    width:0;
-    pointer-events:none;
+.direct-chat-text:after,
+.direct-chat-text:before {
+    position: absolute;
+    right: 100%;
+    top: 15px;
+    border: solid rgba(0, 0, 0, 0);
+    border-right-color: #D2D6DE;
+    content: ' ';
+    height: 0;
+    width: 0;
+    pointer-events: none;
 }
-.direct-chat-warning .right>.direct-chat-text {
+.direct-chat-warning .right > .direct-chat-text {
     background: rgba(251, 255, 178, 0.34);
-    border-color: #f30d1b;
-    color:#000;
+    border-color: var(--danger);
+    color: var(--black);
 }
 .right .direct-chat-text {
-    margin-right:50px;
-    margin-left:0;
+    margin-right: 50px;
+    margin-left: 0;
 }
-.direct-chat-warning .right>.direct-chat-text:after,
-.direct-chat-warning .right>.direct-chat-text:before {
-    border-left-color:#F39C12;
+.direct-chat-warning .right > .direct-chat-text:after,
+.direct-chat-warning .right > .direct-chat-text:before {
+    border-left-color: #F39C12;
 }
-.right .direct-chat-text:after,.right .direct-chat-text:before {
-    right:auto;
-    left:100%;
-    border-right-color:rgba(0,0,0,0);
-    border-left-color:#D2D6DE;
+.right .direct-chat-text:after,
+.right .direct-chat-text:before {
+    right: auto;
+    left: 100%;
+    border-right-color: rgba(0, 0, 0, 0);
+    border-left-color: #D2D6DE;
 }
 .right .direct-chat-img {
-    float:right;
+    float: right;
 }
 .box-footer {
-    border-top-left-radius:0;
-    border-top-right-radius:0;
-    border-bottom-right-radius:3px;
-    border-bottom-left-radius:3px;
-    border-top:1px solid #F4F4F4;
-    padding:10px 0;
-    background-color:#FFF;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-top: 1px solid #F4F4F4;
+    padding: 10px 0;
+    background-color: var(--white);
 }
 .direct-chat-name {
-    font-weight:600;
+    font-weight: 600;
 }
 .box-footer form {
-    margin-bottom:10px;
+    margin-bottom: 10px;
 }
-input,button,.alert,.modal-content {
-    border-radius: 0!important;
+input,
+button,
+.alert,
+.modal-content {
+    border-radius: 0 !important;
 }
 .ml10 {
-    margin-left:10px;
+    margin-left: 10px;
 }
 .ml5 {
-    margin-left:5px;
+    margin-left: 5px;
 }
-.sidebar{
-    background-color: ghostwhite;
-    height:100%;
-    margin-top:5px;
-    margin-right:0;
-    padding-right:5px;
-    /*max-height: 730px;*/
+.sidebar {
+    background-color: #f8f8ff;
+    height: 100%;
+    margin-top: 5px;
+    margin-right: 0;
+    padding-right: 5px;
     height: calc(100vh - 100px);
     overflow: auto;
 }
-.rtsidebar{
-    background-color: ghostwhite;
-    height:100%;
-    margin-top:5px;
-    margin-right:0;
+.rtsidebar {
+    background-color: #f8f8ff;
+    height: 100%;
+    margin-top: 5px;
+    margin-right: 0;
     height: calc(100vh - 100px);
     overflow: auto;
 }
-.fixed-panel{
+.fixed-panel {
    height: 100%;
    padding: 5px 5px 0 5px;
 }
 h5 {
-    font-size:16px !important;
+    font-size: 16px !important;
 }
-label {display: block;}
-legend{
-font-size:14px;
-margin-bottom:2px;
-background:#fff;
+label {
+    display: block;
+}
+legend {
+    font-size: 14px;
+    margin-bottom: 2px;
+    background: var(--white);
 }
 .modal.modal-wide .modal-dialog {
-  width: 75%;
+    width: 75%;
 }
 .modal-wide .modal-body {
-  overflow-y: auto;
+    overflow-y: auto;
 }
 </style>
 
@@ -996,8 +982,7 @@ background:#fff;
                 <div class="card direct-chat direct-chat-warning">
                     <div class="card-heading">
                         <div class="clearfix">
-                            <a class="btn btn-sm btn-primary ml10" href=""
-                                data-toggle="modal" data-target="#clear-history"><?php echo xlt('Clear history'); ?></a>
+                            <a class="btn btn-sm btn-primary ml10" href="" data-toggle="modal" data-target="#clear-history"><?php echo xlt('Clear history'); ?></a>
                             <a class="btn btn-sm btn-success float-left ml10" href="./../patient/provider" ng-show="!isPortal"><?php echo xlt('Home'); ?></a>
                             <a class="btn btn-sm btn-success float-left ml10" href="./../home.php" ng-show="isFullScreen"><?php echo xlt('Home'); ?></a>
                         </div>

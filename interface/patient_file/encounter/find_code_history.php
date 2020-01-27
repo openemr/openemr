@@ -170,11 +170,12 @@ function get_history_codes($pid)
 </head>
 
 <body>
-    <div class="container-fluid" style="position:fixed;width:100%;margin-right:10px;">
-        <div class="input-group" style="background:white;">
-            <span class="input-group-addon" onclick='clearCodes(this)'><i class="fa fa-trash fa-1x"></i></span>
-            <input class='form-control text-danger' type='text' id='workingDx' style="color:#a94442;"
-                title='<?php echo xla('Current Working Procedure Diagnoses'); ?>' value='' />
+    <div class="container-fluid w-100" style="position: fixed; margin-right: 10px;">
+        <div class="input-group bg-white">
+            <div class="input-group-prepend">
+                <button class="btn btn-secondary" onclick='clearCodes(this)'><i class="fa fa-trash fa-1x"></i></button>
+            </div>
+            <input class='form-control text-danger' type='text' id='workingDx' title='<?php echo xla('Current Working Procedure Diagnoses'); ?>' value='' />
         </div>
         <div id="tips" class="tips">
             <section class="card panel-default">
@@ -200,7 +201,7 @@ function get_history_codes($pid)
         <div class="loading text-center"><i class="fa fa-refresh fa-3x fa-spin"></i></div>
     </div>
     <div class="container-fluid">
-        <div style="margin-top:45px;">
+        <div style="margin-top: 45px;">
             <table class="table table-sm table-hover" id="historyTable">
                 <thead>
                 <tr>
@@ -220,7 +221,7 @@ function get_history_codes($pid)
                     echo "<tr>\n" .
                         "<td>" . $pc['origin'] . "</td>\n" .
                         "<td><button class='btn btn-sm btn-secondary' onclick='rtnCode(this)' " .
-                        " value='" . attr($pc['code']) . "'>$code[0]:&nbsp;<u style='color:red;'>" . $code[1] . "</u></button></td>\n" .
+                        " value='" . attr($pc['code']) . "'>$code[0]:&nbsp;<u style='color: var(--danger);'>" . $code[1] . "</u></button></td>\n" .
                         "<td>" . text($pc['desc']) . "</td>\n" .
                         "<td>" . text($pc['procedure']) . "</td>\n" .
                         "</tr>\n";

@@ -45,7 +45,7 @@ $check_res = $formid ? $check_res : array();
 
         <?php Header::setupHeader(['datetime-picker']);?>
 
-        <style type="text/css" title="mystyles" media="all">
+        <style title="mystyles" media="all">
             @media only screen and (max-width: 1024px) {
                 [class*="col-"] {
                 width: 100%;
@@ -208,7 +208,7 @@ $check_res = $formid ? $check_res : array();
                         if (!empty($check_res)) {
                             foreach ($check_res as $key => $obj) { ?>
                                 <div class = "tb_row" id="tb_row_<?php echo attr($key) + 1; ?>">
-                                    <div class="form-group">
+                                    <div class="form-row col">
                                         <div class="forms col-2">
                                             <label for="code_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Code'); ?>:</label>
                                             <input type="text" id="code_<?php echo attr($key) + 1; ?>" name="code[]" class="form-control code" value="<?php echo attr($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
@@ -270,7 +270,7 @@ $check_res = $formid ? $check_res : array();
                             }
                         } else { ?>
                             <div class="tb_row" id="tb_row_1">
-                                <div class="form-group">
+                                <div class="form-row col">
                                     <div class="forms col-2">
                                         <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
                                         <input type="text" id="code_1" name="code[]" class="form-control code" value="<?php echo attr($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>

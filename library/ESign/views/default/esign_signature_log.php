@@ -28,7 +28,7 @@
         
         <?php if (!$this->verified) { ?>
         <div class="esign-log-row">
-            <div style='text-align:center;color:red;'><?php echo xlt('The data integrity test failed for this form'); ?></div>
+            <div class="text-center text-danger"><?php echo xlt('The data integrity test failed for this form'); ?></div>
         </div>
         <?php } ?>
         

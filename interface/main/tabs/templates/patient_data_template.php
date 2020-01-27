@@ -116,7 +116,7 @@ switch ($search_any_type) {
                 <ul class="dropdown-menu" aria-labelledby="pastEncounters">
                     <!-- ko foreach:encounterArray -->
                     <li style="display: inline-flex;">
-                        <a href="#" data-bind="click:chooseEncounterEvent">
+                        <a class="dropdown-item" href="#" data-bind="click:chooseEncounterEvent">
                             <span data-bind="text:date"></span>
                             <span data-bind="text:category"></span>
                         </a>
@@ -154,37 +154,34 @@ switch ($search_any_type) {
                     aria-haspopup="true"
                     aria-expanded="true">
                 <?php echo xlt("Portal"); ?>&nbsp;
-                <span class="label label-danger" data-bind="text: portalAlerts()"></span>
+                <span class="badge badge-danger" data-bind="text: portalAlerts()"></span>
                 <span class="caret"></span>
             </button>
-            <ul class="dropdown-menu" aria-labelledby="portalMsgAlerts">
-                <li style="display: inline-flex;">
-                    <a href="#" data-bind="click: viewPortalMail">
+            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="portalMsgAlerts">
+                <li>
+                    <a class="dropdown-item" href="#" data-bind="click: viewPortalMail">
                         <i class="fa fa-envelope-o"></i>&nbsp;<?php echo xlt("Portal Mail"); ?>&nbsp;
-                        <span class="label label-success" style="display:inline" data-bind="text: portalMail()"></span>
+                        <span class="badge badge-success" style="display:inline" data-bind="text: portalMail()"></span>
                     </a>
                 </li>
-                <li class="divider"></li>
-                <li style="display: inline-flex;">
-                    <a href="#" data-bind="click: viewPortalAudits">
+                <li class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" href="#" data-bind="click: viewPortalAudits">
                         <i class="fa fa-align-justify"></i>&nbsp;<?php echo xlt("Portal Audits"); ?>&nbsp;
-                        <span class="label label-success" style="display:inline"
-                              data-bind="text: portalAudits()"></span>
+                        <span class="badge badge-success" style="display:inline" data-bind="text: portalAudits()"></span>
                     </a>
                 </li>
-                <li class="divider"></li>
-                <li style="display: inline-flex;">
-                    <a href="#" data-bind="click: viewPortalChats">
+                <li class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" href="#" data-bind="click: viewPortalChats">
                         <i class="fa fa-envelope"></i>&nbsp;<?php echo xlt("Portal Chats"); ?>&nbsp;
-                        <span class="label label-success" style="display:inline" data-bind="text: portalChats()"></span>
+                        <span class="badge badge-success" style="display:inline" data-bind="text: portalChats()"></span>
                     </a>
                 </li>
-                <li class="divider"></li>
-                <li style="display: inline-flex;">
-                    <a href="#" data-bind="click: viewPortalPayments">
-                        <i class="fa fa-envelope"></i>&nbsp;<?php echo xlt("Portal Payments"); ?>&nbsp;
-                        <span class="label label-success" style="display:inline"
-                              data-bind="text: portalPayments()"></span>
+                <li class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" href="#" data-bind="click: viewPortalPayments">
+                        <i class="fa fa-envelope"></i>&nbsp;<?php echo xlt("Portal Payments"); ?>&nbsp;<span class="badge badge-success" style="display:inline" data-bind="text: portalPayments()"></span>
                     </a>
                 </li>
             </ul>
@@ -194,8 +191,7 @@ switch ($search_any_type) {
         <span>
             <a class="btn btn-secondary" href="#" data-bind="click: viewMessages"
                 title="<?php echo xla("View Messages"); ?>">
-                <i class="fa fa-envelope"></i>&nbsp;<span class="label label-danger" style="display:inline"
-                    data-bind="text: messages()"></span>
+                <i class="fa fa-envelope"></i>&nbsp;<span class="badge badge-danger" style="display:inline" data-bind="text: messages()"></span>
             </a>
         </span>
         <!-- /ko --><!-- messages -->

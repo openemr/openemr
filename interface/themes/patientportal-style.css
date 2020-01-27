@@ -724,25 +724,25 @@ body > .header .navbar .nav > li > a:hover > .label {
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a > .glyphicon.danger,
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a > .fa.danger,
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a > .ion.danger {
-    background: #f56954;
+    background: var(--danger);
 }
 
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a > .glyphicon.warning,
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a > .fa.warning,
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a > .ion.warning {
-    background: #f39c12;
+    background: var(--warning);
 }
 
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a > .glyphicon.success,
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a > .fa.success,
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a > .ion.success {
-    background: #00a65a;
+    background: var(--success);
 }
 
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a > .glyphicon.info,
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a > .fa.info,
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a > .ion.info {
-    background: #00c0ef;
+    background: var(--info);
 }
 
 .navbar-nav > .messages-menu > .dropdown-menu > li .menu > li > a {

@@ -114,11 +114,12 @@ $close-text-shadow: 0 1 0 $black;
     color: $body-color !important;
 }
 
-/* Experimental */
+/* Changes all SVG colors to white to match theme */
 .login-emr-logo > #red-color,
 .login-emr-logo > #blue-color,
 .login-emr-logo > #gray-color,
-.emr-menu-logo > #blue-color {
+.emr-menu-logo > #blue-color,
+.about-review-image > #color {
     fill: $black !important;
 }
 

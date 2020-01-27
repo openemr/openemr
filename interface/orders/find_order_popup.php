@@ -130,9 +130,8 @@ if (isset($_GET['typeid'])) {
             <div class="col-sm-8 offset-sm-2">
                 <div class="input-group">
                     <input type="hidden" name='isfav' value='<?php echo attr($_REQUEST['ordLookup']); ?>'>
-                    <input class="form-control" id='search_term' name='search_term' value='<?php echo attr($_REQUEST['search_term']); ?>'
-                        title='<?php echo xla('Any part of the desired code or its description'); ?>' placeholder="<?php echo xla('Search for') ?>&hellip;"/>
-                    <span class="input-group-btn">
+                    <input class="form-control" id='search_term' name='search_term' value='<?php echo attr($_REQUEST['search_term']); ?>' title='<?php echo xla('Any part of the desired code or its description'); ?>' placeholder="<?php echo xla('Search for') ?>&hellip;"/>
+                    <span class="input-group-append">
                         <button type="submit" class="btn btn-secondary btn-search" name='bn_search' value="true"><?php echo xlt('Search'); ?></button>
                         <?php if (!isset($_REQUEST['addfav'])) { ?>
                             <button type="submit" class="btn btn-secondary btn-search" name='bn_grpsearch' value="true"><?php echo xlt('Favorites'); ?></button>

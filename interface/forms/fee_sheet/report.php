@@ -29,7 +29,7 @@ function fee_sheet_report($pid, $encounter, $cols, $id)
             }
 
             $key=ucwords(str_replace("_", " ", $key));
-            print "<td><span class=bold>" . attr($key) . ": </span><span class=text>" . text($value) . "</span></td>";
+            print "<td><span class='bold'>" . attr($key) . ": </span><span class='text'>" . text($value) . "</span></td>";
             $count++;
             if ($count == $cols) {
                 $count = 0;

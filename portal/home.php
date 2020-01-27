@@ -52,10 +52,8 @@ foreach ($msgs as $i) {
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
     <title><?php echo xlt('OpenEMR Portal'); ?> | <?php echo xlt('Home'); ?></title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Developed By sjpadgett@gmail.com">
+    <meta name="description" content="Developed By sjpadgett@gmail.com" />
 
     <script type="text/javascript">
         var tab_mode = true;
@@ -283,8 +281,7 @@ foreach ($msgs as $i) {
                     <!-- css class was sidebar-menu -->
                     <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#profilecard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-calendar-o"></i> <span><?php echo xlt('Profile'); ?></span>
                         </a></li>
-                    <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#lists" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-list"></i> <span><?php echo xlt('Lists'); ?></span>
-                        </a></li>
+                    <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#lists" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-list"></i><?php echo xlt('Lists'); ?></a></li>
                     <li class="nav-item"><a class="nav-link" href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr_url($pid); ?>"> <i class="fa fa-gavel"></i><span><?php echo xlt('Patient Documents'); ?></span></a></li>
                     <?php if ($GLOBALS['allow_portal_appointments']) { ?>
                         <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#appointmentcard" data-toggle="collapse"
@@ -303,8 +300,7 @@ foreach ($msgs as $i) {
                             </div>
                         </li>
                     <?php } ?>
-                    <li class="nav-item dropdown reporting-menu"><a href="#"
-                            class="nav-link dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-calendar"></i> <span><?php echo xlt('Reports'); ?></span></a>
+                    <li class="nav-item dropdown reporting-menu"><a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-calendar"></i> <span><?php echo xlt('Reports'); ?></span></a>
                         <div class="dropdown-menu">
                             <?php if ($GLOBALS['ccda_alt_service_enable'] > 1) { ?>
                                 <a class="dropdown-item" id="callccda" href="<?php echo $GLOBALS['web_root']; ?>/ccdaservice/ccda_gateway.php?action=startandrun">
@@ -338,96 +334,91 @@ foreach ($msgs as $i) {
         <!-- Right side column. Contains content of the page -->
         <aside class="right-side">
             <!-- Main content -->
-            <section class="container-fluid card-column" id="cardgroup">
+            <section class="container-fluid" id="cardgroup">
                 <div id="popwait" class="alert alert-warning"><strong><?php echo xlt('Working!'); ?></strong> <?php echo xlt('Please wait...'); ?></div>
-                <div class="row collapse" id="lists">
+                <div class="collapse" id="lists">
                     <div class="card">
                         <header class="card-header bg-primary text-light"><?php echo xlt('Medications'); ?> </header>
-                        <div id="medicationlist" class="card-body"></div>
+                        <div id="medicationlist" class="card-body bg-light"></div>
                     </div>
                     <div class="card">
                         <header class="card-header bg-primary text-light"><?php echo xlt('Medications Allergy List'); ?>  </header>
-                        <div id="allergylist" class="card-body"></div>
+                        <div id="allergylist" class="card-body bg-light"></div>
                     </div>
                     <div class="card">
                         <header class="card-header bg-primary text-light"><?php echo xlt('Issues List'); ?></header>
-                        <div id="problemslist" class="card-body"></div>
+                        <div id="problemslist" class="card-body bg-light"></div>
                     </div>
                     <div class="card">
                         <header class="card-header bg-primary text-light"><?php echo xlt('Amendment List'); ?> </header>
-                        <div id="amendmentslist" class="card-body"></div>
+                        <div id="amendmentslist" class="card-body bg-light"></div>
                     </div>
                     <div class="card">
                         <header class="card-header bg-primary text-light"><?php echo xlt('Lab Results'); ?>  </header>
-                        <div id="labresults" class="card-body"></div>
+                        <div id="labresults" class="card-body bg-light"></div>
                     </div>
                 </div><!-- /.lists -->
                 <?php if ($GLOBALS['allow_portal_appointments']) { ?>
-                <div class="row collapse w-100 mt-2" id="appointmentcard">
-                    <div class="jumbotron jumbotron-fluid">
+                <div class="collapse w-100 mt-2" id="appointmentcard">
+                    <div class="jumbotron jumbotron-fluid m-5 p-3">
                         <div class="container-fluid">
-                            <h3><?php echo xlt('Appointments'); ?></h3>
-                            <div class="row card-column">
-                                <?php
-                                $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
-                                    "e.pc_startTime, e.pc_hometext, e.pc_apptstatus, u.fname, u.lname, u.mname, " .
-                                    "c.pc_catname " . "FROM openemr_postcalendar_events AS e, users AS u, " .
-                                    "openemr_postcalendar_categories AS c WHERE " . "e.pc_pid = ? AND e.pc_eventDate >= CURRENT_DATE AND " .
-                                    "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " . "ORDER BY e.pc_eventDate, e.pc_startTime";
-                                $res = sqlStatement($query, array(
-                                    $pid
-                                ));
+                            <h3 class="text-center"><?php echo xlt('Appointments'); ?></h3>
+                            <?php
+                            $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
+                                "e.pc_startTime, e.pc_hometext, e.pc_apptstatus, u.fname, u.lname, u.mname, " .
+                                "c.pc_catname " . "FROM openemr_postcalendar_events AS e, users AS u, " .
+                                "openemr_postcalendar_categories AS c WHERE " . "e.pc_pid = ? AND e.pc_eventDate >= CURRENT_DATE AND " .
+                                "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " . "ORDER BY e.pc_eventDate, e.pc_startTime";
+                            $res = sqlStatement($query, array(
+                                $pid
+                            ));
 
-                                if (sqlNumRows($res) > 0) {
-                                    $count = 0;
-                                    // echo '<div class="card"><table id="appttable" style="width:100%;background:#eee;" class="table table-striped"><tbody>';
-                                    while ($row = sqlFetchArray($res)) {
-                                        $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
-                                        $count++;
-                                        $dayname = xl(date("l", strtotime($row ['pc_eventDate'])));
-                                        $dispampm = "am";
-                                        $disphour = substr($row ['pc_startTime'], 0, 2) + 0;
-                                        $dispmin = substr($row ['pc_startTime'], 3, 2);
-                                        if ($disphour >= 12) {
-                                            $dispampm = "pm";
-                                            if ($disphour > 12) {
-                                                $disphour -= 12;
-                                            }
-                                        }
-
-                                        if ($row ['pc_hometext'] != "") {
-                                            $etitle = 'Comments' . ": " . $row ['pc_hometext'] . "\r\n";
-                                        } else {
-                                            $etitle = "";
-                                        }
-
-                                        echo '<div class="card p-2">';
-                                        echo "<div class='card-header clearfix'><a href='#' onclick='editAppointment(0," . attr_js($row ['pc_eid']) . ")" .
-                                            "' title='" . attr($etitle) . "'><i class='float-right fa fa-edit'></i></a></div>";
-                                        echo "<div class='body'><p><b>" . text($dayname . ", " . $row ['pc_eventDate']) . "&nbsp;";
-                                        echo text($disphour . ":" . $dispmin . " " . $dispampm) . "</b><br /><b>";
-                                        echo xlt("Type") . ":</b> " . text($row ['pc_catname']) . "<br /><b>";
-                                        echo xlt("Provider") . ":</b> " . text($row ['fname'] . " " . $row ['lname']) . "<br /><b>";
-                                        echo xlt("Status") . ":</b> " . text($status_title);
-                                        echo "</p></div></div>";
-                                    }
-
-                                    if (isset($res) && $res != null) {
-                                        if ($count < 1) {
-                                            echo "&nbsp;&nbsp;" . xlt('None{{Appointment}}');
+                            if (sqlNumRows($res) > 0) {
+                                $count = 0;
+                                // echo '<div class="card"><table id="appttable" style="width:100%;background:#eee;" class="table table-striped"><tbody>';
+                                while ($row = sqlFetchArray($res)) {
+                                    $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
+                                    $count++;
+                                    $dayname = xl(date("l", strtotime($row ['pc_eventDate'])));
+                                    $dispampm = "am";
+                                    $disphour = substr($row ['pc_startTime'], 0, 2) + 0;
+                                    $dispmin = substr($row ['pc_startTime'], 3, 2);
+                                    if ($disphour >= 12) {
+                                        $dispampm = "pm";
+                                        if ($disphour > 12) {
+                                            $disphour -= 12;
                                         }
                                     }
-                                } else { // if no appts
-                                    echo "<h3>" . xlt('No Appointments') . "</h3>";
+
+                                    if ($row ['pc_hometext'] != "") {
+                                        $etitle = 'Comments' . ": " . $row ['pc_hometext'] . "\r\n";
+                                    } else {
+                                        $etitle = "";
+                                    }
+
+                                    echo '<div class="card p-2">';
+                                    echo "<div class='card-header clearfix'><a href='#' onclick='editAppointment(0," . attr_js($row ['pc_eid']) . ")" .
+                                        "' title='" . attr($etitle) . "'><i class='float-right fa fa-edit'></i></a></div>";
+                                    echo "<div class='body font-weight-bold'><p>" . text($dayname . ", " . $row ['pc_eventDate']) . "&nbsp;";
+                                    echo text($disphour . ":" . $dispmin . " " . $dispampm) . "<br />";
+                                    echo xlt("Type") . ": " . text($row ['pc_catname']) . "<br />";
+                                    echo xlt("Provider") . ": " . text($row ['fname'] . " " . $row ['lname']) . "<br />";
+                                    echo xlt("Status") . ": " . text($status_title);
+                                    echo "</p></div></div>";
                                 }
-                                echo '</div>';
-                                ?>
-                                <span>
-                                    <a class='btn btn-primary' href='#' onclick="editAppointment('add',<?php echo attr_js($pid); ?>)">
-                                    <?php echo xlt('Schedule New Appointment'); ?>
-                                    </a>
-                                </span>
-                            </div>
+
+                                if (isset($res) && $res != null) {
+                                    if ($count < 1) {
+                                        echo "&nbsp;&nbsp;" . xlt('None{{Appointment}}');
+                                    }
+                                }
+                            } else { // if no appts
+                                echo "<h3 class='text-center'>" . xlt('No Appointments') . "</h3>";
+                            }
+                            echo '</div>';
+                            ?>
+                            <span><a class='btn btn-primary btn-block' href='#' onclick="editAppointment('add',<?php echo attr_js($pid); ?>)"><?php echo xlt('Schedule A New Appointment'); ?></a>
+                            </span>
                         </div>
                     </div><!-- /.row -->
                     <?php } ?>
@@ -435,15 +426,15 @@ foreach ($msgs as $i) {
                         <div class="row collapse" id="paymentcard">
                             <div class="card w-100">
                                 <header class="card-header bg-primary text-light"> <?php echo xlt('Payments'); ?> </header>
-                                <div id="payment" class="card-body"></div>
+                                <div id="payment" class="card-body bg-light"></div>
                             </div>
                         </div>
                     <?php } ?>
                     <?php if ($GLOBALS['allow_portal_chat']) { ?>
-                        <div class="row collapse w-100" id="messagescard">
-                            <div class="card" style="padding-top:0;padding-bottom:0;">
+                        <div class="collapse w-100" id="messagescard">
+                            <div class="card pt-0 pb-0">
                                 <header class="card-header bg-primary text-light"><?php echo xlt('Secure Chat'); ?>  </header>
-                                <div id="messages" class="card-body" style="height:calc(100vh - 120px);overflow:auto;padding:0 0 0 0;">
+                                <div id="messages" class="card-body p-0" style="height:calc(100vh - 120px); overflow:auto;">
                                     <iframe src="./messaging/secure_chat.php" width="100%" height="100%"></iframe>
                                 </div>
                             </div>
@@ -480,7 +471,7 @@ foreach ($msgs as $i) {
                     <?php } ?>
                     <div class="row card collapse" id="profilecard">
                         <header class="card-header bg-primary text-light"><?php echo xlt('Profile'); ?></header>
-                        <div id="profilereport" class="card-body"></div>
+                        <div id="profilereport" class="card-body bg-light"></div>
                     </div>
             </section>
         </aside><!-- /.right-side -->

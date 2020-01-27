@@ -2,6 +2,7 @@
 /**
  *
  * Copyright (C) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * Copyright (C) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,6 +17,7 @@
  *
  * @package OpenEMR
  * @author Jerry Padgett <sjpadgett@gmail.com>
+ * @author Tyler Wrenn <tyler@tylerwrenn.com>
  * @link http://www.open-emr.org
  *
  */
@@ -44,18 +46,18 @@ $N = 7;
     }
 
     .insurance .table .text {
-        color: red;
+        color: var(--danger);
     }
 
     .demographics .groupname.bold {
         font-size: 18px;
-        color: blue;
+        color: var(--primary);
     }
 
     .demographics table .bold {
         font-weight: normal;
         font-size: 16px;
-        color: green;
+        color: var(--success);
         padding: 1px;
         border-top: 0;
     }
@@ -63,7 +65,7 @@ $N = 7;
     .demographics table .text {
         font-weight: normal;
         font-size: 15px;
-        color: red;
+        color: var(--danger);
     }
 
     .demographics .table td {
@@ -81,43 +83,42 @@ $N = 7;
                 $result2 = getEmployerData($pid);
     ?>
     <div class="card">
-            <header class="card-header"><?php echo xlt('Profile Demographics'); ?>
+            <header class="card-header border border-bottom-0"><?php echo xlt('Profile Demographics'); ?>
             <?php if ($pending) {
-                echo '<button type="button" id="editDems" class="btn btn-danger btn-sm float-right text-white" style="font-size:14px">' . xlt('Pending Review') . '</button>';
+                echo '<button type="button" id="editDems" class="btn btn-danger btn-sm float-right text-white" style="font-size: 14px">' . xlt('Pending Review') . '</button>';
             } else {
-                echo '<button type="button" id="editDems" class="btn btn-success btn-sm float-right text-white" style="font-size:14px">' . xlt('Revise') . '</button>';
+                echo '<button type="button" id="editDems" class="btn btn-success btn-sm float-right text-white" style="font-size: 14px">' . xlt('Revise') . '</button>';
             }
             ?>
             </header>
-            <div class="card-body" id="dempanel">
+            <div class="card-body border" id="dempanel">
                 <table class='table table-responsive table-sm'>
     <?php
                 display_layout_rows('DEM', $result1, $result2);
     ?>
                 </table>
             </div>
-            <div class="card-footer"></div>
         </div>
     </div>
     <div class='insurance table-sm table-responsive'>
         <div class="card">
-            <header class="card-header"><?php echo xlt('Primary Insurance');?></header>
-            <div class="card-body">
+            <header class="card-header border border-bottom-0"><?php echo xlt('Primary Insurance');?></header>
+            <div class="card-body border">
 <?php
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
 ?>
             </div>
         </div>
         <div class="card">
-            <header class="card-header"><?php echo xlt('Secondary Insurance');?></header>
-            <div class="card-body">
+            <header class="card-header border border-bottom-0"><?php echo xlt('Secondary Insurance');?></header>
+            <div class="card-body border">
 <?php
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
 ?></div>
         </div>
         <div class="card">
-            <header class="card-header"><?php echo xlt('Tertiary Insurance');?></header>
-            <div class="card-body">
+            <header class="card-header border border-bottom-0"><?php echo xlt('Tertiary Insurance');?></header>
+            <div class="card-body border">
 <?php
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
 ?></div>
@@ -125,7 +126,9 @@ $N = 7;
     </div>
     <div>
         <?php
-        echo "<div class='immunizations'><h4>" . xlt('Patient Immunization') . '</h4>';
+        echo "<div class='card'>";
+        echo "<header class='card-header border border-bottom-0 immunizations'>" . xlt('Patient Immunization') . '</header>';
+        echo "<div class='card-body border'>";
         $result = FetchSection::getImmunizations($pid);
         foreach ($result as $row) {
             echo text($row['administered_formatted']) . ' : ';
@@ -133,7 +136,8 @@ $N = 7;
             echo text($row['note']) . ' : ';
             echo text($row['completion_status']) . '<br />';
         }
+        echo "</div></div>";
         ?>
-        </div>
+    </div>
 
 </body>

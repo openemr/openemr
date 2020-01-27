@@ -529,18 +529,18 @@ if ($_REQUEST['form_csvexport']) {
                             <td width='70%'>
                                 <?php
                             } ?>
-                                <div style='float:left'>
+                                <div style='float: left'>
                                     <table class='text'>
                                         <tr>
                                             <?php
                                             if ($type_form == '0') { ?>
-                                            <td class='control-label'>
+                                            <td class='col-form-label'>
                                                 <?php echo xlt('Facility'); ?>:
                                             </td>
                                             <td>
                                                 <?php dropdown_facility($form_facility, 'form_facility', true); ?>
                                             </td>
-                                            <td class='control-label'><?php echo xlt('Provider'); ?>:</td>
+                                            <td class='col-form-label'><?php echo xlt('Provider'); ?>:</td>
                                             <td>
                                                 <?php
                                                 $query = "SELECT id, lname, fname FROM users WHERE ".
@@ -563,13 +563,13 @@ if ($_REQUEST['form_csvexport']) {
                                         <tr>
                                                 <?php
                                             } ?>
-                                            <td class='control-label'>
+                                            <td class='col-form-label'>
                                                 <?php echo xlt('From'); ?>:&nbsp;&nbsp;&nbsp;&nbsp;
                                             </td>
                                             <td>
                                                 <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
                                             </td>
-                                            <td class='control-label' class='control-label'>
+                                            <td class='col-form-label' class='control-label'>
                                                 <?php echo xlt('To{{Range}}'); ?>:
                                             </td>
                                             <td>
@@ -577,9 +577,9 @@ if ($_REQUEST['form_csvexport']) {
                                             </td>
                                             <?php
                                             if ($type_form == '0') { ?>
-                                            <td><span class='control-label'><?php echo xlt('Patient'); ?>:&nbsp;&nbsp;</span></td>
+                                            <td><span class='col-form-label'><?php echo xlt('Patient'); ?>:&nbsp;&nbsp;</span></td>
                                             <td>
-                                                <input type='text' size='20' name='form_patient' class='form-control' style='width:100%;cursor:pointer;cursor:hand' id='form_patient' value='<?php echo ($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
+                                                <input type='text' size='20' name='form_patient' class='form-control' style='cursor:pointer;' id='form_patient' value='<?php echo ($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
                                                 <?php
                                             } else { ?>
                                                 <input type='hidden' name='form_patient' value='<?php echo attr($form_patient); ?>' />
@@ -593,7 +593,7 @@ if ($_REQUEST['form_csvexport']) {
                                 </div>
                             </td>
                             <td class="align-middle h-100" align='left'>
-                                <table class="w-100 h-100" style='border-left:1px solid;'>
+                                <table class="w-100 h-100" style='border-left: 1px solid;'>
                                     <tr>
                                         <td>
                                             <div class="text-center">

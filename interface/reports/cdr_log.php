@@ -89,7 +89,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 <table>
  <tr>
   <td width='470px'>
-    <div style='float:left'>
+    <div style='float: left'>
 
     <table class='text'>
 
@@ -117,7 +117,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 
   </td>
   <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+    <table style='border-left: 1px solid; width:100%; height:100%' >
         <tr>
             <td>
                 <div class="text-center">
@@ -140,7 +140,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 
 <?php if ($_POST['search'] == 1) { ?>
  <div id="report_results">
- <table>
+ <table class="table">
 
  <thead>
   <th align='center'>

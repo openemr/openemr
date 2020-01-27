@@ -114,7 +114,7 @@ if (!empty($report_id)) {
 
 <?php Header::setupHeader('datetime-picker'); ?>
 
-<script LANGUAGE="JavaScript">
+<script>
 
     <?php require $GLOBALS['srcdir'] . "/formatting_DateToYYYYMMDD_js.js.php" ?>
 
@@ -276,7 +276,7 @@ if (!empty($report_id)) {
 
 </script>
 
-<style type="text/css">
+<style>
 
 /* specifically include & exclude from printing */
 @media print {
@@ -369,8 +369,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
                             <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
-                         <input <?php echo $dis_text; ?> type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo attr(oeFormatDateTime($begin_date, 0, true)); ?>'
-                            class='datepicker form-control'>
+                         <input <?php echo $dis_text; ?> type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo attr(oeFormatDateTime($begin_date, 0, true)); ?>' class='datepicker form-control'>
                             <?php if (empty($report_id)) { ?>
                             <?php } ?>
                       </td>
@@ -528,7 +527,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
         </tr>
 
                 <tr>
-                        <td class='control-label'>
+                        <td class='col-form-label'>
                             <?php echo xlt('Provider Relationship'); ?>:
                         </td>
                         <td>
@@ -633,7 +632,7 @@ if (!empty($report_id)) {
 
 
 <div id="report_results">
-<table>
+<table class="table">
 
 <thead>
  <th>
@@ -699,7 +698,7 @@ if (!empty($report_id)) {
     foreach ($dataSheet as $row) {
         ?>
 
-<tr bgcolor='<?php echo attr($bgcolor); ?>'>
+<tr>
 
         <?php
         if (isset($row['is_main']) || isset($row['is_sub'])) {

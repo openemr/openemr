@@ -77,7 +77,7 @@ echo "<html><head>";
 
 <link rel="stylesheet" href="<?php echo $web_root; ?>/interface/themes/labdata.css" type="text/css">
 
-<script type="text/javascript" language="JavaScript">
+<script>
 function checkAll(bx) {
     for (var tbls=document.getElementsByTagName("table"), i=tbls.length; i--; )
       for (var bxs=tbls[i].getElementsByTagName("input"), j=bxs.length; j--; )
@@ -207,7 +207,7 @@ if ($value_select) {
         $i = 0;
         $item_graph = 0;
         $rowspan = count($value_select);
-        echo "<table border='1' cellspacing='3'>";
+        echo "<table class='border' cellspacing='3'>";
         echo "<tr>";
         #echo "<th class='list'>Item</td>";
         echo "<th class='list'>" . xlt('Name') . "</th> ";
@@ -276,11 +276,11 @@ if ($value_select) {
 
             if ($value_count > 1 && !$printable) {
                 echo "<tr><td colspan='7' align='center'>";
-                echo "<input type='button' class='graph_button'  onclick='get_my_graph" . attr($item_graph) . "()' name='' value='" . xla('Plot item') . " \"" . attr($the_item) . "\"'>";
+                echo "<input type='button' class='graph_button btn btn-secondary' onclick='get_my_graph" . attr($item_graph) . "()' name='' value='" . xla('Plot item') . " \"" . attr($the_item) . "\"'>";
                 echo "</td></tr>";
             }
             ?>
-            <script type="text/javascript">
+            <script>
             // prepare to plot the stuff
             top.restoreSession();
             function get_my_graph<?php echo attr($item_graph) ?>(){
@@ -373,7 +373,7 @@ if ($value_select) {
         $itemcount = count($value_matrix);
 
         // print matrix
-        echo "<table border='1' cellpadding='2'>";
+        echo "<table class='border' cellpadding='2'>";
         echo "<tr>";
         #echo "<th class='matrix'>Item</th>";
         echo "<th class='matrix'>" . xlt('Name') . "</th>";

@@ -1,4 +1,4 @@
-/*~~~~~~~~~~openemr5_tabs-Full~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/* OpenEMR tabs-Full Override */
 
 #mainBox > .body_top,
 .body_top_tabs {
@@ -14,16 +14,16 @@
 .tabSpan_tabs {
     border-top: 5px solid $dark !important;
     border-left: 1px solid $dark !important;
-    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0) !important;
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0) !important;
     border-right: 1px solid $dark !important;
-    border-radius: 3px 6px 0px 0px !important;
+    border-radius: 3px 6px 0 0 !important;
 }
 
 .tabNotchosen {
     border-bottom: 2px solid $dark !important;
-    border-top: 5px solid $pale !important;
-    border-left: 1px solid $pale !important;
-    border-right: 1px solid $pale !important;
+    border-top: 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
 }
 
 .tabsNoHover {
@@ -43,25 +43,25 @@
 }
 
 .ptName {
-    font-size: 20px;
+    @include font-size("20px !important");
     background: #ffff9e;
-    padding: 0px 5px 0px 5px;
+    padding: 0 5px 0 5px;
 }
 
 .patientInfo {
     padding: 1px 1px 1px 10px;
-    font-size: 16px;
+    @include font-size("16px !important");
     font-weight: 600;
 }
 
 .patientCurrentEncounter {
-    font-size: 16px;
+    @include font-size("16px !important");
     font-weight: 600;
 }
 
 .menuLabel {
     color: $black !important;
-    font-size: 14px !important;
+    @include font-size("14px !important");
 }
 
 .patientEncounterList {
@@ -79,9 +79,9 @@
 }
 
 .menuSection > .menuEntries {
-    box-shadow: 0px 2px 2px $midpale !important;
+    box-shadow: 0 2px 2px $midpale !important;
     border: none !important;
-    border-radius: 0px !important;
+    border-radius: 0 !important;
 }
 
 .menuEntries li .menuLabel {
@@ -106,7 +106,7 @@
     background-color: $midpale !important;
 }
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs body*~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/* tabs body */
 
 .tabs_body,
 #searchCriteria {
@@ -117,9 +117,7 @@
     background-color: $palepale;
 }
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs body*~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs calendar*~~~~~~~~~~~~~~~~~~~~~~~*/
+/* tabs calendar */
 
 #calsearch_params {
     background-color: $palepale !important;
@@ -135,7 +133,7 @@
 }
 
 div#providerPicker select {
-    margin: 0px;
+    margin: 0;
 }
 
 #calsearch_results_header {
@@ -151,19 +149,26 @@ div#providerPicker select {
     padding: 3px;
 }
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5tabs calendar*~~~~~~~~~~~~~~~~~~~~~~~*/
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 calendar icon*~~~~~~~~~~~~~~~~~~~~~~*/
+/* calendar icon */
 
 img[src *="show_calendar.gif"] {
     margin-bottom: 3px;
 }
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 calendar icon*~~~~~~~~~~~~~~~~~~~~~~*/
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 tabs menu , user and logout icon~~~~*/
+/* tabs menu, user, and logout icon */
 #menu_icon,
 #logout_icon,
 #user_icon {
     color: $darker !important;
+}
+
+/* Search Globals Button */
+#search_globals,
+.oe-expandable-search .any-search-legacy {
+    background: $dark !important;
+}
+
+/* Patient Panel Toggler Override */
+#patient_caret {
+    margin-right: 4px !important; 
 }

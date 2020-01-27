@@ -74,6 +74,8 @@ body {
 #mainBox .logo {
     float: left;
     margin-top: 14px !important;
+    margin-left: 10px !important;
+    margin-right: 4px !important;
     width: 20px;
     height: 20px;
     z-index: 10000;

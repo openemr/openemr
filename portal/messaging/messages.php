@@ -6,8 +6,10 @@
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -89,22 +91,17 @@ function getAuthPortalUsers()
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<meta charset="utf-8">
-<title><?php echo xlt("Secure Messaging"); ?></title>
-<meta name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="description" content="Mail Application" />
-
-<?php Header::setupHeader(['no_main-theme', 'summernote', 'fontawesome', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model']); ?>
-
+    <meta charset="utf-8" />
+    <?php Header::setupHeader(['no_main-theme', 'summernote', 'fontawesome', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model']); ?>
+    <title><?php echo xlt("Secure Messaging"); ?></title>
+    <meta name="description" content="Mail Application" />
 </head>
 <body class="skin-blue">
     <!-- style='background:#f1f2f7;' -->
     <script>
 (function() {
     var app = angular.module("emrMessageApp",['ngSanitize','summernote',"checklist-model"]);
-    app.controller('inboxCtrl', ['$scope', '$filter','$http','$window', function ($scope, $filter,$http,$window) {
+    app.controller('inboxCtrl', ['$scope', '$filter', '$http', '$window', function ($scope, $filter, $http, $window) {
     $scope.date = new Date;
     $scope.sortingOrder = 'id';
     $scope.pageSizes = [5,10,20,50,100];
@@ -447,7 +444,7 @@ function getAuthPortalUsers()
                     $scope.compose.noteid = chain;
             }
             else{
-                $('#inputBody').summernote({focus:true,height:'225px'});
+                $('#inputBody').summernote({focus: true, height: '225px'});
                 $('#modalCompose .modal-header .modal-title').html("Compose New Message");
                 $scope.compose.task = 'add';
                 $(e.currentTarget).find('select[id="selSendto"]').prop( "disabled", false );
@@ -506,54 +503,63 @@ function getAuthPortalUsers()
 </script>
     <ng ng-app="emrMessageApp">
     <div class="container" id='main' style="display: none">
-        <div class='header logo'>
+        <div class='header logo my-3'>
             <h2>
-                <i style='width: auto; height: auto;' class='fa fa-envelope'></i>  <?php echo xlt('Patient Secure Mail'); ?></h2>
+                <i class='fa fa-envelope w-auto h-auto'></i><?php echo xlt('Patient Secure Mail'); ?></h2>
         </div>
         <div class="row" ng-controller="inboxCtrl">
-            <div class="col-md-1" style='padding: 0 0; margin: 0 0; text-align: left;'>
+            <div class="col-md-1 p-0 m-0 text-left">
                 <ul class="nav nav-pills flex-column">
-                    <li class="nav-item"><a class="nav-link active" href="javascript:;" ng-click="isInboxSelected()"><span class="badge float-right">{{inboxItems.length}}</span><?php echo xlt('Inbox'); ?></a></li>
-                    <li class="nav-item"><a class="nav-link" href="javascript:;" ng-click="isSentSelected()"><span class="badge float-right">{{sentItems.length}}</span><?php echo xlt('Sent{{Mails}}'); ?></a></li>
-                    <li class="nav-item"><a class="nav-link" href="javascript:;" ng-click="isAllSelected()"><span class="badge float-right">{{allItems.length}}</span><?php echo xlt('All{{Mails}}'); ?></a></li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="javascript:;" ng-click="isInboxSelected()"><span class="badge float-right">{{inboxItems.length}}</span><?php echo xlt('Inbox'); ?></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="javascript:;" ng-click="isSentSelected()"><span class="badge float-right">{{sentItems.length}}</span><?php echo xlt('Sent{{Mails}}'); ?></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="javascript:;" ng-click="isAllSelected()"><span class="badge float-right">{{allItems.length}}</span><?php echo xlt('All{{Mails}}'); ?></a>
+                    </li>
                     <!-- <li class="bg-info"><a href="#"><span class="badge float-right">0</span><?php //echo xlt('Drafts'); ?></a></li> -->
-                    <li class="nav-item"><a class="nav-link" href="javascript:;" ng-click="isTrashSelected()"><span class="badge float-right">{{deletedItems.length}}</span><?php echo xlt('Archive'); ?></a></li>
-                    <li class="nav-item"><a class="nav-link bg-danger" href="<?php echo $GLOBALS['web_root']?>/portal/patient/provider" ng-show="!isPortal"><?php echo xlt('Exit Mail'); ?></a></li>
-                    <li class="nav-item"><a class="nav-link bg-danger" href="javascript:;" onclick='window.location.replace("<?php echo $GLOBALS['web_root']?>/portal/home.php")' ng-show="isPortal"><?php echo xlt('Exit'); ?></a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="javascript:;" ng-click="isTrashSelected()"><span class="badge float-right">{{deletedItems.length}}</span><?php echo xlt('Archive'); ?></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link bg-danger" href="<?php echo $GLOBALS['web_root']?>/portal/patient/provider" ng-show="!isPortal"><?php echo xlt('Exit Mail'); ?></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link bg-danger" href="javascript:;" onclick='window.location.replace("<?php echo $GLOBALS['web_root']?>/portal/home.php")' ng-show="isPortal"><?php echo xlt('Exit'); ?></a>
+                    </li>
                 </ul>
             </div>
             <div class="col-md-11">
                 <!--inbox toolbar-->
                 <div class="row" ng-show="!isMessageSelected()">
-                    <div class="col-12">
-                        <a class="btn btn-secondary btn-lg" data-toggle="tooltip"
-                            title="Refresh" id="refreshInbox" href="javascript:;"
-                            onclick='window.location.replace("./messages.php")'> <span
-                            class="fa fa-refresh fa-lg"></span>
+                    <div class="col-12 mb-2">
+                        <a class="btn btn-secondary" data-toggle="tooltip" title="Refresh" id="refreshInbox" href="javascript:;" onclick='window.location.replace("./messages.php")'> <span class="fa fa-refresh fa-lg"></span>
                         </a>
-                        <button class="btn btn-secondary btn-lg"
-                            title="<?php echo xla("New Note"); ?>" data-mode="add"
-                            data-toggle="modal" data-target="#modalCompose">
+                        <button class="btn btn-secondary" title="<?php echo xla("New Note"); ?>" data-mode="add" data-toggle="modal" data-target="#modalCompose">
                             <span class="fa fa-edit fa-lg"></span>
                         </button>
                         <div class="btn-group btn-group float-right">
-                            <button type="button" class="btn btn-primary dropdown-toggle"
-                                data-toggle="dropdown">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
                             <?php echo xlt('Actions'); ?> <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href="javascript:;" ng-click="readAll()"><?php echo xlt('Mark all as read'); ?></a></li>
-                                <li class="divider"></li>
-                                <li><a href="" data-mode="add" data-toggle="modal"
-                                    data-target="#modalCompose"><?php echo xlt('Compose new'); ?></a></li>
-                                <li ng-show='!isTrash'><a href="javascript:;"
-                                    ng-click="batchDelete(items)"><i class="fa fa-trash-o"></i> <?php echo xlt('Send Selected to Archive'); ?></a></li>
-                                <li><a href="javascript:;"
-                                    onclick='window.location.replace("<?php echo $GLOBALS['web_root']?>/portal/home.php")'
-                                    ng-show="isPortal" class="text-muted"><?php echo xlt('Return Home'); ?></a></li>
-                                <li><a
-                                    href="<?php echo $GLOBALS['web_root']?>/portal/patient/provider"
-                                    ng-show="!isPortal" class="text-muted"><?php echo xlt('Return Home'); ?></a></li>
+                                <li>
+                                    <a class="dropdown-item" href="javascript:;" ng-click="readAll()"><?php echo xlt('Mark all as read'); ?></a>
+                                </li>
+                                <li class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="" data-mode="add" data-toggle="modal" data-target="#modalCompose"><?php echo xlt('Compose new'); ?></a>
+                                </li>
+                                <li ng-show='!isTrash'>
+                                    <a class="dropdown-item" href="javascript:;" ng-click="batchDelete(items)"><i class="fa fa-trash-o"></i> <?php echo xlt('Send Selected to Archive'); ?></a></li>
+                                <li>
+                                    <a href="javascript:;" onclick='window.location.replace("<?php echo $GLOBALS['web_root']?>/portal/home.php")' ng-show="isPortal" class="dropdown-item text-muted"><?php echo xlt('Return Home'); ?></a>
+                                </li>
+                                <li>
+                                    <a href="<?php echo $GLOBALS['web_root']?>/portal/patient/provider" ng-show="!isPortal" class="dropdown-item text-muted"><?php echo xlt('Return Home'); ?></a>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -565,29 +571,17 @@ function getAuthPortalUsers()
                 <div class="card panel-default inbox" id="inboxPanel">
                     <!--message list-->
                     <div class="table-responsive" ng-show="!isMessageSelected()">
-                        <table
-                            class="table table-striped table-hover refresh-container pull-down">
+                        <table class="table table-striped table-hover refresh-container pull-down">
                             <thead class="bg-info d-none"></thead>
                             <tbody>
                                 <tr ng-repeat="item in pagedItems[currentPage]">
                                     <!--  | orderBy:sortingOrder:reverse -->
-                                    <td><span class="col-sm-1" style="max-width: 5px;"><input
-                                            type="checkbox" checklist-model="item.deleted"
-                                            value={{item.deleted}}></span> <span class="col-sm-1"
-                                        style="max-width: 8px;"><span ng-class="{strong: !item.read}">{{item.id}}</span></span>
-                                        <span class="col-sm-1" ng-click="readMessage($index)"><span
-                                            ng-class="{strong: !item.read}">{{item.message_status}}</span></span>
-                                        <span class="col-sm-2" ng-click="readMessage($index)"><span
-                                            ng-class="{strong: !item.read}">{{item.date |
-                                                date:'yyyy-MM-dd hh:mm'}}</span></span> <span
-                                        class="col-sm-3" ng-click="readMessage($index)"><span
-                                            ng-class="{strong: !item.read}">{{item.sender_name}} to
-                                                {{item.recipient_name}}</span></span> <span class="col-sm-1"
-                                        ng-click="readMessage($index)"><span
-                                            ng-class="{strong: !item.read}">{{item.title}}</span></span>
-                                        <span class="col-sm-4" ng-click="readMessage($index)"><span
-                                            ng-class="{strong: !item.read}"
-                                            ng-bind-html='(renderMessageBody(item.body)| limitTo:35)'></span></span>
+                                    <td><span class="col-sm-1" style="max-width: 5px;"><input type="checkbox" checklist-model="item.deleted" value={{item.deleted}}></span> <span class="col-sm-1" style="max-width: 8px;"><span ng-class="{strong: !item.read}">{{item.id}}</span></span>
+                                        <span class="col-sm-1" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}">{{item.message_status}}</span></span>
+                                        <span class="col-sm-2" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}">{{item.date |
+                                                date:'yyyy-MM-dd hh:mm'}}</span></span> <span class="col-sm-3" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}">{{item.sender_name}} to
+                                                {{item.recipient_name}}</span></span> <span class="col-sm-1" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}">{{item.title}}</span></span>
+                                        <span class="col-sm-4" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}" ng-bind-html='(renderMessageBody(item.body)| limitTo:35)'></span></span>
                                         <!-- <span class="col-sm-1 " ng-click="readMessage($index)"><span ng-show="item.attachment"
                                     class="glyphicon glyphicon-paperclip float-right"></span> <span ng-show="item.priority==1"
                                     class="float-right glyphicon glyphicon-warning-sign text-danger"></span></span> -->
@@ -614,19 +608,9 @@ function getAuthPortalUsers()
                             </div>
                             <div class="col-md-3">
                                 <div class="btn-group btn-group float-right">
-                                    <button ng-show="selected.sender_id != cUserId"
-                                        class="btn btn-primary"
-                                        title="<?php echo xla('Reply to this message'); ?>"
-                                        data-toggle="modal" data-mode="reply"
-                                        data-noteid={{selected.id}} data-whoto={{selected.sender_id}}
-                                        data-mtitle={{selected.title}}
-                                        data-username={{selected.sender_name}}
-                                        data-mailchain={{selected.mail_chain}}
-                                        data-target="#modalCompose">
+                                    <button ng-show="selected.sender_id != cUserId" class="btn btn-primary" title="<?php echo xla('Reply to this message'); ?>" data-toggle="modal" data-mode="reply" data-noteid='{{selected.id}}' data-whoto='{{selected.sender_id}}' data-mtitle='{{selected.title}}' data-username='{{selected.sender_name}}' data-mailchain='{{selected.mail_chain}}' data-target="#modalCompose">
                                         <i class="fa fa-reply"></i> <?php echo xlt('Reply'); ?></button>
-                                    <button class="btn btn-primary dropdown-toggle"
-                                        data-toggle="dropdown"
-                                        title="<?php echo xla("More options"); ?>">
+                                    <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" title="<?php echo xla("More options"); ?>">
                                         <i class="fa fa-angle-down"></i>
                                     </button>
                                     <ul class="dropdown-menu float-right">
@@ -636,16 +620,11 @@ function getAuthPortalUsers()
                                     <li><a href="javascript:;"><i class="fa fa-print"></i> <?php //echo xlt('Print'); ?></a></li>
                                     -->
                                         <li class="divider"></li>
-                                        <li ng-show='!isTrash'><a href="javascript:;"
-                                            ng-click="batchDelete(items)"><i class="fa fa-trash-o"></i> <?php echo xlt('Send to Archive'); ?></a></li>
+                                        <li ng-show='!isTrash'><a href="javascript:;" ng-click="batchDelete(items)"><i class="fa fa-trash-o"></i> <?php echo xlt('Send to Archive'); ?></a></li>
                                     </ul>
                                 </div>
                                 <div class="spacer5 float-right"></div>
-                                <button ng-show='!isTrash'
-                                    class="btn btn-md btn-primary float-right"
-                                    ng-click="deleteItem(items.indexOf(selected))"
-                                    title="<?php echo xla('Delete this message'); ?>"
-                                    data-toggle="tooltip">
+                                <button ng-show='!isTrash' class="btn btn-md btn-primary float-right" ng-click="deleteItem(items.indexOf(selected))" title="<?php echo xla('Delete this message'); ?>" data-toggle="tooltip">
                                     <i class="fa fa-trash-o fa-1x"></i>
                                 </button>
                             </div>
@@ -653,37 +632,20 @@ function getAuthPortalUsers()
                                 <table class="table table-striped refresh-container pull-down">
                                     <thead><?php //echo xlt('Associated Notes.');?></thead>
                                     <tbody>
-                                        <tr class="animate-repeat"
-                                            ng-repeat="item in allItems | Chained:selected.mail_chain">
+                                        <tr class="animate-repeat" ng-repeat="item in allItems | Chained:selected.mail_chain">
                                             <td>
                                                 <!-- Please do not remove comment items - future use --> <!-- <span class="col-sm-1" style="max-width: 5px;"><input type="checkbox" checklist-model="item.deleted" value={{item.deleted}}></span> -->
-                                                <span class="col-sm-1" style="max-width: 8px;"><span
-                                                    ng-class="{strong: !item.read}">{{item.id}}</span></span> <span
-                                                class="col-sm-2" ng-click="readMessage($index)"><span>{{item.date
-                                                        | date:'yyyy-MM-dd hh:mm'}}</span></span> <span
-                                                class="col-sm-1" ng-click="readMessage($index)"><span>{{item.message_status}}</span></span>
+                                                <span class="col-sm-1" style="max-width: 8px;"><span ng-class="{strong: !item.read}">{{item.id}}</span></span> <span class="col-sm-2" ng-click="readMessage($index)"><span>{{item.date
+                                                        | date:'yyyy-MM-dd hh:mm'}}</span></span> <span class="col-sm-1" ng-click="readMessage($index)"><span>{{item.message_status}}</span></span>
                                                 <span class="col-sm-3" ng-click="readMessage($index)"><span>{{item.sender_name}}
-                                                        to {{item.recipient_name}}</span></span> <span
-                                                class="col-sm-1" ng-click="readMessage($index)"><span>{{item.title}}</span></span>
-                                                <span class="col-sm-4" ng-click="readMessage($index)"><span
-                                                    ng-bind-html='(renderMessageBody(item.body) | limitTo:35)'></span></span>
+                                                        to {{item.recipient_name}}</span></span> <span class="col-sm-1" ng-click="readMessage($index)"><span>{{item.title}}</span></span>
+                                                <span class="col-sm-4" ng-click="readMessage($index)"><span ng-bind-html='(renderMessageBody(item.body) | limitTo:35)'></span></span>
                                                 <span class='float-right' ng-show=" !isPortal">
-                                                    <button
-                                                        ng-show="selected.id == item.id && selected.sender_id != cUserId"
-                                                        class="btn btn-primary btn-sm"
-                                                        title="<?php echo xla('Forward message to practice.'); ?>"
-                                                        data-toggle="modal" data-mode="forward"
-                                                        data-noteid={{selected.id}}
-                                                        data-whoto={{selected.sender_id}}
-                                                        data-mtitle={{selected.title}}
-                                                        data-username={{selected.sender_name}}
-                                                        data-mailchain={{selected.mail_chain}}
-                                                        data-target="#modalCompose">
+                                                    <button ng-show="selected.id == item.id && selected.sender_id != cUserId" class="btn btn-primary btn-sm" title="<?php echo xla('Forward message to practice.'); ?>" data-toggle="modal" data-mode="forward" data-noteid='{{selected.id}}' data-whoto='{{selected.sender_id}}' data-mtitle='{{selected.title}}' data-username='{{selected.sender_name}}' data-mailchain='{{selected.mail_chain}}' data-target="#modalCompose">
                                                         <i class="fa fa-mail-forward"></i>
                                                     </button>
                                             </span>
-                                                <div class='col-sm-10 well' ng-show="selected.id == item.id"
-                                                    style='margin: 5px 5px; padding: 5px 5px; border-color: red; background: white;'>
+                                                <div class='col-sm-10 jumbotron jumbotron-fluid' ng-show="selected.id == item.id" style='margin: 5px 5px; padding: 5px 5px; border-color: var(--danger); background: var(--white);'>
                                                     <span ng-bind-html=renderMessageBody(selected.body)></span>
                                                 </div>
                                             </td>
@@ -697,22 +659,19 @@ function getAuthPortalUsers()
                     </div>
                 </div>
                 <!--/inbox panel-->
-                <div class="jumbletron jumbletron-sm well-s text-right">
+                <div class="jumbotron jumbotron-fluid text-right">
                     <em>Inbox last updated: <span id="lastUpdated">{{date |
                             date:'MM-dd-yyyy HH:mm:ss'}}</span></em>
                 </div>
                 <!--paging-->
                 <div class="float-right" ng-hide="selected">
-                    <span class="text-muted"><b>{{(itemsPerPage * currentPage) + 1}}</b>~<b>{{(itemsPerPage
-                            * currentPage) + pagedItems[currentPage].length}}</b> of <b>{{items.length}}</b></span>
+                    <span class="text-muted"><strong>{{(itemsPerPage * currentPage) + 1}}</strong>~<strong>{{(itemsPerPage
+                            * currentPage) + pagedItems[currentPage].length}}</strong> of <strong>{{items.length}}</strong></span>
                     <div class="btn-group">
-                        <button type="button" class="btn btn-secondary btn-lg"
-                            ng-class="{disabled: currentPage == 0}" ng-click="prevPage()">
+                        <button type="button" class="btn btn-secondary btn-lg" ng-class="{disabled: currentPage == 0}" ng-click="prevPage()">
                             <i class="fa fa-chevron-left"></i>
                         </button>
-                        <button type="button" class="btn btn-secondary btn-lg"
-                            ng-class="{disabled: currentPage == pagedItems.length - 1}"
-                            ng-click="nextPage()">
+                        <button type="button" class="btn btn-secondary btn-lg" ng-class="{disabled: currentPage == pagedItems.length - 1}" ng-click="nextPage()">
                             <i class="fa fa-chevron-right"></i>
                         </button>
                     </div>
@@ -724,40 +683,27 @@ function getAuthPortalUsers()
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal"
-                                aria-hidden="true">X</button>
                             <h4 class="modal-title"><?php echo xlt('Compose Message'); ?></h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         </div>
                         <div class="modal-body ">
                             <div class="row container-fluid">
                                 <label ng-show='selected.mail_chain'><?php echo xlt('Refer to Message') . ' # ';?>{{selected.id}}</label>
-                                <div class="jumbotron col-md-12" id="referMsg" ng-show='selected.mail_chain'
-                                    style='margin: 5px 5px; padding: 5px 5px; border-color: red; background: white;'
-                                    class='jumbotron row'
-                                    ng-bind-html=renderMessageBody(selected.body)></div>
+                                <div class="jumbotron col-md-12" id="referMsg" ng-show='selected.mail_chain' style='margin: 5px 5px; padding: 5px 5px; border-color: var(--danger); background: var(--white);' class='jumbotron row' ng-bind-html='renderMessageBody(selected.body)'></div>
 
-                                <form role="form" class="form-horizontal"
-                                    ng-submit="submitForm(compose)" name="fcompose" id="fcompose"
-                                    method="post" action="./handle_note.php">
+                                <form role="form" class="form-horizontal" ng-submit="submitForm(compose)" name="fcompose" id="fcompose" method="post" action="./handle_note.php">
                                     <fieldset>
                                         <div class="form-group">
                                             <label class="col-sm-1 col-md-1" for="selSendto"><?php echo xlt('To{{Destination}}'); ?></label>
                                             <div class="col-sm-3 col-md-3">
-                                                <select class="form-control" id="selForwardto"
-                                                    ng-hide="compose.task != 'forward'"
-                                                    ng-model="compose.selrecip"
-                                                    ng-options="recip.userid as recip.username for recip in authrecips | filter:type = 'user'  track by recip.userid"></select>
-                                                <select class="form-control" id="selSendto"
-                                                    ng-hide="compose.task == 'forward'"
-                                                    ng-model="compose.selrecip"
-                                                    ng-options="recip.userid as recip.username for recip in authrecips track by recip.userid"></select>
+                                                <select class="form-control" id="selForwardto" ng-hide="compose.task != 'forward'" ng-model="compose.selrecip" ng-options="recip.userid as recip.username for recip in authrecips | filter:type = 'user'  track by recip.userid"></select>
+                                                <select class="form-control" id="selSendto" ng-hide="compose.task == 'forward'" ng-model="compose.selrecip" ng-options="recip.userid as recip.username for recip in authrecips track by recip.userid"></select>
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="col-sm-1 col-md-1" for="title"><?php echo xlt('Subject'); ?></label>
                                             <div class="col-sm-6 col-md-6">
-                                                <input type='text' list='listid' name='title' id='title'
-                                                    class="form-control" ng-model='compose.title'>
+                                                <input type='text' list='listid' name='title' id='title' class="form-control" ng-model='compose.title'>
                                                 <datalist id='listid'>
                                                     <option><?php echo xlt('Unassigned'); ?></option>
                                                     <option label='<?php echo xlt('Insurance'); ?>'
@@ -773,27 +719,19 @@ function getAuthPortalUsers()
                                                 </datalist>
                                             </div>
                                         </div>
-                                        <div class="col-sm-12 col-md-12" id="inputBody"
-                                            ng-hide="compose.task == 'forward'"
-                                            ng-model="compose.inputBody"></div>
-                                        <textarea class="col-sm-12 col-md-12" id="finputBody" rows="8"
-                                            ng-hide="compose.task != 'forward'"
-                                            ng-model="compose.inputBody"></textarea>
+                                        <div class="col-sm-12 col-md-12" id="inputBody" ng-hide="compose.task == 'forward'" ng-model="compose.inputBody"></div>
+                                        <textarea class="col-sm-12 col-md-12" id="finputBody" rows="8" ng-hide="compose.task != 'forward'" ng-model="compose.inputBody"></textarea>
                                     </fieldset>
-                                    <input type='hidden' name='noteid' id='noteid'
-                                        ng-value="compose.noteid" /> <input type='hidden'
-                                        name='replyid' id='replyid'
-                                        ng-value='selected.reply_mail_chain' /> <input type='hidden'
-                                        name='owner' ng-value='compose.owner' /> <input type='hidden'
-                                        name='recipient_id' ng-value='compose.selrecip' /> <input
-                                        type='hidden' name='recipient_name'
-                                        ng-value='compose.recipient_name' /> <input type='hidden'
-                                        name='sender_id' ng-value='compose.sender_id' /> <input
-                                        type='hidden' name='sender_name'
-                                        ng-value='compose.sender_name' /> <input type='hidden'
-                                        name='task' ng-value='compose.task' /> <input type='hidden'
-                                        name='inputBody' ng-value='compose.inputBody' /> <input
-                                        type='hidden' name='pid' ng-value='compose.pid' />
+                                    <input type='hidden' name='noteid' id='noteid' ng-value="compose.noteid" />
+                                    <input type='hidden' name='replyid' id='replyid' ng-value='selected.reply_mail_chain' />
+                                    <input type='hidden' name='owner' ng-value='compose.owner' />
+                                    <input type='hidden' name='recipient_id' ng-value='compose.selrecip' />
+                                    <input type='hidden' name='recipient_name' ng-value='compose.recipient_name' /> 
+                                    <input type='hidden' name='sender_id' ng-value='compose.sender_id' />
+                                    <input type='hidden' name='sender_name' ng-value='compose.sender_name' />
+                                    <input type='hidden' name='task' ng-value='compose.task' />
+                                    <input type='hidden' name='inputBody' ng-value='compose.inputBody' />
+                                    <input type='hidden' name='pid' ng-value='compose.pid' />
                                     <div class='modal-footer'>
                                         <button type="button" class="btn btn-secondary"
                                             data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>

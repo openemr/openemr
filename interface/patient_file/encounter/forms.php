@@ -369,7 +369,7 @@ function divtoggle(spanid, divid) {
 
     div.form_header {
         float: left;
-        min-width: 300pt;
+        min-width: 400px;
     }
 
     div.form_header_controls {
@@ -379,8 +379,8 @@ function divtoggle(spanid, divid) {
     }
 
     div.formname {
-        float:left;
-        min-width: 120pt;
+        float: left;
+        min-width: 160px;
         font-weight: bold;
         padding: 0;
         margin: 0;
@@ -605,7 +605,7 @@ if (!empty($reg)) {
 }
 
 if ($StringEcho) {
-    $StringEcho2= '<div style="clear:both"></div>';
+    $StringEcho2= '<div style="clear: both"></div>';
 } else {
     $StringEcho2="";
 }
@@ -771,7 +771,7 @@ if ($esign->isButtonViewable()) {
     <a href='#' class='btn btn-primary' onclick='return createFollowUpEncounter()'><?php echo xlt('Create follow-up encounter') ?></a>
 <?php } ?>
 &nbsp;&nbsp;&nbsp;<a href="#" onClick='expandcollapse("expand");' style="font-size:80%;"><?php echo xlt('Expand All'); ?></a>
-&nbsp;&nbsp;&nbsp;<a  style="font-size:80%;" href="#" onClick='expandcollapse("collapse");'><?php echo xlt('Collapse All'); ?></a>
+&nbsp;&nbsp;&nbsp;<a  style="font-size: 80%;" href="#" onClick='expandcollapse("collapse");'><?php echo xlt('Collapse All'); ?></a>
 </div>
 </div>
 
@@ -783,7 +783,7 @@ if ($esign->isButtonViewable()) {
 
 <div class='encounter-summary-column'>
 <?php if ($GLOBALS['enable_amc_prompting']) { ?>
-    <div style='float:right; margin-right:25px; border-style:solid; border-width:1px;'>
+    <div style='float: right; margin-right: 25px; border-style: solid; border-width: 1px;'>
         <div style='float: left; margin: 5px;'>
             <table>
             <tr>
@@ -829,7 +829,7 @@ if ($esign->isButtonViewable()) {
                     </td>
                 </tr>
                 </table>
-                <table style="margin-left:2em;">
+                <table style="margin-left: 2em;">
                     <tr>
                         <td>
                             <?php if (!(empty($itemAMC['date_completed']))) { ?>
@@ -922,7 +922,7 @@ if (!empty($docs_list) && count($docs_list) > 0) {
         }
         ?>
 <br />
-<a href="<?php echo $doc_url;?>" style="font-size:small;" onsubmit="return top.restoreSession()"><?php echo text(oeFormatShortDate($doc_iter['docdate'])) . ": " . text(basename($doc_iter['url']));?></a>
+<a href="<?php echo $doc_url;?>" style="font-size: small;" onsubmit="return top.restoreSession()"><?php echo text(oeFormatShortDate($doc_iter['docdate'])) . ": " . text(basename($doc_iter['url']));?></a>
         <?php if ($note != '') {?>
             <a href="javascript:void(0);" title="<?php echo attr($note);?>"><img src="<?php echo $GLOBALS['images_static_relative']; ?>/info.png"/></a>
     <?php }?>
@@ -1022,7 +1022,7 @@ if ($pass_sens_squad &&
         echo "</div>";
 
         // a link to edit the form
-        echo "<div class='form_header_controls'>";
+        echo "<div class='form_header_controls btn-group' role='group'>";
 
         // If the form is locked, it is no longer editable
         if ($esign->isLocked()) {
@@ -1076,8 +1076,8 @@ if ($pass_sens_squad &&
         echo "</td>\n";
         echo "</tr>";
         echo "<tr>";
-        echo "<td valign='top' class='formrow'><div class='tab' id='divid_" . attr($divnos) . "' ";
-        echo "style='display:" . ($divnos == 1 ? 'block' : 'none') . "'>";
+        echo "<td valign='top' class='formrow'><div id='divid_" . attr($divnos) . "' ";
+        echo "class='tab " . ($divnos == 1 ? 'd-block' : 'd-none') . "'>";
 
         // Use the form's report.php for display.  Forms with names starting with LBF
         // are list-based forms sharing a single collection of code.

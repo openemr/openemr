@@ -51,7 +51,7 @@ ul {
 
 span.expand_section {
     cursor: pointer;
-    color: white;
+    color: var(--white);
 }
 
 td.menuheadtoolbar {
@@ -59,17 +59,16 @@ td.menuheadtoolbar {
 }
 
 .copyright {
-    color: black;
+    color: var(--black);
     font-size: small;
-
     position: absolute;
     bottom: -24px;
     left: 139px;
 }
 
 .shadow {
-    -moz-box-shadow: 0px 0px 57px 0.8px white;
-    box-shadow: 0px 0px 57px 0.8px white;
+    -moz-box-shadow: 0px 0px 57px 0.8px var(--white);
+    box-shadow: 0px 0px 57px 0.8px var(--white);
 }
 
 .algnRight {
@@ -80,7 +79,7 @@ td.menuheadtoolbar {
     position: absolute;
     top: -60px;
     margin-left: -21px;
-    color: gray;
+    color: var(--gray);
     font-style: italic;
 }
 
@@ -100,7 +99,7 @@ td.menuheadtoolbar {
     padding: 25px;
     margin: 0 2px 10px 2px;
     position: relative;
-    background-color: #fff;
+    background-color: var(--white);
 }
 
 @media (max-width: 1024px) {

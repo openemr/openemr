@@ -43,7 +43,7 @@ $check_res = $formid ? $check_res : array();
 
         <?php Header::setupHeader(['datetime-picker']);?>
 
-        <style type="text/css" title="mystyles" media="all">
+        <style title="mystyles" media="all">
             @media only screen and (max-width: 768px) {
                 [class*="col-"] {
                 width: 100%;
@@ -158,8 +158,8 @@ $check_res = $formid ? $check_res : array();
                         if (!empty($check_res)) {
                             foreach ($check_res as $key => $obj) { ?>
                                 <div class="tb_row" id="tb_row_<?php echo attr($key) + 1; ?>">
-                                    <div class="form-group">
-                                        <div class=" forms col-3">
+                                    <div class="form-row col">
+                                        <div class="forms col-3">
                                             <label for="code_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Code'); ?>:</label>
                                             <input type="text" id="code_<?php echo attr($key) + 1; ?>"  name="code[]" class="form-control code" value="<?php echo text($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
                                             <span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext help-block"></span>
@@ -179,7 +179,7 @@ $check_res = $formid ? $check_res : array();
                                             <input type="checkbox" name="activity[]" onclick="checkVal(this.id);" id="activity_<?php echo $key + 1; ?>" value="<?php echo attr($obj["activity"]); ?>" <?php echo ($obj["activity"] == 1) ? "checked='checked'" : ""; ?> class="activity">
                                             <input  type="hidden" name="activity1[]" id="activity1_<?php echo $key + 1; ?>" value="<?php echo attr($obj["activity"]); ?>" class="activity1">
                                         </div>
-                                            <div class="forms col-1" style="padding-top:35px">
+                                            <div class="forms col-1" style="padding-top: 35px">
                                                 <i class="fa fa-plus-circle fa-2x" aria-hidden="true" onclick="duplicateRow(this.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'></i>
                                                 <i class="fa fa-times-circle fa-2x text-danger"  aria-hidden="true" onclick="deleteRow(this.parentElement.parentElement.parentElement.id);"  title='<?php echo xla('Click here to delete the row'); ?>'></i>
                                             </div>
@@ -191,8 +191,8 @@ $check_res = $formid ? $check_res : array();
                             }
                         } else { ?>
                             <div class="tb_row" id="tb_row_1">
-                            <div class="form-group">
-                                <div class=" forms col-3">
+                            <div class="form-row col">
+                                <div class="forms col-3">
                                     <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
                                     <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo text($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
                                     <span id="displaytext_1"  class="displaytext help-block"></span>
@@ -212,7 +212,7 @@ $check_res = $formid ? $check_res : array();
                                     <input type="checkbox" name="activity[]" onclick="checkVal(this.id);" id="activity_1" value="0" class="activity">
                                     <input type="hidden" name="activity1[]" id="activity1_1" value="0" class="activity1">
                                 </div>
-                                <div class="forms col-1 " style="padding-top:35px">
+                                <div class="forms col-1" style="padding-top: 35px">
                                     <i class="fa fa-plus-circle fa-2x" aria-hidden="true" onclick="duplicateRow(this.parentElement.parentElement.parentElement);" title='<?php echo xla('Click here to duplicate the row'); ?>'></i>
                                     <i class="fa fa-times-circle fa-2x text-danger"  aria-hidden="true" onclick="deleteRow(this.parentElement.parentElement.parentElement.id);"  title='<?php echo xla('Click here to delete the row'); ?>'></i>
                                 </div>
@@ -228,7 +228,7 @@ $check_res = $formid ? $check_res : array();
                             <div class="btn-group oe-opt-btn-group-pinch" role="group">
                                 <button type="submit" onclick="top.restoreSession()" class="btn btn-secondary btn-save"><?php echo xlt('Save'); ?></button>
                                 <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); parent.closeTab(window.name, false)"><?php echo xlt('Cancel');?></button>
-                                <input type="hidden" id="clickId" value="">
+                                <input type="hidden" id="clickId" value="" />
                             </div>
                         </div>
                     </div>

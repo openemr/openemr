@@ -168,20 +168,98 @@ $(function() {
 });
 </script>
 <style>
-.ui-accordion-header { font-size: .7em; font-weight: bold; }
-.ui-accordion-content { background-color: #E4E7EA; }
-.hdr { font-size: 1.1em; font-weight: bold; }
-.overview { font-size: 1.1em; font-weight: normal; width: 700px; color: blue; }
-.atr { font-size: .8em; font-weight: normal; clear: both; width: 300px; }
-.left_wrpr { float: left; clear: both; padding:20px; background-color: #E4E7EA}
-.wrpr { float: left; padding:20px; background-color: #E4E7EA}
-.inst_dets { font-size: .8em; font-weight: normal; clear: both; border-style: solid; border-width: 2px; padding: 25px; margins: 20px; outline-color:#E4E7EA; outline-style: solid; outline-width: 20px; float: left; }
-.stg_dets { padding-left: 20px; font-size: .8em; font-weight: normal; border-style: solid; border-width: 2px; padding: 25px; margins: 20px; outline-color:#E4E7EA; outline-style: solid; outline-width: 20px; float: left; background-color: #E4E7EA}
-.stg { font-size: .8em; font-weight: normal; font-style: italic; margin: 10px;}
-.dialog { color: blue; padding: 20px; font-size: .9em; font-weight: normal; font-style: italic; left: 20px; top:20px; }
-a.dialog { text-decoration: underline; font-size: 1.1em; font-weight: bold; margin: 10px; }
-.status { font-size: .8em; font-weight: normal; width: 350px; }
-.error_msg { font-size: .9em; font-style: italic; font-weight: bold; color: red; margin: 10px; }
+.ui-accordion-header {
+    font-size: .7em;
+    font-weight: bold;
+}
+.ui-accordion-content {
+    background-color: #E4E7EA;
+}
+.hdr {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+.overview {
+    font-size: 1.1em;
+    font-weight: normal;
+    width: 700px;
+    color: var(--primary);
+}
+.atr {
+    font-size: .8em;
+    font-weight: normal;
+    clear: both;
+    width: 300px;
+}
+.left_wrpr {
+    float: left;
+    clear: both;
+    padding: 20px;
+    background-color: #E4E7EA;
+}
+.wrpr {
+    float: left;
+    padding: 20px;
+    background-color: #E4E7EA;
+}
+.inst_dets {
+    font-size: .8em;
+    font-weight: normal;
+    clear: both;
+    border-style: solid;
+    border-width: 2px;
+    padding: 25px;
+    margin: 20px;
+    outline-color:#E4E7EA;
+    outline-style: solid;
+    outline-width: 20px;
+    float: left;
+}
+.stg_dets {
+    padding-left: 20px;
+    font-size: .8em;
+    font-weight: normal;
+    border-style: solid;
+    border-width: 2px;
+    padding: 25px;
+    margin: 20px;
+    outline: 20px solid #E4E7EA;
+    float: left;
+    background-color: #E4E7EA;
+}
+.stg {
+    font-size: .8em;
+    font-weight: normal;
+    font-style: italic;
+    margin: 10px;
+}
+.dialog {
+    color: var(--primary);
+    padding: 20px;
+    font-size: .9em;
+    font-weight: normal;
+    font-style: italic;
+    left: 20px;
+    top: 20px;
+}
+a.dialog {
+    text-decoration: underline;
+    font-size: 1.1em;
+    font-weight: bold;
+    margin: 10px;
+}
+.status {
+    font-size: .8em;
+    font-weight: normal;
+    width: 350px;
+}
+.error_msg {
+    font-size: .9em;
+    font-style: italic;
+    font-weight: bold;
+    color: var(--danger);
+    margin: 10px;
+}
 
 span.msg {
   cursor: pointer;
@@ -191,18 +269,20 @@ span.msg {
   height: 16px;
   background-color: #89A4CC;
   line-height: 16px;
-  color: White;
+  color: var(--white);
   font-size: 13px;
   font-weight: bold;
   border-radius: 8px;
   text-align: center;
   position: relative;
 }
-span.msg:hover { background-color: #3D6199; }
+span.msg:hover {
+    background-color: #3D6199;
+}
 
 div.tooltip {
   background-color: #3D6199;
-  color: White;
+  color: var(--white);
   position: absolute;
   left: 25px;
   top: -25px;
@@ -213,7 +293,7 @@ div.tooltip:before {
   border-color: transparent #3D6199 transparent transparent;
   border-right: 6px solid #3D6199;
   border-style: solid;
-  border-width: 6px 6px 6px 0px;
+  border-width: 6px 6px 6px 0;
   content: "";
   display: block;
   height: 0;
@@ -225,7 +305,7 @@ div.tooltip:before {
 }
 div.tooltip p {
   margin: 10px;
-  color: White;
+  color: var(--white);
   width: 350px;
 }
 </style>
@@ -256,7 +336,7 @@ foreach ($db_list as $db) {
                 <div class="inst_hdr"><?php echo xlt("Installed Release"); ?></div>
                 <hr>
         <div id="<?php echo attr($db); ?>_install_details">
-            <div id='<?php echo attr($db); ?>_inst_loading' style='margin:10px;display:none;'><img src='../pic/ajax-loader.gif'/></div>
+            <div id='<?php echo attr($db); ?>_inst_loading' style='margin: 10px; display: none;'><img src='../pic/ajax-loader.gif'/></div>
         </div>
             </div>
         </div>
@@ -265,7 +345,7 @@ foreach ($db_list as $db) {
             <div class="stg_hdr" id="<?php echo attr($db); ?>_stg_hdr"><?php echo xlt("Staged Releases"); ?></div>
             <hr>
         <div id="<?php echo attr($db); ?>_stage_details"></div>
-        <div id='<?php echo attr($db); ?>_stg_loading' style='margin:10px;display:none;'><img src='../pic/ajax-loader.gif'/></div>
+        <div id='<?php echo attr($db); ?>_stg_loading' style='margin: 10px; display: none;'><img src='../pic/ajax-loader.gif'/></div>
         </div>
           </div>
     </div>

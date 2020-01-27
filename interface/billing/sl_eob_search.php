@@ -835,10 +835,8 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                     <div class="form-row oe-show-hide" id='era-upld' style="display: none">
                         <div class="form-group col-lg oe-file-div">
                             <div class="input-group">
-                                <label class="input-group-btn">
-                        <span class="btn btn-secondary">Browse&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;">
-                            <input name="MAX_FILE_SIZE" type="hidden" value="5000000" />
-                        </span>
+                                <label class="input-group-prepend">
+                                    <span class="btn btn-secondary">Browse&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;" /><input name="MAX_FILE_SIZE" type="hidden" value="5000000" /></span>
                                 </label>
                                 <input type="text" class="form-control" placeholder="<?php echo xla('Click Browse and select one Electronic Remittance Advice (ERA) file...'); ?>" readonly />
                             </div>

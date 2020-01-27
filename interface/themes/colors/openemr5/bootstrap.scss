@@ -1,8 +1,8 @@
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 bootstrap *~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/* OpenEMR Bootstrap Override */
 
 fieldset {
     margin-bottom: 10px !important;
-    padding: 0px 0px 15px 0px !important;
+    padding: 0 0 15px 0 !important;
 }
 
 legend {
@@ -10,7 +10,7 @@ legend {
 }
 
 label {
-    padding: 0px 5px !important;
+    padding: 0 5px !important;
 }
 
 textarea.form-control {
@@ -32,7 +32,6 @@ textarea.form-control {
 .btn-secondary {
     background: $darker !important;
     color: $white !important;
-    /*border-color:$paler!important; $midpale*/
     border-color: $darker !important;
 }
 
@@ -72,7 +71,7 @@ textarea.form-control {
     color: $gray !important;
     border-color: $darker !important;
     background: $palepale !important;
-    box-shadow: 0px 0px 2px $darker inset;
+    box-shadow: 0 0 2px $darker inset;
     transition: border-color ease-in-out .3s, box-shadow ease-in-out .3s;
 }
 
@@ -86,8 +85,8 @@ textarea.form-control {
 }
 
 .btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle) {
-    border-top-right-radius: 0px !important;
-    border-bottom-right-radius: 0px !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
     border-bottom-left-radius: 3px !important;
     border-top-left-radius: 3px !important;
 }
@@ -99,14 +98,14 @@ textarea.form-control {
 }
 
 .btn-sm {
-    font-size: 10px !important;
+    @include font-size("10px !important");
 }
 
 .btn-lg {
     border-radius: 3px !important;
 }
 
-.control-label {
+.col-form-label {
     font-weight: 600 !important;
 }
 
@@ -119,13 +118,13 @@ input[type=radio] {
     margin-bottom: 5px !important;
 }
 
-.form-horizontal .control-label {
+.form-horizontal .col-form-label {
     padding-top: 2px !important;
 }
 
 .form-control {
     height: 24px !important;
-    padding: 0px 6px !important;
+    padding: 0 6px !important;
 }
 
 .checkbox input[type=checkbox],
@@ -162,13 +161,13 @@ input[type=radio] {
 }
 
 .oe-legend-radio {
-    font-size: 12px;
-    padding: 5px 5px 0px 0px;
+    @include font-size("12px !important");
+    padding: 5px 5px 0 0;
 }
 
 .oe-bold-black {
     font-weight: 700 !important;
-    color: black !important;
+    color: #000 !important;
 }
 
 .oe-btn-circle {
@@ -176,7 +175,7 @@ input[type=radio] {
     height: 30px;
     text-align: center;
     padding: 6px 0;
-    font-size: 12px;
+    @include font-size("12px !important");
     line-height: 1.428571429;
     border-radius: 15px;
     background: $darker !important;
@@ -190,7 +189,7 @@ input[type=radio] {
     height: 20px;
     text-align: center;
     padding: 2px 0;
-    font-size: 12px;
+    @include font-size("12px !important");
     line-height: 1.428571429;
     border-radius: 10px !important;
     background: $darker !important;
@@ -198,5 +197,3 @@ input[type=radio] {
     border-color: $darkest !important;
     margin: 5px;
 }
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 bootstrap *~~~~~~~~~~~~~~~~~~~~~~~~~*/

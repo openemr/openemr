@@ -251,7 +251,7 @@ if ($_FILES['form_erafile']['size']) {
                         <div class="col-12 oe-custom-line">
                             <div class="form-group col-9 oe-file-div">
                                 <div class="input-group">
-                                    <label class="input-group-btn">
+                                    <label class="input-group-prepend">
                                         <span class="btn btn-secondary">
                                             <?php echo xlt('Browse'); ?>&hellip;<input type="file" id="uploadedfile" name="form_erafile" style="display: none;" />
                                             <input name="MAX_FILE_SIZE" type="hidden" value="5000000" />

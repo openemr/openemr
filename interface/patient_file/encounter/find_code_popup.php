@@ -55,10 +55,12 @@ $target_element = $_GET['target_element'];
 <?php Header::setupHeader('opener'); ?>
 
 <style>
-td { font-size:10pt; }
+td {
+    font-size: 13px;
+}
 </style>
 
-<script language="JavaScript">
+<script>
 
  // Standard function
  function selcode(codetype, code, selector, codedesc) {
@@ -113,24 +115,22 @@ if (!empty($target_element)) {
 
 <center>
 
-<table border='0' cellpadding='5' cellspacing='0'>
+<table class='border-0' cellpadding='5' cellspacing='0'>
 
  <tr>
   <td height="1">
   </td>
  </tr>
 
- <tr class = "head" bgcolor='#ddddff'>
+ <tr class="head bg-light form-inline font-weight-bold">
   <td>
-   <b>
-
 <?php
 if (!empty($allowed_codes)) {
     if (count($allowed_codes) === 1) {
-        echo "<input type='text' name='form_code_type' value='" . attr($codetype) . "' size='5' readonly>\n";
+        echo "<input class='form-control' type='text' name='form_code_type' value='" . attr($codetype) . "' size='5' readonly />\n";
     } else {
         ?>
-   <select name='form_code_type'>
+   <select class='form-control' name='form_code_type'>
         <?php
         foreach ($allowed_codes as $code) {
             $selected_attr = ($default == $code) ? " selected='selected'" : '';
@@ -144,7 +144,7 @@ if (!empty($allowed_codes)) {
     }
 } else {
   // No allowed types were specified, so show all.
-    echo "   <select name='form_code_type'";
+    echo "   <select class='form-control' name='form_code_type'";
     echo ">\n";
     foreach ($code_types as $key => $value) {
         echo "    <option value='" . attr($key) . "'";
@@ -166,17 +166,16 @@ if (!empty($allowed_codes)) {
 ?>
 
     <?php echo xlt('Search for:'); ?>
-   <input type='text' name='search_term' size='12' value='<?php echo attr($_REQUEST['search_term']); ?>'
-    title='<?php echo xla('Any part of the desired code or its description'); ?>' />
+   <input type='text' class='form-control' name='search_term' size='12' value='<?php echo attr($_REQUEST['search_term']); ?>' title='<?php echo xla('Any part of the desired code or its description'); ?>' />
    &nbsp;
-   <input type='submit' name='bn_search' value='<?php echo xla('Search'); ?>' />
+   <input type='submit' class='btn btn-primary' name='bn_search' value='<?php echo xla('Search'); ?>' />
    &nbsp;&nbsp;&nbsp;
     <?php if (!empty($target_element)) { ?>
-     <input type='button' value='<?php echo xla('Erase'); ?>' onclick="selcode_target('', '', '', '', <?php echo attr_js($target_element); ?>)" />
+     <input type='button' class='btn btn-primary' value='<?php echo xla('Erase'); ?>' onclick="selcode_target('', '', '', '', <?php echo attr_js($target_element); ?>)" />
     <?php } else { ?>
-     <input type='button' value='<?php echo xla('Erase'); ?>' onclick="selcode('', '', '', '')" />
+     <input type='button' class='btn btn-danger' value='<?php echo xla('Erase'); ?>' onclick="selcode('', '', '', '')" />
     <?php } ?>
-   </b>
+   
   </td>
  </tr>
 
@@ -194,10 +193,10 @@ if ($_REQUEST['bn_search'] || $_REQUEST['search_term']) {
     }
     ?>
 
-<table border='0'>
+<table class='border-0'>
 <tr>
-<td><b><?php echo xlt('Code'); ?></b></td>
-<td><b><?php echo xlt('Description'); ?></b></td>
+<td class='font-weight-bold'><?php echo xlt('Code'); ?></td>
+<td class='font-weight-bold'><?php echo xlt('Description'); ?></td>
 </tr>
     <?php
     $search_term = $_REQUEST['search_term'];

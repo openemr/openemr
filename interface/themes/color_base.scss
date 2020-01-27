@@ -44,9 +44,9 @@
 /* Bootstrap Code */
 
 /* Default Colors */
-$blue: #007bff;
+$blue: $darker;
 $indigo: #6610f2;
-$purple: #6f42c1;
+$purple: $palepurple;
 $pink: #e83e8c;
 $red: #dc3545;
 $orange: #fd7e14;
@@ -54,7 +54,6 @@ $yellow: #ffc107;
 $green: #28a745;
 $teal: #20c997;
 $cyan: #17a2b8;
-$white: #fff;
 $black: #000;
 
 /* Default Grays */
@@ -141,7 +140,7 @@ $close-text-shadow: 0 1 0 $black;
 
 /* Huge list of overrides */
 body {
-    margin: 0px 0px 0px 2px !important;
+    margin: 0 0 0 2px !important;
 }
 
 .menu,
@@ -257,11 +256,11 @@ body {
 }
 
 .address_names:hover {
-    color: magenta !important;
+    color: #ff00ff !important;
 }
 
 .highlight {
-    color: magenta !important;
+    color: #ff00ff !important;
 }
 
 #reports_list td,
@@ -329,7 +328,7 @@ ul.tabNav li.current {
 ul.tabNav a {
     background: $palepale;
     border: solid $dark;
-    border-width: 3px 1px 0px 1px;
+    border-width: 3px 1px 0 1px;
     color: $bs-dark;
     padding: 4px 4px 5px 4px;
     border-top-left-radius: 5px;
@@ -357,7 +356,7 @@ ul.tabNav li.current a {
 
 #report_parameters {
     background-color: $palepale;
-    margin: 10px 0px 5px 0px;
+    margin: 10px 0 5px 0;
 }
 
 #report_parameters table {
@@ -483,7 +482,7 @@ ul.tabNav li.current a {
 .div-message {
     background-color: $white;
     color: $gray;
-    margin: 5 0 5 0px;
+    margin: 5 0 5 0;
     border: 1px solid $darker;
     padding: 5px;
     width: 648px;
@@ -582,7 +581,24 @@ th.historicalvalues {
     background: $paler !important;
 }
 
-/*search any*/
+/* SVG Color Customization */
+.login-emr-logo > #red-color {
+    fill: $darkest !important;
+}
+
+.login-emr-logo > #blue-color {
+    fill: $dark !important;
+}
+
+.emr-menu-logo > #blue-color {
+    fill: $pale !important;
+}
+
+.about-review-image > #color {
+    fill: $darkest !important;
+}
+
+/* search any */
 
 @import "colors/openemr5/batch-payments";
 @import "colors/openemr5/recall-flow-board";
