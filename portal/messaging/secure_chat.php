@@ -257,7 +257,9 @@ abstract class Controller
     }
 }
 
-abstract class Helper {}
+abstract class Helper
+{
+}
 
 namespace SMA_Msg;
 
