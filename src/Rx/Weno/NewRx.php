@@ -46,15 +46,13 @@ class NewRx
          */
         $scriptPrescriber = $scriptData->getPrescriberData();
 
-        $wenoid = 137;
-        $pharmacyid  = '0127781';
-        $prescribernpi1 = '1902820954';
-        $partnerID = '7C84773D5063B20BC9E41636A091C6F17E9C1E34';//'9039730E79C1167765840EDABC6AB2A6';
+        $wenoid = 157;
+        $partnerID = 'DA51A758AC5EBF04A095D0B7A356C50490A828C4';//'9039730E79C1167765840EDABC6AB2A6';
 
         /**
          * The generation of the prescription XML
          */
-        $envelope = '<Message xmlns:xsi=":-https://wexlb.wenoexchange.com/schema/POSTRX"' .
+        $envelope = '<Message xmlns:xsi=":http://www.w3.org/2001/XMLSchema-instance"' .
                     ' DatatypesVersion="20170715" TransportVersion="20170715" ' .
                     ' TransactionDomain="SCRIPT" TransactionVersion="20170715" ' .
                     ' StructuresVersion="20170715" ECLVersion="20170715"> ' .
@@ -66,7 +64,7 @@ class NewRx
         $mHeader = $xml->addChild('Header');
         $to = $mHeader->addChild('To', $pai['ncpdp']);
         $to->addAttribute('Qualifier', 'P');
-        $from = $mHeader->addChild('From', $scriptPrescriber[0]['npi']);
+        $from = $mHeader->addChild('From', $GLOBALS['weno_provider_id']);
         $from->addAttribute('Qualifier', 'C');
         $mHeader->addChild('MessageID', 'jse'.$messageid);
         $mHeader->addChild('SentTime', date('Y-m-d')."T".date('H:i:s'));
@@ -182,7 +180,7 @@ class NewRx
         $takenDate = $vitalsData['date'];
         $taken = explode(" ", $takenDate);
         $obdate2->addChild('DateTime', $taken[0].'T'.$taken[1]);
-        $obnotes = $observation->addChild('ObservationNotes', $vitalsData['note']);
+        $obnotes = $observation->addChild('ObservationNotes', ($vitalsData['note'] == "" ? 'NA' : $vitalsData['note']));
 
         $medData = $scriptData->medicationData($med);
 
@@ -193,14 +191,14 @@ class NewRx
         $dbcode->addChild('Code', $medData['drug_id']);
         $dbcode->addChild('Qualifier', $medData['drug_db_code_qualifier']);
         $deaschedule = $drugcode->addChild('DEASchedule');
-        $deaschedule->addChild('Code', $medData['potency_unit_code']);
+        $deaschedule->addChild('Code', $medData['dea_schedule']);
         $quantity = $medicationpres->addChild('Quantity');
         $quantity->addChild('Value', $medData['quantity']);
         $quantity->addChild('CodeListQualifier', $medData['code_list_qualifier']);
         $quantityofunit = $quantity->addChild('QuantityUnitOfMeasure');
         $quantityofunit->addChild('Code', $medData['potency_unit_code']);
         $writtendate = $medicationpres->addChild('WrittenDate');
-        $writtendate->addChild('Date', $medData['date_Added']);
+        $writtendate->addChild('Date', date("Y-m-d"));
         $substitution = $medicationpres->addChild('Substitutions', '0');
         $refills = $medicationpres->addChild('NumberOfRefills', $medData['refills']);
         $diagnosis = $medicationpres->addChild('Diagnosis');

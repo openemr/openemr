@@ -87,7 +87,6 @@ function sendScripts(e) {
           url: sendRx+'?scripts='+scripts,
           type: 'GET',
           success: function (response) {
-              response.setHeader("Set-Cookie", "HttpOnly;Secure;SameSite=None");
               parser = new DOMParser();
               responses.push(response);
               var announce = "Send Complete - Prescription(s) Return Status + Sign Off";
@@ -97,8 +96,9 @@ function sendScripts(e) {
                   console.log('result: ' + response);
                   console.log('url: ' + url);
                   if (url) {
-                      $('#success').append('<iframe id="weno_iframe" name="myIframe" frameborder="5" width="550" height="300"></iframe>');
-                      $('#weno_iframe').attr('src', url);
+                      //$('#success').append(window.location.replace(url));
+                      $('#success').append('<a href='+url+' target="_blank">Click Here to Sign Prescription</a>');
+                      //$('#weno_iframe').attr('src', url);
                   } else {
                       const erx_error = $(response).find('Error').text();
                       $('#success').append(erx_error);

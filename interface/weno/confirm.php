@@ -17,13 +17,13 @@ require_once("$srcdir/patient.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\Rx\Weno\TransmitData;
+use OpenEMR\Rx\Weno\ValidateRxData;
 
 $date = date("Y-m-d");
 $pid = $GLOBALS['pid'];
 $uid = $_SESSION['authUserID'];          //username of the person for this session
 
-$tData = new TransmitData();
+$tData = new ValidateRxData();
 
 $send = $tData->getDrugList($pid, $date);
 $provider = $tData->getProviderFacility($uid);
@@ -89,7 +89,8 @@ $mailOrder = $tData->mailOrderPharmacy();
     ?><br> <br>
 
     <?php print xlt("Mail Order") ?> <br>
-    <input type = 'radio' name = 'pharmacy' id = 'mailOrder' value = "<?php print attr($mailOrder['id']) ?>"><?php print "CCS Medical 	14255 49th Street, North, Clearwater, FL 33762 <br>" ?>
+    <input type = 'radio' name = 'pharmacy' id = 'mailOrder' value = "<?php print attr($mailOrder['id']) ?>">
+    <?php print "CCS Medical 	14255 49th Street, North, Clearwater, FL 33762 <br>" ?>
 
     <div id="confirm" show>
         <br><br>
@@ -146,7 +147,7 @@ $mailOrder = $tData->mailOrderPharmacy();
             $.each(toTran, function( index, value ) {
                 //this is to create the json script to be transmitted
                 $.ajax({
-                    //feeds the json generator
+                    //feeds the json generator * updated 10/22/2019
                     url: 'jsonScript.php?getJson=' + encodeURIComponent(pharm_Id) + ',' + encodeURIComponent(value) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>,
 
                     success: function(response){
@@ -166,17 +167,17 @@ $mailOrder = $tData->mailOrderPharmacy();
         //Transmit order(s)
         $('#order').click(function() {
             $('#success').html("<i class='fa fa-refresh fa-spin fa-3x fa-fw'></i>");
-            var request = [];
-            var responses = [];
+            let request = [];
+            let responses = [];
             // Lets not talk to user here because most likely won't make to user anyway.
             // So we'll batch the ajax calls with an apply and promise so everyone is happy.
             // This isn't foolproof so look here if not batching large json requests.
             $.each(jsonArray, function(index, value) {
                 request.push(
                     $.ajax({
-                        type: 'POST',
+                        type: 'GET',
                         dataType: 'JSON',
-                        url: 'https://apa.openmedpractice.com/apa/interface/weno/receivingrx.php?',
+                        url: 'https://apa.openmedpractice.com/apa/interface/weno/receivingrx_v2.php?',
                         data: {"scripts": value},
 
                         success: function (response) {
