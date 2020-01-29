@@ -17,7 +17,7 @@ function get_system_info() {
 
 	//Grab system info
 	$system_info .= 'PHP Version: '.phpversion()."\n";
-	$system_info .= 'Zend Version: '.zend_version()."\n";
+	$system_info .= 'Laminas/Zend Version: ' . zend_version() . "\n";
 	$system_info .= 'Web Server: '.$_SERVER['SERVER_SOFTWARE']."\n\n";
 	$system_info .= 'phpGACL Settings: '."\n";
 	$system_info .= '  phpGACL Version: '.$gacl_api->get_version()."\n";

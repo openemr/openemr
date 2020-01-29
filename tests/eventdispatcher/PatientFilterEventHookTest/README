@@ -5,7 +5,7 @@ to the patient filter and access to patient demographics
 
 **Setup**
 
-Copy the entire UserPatientBlacklist directory into interface/modules/zend_modules/module
+Copy the entire UserPatientBlacklist directory into interface/modules/laminas_modules/module
 
 Then you will be able to register the module.
 

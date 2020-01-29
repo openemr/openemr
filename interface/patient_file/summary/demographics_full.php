@@ -851,15 +851,15 @@ $use_validate_js=$GLOBALS['new_validate'];
 
 //This code deals with demographics before save action -
     <?php if (($GLOBALS['gbl_edit_patient_form'] == '1') && (checkIfPatientValidationHookIsActive())) :?>
-                //Use the Zend patient validation hook.
+                //Use the Laminas patient validation hook.
                 //TODO - get the edit part of patient validation hook to work smoothly and then
                 //       remove the closeBeforeOpening=1 in the url below.
 
         var f = $("form");
 
         // Use hook to open the controller and get the new patient validation .
-        // when no params are sent this window will be closed from the zend controller.
-        var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation";?>';
+        // when no params are sent this window will be closed from the laminas controller.
+        var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/laminas_modules/public/patientvalidation";?>';
         $("#submit_btn").attr("name","btnSubmit");
         $("#submit_btn").attr("id","btnSubmit");
         $("#btnSubmit").click(function( event ) {

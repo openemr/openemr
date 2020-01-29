@@ -663,7 +663,7 @@ if ($encounterLocked === false) {
                 $added      = "";
             } else {
                 $added      = "index";
-                $modulePath = $GLOBALS['zendModDir'];
+                $modulePath = $GLOBALS['laminasModDir'];
             }
             $relative_link = "../../modules/".$modulePath."/".$modulerow['path'];
             $nickname = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';

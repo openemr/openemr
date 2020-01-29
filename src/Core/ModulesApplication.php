@@ -21,7 +21,7 @@ use Laminas\ServiceManager\ServiceManager;
 class ModulesApplication
 {
     /**
-     * The application reference pointer for the zend mvc modules application
+     * The application reference pointer for the laminas mvc modules application
      * @var Application
      *
      */
@@ -29,12 +29,12 @@ class ModulesApplication
 
     const CUSTOM_MODULE_BOOSTRAP_NAME = 'openemr.bootstrap.php';
 
-    public function __construct(Kernel $kernel, $webRootPath, $modulePath, $zendModulePath)
+    public function __construct(Kernel $kernel, $webRootPath, $modulePath, $laminasModulePath)
     {
         // Beware: default module path ends in a slash. Really should not but have to refactor to change..
-        $zendConfigurationPath = $webRootPath . '/' . $modulePath . $zendModulePath;
+        $laminasConfigurationPath = $webRootPath . '/' . $modulePath . $laminasModulePath;
         $customModulePath = $webRootPath . '/' . $modulePath . "custom_modules" . '/';
-        $configuration = require $zendConfigurationPath . '/' . 'config/application.config.php';
+        $configuration = require $laminasConfigurationPath . '/' . 'config/application.config.php';
 
         // Prepare the service manager
         // We customize this and skip using the static Laminas\Mvc\Application::init in order to inject the
@@ -92,7 +92,7 @@ class ModulesApplication
         }
         try {
             // the only thing in scope here is $module and $eventDispatcher which is ok for our bootstrap piece.
-            // do we really want to just include a file??  Should we go all zend and actually force a class instantiation
+            // do we really want to just include a file??  Should we go all laminas and actually force a class instantiation
             // here and then inject the EventDispatcher or even possibly the Symfony Kernel here?
             include $module['path'] . '/' . attr(self::CUSTOM_MODULE_BOOSTRAP_NAME);
         } catch (Exception $exception) {

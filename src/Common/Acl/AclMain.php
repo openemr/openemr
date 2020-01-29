@@ -217,9 +217,9 @@ class AclMain
     /**
      * Checks ACL
      *
-     * Same Functionality in the Zend Module
-     * for ACL Check in Zend
-     * Path openemr/interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable
+     * Same Functionality in the Laminas Module
+     * for ACL Check in Laminas
+     * Path openemr/interface/modules/laminas_modules/module/Application/src/Application/Model/ApplicationTable
      * Function Name zAclCheck
      *
      * @param String $user_id Auth user Id

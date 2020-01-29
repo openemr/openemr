@@ -5542,7 +5542,7 @@ Mandatory
 Mandatory and specified fields
 Mandatory or specified fields only, dup check, no search
 Mandatory or specified fields only, search and dup check
-Mandatory or specified fields only, use patient validation Zend module
+Mandatory or specified fields only, use patient validation Laminas module
 Manifest (Dry) Refraction
 Manual
 Manual Posting
@@ -5954,10 +5954,10 @@ Name of insurance company
 Name of Provider
 Name of the sender for patient reminders.
 Name of the Surgeon
-Name of zend template for html print
-Name of zend template for html print, possible to add custom template in the PrescriptionTemplate module
-Name of zend template for pdf export
-Name of zend template for pdf export, possible to add custom template in the PrescriptionTemplate module
+Name of laminas template for html print
+Name of laminas template for html print, possible to add custom template in the PrescriptionTemplate module
+Name of laminas template for pdf export
+Name of laminas template for pdf export, possible to add custom template in the PrescriptionTemplate module
 Name on Card
 Name Translation
 Name/Value
@@ -8526,13 +8526,13 @@ Rx Enable DEA #
 Rx Enable NPI
 Rx Enable State Lic. #
 Rx History
-Rx html print - zend module
+Rx html print - laminas module
 Rx ID
 Rx Left Margin (px)
 Rx Log
 Rx NLM Drug-Drug
 Rx Paper Size
-Rx pdf - zend template
+Rx pdf - laminas template
 RX Print Date
 Rx Right Margin (px)
 Rx Show DEA #
@@ -10876,10 +10876,10 @@ Usage Tips
 USB based tokens are used for Universal 2nd Factor - U2F authentication and as they are connected to a computer do not need batteries
 Use % alone in a field to just sort on that column
 Use 24 hour time format?
-Use a pdf template from zend module
+Use a pdf template from laminas module
 Use a unique word to identify this group, it has to be a single word, if using two words link them together with an underscore or hyphen.
 Use Active Directory
-Use an html template from zend module
+Use an html template from laminas module
 Use Avery Labels
 Use Blood or Serum as Specimen Type
 Use certified EHR technology to identify patient-specific education resources and provide those resources to the patient if appropriate(New).
@@ -11564,8 +11564,8 @@ yyyy-mm-dd last date of this event
 yyyy-mm-dd Start Date
 yyyy-mm-dd starting date for search
 ZEF segment internal error
-Zend Module
-Zend Module check in addition to standard check
+Laminas Module
+Laminas Module check in addition to standard check
 Zero
 Zhuang, Chuang
 Zip

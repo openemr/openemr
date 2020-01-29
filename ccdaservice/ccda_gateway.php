@@ -89,7 +89,7 @@ function portalccdafetching($pid, $server_url, $parameterArray)
     $parameters = http_build_query($parameterArray); // future use
     try {
         $ch = curl_init();
-        $url = $server_url . "/interface/modules/zend_modules/public/encounterccdadispatch/index?site=" . urlencode($site_id) . "&me=" . urlencode(session_id()) . "&param=1&view=1&combination=" . urlencode($pid) . "&recipient=patient";
+        $url = $server_url . "/interface/modules/laminas_modules/public/encounterccdadispatch/index?site=" . urlencode($site_id) . "&me=" . urlencode(session_id()) . "&param=1&view=1&combination=" . urlencode($pid) . "&recipient=patient";
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, 0); // set true for look see
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);

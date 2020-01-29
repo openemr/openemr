@@ -153,15 +153,15 @@ $(function(){
                 <table>
                     <tr>
                         <td>
-                        {if $GLOBALS.rx_zend_pdf_template}
-                            <a target="_blank" id="multiprint" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-pdf-template/{$GLOBALS.rx_zend_pdf_action}?id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xlt t='Download'} ({xlt t='PDF'})</span></a>
+                        {if $GLOBALS.rx_laminas_pdf_template}
+                            <a target="_blank" id="multiprint" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.laminasModDir}/public/prescription-pdf-template/{$GLOBALS.rx_laminas_pdf_action}?id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xlt t='Download'} ({xlt t='PDF'})</span></a>
                         {else}
                             <a id="multiprint" href="{$CONTROLLER}prescription&multiprint&id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xlt t='Download'} ({xl t='PDF'})</span></a>
                         {/if}
                         </td>
                         <td>
-                        {if $GLOBALS.rx_zend_html_template}
-                            <a target="_blank" id="multiprintcss" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-html-template/{$GLOBALS.rx_zend_html_action}?id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xl t='View Printable Version'|text} ({xlt t='HTML'})</span></a>
+                        {if $GLOBALS.rx_laminas_html_template}
+                            <a target="_blank" id="multiprintcss" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.laminasModDir}/public/prescription-html-template/{$GLOBALS.rx_laminas_html_action}?id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xl t='View Printable Version'|text} ({xlt t='HTML'})</span></a>
                         {else}
                           <!-- TajEmo work by CB 2012/06/14 02:16:32 PM target="_script" opens better -->
                             <a target="_script" id="multiprintcss" href="{$CONTROLLER}prescription&multiprintcss&id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xlt t='View Printable Version'} ({xlt t='HTML'})</span></a>
