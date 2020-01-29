@@ -1,25 +1,13 @@
 <?php
 // Ensure this script is not called separately
-if ((empty($_SESSION['lang_module_unique_id'])) ||
+if ((empty($_SESSION['acl_setup_unique_id'])) ||
     (empty($unique_id)) ||
-    ($unique_id != $_SESSION['lang_module_unique_id'])) {
+    ($unique_id != $_SESSION['acl_setup_unique_id'])) {
     die('Authentication Error');
 }
-unset($_SESSION['lang_module_unique_id']);
+unset($_SESSION['acl_setup_unique_id']);
 
 use OpenEMR\Common\Acl\AclExtended;
-
-function upgradeAclFromVersion($version)
-{
-    global $ACL_UPGRADE;
-    $toVersion = '';
-    foreach ($ACL_UPGRADE as $toVersion => $function) {
-        if (version_compare($version, $toVersion) < 0) {
-            $function();
-        }
-    }
-    return $toVersion;
-}
 
 return $ACL_UPGRADE = array(
 
