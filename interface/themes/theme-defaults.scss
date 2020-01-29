@@ -418,7 +418,8 @@ fieldset {
     fill: #5c5c5c;
 }
 
-.emr-menu-logo > #blue-color {
+#mainBox .logo .emr-menu-logo > #blue-color,
+#mainBox_vertical .logo .emr-menu-logo > #blue-color {
     fill: #2c9cd4;
 }
 

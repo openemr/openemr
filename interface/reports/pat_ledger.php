@@ -144,7 +144,7 @@ function PrintEncHeader($dt, $rsn, $dr)
 {
     global $bgcolor, $orow;
     $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
-    echo "<tr bgcolor='var(--white)'>";
+    echo "<tr class='bg-white'>";
     if (strlen($rsn) > 50) {
         $rsn = substr($rsn, 0, 50).'...';
     }
@@ -157,7 +157,7 @@ function PrintEncHeader($dt, $rsn, $dr)
 function PrintEncFooter()
 {
     global $enc_units, $enc_chg, $enc_pmt, $enc_adj, $enc_bal;
-    echo "<tr bgcolor='var(--gray300)'>";
+    echo "<tr style='background-color: var(--gray300)'>";
     echo "<td colspan='3'>&nbsp;</td>";
     echo "<td class='detail'>". xlt('Encounter Balance').":</td>";
     echo "<td class='detail text-center'>".text($enc_units)."</td>";
@@ -567,13 +567,13 @@ if ($_REQUEST['form_csvexport']) {
                                                 <?php echo xlt('From'); ?>:&nbsp;&nbsp;&nbsp;&nbsp;
                                             </td>
                                             <td>
-                                                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
+                                                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>' />
                                             </td>
-                                            <td class='col-form-label' class='control-label'>
+                                            <td class='col-form-label' class='col-form-label'>
                                                 <?php echo xlt('To{{Range}}'); ?>:
                                             </td>
                                             <td>
-                                                <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
+                                                <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>' />
                                             </td>
                                             <?php
                                             if ($type_form == '0') { ?>
@@ -678,23 +678,23 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         <div id="report_header">
             <table class="border-0" width="98%" cellspacing="0" cellpadding="0">
                 <tr>
-                    <td class="title" ><?php echo text($facility['name']); ?></td>
+                    <td class="title"><?php echo text($facility['name']); ?></td>
                 </tr>
                 <tr>
-                    <td class="title" ><?php echo text($facility['street']); ?></td>
+                    <td class="title"><?php echo text($facility['street']); ?></td>
                 </tr>
                 <tr>
-                    <td class="title" ><?php echo text($facility['city']).", ".text($facility['state'])." ".text($facility['postal_code']); ?></td>
+                    <td class="title"><?php echo text($facility['city']).", ".text($facility['state'])." ".text($facility['postal_code']); ?></td>
                 </tr>
                 <tr>
-                    <td class="title" ><?php echo xlt('Phone').': ' .text($facility['phone']); ?></td>
+                    <td class="title"><?php echo xlt('Phone').': ' .text($facility['phone']); ?></td>
                 </tr>
                 <tr>
-                    <td class="title" ><?php echo xlt('Tax Id').': ' .text($facility['federal_ein']); ?></td>
+                    <td class="title"><?php echo xlt('Tax Id').': ' .text($facility['federal_ein']); ?></td>
                 </tr>
                 <tr><td>&nbsp;</td></tr>
                 <tr>
-                    <td class="title" ><?php echo xlt('Patient Ledger'); ?></td>
+                    <td class="title"><?php echo xlt('Patient Ledger'); ?></td>
                 </tr>
                 <tr>
                 <?php
@@ -709,7 +709,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
                                 <?php
                                 $title = xl('For Dates') . ': ' . oeFormatShortDate($form_from_date) . ' - ' . oeFormatShortDate($form_to_date);
                                 ?>
-                    <td class="title" ><?php echo text($title); ?></td>
+                    <td class="title"><?php echo text($title); ?></td>
                                 </tr>
                             </table>
                             <br/>

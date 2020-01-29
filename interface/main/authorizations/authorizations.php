@@ -55,7 +55,6 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
     padding: 3px;
     margin: 2px;
     cursor: pointer;
-    cursor: hand;
     <?php echo "display: none;"; ?>
 }
 #max {
@@ -63,7 +62,6 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
     padding: 3px;
     margin: 2px;
     cursor: pointer;
-    cursor: hand;
     <?php echo "display: none;"; ?>
 }
 </style>
@@ -72,10 +70,10 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 
 <!-- 'buttons' to min/max the bottom frame -JRM -->
 <div id="max" title="Restore this information">
-<img src="<?php echo $GLOBALS['images_static_relative']; ?>/max.gif">
+    <img src="<?php echo $GLOBALS['images_static_relative']; ?>/max.gif" />
 </div>
 <div id="min" title="Minimize this information">
-<img src="<?php echo $GLOBALS['images_static_relative']; ?>/min.gif">
+    <img src="<?php echo $GLOBALS['images_static_relative']; ?>/min.gif" />
 </div>
 
 <?php if ($imauthorized) { ?>
@@ -106,7 +104,7 @@ if ($imauthorized && $see_auth > 1) {
 
         if ($result1) {
             foreach ($result1 as $iter) {
-                $authorize[$iter["pid"]]["billing"] .= "<span class=text>" .
+                $authorize[$iter["pid"]]["billing"] .= "<span class='text'>" .
                 text($iter["code_text"] . " " . date("n/j/Y", strtotime($iter["date"]))) .
                 "</span><br />\n";
             }
@@ -122,7 +120,7 @@ if ($imauthorized && $see_auth > 1) {
 
         if ($result2) {
             foreach ($result2 as $iter) {
-                $authorize[$iter["pid"]]["transaction"] .= "<span class=text>" .
+                $authorize[$iter["pid"]]["transaction"] .= "<span class='text'>" .
                 text($iter["title"] . ": " . (strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime($iter["date"]))) .
                 "</span><br />\n";
             }
@@ -139,7 +137,7 @@ if ($imauthorized && $see_auth > 1) {
 
             if ($result3) {
                 foreach ($result3 as $iter) {
-                    $authorize[$iter["pid"]]["pnotes"] .= "<span class=text>" .
+                    $authorize[$iter["pid"]]["pnotes"] .= "<span class='text'>" .
                     text((strterm($iter["body"], 25)) . " " . date("n/j/Y", strtotime($iter["date"]))) .
                     "</span><br />\n";
                 }
@@ -156,7 +154,7 @@ if ($imauthorized && $see_auth > 1) {
 
         if ($result4) {
             foreach ($result4 as $iter) {
-                $authorize[$iter["pid"]]["forms"] .= "<span class=text>" .
+                $authorize[$iter["pid"]]["forms"] .= "<span class='text'>" .
                 text($iter["form_name"] . " " . date("n/j/Y", strtotime($iter["date"]))) .
                 "</span><br />\n";
             }
@@ -164,7 +162,7 @@ if ($imauthorized && $see_auth > 1) {
     }
     ?>
 
-<table border='0' cellpadding='0' cellspacing='2' width='100%'>
+<table class='border-0 w-100' cellpadding='0' cellspacing='2'>
 <tr>
 <td valign='top'>
 
@@ -194,7 +192,7 @@ if ($imauthorized && $see_auth > 1) {
             echo "<a href='$rootdir/patient_file/summary/demographics.php?set_pid=" .
             attr_url($ppid) . "' target='RTop' onclick='top.restoreSession()'>";
 
-            echo "<span class='bold'>" . text($name["fname"]) . " " .
+            echo "<span class='font-weight-bold'>" . text($name["fname"]) . " " .
             text($name["lname"]) . "</span></a><br />" .
             "<a class=link_submit href='authorizations.php?mode=authorize" .
             "&pid=" . attr_url($ppid) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" .
@@ -215,15 +213,15 @@ if ($imauthorized && $see_auth > 1) {
                 array($name['providerID'])
             ));
 
-            echo "<td valign='top'><span class='bold'>".xlt('Provider').":</span><span class='text'><br />" .
+            echo "<td valign='top'><span class='font-weight-bold'>".xlt('Provider').":</span><span class='text'><br />" .
               text($providerName["lname"]) . "</td>\n";
-            echo "<td valign='top'><span class='bold'>".xlt('Billing').":</span><span class='text'><br />" .
+            echo "<td valign='top'><span class='font-weight-bold'>".xlt('Billing').":</span><span class='text'><br />" .
               $patient["billing"] . "</td>\n";
-            echo "<td valign='top'><span class='bold'>".xlt('Transactions').":</span><span class='text'><br />" .
+            echo "<td valign='top'><span class='font-weight-bold'>".xlt('Transactions').":</span><span class='text'><br />" .
               $patient["transaction"] . "</td>\n";
-            echo "<td valign='top'><span class='bold'>".xlt('Patient Notes').":</span><span class='text'><br />" .
+            echo "<td valign='top'><span class='font-weight-bold'>".xlt('Patient Notes').":</span><span class='text'><br />" .
               $patient["pnotes"] . "</td>\n";
-            echo "<td valign='top'><span class='bold'>".xlt('Encounter Forms').":</span><span class='text'><br />" .
+            echo "<td valign='top'><span class='font-weight-bold'>".xlt('Encounter Forms').":</span><span class='text'><br />" .
               $patient["forms"] . "</td>\n";
             echo "</tr>\n";
 

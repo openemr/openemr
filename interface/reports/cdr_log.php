@@ -94,7 +94,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
     <table class='text'>
 
                    <tr>
-                      <td class='control-label'>
+                      <td class='col-form-label'>
                             <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
@@ -104,7 +104,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
                    </tr>
 
                 <tr>
-                        <td class='control-label'>
+                        <td class='col-form-label'>
                                 <?php echo xlt('End Date'); ?>:
                         </td>
                         <td>

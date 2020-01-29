@@ -285,7 +285,7 @@ if ($_POST['form_get_hl7']==='true') {
 
     <?php Header::setupHeader('datetime-picker'); ?>
 
-    <script language="JavaScript">
+    <script>
 
         <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
@@ -304,7 +304,7 @@ if ($_POST['form_get_hl7']==='true') {
 
     </script>
 
-    <style type="text/css">
+    <style>
     /* specifically include & exclude from printing */
     @media print {
         #report_parameters {
@@ -352,7 +352,7 @@ if ($_POST['form_get_hl7']==='true') {
     <div style='float:left'>
       <table class='text'>
         <tr>
-          <td class='control-label'>
+          <td class='col-form-label'>
             <?php echo xlt('Diagnosis'); ?>:
           </td>
           <td>
@@ -382,7 +382,7 @@ while ($crow = sqlFetchArray($cres)) {
  echo "   </select>\n";
 ?>
           </td>
-          <td class='control-label'>
+          <td class='col-form-label'>
             <?php echo xlt('From'); ?>:
           </td>
           <td>
@@ -390,7 +390,7 @@ while ($crow = sqlFetchArray($cres)) {
             class='datepicker form-control'
             size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
           </td>
-          <td class='control-label'>
+          <td class='col-form-label'>
             <?php echo xlt('To{{Range}}'); ?>:
           </td>
           <td>
@@ -402,8 +402,8 @@ while ($crow = sqlFetchArray($cres)) {
       </table>
     </div>
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+  <td class='h-100' align='left' valign='middle'>
+    <table class='w-100 h-100' style='border-left:1px solid;'>
       <tr>
         <td>
           <div class="text-center">
@@ -443,8 +443,8 @@ while ($crow = sqlFetchArray($cres)) {
 if ($_POST['form_refresh']) {
     ?>
 <div id="report_results">
-<table>
-<thead align="left">
+<table class='table'>
+<thead class='thead-light' align="left">
 <th> <?php echo xlt('Patient ID'); ?> </th>
 <th> <?php echo xlt('Patient Name'); ?> </th>
 <th> <?php echo xlt('Diagnosis'); ?> </th>

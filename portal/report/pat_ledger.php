@@ -379,13 +379,13 @@ function checkSubmit() {
     <div style='float:left'>
     <table class='text'>
         <tr>
-      <td class='control-label'>
+      <td class='col-form-label'>
         <?php echo xlt('From'); ?>:
       </td>
       <td>
         <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>' title='yyyy-mm-dd'>
       </td>
-      <td class='control-label'>
+      <td class='col-form-label'>
           &nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('To{{Range}}'); ?>:
       </td>
       <td>

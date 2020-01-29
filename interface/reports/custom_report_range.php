@@ -194,20 +194,20 @@ if ($form_patient == '') {
                 <?php echo xlt('Start Date'); ?>:
             </td>
             <td>
-               <input type='text' class='datepicker' name='start' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($startdate)); ?>'>
+               <input type='text' class='form-control datepicker' name='start' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($startdate)); ?>' />
             </td>
             <td class='label_custom'>
                 <?php echo xlt('End Date'); ?>:
             </td>
             <td>
-               <input type='text' class='datepicker' name='end' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($enddate)); ?>'>
+               <input type='text' class='form-control datepicker' name='end' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($enddate)); ?>' />
             </td>
 
             <td>
             &nbsp;&nbsp;<span class='text'><?php echo xlt('Patient'); ?>: </span>
             </td>
             <td>
-            <input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo ($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
+            <input type='text' class='form-control' size='20' name='form_patient' style='width:100%;cursor:pointer;' value='<?php echo ($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
             <input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
             </td>
             </tr>
@@ -324,7 +324,7 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
         print "<h1>".xlt('Billing Information').":</h1>";
         if (count($patient) > 0) {
             $billings = array();
-            echo "<table width='100%'>";
+            echo "<table class='table w-100'>";
             echo "<tr>";
             echo "<td class='bold' width='10%'>".xlt('Date')."</td>";
             echo "<td class='bold' width='20%'>".xlt('Provider')."</td>";
@@ -359,9 +359,9 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
             $copays = BillingUtilities::getPatientCopay($pids[$iCounter], $ta[1]);
             //}
             echo "<tr><td>&nbsp;</td></tr>";
-            echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xlt('Sub-Total')."</td><td class='text'>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
-            echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xlt('Copay Paid')."</td><td class='text'>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
-            echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xlt('Total')."</td><td class='text'>" . text(oeFormatMoney($total)) . "</td></tr>";
+            echo "<tr><td class='font-weight-bold text-right' colspan='3'>".xlt('Sub-Total')."</td><td class='text'>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
+            echo "<tr><td class='font-weight-bold text-right' colspan='3'>".xlt('Copay Paid')."</td><td class='text'>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
+            echo "<tr><td class='font-weight-bold text-right' colspan='3'>".xlt('Total')."</td><td class='text'>" . text(oeFormatMoney($total)) . "</td></tr>";
             echo "</table>";
             echo "<pre>";
             //print_r($billings);

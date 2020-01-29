@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
+ * Copyright (C) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -33,7 +34,6 @@ body {
     display: flex;
     flex-direction: column;
     margin: 0;
-    font-size: 12px;
 }
 
 #mainBox {
@@ -55,19 +55,6 @@ body {
     padding: 0;
 }
 
-#mainBox .logo {
-    float: left;
-    margin: 7px 4px 0px 10px;
-    width: 20px;
-    z-index: 10000;
-}
-
-#mainBox_vertical .logo {
-    margin: 13px 12px;
-    width: 30px;
-    z-index: 10000;
-}
-
 #mainBox > div {
     flex: 0 1 auto;
     margin: 0;
@@ -80,6 +67,27 @@ body {
     padding: 0;
     z-index: 3;
     margin: 0;
+}
+
+#mainBox .logo {
+    float: left;
+    margin-top: 5px !important;
+    margin-left: 12px !important;
+    margin-right: 5px !important;
+    width: 20px;
+    height: 20px;
+    z-index: 10000;
+    padding: 0 !important;
+}
+
+#mainBox_vertical .logo {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    margin-left: 0.75rem;
+    margin-right: 0.75rem;
+    width: 30px;
+    height: 30px;
+    z-index: 10000;
 }
 
 #framesDisplay {
@@ -102,7 +110,7 @@ body {
 
 #framesDisplay > div > iframe {
     flex: 1 0 auto;
-    border: 0px solid var(--black);
+    border: 0;
     width: 100%;
 }
 
@@ -306,10 +314,10 @@ body {
     position: absolute;
     top: 19px;
     z-index: 1000;
-    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.176);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
     min-width: 175px;
     border: 0.5px solid var(--gray);
-    border-radius: 0px 5px 5px 5px;
+    border-radius: 0 5px 5px 5px;
     color: var(--black);
     margin-top: 4px;
     padding-top: 3px;
@@ -362,7 +370,7 @@ body {
 
 .body_top {
     background-color: var(--light);
-    padding: 0px;
+    padding: 0;
     z-index: 10;
 }
 
@@ -374,7 +382,7 @@ body {
 .body_title {
     color: var(--black);
     background-color: var(--light);
-    padding: 10px 0px 0px 0px;
+    padding: 10px 0 0 0;
 }
 
 #username:hover > .userfunctions {

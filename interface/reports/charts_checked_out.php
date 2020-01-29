@@ -83,8 +83,8 @@ $res = PatientService::getChartTrackerInformation();
 $data_ctr = 0;
 while ($row = sqlFetchArray($res)) {
     if ($data_ctr == 0) { ?>
-    <table>
-     <thead>
+    <table class='table'>
+     <thead class='thead-light'>
           <th> <?php echo xlt('Chart'); ?> </th>
           <th> <?php echo xlt('Patient'); ?> </th>
           <th> <?php echo xlt('Location'); ?> </th>

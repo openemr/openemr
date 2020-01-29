@@ -9,6 +9,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// TODO: This needs a complete makeover
+
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
@@ -365,7 +367,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
 
         <?php if (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) { ?>
                    <tr>
-                      <td class='control-label'>
+                      <td class='col-form-label'>
                             <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
@@ -377,7 +379,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
         <?php } ?>
 
                 <tr>
-                        <td class='control-label'>
+                        <td class='col-form-label'>
                             <?php if (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) { ?>
                                 <?php echo xlt('End Date'); ?>:
                             <?php } else { ?>
@@ -394,7 +396,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
 
                 <?php if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) { ?>
                     <tr>
-                        <td class='control-label'>
+                        <td class='col-form-label'>
                             <?php echo xlt('Rule Set'); ?>:
                         </td>
                         <td>
@@ -412,7 +414,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
 
                 <?php if (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) { ?>
                     <tr>
-                        <td class='control-label'>
+                        <td class='col-form-label'>
                             <?php echo xlt('Rule Set'); ?>:
                         </td>
                         <td>
@@ -436,7 +438,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
 
                 <?php if ($type_report == "standard") { ?>
                     <tr>
-                        <td class='control-label'>
+                        <td class='col-form-label'>
                             <?php echo xlt('Rule Set'); ?>:
                         </td>
                         <td>
@@ -456,7 +458,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
                     <input type='hidden' id='form_plan_filter' name='form_plan_filter' value=''>
                 <?php } else { ?>
                     <tr>
-                        <td class='control-label'>
+                        <td class='col-form-label'>
                             <?php echo xlt('Plan Set'); ?>:
                         </td>
                         <td>
@@ -479,7 +481,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
                 <?php } ?>
 
                 <tr>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Provider'); ?>:
             </td>
             <td>
@@ -570,47 +572,31 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
     </div>
 
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+  <td class='h-100' align='left' valign='middle'>
+    <table class='w-100 h-100' style='border-left:1px solid;'>
         <tr>
             <td scope="row">
                 <div class="text-center">
           <div class="btn-group" role="group">
             <?php if (empty($report_id)) { ?>
-            <a href='#' id='submit_button' class='btn btn-secondary btn-save' onclick='runReport();'>
-                            <?php echo xlt('Submit'); ?>
-            </a>
+            <a href='#' id='submit_button' class='btn btn-secondary btn-save' onclick='runReport();'><?php echo xlt('Submit'); ?></a>
             <span id='status_span'></span>
-            <div id='processing' style='margin:10px;display:none;'><img src='../pic/ajax-loader.gif'/></div>
+            <div id='processing' style='margin:10px; display:none;'><img src='../pic/ajax-loader.gif'/></div>
                 <?php if ($type_report == "cqm") { ?>
-                          <a href='#' id='xmla_button' class='btn btn-secondary btn-transmit' onclick='return GenXml("false")'>
-                                <?php echo xlt('Generate PQRI report (Method A) - 2011'); ?>
-                          </a>
-              <a href='#' id='xmlb_button' class='btn btn-secondary btn-transmit' onclick='return GenXml("true")'>
-                    <?php echo xlt('Generate PQRI report (Method E) - 2011'); ?>
-              </a>
+                          <a href='#' id='xmla_button' class='btn btn-secondary btn-transmit' onclick='return GenXml("false")'><?php echo xlt('Generate PQRI report (Method A) - 2011'); ?></a>
+              <a href='#' id='xmlb_button' class='btn btn-secondary btn-transmit' onclick='return GenXml("true")'><?php echo xlt('Generate PQRI report (Method E) - 2011'); ?></a>
             <?php } ?>
             <?php } ?>
             <?php if (!empty($report_id)) { ?>
-            <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
-                            <?php echo xlt('Print'); ?>
-            </a>
+            <a href='#' class='btn btn-secondary btn-print' id='printbutton'><?php echo xlt('Print'); ?></a>
                 <?php if ($type_report == "cqm_2014") { ?>
-              <a href='#' id="genQRDA" class='btn btn-secondary btn-transmit' onclick='return downloadQRDA()'>
-                    <?php echo xlt('Generate QRDA I – 2014'); ?>
-              </a>
-              <a href='#' id="xmlc_button" class='btn btn-secondary btn-transmit' onclick='return GenXml("QRDA")'>
-                    <?php echo xlt('Generate QRDA III - 2014'); ?>
-              </a>
+              <a href='#' id="genQRDA" class='btn btn-secondary btn-transmit' onclick='return downloadQRDA()'><?php echo xlt('Generate QRDA I – 2014'); ?></a>
+              <a href='#' id="xmlc_button" class='btn btn-secondary btn-transmit' onclick='return GenXml("QRDA")'><?php echo xlt('Generate QRDA III - 2014'); ?></a>
             <?php } ?>
                 <?php if ($back_link == "list") { ?>
-              <a href='report_results.php' class='btn btn-secondary btn-transmit' onclick='top.restoreSession()'>
-                    <?php echo xlt("Return To Report Results"); ?>
-              </a>
+              <a href='report_results.php' class='btn btn-secondary btn-transmit' onclick='top.restoreSession()'><?php echo xlt("Return To Report Results"); ?></a>
             <?php } else { ?>
-              <a href='#' class='btn btn-secondary btn-transmit' onclick='top.restoreSession(); $("#theform").submit();'>
-                    <?php echo xlt("Start Another Report"); ?>
-              </a>
+              <a href='#' class='btn btn-secondary btn-transmit' onclick='top.restoreSession(); $("#theform").submit();'><?php echo xlt("Start Another Report"); ?></a>
             <?php } ?>
             <?php } ?>
           </div>
@@ -634,7 +620,7 @@ if (!empty($report_id)) {
 <div id="report_results">
 <table class="table">
 
-<thead>
+<thead class='thead-light'>
  <th>
     <?php echo xlt('Title'); ?>
  </th>

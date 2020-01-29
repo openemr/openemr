@@ -21,14 +21,12 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
-    use OpenEMR\Core\Header;
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $_SESSION['pid']);
 } else {
     \OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
-    use OpenEMR\Core\Header;
     if (!isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
         header('Location: '.$landingpage);
@@ -44,6 +42,8 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $_SERVER['REMOTE_ADDR'] = 'admin::' . $_SERVER['REMOTE_ADDR'];
 }
 
+
+use OpenEMR\Core\Header;
 
 define('C_USER', IS_PORTAL ?  IS_PORTAL : IS_DASHBOARD);
 

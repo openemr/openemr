@@ -299,15 +299,16 @@ if ($form_output == 3) {
 <head>
 <title><?php echo text($report_title); ?></title>
 
-    <?php Header::setupAssets(['datetime-picker', 'textformat', 'jquery']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'textformat', 'jquery']); ?>
 
 <style type="text/css">
-body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
-.dehead    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold }
-.detail    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal }
+.dehead    {
+    font-family: sans-serif;
+    font-weight: bold;
+}
 </style>
 
-<script language="JavaScript">
+<script>
 $(function() {
     $('.datepicker').datetimepicker({
     <?php $datetimepicker_timepicker = false; ?>
@@ -321,7 +322,7 @@ $(function() {
 
 </head>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
+<body class='m-0'>
 
 <center>
 
@@ -330,14 +331,14 @@ $(function() {
 <form name='theform' method='post' action='procedure_stats.php' onsubmit='return top.restoreSession()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<table border='0' cellspacing='5' cellpadding='1'>
+<table class='border-0' cellspacing='5' cellpadding='1'>
 
 <tr>
 <td valign='top' class='dehead' nowrap>
     <?php echo xlt('Rows'); ?>:
 </td>
 <td valign='top' class='detail'>
- <select name='form_by' title='Left column of report'>
+ <select name='form_by' class='form-control' title='Left column of report'>
     <?php
     foreach ($arr_by as $key => $value) {
         echo "    <option value='" . attr($key) . "'";
@@ -353,15 +354,14 @@ $(function() {
 <td valign='top' class='dehead' nowrap>
     <?php echo xlt('Filters'); ?>:
 </td>
-<td rowspan='2' colspan='2' class='detail'
- style='border-style:solid;border-width:1px;border-color:#cccccc'>
+<td rowspan='2' colspan='2' class='detail'>
  <table>
   <tr>
    <td valign='top' class='detail' nowrap>
     <?php echo xlt('Sex'); ?>:
    </td>
    <td class='detail' valign='top'>
-  <select name='form_sexes' title='<?php echo xla('To filter by sex'); ?>'>
+  <select class='form-control' name='form_sexes' title='<?php echo xla('To filter by sex'); ?>'>
     <?php
     foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Only')) as $key => $value) {
         echo "       <option value='" . attr($key) . "'";
@@ -386,21 +386,20 @@ $(function() {
   <tr>
    <td colspan='2' class='detail' nowrap>
     <?php echo xlt('From'); ?>
-  <input type='text' class='datepicker' name='form_from_date' id='form_from_date' size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
+  <input type='text' class='form-control datepicker' name='form_from_date' id='form_from_date' size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>' />
     <?php echo xlt('To{{Range}}'); ?>
-  <input type='text' class='datepicker' name='form_to_date' id='form_to_date' size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>'>
+  <input type='text' class='form-control datepicker' name='form_to_date' id='form_to_date' size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>' />
    </td>
   </tr>
  </table>
 </td>
 </tr>
 <tr>
-<td valign='top' class='dehead' nowrap>
+<td valign='top' class='form-control dehead' nowrap>
     <?php echo xlt('Columns'); ?>:
 </td>
 <td valign='top' class='detail'>
- <select name='form_show[]' size='4' multiple
-title='<?php echo xla('Hold down Ctrl to select multiple items'); ?>'>
+ <select class='form-control' name='form_show[]' size='4' multiple title='<?php echo xla('Hold down Ctrl to select multiple items'); ?>'>
     <?php
     foreach ($arr_show as $key => $value) {
         $title = $value['title'];
@@ -436,8 +435,7 @@ title='<?php echo xla('Hold down Ctrl to select multiple items'); ?>'>
     ?>
 </td>
 <td align='right' valign='top' class='detail' nowrap>
-<input type='submit' name='form_submit' value='<?php echo xla('Submit'); ?>'
-title='<?php echo xla('Click to generate the report'); ?>' />
+<input type='submit' class='btn btn-primary' name='form_submit' value='<?php echo xla('Submit'); ?>' title='<?php echo xla('Click to generate the report'); ?>' />
 </td>
 </tr>
 <tr>
@@ -525,7 +523,7 @@ if ($_POST['form_submit']) {
     }
 
     if ($form_output != 3) {
-        echo "<table border='0' cellpadding='1' cellspacing='2' width='98%'>\n";
+        echo "<table class='table' cellpadding='1' cellspacing='2' width='98%'>\n";
     } // end not csv export
 
     genStartRow("bgcolor='#dddddd'");
@@ -653,7 +651,7 @@ if ($form_output != 3) {
 </form>
 </center>
 
-<script language='JavaScript'>
+<script>
     <?php if ($form_output == 2) { ?>
  var win = top.printLogPrint ? top : opener.top;
  win.printLogPrint(window);

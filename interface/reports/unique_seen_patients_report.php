@@ -67,7 +67,7 @@ if ($_POST['form_labels']) {
 
     <?php Header::setupHeader('datetime-picker'); ?>
 
-<script language="JavaScript">
+<script>
 
 $(function() {
     var win = top.printLogSetup ? top : opener.top;
@@ -134,13 +134,13 @@ $(function() {
 
    <table class='text'>
        <tr>
-           <td class='control-label'>
+           <td class='col-form-label'>
                 <?php echo xlt('Visits From'); ?>:
            </td>
            <td>
              <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
            </td>
-           <td class='control-label'>
+           <td class='col-form-label'>
                 <?php echo xlt('To{{Range}}'); ?>:
            </td>
            <td>
@@ -152,8 +152,8 @@ $(function() {
    </div>
 
  </td>
- <td align='left' valign='middle' height="100%">
-   <table style='border-left:1px solid; width:100%; height:100%' >
+ <td class='h-100' align='left' valign='middle' height="100%">
+   <table class='w-100 h-100' style='border-left:1px solid'>
        <tr>
            <td>
                <div class="text-center">
@@ -180,9 +180,9 @@ $(function() {
 </div> <!-- end of parameters -->
 
 <div id="report_results">
-<table>
+<table class='table'>
 
-<thead>
+<thead class='thead-light'>
 <th> <?php echo xlt('Last Visit'); ?> </th>
 <th> <?php echo xlt('Patient'); ?> </th>
 <th align='right'> <?php echo xlt('Visits'); ?> </th>

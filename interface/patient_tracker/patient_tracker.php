@@ -189,15 +189,14 @@ if (!$_REQUEST['flb_table']) {
         }
 
         .scheduled {
-            background-color: var(--white);
-            color: var(--black);
+            background-color: var(--light);
             padding: 5px;
         }
 
         .divTable {
             display: table;
             font-size: 0.9rem;
-            background: var(--white);
+            background: var(--light);
             box-shadow: 2px 3px 9px var(--gray400);
             border-radius: 8px;
             padding: 10px;
@@ -207,7 +206,7 @@ if (!$_REQUEST['flb_table']) {
         
         .head {
             font-size: 0.9rem;
-            background: var(--white);
+            background: var(--light);
             box-shadow: 2px 3px 9px var(--gray400);
             border-radius: 8px;
             padding: 10px;
@@ -222,14 +221,9 @@ if (!$_REQUEST['flb_table']) {
             padding: 3px 10px;
             text-transform: uppercase;
             line-height: 1.5rem;
-            color: var(--black);
             border-bottom: 2px solid var(--black);
             margin: 0 auto;
             width: 70%;
-        }
-        
-        .ui-datepicker-year {
-            color: var(--black);
         }
         
         input[type="text"] {
@@ -505,7 +499,7 @@ if (!$_REQUEST['flb_table']) {
                         <td class="dehead d-none text-center text-ovr-dark">
                             <?php echo xlt('Arrive Time'); ?>
                         </td>
-                        <td class="dehead visible-xs d-sm-none d-md-none d-lg-none text-center text-ovr-dark">
+                        <td class="dehead d-xs-table-cell d-sm-none d-md-none d-lg-none text-center text-ovr-dark">
                             <?php echo xlt('Arrival'); ?>
                         </td>
                         <td class="dehead d-none text-center text-ovr-dark">
@@ -514,7 +508,7 @@ if (!$_REQUEST['flb_table']) {
                         <td class="dehead d-none text-center text-ovr-dark">
                             <?php echo xlt('Current Status'); ?>
                         </td>
-                        <td class="dehead visible-xs d-sm-none d-md-none d-lg-none text-center text-ovr-dark">
+                        <td class="dehead d-xs-table-cell d-sm-none d-md-none d-lg-none text-center text-ovr-dark">
                             <?php echo xlt('Current'); ?>
                         </td>
                         <td class="dehead d-none text-center text-ovr-dark" name="kiosk_hide">
@@ -531,7 +525,7 @@ if (!$_REQUEST['flb_table']) {
                         <td class="dehead d-none text-center text-ovr-dark">
                             <?php echo xlt('Check Out Time'); ?>
                         </td>
-                        <td class="dehead visible-xs d-sm-none d-md-none d-lg-none text-center text-ovr-dark">
+                        <td class="dehead d-xs-table-cell d-sm-none d-md-none d-lg-none text-center text-ovr-dark">
                             <?php echo xlt('Out Time'); ?>
                         </td>
                         <?php
@@ -726,12 +720,10 @@ if (!$_REQUEST['flb_table']) {
 
                         ?>
                         <td class="detail text-center d-none" name="kiosk_hide">
-                            <a href="#"
-                               onclick="return topatient(<?php echo attr_js($appt_pid); ?>,<?php echo attr_js($appt_enc); ?>)">
+                            <a href="#" onclick="return topatient(<?php echo attr_js($appt_pid); ?>,<?php echo attr_js($appt_enc); ?>)">
                                 <?php echo text($ptname); ?></a>
                         </td>
-                        <td class="detail text-center visible-xs d-sm-none d-md-none d-lg-none"
-                            style="white-space: normal;" name="kiosk_hide">
+                        <td class="detail text-center d-xs-table-cell d-sm-none d-md-none d-lg-none" style="white-space: normal;" name="kiosk_hide">
                             <a href="#" onclick="return topatient(<?php echo attr_js($appt_pid); ?>,<?php echo attr_js($appt_enc); ?>)">
                                 <?php echo text($ptname_short); ?></a>
                         </td>
@@ -875,14 +867,11 @@ if (!$_REQUEST['flb_table']) {
                                     <?php
                                     if (strtotime($newend) != '') {
                                         // the following block allows the check box for drug screens to be disabled once the status is check out ?>
-                                        <input type=checkbox disabled='disable' class="drug_screen_completed"
-                                               id="<?php echo attr($appointment['pt_tracker_id']) ?>" <?php echo ($appointment['drug_screen_completed'] == "1") ? "checked" : ""; ?>>
+                                        <input type=checkbox disabled='disable' class="drug_screen_completed" id="<?php echo attr($appointment['pt_tracker_id']) ?>" <?php echo ($appointment['drug_screen_completed'] == "1") ? "checked" : ""; ?> />
                                         <?php
                                     } else {
                                         ?>
-                                        <input type=checkbox class="drug_screen_completed"
-                                               id='<?php echo attr($appointment['pt_tracker_id']) ?>'
-                                               name="drug_screen_completed" <?php echo ($appointment['drug_screen_completed'] == "1") ? "checked" : ""; ?>>
+                                        <input type=checkbox class="drug_screen_completed" id='<?php echo attr($appointment['pt_tracker_id']) ?>' name="drug_screen_completed" <?php echo ($appointment['drug_screen_completed'] == "1") ? "checked" : ""; ?> />
                                         <?php
                                     } ?>
                                 </td>
@@ -908,8 +897,7 @@ if (!$_REQUEST['flb_table']) { ?>
         </div>
     </div><?php //end container ?>
     <!-- form used to open a new top level window when a patient row is clicked -->
-    <form name='fnew' method='post' target='_blank'
-          action='../main/main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
+    <form name='fnew' method='post' target='_blank' action='../main/main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
         <input type='hidden' name='patientID' value='0'/>
         <input type='hidden' name='encounterID' value='0'/>

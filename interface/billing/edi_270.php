@@ -344,13 +344,13 @@ if ($exclude_policy != "") {
                             <div style='float:left'>
                                 <table class='text'>
                                     <tr>
-                                        <td class='control-label'>
+                                        <td class='col-form-label'>
                                             <?php echo xlt('From'); ?>:
                                         </td>
                                         <td>
                                            <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
                                         </td>
-                                        <td class='control-label'>
+                                        <td class='col-form-label'>
                                             <?php echo xlt('To{{Range}}'); ?>:
                                         </td>
                                         <td>
@@ -360,13 +360,13 @@ if ($exclude_policy != "") {
                                     </tr>
 
                                     <tr>
-                                        <td class='control-label'>
+                                        <td class='col-form-label'>
                                             <?php echo xlt('Facility'); ?>:
                                         </td>
                                         <td>
                                             <?php dropdown_facility($form_facility, 'form_facility', false);  ?>
                                         </td>
-                                        <td class='control-label'>
+                                        <td class='col-form-label'>
                                             <?php echo xlt('Provider'); ?>:
                                         </td>
                                         <td>
@@ -384,7 +384,7 @@ if ($exclude_policy != "") {
                                     </tr>
 
                                     <tr>
-                                        <td class='control-label'>
+                                        <td class='col-form-label'>
                                             <?php echo xlt('X12 Partner'); ?>:
                                         </td>
                                         <td colspan='5'>

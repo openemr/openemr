@@ -497,7 +497,7 @@ function insertAtCursor(myField, myValue) {
 
  <tr>
 
-  <td class='control-label'>
+  <td class='col-form-label'>
     <?php echo xlt('From'); ?>:
   </td>
 
@@ -507,7 +507,7 @@ function insertAtCursor(myField, myValue) {
    </select>
   </td>
 
-  <td class='control-label'>
+  <td class='col-form-label'>
     <?php echo xlt('Date'); ?>:
   </td>
 
@@ -521,7 +521,7 @@ function insertAtCursor(myField, myValue) {
 
  <tr>
 
-  <td class='control-label'>
+  <td class='col-form-label'>
     <?php echo xlt('Specialty'); ?>:
   </td>
 
@@ -531,7 +531,7 @@ function insertAtCursor(myField, myValue) {
    </select>
   </td>
 
-  <td class='control-label'>
+  <td class='col-form-label'>
     <?php echo xlt('Template'); ?>:
   </td>
 
@@ -589,7 +589,7 @@ closedir($dh);
 
  <tr>
 
-  <td class='control-label'>
+  <td class='col-form-label'>
     <?php echo xlt('To{{Destination}}'); ?>:
   </td>
 
@@ -599,7 +599,7 @@ closedir($dh);
    </select>
   </td>
 
-  <td class='control-label'>
+  <td class='col-form-label'>
     <?php echo xlt('Print Format'); ?>:
   </td>
 
@@ -615,7 +615,7 @@ closedir($dh);
  <tr>
   <td colspan='4'>
     <div id="letter_toolbar" class='text' style="width: 100%; background-color: #ddd; padding: 5px; margin: 0px;">
-    <span class='control-label'><?php echo xlt('Insert special field'); ?>:</span>
+    <span class='col-form-label'><?php echo xlt('Insert special field'); ?>:</span>
     <select id="letter_field" class='form-control'>
     <option value="">- <?php echo xlt('Choose'); ?> -</option>
     <option value="<?php echo '{'.attr($FIELD_TAG['DATE']).'}'; ?>"><?php echo xlt('Today\'s Date'); ?></option>
@@ -674,7 +674,7 @@ closedir($dh);
 
 <!-- template DIV that appears when user chooses to add a new letter template -->
 <div id="newtemplatedetail" style="margin-top: 4em; display: none; visibility: hidden;">
-    <span class='control-label'><?php echo xlt('Template Name'); ?>:</span> <input type="textbox" size="20" maxlength="30" name="newtemplatename" id="newtemplatename" class="form-control">
+    <span class='col-form-label'><?php echo xlt('Template Name'); ?>:</span> <input type="textbox" size="20" maxlength="30" name="newtemplatename" id="newtemplatename" class="form-control">
     <br />
     <div class="btn-group" role="group">
         <button type="button" class="savenewtemplate btn btn-secondary btn-save"><?php echo xlt('Save new template'); ?></button>

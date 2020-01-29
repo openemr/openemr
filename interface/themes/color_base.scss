@@ -139,10 +139,6 @@ $close-text-shadow: 0 1 0 $black;
 @import "theme-defaults";
 
 /* Huge list of overrides */
-body {
-    margin: 0 0 0 2px !important;
-}
-
 .menu,
 .menu_selected,
 .logout {
@@ -590,7 +586,8 @@ th.historicalvalues {
     fill: $dark !important;
 }
 
-.emr-menu-logo > #blue-color {
+#mainBox .logo .emr-menu-logo > #blue-color,
+#mainBox_vertical .logo .emr-menu-logo > #blue-color {
     fill: $pale !important;
 }
 

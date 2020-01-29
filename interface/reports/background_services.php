@@ -76,9 +76,9 @@ use OpenEMR\Core\Header;
 
 
 <div id="report_results">
-<table>
+<table class='table'>
 
- <thead>
+ <thead class='thead-light'>
   <th align='center'>
     <?php echo xlt('Service Name'); ?>
   </th>

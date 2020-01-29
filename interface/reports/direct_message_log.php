@@ -51,7 +51,7 @@ if (isset($_POST['lognext']) && $_POST['lognext']) {
         display: inline;
     }
     #report_results table {
-       margin-top: 0px;
+       margin-top: 0;
     }
 }
 
@@ -99,9 +99,9 @@ if (isset($_POST['lognext']) && $_POST['lognext']) {
 
 
 <div id="report_results">
-<table>
+<table class='table'>
 
- <thead>
+ <thead class='thead-light'>
 
   <th align='center'>
     <?php echo xlt('ID'); ?>

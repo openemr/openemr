@@ -106,13 +106,13 @@ $form_end_date  = (!empty($_POST['form_end_date'])) ? DateToYYYYMMDD($_POST['for
 
     <table class='text'>
         <tr>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Visits From'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_start_date' id="form_start_date" size='10' value='<?php echo attr(oeFormatShortDate($form_start_date)); ?>'>
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('To{{Range}}'); ?>:
             </td>
             <td>
@@ -124,8 +124,8 @@ $form_end_date  = (!empty($_POST['form_end_date'])) ? DateToYYYYMMDD($_POST['for
     </div>
 
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left: 1px solid; width:100%; height:100%'>
+  <td class='h-100' align='left' valign='middle'>
+    <table class='w-100 h-100' style='border-left: 1px solid;'>
         <tr>
             <td>
                 <div class="text-center">
@@ -149,7 +149,7 @@ $form_end_date  = (!empty($_POST['form_end_date'])) ? DateToYYYYMMDD($_POST['for
 </div> <!-- end of parameters -->
 
 <div id="report_results">
-<table>
+<table class='table'>
 
  <thead class="thead-light">
   <th>

@@ -186,7 +186,7 @@ if ($_POST['form_refresh']) {
 
     <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-    <style type="text/css">
+    <style>
         /* specifically include & exclude from printing */
         @media print {
             #report_parameters {
@@ -211,7 +211,7 @@ if ($_POST['form_refresh']) {
         }
     </style>
 
-    <script LANGUAGE="JavaScript">
+    <script>
         $(function() {
             oeFixedHeaderSetup(document.getElementById('mymaintable'));
             var win = top.printLogSetup ? top : opener.top;
@@ -248,7 +248,7 @@ if ($_POST['form_refresh']) {
 
     <table class='text'>
         <tr>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Facility'); ?>:
             </td>
             <td>
@@ -276,13 +276,13 @@ if ($_POST['form_refresh']) {
                  echo "   </select>\n";
                 ?>
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('DOS'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>' >
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('To{{Range}}'); ?>:
             </td>
             <td>
@@ -303,8 +303,8 @@ if ($_POST['form_refresh']) {
     </div>
 
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+  <td class='h-100' align='left' valign='middle'>
+    <table class='w-100 h-100' style='border-left:1px solid;'>
         <tr>
             <td>
                 <div class="text-center">
@@ -332,9 +332,9 @@ if ($_POST['form_refresh']) {
 if ($_POST['form_refresh']) {
     ?>
 <div id="report_results">
-<table id='mymaintable'>
+<table class='table' id='mymaintable'>
 
-<thead>
+<thead class='thead-light'>
 <th> &nbsp;<?php echo xlt('Practitioner'); ?> </th>
 <th> &nbsp;<?php echo xlt('Date/Appt'); ?> </th>
 <th> &nbsp;<?php echo xlt('Patient'); ?> </th>

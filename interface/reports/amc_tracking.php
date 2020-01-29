@@ -191,43 +191,38 @@ $provider  = trim($_POST['form_provider']);
     <table class='text'>
 
                  <tr>
-                      <td class='control-label'>
+                      <td class='col-form-label'>
                         <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
-                         <input type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo attr(oeFormatDateTime($begin_date, 0, true)); ?>'
-                            class='datepicker form-control'>
+                         <input type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo attr(oeFormatDateTime($begin_date, 0, true)); ?>' class='datepicker form-control' />
                       </td>
                  </tr>
 
                 <tr>
-                        <td class='control-label'>
+                        <td class='col-form-label'>
                             <?php echo xlt('End Date'); ?>:
                         </td>
                         <td>
-                           <input type='text' name='form_end_date' id="form_end_date" size='20' value='<?php echo attr(oeFormatDateTime($end_date, 0, true)); ?>'
-                                class='datepicker form-control'>
+                           <input type='text' name='form_end_date' id="form_end_date" size='20' value='<?php echo attr(oeFormatDateTime($end_date, 0, true)); ?>' class='datepicker form-control' />
                         </td>
                 </tr>
 
                 <tr>
-                        <td class='control-label'>
+                        <td class='col-form-label'>
                             <?php echo xlt('Rule'); ?>:
                         </td>
                         <td>
                             <select name='form_rule' class='form-control'>
-                            <option value='send_sum_amc' <?php echo ($rule == "send_sum_amc") ? "selected" : ""; ?>>
-                            <?php echo xlt('Send Summaries with Referrals'); ?></option>
-                            <option value='provide_rec_pat_amc' <?php echo ($rule == "provide_rec_pat_amc") ? "selected" : ""; ?>>
-                            <?php echo xlt('Patient Requested Medical Records'); ?></option>
-                            <option value='provide_sum_pat_amc' <?php echo ($rule == "provide_sum_pat_amc") ? "selected" : ""; ?>>
-                            <?php echo xlt('Provide Records to Patient for Visit'); ?></option>
+                                <option value='send_sum_amc' <?php echo ($rule == "send_sum_amc") ? "selected" : ""; ?>><?php echo xlt('Send Summaries with Referrals'); ?></option>
+                                <option value='provide_rec_pat_amc' <?php echo ($rule == "provide_rec_pat_amc") ? "selected" : ""; ?>><?php echo xlt('Patient Requested Medical Records'); ?></option>
+                                <option value='provide_sum_pat_amc' <?php echo ($rule == "provide_sum_pat_amc") ? "selected" : ""; ?>><?php echo xlt('Provide Records to Patient for Visit'); ?></option>
                             </select>
                         </td>
                 </tr>
 
                 <tr>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Provider'); ?>:
             </td>
             <td>
@@ -264,8 +259,8 @@ $provider  = trim($_POST['form_provider']);
     </div>
 
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+  <td class='h-100' align='left' valign='middle'>
+    <table class='w-100 h-100' style='border-left: 1px solid;'>
         <tr>
             <td>
                 <div class="text-center">
@@ -297,9 +292,9 @@ if ($_POST['form_refresh']) {
 
 
 <div id="report_results">
-<table>
+<table class='table'>
 
-<thead>
+<thead class='thead-light'>
  <th>
     <?php echo xlt('Patient Name'); ?>
  </th>

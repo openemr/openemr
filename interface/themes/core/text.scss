@@ -1,5 +1,4 @@
 .text {
-    color: $body-color;
     text-decoration: none;
     @include font-size("0.9rem !important");
 }
@@ -11,16 +10,15 @@
     font-weight: bold;
 }
 
+/* Deprecated - Please use font-weight-bold class - Will be removed soon */
 .bold {
     text-decoration: none;
     @include font-size("0.9rem !important");
-    color: $body-color;
     font-weight: bold;
 }
 
 .small {
     text-decoration: none;
-    color: $body-color;
     @include font-size("0.8rem !important");
 }
 
@@ -37,10 +35,9 @@ a.disabled_button:hover {
 
 .pwdalert {
     display: block;
-    width: 390pt;
+    width: 520px;
     margin-left: 100px;
     padding: 10px 10px 10px 15px;
-    color: $body-color;
 }
 
 .alertmsg1 {

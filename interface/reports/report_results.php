@@ -38,8 +38,8 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 
     <?php Header::setupHeader('datetime-picker'); ?>
 
-    <script LANGUAGE="JavaScript">
-        $( document ).ready(function(){
+    <script>
+        $(function(){
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = true; ?>
@@ -96,7 +96,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
     <table class='text'>
 
                    <tr>
-                      <td class='control-label'>
+                      <td class='col-form-label'>
                             <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
@@ -106,7 +106,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
                    </tr>
 
                 <tr>
-                        <td class='control-label'>
+                        <td class='col-form-label'>
                                 <?php echo xlt('End Date'); ?>:
                         </td>
                         <td>
@@ -118,8 +118,8 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
     </div>
 
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+  <td class='h-100' align='left' valign='middle'>
+    <table class='w-100 h-100' style='border-left:1px solid;'>
         <tr>
             <td>
                 <div class="text-center">
@@ -146,18 +146,18 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 
 
 <div id="report_results">
-<table>
+<table class='table'>
 
- <thead>
-  <th align='center'>
+ <thead class='thead-light'>
+  <th class='text-center'>
     <?php echo xlt('Title'); ?>
   </th>
 
-  <th align='center'>
+  <th class='text-center'>
     <?php echo xlt('Date'); ?>
   </th>
 
-  <th align='center'>
+  <th class='text-center'>
     <?php echo xlt('Status'); ?>
   </th>
 
@@ -267,15 +267,15 @@ while ($row = sqlFetchArray($res)) {
     ?>
 <tr>
     <?php if ($row["progress"] == "complete") { ?>
-      <td align='center'><a href='<?php echo $link; ?>' onclick='top.restoreSession()'><?php echo text($type_title); ?></a></td>
+      <td class='text-center'><a href='<?php echo $link; ?>' onclick='top.restoreSession()'><?php echo text($type_title); ?></a></td>
     <?php } else { ?>
-      <td align='center'><?php echo text($type_title); ?></td>
+      <td class='text-center'><?php echo text($type_title); ?></td>
     <?php } ?>
-  <td align='center'><?php echo text(oeFormatDateTime($row["date_report"], "global", true)); ?></td>
+  <td class='text-center'><?php echo text(oeFormatDateTime($row["date_report"], "global", true)); ?></td>
     <?php if ($row["progress"] == "complete") { ?>
-      <td align='center'><?php echo xlt("Complete") . " (" . xlt("Processing Time") . ": " . text($row['report_time_processing']) . " " . xlt("Minutes") . ")"; ?></td>
+      <td class='text-center'><?php echo xlt("Complete") . " (" . xlt("Processing Time") . ": " . text($row['report_time_processing']) . " " . xlt("Minutes") . ")"; ?></td>
     <?php } else { ?>
-      <td align='center'><?php echo xlt("Pending") . " (" . text($row["progress_items"]) . " / " . text($row["total_items"]) . " " . xlt("Patients Processed") . ")"; ?></td>
+      <td class='text-center'><?php echo xlt("Pending") . " (" . text($row["progress_items"]) . " / " . text($row["total_items"]) . " " . xlt("Patients Processed") . ")"; ?></td>
     <?php } ?>
 
 </tr>

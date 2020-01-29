@@ -404,7 +404,7 @@ if ($_POST['form_csvexport']) {
 
     <table class='text'>
         <tr>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <table>
                     <tr>
                         <td><?php echo xlt('Displayed Columns') ?>:</td>
@@ -465,13 +465,13 @@ if ($_POST['form_csvexport']) {
                 <table>
 
                     <tr>
-                        <td class='control-label'>
+                        <td class='col-form-label'>
                             <?php echo xlt('Service Date'); ?>:
                         </td>
                         <td>
                            <input type='text' class='datepicker form-control' name='form_date' id="form_date" size='10' value='<?php echo attr(oeFormatShortDate($form_date)); ?>'>
                         </td>
-                        <td class='control-label'>
+                        <td class='col-form-label'>
                             <?php echo xlt('To{{Range}}'); ?>:
                         </td>
                         <td>
@@ -496,14 +496,14 @@ if ($_POST['form_csvexport']) {
 
 
                     <tr>
-                        <td class='control-label'>
+                        <td class='col-form-label'>
                         <?php echo xlt('Facility'); ?>:
                         </td>
                         <td>
                         <?php dropdown_facility($form_facility, 'form_facility', false); ?>
                         </td>
 
-                        <td class='control-label'>
+                        <td class='col-form-label'>
                         <?php echo xlt('Payor'); ?>:
                         </td>
                         <td>
@@ -529,7 +529,7 @@ if ($_POST['form_csvexport']) {
                     </tr>
 
                     <tr>
-                        <td class='control-label'>
+                        <td class='col-form-label'>
                             <?php echo xlt('Age By') ?>:
                         </td>
                         <td>
@@ -547,7 +547,7 @@ if ($_POST['form_csvexport']) {
                            </select>
                         </td>
 
-                        <td class='control-label'>
+                        <td class='col-form-label'>
                             <?php echo xlt('Provider') ?>:
                         </td>
                         <td>
@@ -580,13 +580,13 @@ if ($_POST['form_csvexport']) {
                         </td>
                     </tr>
                     </tr>
-                        <td class='control-label'>
+                        <td class='col-form-label'>
                             <?php echo xlt('Aging Columns') ?>:
                         </td>
                         <td>
                            <input type='text' name='form_age_cols' class='form-control' size='2' value='<?php echo ($form_age_cols) ? attr($form_age_cols) : "3" ; ?>' />
                         </td>
-                        <td class='control-label'>
+                        <td class='col-form-label'>
                             <?php echo xlt('Days/Col') ?>:
                         </td>
                         <td>
@@ -977,9 +977,9 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
         ?>
 
   <div id="report_results">
-  <table id='mymaintable'>
+  <table class='table' id='mymaintable'>
 
-   <thead>
+   <thead class='thead-light'>
         <?php if ($is_due_ins) { ?>
     <th>&nbsp;<?php echo xlt('Insurance')?></th>
     <?php } ?>
@@ -1215,7 +1215,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
   <td class="detail" align="center">
             <?php
             if ($in_collections) {
-                echo "   <b><font color='red'>IC</font></b>\n";
+                echo "   <span class='font-weight-bold text-danger'>IC</span>\n";
             } else {
                 echo "   <input type='checkbox' name='form_cb[" .  attr($row['invnumber'])  . "]' />\n";
             }
@@ -1299,7 +1299,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
         // $alertmsg .= "$export_patient_count patients representing $" .
         //   sprintf("%.2f", $export_dollars) . " have been exported.";
     } else {
-        echo " <tr bgcolor='var(--white)'>\n";
+        echo " <tr class='bg-white'>\n";
         if ($is_ins_summary) {
             echo "  <td class='dehead'>&nbsp;" . xlt('Report Totals') . ":</td>\n";
         } else {
@@ -1349,7 +1349,7 @@ if (!$_POST['form_csvexport']) {
     if (!$_POST['form_export']) {
         ?>
 
-  <div style='float;margin-top:5px'>
+  <div style='margin-top:5px'>
     <div class="btn-group float-left" role="group">
     <a href='javascript:;' class='btn btn-secondary btn-save'  onclick='checkAll(true)'><?php echo xlt('Select All'); ?></a>
     <a href='javascript:;' class='btn btn-secondary btn-cancel'  onclick='checkAll(false)'><?php echo xlt('Clear All'); ?></a>
@@ -1379,7 +1379,7 @@ if (!$_POST['form_csvexport']) {
     ?>
 </form>
 </center>
-<script language="JavaScript">
+<script>
     <?php
     if ($alertmsg) {
         echo "alert(" . js_escape($alertmsg) . ");\n";

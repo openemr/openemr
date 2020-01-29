@@ -118,8 +118,12 @@ $close-text-shadow: 0 1 0 $black;
 .login-emr-logo > #red-color,
 .login-emr-logo > #blue-color,
 .login-emr-logo > #gray-color,
-.emr-menu-logo > #blue-color,
 .about-review-image > #color {
+    fill: $black !important;
+}
+
+#mainBox .logo .emr-menu-logo > #blue-color,
+#mainBox_vertical .logo .emr-menu-logo > #blue-color {
     fill: $black !important;
 }
 

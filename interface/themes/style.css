@@ -1,4 +1,4 @@
-/* TODO: Where does this go to? */
+/* For Track-Anything Forms */
 
 .menu {
     font-family: sans-serif;
@@ -8,7 +8,6 @@
     text-decoration: none;
     text-align: left;
 }
-
 
 .menu_selected {
     font-family: sans-serif;
@@ -44,6 +43,7 @@
     font-weight: bold;
 }
 
+/* Deprecated - Please use font-weight-bold class - Will be removed soon */
 .bold {
     font-family: sans-serif;
     text-decoration: none;
@@ -128,7 +128,7 @@ a {
 
 /* style taken out of the addressbook code and put here instead */
 #addressbook_list td {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Arial", "Helvetica", sans-serif;
     padding-left: 4px;
     padding-right: 4px;
 }
@@ -173,23 +173,23 @@ a {
 /* styles taken out of templates/report/general_default.html */
 #reports_list td {
     font-size: 8pt;
-    font-family: helvetica;
+    font-family: "Helvetica", sans-serif;
 }
 
 #reports_list a {
     font-size: 8pt;
-    font-family: helvetica;
+    font-family: "Helvetica", sans-serif;
 }
 
 /* styles taken out of templates/documents/general_list.html */
 #documents_list td {
     font-size: 8pt;
-    font-family: helvetica;
+    font-family: "Helvetica", sans-serif;
 }
 
 #documents_list a {
     font-size: 8pt;
-    font-family: helvetica;
+    font-family: "Helvetica", sans-serif;
 }
 
 #documents_list .treeMenuDefault {

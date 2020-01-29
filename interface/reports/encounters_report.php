@@ -144,7 +144,7 @@ $res = sqlStatement($query, $sqlBindArray);
 
     <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-    <style type="text/css">
+    <style>
         /* specifically include & exclude from printing */
         @media print {
             #report_parameters {
@@ -169,7 +169,7 @@ $res = sqlStatement($query, $sqlBindArray);
         }
     </style>
 
-    <script LANGUAGE="JavaScript">
+    <script>
         $(function() {
             oeFixedHeaderSetup(document.getElementById('mymaintable'));
             var win = top.printLogSetup ? top : opener.top;
@@ -217,13 +217,13 @@ $res = sqlStatement($query, $sqlBindArray);
 
     <table class='text'>
         <tr>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Facility'); ?>:
             </td>
             <td>
             <?php dropdown_facility($form_facility, 'form_facility', true); ?>
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Provider'); ?>:
             </td>
             <td>
@@ -256,13 +256,13 @@ $res = sqlStatement($query, $sqlBindArray);
             </td>
         </tr>
         <tr>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('From'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('To{{Range}}'); ?>:
             </td>
             <td>
@@ -302,8 +302,8 @@ $res = sqlStatement($query, $sqlBindArray);
     </div>
 
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+  <td class='h-100' align='left' valign='middle'>
+    <table class='w-100 h-100' style='border-left:1px solid;'>
         <tr>
             <td>
                 <div class="text-center">
@@ -331,24 +331,24 @@ $res = sqlStatement($query, $sqlBindArray);
 if ($_POST['form_refresh'] || $_POST['form_orderby']) {
     ?>
 <div id="report_results">
-<table id='mymaintable'>
-<thead>
+<table class='table' id='mymaintable'>
+<thead class='thead-light'>
     <?php if ($form_details) { ?>
   <th>
    <a href="nojs.php" onclick="return dosort('doctor')"
-        <?php echo ($form_orderby == "doctor") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Provider'); ?> </a>
+        <?php echo ($form_orderby == "doctor") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Provider'); ?> </a>
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('time')"
-        <?php echo ($form_orderby == "time") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Date'); ?></a>
+        <?php echo ($form_orderby == "time") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Date'); ?></a>
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('patient')"
-        <?php echo ($form_orderby == "patient") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Patient'); ?></a>
+        <?php echo ($form_orderby == "patient") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Patient'); ?></a>
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('pubpid')"
-        <?php echo ($form_orderby == "pubpid") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('ID'); ?></a>
+        <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('ID'); ?></a>
   </th>
   <th>
         <?php echo xlt('Status'); ?>
@@ -358,7 +358,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('encounter')"
-        <?php echo ($form_orderby == "encounter") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Encounter Number'); ?></a>
+        <?php echo ($form_orderby == "encounter") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Encounter Number'); ?></a>
   </th>
   <th>
         <?php echo xlt('Form'); ?>
@@ -518,7 +518,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 </form>
 </body>
 
-<script language='JavaScript'>
+<script>
 <?php if ($alertmsg) {
     echo " alert(" . js_escape($alertmsg) . ");\n";
 } ?>

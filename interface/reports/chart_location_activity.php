@@ -34,7 +34,7 @@ $form_patient_id = trim($_POST['form_patient_id']);
 
     <?php Header::setupHeader(); ?>
 
-    <style type="text/css">
+    <style>
     /* specifically include & exclude from printing */
     @media print {
         #report_parameters {
@@ -59,7 +59,7 @@ $form_patient_id = trim($_POST['form_patient_id']);
     }
     </style>
 
-    <script language="JavaScript">
+    <script>
         $(function() {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
@@ -115,7 +115,7 @@ if (!empty($ptrow)) {
 
     <table class='text'>
         <tr>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Patient ID'); ?>:
             </td>
             <td>
@@ -128,8 +128,8 @@ if (!empty($ptrow)) {
     </div>
 
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+  <td class='h-100' align='left' valign='middle'>
+    <table class='w-100 h-100' style='border-left:1px solid;'>
         <tr>
             <td>
                 <div class="text-center">
@@ -157,8 +157,8 @@ if (!empty($ptrow)) {
 if ($_POST['form_refresh'] || !empty($ptrow)) {
     ?>
 <div id="report_results">
-<table>
-<thead>
+<table class='table'>
+<thead class='thead-light'>
 <th> <?php echo xlt('Time'); ?> </th>
 <th> <?php echo xlt('Destination'); ?> </th>
 </thead>

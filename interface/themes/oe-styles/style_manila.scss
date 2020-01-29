@@ -262,8 +262,8 @@ div.tabContainer {
     clear: both;
     float: left;
     width: 100%;
-    border-radius: 0px 8px 8px 8px;
-    box-shadow: 0px 0px 10px #f0f0f0;
+    border-radius: 0 8px 8px 8px;
+    box-shadow: 0 0px 10px #f0f0f0;
     border: 1px solid $manilla-gray;
     position: relative;
     z-index: 1;
@@ -339,8 +339,8 @@ div.notab-right {
     clear: both;
     border: 1px solid $black;
     background-color: #f8e8cb;
-    border-radius: 5px 5px 0px 0px;
-    box-shadow: 2px 0px 5px $manilla-gray;
+    border-radius: 5px 5px 0 0;
+    box-shadow: 2px 0 5px $manilla-gray;
     padding: 6px;
     margin: initial;
 }
@@ -349,8 +349,8 @@ div.notab-right {
     clear: both;
     border: 1px solid $black;
     background-color: #f8e8cb;
-    border-radius: 5px 5px 0px 0px;
-    box-shadow: 2px 0px 5px $manilla-gray;
+    border-radius: 5px 5px 0 0;
+    box-shadow: 2px 0 5px $manilla-gray;
     padding: 6px;
     margin: inherit;
 }
@@ -429,13 +429,13 @@ body dl {
     background-color: #C9DBF2;
     box-shadow: 0px 6px 12px rgba($black, 0.176);
     min-width: 175px;
-    border: 0.5pt solid $gray;
-    border-radius: 0px 5px 5px 5px;
+    border: 0.7px solid $gray;
+    border-radius: 0 5px 5px 5px;
     color: $black;
-    margin-top: 0px;
+    margin-top: 0;
     padding-top: 3px;
-    padding-left: 0px;
-    padding-right: 0px;
+    padding-left: 0;
+    padding-right: 0;
     padding-bottom: 4px;
     z-index: 20;
 }
@@ -492,10 +492,10 @@ body dl {
     background: $white;
     color: $dark;
     display: block;
-    padding: 0px;
+    padding: 0;
     text-decoration: none;
     border-bottom: 0.1px solid $black;
-    box-shadow: 0px 0px 2px $manilla-gray;
+    box-shadow: 0 0 2px $manilla-gray;
     margin: 3px;
 }
 
@@ -512,7 +512,7 @@ body dl {
     border-radius: 8px;
     border: 1px solid $black;
     box-shadow: 2px 2px 2px $manilla-gray;
-    margin: 0px auto;
+    margin: 0 auto;
 }
 
 #refreshme,
@@ -582,7 +582,7 @@ body dl {
 }
 
 .tabSpan {
-    border-top: 3pt solid $gray !important;
+    border-top: 4px solid $gray !important;
     border-left: 1px solid $gray !important;
     border-right: 1px solid $gray !important;
 }
@@ -601,8 +601,8 @@ body dl {
     color: $black !important;
 }
 
-.navbar-default .navbar-nav > li > a:focus,
-.navbar-default .navbar-nav > li > a:hover {
+.navbar-light .navbar-nav > li > a:focus,
+.navbar-light .navbar-nav > li > a:hover {
     color: $dark;
     background-color: #eee;
 }

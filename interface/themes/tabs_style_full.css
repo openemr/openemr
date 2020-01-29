@@ -1,6 +1,7 @@
 /**
  * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * Copyright (C) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * Copyright (C) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -34,8 +35,7 @@ body {
     flex: 1 0 auto;
     display: flex;
     flex-direction: column;
-    margin: 0px;
-    background-color: var(--light);
+    margin: 0;
 }
 
 #mainBox {
@@ -83,9 +83,14 @@ body {
 }
 
 #mainBox_vertical .logo {
-    margin: 6px 12px;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    margin-left: 0.75rem;
+    margin-right: 0.75rem;
     width: 30px;
+    height: 30px;
     z-index: 10000;
+    padding: 0 !important;
 }
 
 #framesDisplay {
@@ -306,8 +311,8 @@ body {
     top: 40px;
     z-index: 1000;
     min-width: 175px;
-    box-shadow: 0px 5px 5px var(--gray);
-    padding: 0px;
+    box-shadow: 0 5px 5px var(--gray);
+    padding: 0;
     white-space: nowrap;
 }
 
@@ -356,7 +361,7 @@ div.menuLabel:hover {
 }
 
 .logo {
-    padding: 10px 0px;
+    padding: 10px 0;
 }
 
 .menuDisabled {
@@ -386,7 +391,7 @@ div.menuLabel:hover {
 .body_title {
     color: var(--black);
     background-color: var(--light);
-    padding: 10px 0px 0px 0px;
+    padding: 10px 0 0 0;
 }
 
 #username:hover > .userfunctions {
