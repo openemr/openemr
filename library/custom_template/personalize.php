@@ -14,9 +14,11 @@
 
 
 require_once("../../interface/globals.php");
-$list_id = $_REQUEST['list_id'] ? $_REQUEST['list_id'] : $_REQUEST['filter_context'];
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+
+$list_id = $_REQUEST['list_id'] ? $_REQUEST['list_id'] : $_REQUEST['filter_context'];
 
 function Delete_Rows($id)
 {
@@ -330,7 +332,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                 <a href=# class="css_button"
                    onclick="top.restoreSession();personalize_save()"><span><?php echo htmlspecialchars(xl('Save'), ENT_QUOTES); ?></span></a>
                 <?php
-                if (acl_check('nationnotes', 'nn_configure')) {
+                if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
                     ?>
                     <a href="delete_category.php" id="share_link" class="iframe_medium css_button"
                        onclick="top.restoreSession();"><span><?php echo htmlspecialchars(xl('Delete Category'), ENT_QUOTES); ?></span></a>
@@ -338,7 +340,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                 }
                 ?>
                 <?php
-                if (acl_check('nationnotes', 'nn_configure')) {
+                if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
                     ?>
                     <a href="add_template.php?list_id=<?php echo attr($_REQUEST['list_id']); ?>"
                        onclick="top.restoreSession();" class="iframe_small css_button"
@@ -347,7 +349,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                 }
                 ?>
                 <?php
-                if (acl_check('nationnotes', 'nn_configure')) {
+                if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
                     ?>
                     <a href="add_context.php" class="iframe_medium css_button" onclick="top.restoreSession();"
                        title="<?php echo htmlspecialchars(xl('Add Context'), ENT_QUOTES); ?>"><span><?php echo htmlspecialchars(xl('Add Context'), ENT_QUOTES); ?></span></a>

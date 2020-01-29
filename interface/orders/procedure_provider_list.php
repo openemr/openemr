@@ -13,9 +13,9 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 
 $popup = empty($_GET['popup']) ? 0 : 1;
@@ -109,7 +109,7 @@ function doedclick_edit(ppid) {
                                 echo "  <td>" . text($row['name']) . "</td>\n";
                                 echo "  <td>" . text($row['npi']) . "</td>\n";
                                 echo "  <td>" . text($row['protocol']) . "</td>\n";
-                                if (acl_check('admin', 'practice')) {
+                                if (AclMain::aclCheckCore('admin', 'practice')) {
                                         $trTitle = xl('Edit') . ' ' . $row['name'];
                                         echo "  <td class=\"text-center\"><span style=\"color:#000000; cursor: pointer;\"  onclick='doedclick_edit(" . attr_js($row['ppid']) . ")' class=\"haskids fa fa-pencil\" title='" . attr($trTitle) . "'></span></td>\n";
                                 } else {

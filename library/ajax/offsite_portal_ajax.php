@@ -17,16 +17,16 @@
 
 
 require_once(dirname(__FILE__)."/../../interface/globals.php");
-require_once("$srcdir/acl.inc");
 require_once(dirname(__FILE__)."/../../myportal/soap_service/portal_connectivity.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-if ($_POST['action'] == 'check_file' && acl_check('admin', 'super')) {
+if ($_POST['action'] == 'check_file' && AclMain::aclCheckCore('admin', 'super')) {
     $client = portal_connection();
     $error_message = '';
     try {

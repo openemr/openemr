@@ -1,4 +1,7 @@
 <?php
+
+use OpenEMR\Common\Acl\AclMain;
+
 $GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
 
 function getFormByEncounter(
@@ -181,5 +184,5 @@ function hasFormPermission($formDir)
     // get the aco spec from registry table
     $formRow = sqlQuery("SELECT aco_spec FROM registry WHERE directory = ?", array($formDir));
     $permission = explode('|', $formRow['aco_spec']);
-    return acl_check($permission[0], $permission[1]);
+    return AclMain::aclCheckCore($permission[0], $permission[1]);
 }

@@ -14,10 +14,10 @@
 
 require_once('../../globals.php');
 require_once($GLOBALS['srcdir'].'/lists.inc');
-require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
@@ -26,7 +26,7 @@ use OpenEMR\OeUI\OemrUI;
 // Check if user has permission for any issue type.
 $auth = false;
 foreach ($ISSUE_TYPES as $type => $dummy) {
-    if (acl_check_issue($type)) {
+    if (AclMain::aclCheckIssue($type)) {
         $auth = true;
         break;
     }
@@ -34,7 +34,7 @@ foreach ($ISSUE_TYPES as $type => $dummy) {
 
 if ($auth) {
     $tmp = getPatientData($pid, "squad");
-    if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+    if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
         die(xlt('Not authorized'));
     }
 } else {
@@ -142,7 +142,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             $lasttype = "";
             $first = 1; // flag for first section
             foreach ($ISSUE_TYPES as $focustype => $focustitles) {
-                if (!acl_check_issue($focustype)) {
+                if (!AclMain::aclCheckIssue($focustype)) {
                     continue;
                 }
 
@@ -161,7 +161,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                 // Show header
                 $disptype = $focustitles[0];
-                if (acl_check_issue($focustype, '', array('write', 'addonly'))) {
+                if (AclMain::aclCheckIssue($focustype, '', array('write', 'addonly'))) {
                     if (($focustype=='allergy' || $focustype=='medication') && $GLOBALS['erx_enable']) {
                         echo "<a href='../../eRx.php?page=medentry' class='css_button_small' onclick='top.restoreSession()' ><span>" .
                         xlt('Add') . "</span></a>\n";
@@ -210,7 +210,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                           // Data entry has not happened to this type, so can show the none selection option.
                           echo "<tr><td class='text'><input type='checkbox' class='noneCheck' name='" .
                         attr($focustype) . "' value='none'";
-                        if (!acl_check_issue($focustype, '', 'write')) {
+                        if (!AclMain::aclCheckIssue($focustype, '', 'write')) {
                             echo " disabled";
                         }
 

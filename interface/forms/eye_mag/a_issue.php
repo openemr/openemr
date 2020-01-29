@@ -21,11 +21,12 @@ $form_folder= "eye_mag";
 require_once('../../globals.php');
 require_once($GLOBALS['srcdir'].'/lists.inc');
 require_once($GLOBALS['srcdir'].'/patient.inc');
-require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'].'/csv_like_join.php');
 require_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
+
+use OpenEMR\Common\Acl\AclMain;
 
 $pid = 0 + (empty($_REQUEST['pid']) ? $pid : $_REQUEST['pid']);
 $info_msg = "";
@@ -46,11 +47,11 @@ $form_id = $_REQUEST['form_id'];
 $form_type = $_REQUEST['form_type'];
 $uniqueID = $_REQUEST['uniqueID'];
 
-if ($issue && !acl_check('patients', 'med', '', 'write')) {
+if ($issue && !AclMain::aclCheckCore('patients', 'med', '', 'write')) {
     die(xlt("Edit is not authorized!"));
 }
 
-if (!acl_check('patients', 'med', '', array('write','addonly'))) {
+if (!AclMain::aclCheckCore('patients', 'med', '', array('write','addonly'))) {
     die(xlt("Add is not authorized!"));
 }
 

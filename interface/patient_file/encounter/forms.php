@@ -14,13 +14,13 @@ require_once("../../globals.php");
 require_once("$srcdir/encounter.inc");
 require_once("$srcdir/group.inc");
 require_once("$srcdir/calendar.inc");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/amc.php");
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 require_once("$srcdir/../controllers/C_Document.class.php");
 
 use ESign\Api;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -35,7 +35,7 @@ if ($attendant_type == 'gid') {
     $groupId = $therapy_group;
 }
 $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
-if ($is_group && !acl_check("groups", "glog", false, array('view','write'))) {
+if ($is_group && !AclMain::aclCheckCore("groups", "glog", false, array('view','write'))) {
     echo xlt("access not allowed");
     exit();
 }
@@ -571,7 +571,7 @@ if (!empty($reg)) {
           // Check permission to create forms of this type.
             $tmp = explode('|', $entry['aco_spec']);
             if (!empty($tmp[1])) {
-                if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly')) {
+                if (!AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'write') && !AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'addonly')) {
                     continue;
                 }
             }
@@ -632,7 +632,7 @@ if ($encounterLocked === false) {
             // Check ACO attribute, if any, of this LBF.
             if (!empty($lrow['grp_aco_spec'])) {
                 $tmp = explode('|', $lrow['grp_aco_spec']);
-                if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly')) {
+                if (!AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'write') && !AclMain::aclCheckCore($tmp[0], $tmp[1], '', 'addonly')) {
                     continue;
                 }
             }
@@ -713,11 +713,11 @@ $pass_sens_squad = true;
 
 //fetch acl for category of given encounter
 $pc_catid = fetchCategoryIdByEncounter($encounter);
-$postCalendarCategoryACO = fetchPostCalendarCategoryACO($pc_catid);
+$postCalendarCategoryACO = AclMain::fetchPostCalendarCategoryACO($pc_catid);
 if ($postCalendarCategoryACO) {
     $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
-    $authPostCalendarCategory = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
-    $authPostCalendarCategoryWrite = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1], '', 'write');
+    $authPostCalendarCategory = AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
+    $authPostCalendarCategoryWrite = AclMain::aclCheckCore($postCalendarCategoryACO[0], $postCalendarCategoryACO[1], '', 'write');
 } else { // if no aco is set for category
     $authPostCalendarCategory = true;
     $authPostCalendarCategoryWrite = true;
@@ -729,14 +729,14 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     // Check for no access to the patient's squad.
     $result = getPatientData($pid, "fname,lname,squad");
     echo " " . xlt('for') . " " . text($result['fname']) . " " . text($result['lname']);
-    if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
+    if ($result['squad'] && ! AclMain::aclCheckCore('squads', $result['squad'])) {
         $pass_sens_squad = false;
     }
 
     // Check for no access to the encounter's sensitivity level.
     $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE " .
                         "pid = ? AND encounter = ? LIMIT 1", array($pid, $encounter));
-    if (($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) || !$authPostCalendarCategory) {
+    if (($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) || !$authPostCalendarCategory) {
         $pass_sens_squad = false;
     }
     // for therapy group
@@ -745,13 +745,13 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     // Check for no access to the patient's squad.
     $result = getGroup($groupId);
     echo " " . xlt('for') . " " . text($result['group_name']);
-    if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
+    if ($result['squad'] && ! AclMain::aclCheckCore('squads', $result['squad'])) {
         $pass_sens_squad = false;
     }
     // Check for no access to the encounter's sensitivity level.
     $result = sqlQuery("SELECT sensitivity FROM form_groups_encounter WHERE " .
         "group_id = ? AND encounter = ? LIMIT 1", array($groupId, $encounter));
-    if (($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) || !$authPostCalendarCategory) {
+    if (($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) || !$authPostCalendarCategory) {
         $pass_sens_squad = false;
     }
 }
@@ -765,7 +765,7 @@ if ($esign->isButtonViewable()) {
     echo $esign->buttonHtml();
 }
 ?>
-<?php if (acl_check('admin', 'super')) { ?>
+<?php if (AclMain::aclCheckCore('admin', 'super')) { ?>
     <a href='#' class='css_button' onclick='return deleteme()'><span><?php echo xlt('Delete') ?></span></a>
 <?php } ?>
 
@@ -965,7 +965,7 @@ if ($pass_sens_squad &&
             if (!empty($lrow)) {
                 if (!empty($lrow['grp_aco_spec'])) {
                     $aco_spec = explode('|', $lrow['grp_aco_spec']);
-                    if (!acl_check($aco_spec[0], $aco_spec[1])) {
+                    if (!AclMain::aclCheckCore($aco_spec[0], $aco_spec[1])) {
                         continue;
                     }
                 }
@@ -975,7 +975,7 @@ if ($pass_sens_squad &&
             $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
             if (!empty($tmp['aco_spec'])) {
                 $aco_spec = explode('|', $tmp['aco_spec']);
-                if (!acl_check($aco_spec[0], $aco_spec[1])) {
+                if (!AclMain::aclCheckCore($aco_spec[0], $aco_spec[1])) {
                     continue;
                 }
             }
@@ -997,7 +997,7 @@ if ($pass_sens_squad &&
             echo '<tr id="' . attr($formdir) . '~' . attr($iter['form_id']) . '" class="text onerow">';
         }
 
-        $acl_groups = acl_check("groups", "glog", false, 'write') ? true : false;
+        $acl_groups = AclMain::aclCheckCore("groups", "glog", false, 'write') ? true : false;
         $user = getNameFromUsername($iter['user']);
 
         $form_name = ($formdir == 'newpatient') ? xl('Visit Summary') : xl_form_title($iter['form_name']);
@@ -1030,8 +1030,8 @@ if ($pass_sens_squad &&
         if ($esign->isLocked()) {
                  echo "<a href=# class='css_button_small form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><span>" . xlt('Locked') . "</span></a>";
         } else {
-            if ((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '', 'write') and $is_group == 0 and $authPostCalendarCategoryWrite)
-            or (((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '', 'write')) and $is_group and acl_check("groups", "glog", false, 'write')) and $authPostCalendarCategoryWrite)) {
+            if ((!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write') and $is_group == 0 and $authPostCalendarCategoryWrite)
+            or (((!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write')) and $is_group and AclMain::aclCheckCore("groups", "glog", false, 'write')) and $authPostCalendarCategoryWrite)) {
                 echo "<a class='css_button_small form-edit-button' " .
                     "id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "' " .
                     "href='#' " .
@@ -1042,8 +1042,8 @@ if ($pass_sens_squad &&
             }
         }
 
-        if (($esign->isButtonViewable() and $is_group == 0 and $authPostCalendarCategoryWrite) or ($esign->isButtonViewable() and $is_group and acl_check("groups", "glog", false, 'write') and $authPostCalendarCategoryWrite)) {
-            if (!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '', 'write')) {
+        if (($esign->isButtonViewable() and $is_group == 0 and $authPostCalendarCategoryWrite) or ($esign->isButtonViewable() and $is_group and AclMain::aclCheckCore("groups", "glog", false, 'write') and $authPostCalendarCategoryWrite)) {
+            if (!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write')) {
                 echo $esign->buttonHtml();
             }
         }
@@ -1060,7 +1060,7 @@ if ($pass_sens_squad &&
             "' onclick='top.restoreSession()'><span>" . xlt('Print') . "</span></a>";
         }
 
-        if (acl_check('admin', 'super')) {
+        if (AclMain::aclCheckCore('admin', 'super')) {
             if ($formdir != 'newpatient' && $formdir != 'newGroupEncounter') {
                 // a link to delete the form from the encounter
                 echo "<a href='$rootdir/patient_file/encounter/delete_form.php?" .

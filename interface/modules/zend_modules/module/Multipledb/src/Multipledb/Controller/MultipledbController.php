@@ -24,6 +24,7 @@ use Multipledb\Model\MultipledbTable;
 use Laminas\Json\Server\Exception\ErrorException;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
+use OpenEMR\Common\Acl\AclMain;
 use Application\Listener\Listener;
 use Error;
 
@@ -167,11 +168,11 @@ class MultipledbController extends BaseController
     public function checkAcl($mode = null)
     {
         if ($mode == 'view' or $mode == 'write') {
-            if (!acl_check('admin', 'multipledb', false, $mode)) {
+            if (!AclMain::aclCheckCore('admin', 'multipledb', false, $mode)) {
                 $this->redirect()->toRoute("multipledb", array("action"=>"error"));
             }
         } else {
-            if (!acl_check('admin', 'multipledb')) {
+            if (!AclMain::aclCheckCore('admin', 'multipledb')) {
                 $this->redirect()->toRoute("multipledb", array("action"=>"error"));
             }
         }

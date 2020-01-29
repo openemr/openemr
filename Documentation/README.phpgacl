@@ -5,8 +5,7 @@ Installation Instructions
 
 phpGACL access controls are embedded and installed by default in OpenEMR
 versions 2.9.0.3 or later.  The administration of the access controls is
-within OpenEMR in the admin->acl menu. The library/acl.inc file can be
-easily modified to turn off phpGACL or to use an external version.
+within OpenEMR in the Administration->ACL menu.
 
 
 Upgrading Instructions
@@ -22,54 +21,15 @@ For Developers
 
 If you add a new Access Control Object to the OpenEMR codebase, then
 also add it to the following three sites:
-1. Header notes of the library/acl.inc file
+1. Header notes of the src/Common/Acl/AclMain.php file
 2. acl_setup.php file
 3. acl_upgrade.php file
 
 
-Miscellaneous Information
-(the below information is only applicable
-to OpenEMR versions less than 2.9.0.3 or to users who choose to
-install an external version of phpGACL)
-
-If you are using an OpenEMR version previous to 2.9.0.3, then phpGACL
-has not been automatically installed.  Setting it up takes some careful
-study, planning and a bit of time.  If you don't have the time then you
-should hire an experienced person to set things up for you.  Helpful
-installation and configuration instructions can be found on the wiki at the
-www.open-emr.org site.
-
-Alternatively, it's possible to set up your own access rules without
-using phpGACL by customizing the code in library/acl.inc.  See that
-module for more information.
-
-phpGACL is available from http://phpgacl.sourceforge.net/.  Read
-its documentation and install it according to its instructions.
-Helpful installation and configuration instructions can also be
-found on the wiki at the www.open-emr.org site.
-
-The admin GUI needs to be protected, so add something like this
-to your Apache configuration:
-
-  <Directory  "/var/www/phpgacl/admin">
-    AuthType Basic
-    AuthName "ACL Administrators"
-    AuthUserFile  /var/www/phpgacl/admin/.htpasswd
-    Require valid-user
-  </Directory>
-
-And of course make an associated .htpasswd file at the corresponding
-location.  See "man htpasswd2" if you have Apache 2.  Yes, it's quite
-odd that the phpGACL GUI does not control access to itself!
+Advanced Information
 
 Note that OpenEMR does not use AXOs, so ignore the AXO Group Admin
 tab and other references to AXOs.
-
-After you have installed phpGACL and modified library/acl.inc
-appropriately, you should run the acl_setup.php program using your
-web browser (e.g. http://openemr.location/acl_setup.php).  This will
-create some required and sample objects in the phpGACL database for
-OpenEMR.
 
 acl_setup.php creates required Access Control Objects (ACOs, the
 things to be protected), several sample Access Request Object (AROs
@@ -78,8 +38,7 @@ You may also create such objects yourself using the "ACL Admin"
 tab of the phpGACL GUI.
 
 The Access Control Objects (ACOs) for OpenEMR have a very specific
-structure.  This is described in the file library/acl.inc, which
-you must also modify in order to enable use of phpGACL.
+structure.  This is described in the file src/Common/Acl/AclMain.php.
 
 You must manually create an ARO in this "users" section for each
 OpenEMR user (except for the "admin" user which the setup program

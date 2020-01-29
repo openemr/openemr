@@ -15,10 +15,10 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/lists.inc");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientReport\PatientReportEvent;
 use OpenEMR\Menu\PatientMenuRole;
@@ -26,17 +26,17 @@ use OpenEMR\OeUI\OemrUI;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
-if (!acl_check('patients', 'pat_rep')) {
+if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
     die(xlt('Not authorized'));
 }
 // get various authorization levels
-$auth_notes_a  = acl_check('encounters', 'notes_a');
-$auth_notes    = acl_check('encounters', 'notes');
-$auth_coding_a = acl_check('encounters', 'coding_a');
-$auth_coding   = acl_check('encounters', 'coding');
-$auth_relaxed  = acl_check('encounters', 'relaxed');
-$auth_med      = acl_check('patients', 'med');
-$auth_demo     = acl_check('patients', 'demo');
+$auth_notes_a  = AclMain::aclCheckCore('encounters', 'notes_a');
+$auth_notes    = AclMain::aclCheckCore('encounters', 'notes');
+$auth_coding_a = AclMain::aclCheckCore('encounters', 'coding_a');
+$auth_coding   = AclMain::aclCheckCore('encounters', 'coding');
+$auth_relaxed  = AclMain::aclCheckCore('encounters', 'relaxed');
+$auth_med      = AclMain::aclCheckCore('patients', 'med');
+$auth_demo     = AclMain::aclCheckCore('patients', 'demo');
 
 $oefax = !empty($GLOBALS['oefax_enable']) ? $GLOBALS['oefax_enable'] : 0;
 /**
@@ -235,7 +235,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <tr>
                     <td class='text'>
                         <input type='checkbox' name='include_demographics' id='include_demographics' value="demographics" checked><?php echo xlt('Demographics'); ?><br>
-                        <?php if (acl_check('patients', 'med')) : ?>
+                        <?php if (AclMain::aclCheckCore('patients', 'med')) : ?>
                         <input type='checkbox' name='include_history' id='include_history' value="history"><?php echo xlt('History'); ?><br>
                         <?php endif; ?>
                         <!--
@@ -292,7 +292,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <br>
                             <br>
 
-                            <?php if (! acl_check('patients', 'med')) { ?>
+                            <?php if (! AclMain::aclCheckCore('patients', 'med')) { ?>
                             <br>(Issues not authorized)
 
                             <?php } else { ?>
@@ -535,7 +535,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         echo $db->ErrorMsg();
                     }
                     while ($result && !$result->EOF) {
-                        if (empty($result->fields['aco_spec']) || acl_check_aco_spec($result->fields['aco_spec'])) {
+                        if (empty($result->fields['aco_spec']) || AclMain::aclCheckAcoSpec($result->fields['aco_spec'])) {
                             echo "<li class='bold'>";
                             echo '<input type="checkbox" name="documents[]" value="' .
                             attr($result->fields['id']) . '">';

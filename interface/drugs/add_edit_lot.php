@@ -13,10 +13,10 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("drugs.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 function checkWarehouseUsed($warehouse_id)
@@ -96,7 +96,7 @@ $info_msg = "";
 
 $form_trans_type = isset($_POST['form_trans_type']) ? $_POST['form_trans_type'] : '0';
 
-if (!acl_check('admin', 'drugs')) {
+if (!AclMain::aclCheckCore('admin', 'drugs')) {
     die(xlt('Not authorized'));
 }
 

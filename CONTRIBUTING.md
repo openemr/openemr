@@ -9,13 +9,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     - It's best to also add an `upstream` origin to keep your local fork up to date. [Check out this guide](https://oneemptymind.wordpress.com/2018/07/11/keeping-a-fork-up-to-date/) for more info.
 2. `cd openemr` (the directory you cloned the code into)
     - If you haven't already, [install Docker](https://docs.docker.com/install/) for your system
-3. Edit `docker-compose.yml` to use your fork's git url and branch name for `FLEX_REPOSITORY` and `FLEX_REPOSITORY_BRANCH`
-    - For example:
-    ```
-    FLEX_REPOSITORY: https://github.com/[my_user_name]/openemr.git
-    FLEX_REPOSITORY_BRANCH: master
-    ```
-4. Run `docker-compose up` from your command line
+3. Run `docker-compose up` from your command line
     - When the build is done, you'll see the following message:
     ```
     openemr_1  | Love OpenEMR? You can now support the project via the open collective:
@@ -24,15 +18,15 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     openemr_1  | Starting cron daemon!
     openemr_1  | Starting apache!
     ```
-5. Navigate to `http://localhost:8300/` to login as `admin`. Password is `pass`.
-6. Make changes to any files on your local file system. Most changes will appear after a refresh of the page or iFrame you're working on...
+4. Navigate to `http://localhost:8300/` to login as `admin`. Password is `pass`.
+5. Make changes to any files on your local file system. Most changes will appear after a refresh of the page or iFrame you're working on...
     - Note that changes to SCSS files will not automatically show unless the node build process is running. For more info on this, see the [README.md in /interface](interface/README.md)
-7. If you wish to connect to the sql database, this docker environment provides the following 2 options:
+6. If you wish to connect to the sql database, this docker environment provides the following 2 options:
     - Navigate to `http://localhost:8310/` where you can login into phpMyAdmin.
     - Or you can directly connect to port 8320 via your favorite sql tool (Mysql Workbench etc.).
-8. When you're done, it's best to clean up after yourself with `docker-compose down -v`
+7. When you're done, it's best to clean up after yourself with `docker-compose down -v`
     - If you don't want to build from scratch every time, just use `docker-compose down` so your next `docker-compose up` will use the cached volumes.
-9. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
+8. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
 
 We look forward to your contribution...
 
