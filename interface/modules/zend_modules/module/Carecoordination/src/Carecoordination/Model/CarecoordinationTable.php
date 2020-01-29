@@ -12,10 +12,10 @@
  */
 namespace Carecoordination\Model;
 
-use Zend\Db\TableGateway\AbstractTableGateway;
+use Laminas\Db\TableGateway\AbstractTableGateway;
 use Application\Model\ApplicationTable;
-use Zend\Db\Adapter\Driver\Pdo\Result;
-use Zend\XmlRpc\Generator;
+use Laminas\Db\Adapter\Driver\Pdo\Result;
+use Laminas\XmlRpc\Generator;
 
 use DOMDocument;
 use DOMXpath;
@@ -162,7 +162,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
         for ($i = 0; $i < count($components); $i++) {
             // the original code logic assumed there was more than one indexed array with a root key...
-            // however the new Zend XML reader returns a root value
+            // however the new Laminas XML reader returns a root value
             if (!empty($components[$i]['section']['templateId']['root'])) {
                 if ($components_oids[$components[$i]['section']['templateId']['root']] != '') {
                     $func_name = $components_oids[$components[$i]['section']['templateId']['root']];

@@ -104,7 +104,7 @@ $depObj 	= $this->dependencyObject;
 								  ?>
 								</td>
 								<td>
-									<?php echo $this->escapeHtml(($moduleResult -> type == 1)? "Zend" : "Custom");?>
+									<?php echo $this->escapeHtml(($moduleResult -> type == 1)? "Laminas" : "Custom");?>
 								</td>
 								<td>
 									<?php
@@ -239,7 +239,7 @@ $depObj 	= $this->dependencyObject;
                 		?>
                 		</td>
                 		<td >
-							<?php echo $listener->z_xlt('Zend Module');?>
+							<?php echo $listener->z_xlt('Laminas Module');?>
 						</td>
 						<td >
 							<a href="javascript:void(0)" onclick="register(1,'<?php echo $this->escapeHtml($form_title);?>','<?php echo $this->escapeHtml($fname)?>','register','zend');"><input type='button' class='activate' value="<?php echo $listener->z_xla('Register');?>"/></a>

@@ -20,9 +20,9 @@
 namespace Patientvalidation\Controller;
 
 use Patientvalidation\Model\PatientData;
-use Zend\Json\Server\Exception\ErrorException;
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
+use Laminas\Json\Server\Exception\ErrorException;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 use Application\Listener\Listener;
 use Patientvalidation\Model\PatientDataTable;
 use Error;
@@ -78,7 +78,7 @@ class PatientvalidationController extends BaseController
         }
     }
     /**
-     * @return \Zend\Stdlib\ResponseInterface the index action
+     * @return \Laminas\Stdlib\ResponseInterface the index action
      */
 
     public function indexAction()

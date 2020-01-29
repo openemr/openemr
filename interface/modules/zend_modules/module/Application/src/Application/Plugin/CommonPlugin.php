@@ -11,7 +11,7 @@
  */
 namespace Application\Plugin;
 
-use Zend\Mvc\Controller\Plugin\AbstractPlugin;
+use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 use Application\Model\ApplicationTable;
 use Application\Listener\Listener;
 use Interop\Container\ContainerInterface;
@@ -29,7 +29,7 @@ class CommonPlugin extends AbstractPlugin
     {
         // TODO: this is crazy... why do we grab the service locator so we can load the db adapter?
         // is there some db related state that is being loaded here in a global type of way that we aren't aware of?? Or can we just remove this line?
-        $container->get('Zend\Db\Adapter\Adapter');
+        $container->get('Laminas\Db\Adapter\Adapter');
         $this->application    = new ApplicationTable();
         $this->listenerObject = new Listener;
     }

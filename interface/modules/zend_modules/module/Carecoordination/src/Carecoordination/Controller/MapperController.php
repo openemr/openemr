@@ -10,8 +10,8 @@
  */
 namespace Carecoordination\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 use Carecoordination\Model\MapperTable;
 
 // TODO: this class appears to be deprecated as nothing else refers to it.  It looks like it does the same thing as the SetupController does...

@@ -23,7 +23,7 @@
 namespace PrescriptionTemplates\Controller;
 
 use Interop\Container\ContainerInterface;
-use Zend\View\Model\ViewModel;
+use Laminas\View\Model\ViewModel;
 
 /**
  * Class HtmlTemplatesController

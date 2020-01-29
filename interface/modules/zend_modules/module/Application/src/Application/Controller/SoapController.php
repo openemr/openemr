@@ -11,12 +11,12 @@
 
 namespace Application\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 use Application\Listener\Listener;
 
 use Carecoordination\Controller\EncounterccdadispatchController;
-use Zend\Soap\Server;
+use Laminas\Soap\Server;
 
 class SoapController extends AbstractActionController
 {

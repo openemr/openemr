@@ -14,9 +14,9 @@
 namespace OpenEMR\Core;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Zend\Mvc\Application;
-use Zend\Mvc\Service\ServiceManagerConfig;
-use Zend\ServiceManager\ServiceManager;
+use Laminas\Mvc\Application;
+use Laminas\Mvc\Service\ServiceManagerConfig;
+use Laminas\ServiceManager\ServiceManager;
 
 class ModulesApplication
 {
@@ -37,7 +37,7 @@ class ModulesApplication
         $configuration = require $zendConfigurationPath . '/' . 'config/application.config.php';
 
         // Prepare the service manager
-        // We customize this and skip using the static Zend\Mvc\Application::init in order to inject the
+        // We customize this and skip using the static Laminas\Mvc\Application::init in order to inject the
         // Symfony Kernel's EventListener that way we can bridge the two frameworks.
         $smConfig = isset($configuration['service_manager']) ? $configuration['service_manager'] : [];
         $smConfig = new ServiceManagerConfig($smConfig);

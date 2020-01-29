@@ -21,10 +21,10 @@ namespace Multipledb\Controller;
 
 use Multipledb\Model\MultipledbData;
 use Multipledb\Model\MultipledbTable;
+use Laminas\Json\Server\Exception\ErrorException;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 use OpenEMR\Common\Acl\AclMain;
-use Zend\Json\Server\Exception\ErrorException;
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
 use Application\Listener\Listener;
 use Error;
 
@@ -50,7 +50,7 @@ class MultipledbController extends BaseController
 
 
     /**
-     * @return \Zend\Stdlib\ResponseInterface the index action
+     * @return \Laminas\Stdlib\ResponseInterface the index action
      */
 
     public function indexAction()

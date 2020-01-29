@@ -1,17 +1,17 @@
 <?php
 namespace Ccr;
 
-use Zend\ServiceManager\Factory\InvokableFactory;
-use Zend\Router\Http\Segment;
+use Laminas\ServiceManager\Factory\InvokableFactory;
+use Laminas\Router\Http\Segment;
 use Ccr\Controller\CcrController;
 use Ccr\Controller\ModuleconfigController;
 use Interop\Container\ContainerInterface;
 use Ccr\Model\CcrTable;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\ResultSet\ResultSet;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\ResultSet\ResultSet;
 use Ccr\Model\Ccr;
 use Documents\Controller\DocumentsController;
-use Zend\Db\TableGateway\TableGateway;
+use Laminas\Db\TableGateway\TableGateway;
 
 return array(
     'controllers' => array(

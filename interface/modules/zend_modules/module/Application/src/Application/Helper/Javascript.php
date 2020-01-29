@@ -11,7 +11,7 @@
 
 namespace Application\Helper;
 
-use Zend\View\Helper\AbstractHelper;
+use Laminas\View\Helper\AbstractHelper;
 
 class Javascript extends AbstractHelper
 {
