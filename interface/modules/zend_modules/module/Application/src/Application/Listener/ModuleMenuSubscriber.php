@@ -23,7 +23,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * @package Application\Listener
  *
  * Listens to OpenEMR menu events and adds menu items to the menu structure based upon which modules
- * have been installed through the Zend Module system.
+ * have been installed through the Laminas Module system.
  *
  * This can be used as an example of how to use the OpenEMR event dispatcher and the module system to extend the
  * codebase without modifying the core OpenEMR files.  This facilitates easier upgrading and clean separations of concerns.

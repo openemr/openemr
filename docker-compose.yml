@@ -31,13 +31,12 @@ services:
     volumes:
     - .:/openemr:ro
     - .:/var/www/localhost/htdocs/openemr:rw
-    - assetsvolume01:/var/www/localhost/htdocs/openemr/public:rw
-    - configvolume01:/var/www/localhost/htdocs/openemr/sites/default:rw
-    - configvolume02:/var/www/localhost/htdocs/openemr/interface/modules/zend_modules/config:rw
-    - logvolume01:/var/log
+    - publicvolume:/var/www/localhost/htdocs/openemr/public:rw
+    - sitesvolume:/var/www/localhost/htdocs/openemr/sites/default:rw
     - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
     - ccdamodule:/var/www/localhost/htdocs/openemr/ccdaservice:rw
+    - logvolume:/var/log
     environment:
       MYSQL_HOST: mysql
       MYSQL_ROOT_PASS: root
@@ -58,10 +57,9 @@ services:
       PMA_HOSTS: mysql
 volumes:
   databasevolume: {}
-  assetsvolume01: {}
-  configvolume01: {}
-  configvolume02: {}
-  logvolume01: {}
+  publicvolume: {}
+  sitesvolume: {}
   nodemodules: {}
   vendordir: {}
   ccdamodule: {}
+  logvolume: {}

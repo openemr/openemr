@@ -12,9 +12,9 @@
 
 namespace Acl\Model;
 
-use Zend\Db\TableGateway\AbstractTableGateway;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\ResultSet\ResultSet;
+use Laminas\Db\TableGateway\AbstractTableGateway;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\ResultSet\ResultSet;
 use \Application\Model\ApplicationTable;
 
 class AclTable extends AbstractTableGateway

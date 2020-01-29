@@ -10,10 +10,10 @@
  */
 namespace Ccr\Model;
 
-use Zend\Db\TableGateway\AbstractTableGateway;
+use Laminas\Db\TableGateway\AbstractTableGateway;
 use Application\Model\ApplicationTable;
-use Zend\Db\Adapter\Driver\Pdo\Result;
-use Zend\XmlRpc\Generator;
+use Laminas\Db\Adapter\Driver\Pdo\Result;
+use Laminas\XmlRpc\Generator;
 
 use DOMDocument;
 use DOMXpath;

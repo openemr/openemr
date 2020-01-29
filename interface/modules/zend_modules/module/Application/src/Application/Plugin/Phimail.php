@@ -10,7 +10,7 @@
  */
 namespace Application\Plugin;
 
-use Zend\Mvc\Controller\Plugin\AbstractPlugin;
+use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 use Application\Model\ApplicationTable;
 use Application\Listener\Listener;
 use Interop\Container\ContainerInterface;
@@ -29,7 +29,7 @@ class Phimail extends AbstractPlugin
     public function __construct(ContainerInterface $container)
     {
         // TODO: again why grab the service... construct the tables and do nothing with them.  Can this code be removed?
-        $container->get('Zend\Db\Adapter\Adapter');
+        $container->get('Laminas\Db\Adapter\Adapter');
         $this->application    = new ApplicationTable();
         $this->listenerObject = new Listener;
     }

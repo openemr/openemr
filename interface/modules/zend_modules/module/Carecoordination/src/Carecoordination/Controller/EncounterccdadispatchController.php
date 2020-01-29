@@ -14,8 +14,8 @@ namespace Carecoordination\Controller;
 use Application\Listener\Listener;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\System\System;
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 use Carecoordination\Controller\EncountermanagerController;
 use Exception;
 

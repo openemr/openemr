@@ -10,9 +10,9 @@
  */
 namespace Carecoordination\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Zend\Filter\Compress\Zip;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
+use Laminas\Filter\Compress\Zip;
 use Carecoordination\Form\ModuleconfigForm;
 
 class ModuleconfigController extends AbstractActionController

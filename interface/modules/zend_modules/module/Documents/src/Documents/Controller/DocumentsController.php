@@ -14,9 +14,9 @@
 namespace Documents\Controller;
 
 use OpenEMR\Common\Crypto\CryptoGen;
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Zend\View\Model\JsonModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
+use Laminas\View\Model\JsonModel;
 use Application\Listener\Listener;
 use Documents\Model\DocumentsTable;
 use Document;

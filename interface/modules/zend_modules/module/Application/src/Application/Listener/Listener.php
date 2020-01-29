@@ -11,9 +11,9 @@
 
 namespace Application\Listener;
 
-use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\ListenerAggregateInterface;
-use Zend\Mvc\Controller\AbstractActionController;
+use Laminas\EventManager\EventManagerInterface;
+use Laminas\EventManager\ListenerAggregateInterface;
+use Laminas\Mvc\Controller\AbstractActionController;
 
 /**
  * This class is supposed to listen for events in the module like the aclcheckEvent and trigger actions
@@ -25,7 +25,7 @@ use Zend\Mvc\Controller\AbstractActionController;
 class Listener extends AbstractActionController implements ListenerAggregateInterface
 {
   /**
-   * @var \Zend\Stdlib\CallbackHandler[]
+   * @var \Laminas\Stdlib\CallbackHandler[]
    */
     protected $listeners = array();
     protected $applicationTable;
