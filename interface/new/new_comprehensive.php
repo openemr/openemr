@@ -900,8 +900,8 @@ $(function () {
         }
         ?>
         <?php if (($GLOBALS['full_new_patient_form'] == '4') && (checkIfPatientValidationHookIsActive())) :?>
-            // Use laminas module patient validation hook to open the controller and send the dup-checker fields.
-            var url ='<?php echo $GLOBALS['web_root']."/interface/modules/laminas_modules/public/patientvalidation"; ?>';
+            // Use zend module patient validation hook to open the controller and send the dup-checker fields.
+            var url ='<?php echo $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation"; ?>';
         <?php else :?>
             // Build and invoke the URL to create the dup-checker dialog.
             var url = 'new_search_popup.php';

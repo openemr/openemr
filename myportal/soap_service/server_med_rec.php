@@ -423,7 +423,7 @@ class Userforms extends UserAudit
                 $site_id = $data[0][0];
                 try {
                     $ch = curl_init();
-                    $url =  $server_url . "/interface/modules/laminas_modules/public/encounterccdadispatch/index?cron=1&pid=$pid&site=$site_id";
+                    $url =  $server_url . "/interface/modules/zend_modules/public/encounterccdadispatch/index?cron=1&pid=$pid&site=$site_id";
 
                     curl_setopt($ch, CURLOPT_URL, $url);
                     curl_setopt($ch, CURLOPT_COOKIEFILE, "cookiefile");

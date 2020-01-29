@@ -55,7 +55,7 @@ class Module
         $serviceManager = $e->getApplication()->getServiceManager();
         $oemrDispatcher = $serviceManager->get(EventDispatcherInterface::class);
 
-        // listen for view events for routes in laminas_modules
+        // listen for view events for routes in zend_modules
         $oemrDispatcher->addListener(RestApiCreateEvent::EVENT_HANDLE, [$this, 'addRestAPIRouteToMap']);
     }
 

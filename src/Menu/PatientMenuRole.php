@@ -141,7 +141,7 @@ class PatientMenuRole extends MenuRole
                     $added = "";
                 } else {
                     $added = "index";
-                    $modulePath = $GLOBALS['laminasModDir'];
+                    $modulePath = $GLOBALS['zendModDir'];
                 }
 
                 if (AclMain::zhAclCheck($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {

@@ -514,7 +514,7 @@
         "label": "Manage Modules",
         "menu_id": "adm0",
         "target": "pat",
-        "url": "/interface/modules/laminas_modules/public/Installer",
+        "url": "/interface/modules/zend_modules/public/Installer",
         "children": [],
         "requirement": 0,
         "acl_req": [
