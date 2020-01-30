@@ -139,37 +139,23 @@ function rtl_style_color() {
 // compile rtl themes
 const rtl_styles = gulp.parallel(rtl_style_uni, rtl_style_color);
 
-// append rtl css to all style themes
-//  also, create list of all themes for style_list to use
+// update directional file
 function rtl_setup(done) {
-    const uni = glob.sync(config.src.styles.style_uni);
-    const colors = glob.sync(config.src.styles.style_color);
-    config.all = uni.concat(colors);
-
-    // backup and update directional file
-    fs.copyFile(config.src.styles.directional, config.src.styles.directional + '.temp', (err) => {
-        if (err) throw err;
-        replace({
-            files: config.src.styles.directional,
-            from: /ltr \!default/g,
-            to: 'rtl !default',
-        }).then(done());
-    });
+    replace({
+        files: config.src.styles.directional,
+        from: /ltr !default/,
+        to: 'rtl !default',
+    }).then(done());
 }
 
+// revert directional file
 function rtl_teardown(done) {
     replace({
         files: config.src.styles.directional,
-        from: /rtl \!default/g,
+        from: /rtl !default/,
         to: 'ltr !default',
-    }).then(function () {
-        fs.unlink(config.src.styles.directional + '.temp', (err) => {
-            if (err) throw err;
-        done();
-        });
-    });
+    }).then(done());
 }
-
 
 // Copies (and distills, if possible) assets from node_modules to public/assets
 function install(done) {
