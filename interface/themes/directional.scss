@@ -1,7 +1,10 @@
 ﻿// directional-scss | Author: Tyson Matanich (http://matanich.com), 2013 | License: MIT
+
+// set $dir to ltr if $dir is not yet set
+//  (note that rtl build has already set this to rtl)
 $dir: ltr !default;
 
-// Default $dir if not valid
+// Set $dir to ltr if not valid (this should never happen)
 @if $dir != ltr and $dir != rtl {
     $dir: ltr;
 }

@@ -99,13 +99,10 @@ function styles_style_color() {
         .pipe(gulpif(config.dev, reload({ stream: true })));
 }
 
-// compile themes
-const styles = gulp.parallel(styles_style_uni, styles_style_color);
-
 // rtl standard themes css compilation
 function rtl_style_uni() {
     return gulp.src(config.src.styles.style_uni)
-        .pipe(gap.prependText('@import "../rtl";\n')) // watch out for this relative path!
+        .pipe(gap.prependText('$dir: rtl;\n@import "../rtl";\n')) // watch out for this relative path!
         .pipe(gap.appendText('@include if-rtl { @include rtl_style; #bigCal { border-right: 1px solid $black !important; } }\n'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
@@ -122,7 +119,7 @@ function rtl_style_uni() {
 // rtl color themes css compilation
 function rtl_style_color() {
     return gulp.src(config.src.styles.style_color)
-        .pipe(gap.prependText('@import "../rtl";\n')) // watch out for this relative path!
+        .pipe(gap.prependText('$dir: rtl;\n@import "../rtl";\n')) // watch out for this relative path!
         .pipe(gap.appendText('@include if-rtl { @include rtl_style; #bigCal { border-right: 1px solid $black !important; } }\n'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
@@ -136,26 +133,8 @@ function rtl_style_color() {
         .pipe(gulpif(config.dev, reload({ stream: true })));
 }
 
-// compile rtl themes
-const rtl_styles = gulp.parallel(rtl_style_uni, rtl_style_color);
-
-// update directional file
-function rtl_setup(done) {
-    replace({
-        files: config.src.styles.directional,
-        from: /ltr !default/,
-        to: 'rtl !default',
-    }).then(done());
-}
-
-// revert directional file
-function rtl_teardown(done) {
-    replace({
-        files: config.src.styles.directional,
-        from: /rtl !default/,
-        to: 'ltr !default',
-    }).then(done());
-}
+// compile themes
+const styles = gulp.parallel(styles_style_uni, styles_style_color, rtl_style_uni, rtl_style_color);
 
 // Copies (and distills, if possible) assets from node_modules to public/assets
 function install(done) {
@@ -265,5 +244,5 @@ if (config.install) {
 } else if (config.syncOnly && config.proxy) {
     exports.default = gulp.parallel(sync_only, watch)
 } else {
-    exports.default = gulp.series(clean, ingest, styles, sync, rtl_setup, rtl_styles, rtl_teardown);
+    exports.default = gulp.series(clean, ingest, styles, sync);
 }
