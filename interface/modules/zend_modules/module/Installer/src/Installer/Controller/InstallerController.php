@@ -21,7 +21,6 @@ use Installer\Model\InstModule;
 use Application\Listener\Listener;
 use Installer\Model\InstModuleTable;
 use Laminas\Db\Adapter\Adapter;
-use Zend\Db\Adapter\Adapter;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
 class InstallerController extends AbstractActionController
