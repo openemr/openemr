@@ -73,16 +73,18 @@ class InstModuleTable
    */
     public function installSQL($dir)
     {
-        $sqltext = $dir . "/table.sql";
+        $sqltext = (file_exists($dir . "/table.sql") ? $dir . "/table.sql" : $dir . "/install.sql");
+
         if (file_exists($sqltext)) {
             if ($sqlarray = @file($sqltext)) {
                 $sql = implode("", $sqlarray);
                 $sqla = explode(";", $sql);
-                $this->getInstallerTable()->testingDir($dir);
                 foreach ($sqla as $sqlq) {
                     if (strlen($sqlq) > 5) {
                         $query    = rtrim("$sqlq");
-                        $result = $this->applicationTable->zQuery($query);
+                        if (!$this->applicationTable->zQuery($query)) {
+                            return false;
+                        }
                     }
                 }
 
@@ -177,19 +179,19 @@ class InstModuleTable
                 $added = "module/";
 
                 $sql = "INSERT INTO modules SET mod_id = ?,  mod_name = ?,
-                                      mod_active = ?, 
-                                      mod_ui_name = ?, 
+                                      mod_active = ?,
+                                      mod_ui_name = ?,
                                       mod_relative_link = ?,
-                                      type=1,  
-                                      mod_directory = ?, 
+                                      type=1,
+                                      mod_directory = ?,
                                       date=NOW()
                                       ";
             } else {
                 $sql = "INSERT INTO modules SET mod_id = ?,  mod_name = ?,
-                                      mod_active = ?, 
-                                      mod_ui_name = ?, 
+                                      mod_active = ?,
+                                      mod_ui_name = ?,
                                       mod_relative_link = ?,
-                                      mod_directory = ?, 
+                                      mod_directory = ?,
                                       date=NOW()
                                       ";
             }
@@ -256,7 +258,7 @@ class InstModuleTable
    */
     function getRegistryEntry($id, $cols = "")
     {
-        $sql = "SELECT mod_directory FROM modules WHERE mod_id = ?";
+        $sql = "SELECT mod_directory, sql_version, acl_version FROM modules WHERE mod_id = ?";
         $results   = $this->applicationTable->zQuery($sql, array($id));
 
         $resultSet    = new ResultSet();
@@ -281,8 +283,8 @@ class InstModuleTable
         if ($mod == "mod_active=1") {
             $resp = $this->checkDependencyOnEnable($id);
             if ($resp['status'] == 'success' && $resp['code'] == '1') {
-                $sql = "UPDATE modules SET mod_active = 1, 
-                                    date = ? 
+                $sql = "UPDATE modules SET mod_active = 1,
+                                    date = ?
                                WHERE mod_id = ?";
                 $params = array(
                 date('Y-m-d H:i:s'),
@@ -293,8 +295,8 @@ class InstModuleTable
         } elseif ($mod == "mod_active=0") {
             $resp = $this->checkDependencyOnDisable($id);
             if ($resp['status'] == 'success' && $resp['code'] == '1') {
-                $sql = "UPDATE modules SET mod_active = 0, 
-                                    date = ? 
+                $sql = "UPDATE modules SET mod_active = 0,
+                                    date = ?
                                WHERE mod_id = ?";
                 $params = array(
                 date('Y-m-d H:i:s'),
@@ -303,12 +305,14 @@ class InstModuleTable
                 $results   = $this->applicationTable->zQuery($sql, $params);
             }
         } else {
-            $sql = "UPDATE modules SET sql_run=1, mod_nick_name=?, mod_enc_menu=?, 
-                                 date=NOW() 
+            $sql = "UPDATE modules SET sql_run=1, mod_nick_name=?, mod_enc_menu=?,
+                                 date=NOW(), sql_version = ?, acl_version = ?
                              WHERE mod_id = ?";
             $params = array(
             $values[0],
             $values[1],
+            $values[2],
+            $values[3],
             $id,
             );
             $resp   = $this->applicationTable->zQuery($sql, $params);
@@ -333,10 +337,10 @@ class InstModuleTable
         }
 
         $all = array();
-        $sql = "SELECT ms.*,mod_directory 
-                            FROM modules_settings AS ms 
-                            LEFT OUTER JOIN modules AS m 
-                            ON ms.mod_id=m.mod_id 
+        $sql = "SELECT ms.*,mod_directory
+                            FROM modules_settings AS ms
+                            LEFT OUTER JOIN modules AS m
+                            ON ms.mod_id=m.mod_id
                             WHERE m.mod_id=? AND fld_type=?";
         $res = $this->applicationTable->zQuery($sql, array($mod_id, $type));
         if ($res) {
@@ -356,11 +360,11 @@ class InstModuleTable
     public function getOemrUserGroup()
     {
         $all = array();
-        $sql = "SELECT * FROM gacl_aro_groups AS gag 
-                        LEFT OUTER JOIN gacl_groups_aro_map AS ggam 
+        $sql = "SELECT * FROM gacl_aro_groups AS gag
+                        LEFT OUTER JOIN gacl_groups_aro_map AS ggam
                         ON gag.id=ggam.group_id
-                        WHERE parent_id<>0 
-                        AND group_id IS NOT NULL 
+                        WHERE parent_id<>0
+                        AND group_id IS NOT NULL
                         GROUP BY id ";
         $res = $this->applicationTable->zQuery($sql);
         if ($res) {
@@ -379,15 +383,15 @@ class InstModuleTable
     public function getOemrUserGroupAroMap()
     {
         $all = array();
-        $sql = "SELECT group_id,u.id AS id,CONCAT_WS(' ',CONCAT_WS(',',u.lname,u.fname),u.mname) AS user,u.username 
+        $sql = "SELECT group_id,u.id AS id,CONCAT_WS(' ',CONCAT_WS(',',u.lname,u.fname),u.mname) AS user,u.username
                     FROM gacl_aro_groups gag
-                    LEFT OUTER JOIN gacl_groups_aro_map AS ggam 
-                    ON gag.id=ggam.group_id 
-                    LEFT OUTER JOIN gacl_aro AS ga 
+                    LEFT OUTER JOIN gacl_groups_aro_map AS ggam
+                    ON gag.id=ggam.group_id
+                    LEFT OUTER JOIN gacl_aro AS ga
                     ON ggam.aro_id=ga.id
-                    LEFT OUTER JOIN users AS u 
-                    ON u.username=ga.value 
-                    WHERE group_id IS NOT NULL 
+                    LEFT OUTER JOIN users AS u
+                    ON u.username=ga.value
+                    WHERE group_id IS NOT NULL
                     ORDER BY gag.id";
         $res = $this->applicationTable->zQuery($sql);
         if ($res) {
@@ -405,10 +409,10 @@ class InstModuleTable
     public function getActiveUsers()
     {
         $all = array();
-        $sql = "SELECT id,username,CONCAT_WS(' ',fname,mname,lname) AS USER 
-                    FROM users 
-                    WHERE active=1 
-                    AND username IS NOT NULL 
+        $sql = "SELECT id,username,CONCAT_WS(' ',fname,mname,lname) AS USER
+                    FROM users
+                    WHERE active=1
+                    AND username IS NOT NULL
                     AND username<>''";
         $res = $this->applicationTable->zQuery($sql);
         if ($res) {
@@ -423,10 +427,10 @@ class InstModuleTable
     public function getTabSettings($mod_id)
     {
         $all = array();
-        $sql = "SELECT fld_type,COUNT(*) AS cnt  
-                  FROM modules_settings 
-                  WHERE mod_id=? 
-                  GROUP BY fld_type 
+        $sql = "SELECT fld_type,COUNT(*) AS cnt
+                  FROM modules_settings
+                  WHERE mod_id=?
+                  GROUP BY fld_type
                   ORDER BY fld_type ";
         $res = $this->applicationTable->zQuery($sql, array($mod_id));
         if ($res) {
@@ -452,10 +456,10 @@ class InstModuleTable
         $sql = "SELECT * FROM gacl_aco_map WHERE section_value=?";
         $MapRes = $this->applicationTable->zQuery($sql, array($aco));
         foreach ($MapRes as $key => $MapRow) {
-            $sqlSelect = "SELECT acl_id,value,CONCAT_WS(' ',fname,mname,lname) AS user 
-                            FROM gacl_aro_map 
-                            LEFT OUTER JOIN users 
-                            ON value=username 
+            $sqlSelect = "SELECT acl_id,value,CONCAT_WS(' ',fname,mname,lname) AS user
+                            FROM gacl_aro_map
+                            LEFT OUTER JOIN users
+                            ON value=username
                             WHERE active=1 AND acl_id=?";
             $aroRes = $this->applicationTable->zQuery($sqlSelect, array($MapRow['acl_id']));
             $i=0;
@@ -477,7 +481,7 @@ class InstModuleTable
     {
         $all = array();
         $sql      = "SELECT msh.*,ms.menu_name FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
-                obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON msh.mod_id=m.mod_id 
+                obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON msh.mod_id=m.mod_id
                 WHERE fld_type = '3' AND mod_active = 1 AND msh.mod_id = ? ";
         $res      = $this->applicationTable->zQuery($sql, array($mod_id));
         foreach ($res as $row) {
@@ -495,9 +499,9 @@ class InstModuleTable
     public function getHookStatus($modId, $hookId, $hangerId)
     {
         if ($modId && $hookId && $hangerId) {
-            $sql = "select * FROM modules_hooks_settings 
-                        WHERE mod_id = ? 
-                        AND enabled_hooks = ? 
+            $sql = "select * FROM modules_hooks_settings
+                        WHERE mod_id = ?
+                        AND enabled_hooks = ?
                         AND attached_to = ? ";
             $res  = $this->applicationTable->zQuery($sql, array($modId, $hookId, $hangerId));
             foreach ($res as $row) {

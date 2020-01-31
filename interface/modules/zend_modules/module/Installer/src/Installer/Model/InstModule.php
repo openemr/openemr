@@ -37,7 +37,8 @@ class InstModule implements InputFilterAwareInterface
     public $date;
     public $sqlRun;
     public $type;
-
+    public $sql_version;
+    public $acl_version;
     public function exchangeArray($data)
     {
         $this -> modId                  = isset($data['mod_id'])? $data['mod_id']: null;
@@ -69,6 +70,8 @@ class InstModule implements InputFilterAwareInterface
         $this -> mod_directory        = isset($data['mod_directory']) ? $data['mod_directory'] : null;
         $this -> enabled_hooks        = isset($data['enabled_hooks']) ? $data['enabled_hooks'] : null;
         $this -> attached_to          = isset($data['attached_to']) ? $data['attached_to'] : null;
+        $this -> sql_version          = isset($data['sql_version']) ? $data['sql_version'] : null;
+        $this -> acl_version          = isset($data['acl_version']) ? $data['acl_version'] : null;
     }
 
     public function setInputFilter(InputFilterInterface $inputFilter)

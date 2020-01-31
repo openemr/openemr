@@ -125,6 +125,24 @@ $depObj 	= $this->dependencyObject;
 											<a href="javascript:void(0)" class="link_submit inactive" onclick="manage('<?php echo $this->escapeHtml($moduleResult -> modId)?>','disable');" title="<?php echo $listener->z_xla('Click Here to Enable This module');?>"><input type='button' class='activate' value="<?php echo $listener->z_xla('Enable');?>"/></a>
 										<?php
 										}?>
+                                <?php
+                                        if ($moduleResult->sql_action == "install"){?>
+                                            <a href="javascript:void(0)" class="link_submit install_sql" onclick="manage('<?php echo $this->escapeHtml($moduleResult -> modId)?>','install_sql');" title="<?php echo $listener->z_xla('Click Here to Install SQL for module');?>"><input type='button' value="<?php echo $listener->z_xla('Install SQL');?>"/></a>
+                                        <?php }
+                                        elseif ($moduleResult->sql_action == "upgrade"){?>
+                                            <a href="javascript:void(0)" class="link_submit upgrade_sql" onclick="manage('<?php echo $this->escapeHtml($moduleResult -> modId)?>','upgrade_sql');" title="<?php echo $listener->z_xla('Click Here to Upgrade SQL for module');?>"><input type='button' onclick="blockInput(this);" value="<?php echo $listener->z_xla('Upgrade SQL');?>"/></a>
+                                        <?php
+                                        }
+                                        ?>
+                                    <?php
+                                    if ($moduleResult->acl_action == "install"){?>
+                                        <a href="javascript:void(0)" class="link_submit install_acl" onclick="manage('<?php echo $this->escapeHtml($moduleResult -> modId)?>','install_acl');" title="<?php echo $listener->z_xla('Click Here to Install ACL for module');?>"><input type='button' onclick="blockInput(this);" value="<?php echo $listener->z_xla('Install ACL');?>"/></a>
+                                    <?php }
+                                    elseif ($moduleResult->acl_action == "upgrade"){?>
+                                        <a href="javascript:void(0)" class="link_submit upgrade_acl" onclick="manage('<?php echo $this->escapeHtml($moduleResult -> modId)?>','upgrade_acl');" title="<?php echo $listener->z_xla('Click Here to Upgrade ACL for module');?>"><input type='button' onclick="blockInput(this);" value="<?php echo $listener->z_xla('Upgrade ACL');?>"/></a>
+                                        <?php
+                                    }
+                                    ?>
 								</td>
 								<td>
 								<?php
@@ -154,6 +172,43 @@ $depObj 	= $this->dependencyObject;
 			</div>
 
 	</div>
+
+    <style>
+        .show_hide_log {
+            border-radius: 5px;
+            border: 1px solid #c9c6c6;
+            padding: 5px;
+            text-align: center;
+            cursor: pointer;
+            margin: 5px 5px 0px 0px;
+            color: gray;
+            width: 97%;
+        }
+        .spoiler {
+            display: none;
+            margin-left: 10px;
+            border: 1px solid #c9c6c6;
+            padding: 5px;
+            width: 95%;
+            border-top: 0px;
+        }
+        .modal {
+            display:    none;
+            position:   fixed;
+            z-index:    1000;
+            top:        0;
+            left:       0;
+            height:     100%;
+            width:      100%;
+            background: rgba( 255, 255, 255, .8 )
+            url('/interface/modules/zend_modules/public/images/ajax-loader.gif')
+            50% 50%
+            no-repeat;
+        }
+    </style>
+    <div class="modal"></div>
+    <div id="install_upgrade_log" style="overflow-y: auto; height: 500px; display: none;"></div>
+
 	<div class="installer_code notranslate unregistered" style="display:none">
 		<table class="imagetable" id="unregistered">
 			<tr>
