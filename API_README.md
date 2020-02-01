@@ -6,8 +6,8 @@ This project aims to provide an easy-to-use JSON-based REST API for OpenEMR's mo
 
 ### Team
 
-- [@matthewvita](https://github.com/matthewvita)
 - [@sjpadgett](https://github.com/sjpadgett)
+- [@matthewvita](https://github.com/matthewvita)
 - [@juggernautsei](https://github.com/juggernautsei)
 - [@kofiav](https://github.com/kofiav)
 - [@bradymiller](https://github.com/bradymiller)
