@@ -61,4 +61,39 @@ class ChartTrackerTest extends TestCase
 
         self::assertEquals($location, $chartTracker->getLocation());
     }
+
+    /** @test */
+    public function can_be_serialized(): void
+    {
+        $chartTracker = new ChartTracker();
+        $chartTracker->setPid($pId = 1);
+        $chartTracker->setWhen($whenValue = new DateTime('2020-01-01'));
+        $chartTracker->setUserId($userId = 100);
+        $chartTracker->setLocation($location = 'irrelevant');
+
+        $expectedSerializedObject = [
+            "pid" => $pId,
+            "when" => $whenValue,
+            "userId" => $userId,
+            "location" => $location,
+        ];
+
+        self::assertEquals($expectedSerializedObject, $chartTracker->toSerializedObject());
+    }
+
+    /** @test */
+    public function can_be_converted_to_string(): void
+    {
+        $chartTracker = new ChartTracker();
+        $chartTracker->setPid($pId = 1);
+        $chartTracker->setWhen($whenValue = new DateTime('2020-01-01'));
+        $chartTracker->setUserId($userId = 100);
+        $chartTracker->setLocation($location = 'irrelevant');
+
+        $expectedString = "pid: '1' date: '2020-01-01' userId: '100' location: 'irrelevant'";
+
+        self::assertEquals($expectedString, $chartTracker->__toString());
+
+        echo $chartTracker->__toString();
+    }
 }

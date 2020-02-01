@@ -151,9 +151,9 @@ class ChartTracker
     public function __toString()
     {
         return "pid: '" . $this->getPid() . "' " .
-               "date: '" . $this->getDate() . "' " .
+               "date: '" . $this->getWhen()->format('Y-m-m') . "' " .
                "userId: '" . $this->getUserId() . "' " .
-               "location" . $this->getLocation() . "' " ;
+               "location: '" . $this->getLocation() . "'" ;
     }
 
     /**
