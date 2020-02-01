@@ -11,11 +11,8 @@
 
 namespace OpenEMR\Rx\Weno;
 
-
 class NewRx
 {
-
-
     /**
      * @param $list
      * @param $pid
@@ -214,8 +211,4 @@ class NewRx
         return $xml->asXML();
     }
 
-
-
-
 }
-

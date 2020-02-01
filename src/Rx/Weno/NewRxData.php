@@ -1,18 +1,16 @@
 <?php
 /**
- *  @package   OpenEMR
- *  @link      http://www.open-emr.org
- *  @author    Sherwin Gaddis <sherwingaddis@gmail.com>
- *  @copyright Copyright (c )2019. Sherwin Gaddis <sherwingaddis@gmail.com>
- *  @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
- *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c )2019. Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Rx\Weno;
 
 require_once "../../interface/globals.php";
-require_once($GLOBALS['fileroot'] . "/library/patient.inc");
+require_once $GLOBALS['fileroot'] . "/library/patient.inc";
 
 class NewRxData
 {
@@ -34,14 +32,14 @@ class NewRxData
             "a.city, a.state, a.zip FROM pharmacies AS p " .
             "LEFT JOIN addresses AS a ON p.id = a.foreign_id " .
             "WHERE p.id = ?";
-        $data = sqlQuery($sql,[$phid]);
+        $data = sqlQuery($sql, [$phid]);
 
         $nsql = "SELECT area_code, prefix, number FROM phone_numbers ".
             "WHERE foreign_id = ? ORDER BY type ASC ";
         $loadnumbers = sqlStatement($nsql, [$phid]);
         while($row = sqlFetchArray($loadnumbers)){
                 $numbers[] = $row;
-         }
+        }
 
         array_push($data, $numbers);
         return $data;

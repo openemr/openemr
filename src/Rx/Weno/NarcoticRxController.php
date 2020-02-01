@@ -2,11 +2,11 @@
 /**
  * Narcotic Prescription Controller
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Rx\Weno;
@@ -24,7 +24,6 @@ class NarcoticRxController
         $database = Connector::Instance();
         $entityManager = $database->entityManager;
         $this->repository = $entityManager->getRepository(Prescriptions::class);
-
     }
 
     /**
@@ -39,7 +38,8 @@ class NarcoticRxController
         $prescriptions = self::getPrescriptions();
         $pharmacyOnFile = self::getPharmacy();
 
-        return $GLOBALS['twig']->render('weno/narcotic.html.twig', [
+        return $GLOBALS['twig']->render(
+            'weno/narcotic.html.twig', [
             'referrer' => $referrer,
             'tabtitle' => xl('Prescription Order'),
             'pagetitle' => xl('Prescription Confirm & Transmit'),
@@ -48,7 +48,8 @@ class NarcoticRxController
             'url' => '../../src/Rx/Weno/SetPharmacyController.php',
             'savePharmUrl' => '../../src/Rx/Weno/PatientPharmacyController.php'
 
-        ]);
+            ]
+        );
     }
 
     public function getPrescriptions()
@@ -72,13 +73,12 @@ class NarcoticRxController
             "LEFT JOIN addresses AS pa ON p.id = pa.foreign_id ".
             "LEFT JOIN patient_data AS pd ON pd.pharmacy_id = pa.foreign_id ".
             "WHERE pd.pid = ?";
-        $store = sqlQuery($sql,[$pid]);
+        $store = sqlQuery($sql, [$pid]);
         if (!empty($store)) {
             return $store['name'] . " " . $store['line1'] . " " . $store['city'] . " " . $store['state'];
         } else {
             return "";
         }
     }
-
 
 }

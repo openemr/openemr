@@ -34,9 +34,9 @@ function changeLinkHrefAll(addValue, value) {
 }
 
 //uses jquery to update database table
-function markTx(oThis,id){{/literal}
+function markTx(oThis,id){{/literal};
     var isChecked = oThis.checked ? 1 : 0; // @TODO this is better served if checkboxs are all checked on submit with one call to markTx
-    $.get('./interface/weno/markTx.php?rx=' + encodeURIComponent(id) + '&state=' + encodeURIComponent(isChecked) + '&csrf_token_form=' + {$CSRF_TOKEN_FORM|js_url});
+    $.get('./interface/weno/markTx.php?rx=' + encodeURIComponent(id) + '&state=' + encodeURIComponent(isChecked) + '&csrf_token_form=' + {$CSRF_TOKEN_FORM|js_url})
     return false;
 {literal}}
 
@@ -121,7 +121,7 @@ function Checking(chk) {
     if (foundone) {
         return true;
     } else {
-        alert({/literal}{xlj t='Please select at least one prescription!'}{literal});
+        alert({/literal}{xlj t='Please select at least one prescription!'}{literal});;
         return false;
     }
 }

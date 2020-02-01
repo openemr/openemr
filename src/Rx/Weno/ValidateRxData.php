@@ -2,11 +2,11 @@
 /**
  * ValidateRxData class.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -18,7 +18,7 @@ class ValidateRxData
 {
 
     /**
-     * @param $uid
+     * @param  $uid
      * @return array
      */
     public function getProviderFacility($uid)
@@ -34,7 +34,7 @@ class ValidateRxData
     }
 
     /**
-     * @param $id
+     * @param  $id
      * @return array
      */
     public function findPharmacy($id)
@@ -59,13 +59,13 @@ class ValidateRxData
         $pid = $GLOBALS['pid'];
         $sql = "SELECT `diagnosis` FROM `lists` WHERE `pid` = ? AND type LIKE 'medical_problem' " .
                "ORDER BY date DESC LIMIT 1";
-        $diagnosis = sqlQuery($sql,[$pid]);
+        $diagnosis = sqlQuery($sql, [$pid]);
         return $diagnosis['diagnosis'];
     }
 
 
     /**
-     * @param $pid
+     * @param  $pid
      * @return array|null
      */
     public function patientPharmacyInfo($pid)
@@ -77,7 +77,7 @@ class ValidateRxData
 
 
     /**
-     * @param $pid
+     * @param  $pid
      * @return array|null
      */
     public function validatePatient($pid)
@@ -89,7 +89,7 @@ class ValidateRxData
     }
 
     /**
-     * @param $npi
+     * @param  $npi
      * @return mixed
      */
     public function validateNPI($npi)

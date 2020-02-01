@@ -132,7 +132,7 @@ if ($seekvalidation == 0) {
     ++$i;
 }
 if ($i < 1) {
-header('Location: prescriptionOrder.php');
+    header('Location: prescriptionOrder.php');
 } else {
     die(xlt("Review the above"));
 }

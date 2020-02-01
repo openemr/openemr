@@ -1,12 +1,10 @@
 <?php
 /**
- *  @package   OpenEMR
- *  @link      http://www.open-emr.org
- *  @author    Sherwin Gaddis <sherwingaddis@gmail.com>
- *  @copyright Copyright (c )2019. Sherwin Gaddis <sherwingaddis@gmail.com>
- *  @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
- *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c )2019. Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Entities;
@@ -17,6 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Class PatientData
+ *
  * @ORM\Table(name="patient_data")
  * @ORM\Entity(repositoryClass="OpenEMR\Repositories\PatientDataRepository")
  */

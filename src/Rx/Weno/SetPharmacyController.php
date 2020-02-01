@@ -1,12 +1,10 @@
 <?php
 /**
- *  @package   OpenEMR
- *  @link      http://www.open-emr.org
- *  @author    Sherwin Gaddis <sherwingaddis@gmail.com>
- *  @copyright Copyright (c )2019. Sherwin Gaddis <sherwingaddis@gmail.com>
- *  @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
- *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c )2019. Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Rx\Weno;
@@ -19,6 +17,7 @@ use OpenEMR\Entities\Pharmacies;
 
 /**
  * Class SetPharmacyController
+ *
  * @package OpenEMR\Rx\Weno
  */
 class SetPharmacyController
@@ -40,7 +39,7 @@ class SetPharmacyController
     }
 
     /**
-     * @param $term
+     * @param  $term
      * @return mixed
      */
     public function getPharmacyApi($term)

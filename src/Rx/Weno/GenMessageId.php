@@ -11,26 +11,24 @@
 
 namespace OpenEMR\Rx\Weno;
 
-
 class GenMessageId
 {
     public $message_id;
 
-    public function __construct(){
+    public function __construct()
+    {
         $t = time();
 
         $ext1 = rand();
         //$ext3 = rand();
-        $ext2 = rand(111111,999999);
+        $ext2 = rand(111111, 999999);
         $randomId = $ext1.$ext2.$t;
 
         $this->message_id = $randomId;
-
     }
 
     public function getMessageId()
     {
         return $this->message_id;
     }
-
 }

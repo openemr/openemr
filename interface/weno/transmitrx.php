@@ -19,16 +19,14 @@ if (isset($_GET['scripts'])) {
     exit;
 }
 
-$meds = explode(",",$list);
+$meds = explode(",", $list);
 
 foreach ($meds as $med) {
-
     $sendScript = new NewRx();
 
     //Returns XML message to be transmitted to gateway
     $payload = $sendScript->creatOrderXMLBody($med);
     $payloads .= $payload.":::";
-
 }
 
 $request_url = 'https://apa.openmedpractice.com/apa/interface/weno/receivingrx_v2';
