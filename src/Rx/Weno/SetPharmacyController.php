@@ -46,7 +46,6 @@ class SetPharmacyController
         $pharmacies = $this->repository;
         $pharmacy = $pharmacies->findAllMatch($term);
         return  json_encode($pharmacy);
-
     }
 }
 

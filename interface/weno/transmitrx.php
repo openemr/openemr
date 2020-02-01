@@ -61,4 +61,3 @@ function get_url($request_url, $payloads)
 
     return $response;
 }
-
