@@ -93,7 +93,5 @@ class ChartTrackerTest extends TestCase
         $expectedString = "pid: '1' date: '2020-01-01' userId: '100' location: 'irrelevant'";
 
         self::assertEquals($expectedString, $chartTracker->__toString());
-
-        echo $chartTracker->__toString();
     }
 }
