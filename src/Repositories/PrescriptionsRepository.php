@@ -11,8 +11,6 @@
 
 namespace OpenEMR\Repositories;
 
-require_once "../../interface/globals.php";
-
 use Doctrine\ORM\Query;
 use Doctrine\ORM\EntityRepository;
 use OpenEMR\Entities\Prescriptions;

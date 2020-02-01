@@ -40,16 +40,16 @@
     </table>
     <form class="form">
     <div id="pharmacyselect" data-autocomplete-url="{{ url }}" class="form-group">
-        <input type="text" id="pharmacy-autocomplete" class="form-control" name="savePharmacy" value="{{ pharmacy|attr }}" placeholder="No pharmacy on file">
+        <input type="text" id="pharmacy-autocomplete" class="form-control" name="savePharmacy" value="{{ pharmacy|attr }}" placeholder="{{ "No pharmacy on file"|xla }}">
     </div>
     </form>
     {% if prescriptions %}
 
 
     {% endif %}
-    <a class="btn btn-primary" href='{{ referrer }}' >{{"Done"|xlt}}</a>
-    <a class="btn btn-primary" href="#" id="savePharmacy">{{"Confirm"|xlt}}</a>
-    <a class="btn btn-warning" href="#" id="sendScript">{{"Transmit"|xlt}}</a>
+    <a class="btn btn-primary" href='{{ referrer }}' >{{ "Done"|xlt }}</a>
+    <a class="btn btn-primary" href="#" id="savePharmacy">{{ "Confirm"|xlt }}</a>
+    <a class="btn btn-warning" href="#" id="sendScript">{{ "Transmit"|xlt }}</a>
     <div id="success"></div>
 </div>{# --end of container div--  #}
     <div id="prescriptIds" data-ids="{{ ids | json_encode() }}"></div>

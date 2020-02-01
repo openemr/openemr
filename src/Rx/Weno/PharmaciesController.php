@@ -10,6 +10,7 @@
  */
 
 namespace OpenEMR\Rx\Weno;
+
 use OpenEMR\Common\Database\Connector;
 use OpenEMR\Entities\Pharmacies;
 

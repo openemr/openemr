@@ -53,10 +53,10 @@ function get_url($request_url, $payloads)
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
-    $response = curl_exec($ch) or die(curl_error($ch));;
+    $response = curl_exec($ch) or die(text(curl_error($ch)));
 
     if (curl_errno($ch)) {
-        print curl_error($ch);
+        print text(curl_error($ch));
     } else {
         curl_close($ch);
     }

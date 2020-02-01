@@ -11,13 +11,10 @@
 
 namespace OpenEMR\Rx\Weno;
 
-require_once "../../interface/globals.php";
-
-use OpenEMR\Core\Controller;
 use OpenEMR\Common\Database\Connector;
 use OpenEMR\Entities\Prescriptions;
 
-class NarcoticRxController extends Controller
+class NarcoticRxController
 {
     private $entityManager;
     private $repository;

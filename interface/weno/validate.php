@@ -34,7 +34,7 @@ $validation = new ValidateRxData();
     <title><?php print xlt("Data Validation"); ?></title>
 </head>
 <body>
-<h3><?php xlt("Data Validation"); ?></h3>
+<h3><?php echo xlt("Data Validation"); ?></h3>
 
 <?php
 $patient = $validation->validatePatient($pid);
@@ -134,7 +134,7 @@ if ($seekvalidation == 0) {
 if ($i < 1) {
 header('Location: prescriptionOrder.php');
 } else {
-    die("Review the above");
+    die(xlt("Review the above"));
 }
 
 ?>

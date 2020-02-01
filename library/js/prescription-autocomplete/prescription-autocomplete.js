@@ -16,6 +16,7 @@ $(document).ready(function () {
 
         source: function (request, response) {
             // Fetch data
+            top.restoreSession();
             let autocompleteUrl = $("#pharmacyselect").data('autocomplete-url');
             $.ajax({
                 url: autocompleteUrl+'?term='+request.term,
@@ -48,7 +49,7 @@ function savePharm(e) {
     let setPharm = "../../src/Rx/Weno/PatientPharmacyController.php";//$("#savePharmUrl").data('savePharm-url');
     if (id[0] > 0) {
         $.ajax({
-            url: setPharm+'?id='+id[0],
+            url: setPharm + '?id='+ encodeURIComponent(id[0]),
             type: 'GET',
             dataType: 'json',
             success: function (result) {
@@ -84,7 +85,7 @@ function sendScripts(e) {
     if (scripts) {
         request.push(
       $.ajax({
-          url: sendRx+'?scripts='+scripts,
+          url: sendRx + '?scripts=' + encodeURIComponent(scripts),
           type: 'GET',
           success: function (response) {
               parser = new DOMParser();
@@ -97,7 +98,7 @@ function sendScripts(e) {
                   console.log('url: ' + url);
                   if (url) {
                       //$('#success').append(window.location.replace(url));
-                      $('#success').append('<a href='+url+' target="_blank">Click Here to Sign Prescription</a>');
+                      $('#success').append('<a href=' + url + ' target="_blank">Click Here to Sign Prescription</a>');
                       //$('#weno_iframe').attr('src', url);
                   } else {
                       const erx_error = $(response).find('Error').text();
