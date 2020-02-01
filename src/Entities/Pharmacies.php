@@ -138,6 +138,4 @@ class Pharmacies
     {
         $this->npi = $npi;
     }
-
-
 }

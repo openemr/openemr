@@ -19,7 +19,6 @@ class PharmaciesController
     private $entityManager;
     private $repository;
 
-
     /**
      * PharmaciesController constructor.
      */
@@ -37,5 +36,4 @@ class PharmaciesController
 
         return $response;
     }
-
 }

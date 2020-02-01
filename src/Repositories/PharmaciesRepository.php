@@ -14,7 +14,6 @@ use Doctrine\ORM\Query;
 use OpenEMR\Entities\Addresses;
 use OpenEMR\Entities\Pharmacies;
 
-
 /**
  * Class PharmaciesRepository
  *
@@ -33,8 +32,10 @@ class PharmaciesRepository extends EntityRepository
         $find = $this->_em->getRepository($this->_entityName)->createQueryBuilder('pa')
             ->select('pa.id', 'pa.name', 'a.line1', 'a.city', 'a.state')
             ->leftJoin(
-                Addresses::class, 'a',
-                Query\Expr\Join::WITH, 'pa.id = a.foreign_id'
+                Addresses::class,
+                'a',
+                Query\Expr\Join::WITH,
+                'pa.id = a.foreign_id'
             )
             ->where('pa.name LIKE :term')
             ->setParameter('term', '%'.$term.'%')
@@ -43,6 +44,4 @@ class PharmaciesRepository extends EntityRepository
 
         return $find;
     }
-
-
 }

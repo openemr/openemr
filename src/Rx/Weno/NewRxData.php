@@ -37,7 +37,7 @@ class NewRxData
         $nsql = "SELECT area_code, prefix, number FROM phone_numbers ".
             "WHERE foreign_id = ? ORDER BY type ASC ";
         $loadnumbers = sqlStatement($nsql, [$phid]);
-        while($row = sqlFetchArray($loadnumbers)){
+        while ($row = sqlFetchArray($loadnumbers)) {
                 $numbers[] = $row;
         }
 
@@ -64,7 +64,6 @@ class NewRxData
             " ORDER BY id DESC LIMIT 1";
         $vitals = sqlQuery($sql, [$this->pid]);
         return $vitals;
-
     }
 
     public function medicationData($med)
@@ -78,7 +77,5 @@ class NewRxData
             "WHERE p.id = ? AND l.diagnosis != ''";
         $res = sqlQuery($sql, [$med]);
         return $res;
-
     }
-
 }

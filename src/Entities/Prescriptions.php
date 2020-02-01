@@ -838,7 +838,4 @@ class Prescriptions
     {
         $this->txDate = $txDate;
     }
-
-
-
 }

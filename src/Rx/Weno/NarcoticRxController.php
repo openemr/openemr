@@ -39,7 +39,8 @@ class NarcoticRxController
         $pharmacyOnFile = self::getPharmacy();
 
         return $GLOBALS['twig']->render(
-            'weno/narcotic.html.twig', [
+            'weno/narcotic.html.twig',
+            [
             'referrer' => $referrer,
             'tabtitle' => xl('Prescription Order'),
             'pagetitle' => xl('Prescription Confirm & Transmit'),
@@ -47,7 +48,6 @@ class NarcoticRxController
             'pharmacy' => $pharmacyOnFile,
             'url' => '../../src/Rx/Weno/SetPharmacyController.php',
             'savePharmUrl' => '../../src/Rx/Weno/PatientPharmacyController.php'
-
             ]
         );
     }
@@ -80,5 +80,4 @@ class NarcoticRxController
             return "";
         }
     }
-
 }

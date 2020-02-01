@@ -16,4 +16,3 @@ $page = new NarcoticRxController();
 
 
 echo $page->buildRx();
-

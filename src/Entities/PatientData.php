@@ -12,7 +12,6 @@ namespace OpenEMR\Entities;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
-
 /**
  * Class PatientData
  *
@@ -3005,6 +3004,4 @@ class PatientData
     {
         $this->resnotes = $resnotes;
     }
-
-
 }

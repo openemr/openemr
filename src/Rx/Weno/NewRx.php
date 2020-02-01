@@ -210,5 +210,4 @@ class NewRx
 
         return $xml->asXML();
     }
-
 }

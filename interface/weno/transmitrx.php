@@ -44,8 +44,8 @@ function get_url($request_url, $payloads)
     $data = ['xml' => $payloads];
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $request_url);
-    curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt( $ch, CURLOPT_POST, true );
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -61,6 +61,4 @@ function get_url($request_url, $payloads)
 
     return $response;
 }
-
-
 

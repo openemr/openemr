@@ -19,7 +19,7 @@ class PatientDataRepository extends EntityRepository
      * @param $id
      * @param $pid
      */
-    public function updatePatientPharmacy($id,$pid)
+    public function updatePatientPharmacy($id, $pid)
     {
         $set = $this->_em->getRepository($this->_entityName)->createQueryBuilder('p')
             ->update()
@@ -36,5 +36,4 @@ class PatientDataRepository extends EntityRepository
     {
         return "Arbys";
     }
-
 }
