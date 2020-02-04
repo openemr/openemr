@@ -3356,7 +3356,14 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',
             xl('phiMail Allow CCR Send')
-        )
+        ),
+
+        'easipro_enable' => array(
+            xl('Enable Easipro'),
+            'bool',                           // data type
+            '1',
+            xl('Enable Easipro')
+        ),
     ),
 
     'Rx' => array(

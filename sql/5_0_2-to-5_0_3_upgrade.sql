@@ -398,3 +398,21 @@ ALTER TABLE `modules` ADD `sql_version` VARCHAR(150) NOT NULL;
 #IfMissingColumn modules acl_version
 ALTER TABLE `modules` ADD `acl_version` VARCHAR(150) NOT NULL;
 #EndIf
+
+#IfNotTable pro_assessments
+CREATE TABLE `pro_assessments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `form_oid` varchar(255) NOT NULL COMMENT 'unique id for specific instrument, pulled from assessment center API',
+  `form_name` varchar (255) NOT NULL COMMENT 'pulled from assessment center API',
+  `user_id` int(11) NOT NULL COMMENT 'ID for user that orders the form',
+  `deadline` datetime NOT NULL COMMENT 'deadline to complete the form, will be used when sending notification and reminders',
+  `patient_id` int(11) NOT NULL COMMENT 'ID for patient to order the form for',
+  `assessment_oid` varchar(255) NOT NULL COMMENT 'unique id for this specific assessment, pulled from assessment center API',
+  `status` varchar(255) NOT NULL COMMENT 'ordered or completed',
+  `score` double NOT NULL COMMENT 'T-Score for the assessment',
+  `error` double NOT NULL COMMENT 'Standard error for the score',
+  `created_at` datetime NOT NULL COMMENT 'timestamp recording the creation time of this assessment',
+  `updated_at` datetime NOT NULL COMMENT 'this field indicates the completion time when the status is completed',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1;
+#EndIf
