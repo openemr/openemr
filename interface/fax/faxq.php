@@ -91,31 +91,28 @@ if ($scandir && $GLOBALS['enable_scanner']) {
     <title><?php echo xlt('Received Faxes'); ?></title>
 
 <style>
-td {
- font-family: Arial, Helvetica, sans-serif;
- padding-left: 4px;
- padding-right: 4px;
-}
-a, a:visited, a:hover {
- color:#0000cc;
-}
-tr.head {
- font-size:10pt;
- background-color:#cccccc;
- font-weight: bold;
-}
-tr.detail {
- font-size:10pt;
-}
-td.tabhead {
-  font-size: 11pt;
-  font-weight: bold;
-  height: 20pt;
-  text-align: center;
-}
+    td {
+        font-family: "Arial", "Helvetica", sans-serif;
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+    tr.head {
+        font-size: 0.8125rem;
+        background-color: var(--light);
+        font-weight: bold;
+    }
+    tr.detail {
+        font-size: 0.8125rem;
+    }
+    td.tabhead {
+        font-size: 0.9375rem;
+        font-weight: bold;
+        height: 1.6875rem;
+        text-align: center;
+    }
 </style>
 
-<script language="JavaScript">
+<script>
 
 // Process click on a tab.
 function tabclick(tabname) {
@@ -127,12 +124,12 @@ function tabclick(tabname) {
   if (tabs[i] == tabname) {
    // thistd.style.borderBottom = '0px solid var(--black)';
    thistd.style.borderBottom = '2px solid transparent';
-   thistd.style.color = '#cc0000';
+   thistd.style.color = 'var(--danger)';
    thistd.style.cursor = 'default';
    thistable.style.display = visdisp;
   } else {
    thistd.style.borderBottom = '2px solid var(--black)';
-   thistd.style.color = '#777777';
+   thistd.style.color = 'var(--gray)';
    thistd.style.cursor = 'pointer';
    thistable.style.display = 'none';
   }
@@ -180,28 +177,27 @@ function dosdclick(sfname) {
 </head>
 
 <body class="body_top">
-<table cellspacing='0' cellpadding='0' style='margin: 0 0 0 0; border: 2px solid var(--black);'
- id='bigtable' width='100%' height='100%'>
+<table class='w-100 h-100' cellspacing='0' cellpadding='0' style='margin: 0; border: 2px solid var(--black);' id='bigtable'>
  <tr style='height: 20px;'>
   <td width='33%' id='td_tab_faxin'  class='tabhead'
     <?php if ($GLOBALS['enable_hylafax']) { ?>
-   style='color: #cc0000; border-right: 2px solid var(--black); border-bottom: 2px solid transparent;'
+   style='color: var(--danger); border-right: 2px solid var(--black); border-bottom: 2px solid transparent;'
     <?php } else { ?>
-   style='color: #777777; border-right: 2px solid var(--black); border-bottom: 2px solid #000000; cursor: pointer; display:none;'
+   style='color: var(--gray); border-right: 2px solid var(--black); border-bottom: 2px solid var(--black; cursor: pointer; display:none;'
     <?php } ?>
    onclick='tabclick("faxin")'><?php echo xlt('Faxes In'); ?></td>
   <td width='33%' id='td_tab_faxout' class='tabhead'
     <?php if ($GLOBALS['enable_hylafax']) { ?>
-   style='color: #777777; border-right: 2px solid var(--black); border-bottom: 2px solid #000000; cursor: pointer;'
+   style='color: var(--gray); border-right: 2px solid var(--black); border-bottom: 2px solid var(--black); cursor: pointer;'
     <?php } else { ?>
-   style='color: #777777; border-right: 2px solid var(--black); border-bottom: 2px solid #000000; cursor: pointer; display:none;'
+   style='color: var(--gray); border-right: 2px solid var(--black); border-bottom: 2px solid var(--black); cursor: pointer; display:none;'
     <?php } ?>
    onclick='tabclick("faxout")'><?php echo xlt('Faxes Out'); ?></td>
   <td width='34%' id='td_tab_scanin' class='tabhead'
     <?php if ($GLOBALS['enable_scanner']) { ?>
-   style='color: #777777; border-bottom: 2px solid var(--black); cursor: pointer;'
+   style='color: var(--gray); border-bottom: 2px solid var(--black); cursor: pointer;'
     <?php } else { ?>
-   style='color: #cc0000; border-bottom: 2px solid transparent; display:none;'
+   style='color: var(--danger); border-bottom: 2px solid transparent; display:none;'
     <?php } ?>
    onclick='tabclick("scanin")'><?php echo xlt('Scanner In'); ?></td>
  </tr>
@@ -210,7 +206,7 @@ function dosdclick(sfname) {
 
    <form method='post' action='faxq.php'>
 
-   <table width='100%' cellpadding='1' cellspacing='2' id='table_faxin'
+   <table class='w-100' cellpadding='1' cellspacing='2' id='table_faxin'
     <?php if (!$GLOBALS['enable_hylafax']) {
         echo "style='display:none;'";
     } ?>>
@@ -227,7 +223,7 @@ foreach ($mlines as $matches) {
     ++$encount;
     $ffname = $matches[4];
     $ffbase = basename("/$ffname", '.tif');
-    $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
+    $bgcolor = (($encount & 1) ? "#ddddff" : "#ffdddd");
     echo "    <tr class='detail' bgcolor='" . attr($bgcolor) . "'>\n";
     echo "     <td onclick='dodclick(\"" . attr(addslashes($ffname)) . "\")'>";
     echo "<a href='fax_view.php?file=" . attr_url($ffname) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='return false'>" . text($ffbase) . "</a></td>\n";
@@ -241,7 +237,7 @@ foreach ($mlines as $matches) {
 ?>
    </table>
 
-   <table width='100%' cellpadding='1' cellspacing='2' id='table_faxout'
+   <table class='w-100' cellpadding='1' cellspacing='2' id='table_faxout'
     style='display:none;'>
     <tr class='head'>
      <td title='Click to view'><?php echo xlt('Job ID'); ?></td>
@@ -268,7 +264,7 @@ foreach ($dlines as $matches) {
         $ffstatus .= ': ' . $ffstatend;
     }
 
-    $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
+    $bgcolor = (($encount & 1) ? "#ddddff" : "#ffdddd");
     echo "    <tr class='detail' bgcolor='" . attr($bgcolor) . "'>\n";
     echo "     <td onclick='dojclick(\"" . attr(addslashes($jobid)) . "\")'>" .
      "<a href='fax_view.php?jid=" . attr_url($jobid) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='return false'>" .
@@ -283,7 +279,7 @@ foreach ($dlines as $matches) {
 ?>
    </table>
 
-   <table width='100%' cellpadding='1' cellspacing='2' id='table_scanin'
+   <table class='w-100' cellpadding='1' cellspacing='2' id='table_scanin'
     <?php if ($GLOBALS['enable_hylafax']) {
         echo "style='display:none;'";
     } ?>>
@@ -296,7 +292,7 @@ foreach ($dlines as $matches) {
  $encount = 0;
 foreach ($slines as $sline) {
     ++$encount;
-    $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
+    $bgcolor = (($encount & 1) ? "#ddddff" : "#ffdddd");
     $sfname = $sline[0]; // filename
     $sfdate = date('Y-m-d H:i', $sline[9]);
     echo "    <tr class='detail' bgcolor='" . attr($bgcolor) . "'>\n";

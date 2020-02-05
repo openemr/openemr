@@ -24,9 +24,6 @@
 
 set_time_limit(0);
 
-
-
-
 require_once("../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
@@ -547,7 +544,7 @@ flush();
 
 
 <?php if ($auto_continue) { ?>
-<script type="text/javascript">
+<script>
  setTimeout("document.forms[0].submit();", 500);
 </script>
 <?php } ?>

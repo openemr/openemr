@@ -113,10 +113,10 @@ if (isset($_POST['drR'])) {
            function updateme(id){
              refreshInterval = <?php echo attr($updateDelay); ?>;
              if(id > 0){
-              $(".drTD").html('<p style="text-size:3rem; margin-left:200px; color: var(--black); font-weight:bold;"><?php echo xla("Processing") ?>...</p>');
+              $(".drTD").html('<p class="text-body font-weight-bold" style="font-size: 3rem; margin-left: 200px;"><?php echo xla("Processing") ?>...</p>');
              }
              if(id == 'new'){
-              $(".drTD").html('<p style="text-size:3rem; margin-left:200px; color: var(--black); font-weight:bold;"><?php echo xla("Processing") ?>...</p>');
+              $(".drTD").html('<p class="text-body font-weight-bold" style="font-size: 3rem; margin-left: 200px;"><?php echo xla("Processing") ?>...</p>');
              }
              top.restoreSession();
              // Send the skip_timeout_reset parameter to not count this as a manual entry in the
@@ -132,7 +132,7 @@ if (isset($_POST['drR'])) {
                   alert("<?php echo xls('Error Removing Message') ?>");
                 }else{
                   if(id > 0){
-                    $(".drTD").html('<p style="text-size:3rem; margin-left:200px; color:var(--black); font-weight:bold;"><?php echo xla("Refreshing Reminders") ?> ...</p>');
+                    $(".drTD").html('<p class="text-body font-weight-bold" style="font-size: 3rem; margin-left: 200px;"><?php echo xla("Refreshing Reminders") ?> ...</p>');
                   }
                   $(".drTD").html(data);
                 }
@@ -160,8 +160,7 @@ if (isset($_POST['drR'])) {
           // initialize html string
           $pdHTML = '<div class="container">
                             <div class="drHide col-12">'.
-                                '<a title="'.xla('View Past and Future Reminders').'" onclick="openLogScreen()" class="btn btn-secondary btn-show" href="#"><span>'.xlt('View Log').'</span></a>&nbsp;'
-                                .'<a onclick="openAddScreen(0)" class="btn btn-secondary btn-add" href="#"><span>'.xlt('Create A Dated Reminder').'</span></a>
+                                '<a title="'.xla('View Past and Future Reminders').'" onclick="openLogScreen()" class="btn btn-secondary btn-show" href="#">' . xlt('View Log') . '</a>&nbsp;' . '<a onclick="openAddScreen(0)" class="btn btn-secondary btn-add" href="#">'.xlt('Create A Dated Reminder').'</a>
                             </div>
                             <div class="col-12 pre-scrollable oe-margin-t-10">
                             <fieldset>

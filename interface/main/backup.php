@@ -201,7 +201,7 @@ if ($form_step == 0) {
     echo "  <td>" . xlt('Create Eventlog Backup') . "</td>\n";
     echo " </tr>\n";
     echo " <tr>\n";
-    echo "  <td></td><td class='text'><b>" . xlt('Note')."</b>&nbsp;" . xlt('Please refer to') . '&nbsp;README-Log-Backup.txt&nbsp;' . xlt('file in the Documentation directory to learn how to automate the process of creating log backups') . "</td>\n";
+    echo "  <td></td><td class='text'><strong>" . xlt('Note') . "</strong>&nbsp;" . xlt('Please refer to') . '&nbsp;README-Log-Backup.txt&nbsp;' . xlt('file in the Documentation directory to learn how to automate the process of creating log backups') . "</td>\n";
     echo " </tr>\n";
     echo "</table>\n";
 }
@@ -312,11 +312,11 @@ if ($form_step == 5) {   // create the final compressed tar containing all files
 }
 
 if ($form_step == 101) {
-    echo "<p><b>&nbsp;" . xlt('Select the configuration items to export') . ":</b></p>";
+    echo "<p class='font-weight-bold'>&nbsp;" . xlt('Select the configuration items to export') . ":</p>";
 
     echo "<table cellspacing='10' cellpadding='0'>\n<tr>\n<td valign='top' nowrap>\n";
 
-    echo "<b>" . xlt('Tables') . "</b><br />\n";
+    echo "<strong>" . xlt('Tables') . "</strong><br />\n";
     echo "<input type='checkbox' name='form_cb_services' value='1' />\n";
     echo " " . xlt('Services') . "<br />\n";
     echo "<input type='checkbox' name='form_cb_products' value='1' />\n";
@@ -332,7 +332,7 @@ if ($form_step == 101) {
 
   // Multi-select for lists.
     echo "</td><td valign='top'>\n";
-    echo "<b>" . xlt('Lists') . "</b><br />\n";
+    echo "<strong>" . xlt('Lists') . "</strong><br />\n";
     echo "<select class='form-control' multiple name='form_sel_lists[]' size='15'>";
     $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
     "list_id = 'lists' AND activity = 1 ORDER BY title, seq");
@@ -345,7 +345,7 @@ if ($form_step == 101) {
 
     // Multi-select for layouts.
     echo "</td><td valign='top'>\n";
-    echo "<b>" . xlt('Layouts') . "</b><br />\n";
+    echo "<strong>" . xlt('Layouts') . "</strong><br />\n";
     echo "<select class='form-control' multiple name='form_sel_layouts[]' size='15'>";
     $lres = sqlStatement("SELECT grp_form_id, grp_title FROM layout_group_properties WHERE " .
       "grp_group_id = '' AND grp_activity = 1 ORDER BY grp_form_id");
@@ -638,7 +638,7 @@ if ($file_to_compress) {
 </center>
 
 <?php if ($auto_continue) { ?>
-<script type="text/javascript">
+<script>
     setTimeout("document.forms[0].submit();", 500);
 </script>
 <?php }

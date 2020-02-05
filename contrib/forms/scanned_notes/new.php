@@ -6,8 +6,10 @@
  * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com> 
  * @copyright Copyright (c) 2006-2013 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -22,7 +24,7 @@ use OpenEMR\Core\Header;
 
 $row = array();
 
-if (! $encounter) { // comes from globals.php
+if (!$encounter) { // comes from globals.php
     die("Internal error: we do not seem to be in an encounter!");
 }
 
@@ -91,6 +93,12 @@ if ($_POST['bn_save']) {
  // exit;
 }
 
+// ID check dir Fix
+if (empty($_GET['id'])) {
+    // Sometimes we don't have an ID, so default to zero to prevent code failure
+    $formid = '0';
+}
+
 $imagepath = $imagedir . "/" . check_file_dir_name($encounter) . "_" . check_file_dir_name($formid) . ".jpg";
 $imageurl = "$web_root/sites/" . $_SESSION['site_id'] .
   "/documents/" . check_file_dir_name($pid) . "/encounters/" . check_file_dir_name($encounter) . "_" . check_file_dir_name($formid) . ".jpg";
@@ -111,12 +119,20 @@ if ($formid) {
 <html>
 <head>
     <?php Header::setupHeader(); ?>
-<style type="text/css">
- .dehead    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold }
- .detail    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal }
+<style>
+    .dehead {
+        font-family: sans-serif;
+        font-size: 0.8125rem;
+        font-weight: bold;
+    }
+    .detail {
+        font-family: sans-serif;
+        font-size: 0.8125rem;
+        font-weight: normal;
+    }
 </style>
 
-<script language='JavaScript'>
+<script>
 
  function newEvt() {
   dlgopen('../../main/calendar/add_edit_event.php?patientid=' + <?php echo js_url($pid); ?>,
@@ -148,18 +164,16 @@ if ($formid) {
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
+<table class="table table-bordered" border='1' width='95%'>
 
-<p>
-<table border='1' width='95%'>
-
- <tr bgcolor='#dddddd' class='dehead'>
-  <td colspan='2' align='center'>Scanned Encounter Notes</td>
+ <tr class='table-light dehead'>
+  <td colspan='2' class='text-center'>Scanned Encounter Notes</td>
  </tr>
 
  <tr>
-  <td width='5%'  class='dehead' nowrap>&nbsp;Comments&nbsp;</td>
+  <td width='5%' class='dehead' nowrap>&nbsp;Comments&nbsp;</td>
   <td width='95%' class='detail' nowrap>
-   <textarea name='form_notes' rows='4' style='width:100%'><?php echo text($row['notes']); ?></textarea>
+   <textarea class="w-100" name='form_notes' rows='4'><?php echo text($row['notes']); ?></textarea>
   </td>
  </tr>
 
@@ -181,18 +195,14 @@ if ($formid && is_file($imagepath)) {
 
 </table>
 
-<p>
-<input type='submit' name='bn_save' value='Save' />
-&nbsp;
-<input type='button' value='Add Appointment' onclick='newEvt()' />
-&nbsp;
-<input type='button' value='Back' onclick="parent.closeTab(window.name, false)" />
-<?php if ($formrow['id'] && AclMain::aclCheckCore('admin', 'super')) { ?>
-&nbsp;
-<input type='button' value='Delete' onclick='deleteme()' style='color:red' />
-<?php } ?>
-</p>
-
+<div class='btn-group'>
+    <input type='submit' class='btn btn-primary' name='bn_save' value='Save' />
+    <input type='button' class='btn btn-primary' value='Add Appointment' onclick='newEvt()' />
+    <input type='button' class='btn btn-secondary' value='Back' onclick="parent.closeTab(window.name, false)" />
+    <?php if ($formrow['id'] && AclMain::aclCheckCore('admin', 'super')) { ?>
+    <input type='button' class='btn btn-danger' value='Delete' onclick='deleteme()' style='color:red' />
+    <?php } ?>
+</div>
 </center>
 
 </form>

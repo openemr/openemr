@@ -48,7 +48,7 @@ $display_collapse_msg = "display:inline;";
     require_once("$srcdir/payment_jav.inc.php");
 ?>
 
-<script type="text/javascript">
+<script>
     var global_date_format = '<?php echo DateFormatRead(); ?>';
     $(function () {
         $("#docdiv a").each(function() {
@@ -206,7 +206,7 @@ $display_collapse_msg = "display:inline;";
     ?>
     
     <div class="table-responsive">
-    <table class="table" border="1" cellpadding="3" cellspacing="0">
+    <table class="table table-bordered" cellpadding="3" cellspacing="0">
     <thead class='thead-light'>
     <tr class='text font-weight-bold text-left'>
         <th width="10%"><?php echo xlt('Date'); ?></th>

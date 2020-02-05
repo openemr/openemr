@@ -1076,17 +1076,14 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 
                                 ?>
                                 <tr>
-                                    <td class="detail"> <!-- @todo these should be buttons. poor form for anchors.-->
-                                        <a href=""
-                                            onclick="npopup(event, <?php echo attr_js($row['pid']); ?>)"><?php echo text($row['pid']); ?></a>
+                                    <td class="detail">
+                                        <a href="" class="btn btn-secondary btn-sm" onclick="npopup(event, <?php echo attr_js($row['pid']); ?>)"><?php echo text($row['pid']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;
-                                        <a href=""
-                                            onclick="npopup(event, <?php echo attr_js($row['pid']); ?>)"><?php echo text($row['lname']) . ', ' . text($row['fname']); ?></a>
+                                        <a href="" class="btn btn-secondary btn-sm" onclick="npopup(event, <?php echo attr_js($row['pid']); ?>)"><?php echo text($row['lname']) . ', ' . text($row['fname']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;
-                                        <a href=""
-                                            onclick="editInvoice(event,<?php echo attr_js($row['id']); ?>)"><?php echo text($row['pid']) . '.' . text($row['encounter']); ?></a>
+                                        <a href="" class="btn btn-secondary btn-sm" onclick="editInvoice(event,<?php echo attr_js($row['id']); ?>)"><?php echo text($row['pid']) . '.' . text($row['encounter']); ?></a>
                                     </td>
                                     <td class="detail">&nbsp;<?php echo text(oeFormatShortDate($svcdate)); ?></td>
                                     <td class="detail">
@@ -1101,8 +1098,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                         &nbsp;
                                     </td>
                                     <td align="right" class="detail"><?php echo text(bucks($balance)); ?>&nbsp;</td>
-                                    <td align="center"
-                                        class="detail"><?php echo $duncount ? text($duncount) : "&nbsp;" ?></td>
+                                    <td align="center" class="detail"><?php echo $duncount ? text($duncount) : "&nbsp;" ?></td>
                                     <?php if (!$eracount) { ?>
                                         <td class="detail" align="left">
                                             <input type='checkbox'

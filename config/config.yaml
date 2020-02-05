@@ -98,6 +98,13 @@ assets:
     datatables:
         basePath: '%assets_static_relative%/datatables.net/js/'
         script: jquery.dataTables.js
+    datatables-colreorder:
+        basePath: '%assets_static_relative%/datatables.net-colreorder/'
+        link: css/colReorder.dataTables.min.css
+        script: js/dataTables.colReorder.min.js
+    datatables-dt:
+        basePath: '%assets_static_relative%/datatables.net-dt/css/'
+        link: jquery.dataTables.min.css
     datatables-jqui:
         basePath: '%assets_static_relative%/datatables.net-jqui/js/'
         script: dataTables.jqueryui.js

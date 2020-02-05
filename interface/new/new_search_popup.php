@@ -37,51 +37,59 @@ $searchcolor = empty($GLOBALS['layout_search_color']) ?
 <?php Header::setupHeader('opener'); ?>
 
 <style>
-form {
-    padding: 0;
-    margin: 0;
-}
-#searchCriteria {
- text-align: center;
- width: 100%;
- font-size: 0.8rem;
- background-color: var(--gray300);
- font-weight: bold;
- padding: 3px;
-}
-#searchResultsHeader th {
- font-size: 0.7rem;
-}
-#searchResults {
- width: 100%;
- height: 80%;
- overflow: auto;
-}
+    form {
+        padding: 0;
+        margin: 0;
+    }
 
-#searchResults table {
- width: 100%;
- border-collapse: collapse;
- background-color: var(--white);
-}
-#searchResults tr {
- cursor: hand;
- cursor: pointer;
-}
-#searchResults td {
- font-size: 0.7rem;
- border-bottom: 1px solid var(--gray200);
-}
-.topResult {
- background-color: <?php echo attr($searchcolor); ?>;
-}
-.billing {
- color: var(--danger);
- font-weight: bold;
-}
-.highlight {
- background-color: var(--info);
- color: var(--white);
-}
+    #searchCriteria {
+        text-align: center;
+        width: 100%;
+        font-size: 0.8rem;
+        background-color: var(--gray300);
+        font-weight: bold;
+        padding: 3px;
+    }
+
+    #searchResultsHeader th {
+        font-size: 0.7rem;
+    }
+
+    #searchResults {
+        width: 100%;
+        height: 80%;
+        overflow: auto;
+    }
+
+    #searchResults table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: var(--white);
+    }
+
+    #searchResults tr {
+        cursor: pointer;
+    }
+
+    #searchResults td {
+        font-size: 0.7rem;
+        border-bottom: 1px solid var(--gray200);
+    }
+
+    .topResult {
+        background-color: <?php echo attr($searchcolor);
+        ?>;
+    }
+
+    .billing {
+        color: var(--danger);
+        font-weight: bold;
+    }
+
+    .highlight {
+        background-color: var(--info);
+        color: var(--white);
+    }
 </style>
 
 <script>

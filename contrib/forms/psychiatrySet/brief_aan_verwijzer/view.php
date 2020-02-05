@@ -72,17 +72,30 @@ if ($vectAutosave['id'] && $vectAutosave['id'] != "" && $vectAutosave['id'] > 0)
 <html>
     <head>
         <?php Header::setupHeader('datetime-picker'); ?>
+        <style>
+    body {
+        font-family: sans-serif;
+        font-size: 0.8125rem;
+        font-weight: normal;
+    }
+    .dehead {
+        font-family: sans-serif;
+        font-size: 0.8125rem;
+        font-weight: bold;
+        padding-left: 3px;
+        padding-right: 3px;
+    }
+    .detail {
+        font-family: sans-serif;
+        font-size: 0.8125rem;
+        font-weight: normal;
+        padding-left: 3px;
+        padding-right: 3px;
+    }
+</style>
     </head>
 
-<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-
-<style type="text/css">
- body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
-  .dehead    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold;
-                padding-left:3px; padding-right:3px; }
-                 .detail    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal;
-                               padding-left:3px; padding-right:3px; }
-</style>
+<body class="body_top">
 
 <?php
 
@@ -93,7 +106,7 @@ if ($_GET["id"]) {
 }
 
 ?>
-<script type="text/javascript">
+<script>
 $(function(){
         autosave();
         $('.datepicker').datetimepicker({

@@ -84,7 +84,7 @@ if (($_POST['setting_bootstrap_submenu']) ||
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>
 
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
 
     <link rel="shortcut icon" href="<?php echo $webroot; ?>/sites/default/favicon.ico" />
     <style>
@@ -808,7 +808,7 @@ if (!empty($_REQUEST['go'])) { ?>
         require "../../help_modal.php";
     }
     ?>
-    <script type="text/javascript">
+    <script>
 
         var collectvalidation = <?php echo $collectthis; ?>;
 

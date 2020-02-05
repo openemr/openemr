@@ -45,7 +45,7 @@ $esignApi = new Api();
 <head>
 <title><?php echo text($openemr_name); ?></title>
 
-<script type="text/javascript">
+<script>
 
 // This is to prevent users from losing data by refreshing or backing out of OpenEMR.
 //  (default behavior, however, this behavior can be turned off in the prevent_browser_refresh global)
@@ -362,7 +362,7 @@ if (isset($_SESSION['app1'])) {
     );
     if ($rs['app_url'] != "main/main_screen.php") {
         echo '<iframe name="app1" src="../../'.attr($rs['app_url']).'"
-    			style="position:absolute; left:0; top:0; height:100%; width:100%; border:none;" />';
+    			style="position: absolute; left: 0; top: 0; height: 100%; width: 100%; border: none;" />';
         $disp_mainBox = 'style="display: none;"';
     }
 }

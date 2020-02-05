@@ -35,7 +35,7 @@ function invalue($name)
 <title><?php echo $ppid ? xlt('Edit') : xlt('Add New{{Provider}}') ?> <?php echo xlt('Procedure Provider'); ?></title>
 <style>
     td {
-        font-size: 10pt;
+        font-size: 0.8125rem;
     }
     
     .inputtext {
@@ -45,7 +45,7 @@ function invalue($name)
     
     .button {
         font-family: sans-serif;
-        font-size: 9pt;
+        font-size: 0.75rem;
         font-weight: bold;
     }
     
@@ -61,7 +61,7 @@ function invalue($name)
         background: #F7FAB3;
         color: #000;
         padding: 20px;
-        margin: 10px 15px 0px 15px;
+        margin: 10px 15px 0 15px;
     }
     div[id$="_info"] > a {
         margin-left: 10px;
@@ -262,18 +262,10 @@ function invalue($name)
                                         <label class="control-label" for="form_recv_app_id"><?php echo xlt('Receiver IDs'); ?>:</label> <a href="#receiver_id_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-6">
-                                        <input type='text' name='form_recv_app_id' id='form_recv_app_id' maxlength='100'
-                                        value='<?php echo attr($row['recv_app_id']); ?>'
-                                        title='<?php echo xla('HL7 - MSH-5.1 - Receiving application'); ?>'
-                                        placeholder='<?php echo xla('Enter Application Name'); ?>'
-                                        class='form-control' />
+                                        <input type='text' name='form_recv_app_id' id='form_recv_app_id' maxlength='100' value='<?php echo attr($row['recv_app_id']); ?>' title='<?php echo xla('HL7 - MSH-5.1 - Receiving application'); ?>' placeholder='<?php echo xla('Enter Application Name'); ?>' class='form-control' />
                                     </div>
                                     <div class="col-sm-6">
-                                        <input type='text' name='form_recv_fac_id' id='form_recv_fac_id' maxlength='100'
-                                        value='<?php echo attr($row['recv_fac_id']); ?>'
-                                        title='<?php echo xla('HL7 - MSH-6.1 - Receiving facility'); ?>'
-                                        placeholder='<?php echo xla('Enter Facility Name'); ?>'
-                                        class='form-control' />
+                                        <input type='text' name='form_recv_fac_id' id='form_recv_fac_id' maxlength='100' value='<?php echo attr($row['recv_fac_id']); ?>' title='<?php echo xla('HL7 - MSH-6.1 - Receiving facility'); ?>' placeholder='<?php echo xla('Enter Facility Name'); ?>' class='form-control' />
                                     </div>
                                 </div>
                                 <div id="receiver_id_info" class="collapse">

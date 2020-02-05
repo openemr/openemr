@@ -74,7 +74,7 @@ if ($_POST) {
 
 // --- initialize $output as blank
     $output = '';
-    $output = '<div><fieldset id="error_info" style="border:1px solid #ff5d5a !Important; background-color: #ff5d5a !Important; color: #fff !important; font-weight: bold; font-family: sans-serif; border-radius: 5px; padding:20px 5px !Important;">';// needs in-line styling because stylesheets not yet initialized
+    $output = '<div><fieldset id="error_info" class="bg-danger text-white font-weight-bod" style="border: 1px solid var(--danger) !important; font-family: sans-serif; border-radius: 5px; padding: 20px 5px !important;">';// needs in-line styling because stylesheets not yet initialized
  // ------ fills an array with all recipients
     $sendTo = $_POST['sendTo'];
 
@@ -307,7 +307,7 @@ if (isset($this_message['pid'])) {
     <form id="addDR"  class="form-horizontal" id="newMessage" method="post" onsubmit="return top.restoreSession()">
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-       <fieldset id='error-info' class='oe-error-modal' style="display:none">
+       <fieldset id='error-info' class='oe-error-modal' style="display: none">
         <div class="text-center" id="errorMessage"></div>
        </fieldset>
      <fieldset>
@@ -337,12 +337,12 @@ if (isset($this_message['pid'])) {
                             }
                             ?>
                     </select>
-                    <a class="btn btn-secondary btn-save" style="cursor:pointer" onclick="selectAll();"><?php echo xlt('Select all') ?></a>
+                    <a class="btn btn-secondary btn-save" style="cursor: pointer" onclick="selectAll();"><?php echo xlt('Select all') ?></a>
             </div>
             <div class="form-group">
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" name="sendSeperately" id="sendSeperately" title="<?php echo xla('Selecting this will create a message that needs to be processed by each recipient individually (this is not a group task).') ?>" >  <i id="select-tooltip" class="fa fa-info-circle text-primary" aria-hidden="true" data-original-title="" title=""></i> <?php echo xlt('Each recipient must set their own messages as completed.') ?>
+                        <input type="checkbox" name="sendSeperately" id="sendSeperately" title="<?php echo xla('Selecting this will create a message that needs to be processed by each recipient individually (this is not a group task).') ?>" />  <i id="select-tooltip" class="fa fa-info-circle text-primary" aria-hidden="true" data-original-title="" title=""></i> <?php echo xlt('Each recipient must set their own messages as completed.') ?>
                     </label>
                 </div>
             </div>
@@ -391,15 +391,15 @@ if (isset($this_message['pid'])) {
         </div>
     </fieldset>
     <fieldset>
-        <div class="col-12" style="margin-top:20px;">
+        <div class="col-12" style="margin-top: 20px;">
             <div class="form-group">
                  <div class="col-12">
                 <label class="text-right" for="message"><?php echo xlt('Type Your message here');?>:</label>
-                <textarea onKeyDown="limitText(this.form.message,this.form.countdown,<?php echo attr(addslashes($max_reminder_words)); ?>);" onKeyUp="limitText(this.form.message,this.form.countdown,<?php echo attr(addslashes($max_reminder_words)); ?>);" class="form-control oe-text-to-left" style= "height:75px !important" name="message" id="message" placeholder="<?php echo xla('Maximum characters') ?> : <?php echo attr($max_reminder_words); ?>"><?php echo text($this_message['dr_message_text']);?></textarea>
+                <textarea onKeyDown="limitText(this.form.message,this.form.countdown,<?php echo attr(addslashes($max_reminder_words)); ?>);" onKeyUp="limitText(this.form.message,this.form.countdown,<?php echo attr(addslashes($max_reminder_words)); ?>);" class="form-control oe-text-to-left" style= "height: 75px !important" name="message" id="message" placeholder="<?php echo xla('Maximum characters') ?> : <?php echo attr($max_reminder_words); ?>"><?php echo text($this_message['dr_message_text']);?></textarea>
                 </div>
             </div>
-            <div class="form-group">
-                <label class="control-label col-6 text-right" for="countdown"><?php echo xlt('Characters Remaining') ?>:</label>
+            <div class="form-row">
+                <label class="col-form-label col-6 text-right" for="countdown"><?php echo xlt('Characters Remaining') ?>:</label>
                 <div class="col-2">
                     <input class="form-control" readonly type="text" name="countdown" id="countdown" value="<?php echo attr($max_reminder_words); ?>" />
                 </div>

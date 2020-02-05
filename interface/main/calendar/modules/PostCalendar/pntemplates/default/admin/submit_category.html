@@ -4,37 +4,36 @@
 [-config_load file="lang.$USER_LANG"-]
 
 <script src="modules/[-$pcDir-]/pnincludes/AnchorPosition.js"></script>
-    <script src="modules/[-$pcDir-]/pnincludes/PopupWindow.js"></script>
-    <script src="modules/[-$pcDir-]/pnincludes/ColorPicker2.js"></script>
-    <script>
+<script src="modules/[-$pcDir-]/pnincludes/PopupWindow.js"></script>
+<script src="modules/[-$pcDir-]/pnincludes/ColorPicker2.js"></script>
+<script>
     var cp = new ColorPicker('window');
     // Runs when a color is clicked
     function pickColor(color) {
-    	document.getElementById(field).value = color;
-
-
-	}
+        document.getElementById(field).value = color;
+    }
 
     var field;
-    function pick(anchorname,target) {
-    	field=target;
-	    cp.show(anchorname);
-	}
-    </script>
+
+    function pick(anchorname, target) {
+        field = target;
+        cp.show(anchorname);
+    }
+</script>
 
 <html>
 <head>
-[-headerTemplate-]
-<title>[-$_EDIT_PC_CONFIG_CATDETAILS|text-]</title>
+    [-headerTemplate-]
+    <title>[-$_EDIT_PC_CONFIG_CATDETAILS|text-]</title>
 </head>
 <body>
 [-$AdminMenu-]
 <form name="cats" action="[-$action-]" method="post" enctype="application/x-www-form-urlencoded">
 <!-- GATHER NEW DATA START -->
-	<table class="table" border="1" cellpadding="5" cellspacing="0">
+	<table class="table table-bordered" cellpadding="5" cellspacing="0">
 			<tr>
 				<td>
-					<table class='table w-100' border='1'>
+					<table class='table table-bordered w-100'>
 						<tr>
 							<td colspan='5'>
 								<table class="table w-100">
@@ -66,7 +65,7 @@
 											&nbsp;<input type="text" class="form-control" name="newconstantid" value="" size="20"/><br />
                 							[-$_PC_CAT_COLOR|text-]:<br />
                 							&nbsp;<input type="color" name="newcolor" id='newcolor' value="var(--white)" size="10"/>
-                                                                        [<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick">[-$_PC_COLOR_PICK_TITLE|text-]</a>]
+                                            [<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick">[-$_PC_COLOR_PICK_TITLE|text-]</a>]
             							</td>
             							<td valign="top" align="left">
                 							[-$_PC_CAT_DESC|text-]:<br />
@@ -87,16 +86,16 @@
                 							<input type="text" class="form-control" name="new[-$InputDurationMin|attr-]" value="0" size="4" />
                 						</td>
                 						<td valign="top" align="left">
-                							[-$_PC_ACTIVE|text-]:<br/>
-                							<input type="radio" name="newactive" value="1"/> [-$ActiveTitleYes|text-]<br/>
-                							<input type="radio" name="newactive" value="0"/> [-$ActiveTitleNo|text-]<br/>
+                							[-$_PC_ACTIVE|text-]:<br />
+                							<input type="radio" name="newactive" value="1"/> [-$ActiveTitleYes|text-]<br />
+                							<input type="radio" name="newactive" value="0"/> [-$ActiveTitleNo|text-]<br />
                 						</td>
                 						<td valign="top" align="left">
-                							[-$_PC_SEQ|text-]:<br/>
+                							[-$_PC_SEQ|text-]:<br />
                 							<input type="text" class="form-control" name="newsequence" value="0" size="4" />
 										</td>
 										<td valign="top" align="left">
-											[-$_ACO|text-]:<br/>
+											[-$_ACO|text-]:<br />
 											&nbsp;<select name="new[-$InputACO|attr-]" class="form-control">
                									[-foreach item=acoGroup key=acoGroupKey from=$ACO_List-]
 													<optgroup label="[-$acoGroupKey|attr-]">
@@ -198,15 +197,15 @@
             	</td>
             </tr>
 	</table>
-<table class="table" border="1" cellpadding="5" cellspacing="0">
+<table class="table table-bordered" cellpadding="5" cellspacing="0">
 	<!--START REPEATING SECTION -->
 		[-foreach item=cat from=$all_categories-]
 			<tr>
 				<td>
-					<table class='table w-100' border='1'>
+					<table class='table table-bordered w-100'>
 						<tr>
 							<td colspan='5'>
-                <table class='table w-100' border='0'>
+                <table class='table table-borderless w-100'>
                   <tr bgcolor="[-$cat.color-]">
                     <td align='left'>
                       &nbsp;
@@ -278,16 +277,16 @@
                 							<input type="text" class="form-control" name="[-$InputDurationMin|attr-][-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="[-$cat.event_durationm|attr-]" size="4" />
                 						</td>
                 						<td valign="top" align="left">
-                							[-$_PC_ACTIVE|text-]:<br/>
-                							<input type="radio" name="active[-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="1" data='[-$cat.active|attr-]' [-if $cat.active == 1-]checked[-/if-]/>  [-$ActiveTitleYes|text-]<br/>
-                							<input type="radio" name="active[-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="0" data='[-$cat.active|attr-]' [-if $cat.active == 0-]checked[-/if-]/>  [-$ActiveTitleNo|text-]<br/>
+                							[-$_PC_ACTIVE|text-]:<br />
+                							<input type="radio" name="active[-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="1" data='[-$cat.active|attr-]' [-if $cat.active == 1-]checked[-/if-]/>  [-$ActiveTitleYes|text-]<br />
+                							<input type="radio" name="active[-literal-][[-/literal-][-$cat.id|attr-][-literal-]][-/literal-]" value="0" data='[-$cat.active|attr-]' [-if $cat.active == 0-]checked[-/if-]/>  [-$ActiveTitleNo|text-]<br />
                 						</td>
                 						<td valign="top" align="left">
-                							[-$_PC_SEQ|text-]:<br/>
+                							[-$_PC_SEQ|text-]:<br />
                 							<input type="text" class="form-control" name="sequence[]" value="[-$cat.sequence|attr-]" size="4" />
                 						</td>
 										<td valign="top" align="left">
-											[-$_ACO|text-]:<br/>
+											[-$_ACO|text-]:<br />
 											&nbsp;<select name="[-$InputACO|attr-][]" class="form-control">
                									[-foreach item=acoGroup key=acoGroupKey from=$ACO_List-]
 													<optgroup label="[-$acoGroupKey|attr-]" >
@@ -393,4 +392,5 @@
 [-$FormHidden-]
 
 [-$FormSubmit-]
+</form>
 [-include file="$TPL_NAME/views/footer.html"-]

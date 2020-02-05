@@ -28,16 +28,15 @@ $help_modal = <<<HELP
 <div class="row">
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content  oe-modal-content" style="height:700px">
+            <div class="modal-content oe-modal-content" style="height: 700px">
                 <div class="modal-header clearfix">
                     <button type="button" class="close" data-dismiss="modal" aria-label=$close>
-                    <span aria-hidden="true" style="color:var(--black); font-size:1.5em;">×</span></button>
+                    <span aria-hidden="true" class="text-body" style="font-size: 1.5rem;">&times;</span></button>
                 </div>
                 <div class="modal-body" style="height:80%;">
-                    <iframe src="" id="targetiframe" style="height:100%; width:100%; overflow-x: hidden; border:none"
-                    allowtransparency="true"></iframe>  
+                    <iframe src="" id="targetiframe" class="border-0 h-100 w-100" style="overflow-x: hidden;" allowtransparency="true"></iframe>  
                 </div>
-                <div class="modal-footer" style="margin-top:0px;">
+                <div class="modal-footer mt-0">
                    <button class="btn btn-link btn-cancel oe-pull-away" data-dismiss="modal" type="button">$close</button>
                    <!--<button class="btn btn-secondary btn-print oe-pull-away" data-dismiss="modal" id="print-help-href" type="button">$print</button>-->
                 </div>

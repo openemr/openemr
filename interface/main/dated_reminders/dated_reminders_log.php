@@ -152,17 +152,17 @@ if ($_GET) {
                         <div class="col-12">
                             <h5><?php echo xlt('Date The Message Was Sent');?></h5>
                             <div class="col-6">
-                                <label class="control-label" for="sd"><?php echo xlt('Start Date') ?>:</label>
+                                <label class="col-form-label" for="sd"><?php echo xlt('Start Date') ?>:</label>
                                 <input id="sd" type="text" class='form-control datepicker' name="sd" value="" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
                             </div>
                             <div class="col-6">
-                                <label class="control-label" for="ed"><?php echo xlt('End Date') ?>:</label>
+                                <label class="col-form-label" for="ed"><?php echo xlt('End Date') ?>:</label>
                                 <input id="ed" type="text" class='form-control datepicker' name="ed" value="" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="col-6">
-                                <label class="control-label" for="sentBy"><?php echo xlt('Sent By, Leave Blank For All');?>:</label>
+                                <label class="col-form-label" for="sentBy"><?php echo xlt('Sent By, Leave Blank For All');?>:</label>
                                 <select class="form-control" id="sentBy" name="sentBy[]" multiple="multiple">
                                     <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
                                     <?php
@@ -175,7 +175,7 @@ if ($_GET) {
                                 </select>
                             </div>
                             <div class="col-6">
-                                <label class="control-label" for="sentBy"><?php echo xlt('Sent To, Leave Blank For All') ?>:</label>
+                                <label class="col-form-label" for="sentBy"><?php echo xlt('Sent To, Leave Blank For All') ?>:</label>
                                 <select class="form-control" id="sentTo" name="sentTo[]" multiple="multiple">
                                     <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
                                     <?php

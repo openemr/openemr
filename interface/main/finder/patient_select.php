@@ -108,7 +108,6 @@ form {
 }
 
 #searchResults tr {
-    cursor: hand;
     cursor: pointer;
 }
 
@@ -356,7 +355,7 @@ if ($fend > $count) {
  <tr>
     <?php if ($from_page == "cdr_report") {
         echo "<td colspan='6' class='text'>";
-        echo "<b>";
+        echo "<strong>";
         if ($pass_id == "fail") {
              echo xlt("Failed Patients");
         } else if ($pass_id == "pass") {
@@ -367,7 +366,7 @@ if ($fend > $count) {
              echo xlt("All Patients");
         }
 
-        echo "</b>";
+        echo "</strong>";
         echo " - ";
         echo collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label);
         echo "</td>";
