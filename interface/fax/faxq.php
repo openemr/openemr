@@ -183,7 +183,7 @@ function dosdclick(sfname) {
     <?php if ($GLOBALS['enable_hylafax']) { ?>
    style='color: var(--danger); border-right: 2px solid var(--black); border-bottom: 2px solid transparent;'
     <?php } else { ?>
-   style='color: var(--gray); border-right: 2px solid var(--black); border-bottom: 2px solid var(--black; cursor: pointer; display:none;'
+   style='color: var(--gray); border-right: 2px solid var(--black); border-bottom: 2px solid var(--black); cursor: pointer; display:none;'
     <?php } ?>
    onclick='tabclick("faxin")'><?php echo xlt('Faxes In'); ?></td>
   <td width='33%' id='td_tab_faxout' class='tabhead'

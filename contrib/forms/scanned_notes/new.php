@@ -6,7 +6,7 @@
  * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @author    Tyler Wrenn <tyler@tylerwrenn.com> 
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2006-2013 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
