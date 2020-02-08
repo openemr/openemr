@@ -10,7 +10,7 @@
      * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
      * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
      */
-    
+
     $rule = $viewBean->rule ?>
 
 <div class="title" style="display:none;">
@@ -114,7 +114,7 @@
                                         <hr>
                                         <img width="250px" src="<?php echo $GLOBAL['webroot'];?>/interface/super/rules/www/CR_tooltip.png">
                                         <hr>
-                                        <?php echo xla('In the CR widget, the Treatment Goal carrying this tooltip is also a clickable link.  This link leads to either a pop-up (add a note and/or mark the task completed), or to an external link. This link is set separately from the Reference link later in the creation process.'); ?>'>
+                                        <?php echo xla('In the CR widget, the Treatment Goal carrying this tooltip is also a clickable link. This link leads to either a pop-up (add a note and/or mark the task completed), or to an external link. This link is set separately from the Reference link later in the creation process.'); ?>'>
                                     <span class="underline"><?php echo xlt('Description'); ?></span>:
                                 </span>
                         </td>
@@ -142,7 +142,7 @@
                             <span class="title2"><?php echo xlt('Alert Types'); ?>:</span>
                         </div>
                         <div class="col-12">
-                            <p><?php echo xlt("Clinical Reminders in general help us improve patient care by reminding the care team and/or the patient that a Treatment Goal needs to be reached.  Maybe it is a screening exam, maybe it is a Flu Shot. The possibilities are endless.  Overall, a Clinical Reminder targets a group of patients, looks for an item and if the conditions are right, an alert is triggered. The basic alert types are");?>:
+                            <p><?php echo xlt("Clinical Reminders in general help us improve patient care by reminding the care team and/or the patient that a Treatment Goal needs to be reached. Maybe it is a screening exam, maybe it is a Flu Shot. The possibilities are endless. Overall, a Clinical Reminder targets a group of patients, looks for an item and if the conditions are right, an alert is triggered. The basic alert types are");?>:
                             </p>
                             <ol>
                                 <li> <?php echo xlt('Alert the current user when viewing the patient Dashboard'); ?></li>
@@ -153,7 +153,7 @@
                             </ol>
                             <h6 class="underline"><?php echo xlt('Dashboard Alerts');?></h6>
                             <ul>
-                                <li> <?php echo xlt('Clinical Reminders that only carry an');?> <span class="bold"><?php echo xlt('Active alert');?></span> <?php echo xlt('will generate a pop-up until satisfied or until they expire (past due).  You cannot manually shut them off.');?></li>
+                                <li> <?php echo xlt('Clinical Reminders that only carry an');?> <span class="bold"><?php echo xlt('Active alert');?></span> <?php echo xlt('will generate a pop-up until satisfied or until they expire (past due). You cannot manually shut them off.');?></li>
                                 <li> <?php echo xlt('Clinical Reminders that only carry a');?> <span class="bold"><?php echo xlt('Passive alert'); ?></span> <?php echo xlt('only appear in the Dashboard::CR widget.'); ?></li>
                                 <ul>
                                     <li><?php echo xlt('You can manually shut them off via a "Yes, I completed this" pop-up - you will add this option when building the CR on the next page.');?></li>
@@ -161,7 +161,7 @@
                                 </ul>
                                 <li> <?php echo xlt('Clinical Reminders that carry both an');?> <span class="bold"><?php echo xlt('Active alert');?></span> <?php echo xlt('and a'); ?> <span class="bold"><?php echo xlt('Passive alert'); ?></span>
                                     <?php echo xlt('will show up in the CR widget, pop-up an Alert and can be shut-off automatically or manually if you desire.'); ?></li>
-                                <li> <?php echo xlt('Clinical Reminders usually have one Treatment Goal attached, but they are not limited to one.  Each Goal will result in a separate alert...  Be aware of Alert Fatigue!');?></li>
+                                <li> <?php echo xlt('Clinical Reminders usually have one Treatment Goal attached, but they are not limited to one. Each Goal will result in a separate alert... Be aware of Alert Fatigue!');?></li>
                             </ul>
                             <h6 class="underline"><?php echo xlt('Patient Reminders'); ?></h6>
                             <ul>
@@ -181,8 +181,8 @@
                                 </li>
                             </ul>
                                 <?php } ?>
-                            
-                            
+
+
                         </div>
                         <div class="col-12">
                             <span class="title2"><?php echo xlt('Reference'); ?>:</span>
@@ -191,7 +191,7 @@
                             <div class="indent10"><?php echo xlt('References appear in the Dashboard CR widget as');?> <i class="fa fa-link"></i> <?php echo xlt('and can link to');?>:</div>
                             <ul>
                                 <li> <?php echo xlt('a help file for this Clinical Reminder');?> </li>
-                                <li> <?php echo xlt("a developer's/support website"); ?></li>
+                                <li> <?php echo xlt("a developer'ssupport website"); ?></li>
                                 <li> <?php echo xlt('an official published guideline');?></li>
                                 <li> <?php echo xlt('a mail program');?></li>
                                 <li> <?php echo xlt('anything you can imagine or develop'); ?></li>
@@ -211,13 +211,12 @@
                                 <li> <?php echo xlt('How it will fire');?></li>
                                 <li> <?php echo xlt('When and how it stops firing');?></li>
                             </ul>
-            
-                            <p><?php echo xlt('So now you have your basic Clinical Reminder started and its Alerts outlined. Once you save this new Clinical Reminder, we will move on to complete two
-                                more Steps needed to deploy your CR.');?></p>
+
+                            <p><?php echo xlt('So now you have your basic Clinical Reminder started and its Alerts outlined. Once you save this new Clinical Reminder, we will move on to complete two more Steps needed to deploy your CR.');?></p>
                             <p><?php echo xlt("In the first step of building a CR, you can fine tune who the alert applies to. For example, in building a Prostate screening CR you might limit the target group to men over 50 years of age. In Step 2, you will define what you are actually looking for that will trigger the Alert(s) associated with this CR. Using the Prostate example, you may want to see that a Prostate screening exam has been performed? If you have a Form that you use clinically to note this, you can dive into the Database to retrieve this value. Don't worry if you can't check a database value for your answer because CRs can also pop-up a");?>
                                 "<b><?php echo xlt('Yes, Completed');?></b>" <?php echo xlt('window to stop the alert, and add a note if you desire');?>.
                             </p>
-                            
+
                             <div class="modal-footer">
                                 <button type="button" class="btn-secondary" data-dismiss="modal"><?php echo xlt('Close'); ?></button>
                             </div>

@@ -40,7 +40,7 @@
 <div class="col-12 indent10 text">
     <span class="indent10"><input id="fld_value" type="text"
                                   name="fld_value" class="field"
-                                  placeholder="</php echo xla('click to search for codes'); ?>"
+                                  placeholder="<?php echo xla('click to search for codes'); ?>"
                                   onclick="sel_diagnosis()" value="<?php echo attr($criteria->getRequirements()); ?>"></span>
 </div>
 

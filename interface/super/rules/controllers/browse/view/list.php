@@ -64,7 +64,7 @@
 <script>
     $(function() {
         $('.rule_delete').click(function() {
-            return window.confirm(<?php echo xlj('Are you sure you want to delete this Rule, forever?'); ?>");
+            return window.confirm(<?php echo xlj('Are you sure you want to delete this Rule, forever?'); ?>);
         });
     });
 </script>

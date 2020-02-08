@@ -10,7 +10,7 @@
      * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
      * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
      */
-    
+
     require_once($GLOBALS["srcdir"] . "/options.inc.php");
 ?>
 <div class="title header" style="display:none">
@@ -86,10 +86,10 @@
                                         }
                                     }
                                 }
-                                    
+
                                     $more='';
                                     $something=0;
-                                    
+
                                 foreach (RuleType::values() as $type) {
                                     if ($rule->hasRuleType(RuleType::from($type))) {
                                         $something++;
@@ -105,7 +105,7 @@
                                 ?>:</span></td>
                             <td colspan="3">
                                 <?php
-                                    
+
                                     //of course move this somewhere central??
                                     function xlts($data)
                                     {
@@ -173,13 +173,13 @@
                                             $timing_pt .= "triggers a <span class='bold'>Patient Reminder</span>.";
                                             $timing_pt = xlts($timing_pt);
                                             $timing_pt = "<div>".$timing_pt."<br /></div><div class='indent10'>";
-            
+
                                             $timing_pt .= xlts("A message will be sent to the patient.");
                                             if ($GLOBALS['medex_enable'] == '1') {
                                                 $timing_pt .= " ".xlts("<br /><a href='https://medexbank.com/'>MedEx</a> will send an e-mail, SMS text and/or a voice message as requested.");
                                             }
                                             $timing_pt .= "</div>";
-            
+
                                         }
                                         if ( ($GLOBALS['medex_enable'] == '1') && ($rule->hasRuleType(RuleType::from('provideralert'))) ) {
                                             $timing_prov = "<div>".xlts("<span class='bolder red'>This CR has a Provider Alert!</span>")."</div>";
@@ -190,7 +190,7 @@
                                     } else {
                                         $timing = "<span class='bold'>".xlt('None. Edit this CR to create an Alert!')."</span><br />";
                                     }
-    
+
                                     echo $timing;
                                     echo $timing_pt;
                                     echo $timing_prov;
@@ -459,7 +459,7 @@
                           data-trigger="hover"
                           data-placement="auto left"
                           data-html="true"
-                          data-title='Step 2: Add A New Group'
+                          data-title='<?php echo xla('Step 2: Add A New Group'); ?>'
                           data-content="<?php echo xlas("<span class='text-justify'>Having narrowed your target group of patients in <span class='bold'>Step 1</span>, now in <span class='bold'>Step 2</span> you need to look for an item. If present, an alert fires prompting you to do something, usually a Treatment Goal. Most CRs only need to reference one Treatment Goal. You can create multiple <span class='bold'>Step 2</span> criteria for a given group of patients identified in <span class='bold'>Step 1</span>. Remember each Treatment Goal is displayed separately in the Dashboard's CR widget and each can trigger a separate Active Alert.  Be wary of Alert Fatigue! If you wish to fire multiple Alerts for a Targeted group, consider using Care Plans to combine Alerts. Expert use only...</span>"); ?>"><i class="fa fa-plus"></i>
                     </button>
                     <button type="button"
@@ -467,7 +467,7 @@
                             data-toggle="modal" data-target="#help_targets"
                             title="<?php echo xla('Open the Help Page').":: ".xla('When will this CR fire?'); ?>"><i class="fa fa-question"></i>
                     </button>
-                    
+
                     <span class="title text-left"><?php echo xlt('Step 2').": ".xlt('When will this CR fire?'); ?></span>
                 </div>
                 <?php
@@ -546,7 +546,7 @@
                                 <span class="title2 text-center"><?php echo xlt('This happens:'); ?></span>
                                 <span class="title2 bold text-center">
                                 <?php
-    
+
                                 if (!$something) {
                                     echo "<br /><span class='bold'>".xlt('There are no Alerts selected!')."</span><br />";
                                 } else {
@@ -599,7 +599,7 @@
                                         </thead>
                                     <?php
                                         $actions = $group->ruleActions;
-                                            
+
                                     if ($actions->actions) {
                                         foreach ($actions->actions as $action) {   ?>
                                                     <tr class="baseboard">
@@ -658,14 +658,14 @@
                 } // iteration over groups
                 ?>
                 <div class="row col-12" id="show_group_<?php echo attr($nextGroupId); ?>">
-                    
+
                     <div class="col-6 inline row">
                         <button type="button"
                                 id="add_criteria_target_<?php echo attr($nextGroupId);?>"
                                 class="btn-sm btn-primary icon_2"
                                 title='<?php echo xla('Add New Target'); ?>'><i class="fa fa-plus"></i>
                         </button>
-                        
+
 
                         <button
                                 class="btn-sm btn-primary icon_1"
@@ -681,7 +681,7 @@
                         <span class="title2 text-center"><?php echo xlt('This happens'); ?>:</span>
                         <span class="title2 bold text-center">
                                 <?php
-    
+
                                 if (!$something) {
                                     echo "<br /><span class='bold'>".xlt('There are no Alerts selected!')."</span><br />";
                                 } else {
@@ -764,7 +764,7 @@
             </div>
         </div>
     </div>
-   
+
     <div id="help_targets" class="modal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
             <div class="modal-content">
@@ -775,7 +775,7 @@
                     <div class="col-6">
                         <span class=" title2"><?php echo xlt('Prompting you to do this'); ?>:</span>
                     </div>
-                    
+
                     <div class="col-6">
                           <span class="text"><?php echo xlt('Define the items to trigger an alert'); ?>
                         <ul>
@@ -791,7 +791,7 @@
                         </ul>
                           </span>
                     </div>
-                    
+
                     <div class="col-6">
                         <span class="text"><?php echo xlt('Define what needs to happen to satisfy this alert'); ?></span>
 
@@ -830,7 +830,7 @@
                     </div>
                     <div class="row">
                         <div class="col-11 offset-1 text-center title"> <?php echo xlt('TIME'); ?> ----------&gt;</div>
-                        
+
                         <div class="col-1 offset-1 text-right bold"><?php echo xlt('Last event'); ?> </div>
                         <div class="col-5 alert-success text-center text-nowrap bold"><?php echo xlt('This should occur once every day/week/month/year'); ?>:</div>
                         <div class="col-5 bold text-left"><h6 style="position:relative;left:-20px;">X &lt;-- <?php echo xlt('Due Date'); ?></h6></div>
@@ -884,14 +884,14 @@
                         <div class="col-2 text-center alert-danger text-nowrap"><span style="position:relative;left:-20px;"> </div>
                         <div class="col-1"></div>
 
-                        
+
                         <div class="col-2 text-center offset-3 text-right title3"><?php echo xlt('Passive Alerts'); ?>: </div>
                         <div class="col-2 alert-warning text-center"><?php echo xlt('Marked as'); ?> <span class="due_soon"><?php echo xlt('Due soon'); ?></span><br /> <?php echo xlt('in CR widget'); ?></div>
                         <div class="col-2 text-center alert-primary"><?php echo xlt('Marked as'); ?> <span class="due_now"><?php echo xlt('Due'); ?></span><br /> <?php echo xlt('in CR widget'); ?></div>
                         <div class="col-2 text-center alert-danger text-nowrap"><?php echo xlt('Marked as'); ?> <span class="past_due"><?php echo xlt('Past Due'); ?></span><br /><?php echo xlt('in CR widget'); ?></div>
                         <div class="col-1"></div>
 
-                        
+
                         <div class="col-2 text-center offset-3 text-right title3"><?php echo xlt('Active Alerts'); ?>: </div>
                         <div class="col-2 alert-warning text-center align-text-bottom"><br /><?php echo xlt('Fire/Pop-up'); ?></div>
                         <div class="col-2 text-center alert-primary align-text-bottom"><br /><?php echo xlt('until'); ?> </div>
@@ -1095,7 +1095,7 @@
                                         ?>
                                 </td>
                                 <td class="text-center">
-                                
+
                                 </td>
                                 <td class="text-center">
                                     <?php echo xlt('Marked as'); ?> <span class="past_due"><?php echo xlt('Past Due'); ?></span> <?php echo xlt('in CR widget'); ?>
@@ -1169,7 +1169,7 @@
     $("[id^='help_']").hide();
     $("#show_group_<?php echo attr_js($nextGroupId); ?>").hide();
     $("[id^='show_targets_edit_").hide();
-    
+
     $(function() {
         $("#edit_summary").click(function () {
             $("#show_summary").hide();
@@ -1179,7 +1179,7 @@
             top.restoreSession();
             location.href = 'index.php?action=detail!view&id=' + encodeURIComponent($("#ruleId").val());
         });
-        
+
         $("[name^='summary_'],[name^='fld_ruleTypes'],[name^='intervals_']").change(function () {
             top.restoreSession();
             var url = "index.php?action=edit!submit_summary&id=" + $("#ruleId").val();
@@ -1209,7 +1209,7 @@
                     $("#show_summary_report").html('&nbsp;');
                 }, 2000);
             });
-            
+
         });
         $("[id^='clinical-p'],[id^='patient-p'],[id^='provider-p']").change(function () {
             top.restoreSession();
@@ -1243,7 +1243,7 @@
                     $("#show_summary_report").html('&nbsp;');
                 }, 2000);
             });
-            
+
         });
         <?php
         if (empty($timings['clinical']['pre']['amount'])) { ?>
@@ -1253,7 +1253,7 @@
         $("#patient-pre").val('1');
         $("#clinical-pre").trigger('change');
         <?php } ?>
-    
+
         $("#add_filters").click(function () {
             top.restoreSession();
             var url = "index.php?action=edit!add_criteria&id=<?php echo attr_url($rule->id); ?>&criteriaType=filter";
@@ -1267,7 +1267,7 @@
                 $("#show_filters_edit").show();
             });
         });
-        
+
         $("[id^='edit_filter_']").click(function() {
             top.restoreSession();
             var rf_uid = this.id.match(/edit_filter_(.*)/)[1];
@@ -1282,7 +1282,7 @@
                 $("#show_filters_edit").show();
             });
         });
-        
+
         $("[id^='edit_target_']").click(function() {
             top.restoreSession();
             var group = this.id.match(/edit_target_(.*)_(.*)/)[1];
@@ -1300,14 +1300,14 @@
                 $("#show_targets_edit_"+group).show();
             });
         });
-        
+
         $("[id^='edit_action_'").click(function() {
             top.restoreSession();
             var action = this.id.match(/edit_action_(.*)_(.*)/)[2];
             var group = this.id.match(/edit_action_(.*)_(.*)/)[1];
             $("[name='show_actions_edit']").hide();
             $("[name='show_actions']").show();
-    
+
             var url = 'index.php?action=edit!action&id=<?php echo attr_url($rule->id); ?>group_id='+encodeURIComponent(group)+'&ra_uid='+encodeURIComponent(action);
             $.ajax({
                        type: 'POST',
@@ -1317,11 +1317,11 @@
                 $("#show_actions_edit_"+group).html(data);
                 $("#show_actions_"+group).hide();
                 $("#show_actions_edit_"+group).show();
-                
+
             });
-            
+
         });
-        
+
         $("[id^='add_criteria_target_").click(function() {
             top.restoreSession();
             var group = this.id.match(/add_criteria_target_(.*)/)[1];
@@ -1354,27 +1354,27 @@
         $('#help_intervals').on('show.bs.modal', function () {
             $('#help_intervals').focus();
         });
-        
+
         $('#help_summary').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget) // Button that triggered the modal
             var recipient = button.data('whatever') // Extract info from data-* attributes
             var modal = $(this);
         });
         $("[id^='help_']").click(function () {
-            
+
             $(".modal-dialog").draggable({
                                              handle: ".modal-header",
                                              cursor: 'move',
                                              revert: false,
                                              backdrop: false
                                          });
-            
+
             $(this).css({
                             top: 0,
                             left: 0
                         });
-           
-            
+
+
         });
         $("#timing_toggle").click(function() {
             $("#intervals_edit").toggle();

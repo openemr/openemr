@@ -12,7 +12,7 @@
 
 use OpenEMR\Gacl\GaclApi;
 
-    
+
     $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ');
 ?>
 <div class="title" style="display:none">
@@ -68,7 +68,7 @@ use OpenEMR\Gacl\GaclApi;
                         <?php foreach ($viewBean->rules as $rule) {?>
                             <?php $index++; ?>
                             <tr height="22" id="CR_<?php echo xla($rule->id); ?>">
-                                
+
                                 <td class="text-left"><?php echo $rule->get_rule();?></td>
                                 <td>&nbsp;</td>
                                 <td class="text-center">
@@ -112,7 +112,7 @@ use OpenEMR\Gacl\GaclApi;
                                     foreach ($list_aco_objects as $key => $value) {
                                         asort($list_aco_objects[$key]);
                                     }
-                                
+
                                         echo "<select name='access_control[" . $index . "]'>";
                                     foreach ($list_aco_objects as $section => $array_acos) {
                                         $aco_section_data = $gacl_temp->get_section_data($section, 'ACO');
@@ -130,7 +130,7 @@ use OpenEMR\Gacl\GaclApi;
                                             echo "<option value='" . attr($section) . ":" . attr($aco) . "' " . $select . "> " . xlt($aco_section_title) . ": " . $show_title  . "</option>";
                                         }
                                     }
-                                
+
                                         echo "</select>";
                                     ?>
                                 </td>
@@ -170,13 +170,13 @@ use OpenEMR\Gacl\GaclApi;
                         <div class="bold indent10"><i class="title"></i></div>
                     </div>
                     <div class="col-11 offset-1">
-                        <p><?php echo xlt('This action is not reversible.  Do you want to proceed?'); ?></p>
+                        <p><?php echo xlt('This action is not reversible. Do you want to proceed?'); ?></p>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger btn-ok">Delete</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
+                <button type="button" class="btn btn-danger btn-ok"><?php echo xlt('Delete'); ?></button>
             </div>
         </div>
     </div>
@@ -206,6 +206,6 @@ use OpenEMR\Gacl\GaclApi;
             $('.btn-ok', this).data('ruleid', data.ruleid);
         });
     });
-    
+
 </script>
 
