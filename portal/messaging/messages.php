@@ -7,7 +7,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
- * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -108,7 +108,7 @@ function getAuthPortalUsers()
     $scope.reverse = false;
     $scope.filteredItems = [];
     $scope.groupedItems = [];
-    $scope.itemsPerPage = 8;
+    $scope.itemsPerPage = 20;
     $scope.pagedItems = [];
     $scope.compose = [];
     $scope.selrecip = [];
@@ -504,34 +504,33 @@ function getAuthPortalUsers()
     <ng ng-app="emrMessageApp">
     <div class="container" id='main' style="display: none">
         <div class='header logo my-3'>
-            <h2>
-                <i class='fa fa-envelope w-auto h-auto'></i><?php echo xlt('Patient Secure Mail'); ?></h2>
+            <h2><i class='fa fa-envelope w-auto h-auto'></i><?php echo xlt('Patient Secure Mail'); ?></h2>
         </div>
         <div class="row" ng-controller="inboxCtrl">
-            <div class="col-md-1 p-0 m-0 text-left">
-                <ul class="nav nav-pills flex-column">
+            <div class="col-md-2 p-0 m-0 text-left">
+                <div class="sticky-top">
+                <ul class="nav nav-pills nav-stacked flex-column">
                     <li class="nav-item">
-                        <a class="nav-link active" href="javascript:;" ng-click="isInboxSelected()"><span class="badge float-right">{{inboxItems.length}}</span><?php echo xlt('Inbox'); ?></a>
+                        <a class="nav-link active" data-toggle="pill" href="javascript:;" ng-click="isInboxSelected()"><span class="badge float-right">{{inboxItems.length}}</span><?php echo xlt('Inbox'); ?></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="javascript:;" ng-click="isSentSelected()"><span class="badge float-right">{{sentItems.length}}</span><?php echo xlt('Sent{{Mails}}'); ?></a>
+                        <a class="nav-link" data-toggle="pill" href="javascript:;" ng-click="isSentSelected()"><span class="badge float-right">{{sentItems.length}}</span><?php echo xlt('Sent{{Mails}}'); ?></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="javascript:;" ng-click="isAllSelected()"><span class="badge float-right">{{allItems.length}}</span><?php echo xlt('All{{Mails}}'); ?></a>
-                    </li>
-                    <!-- <li class="bg-info"><a href="#"><span class="badge float-right">0</span><?php //echo xlt('Drafts'); ?></a></li> -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="javascript:;" ng-click="isTrashSelected()"><span class="badge float-right">{{deletedItems.length}}</span><?php echo xlt('Archive'); ?></a>
+                        <a class="nav-link" data-toggle="pill" href="javascript:;" ng-click="isAllSelected()"><span class="badge float-right">{{allItems.length}}</span><?php echo xlt('All{{Mails}}'); ?></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link bg-danger" href="<?php echo $GLOBALS['web_root']?>/portal/patient/provider" ng-show="!isPortal"><?php echo xlt('Exit Mail'); ?></a>
+                        <a class="nav-link" data-toggle="pill" href="javascript:;" ng-click="isTrashSelected()"><span class="badge float-right">{{deletedItems.length}}</span><?php echo xlt('Archive'); ?></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link bg-danger" href="javascript:;" onclick='window.location.replace("<?php echo $GLOBALS['web_root']?>/portal/home.php")' ng-show="isPortal"><?php echo xlt('Exit'); ?></a>
+                        <a class="nav-link" href="<?php echo $GLOBALS['web_root']?>/portal/patient/provider" ng-show="!isPortal"><?php echo xlt('Exit Mail'); ?></a>
                     </li>
-                </ul>
+                    <li class="nav-item">
+                        <a class="nav-link" href="javascript:;" onclick='window.location.replace("<?php echo $GLOBALS['web_root']?>/portal/home.php")' ng-show="isPortal"><?php echo xlt('Exit'); ?></a>
+                    </li>
+                </ul></div>
             </div>
-            <div class="col-md-11">
+            <div class="col-md-10">
                 <!--inbox toolbar-->
                 <div class="row" ng-show="!isMessageSelected()">
                     <div class="col-12 mb-2">
@@ -664,10 +663,10 @@ function getAuthPortalUsers()
                             date:'MM-dd-yyyy HH:mm:ss'}}</span></em>
                 </div>
                 <!--paging-->
-                <div class="float-right" ng-hide="selected">
+                <div class="float-right my-2" ng-hide="selected">
                     <span class="text-muted"><strong>{{(itemsPerPage * currentPage) + 1}}</strong>~<strong>{{(itemsPerPage
                             * currentPage) + pagedItems[currentPage].length}}</strong> of <strong>{{items.length}}</strong></span>
-                    <div class="btn-group">
+                    <div class="btn-group" ng-show="items.length > itemsPerPage">
                         <button type="button" class="btn btn-secondary btn-lg" ng-class="{disabled: currentPage == 0}" ng-click="prevPage()">
                             <i class="fa fa-chevron-left"></i>
                         </button>
@@ -707,15 +706,15 @@ function getAuthPortalUsers()
                                                 <datalist id='listid'>
                                                     <option><?php echo xlt('Unassigned'); ?></option>
                                                     <option label='<?php echo xlt('Insurance'); ?>'
-                                                        value='<?php echo xlt('Insurance'); ?>' />
+                                                        value='<?php echo xla('Insurance'); ?>' />
                                                     <option label='<?php echo xlt('Prior Auth'); ?>'
-                                                        value='<?php echo xlt('Prior Auth'); ?>' />
+                                                        value='<?php echo xla('Prior Auth'); ?>' />
                                                     <option label='<?php echo xlt('Bill/Collect'); ?>'
-                                                        value='<?php echo xlt('Bill/Collect'); ?>' />
+                                                        value='<?php echo xla('Bill/Collect'); ?>' />
                                                     <option label='<?php echo xlt('Referral'); ?>'
-                                                        value='<?php echo xlt('Referral'); ?>' />
+                                                        value='<?php echo xla('Referral'); ?>' />
                                                     <option label='<?php echo xlt('Pharmacy'); ?>'
-                                                        value='<?php echo xlt('Pharmacy'); ?>' />
+                                                        value='<?php echo xla('Pharmacy'); ?>' />
                                                 </datalist>
                                             </div>
                                         </div>

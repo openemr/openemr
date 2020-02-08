@@ -4,14 +4,103 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2020  Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-@import './../../../interface/themes/oe-common/oe-sidebar.scss';
 /*
     Core: General style
 ----------------------------
 */
+
+/* Default Colors */
+$blue: #007bff;
+$indigo: #6610f2;
+$purple: #6f42c1;
+$pink: #e83e8c;
+$red: #dc3545;
+$orange: #fd7e14;
+$yellow: #ffc107;
+$green: #28a745;
+$teal: #20c997;
+$cyan: #17a2b8;
+$white: #fff;
+$black: #000;
+
+/* Default Grays */
+$gray-100: #f8f9fa;
+$gray-200: #e9ecef;
+$gray-300: #dee2e6;
+$gray-400: #ced4da;
+$gray-500: #adb5bd;
+$gray-600: #868e96;
+$gray-700: #495057;
+$gray-800: #343a40;
+$gray-900: #212529;
+
+/* Equivalents to bg-light/dark as well as default for gray */
+$light: $gray-100;
+$dark: $gray-800;
+$gray: $gray-600;
+
+/* Array of theme colors that can be added to */
+$theme-colors: (
+    primary: $blue,
+    secondary: $gray-100,
+    success: $green,
+    info: $cyan,
+    warning: $yellow,
+    danger: $red,
+    light: $gray-100,
+    dark: $gray-800
+);
+
+/* Array of random colors that can be added to */
+$colors: (
+    "blue": $blue,
+    "indigo": $indigo,
+    "purple": $purple,
+    "pink": $pink,
+    "red": $red,
+    "orange": $orange,
+    "yellow": $yellow,
+    "green": $green,
+    "teal": $teal,
+    "cyan": $cyan,
+    "white": $white,
+    "gray": $gray-600,
+    "gray-dark": $gray-800,
+    /* Overrides to allow regular CSS coloring */
+    "black": $black,
+    "gray100": $gray-100,
+    "gray200": $gray-200,
+    "gray300": $gray-300,
+    "gray400": $gray-400,
+    "gray500": $gray-500,
+    "gray700": $gray-700,
+    "gray900": $gray-900
+);
+
+$body-bg: $white;
+$body-color: $gray-900;
+$font-family-sans-serif: "Lato", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+$font-size-base: 0.875rem;
+$rfs-base-value: 0.875rem;
+$font-family-base: $font-family-sans-serif;
+
+$close-color: $black;
+$close-text-shadow: 0 1 0 $black;
+
+$enable-responsive-font-sizes: true;
+
+/*@import "../../public/assets/bootstrap/scss/bootstrap";*/
+@import "./../../public/assets/bootstrap/scss/vendor/rfs";
+@import "./oe-common/oe-sidebar.scss";
+
+.btn-secondary {
+    background-color: rgba($black, .05) !important;
+    color: rgba($black, .87) !important;
+    border-color: $gray-500 !important;
+}
 
 /* Layouts */
 .wrapper {

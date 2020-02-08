@@ -5,7 +5,7 @@
 * @package   OpenEMR
 * @link      http://www.open-emr.org
 * @author    Jerry Padgett <sjpadgett@gmail.com>
-* @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+* @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
@@ -71,9 +71,9 @@ echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_esc
 echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": " . attr($catname) . "';</script>";
 echo "<script>var msgSuccess='" . xlt("Save Successful") . "';</script>";
 echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
-Header::setupHeader(['no_main-theme', 'jquery-ui', 'jquery-ui-sunny']);
+Header::setupHeader(['no_main-theme', 'jquery-ui', 'jquery-ui-sunny', 'patientportal-style']);
 ?>
-<link href="<?php echo $GLOBALS['web_root']; ?>/portal/assets/css/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />
+
 <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" type="text/css" />
 <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $GLOBALS['v_js_includes']; ?>" type="text/javascript"></script>
 <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $GLOBALS['v_js_includes']; ?>" type="text/javascript"></script>
@@ -237,7 +237,7 @@ function restoreDocumentEdits() {
 <script type="text/template" id="onsiteDocumentModelTemplate">
 <div class="container-fluid">
 <div class="row">
-    <nav class="nav-sidebar sidebar-h-40 bg-light">
+    <nav class="nav-sidebar bg-light">
         <div class="sidebar-header mx-5">
             <h6><?php echo xlt('Actions') ?></h6>
         </div>

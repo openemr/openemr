@@ -5,7 +5,7 @@
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
- * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -37,8 +37,8 @@
 
 /* if not a grid then main available */
 main {
-    margin-left: 225px;
-    padding: 1rem 15px;
+    margin-left: 250px;
+    padding: 1rem 10px;
     width: 100%;
 }
 
@@ -54,7 +54,7 @@ main {
 
 #nav-topbar .brand-container {
     /* Should match width of .nav-sidebar */
-    width: 225px;
+    width: 250px;
     padding-left: 1rem;
 }
 
@@ -83,8 +83,8 @@ main {
 
 .nav-sidebar {
     position: fixed;
-    height: 100%;
-    width: 225px;
+    height: unset;
+    width: 250px;
     top: 0;
     bottom: 0;
     left: 0;
@@ -142,9 +142,9 @@ main {
 
     #nav-topbar .brand-container.active,
     .nav-sidebar.active {
-        width: 225px;
+        width: 250px;
         min-width: 30px;
-        max-width: 225px;
+        max-width: 250px;
     }
 
     .nav-sidebar.active .sidebar-content {
