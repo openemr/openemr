@@ -12,8 +12,7 @@
 
 use OpenEMR\Gacl\GaclApi;
 
-
-    $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ');
+$setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ');
 ?>
 <div class="title" style="display:none">
     <?php echo xlt('CR Manager'); ?>
@@ -107,7 +106,7 @@ use OpenEMR\Gacl\GaclApi;
                                 <?php } ?>
                                 <td class="text-center">
                                     <?php //Place the ACO selector here
-                                        $gacl_temp = new gacl_api();
+                                        $gacl_temp = new GaclApi();
                                         $list_aco_objects = $gacl_temp->get_objects(null, 0, 'ACO');
                                     foreach ($list_aco_objects as $key => $value) {
                                         asort($list_aco_objects[$key]);
