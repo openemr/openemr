@@ -40,7 +40,6 @@ class PdfTemplatesController extends PrescriptionTemplatesController
 
     public function __construct(ContainerInterface $container)
     {
-        parent::__construct($container);
         $this->renderer = $container->get(\Laminas\View\Renderer\PhpRenderer::class);
     }
 
