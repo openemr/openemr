@@ -128,7 +128,7 @@ function emailLogin($patient_id, $message)
     }
 }
 
-function displayLogin($patient_id, $message, $emailFlag, $displayMessage)
+function displayLogin($patient_id, $message, $emailFlag)
 {
     $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id));
     if ($emailFlag) {
@@ -177,10 +177,10 @@ if (isset($_POST['form_save']) && $_POST['form_save']=='submit') {
     // Email and display/print the message
     if (emailLogin($pid, $message)) {
         // email was sent
-        $credMessage = displayLogin($pid, $message, true, $displayMessage);
+        $credMessage = displayLogin($pid, $message, true);
     } else {
         // email wasn't sent
-        $credMessage = displayLogin($pid, $message, false, $displayMessage);
+        $credMessage = displayLogin($pid, $message, false);
     }
 } ?>
 <html>
