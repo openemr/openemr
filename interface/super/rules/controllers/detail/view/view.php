@@ -18,8 +18,8 @@
             echo xlt('CR{{Clinical Reminder abbreviation}}'); ?>:
     <?php
     if ($rule->title) {
-        $in = text($rule->title);
-        echo strlen($in) > 10 ? substr($in, 0, 10) . "..." : $in;
+        $in = $rule->title;
+        echo strlen($in) > 10 ? text(substr($in, 0, 10)) . "..." : text($in);
     } else {
         echo xlt('Manager');
     }
@@ -105,90 +105,71 @@
                                 ?>:</span></td>
                             <td colspan="3">
                                 <?php
-
-                                    //of course move this somewhere central??
-                                    function xlts($data)
-                                    {
-                                        if ($GLOBALS['language_default'] !='English (Standard)') {
-                                            $data = preg_replace('/<[^>]*>/', '', $data);
-                                            return xlt($data);
-                                        }
-                                        return $data;
-                                    }
-                                    function xlas($data)
-                                    {
-                                        if ($GLOBALS['language_default'] !='English (Standard)') {
-                                            $data = preg_replace('/<[^>]*>/', '', $data);
-                                            return xla($data);
-                                        }
-                                        return $data;
-                                    }
                                     if ($something) {
                                         if ($rule->hasRuleType(RuleType::from('activealert')) || $rule->hasRuleType(RuleType::from('passivealert'))) {
                                             $clinical = '1';
                                         }
                                         if ($rule->hasRuleType(RuleType::from('activealert')) && $rule->hasRuleType(RuleType::from('passivealert'))) {
-                                            $timing .= "This CR has both an
-                                                            <span class='bold'
+                                            $timing .= xlt("This CR has both an") .
+                                                            "<span class='bold'
                                                                   data-toggle='popover'
                                                                   data-trigger='hover'
                                                                   data-placement='auto'
-                                                                  title='Active Alerts'
-                                                                  data-content='A Pop-up will occur daily when the demographics page is opened listing any Treatment Goals needing attention.'>Active Alert
-                                                             </span>
-                                                             and a
-                                                            <span class='bold'
+                                                                  title='" . xla("Active Alerts") . "'" .
+                                                                  "data-content='" . xla("A Pop-up will occur daily when the demographics page is opened listing any Treatment Goals needing attention.") . "'>" .
+                                                                  xlt("Active Alert") .
+                                                             "</span>" .
+                                                             xlt("and a") . "
+                                                             <span class='bold'
                                                                   data-toggle='popover'
                                                                   data-toggle='popover'
                                                                   data-trigger='hover'
                                                                   data-placement='auto'
-                                                                  title='Passive Alerts'
-                                                                  data-content='These alerts appear on the Dashboard page inside the CR widget'>Passive Alert</span>.
-                                                            <br /> ".text($timings['clinical']['pre']['amount']). " " .text($timings['clinical']['pre']['timeUnit2']). "
-                                                            before its Due date, this CR is marked <span class='due_soon bolder'>Due Soon</span>. <br />";
-                                            $timing .= "Then for ".text($timings['clinical']['post']['amount'])." ".$timings['clinical']['post']['timeUnit2']." it is <span class='due_now'>Due</span>. ";
-                                            $timing .= "After this, it is marked as <span class='past_due'>Past due</span>.";
-                                            $timing = xlts($timing);
-                                            $timing = "<div>".$timing."</div><br />";
+                                                                  title='" . xla("Passive Alerts") . "'" .
+                                                                  "data-content='" . xla("These alerts appear on the Dashboard page inside the CR widget") . "'>" .
+                                                                  xlt("Passive Alert") .
+                                                             "</span>
+                                                             <br /> " . text($timings['clinical']['pre']['amount']) . " " . text($timings['clinical']['pre']['timeUnit2']) .
+                                                             xlt("before its Due date, this CR is marked") . " <span class='due_soon bolder'>" . xlt("Due Soon") . "</span>. <br />";
+                                            $timing .= xlt("Then for") . " " . text($timings['clinical']['post']['amount'])." ".$timings['clinical']['post']['timeUnit2'] . " " . xlt("it is") . " <span class='due_now'>" . xlt("Due") . "</span>. ";
+                                            $timing .= xlt("After this, it is marked as") . " <span class='past_due'>" . xlt("Past due") . "</span>.";
+                                            $timing = "<div>" . $timing . "</div><br />";
                                         } elseif ($rule->hasRuleType(RuleType::from('activealert'))) {
-                                            $timing = "<div>".xlts("An <span class='bold'>Active Alert</span> will pop-up daily listing any Treatment Goals needing attention.")."</div>";
+                                            $timing = "<div><span class='bold'>" . xlt("Active Alert") . "</span> " . xlt("will pop-up daily listing any Treatment Goals needing attention.") . "</div>";
                                         } elseif ($rule->hasRuleType(RuleType::from('passivealert'))) {
-                                            $timing = "A <span class='bold'>Passive Alert</span> will appear in the
-                                                <a href='#' data-toggle='popover'
+                                            $timing = "<span class='bold'>" . xlt("Passive Alert") . "</span> " . xlt("will appear in the") .
+                                                "<a href='#' data-toggle='popover'
                                                             data-trigger='hover'
                                                             data-placement='auto'
-                                                            title='Clinical Reminders Widget(CR)'
-                                                            data-content='The CR Widget is located on the demographics page.'>CR Widget</a> ";
-                                            $timing .= text($timings['clinical']['pre']['amount'])." ".$timings['clinical']['pre']['timeUnit2']." before its Due date, this CR is marked <span class='due_soon bolder'>Due Soon</span>.";
-                                            $timing .= text($timings['clinical']['post']['amount'])." ".$timings['clinical']['post']['timeUnit2']." after the Due Date, it is marked <span class='past_due'>Past Due</span>. <br />";
-                                            $timing .= "Alerts stop when their Treatment Goals are completed.";
-                                            $timing = xlts($timing);
-                                            $timing = "<div>".$timing."</div><br />";
+                                                            title='" . xla("Clinical Reminders Widget(CR)") . "'" .
+                                                            "data-content='" . xla("The CR Widget is located on the demographics page.") . "'>" . xlt("CR Widget") . "</a> ";
+                                            $timing .= text($timings['clinical']['pre']['amount']) . " " . $timings['clinical']['pre']['timeUnit2'] . " " . xlt("before its Due date, this CR is marked") . " <span class='due_soon bolder'>" . xlt("Due Soon") . "</span>.";
+                                            $timing .= text($timings['clinical']['post']['amount']) . " " . $timings['clinical']['post']['timeUnit2'] . " " . xlt("after the Due Date, it is marked") . " <span class='past_due'>" . xlt("Past Due") . "</span>. <br />";
+                                            $timing .= xlt("Alerts stop when their Treatment Goals are completed.");
+                                            $timing = "<div>" . $timing . "</div><br />";
                                         }
                                         if ($rule->hasRuleType(RuleType::from('patientreminder'))) {
-                                            $timing_pt = "This CR ";
                                             if ($clinical=='1') {
-                                                $timing_pt .= "also ";
+                                                $timing_pt .= xlt("This CR also triggers a") . " <span class='bold'>" . xlt("Patient Reminder") . "</span>.";
+                                            } else {
+                                                $timing_pt .= xlt("This CR triggers a") . " <span class='bold'>" . xlt("Patient Reminder") . "</span>.";
                                             }
-                                            $timing_pt .= "triggers a <span class='bold'>Patient Reminder</span>.";
-                                            $timing_pt = xlts($timing_pt);
-                                            $timing_pt = "<div>".$timing_pt."<br /></div><div class='indent10'>";
+                                            $timing_pt = "<div>" . $timing_pt . "<br /></div><div class='indent10'>";
 
-                                            $timing_pt .= xlts("A message will be sent to the patient.");
+                                            $timing_pt .= xlt("A message will be sent to the patient.");
                                             if ($GLOBALS['medex_enable'] == '1') {
-                                                $timing_pt .= " ".xlts("<br /><a href='https://medexbank.com/'>MedEx</a> will send an e-mail, SMS text and/or a voice message as requested.");
+                                                $timing_pt .= " <br /><a href='https://medexbank.com/'>MedEx</a> " . xlt("will send an e-mail, SMS text and/or a voice message as requested.");
                                             }
                                             $timing_pt .= "</div>";
-
                                         }
                                         if ( ($GLOBALS['medex_enable'] == '1') && ($rule->hasRuleType(RuleType::from('provideralert'))) ) {
-                                            $timing_prov = "<div>".xlts("<span class='bolder red'>This CR has a Provider Alert!</span>")."</div>";
-                                            $timing_prov .= "<div class='indent10'>".xlts("<span class='bold'>Provider Alert</span>: A message will be sent to the provider.");
-                                            $timing_prov .="<br />".xlts("<a href='https://medexbank.com/'>MedEx</a> will send an e-mail, SMS text and/or a voice message as requested.");
+                                            $timing_prov = "<div><span class='bolder red'>" . xlt("This CR has a Provider Alert!") . "</span></div>";
+                                            $timing_prov .= "<div class='indent10'><span class='bold'>" . xlt("Provider Alert") . "</span>: " . xlt("A message will be sent to the provider.");
+                                            $timing_prov .="<br /><a href='https://medexbank.com/'>MedEx</a> " . xlt("will send an e-mail, SMS text and/or a voice message as requested.");
                                             $timing_prov .= "</div>";
                                         }
                                     } else {
-                                        $timing = "<span class='bold'>".xlt('None. Edit this CR to create an Alert!')."</span><br />";
+                                        $timing = "<span class='bold'>" . xlt('None. Edit this CR to create an Alert!') . "</span><br />";
                                     }
 
                                     echo $timing;
@@ -204,7 +185,7 @@
                             <td><?php echo text($rule->developer); ?></td>
                             <td class="text-right">
                                 <span class="underline"><?php echo xlt('Funding Source'); ?>:</span></td>
-                            <td><?php echo text($rule->funding_source)?:xlt("None"); ?></td>
+                            <td><?php echo text($rule->funding_source) ?:xlt("None"); ?></td>
                         </tr>
                         <tr>
                             <td class="text-right">
@@ -219,10 +200,10 @@
                                       data-content='<?php echo xla('When present, References appear in the Dashboard CR widget as'); ?> <i class="fa fa-link text-primary"></i>.
                                       <hr>
                                       <img width="250px" class="table-bordered" src="<?php echo $GLOBALS['webroot'];?>/interface/super/rules/www/CR_widget.png">
-                                      <hr><?php echo xla('This clickable link leads to the url specified here. It is suggested to link out to relevant clinical information, perhaps a government publication explaining why this CR exists. However, you can link to anything desired.');?>
+                                      <hr><?php echo xla('This clickable link leads to the url specified here. It is suggested to link out to relevant clinical information, perhaps a government publication explaining why this CR exists. However, you can link to anything desired.'); ?>
                                       <?php
                                         if ($rule->web_ref) {
-                                            echo xla('Currently this reference links to').' '. attr($rule->web_ref);
+                                            echo xla('Currently this reference links to') . ' '. attr($rule->web_ref);
                                         } else {
                                             echo xla('Currently this reference does not link to anything.');
                                         } ?>
@@ -232,8 +213,8 @@
                             </td>
                             <td><a href="<?php echo attr($rule->web_ref); ?>"><?php
                             if ($rule->web_ref) {
-                                $in = attr($rule->web_ref);
-                                echo mb_strlen($in) > 30 ? mb_substr($in, 0, 25) . "..." : $in;
+                                $in = $rule->web_ref;
+                                echo mb_strlen($in) > 30 ? text(mb_substr($in, 0, 25)) . "..." : text($in);
                             } else {
                                 echo xlt("None");
                             }
@@ -329,7 +310,7 @@
                                         data-html="true"
                                         data-trigger='hover'
                                         data-placement='auto'
-                                        data-content='<?php echo xlas('References appear in the Dashboard CR widget as <i class="fa fa-link"></i> and can link to anything desired.'); ?>
+                                        data-content='<?php echo xla('References can link to anything desired and appear in the Dashboard CR widget as') . ' <i class="fa fa-link"></i> .'; ?>
                                                     <img width="250px" src="<?php echo $GLOBALS['webroot'];?>/interface/super/rules/www/CR_widget.png">'
                                         class="underline"><?php echo xlt('Reference'); ?><i class="fa fa-link"></i>:
                             </td>
@@ -460,7 +441,7 @@
                           data-placement="auto left"
                           data-html="true"
                           data-title='<?php echo xla('Step 2: Add A New Group'); ?>'
-                          data-content="<?php echo xlas("<span class='text-justify'>Having narrowed your target group of patients in <span class='bold'>Step 1</span>, now in <span class='bold'>Step 2</span> you need to look for an item. If present, an alert fires prompting you to do something, usually a Treatment Goal. Most CRs only need to reference one Treatment Goal. You can create multiple <span class='bold'>Step 2</span> criteria for a given group of patients identified in <span class='bold'>Step 1</span>. Remember each Treatment Goal is displayed separately in the Dashboard's CR widget and each can trigger a separate Active Alert.  Be wary of Alert Fatigue! If you wish to fire multiple Alerts for a Targeted group, consider using Care Plans to combine Alerts. Expert use only...</span>"); ?>"><i class="fa fa-plus"></i>
+                          data-content="<span class='text-justify'><?php echo xla("Having narrowed your target group of patients in STEP 1, now in STEP 2 you need to look for an item. If present, an alert fires prompting you to do something, usually a Treatment Goal. Most CRs only need to reference one Treatment Goal. You can create multiple STEP 2 criteria for a given group of patients identified in STEP 1. Remember each Treatment Goal is displayed separately in the Dashboard's CR widget and each can trigger a separate Active Alert. Be wary of Alert Fatigue! If you wish to fire multiple Alerts for a Targeted group, consider using Care Plans to combine Alerts. Expert use only..."); ?></span>"><i class="fa fa-plus"></i>
                     </button>
                     <button type="button"
                             class="btn-sm btn-primary icon_1"
@@ -570,7 +551,7 @@
                             <div class="col-4 inline">
                                 <div class="col-12 title2"><?php echo xlt('Prompting you to do this'); ?>:</div>
                                 <div class="col-12"
-                                     id="show_actions_<?php echo xla($group->groupId); ?>"
+                                     id="show_actions_<?php echo attr($group->groupId); ?>"
                                      name="show_actions">
                                     <button type="button"
                                             class="btn-sm btn-primary icon_1"
@@ -606,7 +587,7 @@
                                                         <td>
                                                             <button id="edit_action_<?php echo attr($group->groupId); ?>_<?php echo attr($action->ra_uid); ?>"
                                                                     class="btn btn-sm btn-primary"
-                                                                    title="Edit this Action."><i class="fa fa-pencil"></i>
+                                                                    title="<?php echo xla("Edit this Action."); ?>><i class="fa fa-pencil"></i>
                                                             </button>
                                                         </td>
 
@@ -630,7 +611,7 @@
                                                         <td>
                                                             <?php
                                                             if (!empty($action->reminderLink)) {
-                                                                echo "<a href='".attr_url('$action->reminderLink')."' target='_blank'>".xlt('Yes')."</a>";
+                                                                echo "<a href='".attr('$action->reminderLink')."' target='_blank'>".xlt('Yes')."</a>";
                                                             } else {
                                                                 echo xlt('No');
                                                             } ?>
@@ -739,14 +720,14 @@
                             <div class="title2"><?php echo xlt('Define the cohort of patients that this CR affects'); ?></div>
                         </div>
                         <div class="col-10 offset-1">
-                            <?php echo xlts('Target patients by the value of any criterion eg. <span class="bolder">age, sex, demographics, diagnosis, etc.</span>'); ?>
+                            <?php echo xlt('Target patients by the value of any criterion eg.') . ' <span class="bolder">' . xlt('age, sex, demographics, diagnosis, etc.') . '</span>'; ?>
                                     <br />
                             <?php echo xlt("Patients matching these criteria"); ?>:
                             <ul>
                                 <li><span class="bold"><?php echo xlt('may be included'); ?></span>: <?php echo xlt('include patients matching this criterion (among others)'); ?>.  </li>
                                 <ul>
                                     <li><?php echo xlt('If there is more than one criteria, patients matching any of the criteria are included.'); ?></li>
-                                    <li><?php echo xlts('Used when there are <span class="bolder">multiple optional inclusion</span> criteria to allow the inclusion of multiple sub groups of patients.'); ?></li>
+                                    <li><?php echo xlt('Used when there are "Multiple Optional Inclusion" criteria to allow the inclusion of multiple sub groups of patients.'); ?></li>
                                 </ul>
                                 <li><span class="bold"><?php echo xlt('must be included'); ?></span>: <?php echo xlt('targeted patients must meet this criterion'); ?></li>
                                 <li><span class="bold"><?php echo xlt('may be excluded'); ?>'</span>: <?php echo xlt('If there is more than one criteria, patients matching any of the criteria are excluded.'); ?></li>
@@ -837,11 +818,10 @@
 
                         <div class="col-3 offset-2"></div>
                         <div class="col-2 alert-warning text-center"><span class="underline"><?php echo xlt('Warning Period'); ?></span><br />
-                            <?php echo xlt('an interval of time').' <span class="bold">'.xlt('before').'</span> '.xlt('the due date'); ?>
+                            <?php echo xlt('an interval of time BEFORE the due date'); ?>
                         </div>
                         <div class="col-2 text-center alert-primary"><span class="underline"><?php echo xlt('Due Period'); ?></span><br />
-                            <?php echo xlt('an interval of time');?>
-                            <span class="bold"><?php echo xlt('from');?></span> <?php echo xlt(' the due date onward'); ?>
+                            <?php echo xlt('an interval of time FROM the due date onward'); ?>
                         </div>
                         <div class="col-2 text-center alert-danger text-nowrap"><span class="underline"><?php echo xlt('Over Due Period'); ?></span> -----&gt;</div>
                         <div class="col-1"></div>
@@ -1167,7 +1147,7 @@
     $("#show_summary_edit").hide();
     $("#show_filters_edit").hide();
     $("[id^='help_']").hide();
-    $("#show_group_<?php echo attr_js($nextGroupId); ?>").hide();
+    $("#show_group_<?php echo attr($nextGroupId); ?>").hide();
     $("[id^='show_targets_edit_").hide();
 
     $(function() {
@@ -1182,7 +1162,7 @@
 
         $("[name^='summary_'],[name^='fld_ruleTypes'],[name^='intervals_']").change(function () {
             top.restoreSession();
-            var url = "index.php?action=edit!submit_summary&id=" + $("#ruleId").val();
+            var url = "index.php?action=edit!submit_summary&id=" + encodeURIComponent($("#ruleId").val());
             var newTypes = [];
             $('input[name="fld_ruleTypes[]"]:checked').each(function () {
                 newTypes.push($(this).val());

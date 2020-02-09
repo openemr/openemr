@@ -17,8 +17,8 @@
     <?php
         // this will display the TAB title
         echo xlt('CR{{Clinical Reminder abbreviation}} Builder'); ?><?php
-        $in = xlt($rule->title);
-        echo mb_strlen($in) > 10 ? mb_substr($in, 0, 10)."..." : $in; ?>
+        $in = xl($rule->title);
+        echo mb_strlen($in) > 10 ? text(mb_substr($in, 0, 10))."..." : text($in); ?>
 </div>
 
 <form action="index.php?action=edit!createCR" method="post" onsubmit="return top.restoreSession()">

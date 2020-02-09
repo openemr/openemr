@@ -10,7 +10,7 @@
      * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
      * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
      */
-    
+
 ?>
 
 <body class='body_top'>
@@ -34,15 +34,15 @@
 <!-- a href="javascript:;" class="iframe_medium css_button" id="btn_save" onclick="top.restoreSession()"><span><?php echo xlt('Save'); ?></span></a>
 -->
 
-<button onclick="top.restoreSession();location.href='index.php?action=detail!view&amp;id=<?php echo attr_url($rule->id); ?>'"
+<button onclick="top.restoreSession();location.href='index.php?action=detail!view&id=<?php echo attr_url($rule->id); ?>'"
         class="btn btn-sm btn-primary icon_2"
-        title="Cancel"><i class="fa fa-times"></i>
+        title="<?php echo xla("Cancel"); ?>"><i class="fa fa-times"></i>
 </button>
 <button id="frm_targets_save_<?php echo attr($groupId); ?>"
         class="btn btn-sm btn-primary icon_3"
         id="frm_targets_save_<?php echo attr($groupId); ?>"
         type="button"
-        title="<?php echo attr('Save'); ?>"><i class="fa fa-save"></i>
+        title="<?php echo xla('Save'); ?>"><i class="fa fa-save"></i>
 </button>
 <button class="btn btn-sm btn-primary icon_1"
         id="show_target_help"
@@ -60,7 +60,7 @@
 
         <!-- ----------------- -->
         <?php
-    
+
         if (file_exists($viewBean->_view_body)) {
             require_once($viewBean->_view_body);
         }
@@ -76,12 +76,12 @@
 </body>
 <script>
     $(function() {
-        $("[id^='edit_target_").click(function () {
+        $("[id^='edit_target_").on("click", function () {
             var h = $(this).data();
             var thisType = h.type;
             var thisCriteriaType = h.criteriatype;
             var group = h.group;
-            
+
             top.restoreSession();
             var id = this.id.match(/edit_target_(.*)/)[1];
             var url = 'index.php?action=edit!choose_criteria&id='+encodeURIComponent(id)+'&type='+encodeURIComponent(thisType)+'&criteriaType='+encodeURIComponent(thisCriteriaType)+'&group_id='+encodeURIComponent(group);
@@ -92,14 +92,14 @@
                    }).done(function (data) {
                 $("#show_targets_edit_<?php echo attr($groupId); ?>").html(data);
             });
-            
+
         });
-        $("[id^='frm_targets_save_']").click(function() {
+        $("[id^='frm_targets_save_']").on("click", function() {
             var group = this.id.match(/frm_targets_save_(.*)/)[1];
             $("#frm_submit_target_"+attr(group)).submit();
         });
     });
-    
+
 
 </script>
 

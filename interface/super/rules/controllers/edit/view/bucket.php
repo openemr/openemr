@@ -122,11 +122,11 @@
     $(function() {
         $("#change_category_<?php echo attr($viewBean->type); ?>").trigger('click');
         $("#change_item_<?php echo attr($viewBean->type); ?>").trigger('click');
-        $("[name='edit_action_cancel").click(function () {
+        $("[name='edit_action_cancel").on("click", function () {
             $("#show_actions_edit").hide();
             $("#show_actions").show();
         });
-        $("#submit_action").click(function() {
+        $("#submit_action").on("click", function() {
             $("#frm_submit_<?php echo attr($viewBean->type);
             echo "_".attr($group_id); ?>").submit();
         });

@@ -66,14 +66,14 @@ $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setti
                         <?php $index = -1; ?>
                         <?php foreach ($viewBean->rules as $rule) {?>
                             <?php $index++; ?>
-                            <tr height="22" id="CR_<?php echo xla($rule->id); ?>">
+                            <tr height="22" id="CR_<?php echo $rule->id; ?>">
 
                                 <td class="text-left"><?php echo $rule->get_rule();?></td>
                                 <td>&nbsp;</td>
                                 <td class="text-center">
                                     <button class="btn btn-sm btn-primary"
                                             type="button"
-                                            onclick="top.restoreSession();location.href='index.php?action=detail!view&id=<?php echo attr($rule->id); ?>'">
+                                            onclick="top.restoreSession();location.href='index.php?action=detail!view&id=<?php echo attr_url($rule->id); ?>'">
                                         <i class="fa fa-pencil" id="edit_"></i>
                                     </button>
                                 </td>
@@ -124,9 +124,9 @@ $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setti
                                             if ($rule->access_control() == $section.":".$aco) {
                                                 $select = 'selected';
                                             }
-                                            $start_title = xlt($aco_title);
+                                            $start_title = xl($aco_title);
                                             $show_title =  mb_substr($start_title, 0, 25)."...";
-                                            echo "<option value='" . attr($section) . ":" . attr($aco) . "' " . $select . "> " . xlt($aco_section_title) . ": " . $show_title  . "</option>";
+                                            echo "<option value='" . attr($section) . ":" . attr($aco) . "' " . $select . "> " . xlt($aco_section_title) . ": " . text($show_title)  . "</option>";
                                         }
                                     }
 

@@ -370,8 +370,8 @@
 <div class="title" style="display:none"><a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/rules/index.php?browse!plans_config"><?php
             // this will display the TAB title
             echo xlt('Care Plans'); ?><?php
-            $in = xlt($rule->title);
-            echo mb_strlen($in) > 10 ? mb_substr($in, 0, 10)."..." : $in;
+            $in = xl($rule->title);
+            echo mb_strlen($in) > 10 ? text(mb_substr($in, 0, 10)."..." : text($in);
 ?></a>
 </div>
 <br /><br />

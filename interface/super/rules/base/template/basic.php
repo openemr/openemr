@@ -22,14 +22,6 @@ use OpenEMR\Core\Header;
 
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="container-fluid">
-           <!-- <div class="navbar-header brand bg-light">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#oer-navbar-collapse-1">
-                    <span class="sr-only"><?php echo xlt("Toggle navigation"); ?></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-            </div>-->
             <div id="hide_nav" style="<?php if ($setting_bootstrap_submenu == 'hide') {
                 echo "display:none;"; } ?>">
                 <nav id="navbar_oe"

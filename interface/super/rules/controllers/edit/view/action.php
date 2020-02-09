@@ -34,7 +34,7 @@
                         class="btn-sm btn-primary icon_2"
                         title='<?php echo xla('Save Goal'); ?>'> <i class="fa fa-save heavy"></i>
                 </button>
-          
+
         <span class="title3 text-left"><?php
         if ($action->ra_uid) {
             echo xlt('Edit this Action');
@@ -43,7 +43,7 @@
         }?>:</span>
     </div>
     <div class="col-12">
-    
+
         <form action="index.php?action=edit!submit_action"
               method="post"
               id="frm_submit_action_<?php echo attr($action->groupId); ?>"
@@ -51,9 +51,9 @@
             <input type="hidden" name="ra_uid" value="<?php echo attr($action->ra_uid); ?>"/>
             <input type="hidden" name="id" value="<?php echo attr($action->id); ?>"/>
             <input type="hidden" name="group_id" value="<?php echo attr($action->groupId); ?>"/>
-        
+
             <!-- custom rules input -->
-        
+
             <!-- category -->
             <table class="table table-bordered table-info table-responsive table-hover text-center">
                 <tr>
@@ -64,9 +64,9 @@
                               data-trigger="hover"
                               data-placement="left"
                               title='<?php echo xla('Action Categories'); ?>
-                              data-content='<?php echo xla('A CR exists to reminder you to perform an action. Actions can be grouped into familiar categories, such as "Perform an Assessment" or "Measure a Value". For this action, choose the category which best describes what you are prompting the medical staff to complete. You can select this category from a list of pre-existing Categories by clicking the Pencil icon or you can create a new category by simply typing into this text box. Newly created categories are added to the list "Clinical Rule Action Category". The pre-existing categories are drawn from this list.'); ?>'>
+                              data-content='<?php echo xla('A CR exists to remind you to perform an action. Actions can be grouped into familiar categories, such as "Perform an Assessment" or "Measure a Value". For this action, choose the category which best describes what you are prompting the medical staff to complete. You can select this category from a list of pre-existing Categories by clicking the Pencil icon or you can create a new category by simply typing into this text box. Newly created categories are added to the list "Clinical Rule Action Category". The pre-existing categories are drawn from this list.'); ?>'>
                             <?php echo xlt('Action Category'); ?></span><br />
-    
+
                         <input id="fld_category_lbl_action"
                                class="form-control"
                                type="text"
@@ -76,7 +76,7 @@
                         <input type="hidden" id="fld_category_action" name="fld_category" value="<?php echo attr($action->category); ?>" />
                     </td>
                 </tr>
-                
+
                 <!-- item -->
                 <tr>
                     <td>
@@ -108,18 +108,14 @@
                               container="body"
                               title='<?php echo xla('Completing Passive Alerts'); ?>'
                               data-html="true"
-                              data-content='<?php echo xlas('A Passive Alert is displayed in the CR widget with the values of "Category:Item".
-                              These words can be linked to a pop-up to add a note and/or mark it completed if required.
-                              If the pop-up not required, you can change this to display <b>no</b> link ("Category:Item" will be black) or
-                              link to anything desired by entering that url as an Action link.
-                              This does not affect the References Link <i class="fa fa-link"></i> created in the CR Summary.'); ?>'
+                              data-content='<?php echo xla('A Passive Alert is displayed in the CR widget with the values of "Category:Item". These words can be linked to a pop-up to add a note and/or mark it completed if required. If the pop-up not required, you can change this to display NO link ("Category:Item" will be black) or link to anything desired by entering that url as an Action link. In the CR Summary, this does not affect the References Link'); ?> <i class="fa fa-link"></i> .'
                               <img width="250px" src="<?php echo $GLOBAL['webroot'];?>/public/images/CR_widget.png">'>
                             <?php echo xlt('Passive Alerts'); ?></span>
                         <br />
                         <!-- custom rules input -->
                         <span class="" data-field="fld_custom_input">
                             <?php echo xlt('How do we know this was completed'); ?>:
-           
+
                             <select data-grp-tgt="" class="text-center" type="dropdown" id="fld_custom_input" name="fld_custom_input">
                                 <option id="Yes" value="yes" <?php echo $action->customRulesInput ? "SELECTED" : "" ?>><?php echo xlt('Link to a "Marked completed" pop-up'); ?></option>
                                 <option id="No" value="no" <?php echo !$action->customRulesInput ? "SELECTED" : "" ?>><?php echo xlt('Check DB field for "completed"'); ?></option>
@@ -134,7 +130,7 @@
                                 "class" => "margin-auto",
                                 "value" => $action->reminderLink)); ?>
                         </span>
-             
+
                     </td>
                 </tr>
                 <tr>
@@ -158,11 +154,11 @@
                                       id="fld_message"><?php echo text($action->reminderMessage); ?></textarea>
                     </td>
                 </tr>
-               
+
             </table>
         </form>
     </div>
-    
+
     <div id="required_msg" class="small hidden">
         <!-- <span class="required">*</span><?php echo xlt('Required fields'); ?>  -->
     </div>
@@ -170,16 +166,16 @@
     $(function() {
         $("#change_category_action").trigger('click');
         $("#change_item_action").trigger('click');
-        $("#edit_action_cancel").click(function () {
+        $("#edit_action_cancel").on("click", function () {
             $("#show_actions_edit_<?php echo attr($action->groupId); ?>").hide();
             $("#show_actions_<?php echo attr($action->groupId); ?>").show();
         });
-        $("[id^='submit_action_']").click(function() {
+        $("[id^='submit_action_']").on("click", function() {
             var group = this.id.match(/submit_action_(.*)/)[1];
             top.restoreSession();
             $("#frm_submit_action_"+group).submit();
         });
-        $("#fld_custom_input").change(function() {
+        $("#fld_custom_input").on("change", function() {
            var item = $("#fld_custom_input").val();
            if (item == 'yes') {
                $("#no_PopUp_needed").hide();
@@ -188,7 +184,7 @@
            }
         });
         $("#fld_custom_input").trigger('change');
-    
+
         $('[data-toggle="popover"]').popover();
     });
 </script>
