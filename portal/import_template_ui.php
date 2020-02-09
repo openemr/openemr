@@ -78,9 +78,8 @@ function getTemplateList($dir)
 <head>
     <meta charset="UTF-8">
     <title><?php echo xlt('Portal'); ?> | <?php echo xlt('Templates'); ?></title>
-    <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
     <meta name="description" content="Developed By sjpadgett@gmail.com">
-    <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'summernote', 'summernote-ext-nugget', 'patientportal-style']); ?>
+    <?php Header::setupHeader(['no_main-theme', 'no_bootstrap', 'bootstrap-js', 'datetime-picker', 'summernote', 'summernote-ext-nugget', 'patientportal-style']); ?>
 
 </head>
 <script>
@@ -165,7 +164,7 @@ function getTemplateList($dir)
 <body class="body-top">
     <div class='container'>
         <h3><?php echo xlt('Patient Document Template Maintenance'); ?></h3>
-        <hr>
+        <hr />
         <div class="jumbotron jumbotron-fluid p-1 text-center">
             <p>
                 <?php echo xlt('Select a text or html template and upload for selected patient or all portal patients.'); ?><br /><?php echo xlt('Files base name becomes a pending document selection in Portal Documents.'); ?><br />
@@ -260,5 +259,6 @@ function getTemplateList($dir)
                 </div>
             </div>
         </div>
+    </div>
 </body>
 </html>

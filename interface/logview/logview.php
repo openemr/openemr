@@ -36,7 +36,9 @@ if (!empty($_GET)) {
     <?php Header::setupHeader(['datetime-picker']); ?>
 
     <style>
-        .sortby { cursor: pointer; }
+        .sortby {
+            cursor: pointer;
+        }
     </style>
 
     <script>
@@ -109,32 +111,31 @@ $sortby = isset($_GET['sortby']) ? $_GET['sortby'] : '';
 $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
 ?>
 
-<div class="jumbotron jumbotron-fluid row">
-    <div class="col-lg">
+<div class="jumbotron jumbotron-fluid px-3 py-3">
     <h3 class="text-center"><?php echo xlt('Main Log'); ?></h3>
-    <form method="GET" name="theform" id="theform" class="form-horizontal">
+    <form method="get" name="theform" id="theform">
         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
         <input type="hidden" name="direction" id="direction" value="<?php echo !empty($direction) ? attr($direction) : 'asc'; ?>" />
         <input type="hidden" name="sortby" id="sortby" value="<?php echo attr($sortby); ?>" />
         <input type=hidden name="csum" value="" />
         <input type=hidden name="show" value="show" />
-        <div class="row form-group">
-            <label class="col-sm-1" for="start_date"><?php echo xlt('Start Date'); ?>:</label>
+        <div class="form-row">
+            <label class="col-sm-1 col-form-label" for="start_date"><?php echo xlt('Start Date'); ?>:</label>
             <div class="col-sm-3">
                 <input class="datetimepicker form-control" type="text" size="18" name="start_date" id="start_date" value="<?php echo attr(oeFormatDateTime($start_date, 0)); ?>" title="<?php echo xla('Start Date'); ?>" />
             </div>
-            <label class="col-sm-1" for="end_date"><?php echo xlt('End Date'); ?>:</label>
+            <label class="col-sm-1 col-form-label" for="end_date"><?php echo xlt('End Date'); ?>:</label>
             <div class="col-sm-3">
                 <input class="datetimepicker form-control" type="text" size="18" name="end_date" id="end_date" value="<?php echo attr(oeFormatDateTime($end_date, 0)); ?>" title="<?php echo xla('End Date'); ?>" />
             </div>
-            <label class="col-sm-1" for="end_date"><?php echo xlt('Patient'); ?>:</label>
+            <label class="col-sm-1 col-form-label" for="end_date"><?php echo xlt('Patient'); ?>:</label>
             <div class="col-sm-3">
-                <input type='text' size='20' class='form-control' name='form_patient' id='form_patient' style='cursor:pointer;cursor:hand' value='<?php echo $form_patient ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
+                <input type='text' size='20' class='form-control' name='form_patient' id='form_patient' style='cursor:pointer;' value='<?php echo $form_patient ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
                 <input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
             </div>
         </div>
-        <div class="row form-group">
-            <label class="col-sm-1" for="form_user"><?php echo xlt('User'); ?>:</label>
+        <div class="form-row">
+            <label class="col-sm-1 col-form-label" for="form_user"><?php echo xlt('User'); ?>:</label>
             <div class="col-sm-3">
                 <select name='form_user' id='form_user' class='form-control'>
                 <?php
@@ -203,7 +204,7 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
             $ename_list=array_merge($ename_list);
             $ecount=count($ename_list);
             ?>
-            <label class="col-sm-1" for="form_user"><?php echo xlt('Name of Events'); ?>:</label>
+            <label class="col-sm-1 col-form-label" for="form_user"><?php echo xlt('Name of Events'); ?>:</label>
             <div class="col-sm-3">
                 <select name='eventname' id='eventname' class='form-control' onchange='eventTypeChange(this.options[this.selectedIndex].value);'>
                 <?php
@@ -220,13 +221,13 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
                 ?>
                 </select>
             </div>
-            <label class="col-sm-1" for="type_event"><?php echo xlt('Type of Events'); ?>:</label>
+            <label class="col-sm-1 col-form-label" for="type_event"><?php echo xlt('Type of Events'); ?>:</label>
             <div class="col-sm-3">
                 <?php
                 $type_event = isset($_GET['type_event']) ? $_GET['type_event'] : '';
                 $event_types = array("select", "update", "insert", "delete", "replace");
                 $lcount = count($event_types);
-                if ($eventname=="disclosure") {
+                if ($eventname == "disclosure") {
                     echo "<select name='type_event' id='type_event' class='form-control' disabled='disabled'>\n";
                     echo " <option value=''>" . xlt('All') . "</option>\n";
                     echo "</option>\n";
@@ -262,12 +263,12 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
 
 <?php if (!(!empty($_GET['show']) && ($_GET['show'] = 'show') && $start_date && $end_date && ($err_message != 1))) { ?>
     <?php if (empty($_GET['show']) || ($_GET['show'] != 'show')) { ?>
-        <div class="row alert alert-info">
+        <div class="alert alert-info">
             <?php echo xlt("Click the Submit button to display the main log"); ?>
         </div>
     <?php } ?>
 <?php } else { ?>
-<div>
+<div class="table-responsive">
 <table class="table table-striped">
  <tr>
   <th id="sortby_date" class="sortby" title="<?php echo xla('Sort by date/time'); ?>"><?php echo xlt('Date'); ?></th>
@@ -285,7 +286,7 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
  </tr>
     <?php
     ?>
-<input type="hidden" name="event" value="<?php echo attr($eventname) . "-" . attr($type_event) ?>">
+<input type="hidden" name="event" value="<?php echo attr($eventname) . "-" . attr($type_event) ?>" />
     <?php
 
     $tevent="";
@@ -367,20 +368,20 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
                 $trans_comments = preg_replace($patterns, $replace, $iter["comments"]);
             }
             ?>
-       <TR>
-        <TD><?php echo text(oeFormatDateTime($iter["date"])); ?></TD>
-    <TD><?php echo text(preg_replace('/select$/', 'Query', $iter["event"])); //Convert select term to Query for MU2 requirements ?></TD>
-    <TD><?php echo text($iter["category"]); ?></TD>
-    <TD><?php echo text($iter["user"]); ?></TD>
-    <TD><?php echo text($iter["crt_user"]); ?></TD>
-    <TD><?php echo text($iter["groupname"]); ?></TD>
-    <TD><?php echo text($iter["patient_id"]); ?></TD>
-    <TD><?php echo text($iter["success"]); ?></TD>
-    <TD><?php echo nl2br(text(preg_replace('/^select/i', 'Query', $trans_comments))); //Convert select term to Query for MU2 requirements ?></TD>
+       <tr>
+        <td><?php echo text(oeFormatDateTime($iter["date"])); ?></td>
+    <td><?php echo text(preg_replace('/select$/', 'Query', $iter["event"])); //Convert select term to Query for MU2 requirements ?></td>
+    <td><?php echo text($iter["category"]); ?></td>
+    <td><?php echo text($iter["user"]); ?></td>
+    <td><?php echo text($iter["crt_user"]); ?></td>
+    <td><?php echo text($iter["groupname"]); ?></td>
+    <td><?php echo text($iter["patient_id"]); ?></td>
+    <td><?php echo text($iter["success"]); ?></td>
+    <td><?php echo nl2br(text(preg_replace('/^select/i', 'Query', $trans_comments))); //Convert select term to Query for MU2 requirements ?></td>
             <?php  if ($check_sum) { ?>
-  <TD><?php echo text($iter["checksum"]); ?></TD>
+  <td><?php echo text($iter["checksum"]); ?></td>
     <?php } ?>
-     </TR>
+     </tr>
 
             <?php
         }
@@ -392,20 +393,20 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
             foreach ($ret as $iter) {
                 $comments=xl('Recipient Name').":".$iter["recipient"].";".xl('Disclosure Info').":".$iter["description"];
                 ?>
-            <TR>
-              <TD><?php echo text(oeFormatDateTime($iter["date"])); ?></TD>
-          <TD><?php echo xlt($iter["event"]); ?></TD>
-          <TD><?php echo xlt($iter["category"]); ?></TD>
-          <TD><?php echo text($iter["user"]); ?></TD>
-          <TD><?php echo text($iter["crt_user"]); ?></TD>
-          <TD><?php echo text($iter["groupname"]); ?></TD>
-          <TD><?php echo text($iter["patient_id"]); ?></TD>
-          <TD><?php echo text($iter["success"]); ?></TD>
-          <TD><?php echo text($comments); ?></TD>
+            <tr>
+              <td><?php echo text(oeFormatDateTime($iter["date"])); ?></td>
+          <td><?php echo xlt($iter["event"]); ?></td>
+          <td><?php echo xlt($iter["category"]); ?></td>
+          <td><?php echo text($iter["user"]); ?></td>
+          <td><?php echo text($iter["crt_user"]); ?></td>
+          <td><?php echo text($iter["groupname"]); ?></td>
+          <td><?php echo text($iter["patient_id"]); ?></td>
+          <td><?php echo text($iter["success"]); ?></td>
+          <td><?php echo text($comments); ?></td>
                 <?php  if ($check_sum) { ?>
-                <TD><?php echo text($iter["checksum"]); ?></TD>
+                <td><?php echo text($iter["checksum"]); ?></td>
             <?php } ?>
-     </TR>
+     </tr>
                 <?php
             }
         }
@@ -415,8 +416,8 @@ $direction = isset($_GET['direction']) ? $_GET['direction'] : '';
 </div>
 
 <?php } ?>
-    </div>
-    <div class="col-lg-2">
+    
+    <div class="col-lg">
         <h3 class="text-center"><?php echo xlt('Other Logs'); ?></h3>
         <div class="btn-group">
             <a href='#' id='view-billing-log-link' class='btn btn-secondary' title='<?php echo xla('See messages from the last set of generated claims'); ?>'><?php echo xlt('Billing Log'); ?></a>

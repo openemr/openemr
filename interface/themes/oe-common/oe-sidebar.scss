@@ -25,8 +25,7 @@
 
 .body-topnav {
     overflow-x: hidden !important;
-    -webkit-font-smoothing: antialiased;
-    padding-top: 50px;
+    -webkit-font-smoothing: antialiased !important;
 }
 
 .body-topnav .nav-sidebar {
@@ -37,9 +36,13 @@
 
 /* if not a grid then main available */
 main {
-    margin-left: 250px;
     padding: 1rem 10px;
     width: 100%;
+}
+
+/* Adds more padding than Bootstrap can handle */
+.pt-6 {
+    padding-top: 4rem !important;
 }
 
 /*
@@ -82,12 +85,7 @@ main {
  */
 
 .nav-sidebar {
-    position: fixed;
     height: unset;
-    width: 250px;
-    top: 0;
-    bottom: 0;
-    left: 0;
     z-index: 1000;
     overflow-x: hidden;
     overflow-y: auto;
@@ -126,11 +124,19 @@ main {
     -o-transition: all .5s ease;
 }
 
-.sidebar-header {
-    padding: 0 1rem;
+
+@media (min-width: 768px) {
+    .sidebar-header {
+        padding: 0 1rem;
+    }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
+    /* TODO: Fix Signer model conflict where 15px padding is added for no reason */
+    html {
+        padding-right: 0 !important;
+    }
+    
     #nav-topbar .brand-container,
     .nav-sidebar {
         width: 30px;
@@ -142,17 +148,14 @@ main {
 
     #nav-topbar .brand-container.active,
     .nav-sidebar.active {
-        width: 250px;
-        min-width: 30px;
-        max-width: 250px;
+        padding-top: 60px !important;
+        width: 100% !important;
+        border-bottom: 1px solid $gray-200;
+        border-right: 0 !important;
     }
 
     .nav-sidebar.active .sidebar-content {
         display: block !important;
-    }
-
-    main {
-        margin-left: 30px;
     }
 
     .main-full {

@@ -29,6 +29,10 @@ assets:
         rtl:
             basePath: '%assets_static_relative%/bootstrap-v4-rtl/dist/'
             link: css/bootstrap-rtl.min.css
+    # Used if we aren't using the theme or Bootstrap
+    bootstrap-js:
+        basePath: '%assets_static_relative%/bootstrap/dist/'
+        script: js/bootstrap.bundle.min.js
     # keep utility and javaScript translations near top of load order.
     i18next:
         basePath: '%assets_static_relative%/i18next/dist/umd/'
@@ -61,6 +65,9 @@ assets:
     patientportal-style:
         basePath: '%webroot%/public/themes/'
         link: patientportal-style.css
+        rtl:
+            basePath: '%webroot%/public/themes/'
+            link: rtl_patientportal-style.css
     knockout:
         basePath: '%assets_static_relative%/knockout/build/output/'
         script: knockout-latest.js

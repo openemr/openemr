@@ -57,11 +57,11 @@ $vars
                     </div>
                     <div class='signature-pad-footer text-dark'>
                         <div class='description'>$msg4</div>
-                        <div class='button-group signature-pad-actions bg-light'>
+                        <div class='btn-group signature-pad-actions bg-light'>
                                 <button type='button' class='btn btn-secondary btn-sm clear' data-action='clear'>$msg5</button>
                                 <button type='button' class='btn btn-secondary btn-sm' data-action='place' data-type='patient-signature' id='signatureModal'>$msg1</button>
-                                <button type='button' class='btn btn-secondary btn-sm send' data-action='send_signature' style='display:none'>$msg6</button>
-                                <button type='button' class='btn btn-secondary btn-sm text-danger' data-dismiss='modal'><span>$msg2</span></button>
+                                <button type='button' class='btn btn-secondary btn-sm send' data-action='send_signature' style='display: none'>$msg6</button>
+                                <button type='button' class='btn btn-danger btn-sm' data-dismiss='modal'>$msg2</button>
                                 <button type='button' class='btn btn-success btn-sm save' data-action='save_signature'>$msg6</button>
                                 <span><h6 id='labelName'></h6></span>
                             <input type='hidden' id='name' /><input type='hidden' id='user' value='$cuser' /><input type='hidden' id='pid' value='$cpid' />

@@ -826,7 +826,7 @@ function generate_form_field($frow, $currvalue)
             $avalue = explode('|', $currvalue);
             $lres = sqlStatement("SELECT * FROM list_options " .
             "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
-            echo "<table cellpadding='0' cellspacing='0' width='100%' title='".attr($description)."'>";
+            echo "<table class='w-100' cellpadding='0' cellspacing='0' title='".attr($description)."'>";
             $tdpct = (int) (100 / $cols);
             for ($count = 0; $lrow = sqlFetchArray($lres); ++$count) {
                 $option_id = $lrow['option_id'];
@@ -1042,7 +1042,7 @@ function generate_form_field($frow, $currvalue)
         );
         // show the add button if user has access to correct list
         $inputValue = htmlspecialchars(xl('Add'), ENT_QUOTES);
-        $outputAddButton = "<input type='button' id='addtolistid_" . $list_id_esc . "' fieldid='form_" .
+        $outputAddButton = "<input type='button' class='btn btn-primary btn-sm'  id='addtolistid_" . $list_id_esc . "' fieldid='form_" .
         $field_id_esc . "' class='addtolist' value='$inputValue' $disabled />";
         if (AclExtended::acoExist('lists', $list_id)) {
             // a specific aco exist for this list, so ensure access
@@ -1065,7 +1065,7 @@ function generate_form_field($frow, $currvalue)
         //
         $lres = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
-        echo "<table cellpadding='0' cellspacing='0' width='100%'>";
+        echo "<table class='w-100' cellpadding='0' cellspacing='0'>";
         $tdpct = (int) (100 / $cols);
         $got_selected = false;
         for ($count = 0; $lrow = sqlFetchArray($lres); ++$count) {
@@ -1264,7 +1264,7 @@ function generate_form_field($frow, $currvalue)
         echo " $disabled />" . xlt('N/A') . "&nbsp;</td>";
         //
         //Added on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
-        echo "<td class='text' ><div id='smoke_code'></div></td>";
+        echo "<td class='text'><div id='smoke_code'></div></td>";
         echo "</tr>";
         echo "</table>";
     } elseif ($data_type == 31) { // static text.  read-only, of course.
@@ -1275,9 +1275,9 @@ function generate_form_field($frow, $currvalue)
         // $data_type == 33
 
         $arr = explode("|*|*|*|", $currvalue);
-        echo "<a href='../../../library/custom_template/custom_template.php?type=form_{$field_id}&contextName=".htmlspecialchars($list_id_esc, ENT_QUOTES)."' class='iframe_medium' style='text-decoration: none; color: var(--black);'>";
+        echo "<a href='../../../library/custom_template/custom_template.php?type=form_{$field_id}&contextName=".htmlspecialchars($list_id_esc, ENT_QUOTES)."' class='iframe_medium text-body text-decoration-none'>";
         echo "<div id='form_{$field_id}_div' class='text-area' style='min-width: 133px'>" . $arr[0] . "</div>";
-        echo "<div style='display:none'><textarea name='form_{$field_id}' id='form_{$field_id}' class='form-control$smallform' style='display:none' $lbfonchange $disabled>" . $currvalue . "</textarea></div>";
+        echo "<div style='display: none'><textarea name='form_{$field_id}' id='form_{$field_id}' class='form-control$smallform' style='display: none' $lbfonchange $disabled>" . $currvalue . "</textarea></div>";
         echo "</a>";
     } elseif ($data_type == 35) { //facilities drop-down list
         if (empty($currvalue)) {
@@ -1645,7 +1645,7 @@ function generate_print_field($frow, $currvalue)
             $avalue = explode('|', $currvalue);
             $lres = sqlStatement("SELECT * FROM list_options " .
             "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
-            echo "<table cellpadding='0' cellspacing='0' width='100%'>";
+            echo "<table class='w-100' cellpadding='0' cellspacing='0'>";
             $tdpct = (int) (100 / $cols);
             for ($count = 0; $lrow = sqlFetchArray($lres); ++$count) {
                 $option_id = $lrow['option_id'];
@@ -1804,7 +1804,7 @@ function generate_print_field($frow, $currvalue)
         $cols = max(1, $frow['fld_length']);
         $lres = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
-        echo "<table cellpadding='0' cellspacing='0' width='100%'>";
+        echo "<table class='w-100' cellpadding='0' cellspacing='0'>";
         $tdpct = (int) (100 / $cols);
         for ($count = 0; $lrow = sqlFetchArray($lres); ++$count) {
             $option_id = $lrow['option_id'];
@@ -1929,15 +1929,15 @@ function generate_print_field($frow, $currvalue)
     } elseif ($data_type == 31) { // static text.  read-only, of course.
         echo parse_static_text($frow);
     } elseif ($data_type == 34) {
-        echo "<a href='../../../library/custom_template/custom_template.php?type=form_{$field_id}&contextName=".htmlspecialchars($list_id_esc, ENT_QUOTES)."' class='iframe_medium' style='text-decoration: none; color: var(--black);'>";
+        echo "<a href='../../../library/custom_template/custom_template.php?type=form_{$field_id}&contextName=".htmlspecialchars($list_id_esc, ENT_QUOTES)."' class='iframe_medium text-body text-decoration-none'>";
         echo "<div id='form_{$field_id}_div' class='text-area'></div>";
-        echo "<div style='display:none'><textarea name='form_{$field_id}' class='form-control' id='form_{$field_id}' stye='display:none'></textarea></div>";
+        echo "<div style='display: none'><textarea name='form_{$field_id}' class='form-control' id='form_{$field_id}' stye='display: none'></textarea></div>";
         echo "</a>";
     } elseif ($data_type == 35) { //facilities drop-down list
         // In this special case, fld_length is the number of columns generated.
         $cols = max(1, $frow['fld_length']);
         $lres = sqlStatement("SELECT id, name FROM facility ORDER BY name");
-        echo "<table cellpadding='0' cellspacing='0' width='100%'>";
+        echo "<table class='w-100' cellpadding='0' cellspacing='0'>";
         $tdpct = (int) (100 / $cols);
         for ($count = 0; $lrow = sqlFetchArray($lres); ++$count) {
             $option_id = $lrow['id'];
@@ -2014,7 +2014,7 @@ function generate_print_field($frow, $currvalue)
         }
     } elseif ($data_type == 41 || $data_type == 42) {
         if ($currvalue) {
-            echo "<img style='height:70px;width:auto;' src='" . attr($currvalue) . "'>";
+            echo "<img class='w-auto' style='height: 70px;' src='" . attr($currvalue) . "'>";
         }
     }
 }
@@ -2380,7 +2380,7 @@ function generate_display_field($frow, $currvalue)
         }
 
         if (!empty($res)) {
-            $s .= "<td class='text' valign='top'><b>" . htmlspecialchars(xl('Status'), ENT_NOQUOTES) . "</b>:&nbsp;" . htmlspecialchars($res, ENT_NOQUOTES) . "&nbsp;</td>";
+            $s .= "<td class='text' valign='top'><strong>" . htmlspecialchars(xl('Status'), ENT_NOQUOTES) . "</strong>:&nbsp;" . htmlspecialchars($res, ENT_NOQUOTES) . "&nbsp;</td>";
         }
 
         if ($restype == "quit".$field_id) {
@@ -2425,7 +2425,7 @@ function generate_display_field($frow, $currvalue)
         }
     } elseif ($data_type == 41 || $data_type == 42) {
         if ($currvalue) {
-            $s .= "<img style='height:70px;width:auto;' src='" . attr($currvalue) . "'>";
+            $s .= "<img class='w-auto' style='height: 70px;' src='" . attr($currvalue) . "'>";
         }
     }
 
@@ -2648,15 +2648,15 @@ function generate_plaintext_field($frow, $currvalue)
         $resdate = count($tmp) > 2 ? oeFormatShortDate($tmp[2]) : '';
         $reslist = count($tmp) > 3 ? $tmp[3] : '';
         $res = "";
-        if ($restype == "current"       . $field_id) {
+        if ($restype == "current" . $field_id) {
             $res = xl('Current');
         }
 
-        if ($restype == "quit"          . $field_id) {
+        if ($restype == "quit" . $field_id) {
             $res = xl('Quit');
         }
 
-        if ($restype == "never"         . $field_id) {
+        if ($restype == "never" . $field_id) {
             $res = xl('Never');
         }
 
@@ -3088,7 +3088,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
         ?>
 
         <div class="tab <?php echo $first ? 'current' : '' ?>">
-            <table border='0' cellpadding='0'>
+            <table class='border-0' cellpadding='0'>
 
             <?php
             while ($group_fields = sqlFetchArray($group_fields_query)) {
@@ -3148,7 +3148,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                     disp_end_row();
                     if ($subtitle) {
                         // Group subtitle exists and is not displayed yet.
-                        echo "<tr><td class='label' style='background-color: #dddddd; padding: 4px' colspan='$CPR'>" . text($subtitle) . "</td></tr>\n";
+                        echo "<tr><td class='label' style='background-color: var(--gray300); padding: 4px' colspan='$CPR'>" . text($subtitle) . "</td></tr>\n";
                         echo "<tr><td class='label' style='height: 5px' colspan='$CPR'></td></tr>\n";
                         $subtitle = '';
                     }
@@ -3198,13 +3198,13 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                     echo "<td class='text data' colspan='$datacols_esc' id='" . attr($field_id) . "'  data-value='" . attr($currvalue) . "'";
                     if (!$skip_this_field && $data_type == 3) {
                         // Textarea gets a light grey border.
-                        echo " style='border:1px solid #cccccc'";
+                        echo " style='border: 1px solid var(--gray400)'";
                     }
                     echo ">";
                     $cell_count += $datacols;
                 } else {
                     $field_id = 'text_'.$group_fields['field_id'];
-                    echo "<span id='".attr($field_id)."' style='display:none'>" . text($currvalue) . "</span>";
+                    echo "<span id='".attr($field_id)."' style='display: none'>" . text($currvalue) . "</span>";
                 }
 
                 ++$item_count;
@@ -3258,7 +3258,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
         ?>
 
         <div class="tab <?php echo $first ? 'current' : '' ?>" id="tab_<?php echo str_replace(' ', '_', $group_name_esc)?>" >
-            <table border='0' cellpadding='0'>
+            <table class='border-0' cellpadding='0'>
 
             <?php
             while ($group_fields = sqlFetchArray($group_fields_query)) {
@@ -3313,7 +3313,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                     disp_end_row();
                     if ($subtitle) {
                         // Group subtitle exists and is not displayed yet.
-                        echo "<tr><td class='label' style='background-color:#dddddd;padding: 4px' colspan='$CPR'>" . text($subtitle) . "</td></tr>\n";
+                        echo "<tr><td class='label' style='background-color: var(--gray300); padding: 4px' colspan='$CPR'>" . text($subtitle) . "</td></tr>\n";
                         echo "<tr><td class='label' style='height: 5px' colspan='$CPR'></td></tr>\n";
                         $subtitle = '';
                     }
@@ -3737,14 +3737,14 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
 
     if ($forceExpandAlways) {
         // Special case to force the widget to always be expanded
-        echo "<td><span class='text'><b>" . text($title) . "</b></span>";
-        $indicatorTag ="style='display:none'";
+        echo "<td><span class='text font-weight-bold'>" . text($title) . "</span>";
+        $indicatorTag ="style='display: none'";
     }
 
     $indicatorTag = isset($indicatorTag) ?  $indicatorTag : "";
     echo "<td><a " . $indicatorTag . " href='javascript:;' class='small' onclick='toggleIndicator(this," .
-        attr_js($label."_ps_expand") . ")'><span class='text'><b>";
-    echo text($title) . "</b></span>";
+        attr_js($label."_ps_expand") . ")'><span class='text font-weight-bold'>";
+    echo text($title) . "</span>";
 
     if (isset($_SESSION['patient_portal_onsite_two'])) {
         // collapse all entries in the patient portal
@@ -3764,11 +3764,11 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
         $styling = "";
     } elseif (isset($_SESSION['patient_portal_onsite_two'])) {
         // collapse all entries in the patient portal
-        $styling = "style='display:none'";
+        $styling = "style='display: none'";
     } elseif (getUserSetting($label."_ps_expand")) {
         $styling = "";
     } else {
-        $styling = "style='display:none'";
+        $styling = "style='display: none'";
     }
 
     if ($bodyClass) {

@@ -59,7 +59,6 @@ if ($is_dashboard) {
 }
 ?>
 </title>
-<meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 <meta name="description" content="Developed By sjpadgett@gmail.com">
 <?php
 // some necessary js globals
@@ -71,21 +70,33 @@ echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_esc
 echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": " . attr($catname) . "';</script>";
 echo "<script>var msgSuccess='" . xlt("Save Successful") . "';</script>";
 echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
-Header::setupHeader(['no_main-theme', 'jquery-ui', 'jquery-ui-sunny', 'patientportal-style']);
+Header::setupHeader(['no_main-theme', 'no_bootstrap', 'jquery-ui', 'jquery-ui-sunny', 'patientportal-style']);
 ?>
-
 <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" type="text/css" />
 <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $GLOBALS['v_js_includes']; ?>" type="text/javascript"></script>
 <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $GLOBALS['v_js_includes']; ?>" type="text/javascript"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
 <script type="text/javascript">
-$LAB.setGlobalDefaults({BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"});
-$LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore/underscore-min.js").script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment/moment.js").script("<?php echo $GLOBALS['assets_static_relative']; ?>/backbone/backbone-min.js").script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait().script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
+    $LAB.setGlobalDefaults({
+        BasePath: "<?php $this->eprint($this->ROOT_URL); ?>"
+    });
+    $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore/underscore-min.js").script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment/moment.js").script("<?php echo $GLOBALS['assets_static_relative']; ?>/backbone/backbone-min.js").script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait().script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
 </script>
+<style>
+    @media print {
+        #templatecontent {
+            width: 1220px;
+        }
+    }
+    .nav-pills-ovr > li > a {
+        border: 1px solid !important;
+        border-radius: .25rem !important;
+    }
+</style>
 </head>
 
-<body class="body-topnav pt-5">
-<script type="text/javascript">
+<body class="body-topnav">
+<script>
 $LAB.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsitedocuments.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait().script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsiteportalactivities.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(
     function () {
         $(function () {
@@ -217,14 +228,7 @@ function restoreDocumentEdits() {
     restoreTextInputs();
 }
 </script>
-<style>
-@media print {
-    #templatecontent {
-        width: 1220px;
-    }
-}
-</style>
-<nav class="nav navbar-light bg-light fixed-top">
+<nav class="nav navbar-light bg-light fixed-top mb-2">
     <div class="container-fluid">
         <div class="sidebar-expand d-md-none">
             <button type="button" class="text-dark">
@@ -237,14 +241,13 @@ function restoreDocumentEdits() {
 <script type="text/template" id="onsiteDocumentModelTemplate">
 <div class="container-fluid">
 <div class="row">
-    <nav class="nav-sidebar bg-light">
-        <div class="sidebar-header mx-5">
-            <h6><?php echo xlt('Actions') ?></h6>
+    <nav class="col-md-2 nav-sidebar bg-light">
+        <div class="sidebar-header mt-md-3">
+            <h6 class="text-center"><?php echo xlt('Actions') ?></h6>
         </div>
         <div class="sidebar-content d-none d-md-block">
             <ul class="nav nav-pills flex-column">
-                <li class="nav-item"><a class="nav-link text-primary" id="signTemplate" href="#openSignModal"
-                    data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Signature'); ?></a></li>
+                <li class="nav-item"><a class="nav-link text-primary" id="signTemplate" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Signature'); ?></a></li>
                 <li class="nav-item"><a class="nav-link text-primary" id="saveTemplate" href="#"><?php echo xlt('Save'); ?></a></li>
                 <li class="nav-item"><a class="nav-link text-primary" id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><?php echo xlt('Print'); ?></a></li>
                 <li class="nav-item"><a class="nav-link text-primary" id="submitTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
@@ -256,14 +259,14 @@ function restoreDocumentEdits() {
                         <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Home'); ?></a>
                     </li>
                 <?php } else { ?>
-                    <li class="">
+                    <li class="nav-item">
                         <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt(' Return'); ?></a>
                     </li>
                 <?php } ?>
             </ul>
         </div>
     </nav>
-     <main class="main-full">
+     <main class="col-md pt-md-5 main-full">
         <section class="row">
             <div class="col">
                 <div class="card" id="docpanel">
@@ -272,17 +275,17 @@ function restoreDocumentEdits() {
                         <div id="templatediv" class="card-body bg-white mr-auto">
                             <div id="templatecontent" class="template-body bg-white mr-auto"></div>
                         </div>
-                        <input type="hidden" name="content" id="content" value="">
-                        <input type="hidden" name="cpid" id="cpid" value="">
-                        <input type="hidden" name="docid" id="docid" value="">
-                        <input type="hidden" name="handler" id="handler" value="download">
-                        <input type="hidden" name="status" id="status" value="Open">
+                        <input type="hidden" name="content" id="content" value="" />
+                        <input type="hidden" name="cpid" id="cpid" value="" />
+                        <input type="hidden" name="docid" id="docid" value="" />
+                        <input type="hidden" name="handler" id="handler" value="download" />
+                        <input type="hidden" name="status" id="status" value="Open" />
                     </form>
                     <div class="card-footer">
                         <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
                             <fieldset>
                                 <div class="form-group">
-                                    <label class="control-label"></label>
+                                    <label class="col-form-label"></label>
                                     <div class="controls">
                                         <button id="deleteOnsiteDocumentButton" class="btn btn-sm btn-danger"><i class="icon-trash icon-white"></i><?php echo xlt('Delete Document'); ?></button>
                                         <span id="confirmDeleteOnsiteDocumentContainer">
@@ -303,20 +306,20 @@ function restoreDocumentEdits() {
 
 </script>
 <script type="text/template" id="onsiteDocumentCollectionTemplate">
-<div class="container-fluid">
+<div class="container-fluid pt-6">
     <nav class="navbar navbar-expand-md navbar-light bg-light border" id="topnav">
         <div class="navbar-header">
             <a class="navbar-brand text-primary" href="#"><i class="fa fa-file-text-o">&nbsp;</i><?php echo xla('Pending') ?></a>
         </div>
-        <ul class="navbar-nav mr-auto">
+        <ul class="nav nav-pills nav-pills-ovr mr-auto">
             <?php require_once(dirname(__FILE__) . '/../../lib/template_menu.php'); ?>
             <?php if (!$is_module) { ?>
-                <li class="nav-item px-1">
-                    <a class="btn btn-outline-danger" href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Home'); ?></a>
+                <li class="nav-item px-1 py-1 py-md-0">
+                    <a class="nav-link text-danger btn btn-outline-danger" href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Home'); ?></a>
                 </li>
             <?php } else { ?>
-                <li class="nav-item px-1">
-                    <a class="btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
+                <li class="nav-item px-1 py-1 py-md-0">
+                    <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
                 </li>
             <?php } ?>
         </ul>

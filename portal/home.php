@@ -68,8 +68,7 @@ foreach ($msgs as $i) {
     <?php
     echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($user) . ";var webRoot=" . js_escape($GLOBALS['web_root']) . ";var ptName=" . js_escape($_SESSION['ptName']) . ";var webroot_url = webRoot;</script>";
 
-    Header::setupHeader(['no_main-theme', 'datetime-picker', 'patientportal-style']);
-    ?>
+    Header::setupHeader(['no_main-theme', 'no_bootstrap', 'bootstrap-js', 'datetime-picker', 'patientportal-style']); ?>
 
     <script type="text/javascript" src="../interface/main/tabs/js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
     <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
@@ -90,7 +89,7 @@ foreach ($msgs as $i) {
     <?php } ?>
 
     <script type="text/javascript">
-        $(function () {
+        $(function() {
             $("#profilereport").load("get_profile.php", {}, function () {
                 $("table").addClass("table");
                 $(".demographics td").removeClass("label");
@@ -228,9 +227,9 @@ foreach ($msgs as $i) {
                 <!-- Sidebar toggle button-->
                 <ul class="nav navbar-nav flex-row">
                     <li class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" id="newmsgs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> <i class="fa fa-envelope"></i> <span class="badge badge-pill badge-success"><?php echo text($newcnt); ?></span></a>
-                        <div class="dropdown-menu" aria-labelledby="newmsgs">
-                            <h6 class="dropdown-header"><?php echo xlt('You have'); ?><?php echo text($newcnt); ?><?php echo xlt('new messages'); ?></h6>
+                        <a href="#" class="nav-link dropdown-toggle" id="newmsgs" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="true"> <i class="fa fa-envelope"></i> <span class="badge badge-pill badge-success"><?php echo text($newcnt); ?></span></a>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="newmsgs">
+                            <h6 class="dropdown-header"><?php echo xlt('You have '); ?><?php echo text($newcnt); ?><?php echo xlt(' new messages'); ?></h6>
                             <!-- inner menu: contains the actual data -->
                             <?php
                             foreach ($msgs as $i) {
@@ -245,8 +244,8 @@ foreach ($msgs as $i) {
                         </div>
                     </li>
                     <li class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" id="profiletab" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-user"></i> <span><?php echo text($result['fname'] . " " . $result['lname']); ?> <i class="caret"></i></span></a>
-                        <div class="dropdown-menu" aria-labelledby="profiletab">
+                        <a href="#" class="nav-link dropdown-toggle" id="profiletab" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-user"></i> <span><?php echo text($result['fname'] . " " . $result['lname']); ?> <i class="caret"></i></span></a>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="profiletab">
                             <div class="dropdown-header text-center"><?php echo xlt('Account'); ?></div>
                             <div><a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"> <i class="fa fa-envelope-o fa-fw"></i> <?php echo xlt('Messages'); ?>
                                     <span class="badge badge-pill badge-danger"><?php echo text($msgcnt); ?></span></a></div>

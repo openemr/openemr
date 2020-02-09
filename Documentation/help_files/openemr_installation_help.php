@@ -28,7 +28,7 @@
             }
         }
         .oe-text-green {
-            color: green;
+            color: var(--success);
         }
     </style>
     </head>

@@ -444,7 +444,15 @@ function getAuthPortalUsers()
                     $scope.compose.noteid = chain;
             }
             else{
-                $('#inputBody').summernote({focus: true, height: '225px'});
+                $('#inputBody').summernote({
+                    focus: true,
+                    height: '225px',
+                    popover: {
+                        image: [],
+                        link: [],
+                        air: []
+                    }
+                });
                 $('#modalCompose .modal-header .modal-title').html("Compose New Message");
                 $scope.compose.task = 'add';
                 $(e.currentTarget).find('select[id="selSendto"]').prop( "disabled", false );

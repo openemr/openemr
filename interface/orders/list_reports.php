@@ -6,8 +6,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2013-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -95,25 +97,24 @@ if ($_POST['form_xmit']) {
 <title><?php echo xlt('Procedure Orders and Reports'); ?></title>
 
 <style>
+    tr.head {
+        font-size: 13px;
+        background-color: var(--gray);
+        text-align: center;
+        color: var(--white);
+    }
 
-tr.head {
-    font-size: 13px;
-    background-color: var(--gray);
-    text-align: center;
-    color: var(--white);
-}
+    tr.subhead {
+        font-size: 13px;
+        background-color: var(--gray200);
+        text-align: center;
+    }
 
-tr.subhead {
-    font-size: 13px;
-    background-color: var(--gray200);
-    text-align: center;
-}
-
-tr.detail {
-    margin:0 0;
-    padding: 0 0;
-    font-size: 13px;
-}
+    tr.detail {
+        margin: 0;
+        padding: 0;
+        font-size: 13px;
+    }
 </style>
 <script>
 var dlgtitle = <?php echo xlj("Match Patient") ?>;
@@ -272,13 +273,15 @@ $(function () {
             echo "</p>\n";
         }
 
-        echo "<table  class='table table-sm' style='margin-bottom: 0;'>\n";
+        echo "<table  class='table table-sm mb-0'>\n";
+        echo "<thead>\n";
         echo " <tr class='head'>\n";
         echo "  <th>" . xlt('Delete') . "</th>\n";
         echo "  <th>" . xlt('Lab/File') . "</th>\n";
         echo "  <th>" . xlt('Message') . "</th>\n";
         echo "  <th>" . xlt('Match') . "</th>\n";
         echo " </tr>\n";
+        echo "</thead>\n";
         echo $s;
         echo "</table>\n";
         if ($matchreqs || $errors) {
@@ -310,20 +313,21 @@ $(function () {
 
     $form_provider = empty($_POST['form_provider']) ? '' : intval($_POST['form_provider']);
     ?>
-    <div class='w-100 form-inline'>
-        <label for="form_from_date"><?php echo xlt('From'); ?>:</label>
-        <input type='text' size='9' name='form_from_date' id='form_from_date' class='form-control datepicker' value='<?php echo attr($form_from_date); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>'/>
+    <div class="form-row">
+        <label class='col-sm col-form-label' for="form_from_date"><?php echo xlt('From'); ?>:</label>
+        <input type='text' size='9' name='form_from_date' id='form_from_date' class='col-sm form-control datepicker' value='<?php echo attr($form_from_date); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' placeholder='<?php echo xla('yyyy-mm-dd'); ?>' />
 
-        <label for="form_to_date"><?php echo xlt('To{{Range}}'); ?>:</label>
-        <input type='text' size='9' name='form_to_date' id='form_to_date' class='form-control datepicker' value='<?php echo attr($form_to_date); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>'/>
+        <label class='col-sm col-form-label' for="form_to_date"><?php echo xlt('To{{Range}}'); ?>:</label>
+        <input type='text' size='9' name='form_to_date' id='form_to_date' class='col-sm form-control datepicker' value='<?php echo attr($form_to_date); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' placeholder='<?php echo xla('yyyy-mm-dd'); ?>' />
 
-        <input class="form-control" type='checkbox' name='form_patient' id="ck_patient" value='1'
+        <div class="col-sm form-check form-check-inline mx-sm-1">
+        <input class="form-check-input" type='checkbox' name='form_patient' id="ck_patient" value='1'
             <?php if ($form_patient) {
                 echo 'checked ';
             } ?>/>
-        <label for="ck_patient"><?php echo xlt('Current Pt Only'); ?></label>
-
-        <select class="form-control form-control-sm" name='form_reviewed'>
+        <label class='form-check-label' for="ck_patient"><?php echo xlt('Current Pt Only'); ?></label>
+        </div>
+        <select class="col-sm form-control" name='form_reviewed'>
             <?php
             foreach (array(
                          '1' => xl('All'),
@@ -341,16 +345,20 @@ $(function () {
             }
             ?>
         </select>
-
+        <div class="col-sm">
         <?php
         generate_form_field(array('data_type' => 10, 'field_id' => 'provider',
             'empty_title' => '-- All Providers --'), $form_provider);
         ?>
-        &nbsp;
+        </div>
         <?php if (!$orphan_orders) { ?>
-            <input class='btn btn-primary' type='submit' name='form_refresh' value='<?php echo xla('Submit'); ?>' />
+            <div class="col-sm">
+                <input class='btn btn-primary' type='submit' name='form_refresh' value='<?php echo xla('Submit'); ?>' />
+            </div>
         <?php } else { ?>
-            <input class='btn btn-primary' type='submit' name='form_manual' value='<?php echo xla('Resolve Orphan Results'); ?>' />
+            <div class="col-sm">
+                <input class='btn btn-primary' type='submit' name='form_manual' value='<?php echo xla('Resolve Orphan Results'); ?>' />
+            </div>
         <?php } ?>
     </div>
     <table class="table table-bordered table-sm table-striped table-hover">
@@ -470,7 +478,7 @@ $(function () {
 // Generate patient columns.
             if ($lastptid != $patient_id) {
                 $lastpoid = -1;
-                echo "  <td onclick='openPatient(" . attr_js($patient_id) . ")' style='cursor:pointer;color:blue'>";
+                echo "  <td class='text-primary' onclick='openPatient(" . attr_js($patient_id) . ")' style='cursor: pointer;'>";
                 echo text($ptname);
                 echo "</td>\n";
                 echo "  <td>" . text($row['pubpid']) . "</td>\n";
@@ -507,7 +515,7 @@ $(function () {
                 echo text($order_id);
                 echo "</a></td>\n";
             } else {
-                echo "  <td colspan='2' style='background-color:transparent'>&nbsp;</td>";
+                echo "  <td colspan='2' style='background-color: transparent'>&nbsp;</td>";
             }
 
 // Generate procedure columns.
@@ -520,7 +528,7 @@ $(function () {
                     echo "  <td><strike>" . text($procedure_name) . "</strike></td>\n";
                 }
             } else {
-                echo "  <td colspan='2' style='background-color:transparent'>&nbsp;</td>";
+                echo "  <td colspan='2' style='background-color: transparent'>&nbsp;</td>";
             }
 
 // Generate report columns.
@@ -534,7 +542,7 @@ $(function () {
 
                 echo "</td>\n";
             } else {
-                echo "  <td colspan='2' style='background-color:transparent'>&nbsp;</td>";
+                echo "  <td colspan='2' style='background-color: transparent'>&nbsp;</td>";
             }
 
             echo " </tr>\n";
@@ -550,7 +558,7 @@ $(function () {
 
     <?php if ($num_checkboxes) { ?>
         <center><p>
-                <input type='submit' name='form_xmit' value='<?php echo xla('Transmit Selected Orders'); ?>'/>
+                <input type='submit' class='btn btn-primary' name='form_xmit' value='<?php echo xla('Transmit Selected Orders'); ?>' />
             </p></center>
     <?php } ?>
 

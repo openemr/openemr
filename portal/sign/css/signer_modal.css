@@ -12,6 +12,7 @@ html,
 body {
     touch-action: none;
 }
+
 /* override width to give user some space */
 @media (min-width: 576px) {
     .model-dialog {
@@ -100,7 +101,7 @@ body {
 
 .signature img {
     cursor: pointer;
-    color: red !important;
+    color: var(--danger) !important;
     user-drag: none;
     user-select: none;
     -moz-user-select: none;
@@ -114,7 +115,7 @@ body {
 }
 
 #openSignModal .modal-open {
-    padding-right: 0px;
+    padding-right: 0;
 }
 
 #openSignModal .modal-header .input-group {

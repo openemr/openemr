@@ -6,8 +6,10 @@
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -41,9 +43,6 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     define('IS_PORTAL', false);
     $_SERVER['REMOTE_ADDR'] = 'admin::' . $_SERVER['REMOTE_ADDR'];
 }
-
-
-use OpenEMR\Core\Header;
 
 define('C_USER', IS_PORTAL ?  IS_PORTAL : IS_DASHBOARD);
 
@@ -496,12 +495,16 @@ $msgApp = new Controller();
 <html ng-app="MsgApp">
 <head>
     <meta charset="utf-8" />
-    <?php Header::setupHeader(['no_main-theme', 'summernote', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model']); ?>
+    <?php
+        use OpenEMR\Core\Header;
+
+        Header::setupHeader(['no_main-theme', 'summernote', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model']);
+    ?>
     <title><?php echo xlt('Secure Patient Chat'); ?></title>
     <meta name="author" content="Jerry Padgett sjpadgett{{at}} gmail {{dot}} com" />
     
 </head>
-<script type="text/javascript">
+<script>
 (function() {
     var MsgApp = angular.module('MsgApp',['ngSanitize','summernote',"checklist-model"]);
     MsgApp.config(function( $compileProvider ) {
@@ -587,7 +590,12 @@ $msgApp = new Controller();
                 ['para', ['ul', 'ol', 'paragraph']],
                 ['insert', ['link','picture', 'video', 'hr']],
                 ['view', ['fullscreen', 'codeview']]
-            ]
+            ],
+            popover: {
+                image: [],
+                link: [],
+                air: []
+            }
         };
        $scope.checkAll = function() {
            $scope.pusers = [];
@@ -808,170 +816,199 @@ $msgApp = new Controller();
 })();
 </script>
 <style>
-.direct-chat-text {
-    border-radius:5px;
-    position: relative;
-    padding: 5px 10px;
-    background: #FBFBFB;
-    border: 1px solid var(--gray);
-    margin:5px 0 0 50px;
-    color: var(--dark);
-}
-.direct-chat-msg,.direct-chat-text {
-    display: block;
-    word-wrap: break-word;
-}
-.direct-chat-img {
-    border-radius: 50%;
-    float: left;
-    width: 40px;
-    height:40px;
-}
-.direct-chat-info {
-    display: block;
-    margin-bottom: 2px;
-    font-size: 12px;
-}
-.direct-chat-msg {
-    margin-bottom: 5px;
-}
-.direct-chat-messages,
-.direct-chat-contacts {
-    -webkit-transition: -webkit-transform .5s ease-in-out;
-    -moz-transition: -moz-transform .5s ease-in-out;
-    -o-transition: -o-transform .5s ease-in-out;
-    transition: transform .5s ease-in-out;
-}
-.direct-chat-messages {
-    -webkit-transform: translate(0,0);
-    -ms-transform: translate(0,0);
-    -o-transform: translate(0,0);
-    transform: translate(0,0);
-    padding: 5px;
-    height: calc(100vh - 175px);
-    overflow: auto;
-    word-wrap: break-word;
-}
-.direct-chat-text:before {
-    border-width: 6px;
-    margin-top: -6px;
-}
-.direct-chat-text:after {
-    border-width: 5px;
-    margin-top: -5px;
-}
-.direct-chat-text:after,
-.direct-chat-text:before {
-    position: absolute;
-    right: 100%;
-    top: 15px;
-    border: solid rgba(0, 0, 0, 0);
-    border-right-color: #D2D6DE;
-    content: ' ';
-    height: 0;
-    width: 0;
-    pointer-events: none;
-}
-.direct-chat-warning .right > .direct-chat-text {
-    background: rgba(251, 255, 178, 0.34);
-    border-color: var(--danger);
-    color: var(--black);
-}
-.right .direct-chat-text {
-    margin-right: 50px;
-    margin-left: 0;
-}
-.direct-chat-warning .right > .direct-chat-text:after,
-.direct-chat-warning .right > .direct-chat-text:before {
-    border-left-color: #F39C12;
-}
-.right .direct-chat-text:after,
-.right .direct-chat-text:before {
-    right: auto;
-    left: 100%;
-    border-right-color: rgba(0, 0, 0, 0);
-    border-left-color: #D2D6DE;
-}
-.right .direct-chat-img {
-    float: right;
-}
-.box-footer {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 3px;
-    border-bottom-left-radius: 3px;
-    border-top: 1px solid #F4F4F4;
-    padding: 10px 0;
-    background-color: var(--white);
-}
-.direct-chat-name {
-    font-weight: 600;
-}
-.box-footer form {
-    margin-bottom: 10px;
-}
-input,
-button,
-.alert,
-.modal-content {
-    border-radius: 0 !important;
-}
-.ml10 {
-    margin-left: 10px;
-}
-.ml5 {
-    margin-left: 5px;
-}
-.sidebar {
-    background-color: #f8f8ff;
-    height: 100%;
-    margin-top: 5px;
-    margin-right: 0;
-    padding-right: 5px;
-    height: calc(100vh - 100px);
-    overflow: auto;
-}
-.rtsidebar {
-    background-color: #f8f8ff;
-    height: 100%;
-    margin-top: 5px;
-    margin-right: 0;
-    height: calc(100vh - 100px);
-    overflow: auto;
-}
-.fixed-panel {
-   height: 100%;
-   padding: 5px 5px 0 5px;
-}
-h5 {
-    font-size: 16px !important;
-}
-label {
-    display: block;
-}
-legend {
-    font-size: 14px;
-    margin-bottom: 2px;
-    background: var(--white);
-}
-.modal.modal-wide .modal-dialog {
-    width: 75%;
-}
-.modal-wide .modal-body {
-    overflow-y: auto;
-}
+    .direct-chat-text {
+        border-radius: 5px;
+        position: relative;
+        padding: 5px 10px;
+        background: #FBFBFB;
+        border: 1px solid var(--gray);
+        margin: 5px 0 0 50px;
+        color: var(--dark);
+    }
+
+    .direct-chat-msg,
+    .direct-chat-text {
+        display: block;
+        word-wrap: break-word;
+    }
+
+    .direct-chat-img {
+        border-radius: 50%;
+        float: left;
+        width: 40px;
+        height: 40px;
+    }
+
+    .direct-chat-info {
+        display: block;
+        margin-bottom: 2px;
+        font-size: 12px;
+    }
+
+    .direct-chat-msg {
+        margin-bottom: 5px;
+    }
+
+    .direct-chat-messages,
+    .direct-chat-contacts {
+        -webkit-transition: -webkit-transform .5s ease-in-out;
+        -moz-transition: -moz-transform .5s ease-in-out;
+        -o-transition: -o-transform .5s ease-in-out;
+        transition: transform .5s ease-in-out;
+    }
+
+    .direct-chat-messages {
+        -webkit-transform: translate(0, 0);
+        -ms-transform: translate(0, 0);
+        -o-transform: translate(0, 0);
+        transform: translate(0, 0);
+        padding: 5px;
+        height: calc(100vh - 175px);
+        overflow: auto;
+        word-wrap: break-word;
+    }
+
+    .direct-chat-text:before {
+        border-width: 6px;
+        margin-top: -6px;
+    }
+
+    .direct-chat-text:after {
+        border-width: 5px;
+        margin-top: -5px;
+    }
+
+    .direct-chat-text:after,
+    .direct-chat-text:before {
+        position: absolute;
+        right: 100%;
+        top: 15px;
+        border: solid rgba(0, 0, 0, 0);
+        border-right-color: #D2D6DE;
+        content: ' ';
+        height: 0;
+        width: 0;
+        pointer-events: none;
+    }
+
+    .direct-chat-warning .right > .direct-chat-text {
+        background: rgba(251, 255, 178, 0.34);
+        border-color: var(--danger);
+        color: var(--black);
+    }
+
+    .right .direct-chat-text {
+        margin-right: 50px;
+        margin-left: 0;
+    }
+
+    .direct-chat-warning .right > .direct-chat-text:after,
+    .direct-chat-warning .right > .direct-chat-text:before {
+        border-left-color: #F39C12;
+    }
+
+    .right .direct-chat-text:after,
+    .right .direct-chat-text:before {
+        right: auto;
+        left: 100%;
+        border-right-color: rgba(0, 0, 0, 0);
+        border-left-color: #D2D6DE;
+    }
+
+    .right .direct-chat-img {
+        float: right;
+    }
+
+    .box-footer {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 3px;
+        border-bottom-left-radius: 3px;
+        border-top: 1px solid var(--light);
+        padding: 10px 0;
+        background-color: var(--white);
+    }
+
+    .direct-chat-name {
+        font-weight: 600;
+    }
+
+    .box-footer form {
+        margin-bottom: 10px;
+    }
+
+    input,
+    .btn,
+    .alert,
+    .modal-content {
+        border-radius: 0 !important;
+    }
+
+    .ml10 {
+        margin-left: 10px;
+    }
+
+    .ml5 {
+        margin-left: 5px;
+    }
+
+    .sidebar {
+        background-color: #f8f8ff;
+        height: 100%;
+        margin-top: 5px;
+        margin-right: 0;
+        padding-right: 5px;
+        height: calc(100vh - 100px);
+        overflow: auto;
+    }
+
+    .rtsidebar {
+        background-color: #f8f8ff;
+        height: 100%;
+        margin-top: 5px;
+        margin-right: 0;
+        height: calc(100vh - 100px);
+        overflow: auto;
+    }
+
+    .fixed-panel {
+        height: 100%;
+        padding: 5px 5px 0 5px;
+    }
+
+    h5 {
+        font-size: 16px !important;
+    }
+
+    label {
+        display: block;
+    }
+
+    legend {
+        font-size: 14px;
+        margin-bottom: 2px;
+        background: var(--white);
+    }
+
+    .modal.modal-wide .modal-dialog {
+        width: 75%;
+    }
+
+    .modal-wide .modal-body {
+        overflow-y: auto;
+    }
 </style>
 
 <body ng-controller="MsgAppCtrl">
-    <div class="container">
+    <div class="container-fluid">
         <!-- <h2 class="d-none">Secure Chat</h2> -->
         <div class="row">
             <div class="col-md-2 sidebar">
-                <h5><span class="label label-default"><?php echo xlt('Current Recipients'); ?></span></h5>
+                <h5><span class="badge badge-primary"><?php echo xlt('Current Recipients'); ?></span></h5>
                 <label ng-repeat="user in chatusers | unique : 'username'" ng-if="pusers.indexOf(user.recip_id) !== -1 && user.recip_id != me.sender_id">
                     <input type="checkbox" data-checklist-model="pusers" data-checklist-value="user.recip_id"> {{user.username}}
                 </label>
-                <h5><span class="label label-default"><?php echo xlt('Available Recipients'); ?></span></h5>
+                <h5><span class="badge badge-primary"><?php echo xlt('Available Recipients'); ?></span></h5>
                 <span>
                     <button id="chkall" class="btn btn-sm btn-success" ng-show="!isPortal" ng-click="checkAll()" type="button"><?php echo xlt('All{{Recipients}}'); ?></button>
                     <button id="chknone" class="btn btn-sm btn-success" ng-show="!isPortal" ng-click="uncheckAll()" type="button"><?php echo xlt('None{{Recipients}}'); ?></button>
@@ -996,29 +1033,19 @@ legend {
                                     <span class="direct-chat-name" ng-class="{'float-left':message.me,'float-right':!message.me}">{{message.username }}</span>
                                     <span class="direct-chat-timestamp " ng-class="{'float-left':!message.me,'float-right':message.me}">{{message.date }}</span>
                                 </div>
-                                <i class="direct-chat-img glyphicon glyphicon-hand-left"
-                                   style="cursor: pointer;font-size:24px" ng-show="!message.me"
-                                   ng-click="makeCurrent(message)"
-                                   title="<?php echo xla('Click to activate and send to this recipient.'); ?>"></i>
-                                <i class="direct-chat-img glyphicon glyphicon-hand-right"
-                                   style="cursor: pointer;font-size:24px" ng-show="message.me"
-                                   ng-click="makeCurrent(message)"
-                                   title="<?php echo xla('Click to activate and send to this recipient.'); ?>"></i>
+                                <i class="direct-chat-img fa fa-hand-o-left" style="cursor: pointer; font-size: 24px" ng-show="!message.me" ng-click="makeCurrent(message)" title="<?php echo xla('Click to activate and send to this recipient.'); ?>"></i>
+                                <i class="direct-chat-img fa fa-hand-o-right" style="cursor: pointer; font-size:24px" ng-show="message.me" ng-click="makeCurrent(message)" title="<?php echo xla('Click to activate and send to this recipient.'); ?>"></i>
 
                                 <div class="direct-chat-text right">
-                                    <div style="padding-left: 0px; padding-right: 0px;"
-                                         title="<?php echo xla('Click to activate and send to this recipient.'); ?>"
-                                         ng-click="makeCurrent(message)"
-                                         ng-bind-html=renderMessageBody(message.message)></div>
+                                    <div class='px-0' title="<?php echo xla('Click to activate and send to this recipient.'); ?>" ng-click="makeCurrent(message)" ng-bind-html="renderMessageBody(message.message)"></div>
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer box-footer-hide">
                             <form id='msgfrm' ng-submit="saveMessage()">
                                 <div class="input-group">
-                                    <input type="text" placeholder="<?php echo xla('Type Message...'); ?>" id="msgedit" autofocus="autofocus"
-                                           class="form-control" ng-model="me.message" ng-enter="saveMessage()">
-                                    <span class="input-group-btn">
+                                    <input type="text" placeholder="<?php echo xla('Type Message...'); ?>" id="msgedit" autofocus="autofocus" class="form-control" ng-model="me.message" ng-enter="saveMessage()">
+                                    <span class="input-group-append">
                                         <button type="submit" class="btn btn-danger btn-flat"><?php echo xlt('Send'); ?></button>
                                         <button type="button" class="btn btn-success btn-flat" ng-click="openModal(event)"><?php echo xlt('Edit'); ?></button>
                                     </span>
@@ -1029,14 +1056,15 @@ legend {
             </div>
         </div>
         <div class="col-md-2 rtsidebar">
-            <h5><span class="label label-default"><?php echo xlt('Whose Online'); ?> : {{ online.total || '0' }}</span>
+            <h5><span class="badge badge-primary"><?php echo xlt("Online Users"); ?> : {{ online.total || '0' }}</span>
             </h5>
             <label ng-repeat="ol in onlines | unique : 'username'">
                 <input type="checkbox" data-checklist-model="onlines" data-checklist-value="ol"> {{ol.username}}
             </label>
         </div>
     </div>
-
+    </div>
+    
     <div class="modal modal-wide fade" id="popeditor">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
