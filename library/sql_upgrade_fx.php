@@ -597,14 +597,14 @@ function convertLayoutProperties()
 *
 * @param  string  $filename  Sql upgrade/patch filename
 */
-function upgradeFromSqlFile($filename)
+function upgradeFromSqlFile($filename, $path = '')
 {
     global $webserver_root;
 
     flush();
     echo "<font color='green'>Processing $filename ...</font><br />\n";
 
-    $fullname = "$webserver_root/sql/$filename";
+    $fullname = ( (!empty($path) && is_dir($path)) ? $path : $webserver_root)."/sql/$filename";
 
     $fd = fopen($fullname, 'r');
     if ($fd == false) {
@@ -845,10 +845,10 @@ function upgradeFromSqlFile($filename)
             // convert all *text types to use default null setting
         } else if (preg_match('/^#IfTextNullFixNeeded/', $line)) {
             $items_to_convert = sqlStatement(
-                "SELECT col.`table_name`, col.`column_name`, col.`data_type`, col.`column_comment` 
-          FROM `information_schema`.`columns` col INNER JOIN `information_schema`.`tables` tab 
+                "SELECT col.`table_name`, col.`column_name`, col.`data_type`, col.`column_comment`
+          FROM `information_schema`.`columns` col INNER JOIN `information_schema`.`tables` tab
           ON tab.TABLE_CATALOG=col.TABLE_CATALOG AND tab.table_schema=col.table_schema AND tab.table_name=col.table_name
-          WHERE col.`data_type` IN ('tinytext', 'text', 'mediumtext', 'longtext') 
+          WHERE col.`data_type` IN ('tinytext', 'text', 'mediumtext', 'longtext')
           AND col.is_nullable='NO' AND col.table_schema=database() AND tab.table_type='BASE TABLE'"
             );
             if (sqlNumRows($items_to_convert) == 0) {

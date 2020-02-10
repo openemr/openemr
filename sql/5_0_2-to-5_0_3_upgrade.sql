@@ -390,3 +390,11 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #IfMissingColumn form_encounter parent_encounter_id
 ALTER TABLE `form_encounter` ADD `parent_encounter_id` BIGINT(20) NULL DEFAULT NULL;
 #EndIf
+
+#IfMissingColumn modules sql_version
+ALTER TABLE `modules` ADD `sql_version` VARCHAR(150) NOT NULL;
+#EndIf
+
+#IfMissingColumn modules acl_version
+ALTER TABLE `modules` ADD `acl_version` VARCHAR(150) NOT NULL;
+#EndIf

@@ -35,11 +35,6 @@ use Laminas\View\Model\ViewModel;
  */
 class HtmlTemplatesController extends PrescriptionTemplatesController
 {
-    public function __construct(ContainerInterface $container)
-    {
-             parent::__construct($container);
-    }
-
     public function defaultAction()
     {
         $id = $this->params()->fromQuery('id');
