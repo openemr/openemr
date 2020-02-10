@@ -7,13 +7,13 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
- * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace SMA_Common;
+namespace PatientPortal;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
@@ -44,6 +44,8 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $_SERVER['REMOTE_ADDR'] = 'admin::' . $_SERVER['REMOTE_ADDR'];
 }
 
+require_once(dirname(__FILE__) . "/../lib/src/ChatController.php");
+
 define('C_USER', IS_PORTAL ?  IS_PORTAL : IS_DASHBOARD);
 
 if (isset($_REQUEST['fullscreen'])) {
@@ -57,439 +59,8 @@ define('CHAT_HISTORY', '150');
 define('CHAT_ONLINE_RANGE', '1');
 define('ADMIN_USERNAME_PREFIX', 'adm_');
 
-abstract class Model
-{
-    public $db;
-
-    public function __construct()
-    {
-        //$this->db = new \mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME);
-    }
-}
-
-abstract class Controller
-{
-    private $_request, $_response, $_query, $_post, $_server, $_cookies, $_session;
-    protected $_currentAction, $_defaultModel;
-
-    const ACTION_POSTFIX = 'Action';
-    const ACTION_DEFAULT = 'indexAction';
-
-    public function __construct()
-    {
-        $this->_request  = &$_REQUEST;
-        $this->_query    = &$_GET;
-        $this->_post     = &$_POST;
-        $this->_server   = &$_SERVER;
-        $this->_cookies  = &$_COOKIE;
-        $this->_session  = &$_SESSION;
-        $this->init();
-    }
-
-    public function init()
-    {
-        $this->dispatchActions();
-        $this->render();
-    }
-
-    public function dispatchActions()
-    {
-        $action = $this->getQuery('action');
-        if ($action && $action .= self::ACTION_POSTFIX) {
-            if (method_exists($this, $action)) {
-                $this->setResponse(
-                    call_user_func(array($this, $action), array())
-                );
-            } else {
-                $this->setHeader("HTTP/1.0 404 Not Found");
-            }
-        } else {
-            $this->setResponse(
-                call_user_func(array($this, self::ACTION_DEFAULT), array())
-            );
-        }
-
-        return $this->_response;
-    }
-
-    public function render()
-    {
-        if ($this->_response) {
-            if (is_scalar($this->_response)) {
-                echo $this->_response;
-            } else {
-                throw new \Exception('Response content must be scalar');
-            }
-
-            exit;
-        }
-    }
-
-    public function indexAction()
-    {
-        return null;
-    }
-
-    public function setResponse($content)
-    {
-        $this->_response = $content;
-    }
-
-    public function setHeader($params)
-    {
-        if (! headers_sent()) {
-            if (is_scalar($params)) {
-                header($params);
-            } else {
-                foreach ($params as $key => $value) {
-                    header(sprintf('%s: %s', $key, $value));
-                }
-            }
-        }
-
-        return $this;
-    }
-
-    public function setModel($namespace)
-    {
-        $this->_defaultModel = $namespace;
-        return $this;
-    }
-
-    public function setSession($key, $value)
-    {
-        $_SESSION[$key] = $value;
-        return $this;
-    }
-
-    public function setCookie($key, $value, $seconds = 3600)
-    {
-        $this->_cookies[$key] = $value;
-        if (! headers_sent()) {
-            setcookie($key, $value, time() + $seconds);
-            return $this;
-        }
-    }
-
-    public function getRequest($param = null, $default = null)
-    {
-        if ($param) {
-            return isset($this->_request[$param]) ?
-                $this->_request[$param] : $default;
-        }
-
-        return $this->_request;
-    }
-
-    public function getQuery($param = null, $default = null)
-    {
-        if ($param) {
-            return isset($this->_query[$param]) ?
-                $this->_query[$param] : $default;
-        }
-
-        return $this->_query;
-    }
-
-    public function getPost($param = null, $default = null)
-    {
-        if ($param) {
-            return isset($this->_post[$param]) ?
-                $this->_post[$param] : $default;
-        }
-
-        return $this->_post;
-    }
-
-    public function getServer($param = null, $default = null)
-    {
-        if ($param) {
-            return isset($this->_server[$param]) ?
-                $this->_server[$param] : $default;
-        }
-
-        return $this->_server;
-    }
-
-    public function getSession($param = null, $default = null)
-    {
-        if ($param) {
-            return isset($this->_session[$param]) ?
-                $this->_session[$param] : $default;
-        }
-
-        return $this->_session;
-    }
-
-    public function getCookie($param = null, $default = null)
-    {
-        if ($param) {
-            return isset($this->_cookies[$param]) ?
-                $this->_cookies[$param] : $default;
-        }
-
-        return $this->_cookies;
-    }
-
-    public function getUser()
-    {
-        return $this->_session['ptName'] ? $this->_session['ptName'] : $this->_session['authUser'];
-    }
-    public function getIsPortal()
-    {
-        return IS_PORTAL;
-    }
-    public function getIsFullScreen()
-    {
-        return IS_FULLSCREEN;
-    }
-    public function getModel()
-    {
-        if ($this->_defaultModel && class_exists($this->_defaultModel)) {
-            return new $this->_defaultModel;
-        }
-    }
-
-    public function sanitize($string, $quotes = ENT_QUOTES, $charset = 'utf-8')
-    {
-        return htmlentities($string, $quotes, $charset);
-    }
-}
-
-abstract class Helper
-{
-}
-
-namespace SMA_Msg;
-
-// @codingStandardsIgnoreStart
-use SMA_Common;
-// @codingStandardsIgnoreEnd
-class Model extends SMA_Common\Model
-{
-    public function getAuthUsers()
-    {
-        $resultpd = array();
-        $result = array();
-        if (!IS_PORTAL) {
-            $query = "SELECT patient_data.pid as recip_id, Concat_Ws(' ', patient_data.fname, patient_data.lname) as username FROM patient_data " .
-                "LEFT JOIN patient_access_onsite pao ON pao.pid = patient_data.pid " .
-                "WHERE patient_data.pid = pao.pid AND pao.portal_pwd_status = 1";
-            $response = sqlStatementNoLog($query);
-            while ($row = sqlFetchArray($response)) {
-                $resultpd[] = $row;
-            }
-        }
-        if (IS_PORTAL) {
-            $query = "SELECT users.username as recip_id, users.authorized as dash, CONCAT(users.fname,' ',users.lname) as username  " .
-                "FROM users WHERE active = 1 AND username > ''";
-            $response = sqlStatementNoLog($query);
-
-            while ($row = sqlFetchArray($response)) {
-                $result[] = $row;
-            }
-        }
-        $all = array_merge($result, $resultpd);
-
-        return json_encode($all);
-    }
-    public function getMessages($limit = CHAT_HISTORY, $reverse = true)
-    {
-        $response = sqlStatementNoLog("(SELECT * FROM onsite_messages
-            ORDER BY `date` DESC LIMIT " . escape_limit($limit) . ") ORDER BY `date` ASC");
-
-        $result = array();
-        while ($row = sqlFetchArray($response)) {
-            if (IS_PORTAL || IS_DASHBOARD) {
-                $u = json_decode($row['recip_id'], true);
-                if (!is_array($u)) {
-                    continue;
-                }
-
-                if ((in_array(C_USER, $u)) || $row['sender_id'] == C_USER) {
-                     $result[] = $row; // only current patient messages
-                }
-            } else {
-                $result[] = $row; // admin gets all
-            }
-        }
-
-        return $result;
-    }
-
-    public function addMessage($username, $message, $ip, $senderid = 0, $recipid = '')
-    {
-        return sqlQueryNoLog("INSERT INTO onsite_messages VALUES (NULL, ?, ?, ?, NOW(), ?, ?)", array($username,$message,$ip,$senderid,$recipid));
-    }
-
-    public function removeMessages()
-    {
-        return sqlQueryNoLog("TRUNCATE TABLE onsite_messages");
-    }
-
-    public function removeOldMessages($limit = CHAT_HISTORY)
-    {
-    /* @todo Patched out to replace with soft delete. Besides this query won't work with current ado(or any) */
-        /* return sqlStatementNoLog("DELETE FROM onsite_messages
-            WHERE id NOT IN (SELECT id FROM onsite_messages
-                ORDER BY date DESC LIMIT {$limit})"); */
-    }
-
-    public function getOnline($count = true, $timeRange = CHAT_ONLINE_RANGE)
-    {
-        if ($count) {
-            $response = sqlStatementNoLog("SELECT count(*) as total FROM onsite_online");
-            return sqlFetchArray($response);
-        }
-
-        $response = sqlStatementNoLog("SELECT * FROM onsite_online");
-        $result = array();
-        while ($row = sqlFetchArray($response)) {
-            $result[] = $row;
-        }
-
-        return $result;
-    }
-
-    public function updateOnline($hash, $ip, $username = '', $userid = 0)
-    {
-        return sqlStatementNoLog("REPLACE INTO onsite_online
-            VALUES ( ?, ?, NOW(), ?, ? )", array($hash, $ip, $username, $userid)) or die(mysql_error());
-    }
-
-    public function clearOffline($timeRange = CHAT_ONLINE_RANGE)
-    {
-        return sqlStatementNoLog("DELETE FROM onsite_online
-            WHERE last_update <= (NOW() - INTERVAL " . escape_limit($timeRange) . " MINUTE)");
-    }
-
-    public function __destruct()
-    {
-    }
-}
-
-class Controller extends SMA_Common\Controller
-{
-    protected $_model;
-
-    public function __construct()
-    {
-        $this->setModel('SMA_Msg\Model');
-        parent::__construct();
-    }
-
-    public function indexAction()
-    {
-    }
-    public function authusersAction()
-    {
-        return $this->getModel()->getAuthUsers(true);
-    }
-    public function listAction()
-    {
-        $this->setHeader(array('Content-Type' => 'application/json'));
-        $messages = $this->getModel()->getMessages();
-        foreach ($messages as &$message) {
-            $message['me'] = C_USER === $message['sender_id']; // $this->getServer('REMOTE_ADDR') === $message['ip'];
-        }
-
-        return json_encode($messages);
-    }
-
-    public function saveAction()
-    {
-        $username = $this->getPost('username');
-        $message = $this->getPost('message');
-        $ip = $this->getServer('REMOTE_ADDR');
-        $this->setCookie('username', $username, 9999 * 9999);
-        $recipid = $this->getPost('recip_id');
-
-        if (IS_PORTAL) {
-            $senderid = IS_PORTAL;
-        } else {
-            $senderid = IS_DASHBOARD;
-        }
-
-        $result = array('success' => false);
-        if ($username && $message) {
-            $cleanUsername = preg_replace('/^'.ADMIN_USERNAME_PREFIX.'/', '', $username);
-            $result = array(
-                'success' => $this->getModel()->addMessage($cleanUsername, $message, $ip, $senderid, $recipid)
-            );
-        }
-
-        if ($this->_isAdmin($username)) {
-            $this->_parseAdminCommand($message);
-        }
-
-        $this->setHeader(array('Content-Type' => 'application/json'));
-        return json_encode($result);
-    }
-
-    private function _isAdmin($username)
-    {
-        return IS_DASHBOARD?true:false;
-        //return preg_match('/^'.ADMIN_USERNAME_PREFIX.'/', $username);
-    }
-
-    private function _parseAdminCommand($message)
-    {
-        if (strpos($message, '/clear') !== false) {
-            $this->getModel()->removeMessages();
-            return true;
-        }
-
-        if (strpos($message, '/online') !== false) {
-            $online = $this->getModel()->getOnline(false);
-            $ipArr = array();
-            foreach ($online as $item) {
-                $ipArr[] = $item->ip;
-            }
-
-            $message = 'Online: ' . implode(", ", $ipArr);
-            $this->getModel()->addMessage('Admin Command', $message, '0.0.0.0');
-            return true;
-        }
-    }
-
-    private function _getMyUniqueHash()
-    {
-        $unique  = $this->getServer('REMOTE_ADDR');
-        $unique .= $this->getServer('HTTP_USER_AGENT');
-        $unique .= $this->getServer('HTTP_ACCEPT_LANGUAGE');
-        $unique .= C_USER;
-        return md5($unique);
-    }
-
-    public function pingAction()
-    {
-        $ip = $this->getServer('REMOTE_ADDR');
-        $hash = $this->_getMyUniqueHash();
-        $user = $this->getRequest('username', 'No Username');
-        if ($user == 'currentol') {
-            $onlines = $this->getModel()->getOnline(false);
-            $this->setHeader(array('Content-Type' => 'application/json'));
-            return json_encode($onlines);
-        }
-
-        if (IS_PORTAL) {
-            $userid = IS_PORTAL;
-        } else {
-            $userid = IS_DASHBOARD;
-        }
-
-        $this->getModel()->updateOnline($hash, $ip, $user, $userid);
-        $this->getModel()->clearOffline();
-       // $this->getModel()->removeOldMessages(); // @todo For soft delete when I decide. DO NOT REMOVE
-
-        $onlines = $this->getModel()->getOnline();
-
-        $this->setHeader(array('Content-Type' => 'application/json'));
-        return json_encode($onlines);
-    }
-}
-
-$msgApp = new Controller();
+// Start application.
+$msgApp = new ChatController();
 ?>
 <!doctype html>
 <html ng-app="MsgApp">
@@ -774,8 +345,8 @@ $msgApp = new Controller();
 
         $scope.init = function() {
             $scope.listMessages();
-            $scope.pidMessages = window.setInterval($scope.listMessages, 6000);
-            $scope.pidPingServer = window.setInterval($scope.pingServer, 10000);
+            $scope.pidMessages = window.setInterval($scope.listMessages, 12000);
+            $scope.pidPingServer = window.setInterval($scope.pingServer, 20000);
             $scope.getAuthUsers();
             $("#popeditor").on("show.bs.modal", function() {
               var height = $(window).height() - 200;
@@ -1099,7 +670,7 @@ $msgApp = new Controller();
                         <h4 class="modal-title"><?php echo xlt('Chat history'); ?></h4>
                     </div>
                     <div class="modal-body">
-                        <label class="radio"><?php echo xlt('Are you sure to clear chat history?'); ?></label>
+                        <label class="radio"><?php echo xlt('Are you sure you want to clear chats session history?'); ?></label>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
