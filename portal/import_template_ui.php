@@ -79,7 +79,7 @@ function getTemplateList($dir)
     <meta charset="UTF-8">
     <title><?php echo xlt('Portal'); ?> | <?php echo xlt('Templates'); ?></title>
     <meta name="description" content="Developed By sjpadgett@gmail.com">
-    <?php Header::setupHeader(['no_main-theme', 'no_bootstrap', 'bootstrap-js', 'datetime-picker', 'summernote', 'summernote-ext-nugget', 'patientportal-style']); ?>
+    <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'summernote', 'summernote-ext-nugget', 'patientportal-style']); ?>
 
 </head>
 <script>

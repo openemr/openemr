@@ -20,7 +20,7 @@ use OpenEMR\Core\Header;
         <base href="<?php $this->eprint($this->ROOT_URL); ?>" />
         <meta name="description" content="Patient Portal" />
         <meta name="author" content="Form | sjpadgett@gmail.com" />
-        <?php Header::setupHeader(['no_main-theme', 'no_bootstrap', 'bootstrap-js', 'patientportal-style', 'opener', 'fontawesome', 'datetime-picker']); ?>
+        <?php Header::setupHeader(['no_main-theme', 'patientportal-style', 'opener', 'fontawesome', 'datetime-picker']); ?>
         <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
         <script type="text/javascript">
             $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js").wait()

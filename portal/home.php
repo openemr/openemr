@@ -68,7 +68,7 @@ foreach ($msgs as $i) {
     <?php
     echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($user) . ";var webRoot=" . js_escape($GLOBALS['web_root']) . ";var ptName=" . js_escape($_SESSION['ptName']) . ";var webroot_url = webRoot;</script>";
 
-    Header::setupHeader(['no_main-theme', 'no_bootstrap', 'bootstrap-js', 'datetime-picker', 'patientportal-style']); ?>
+    Header::setupHeader(['no_main-theme', 'datetime-picker', 'patientportal-style']); ?>
 
     <script type="text/javascript" src="../interface/main/tabs/js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
     <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />

@@ -572,7 +572,7 @@ if ($userid) {
 <html>
 <head>
     <title><?php echo $eid ? xlt("Edit Event") : xlt("Add New Event"); ?></title>
-    <?php Header::setupHeader(['no_main-theme', 'no_bootstrap', 'bootstrap-js', 'patientportal-style', 'opener']); ?>
+    <?php Header::setupHeader(['no_main-theme', 'patientportal-style', 'opener']); ?>
 </head>
 <script>
 var durations = Array();

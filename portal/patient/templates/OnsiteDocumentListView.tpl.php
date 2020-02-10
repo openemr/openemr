@@ -70,7 +70,7 @@ echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_esc
 echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": " . attr($catname) . "';</script>";
 echo "<script>var msgSuccess='" . xlt("Save Successful") . "';</script>";
 echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
-Header::setupHeader(['no_main-theme', 'no_bootstrap', 'jquery-ui', 'jquery-ui-sunny', 'patientportal-style']);
+Header::setupHeader(['no_main-theme', 'jquery-ui', 'jquery-ui-sunny', 'patientportal-style']);
 ?>
 <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" type="text/css" />
 <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $GLOBALS['v_js_includes']; ?>" type="text/javascript"></script>
