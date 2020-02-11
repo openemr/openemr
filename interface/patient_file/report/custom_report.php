@@ -9,6 +9,7 @@
  * @author    Tony McCormick <tony@mi-squared.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -36,6 +37,9 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
+
+$staged_docs = array();
+$archive_name = '';
 
 // For those who care that this is the patient report.
 $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
@@ -133,6 +137,44 @@ function postToGet($arin)
 
     return $getstring;
 }
+
+function report_basename($pid)
+{
+    $ptd = getPatientData($pid, "fname,lname");
+    // escape names for pesky periods hyphen etc.
+    $esc = $ptd['fname'] . '_' . $ptd['lname'];
+    $esc = str_replace(array('.', ',', ' '), '', $esc);
+    $fn = basename_international(strtolower($esc . '_' . $pid . '_' . xl('report')));
+
+    return array('base'=>$fn, 'fname'=>$ptd['fname'], 'lname'=>$ptd['lname']);
+}
+
+function zip_content($source, $destination, $content = '', $create = true)
+{
+    if (!extension_loaded('zip')) {
+        return false;
+    }
+
+    $zip = new ZipArchive();
+    if ($create) {
+        if (!$zip->open($destination, ZipArchive::CREATE)) {
+            return false;
+        }
+    } else {
+        if (!$zip->open($destination, ZipArchive::OVERWRITE)) {
+            return false;
+        }
+    }
+
+    if (is_file($source) === true) {
+        $zip->addFromString(basename($source), file_get_contents($source));
+    } elseif (!empty($content)) {
+        $zip->addFromString(basename($source), $content);
+    }
+
+    return $zip->close();
+}
+
 ?>
 
 <?php if ($PDF_OUTPUT) { ?>
@@ -624,27 +666,43 @@ foreach ($ar as $key => $val) {
                         echo "</div></div>\n"; // HTML to PDF conversion will fail if there are open tags.
                         $content = getContent();
                         $pdf->writeHTML($content); // catch up with buffer.
-                        $pg_header = "<span>" . xlt('Document') . " " . text($fname) ."</span>";
-                        $tempDocC = new C_Document;
-                        $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
-                        // tmp file in temporary_files_dir
-                        $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
-                        file_put_contents($from_file_tmp_name, $pdfTemp);
-                        $pagecount = $pdf->setSourceFile($from_file_tmp_name);
-                        for ($i = 0; $i < $pagecount; ++$i) {
-                            $pdf->AddPage();
-                            $itpl = $pdf->importPage($i+1);
-                            $pdf->useTemplate($itpl);
+                        $err = '';
+                        try {
+                            // below header isn't being used. missed maybe!
+                            $pg_header = "<span>" . xlt('Document') . " " . text($fname) ."</span>";
+                            $tempDocC = new C_Document;
+                            $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
+                            // tmp file in temporary_files_dir
+                            $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
+                            file_put_contents($from_file_tmp_name, $pdfTemp);
+
+                            $pagecount = $pdf->setSourceFile($from_file_tmp_name);
+                            for ($i = 0; $i < $pagecount; ++$i) {
+                                $pdf->AddPage();
+                                $itpl = $pdf->importPage($i + 1);
+                                $pdf->useTemplate($itpl);
+                            }
+                        } catch (Exception $e) {
+                            // chances are PDF is > v1.4 and compression level not supported.
+                            // regardless, we're here so lets dispose in different way.
+                            //
+                            unlink($from_file_tmp_name);
+                            $archive_name = ($GLOBALS['temporary_files_dir'] . '/' . report_basename($pid)['base'] . ".zip");
+                            $rtn = zip_content(basename($d->url), $archive_name, $pdfTemp);
+                            $err = "<span>" . xlt('PDF Document Parse Error and not included. Check if included in archive.') . " : " . text($fname) ."</span>";
+                            $pdf->writeHTML($err);
+                            $staged_docs[] = array('path'=>$d->url, 'fname'=>$fname);
+                        } finally {
+                            unlink($from_file_tmp_name);
+                            // Make sure whatever follows is on a new page. Maybe!
+                            // okay if not a series of pdfs so if so need @todo
+                            if (empty($err)) {
+                                $pdf->AddPage();
+                            }
+                            // Resume output buffering and the above-closed tags.
+                            ob_start();
+                            echo "<div><div class='text documents'>\n";
                         }
-                        unlink($from_file_tmp_name);
-
-                        // Make sure whatever follows is on a new page.
-                        $pdf->AddPage();
-
-                        // Resume output buffering and the above-closed tags.
-                        ob_start();
-
-                        echo "<div><div class='text documents'>\n";
                     } elseif ($extension == ".txt") {
                         echo "<pre>";
                         $tempDocC = new C_Document;
@@ -819,11 +877,8 @@ if ($printable && ! $PDF_OUTPUT) {// Patched out of pdf 04/20/2017 sjpadgett
 <?php
 if ($PDF_OUTPUT) {
     $content = getContent();
-    $ptd = getPatientData($pid, "fname,lname");
-    // escape names for pesky periods hyphen etc.
-    $esc = $ptd['fname'] . '_' . $ptd['lname'];
-    $esc = str_replace(array('.', ',', ' '), '', $esc);
-    $fn = basename_international(strtolower($esc . '_' . $pid . '_' . xl('report') . '.pdf'));
+    $ptd = report_basename($pid);
+    $fn = $ptd['base'] . ".pdf";
     $pdf->SetTitle(ucfirst($ptd['fname']) . ' ' . $ptd['lname'] . ' ' . xl('Id') . ':' . $pid . ' ' . xl('Report'));
     $isit_utf8 = preg_match('//u', $content); // quick check for invalid encoding
     if (! $isit_utf8) {
@@ -850,7 +905,24 @@ if ($PDF_OUTPUT) {
                 echo $tmp_file;
                 exit();
             } else {
-                $pdf->Output($fn, $GLOBALS['pdf_output']); // D = Download, I = Inline
+                if (!empty($archive_name) && sizeof($staged_docs) > 0) {
+                    $rtn = zip_content(basename($fn), $archive_name, $pdf->Output($fn, 'S'));
+                    header('Content-Description: File Transfer');
+                    header('Content-Transfer-Encoding: binary');
+                    header('Expires: 0');
+                    header("Cache-control: private");
+                    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+                    header("Content-Type: application/zip; charset=utf-8");
+                    header("Content-Length: " . filesize($archive_name));
+                    header('Content-Disposition: attachment; filename="'. basename($archive_name) .'"');
+
+                    ob_end_clean();
+                    @readfile($archive_name) or error_log("Archive temp file not found: " . $archive_name);
+
+                    unlink($archive_name);
+                } else {
+                    $pdf->Output($fn, $GLOBALS['pdf_output']); // D = Download, I = Inline
+                }
             }
         } catch (MpdfException $exception) {
             die(text($exception));

@@ -53,6 +53,9 @@ require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 use ESign\Api;
 use Mpdf\Mpdf;
 
+$staged_docs = array();
+$archive_name = '';
+
 // For those who care that this is the patient report.
 $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
 
@@ -145,6 +148,43 @@ function postToGet($arin)
     }
 
     return $getstring;
+}
+
+function report_basename($pid)
+{
+    $ptd = getPatientData($pid, "fname,lname");
+    // escape names for pesky periods hyphen etc.
+    $esc = $ptd['fname'] . '_' . $ptd['lname'];
+    $esc = str_replace(array('.', ',', ' '), '', $esc);
+    $fn = basename_international(strtolower($esc . '_' . $pid . '_' . xl('report')));
+
+    return array('base'=>$fn, 'fname'=>$ptd['fname'], 'lname'=>$ptd['lname']);
+}
+
+function zip_content($source, $destination, $content = '', $create = true)
+{
+    if (!extension_loaded('zip')) {
+        return false;
+    }
+
+    $zip = new ZipArchive();
+    if ($create) {
+        if (!$zip->open($destination, ZipArchive::CREATE)) {
+            return false;
+        }
+    } else {
+        if (!$zip->open($destination, ZipArchive::OVERWRITE)) {
+            return false;
+        }
+    }
+
+    if (is_file($source) === true) {
+        $zip->addFromString(basename($source), file_get_contents($source));
+    } elseif (!empty($content)) {
+        $zip->addFromString(basename($source), $content);
+    }
+
+    return $zip->close();
 }
 ?>
 
@@ -869,26 +909,41 @@ foreach ($ar as $key => $val) {
                         echo "</div></div>\n"; // HTML to PDF conversion will fail if there are open tags.
                         $content = getContent();
                         $pdf->writeHTML($content); // catch up with buffer.
-                        $tempDocC = new C_Document;
-                        $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
-                        // tmp file in temporary_files_dir
-                        $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
-                        file_put_contents($from_file_tmp_name, $pdfTemp);
-                        $pagecount = $pdf->setSourceFile($from_file_tmp_name);
-                        for ($i = 0; $i < $pagecount; ++$i) {
-                            $pdf->AddPage();
-                            $itpl = $pdf->importPage($i+1);
-                            $pdf->useTemplate($itpl);
+                        $err = '';
+                        try {
+                            $tempDocC = new C_Document;
+                            $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
+                            // tmp file in temporary_files_dir
+                            $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
+                            file_put_contents($from_file_tmp_name, $pdfTemp);
+
+                            $pagecount = $pdf->setSourceFile($from_file_tmp_name);
+                            for ($i = 0; $i < $pagecount; ++$i) {
+                                $pdf->AddPage();
+                                $itpl = $pdf->importPage($i + 1);
+                                $pdf->useTemplate($itpl);
+                            }
+                        } catch (Exception $e) {
+                            // chances are PDF is > v1.4 and compression level not supported.
+                            // regardless, we're here so lets dispose in different way.
+                            //
+                            unlink($from_file_tmp_name);
+                            $archive_name = ($GLOBALS['temporary_files_dir'] . '/' . report_basename($pid)['base'] . ".zip");
+                            $rtn = zip_content(basename($d->url), $archive_name, $pdfTemp);
+                            $err = "<span>" . xlt('PDF Document Parse Error and not included. Check if included in archive.') . " : " . text($fname) ."</span>";
+                            $pdf->writeHTML($err);
+                            $staged_docs[] = array('path'=>$d->url, 'fname'=>$fname);
+                        } finally {
+                            unlink($from_file_tmp_name);
+                            // Make sure whatever follows is on a new page. Maybe!
+                            // okay if not a series of pdfs so if so need @todo
+                            if (empty($err)) {
+                                $pdf->AddPage();
+                            }
+                            // Resume output buffering and the above-closed tags.
+                            ob_start();
+                            echo "<div><div class='text documents'>\n";
                         }
-                        unlink($from_file_tmp_name);
-
-                        // Make sure whatever follows is on a new page.
-                        $pdf->AddPage();
-
-                        // Resume output buffering and the above-closed tags.
-                        ob_start();
-
-                        echo "<div><div class='text documents'>\n";
                     } else {
                         if ($PDF_OUTPUT) {
                             // OK to link to the image file because it will be accessed by the mPDF parser and not the browser.
@@ -1058,9 +1113,48 @@ if ($printable) {
 <?php
 if ($PDF_OUTPUT) {
     $content = getContent();
-    $pdf->writeHTML($content);
+    $ptd = report_basename($pid);
+    $fn = $ptd['base'] . ".pdf";
+    $pdf->SetTitle(ucfirst($ptd['fname']) . ' ' . $ptd['lname'] . ' ' . xl('Id') . ':' . $pid . ' ' . xl('Report'));
+    $isit_utf8 = preg_match('//u', $content); // quick check for invalid encoding
+    if (!$isit_utf8) {
+        if (function_exists('iconv')) { // if we can lets save the report
+            $content = iconv("UTF-8", "UTF-8//IGNORE", $content);
+        } else { // no sense going on.
+            $die_str = xlt("Failed UTF8 encoding check! Could not automatically fix.");
+            die($die_str);
+        }
+    }
+
+    try {
+        $pdf->writeHTML($content); // convert html
+    } catch (Exception $exception) {
+        die(text($exception));
+    }
+
     if ($PDF_OUTPUT == 1) {
-        $pdf->Output('report.pdf', $GLOBALS['pdf_output']); // D = Download, I = Inline
+        try {
+            if (!empty($archive_name) && sizeof($staged_docs) > 0) {
+                $rtn = zip_content(basename($fn), $archive_name, $pdf->Output($fn, 'S'));
+                header('Content-Description: File Transfer');
+                header('Content-Transfer-Encoding: binary');
+                header('Expires: 0');
+                header("Cache-control: private");
+                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+                header("Content-Type: application/zip; charset=utf-8");
+                header("Content-Length: " . filesize($archive_name));
+                header('Content-Disposition: attachment; filename="' . basename($archive_name) . '"');
+
+                ob_end_clean();
+                @readfile($archive_name) or error_log("Archive temp file not found: " . $archive_name);
+
+                unlink($archive_name);
+            } else {
+                $pdf->Output($fn, $GLOBALS['pdf_output']); // D = Download, I = Inline
+            }
+        } catch (Exception $exception) {
+            die(text($exception));
+        }
     } else {
         // This is the case of writing the PDF as a message to the CMS portal.
         $ptdata = getPatientData($pid, 'cmsportal_login');
@@ -1068,13 +1162,13 @@ if ($PDF_OUTPUT) {
         echo "<html><head>\n";
         echo "</head><body class='body_top'>\n";
         $result = cms_portal_call(array(
-        'action'   => 'putmessage',
-        'user'     => $ptdata['cmsportal_login'],
-        'title'    => xl('Your Clinical Report'),
-        'message'  => xl('Please see the attached PDF.'),
-        'filename' => 'report.pdf',
-        'mimetype' => 'application/pdf',
-        'contents' => base64_encode($contents),
+            'action' => 'putmessage',
+            'user' => $ptdata['cmsportal_login'],
+            'title' => xl('Your Clinical Report'),
+            'message' => xl('Please see the attached PDF.'),
+            'filename' => 'report.pdf',
+            'mimetype' => 'application/pdf',
+            'contents' => base64_encode($contents),
         ));
         if ($result['errmsg']) {
             die(text($result['errmsg']));
