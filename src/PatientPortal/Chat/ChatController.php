@@ -9,10 +9,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace PatientPortal;
+namespace OpenEMR\PatientPortal\Chat;
 
-require_once(dirname(__FILE__) . "/ChatModel.php");
-require_once(dirname(__FILE__) . "/ChatDispatcher.php");
+use OpenEMR\PatientPortal\Chat\ChatDispatcher;
+use OpenEMR\PatientPortal\Chat\ChatModel;
 
 class ChatController extends ChatDispatcher
 {
@@ -20,7 +20,7 @@ class ChatController extends ChatDispatcher
 
     public function __construct()
     {
-        $this->setModel('PatientPortal\ChatModel');
+        $this->setModel('OpenEMR\PatientPortal\Chat\ChatModel');
         parent::__construct();
     }
 

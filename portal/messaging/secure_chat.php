@@ -44,7 +44,8 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $_SERVER['REMOTE_ADDR'] = 'admin::' . $_SERVER['REMOTE_ADDR'];
 }
 
-require_once(dirname(__FILE__) . "/../lib/src/ChatController.php");
+use OpenEMR\Core\Header;
+use OpenEMR\PatientPortal\Chat\ChatController;
 
 define('C_USER', IS_PORTAL ?  IS_PORTAL : IS_DASHBOARD);
 
@@ -67,13 +68,11 @@ $msgApp = new ChatController();
 <head>
     <meta charset="utf-8" />
     <?php
-        use OpenEMR\Core\Header;
-
         Header::setupHeader(['no_main-theme', 'summernote', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model']);
     ?>
     <title><?php echo xlt('Secure Patient Chat'); ?></title>
     <meta name="author" content="Jerry Padgett sjpadgett{{at}} gmail {{dot}} com" />
-    
+
 </head>
 <script>
 (function() {
@@ -635,7 +634,7 @@ $msgApp = new ChatController();
         </div>
     </div>
     </div>
-    
+
     <div class="modal modal-wide fade" id="popeditor">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
