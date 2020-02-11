@@ -12,102 +12,102 @@
     if it were called last, the settings from the form would be overwritten with the old information-->
     <input type="hidden" name="form_id" value="{$insurancecompany->id|attr}">
     {if $insurancecompany->get_inactive() eq 1 }
-    <div class="form-group">
-        <label for="inactive" class="control-label col-sm-2">{xlt t='Reactivate'}</label>
+    <div class="form-row my-sm-2">
+        <label for="inactive" class="col-form-label col-sm-2">{xlt t='Reactivate'}</label>
         <div class="col-sm-8">
             <input type="checkbox" id="inactive" name="inactive" class="checkbox" value="0" />
         </div>
     </div>
     {/if}
     {if $insurancecompany->get_inactive() eq 0 }
-    <div class="form-group">
-        <label for="inactive" class="control-label col-sm-2">{xlt t='Deactivate'}</label>
+    <div class="form-row my-sm-2">
+        <label for="inactive" class="col-form-label col-sm-2">{xlt t='Deactivate'}</label>
         <div class="col-sm-8">
             <input type="checkbox" id="inactive" name="inactive" class="checkbox" value="1" />
         </div>
     </div>
     {/if}
-    <div class="form-group">
-        <label for="name" class="control-label col-sm-2">{xlt t='Name'}</label>
+    <div class="form-row my-sm-2">
+        <label for="name" class="col-form-label col-sm-2">{xlt t='Name'}</label>
         <div class="col-sm-8">
             <input type="text" id="name" name="name" class="form-control" aria-describedby="nameHelpBox" value="{$insurancecompany->get_name()|attr}" onKeyDown="PreventIt(event)">
             <span id="nameHelpBox" class="help-block">({xlt t='Required'})</span>
         </div>
     </div>
-    <div class="form-group">
-        <label for="attn" class="control-label col-sm-2">{xlt t='Attn'}</label>
+    <div class="form-row my-sm-2">
+        <label for="attn" class="col-form-label col-sm-2">{xlt t='Attn'}</label>
         <div class="col-sm-8">
             <input type="text" id="attn" name="attn" class="form-control" value="{$insurancecompany->get_attn()|attr}" onKeyDown="PreventIt(event)">
         </div>
     </div>
-    <div class="form-group">
-        <label for="address_line1" class="control-label col-sm-2">{xlt t='Address'}</label>
+    <div class="form-row my-sm-2">
+        <label for="address_line1" class="col-form-label col-sm-2">{xlt t='Address'}</label>
         <div class="col-sm-8">
             <input type="text" id="address_line1" name="address_line1" class="form-control" value="{$insurancecompany->address->line1|attr}" onKeyDown="PreventIt(event)">
         </div>
     </div>
-    <div class="form-group">
-        <label for="address_line2" class="control-label col-sm-2">{xlt t='Address'}</label>
+    <div class="form-row my-sm-2">
+        <label for="address_line2" class="col-form-label col-sm-2">{xlt t='Address'}</label>
         <div class="col-sm-8">
             <input type="text" id="address_line2" name="address_line2" class="form-control" value="{$insurancecompany->address->line2|attr}" onKeyDown="PreventIt(event)">
         </div>
     </div>
-    <div class="form-group">
-        <label for="city" class="control-label col-sm-2">{xlt t='City'}</label>
+    <div class="form-row my-sm-2">
+        <label for="city" class="col-form-label col-sm-2">{xlt t='City'}</label>
         <div class="col-sm-8">
             <input type="text" id="city" name="city" class="form-control" value="{$insurancecompany->address->city|attr}" onKeyDown="PreventIt(event)">
         </div>
     </div>
-    <div class="form-group">
-        <label for="state" class="control-label col-sm-2">{xlt t='State'}</label>
+    <div class="form-row my-sm-2">
+        <label for="state" class="col-form-label col-sm-2">{xlt t='State'}</label>
         <div class="col-sm-8">
             <input type="text" maxlength="2" id="state" name="state" class="form-control" value="{$insurancecompany->address->state|attr}" onKeyDown="PreventIt(event)">
         </div>
     </div>
-    <div class="form-group">
-        <label for="zip" class="control-label col-sm-2">{xlt t='Zip Code'}</label>
+    <div class="form-row my-sm-2">
+        <label for="zip" class="col-form-label col-sm-2">{xlt t='Zip Code'}</label>
         <div class="col-sm-8">
             <input type="text" id="zip" name="zip" class="form-control" value="{$insurancecompany->address->zip|attr}" onKeyDown="PreventIt(event)">
         </div>
     </div>
-    <div class="form-group">
-        <label for="phone" class="control-label col-sm-2">{xlt t='Phone'}</label>
+    <div class="form-row my-sm-2">
+        <label for="phone" class="col-form-label col-sm-2">{xlt t='Phone'}</label>
         <div class="col-sm-8">
             <input type="text" id="phone" name="phone" class="form-control" value="{$insurancecompany->get_phone()|attr}" onKeyDown="PreventIt(event)">
         </div>
     </div>
-    <div class="form-group">
-        <label for="cms_id" class="control-label col-sm-2">{xlt t='Payer ID'}</label>
+    <div class="form-row my-sm-2">
+        <label for="cms_id" class="col-form-label col-sm-2">{xlt t='Payer ID'}</label>
         <div class="col-sm-8">
             <input type="text" id="cms_id" name="cms_id" class="form-control" value="{$insurancecompany->get_cms_id()|attr}" onKeyDown="PreventIt(event)">
         </div>
     </div>
     {if $SUPPORT_ENCOUNTER_CLAIMS}
-        <div class="form-group">
-            <label for="alt_cms_id" class="control-label col-sm-2">{xlt t='Payer ID For Encounter Claims'}</label>
+        <div class="form-row my-sm-2">
+            <label for="alt_cms_id" class="col-form-label col-sm-2">{xlt t='Payer ID For Encounter Claims'}</label>
             <div class="col-sm-8">
                 <input type="text" id="alt_cms_id" name="alt_cms_id" class="form-control" value="{$insurancecompany->get_alt_cms_id()|attr}" onKeyDown="PreventIt(event)">
             </div>
         </div>
     {/if}
     {if $SUPPORT_ELIGIBILITY_REQUESTS}
-    <div class="form-group">
-        <label for="eligibility_id" class="control-label col-sm-2">{xlt t='Payer Id For Eligibility'}</label>
+    <div class="form-row my-sm-2">
+        <label for="eligibility_id" class="col-form-label col-sm-2">{xlt t='Payer Id For Eligibility'}</label>
         <div class="col-sm-8">
             <input type="text" id="eligibility_id" name="eligibility_id" class="form-control" value="{$insurancecompany->get_eligibility_id()|attr}" onKeyDown="PreventIt(event)">
         </div>
     </div>
     {/if}
-    <div class="form-group">
-        <label for="ins_type_code" class="control-label col-sm-2">{xlt t='Payer Type'}</label>
+    <div class="form-row my-sm-2">
+        <label for="ins_type_code" class="col-form-label col-sm-2">{xlt t='Payer Type'}</label>
         <div class="col-sm-8">
             <select id="ins_type_code" name="ins_type_code" class="form-control">
                 {html_options options=$insurancecompany->ins_type_code_array selected=$insurancecompany->get_ins_type_code()}
             </select>
         </div>
     </div>
-    <div class="form-group">
-        <label for="x12_default_partner_id" class="control-label col-sm-2">{xlt t='Default X12 Partner'}</label>
+    <div class="form-row my-sm-2">
+        <label for="x12_default_partner_id" class="col-form-label col-sm-2">{xlt t='Default X12 Partner'}</label>
         <div class="col-sm-8">
             <select id="x12_default_partner_id" name="x12_default_partner_id" class="form-control">
                 {html_options options=$x12_partners selected=$insurancecompany->get_x12_default_partner_id()}
@@ -115,8 +115,8 @@
         </div>
     </div>
     {if $SUPPORT_ELIGIBILITY_REQUESTS}
-    <div class="form-group">
-        <label for="x12_default_eligibility_id" class="control-label col-sm-2">{xlt t='Default Eligibility X12 Partner'}</label>
+    <div class="form-row my-sm-2">
+        <label for="x12_default_eligibility_id" class="col-form-label col-sm-2">{xlt t='Default Eligibility X12 Partner'}</label>
         <div class="col-sm-8">
             <select id="x12_default_eligibility_id" name="x12_default_eligibility_id" class="form-control">
                 {html_options options=$x12_partners selected=$insurancecompany->get_x12_default_eligibility_id()}

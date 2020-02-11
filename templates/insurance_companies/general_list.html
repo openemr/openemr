@@ -2,31 +2,33 @@
    class="btn btn-secondary btn-add">
     {xlt t='Add a Company'}</a>
     <br /><br />
-<table class="table table-responsive table-striped">
-    <thead>
-        <tr>
-            <th>{xlt t='Name'}</th>
-            <th>{xlt t='City, State'}</th>
-            <th>{xlt t='Default X12 Partner'}</th>
-            <th>{xlt t='Deactivated'}</th>
-        </tr>
-    </thead>
-    <tbody>
-        {foreach from=$icompanies item=insurancecompany}
-        <tr>
-            <td>
-                <a href="{$CURRENT_ACTION}action=edit&id={$insurancecompany->id|attr_url}" onclick="top.restoreSession()">
-                    {$insurancecompany->name|text}
-                </a>
-            </td>
-            <td>{$insurancecompany->address->city|text} {$insurancecompany->address->state|upper|text}&nbsp;</td>
-            <td>{$insurancecompany->get_x12_default_partner_name()|text}&nbsp;</td>
-            <td>{if $insurancecompany->get_inactive() eq 1}{xlt t='Yes'}{/if}&nbsp;</td>
-        </tr>
-        {foreachelse}
-        <tr>
-            <td colspan="4">{xlt t='No Insurance Companies Found'}</td>
-        </tr>
-        {/foreach}
-    </tbody>
-</table>
+<div class="table-responsive">
+  <table class="table table-striped">
+      <thead>
+          <tr>
+              <th>{xlt t='Name'}</th>
+              <th>{xlt t='City, State'}</th>
+              <th>{xlt t='Default X12 Partner'}</th>
+              <th>{xlt t='Deactivated'}</th>
+          </tr>
+      </thead>
+      <tbody>
+          {foreach from=$icompanies item=insurancecompany}
+          <tr>
+              <td>
+                  <a href="{$CURRENT_ACTION}action=edit&id={$insurancecompany->id|attr_url}" onclick="top.restoreSession()">
+                      {$insurancecompany->name|text}
+                  </a>
+              </td>
+              <td>{$insurancecompany->address->city|text} {$insurancecompany->address->state|upper|text}&nbsp;</td>
+              <td>{$insurancecompany->get_x12_default_partner_name()|text}&nbsp;</td>
+              <td>{if $insurancecompany->get_inactive() eq 1}{xlt t='Yes'}{/if}&nbsp;</td>
+          </tr>
+          {foreachelse}
+          <tr>
+              <td colspan="4">{xlt t='No Insurance Companies Found'}</td>
+          </tr>
+          {/foreach}
+      </tbody>
+  </table>
+</div>

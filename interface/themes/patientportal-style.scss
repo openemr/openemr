@@ -206,7 +206,7 @@ body.fixed .wrapper {
 /* Page Header */
 .page-header {
     margin: 10px 0 20px 0;
-    font-size: 22px;
+    @include font-size("22px");
 }
 
 .page-header > small {
@@ -384,7 +384,7 @@ body > .header .navbar .nav > li > a > .label {
     position: absolute;
     top: 7px;
     right: 2px;
-    font-size: 10px;
+    @include font-size("10px");
     font-weight: normal;
     width: 15px;
     height: 15px;
@@ -404,11 +404,11 @@ body > .header .navbar .nav > li > a:hover > .label {
 
 .right-side > .content-header > h1 {
     margin: 0;
-    font-size: 24px;
+    @include font-size("24px");
 }
 
 .right-side > .content-header > h1 > small {
-    font-size: 15px;
+    @include font-size("15px");
     display: inline-block;
     padding-left: 4px;
     font-weight: 300;
@@ -427,7 +427,7 @@ body > .header .navbar .nav > li > a:hover > .label {
     background: transparent;
     margin-top: 0px;
     margin-bottom: 0;
-    font-size: 12px;
+    @include font-size("12px");
     padding: 7px 5px;
     position: absolute;
     top: 15px;
@@ -546,8 +546,8 @@ body > .header .navbar .nav > li > a:hover > .label {
 .sidebar .sidebar-menu .treeview-menu > li > a {
     padding: 8px 5px 8px 15px;
     display: block;
-    font-size: 14px;
-    margin: 0px 0px;
+    @include font-size("14px");
+    margin: 0;
 }
 
 .sidebar .sidebar-menu .treeview-menu > li > a > .fa,
@@ -578,7 +578,7 @@ body > .header .navbar .nav > li > a:hover > .label {
 .user-panel > .info {
     font-weight: 600;
     padding: 5px 5px 5px 15px;
-    font-size: 14px;
+    @include font-size("14px");
     line-height: 1;
 }
 
@@ -590,7 +590,7 @@ body > .header .navbar .nav > li > a:hover > .label {
     text-decoration: none;
     padding-right: 5px;
     margin-top: 3px;
-    font-size: 11px;
+    @include font-size("11px");
     font-weight: normal;
 }
 
@@ -709,7 +709,7 @@ body > .header .navbar .nav > li > a:hover > .label {
     padding: 7px 10px;
     border-bottom: 1px solid $light;
     color: $gray-700;
-    font-size: 14px;
+    @include font-size("14px");
 }
 
 .navbar-nav > .notifications-menu > .dropdown-menu > li.header:after,
@@ -744,7 +744,7 @@ body > .header .navbar .nav > li > a:hover > .label {
     border-top-right-radius: 0px;
     border-bottom-right-radius: 4px;
     border-bottom-left-radius: 4px;
-    font-size: 12px;
+    @include font-size("12px");
     background-color: $light;
     padding: 7px 10px;
     border-bottom: 1px solid $gray-200;
@@ -786,7 +786,7 @@ body > .header .navbar .nav > li > a:hover > .label {
 }
 
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a {
-    font-size: 12px;
+    @include font-size("12px");
     color: $gray-700;
 }
 
@@ -797,7 +797,7 @@ body > .header .navbar .nav > li > a:hover > .label {
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a > .glyphicon,
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a > .fa,
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a > .ion {
-    font-size: 20px;
+    @include font-size("20px");
     width: 50px;
     text-align: center;
     padding: 15px 0;
@@ -853,18 +853,18 @@ body > .header .navbar .nav > li > a:hover > .label {
     padding: 0;
     margin: 0 0 0 45px;
     color: $gray-700;
-    font-size: 15px;
+    @include font-size("15px");
 }
 
 .navbar-nav > .messages-menu > .dropdown-menu > li .menu > li > a > h4 > small {
     color: $gray-500;
-    font-size: 10px;
+    @include font-size("10px");
     float: right;
 }
 
 .navbar-nav > .messages-menu > .dropdown-menu > li .menu > li > a > p {
     margin: 0 0 0 5px;
-    font-size: 12px;
+    @include font-size("12px");
     color: #888888;
 }
 
@@ -883,7 +883,7 @@ body > .header .navbar .nav > li > a:hover > .label {
 }
 
 .navbar-nav > .tasks-menu > .dropdown-menu > li .menu > li > a > h3 {
-    font-size: 14px;
+    @include font-size("14px");
     padding: 0;
     margin: 0 0 10px 0;
     color: $gray-700;
@@ -938,14 +938,14 @@ body > .header .navbar .nav > li > a:hover > .label {
     z-index: 5;
     color: darken($light, 10%);
     color: rgba($white, 0.8);
-    font-size: 17px;
+    @include font-size("17px");
     text-shadow: 2px 2px 3px $gray-800;
     margin-top: 10px;
 }
 
 .navbar-nav > .user-menu > .dropdown-menu > li.user-header > p > small {
     display: block;
-    font-size: 12px;
+    @include font-size("12px");
 }
 
 .navbar-nav > .user-menu > .dropdown-menu > li.user-body {
@@ -1274,7 +1274,7 @@ body > .header .navbar .nav > li > a:hover > .label {
 }
 
 .small-box h3 {
-    font-size: 38px;
+    @include font-size("38px");
     font-weight: bold;
     margin: 0 0 10px 0;
     white-space: nowrap;
@@ -1282,13 +1282,13 @@ body > .header .navbar .nav > li > a:hover > .label {
 }
 
 .small-box p {
-    font-size: 15px;
+    @include font-size("15px");
 }
 
 .small-box p > small {
     display: block;
     color: darken($light, 10%);
-    font-size: 13px;
+    @include font-size("13px");
     margin-top: 5px;
 }
 
@@ -1303,7 +1303,7 @@ body > .header .navbar .nav > li > a:hover > .label {
     bottom: 5px;
     right: 5px;
     z-index: 0;
-    font-size: 90px;
+    @include font-size("90px");
     color: rgba($black, 0.15);
 }
 
@@ -1332,21 +1332,21 @@ body > .header .navbar .nav > li > a:hover > .label {
 
 @keyframes tansformAnimation {
     from {
-        font-size: 90px;
+        @include font-size("90px");
     }
 
     to {
-        font-size: 100px;
+        @include font-size("100px");
     }
 }
 
 @-webkit-keyframes tansformAnimation {
     from {
-        font-size: 90px;
+        @include font-size("90px");
     }
 
     to {
-        font-size: 100px;
+        @include font-size("100px");
     }
 }
 */
@@ -1361,7 +1361,7 @@ body > .header .navbar .nav > li > a:hover > .label {
     }
 
     .small-box p {
-        font-size: 12px;
+        @include font-size("12px");
     }
 }
 
@@ -1439,7 +1439,7 @@ body > .header .navbar .nav > li > a:hover > .label {
     display: inline-block;
     padding: 10px 10px 10px 10px;
     margin: 0;
-    font-size: 20px;
+    @include font-size("20px");
     font-weight: 400;
     float: left;
     cursor: default;
@@ -1495,7 +1495,7 @@ body > .header .navbar .nav > li > a:hover > .label {
 }
 
 .box .box-body .fc-header-title h2 {
-    font-size: 15px;
+    @include font-size("15px");
     line-height: 1.6em;
     color: $gray-700;
     margin-left: 10px;
@@ -1645,13 +1645,13 @@ body > .header .navbar .nav > li > a:hover > .label {
     text-align: center;
     color: #333;
     font-weight: 100;
-    font-size: 12px;
+    @include font-size("12px");
     margin-bottom: 0.3em;
 }
 
 .box .todo-list {
     margin: 0;
-    padding: 0px 0px;
+    padding: 0;
     list-style: none;
 }
 
@@ -1702,7 +1702,7 @@ body > .header .navbar .nav > li > a:hover > .label {
 
 .box .todo-list > li .label {
     margin-left: 10px;
-    font-size: 9px;
+    @include font-size("9px");
 }
 
 .box .todo-list > li .tools {
@@ -1905,7 +1905,7 @@ body > .header .navbar .nav > li > a:hover > .label {
     font-weight: 400;
     line-height: 35px;
     padding: 0 10px;
-    font-size: 20px;
+    @include font-size("20px");
     color: $gray-700;
     cursor: default;
 }
@@ -2227,7 +2227,7 @@ body > .header .navbar .nav > li > a:hover > .label {
 
 .card .card-header {
     padding: 5px 10px;
-    font-size: 1.2rem;
+    @include font-size("1.2rem");
     text-transform: capitalize;
 }
 
@@ -2237,7 +2237,7 @@ body > .header .navbar .nav > li > a:hover > .label {
 
 .card-header .nav {
     border: medium none;
-    font-size: 13px;
+    @include font-size("13px");
     margin: -10px -15px -15px;
 }
 
@@ -2272,7 +2272,7 @@ body > .header .navbar .nav > li > a:hover > .label {
 
 .dropdown-menu.dropdown-custom > li {
     padding: 8px 10px;
-    font-size: 12px;
+    @include font-size("12px");
 }
 
 .dropdown-menu li:first-child.dropdown-header {

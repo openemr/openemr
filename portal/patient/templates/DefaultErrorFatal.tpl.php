@@ -26,9 +26,9 @@
     <p><?php echo xlt('If you continue to experience this error please contact support.'); ?></p>
 
     <div id="stacktrace" class="jumbotron jumbotron-fluid hide">
-        <p style="font-weight: bold;"><?php echo xlt('Stack Trace'); ?>:</p>
+        <p class="font-weight-bold"><?php echo xlt('Stack Trace'); ?>:</p>
         <?php if ($this->stacktrace) { ?>
-            <p style="white-space: nowrap; overflow: auto; padding-bottom: 15px; font-family: courier new, courier; font-size: 8pt;"><pre><?php $this->eprint($this->stacktrace); ?></pre></p>
+            <p style="white-space: nowrap; overflow: auto; padding-bottom: 15px; font-family: 'Courier New', 'Courier', sans-serif; font-size: 11px;"><pre><?php $this->eprint($this->stacktrace); ?></pre></p>
         <?php } ?>
     </div>
 

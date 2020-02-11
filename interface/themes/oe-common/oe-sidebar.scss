@@ -10,59 +10,35 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-.body-notop {
-    overflow-x: hidden !important;
-    -webkit-font-smoothing: antialiased;
-}
-
-.body-notop .nav-sidebar {
-    margin-top: 1.1rem;
-    max-height: 100%;
-    top: 0;
-    bottom: 0;
-    left: 0;
-}
-
 .body-topnav {
     overflow-x: hidden !important;
+    padding-top: 3.125rem !important;
     -webkit-font-smoothing: antialiased !important;
 }
 
-.body-topnav .nav-sidebar {
-    top: unset;
-    bottom: unset;
-    left: unset;
-}
-
 /* if not a grid then main available */
-main {
-    padding: 1rem 10px;
-    width: 100%;
+main,
+.main-added {
+    width: calc(100% - 15.625rem);
+	margin-left: 15.625rem;
+	transition: all .5s ease;
+	-webkit-transition: all .5s ease;
+	-moz-transition: all .5s ease;
+	-o-transition: all .5s ease;
 }
 
-/* Adds more padding than Bootstrap can handle */
-.pt-6 {
-    padding-top: 4rem !important;
+main.active,
+.main-added.active {
+	width: 100%;
+	margin: 0;
 }
 
 /*
  * Topbar
  */
 
-#nav-topbar {
-    padding-left: 0;
-    border-radius: 0;
-    flex-direction: row;
-}
-
-#nav-topbar .brand-container {
-    /* Should match width of .nav-sidebar */
-    width: 250px;
-    padding-left: 1rem;
-}
-
-#topbar-menu-container {
-    flex-direction: column;
+.top-before-sidebar {
+	box-shadow: 0 0 5px rgba($dark, 0.2);
 }
 
 .navbar-brand i {
@@ -74,10 +50,10 @@ main {
     margin-top: .25rem;
 }
 
-.navbar-toggleable-sm .navbar-collapse,
-.navbar-toggleable-md .navbar-collapse {
+.navbar-expand-sm .navbar-collapse,
+.navbar-expand-md .navbar-collapse {
     width: auto;
-    padding-left: 10px;
+    padding-left: 0.625rem;
 }
 
 /*
@@ -85,16 +61,26 @@ main {
  */
 
 .nav-sidebar {
-    height: unset;
+    position: fixed;
+    height: 100vh;
+	min-width: 15.625rem;
+    width: 15.625rem;
+    top: 0;
+    bottom: 0;
+    left: 0;
     z-index: 1000;
     overflow-x: hidden;
     overflow-y: auto;
-    border-right: 1px solid $gray-200;
     white-space: nowrap;
+	box-shadow: 3px 3px 10px rgba($black, 0.1);
     transition: all .5s ease;
     -webkit-transition: all .5s ease;
     -moz-transition: all .5s ease;
     -o-transition: all .5s ease;
+}
+
+.nav-sidebar.active {
+	margin-left: -15.625rem;
 }
 
 .sidebar-h-40 {
@@ -132,36 +118,26 @@ main {
 }
 
 @media (max-width: 768px) {
-    /* TODO: Fix Signer model conflict where 15px padding is added for no reason */
-    html {
-        padding-right: 0 !important;
-    }
-    
-    #nav-topbar .brand-container,
-    .nav-sidebar {
-        width: 30px;
-    }
+	.nav-sidebar {
+		margin-left: -15.625rem;
+	}
 
-    .body-topnav .nav-sidebar {
-        width: 0;
-    }
-
-    #nav-topbar .brand-container.active,
     .nav-sidebar.active {
-        padding-top: 60px !important;
-        width: 100% !important;
-        border-bottom: 1px solid $gray-200;
-        border-right: 0 !important;
-    }
-
-    .nav-sidebar.active .sidebar-content {
-        display: block !important;
-    }
-
-    .main-full {
         margin-left: 0;
     }
 
+    main,
+	.main-added {
+        width: 100%;
+		margin: 0;
+
+    }
+
+	main.active,
+	.main-added.active {
+		margin-left: 15.625rem;
+		width: calc(100% - 15.625rem);
+	}
 }
 
 .rotate-90cw {

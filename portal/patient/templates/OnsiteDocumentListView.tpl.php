@@ -5,7 +5,9 @@
 * @package   OpenEMR
 * @link      http://www.open-emr.org
 * @author    Jerry Padgett <sjpadgett@gmail.com>
+* @author    Tyler Wrenn <tyler@tylerwrenn.com>
 * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
+* @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
@@ -124,9 +126,15 @@ function printaDoc(divName) {
     location.reload();
 }
 
+function fixspacing() {
+    $('#dynamicspacing').addClass('main-added');
+    $('footer').addClass('main-added');
+    $('#footer-hr').addClass('main-added');
+}
+
 function templateText(el) {
     $(el).data('textvalue', $(el).val());
-    $(el).attr("data-textvalue", $(el).val())
+    $(el).attr("data-textvalue", $(el).val());
     return false;
 }
 
@@ -145,7 +153,7 @@ function templateRadio(el) {
     var rid = $(el).data('id')
     $('#rgrp' + rid).data('value', $(el).val());
     $('#rgrp' + rid).attr('data-value', $(el).val());
-    $(el).prop('checked', true)
+    $(el).prop('checked', true);
     return false;
 }
 
@@ -169,10 +177,10 @@ function replaceCheckMarks() {
     $('.checkMark').each(function () {
         var ckid = $(this).data('id');
         var v = $('#' + ckid).data('value');
-        if (v)
-            $(this).replaceWith(v)
-        else {
-            $(this).replaceWith('No')
+        if (v) {
+            $(this).replaceWith(v);
+        } else {
+            $(this).replaceWith('No');
         }
     });
 }
@@ -180,7 +188,7 @@ function replaceCheckMarks() {
 function restoreTextInputs() {
     $('.templateInput').each(function () {
         var rv = $(this).data('textvalue');
-        $(this).val(rv)
+        $(this).val(rv);
     });
 }
 
@@ -196,10 +204,11 @@ function restoreRadioValues() {
 function restoreCheckMarks() {
     $('.checkMark').each(function () {
         var ckid = $(this).data('id');
-        if ($('#' + ckid).data('value') == 'Yes')
+        if ($('#' + ckid).data('value') == 'Yes') {
             $('#' + ckid).prop('checked', true);
-        else
+        } else {
             $('#' + ckid).prop('checked', false);
+        }
     });
 }
 
@@ -219,7 +228,7 @@ function flattenDocument() {
     replaceCheckMarks();
     replaceRadioValues();
     replaceTextInputs();
-    replaceSignatures()
+    replaceSignatures();
 }
 
 function restoreDocumentEdits() {
@@ -228,8 +237,8 @@ function restoreDocumentEdits() {
     restoreTextInputs();
 }
 </script>
-<nav class="nav navbar-light bg-light fixed-top mb-2">
-    <div class="container-fluid">
+<nav class="nav navbar-light bg-light fixed-top top-before-sidebar">
+    <div class="container-fluid py-2">
         <div class="sidebar-expand d-md-none">
             <button type="button" class="text-dark">
                 <i class="fa fa-angle-right"></i>
@@ -239,36 +248,35 @@ function restoreDocumentEdits() {
     </div>
 </nav>
 <script type="text/template" id="onsiteDocumentModelTemplate">
-<div class="container-fluid">
-<div class="row">
-    <nav class="col-md-2 nav-sidebar bg-light">
-        <div class="sidebar-header mt-md-3">
-            <h6 class="text-center"><?php echo xlt('Actions') ?></h6>
-        </div>
-        <div class="sidebar-content d-none d-md-block">
-            <ul class="nav nav-pills flex-column">
-                <li class="nav-item"><a class="nav-link text-primary" id="signTemplate" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Signature'); ?></a></li>
-                <li class="nav-item"><a class="nav-link text-primary" id="saveTemplate" href="#"><?php echo xlt('Save'); ?></a></li>
-                <li class="nav-item"><a class="nav-link text-primary" id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><?php echo xlt('Print'); ?></a></li>
-                <li class="nav-item"><a class="nav-link text-primary" id="submitTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
-                <li class="nav-item"><a class="nav-link text-primary" id="sendTemplate" href="#"><?php echo xlt('Send for Review'); ?></a></li>
-                <li class="nav-item"><a class="nav-link text-primary" id="chartTemplate" href="#"><?php echo xlt('Chart to Category') . ' ' . text($catname); ?></a></li>
-                <li class="nav-item"><a class="nav-link text-primary" id="downloadTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
-                <?php if (!$is_module) { ?>
-                    <li class="nav-item">
-                        <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Home'); ?></a>
-                    </li>
-                <?php } else { ?>
-                    <li class="nav-item">
-                        <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt(' Return'); ?></a>
-                    </li>
-                <?php } ?>
-            </ul>
-        </div>
-    </nav>
-     <main class="col-md pt-md-5 main-full">
+  <div class="container-fluid pl-0">
+  <nav class="nav-sidebar bg-light mt-4 mt-md-5 pt-5 pt-md-3">
+      <div class="sidebar-header mx-md-5">
+          <h6 class="text-center"><?php echo xlt('Actions') ?></h6>
+      </div>
+      <div class="sidebar-content">
+          <ul class="nav flex-column">
+              <li class="nav-item"><a class="nav-link text-primary" id="signTemplate" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Signature'); ?></a></li>
+              <li class="nav-item"><a class="nav-link text-primary" id="saveTemplate" href="#"><?php echo xlt('Save'); ?></a></li>
+              <li class="nav-item"><a class="nav-link text-primary" id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><?php echo xlt('Print'); ?></a></li>
+              <li class="nav-item"><a class="nav-link text-primary" id="submitTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
+              <li class="nav-item"><a class="nav-link text-primary" id="sendTemplate" href="#"><?php echo xlt('Send for Review'); ?></a></li>
+              <li class="nav-item"><a class="nav-link text-primary" id="chartTemplate" href="#"><?php echo xlt('Chart to Category') . ' ' . text($catname); ?></a></li>
+              <li class="nav-item"><a class="nav-link text-primary" id="downloadTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
+              <?php if (!$is_module) { ?>
+                  <li class="nav-item">
+                      <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Home'); ?></a>
+                  </li>
+              <?php } else { ?>
+                  <li class="nav-item">
+                      <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt(' Return'); ?></a>
+                  </li>
+              <?php } ?>
+          </ul>
+      </div>
+  </nav>
+  <main class="main-full">
         <section class="row">
-            <div class="col">
+            <div class="col-md">
                 <div class="card" id="docpanel">
                     <header class="card-header bg-primary text-light" id='docPanelHeader'><?php echo xlt('Patient Document'); ?></header>
                     <form id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
@@ -302,11 +310,12 @@ function restoreDocumentEdits() {
         </section>
     </main>
 </div>
-</div>
 
 </script>
 <script type="text/template" id="onsiteDocumentCollectionTemplate">
-<div class="container-fluid pt-6">
+<div class="container-fluid pt-4 pt-md-3 px-3" id="dynamicspacing">
+  <section class="row">
+  <div class="col-md">
     <nav class="navbar navbar-expand-md navbar-light bg-light border" id="topnav">
         <div class="navbar-header">
             <a class="navbar-brand text-primary" href="#"><i class="fa fa-file-text-o">&nbsp;</i><?php echo xla('Pending') ?></a>
@@ -325,7 +334,7 @@ function restoreDocumentEdits() {
         </ul>
         <div id="collectionAlert"></div>
     </nav>
-    <div class="table-responsive">
+    <div class="table-responsive pt-3">
         <h5 class="text-sm-center"><?php echo xlt('Documents History') ?></h5>
         <table class="collection table table-sm table-hover">
             <thead class='bg-success text-light'>
@@ -364,6 +373,8 @@ function restoreDocumentEdits() {
 <!-- processed templates go here.-->
 <div id="onsiteDocumentModelContainer" class="modelContainer"></div>
 <div id="onsiteDocumentCollectionContainer" class="collectionContainer"></div>
+</div>
+</section>
 <?php
 // footer close body html
 $this->display('_Footer.tpl.php');

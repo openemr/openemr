@@ -163,7 +163,7 @@ $(function(){
             <div class="page-header clearfix">
                 <h2 class="clearfix"><?php echo xlt("Facilities") ; ?></h2>
             </div>
-            <a href="facilities_add.php" class="addfac_modal btn btn-secondary btn-add"><span><?php echo xlt('Add Facility');?></span></a>
+            <a href="facilities_add.php" class="addfac_modal btn btn-secondary btn-add"><?php echo xlt('Add Facility');?></a>
             </div>
         </div>
         <br />
@@ -223,7 +223,7 @@ $(function(){
                                     }
                                     ?>
                             <tr height="22">
-                                 <td valign="top" class="text"><b><a href="facility_admin.php?fid=<?php echo attr_url($iter3["id"]); ?>" class="medium_modal"><span><?php echo xlt($iter3["name"]);?></span></a></b>&nbsp;</td>
+                                 <td valign="top" class="text"><strong><a href="facility_admin.php?fid=<?php echo attr_url($iter3["id"]); ?>" class="medium_modal"><span><?php echo xlt($iter3["name"]);?></span></a></strong>&nbsp;</td>
                                  <td valign="top" class="text"><?php echo text($varstreet.$varcity.$varstate.$iter3["country_code"]." ".$iter3["postal_code"]); ?>&nbsp;</td>
                                  <td valign="top" class="text"><?php echo text($varmstreet.$varmcity.$varmstate.$iter3['mail_zip']); ?></td>
                                  <td><?php echo text($iter3["phone"]);?>&nbsp;</td>
@@ -234,7 +234,7 @@ $(function(){
 
                             if (count($result2)<=0) {?>
                             <tr height="25">
-                                <td colspan="3"  style="text-align:center;font-weight:bold;"> <?php echo xlt("Currently there are no facilities."); ?></td>
+                                <td colspan="3" class="text-center font-weight-bold"> <?php echo xlt("Currently there are no facilities."); ?></td>
                             </tr>
                                 <?php
                             } ?>
@@ -244,7 +244,7 @@ $(function(){
             </div>
         </div>
     </div><!-- end of div container -->
-    <script language="JavaScript">
+    <script>
     <?php
     if ($alertmsg = trim($alertmsg)) {
         echo "alert(" . js_escape($alertmsg) . ");\n";

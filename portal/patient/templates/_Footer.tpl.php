@@ -1,6 +1,6 @@
 <?php echo "<!-- footer -->\n"; ?>
 <div class="container">
-    <hr>
+    <hr id="footer-hr" />
     <footer>
         <p class="muted text-sm-center">
             <small><?php echo xlt('Patient Portal'); ?> v5.0.3 Copyright &copy; <?php echo date('Y'); ?> By

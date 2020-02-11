@@ -196,7 +196,7 @@ var page = {
 
             $('.sidebar-expand button').on('click', function () {
                 $(this).toggleClass("flip-y");
-                $('.nav-sidebar').toggleClass("active");
+                $('.nav-sidebar, .main-full, .main-added').toggleClass("active");
             });
 
             $("#sendTemplate").on('click', function (e) {
