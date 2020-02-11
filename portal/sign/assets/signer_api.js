@@ -113,10 +113,10 @@ if (typeof isModule === 'undefined') {
 function signerAlertMsg(message, timer = 5000, type = 'danger', size = '') {
     $('#alert_box').remove();
     size = (size == 'lg') ? 'left:25%;width:50%;' : 'left:35%;width:30%;';
-    let style = "position:fixed;top:25%;" + size + " bottom:0;z-index:9999;";
+    let style = "position:fixed;top:25%;" + size + " bottom:0;z-index:1020;";
     $("body").prepend("<div class='container text-center' id='alert_box' style='" + style + "'></div>");
     let mHtml = '<div id="alertmsg" class="alert alert-' + type + ' alert-dismissable">' +
-        '<button type="button" class="close btn btn-link btn-cancel" data-dismiss="alert" aria-hidden="true"></button>' +
+        '<button type="button" class="close btn btn-link btn-cancel" data-dismiss="alert" aria-hidden="true">&times;</button>' +
         '<h5 class="alert-heading text-center">Alert!</h5><hr>' +
         '<p>' + message + '</p>' +
         '</div>';

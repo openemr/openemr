@@ -17,7 +17,7 @@ require_once("verify_session.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 require_once("lib/portal_mail.inc");
-
+require_once(dirname(__FILE__)."/../library/appointments.inc.php");
 
 if ($_SESSION['register'] === true) {
     require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
@@ -186,14 +186,20 @@ foreach ($msgs as $i) {
         });
 
         function editAppointment(mode, deid) {
-            if (mode == 'add') {
-                var title = <?php echo xlj('Request New Appointment'); ?>;
-                var mdata = {pid: deid};
+            let mdata = {};
+            let title = '';
+            if (mode === 'add') {
+                title = <?php echo xlj('Request New Appointment'); ?>;
+                mdata = {pid: deid};
+            } else if (mode === 'recurring'){
+                let msg = <?php echo xlj("A Recurring Appointment. Please contact your appointment desk for any changes."); ?>;
+                signerAlertMsg(msg, 10000);
+                return false;
             } else {
-                var title = <?php echo xlj('Edit Appointment'); ?>;
-                var mdata = {eid: deid};
+                title = <?php echo xlj('Edit Appointment'); ?>;
+                mdata = {eid: deid};
             }
-            var params = {
+            let params = {
                 dialogId: 'editpop',
                 buttons: [
                     {text: <?php echo xlj('Cancel'); ?>, close: true, style: 'default'}
@@ -205,7 +211,7 @@ foreach ($msgs as $i) {
                 data: mdata
             };
 
-            dlgopen('', 'apptModal', 800, 525, '', title, params);
+            dlgopen('', 'apptModal', 750, 400, '', title, params);
         }
 
         function changeCredentials(e) {
@@ -363,19 +369,14 @@ foreach ($msgs as $i) {
                         <div class="container-fluid">
                             <h3 class="text-center"><?php echo xlt('Appointments'); ?></h3>
                             <?php
-                            $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
-                                "e.pc_startTime, e.pc_hometext, e.pc_apptstatus, u.fname, u.lname, u.mname, " .
-                                "c.pc_catname " . "FROM openemr_postcalendar_events AS e, users AS u, " .
-                                "openemr_postcalendar_categories AS c WHERE " . "e.pc_pid = ? AND e.pc_eventDate >= CURRENT_DATE AND " .
-                                "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " . "ORDER BY e.pc_eventDate, e.pc_startTime";
-                            $res = sqlStatement($query, array(
-                                $pid
-                            ));
-
-                            if (sqlNumRows($res) > 0) {
+                            $current_date2 = date('Y-m-d');
+                            $apptLimit = 30;
+                            $appts = fetchNextXAppts($current_date2, $pid, $apptLimit);
+                            if ($appts) {
+                                $stringCM = "(" . xl("Comments field entry present") . ")";
+                                $stringR = "(" . xl("Recurring appointment") . ")";
                                 $count = 0;
-                                // echo '<div class="card"><table id="appttable" style="width:100%;background:#eee;" class="table table-striped"><tbody>';
-                                while ($row = sqlFetchArray($res)) {
+                                foreach ($appts as $row) {
                                     $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
                                     $count++;
                                     $dayname = xl(date("l", strtotime($row ['pc_eventDate'])));
@@ -390,26 +391,24 @@ foreach ($msgs as $i) {
                                     }
 
                                     if ($row ['pc_hometext'] != "") {
-                                        $etitle = 'Comments' . ": " . $row ['pc_hometext'] . "\r\n";
+                                        $etitle = xlt('Comments') . ": " . $row ['pc_hometext'] . "\r\n";
                                     } else {
                                         $etitle = "";
                                     }
 
                                     echo '<div class="card p-2">';
-                                    echo "<div class='card-header clearfix'><a href='#' onclick='editAppointment(0," . attr_js($row ['pc_eid']) . ")" .
-                                        "' title='" . attr($etitle) . "'><i class='float-right fa fa-edit'></i></a></div>";
+                                    $mode = (int)$row['pc_recurrtype'] > 0 ? text("recurring") : $row['pc_recurrtype'];
+                                    $appt_type_icon = (int)$row['pc_recurrtype'] > 0 ? "<i class='float-right fa fa-edit text-danger bg-light'></i>" : "<i class='float-right fa fa-edit text-success bg-light'></i>";
+                                    echo "<div class='card-header clearfix'><a href='#' onclick='editAppointment(" . attr_js($mode) . "," . attr_js($row ['pc_eid']) . ")'"  . "title='" . attr($etitle) . "'>" . $appt_type_icon . "</a></div>";
                                     echo "<div class='body font-weight-bold'><p>" . text($dayname . ", " . $row ['pc_eventDate']) . "&nbsp;";
                                     echo text($disphour . ":" . $dispmin . " " . $dispampm) . "<br />";
                                     echo xlt("Type") . ": " . text($row ['pc_catname']) . "<br />";
-                                    echo xlt("Provider") . ": " . text($row ['fname'] . " " . $row ['lname']) . "<br />";
+                                    echo xlt("Provider") . ": " . text($row ['ufname'] . " " . $row ['ulname']) . "<br />";
                                     echo xlt("Status") . ": " . text($status_title);
                                     echo "</p></div></div>";
                                 }
-
-                                if (isset($res) && $res != null) {
-                                    if ($count < 1) {
-                                        echo "&nbsp;&nbsp;" . xlt('None{{Appointment}}');
-                                    }
+                                if ($count == $apptLimit) {
+                                    echo "<p>" . xlt("Display limit reached") . "<br>" . xlt("More appointments may exist") . "</p>";
                                 }
                             } else { // if no appts
                                 echo "<h3 class='text-center'>" . xlt('No Appointments') . "</h3>";
