@@ -148,7 +148,6 @@ class InstallerController extends AbstractActionController
                     //Run custom sql's in folder sql of module
                     if ($this -> getInstallerTable() -> installSQL($GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$dirModule -> modDirectory."/sql")) {
                         $values[2] = $this->getModuleVersionFromFile($request->getPost('modId'));
-//                        $values[3] =
                         $this -> getInstallerTable() -> updateRegistered($request->getPost('modId'), '', $values);
                         $status = $this->listenerObject->z_xlt("Success");
                     } else {
