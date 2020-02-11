@@ -82,14 +82,14 @@ function sendScripts(e) {
     let scripts = $('#prescriptIds').data('ids');
     //decided this time to send the prescriptions from the server instead of the browser
     //that is why only the prescription id is needed to be transmitted
-    let sendRx = "../../interface/weno/transmitRx.php";
+    let sendrx = "../../interface/weno/transmitrx.php";
     let request = [];
     let responses = [];
     //Make sure there has been at least one id passed
     if (scripts) {
         request.push(
             $.ajax({
-                url: sendRx+'?scripts='+scripts,  //send a list of id's to the server to build the rx message and send
+                url: sendrx+'?scripts='+scripts,  //send a list of id's to the server to build the rx message and send
                 method: 'GET',
                 success: function (response) {
                     parser = new DOMParser();

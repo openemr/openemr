@@ -32,8 +32,4 @@ class PatientDataRepository extends EntityRepository
         return $store;
     }
 
-    public function findPatientPharmacy()
-    {
-        return "Arbys";
-    }
 }
