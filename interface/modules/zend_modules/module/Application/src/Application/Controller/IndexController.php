@@ -11,9 +11,9 @@
 
 namespace Application\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Zend\View\Model\JsonModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
+use Laminas\View\Model\JsonModel;
 use Application\Listener\Listener;
 
 class IndexController extends AbstractActionController
@@ -41,7 +41,7 @@ class IndexController extends AbstractActionController
      * Function ajaxZXL
      * All JS Mesages to xl Translation
      *
-     * @return \Zend\View\Model\JsonModel
+     * @return \Laminas\View\Model\JsonModel
      */
     public function ajaxZxlAction()
     {

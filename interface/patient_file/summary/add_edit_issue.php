@@ -15,12 +15,11 @@
 require_once('../../globals.php');
 require_once($GLOBALS['srcdir'].'/lists.inc');
 require_once($GLOBALS['srcdir'].'/patient.inc');
-require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'].'/csv_like_join.php');
 
-
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -59,12 +58,12 @@ $info_msg = "";
 // A nonempty thistype is an issue type to be forced for a new issue.
 $thistype = empty($_REQUEST['thistype']) ? '' : $_REQUEST['thistype'];
 
-if ($thistype && !$issue && !acl_check_issue($thistype, '', array('write', 'addonly'))) {
+if ($thistype && !$issue && !AclMain::aclCheckIssue($thistype, '', array('write', 'addonly'))) {
     die(xlt("Add is not authorized!"));
 }
 
 $tmp = getPatientData($thispid, "squad");
-if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
     die(xlt("Not authorized for this squad!"));
 }
 
@@ -339,7 +338,7 @@ if ($_POST['form_save']) {
 $irow = array();
 if ($issue) {
     $irow = sqlQuery("SELECT * FROM lists WHERE id = ?", array($issue));
-    if (!acl_check_issue($irow['type'], '', 'write')) {
+    if (!AclMain::aclCheckIssue($irow['type'], '', 'write')) {
         die(xlt("Edit is not authorized!"));
     }
 } elseif ($thistype) {
@@ -698,7 +697,7 @@ if ($issue) {
                                     echo " checked";
                                 }
 
-                                if (!acl_check_issue($key, '', array('write','addonly'))) {
+                                if (!AclMain::aclCheckIssue($key, '', array('write','addonly'))) {
                                     echo " disabled";
                                 }
 
@@ -865,7 +864,7 @@ if ($issue) {
                                 <button type='submit' name='form_save'  class="btn btn-default btn-save"  value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
                                 <button type="button" class="btn btn-link btn-cancel btn-separate-left" onclick='closeme();'><?php echo xlt('Cancel');?></button>
                                 <?php
-                                if ($issue && acl_check('admin', 'super')) { ?>
+                                if ($issue && AclMain::aclCheckCore('admin', 'super')) { ?>
                                     <button type='submit' name='form_delete'  class="btn btn-default btn-cancel btn-delete btn-separate-left" onclick='deleteme()' value='<?php echo xla('Delete'); ?>'><?php echo xlt('Delete'); ?></button>
                                     <?php
                                 } ?>

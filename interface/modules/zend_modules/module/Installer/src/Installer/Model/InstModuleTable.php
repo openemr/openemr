@@ -13,9 +13,9 @@
 
 namespace Installer\Model;
 
-use Zend\Db\TableGateway\TableGateway;
-use Zend\Config\Reader\Ini;
-use Zend\Db\ResultSet\ResultSet;
+use Laminas\Db\TableGateway\TableGateway;
+use Laminas\Config\Reader\Ini;
+use Laminas\Db\ResultSet\ResultSet;
 use \Application\Model\ApplicationTable;
 use Interop\Container\ContainerInterface;
 
@@ -43,7 +43,7 @@ class InstModuleTable
     public function __construct(TableGateway $tableGateway, ContainerInterface $container)
     {
         $this->tableGateway = $tableGateway;
-        $adapter = \Zend\Db\TableGateway\Feature\GlobalAdapterFeature::getStaticAdapter();
+        $adapter = \Laminas\Db\TableGateway\Feature\GlobalAdapterFeature::getStaticAdapter();
         $this->adapter              = $adapter;
         $this->resultSetPrototype   = new ResultSet();
         $this->applicationTable       = new ApplicationTable;

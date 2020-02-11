@@ -14,9 +14,9 @@
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
-require_once("../../library/acl.inc");
 require_once("../../custom/code_types.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
@@ -63,7 +63,7 @@ function thisLineItem($row, $codetype, $code)
     } // End not csv export
 }
 
-if (! acl_check('acct', 'rep')) {
+if (! AclMain::aclCheckCore('acct', 'rep')) {
     die(xlt("Unauthorized access."));
 }
 

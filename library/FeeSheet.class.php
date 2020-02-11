@@ -24,7 +24,6 @@
  */
 
 require_once(dirname(__FILE__) . "/../interface/globals.php");
-require_once(dirname(__FILE__) . "/acl.inc");
 require_once(dirname(__FILE__) . "/../custom/code_types.inc.php");
 require_once(dirname(__FILE__) . "/../interface/drugs/drugs.inc.php");
 require_once(dirname(__FILE__) . "/options.inc.php");

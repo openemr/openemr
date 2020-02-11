@@ -13,15 +13,16 @@
 
 namespace Installer\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
-use Zend\View\Model\JsonModel;
-use Zend\Json\Json;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
+use Laminas\View\Model\JsonModel;
+use Laminas\Json\Json;
 use Installer\Model\InstModule;
 use Application\Listener\Listener;
 use Installer\Model\InstModuleTable;
-use Zend\Db\Adapter\Adapter;
-use Zend\Console\Request as ConsoleRequest;
+use Laminas\Db\Adapter\Adapter;
+use OpenEMR\Common\Utils\RandomGenUtils;
+use Laminas\Console\Request as ConsoleRequest;
 
 class InstallerController extends AbstractActionController
 {
@@ -32,7 +33,7 @@ class InstallerController extends AbstractActionController
     protected $listenerObject;
 
     /**
-     * @var Zend\Db\Adapter\Adapter
+     * @var Laminas\Db\Adapter\Adapter
      */
     private $dbAdapter;
 
@@ -147,7 +148,7 @@ class InstallerController extends AbstractActionController
                     //Run custom sql's in folder sql of module
                     if ($this -> getInstallerTable() -> installSQL($GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$dirModule -> modDirectory."/sql")) {
                         $values[2] = $this->getModuleVersionFromFile($request->getPost('modId'));
-
+//                        $values[3] =
                         $this -> getInstallerTable() -> updateRegistered($request->getPost('modId'), '', $values);
                         $status = $this->listenerObject->z_xlt("Success");
                     } else {
@@ -182,6 +183,21 @@ class InstallerController extends AbstractActionController
 
         echo json_encode(["status"=>$status, "output" => implode("<br />\n", $div)]);
         exit(0);
+    }
+
+    /**
+     * @param $version
+     * @return int|string
+     */
+    function upgradeAclFromVersion($ACL_UPGRADE, $version)
+    {
+        $toVersion = '';
+        foreach ($ACL_UPGRADE as $toVersion => $function) {
+            if (version_compare($version, $toVersion) < 0) {
+                $function();
+            }
+        }
+        return $toVersion;
     }
 
     /**
@@ -444,7 +460,10 @@ class InstallerController extends AbstractActionController
             $mod->acl_action = "install";
         }
         if (file_exists($sqldir."/acl_upgrade.php") && file_exists($ModulePath."/version.php") && !empty($mod->acl_version)) {
-            global $phpgacl_location, $ACL_UPGRADE;
+            global $ACL_UPGRADE;
+            $unique_id = RandomGenUtils::createUniqueToken();
+            $_SESSION['acl_setup_unique_id'] = $unique_id;
+
             include_once($sqldir."/acl_upgrade.php");
 
             foreach ($ACL_UPGRADE as $toVersion => $function) {
@@ -483,6 +502,7 @@ class InstallerController extends AbstractActionController
         $dirModule = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
         if ($this->getInstallerTable()->installSQL($GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$dirModule -> modDirectory."/sql")) {
             $values[2] = $this->getModuleVersionFromFile($modId);
+            $values[3] = $dirModule->acl_version;
             $this -> getInstallerTable() -> updateRegistered($modId, '', $values);
             return true;
         } else {
@@ -545,6 +565,7 @@ class InstallerController extends AbstractActionController
                 $k++;
             }
         }
+        $values[3] = $Module->acl_version;
         $this -> getInstallerTable() -> updateRegistered($modId, '', $values);
         return $div;
     }
@@ -559,7 +580,10 @@ class InstallerController extends AbstractActionController
         $modDir = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$Module -> modDirectory;
         $div = [];
         if (file_exists($modDir."/acl/acl_setup.php") && empty($modDir->acl_version)) {
-            global $phpgacl_location, $gacl;
+            // Pass a unique variable, so below scripts can not be run on their own
+            $unique_id = RandomGenUtils::createUniqueToken();
+            $_SESSION['acl_setup_unique_id'] = $unique_id;
+
             ob_start();
             include_once($modDir."/acl/acl_setup.php");
             $div[] = ob_get_contents();
@@ -582,10 +606,13 @@ class InstallerController extends AbstractActionController
         $modDir = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$Module -> modDirectory;
         $div = [];
         if (file_exists($modDir."/acl/acl_upgrade.php") && !empty($Module->acl_version)) {
-            global $phpgacl_location, $gacl, $ACL_UPGRADE;
+            // Pass a unique variable, so below scripts can not be run on their own
+            $unique_id = RandomGenUtils::createUniqueToken();
+            $_SESSION['acl_setup_unique_id'] = $unique_id;
+
             ob_start();
-            include_once($modDir."/acl/acl_upgrade.php");
-            $version = upgradeAclFromVersion($Module->acl_version);
+            $ACL_UPGRADE = include_once($modDir."/acl/acl_upgrade.php");
+            $version = $this->upgradeAclFromVersion($ACL_UPGRADE, $Module->acl_version);
             $div[] = ob_get_contents();
             ob_end_clean();
 

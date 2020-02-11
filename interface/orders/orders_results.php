@@ -12,9 +12,10 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lab.inc");
+
+use OpenEMR\Common\Acl\AclMain;
 
 // Indicates if we are entering in batch mode.
 $form_batch = empty($_GET['batch']) ? 0 : 1;
@@ -23,13 +24,13 @@ $form_batch = empty($_GET['batch']) ? 0 : 1;
 $form_review = empty($_GET['review']) ? 0 : 1;
 
 // Check authorization.
-$thisauth = acl_check('patients', 'med');
+$thisauth = AclMain::aclCheckCore('patients', 'med');
 if (!$thisauth) {
     die(xlt('Not authorized'));
 }
 
 // Check authorization for pending review.
-$reviewauth = acl_check('patients', 'sign');
+$reviewauth = AclMain::aclCheckCore('patients', 'sign');
 if ($form_review and !$reviewauth and !$thisauth) {
     die(xlt('Not authorized'));
 }

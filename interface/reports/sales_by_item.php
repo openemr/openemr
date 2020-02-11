@@ -16,9 +16,9 @@
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/acl.inc");
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -248,7 +248,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
     $grandqty     += $qty;
 } // end function
 
-if (! acl_check('acct', 'rep')) {
+if (! AclMain::aclCheckCore('acct', 'rep')) {
     die(xlt("Unauthorized access."));
 }
 
@@ -392,7 +392,7 @@ if ($_POST['form_csvexport']) {
         </td>
         <td>
         <?php
-        if (acl_check('acct', 'rep_a')) {
+        if (AclMain::aclCheckCore('acct', 'rep_a')) {
           // Build a drop-down list of providers.
             $query = "select id, lname, fname from users where " .
               "authorized = 1 order by lname, fname";

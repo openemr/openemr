@@ -22,13 +22,14 @@ require_once("$srcdir/patient.inc");
 require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
 require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 
 ?>
 
 <?php
  // check access controls
-if (!acl_check('patients', 'appt', '', array('write','wsome'))) {
+if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {
     die(xlt('Access not allowed'));
 }
 
@@ -449,7 +450,7 @@ $(function(){
 
 <?php
 if (!$ckavail) {
-    if (acl_check('patients', 'appt', '', 'write')) {
+    if (AclMain::aclCheckCore('patients', 'appt', '', 'write')) {
         if ($is_holiday) { ?>
             if (confirm(<?php echo xlj('On this date there is a holiday, use it anyway?'); ?>)) {
                 opener.top.restoreSession();

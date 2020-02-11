@@ -11,10 +11,10 @@
 
 namespace Documents;
 
-use Zend\Mvc\ModuleRouteListener;
-use Zend\Mvc\MvcEvent;
-use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
-use Zend\ModuleManager\ModuleManager;
+use Laminas\Mvc\ModuleRouteListener;
+use Laminas\Mvc\MvcEvent;
+use Laminas\ModuleManager\Feature\AutoloaderProviderInterface;
+use Laminas\ModuleManager\ModuleManager;
 use Documents\Model\DocumentsTable;
 
 class Module implements AutoloaderProviderInterface
@@ -51,7 +51,7 @@ class Module implements AutoloaderProviderInterface
     public function getAutoloaderConfig()
     {
         return array(
-        'Zend\Loader\StandardAutoloader' => array(
+        'Laminas\Loader\StandardAutoloader' => array(
           'namespaces' => array(
             __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
           ),

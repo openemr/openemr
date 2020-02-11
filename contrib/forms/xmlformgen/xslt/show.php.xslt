@@ -29,10 +29,11 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 /* for $GLOBALS[], ?? */
 require_once('../../globals.php');
-/* for acl_check(), ?? */
 require_once($GLOBALS['srcdir'].'/api.inc');
 /* for display_layout_rows(), ?? */
 require_once($GLOBALS['srcdir'].'/options.inc.php');
+
+use OpenEMR\Common\Acl\AclMain;
 
 ]]></xsl:text>
 <!-- These templates generate PHP code -->

@@ -35,10 +35,10 @@ if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
 
 // Sets default factory using the default database
 $factories = array(
-    'Zend\Db\Adapter\Adapter' => function ($containerInterface, $requestedName) {
-        $adapterFactory = new Zend\Db\Adapter\AdapterServiceFactory();
+    'Laminas\Db\Adapter\Adapter' => function ($containerInterface, $requestedName) {
+        $adapterFactory = new Laminas\Db\Adapter\AdapterServiceFactory();
         $adapter = $adapterFactory($containerInterface, $requestedName);
-        \Zend\Db\TableGateway\Feature\GlobalAdapterFeature::setStaticAdapter($adapter);
+        \Laminas\Db\TableGateway\Feature\GlobalAdapterFeature::setStaticAdapter($adapter);
         return $adapter;
     }
 );
@@ -64,7 +64,7 @@ if ($GLOBALS['allow_multiple_databases']) {
 
             // Create new factories using data from custom database
             $factories[$row['namespace']] = function ($serviceManager) use ($row) {
-                $adapterAbstractServiceFactory = new Zend\Db\Adapter\AdapterAbstractServiceFactory();
+                $adapterAbstractServiceFactory = new Laminas\Db\Adapter\AdapterAbstractServiceFactory();
                 $adapter = $adapterAbstractServiceFactory->createServiceWithName($serviceManager, '', $row['namespace']);
                 return $adapter;
             };

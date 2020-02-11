@@ -25,6 +25,9 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
+
+use OpenEMR\Common\Acl\AclExtended;
+
 //=========================================================================
 //  Load the API Functions
 //=========================================================================
@@ -651,7 +654,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
 
     // Added ACO for each category
     $tpl->assign('InputACO', 'aco');
-    $acoList = gen_aco_array();
+    $acoList = AclExtended::genAcoArray();
     $tpl->assign('ACO_List', $acoList);
 
     $output->SetOutputMode(_PNH_RETURNOUTPUT);

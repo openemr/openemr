@@ -10,8 +10,8 @@
  */
 namespace Documents;
 
-use Zend\ServiceManager\Factory\InvokableFactory;
-use Zend\Router\Http\Segment;
+use Laminas\ServiceManager\Factory\InvokableFactory;
+use Laminas\Router\Http\Segment;
 use Documents\Controller\DocumentsController;
 use Documents\Model\DocumentsTable;
 use Interop\Container\ContainerInterface;
@@ -77,7 +77,7 @@ return array(
     'service_manager' => [
         'factories' => [
             DocumentsTable::class =>  function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get(\Zend\Db\Adapter\Adapter::class);
+                $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
                 $table = new DocumentsTable($dbAdapter);
                 return $table;
             },

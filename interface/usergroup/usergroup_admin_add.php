@@ -12,10 +12,11 @@
 
 
 require_once("../globals.php");
-require_once("../../library/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 
+use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\MainMenuRole;
@@ -24,7 +25,7 @@ use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
 
-if (!acl_check('admin', 'users')) {
+if (!AclMain::aclCheckCore('admin', 'users')) {
     exit();
 }
 
@@ -374,8 +375,8 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
  <td><select name="access_group[]" multiple style="width:120px;" class="form-control">
 <?php
 // List the access control groups
-$is_super_user = acl_check('admin', 'super');
-$list_acl_groups = acl_get_group_title_list($is_super_user ? true : false);
+$is_super_user = AclMain::aclCheckCore('admin', 'super');
+$list_acl_groups = AclExtended::aclGetGroupTitleList($is_super_user ? true : false);
 $default_acl_group = 'Administrators';
 foreach ($list_acl_groups as $value) {
     if ($is_super_user && $default_acl_group == $value) {

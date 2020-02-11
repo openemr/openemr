@@ -11,14 +11,14 @@
 
 namespace Application\Helper;
 
-use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\ListenerAggregateInterface;
-use Zend\Mvc\Controller\AbstractActionController;
+use Laminas\EventManager\EventManagerInterface;
+use Laminas\EventManager\ListenerAggregateInterface;
+use Laminas\Mvc\Controller\AbstractActionController;
 
 /**
  * Decorates the OpenEMR functions making it so a module can avoid hard coding global functions
  */
-class TranslatorViewHelper extends \Zend\View\Helper\AbstractHelper
+class TranslatorViewHelper extends \Laminas\View\Helper\AbstractHelper
 {
 
     /**

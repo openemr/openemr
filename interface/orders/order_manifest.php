@@ -13,9 +13,10 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
+
+use OpenEMR\Common\Acl\AclMain;
 
 function getListItem($listid, $value)
 {
@@ -325,7 +326,7 @@ function generate_order_summary($orderid)
 } // end function generate_order_summary
 
 // Check authorization.
-$thisauth = acl_check('patients', 'med');
+$thisauth = AclMain::aclCheckCore('patients', 'med');
 if (!$thisauth) {
     die(xlt('Not authorized'));
 }

@@ -10,12 +10,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 use Interop\Container\ContainerInterface;
-use Zend\ServiceManager\Factory\InvokableFactory;
-use Zend\Router\Http\Segment;
-use Zend\ServiceManager\AbstractPluginManager;
-use Zend\Db\ResultSet\ResultSet;
+use Laminas\ServiceManager\Factory\InvokableFactory;
+use Laminas\Router\Http\Segment;
+use Laminas\ServiceManager\AbstractPluginManager;
+use Laminas\Db\ResultSet\ResultSet;
 use Installer\Model\InstModule;
-use Zend\Db\Adapter\Adapter;
+use Laminas\Db\Adapter\Adapter;
 
 return array(
     'controllers' => array(

@@ -15,6 +15,7 @@
 require_once('../globals.php');
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Rx\Weno\AdminProperties;
@@ -63,7 +64,7 @@ $data = new AdminProperties();
 <?php
 
 // check to make sure only administrators access this page.
-if (!acl_check('admin', 'super')) {
+if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt("You are not authorized!"));
 }
 

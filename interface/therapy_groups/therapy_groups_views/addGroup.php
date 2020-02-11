@@ -23,10 +23,13 @@
  * @author  Amiel Elboim <amielel@matrix.co.il>
  * @link    http://www.open-emr.org
  */
+
+use OpenEMR\Common\Acl\AclMain;
+
 ?>
 
-<?php $edit = acl_check("groups", "gadd", false, 'write');?>
-<?php $view = acl_check("groups", "gadd", false, 'view');?>
+<?php $edit = AclMain::aclCheckCore("groups", "gadd", false, 'write');?>
+<?php $view = AclMain::aclCheckCore("groups", "gadd", false, 'view');?>
 
 <?php require 'header.php'; ?>
 <?php if ($view || $edit) :?>

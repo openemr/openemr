@@ -16,9 +16,9 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -174,7 +174,7 @@ while ($row = sqlFetchArray($res)) {
         $displayName .=", ".$row['suffix'];
     }
 
-    if (acl_check('admin', 'practice') || (empty($username) && empty($row['ab_name']))) {
+    if (AclMain::aclCheckCore('admin', 'practice') || (empty($username) && empty($row['ab_name']))) {
        // Allow edit, since have access or (no item type and not a local user)
         $trTitle = xl('Edit'). ' ' . $displayName;
         echo " <tr class='address_names detail' style='cursor:pointer' " .

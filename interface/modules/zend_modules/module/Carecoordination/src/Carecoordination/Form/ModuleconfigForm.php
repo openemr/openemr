@@ -11,8 +11,8 @@
 
 namespace Carecoordination\Form;
 
-use Zend\Form\Form;
-use Zend\Db\Adapter\AdapterInterface;
+use Laminas\Form\Form;
+use Laminas\Db\Adapter\AdapterInterface;
 use \Application\Model\ApplicationTable;
 use Application\Listener\Listener;
 
@@ -45,7 +45,7 @@ class ModuleconfigForm extends Form
         * Automatic Tranfer settings
         */
         $this->add(array(
-            'type' => 'Zend\Form\Element\Checkbox',
+            'type' => 'Laminas\Form\Element\Checkbox',
                 'name' => 'hie_auto_send_id',
                 'attributes'    => array(
                         'id'        => 'hie_auto_send_id'
@@ -62,7 +62,7 @@ class ModuleconfigForm extends Form
         */
         $this->add(array(
                 'name'  => 'hie_author_id',
-                'type'      => 'Zend\Form\Element\Select',
+                'type'      => 'Laminas\Form\Element\Select',
                 'attributes'=> array(
                     'class'     => '',
                     'data-options'  => 'required:true',
@@ -81,7 +81,7 @@ class ModuleconfigForm extends Form
         */
         $this->add(array(
                 'name'      => 'hie_data_enterer_id',
-                'type'      => 'Zend\Form\Element\Select',
+                'type'      => 'Laminas\Form\Element\Select',
                 'attributes'=> array(
                     'class'     => '',
                     'data-options'  => 'required:true',
@@ -100,7 +100,7 @@ class ModuleconfigForm extends Form
         */
         $this->add(array(
                 'name'  => 'hie_informant_id',
-                'type'      => 'Zend\Form\Element\Select',
+                'type'      => 'Laminas\Form\Element\Select',
                 'attributes'=> array(
                     'class'     => '',
                     'data-options'  => 'required:true',
@@ -133,7 +133,7 @@ class ModuleconfigForm extends Form
         */
         $this->add(array(
                 'name'  => 'hie_custodian_id',
-                'type'      => 'Zend\Form\Element\Select',
+                'type'      => 'Laminas\Form\Element\Select',
                 'attributes'=> array(
                     'class'     => '',
                     'data-options'  => 'required:true',
@@ -152,7 +152,7 @@ class ModuleconfigForm extends Form
         */
         $this->add(array(
                 'name'  => 'hie_legal_authenticator_id',
-                'type'      => 'Zend\Form\Element\Select',
+                'type'      => 'Laminas\Form\Element\Select',
                 'attributes'=> array(
                     'class'     => '',
                     'data-options'  => 'required:true',
@@ -171,7 +171,7 @@ class ModuleconfigForm extends Form
         */
         $this->add(array(
                 'name'  => 'hie_authenticator_id',
-                'type'      => 'Zend\Form\Element\Select',
+                'type'      => 'Laminas\Form\Element\Select',
                 'attributes'=> array(
                     'class'     => '',
                     'data-options'  => 'required:true',
@@ -190,7 +190,7 @@ class ModuleconfigForm extends Form
         */
         $this->add(array(
                 'name'  => 'hie_primary_care_provider_id',
-                'type'      => 'Zend\Form\Element\Select',
+                'type'      => 'Laminas\Form\Element\Select',
                 'attributes'=> array(
                     'class'     => '',
                     'data-options'  => 'required:true',

@@ -21,8 +21,9 @@
 * @author    Jerry Padgett <sjpadgett@gmail.com>
 */
 
-require_once($GLOBALS["srcdir"] . "/acl.inc");
 require_once($GLOBALS["srcdir"] . "/options.inc.php");
+
+use OpenEMR\Common\Acl\AclMain;
 
 function getListItem($listid, $value)
 {
@@ -317,7 +318,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
     global $aNotes;
 
 // Check authorization.
-    $thisauth = acl_check('patients', 'med');
+    $thisauth = AclMain::aclCheckCore('patients', 'med');
     if (!$thisauth) {
         return xl('Not authorized');
     }

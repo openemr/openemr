@@ -1,11 +1,11 @@
 <?php
 namespace Carecoordination\Model;
 
-use Zend\InputFilter\Factory as InputFactory;
-use Zend\InputFilter\InputFilter;
-use Zend\InputFilter\InputFilterAwareInterface;
-use Zend\InputFilter\InputFilterInterface;
-use Zend\Form\Form;
+use Laminas\InputFilter\Factory as InputFactory;
+use Laminas\InputFilter\InputFilter;
+use Laminas\InputFilter\InputFilterAwareInterface;
+use Laminas\InputFilter\InputFilterInterface;
+use Laminas\Form\Form;
 
 class Configuration extends Form implements InputFilterAwareInterface
 {
@@ -34,7 +34,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     * Automatic Tranfer settings
     */
         $this->add(array(
-        'type' => 'Zend\Form\Element\Checkbox',
+        'type' => 'Laminas\Form\Element\Checkbox',
             'name' => 'hie_auto_send_id',
             'attributes'    => array(
                     'id'        => 'hie_auto_send_id'
@@ -51,7 +51,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add(array(
             'name'  => 'hie_author_id',
-        'type'      => 'Zend\Form\Element\Select',
+        'type'      => 'Laminas\Form\Element\Select',
             'attributes'=> array(
         'class'     => '',
         'data-options'  => 'required:true',
@@ -70,7 +70,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add(array(
             'name'  => 'hie_data_enterer_id',
-        'type'      => 'Zend\Form\Element\Select',
+        'type'      => 'Laminas\Form\Element\Select',
             'attributes'=> array(
         'class'     => '',
         'data-options'  => 'required:true',
@@ -89,7 +89,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add(array(
             'name'  => 'hie_informant_id',
-        'type'      => 'Zend\Form\Element\Select',
+        'type'      => 'Laminas\Form\Element\Select',
             'attributes'=> array(
         'class'     => '',
         'data-options'  => 'required:true',
@@ -122,7 +122,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add(array(
             'name'  => 'hie_custodian_id',
-        'type'      => 'Zend\Form\Element\Select',
+        'type'      => 'Laminas\Form\Element\Select',
             'attributes'=> array(
         'class'     => '',
         'data-options'  => 'required:true',
@@ -141,7 +141,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add(array(
             'name'  => 'hie_recipient_id',
-        'type'      => 'Zend\Form\Element\Select',
+        'type'      => 'Laminas\Form\Element\Select',
             'attributes'=> array(
         'class'     => '',
         'data-options'  => 'required:true',
@@ -160,7 +160,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add(array(
             'name'  => 'hie_legal_authenticator_id',
-        'type'      => 'Zend\Form\Element\Select',
+        'type'      => 'Laminas\Form\Element\Select',
             'attributes'=> array(
         'class'     => '',
         'data-options'  => 'required:true',
@@ -179,7 +179,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add(array(
             'name'  => 'hie_authenticator_id',
-        'type'      => 'Zend\Form\Element\Select',
+        'type'      => 'Laminas\Form\Element\Select',
             'attributes'=> array(
         'class'     => '',
         'data-options'  => 'required:true',
@@ -198,7 +198,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add(array(
             'name'  => 'hie_primary_care_provider_id',
-        'type'      => 'Zend\Form\Element\Select',
+        'type'      => 'Laminas\Form\Element\Select',
             'attributes'=> array(
         'class'     => '',
         'data-options'  => 'required:true',

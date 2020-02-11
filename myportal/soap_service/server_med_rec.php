@@ -58,7 +58,6 @@ class Userforms extends UserAudit
             require_once("../../library/pnotes.inc");
             require_once("../../library/patient.inc");
             require_once("../../library/options.inc.php");
-            require_once("../../library/acl.inc");
             require_once("../../library/lists.inc");
             require_once("../../library/report.inc");
             require_once("../../custom/code_types.inc.php");

@@ -43,7 +43,8 @@ if (php_sapi_name() === 'cli'){
 require_once(dirname(__FILE__)."/../../../globals.php");
 require_once(dirname(__FILE__)."/../../../../library/forms.inc");
 require_once(dirname(__FILE__)."/../../../../library/options.inc.php");
-require_once(dirname(__FILE__)."/../../../../library/acl.inc");
+
+require_once(dirname(__FILE__)."/../../../../library/sql_upgrade_fx.php");
 
 require_once(dirname(__FILE__)."/../../../../library/sql_upgrade_fx.php");
 

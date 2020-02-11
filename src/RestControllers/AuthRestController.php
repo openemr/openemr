@@ -14,6 +14,7 @@
 
 namespace OpenEMR\RestControllers;
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Crypto\CryptoGen;
@@ -201,7 +202,7 @@ class AuthRestController
         }
 
         // Check if user is authorized
-        return acl_check($section, $value, $userResult["username"]);
+        return AclMain::aclCheckCore($section, $value, $userResult["username"]);
     }
 
     public function optionallyAddMoreTokenTime($tokenRaw)
