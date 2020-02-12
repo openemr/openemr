@@ -242,12 +242,12 @@ body {
     color: var(--danger);
 }
 
-.patientInfo .patientPicture {
+.patientPicture {
     margin-top: -1px;
     margin-right: 7px;
 }
 
-.patientInfo .patientPicture img {
+.patientPicture img {
     height: 75px;
 }
 
