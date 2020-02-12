@@ -3826,7 +3826,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
     }
     ?>
        <!-- Navigation -->
-    <nav class="navbar-fixed-top navbar-custom navbar-bright navbar-inner" data-role="page banner navigation" style="margin-bottom: 0;z-index: 9999999;">
+    <nav class="navbar navbar-fixed-top navbar-custom navbar-bright navbar-inner navbar-expand" data-role="page banner navigation" style="margin-bottom: 0;z-index: 9999999;">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="container-fluid" style="margin-top:0px;padding:2px;">
             <div class="navbar-header brand" style="color:black;">
