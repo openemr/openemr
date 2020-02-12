@@ -13,7 +13,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once('../../globals.php');
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 
@@ -290,22 +289,13 @@ $GLOBALS['allow_issue_menu_link'] = ((AclMain::aclCheckCore('encounters', 'notes
 
 </script>
 <script>
-    function fixIframe() {
-        // Set height dynamically
-        $(".frameDisplay > iframe").height($(".frameDisplay > iframe").contents().find("body").height());
-        if ($(".frameDisplay > iframe").height() == '0px') {
-            // Give minimum if zero height exists
-            $(".frameDisplay > iframe").height('100%');
-        }
-    }
     $(window).on('resize', function() {
         var win = $(this);
         var winWidth = $(this).width();
-        
-        // Set height dynamically
-        fixIframe();
-        
-        if (winWidth > <?php echo js_escape($width); ?>) {
+
+        let phpWidth = <?php echo js_escape($width); ?>;
+        phpWidth /= 1;
+        if (winWidth > phpWidth) {
             $("#tabs_div").removeClass('col-sm-10');
             $("#mainFrames_div").removeClass('col-sm-10');
             $("#menu_icon").addClass('fa-bars');
@@ -314,15 +304,13 @@ $GLOBALS['allow_issue_menu_link'] = ((AclMain::aclCheckCore('encounters', 'notes
             $(".appMenu_small").addClass('appMenu');
             $(".appMenu_small").removeClass('appMenu_small');
 
-        } else if (winWidth <= <?php echo js_escape($width); ?>){
+        } else if (winWidth < phpWidth) {
             $("#username div:first-child").removeClass("userSection");
             $(".appMenu").addClass('appMenu_small');
             $(".appMenu").removeClass('appMenu');
         }
     });
     $(function() {
-        // Set height dynamically
-        fixIframe();
         $(window).trigger('resize');// to avoid repeating code triggers above on page open
     });
 </script>
@@ -339,11 +327,6 @@ $GLOBALS['allow_issue_menu_link'] = ((AclMain::aclCheckCore('encounters', 'notes
     html, body {
         min-height: 100% !important;
         height: 100% !important;
-    }
-    
-    /* Minimum requirement */
-    .frameDisplay > iframe {
-        height: 100%;
     }
 </style>
 

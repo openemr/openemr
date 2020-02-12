@@ -38,7 +38,7 @@
 
         <!-- ko  foreach: tabs.tabsList -->
         <div class="frameDisplay" data-bind="visible:visible">
-            <iframe onload="fixIframe()" data-bind="location: $data, iframeName: $data.name, ">
+            <iframe data-bind="location: $data, iframeName: $data.name, ">
 
             </iframe>
         </div>
