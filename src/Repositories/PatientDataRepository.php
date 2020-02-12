@@ -31,5 +31,4 @@ class PatientDataRepository extends EntityRepository
         $store = $set->execute();
         return $store;
     }
-
 }
