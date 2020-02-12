@@ -490,7 +490,7 @@ function HelpfulDie($statement, $sqlerr = '')
     if (!$GLOBALS['sql_string_no_show_screen']) {
         for ($level = 1; $level < count($backtrace); $level++) {
             $info = $backtrace[$level];
-            echo "<br>" . text($info["file"] . " at " . $info["line"] . ":" . $info["function"]);
+            echo "<br />" . text($info["file"] . " at " . $info["line"] . ":" . $info["function"]);
             if ($level > 1) {
                 echo "(" . text(implode(",", $info["args"])) . ")";
             }

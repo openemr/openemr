@@ -104,9 +104,8 @@ $g_view = AclMain::aclCheckCore("groups", "gcalendar", false, 'view');
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title><?php echo $eid ? xlt('Edit') : xlt('Add New{{Event}}') ?> <?php echo xlt('Event');?></title>
 <?php Header::setupHeader(['common', 'datetime-picker', 'opener']); ?>
+<title><?php echo $eid ? xlt('Edit') : xlt('Add New{{Event}}') ?> <?php echo xlt('Event');?></title>
 
 <!-- validation library -->
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
@@ -985,7 +984,7 @@ if ($groupid) {
     }
 
     ?>
-<script language="JavaScript">
+<script>
 <?php require $GLOBALS['srcdir'] . "/formatting_DateToYYYYMMDD_js.js.php" ?>
 
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -1128,19 +1127,19 @@ function set_category() {
 // radio buttons are clicked.
 function set_allday() {
     var f = document.forms[0];
-    var color1 = '#777777';
-    var color2 = '#777777';
+    var color1 = 'var(--gray)';
+    var color2 = 'var(--gray)';
     var disabled2 = true;
     if (document.getElementById('rballday1').checked) {
-        color1 = '#000000';
+        color1 = 'var(--black)';
     }
     if (document.getElementById('rballday2').checked) {
-        color2 = '#000000';
+        color2 = 'var(--black)';
         disabled2 = false;
     }
     document.getElementById('tdallday1').style.color = color1;
     document.getElementById('tdallday2').style.color = color2;
-    document.getElementById('tdallday3').style.color = color2;
+    //document.getElementById('tdallday3').style.color = color2;
     document.getElementById('tdallday4').style.color = color2;
     document.getElementById('tdallday5').style.color = color2;
     f.form_hour.disabled = disabled2;
@@ -1153,7 +1152,7 @@ function set_allday() {
 function set_repeat() {
     var f = document.forms[0];
     var isdisabled = true;
-    var mycolor = '#777777';
+    var mycolor = 'var(--gray)';
     var myvisibility = 'hidden';
     if (f.form_repeat.checked) {
         f.days_every_week.checked = false;
@@ -1165,7 +1164,7 @@ function set_repeat() {
             labels[i].style.color = mycolor;
         }
         isdisabled = false;
-        mycolor = '#000000';
+        mycolor = 'var(--black)';
         myvisibility = 'visible';
     }
     f.form_repeat_type.disabled = isdisabled;
@@ -1183,18 +1182,18 @@ function set_days_every_week() {
         f.form_repeat.checked = false;
         f.form_repeat_type.disabled = true;
         f.form_repeat_freq.disabled = true;
-        document.getElementById('tdrepeat1').style.color = '#777777';
+        document.getElementById('tdrepeat1').style.color = 'var(--gray)';
 
         //enable end_date setting
-        document.getElementById('tdrepeat2').style.color = '#000000';
+        document.getElementById('tdrepeat2').style.color = 'var(--black)';
         f.form_enddate.disabled = false;
 
         var isdisabled = false;
-        var mycolor = '#000000';
+        var mycolor = 'var(--black)';
         var myvisibility = 'visible';
     } else {
         var isdisabled = true;
-        var mycolor = '#777777';
+        var mycolor = 'var(--gray)';
         var myvisibility = 'hidden';
     }
     document.getElementById("days_label").style.color = mycolor;
@@ -1214,14 +1213,14 @@ function set_days_every_week() {
 }
 
 // Constants used by dateChanged() function.
-var occurNames = new Array(
+const occurNames = Array(
     '<?php echo xls("1st{{nth}}"); ?>',
     '<?php echo xls("2nd{{nth}}"); ?>',
     '<?php echo xls("3rd{{nth}}"); ?>',
     '<?php echo xls("4th{{nth}}"); ?>'
 );
 
-var weekDays = new Array(
+const weekDays = Array(
     '<?php echo xls("Sunday"); ?>',
     '<?php echo xls("Monday"); ?>',
     '<?php echo xls("Tuesday"); ?>',
@@ -1316,81 +1315,32 @@ function find_available(extra) {
 }
 </script>
 <style>
-    .navbar {
-        margin: 0px;
-        border-radius: 0px;
-    }
     body {
         overflow-x: hidden;
-    }
-    .row {
-        margin: auto;
-    }
-    .well-sm {
-        margin: 0px 0px 5px 0px;
-        padding: 5px 0px 5px 5px;
-    }
-    #days_every_week_row input[type="checkbox"] {
-        float: right;
-    }
-    #days_every_week_row div {
-        display: inline-block;
-        text-align: center;
-        width: 12%;
-    }
-    #days_every_week_row div input {
-        width: 100%;
-    }
-    input[type="button"] {
-        margin-bottom: 3px;
-    }
-    #theform input[name="form_title"] {
-        width: 45vw;
-    }
-    #theform input[name="form_comments"] {
-        width: 60vw;
     }
     @media (max-width: 768px) {
         body {
             margin-bottom: 15px;
-        }
-        .form-control {
-            display: inline-block;
-            width: auto;
-        }
-        #billing_facility {
-            width: 100%;
-        }
-        #facility {
-            width: 100%;
-        }
-        #theform input[name="form_title"] {
-            width: 100%;
-        }
-        #theform input[name="form_comments"] {
-            width: 100%;
         }
     }
 </style>
 </head>
 <body>
 <div class="container-fluid">
-<div class="row">
-
-<nav class="navbar">
+<nav class='mb-3'>
     <?php
         $provider_class='';
         $group_class='';
         $normal='';
     if ($_GET['prov']==true) {
-        $provider_class="class='current'";
+        $provider_class=" active ";
     } elseif ($_GET['group']==true) {
-        $group_class="class='current'";
+        $group_class=" active";
     } else {
-        $normal="class='current'";
+        $normal=" active";
     }
     ?>
-    <ul class="tabNav">
+    <ul class="nav nav-tabs nav-fill text-body">
         <?php
             $eid=$_REQUEST["eid"];
             $startm=$_REQUEST["startampm"];
@@ -1400,31 +1350,27 @@ function find_available(extra) {
             $dt=$_REQUEST["date"];
             $cid=$_REQUEST["catid"];
         ?>
-        <li <?php echo $normal;?>>
-            <a href='add_edit_event.php?startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
-                <?php echo xlt('Patient');?></a>
+        <li class="nav-item">
+            <a class="nav-link<?php echo $normal;?>" href='add_edit_event.php?startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'><?php echo xlt('Patient');?></a>
         </li>
-        <li <?php echo $provider_class;?>>
-            <a href='add_edit_event.php?prov=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
-                <?php echo xlt('Provider');?></a>
+        <li class="nav-item">
+            <a class="nav-link<?php echo $provider_class;?>" href='add_edit_event.php?prov=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'><?php echo xlt('Provider');?></a>
         </li>
         <?php if ($have_group_global_enabled) :?>
-            <li <?php echo $group_class ;?>>
-                <a href='add_edit_event.php?group=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'>
-                    <?php echo xlt('Group');?></a>
+            <li class="nav-item">
+                <a class="nav-link<?php echo $group_class ;?>" href='add_edit_event.php?group=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'><?php echo xlt('Group');?></a>
             </li>
         <?php endif ?>
     </ul>
 </nav> <!-- nav-group -->
-
-<form class="form-inline" role="form" method='post' name='theform' id='theform' action='add_edit_event.php?eid=<?php echo attr($eid) ?>'>
+<form role="form" method='post' name='theform' id='theform' action='add_edit_event.php?eid=<?php echo attr($eid) ?>'>
 
 <!-- ViSolve : Requirement - Redirect to Create New Patient Page -->
 <input type='hidden' size='2' name='resname' value='empty' />
 <?php
 if ($_POST["resname"]=="noresult") {
     echo '
-<script language="Javascript">
+<script>
     // refresh and redirect the parent window
     if (!opener.closed && opener.refreshme) opener.refreshme();
     top.restoreSession();
@@ -1437,30 +1383,29 @@ $classprov='current';
 $classpati='';
 ?>
 <!-- ViSolve : Requirement - Redirect to Create New Patient Page -->
-<input type="hidden" name="form_action" id="form_action" value="">
-<input type="hidden" name="recurr_affect" id="recurr_affect" value="">
+<input type="hidden" name="form_action" id="form_action" value="" />
+<input type="hidden" name="recurr_affect" id="recurr_affect" value="" />
 <!-- used for recurring events -->
-<input type="hidden" name="selected_date" id="selected_date" value="<?php echo attr($date); ?>">
-<input type="hidden" name="event_start_date" id="event_start_date" value="<?php echo attr($eventstartdate); ?>">
+<input type="hidden" name="selected_date" id="selected_date" value="<?php echo attr($date); ?>" />
+<input type="hidden" name="event_start_date" id="event_start_date" value="<?php echo attr($eventstartdate); ?>" />
 <!-- Following added by epsdky 2016 (details in commit) -->
-<input type="hidden" name="old_repeats" id="old_repeats" value="<?php echo attr($repeats); ?>">
-<input type="hidden" name="rt2_flag2" id="rt2_flag2" value="<?php echo attr(isset($rspecs['rt2_pf_flag']) ? $rspecs['rt2_pf_flag'] : '0'); ?>">
+<input type="hidden" name="old_repeats" id="old_repeats" value="<?php echo attr($repeats); ?>" />
+<input type="hidden" name="rt2_flag2" id="rt2_flag2" value="<?php echo attr(isset($rspecs['rt2_pf_flag']) ? $rspecs['rt2_pf_flag'] : '0'); ?>" />
 <!-- End of addition by epsdky -->
-<div class="row">
-    <div class="form-group">
-        <label><?php echo xlt('Category'); ?>:</label>
+<div class="form-row mx-2">
+    <div class="col-sm form-group">
+        <label for='form_category'><?php echo xlt('Category'); ?>:</label>
         <select class='form-control' name='form_category' id='form_category' onchange='set_category()'>
             <?php echo $catoptions ?>
         </select>
     </div>
-    <div class="form-group">
-        <label><?php echo xlt('Title'); ?>:</label>
-        <input class="form-control" type='text' size='10' name='form_title' value='<?php echo attr($row['pc_title']); ?>'
-            title='<?php echo xla('Event title'); ?>' />
+    <div class="col-sm form-group">
+        <label for='form_title'><?php echo xlt('Title'); ?>:</label>
+        <input class="form-control" type='text' size='10' name='form_title' id='form_title' value='<?php echo attr($row['pc_title']); ?>' title='<?php echo xla('Event title'); ?>' />
     </div>
 </div>
-<div class="row">
-    <div class="form-group">
+<div class="form-row mx-2">
+    <div class="col-sm form-group">
         <label for="facility"><?php echo xlt('Facility'); ?>:</label>
         <select class="form-control" name="facility" id="facility">
             <?php
@@ -1478,7 +1423,7 @@ $classpati='';
             ?>
         </select>
     </div>
-    <div class="form-group">
+    <div class="col-sm form-group">
     <label for="billing_facility"><?php echo xlt('Billing Facility'); ?>:</label>
         <?php
         billing_facility('billing_facility', $row['pc_billing_location']);
@@ -1487,28 +1432,29 @@ $classpati='';
 </div>
 <?php
 if ($_GET['prov'] != true && $_GET['group'] != true) { ?>
-    <div class="row well well-sm" id="patient_details">
-        <div class="form-group ">
+    <div class="jumbotron jumbotron-fluid px-2 py-2 my-2" id="patient_details">
+        <div class="form-group">
             <label for="form_patient"><?php echo xlt('Patient'); ?>:</label>
-            <input class='form-control' type='text' name='form_patient' id="form_patient" style='cursor:pointer;cursor:hand' placeholder='<?php echo xla('Click to select'); ?>' value='<?php echo is_null($patientname) ? '' : attr($patientname); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>'  />
+            <input class='form-control' type='text' name='form_patient' id="form_patient" style='cursor:pointer;' placeholder='<?php echo xla('Click to select'); ?>' value='<?php echo is_null($patientname) ? '' : attr($patientname); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
             <input type='hidden' name='form_pid' value='<?php echo attr($patientid) ?>' />
-        </div>
-        <!-- Patient phone numbers -->
-        <div class="form-group" style='font-size:8pt'>
-            <span class="infobox text-danger">
-            <?php
-            foreach ($patienttitle as $value) {
-                if ($value != "") {
-                    echo text(trim($value));
-                }
-                if (count($patienttitle) > 1) {
-                    echo "<br />";
-                }
+
+            <!-- Patient phone numbers -->
+            <div>
+        <span class="infobox text-danger" style='font-size: 0.75rem'>
+        <?php
+        foreach ($patienttitle as $value) {
+            if ($value != "") {
+                echo text(trim($value));
             }
-            ?>
-            </span>
+            if (count($patienttitle) > 1) {
+                echo "<br />";
+            }
+        }
+        ?>
+        </span>
+            </div>
         </div>
-    </div>
+    </div> <!-- End Jumbotron !-->
     <?php
     // DOB is important for the clinic, so if it's missing give them a chance
     // to enter it right here.  We must display or hide this row dynamically
@@ -1518,8 +1464,8 @@ if ($_GET['prov'] != true && $_GET['group'] != true) { ?>
     $dobstyle = ($prow && (!$patient_dob || substr($patient_dob, 5) == '00-00') && !$is_group) ?
         '' : 'none';
     ?>
-    <div class="row" id='dob_row' style='display:<?php echo $dobstyle ?>'>
-        <div class="form-group">
+    <div class="form-row mx-2" id='dob_row' style='display: <?php echo $dobstyle ?>'>
+        <div class="col-sm form-group">
             <span class="text-danger"><?php echo xlt('DOB is missing, please enter if possible'); ?>:</span>
             <input class="form-control datepicker" type='text' size='10' name='form_dob' id='form_dob' title='<?php echo xla('yyyy-mm-dd date of birth'); ?>' />
         </div>
@@ -1527,13 +1473,13 @@ if ($_GET['prov'] != true && $_GET['group'] != true) { ?>
 <?php } ?>
 <?php
 if ($_GET['group'] === true && $have_group_global_enabled) { ?>
-    <div class="row" id="group_details">
-        <div class="form-group ">
-            <label><?php echo xlt('Group'); ?>:</label>
+    <div class="form-row mx-2" id="group_details">
+        <div class="col-sm form-group">
+            <label for='form_group'><?php echo xlt('Group'); ?>:</label>
             <input class='form-control' type='text' size='10' name='form_group' id="form_group" style='cursor:pointer;cursor:hand' placeholder='<?php echo xla('Click to select'); ?>' value='<?php echo is_null($groupname) ? '' : attr($groupname); ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
             <input type='hidden' name='form_gid' value='<?php echo attr($groupid) ?>' />
         </div>
-        <div class="form-group" style='font-size:8pt'>
+        <div class="col-sm form-group" style='font-size: 0.75rem'>
             <span class="infobox">
             <?php
             foreach ($patienttitle as $value) {
@@ -1549,9 +1495,9 @@ if ($_GET['group'] === true && $have_group_global_enabled) { ?>
         </div>
     </div>
 <?php } ?>
-<div class="row">
-    <div class="form-group">
-     <label>
+<div class="form-row mx-2">
+    <div class="col-sm form-group">
+     <label for="provd">
         <?php if ($_GET['group'] == true) {
             echo xlt('Coordinating Counselors');
         } else {
@@ -1579,7 +1525,7 @@ if ($_GET['group'] === true && $have_group_global_enabled) { ?>
             }
         }
         // build the selection tool
-        echo "<select class='form-control' name='form_provider[]' multiple='multiple' size='5' >";
+        echo "<select class='form-control' name='form_provider[]' id='provd' multiple='multiple' size='5' >";
         while ($urow = sqlFetchArray($ures)) {
             echo "    <option value='" . attr($urow['id']) . "'";
             if ($userid) {
@@ -1623,7 +1569,7 @@ if ($_GET['group'] === true && $have_group_global_enabled) { ?>
                 $defaultProvider = $userid;
             }
         }
-        echo "<select class='form-control' name='form_provider' />";
+        echo "<select class='form-control' name='form_provider' id='provd'>";
         while ($urow = sqlFetchArray($ures)) {
             echo "    <option value='" . attr($urow['id']) . "'";
             if ($urow['id'] == $defaultProvider) {
@@ -1666,124 +1612,105 @@ function isRegularRepeat($repeat)
     repeating mechanism is being used, and load settings accordingly.
     */
 ?>
-<div class="well well-sm">
-<div class="row">
-    <div class="row">
-        <div class="form-group">
-            <div class="form-group">
-                <label for="rballday1" class="" id='tdallday1'><?php echo xlt('All day event'); ?></label>
-                <input type='radio' name='form_allday' onclick='set_allday()' value='1' id='rballday1'<?php echo ($thisduration == 1440) ? " checked" : ""; ?>/>
-            </div>
-            <div class="form-group">
-                <label><?php echo xlt('Date'); ?>:</label>
-                <input class="form-control datepicker" type='text' size='10' name='form_date' id='form_date'
-                    value='<?php echo attr(oeFormatShortDate($date)) ?>'
-                    title='<?php echo xla('event date or starting date'); ?>'
-                    onchange='dateChanged()' />
-            </div>
-            <span>
-            <label for="rballday2" class="" id='tdallday2'><?php echo xlt('Time'); ?></label>
-            <input type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2'<?php echo ($thisduration != 1440) ? " checked " : ""; ?>/>
-        </span>
-            <span id="tdallday3">
-                <input class='form-control' type='text' size='2' name='form_hour' value='<?php echo attr($starttimeh) ?>'
-                    title='<?php echo xla('Event start time'); ?>' />
-                <input class='form-control' type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>'
-                    title='<?php echo xla('Event start time'); ?>' />
-                <select class='form-control' name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
-                    <option value='1'><?php echo xlt('AM'); ?></option>
-                    <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
-                </select>
-        <label id='tdallday4'><?php echo xlt('duration'); ?></label>
-        <input class="form-control" id='tdallday5' type='text' size='4' name='form_duration' value='<?php echo attr($thisduration) ?>'
-            title='<?php echo xla('Event duration in minutes'); ?>' /><?php echo xlt('minutes'); ?>
-            </span>
+<div class="jumbotron jumbotron-fluid px-3 py-4 my-2">
+    <div class="form-row mb-sm-2">
+        <div class='col-sm-2 form-check form-check-inline'>
+            <input type='radio' class='form-check-input' name='form_allday' onclick='set_allday()' value='1' id='rballday1'<?php echo ($thisduration == 1440) ? " checked" : ""; ?> />
+            <label for="rballday1" class='form-check-label' id='tdallday1'><?php echo xlt('All day event'); ?></label>
         </div>
+        <label class='col-sm col-form-label' for='form_date'><?php echo xlt('Date'); ?>:</label>
+        <input class="col-sm-2 form-control datepicker" type='text' size='10' name='form_date' id='form_date' value='<?php echo attr(oeFormatShortDate($date)) ?>' title='<?php echo xla('event date or starting date'); ?>' onchange='dateChanged()' />
+        <div class='col-sm form-check form-check-inline'>
+            <input class="form-check-input" type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2'<?php echo ($thisduration != 1440) ? " checked " : ""; ?> />
+            <label class="form-check-label" for="rballday2" id='tdallday2'><?php echo xlt('Time'); ?></label>
+        </div>
+        <input class='col-sm form-control' type='text' size='2' name='form_hour' value='<?php echo attr($starttimeh) ?>' title='<?php echo xla('Event start time'); ?>' />
+        <input class='col-sm form-control' type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>' title='<?php echo xla('Event start time'); ?>' />
+        <select class='col-sm form-control' name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
+            <option value='1'><?php echo xlt('AM'); ?></option>
+            <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
+        </select>
+        <label class='col-sm col-form-label' id='tdallday4'><?php echo xlt('duration'); ?></label>
+        <input class="col-sm form-control" id='tdallday5' type='text' size='4' name='form_duration' value='<?php echo attr($thisduration) ?>' title='<?php echo xla('Event duration in minutes'); ?>' />
     </div>
-    <div class="form-group ">
-        <label id='tdrepeat1'><?php echo xlt('Repeats'); ?></label>
-        <input type='checkbox' name='form_repeat' id="form_repeat" onclick='set_repeat(this)'
-            value='1'<?php echo (isRegularRepeat($repeats)) ? " checked" : "";?>/>
-        <input type='hidden' name='form_repeat_exdate' id='form_repeat_exdate'
-            value='<?php echo attr($repeatexdate); ?>' /> <!-- dates excluded from the repeat -->
-        <select class='form-control input-sm'  name='form_repeat_freq' title='<?php echo xla('Every, every other, every 3rd, etc.'); ?>'>
-        <?php
-        foreach (array(1 => xl('every'), 2 => xl('2nd{{every}}'), 3 => xl('3rd{{every}}'), 4 => xl('4th{{every}}'), 5 => xl('5th{{every}}'), 6 => xl('6th{{every}}')) as $key => $value) {
-            echo "<option value='" . attr($key) . "'";
-            if ($key == $repeatfreq && isRegularRepeat($repeats)) {
-                echo " selected";
+    <div class="form-row mb-sm-2">
+        <div class="col-sm form-check-inline">
+            <input class='form-check-input' type='checkbox' name='form_repeat' id="form_repeat" onclick='set_repeat(this)' value='1'<?php echo (isRegularRepeat($repeats)) ? " checked" : ""; ?>/>
+            <label class='form-check-label' id='tdrepeat1'><?php echo xlt('Repeats'); ?></label>
+        </div>
+        <input type='hidden' name='form_repeat_exdate' id='form_repeat_exdate' value='<?php echo attr($repeatexdate); ?>' />
+        <!-- dates excluded from the repeat -->
+        <select class='col-sm form-control form-control-sm' name='form_repeat_freq' title='<?php echo xla('Every, every other, every 3rd, etc.'); ?>'>
+            <?php
+            foreach (array(1 => xl('every'), 2 => xl('2nd{{every}}'), 3 => xl('3rd{{every}}'), 4 => xl('4th{{every}}'), 5 => xl('5th{{every}}'), 6 => xl('6th{{every}}')) as $key => $value) {
+                echo "<option value='" . attr($key) . "'";
+                if ($key == $repeatfreq && isRegularRepeat($repeats)) {
+                    echo " selected";
+                }
+                echo ">" . text($value) . "</option>\n";
             }
-            echo ">" . text($value) . "</option>\n";
+            ?>
+        </select>
+        <select class='col-sm form-control form-control-sm' name='form_repeat_type'>
+            <?php
+            // See common.api.php for these. Options 5 and 6 will be dynamically filled in
+            // when the start date is set.
+            foreach (array(0 => xl('day'), 4 => xl('workday'), 1 => xl('week'), 2 => xl('month'), 3 => xl('year'), 5 => '?', 6 => '?') as $key => $value) {
+                echo "<option value='" . attr($key) . "'";
+                if ($key == $repeattype && isRegularRepeat($repeats)) {
+                    echo " selected";
+                }
+                echo ">" . text($value) . "</option>\n";
+            }
+            ?>
+        </select>
+        <label class='col-sm col-form-label' id='tdrepeat2'><?php echo xlt('until date'); ?></label>
+        <input class="col-sm form-control form-control-sm datepicker" type='text' size='10' name='form_enddate' id='form_enddate' value='<?php echo attr(oeFormatShortDate($recurrence_end_date)) ?>' title='<?php echo xla('last date of this event'); ?>' />
+        <?php
+        if ($repeatexdate != "") {
+            $tmptitle = "The following dates are excluded from the repeating series";
+            if ($multiple_value) {
+                $tmptitle .= " for one or more providers:\n";
+            } else {
+                $tmptitle .= "\n";
+            }
+            $max = $GLOBALS['number_of_ex_appts_to_show'];
+            $exdates = explode(",", $repeatexdate);
+            if (!empty($exdates)) {
+                $exdates = array_slice($exdates, 0, $max, true);
+            }
+            foreach ($exdates as $exdate) {
+                $tmptitle .= date("d M Y", strtotime($exdate)) . "\n";
+            }
+            echo "<a href='#' title='" . attr($tmptitle) . "' alt='" . attr($tmptitle) . "'><img src='../../pic/warning.gif' title='" . attr($tmptitle) . "' alt='*!*' class='border-0'/></a>";
         }
         ?>
-        </select>
-        <select class='form-control input-sm'  name='form_repeat_type'>
-        <?php
-        // See common.api.php for these. Options 5 and 6 will be dynamically filled in
-        // when the start date is set.
-        foreach (array(0 => xl('day') , 4 => xl('workday'), 1 => xl('week'), 2 => xl('month'), 3 => xl('year'), 5 => '?', 6 => '?') as $key => $value) {
-            echo "<option value='" . attr($key) . "'";
-            if ($key == $repeattype && isRegularRepeat($repeats)) {
-                echo " selected";
-            }
-            echo ">" . text($value) . "</option>\n";
-        }
-        ?>
-        </select>
     </div>
-</div>
-<!-- Days of Week -->
-<div class="row" id="days_every_week_row">
-    <span>
-        <span class="input-group">
-            <input type='checkbox' id='days_every_week' name='days_every_week' onclick='set_days_every_week()' <?php echo (isDaysEveryWeek($repeats)) ? " checked" : ""; ?>/>
-            <label for="days_every_week" id="days_label"><?php echo xlt('Days Of Week') . ": "; ?></label>
-        </span>
-        <span class="input-group" id="days">
+    <!-- Days of Week -->
+    <div class="form-row" id="days_every_week_row">
+        <div class="col-sm-4 form-check-inline">
+            <input class="form-check-input" type='checkbox' id='days_every_week' name='days_every_week' onclick='set_days_every_week()' <?php echo (isDaysEveryWeek($repeats)) ? " checked" : ""; ?>/>
+            <label class="form-check-label" for="days_every_week" id="days_label"><?php echo xlt('Days Of Week') . ": "; ?></label>
+        </div>
+        <div class="col-sm input-group" id="days">
             <?php
             foreach (array(1 => xl('Su{{Sunday}}'), 2 => xl('Mo{{Monday}}'), 3 => xl('Tu{{Tuesday}}'), 4 => xl('We{{Wednesday}}'),
                 5 => xl('Th{{Thursday}}'), 6 => xl('Fr{{Friday}}'), 7 => xl('Sa{{Saturday}}')) as $key => $value) {
-                echo "<div><label><input type='checkbox' name='day_" . attr($key) . "'";
+                echo "<div class='form-check-inline'><input class='form-check-input' type='checkbox' name='day_" . attr($key) . "'";
                 //Checks appropriate days according to days in recurrence string.
                 if (in_array($key, explode(',', $repeatfreq)) && isDaysEveryWeek($repeats)) {
                     echo " checked";
                 }
-                echo " />" . text($value) . "</label></div>\n";
-            }
-            ?>
-        </span>
-    </span>
-</div>
-    <div class="row">
-        <div class="form-group">
-            <label id='tdrepeat2'><?php echo xlt('until date'); ?></label>
-            <input class="form-control input-sm input-sm datepicker" type='text' size='10' name='form_enddate' id='form_enddate' value='<?php echo attr(oeFormatShortDate($recurrence_end_date)) ?>' title='<?php echo xla('last date of this event');?>' />
-            <?php
-            if ($repeatexdate != "") {
-                $tmptitle = "The following dates are excluded from the repeating series";
-                if ($multiple_value) {
-                    $tmptitle .= " for one or more providers:\n";
-                } else {
-                    $tmptitle .= "\n";
-                }
-                $max = $GLOBALS['number_of_ex_appts_to_show'];
-                $exdates = explode(",", $repeatexdate);
-                if (!empty($exdates)) {
-                    $exdates=array_slice($exdates, 0, $max, true);
-                }
-                foreach ($exdates as $exdate) {
-                    $tmptitle .= date("d M Y", strtotime($exdate))."\n";
-                }
-                echo "<a href='#' title='" . attr($tmptitle) . "' alt='" . attr($tmptitle) . "'><img src='../../pic/warning.gif' title='" . attr($tmptitle) . "' alt='*!*' style='border:none;'/></a>";
+                echo " /><label class='form-check-label'>" . text($value) . "</label></div>\n";
             }
             ?>
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="form-group">
+<div class="form-row mx-2">
+    <div class="col-sm form-group">
         <label id='title_apptstatus'><?php echo xlt('Status'); ?>:</label>
-        <label id='title_prefcat' style='display:none'><b><?php echo xlt('Pref Cat'); ?>:</b></label>
+        <label id='title_prefcat' class='font-weight-bold' style='display:none'><?php echo xlt('Pref Cat'); ?>:</label>
         <?php
         if ($_GET['group'] != true) {
             generate_form_field(array('data_type' => 1, 'field_id' => 'apptstatus', 'list_id' => 'apptstat', 'empty_title' => 'SKIP'), $row['pc_apptstatus']);
@@ -1793,59 +1720,55 @@ function isRegularRepeat($repeat)
         ?>
         <!-- The following list will be invisible unless this is an In Office
          event, in which case form_apptstatus (above) is to be invisible. -->
-        <select class='form-control input-sm' name='form_prefcat' style='display:none' title='<?php echo xla('Preferred Event Category'); ?>'>
+        <select class='form-control form-control-sm' name='form_prefcat' style='display:none' title='<?php echo xla('Preferred Event Category'); ?>'>
             <?php echo $prefcat_options ?>
         </select>
     </div>
-</div>
+
 <?php
 if ($_GET['prov'] != true) { ?>
-    <div class="row">
-        <div class="form-group">
-            <label><?php echo xlt('Room Number'); ?>:</label>
-            <?php
-                echo generate_select_list('form_room', 'patient_flow_board_rooms', $pcroom, xl('Room Number'));
-            ?>
-        </div>
+    <div class="col-sm form-group">
+        <label><?php echo xlt('Room Number'); ?>:</label>
+        <?php
+            echo generate_select_list('form_room', 'patient_flow_board_rooms', $pcroom, xl('Room Number'));
+        ?>
     </div>
     <?php } ?>
-<div class="row">
-    <div class="form-group">
+</div><!-- status row -->
+<div class="form-row mx-2">
+    <div class="col-sm form-group">
         <label><?php echo xlt('Comments'); ?>:</label>
         <input class='form-control' type='text' name='form_comments' value='<?php echo attr($hometext); ?>' title='<?php echo xla('Optional information about this event'); ?>' />
     </div>
 </div>
-<div class="row">
-    <div id="recurr_popup" class="input-group alert bg-warning text-left" style="display: none;position: relative; max-width:400px;">
-        <p class="lead small" style="font-size:16px;"><strong><?php echo xlt('Option one, apply the changes to only the Current event. Option two, apply to this event and all Future occurrences or lastly, apply to All event occurrences?') ?></strong></p>
-        <br>
+<div class="form-row mx-2">
+    <div id="recurr_popup" class="col-sm input-group alert bg-warning text-left" style="display: none; position: relative; max-width: 400px;">
+        <p class="lead small font-weight-bold" style="font-size: 16px;"><?php echo xlt('Option one, apply the changes to only the Current event. Option two, apply to this event and all Future occurrences or lastly, apply to All event occurrences?') ?></p>
+        <br />
         <?php if ($GLOBALS['submit_changes_for_all_appts_at_once']) {?>
-            <input type="button" name="all_events" id="all_events" value="  <?php echo xla('All'); ?>  ">
+            <input type="button" class="btn btn-primary" name="all_events" id="all_events" value="<?php echo xla('All'); ?>" />
         <?php } ?>
-        <input type="button" id="recurr_cancel" value="<?php echo xla('Cancel'); ?>">
-        <input type="button" id="future_events" value="<?php echo xla('Future'); ?>">
-        <input type="button" id="current_event" value="<?php echo xla('Current'); ?>">
+        <input type="button" class="btn btn-primary" id="recurr_cancel" value="<?php echo xla('Cancel'); ?>" />
+        <input type="button" class="btn btn-primary" id="future_events" value="<?php echo xla('Future'); ?>" />
+        <input type="button" class="btn btn-primary" id="current_event" value="<?php echo xla('Current'); ?>" />
     </div>
 </div>
-<div class='row'>
-    <div class="button-group buttonbar">
-        <input type='button' name='form_save' id='form_save' value='<?php echo xla('Save'); ?>' />
-        <?php if (!($GLOBALS['select_multi_providers'])) { //multi providers appt is not supported by check slot avail window, so skip ?>
-            <input type='button' id='find_available' value='<?php echo xla('Find Available{{Provider}}'); ?>' />
-        <?php } ?>
-        <input type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete'); ?>'<?php echo (!$eid) ? " disabled" : ""; ?> />
-        <input type='button' id='cancel' value='<?php echo xla('Cancel'); ?>' />
-        <input type='button' name='form_duplicate' id='form_duplicate' value='<?php echo xla('Create Duplicate'); ?>' />
-    </div>
+<div class="form-row mx-2 mt-3">
+    <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-primary" type='button' name='form_save' id='form_save' value='<?php echo xla('Save'); ?>' />
+    <?php if (!($GLOBALS['select_multi_providers'])) { //multi providers appt is not supported by check slot avail window, so skip ?>
+        <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-primary" type='button' id='find_available' value='<?php echo xla('Find Available{{Provider}}'); ?>' />
+    <?php } ?>
+    <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-primary" type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete'); ?>'<?php echo (!$eid) ? " disabled" : ""; ?> />
+    <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-primary" type='button' id='cancel' value='<?php echo xla('Cancel'); ?>' />
+    <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-primary" type='button' name='form_duplicate' id='form_duplicate' value='<?php echo xla('Create Duplicate'); ?>' />
 </div>
 <?php if ($informant) {
-    echo "<p class='text'>" . xlt('Last update by') . " " .
-    text($informant) . " " . xlt('on') . " " . text($row['pc_time']) . "</p>\n";
+    echo "<label><p class='text'>" . xlt('Last update by') . " " .
+    text($informant) . " " . xlt('on') . " " . text($row['pc_time']) . "</p></label>\n";
 } ?>
 
 </form><!-- This ends our form. The rest is action items-->
 
-</div> <!-- top wrapper row -->
 </div> <!-- top container wrapper -->
 
 <!-- form support functions-->
@@ -1910,8 +1833,9 @@ $(function (){
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
     // add wanted classes to api generated elements.
-    $("#form_apptstatus").addClass('input-sm');
-    $("#form_room").addClass('input-sm');
+    $("#form_apptstatus").addClass('form-control-sm');
+    $("#form_room").addClass('form-control-sm');
+    $(".current a").addClass('active');
 });
 
 function are_days_checked(){

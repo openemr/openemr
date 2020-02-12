@@ -6,27 +6,26 @@
 #patient_stats_summary table {
     border-collapse: collapse;
 }
+
 #patient_stats_summary .noend_noreturn {
-    color: #ee0000;
+    color: $danger;
 }
+
 #patient_stats_summary .noend {
-    color: #dd5500;
+    color: $orange;
 }
+
 #patient_stats_summary .noreturn {
-    color: #0000ff;
+    color: $primary;
 }
+
 #patient_stats_summary .title {
-    font-size: 1.1em;
+    @include font-size("1.1rem !important");
 }
-#patient_stats_issues {
-    width: 100%;
-}
-#patient_stats_spreadsheets {
-    width: 100%;
-}
-#patient_stats_imm {
-    width: 100%;
-}
+
+#patient_stats_issues,
+#patient_stats_spreadsheets,
+#patient_stats_imm,
 #patient_stats_prescriptions {
     width: 100%;
 }

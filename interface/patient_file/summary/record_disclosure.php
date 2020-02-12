@@ -16,6 +16,7 @@ require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 //if the edit button for editing disclosure is set.
 if (isset($_GET['editlid'])) {
@@ -25,13 +26,7 @@ if (isset($_GET['editlid'])) {
 <!DOCTYPE html>
 <html>
 <head>
-<link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
-
-<!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+<?php Header::setupHeader(['datetime-picker', 'opener']); ?>
 
 <script type="text/javascript">
 //function to validate fields in record disclosure page
@@ -97,16 +92,14 @@ if ($editlid) {
 <form name="disclosure_form" id="disclosure_form" method="POST" action="disclosure_full.php">
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-    <div><button class='css_button_span large_button_span' name='form_save' id='form_save'>
+    <div><button class='btn btn-primary btn-lg' name='form_save' id='form_save'>
             <?php echo xlt('Save'); ?>
         </button></div>
-    <div><a class="css_button large_button" id='cancel' href='#' onclick='top.restoreSession();dlgclose()'> <span
-                class='css_button_span large_button_span'><?php echo xlt('Cancel'); ?></span>
-        </a></div>
-    <br>
-<input type=hidden name=mode value="disclosure">
-<table border=0 cellpadding=3 cellspacing=0 align='center'>
-    <br>
+    <div><a class="btn btn-secondary btn-lg" id='cancel' href='#' onclick='top.restoreSession();dlgclose()'><?php echo xlt('Cancel'); ?></a></div>
+    <br />
+<input type='hidden' name='mode' value="disclosure">
+<table border='0' cellpadding='3' cellspacing='0' align='center'>
+    <br />
     <tr>
         <td><span class='text'><?php echo xlt('Date'); ?>:</span></td>
         <td><!--retrieve disclosures from extended_log table for modifications-->
@@ -126,7 +119,7 @@ if ($editlid) {
         } ?>
     </tr>
     <tr>
-        <td><span class=text><?php echo xlt('Type of Disclosure'); ?>: </span></TD>
+        <td><span class=text><?php echo xlt('Type of Disclosure'); ?>: </span></td>
         <td><?php
         if ($editlid) {
             //To incorporate the disclosure types  into the list_options listings
@@ -138,27 +131,26 @@ if ($editlid) {
         </td>
     </tr>
     <tr>
-        <td><span class=text><?php echo xlt('Recipient of the Disclosure'); ?>:
+        <td><span class='text'><?php echo xlt('Recipient of the Disclosure'); ?>:
         </span></td>
         <td class='text'>
         <?php
         if ($editlid) {
-            ?> <input type=entry name=recipient_name size=20 value="<?php echo attr($recipient_name); ?>"></td>
+            ?> <input type=entry name=recipient_name size=20 value="<?php echo attr($recipient_name); ?>" />
             <?php
         } else {?>
-            <input type=entry name=recipient_name size=20 value="">
-        </td>
+            <input type=entry name=recipient_name size=20 value="" />
             <?php
         }?>
+        </td>
     </tr>
     <tr>
         <td>
         <span class=text><?php echo xlt('Description of the Disclosure'); ?>:</span></td>
+        <td>
         <?php if ($editlid) { ?>
-            <td>
             <textarea name=desc_disc wrap=auto rows=4 cols=30><?php echo text($description); ?></textarea>
         <?php } else {?>
-            <td>
             <textarea name=desc_disc wrap=auto rows=4 cols=30></textarea>
         <?php }?>
         </td>
@@ -166,3 +158,4 @@ if ($editlid) {
 </table>
 </form>
 </body>
+</html>

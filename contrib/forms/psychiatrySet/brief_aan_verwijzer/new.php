@@ -24,6 +24,8 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Core\Header;
+
 formHeader("Form: brief_aan_verwijzer");
 $returnurl = 'encounter_top.php';
 
@@ -146,26 +148,31 @@ if ($obj_bav['advies_beleid'] != '') {
 
 <html>
 <head>
-    <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+    <?php Header::setupHeader('datetime-picker'); ?>
+    <style>
+    body {
+        font-family: sans-serif;
+        font-size: 0.8125rem;
+        font-weight: normal;
+    }
+    .dehead {
+        font-family: sans-serif;
+        font-size: 0.8125rem;
+        font-weight: bold;
+        padding-left: 3px;
+        padding-right: 3px;
+    }
+    .detail {
+        font-family: sans-serif;
+        font-size: 0.8125rem;
+        font-weight: normal;
+        padding-left: 3px;
+        padding-right: 3px;
+    }
+</style>
 </head>
 
-
-
-<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-
-<style type="text/css">
- body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
-  .dehead    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold;
-                padding-left:3px; padding-right:3px; }
-                 .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal;
-                               padding-left:3px; padding-right:3px; }
-</style>
-
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+<body class="body_top">
 
 <?php
 
@@ -252,21 +259,21 @@ function autosave( )
 
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 <form method=post action="<?php echo $rootdir;?>/forms/brief_aan_verwijzer/save.php?mode=new&saveid=<?php echo attr_url($brief_aan_verwijzer_id); ?>" name="my_form">
-<span class="title"><?php echo xlt('Psychiatric Brief Letter'); ?></span><br><br>
+<span class="title"><?php echo xlt('Psychiatric Brief Letter'); ?></span><br /><br />
 
-<br><span class=text><?php echo xlt('Introduction'); ?></span><br>
-<textarea cols=80 rows=3 wrap=virtual name="introductie" id="introductie"><?php echo text($obj["introductie"]); ?></textarea><br>
+<br /><span class=text><?php echo xlt('Introduction'); ?></span><br />
+<textarea cols=80 rows=3 wrap=virtual name="introductie" id="introductie"><?php echo text($obj["introductie"]); ?></textarea><br />
 
-<br><span class=text><?php echo xlt('Reason for Visit'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo text($obj["reden_van_aanmelding"]); ?></textarea><br>
-<br><span class=text><?php echo xlt('History'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="anamnese" id="anamnese"><?php echo text($obj["anamnese"]); ?></textarea><br>
-<br><span class=text><?php echo xlt('Psychiatric Examination'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="psychiatrisch_onderzoek" id="psychiatrisch_onderzoek"><?php echo text($obj["psychiatrisch_onderzoek"]); ?></textarea><br>
-<br><span class=text><?php echo xlt('Conclusions'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="beschrijvend_conclusie" id="beschrijvend_conclusie"><?php echo text($obj["beschrijvend_conclusie"]); ?></textarea><br>
-<br><span class=text><?php echo xlt('Treatment Plan'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="advies_beleid" id="advies_beleid"><?php echo text($obj["advies_beleid"]); ?></textarea><br>
+<br /><span class=text><?php echo xlt('Reason for Visit'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo text($obj["reden_van_aanmelding"]); ?></textarea><br />
+<br /><span class=text><?php echo xlt('History'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="anamnese" id="anamnese"><?php echo text($obj["anamnese"]); ?></textarea><br />
+<br /><span class=text><?php echo xlt('Psychiatric Examination'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="psychiatrisch_onderzoek" id="psychiatrisch_onderzoek"><?php echo text($obj["psychiatrisch_onderzoek"]); ?></textarea><br />
+<br /><span class=text><?php echo xlt('Conclusions'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="beschrijvend_conclusie" id="beschrijvend_conclusie"><?php echo text($obj["beschrijvend_conclusie"]); ?></textarea><br />
+<br /><span class=text><?php echo xlt('Treatment Plan'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="advies_beleid" id="advies_beleid"><?php echo text($obj["advies_beleid"]); ?></textarea><br />
 
 <table><tr>
 
@@ -276,9 +283,9 @@ function autosave( )
 ?>
 </tr></table>
 
-<br><br>
+<br /><br />
 <a href="javascript:document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
-<br>
+<br />
 <a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link_submit" onclick="delete_autosave();top.restoreSession()">[<?php echo xlt('Don\'t Save'); ?>]</a>
 </form>
 

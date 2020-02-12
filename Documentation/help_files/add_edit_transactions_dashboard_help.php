@@ -60,7 +60,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("It does not refer to the actual referral that has been created");?>.
                     
                     <p><?php echo xlt("Click Save");?>.
-                    <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
                     
                     <p><strong><?php echo xlt("CREATE A COUNTER-REFERRAL"); ?> :</strong>
                     
@@ -69,7 +69,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("This lets you manually enter the reply to the referral as structured data");?>.
                     
                     <p><?php echo xlt("Fill in the details as required and click Save");?>.
-                    <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
                     
                     <p><?php echo xlt("It therefore stands to reason that you cannot create a Counter-Referral by itself");?>.
                     
@@ -78,7 +78,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("The other 4 transaction types are simple transaction types - Patient Request, Physician Request, Legal and Billing");?>.
                     
                     <p><?php echo xlt("Select as appropriate and fill in the text box and click Save");?>.
-                    <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
                     
                     <p><?php echo xlt("Once a Transaction is saved it will appear on the Transaction page");?>.
                     

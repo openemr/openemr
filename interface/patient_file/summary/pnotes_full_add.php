@@ -5,7 +5,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -19,6 +19,7 @@ require_once("$srcdir/gprelations.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\Header;
 
 if ($_GET['set_pid']) {
     require_once("$srcdir/pid.inc");
@@ -173,16 +174,9 @@ $result = getPnotesByDate(
 <html>
 <head>
 
-<link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css" type="text/css">
+<?php Header::setupHeader(['common', 'datetime-picker', 'opener']); ?>
 
-<!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-<script type="text/javascript" src="../../../library/js/common.js"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-
-<script type="text/javascript">
+<script>
 function submitform(attr) {
     if (attr == "newnote") {
         document.forms[0].submit();
@@ -207,7 +201,7 @@ if ($orderid) {
 $urlparms = "docid=" . attr_url($docid) . "&orderid= " . attr_url($orderid);
 ?>
 
-<form border='0' method='post' name='new_note' id="new_note" action='pnotes_full.php?<?php echo $urlparms; ?>'>
+<form class='border-0' method='post' name='new_note' id="new_note" action='pnotes_full.php?<?php echo $urlparms; ?>'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <div>
     <div id="pnotes_title">
@@ -216,21 +210,21 @@ $urlparms = "docid=" . attr_url($docid) . "&orderid= " . attr_url($orderid);
     <div>
         <?php if ($noteid) { ?>
             <!-- existing note -->
-            <a href="#" class="css_button" id="printnote"><span><?php echo xlt('View Printable Version'); ?></span></a>
+            <a href="#" class="btn btn-primary" id="printnote"><span><?php echo xlt('View Printable Version'); ?></span></a>
         <?php } ?>
-        <a class="css_button large_button" id='cancel' href='javascript:;'><span class='css_button_span large_button_span'><?php echo xlt('Cancel'); ?></span></a>
+        <a class="btn btn-primary btn-lg" id='cancel' href='javascript:;'><?php echo xlt('Cancel'); ?></a>
     </div>
 </div>
 <br/>
 
-<input type='hidden' name='mode' id="mode" value="new">
-<input type='hidden' name='trigger' id="trigger" value="add">
-<input type='hidden' name='offset' id="offset" value="<?php echo attr($offset); ?>">
-<input type='hidden' name='form_active' id="form_active" value="<?php echo attr($form_active); ?>">
-<input type='hidden' name='form_inactive' id="form_inactive" value="<?php echo attr($form_inactive); ?>">
-<input type='hidden' name='noteid' id="noteid" value="<?php echo attr($noteid); ?>">
-<input type='hidden' name='form_doc_only' id="form_doc_only" value="<?php echo attr($form_doc_only); ?>">
-<table border='0' cellspacing='8'>
+<input type='hidden' name='mode' id="mode" value="new" />
+<input type='hidden' name='trigger' id="trigger" value="add" />
+<input type='hidden' name='offset' id="offset" value="<?php echo attr($offset); ?>" />
+<input type='hidden' name='form_active' id="form_active" value="<?php echo attr($form_active); ?>" />
+<input type='hidden' name='form_inactive' id="form_inactive" value="<?php echo attr($form_inactive); ?>" />
+<input type='hidden' name='noteid' id="noteid" value="<?php echo attr($noteid); ?>" />
+<input type='hidden' name='form_doc_only' id="form_doc_only" value="<?php echo attr($form_doc_only); ?>" />
+<table class='border-0' cellspacing='8'>
  <tr>
   <td class='text'>
     <?php
@@ -247,14 +241,16 @@ $urlparms = "docid=" . attr_url($docid) . "&orderid= " . attr_url($orderid);
  <tr>
   <td class='text'>
     <br/>
-   <b><?php echo xlt('Type'); ?>:</b>
+    <div class="form-group">
+   <label for='note_type' class='font-weight-bold'><?php echo xlt('Type'); ?>:</label>
     <?php
    // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
     generate_form_field(array('data_type'=>1,'field_id'=>'note_type','list_id'=>'note_type','empty_title'=>'SKIP'), $title);
     ?>
-   &nbsp; &nbsp;
-   <b><?php echo xlt('To{{Destination}}'); ?>:</b>
-   <select name='assigned_to'>
+    </div>
+    <div class="form-group">
+   <label for='assigned_to' class='font-weight-bold'><?php echo xlt('To{{Destination}}'); ?>:</label>
+   <select name='assigned_to' id='assigned_to' class='form-control'>
 <?php
 while ($urow = sqlFetchArray($ures)) {
     echo "    <option value='" . attr($urow['username']) . "'";
@@ -272,15 +268,18 @@ while ($urow = sqlFetchArray($ures)) {
 ?>
    <option value=''><?php echo xlt('Mark Message as Completed'); ?></option>
    </select>
+    </div>
   </td>
  </tr>
 <?php if ($GLOBALS['messages_due_date']) { ?>
  <tr>
      <td>
-         <b><?php echo xlt('Due date'); ?>:</b>
+         <div class="form-group">
+         <label for='datetime' class='font-weight-bold'><?php echo xlt('Due date'); ?>:</label>
         <?php
         generate_form_field(array('data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'), empty($datetime) ? date('Y-m-d H:i') : $datetime);
         ?>
+        </div>
      </td>
  </tr>
     <?php
@@ -300,39 +299,39 @@ if ($noteid) {
 </tr>
 <tr>
     <td>
-        <textarea name='note' id='note' rows='4' cols='58'></textarea>
+        <textarea name='note' id='note' class='form-control' rows='4' cols='58'></textarea>
     </td>
 </tr>
 <tr>
     <td>
         <?php if ($noteid) { ?>
             <!-- existing note -->
-            <a href="#" class="css_button" id="newnote" title="<?php echo xla('Add as a new message'); ?>" ><span><?php echo xlt('Save as new message'); ?></span></a>
-            <a href="#" class="css_button" id="appendnote" title="<?php echo xla('Append to the existing message'); ?>"><span><?php echo xlt('Append this message'); ?></span></a>
+            <a href="#" class="btn btn-primary" id="newnote" title="<?php echo xla('Add as a new message'); ?>" ><?php echo xlt('Save as new message'); ?></a>
+            <a href="#" class="btn btn-rprimary" id="appendnote" title="<?php echo xla('Append to the existing message'); ?>"><?php echo xlt('Append this message'); ?></a>
         <?php } else { ?>
-            <a href="#" class="css_button" id="newnote" title="<?php echo xla('Add as a new message'); ?>" ><span><?php echo xlt('Save as new message'); ?></span></a>
+            <a href="#" class="btn btn-primary" id="newnote" title="<?php echo xla('Add as a new message'); ?>" ><?php echo xlt('Save as new message'); ?></a>
         <?php } ?>
     </td>
 </tr>
 
 </table>
-<br>
-<br>
+<br />
+<br />
 </form>
-<form border='0' method='post' name='update_activity' id='update_activity'
+<form class='border-0' method='post' name='update_activity' id='update_activity'
  action="pnotes_full.php?<?php echo $urlparms; ?>">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <!-- start of previous notes DIV -->
-<div class=pat_notes>
+<div class="pat_notes">
 
 
-<input type='hidden' name='mode' value="update">
-<input type='hidden' name='offset' id='noteid' value="<?php echo attr($offset); ?>">
-<input type='hidden' name='noteid' id='noteid' value="0">
+<input type='hidden' name='mode' value="update" />
+<input type='hidden' name='offset' id='noteid' value="<?php echo attr($offset); ?>" />
+<input type='hidden' name='noteid' id='noteid' value="0" />
 </form>
 
-<table width='400' border='0' cellpadding='0' cellspacing='0'>
+<table class='border-0' width='400px' cellpadding='0' cellspacing='0'>
  <tr>
   <td>
 <?php
@@ -365,7 +364,7 @@ if ($result_count == $N) {
 
 </div> <!-- close the previous-notes DIV -->
 
-<script language='JavaScript'>
+<script>
 
 <?php
 if ($_GET['set_pid']) {
@@ -394,10 +393,7 @@ if ($noteid /* && $title == 'New Document' */) {
 </script>
 
 </div> <!-- end outer 'pnotes' -->
-
-</body>
-
-<script language="javascript">
+<script>
 
 // jQuery stuff to make the page a little easier to use
 
@@ -480,5 +476,5 @@ $(function(){
 
 });
 </script>
-
+</body>
 </html>

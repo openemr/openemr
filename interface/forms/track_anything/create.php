@@ -10,19 +10,20 @@
  */
 
 
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
 use OpenEMR\Common\Acl\AclMain;
+
+use OpenEMR\Core\Header;
 
 formHeader("Form: Track anything");
 
 
 ?>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $web_root; ?>/interface/forms/track_anything/style.css" type="text/css">
+    <?php Header::setupHeader('track-anything'); ?>
 <?php
 echo "<div id='ta_type'>";
 
@@ -45,17 +46,17 @@ if ($dbaction == 'add') {
         $save_into_db = sqlInsert($insertspell, array($the_name, $the_descr, $the_pos, $the_parent,1));
     } else {
         if ($the_type=='add') {
-            echo "<br><span class='failure'>\n";
+            echo "<br /><span class='failure'>\n";
             echo xlt('Adding item to track failed') . ". ";
             echo xlt("Please enter at least the item's name") . ".";
-            echo "</span><br><br>\n";
+            echo "</span><br /><br />\n";
         }
 
         if ($the_type=='create') {
-            echo "<br><span class='failure'>\n";
+            echo "<br /><span class='failure'>\n";
             echo xlt('Creating new track failed') . ". ";
             echo xlt("Please enter at least the track's name") . ".";
-            echo "</span><br><br>\n";
+            echo "</span><br /><br />\n";
         }
     }
 }
@@ -77,10 +78,10 @@ if ($dbaction == 'edit') {
         $updatespell .= "WHERE track_anything_type_id = ? ";
         sqlStatement($updatespell, array($the_name, $the_descr, $the_pos, $the_item));
     } else {
-        echo "<br><span class='failure'>\n";
+        echo "<br /><span class='failure'>\n";
         echo xlt('Editing failed') . ". ";
         echo xlt("Field 'name' cannot be NULL") . ".";
-        echo "</span><br><br>\n";
+        echo "</span><br /><br />\n";
     }
 }
 
@@ -103,7 +104,7 @@ if ($dbaction == 'delete' && AclMain::aclCheckCore('admin', 'super')) {
 $create_track = isset($_POST['create_track']) ? trim($_POST['create_track']) : '';
 if ($create_track) {
     echo "<table class='create'><tr><td>\n";
-    echo "<b>" . xlt('Create a new track')  . " </b><br>&nbsp;";
+    echo "<b>" . xlt('Create a new track')  . " </b><br />&nbsp;";
     echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n";
     echo "<table>\n";
     echo "<tr>\n";
@@ -145,8 +146,8 @@ if ($the_item) {
         $spell  = "SELECT name FROM form_track_anything_type ";
         $spell .= "WHERE track_anything_type_id = ?";
         $myrow = sqlQuery($spell, array($the_item));
-        echo "<br>&nbsp;&nbsp;";
-        echo xlt('Add item to track')  . " <b>" . text($myrow['name']) . "</b><br>&nbsp;\n";
+        echo "<br />&nbsp;&nbsp;";
+        echo xlt('Add item to track')  . " <b>" . text($myrow['name']) . "</b><br />&nbsp;\n";
         echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n";
         echo "<table>\n";
         echo "<tr>\n";
@@ -181,8 +182,8 @@ if ($the_item) {
         $the_name   = $myrow['name'];
         $the_descr  = $myrow['description'];
         $the_pos    = $myrow['position'];
-        echo "<br>&nbsp;&nbsp;";
-        echo xlt('Edit')  . " <b>" . text($the_name) . "</b><br>&nbsp;";
+        echo "<br />&nbsp;&nbsp;";
+        echo xlt('Edit')  . " <b>" . text($the_name) . "</b><br />&nbsp;";
         echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n";
         echo "<table>\n";
         echo "<tr>\n";
@@ -213,8 +214,8 @@ if ($the_item) {
         $myrow = sqlQuery($spell, array($the_item));
         $the_name   = $myrow['name'];
 
-        echo "<br>&nbsp;&nbsp;<span class='failure'>\n";
-        echo xlt('Are you sure you want to delete') . " <b>" . text($the_name) . "</b>?</span><br>\n";
+        echo "<br />&nbsp;&nbsp;<span class='failure'>\n";
+        echo xlt('Are you sure you want to delete') . " <b>" . text($the_name) . "</b>?</span><br />\n";
         echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n";
         echo "<input type='hidden' name='itemid' value='" . attr($the_item) . "'>\n";
         echo "<input type='hidden' name='dbaction' value='delete'>\n";
@@ -222,7 +223,7 @@ if ($the_item) {
         echo "&nbsp;&nbsp;<input type='button' class='nodelete_button' name='stop' value='" . xla('Back') . "' ";
         ?> onclick="top.restoreSession();location='<?php echo $web_root ?>/interface/forms/track_anything/create.php'"<?php
         echo " />\n";
-        echo "</form><br><br>\n";
+        echo "</form><br /><br />\n";
         echo "</td></tr></table>\n";
     }
 
@@ -249,9 +250,9 @@ if ($the_item) {
 // ================================================================0
 // Here comes the page...
 
-echo "<br>&nbsp;&nbsp;<b>\n";
+echo "<br />&nbsp;&nbsp;<b>\n";
 echo xlt('Create and modify tracks');
-echo "</b><br><br>\n";
+echo "</b><br /><br />\n";
 echo "<table width='100%'>\n";
  echo "<tr>\n";
   echo "<th width='30%'>" . xlt('Name') . "</th>\n";

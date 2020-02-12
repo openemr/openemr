@@ -12,9 +12,11 @@
  */
 
 
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
+
+use OpenEMR\Core\Header;
 
 formHeader("Form: Track anything");
 
@@ -35,14 +37,7 @@ $myprocedureid =  $_POST['procedure2track'];
 
 echo "<html><head>";
 ?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $web_root; ?>/interface/forms/track_anything/style.css" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+<?php Header::setupHeader(['datetime-picker', 'track-anything']); ?>
 
 <script type="text/javascript">
 $(function(){
@@ -79,7 +74,7 @@ if (!$formid) {
             // adding Form
             addForm($encounter, $register_as, $formid, "track_anything", $pid, $userauthorized);
         } else {
-                echo xlt('No track selected'). ".<br>";
+                echo xlt('No track selected'). ".<br />";
             ?><input type='button' value='<?php echo xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" /><?php
         }
     } else {
@@ -107,7 +102,7 @@ if (!$formid) {
         echo "<input type='submit' name='bn_select' value='" . xla('Select') . "' />";
         ?><input type='button' value='<?php echo  xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" /><?php
         echo "</form>";
-        echo "<br>&nbsp;</td></tr>";
+        echo "<br />&nbsp;</td></tr>";
 
         echo "<tr><td align='center'>";
         echo "<input type='submit' name='create_track' value='" . xla('Configure tracks') . "' ";
@@ -189,7 +184,7 @@ if ($formid) {
         $myprocedureid = $myrow["procedure_type_id"];
     }
 
-    echo "<br><b>" . xlt('Enter new data') . "</b>:<br>";
+    echo "<br /><b>" . xlt('Enter new data') . "</b>:<br />";
     echo "<form method='post' action='" . $rootdir . "/forms/track_anything/new.php' onsubmit='return top.restoreSession()'>";
     echo "<table>";
     echo "<tr><th class='item'>" . xlt('Item') . "</th>";
@@ -222,8 +217,8 @@ if ($formid) {
     // show old entries of track
     //-----------------------------------
     // get unique timestamps of track
-    echo "<br><br><hr><br>";
-    echo "<b>" . xlt('Edit your entered data') . ":</b><br>";
+    echo "<br /><br /><hr><br />";
+    echo "<b>" . xlt('Edit your entered data') . ":</b><br />";
     $shownameflag = 0;  // flag if this is <table>-headline
     echo "<table border='1'>";
 

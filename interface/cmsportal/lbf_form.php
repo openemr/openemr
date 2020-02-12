@@ -36,7 +36,7 @@ $ptid = lookup_openemr_patient($result['post']['user']);
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_dialog', 'datetime-picker']); ?>
+<?php Header::setupHeader('datetime-picker'); ?>
 
 <style>
 

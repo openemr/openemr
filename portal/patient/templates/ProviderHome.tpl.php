@@ -5,7 +5,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -22,37 +22,39 @@ echo "<script>var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cu
     });
 </script>
 <div class="modal fade" id="formdialog" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg" style="background:white">
+    <div class="modal-dialog bg-light">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title"><?php echo xlt('About Portal Dashboard') ?></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <span><?php echo xlt('Please see forum or wiki'); ?>
+                <a href="<?php echo attr('https://community.open-emr.org/'); ?>" target="_blank"><?php echo xlt("Visit Forum"); ?></a>
+                    </span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="okButton" data-dismiss="modal" class="btn btn-secondary"><?php echo xlt('Close...') ?></button>
             </div>
         </div>
-        <div class="modal-body">
-            <div><span><?php echo xlt('Please see forum and wiki'); ?></span></div>
-        </div>
-        <div class="modal-footer">
-            <button id="okButton" data-dismiss="modal" class="btn btn-secondary"><?php echo xlt('Close...') ?></button>
-        </div>
     </div>
 </div>
-<div class="container bg-info">
-    <div class='well'>
-    <div class="jumbotron text-center">
+<div class="container p-3">
+    <div class="jumbotron jumbotron-fluid text-center p-1">
         <h3>
-            <?php echo xlt('Portal Dashboard') ?><i class="fa fa-user-md" style="font-size:60px;color:red"></i>
+            <?php echo xlt('Portal Dashboard') ?><i class="fa fa-user-md text-danger ml-2" style="font-size:3rem;"></i>
         </h3>
         <p>
-        <a class="btn btn-info" data-toggle="modal"
-            data-target="#formdialog" href="#"><?php echo xlt('Tell me more') ?> »</a></p>
+        <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#formdialog"><?php echo xlt('Tell me more') ?> »</button>
+        </p>
     </div>
-</div>
-<div class='well'>
+<div class='jumbotron jumbotron-fluid p-4'>
     <div class="row">
         <div class="col-sm-3 col-md-3">
             <h4>
-                <i class="icon-cogs"></i><?php echo xlt('Patient Document Templates') ?>
+                <i class="icon-cogs"></i><?php echo xlt('Document Templates') ?>
             </h4>
             <a class="btn btn-success btn-sm" href="<?php echo $GLOBALS['web_root'];?>/portal/import_template_ui.php"><?php echo xlt('Manage Templates') ?> »</a>
         </div>

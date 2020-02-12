@@ -47,7 +47,7 @@ if ($_POST['searchby'] && $_POST['searchparm']) {
 <html>
 <head>
     <title><?php echo xlt('Group Finder'); ?></title>
-    <?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog', 'opener']); ?>
+    <?php Header::setupHeader('opener'); ?>
 
     <style>
         form {
@@ -200,7 +200,7 @@ if ($_POST['searchby'] && $_POST['searchparm']) {
     <div id="searchstatus"><?php echo xlt('Enter your search criteria above'); ?></div>
 <?php elseif (count($result) == 0) : ?>
 <div id="searchstatus" class="noResults"><?php echo xlt('No records found. Please expand your search criteria.'); ?>
-    <br>
+    <br />
 </div>
 <?php elseif (count($result) >= 100) : ?>
 <div id="searchstatus" class="tooManyResults"><?php echo xlt('More than 100 records found. Please narrow your search criteria.'); ?></div>

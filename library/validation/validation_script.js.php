@@ -36,7 +36,7 @@ if ($use_validate_js) {
 }
 ?>
 
-<script language='JavaScript'>
+<script>
     <?php /*Added 2 parameters to the already existing submitme form*/
     /*new validate: Use the new validation library (comes from globals)*/
     /*e: event*/
@@ -174,7 +174,7 @@ function submitme(new_validate,e,form_id, constraints) {
                 if($(parent_div).is('div')) {
                     var div_id = $(parent_div).attr('id');
                     var type_tab = div_id.substr(4);
-                    $('a#header_tab_'+type_tab).css('color', 'red');
+                    $('a#header_tab_'+type_tab).css('color', 'var(--danger)');
                  }
 
                 //open tab for new patient form
@@ -215,7 +215,7 @@ function submitme(new_validate,e,form_id, constraints) {
                 if($(parent_div).is('div')) {
                     var div_id = $(parent_div).attr('id');
                     var type_tab = div_id.substr(4);
-                    $('a#header_tab_'+type_tab).css('color', 'black');
+                    $('a#header_tab_'+type_tab).css('color', 'var(--black)');
                 }
             }
             /*
@@ -255,7 +255,7 @@ function submitme(new_validate,e,form_id, constraints) {
         }
     }
     //enable submit button until load submitme function
-    if(document.getElementById('submit_btn') != null){
+    if(document.getElementById('submit_btn') != null) {
         document.getElementById('submit_btn').disabled = false;
     }
 </script>

@@ -22,7 +22,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 
 ?>
 <div id='labdata' style='margin-top: 3px; margin-left: 10px; margin-right: 10px'><!--outer div-->
-<br>
+<br />
 <?php
 //retrieve most recent set of labdata.
 $spell = "SELECT procedure_report.date_collected AS thedate, " .
@@ -48,7 +48,7 @@ if (!$result) { //If there are no lab data recorded
   </b>
   <br />
     <?php
-    echo xlt('Procedure') . ": " . text($result['theprocedure']) . " (" . text($result['thedate']) . ")<br>";
+    echo xlt('Procedure') . ": " . text($result['theprocedure']) . " (" . text($result['thedate']) . ")<br />";
     echo xlt('Encounter') . ": <a href='../../patient_file/encounter/encounter_top.php?set_encounter=" . attr_url($result['theencounter']) . "' target='RBot'>" . text($result['theencounter']) . "</a>";
     ?>
   <br />

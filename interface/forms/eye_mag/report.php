@@ -29,7 +29,7 @@
  */
 
 
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once(dirname(__FILE__) ."/../../../library/api.inc");
 require_once(dirname(__FILE__) ."/../../../library/lists.inc");
 require_once(dirname(__FILE__) ."/../../../library/forms.inc");
@@ -37,13 +37,14 @@ require_once(dirname(__FILE__) ."/../../../library/patient.inc");
 require_once(dirname(__FILE__) ."/../../../controllers/C_Document.class.php");
 
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Core\Header;
 
 $form_name = "eye_mag";
 $form_folder = "eye_mag";
 
 $facilityService = new FacilityService();
 
-require_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
+require_once(__DIR__ . "/../../forms/".$form_folder."/php/".$form_folder."_functions.php");
 
 if ($_REQUEST['CHOICE']) {
     $choice = $_REQUEST['choice'];
@@ -251,7 +252,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
     $visit_date = oeFormatShortDate($dated);
     ?>
 
-  <link rel="stylesheet" href="<?php echo attr($css_header);?>" type="text/css">
+    <?php Header::setupHeader(); ?>
   <link rel="stylesheet" href="../../forms/<?php echo attr($form_folder); ?>/css/report.css" type="text/css">
   <style>
 

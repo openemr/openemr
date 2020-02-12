@@ -16,7 +16,7 @@ require_once("$srcdir/group.inc");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/amc.php");
-require_once $GLOBALS['srcdir'].'/ESign/Api.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
 require_once("$srcdir/../controllers/C_Document.class.php");
 
 use ESign\Api;
@@ -59,7 +59,7 @@ if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { 
  var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
  </script>
  <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/report.js"></script>
- <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css" type="text/css">
+ <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css" type="text/css" />
 <?php } ?>
 
 <?php
@@ -89,8 +89,7 @@ if (!empty($_GET['attachid'])) {
 ?>
 
 <script type="text/javascript">
-$.noConflict();
-jQuery(document).ready( function($) {
+$( function() {
     var formConfig = <?php echo $esignApi->formConfigToJson(); ?>;
     $(".esign-button-form").esign(
         formConfig,
@@ -270,8 +269,7 @@ if (!isset($_GET['attachid'])) {
     <?php if ($reviewMode) { ?>
         $("body table:first").hide();
         $(".encounter-summary-column").hide();
-        $(".css_button").hide();
-        $(".css_button_small").hide();
+        $(".btn").hide();
         $(".encounter-summary-column:first").show();
         $(".title:first").text(<?php echo xlj("Review"); ?> + " " + $(".title:first").text() + " ( " + <?php echo js_escape($encounter); ?> + " )");
     <?php } ?>
@@ -333,7 +331,7 @@ function refreshVisitDisplay() {
 
 </script>
 
-<script language="javascript">
+<script>
 function expandcollapse(atr) {
   for (var i = 1; i < 15; ++i) {
     var mydivid="divid_" + i; var myspanid = "spanid_" + i;
@@ -366,44 +364,44 @@ function divtoggle(spanid, divid) {
 <style type="text/css">
     div.tab {
         min-height: 50px;
-        padding:8px;
+        padding: 8px;
     }
 
     div.form_header {
-        float:left;
-        min-width:300pt;
+        float: left;
+        min-width: 400px;
     }
 
     div.form_header_controls {
-        float:left;
-        margin-bottom:2px;
-        margin-left:6px;
+        float: left;
+        margin-bottom: 2px;
+        margin-left: 6px;
     }
 
     div.formname {
-        float:left;
-        min-width:120pt;
-        font-weight:bold;
-        padding:0px;
-        margin:0px;
+        float: left;
+        min-width: 160px;
+        font-weight: bold;
+        padding: 0;
+        margin: 0;
     }
 
     .encounter-summary-container {
-        float:left;
-        width:100%;
+        float: left;
+        width: 100%;
     }
 
     .encounter-summary-column {
         width: 33.3%;
-        float:left;
-        display:inline;
-        margin-top:10px;
+        float: left;
+        display: inline;
+        margin-top: 10px;
     }
 </style>
 
 <!-- *************** -->
 <!-- Form menu start -->
-<script language="JavaScript">
+<script>
 
 function openNewForm(sel, label) {
   top.restoreSession();
@@ -430,7 +428,7 @@ function toggleFrame1(fnum) {
 }
 
 </style>
-<script type="text/javascript" language="javascript">
+<script>
 
 var timeout = 500;
 var closetimer  = 0;
@@ -517,7 +515,7 @@ function findPosX(id)
 </script>
 
 </head>
-<body class="bgcolor2">
+<body>
 <dl>
 <?php //DYNAMIC FORM RETREIVAL
 include_once("$srcdir/registry.inc");
@@ -597,7 +595,7 @@ if (!empty($reg)) {
                 $old_category = $new_category;
                 $DivId++;
             }
-            $StringEcho .= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=\"openNewForm(" .
+            $StringEcho .= "<tr><td class='border-top border-dark p-0'><a onclick=\"openNewForm(" .
                 attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($entry['directory'])) .
                 ", " . attr_js(xl_form_title($nickname)) . ")\" href='JavaScript:void(0);'>" .
                 text(xl_form_title($nickname)) . "</a></td></tr>";
@@ -607,7 +605,7 @@ if (!empty($reg)) {
 }
 
 if ($StringEcho) {
-    $StringEcho2= '<div style="clear:both"></div>';
+    $StringEcho2= '<div style="clear: both"></div>';
 } else {
     $StringEcho2="";
 }
@@ -625,7 +623,7 @@ if ($encounterLocked === false) {
             $StringEcho= '<ul id="sddm">';
         }
         $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('lbf');\" >" .
-        xlt('Layout Based') . "</a><div id='lbf' ><table border='0' cellspacing='0' cellpadding='0'>";
+        xlt('Layout Based') . "</a><div id='lbf' ><table class='border-0' cellspacing='0' cellpadding='0'>";
         while ($lrow = sqlFetchArray($lres)) {
             $option_id = $lrow['option_id']; // should start with LBF
             $title = $lrow['title'];
@@ -636,7 +634,7 @@ if ($encounterLocked === false) {
                     continue;
                 }
             }
-            $StringEcho .= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=\"openNewForm(" .
+            $StringEcho .= "<tr><td class='border-top border-dark p-0'><a onclick=\"openNewForm(" .
                 attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($option_id)) .
                 ", " . attr_js(xl_form_title($title)) . ")\" href='JavaScript:void(0);'>" .
                 text(xl_form_title($title)) . "</a></td></tr>";
@@ -675,7 +673,7 @@ if ($encounterLocked === false) {
             }
             $jid++;
             $modid = $modulerow['mod_id'];
-            $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=" .
+            $StringEcho.= "<tr><td class='border-top border-dark p-0'><a onclick=" .
                 "\"openNewForm(" . attr_js($relative_link) . ", " . attr_js(xl_form_title($nickname)) . ")\" " .
                 "href='JavaScript:void(0);'>" . text(xl_form_title($nickname)) . "</a></td></tr>";
         }
@@ -757,7 +755,7 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
 }
 ?>
 </div>
-<div style='margin-top:8px;'>
+<div style='margin-top: 8px;'>
 <?php
 // ESign for entire encounter
 $esign = $esignApi->createEncounterESign($encounter);
@@ -766,14 +764,14 @@ if ($esign->isButtonViewable()) {
 }
 ?>
 <?php if (AclMain::aclCheckCore('admin', 'super')) { ?>
-    <a href='#' class='css_button' onclick='return deleteme()'><span><?php echo xlt('Delete') ?></span></a>
+    <a href='#' class='btn btn-danger' onclick='return deleteme()'><?php echo xlt('Delete') ?></a>
 <?php } ?>
 
 <?php if ($GLOBALS['enable_follow_up_encounters']) { ?>
-    <a href='#' class='css_button' onclick='return createFollowUpEncounter()'><span><?php echo xlt('Create follow-up encounter') ?></span></a>
+    <a href='#' class='btn btn-primary' onclick='return createFollowUpEncounter()'><?php echo xlt('Create follow-up encounter') ?></a>
 <?php } ?>
 &nbsp;&nbsp;&nbsp;<a href="#" onClick='expandcollapse("expand");' style="font-size:80%;"><?php echo xlt('Expand All'); ?></a>
-&nbsp;&nbsp;&nbsp;<a  style="font-size:80%;" href="#" onClick='expandcollapse("collapse");'><?php echo xlt('Collapse All'); ?></a>
+&nbsp;&nbsp;&nbsp;<a  style="font-size: 80%;" href="#" onClick='expandcollapse("collapse");'><?php echo xlt('Collapse All'); ?></a>
 </div>
 </div>
 
@@ -785,8 +783,8 @@ if ($esign->isButtonViewable()) {
 
 <div class='encounter-summary-column'>
 <?php if ($GLOBALS['enable_amc_prompting']) { ?>
-    <div style='float:right;margin-right:25px;border-style:solid;border-width:1px;'>
-        <div style='float:left;margin:5px 5px 5px 5px;'>
+    <div style='float: right; margin-right: 25px; border-style: solid; border-width: 1px;'>
+        <div style='float: left; margin: 5px;'>
             <table>
             <tr>
             <td>
@@ -794,13 +792,13 @@ if ($esign->isButtonViewable()) {
                 $itemAMC = amcCollect("patient_edu_amc", $pid, 'form_encounter', $encounter);
             ?>
             <?php if (!(empty($itemAMC))) { ?>
-                <input type="checkbox" id="prov_edu_res" checked>
+                <input type="checkbox" id="prov_edu_res" checked />
             <?php } else { ?>
-                <input type="checkbox" id="prov_edu_res">
+                <input type="checkbox" id="prov_edu_res" />
             <?php } ?>
             </td>
             <td>
-            <span class="text"><?php echo xlt('Provided Education Resource(s)?') ?></span>
+                <span class="text"><?php echo xlt('Provided Education Resource(s)?') ?></span>
             </td>
             </tr>
             <tr>
@@ -809,13 +807,13 @@ if ($esign->isButtonViewable()) {
                 $itemAMC = amcCollect("provide_sum_pat_amc", $pid, 'form_encounter', $encounter);
             ?>
             <?php if (!(empty($itemAMC))) { ?>
-                <input type="checkbox" id="provide_sum_pat_flag" checked>
+                <input type="checkbox" id="provide_sum_pat_flag" checked />
             <?php } else { ?>
-                <input type="checkbox" id="provide_sum_pat_flag">
+                <input type="checkbox" id="provide_sum_pat_flag" />
             <?php } ?>
             </td>
             <td>
-            <span class="text"><?php echo xlt('Provided Clinical Summary?') ?></span>
+                <span class="text"><?php echo xlt('Provided Clinical Summary?') ?></span>
             </td>
             </tr>
             <?php // Display the medication reconciliation checkboxes (AMC prompting)
@@ -823,67 +821,67 @@ if ($esign->isButtonViewable()) {
             ?>
             <?php if (!(empty($itemAMC))) { ?>
                 <tr>
-                <td>
-                <input type="checkbox" id="trans_trand_care" checked>
-                </td>
-                <td>
-                <span class="text"><?php echo xlt('Transition/Transfer of Care?') ?></span>
-                </td>
+                    <td>
+                        <input type="checkbox" id="trans_trand_care" checked />
+                    </td>
+                    <td>
+                        <span class="text"><?php echo xlt('Transition/Transfer of Care?') ?></span>
+                    </td>
                 </tr>
                 </table>
-                <table style="margin-left:2em;">
-                <tr>
-                <td>
-                <?php if (!(empty($itemAMC['date_completed']))) { ?>
-                    <input type="checkbox" id="med_reconc_perf" checked>
-                <?php } else { ?>
-                    <input type="checkbox" id="med_reconc_perf">
-                <?php } ?>
-                </td>
-                <td>
-                <span class="text"><?php echo xlt('Medication Reconciliation Performed?') ?></span>
-                </td>
-                </tr>
-        <tr>
-                <td>
-                <?php if (!(empty($itemAMC['soc_provided']))) { ?>
-                    <input type="checkbox" id="soc_provided" checked>
-                <?php } else { ?>
-                    <input type="checkbox" id="soc_provided">
-                <?php } ?>
-                </td>
-                <td>
-                <span class="text"><?php echo xlt('Summary Of Care Provided?') ?></span>
-                </td>
-                </tr>
-                </table>
+                <table style="margin-left: 2em;">
+                    <tr>
+                        <td>
+                            <?php if (!(empty($itemAMC['date_completed']))) { ?>
+                                <input type="checkbox" id="med_reconc_perf" checked />
+                            <?php } else { ?>
+                                <input type="checkbox" id="med_reconc_perf" />
+                            <?php } ?>
+                        </td>
+                        <td>
+                            <span class="text"><?php echo xlt('Medication Reconciliation Performed?') ?></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                        <?php if (!(empty($itemAMC['soc_provided']))) { ?>
+                            <input type="checkbox" id="soc_provided" checked />
+                        <?php } else { ?>
+                            <input type="checkbox" id="soc_provided" />
+                        <?php } ?>
+                        </td>
+                        <td>
+                            <span class="text"><?php echo xlt('Summary Of Care Provided?') ?></span>
+                        </td>
+                    </tr>
+            </table>
             <?php } else { ?>
                 <tr>
-                <td>
-                <input type="checkbox" id="trans_trand_care">
-                </td>
-                <td>
-                <span class="text"><?php echo xlt('Transition/Transfer of Care?') ?></span>
-                </td>
+                    <td>
+                        <input type="checkbox" id="trans_trand_care" />
+                    </td>
+                    <td>
+                        <span class="text"><?php echo xlt('Transition/Transfer of Care?') ?></span>
+                    </td>
                 </tr>
                 </table>
                 <table style="margin-left:2em;">
-                <tr>
-                <td>
-                <input type="checkbox" id="med_reconc_perf" DISABLED>
-                </td>
-                <td>
-                <span class="text"><?php echo xlt('Medication Reconciliation Performed?') ?></span>
-                </td>
-                </tr>
-                <tr>
-                <td>
-                <input type="checkbox" id="soc_provided" DISABLED>
-                </td>
-                <td>
-                <span class="text"><?php echo xlt('Summary of Care Provided?') ?></span>
-                </td>
-                </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" id="med_reconc_perf" disabled />
+                        </td>
+                        <td>
+                            <span class="text"><?php echo xlt('Medication Reconciliation Performed?') ?></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" id="soc_provided" disabled />
+                        </td>
+                        <td>
+                            <span class="text"><?php echo xlt('Summary of Care Provided?') ?></span>
+                        </td>
+                    </tr>
                 </table>
             <?php } ?>
         </div>
@@ -923,8 +921,8 @@ if (!empty($docs_list) && count($docs_list) > 0) {
             }
         }
         ?>
-<br>
-<a href="<?php echo $doc_url;?>" style="font-size:small;" onsubmit="return top.restoreSession()"><?php echo text(oeFormatShortDate($doc_iter['docdate'])) . ": " . text(basename($doc_iter['url']));?></a>
+<br />
+<a href="<?php echo $doc_url;?>" style="font-size: small;" onsubmit="return top.restoreSession()"><?php echo text(oeFormatShortDate($doc_iter['docdate'])) . ": " . text(basename($doc_iter['url']));?></a>
         <?php if ($note != '') {?>
             <a href="javascript:void(0);" title="<?php echo attr($note);?>"><img src="<?php echo $GLOBALS['images_static_relative']; ?>/info.png"/></a>
     <?php }?>
@@ -942,7 +940,7 @@ if ($pass_sens_squad &&
         "",
         "FIND_IN_SET(formdir,'newpatient') DESC, form_name, date DESC"
     ))) {
-    echo "<table width='100%' id='partable'>";
+    echo "<table class='w-100' id='partable'>";
     $divnos = 1;
     foreach ($result as $iter) {
         $formdir = $iter['formdir'];
@@ -1007,7 +1005,7 @@ if ($pass_sens_squad &&
 
         // echo "<tr>"; // Removed as bug fix.
 
-        echo "<td style='border-bottom:1px solid'>";
+        echo "<td style='border-bottom: 1px solid'>";
 
         // Figure out the correct author (encounter authors are the '$providerNameRes', while other
         // form authors are the '$user['fname'] . "  " . $user['lname']').
@@ -1024,21 +1022,21 @@ if ($pass_sens_squad &&
         echo "</div>";
 
         // a link to edit the form
-        echo "<div class='form_header_controls'>";
+        echo "<div class='form_header_controls btn-group' role='group'>";
 
         // If the form is locked, it is no longer editable
         if ($esign->isLocked()) {
-                 echo "<a href=# class='css_button_small form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><span>" . xlt('Locked') . "</span></a>";
+                 echo "<a href=# class='btn btn-primary btn-sm form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'>" . xlt('Locked') . "</a>";
         } else {
             if ((!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write') and $is_group == 0 and $authPostCalendarCategoryWrite)
             or (((!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write')) and $is_group and AclMain::aclCheckCore("groups", "glog", false, 'write')) and $authPostCalendarCategoryWrite)) {
-                echo "<a class='css_button_small form-edit-button' " .
+                echo "<a class='btn btn-primary btn-sm form-edit-button' " .
                     "id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "' " .
                     "href='#' " .
                     "title='" . xla('Edit this form') . "' " .
                     "onclick=\"return openEncounterForm(" . attr_js($formdir) . ", " .
                     attr_js($form_name) . ", " . attr_js($iter['form_id']) . ")\">";
-                echo "<span>" . xlt('Edit') . "</span></a>";
+                echo "" . xlt('Edit') . "</a>";
             }
         }
 
@@ -1056,8 +1054,8 @@ if ($pass_sens_squad &&
             "&formid="    . attr_url($iter['form_id']) .
             "&visitid="   . attr_url($encounter)       .
             "&patientid=" . attr_url($pid)             .
-            "' class='css_button_small' title='" . xla('Print this form') .
-            "' onclick='top.restoreSession()'><span>" . xlt('Print') . "</span></a>";
+            "' class='btn btn-primary btn-sm' title='" . xla('Print this form') .
+            "' onclick='top.restoreSession()'>" . xlt('Print') . "</a>";
         }
 
         if (AclMain::aclCheckCore('admin', 'super')) {
@@ -1068,7 +1066,7 @@ if ($pass_sens_squad &&
                     "&id=" . attr_url($iter['id']) .
                     "&encounter=". attr_url($encounter) .
                     "&pid=" . attr_url($pid) .
-                    "' class='css_button_small' title='" . xla('Delete this form') . "' onclick='top.restoreSession()'><span>" . xlt('Delete') . "</span></a>";
+                    "' class='btn btn-danger btn-sm' title='" . xla('Delete this form') . "' onclick='top.restoreSession()'>" . xlt('Delete') . "</a>";
             } else {
                 // do not show delete button for main encounter here since it is displayed at top
             }
@@ -1078,8 +1076,8 @@ if ($pass_sens_squad &&
         echo "</td>\n";
         echo "</tr>";
         echo "<tr>";
-        echo "<td valign='top' class='formrow'><div class='tab' id='divid_" . attr($divnos) . "' ";
-        echo "style='display:" . ($divnos == 1 ? 'block' : 'none') . "'>";
+        echo "<td valign='top' class='formrow'><div id='divid_" . attr($divnos) . "' ";
+        echo "class='tab " . ($divnos == 1 ? 'd-block' : 'd-none') . "'>";
 
         // Use the form's report.php for display.  Forms with names starting with LBF
         // are list-based forms sharing a single collection of code.

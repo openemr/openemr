@@ -99,7 +99,7 @@ class Encounter_Controller extends Abstract_Controller
         $response->encounterId = $encounterId;
         $response->locked = $lock;
         if ($lock) {
-            $response->editButtonHtml = "<a href=# class='css_button_small form-edit-button-locked'><span>".xlt('Locked')."</span></a>";
+            $response->editButtonHtml = "<a href=# class='btn btn-secondary btn-sm form-edit-button-locked'>".xlt('Locked')."</a>";
         }
 
         echo json_encode($response);

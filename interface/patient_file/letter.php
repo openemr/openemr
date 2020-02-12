@@ -181,7 +181,7 @@ if ($_POST['formaction']=="generate") {
         exit;
     } else { // $form_format = html
         $cpstring = text($cpstring); //escape to prevent stored cross script attack
-        $cpstring = str_replace("\n", "<br>", $cpstring);
+        $cpstring = str_replace("\n", "<br />", $cpstring);
         $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
         ?>
         <html>
@@ -488,16 +488,16 @@ function insertAtCursor(myField, myValue) {
 
  <tr>
   <td colspan='4' align='center'>
-   &nbsp;<br>
+   &nbsp;<br />
    <b><?php echo xlt('Generate Letter regarding ') . text($patdata['fname']) . " " .
     text($patdata['lname']) . " (" . text($patdata['pubpid']) . ")" ?></b>
-    <br>&nbsp;
+    <br />&nbsp;
   </td>
  </tr>
 
  <tr>
 
-  <td class='control-label'>
+  <td class='col-form-label'>
     <?php echo xlt('From'); ?>:
   </td>
 
@@ -507,7 +507,7 @@ function insertAtCursor(myField, myValue) {
    </select>
   </td>
 
-  <td class='control-label'>
+  <td class='col-form-label'>
     <?php echo xlt('Date'); ?>:
   </td>
 
@@ -521,7 +521,7 @@ function insertAtCursor(myField, myValue) {
 
  <tr>
 
-  <td class='control-label'>
+  <td class='col-form-label'>
     <?php echo xlt('Specialty'); ?>:
   </td>
 
@@ -531,7 +531,7 @@ function insertAtCursor(myField, myValue) {
    </select>
   </td>
 
-  <td class='control-label'>
+  <td class='col-form-label'>
     <?php echo xlt('Template'); ?>:
   </td>
 
@@ -589,7 +589,7 @@ closedir($dh);
 
  <tr>
 
-  <td class='control-label'>
+  <td class='col-form-label'>
     <?php echo xlt('To{{Destination}}'); ?>:
   </td>
 
@@ -599,7 +599,7 @@ closedir($dh);
    </select>
   </td>
 
-  <td class='control-label'>
+  <td class='col-form-label'>
     <?php echo xlt('Print Format'); ?>:
   </td>
 
@@ -615,7 +615,7 @@ closedir($dh);
  <tr>
   <td colspan='4'>
     <div id="letter_toolbar" class='text' style="width: 100%; background-color: #ddd; padding: 5px; margin: 0px;">
-    <span class='control-label'><?php echo xlt('Insert special field'); ?>:</span>
+    <span class='col-form-label'><?php echo xlt('Insert special field'); ?>:</span>
     <select id="letter_field" class='form-control'>
     <option value="">- <?php echo xlt('Choose'); ?> -</option>
     <option value="<?php echo '{'.attr($FIELD_TAG['DATE']).'}'; ?>"><?php echo xlt('Today\'s Date'); ?></option>
@@ -665,19 +665,19 @@ closedir($dh);
 </table>
 
 <div class="btn-group" role="group">
-    <button type='button' class='addtemplate btn btn-default btn-save'><?php echo xlt('Save as New'); ?></button>
-    <button type='button' class='btn btn-default btn-save' name='savetemplate' id="savetemplate"><?php echo xlt('Save Changes'); ?></button>
-    <button type='button' class='btn btn-default btn-transmit' name='form_generate' id="form_generate"><?php echo xlt('Generate Letter'); ?></button>
+    <button type='button' class='addtemplate btn btn-secondary btn-save'><?php echo xlt('Save as New'); ?></button>
+    <button type='button' class='btn btn-secondary btn-save' name='savetemplate' id="savetemplate"><?php echo xlt('Save Changes'); ?></button>
+    <button type='button' class='btn btn-secondary btn-transmit' name='form_generate' id="form_generate"><?php echo xlt('Generate Letter'); ?></button>
 </div>
 
 </center>
 
 <!-- template DIV that appears when user chooses to add a new letter template -->
 <div id="newtemplatedetail" style="margin-top: 4em; display: none; visibility: hidden;">
-    <span class='control-label'><?php echo xlt('Template Name'); ?>:</span> <input type="textbox" size="20" maxlength="30" name="newtemplatename" id="newtemplatename" class="form-control">
-    <br>
+    <span class='col-form-label'><?php echo xlt('Template Name'); ?>:</span> <input type="textbox" size="20" maxlength="30" name="newtemplatename" id="newtemplatename" class="form-control">
+    <br />
     <div class="btn-group" role="group">
-        <button type="button" class="savenewtemplate btn btn-default btn-save"><?php echo xlt('Save new template'); ?></button>
+        <button type="button" class="savenewtemplate btn btn-secondary btn-save"><?php echo xlt('Save new template'); ?></button>
         <button type="button" class="cancelnewtemplate btn btn-link btn-cancel"><?php echo xlt('Cancel'); ?></button>
     </div>
 </div>

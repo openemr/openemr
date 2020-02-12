@@ -2,44 +2,55 @@
 .oe-bold {
     font-weight: 700;
 }
+
 .oe-grp {
-    font-size: 16px !important;
+    @include font-size("16px !important");
     font-weight: 900;
 }
+
 .oe-ord {
     font-weight: 800;
 }
 
 .oe-pink-background {
-    background: #ffd2da !important;
+    background: lighten($pink, 60%) !important;
 }
 
 .oe-pl0 {
     padding-#{$left}: 0 !important;
 }
+
 .oe-pl10 {
     padding-#{$left}: 10px;
 }
+
 .oe-pl20 {
     padding-#{$left}: 20px;
 }
+
 .oe-pl30 {
     padding-#{$left}: 30px;
 }
+
 .oe-pl40 {
     padding-#{$left}: 40px;
 }
+
 .oe-pl50 {
     padding-#{$left}: 50px;
 }
+
 .oe-pl60 {
     padding-#{$left}: 60px;
 }
+
 .oe-pl-final {
     padding-#{$left}: 70px;
 }
-.oe-help-x {   
-    color:gray;
-    padding:0 5px;
+
+.oe-help-x {
+    color: $gray;
+    padding: 0 5px;
 }
+
 /*-----------------------openemr5.0.2 procedures styling---------------------- */

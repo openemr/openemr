@@ -1,0 +1,183 @@
+/**
+ *  Sidebar
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+.body-topnav {
+    overflow-x: hidden !important;
+    padding-top: 3.125rem !important;
+    -webkit-font-smoothing: antialiased !important;
+}
+
+/* if not a grid then main available */
+main,
+.main-added {
+    width: calc(100% - 15.625rem);
+	margin-left: 15.625rem;
+	transition: all .5s ease;
+	-webkit-transition: all .5s ease;
+	-moz-transition: all .5s ease;
+	-o-transition: all .5s ease;
+}
+
+main.active,
+.main-added.active {
+	width: 100%;
+	margin: 0;
+}
+
+/*
+ * Topbar
+ */
+
+.top-before-sidebar {
+	box-shadow: 0 0 5px rgba($dark, 0.2);
+}
+
+.navbar-brand i {
+    margin-right: .5rem;
+}
+
+.navbar-toggler {
+    @include font-size("1.5rem !important");
+    margin-top: .25rem;
+}
+
+.navbar-expand-sm .navbar-collapse,
+.navbar-expand-md .navbar-collapse {
+    width: auto;
+    padding-left: 0.625rem;
+}
+
+/*
+ * Sidebar
+ */
+
+.nav-sidebar {
+    position: fixed;
+    height: 100vh;
+	min-width: 15.625rem;
+    width: 15.625rem;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    overflow-x: hidden;
+    overflow-y: auto;
+    white-space: nowrap;
+	box-shadow: 3px 3px 10px rgba($black, 0.1);
+    transition: all .5s ease;
+    -webkit-transition: all .5s ease;
+    -moz-transition: all .5s ease;
+    -o-transition: all .5s ease;
+}
+
+.nav-sidebar.active {
+	margin-left: -15.625rem;
+}
+
+.sidebar-h-40 {
+    max-height: 40% !important;
+}
+
+.sidebar-h-60 {
+    max-height: 60% !important;
+}
+
+.sidebar-expand {
+    display: inline-flex;
+    margin: 0 0 1rem;
+}
+
+.sidebar-expand button {
+    @include font-size("2rem !important");
+    line-height: .9;
+    color: $body-color;
+    background: 0 0;
+    border-width: 0;
+    border-color: rgba($white, .1);
+    cursor: pointer;
+    transition: all .5s ease;
+    -webkit-transition: all .5s ease;
+    -moz-transition: all .5s ease;
+    -o-transition: all .5s ease;
+}
+
+
+@media (min-width: 768px) {
+    .sidebar-header {
+        padding: 0 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+	.nav-sidebar {
+		margin-left: -15.625rem;
+	}
+
+    .nav-sidebar.active {
+        margin-left: 0;
+    }
+
+    main,
+	.main-added {
+        width: 100%;
+		margin: 0;
+
+    }
+
+	main.active,
+	.main-added.active {
+		margin-left: 15.625rem;
+		width: calc(100% - 15.625rem);
+	}
+}
+
+.rotate-90cw {
+    transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+}
+
+.rotate-180cw {
+    transform: rotate(180deg);
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+}
+
+.rotate-90ccw {
+    transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+}
+
+.rotate-180ccw {
+    transform: rotate(-180deg);
+    -webkit-transform: rotate(-180deg);
+    -moz-transform: rotate(-180deg);
+    -ms-transform: rotate(-180deg);
+}
+
+.flip-y {
+    transform: perspective(100px) rotateY(180deg);
+    -webkit-transform: perspective(100px) rotateY(180deg);
+    -moz-transform: perspective(100px) rotateY(180deg);
+    -ms-transform: perspective(100px) rotateY(180deg);
+}
+
+.flip-x {
+    transform: perspective(100px) rotateX(180deg);
+    -webkit-transform: perspective(100px) rotateX(180deg);
+    -moz-transform: perspective(100px) rotateX(180deg);
+    -ms-transform: perspective(100px) rotateX(180deg);
+}

@@ -111,11 +111,11 @@ tr.detail { font-size:10pt; background-color:#eeeeee; }
 // These are the possible colors for table rows.
 var trcolors = new Object();
 // Colors for:            Foreground Background
-trcolors['U'] = new Array('#000000', '#eeeeee'); // unselected
-trcolors['K'] = new Array('#000000', '#eeee00'); // selected key
-// trcolors['Y'] = new Array('#000000', '#99ff99'); // selected value resolved=Y
-// trcolors['N'] = new Array('#000000', '#ff9999'); // selected value resolved=N
-trcolors['V'] = new Array('#000000', '#9999ff'); // selected value
+trcolors['U'] = new Array('var(--black)', '#eeeeee'); // unselected
+trcolors['K'] = new Array('var(--black)', '#eeee00'); // selected key
+// trcolors['Y'] = new Array('var(--black)', '#99ff99'); // selected value resolved=Y
+// trcolors['N'] = new Array('var(--black)', '#ff9999'); // selected value resolved=N
+trcolors['V'] = new Array('var(--black)', '#9999ff'); // selected value
 
 var pselected = new Object();
 var eselected = new Object();
@@ -261,7 +261,7 @@ function doclick(pfx, id) {
 </script>
 
 </head>
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' bgcolor='#ffffff'>
+<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' bgcolor='var(--white)'>
 <form method='post' action='problem_encounter.php' onsubmit='return top.restoreSession()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <?php
@@ -287,7 +287,7 @@ while ($row = sqlFetchArray($peres)) {
 
  <tr>
   <td align='center' valign='top' style="padding: 0 0 0 5px;">
-   <table class="table table-condensed">
+   <table class="table table-sm">
     <tr class='head'>
      <td colspan='3' align='center'>
       <input type='radio' name='form_key' value='p' onclick='clearall()' checked />
@@ -313,7 +313,7 @@ while ($row = sqlFetchArray($pres)) {
    </table>
   </td>
   <td align='center' valign='top' style="padding: 0 5px 0 0;">
-   <table class="table table-condensed">
+   <table class="table table-sm">
     <tr class='head'>
      <td colspan='2' align='center'>
       <input type='radio' name='form_key' value='e' onclick='clearall()' />

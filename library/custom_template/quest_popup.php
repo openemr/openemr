@@ -28,13 +28,14 @@
 
 
 require_once("../../interface/globals.php");
+
+use OpenEMR\Core\Header;
+
 $content = $_REQUEST['content'];
 ?>
 <html>
     <head>
-        <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-        <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
+        <?php Header::setupHeader('opener'); ?>
         <script type="text/javascript">
     function showWhereInTextarea(){
     opener.restoreSession();
@@ -77,7 +78,7 @@ $content = $_REQUEST['content'];
                     $res = sqlStatement("SELECT * FROM list_options WHERE list_id = 'nation_notes_replace_buttons' AND activity = 1 ORDER BY seq");
                     while ($row = sqlFetchArray($res)) {
                         ?>
-                    <a href="#" onclick="replace_quest('<?php echo htmlspecialchars($row['option_id'], ENT_QUOTES);?>')" class="css_button"><span><?php echo htmlspecialchars($row['title'], ENT_QUOTES);?></span></a>
+                    <a href="#" onclick="replace_quest('<?php echo htmlspecialchars($row['option_id'], ENT_QUOTES);?>')" class="btn btn-primary"><span><?php echo htmlspecialchars($row['title'], ENT_QUOTES);?></span></a>
                         <?php
                     }
                     ?>

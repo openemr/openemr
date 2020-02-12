@@ -106,7 +106,7 @@ class Form_Controller extends Abstract_Controller
         $response->editButtonHtml = "";
         if ($lock) {
             // If we're locking the form, replace the edit button with a "disabled" lock button
-            $response->editButtonHtml = "<a href=# class='css_button_small form-edit-button-locked' id='form-edit-button-'".attr($formDir)."-".attr($formId)."><span>".xlt('Locked')."</span></a>";
+            $response->editButtonHtml = "<a href=# class='btn btn-secondary btn-sm form-edit-button-locked' id='form-edit-button-'".attr($formDir)."-".attr($formId).">".xlt('Locked')."</a>";
         }
 
         echo json_encode($response);

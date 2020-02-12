@@ -39,14 +39,14 @@ if ($_POST['add']) {
 
     //validate
     if ($_POST['constant_name'] == "") {
-            echo xlt('Constant name is blank').'<br>';
+            echo xlt('Constant name is blank').'<br />';
             $err='y';
     }
 
     $sql="SELECT * FROM lang_constants WHERE constant_name=? limit 1" ;
     $res=SqlQuery($sql, array($_POST['constant_name']));
     if ($res) {
-        echo xlt('Data Alike is already in database, please change constant name').'<br>';
+        echo xlt('Data Alike is already in database, please change constant name').'<br />';
         $err='y';
     }
 
@@ -60,7 +60,7 @@ if ($_POST['add']) {
                 //insert into the log table - to allow persistant customizations
             insert_language_log('', '', $_POST['constant_name'], '');
 
-        echo xlt('Constant') . ' ' . text($_POST['constant_name']) . ' ' . xlt('added') . '<br>';
+        echo xlt('Constant') . ' ' . text($_POST['constant_name']) . ' ' . xlt('added') . '<br />';
     }
 
 

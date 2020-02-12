@@ -14,6 +14,7 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 /** CHANGE THIS name to the name of your form **/
 $form_name = "My Example Form";
@@ -28,15 +29,9 @@ $returnurl = 'encounter_top.php';
 
 <html><head>
 
-<!-- other supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-
-<!-- page styles -->
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<!-- assets -->
+<?php Header::setupHeader('datetime-picker'); ?>
 <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
 
 </head>
 
@@ -47,7 +42,7 @@ $returnurl = 'encounter_top.php';
 <form method=post action="<?php echo $rootdir;?>/forms/<?php echo $form_folder; ?>/save.php?mode=new" name="my_form">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<span class="title"><?php echo xlt($form_name); ?></span><br>
+<span class="title"><?php echo xlt($form_name); ?></span><br />
 
 <!-- Save/Cancel buttons -->
 <input type="button" class="save" value="<?php echo xla('Save'); ?>"> &nbsp;
@@ -81,9 +76,9 @@ Address: <input name="address" id="address" type="text" size="80" maxlength="250
 </div>
 
 <div id="bottom">
-Use this space to express notes <br>
+Use this space to express notes <br />
 <textarea name="notes" id="notes" cols="80" rows="4"></textarea>
-<br><br>
+<br /><br />
 <div style="text-align:right;">
 Signature?
 <input type="radio" id="sig" name="sig" value="y">Yes

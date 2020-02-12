@@ -257,7 +257,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton pull-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
             <div name="prior_selector">
                     <?php
                     echo $output;//prior visit selector - already sanitized
@@ -380,7 +380,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton pull-right fa  fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-right fa  fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
         <div name="prior_selector">
                 <?php
                 echo $output;
@@ -432,7 +432,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                     // to allow for end-user customization
                     ?>
                     <span id="PRIORS_dil_listbox_title"><?php echo xlt('Dilation'); ?>:</span>
-                      <span id="PRIORS_dil_meds" class="pull-right"><?php
+                      <span id="PRIORS_dil_meds" class="float-right"><?php
                         if ($DIL_MEDS) {
                             echo text($DIL_MEDS);
                         }
@@ -537,7 +537,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton pull-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
         <div name="prior_selector">
                 <?php
                 echo $output;
@@ -637,7 +637,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton pull-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
         <div name="prior_selector">
                 <?php
                 echo $output;
@@ -1529,7 +1529,7 @@ margin: 2px 0 2px 2px;">
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton pull-right fa  fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-right fa  fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
         <div name="prior_selector" class="PRIORS">
                 <?php
                 echo $output;
@@ -1545,7 +1545,7 @@ margin: 2px 0 2px 2px;">
             $k='1';
             foreach ($PRIOR_IMPPLAN_items as $item) {
                 echo "<div class='IMPPLAN_class' style='clear:both;margin:10px;'>";
-                echo "  <span>$k. ".text($item['title'])."</span><span class='pull-right'>".$item['code']."</span><br />";
+                echo "  <span>$k. ".text($item['title'])."</span><span class='float-right'>".$item['code']."</span><br />";
                 echo '  <div class="fake-textarea-disabled-4">'.nl2br(text($item['plan'])).'</div>';
                 echo '</div>';
                 $i++;
@@ -2456,7 +2456,7 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         }
     } else { ?>
         <span href="#PMH_anchor"
-        onclick="alter_issue2('0','PMH','');" class="disabled_button"><?php echo xlt("None"); ?></br></span>
+        onclick="alter_issue2('0','PMH','');" class="disabled_button"><?php echo xlt("None"); ?><br /></span>
         <?php
     }
 
@@ -2954,7 +2954,7 @@ function display_QP($zone, $provider_id)
     ?>
       <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_QP_<?php echo attr($zone)."_".attr($provider_id); ?>','QP Editor');"
       title="<?php echo xla('Click here to Edit this Doctor\'s Quick Pick list'); ?>"
-      name="provider_todo" style="color:black;font-weight:600;"><i class="closeButton pull-right fa fa-pencil fa-fw"></i> </a>
+      name="provider_todo" style="color:black;font-weight:600;"><i class="closeButton float-right fa fa-pencil fa-fw"></i> </a>
         <?php
         $QP_panel = ob_get_contents();
         ob_end_clean();
@@ -3826,7 +3826,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
     }
     ?>
        <!-- Navigation -->
-    <nav class="navbar-fixed-top navbar-custom navbar-bright navbar-inner" data-role="page banner navigation" style="margin-bottom: 0;z-index: 9999999;">
+    <nav class="navbar navbar-fixed-top navbar-custom navbar-bright navbar-inner navbar-expand" data-role="page banner navigation" style="margin-bottom: 0;z-index: 9999999;">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="container-fluid" style="margin-top:0px;padding:2px;">
             <div class="navbar-header brand" style="color:black;">
@@ -5478,7 +5478,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                data: [<?php echo $VF_values; ?>],
                                fill: false,
                                backgroundColor: '#5CABFA',
-                               borderColor: '#000000',
+                               borderColor: 'var(--black)',
                                yAxisID: 'y-axis-2'
                                },{
                                type: 'bar',
@@ -5486,7 +5486,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                data: [<?php echo $OCT_values; ?>],//0/null is not done, 1 if performed.
                                fill: true,
                                backgroundColor: '#71B37C',
-                               borderColor: '#000000',
+                               borderColor: 'var(--black)',
                                yAxisID: 'y-axis-2'
                                },{
                                type: 'bar',
@@ -5496,7 +5496,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                strokeColor: 'rgba(209, 30, 93, 0.3)',
                                fillColor:'rgba(209, 30, 93, 0.3)',
                                backgroundColor: 'red',
-                               borderColor: '#000000',
+                               borderColor: 'var(--black)',
                                yAxisID: 'y-axis-2'
                                }]
                         },

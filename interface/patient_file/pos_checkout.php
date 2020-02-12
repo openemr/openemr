@@ -117,7 +117,7 @@ function receiptPaymentLine($paydate, $amount, $description = '')
 function generate_receipt($patient_id, $encounter = 0)
 {
  //REMEMBER the entire receipt is generated here, have to echo DOC type etc and closing tags to create a valid webpsge
-    global $sl_err, $sl_cash_acc, $css_header, $details, $facilityService;
+    global $sl_err, $sl_cash_acc, $details, $facilityService;
 
     // Get details for what we guess is the primary facility.
     $frow = $facilityService->getPrimaryBusinessEntity(array("useLegacyImplementation" => true));
@@ -234,14 +234,14 @@ function generate_receipt($patient_id, $encounter = 0)
                     ?>
             </div>
             <div class= "row">
-                <div class= 'col-xs-6 col-lg-offset-2'>
-                    <?php echo text($patdata['fname']) . ' ' . text($patdata['mname']) . ' ' . text($patdata['lname']) ?><br>
-                    <?php echo text($patdata['street']) ?><br>
-                    <?php echo text($patdata['city']) . ', ' . text($patdata['state']) . ' ' . text($patdata['postal_code']) ?><br>
+                <div class= 'col-6 offset-lg-2'>
+                    <?php echo text($patdata['fname']) . ' ' . text($patdata['mname']) . ' ' . text($patdata['lname']) ?><br />
+                    <?php echo text($patdata['street']) ?><br />
+                    <?php echo text($patdata['city']) . ', ' . text($patdata['state']) . ' ' . text($patdata['postal_code']) ?><br />
                 </div>
             </div>
             <div class= "row ">
-                <div class= 'col-xs-6 col-lg-offset-3'>
+                <div class= 'col-6 offset-lg-3'>
                     <table class="table">
                         <thead>
                             <tr>
@@ -360,19 +360,19 @@ function generate_receipt($patient_id, $encounter = 0)
                     </table>
                 </div>
             </div>
-            <br>
+            <br />
             <div class= "row ">
                 <div class="form-group clearfix">
                     <div class="col-sm-12 text-center" id="hideonprint">
                         <div class="btn-group" role="group">
-                            <button class="btn btn-default btn-print"  id='printbutton'><?php echo xlt('Print'); ?></button>
+                            <button class="btn btn-secondary btn-print"  id='printbutton'><?php echo xlt('Print'); ?></button>
                             <?php if (AclMain::aclCheckCore('acct', 'disc')) { ?>
-                                <button class="btn btn-default btn-undo" onclick='return deleteme();'><?php echo xlt('Undo Checkout'); ?></button>
+                                <button class="btn btn-secondary btn-undo" onclick='return deleteme();'><?php echo xlt('Undo Checkout'); ?></button>
                             <?php } ?>
                             <?php if ($details) { ?>
-                                <button class="btn btn-default btn-hide" onclick="top.restoreSession(); window.location.href = 'pos_checkout.php?details=0&ptid=<?php echo attr_url($patient_id); ?>&enc=<?php echo attr_url($encounter); ?>'"><?php echo xlt('Hide Details'); ?></button>
+                                <button class="btn btn-secondary btn-hide" onclick="top.restoreSession(); window.location.href = 'pos_checkout.php?details=0&ptid=<?php echo attr_url($patient_id); ?>&enc=<?php echo attr_url($encounter); ?>'"><?php echo xlt('Hide Details'); ?></button>
                             <?php } else { ?>
-                                <button class="btn btn-default btn-show" onclick="top.restoreSession(); window.location.href = 'pos_checkout.php?details=1&ptid=<?php echo attr_url($patient_id); ?>&enc=<?php echo attr_url($encounter); ?>'"><?php echo xlt('Show Details'); ?></button>
+                                <button class="btn btn-secondary btn-show" onclick="top.restoreSession(); window.location.href = 'pos_checkout.php?details=1&ptid=<?php echo attr_url($patient_id); ?>&enc=<?php echo attr_url($encounter); ?>'"><?php echo xlt('Show Details'); ?></button>
                             <?php } ?>
                         </div>
                     </div>
@@ -445,22 +445,22 @@ function generate_receipt($patient_id, $encounter = 0)
     function printFacilityHeader($frow)
     {
         echo "<p><b>" . text($frow['name']) .
-        "<br>" . text($frow['street']) .
-        "<br>" . text($frow['city']) . ', ' . text($frow['state']) . ' ' . text($frow['postal_code']) .
-        "<br>" . text($frow['phone']) .
-        "<br>&nbsp" .
-        "<br>";
+        "<br />" . text($frow['street']) .
+        "<br />" . text($frow['city']) . ', ' . text($frow['state']) . ' ' . text($frow['postal_code']) .
+        "<br />" . text($frow['phone']) .
+        "<br />&nbsp" .
+        "<br />";
     }
 
     // Pring receipt header for Provider
     function printProviderHeader($pvdrow)
     {
         echo "<p><b>" . text($pvdrow['title']) . " " . text($pvdrow['fname']) . " " . text($pvdrow['mname']) . " " . text($pvdrow['lname']) . " " .
-        "<br>" . text($pvdrow['street']) .
-        "<br>" . text($pvdrow['city']) . ', ' . text($pvdrow['state']) . ' ' . text($pvdrow['postal_code']) .
-        "<br>" . text($pvdrow['phone']) .
-        "<br>&nbsp" .
-        "<br>";
+        "<br />" . text($pvdrow['street']) .
+        "<br />" . text($pvdrow['city']) . ', ' . text($pvdrow['state']) . ' ' . text($pvdrow['postal_code']) .
+        "<br />" . text($pvdrow['phone']) .
+        "<br />&nbsp" .
+        "<br />";
     }
 
     // Mark the tax rates that are referenced in this invoice.
@@ -1018,19 +1018,19 @@ function generate_receipt($patient_id, $encounter = 0)
                         </fieldset>
                         <fieldset>
                             <legend><?php echo xlt('Collect Payment'); ?></legend>
-                            <div class="col-xs-12 oe-custom-line">
-                                <div class="col-xs-3 col-lg-offset-3">
+                            <div class="col-12 oe-custom-line">
+                                <div class="col-3 offset-lg-3">
                                     <label class="control-label" for="form_discount"><?php echo $GLOBALS['discount_by_money'] ? xlt('Discount Amount') : xlt('Discount Percentage'); ?>:</label>
                                 </div>
-                                <div class="col-xs-3">
+                                <div class="col-3">
                                     <input maxlength='8' name='form_discount' id='form_discount' onkeyup='computeTotals()' class= 'form-control' type='text' value=''>
                                 </div>
                             </div>
-                            <div class="col-xs-12 oe-custom-line">
-                                <div class="col-xs-3 col-lg-offset-3">
+                            <div class="col-12 oe-custom-line">
+                                <div class="col-3 offset-lg-3">
                                     <label class="control-label" for="form_method"><?php echo xlt('Payment Method'); ?>:</label>
                                 </div>
-                                <div class="col-xs-3">
+                                <div class="col-3">
                                     <select name='form_method' id='form_method' class='form-control'>
                                         <?php
                                             $query1112 = "SELECT * FROM list_options where list_id=?  ORDER BY seq, title ";
@@ -1045,27 +1045,27 @@ function generate_receipt($patient_id, $encounter = 0)
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-xs-12 oe-custom-line">
-                                <div class="col-xs-3 col-lg-offset-3">
+                            <div class="col-12 oe-custom-line">
+                                <div class="col-3 offset-lg-3">
                                     <label class="control-label" for="form_source"><?php echo xlt('Check/Reference Number'); ?>:</label>
                                 </div>
-                                <div class="col-xs-3">
+                                <div class="col-3">
                                     <input name='form_source' id='form_source' class= 'form-control' type='text' value=''>
                                 </div>
                             </div>
-                            <div class="col-xs-12 oe-custom-line">
-                                <div class="col-xs-3 col-lg-offset-3">
+                            <div class="col-12 oe-custom-line">
+                                <div class="col-3 offset-lg-3">
                                     <label class="control-label" for="form_amount"><?php echo xlt('Amount Paid'); ?>:</label>
                                 </div>
-                                <div class="col-xs-3">
+                                <div class="col-3">
                                     <input name='form_amount' id='form_amount'class='form-control' type='text' value='0.00'>
                                 </div>
                             </div>
-                            <div class="col-xs-12 oe-custom-line">
-                                <div class="col-xs-3 col-lg-offset-3">
+                            <div class="col-12 oe-custom-line">
+                                <div class="col-3 offset-lg-3">
                                     <label class="control-label" for="form_date"><?php echo xlt('Posting Date'); ?>:</label>
                                 </div>
-                                <div class="col-xs-3">
+                                <div class="col-3">
                                     <input class='form-control datepicker' id='form_date' name='form_date' title='yyyy-mm-dd date of service' type='text' value='<?php echo attr($inv_date) ?>'>
                                 </div>
                             </div>
@@ -1075,11 +1075,11 @@ function generate_receipt($patient_id, $encounter = 0)
                             $irnumber = BillingUtilities::getInvoiceRefNumber();
                             if (!empty($irnumber)) {
                                 ?>
-                            <div class="col-xs-12 oe-custom-line">
-                                <div class="col-xs-3 col-lg-offset-3">
+                            <div class="col-12 oe-custom-line">
+                                <div class="col-3 offset-lg-3">
                                     <label class="control-label" for="form_tentative"><?php echo xlt('Tentative Invoice Ref No'); ?>:</label>
                                 </div>
-                                <div class="col-xs-3">
+                                <div class="col-3">
                                     <div name='form_source' id='form_tentative' id='form_tentative' class= 'form-control'><?php echo text($irnumber); ?></div>
                                 </div>
                             </div>
@@ -1087,11 +1087,11 @@ function generate_receipt($patient_id, $encounter = 0)
                             } elseif (!empty($GLOBALS['gbl_mask_invoice_number'])) { // Otherwise if there is an invoice
                                 // reference number mask, ask for the refno.
                                 ?>
-                            <div class="col-xs-12 oe-custom-line">
-                                <div class="col-xs-3 col-lg-offset-3">
+                            <div class="col-12 oe-custom-line">
+                                <div class="col-3 offset-lg-3">
                                     <label class="control-label" for="form_irnumber"><?php echo xlt('Invoice Reference Number'); ?>:</label>
                                 </div>
-                                <div class="col-xs-3">
+                                <div class="col-3">
                                     <input type='text' name='form_irnumber' id='form_irnumber' class='form-control' value='' onkeyup='maskkeyup(this,<?php echo attr_js($GLOBALS['gbl_mask_invoice_number']); ?>)' onblur='maskblur(this,<?php echo attr_js($GLOBALS['gbl_mask_invoice_number']); ?>)' />
                                 </div>
                             </div>
@@ -1102,7 +1102,7 @@ function generate_receipt($patient_id, $encounter = 0)
                         <div class="form-group">
                             <div class="col-sm-12 text-left position-override">
                                 <div class="btn-group btn-group-pinch" role="group">
-                                    <button type='submit' class="btn btn-default btn-save"  name='form_save' id='form_save' value='save'><?php echo xlt('Save');?></button>
+                                    <button type='submit' class="btn btn-secondary btn-save"  name='form_save' id='form_save' value='save'><?php echo xlt('Save');?></button>
                                     <?php if (empty($_GET['framed'])) { ?>
                                     <button type='button' class="btn btn-link btn-cancel btn-separate-left" onclick='window.close()'><?php echo xlt('Cancel'); ?></button>
                                     <?php } ?>

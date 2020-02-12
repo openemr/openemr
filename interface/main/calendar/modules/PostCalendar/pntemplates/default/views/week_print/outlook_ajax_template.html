@@ -267,12 +267,12 @@ foreach ($providers as $provider) {
     echo "<div id='bigCalText'>";
     // output the provider name
     echo "<span id='provname'>" . text($provider['fname']) . " " . text($provider['lname']) . "</span>";
-    echo "<br>";
+    echo "<br />";
     // output the date range
     echo "<span id='daterange'>";
     $atmp = array_keys($A_EVENTS);
     echo xlt(date('F', strtotime($atmp[0]))) . " "  . text(date('d', strtotime($atmp[0])));
-    echo " - <br>";
+    echo " - <br />";
     echo xlt(date('F', strtotime($atmp[count($atmp)-1]))) . " "  . text(date('d', strtotime($atmp[count($atmp)-1])));
     echo "</span>";
     echo "</div>";

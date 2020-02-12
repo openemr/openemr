@@ -362,7 +362,7 @@ class sms
             fclose($handler);
             return $result;
         } else {
-            die("Error while executing fopen sending method!<br>Please check does PHP have OpenSSL support and check does PHP version is greater than 4.3.0.");
+            die("Error while executing fopen sending method!<br />Please check does PHP have OpenSSL support and check does PHP version is greater than 4.3.0.");
         }
     }
 

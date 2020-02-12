@@ -11,9 +11,9 @@
 /**
  * Smarty {user_info} function plugin
  *
- * Type:     function<br>
- * Name:     user_info<br>
- * Purpose:  Return the user info for a given ID<br>
+ * Type:     function<br />
+ * Name:     user_info<br />
+ * Purpose:  Return the user info for a given ID<br />
  *
  * Examples:
  *

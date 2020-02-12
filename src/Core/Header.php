@@ -27,6 +27,7 @@ class Header
 {
     private static $scripts;
     private static $links;
+    private static $isHeader;
 
     /**
      * Setup various <head> elements.
@@ -73,6 +74,27 @@ class Header
      */
     public static function setupHeader($assets = [])
     {
+        // Required tag
+        echo '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />';
+        self::setupAssets($assets, true);
+    }
+
+    /**
+     * Can call this function directly rather than using above setupHeader function
+     *  if do not want to include the autoloaded assets.
+     *
+     * @param array $assets Asset(s) to include
+     * @param boolean $headerMode - if true, then include autoloaded assets
+     *                              if false, then do not include autoloaded assets
+     */
+    public static function setupAssets($assets = [], $headerMode = false)
+    {
+        if ($headerMode) {
+            self::$isHeader = true;
+        } else {
+            self::$isHeader = false;
+        }
+
         try {
             echo self::includeAsset($assets);
         } catch (\InvalidArgumentException $e) {
@@ -134,7 +156,7 @@ class Header
             $loadInFile = (isset($opts['loadInFile'])) ? $opts['loadInFile'] : false;
             $rtl = (isset($opts['rtl'])) ? $opts['rtl'] : false;
 
-            if ($autoload === true || in_array($k, $selectedAssets) || ($loadInFile && $loadInFile === self::getCurrentFile())) {
+            if ((self::$isHeader === true && $autoload === true) || in_array($k, $selectedAssets) || ($loadInFile && $loadInFile === self::getCurrentFile())) {
                 if ($allowNoLoad === true) {
                     if (in_array("no_" . $k, $selectedAssets)) {
                         continue;
@@ -147,8 +169,13 @@ class Header
                     self::$scripts[] = $s;
                 }
 
-                foreach ($tmp['links'] as $l) {
-                    self::$links[] = $l;
+                if (($k == "bootstrap") && ((!in_array("no_main-theme", $selectedAssets)) || (in_array("patientportal-style", $selectedAssets)))) {
+                    // Above comparison is to skip bootstrap theme loading when using a main theme or using the patient portal theme
+                    //  since bootstrap theme is already including in main themes and portal theme via SASS.
+                } else {
+                    foreach ($tmp['links'] as $l) {
+                        self::$links[] = $l;
+                    }
                 }
 
                 if ($rtl && $_SESSION['language_direction'] == 'rtl') {
@@ -183,13 +210,23 @@ class Header
         $links = [];
 
         if ($script) {
-            $script = self::parsePlaceholders($script);
-            if ($alreadyBuilt) {
-                $path = $script;
-            } else {
-                $path = self::createFullPath($basePath, $script);
+            if (!is_string($script) && !is_array($script)) {
+                throw new \InvalidArgumentException("Script must be of type string or array");
             }
-            $scripts[] = self::createElement($path, 'script', $alreadyBuilt);
+
+            if (is_string($script)) {
+                $script = [$script];
+            }
+
+            foreach ($script as $k) {
+                $k = self::parsePlaceholders($k);
+                if ($alreadyBuilt) {
+                    $path = $k;
+                } else {
+                    $path = self::createFullPath($basePath, $k);
+                }
+                $scripts[] = self::createElement($path, 'script', $alreadyBuilt);
+            }
         }
 
         if ($link) {

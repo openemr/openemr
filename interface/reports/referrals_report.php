@@ -109,20 +109,20 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 
     <table class='text'>
         <tr>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Facility'); ?>:
             </td>
             <td>
             <?php dropdown_facility(($form_facility), 'form_facility', true); ?>
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('From'); ?>:
             </td>
             <td>
                <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'
          class='datepicker form-control'>
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('To{{Range}}'); ?>:
             </td>
             <td>
@@ -135,17 +135,17 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
     </div>
 
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+  <td class='h-100' align='left' valign='middle'>
+    <table class='w-100 h-100' style='border-left:1px solid;'>
         <tr>
             <td>
                 <div class="text-center">
           <div class="btn-group" role="group">
-                     <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                     <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                         <?php echo xlt('Submit'); ?>
                      </a>
                         <?php if ($_POST['form_refresh']) { ?>
-                       <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                       <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                             <?php echo xlt('Print'); ?>
                        </a>
                         <?php } ?>
@@ -163,8 +163,8 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 if ($_POST['form_refresh']) {
     ?>
 <div id="report_results">
-<table width='98%' id='mymaintable'>
-<thead>
+<table class='table' width='98%' id='mymaintable'>
+<thead class='thead-light'>
 <th> <?php echo xlt('Refer To'); ?> </th>
 <th> <?php echo xlt('Refer Date'); ?> </th>
 <th> <?php echo xlt('Reply Date'); ?> </th>

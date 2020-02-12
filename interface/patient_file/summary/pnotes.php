@@ -37,7 +37,7 @@ if ($docid) {
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog']); ?>
+<?php Header::setupHeader(); ?>
 </head>
 <body class="body_bottom">
 
@@ -73,11 +73,11 @@ if (!$thisauth) {
     }
     ?>
 </span>
-<span class=more><?php echo text($tmore);?></span>
+<span class="more"><?php echo text($tmore);?></span>
 </a>
 <?php endif; ?>
 
-<br>
+<br />
 
 <table>
 

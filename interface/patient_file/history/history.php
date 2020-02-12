@@ -14,7 +14,6 @@ require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("history.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/options.js.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
@@ -27,11 +26,14 @@ use OpenEMR\OeUI\OemrUI;
     <title><?php echo xlt("History"); ?></title>
     <?php Header::setupHeader('common'); ?>
 
-<script type="text/javascript">
+<script>
 $(function(){
     tabbify();
 });
-<?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
+<?php
+    require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal
+    require_once("$srcdir/options.js.php");
+?>
 </script>
 
 <style type="text/css">
@@ -40,20 +42,21 @@ $(function(){
 $grparr = array();
 getLayoutProperties('HIS', $grparr, 'grp_size');
 if (!empty($grparr['']['grp_size'])) {
-    $FONTSIZE = $grparr['']['grp_size'];
+    $FONTSIZE = round($grparr['']['grp_size'] * 1.333333);
+    $FONTSIZE = round($FONTSIZE * 0.0625, 2);
     ?>
 /* Override font sizes in the theme. */
 #HIS .groupname {
-  font-size: <?php echo attr($FONTSIZE); ?>pt;
+  font-size: <?php echo attr($FONTSIZE); ?>rem;
 }
 #HIS .label {
-  font-size: <?php echo attr($FONTSIZE); ?>pt;
+  font-size: <?php echo attr($FONTSIZE); ?>rem;
 }
 #HIS .data {
-  font-size: <?php echo attr($FONTSIZE); ?>pt;
+  font-size: <?php echo attr($FONTSIZE); ?>rem;
 }
 #HIS .data td {
-  font-size: <?php echo attr($FONTSIZE); ?>pt;
+  font-size: <?php echo attr($FONTSIZE); ?>rem;
 }
 <?php } ?>
 </style>
@@ -106,19 +109,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <?php require_once("$include_root/patient_file/summary/dashboard_header.php");?>
             </div>
         </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <?php
-                $list_id = "history"; // to indicate nav item is active, count and give correct id
-                $menuPatient = new PatientMenuRole();
-                $menuPatient->displayHorizNavBarMenu();
-                ?>
-            </div>
-        </div>
+        <?php
+        $list_id = "history"; // to indicate nav item is active, count and give correct id
+        $menuPatient = new PatientMenuRole();
+        $menuPatient->displayHorizNavBarMenu();
+        ?>
         <div class="row">
             <div class="col-sm-12">
                 <div class="btn-group">
-                    <a href="history_full.php" class="btn btn-default btn-edit" onclick="top.restoreSession()">
+                    <a href="history_full.php" class="btn btn-secondary btn-edit" onclick="top.restoreSession()">
                         <?php echo xlt("Edit");?>
                     </a>
                 </div>
@@ -148,7 +147,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         $(listId).addClass("active");
     });
 </script>
-<script type="text/javascript">
+<script>
     // Array of skip conditions for the checkSkipConditions() function.
     var skipArray = [<?php echo !empty($condition_str) ? js_escape($condition_str) : ''; ?>];
     checkSkipConditions();

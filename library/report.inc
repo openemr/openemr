@@ -198,7 +198,7 @@ function printListData($pid, $list_type, $list_activity = "%")
 {
     $res = sqlStatement("select * from lists where pid=? and type=? and activity like ? order by date", array($pid, $list_type, $list_activity));
     while ($result = sqlFetchArray($res)) {
-        print "<span class=bold>" . text($result["title"]) . ":</span><span class=text> " . text($result["comments"]) . "</span><br>\n";
+        print "<span class='bold'>" . text($result["title"]) . ":</span><span class='text'> " . text($result["comments"]) . "</span><br />\n";
     }
 }
 
@@ -207,9 +207,9 @@ function printPatientNotes($pid)
   // exclude ALL deleted notes
     $res = sqlStatement("select * from pnotes where pid = ? and deleted != 1 and activity = 1 order by date", array($pid));
     while ($result = sqlFetchArray($res)) {
-        print "<span class=bold>" . text(oeFormatSDFT(strtotime($result["date"]))) .
-        ":</span><span class=text> " .
-            nl2br(text(oeFormatPatientNote($result['body']))) . "</span><br>\n";
+        print "<span class='bold'>" . text(oeFormatSDFT(strtotime($result["date"]))) .
+        ":</span><span class='text'> " .
+            nl2br(text(oeFormatPatientNote($result['body']))) . "</span><br />\n";
     }
 }
 
@@ -275,11 +275,11 @@ function printPatientBilling($pid)
 {
     $res = sqlStatement("select * from billing where pid=? order by date", array($pid));
     while ($result = sqlFetchArray($res)) {
-        echo "<span class=bold>" . text(oeFormatSDFT(strtotime($result["date"]))) . " : </span>";
-        echo "<span class=text>(" . text($result["code_type"]) . ") ";
+        echo "<span class='bold'>" . text(oeFormatSDFT(strtotime($result["date"]))) . " : </span>";
+        echo "<span class='text'>(" . text($result["code_type"]) . ") ";
         echo $result['code_type'] == 'COPAY' ? text(oeFormatMoney($result['code'])) : text($result['code']);
         echo " - ". wordwrap(text($result['code_text']), 70, "\n", true)."</span>";
-        echo "<br>\n";
+        echo "<br />\n";
     }
 }
 
@@ -356,7 +356,7 @@ function printPatientForms($pid, $cols)
                 );
                 while ($brow=sqlFetchArray($bres)) {
                     echo "<span class='bold'>&nbsp;" . xlt('Procedure') . ": </span><span class='text'>" .
-                        text($brow['code']) . " " . text($brow['code_text']) . "</span><br>\n";
+                        text($brow['code']) . " " . text($brow['code_text']) . "</span><br />\n";
                 }
             }
         }
@@ -488,8 +488,8 @@ function printRecData($data_array, $recres, $N)
             $count = 0;
         }
 
-        print "<td valign=top><span class=bold>" . text($aval) . "</span><br><span class=text>";
-        printData($recres, $akey, "<br>", "Y-m-d");
+        print "<td valign='top'><span class='bold'>" . text($aval) . "</span><br /><span class=text>";
+        printData($recres, $akey, "<br />", "Y-m-d");
         print "</span></td>\n";
         $count++;
     }
@@ -529,8 +529,8 @@ function printRecDataOne($data_array, $recres, $N)
                 $count = 0;
             }
 
-            print "<td valign=top><span class=bold>" . text($aval) . "</span><br><span class=text>";
-            printDataOne($recres, $akey, "<br>", "Y-m-d");
+            print "<td valign='top'><span class='bold'>" . text($aval) . "</span><br /><span class='text'>";
+            printDataOne($recres, $akey, "<br />", "Y-m-d");
             print "</span></td>\n";
             $count++;
         }

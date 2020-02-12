@@ -6,26 +6,32 @@
     overflow: auto;
     float: $left;
     border-right: dashed 1px;
+
     td {
-        font-size: 8pt;
+        @include font-size("11px !important");
     }
+
     a {
-        font-size: 8pt;
+        @include font-size("11px !important");
     }
+
     .treeMenuDefault {
         font-style: italic;
     }
+
     .treeMenuBold {
         font-style: italic;
         font-weight: bold;
     }
 }
+
 #documents_actions {
     padding-top: 0;
     width: 100%;
     height: 95%;
     float: $right;
     overflow: auto;
+
     iframe {
         display: inline;
         border: none;
@@ -33,10 +39,12 @@
         height: 600px;
         overflow: auto;
     }
+
     form {
-        margin: 0px;
-        padding: 0px;
+        margin: 0;
+        padding: 0;
     }
+
     table {
         width: 100%;
         height: 95%;

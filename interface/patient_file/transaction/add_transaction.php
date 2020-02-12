@@ -338,7 +338,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <div class="row">
                 <div class="col-sm-12">
                     <div class="btn-group">
-                        <a href="#" class="btn btn-default btn-save" onclick="submitme();">
+                        <a href="#" class="btn btn-secondary btn-save" onclick="submitme();">
                             <?php echo xlt('Save'); ?>
                         </a>
                         <a href="transactions.php" class="btn btn-link btn-cancel" onclick="top.restoreSession()">
@@ -347,8 +347,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     </div>
                 </div>
             </div>
-            <br>
-            <br>
+            <br />
+            <br />
             <div class="row">
                 <div class="col-sm-12">
                     <fieldset>
@@ -388,7 +388,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             <input type="checkbox" id="send_sum_flag" name="send_sum_flag">
                                         <?php } ?>
 
-                                        <span class="text"><?php echo xlt('Sent Summary of Care?') ?></span><br>
+                                        <span class="text"><?php echo xlt('Sent Summary of Care?') ?></span><br />
 
                                         <?php if (!(empty($itemAMC)) && !(empty($itemAMC_elec))) { ?>
                                             &nbsp;&nbsp;<input type="checkbox" id="send_sum_elec_flag" name="send_sum_elec_flag" checked>
@@ -398,7 +398,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             &nbsp;&nbsp;<input type="checkbox" id="send_sum_elec_flag" name="send_sum_elec_flag" disabled>
                                         <?php } ?>
 
-                                        <span class="text"><?php echo xlt('Sent Summary of Care Electronically?') ?></span><br>
+                                        <span class="text"><?php echo xlt('Sent Summary of Care Electronically?') ?></span><br />
 
                                     </div>
                                 </div>

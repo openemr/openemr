@@ -106,7 +106,7 @@ if ($form_key) {
 
     <div id="searchResults">
 
-        <table class="table table-striped table-condensed">
+        <table class="table table-striped table-sm">
             <h5>
                 <?php
                 echo xlt('Matching for Patient') . ": " .

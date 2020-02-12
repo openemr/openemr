@@ -37,7 +37,7 @@ switch(strtolower(trim($object_type))) {
 		$object_sections_table = $gacl_api->_db_table_prefix . 'acl_sections';
         break;
     default:
-        echo "ERROR: Must select an object type<br>\n";
+        echo "ERROR: Must select an object type<br />\n";
         exit();
         break;
 }

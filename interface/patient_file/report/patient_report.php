@@ -55,7 +55,7 @@ if ($GLOBALS['gbl_portal_cms_enable']) {
 <title><?php echo xlt("Patient Reports"); ?></title>
 
 <?php Header::setupHeader(['datetime-picker', 'common']); ?>
-<script language='JavaScript'>
+<script>
 
 function checkAll(check) {
  var f = document.forms['report_form'];
@@ -99,16 +99,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <?php require_once("$include_root/patient_file/summary/dashboard_header.php");?>
             </div>
         </div>
-        <div class="row" >
-            <div class="col-sm-12">
-                <?php
-                $list_id = "report"; // to indicate nav item is active, count and give correct id
-                // Collect the patient menu then build it
-                $menuPatient = new PatientMenuRole();
-                $menuPatient->displayHorizNavBarMenu();
-                ?>
-            </div>
-        </div>
+        <?php
+        $list_id = "report"; // to indicate nav item is active, count and give correct id
+        // Collect the patient menu then build it
+        $menuPatient = new PatientMenuRole();
+        $menuPatient->displayHorizNavBarMenu();
+        ?>
 
         <?php
         if ($GLOBALS['activate_ccr_ccd_report']) { // show CCR/CCD reporting options ?>
@@ -116,7 +112,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <form name='ccr_form' id='ccr_form' method='post' action='../../../ccr/createCCR.php'>
                     <fieldset>
                         <div class="col-sm-12">
-                            <p> </p>
                             <span class='title oe-report-section-header'><?php echo xlt('Continuity of Care Record (CCR)'); ?></span>
                             <span class='text'>(<?php echo xlt('Pop ups need to be enabled to see these reports'); ?>)</span>
                             <br/>
@@ -124,21 +119,20 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <input type='hidden' name='ccrAction'>
                             <input type='hidden' name='raw'>
                             <input type="checkbox" name="show_date" id="show_date" onchange="show_date_fun();" ><span class='text'><?php echo xlt('Use Date Range'); ?>
-                            <br>
-                            <div id="date_div" style="display:none" >
-                                <br>
-                                <table border="0" cellpadding="0" cellspacing="0" >
+                            <br />
+                            <div id="date_div" style="display: none">
+                                <br />
+                                <table class='border-0' cellpadding="0" cellspacing="0">
                                     <tr>
                                         <td>
-                                            <span class='bold'><?php echo xlt('Start Date');?>: </span>
+                                            <span class='font-weight-bold'><?php echo xlt('Start Date');?>: </span>
                                         </td>
                                         <td>
-                                            <input type='text' class='datepicker' size='10' name='Start' id='Start'
-                                            title='<?php echo xla('yyyy-mm-dd'); ?>' />
+                                            <input type='text' class='datepicker' size='10' name='Start' id='Start' title='<?php echo xla('yyyy-mm-dd'); ?>' />
                                         </td>
                                         <td>
                                         &nbsp;
-                                            <span class='bold'><?php echo xlt('End Date');?>: </span>
+                                            <span class='font-weight-bold'><?php echo xlt('End Date');?>: </span>
                                         </td>
                                         <td>
                                             <input type='text' class='datepicker' size='10' name='End' id='End'
@@ -147,24 +141,24 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     </tr>
                                 </table>
                             </div>
-                            <br>
-                            <button type="button" class="generateCCR btn btn-default btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
+                            <br />
+                            <button type="button" class="generateCCR btn btn-secondary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
                             <!--<input type="button" class="generateCCR_raw" value="<?php echo xlt('Raw Report'); ?>" /> -->
-                            <button type="button" class="generateCCR_download_p btn btn-default btn-download btn-sm" value="<?php echo xla('Download'); ?>" ><?php echo xlt('Download'); ?></button>
+                            <button type="button" class="generateCCR_download_p btn btn-secondary btn-download btn-sm" value="<?php echo xla('Download'); ?>" ><?php echo xlt('Download'); ?></button>
                             <?php
                             if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccr_enable']==true) { ?>
-                                <button type="button" class="viewCCR_send_dialog btn btn-default btn-transmit btn-sm" value="<?php echo xla('Transmit'); ?>" ><?php echo xlt('Transmit'); ?></button>
-                                <br>
-                                <div id="ccr_send_dialog" style="display:none" >
-                                <br>
-                                    <table border="0" cellpadding="0" cellspacing="0" >
+                                <button type="button" class="viewCCR_send_dialog btn btn-secondary btn-transmit btn-sm" value="<?php echo xla('Transmit'); ?>"><?php echo xlt('Transmit'); ?></button>
+                                <br />
+                                <div id="ccr_send_dialog" style="display: none">
+                                <br />
+                                    <table class="border-0" cellpadding="0" cellspacing="0">
                                         <tr>
                                             <td>
-                                            <span class='bold'><?php echo xlt('Enter Recipient\'s Direct Address');?>: </span>
-                                            <input type="text" size="64" name="ccr_send_to" id="ccr_send_to" value="">
-                                            <input type="hidden" name="ccr_sent_by" id="ccr_sent_by" value="user">
-                                            <button type="button" class="viewCCR_transmit btn btn-default btn-send-msg btn-sm" value="<?php echo xla('Send CCR'); ?>" ><?php echo xlt('Send CCR'); ?></button>
-                                            <div id="ccr_send_result" style="display:none" >
+                                            <span class='font-weight-bold'><?php echo xlt('Enter Recipient\'s Direct Address');?>: </span>
+                                            <input type="text" size="64" name="ccr_send_to" id="ccr_send_to" value="" />
+                                            <input type="hidden" name="ccr_sent_by" id="ccr_sent_by" value="user" />
+                                            <button type="button" class="viewCCR_transmit btn btn-secondary btn-send-msg btn-sm" value="<?php echo xla('Send CCR'); ?>"><?php echo xlt('Send CCR'); ?></button>
+                                            <div id="ccr_send_result" style="display: none">
                                                 <span class="text" id="ccr_send_message"></span>
                                             </div>
                                             </td>
@@ -179,27 +173,26 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <hr/>
                     <fieldset>
                     <div class="col-sm-12">
-                    <p> </p>
                         <span class='title oe-report-section-header'><?php echo xlt('Continuity of Care Document (CCD)'); ?></span>&nbsp;&nbsp;
                         <span class='text'>(<?php echo xlt('Pop ups need to be enabled to see these reports'); ?>)</span>
                         <br/>
                         <br/>
-                        <button type="button" class="viewCCD btn btn-default btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
-                        <button type="button" class="viewCCD_download btn btn-default btn-download btn-sm" value="<?php echo xla('Download'); ?>" ><?php echo xlt('Download'); ?></button>
+                        <button type="button" class="viewCCD btn btn-secondary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
+                        <button type="button" class="viewCCD_download btn btn-secondary btn-download btn-sm" value="<?php echo xla('Download'); ?>" ><?php echo xlt('Download'); ?></button>
                         <?php
                         if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { ?>
-                            <button type="button" class="viewCCD_send_dialog btn btn-default btn-transmit btn-sm" value="<?php echo xla('Transmit'); ?>" ><?php echo xlt('Transmit'); ?></button>
-                            <br>
-                            <div id="ccd_send_dialog" style="display:none" >
-                            <br>
-                                <table border="0" cellpadding="0" cellspacing="0" >
+                            <button type="button" class="viewCCD_send_dialog btn btn-secondary btn-transmit btn-sm" value="<?php echo xla('Transmit'); ?>" ><?php echo xlt('Transmit'); ?></button>
+                            <br />
+                            <div id="ccd_send_dialog" style="display: none">
+                            <br />
+                                <table class="border-0" cellpadding="0" cellspacing="0">
                                     <tr>
                                         <td>
-                                            <span class='bold'><?php echo xlt('Enter Recipient\'s Direct Address');?>: </span>
-                                            <input type="text" size="64" name="ccd_send_to" id="ccd_send_to" value="">
-                                            <input type="hidden" name="ccd_sent_by" id="ccd_sent_by" value="user">
-                                            <button type="button" class="viewCCD_transmit btn btn-default btn-send-msg btn-sm" value="<?php echo xla('Send CCD'); ?>" ><?php echo xlt('Send CCD'); ?></button>
-                                            <div id="ccd_send_result" style="display:none" >
+                                            <span class='font-weight-bold'><?php echo xlt('Enter Recipient\'s Direct Address');?>: </span>
+                                            <input type="text" size="64" name="ccd_send_to" id="ccd_send_to" value="" />
+                                            <input type="hidden" name="ccd_sent_by" id="ccd_sent_by" value="user" />
+                                            <button type="button" class="viewCCD_transmit btn btn-secondary btn-send-msg btn-sm" value="<?php echo xla('Send CCD'); ?>"><?php echo xlt('Send CCD'); ?></button>
+                                            <div id="ccd_send_result" style="display: none">
                                                 <span class="text" id="ccd_send_message"></span>
                                             </div>
                                         </td>
@@ -219,58 +212,57 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <form name='report_form' id="report_form" method='post' action='custom_report.php'>
             <fieldset>
             <div class="col-sm-12">
-            <p> </p>
             <span class='title oe-report-section-header'><?php echo xlt('Patient Report'); ?></span>&nbsp;&nbsp;
 
             <!--
             <a class="link_submit" href="full_report.php" onclick="top.restoreSession()">
             [<?php echo xlt('View Comprehensive Patient Report'); ?>]</a>
             -->
-            <a class="link_submit btn btn-default btn-sm btn-save" href="#" onclick="return checkAll(true)"><?php echo xla('Check All'); ?></a>
+            <a class="link_submit btn btn-secondary btn-sm btn-save" href="#" onclick="return checkAll(true)"><?php echo xla('Check All'); ?></a>
 
-            <a class="link_submit btn btn-default btn-sm btn-undo" href="#" onclick="return checkAll(false)"><?php echo xla('Clear All'); ?></a>
+            <a class="link_submit btn btn-secondary btn-sm btn-undo" href="#" onclick="return checkAll(false)"><?php echo xla('Clear All'); ?></a>
             <p>
 
             <table class="includes">
                 <tr>
                     <td class='text'>
-                        <input type='checkbox' name='include_demographics' id='include_demographics' value="demographics" checked><?php echo xlt('Demographics'); ?><br>
+                        <input type='checkbox' name='include_demographics' id='include_demographics' value="demographics" checked /><?php echo xlt('Demographics'); ?><br />
                         <?php if (AclMain::aclCheckCore('patients', 'med')) : ?>
-                        <input type='checkbox' name='include_history' id='include_history' value="history"><?php echo xlt('History'); ?><br>
+                        <input type='checkbox' name='include_history' id='include_history' value="history" /><?php echo xlt('History'); ?><br />
                         <?php endif; ?>
                         <!--
-                        <input type='checkbox' name='include_employer' id='include_employer' value="employer"><?php echo xlt('Employer'); ?><br>
+                        <input type='checkbox' name='include_employer' id='include_employer' value="employer"><?php echo xlt('Employer'); ?><br />
                         -->
-                        <input type='checkbox' name='include_insurance' id='include_insurance' value="insurance"><?php echo xlt('Insurance'); ?><br>
+                        <input type='checkbox' name='include_insurance' id='include_insurance' value="insurance" /><?php echo xlt('Insurance'); ?><br />
                         <input type='checkbox' name='include_billing' id='include_billing' value="billing"
                         <?php
                         if (!$GLOBALS['simplified_demographics']) {
                             echo 'checked';
-                        } ?>><?php echo xlt('Billing'); ?><br>
+                        } ?> /><?php echo xlt('Billing'); ?><br />
                     </td>
                     <td class='text'>
                         <!--
-                        <input type='checkbox' name='include_allergies' id='include_allergies' value="allergies">Allergies<br>
-                        <input type='checkbox' name='include_medications' id='include_medications' value="medications">Medications<br>
+                        <input type='checkbox' name='include_allergies' id='include_allergies' value="allergies">Allergies<br />
+                        <input type='checkbox' name='include_medications' id='include_medications' value="medications">Medications<br />
                         -->
-                        <input type='checkbox' name='include_immunizations' id='include_immunizations' value="immunizations"><?php echo xlt('Immunizations'); ?><br>
+                        <input type='checkbox' name='include_immunizations' id='include_immunizations' value="immunizations" /><?php echo xlt('Immunizations'); ?><br />
                         <!--
-                        <input type='checkbox' name='include_medical_problems' id='include_medical_problems' value="medical_problems">Medical Problems<br>
+                        <input type='checkbox' name='include_medical_problems' id='include_medical_problems' value="medical_problems">Medical Problems<br />
                         -->
-                        <input type='checkbox' name='include_notes' id='include_notes' value="notes"><?php echo xlt('Patient Notes'); ?><br>
-                        <input type='checkbox' name='include_transactions' id='include_transactions' value="transactions"><?php echo xlt('Transactions'); ?><br>
-                        <input type='checkbox' name='include_batchcom' id='include_batchcom' value="batchcom"><?php echo xlt('Communications'); ?><br>
+                        <input type='checkbox' name='include_notes' id='include_notes' value="notes" /><?php echo xlt('Patient Notes'); ?><br />
+                        <input type='checkbox' name='include_transactions' id='include_transactions' value="transactions" /><?php echo xlt('Transactions'); ?><br />
+                        <input type='checkbox' name='include_batchcom' id='include_batchcom' value="batchcom" /><?php echo xlt('Communications'); ?><br />
                     </td>
                     <td class="text">
-                        <input type='checkbox' name='include_recurring_days' id='include_recurring_days' value="recurring_days" ><?php echo  xlt('Recurrent Appointments'); ?><br>
+                        <input type='checkbox' name='include_recurring_days' id='include_recurring_days' value="recurring_days" /><?php echo  xlt('Recurrent Appointments'); ?><br />
                     </td>
                 </tr>
             </table>
-            <br>
-            <button type="button" class="genreport btn btn-default btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
-            <button type="button" class="genpdfrep btn btn-default btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
+            <br />
+            <button type="button" class="genreport btn btn-secondary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
+            <button type="button" class="genpdfrep btn btn-secondary btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
                 <?php if ($cmsportal) { ?>
-            <button type="button" class="genportal btn btn-default btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
+            <button type="button" class="genportal btn btn-secondary btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
             <?php } ?>
             <?php
             if ($oefax) {
@@ -278,7 +270,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             }
             ?>
             <input type='hidden' name='pdf' value='0'>
-            <br>
+            <br />
 
             <!-- old ccr button position -->
             <hr/>
@@ -288,12 +280,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <!-- Issues -->
                     <td class='text'>
                         <div class="issues">
-                            <span class='bold oe-report-section-header'><?php echo xlt('Issues'); ?>:</span>
-                            <br>
-                            <br>
+                            <span class='font-weight-bold oe-report-section-header'><?php echo xlt('Issues'); ?>:</span>
+                            <br />
+                            <br />
 
                             <?php if (! AclMain::aclCheckCore('patients', 'med')) { ?>
-                            <br>(Issues not authorized)
+                            <br />(Issues not authorized)
 
                             <?php } else { ?>
                             <table>
@@ -319,7 +311,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         $disptype = $ISSUE_TYPES[$lasttype][0];
 
                                         echo " <tr>\n";
-                                        echo "  <td colspan='4' class='bold'><span class='oe-report-section-header'>" . xlt($disptype) .":</span></td>\n";
+                                        echo "  <td colspan='4' class='font-weight-bold'><span class='oe-report-section-header'>" . xlt($disptype) .":</span></td>\n";
                                         echo " </tr>\n";
                                     }
 
@@ -359,8 +351,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     <td class='text'>
                         <div class='encounters'>
-                        <span class='bold oe-report-section-header'><?php echo xlt('Encounters & Forms'); ?>:</span>
-                        <br><br>
+                        <span class='font-weight-bold oe-report-section-header'><?php echo xlt('Encounters & Forms'); ?>:</span>
+                        <br /><br />
 
                         <?php
                         if (!($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) { ?>
@@ -397,7 +389,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         $html_strings = array();
                                         echo "</div>\n"; // end DIV encounter_forms
                                         echo "</div>\n\n";  //end DIV encounter_data
-                                        echo "<br>";
+                                        echo "<br />";
                                     }
                                     $isfirst = 0;
                                     echo "<div class='encounter_data'>\n";
@@ -447,7 +439,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         " id='" . attr($result["formdir"]) . "_" . attr($result["form_id"]) . "'".
                                         " value='" . attr($result["encounter"]) . "'" .
                                         " class='encounter_form' ".
-                                        ">" . text(xl_form_title($result["form_name"])) . "<br>\n");
+                                        ">" . text(xl_form_title($result["form_name"])) . "<br />\n");
                                 }
                             }
 
@@ -466,17 +458,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     </td>
                 </tr>
             </table>
-            <button type="button" class="genreport btn btn-default btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
-            <button type="button" class="genpdfrep btn btn-default btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
+            <button type="button" class="genreport btn btn-secondary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
+            <button type="button" class="genpdfrep btn btn-secondary btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
             <?php if ($cmsportal) { ?>
-            <button type="button" class="genportal btn btn-default btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
+            <button type="button" class="genportal btn btn-secondary btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
             <?php } ?>
 
             <!-- Procedure Orders -->
             <hr/>
-            <table border="0" cellpadding="0" cellspacing="0" >
+            <table class="border-0" cellpadding="0" cellspacing="0">
                 <tr>
-                    <td class='bold'><span class='oe-report-section-header'><?php echo xlt('Procedures'); ?>:</span></td>
+                    <td class='font-weight-bold'><span class='oe-report-section-header'><?php echo xlt('Procedures'); ?>:</span></td>
                     <td class='text'>&nbsp;<?php echo xlt('Order Date'); ?>&nbsp;&nbsp;</td>
                     <td class='text'><?php echo xlt('Encounter Date'); ?>&nbsp;&nbsp;</td>
                     <td class='text'><?php echo xlt('Order Descriptions'); ?></td>
@@ -517,11 +509,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 }
                 ?>
             </table>
-            <button type="button" class="genreport btn btn-default btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
-            <button type="button" class="genpdfrep btn btn-default btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
+            <button type="button" class="genreport btn btn-secondary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
+            <button type="button" class="genpdfrep btn btn-secondary btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
             <hr/>
             <div>
-                <span class="bold oe-report-section-header"><?php echo xlt('Documents'); ?>:</span><br>
+                <span class="bold oe-report-section-header"><?php echo xlt('Documents'); ?>:</span><br />
                 <ul>
                     <?php
                     // show available documents
@@ -536,7 +528,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
                     while ($result && !$result->EOF) {
                         if (empty($result->fields['aco_spec']) || AclMain::aclCheckAcoSpec($result->fields['aco_spec'])) {
-                            echo "<li class='bold'>";
+                            echo "<li class='font-weight-bold'>";
                             echo '<input type="checkbox" name="documents[]" value="' .
                             attr($result->fields['id']) . '">';
                             echo '&nbsp;&nbsp;<i>' .  text(xl_document_category($result->fields['name'])) . "</i>";
@@ -547,11 +539,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
                     ?>
                 </ul>
-                <button type="button" class="genreport btn btn-default btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
-                <button type="button" class="genpdfrep btn btn-default btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
+                <button type="button" class="genreport btn btn-secondary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate Report'); ?></button>
+                <button type="button" class="genpdfrep btn btn-secondary btn-download btn-sm" value="<?php echo xla('Download PDF'); ?>" ><?php echo xlt('Download PDF'); ?></button>
                 <?php
                 if ($cmsportal) { ?>
-                    <button type="button" class="genportal btn btn-default btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
+                    <button type="button" class="genportal btn btn-secondary btn-send-msg btn-sm" value="<?php echo xla('Send to Portal'); ?>" ><?php echo xlt('Send to Portal'); ?></button>
                     <?php
                 } ?>
             </div>
@@ -563,9 +555,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </div>  <!-- close patient_reports DIV -->
     </div><!--end of container div-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
-</body>
 
-<script language="javascript">
+<script>
 
 // jQuery stuff to make the page a little easier to use
 $(function(){
@@ -803,5 +794,5 @@ $(function(){
 });
 
 </script>
-
+</body>
 </html>

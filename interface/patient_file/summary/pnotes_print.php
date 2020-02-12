@@ -16,6 +16,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/pnotes.inc");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\Header;
 
 $prow = getPatientData($pid, "squad, title, fname, mname, lname");
 
@@ -48,7 +49,7 @@ if ($noteid) {
 ?>
 <html>
 <head>
-<link rel='stylesheet' href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 </head>
 
 <body class="body_top">

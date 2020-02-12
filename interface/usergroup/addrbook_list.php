@@ -107,44 +107,35 @@ $res = sqlStatement($query, $sqlBindArray);
         <div class="col-md-12">
             <h3><?php echo xlt('Address Book'); ?></h3>
 
-        <form class='navbar-form' method='post' action='addrbook_list.php'
-              onsubmit='return top.restoreSession()'>
+        <form class='navbar-form' method='post' action='addrbook_list.php' onsubmit='return top.restoreSession()'>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
             <div class="text-center">
                 <div class="form-group">
-                    <label><?php echo xlt('Organization') ?>:</label>
-                    <input type='text' name='form_organization' size='10'
-                           value='<?php echo attr($_POST['form_organization']); ?>'
-                           class='inputtext' title='<?php echo xla("All or part of the organization") ?>'/>&nbsp;
-                    <label><?php echo xlt('First Name') ?>:</label>
-                    <input type='text' name='form_fname' size='10' value='<?php echo attr($_POST['form_fname']); ?>'
-                           class='inputtext' title='<?php echo xla("All or part of the first name") ?>'/>&nbsp;
-                    <label><?php echo xlt('Last Name') ?>:</label>
-                    <input type='text' name='form_lname' size='10' value='<?php echo attr($_POST['form_lname']); ?>'
-                           class='inputtext' title='<?php echo xla("All or part of the last name") ?>'/>&nbsp;
-                    <label><?php echo xlt('Specialty') ?>:</label>
-                    <input type='text' name='form_specialty' size='10' value='<?php echo attr($_POST['form_specialty']); ?>'
-                           class='inputtext' title='<?php echo xla("Any part of the desired specialty") ?>'/>&nbsp;
+                    <label for="form_organization"><?php echo xlt('Organization') ?>:</label>
+                    <input type='text' name='form_organization' size='10' value='<?php echo attr($_POST['form_organization']); ?>' class='inputtext' title='<?php echo xla("All or part of the organization") ?>'/>&nbsp;
+                    <label for="form_fname"><?php echo xlt('First Name') ?>:</label>
+                    <input type='text' name='form_fname' size='10' value='<?php echo attr($_POST['form_fname']); ?>' class='inputtext' title='<?php echo xla("All or part of the first name") ?>'/>&nbsp;
+                    <label for="form_lname"><?php echo xlt('Last Name') ?>:</label>
+                    <input type='text' name='form_lname' size='10' value='<?php echo attr($_POST['form_lname']); ?>' class='inputtext' title='<?php echo xla("All or part of the last name") ?>'/>&nbsp;
+                    <label for="form_specialty"><?php echo xlt('Specialty') ?>:</label>
+                    <input type='text' name='form_specialty' size='10' value='<?php echo attr($_POST['form_specialty']); ?>' class='inputtext' title='<?php echo xla("Any part of the desired specialty") ?>'/>&nbsp;
                     <?php
                     echo xlt('Type') . ": ";
                     // Generates a select list named form_abook_type:
                     echo generate_select_list("form_abook_type", "abook_type", $_REQUEST['form_abook_type'], '', 'All');
                     ?>
-                    <input type='checkbox' name='form_external' value='1'<?php echo ($form_external) ? ' checked ' : ''; ?>
-                           title='<?php echo xla("Omit internal users?") ?>'/>
+                    <input type='checkbox' name='form_external' value='1'<?php echo ($form_external) ? ' checked ' : ''; ?> title='<?php echo xla("Omit internal users?") ?>' />
                     <?php echo xlt('External Only') ?>
-                    <input type='button' class='btn btn-primary' value='<?php echo xla("Add New"); ?>'
-                           onclick='doedclick_add(document.forms[0].form_abook_type.value)'/>&nbsp;&nbsp;
-                    <input type='submit' title='<?php echo xla("Use % alone in a field to just sort on that column") ?>'
-                           class='btn btn-primary' name='form_search' value='<?php echo xla("Search") ?>'/>
+                    <input type='button' class='btn btn-primary' value='<?php echo xla("Add New"); ?>' onclick='doedclick_add(document.forms[0].form_abook_type.value)' />&nbsp;&nbsp;
+                    <input type='submit' title='<?php echo xla("Use % alone in a field to just sort on that column") ?>' class='btn btn-primary' name='form_search' value='<?php echo xla("Search") ?>'/>
                 </div>
             </div>
         </form>
     </div>
     </div>
 <div style="margin-top: 110px;" class="table-responsive">
-<table class="table table-condensed table-bordered table-striped table-hover">
+<table class="table table-sm table-bordered table-striped table-hover">
  <thead>
   <th title='<?php echo xla('Click to view or edit'); ?>'><?php echo xlt('Organization'); ?></th>
   <th><?php echo xlt('Name'); ?></th>
@@ -205,11 +196,9 @@ while ($row = sqlFetchArray($res)) {
 </div>
 
 <?php if ($popup) { ?>
-<script type="text/javascript" src="../../library/topdialog.js"></script>
+    <?php Header::setupAssets('topdialog'); ?>
 <?php } ?>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-
-<script language="JavaScript">
+<script>
 
 <?php if ($popup) {
     require($GLOBALS['srcdir'] . "/restoreSession.php");

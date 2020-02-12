@@ -5,31 +5,38 @@
         padding-left: 4px;
         padding-right: 4px;
     }
-    a, a:visited, a:hover {
-        color: #0000cc;
+
+    a,
+    a:visited,
+    a:hover {
+        color: $primary;
     }
+
     tr.search {
         font-weight: bold;
     }
+
     tr.head {
-        background-color: #cccccc;
+        background-color: $gray-400;
         font-weight: bold;
     }
+
     tr.evenrow {
-        background-color: #ddddff;
+        background-color: $light;
     }
+
     tr.oddrow {
-        background-color: #ffffff;
+        background-color: $white;
     }
+
     .inputtext {
         font-weight: normal;
-        border-style: solid;
-        border-width: 1px;
-        border-color: #000000;
+        border: 1px solid $black;
         background-color: transparent;
     }
+
     .button {
-        font-size: 0.8em;
+        @include font-size("0.8rem !important");
         font-weight: bold;
     }
 }

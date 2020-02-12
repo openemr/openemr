@@ -161,7 +161,7 @@ $help_icon = '';
 <body class="body_top" <?php echo $body_javascript;?>>
 <div class="container">
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-12">
             <!-- Required for the popup date selectors -->
             <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
             <div class="">
@@ -172,7 +172,7 @@ $help_icon = '';
         </div>
     </div>
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-12">
             <form id="new-encounter-form" method='post' action="<?php echo $rootdir ?>/forms/newGroupEncounter/save.php" name='new_encounter'>
                 <?php if ($viewmode) { ?>
                     <input type=hidden name='mode' value='update'>
@@ -354,14 +354,14 @@ $help_icon = '';
                 <fieldset>
                     <legend><?php echo xlt('Reason for Visit')?></legend>
                     <div class="form-group">
-                        <div class="col-sm-10 col-sm-offset-1">
+                        <div class="col-sm-10 offset-sm-1">
                             <textarea name="reason" id="reason" class="form-control" cols="80" rows="4" ><?php echo $viewmode ? text($result['reason']) : text($GLOBALS['default_chief_complaint']); ?></textarea>
                         </div>
                     </div>
                 </fieldset>
                 <div class="form-group clearfix">
                     <div class="col-sm-12 text-left position-override">
-                        <button type="button" class="btn btn-default btn-save" onclick="top.restoreSession(); saveClicked(undefined);"><?php echo xlt('Save');?></button>
+                        <button type="button" class="btn btn-secondary btn-save" onclick="top.restoreSession(); saveClicked(undefined);"><?php echo xlt('Save');?></button>
                         <?php if ($viewmode || empty($_GET["autoloaded"])) { // not creating new encounter ?>
                             <button type="button" class="btn btn-link btn-cancel btn-separate-left" onClick="return cancelClickedOld()"><?php echo xlt('Cancel');?></button>
                         <?php } else { // not $viewmode ?>

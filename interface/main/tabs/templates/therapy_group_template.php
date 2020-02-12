@@ -19,7 +19,7 @@
 <script type="text/html" id="therapy-group-template">
     <div>
         <span class="patientDataColumn">
-            <span style="float:left;"><a data-bind="click: viewTgFinder" href="#" class="btn btn-default btn-sm">
+            <span style="float:left;"><a data-bind="click: viewTgFinder" href="#" class="btn btn-secondary btn-sm">
                 <i class="fa fa-search" aria-hidden="true"></i>
             </a></span>
             <div class="patientInfo">
@@ -34,7 +34,7 @@
                     <?php echo xlt("None{{Therapy Group}}");?>
                 <!-- /ko -->
                 <!-- ko if: therapy_group -->
-                    <a class="btn btn-xs btn-link" href="#" data-bind="click:clearTherapyGroup" title="<?php echo xla("Clear") ?>">
+                    <a class="btn btn-sm btn-link" href="#" data-bind="click:clearTherapyGroup" title="<?php echo xla("Clear") ?>">
                         <i class="fa fa-times"></i>
                     </a>
                 <!-- /ko -->
@@ -43,7 +43,7 @@
         <span class="patientDataColumn">
         <!-- ko if: therapy_group -->
         <!-- ko with: therapy_group -->
-            <a class="btn btn-xs btn-link" data-bind="click: clickNewGroupEncounter" href="#" title="<?php echo xla("New Encounter");?>">
+            <a class="btn btn-sm btn-link" data-bind="click: clickNewGroupEncounter" href="#" title="<?php echo xla("New Encounter");?>">
                 <i class="fa fa-plus"></i>
             </a>
             <div class="patientCurrentEncounter">
@@ -59,9 +59,9 @@
                 <!-- /ko -->
             </div>
             <!-- ko if: encounterArray().length > 0 -->
-            <br>
+            <br />
             <div class="btn-group dropdown">
-                <button class="btn btn-default btn-sm dropdown-toggle"
+                <button class="btn btn-secondary btn-sm dropdown-toggle"
                         type="button" id="pastEncounters"
                         data-toggle="dropdown"
                         aria-haspopup="true"
@@ -92,7 +92,7 @@
         <!-- ko with: user -->
         <!-- ko if:messages() -->
             <span class="messagesColumn">
-                <a class="btn btn-default" href="#" data-bind="click: viewMessages" title="<?php echo xla("View Messages");?>">
+                <a class="btn btn-secondary" href="#" data-bind="click: viewMessages" title="<?php echo xla("View Messages");?>">
                     <i class="fa fa-envelope"></i>&nbsp;<span style="display:inline" data-bind="text: messages()"></span>
                 </a>
             </span>
@@ -100,5 +100,4 @@
         <!-- /ko -->
         <!-- /ko -->
     </div>
-    <!-- /ko -->
 </script>

@@ -35,7 +35,7 @@ if ($_GET) {
         }
     }
 
-    echo '  <div class="col-xs-12">
+    echo '  <div class="col-12">
             <h4>'.xlt('Click and drag bottom right corner to resize this display').'</h4>
             <table class="table table-bordered"  id="logTable">
                 <thead>
@@ -92,11 +92,11 @@ if ($_GET) {
         @media only screen and (max-width: 680px) {
             [class*="col-"] {
                 width: 100%;
-                text-align: left!Important;
+                text-align: left !important;
             }
         }
     </style>
-    <script language="JavaScript">
+    <script>
       $(function (){
         $("#submitForm").click(function(){
           // top.restoreSession(); --> can't use this as it negates this ajax refresh
@@ -136,33 +136,33 @@ if ($_GET) {
     }
     ?>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="page-header">
                     <h2><?php echo xlt('Dated Message Log');?> &nbsp;<i id="show_hide" class="fa fa-eye-slash fa-2x small" title="<?php echo xla('Click to Hide Filters'); ?>"></i></h2>
                 </div>
             </div>
         </div>
         <div class="row hideaway">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <form method="get" id="logForm" onsubmit="return top.restoreSession()">
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
                     <fieldset>
                         <legend><?php echo xlt('Filters') ?></legend>
-                        <div class="col-xs-12">
+                        <div class="col-12">
                             <h5><?php echo xlt('Date The Message Was Sent');?></h5>
-                            <div class="col-xs-6">
-                                <label class="control-label" for="sd"><?php echo xlt('Start Date') ?>:</label>
+                            <div class="col-6">
+                                <label class="col-form-label" for="sd"><?php echo xlt('Start Date') ?>:</label>
                                 <input id="sd" type="text" class='form-control datepicker' name="sd" value="" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
                             </div>
-                            <div class="col-xs-6">
-                                <label class="control-label" for="ed"><?php echo xlt('End Date') ?>:</label>
+                            <div class="col-6">
+                                <label class="col-form-label" for="ed"><?php echo xlt('End Date') ?>:</label>
                                 <input id="ed" type="text" class='form-control datepicker' name="ed" value="" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
                             </div>
                         </div>
-                        <div class="col-xs-12">
-                            <div class="col-xs-6">
-                                <label class="control-label" for="sentBy"><?php echo xlt('Sent By, Leave Blank For All');?>:</label>
+                        <div class="col-12">
+                            <div class="col-6">
+                                <label class="col-form-label" for="sentBy"><?php echo xlt('Sent By, Leave Blank For All');?>:</label>
                                 <select class="form-control" id="sentBy" name="sentBy[]" multiple="multiple">
                                     <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
                                     <?php
@@ -174,8 +174,8 @@ if ($_GET) {
                                     ?>
                                 </select>
                             </div>
-                            <div class="col-xs-6">
-                                <label class="control-label" for="sentBy"><?php echo xlt('Sent To, Leave Blank For All') ?>:</label>
+                            <div class="col-6">
+                                <label class="col-form-label" for="sentBy"><?php echo xlt('Sent To, Leave Blank For All') ?>:</label>
                                 <select class="form-control" id="sentTo" name="sentTo[]" multiple="multiple">
                                     <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
                                     <?php
@@ -188,8 +188,8 @@ if ($_GET) {
                                 </select>
                             </div>
                         </div>
-                        <div class="col-xs-12">
-                            <div class="col-xs-12 form-group">
+                        <div class="col-12">
+                            <div class="col-12 form-group">
                                 <div class="checkbox">
                                     <label>
                                         <input type="checkbox" name="processed" id="processed"><?php echo xlt('Processed') ?>
@@ -204,7 +204,7 @@ if ($_GET) {
                     <div class="form-group">
                         <div class="col-sm-12 position-override">
                             <div class="btn-group oe-opt-btn-group-pinch form-group" role="group">
-                                <button type="button" value="Refresh" id="submitForm" class="btn btn-default btn-refresh" ><?php echo xlt('Refresh') ?></button>
+                                <button type="button" value="Refresh" id="submitForm" class="btn btn-secondary btn-refresh" ><?php echo xlt('Refresh') ?></button>
                             </div>
                         </div>
                     </div>
@@ -212,7 +212,7 @@ if ($_GET) {
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div id="resultsDiv"></div>
             </div>
         </div>

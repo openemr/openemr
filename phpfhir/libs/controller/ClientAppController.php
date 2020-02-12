@@ -60,7 +60,7 @@ class clientController extends oeDispatchController
             $resource = $this->fhirService->createEncounterResource($e['id'], $e, true);
             $fhir_uri = 'Encounter/encounter-' . $e['id'];
             $response = oeHttp::bodyFormat('body')->usingBaseUri($this->fhirBase)->put($fhir_uri, $resource);
-            $notify .= "<strong>Sent: $fhir_uri</strong></br>" . $this->checkErrors($response) . $response->body() . '</br>';
+            $notify .= "<strong>Sent: $fhir_uri</strong><br />" . $this->checkErrors($response) . $response->body() . '<br />';
         }
 
         return $notify;
@@ -88,7 +88,7 @@ class clientController extends oeDispatchController
             $head .= $name . ': ' . implode(', ', $values) . "<br/>";
         }
 
-        return $head . '<strong>Replied Resource:</strong></br>' . $reply . '</br>';
+        return $head . '<strong>Replied Resource:</strong><br />' . $reply . '<br />';
     }
 
     public function historyAction()
@@ -136,7 +136,7 @@ class clientController extends oeDispatchController
     {
         $check = '';
         if ($response->status() !== 200) {
-            $check = "</br><strong>Error:" . $response->status() . " : " . $response->getReasonPhrase() . "</strong></br>";
+            $check = "<br /><strong>Error:" . $response->status() . " : " . $response->getReasonPhrase() . "</strong><br />";
         }
 
         return $check;

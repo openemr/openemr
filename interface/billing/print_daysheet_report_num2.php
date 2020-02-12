@@ -12,12 +12,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+/* TODO: Code Cleanup */
+
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/daysheet.inc.php");
 
 use OpenEMR\Billing\BillingReport;
+use OpenEMR\Core\Header;
 
 //global variables:
 if (!isset($_GET["mode"])) {
@@ -63,13 +66,13 @@ if (!isset($_GET["mode"])) {
 <html>
 <head>
 
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 
 </head>
-<body bgcolor="#ffffff" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">
 
-<a href="javascript:window.close();" target=Main><font class=title><?php echo xlt('Day Sheet Report')?></font></a>
-<br>
+<a href="javascript:window.close();" target="Main"><font class="title"><?php echo xlt('Day Sheet Report')?></font></a>
+<br />
 
 <?php
 if ($my_authorized === 'on') {
@@ -366,7 +369,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 }
 
                 // Displays name
-                print "<tr><td colspan=50><hr><span class=bold>" . "     " . text($name["fname"]) . " " . text($name["lname"]) . "</span><br><br></td></tr><tr>\n";
+                print "<tr><td colspan=50><hr><span class=bold>" . "     " . text($name["fname"]) . " " . text($name["lname"]) . "</span><br /><br /></td></tr><tr>\n";
                 //==================================
 
                 if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment') {
@@ -727,13 +730,13 @@ if ($us19_fee != 0 || $us19_inspay != 0 || $us19_insadj != 0 || $us19_patadj != 
 if ($totals_only == 1) {
     $from_date = oeFormatShortDate(substr($query_part_day, 37, 10));
     $to_date = oeFormatShortDate(substr($query_part_day, 63, 10));
-    print "<br><br>";
+    print "<br /><br />";
     ?><font size = 5 ><?php echo xlt('Totals for '). text($from_date) . ' ' . xlt('To{{Range}}') . ' ' . text($to_date) ?></font><?php
 }
 
 for ($i=1; $i<$k;) {
     print "<table border=1><tr>\n";
-    print "<br><br>";
+    print "<br /><br />";
 
     Printf("<td width=70><span class=text><b>". xlt("User "). "</center></b><center>".text($user_info['user'][$i])). "</center>";
     Printf("<td width=140><span class=text><b><center>". xlt("Charges") . ' ' ."</center></b><center>"." %1\$.2f", text($user_info['fee'][$i])). "</center>";
@@ -750,11 +753,11 @@ for ($i=1; $i<$k;) {
 
     ++$i;
 
-    print "</br></td>";
+    print "<br /></td>";
 }
 
 print "<table border=1><tr>\n";
-print "<br><br>";
+print "<br /><br />";
 
 Printf("<td width=70><span class=text><b><center>". xlt("Grand Totals").' ');
 Printf("<td width=140><span class=text><b><center>". xlt("Total Charges").' '."</center></b><center>"." %1\$.2f", text($gtotal_fee)). "</center>";
@@ -763,7 +766,7 @@ Printf("<td width=140><span class=text><b><center>". xlt("Insurance Payments") .
 Printf("<td width=140><span class=text><b><center>". xlt("Patient Adj").'. '."</center></b><center>"."%1\$.2f", text($gtotal_patadj)). "</center>";
 Printf("<td width=140><span class=text><b><center>". xlt("Patient Payments"). ' ' . "</center></b><center>"."%1\$.2f", text($gtotal_patpay)). "</center>";
 
-print "</br></td>";
+print "<br /></td>";
 print "</table>";
 
 ?>

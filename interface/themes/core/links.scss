@@ -1,39 +1,36 @@
-a {
-    color: #0000cc;
-    text-decoration: none;
-}
-a:visited {
-    color: #0000cc;
-}
-a:hover {
-    color: #ff5555;
-}
 .logout {
-    color: #000000;
+    color: $body-color;
     text-decoration: none;
     text-align: $left;
 }
+
 .more {
     text-decoration: none;
 }
+
 .back {
     text-decoration: none;
 }
+
 .link_selected {
     text-decoration: none;
-    color: #0000FF;
+    color: $primary;
 }
+
 .link_selected:visited {
     text-decoration: none;
-    color: #0000FF;
+    color: $primary;
 }
+
 .link_submit {
     text-decoration: none;
-    color: #000077;
+    color: darken($primary, 20%);
+
     a:visited {
-        color: #000077;
+        color: darken($primary, 20%);
     }
+
     a:hover {
-        color: #ff5555;
+        color: lighten($danger, 10%);
     }
 }

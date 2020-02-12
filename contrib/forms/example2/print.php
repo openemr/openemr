@@ -16,6 +16,7 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 /** CHANGE THIS - name of the database table associated with this form **/
 $table_name = "form_example";
@@ -51,12 +52,8 @@ if ($record['sig_date'] != "") {
 
 <html><head>
 
-<!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js"></script>
+<?php Header::setupHeader(); ?>
 
-<!-- page styles -->
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/style.css" type="text/css">
 
 </head>
@@ -68,7 +65,7 @@ Printed on <?php echo date("F d, Y", time()); ?>
 <form method=post action="">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<span class="title"><?php echo xlt($form_name); ?></span><br>
+<span class="title"><?php echo xlt($form_name); ?></span><br />
 
 <!-- container for the main body of the form -->
 <div id="print_form_container">
@@ -100,9 +97,9 @@ Address: <input name="address" id="address" type="text" size="80" maxlength="250
 </div>
 
 <div id="print_bottom">
-Use this space to express notes <br>
+Use this space to express notes <br />
 <textarea name="notes" id="notes" cols="80" rows="4"><?php echo attr($record['notes']);?></textarea>
-<br><br>
+<br /><br />
 <div style="text-align:right;">
 Signature?
 <input type="radio" id="sig" name="sig" value="y" <?php if ($record["sig"] == 'y') {

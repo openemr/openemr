@@ -25,13 +25,13 @@ function CAMOS_report($pid, $encounter, $cols, $id)
         echo " | ";
         echo "<a href='" . $GLOBALS['webroot'] .
         "/interface/forms/CAMOS/rx_print.php?sigline=signed' target=_new>" . xlt('Signed Rx') . "</a>\n";
-        echo "<br>";
+        echo "<br />";
         echo "<a href='" . $GLOBALS['webroot'] .
         "/interface/forms/CAMOS/rx_print.php?letterhead=true&signer=patient' target=_new>" . xlt('Letterhead that patient signs') . "</a>\n";
         echo " | ";
         echo "<a href='" . $GLOBALS['webroot'] .
         "/interface/forms/CAMOS/rx_print.php?letterhead=true&signer=doctor' target=_new>" . xlt('Letterhead that doctor signs') . "</a>\n";
-        echo "<br>";
+        echo "<br />";
         echo "<a href='" . $GLOBALS['webroot'] .
         "/interface/forms/CAMOS/notegen.php?pid=" . attr_url($pid) . "&encounter=" . attr_url($encounter) . "' target=_new>" . xlt('Print This Encounter') . "</a>\n";
         echo " | ";

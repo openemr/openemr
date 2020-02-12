@@ -41,6 +41,8 @@ require_once("../interface/globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/forms.inc");
 
+use OpenEMR\Core\Header;
+
 // Things that might be passed by our opener.
 //
 $eid = $_GET['eid'];         // only for existing events
@@ -484,7 +486,7 @@ if ($_POST['form_action'] != "") {
     $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($_POST['form_provider_ae']));
     $rtn = addPnote($_POST['form_pid'], $note, 1, 1, $title, $user['username'], '', 'New');
 
-    $_SESSION['whereto'] = 'appointmentpanel';
+    $_SESSION['whereto'] = 'appointmentcard';
     header('Location:./home.php#appointmentpanel');
     exit();
 }
@@ -569,12 +571,11 @@ if ($userid) {
 <!DOCTYPE html>
 <html>
 <head>
-<title><?php echo $eid ? xlt("Edit Event") : xlt("Add New Event"); ?></title>
-<link href="assets/css/style.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+    <title><?php echo $eid ? xlt("Edit Event") : xlt("Add New Event"); ?></title>
+    <?php Header::setupHeader(['no_main-theme', 'patientportal-style', 'opener']); ?>
 </head>
 <script>
-var durations = new Array();
+var durations = Array();
 <?php
 // Read the event categories, generate their options list, and get
 // the default event duration from them if this is a new event.
@@ -640,7 +641,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
 ?>
 </script>
 <body class="skin-blue">
-<div class="well">
+<div class="card">
     <form class="form-inline" method='post' name='theaddform' id='theaddform' action='add_edit_event_user.php?eid=<?php echo attr_url($eid); ?>'>
         <input type="hidden" name="form_action" id="form_action" value="">
         <input type='hidden' name='form_title' id='form_title' value='<?php echo $row['pc_catid'] ? attr($row['pc_title']) : xla("Office Visit"); ?>' />
@@ -690,7 +691,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
                 <td nowrap>
                     <b><?php echo xlt('Patient'); ?>:</b>
                 </td>
-                <td style='padding:0px 5px 5px 0' nowrap>
+                <td style='padding: 0px 5px 5px 0' nowrap>
                     <input class="form-control" type='text' id='form_patient' name='form_patient' value='<?php echo attr($patientname); ?>' title='Patient' readonly />
                     <input type='hidden' name='form_pid' value='<?php echo attr($patientid); ?>' />
                 </td>
@@ -699,8 +700,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
                 </td>
                 <td nowrap id='tdallday4'><?php echo xlt('Duration'); ?></td>
                 <td nowrap id='tdallday5'>
-                    <input class="form-control input-sm" type='text' size='1' name='form_duration'
-                        value='<?php echo $row['pc_duration'] ? ($row['pc_duration'] * 1 / 60) : attr($thisduration) ?>' readonly /><?php echo "&nbsp" . xlt('minutes'); ?>
+                    <input class="form-control form-control-sm" type='text' size='1' name='form_duration' value='<?php echo $row['pc_duration'] ? ($row['pc_duration'] * 1 / 60) : attr($thisduration) ?>' readonly /><?php echo "&nbsp" . xlt('minutes'); ?>
                 </td>
             </tr>
             <tr>
@@ -732,7 +732,9 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
                 </td>
                 <td nowrap style='font-size:8pt'>
                 </td>
-                <td><input type='button' class='btn btn-success btn-sm' value='<?php echo xla('Openings'); ?>' onclick='find_available()' /></td>
+                <td>
+                    <input type='button' class='btn btn-success btn-sm' value='<?php echo xla('Openings'); ?>' onclick='find_available()' />
+                </td>
                 <td></td>
             </tr>
             <tr>
@@ -740,7 +742,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
                     <b><?php echo xlt('Reason'); ?>:</b>
                 </td>
                 <td style='padding:0px 5px 5px 0' colspan='4' nowrap>
-                    <input class="form-control" type='text' size='40' name='form_comments' style='width:100%' value='<?php echo attr($hometext); ?>' title='<?php echo xla('Optional information about this event'); ?>' />
+                    <input class="form-control w-100" type='text' size='40' name='form_comments' value='<?php echo attr($hometext); ?>' title='<?php echo xla('Optional information about this event'); ?>' />
                 </td>
             </tr>
         </table>

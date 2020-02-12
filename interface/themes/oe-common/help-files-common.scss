@@ -1,61 +1,79 @@
 /*-----------------------openemr5.0.2 help files styling---------------------- */
 
-.oe-help-container a , .oe-help-container a:not(.btn), .oe-help-container a:not(oe-help-redirect){
+.oe-help-container a,
+.oe-help-container a:not(.btn),
+.oe-help-container a:not(oe-help-redirect) {
     text-decoration: none !important;
-    color: #676666;
+    color: $gray;
     font-weight: 700;
 }
-.oe-help-container h2>a {
+
+.oe-help-container h2 > a {
     font-weight: 500 !important;
 }
+
 .oe-help-heading {
-    color:#676666;
-    background-color: #E4E2E0;
-    border-color: #DADADA;
+    color: $gray;
+    background-color: $gray-200;
+    border-color: $gray-300;
     padding: 10px 5px;
     border-radius: 5px;
 }
+
 .oe-text-orange {
-    color: orange;
+    color: $orange;
 }
+
 .oe-text-red {
-    color: red;
+    color: $danger;
 }
+
 .oe-text-green {
-    color: green;
+    color: $success;
 }
+
 .oe-text-black {
-    color: black;
+    color: $black;
 }
+
 .oe-no-float {
     float: none !important;
 }
+
 .oe-inline {
     display: inline !important;
 }
+
 .oe-superscript {
     position: relative;
     top: -0.5em;
     font-size: 70% !important;
 }
+
 .oe-superscript-small {
-position: relative;
-top: -1.2em;
-font-size: 50%!important;
+    position: relative;
+    top: -1.2em;
+    font-size: 50% !important;
 }
+
 .oe-pull-toward {
-    float:$left !important;
+    float: $left !important;
 }
+
 .oe-pull-toward-unimportant {
-    float:$left;
+    float: $left;
 }
+
 .oe-pull-away {
     float: $right !important;
 }
+
 .oe-pull-away-unimportant {
     float: $right;
 }
+
 .oe-margin-toward {
-    margin-#{$left}:30px;
+    margin-#{$left}: 30px;
 }
+
 /*-----------------------openemr5.0.2 help files styling---------------------- */

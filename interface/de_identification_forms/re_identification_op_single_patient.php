@@ -19,6 +19,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt('Not authorized'));
@@ -45,9 +46,8 @@ if ($status == 0) {
 <html>
 <head>
 <title><?php echo xlt('Re Identification'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+    <?php Header::setupHeader(); ?>
 
 <style type="text/css">
 .style1 {
@@ -97,11 +97,11 @@ system($sh_cmd);
     <tr valign="top">
 
         <td>&nbsp;</td>
-        <td rowspan="3"><br>
+        <td rowspan="3"><br />
         <?php echo xlt('Re Identification Process is ongoing');
-        echo "</br></br>";
+        echo "<br /><br />";
         echo xlt('Please visit Re Identification screen after some time');
-        echo "</br>";   ?> </br>
+        echo "<br />";   ?> <br />
         </td>
         <td>&nbsp;</td>
     </tr>
@@ -147,11 +147,11 @@ system($sh_cmd);
     <table class="de_identification_status_message" align="center">
     <tr valign="top">
         <td>&nbsp;</td>
-        <td rowspan="3"><br>
+        <td rowspan="3"><br />
         <?php echo xlt('No match Patient record found for the given Re Idenitification code');
-        echo "</br></br>";
+        echo "<br /><br />";
         echo xlt('Please enter correct Re Identification code');
-        echo "</br>";   ?> </br>
+        echo "<br />";   ?> <br />
         </td>
         <td>&nbsp;</td>
     </tr>

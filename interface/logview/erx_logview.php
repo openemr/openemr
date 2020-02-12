@@ -71,9 +71,9 @@ if ($filename) {
 ?>
 <html>
     <head>
-        <?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'datetime-picker']); ?>
+        <?php Header::setupHeader('datetime-picker'); ?>
 
-        <script language="JavaScript">
+        <script>
             $(function(){
                 $('.datepicker').datetimepicker({
                     <?php $datetimepicker_timepicker = false; ?>
@@ -90,7 +90,7 @@ if ($filename) {
         <form method="post">
         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-        <font class="title"><?php echo xlt('eRx Logs'); ?></font><br><br>
+        <span class="title"><?php echo xlt('eRx Logs'); ?></span><br /><br />
         <table>
             <tr>
                 <td>
@@ -100,7 +100,7 @@ if ($filename) {
                     <input type="text" size="10" class='datepicker' name="start_date" id="start_date" value="<?php echo $start_date ? attr(substr($start_date, 0, 10)) : date('Y-m-d'); ?>" title="<?php echo xla('yyyy-mm-dd Date of service'); ?>" />
                 </td>
                 <td>
-                    <input type="submit" name="search_logs" value="<?php echo xla('Search'); ?>">
+                    <input type="submit" class="btn btn-primary btn-sm" name="search_logs" value="<?php echo xla('Search'); ?>" />
                 </td>
             </tr>
         </table>

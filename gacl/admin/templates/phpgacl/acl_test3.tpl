@@ -35,7 +35,7 @@
         {$acls[x].axo_section_name} > {$acls[x].axo_name}
     </td>
     <td valign="top" align="center">
-        {$acls[x].return_value}<br>
+        {$acls[x].return_value}<br />
      </td>
     <td valign="top" align="left">
 		<!---acl_check('{$acls[x].aco_section_value}', '{$acls[x].aco_value}', '{$acls[x].aro_section_value}', '{$acls[x].aro_value}')-->
@@ -67,7 +67,7 @@
 </table>
 </form>
 
-<br>
+<br />
 <table align="center" cellpadding="2" cellspacing="2" border="2" width="30%">
   <tr>
 	<th colspan="2">
@@ -91,7 +91,7 @@
 	</td>
   </tr>
 </table>
-<br>
+<br />
 <table align="center" cellpadding="2" cellspacing="2" border="2" width="30%">
 	<th>
 		Do you want to test 2-dimensional ACLs?
@@ -102,5 +102,5 @@
 		</td>
 	</tr>
 </table>
-<br>
+<br />
 {include file="phpgacl/footer.tpl"}

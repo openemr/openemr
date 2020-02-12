@@ -5,7 +5,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -32,7 +34,7 @@ $browsenum = (is_numeric($_REQUEST['browsenum'])) ? $_REQUEST['browsenum'] : 1;
 <head>
     <?php Header::setupHeader(['datetime-picker', 'opener']); ?>
 
-    <script language="javascript">
+    <script>
         $(function(){
             $('[name="findBy"').on('change', function () {
                 if($(this).val() === 'DOB'){
@@ -54,20 +56,29 @@ $browsenum = (is_numeric($_REQUEST['browsenum'])) ? $_REQUEST['browsenum'] : 1;
 
 <body class="body_top">
 
-<a href="javascript:window.close();"><font class="title"><?php echo xlt('Browse for Record'); ?></font><font class="back"><?php echo text($tback);?></font></a>
+<a href="javascript:window.close();"><span class="title"><?php echo xlt('Browse for Record'); ?></span><span class="back"><?php echo text($tback);?></span></a>
 
 <form border='0' method='post' name="find_patient" action="browse.php?browsenum=<?php echo attr_url($browsenum); ?>">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-
-<input type='entry' size='10' name='patient' id='searchparm'>
-<select name="findBy" size='1'>
- <option value="ID"><?php echo xlt('ID'); ?></option>
- <option value="Last" selected><?php echo xlt('Last Name'); ?></option>
- <option value="SSN"><?php echo xlt('SSN'); ?></option>
- <option value="DOB"><?php echo xlt('DOB'); ?></option>
-</select>
-<a href="javascript:document.find_patient.submit();" class="link"><?php echo xlt('Find'); ?></a>&nbsp;&nbsp;
-<a href="javascript:auto_populate_employer_address();" class="link_submit"><?php echo xlt('Copy Values'); ?></a>
+<div class="form-row">
+<div class="col-auto">
+    <input type='entry' size='10' class='form-control form-control-sm' name='patient' id='searchparm' />
+</div>
+<div class="col-auto">
+    <select name="findBy" size='1' class="form-control form-control-sm">
+     <option value="ID"><?php echo xlt('ID'); ?></option>
+     <option value="Last" selected><?php echo xlt('Last Name'); ?></option>
+     <option value="SSN"><?php echo xlt('SSN'); ?></option>
+     <option value="DOB"><?php echo xlt('DOB'); ?></option>
+    </select>
+</div>
+<div class="col-auto">
+    <a href="javascript:document.find_patient.submit();" role="button" class="btn btn-primary btn-sm"><?php echo xlt('Find'); ?></a>
+</div>
+<div class="col-auto">
+    <a href="javascript:auto_populate_employer_address();" role="button" class="btn btn-primary btn-sm"><?php echo xlt('Copy Values'); ?></a>
+</div>
+</div>
 </form>
 
 <?php
@@ -83,7 +94,7 @@ if (isset($_GET['set_pid'])) {
     $result3 = getInsuranceData($_GET['set_pid'], $insurance);
     ?>
 
-<script language=javascript>
+<script>
 <!--
 function auto_populate_employer_address(){
  var df = opener.document.demographics_form;
@@ -122,8 +133,8 @@ function auto_populate_employer_address(){
 <form method="post" name="insurance_form" action="browse.php?browsenum=<?php echo attr_url($browsenum); ?>&set_pid=<?php echo attr_url($_GET['set_pid']); ?>">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type="hidden" name="browsenum" value="<?php echo attr($browsenum); ?>">
-<span class=bold> <?php echo xlt('Insurance Provider'); ?>:</span>
-<select name=insurance onchange="javascript:document.insurance_form.submit();">
+<span class='bold'> <?php echo xlt('Insurance Provider'); ?>:</span>
+<select name='insurance' onchange="javascript:document.insurance_form.submit();">
     <option value="primary" <?php echo ($insurance == "primary") ? "selected" : ""?>><?php echo xlt('Primary'); ?></option>
     <option value="secondary" <?php echo ($insurance == "secondary") ? "selected" : ""?>><?php echo xlt('Secondary'); ?></option>
     <option value="tertiary" <?php echo ($insurance == "tertiary") ? "selected" : ""?>><?php echo xlt('Tertiary'); ?></option>
@@ -132,28 +143,28 @@ function auto_populate_employer_address(){
 </form>
 <table class="table">
 <tr>
-<td><span class=text><?php echo xlt('First Name'); ?>:</span></td>
-<td><span class=text><?php echo text($result3['subscriber_fname']);?></span></td>
+<td><span class='text'><?php echo xlt('First Name'); ?>:</span></td>
+<td><span class='text'><?php echo text($result3['subscriber_fname']);?></span></td>
 </tr>
 <tr>
-<td><span class=text><?php echo xlt('Middle Name'); ?>:</span></td>
-<td><span class=text><?php echo text($result3['subscriber_mname']);?></span></td>
+<td><span class='text'><?php echo xlt('Middle Name'); ?>:</span></td>
+<td><span class='text'><?php echo text($result3['subscriber_mname']);?></span></td>
 </tr>
 <tr>
-<td><span class=text><?php echo xlt('Last Name'); ?>:</span></td>
-<td><span class=text><?php echo text($result3['subscriber_lname']);?></span></td>
+<td><span class='text'><?php echo xlt('Last Name'); ?>:</span></td>
+<td><span class='text'><?php echo text($result3['subscriber_lname']);?></span></td>
 </tr>
 <tr>
-<td><span class=text><?php echo xlt('Address'); ?>:</span></td>
-<td><span class=text><?php echo text($result3['subscriber_street']);?></span></td>
+<td><span class='text'><?php echo xlt('Address'); ?>:</span></td>
+<td><span class='text'><?php echo text($result3['subscriber_street']);?></span></td>
 </tr>
 <tr>
-<td><span class=text><?php echo xlt('City'); ?>:</span></td>
-<td><span class=text><?php echo text($result3['subscriber_city']);?></span></td>
+<td><span class='text'><?php echo xlt('City'); ?>:</span></td>
+<td><span class='text'><?php echo text($result3['subscriber_city']);?></span></td>
 </tr>
 <tr>
-<td><span class=text><?php echo xlt('State'); ?>:</span></td>
-<td><span class=text>
+<td><span class='text'><?php echo xlt('State'); ?>:</span></td>
+<td><span class='text'>
     <?php
   //Modified 7/2009 by BM to incorporate data types
     echo generate_display_field(array('data_type'=>$GLOBALS['state_data_type'],'list_id'=>$GLOBALS['state_list']), $result3['subscriber_state']);
@@ -161,12 +172,12 @@ function auto_populate_employer_address(){
 </span></td>
 </tr>
 <tr>
-<td><span class=text><?php echo xlt('Zip Code'); ?>:</span></td>
-<td><span class=text><?php echo htmlspecialchars($result3['subscriber_postal_code']);?></span></td>
+<td><span class='text'><?php echo xlt('Zip Code'); ?>:</span></td>
+<td><span class='text'><?php echo htmlspecialchars($result3['subscriber_postal_code']);?></span></td>
 </tr>
 <tr>
-<td><span class=text><?php echo xlt('Country'); ?>:</span></td>
-<td><span class=text>
+<td><span class='text'><?php echo xlt('Country'); ?>:</span></td>
+<td><span class='text'>
     <?php
   //Modified 7/2009 by BM to incorporate data types
     echo generate_display_field(array('data_type'=>$GLOBALS['country_data_type'],'list_id'=>$GLOBALS['country_list']), $result3['subscriber_country']);
@@ -174,55 +185,55 @@ function auto_populate_employer_address(){
 </span></td>
 </tr>
 <tr>
-<td><span class=text><?php echo xlt('Phone'); ?>:</span></td>
-<td><span class=text><?php echo text($result3['subscriber_phone']);?></span></td>
+<td><span class='text'><?php echo xlt('Phone'); ?>:</span></td>
+<td><span class='text'><?php echo text($result3['subscriber_phone']);?></span></td>
 </tr>
 <tr>
-<td><span class=text><?php echo xlt('DOB'); ?>:</span></td>
-<td><span class=text><?php echo text(oeFormatShortDate($result3['subscriber_DOB']));?></span></td>
+<td><span class='text'><?php echo xlt('DOB'); ?>:</span></td>
+<td><span class='text'><?php echo text(oeFormatShortDate($result3['subscriber_DOB']));?></span></td>
 </tr>
 <tr>
-<td><span class=text><?php echo xlt('SS'); ?>:</span></td>
-<td><span class=text><?php echo text($result3['subscriber_ss']);?></span></td>
+<td><span class='text'><?php echo xlt('SS'); ?>:</span></td>
+<td><span class='text'><?php echo text($result3['subscriber_ss']);?></span></td>
 </tr>
 <tr>
-<td><span class=text><?php echo xlt('Primary Insurance Provider'); ?>:</span></td>
-<td><span class=text><?php echo text($result3['provider_name']);?></span></td>
+<td><span class='text'><?php echo xlt('Primary Insurance Provider'); ?>:</span></td>
+<td><span class='text'><?php echo text($result3['provider_name']);?></span></td>
 </tr>
 <tr>
-<td><span class=text><?php echo xlt('Plan Name'); ?>:</span>
-</td><td><span class=text><?php echo text($result3['plan_name']);?></span></td>
+<td><span class='text'><?php echo xlt('Plan Name'); ?>:</span>
+</td><td><span class='text'><?php echo text($result3['plan_name']);?></span></td>
 </tr>
 <tr>
-<td><span class=text><?php echo xlt('Group Number'); ?>:</span></td>
-<td><span class=text><?php echo text($result3['group_number']);?></span></td>
+<td><span class='text'><?php echo xlt('Group Number'); ?>:</span></td>
+<td><span class='text'><?php echo text($result3['group_number']);?></span></td>
 </tr>
 <tr>
 <tr>
-<td><span class=text><?php echo xlt('Policy Number'); ?>:</span></td>
-<td><span class=text><?php echo text($result3['policy_number']);?></span></td>
+<td><span class='text'><?php echo xlt('Policy Number'); ?>:</span></td>
+<td><span class='text'><?php echo text($result3['policy_number']);?></span></td>
 </tr>
 
     <?php if (empty($GLOBALS['omit_employers'])) { ?>
 <tr>
-<td><span class=text><?php echo xlt('Subscriber Employer'); ?>:</span></td>
-<td><span class=text><?php echo text($result3['subscriber_employer']);?></span></td>
+<td><span class='text'><?php echo xlt('Subscriber Employer'); ?>:</span></td>
+<td><span class='text'><?php echo text($result3['subscriber_employer']);?></span></td>
 </tr>
 <tr>
-<td><span class=text><?php echo xlt('Subscriber Employer Address'); ?>:</span></td>
-<td><span class=text><?php echo text($result3['subscriber_employer_street']);?></span></td>
+<td><span class='text'><?php echo xlt('Subscriber Employer Address'); ?>:</span></td>
+<td><span class='text'><?php echo text($result3['subscriber_employer_street']);?></span></td>
 </tr>
 <tr>
-<td><span class=text><?php echo xlt('Subscriber Employer Zip Code'); ?>:</span></td>
-<td><span class=text><?php echo text($result3['subscriber_employer_postal_code']);?></span></td>
+<td><span class='text'><?php echo xlt('Subscriber Employer Zip Code'); ?>:</span></td>
+<td><span class='text'><?php echo text($result3['subscriber_employer_postal_code']);?></span></td>
 </tr>
 <tr>
-<td><span class=text><?php echo xlt('Subscriber Employer City'); ?>:</span></td>
-<td><span class=text><?php echo text($result3['subscriber_employer_city']);?></span></td>
+<td><span class='text'><?php echo xlt('Subscriber Employer City'); ?>:</span></td>
+<td><span class='text'><?php echo text($result3['subscriber_employer_city']);?></span></td>
 </tr>
 <tr>
-<td><span class=text><?php echo xlt('Subscriber Employer State'); ?>:</span></td>
-<td><span class=text>
+<td><span class='text'><?php echo xlt('Subscriber Employer State'); ?>:</span></td>
+<td><span class='text'>
         <?php
       //Modified 7/2009 by BM to incorporate data types
         echo generate_display_field(array('data_type'=>$GLOBALS['state_data_type'],'list_id'=>$GLOBALS['state_list']), $result3['subscriber_employer_state']);
@@ -230,8 +241,8 @@ function auto_populate_employer_address(){
 </span></td>
 </tr>
 <tr>
-<td><span class=text><?php echo xlt('Subscriber Employer Country'); ?>:</span></td>
-<td><span class=text>
+<td><span class='text'><?php echo xlt('Subscriber Employer Country'); ?>:</span></td>
+<td><span class='text'>
         <?php
        //Modified 7/2009 by BM to incorporate data types
         echo generate_display_field(array('data_type'=>$GLOBALS['country_data_type'],'list_id'=>$GLOBALS['country_list']), $result3['subscriber_employer_country']);
@@ -242,13 +253,13 @@ function auto_populate_employer_address(){
     <?php } ?>
 
 <tr>
-<td><span class=text><?php echo xlt('Subscriber Sex'); ?>:</span></td>
-<td><span class=text><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'sex'), $result3['subscriber_sex']); ?></span></td>
+<td><span class='text'><?php echo xlt('Subscriber Sex'); ?>:</span></td>
+<td><span class='text'><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'sex'), $result3['subscriber_sex']); ?></span></td>
 </tr>
 </table>
 
-<br>
-<a href="javascript:auto_populate_employer_address();" class=link_submit><?php echo xlt('Copy Values'); ?></a>
+<br />
+<a href="javascript:auto_populate_employer_address();" class='btn btn-primary btn-sm'><?php echo xlt('Copy Values'); ?></a>
 
     <?php
 } else {
@@ -256,15 +267,21 @@ function auto_populate_employer_address(){
 
 <table class="table">
 <tr>
-<th>
-<span class=bold><?php echo xlt('Name'); ?></span>
-</th><th>
-<span class=bold><?php echo xlt('SS'); ?></span>
-</th><th>
-<span class=bold><?php echo xlt('DOB'); ?></span>
-</th><th>
-<span class=bold><?php echo xlt('ID'); ?></span>
-</th></tr>
+<thead>
+    <th>
+        <span class='bold'><?php echo xlt('Name'); ?></span>
+    </th>
+    <th>
+        <span class='bold'><?php echo xlt('SS'); ?></span>
+    </th>
+    <th>
+        <span class='bold'><?php echo xlt('DOB'); ?></span>
+    </th>
+    <th>
+        <span class='bold'><?php echo xlt('ID'); ?></span>
+    </th>
+</thead>
+</tr>
     <?php
 
     $count=0;
@@ -278,27 +295,27 @@ function auto_populate_employer_address(){
                 break;
             }
 
-            print "<tr><td><a class=text target=_top href='browse.php?browsenum=" .
+            print "<tr><td><a class='text' target='_top' href='browse.php?browsenum=" .
                     attr_url($browsenum) . "&set_pid=" .
                     attr_url($iter["pid"]) . "'>" .
                     text($iter["lname"].", ".$iter["fname"]) .
                     "</td></a>\n";
-            print "<td><a class=text target=_top href='browse.php?browsenum=" .
+            print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                     attr_url($browsenum) . "&set_pid=" .
                     attr_url($iter["pid"]) . "'>" .
                     text($iter["ss"]) . "</a></td>";
             if ($iter["DOB"] != "0000-00-00 00:00:00") {
-                print "<td><a class=text target=_top href='browse.php?browsenum=" .
+                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                         attr_url($browsenum) . "&set_pid=" .
                         attr_url($iter["pid"]) . "'>" .
                         text(oeFormatShortDate($iter["DOB"])) . "</a></td>";
             } else {
-                print "<td><a class=text target=_top href='browse.php?browsenum=" .
+                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                         attr_url($browsenum) . "&set_pid=" .
                         attr_url($iter["pid"]) . "'>&nbsp;</a></td>";
             }
 
-            print "<td><a class=text target=_top href='browse.php?browsenum=" .
+            print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                     attr_url($browsenum) . "&set_pid=" .
                     attr_url($iter["pid"]) . "'>" .
                     text($iter["pubpid"]) . "</a></td>";
@@ -313,27 +330,27 @@ function auto_populate_employer_address(){
                 break;
             }
 
-            print "<tr><td><a class=text target=_top href='browse.php?browsenum=" .
+            print "<tr><td><a class='text' target='_top' href='browse.php?browsenum=" .
                     attr_url($browsenum) . "&set_pid=" .
                     attr_url($iter["pid"]) . "'>" .
                     text($iter["lname"].", ".$iter["fname"]) .
                     "</td></a>\n";
-            print "<td><a class=text target=_top href='browse.php?browsenum=" .
+            print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                     attr_url($browsenum) . "&set_pid=" .
                     attr_url($iter["pid"]) . "'>" .
                     text($iter["ss"]) . "</a></td>";
             if ($iter["DOB"] != "0000-00-00 00:00:00") {
-                print "<td><a class=text target=_top href='browse.php?browsenum=" .
+                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                         attr_url($browsenum) . "&set_pid=" .
                         attr_url($iter["pid"]) . "'>" .
                         text(oeFormatShortDate($iter["DOB"])) . "</a></td>";
             } else {
-                print "<td><a class=text target=_top href='browse.php?browsenum=" .
+                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                         attr_url($browsenum) . "&set_pid=" .
                         attr_url($iter["pid"]) . "'>&nbsp;</a></td>";
             }
 
-            print "<td><a class=text target=_top href='browse.php?browsenum=" .
+            print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                     attr_url($browsenum) . "&set_pid=" .
                     attr_url($iter["pid"]) . "'>" .
                     text($iter["pubpid"]) . "</a></td>";
@@ -348,27 +365,27 @@ function auto_populate_employer_address(){
                 break;
             }
 
-                print "<tr><td><a class=text target=_top href='browse.php?browsenum=" .
+                print "<tr><td><a class='text' target='_top' href='browse.php?browsenum=" .
                         attr_url($browsenum) . "&set_pid=" .
                         attr_url($iter["pid"]) . "'>" .
                         text($iter["lname"].", ".$iter["fname"]) .
                         "</td></a>\n";
-                print "<td><a class=text target=_top href='browse.php?browsenum=" .
+                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                         attr_url($browsenum) . "&set_pid=" .
                         attr_url($iter["pid"]) . "'>" .
                         text($iter["ss"]) . "</a></td>";
             if ($iter["DOB"] != "0000-00-00 00:00:00") {
-                print "<td><a class=text target=_top href='browse.php?browsenum=" .
+                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                 attr_url($browsenum) . "&set_pid=" .
                 attr_url($iter["pid"]) . "'>" .
                 text(oeFormatShortDate($iter["DOB"])) . "</a></td>";
             } else {
-                print "<td><a class=text target=_top href='browse.php?browsenum=" .
+                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                 attr_url($browsenum) . "&set_pid=" .
                 attr_url($iter["pid"]) . "'>&nbsp;</a></td>";
             }
 
-                print "<td><a class=text target=_top href='browse.php?browsenum=" .
+                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                     attr_url($browsenum) . "&set_pid=" .
                     attr_url($iter["pid"]) . "'>" .
                     text($iter["pubpid"]) . "</a></td>";
@@ -383,27 +400,27 @@ function auto_populate_employer_address(){
                 break;
             }
 
-                print "<tr><td><a class=text target=_top href='browse.php?browsenum=" .
+                print "<tr><td><a class='text' target='_top' href='browse.php?browsenum=" .
                         attr_url($browsenum) . "&set_pid=" .
                         attr_url($iter["pid"]) . "'>" .
                         text($iter["lname"].", ".$iter["fname"]) .
                         "</td></a>\n";
-                print "<td><a class=text target=_top href='browse.php?browsenum=" .
+                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                         attr_url($browsenum) . "&set_pid=" .
                         attr_url($iter["pid"]) . "'>" .
                         text($iter["ss"]) . "</a></td>";
             if ($iter["DOB"] != "0000-00-00 00:00:00") {
-                print "<td><a class=text target=_top href='browse.php?browsenum=" .
+                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                 attr_url($browsenum) . "&set_pid=" .
                 attr_url($iter["pid"]) . "'>" .
                 text(oeFormatShortDate($iter["DOB"])) . "</a></td>";
             } else {
-                print "<td><a class=text target=_top href='browse.php?browsenum=" .
+                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                 attr_url($browsenum) . "&set_pid=" .
                 attr_url($iter["pid"]) . "'>&nbsp;</a></td>";
             }
 
-                print "<td><a class=text target=_top href='browse.php?browsenum=" .
+                print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                     attr_url($browsenum) . "&set_pid=" .
                     attr_url($iter["pid"]) . "'>" .
                     text($iter["pubpid"]) . "</a></td>";

@@ -30,22 +30,17 @@ if ($isAuthorized !== true) {
     $imgurl = "../../../../public/images";
 }
 
+use OpenEMR\Core\Header;
+
 ?>
 <!DOCTYPE html >
 <html>
 <head>
 <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 <meta charset="utf-8" />
-<?php if ($isAuthorized !== true) {?>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
- <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/css/bootstrap.min.css">
- <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-themes/themes/base/jquery-ui.min.css" rel="stylesheet" type="text/css" />
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/emodal/dist/eModal.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui/jquery-ui.min.js"></script>
+<?php if ($isAuthorized !== true) {
+    Header::setupHeader(['no_main-theme', 'opener', 'common', 'datetime-picker', 'jquery-ui',]);
+    ?>
 
 <script type="text/javascript">
 $(function() {
@@ -200,7 +195,7 @@ var pid;
 var encounter;
 var align = true;
 var isTemplate;
-var ub04id = new Array();
+var ub04id = Array();
 payerid = <?php echo js_escape($payerid);?>;
 pid = <?php echo js_escape($pid);?>;
 encounter = <?php echo js_escape($encounter);?>;
@@ -211,16 +206,16 @@ function adjustForm()
 {
     // cycle trough the input fields
     // rem form index i is not same as formid index ii
-    var inputs = Array.prototype.slice.call(document.forms[0])
+    var inputs = Array.prototype.slice.call(document.forms[0]);
 
     Array.prototype.forEach.call(inputs, function(el, i) {
         var type = el.getAttribute('type');
         var ta = window.getComputedStyle(el,null).getPropertyValue("text-align");
-        var title = el.getAttribute('title')
+        var title = el.getAttribute('title');
         var max = el.getAttribute('maxlength');
-        var w = el.clientWidth
+        var w = el.clientWidth;
         var size = w;
-            if( ta == 'right' ){
+            if( ta === 'right' ){
                 if(title.indexOf("CHARGES") !== -1){
                      w = size - 14;
                      if(!isTemplate){ w = size - 8; }
@@ -231,17 +226,16 @@ function adjustForm()
                 }
                 el.style.width = w + 'px'
             }
-        el.style.top = (el.offsetTop+3)+'px'
-        if( ta == 'left' )
-            el.style.left = (el.offsetLeft+2)+'px'
+        el.style.top = (el.offsetTop+3)+'px';
+        if( ta === 'left' )
+            el.style.left = (el.offsetLeft+2)+'px';
         var ii = i+1;
-        if(typeof(ub04id[ii]) != 'undefined' && ub04id[ii] != ""){
-            var val = ub04id[ii]
+        if(typeof(ub04id[ii]) != 'undefined' && ub04id[ii] !== ""){
+            var val = ub04id[ii];
             if( val.length > max && max > 0 ){
                 val = ub04id[ii].substring(0,max);
             }
-            document.getElementById("ub04id"+ ii.toString()).value = val
-            return;
+            document.getElementById("ub04id"+ ii.toString()).value = val;
         }
  });
  return false;
@@ -250,64 +244,62 @@ function adjustForm()
 var formChanged = false;
 
 function rewrite(ub04id){
-    var inputs = Array.prototype.slice.call(document.forms[0])
+    var inputs = Array.prototype.slice.call(document.forms[0]);
     Array.prototype.forEach.call(inputs, function(el, i) {
         var max = el.getAttribute('maxlength');
         var ii = i+1;
         if(typeof(ub04id[ii]) != 'undefined'){
-            var val = ub04id[ii]
+            var val = ub04id[ii];
             if( val.length > max && max > 0 ){
                 val = ub04id[ii].substring(0,max);
             }
-            document.getElementById("ub04id"+ ii.toString()).value = val
-            return;
+            document.getElementById("ub04id"+ ii.toString()).value = val;
         }
     });
 }
 
 function cleanUp()
 {
-    if(payerid == '0'){
+    if(payerid === '0'){
        window.opener.SubmitTheScreen();
     }
     window.close()
 }
 
-function selectUser(formid,event)
-{
+function selectUser(formid,event) {
     var title = 'Providers';
-     var params = {
-               buttons: [
-                   { text: 'Cancel', close: true, style: 'default btn-sm'} ],
-               //size: eModal.size.sm,
-               subtitle: 'Provider Info.',
-               title: title,
-               useBin: false,
-               url: './ub04_helpers.php?action=user_select&formid=' + encodeURIComponent(formid)
-           };
-       return eModal.ajax(params)
-           .then(function () { });
+    var params = {
+        buttons: [
+            {text: 'Cancel', close: true, style: 'secondary btn-sm'}
+        ],
+        type: 'GET',
+        title: title,
+        size: 'modal-mlg',
+        url: './ub04_helpers.php?action=user_select&formid=' + encodeURIComponent(formid)
+    };
+    return dialog.ajax(params).then(function () {
+    });
 }
 
 function updateProvider(formid, selected)
 {
     document.getElementById(formid).value = selected.npi;
-    if(formid == 'ub04id379'){
+    if(formid === 'ub04id379'){
         document.getElementById('ub04id388').value = selected.lname;
         document.getElementById('ub04id389').value = selected.fname;
         document.getElementById('ub04id289').value = selected.taxonomy;
     }
-    else if(formid == 'ub04id390'){
+    else if(formid === 'ub04id390'){
         document.getElementById('ub04id400').value = selected.lname;
         document.getElementById('ub04id401').value = selected.fname;
         document.getElementById('ub04id296').value = selected.taxonomy;
     }
-    else if(formid == 'ub04id406'){
+    else if(formid === 'ub04id406'){
         document.getElementById('ub04id413').value = selected.lname;
         document.getElementById('ub04id414').value = selected.fname;
         document.getElementById('ub04id303').value = selected.taxonomy;
     }
-    else if(formid == 'ub04id420'){
+    else if(formid === 'ub04id420'){
         document.getElementById('ub04id427').value = selected.lname;
         document.getElementById('ub04id428').value = selected.fname;
     }
@@ -318,7 +310,7 @@ function disposeSave(action)
     var htmlout = "";
     var inputs;
     var slice = Array.prototype.slice;
-    inputs = slice.call(document.forms[0])
+    inputs = slice.call(document.forms[0]);
     Array.prototype.forEach.call(inputs, function(el, i) {
         var ii = i+1;
         var tmp = document.getElementById("ub04id"+ ii.toString()).value;
@@ -336,7 +328,7 @@ function postClaim(action)
     var inputs;
     var c = [];
     var slice = Array.prototype.slice;
-    inputs = slice.call(document.forms[0])
+    inputs = slice.call(document.forms[0]);
     Array.prototype.forEach.call(inputs, function(el, i) {
         var ii = i+1;
         var tmp = document.getElementById("ub04id"+ ii.toString()).value;
@@ -346,12 +338,12 @@ function postClaim(action)
             var max = el.getAttribute('maxlength');
             var ta = window.getComputedStyle(el,null).getPropertyValue("text-align");
             var w = window.getComputedStyle(el,null).getPropertyValue("width");
-            var ob = {fld:ii,top:row,left:col,max:max,align:ta,width:w}
-            c.push(ob)
+            var ob = {fld:ii,top:row,left:col,max:max,align:ta,width:w};
+            c.push(ob);
             ub04id[ii] = document.getElementById("ub04id"+ ii.toString()).value.toUpperCase();
         }
     });
-    var cj = JSON.stringify(c)
+    var cj = JSON.stringify(c);
     ub04idSave = JSON.stringify(ub04id);
     var xhr = new XMLHttpRequest();
     xhr.open('POST', 'ub04_dispose.php');
@@ -359,14 +351,14 @@ function postClaim(action)
     xhr.onload = function() {
         if (xhr.status === 200) {
             console.log(this.responseText ? this.responseText : 'no response');
-            if(this.responseText == 'done')
+            if(this.responseText === 'done')
                 alert(<?php echo xlj("Save Completed")?>);
         }
     };
-    if(action == 'payer_save'){
+    if(action === 'payer_save'){
         var qs = param({handler:action,payerid:payerid,ub04id: ub04idSave})
     }
-    else if(action == 'batch_save'){
+    else if(action === 'batch_save'){
         var qs = param({handler:action,pid:pid,encounter:encounter,ub04id:ub04idSave,loc:cj})
     }
     xhr.send(qs);
@@ -398,7 +390,7 @@ function myZoom()
 function resetClaim(){
     var msg = <?php echo xlj('This action will reset your claim!'); ?> + '\n' + <?php echo xlj('Click OK if you are sure.'); ?>;
     var yn = confirm(msg);
-    if (yn != true) {
+    if (yn !== true) {
         return false;
     }
     $.ajax({
@@ -945,31 +937,31 @@ textarea{
 <body onload="adjustForm();">
 <div class="container" id="formContainer">
 <?php if ($isAuthorized !== true) {?>
-<h3 class='formhide'><em><?php echo xlt('Claim Edit') ?> </em><button class="btn btn-xs btn-warning" onclick="myZoom()" ><?php echo xlt('Zoom'); ?></button></h3>
+<h3 class='formhide'><em><?php echo xlt('Claim Edit') ?> </em><button class="btn btn-sm btn-warning" onclick="myZoom()" ><?php echo xlt('Zoom'); ?></button></h3>
 <div class="navbar-fixed-top formhide" id='menu'>
     <?php if ($pid && $encounter) {?>
-    <button class="btn btn-xs btn-success" onclick="disposeSave('form')" title=<?php echo xla("Save for printing with form") ?>><?php echo xlt('Pdf With Form'); ?></button>
-    <button class="btn btn-xs btn-success" onclick="disposeSave('noform')" title=<?php echo xla("Save for printing to a pre printed sheet"); ?>><?php echo xlt('Pdf Without Form'); ?></button>
-    <button class="btn btn-xs btn-success" onclick="postClaim('batch_save')" title=<?php echo xla("Save claim for batch processing"); ?>><?php echo xlt('Save Claim'); ?></button>
+    <button class="btn btn-sm btn-success" onclick="disposeSave('form')" title=<?php echo xla("Save for printing with form") ?>><?php echo xlt('Pdf With Form'); ?></button>
+    <button class="btn btn-sm btn-success" onclick="disposeSave('noform')" title=<?php echo xla("Save for printing to a pre printed sheet"); ?>><?php echo xlt('Pdf Without Form'); ?></button>
+    <button class="btn btn-sm btn-success" onclick="postClaim('batch_save')" title=<?php echo xla("Save claim for batch processing"); ?>><?php echo xlt('Save Claim'); ?></button>
     <?php } else {?>
-    <button class="btn btn-xs btn-success" onclick="postClaim('payer_save')"><?php echo xlt('Save Payer'); ?></button>
+    <button class="btn btn-sm btn-success" onclick="postClaim('payer_save')"><?php echo xlt('Save Payer'); ?></button>
     <?php } ?>
-    <button class="btn btn-xs btn-danger" onclick="resetClaim()" title=<?php echo xla("Reset claim form to Fee Sheet Version"); ?>><?php echo xlt('Reset Version'); ?></button>
-    <button class="btn btn-info btn-xs" type="button" onclick="window.scrollTo(0, 0);$('#formhelp').toggle()"><?php echo xlt('Help'); ?></button>
-    <button class="btn btn-xs btn-danger" onclick="cleanUp()"><?php echo xlt('Return'); ?></button>
+    <button class="btn btn-sm btn-danger" onclick="resetClaim()" title=<?php echo xla("Reset claim form to Fee Sheet Version"); ?>><?php echo xlt('Reset Version'); ?></button>
+    <button class="btn btn-info btn-sm" type="button" onclick="window.scrollTo(0, 0);$('#formhelp').toggle()"><?php echo xlt('Help'); ?></button>
+    <button class="btn btn-sm btn-danger" onclick="cleanUp()"><?php echo xlt('Return'); ?></button>
 </div>
-<div id='formhelp' class='well' style='display:none; text-align:center; width: auto; margin: 5px auto;'>
+<div id='formhelp' class='jumbotron jumbotron-fluid' style='display:none; text-align:center; width: auto; margin: 5px auto;'>
     <h4>Help</h4>
      <div style='text-align:left;'>
         * <?php echo xlt('Many code items have a lookup/hint.'); ?>
-        <?php echo xlt('Either type a search term in appropriate box or double click box to see available codes.'); ?><br>
-        * <?php echo xlt('Double Clicking a NPI box will bring up a current Users dialog for providers.'); ?><br>
-        * <?php echo xlt('PDF buttons will save, mark claim reviewed and download claim'); ?><br>
-        * <?php echo xlt('Reset button resets the edited claim to the fee sheet version. If subsequently saved, it will replace last claim version and be considered reviewed. Otherwise, claim is reset to fee sheet version.'); ?><br>
-        * <?php echo xlt('Save button saves claim and marks reviewed'); ?><br>
-        * <?php echo xlt('Return button simply returns, then refreshes billing manager'); ?><br><br>
+        <?php echo xlt('Either type a search term in appropriate box or double click box to see available codes.'); ?><br />
+        * <?php echo xlt('Double Clicking a NPI box will bring up a current Users dialog for providers.'); ?><br />
+        * <?php echo xlt('PDF buttons will save, mark claim reviewed and download claim'); ?><br />
+        * <?php echo xlt('Reset button resets the edited claim to the fee sheet version. If subsequently saved, it will replace last claim version and be considered reviewed. Otherwise, claim is reset to fee sheet version.'); ?><br />
+        * <?php echo xlt('Save button saves claim and marks reviewed'); ?><br />
+        * <?php echo xlt('Return button simply returns, then refreshes billing manager'); ?><br /><br />
     </div>
-   <button class="btn btn-primary btn-xs" type="button" onclick="$('#formhelp').toggle()"><?php echo xlt('Dismiss Help'); ?></button>
+   <button class="btn btn-primary btn-sm" type="button" onclick="$('#formhelp').toggle()"><?php echo xlt('Dismiss Help'); ?></button>
 </div>
 <?php } ?>
 <div id="p1" class="pageArea" style="overflow: hidden; position: relative; width: 934px; height: 1210px;">

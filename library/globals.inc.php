@@ -201,24 +201,25 @@ $GLOBALS_METADATA = array(
         ),
 
         'css_header' => array(
+            // Note: Do not change this as it is only for theme defaults and adding themes here does nothing
             xl('General Theme') .'*',
             'css',
             'style_light.css',
             xl('Pick a general theme (need to logout/login after changing this setting).')
         ),
-
+        
         'font-family' => array(
             xl('Default font') .'*',
             array(
                 '__default__' => 'Use Theme Font',
-                'Arial, Helvetica, sans-serif' => "Arial",
-                '"Arial Black", Gadget, sans-serif' => "Arial Black",
-                'Impact, Charcoal, sans-serif' => "Impact",
+                '"Arial", "Helvetica", sans-serif' => "Arial",
+                '"Arial Black", "Gadget", sans-serif' => "Arial Black",
+                '"Impact", "Charcoal", sans-serif' => "Impact",
                 '"Lucida Sans Unicode", "Lucida Grande", sans-serif' => "Lucida Sans",
-                'Tahoma, Geneva, sans-serif' => "Tahoma",
-                '"Trebuchet MS", Helvetica, sans-serif' => "Trebuchet MS",
-                'Verdana, Geneva, sans-serif' => "Verdana",
-                'lato' => "Lato",
+                '"Tahoma", "Geneva", sans-serif' => "Tahoma",
+                '"Trebuchet MS", "Helvetica", sans-serif' => "Trebuchet MS",
+                '"Verdana", "Geneva", sans-serif' => "Verdana",
+                '"Lato", sans-serif' => "Lato",
             ),
             '__default__',
             xl('Select the default font (need to logout/login after changing this setting).'),
@@ -228,11 +229,11 @@ $GLOBALS_METADATA = array(
             xl('Default font size').'*',
             array(
                 '__default__' => 'Use Theme Font Size',
-                '10px' => '10px',
-                '12px' => '12px',
-                '14px' => '14px',
-                '16px' => '16px',
-                '18px' => '18px',
+                '0.625rem' => '10px',
+                '0.75rem' => '12px',
+                '0.875rem' => '14px',
+                '1rem' => '16px',
+                '1.125rem' => '18px',
             ),
             '__default__',
             xl("Select the default font size (need to logout/login after changing this setting)."),

@@ -85,7 +85,7 @@ if ($postid) {
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_dialog', 'datetime-picker']); ?>
+<?php Header::setupHeader('datetime-picker'); ?>
 
 <style>
 

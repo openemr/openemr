@@ -4,7 +4,9 @@
  * @package MedEx
  * @link    http://www.MedExBank.com
  * @author  MedEx <support@MedExBank.com>
+ * @author  Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2017 MedEx <support@MedExBank.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -14,8 +16,8 @@ h1 {
     text-align: center;
     font-weight: normal;
     font-size: 150%;
-    line-height: 1.5em;
-    color: #693;
+    line-height: 1.5rem;
+    color: var(--success);
 }
 
 .nav-tabs {
@@ -23,7 +25,7 @@ h1 {
 }
 
 .nav-tabs > li {
-    border: 0.5px solid #c0c0c0;
+    border: 0.5px solid var(--gray400);
     margin-bottom: 0;
 }
 
@@ -40,7 +42,9 @@ h1 {
     border: none;
 }
 
-.nav-tabs > li.active > a, .nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover {
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover {
     border: unset;
 }
 
@@ -58,40 +62,40 @@ h1 {
 }
 
 .flow tr:nth-child(even) {
-    background-color: #f1f8ee;
+    background-color: var(--light);
     overflow: hidden;
 }
 
 .flow tr:nth-child(odd) {
-    background-color: #d0e1c9b3;
+    background-color: var(--gray300);
     overflow: hidden;
 }
 
 .flow tr:last-child {
-    background-color: #C9DBF2;
+    background-color: var(--gray400);
     text-align: center;
-    color: #000;
-    text-shadow: 0 1px 0 #f3f3f3;
+    color: var(--black);
+    text-shadow: 0 1px 0 var(--light);
     overflow: hidden;
     padding: 5px;
     border-radius: 5px;
-    box-shadow: 0 -4px 6px #6D798333;
+    box-shadow: 0 -4px 6px var(--gray);
     text-transform: uppercase;
 }
 
 .flow th {
     text-align: center;
-    color: #000;
+    color: var(--black);
     overflow: hidden;
     padding: 5px;
     text-transform: uppercase;
 }
 
 .flow tr:first-child {
-    background-color: #DAE8EF;
-    text-shadow: 0 1px 0 #f3f3f3;
+    background-color: var(--gray300);
+    text-shadow: 0 1px 0 var(--light);
     border-radius: 0 0 2px 2px;
-    box-shadow: 0 4px 6px grey;
+    box-shadow: 0 4px 6px var(--gray);
 }
 
 .flow td {
@@ -100,21 +104,22 @@ h1 {
 }
 
 .flow tr:hover {
-    background-color: #FFFBEB;
+    background-color: var(--light);
     overflow: hidden;
 }
 
-.flow tr:last-child:hover, .flow tr:first-child:hover {
-    background-color: #DAE8EF;
+.flow tr:last-child:hover,
+.flow tr:first-child:hover {
+    background-color: var(--gray300);
 }
 
 .flow {
     border-collapse: unset;
     text-align: center;
-    box-shadow: 2px 1px 2px #7b777760;
+    box-shadow: 2px 1px 2px var(--gray);
     margin: 15px;
     overflow: hidden;
-    border: 2px ridge #839E99;
+    border: 2px ridge var(--gray);
     border-radius: 8px;
     width: 98%;
 }
@@ -122,31 +127,31 @@ h1 {
 .newRecall {
     height: 300px;
     width: 400px;
-    background-color: white;
+    background-color: var(--white);
     display: inline-table;
-    box-shadow: 2px 1px 2px #c0c0c0;
+    box-shadow: 2px 1px 2px var(--gray400);
     margin: 15px auto;
     overflow: hidden;
     border-radius: 8px;
-    border: 0.5px ridge #c0c0c0;
+    border: 0.5px ridge var(--gray400);
     padding: 10px;
 }
 
 .divTable {
     display: table;
     float: left;
-    background: white;
-    border: 0.5px solid #c0c0c0;
-    box-shadow: 2px 3px 9px #c0c0c0;
+    background: var(--white);
+    border: 0.5px solid var(--gray400);
+    box-shadow: 2px 3px 9px var(--gray400);
     border-radius: 8px;
     padding: 10px;
     margin: 15px auto;
 }
 
 .divTable2 {
-    background: white;
-    border: 0.5px solid #c0c0c0;
-    box-shadow: 2px 3px 9px #c0c0c0;
+    background: var(--white);
+    border: 0.5px solid var(--gray400);
+    box-shadow: 2px 3px 9px var(--gray400);
     border-radius: 8px;
     padding: 10px;
     position: relative;
@@ -158,9 +163,9 @@ h1 {
 .divTable3 {
     display: table;
     float: left;
-    background: white;
-    border: 1px solid #000;
-    box-shadow: 2px 3px 9px #000;
+    background: var(--white);
+    border: 1px solid var(--black);
+    box-shadow: 2px 3px 9px var(--black);
     border-radius: 8px;
     padding: 10px;
     margin: 15px;
@@ -177,12 +182,14 @@ h1 {
 .divTableRow {
     display: table-row;
     border-radius: 8px;
-    background-color: white;
+    background-color: var(--white);
+    color: var(--black);
     text-align: left;
 }
 
-.divTableCell, .divTableHead {
-    border: 0.5px solid #c0c0c0;
+.divTableCell,
+.divTableHead {
+    border: 0.5px solid var(--gray);
     display: table-cell;
     vertical-align: middle;
     min-height: 29px;
@@ -191,7 +198,7 @@ h1 {
 }
 
 .divTableHeading {
-    background-color: #EEE;
+    background-color: var(--gray200);
     font-weight: 600;
     text-align: right;
     padding: 5px;
@@ -216,11 +223,11 @@ h1 {
 
 .name {
     text-align: left;
-    padding-left: 1em;
+    padding-left: 1rem;
 }
 
 .divTableFoot {
-    background-color: #EEE;
+    background-color: var(--gray200);
     display: table-footer-group;
     font-weight: bold;
 }
@@ -276,7 +283,7 @@ h1 {
 }
 
 .s_pwd {
-    font-size: 0.8em;
+    font-size: 0.8rem;
     padding-left: 150px;
     text-align: center;
     font-style: italic;
@@ -310,26 +317,26 @@ input[type="radio"] {
     z-index: 1;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
-    font-size: 1.2em;
+    font-size: 1.2rem;
 }
 
 .scheduled {
-    background-color: white;
-    color: black;
+    background-color: var(--white);
+    color: var(--black);
 }
 
 .no_bot_border {
-    border-bottom: 1pt dotted rgba(255, 255, 255, 0);;
-    box-shadow: 3px -2px 4px #C0C0C0;
+    border-bottom: 1px dotted transparent;
+    box-shadow: 3px -2px 4px var(--gray400);
     top: 1px;
     text-decoration: underline;
 }
 
 .search {
     position: absolute;
-    background-color: #C9DBF2;
+    background-color: var(--gray400);
     border-radius: 3px;
-    border: 1pt solid black;
+    border: 1px solid var(--black);
     padding: 5px;
     top: 10px;
     right: 20px;
@@ -340,9 +347,8 @@ input[type="radio"] {
     font-weight: bold;
     padding: 3px 10px;
     text-transform: uppercase;
-    line-height: 1.5em;
-    color: #455832;
-    border-bottom: 2px solid #455832;
+    line-height: 1.5rem;
+    border-bottom: 2px solid var(--black);
     margin: 0 auto;
     width: 70%;
 }
@@ -352,7 +358,7 @@ input[type="radio"] {
 }
 
 .red {
-    color: red;
+    color: var(--danger);
 }
 
 #save_prefs {
@@ -381,7 +387,10 @@ input[type="radio"] {
     width: 30px;
 }
 
-#phone_notification_hour, #postcard_notification_day, #EMAIL_NOTIFICATION_HOUR, #phone_recall_days {
+#phone_notification_hour,
+#postcard_notification_day,
+#EMAIL_NOTIFICATION_HOUR,
+#phone_recall_days {
     width: 30px;
 }
 
@@ -389,7 +398,7 @@ input[type="radio"] {
     text-align: center;
     margin: 0 auto;
     width: 100%;
-    background-color: #fff
+    background-color: var(--white);
 }
 
 .showReminders {
@@ -409,7 +418,7 @@ input[type="radio"] {
 #div_response {
     min-height: 25px;
     text-align: center;
-    color: red;
+    color: var(--danger);
 }
 
 #addRecall {
@@ -426,9 +435,9 @@ td.right {
 }
 
 .borderShadow {
-    box-shadow: 5px 5px 9px #7b777760;
-    border: 1.00pt solid #000000;
-    background: #ffffff;
+    box-shadow: 5px 5px 9px var(--gray);
+    border: 1px solid var(--black);
+    background: var(--white);
     padding: 6px;
     border-radius: 6px;
     width: 80%;
@@ -442,30 +451,30 @@ td.right {
     bottom: 0;
     left: 0;
     width: 60%;
-    max-height: 85vH;
+    max-height: 85vh;
     border-radius: 3px;
     overflow-wrap: normal;
-    box-shadow: 5px 5px 9px #888888;
-    border: 1.00pt solid #000000;
-    background: #ffffff;
+    box-shadow: 5px 5px 9px var(--gray);
+    border: 1px solid var(--black);
+    background: var(--white);
     padding: 10px;
 }
 
 .prefs_default {
-    margin: 0 0 1em 0;
+    margin: 0 0 1rem 0;
     text-decoration: underline;
     font-weight: 600;
 }
 
 .help {
     border-radius: 10px;
-    background-color: #DEEDF7;
+    background-color: var(--gray300);
     cursor: pointer;
     height: 10px;
     max-width: 10px;
     font-size: x-small;
     vertical-align: super;
-    color: white;
+    color: var(--white);
     display: inline-block;
     text-align: center;
     margin: 2px;
@@ -478,7 +487,7 @@ td.right {
 
 .messages {
     padding: 20px;
-    font-size: 1.0em;
+    font-size: 1.0rem;
     margin: 2px auto;
 }
 
@@ -492,7 +501,7 @@ td.right {
 }
 
 .color_me {
-    background-color: cornsilk;
+    background-color: #fff8dc;
 }
 
 .nowrap {
@@ -508,7 +517,7 @@ td.right {
 }
 
 .signup_help {
-    color: red;
+    color: var(--danger);
     padding: 0 15px;
 }
 
@@ -521,7 +530,7 @@ td.right {
 
 #SMS_patients {
     display: block;
-    position: relative
+    position: relative;
 }
 
 .ui-autocomplete {

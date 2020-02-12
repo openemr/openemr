@@ -20,7 +20,7 @@ PV1|1|I|2000^2053^01||||004777^FISHER^BEN^J.|||SUR||||ADM|A0|-->
         <textarea class="form-control" rows="10" id="hl7data" name="hl7data"></textarea>
     </div>
     <div class="btn-group">
-        <a href="javascript:document.forms[0].submit();" class="btn btn-default" onclick="top.restoreSession()">
+        <a href="javascript:document.forms[0].submit();" class="btn btn-secondary" onclick="top.restoreSession()">
             <i class="fa fa-play"></i>&nbsp;&nbsp;{xlt t='Parse HL7'}
         </a>
         <a href="javascript:document.forms[0].reset();" class="btn btn-link" onclick="top.restoreSession()">
@@ -31,14 +31,16 @@ PV1|1|I|2000^2053^01||||004777^FISHER^BEN^J.|||SUR||||ADM|A0|-->
         <div class="alert alert-danger">{$hl7_message_err|text}</div>
     {/if}
     {if $hl7_array}
-        <table class="table">
-        {foreach from=$hl7_array item=hl7item key=hl7key}
-            <tr height="25"><td colspan="3">{$hl7key|text}</td></tr>
-            {foreach from=$hl7item item=segment_val key=segment_name}
-                <tr><td>&nbsp;</td><td>{$segment_name|text}: </td><td>{$segment_val|text}</td></tr>
-            {/foreach}
-        {/foreach}
-        </table>
+      <div class="table-responsive">
+          <table class="table">
+          {foreach from=$hl7_array item=hl7item key=hl7key}
+              <tr height="25"><td colspan="3">{$hl7key|text}</td></tr>
+              {foreach from=$hl7item item=segment_val key=segment_name}
+                  <tr><td>&nbsp;</td><td>{$segment_name|text}: </td><td>{$segment_val|text}</td></tr>
+              {/foreach}
+          {/foreach}
+          </table>
+      </div>
     {/if}
     <input type="hidden" name="process" value="{$PROCESS|escape:'html'}" />
 </form>

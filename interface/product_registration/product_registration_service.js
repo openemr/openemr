@@ -22,7 +22,7 @@ function ProductRegistrationService() {
     var self = this;
 
     self.getProductStatus = function(callback) {
-        jQuery.ajax({
+        $.ajax({
             url: registrationConstants.webroot + '/interface/product_registration/product_registration_controller.php',
             type: 'GET',
             dataType: 'json',
@@ -36,7 +36,7 @@ function ProductRegistrationService() {
     };
 
     self.submitRegistration = function(email, callback) {
-        jQuery.ajax({
+        $.ajax({
             url: registrationConstants.webroot + '/interface/product_registration/product_registration_controller.php',
             type: 'POST',
             dataType: 'json',

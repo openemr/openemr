@@ -15,6 +15,8 @@ require_once(dirname(__FILE__) . '/api.inc');
 require_once(dirname(__FILE__) . '/forms.inc');
 require_once(dirname(__FILE__) . '/../interface/forms/fee_sheet/codes.php');
 
+use OpenEMR\Core\Header;
+
 $celltypes = array(
  '0' => 'Unused',
  '1' => 'Static',
@@ -302,8 +304,7 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+    <?php Header::setupHeader('datetime-picker'); ?>
 
 <style>
 .sstable td {
@@ -335,10 +336,6 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
  padding: 0 0 0 0;
 }
 </style>
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 

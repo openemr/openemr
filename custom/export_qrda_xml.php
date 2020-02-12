@@ -32,6 +32,7 @@ require_once "$srcdir/report_database.inc";
 require_once "qrda_functions.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -1498,8 +1499,7 @@ fclose($fileQRDAOPen);
 
 <html>
 <head>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader('opener'); ?>
 <title><?php echo xlt('Export QRDA Report'); ?></title>
 
 <script type="text/javascript">

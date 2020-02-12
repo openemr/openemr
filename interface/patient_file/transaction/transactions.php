@@ -26,7 +26,7 @@ use OpenEMR\OeUI\OemrUI;
     <title><?php echo xlt('Patient Transactions');?></title>
     <?php Header::setupHeader('common'); ?>
 
-<script type="text/javascript">
+<script>
     // Called by the deleteme.php window on a successful delete.
     function imdeleted() {
         top.restoreSession();
@@ -63,29 +63,25 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <?php require_once("$include_root/patient_file/summary/dashboard_header.php");?>
             </div>
         </div>
-        <div class="row" >
-            <div class="col-sm-12">
-                <?php
-                $list_id = "transactions"; // to indicate nav item is active, count and give correct id
-                // Collect the patient menu then build it
-                $menuPatient = new PatientMenuRole();
-                $menuPatient->displayHorizNavBarMenu();
-                ?>
-            </div>
-        </div>
+        <?php
+        $list_id = "transactions"; // to indicate nav item is active, count and give correct id
+        // Collect the patient menu then build it
+        $menuPatient = new PatientMenuRole();
+        $menuPatient->displayHorizNavBarMenu();
+        ?>
         <div class="row">
             <div class="col-sm-12">
                 <div class="btn-group">
-                    <!--<a href="../summary/demographics.php" class="btn btn-default btn-back" onclick="top.restoreSession()">
+                    <!--<a href="../summary/demographics.php" class="btn btn-secondary btn-back" onclick="top.restoreSession()">
                         <?php echo xlt('Back to Patient'); ?></a>-->
-                    <a href="add_transaction.php" class="btn btn-default btn-add" onclick="top.restoreSession()">
+                    <a href="add_transaction.php" class="btn btn-secondary btn-add" onclick="top.restoreSession()">
                         <?php echo xlt('Create New Transaction'); ?></a>
-                    <a href="print_referral.php" class="btn btn-default btn-print" onclick="top.restoreSession()">
+                    <a href="print_referral.php" class="btn btn-secondary btn-print" onclick="top.restoreSession()">
                         <?php echo xlt('View/Print Blank Referral Form'); ?></a>
                 </div>
             </div>
         </div>
-        <br>
+        <br />
         <div class="row">
             <div class="col-sm-12 text">
 
@@ -96,11 +92,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>&nbsp;</th>
-                            <th><?php echo xlt('Type'); ?></th>
-                            <th><?php echo xlt('Date'); ?></th>
-                            <th><?php echo xlt('User'); ?></th>
-                            <th><?php echo xlt('Details'); ?></th>
+                            <th scope="col">&nbsp;</th>
+                            <th scope="col"><?php echo xlt('Type'); ?></th>
+                            <th scope="col"><?php echo xlt('Date'); ?></th>
+                            <th scope="col"><?php echo xlt('User'); ?></th>
+                            <th scope="col"><?php echo xlt('Details'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -131,19 +127,19 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <div class="btn-group oe-pull-toward">
                                         <a href='add_transaction.php?transid=<?php echo attr_url($id); ?>&title=<?php echo attr_url($title); ?>&inmode=edit'
                                             onclick='top.restoreSession()'
-                                            class='btn btn-default btn-edit'>
+                                            class='btn btn-secondary btn-edit'>
                                             <?php echo text($edit); ?>
                                         </a>
                                         <?php if (AclMain::aclCheckCore('admin', 'super')) { ?>
                                             <a href='#'
                                                 onclick='deleteme(<?php echo attr_js($id); ?>)'
-                                                class='btn btn-default btn-delete'>
+                                                class='btn btn-secondary btn-delete'>
                                                 <?php echo text($delete); ?>
                                             </a>
                                         <?php } ?>
                                         <?php if ($item['title'] == 'LBTref') { ?>
                                             <a href='print_referral.php?transid=<?php echo attr_url($id); ?>' onclick='top.restoreSession();'
-                                                class='btn btn-print btn-default'>
+                                                class='btn btn-print btn-secondary'>
                                                 <?php echo text($view); ?>
                                             </a>
                                         <?php } ?>

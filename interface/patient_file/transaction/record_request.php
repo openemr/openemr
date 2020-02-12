@@ -51,19 +51,19 @@ use OpenEMR\Core\Header;
 <body class="body_top">
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="page-header">
                     <h2><?php echo xlt('Patient Records Request'); ?></h2>
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <?php if (empty($recordRequest)) { ?>
-                    <a href="javascript:void(0)" id="req_button" class="btn btn-default btn-save"><?php echo xlt('Patient Record Request'); ?></a>
+                    <a href="javascript:void(0)" id="req_button" class="btn btn-secondary btn-save"><?php echo xlt('Patient Record Request'); ?></a>
                     <span class="lead" id="openreq" style="display:none"><?php echo xlt('The patient record request has been recorded.'); ?></span>
                 <?php } else { ?>
-                    <a href="javascript:void(0)" id="req_button" class="btn btn-default btn-save" style="display:none"><?php echo xlt('Patient Record Request'); ?></a>
+                    <a href="javascript:void(0)" id="req_button" class="btn btn-secondary btn-save" style="display:none"><?php echo xlt('Patient Record Request'); ?></a>
                     <span class="lead" id="openreq"><?php echo xlt('There is already an open patient record request.'); ?></span>
                 <?php } ?>
             </div>

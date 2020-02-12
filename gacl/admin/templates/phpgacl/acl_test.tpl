@@ -2,9 +2,9 @@
   </head>
 <body>
 {include file="phpgacl/navigation.tpl"}
-<br>
-<br>
-<br>
+<br />
+<br />
+<br />
 <table align="center" cellpadding="2" cellspacing="2" border="2" width="50%">
 	<th colspan="2">
 		Which dimension of ACLs do you want to test?
@@ -18,7 +18,7 @@
 		</td>
 	</tr>
 </table>
-<br>
-<br>
-<br>
+<br />
+<br />
+<br />
 {include file="phpgacl/footer.tpl"}

@@ -58,7 +58,7 @@ use OpenEMR\Common\Acl\AclMain;
                                     <input type="hidden" id="pid" name="pid" value="<?php echo !is_null($participant_data) ? attr($participant_data['pid']): ''?>">
                                     <div class="col-md-12">
                                         <div class="row">
-                                            <div class="col-md-offset-1 col-md-5">
+                                            <div class="offset-md-1 col-md-5">
                                                 <div class="row">
                                                     <div class="col-md-4">
                                                         <span class="bold"><?php echo xlt("Participant's name"); ?>:</span>
@@ -80,7 +80,7 @@ use OpenEMR\Common\Acl\AclMain;
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-offset-1 col-md-2">
+                                            <div class="offset-md-1 col-md-2">
                                                 <span class="bold"><?php echo xlt('Comment'); ?>:</span>
                                             </div>
                                             <div class="col-md-8">
@@ -88,7 +88,7 @@ use OpenEMR\Common\Acl\AclMain;
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-offset-4 col-md-4 text-center">
+                                            <div class="offset-md-4 col-md-4 text-center">
                                                 <?php if ($edit) :?>
                                                 <input type="submit" name="save_new" value="<?php echo xla('Adding a participant'); ?>">
                                                 <input id="cancelAddParticipant" type="button" value="<?php echo xla('Cancel'); ?>">
@@ -97,7 +97,7 @@ use OpenEMR\Common\Acl\AclMain;
                                         </div>
                                         <?php if (isset($message)) : ?>
                                         <div class="row">
-                                            <div class="col-md-offset-2 col-md-8">
+                                            <div class="offset-md-2 col-md-8">
                                                 <p class="<?php echo $addStatus == 'failed' ? 'groups-error-msg' : 'groups-success-msg' ?>"><?php echo text($message)?></p>
                                             </div>
                                         </div>
@@ -305,7 +305,6 @@ use OpenEMR\Common\Acl\AclMain;
 </script>
     <?php    $use_validate_js = 1;?>
     <?php validateUsingPageRules($_SERVER['PHP_SELF'] . '?method=groupParticipants');?>
-<script src="<?php echo $GLOBALS['webroot']?>/library/dialog.js"></script>
     <?php require 'footer.php'; ?>
 
 <?php else :?>

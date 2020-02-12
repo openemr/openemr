@@ -9,7 +9,7 @@ function moveOptions_11(theSelFrom, theSelTo){
     document.getElementById(theSelFrom).style.color="red";
     document.getElementById(theSelFrom).style.fontStyle="italic";
     var str=document.getElementById(theSelFrom).innerHTML;
-    if(window.frames[0].document.body.innerHTML=='<br>')
+    if(window.frames[0].document.body.innerHTML=='<br />')
     window.frames[0].document.body.innerHTML="";
     var patt=/\?\?/;
     var result=patt.test(str);

@@ -13,10 +13,11 @@
  */
 
 
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 formHeader("Form: note");
 $returnurl = 'encounter_top.php';
@@ -27,13 +28,7 @@ $form_name = "note";
 
 <html><head>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
-
-<!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+<?php Header::setupHeader('datetime-picker'); ?>
 
 <script language="JavaScript">
 // required for textbox date verification
@@ -48,7 +43,7 @@ var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 <form method=post action="<?php echo $rootdir."/forms/".$form_name."/save.php?mode=new";?>" name="my_form" id="my_form">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<span class="title"><?php echo xlt('Work/School Note'); ?></span><br></br>
+<span class="title"><?php echo xlt('Work/School Note'); ?></span><br /><br />
 
 <div style="margin: 10px;">
 <input type="button" class="save" value="    <?php echo xla('Save'); ?>    "> &nbsp;
@@ -59,23 +54,23 @@ var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 <option value="WORK NOTE"><?php echo xlt('WORK NOTE'); ?></option>
 <option value="SCHOOL NOTE"><?php echo xlt('SCHOOL NOTE'); ?></option>
 </select>
-<br>
+<br />
 <b><?php echo xlt('MESSAGE:'); ?></b>
-<br>
+<br />
 <textarea name="message" id="message" rows="7" cols="47"></textarea>
-<br>
+<br />
 
 <?php
 // commented out below private field, because no field in database, and causes error.
 ?>
 <!--
 <input type="checkbox" name="private" id="private"><label for="private">This note is private</label>
-<br>
+<br />
 -->
 
-<br>
+<br />
 <b><?php echo xlt('Signature:'); ?></b>
-<br>
+<br />
 
 <table>
 <tr><td>

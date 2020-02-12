@@ -452,19 +452,19 @@ function authorized_clicked() {
 
 <div class="container">
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-12">
             <div class="page-title">
                 <h2><?php echo xlt('User / Groups');?></h2>
             </div>
         </div>
     </div>
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-12">
             <div class="btn-group">
-                <a href="usergroup_admin_add.php" class="medium_modal btn btn-default btn-add"><?php echo xlt('Add User'); ?></a>
-                <a href="facility_user.php" class="btn btn-default btn-show"><?php echo xlt('View Facility Specific User Information'); ?></a>
+                <a href="usergroup_admin_add.php" class="medium_modal btn btn-secondary btn-add"><?php echo xlt('Add User'); ?></a>
+                <a href="facility_user.php" class="btn btn-secondary btn-show"><?php echo xlt('View Facility Specific User Information'); ?></a>
             </div>
-            <form name='userlist' method='post' style="display: inline;" class="form-inline" class="pull-right" action='usergroup_admin.php' onsubmit='return top.restoreSession()'>
+            <form name='userlist' method='post' style="display: inline;" class="form-inline" class="float-right" action='usergroup_admin.php' onsubmit='return top.restoreSession()'>
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <div class="checkbox">
                     <label for="form_inactive">
@@ -476,14 +476,14 @@ function authorized_clicked() {
         </div>
     </div>
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-12">
             <?php
             if ($set_active_msg == 1) {
-                echo "<div class='alert alert-danger'>".xlt('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation.')."</div><br>";
+                echo "<div class='alert alert-danger'>".xlt('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation.')."</div><br />";
             }
 
             if ($show_message == 1) {
-                echo "<div class='alert alert-danger'>".xlt('The following Emergency Login User is activated:')." "."<b>".text($_GET['fname'])."</b>"."</div><br>";
+                echo "<div class='alert alert-danger'>".xlt('The following Emergency Login User is activated:')." "."<b>".text($_GET['fname'])."</b>"."</div><br />";
                 echo "<div class='alert alert-danger'>".xlt('Emergency Login activation email will be circulated only if following settings in the interface/globals.php file are configured:')." \$GLOBALS['Emergency_Login_email'], \$GLOBALS['Emergency_Login_email_id']</div>";
             }
 
@@ -584,8 +584,8 @@ function authorized_clicked() {
                 }
 
                 foreach ($grouplist as $groupname => $list) {
-                    print "<span class='bold'>" . text($groupname) . "</span><br>\n<span>" .
-                        substr($list, 0, strlen($list)-2) . "</span><br>\n";
+                    print "<span class='bold'>" . text($groupname) . "</span><br />\n<span>" .
+                        substr($list, 0, strlen($list)-2) . "</span><br />\n";
                 }
             }
             ?>

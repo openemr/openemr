@@ -188,19 +188,35 @@ if ($form_action == 'export') {
 
  /* specifically exclude some from the screen */
  @media screen {
-  #report_parameters_daterange {visibility: hidden; display: none;}
+  #report_parameters_daterange {
+      visibility: hidden;
+      display: none;
+}
  }
 
- body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
- .dehead    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
- .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
+ body {
+     font-family:sans-serif;
+     font-size:10pt;
+     font-weight:normal;
+}
+ .dehead {
+     color:var(--black);
+     font-family:sans-serif;
+     font-size:10pt;
+     font-weight:bold; 
+}
+ .detail { color:var(--black);
+     font-family:sans-serif;
+     font-size:10pt;
+     font-weight:normal;
+}
 
  #report_results table thead {
   font-size:10pt;
  }
 </style>
 
-<script language='JavaScript'>
+<script>
 
     $(function() {
         oeFixedHeaderSetup(document.getElementById('mymaintable'));
@@ -278,8 +294,7 @@ if ($form_action == 'export') {
         <?php xl('To{{Range}}', 'e'); ?>:
      </td>
      <td nowrap>
-      <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10'
-       value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>''>
+      <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>' />
      </td>
     </tr>
    </table>
@@ -288,14 +303,14 @@ if ($form_action == 'export') {
    <table style='border-left:1px solid; width:100%; height:100%'>
     <tr>
      <td valign='middle'>
-      <a href='#' class='css_button' onclick='mysubmit("submit")' style='margin-left:1em'>
+      <a href='#' class='btn btn-primary' onclick='mysubmit("submit")' style='margin-left:1em'>
        <span><?php echo xlt('Submit'); ?></span>
       </a>
     <?php if ($form_action) { ?>
-      <a href='#' class='css_button' id='printbutton' style='margin-left:1em'>
+      <a href='#' class='btn btn-primary' id='printbutton' style='margin-left:1em'>
        <span><?php echo xlt('Print'); ?></span>
       </a>
-      <a href='#' class='css_button' onclick='mysubmit("export")' style='margin-left:1em'>
+      <a href='#' class='btn btn-primary' onclick='mysubmit("export")' style='margin-left:1em'>
        <span><?php echo xlt('CSV Export'); ?></span>
       </a>
 <?php } ?>

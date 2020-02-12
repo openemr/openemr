@@ -120,7 +120,7 @@ function fetch_reminders($pid, $appt_date)
 
     <?php Header::setupHeader(["datetime-picker","report-helper"]); ?>
 
-    <script type="text/javascript">
+    <script>
         $(function() {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
@@ -152,7 +152,7 @@ function fetch_reminders($pid, $appt_date)
         }
         </script>
 
-        <style type="text/css">
+        <style>
         /* specifically include & exclude from printing */
         @media print {
             #report_parameters {
@@ -201,10 +201,10 @@ function fetch_reminders($pid, $appt_date)
 
         <table class='text'>
             <tr>
-                <td class='control-label'><?php echo xlt('Facility'); ?>:</td>
+                <td class='col-form-label'><?php echo xlt('Facility'); ?>:</td>
                 <td><?php dropdown_facility($facility, 'form_facility'); ?>
                 </td>
-                <td class='control-label'><?php echo xlt('Provider'); ?>:</td>
+                <td class='col-form-label'><?php echo xlt('Provider'); ?>:</td>
                 <td><?php
 
                 // Build a drop-down list of providers.
@@ -233,20 +233,16 @@ function fetch_reminders($pid, $appt_date)
                 </td>
             </tr>
             <tr>
-                <td class='control-label'><?php echo xlt('From'); ?>:</td>
-                <td><input type='text' name='form_from_date' id="form_from_date"
-                    class='datepicker form-control'
-                    size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
+                <td class='col-form-label'><?php echo xlt('From'); ?>:</td>
+                <td><input type='text' name='form_from_date' id="form_from_date" class='datepicker form-control' size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>' />
                 </td>
-                <td class='control-label'><?php echo xlt('To{{Range}}'); ?>:</td>
-                <td><input type='text' name='form_to_date' id="form_to_date"
-                    class='datepicker form-control'
-                    size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>'>
+                <td class='col-form-label'><?php echo xlt('To{{Range}}'); ?>:</td>
+                <td><input type='text' name='form_to_date' id="form_to_date" class='datepicker form-control' size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>'>
                 </td>
             </tr>
 
             <tr>
-                <td class='control-label'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
+                <td class='col-form-label'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
                 <td><?php generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'All'), $_POST['form_apptstatus']);?></td>
                 <td><?php echo xlt('Category') #category drop down creation ?>:</td>
                 <td>
@@ -308,23 +304,23 @@ function fetch_reminders($pid, $appt_date)
         </div>
 
         </td>
-        <td align='left' valign='middle' height="100%">
-        <table style='border-left: 1px solid; width: 100%; height: 100%'>
+        <td class='h-100' align='left' valign='middle'>
+        <table class='w-100 h-100' style='border-left: 1px solid;'>
             <tr>
                 <td>
                     <div class="text-center">
                         <div class="btn-group" role="group">
-                            <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                            <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                                 <?php echo xlt('Submit'); ?>
                             </a>
                             <?php if ($_POST['form_refresh'] || $_POST['form_orderby']) { ?>
-                                <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                                <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                     <?php echo xlt('Print'); ?>
                                 </a>
-                                <a href='#' class='btn btn-default btn-transmit' onclick='window.open("../patient_file/printed_fee_sheet.php?fill=2", "_blank").opener = null' onsubmit='return top.restoreSession()'>
+                                <a href='#' class='btn btn-secondary btn-transmit' onclick='window.open("../patient_file/printed_fee_sheet.php?fill=2", "_blank").opener = null' onsubmit='return top.restoreSession()'>
                                     <?php echo xlt('Superbills'); ?>
                                 </a>
-                                <a href='#' class='btn btn-default btn-transmit' onclick='window.open("../patient_file/addr_appt_label.php", "_blank").opener = null' onsubmit='return top.restoreSession()'>
+                                <a href='#' class='btn btn-secondary btn-transmit' onclick='window.open("../patient_file/addr_appt_label.php", "_blank").opener = null' onsubmit='return top.restoreSession()'>
                                     <?php echo xlt('Address Labels'); ?>
                                 </a>
                             <?php } ?>
@@ -344,27 +340,27 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
     $showDate = ($from_date != $to_date) || (!$to_date);
     ?>
 <div id="report_results">
-<table>
+<table class='table'>
 
-    <thead>
+    <thead class='thead-light'>
         <th><a href="nojs.php" onclick="return dosort('doctor')"
-    <?php echo ($form_orderby == "doctor") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Provider'); ?>
+    <?php echo ($form_orderby == "doctor") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Provider'); ?>
         </a></th>
 
         <th <?php echo $showDate ? '' : 'style="display:none;"' ?>><a href="nojs.php" onclick="return dosort('date')"
-    <?php echo ($form_orderby == "date") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Date'); ?></a>
+    <?php echo ($form_orderby == "date") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Date'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('time')"
-    <?php echo ($form_orderby == "time") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Time'); ?></a>
+    <?php echo ($form_orderby == "time") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Time'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('patient')"
-    <?php echo ($form_orderby == "patient") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Patient'); ?></a>
+    <?php echo ($form_orderby == "patient") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Patient'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('pubpid')"
-    <?php echo ($form_orderby == "pubpid") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('ID'); ?></a>
+    <?php echo ($form_orderby == "pubpid") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('ID'); ?></a>
         </th>
 
             <th><?php echo xlt('Home'); //Sorting by phone# not really useful ?></th>
@@ -372,11 +368,11 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
                 <th><?php echo xlt('Cell'); //Sorting by phone# not really useful ?></th>
 
         <th><a href="nojs.php" onclick="return dosort('type')"
-    <?php echo ($form_orderby == "type") ? " style=\"color:#00cc00\"" : ""; ?>><?php echo xlt('Type'); ?></a>
+    <?php echo ($form_orderby == "type") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Type'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('status')"
-            <?php echo ($form_orderby == "status") ? " style=\"color:#00cc00\"" : ""; ?>><?php  echo xlt('Status'); ?></a>
+            <?php echo ($form_orderby == "status") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Status'); ?></a>
         </th>
     </thead>
     <tbody>
@@ -468,19 +464,19 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
         <?php
         if ($patient_id && (!empty($rems) || !empty($appointment['pc_hometext']))) { // Not display of available slot or not showing reminders and comments empty ?>
     <tr valign='top' id='p2.<?php echo attr($patient_id) ?>' >
-       <td colspan=<?php echo $showDate ? '"3"' : '"2"' ?> class="detail" />
-       <td colspan=<?php echo ($incl_reminders ? "3":"6") ?> class="detail" align='left'>
+        <td colspan='<?php echo $showDate ? '"3"' : '"2"' ?>' class="detail"></td>
+       <td colspan='<?php echo ($incl_reminders ? "3":"6") ?>' class="detail" align='left'>
             <?php
             if (trim($appointment['pc_hometext'])) {
-                echo '<b>'.xlt('Comments') .'</b>: '.text($appointment['pc_hometext']);
+                echo '<strong>'.xlt('Comments') .'</strong>: '.text($appointment['pc_hometext']);
             }
 
             if ($incl_reminders) {
                 echo "<td class='detail' colspan='3' align='left'>";
                 $new_line = '';
                 foreach ($rems as $rem_due => $rem_items) {
-                    echo "$new_line<b>$rem_due</b>: ".attr($rem_items);
-                    $new_line = '<br>';
+                    echo "$new_line<strong>$rem_due</strong>: ".attr($rem_items);
+                    $new_line = '<br />';
                 }
 
                 echo "</td>";
@@ -508,12 +504,11 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 <?php } else { ?>
 <div class='text'><?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
 </div>
-<?php } ?> <input type="hidden" name="form_orderby"
-    value="<?php echo attr($form_orderby) ?>" /> <input type="hidden"
-    name="patient" value="<?php echo attr($patient) ?>" /> <input type='hidden'
-    name='form_refresh' id='form_refresh' value='' /></form>
+<?php } ?>
+<input type="hidden" name="form_orderby" value="<?php echo attr($form_orderby) ?>" /> <input type="hidden" name="patient" value="<?php echo attr($patient) ?>" />
+<input type='hidden' name='form_refresh' id='form_refresh' value='' /></form>
 
-<script type="text/javascript">
+<script>
 
 <?php
 if ($alertmsg) {

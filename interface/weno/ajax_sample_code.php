@@ -28,7 +28,7 @@ use OpenEMR\Core\Header;
 <h3><?php print xlt("Convert a JavaScript object into a JSON string, and send it to the server.") ?></h3>
 
   <div id="confirm">
-  <br><br>
+  <br /><br />
       <input type='submit' id='confirm_btn' value='<?php print xla("Confirm") ?>' >
   </div>
    <div id="transmit">

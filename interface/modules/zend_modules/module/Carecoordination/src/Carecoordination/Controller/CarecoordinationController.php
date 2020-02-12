@@ -831,7 +831,7 @@ class CarecoordinationController extends AbstractActionController
                 $discharge_summary_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'discharge_summary');
                                          $temp .='<div>';
                 foreach ($discharge_summary_audit['discharge_summary'] as $key => $val) {
-                    $text = str_replace("#$%", "<br>", \Application\Plugin\CommonPlugin::escape($val['text']));
+                    $text = str_replace("#$%", "<br />", \Application\Plugin\CommonPlugin::escape($val['text']));
                     $temp .=$text;
                 }
 

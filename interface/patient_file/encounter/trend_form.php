@@ -14,6 +14,7 @@
 require_once("../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $formname = $_GET["formname"];
 $is_lbf = substr($formname, 0, 3) === 'LBF';
@@ -33,8 +34,13 @@ if ($is_lbf) {
 ?>
 <?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.css" type="text/css"></script>
+<?php
+// Special case where not setting up the header for a script, so using setupAssets function,
+//  which does not autoload anything. The actual header is set up in the script called at
+//  the bottom of this script.
+Header::setupAssets(['dygraphs', 'jquery']);
+?>
+
 <?php
 // Hide the current value css entries. This is currently specific
 //  for the vitals form but could use this mechanism for other
@@ -58,9 +64,6 @@ if ($is_lbf) {
     margin:0em 1em 2em 2em;
   }
 </style>
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript">
 

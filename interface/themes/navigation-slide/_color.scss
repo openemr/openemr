@@ -1,20 +1,24 @@
-#navigation-slide, #navigation-slide * {
-    padding-left: 0px;
-    margin-left: 0px;
+#navigation-slide,
+#navigation-slide * {
+    padding-left: 0;
+    margin-left: 0;
 }
+
 #navigation-slide li {
     list-style: none;
 }
+
 #navigation-slide a {
     background: $white;
     border-top: 2px solid $paler;
     /*RP_MODIFIED 2/8/15 #EAE6FF*/
-    color: #000;
+    color: $black;
     display: block;
     font-weight: bold;
     padding: 5px 2px 5px 10px;
     width: 150px;
 }
+
 #navigation-slide li a.collapsed {
     background: $dark;
     /* for non-css3 browsers RP_MODIFIED 2/8/2015 #999*/
@@ -25,6 +29,7 @@
     background: -moz-linear-gradient(top, $dark, $dark);
     /* for firefox 3.6+ b5cbff*/
 }
+
 #navigation-slide li a.expanded {
     background: $mid;
     /* for non-css3 browsers RP_MODIFIED 2/8/2015 #999*/
@@ -35,6 +40,7 @@
     background: -moz-linear-gradient(top, $mid, $mid);
     /* for firefox 3.6+ 61a0ff*/
 }
+
 #navigation-slide ul li a.collapsed_lv2 {
     background: #7870DE;
     /* for non-css3 browsers RP_MODIFIED 2/8/2015 #999*/
@@ -45,6 +51,7 @@
     background: -moz-linear-gradient(top, #7870de, #7870de);
     /* for firefox 3.6+ e7e6f9*/
 }
+
 #navigation-slide ul li a.expanded_lv2 {
     background: $palepurple;
     /* for non-css3 browsers RP_MODIFIED 2/8/2015 #999*/
@@ -55,12 +62,14 @@
     background: -moz-linear-gradient(top, $palepurple, $palepurple);
     /* for firefox 3.6+ 7870de*/
 }
+
 #navigation-slide ul li a.collapsed_lv3 {
     background: #aaaaaa;
     filter: unquote("progid:DXImageTransform.Microsoft.gradient(startColorstr='#aaaaaa', endColorstr='#aaaaaa')");
     background: -webkit-gradient(linear, left top, left bottom, from(#aaaaaa), to(#aaaaaa));
     background: -moz-linear-gradient(top, #aaaaaa, #aaaaaa);
 }
+
 #navigation-slide ul li a.expanded_lv3 {
     background: #eeeeee;
     filter: unquote("progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#eeeeee')");

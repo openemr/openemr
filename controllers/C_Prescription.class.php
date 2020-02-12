@@ -166,10 +166,10 @@ class C_Prescription extends Controller
                     if (!empty($json['fullInteractionTypeGroup'][0]['fullInteractionType'])) {
                         foreach ($json['fullInteractionTypeGroup'][0]['fullInteractionType'] as $item) {
                             $interaction .= '<div class="alert alert-danger">';
-                            $interaction .= xlt('Comment') . ":" . text($item['comment']) . "</br>";
-                            $interaction .= xlt('Drug1 Name{{Drug1 Interaction}}') . ":" . text($item['minConcept'][0]['name']) . "</br>";
-                            $interaction .= xlt('Drug2 Name{{Drug2 Interaction}}') . ":" . text($item['minConcept'][1]['name']) . "</br>";
-                            $interaction .= xlt('Severity') . ":" . text($item['interactionPair'][0]['severity']) . "</br>";
+                            $interaction .= xlt('Comment') . ":" . text($item['comment']) . "<br />";
+                            $interaction .= xlt('Drug1 Name{{Drug1 Interaction}}') . ":" . text($item['minConcept'][0]['name']) . "<br />";
+                            $interaction .= xlt('Drug2 Name{{Drug2 Interaction}}') . ":" . text($item['minConcept'][1]['name']) . "<br />";
+                            $interaction .= xlt('Severity') . ":" . text($item['interactionPair'][0]['severity']) . "<br />";
                             $interaction .= xlt('Description') . ":" . text($item['interactionPair'][0]['description']);
                             $interaction .= '</div>';
                         }
@@ -421,36 +421,36 @@ class C_Prescription extends Controller
         $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . add_escape_custom($p->provider->id) . "'");
         if (!empty($res)) {
             $patterns = array ('/\n/','/Tel:/','/Fax:/');
-            $replace = array ('<br>', xl('Tel').':', xl('Fax').':');
+            $replace = array ('<br />', xl('Tel').':', xl('Fax').':');
             $res = preg_replace($patterns, $replace, $res);
         }
 
         echo ('<span class="large">' . $res['addr'] . '</span>');
         echo ("</td>\n");
         echo ("<td>\n");
-        echo ('<b><span class="large">' .  $p->provider->get_name_display() . '</span></b>'. '<br>');
+        echo ('<b><span class="large">' .  $p->provider->get_name_display() . '</span></b>'. '<br />');
 
         if ($GLOBALS['rx_enable_DEA']) {
             if ($GLOBALS['rx_show_DEA']) {
-                echo ('<span class="large"><b>' . xl('DEA') . ':</b>' . $p->provider->federal_drug_id . '</span><br>');
+                echo ('<span class="large"><b>' . xl('DEA') . ':</b>' . $p->provider->federal_drug_id . '</span><br />');
             } else {
-                echo ('<b><span class="large">' . xl('DEA') . ':</span></b> ________________________<br>' );
+                echo ('<b><span class="large">' . xl('DEA') . ':</span></b> ________________________<br />' );
             }
         }
 
         if ($GLOBALS['rx_enable_NPI']) {
             if ($GLOBALS['rx_show_NPI']) {
-                echo ('<span class="large"><b>' . xl('NPI') . ':</b>' . $p->provider->npi . '</span><br>');
+                echo ('<span class="large"><b>' . xl('NPI') . ':</b>' . $p->provider->npi . '</span><br />');
             } else {
-                echo ('<b><span class="large">' . xl('NPI') . ':</span></b> ________________________<br>');
+                echo ('<b><span class="large">' . xl('NPI') . ':</span></b> ________________________<br />');
             }
         }
 
         if ($GLOBALS['rx_enable_SLN']) {
             if ($GLOBALS['rx_show_SLN']) {
-                echo ('<span class="large"><b>' . xl('State Lic. #') . ':</b>' . $p->provider->state_license_number . '</span><br>');
+                echo ('<span class="large"><b>' . xl('State Lic. #') . ':</b>' . $p->provider->state_license_number . '</span><br />');
             } else {
-                echo ('<b><span class="large">' . xl('State Lic. #') . ':</span></b> ________________________<br>');
+                echo ('<b><span class="large">' . xl('State Lic. #') . ':</span></b> ________________________<br />');
             }
         }
 
@@ -458,25 +458,25 @@ class C_Prescription extends Controller
         echo ("</tr>\n");
         echo ("<tr>\n");
         echo ("<td rowspan='2' class='bordered'>\n");
-        echo ('<b><span class="small">' . xl('Patient Name & Address') . '</span></b>'. '<br>');
-        echo ($p->patient->get_name_display() . '<br>');
+        echo ('<b><span class="small">' . xl('Patient Name & Address') . '</span></b>'. '<br />');
+        echo ($p->patient->get_name_display() . '<br />');
         $res = sqlQuery("SELECT  concat(street,'\n',city,', ',state,' ',postal_code,'\n',if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,'')))) addr from patient_data where pid =". add_escape_custom($p->patient->id));
         if (!empty($res)) {
             $patterns = array ('/\n/');
-            $replace = array ('<br>');
+            $replace = array ('<br />');
             $res = preg_replace($patterns, $replace, $res);
         }
 
         echo ($res['addr']);
         echo ("</td>\n");
         echo ("<td class='bordered'>\n");
-        echo ('<b><span class="small">' . xl('Date of Birth') . '</span></b>' . '<br>');
+        echo ('<b><span class="small">' . xl('Date of Birth') . '</span></b>' . '<br />');
         echo ($p->patient->date_of_birth );
         echo ("</td>\n");
         echo ("</tr>\n");
         echo ("<tr>\n");
         echo ("<td class='bordered'>\n");
-        echo ('<b><span class="small">' . xl('Medical Record #') . '</span></b>' . '<br>');
+        echo ('<b><span class="small">' . xl('Medical Record #') . '</span></b>' . '<br />');
         echo (str_pad($p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT));
         echo ("</td>\n");
         echo ("</tr>\n");
@@ -578,7 +578,7 @@ class C_Prescription extends Controller
     function multiprintcss_footer()
     {
         echo ("<div class='signdiv'>\n");
-        echo (xl('Signature') . ":________________________________<br>");
+        echo (xl('Signature') . ":________________________________<br />");
         echo (xl('Date') . ": " . date('Y-m-d'));
         echo ("</div>\n");
         echo ("</div>\n");
@@ -665,7 +665,7 @@ class C_Prescription extends Controller
     {
         $d = $this->get_prescription_body_text($p);
         $patterns = array ('/\n/','/     /');
-        $replace = array ('<br>','&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+        $replace = array ('<br />','&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
         $d = preg_replace($patterns, $replace, $d);
         echo ("<div class='scriptdiv'>\n" . $d . "</div>\n");
     }
@@ -979,7 +979,7 @@ class C_Prescription extends Controller
 
                 fclose($handle);
                 $args = " -n -d $faxNum $fileName";
-                //print "command is $cmd $args<br>";
+                //print "command is $cmd $args<br />";
                 exec($cmd . $args);
             }
         } else {

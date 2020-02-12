@@ -12,7 +12,7 @@
  */
 
 
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/options.inc.php");
@@ -736,7 +736,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 </head>
 
 <body class="body_top"<?php if ($from_issue_form) {
-    echo " style='background-color:#ffffff'";
+    echo " style='background-color:var(--white)'";
                       } ?>>
 <div class='container'>
     <?php
@@ -758,7 +758,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 
     <div class="container-responsive">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="page-header">
                     <h3>
                         <?php echo text($formtitle) . " " . xlt('for') . ' ';
@@ -1471,9 +1471,9 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             } // End Diagnoses Section
 
             ?>
-            <br>
+            <br />
 
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="btn-group">
 
                     <?php
@@ -1485,7 +1485,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                             echo "&nbsp;&nbsp;";
                         }
                         ?>
-                        <button type="submit" class="btn btn-default btn-save" name="bn_save"
+                        <button type="submit" class="btn btn-secondary btn-save" name="bn_save"
                                 value="<?php echo xla('Save'); ?>">
                             <?php echo xlt('Save'); ?>
                         </button>
@@ -1511,7 +1511,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 
                             if ($form_is_graphable) {
                                 ?>
-                                <button type='button' class="btn btn-default btn-graph"
+                                <button type='button' class="btn btn-secondary btn-graph"
                                         onclick="top.restoreSession();location='../../patient_file/encounter/trend_form.php?formname=<?php echo attr_url($formname); ?>'">
                                     <?php echo xlt('Show Graph') ?>
                                 </button>
@@ -1528,7 +1528,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                         <?php
                     } elseif (!$from_lbf_edit) { // $from_trend_form is true but lbf edit doesn't want button
                         ?>
-                        <button type='button' class="btn btn-default btn-back" onclick='window.history.back();'>
+                        <button type='button' class="btn btn-secondary btn-back" onclick='window.history.back();'>
                             <?php echo xlt('Back') ?>
                         </button>
                         <?php

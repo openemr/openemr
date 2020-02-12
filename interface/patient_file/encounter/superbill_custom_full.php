@@ -19,6 +19,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 // gacl control
 $thisauthview = AclMain::aclCheckCore('admin', 'superbill', false, 'view');
@@ -282,12 +283,8 @@ if ($fend > $count) {
 <head>
     <title><?php echo xlt("Codes"); ?></title>
 
-    <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-    <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript" src="../../../library/textformat.js"></script>
-    <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-    <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-themes/themes/base/jquery-ui.min.css" rel="stylesheet" type="text/css" />
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui/jquery-ui.min.js"></script>
+    <?php Header::setupHeader(['jquery-ui', 'jquery-ui-base']); ?>
+
 <style>
     .ui-autocomplete { max-height: 350px; max-width: 35%; overflow-y: auto; overflow-x: hidden; }
 </style>
@@ -464,13 +461,13 @@ if ($fend > $count) {
 
     <input type='hidden' name='mode' value=''>
 
-    <br>
+    <br />
 
     <center>
         <table border='0' cellpadding='0' cellspacing='0'>
 
             <tr>
-                <td colspan="3"> <?php echo xlt('Not all fields are required for all codes or code types.'); ?><br><br></td>
+                <td colspan="3"> <?php echo xlt('Not all fields are required for all codes or code types.'); ?><br /><br /></td>
             </tr>
 
             <tr>
@@ -655,7 +652,7 @@ if ($fend > $count) {
 
             <tr>
                 <td colspan="3" align="center">
-                    <input type="hidden" name="code_id" value="<?php echo attr($code_id) ?>"><br>
+                    <input type="hidden" name="code_id" value="<?php echo attr($code_id) ?>"><br />
                     <input type="hidden" name="code_type_name_external" value="<?php echo attr($code_type_name_external) ?>">
                     <input type="hidden" name="code_external" value="<?php echo attr($code_external) ?>">
                     <?php if ($thisauthwrite) { ?>
@@ -670,7 +667,7 @@ if ($fend > $count) {
                 </td>
             </tr>
         </table>
-        <br>
+        <br />
         <table border='0' cellpadding='5' cellspacing='0' width='96%'>
             <tr>
 

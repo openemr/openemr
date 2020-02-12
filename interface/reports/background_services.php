@@ -61,8 +61,8 @@ use OpenEMR\Core\Header;
     <table>
         <tr>
             <td width='470px'>
-                  <div class="btn-group pull-left" role="group">
-                    <a id='refresh_button' href='#' class='btn btn-default btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
+                  <div class="btn-group float-left" role="group">
+                    <a id='refresh_button' href='#' class='btn btn-secondary btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
                         <?php echo xlt('Refresh'); ?>
                     </a>
                 </div>
@@ -71,14 +71,14 @@ use OpenEMR\Core\Header;
     </table>
 </div>  <!-- end of search parameters -->
 
-<br>
+<br />
 
 
 
 <div id="report_results">
-<table>
+<table class='table'>
 
- <thead>
+ <thead class='thead-light'>
   <th align='center'>
     <?php echo xlt('Service Name'); ?>
   </th>

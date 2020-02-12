@@ -20,9 +20,9 @@ use Symfony\Component\EventDispatcher\GenericEvent;
 /**
  * Smarty {dispatchPatientDocumentEvent} function plugin
  *
- * Type:     function<br>
- * Name:     dispatchPatientDocumentEvent<br>
- * Purpose:  Event listener for PatientDocumentEvent<br>
+ * Type:     function<br />
+ * Name:     dispatchPatientDocumentEvent<br />
+ * Purpose:  Event listener for PatientDocumentEvent<br />
  *
  * Examples:
  *

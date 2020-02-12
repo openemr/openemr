@@ -14,14 +14,13 @@ use OpenEMR\Gacl\GaclApi;
 
 ?>
 
-<table class="header">
+<table class="table header">
   <tr>
         <td class="title"><?php echo xlt('Clinical Decision Rules Alert Manager'); ?></td>
-
   </tr>
   <tr>
         <td>
-            <a href="javascript:document.cdralertmgr.submit();" class="css_button" onclick="top.restoreSession()"><span><?php echo xlt('Save'); ?></span></a><a href="javascript:document.cdralertmgr.reset();" class="css_button" onclick="top.restoreSession()"><span><?php echo xlt('Reset'); ?></span></a>
+            <a href="javascript:document.cdralertmgr.submit();" class="btn btn-primary" onclick="top.restoreSession()"><span><?php echo xlt('Save'); ?></span></a><a href="javascript:document.cdralertmgr.reset();" class="btn btn-secondary" onclick="top.restoreSession()"><span><?php echo xlt('Reset'); ?></span></a>
         </td>
   </tr>
 </table>
@@ -29,7 +28,7 @@ use OpenEMR\Gacl\GaclApi;
 &nbsp;
 
 <form name="cdralertmgr" method="post" action="index.php?action=alerts!submitactmgr" onsubmit="return top.restoreSession()">
-<table cellpadding="1" cellspacing="0" class="showborder">
+<table cellpadding="1" cellspacing="0" class="table table-bordered">
         <tr class="showborder_head">
                 <th width="250px"><?php echo xlt('Title'); ?></th>
                 <th width="40px">&nbsp;</th>

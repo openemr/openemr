@@ -16,6 +16,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/report_database.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
 use OpenEMR\Events\BoundFilter;
 
@@ -34,80 +35,102 @@ $from_page = isset($_REQUEST['from_page']) ? $_REQUEST['from_page'] : "";
 <!DOCTYPE html>
 <html>
 <head>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+    <?php Header::setupHeader('opener'); ?>
 <style>
 form {
     padding: 0px;
     margin: 0px;
 }
+
 #searchCriteria {
     text-align: center;
     width: 100%;
-    font-size: 0.8em;
-    background-color: #ddddff;
+    font-size: 0.8rem;
+    background-color: var(--gray300);
     font-weight: bold;
     padding: 3px;
 }
+
 #searchResultsHeader {
     width: 100%;
-    background-color: lightgrey;
+    background-color: var(--gray);
 }
+
 #searchResultsHeader table {
     width: 96%;  /* not 100% because the 'searchResults' table has a scrollbar */
     border-collapse: collapse;
 }
+
 #searchResultsHeader th {
-    font-size: 0.7em;
+    font-size: 0.7rem;
 }
+
 #searchResults {
     width: 100%;
     height: 80%;
     overflow: auto;
 }
 
-.srName { width: 12%; }
-.srGender { width: 5%; }
-.srPhone { width: 11%; }
-.srSS { width: 11%; }
-.srDOB { width: 8%; }
-.srID { width: 7%; }
-.srPID { width: 7%; }
-.srNumEnc { width: 11%; }
-.srNumDays { width: 11%; }
-.srDateLast { width: 11%; }
-.srDateNext { width: 11%; }
-.srMisc { width: 10%; }
+.srName {
+    width: 12%;
+}
+
+.srGender { 
+    width: 5%;
+}
+
+.srDOB {
+    width: 8%;
+}
+
+.srID,
+.srPID {
+    width: 7%;
+}
+
+.srNumEnc,
+.srNumDays,
+.srDateLast,
+.srDateNext,
+.srPhone,
+.srSS {
+    width: 11%;
+}
+
+.srMisc {
+    width: 10%;
+}
 
 #searchResults table {
     width: 100%;
     border-collapse: collapse;
-    background-color: white;
+    background-color: var(--white);
 }
+
 #searchResults tr {
-    cursor: hand;
     cursor: pointer;
 }
+
 #searchResults td {
-    font-size: 0.7em;
-    border-bottom: 1px solid #eee;
+    font-size: 0.7rem;
+    border-bottom: 1px solid var(--gray200);
 }
-.oneResult { }
-.billing { color: red; font-weight: bold; }
+
+.billing {
+    color: var(--danger);
+    font-weight: bold;
+}
 .highlight {
-    background-color: #336699;
-    color: white;
+    background-color: var(--primary);
+    color: var(--white);
 }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-
 <?php if ($popup) { ?>
-<script type="text/javascript" src="../../../library/topdialog.js"></script>
+    <?php Header::setupAssets('topdialog'); ?>
 <?php } ?>
 
-<script language="JavaScript">
+<script>
 <?php if ($popup) {
     require($GLOBALS['srcdir'] . "/restoreSession.php");
 } ?>
@@ -281,23 +304,23 @@ if ($popup) {
 
 </form>
 
-<table border='0' cellpadding='5' cellspacing='0' width='100%'>
+<table class="w-100 border-0" cellpadding='5' cellspacing='0'>
  <tr>
   <td class='text'>
     <?php if ($from_page == "cdr_report") { ?>
-   <a href='../../reports/cqm.php?report_id=<?php echo attr_url($report_id); ?>' class='css_button' onclick='top.restoreSession()'><span><?php echo xlt("Return To Report Results"); ?></span></a>
+   <a href='../../reports/cqm.php?report_id=<?php echo attr_url($report_id); ?>' class='btn btn-secondary' onclick='top.restoreSession()'><span><?php echo xlt("Return To Report Results"); ?></span></a>
     <?php } else { ?>
-   <a href="./patient_select_help.php" target=_new onclick='top.restoreSession()'>[<?php echo xlt('Help'); ?>]&nbsp</a>
+   <a href="./patient_select_help.php" target=_new onclick='top.restoreSession()'>[<?php echo xlt('Help'); ?>]&nbsp;</a>
     <?php } ?>
   </td>
   <td class='text' align='center'>
 <?php if ($message) {
-    echo "<font color='red'><b>" . text($message) . "</b></font>\n";
+    echo "<span class='text-danger'>" . text($message) . "</span>\n";
 } ?>
   </td>
   <td>
     <?php if ($from_page == "cdr_report") { ?>
-        <?php echo "<a href='patient_select.php?from_page=cdr_report&pass_id=" . attr_url($pass_id) . "&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($itemized_test_id) . "&numerator_label=" . attr_url($row['numerator_label']) . "&print_patients=1&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='css_button' onclick='top.restoreSession()'><span>" . xlt("Print Entire Listing") . "</span></a>"; ?>
+        <?php echo "<a href='patient_select.php?from_page=cdr_report&pass_id=" . attr_url($pass_id) . "&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($itemized_test_id) . "&numerator_label=" . attr_url($row['numerator_label']) . "&print_patients=1&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='btn btn-primary' onclick='top.restoreSession()'><span>" . xlt("Print Entire Listing") . "</span></a>"; ?>
     <?php } ?> &nbsp;
   </td>
   <td class='text' align='right'>
@@ -332,7 +355,7 @@ if ($fend > $count) {
  <tr>
     <?php if ($from_page == "cdr_report") {
         echo "<td colspan='6' class='text'>";
-        echo "<b>";
+        echo "<strong>";
         if ($pass_id == "fail") {
              echo xlt("Failed Patients");
         } else if ($pass_id == "pass") {
@@ -343,7 +366,7 @@ if ($fend > $count) {
              echo xlt("All Patients");
         }
 
-        echo "</b>";
+        echo "</strong>";
         echo " - ";
         echo collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label);
         echo "</td>";
@@ -530,7 +553,7 @@ if ($result) {
 </table>
 </div>  <!-- end searchResults DIV -->
 
-<script language="javascript">
+<script>
 
 // jQuery stuff to make the page a little easier to use
 

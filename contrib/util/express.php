@@ -79,7 +79,7 @@ if ($_POST['submit']) {
         echo "<p>".mysql_error()." (#".mysql_errno().")\n";
         exit;
     } else {
-        echo "OK.<br>\n";
+        echo "OK.<br />\n";
     }
 
     echo "Creating database...\n";
@@ -89,7 +89,7 @@ if ($_POST['submit']) {
         echo "<p>".mysql_error()." (#".mysql_errno().")\n";
         exit;
     } else {
-        echo "OK.<br>\n";
+        echo "OK.<br />\n";
     }
 
     echo "Creating user with permissions for database...\n";
@@ -100,7 +100,7 @@ if ($_POST['submit']) {
         echo "ERROR.\n";
         exit;
     } else {
-        echo "OK.<br>\n";
+        echo "OK.<br />\n";
     }
 
     echo "Reconnecting as new user...\n";
@@ -120,7 +120,7 @@ if ($dbh == false) {
     echo "<p>".mysql_error()." (#".mysql_errno().")\n";
     exit;
 } else {
-    echo "OK.<br>\n";
+    echo "OK.<br />\n";
 }
 
 echo "Opening database...";
@@ -130,7 +130,7 @@ if (mysql_select_db("$dbname", $dbh) == false) {
     echo "<p>".mysql_error()." (#".mysql_errno().")\n";
     exit;
 } else {
-    echo "OK.<br>\n";
+    echo "OK.<br />\n";
 }
 
     flush();
@@ -171,7 +171,7 @@ if ($upgrade != 1) {
         }
     }
 
-    echo "OK<br>\n";
+    echo "OK<br />\n";
     fclose($fd);
     flush();
     echo "Adding Initial User...\n";
@@ -179,7 +179,7 @@ if ($upgrade != 1) {
     $iuser = "admin";
     $iuname = "admin";
     $igroup = $newname;
-    //echo "INSERT INTO `groups` VALUES (1,'$igroup','$iuser')<br>\n";
+    //echo "INSERT INTO `groups` VALUES (1,'$igroup','$iuser')<br />\n";
     if (mysql_query("INSERT INTO `groups` (id, name, user) VALUES (1,'$igroup','$iuser')") == false) {
         echo "ERROR.  Could not run queries.\n";
         echo "<p>".mysql_error()." (#".mysql_errno().")\n";
@@ -195,7 +195,7 @@ if ($upgrade != 1) {
         exit;
     }
 
-    echo "OK<br>\n";
+    echo "OK<br />\n";
     flush();
 
     //Now write sqlconf file

@@ -13,7 +13,9 @@ namespace OpenEMR\OeUI;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-Header::setupHeader(['jquery-ui', 'jquery-ui-base', 'no_jquery', 'no_bootstrap', 'no_fontawesome', 'no_main-theme', 'no_textformat', 'no_dialog' ]);
+// Special case where not setting up the header for a script, so using setupAssets function,
+//  which does not autoload anything. The actual header is set up in another script.
+Header::setupAssets(['jquery-ui', 'jquery-ui-base']);
 
 class OemrUI
 {
@@ -98,7 +100,7 @@ class OemrUI
             $expandable_icon = $arrexpandIcon[0];
             $heading = "<h2>$heading $expandable_icon $action_icon $help_icon</h2>";
         } else {
-            $heading = "<h2>" . xlt("Please supply a heading") . " <i class='fa fa-smile-o' aria-hidden='true'></i></h2>";
+            $heading = "<h2>" . xlt("Please supply a heading") . " <i class='fa fa-oe-smile-o' aria-hidden='true'></i></h2>";
         }
         return $heading;
     }
@@ -168,19 +170,19 @@ class OemrUI
         switch ($action) {
             case "reset":
                 $action_title = ($action_title) ? $action_title : xl("Reset");
-                $action_icon = "<a href='" . attr($action_href) ."' onclick='top.restoreSession()'><i id='advanced-action' class='fa fa-undo fa-2x small' title='" . attr($action_title) ."' aria-hidden='true'></i></a>";
+                $action_icon = "<a href='" . attr($action_href) ."' onclick='top.restoreSession()'><i id='advanced-action' class='fa fa-undo fa-oe-sm' title='" . attr($action_title) ."' aria-hidden='true'></i></a>";
                 break;
             case "conceal":
                 $action_title = xl("Click to Hide"); // default needed for jQuery to function
-                $action_icon = "<i id='show_hide' class='fa fa-2x small fa-eye-slash' title='" . attr($action_title) . "'></i>";
+                $action_icon = "<i id='show_hide' class='fa fa-oe-sm fa-eye-slash' title='" . attr($action_title) . "'></i>";
                 break;
             case "reveal":
                 $action_title = xl("Click to Show"); // default needed for jQuery to function
-                $action_icon = "<i id='show_hide' class='fa fa-2x small fa-eye' title='" . attr($action_title) . "'></i>";
+                $action_icon = "<i id='show_hide' class='fa fa-oe-sm fa-eye' title='" . attr($action_title) . "'></i>";
                 break;
             case "search":
                 $action_title = xl("Click to show search"); // default needed for jQuery to function
-                $action_icon = "<i id='show_hide' class='fa fa-search-plus fa-2x small' title='" . attr($action_title) . "'></i>";
+                $action_icon = "<i id='show_hide' class='fa fa-search-plus fa-oe-sm' title='" . attr($action_title) . "'></i>";
                 break;
             case "link":
                 if (strpos($action_href, 'http') !== false) {
@@ -189,7 +191,7 @@ class OemrUI
                     $target = '_self';
                 }
                 $action_title = ($action_title) ? $action_title : xl("Click to go to page");
-                $action_icon = "<a href='" . attr($action_href) . "' target = '" .attr($target)."' onclick='top.restoreSession()'><i id='advanced-action' class='fa fa-external-link fa-2x small' title='" . attr($action_title) ."' aria-hidden='true'></i></a>";
+                $action_icon = "<a href='" . attr($action_href) . "' target = '" .attr($target)."' onclick='top.restoreSession()'><i id='advanced-action' class='fa fa-external-link fa-oe-sm' title='" . attr($action_title) ."' aria-hidden='true'></i></a>";
                 break;
             case "back":
                 $action_title = ($action_title) ? $action_title : xl("Go Back");
@@ -198,7 +200,7 @@ class OemrUI
                 } elseif ($_SESSION ['language_direction'] == 'rtl') {
                     $arrow_direction = 'fa-arrow-circle-right';
                 }
-                $action_icon = "<a href='" . attr($action_href) ."' onclick='top.restoreSession()'><i id='advanced-action' class='fa " . attr($arrow_direction) . " fa-2x small' title='" . attr($action_title) ."' aria-hidden='true'></i></a>";
+                $action_icon = "<a href='" . attr($action_href) ."' onclick='top.restoreSession()'><i id='advanced-action' class='fa " . attr($arrow_direction) . " fa-oe-sm' title='" . attr($action_title) ."' aria-hidden='true'></i></a>";
                 break;
             default:
                 $action_icon = '';
@@ -255,7 +257,7 @@ class OemrUI
             $modal_body = "<iframe src=\"$help_file\" id='targetiframe' style='height:100%; width:100%; overflow-x: hidden; border:none'
                                 allowtransparency='true'></iframe>";
         } else {
-            $modal_body = "<h3> <i class='fa fa-exclamation-triangle  oe-text-red' aria-hidden='true'></i> " . xlt("Check if a help file exists for this page in") . " " . text("Documentation/help_files") . ".<br><br>" . xlt("Then pass it's name as a value to the element" ." " . text("'help_file_name'") . " "  .  "in the associative array") . " " . text("\$arrOeUiSettings"). ".<br><br>" . xlt("If the help file does not exist create one and place it in") . " " . text("Documentation/help_files") . ".<br>" . "</h3>";
+            $modal_body = "<h3> <i class='fa fa-exclamation-triangle  oe-text-red' aria-hidden='true'></i> " . xlt("Check if a help file exists for this page in") . " " . text("Documentation/help_files") . ".<br /><br />" . xlt("Then pass it's name as a value to the element" ." " . text("'help_file_name'") . " "  .  "in the associative array") . " " . text("\$arrOeUiSettings"). ".<br /><br />" . xlt("If the help file does not exist create one and place it in") . " " . text("Documentation/help_files") . ".<br />" . "</h3>";
         }
         $help_modal = <<<HELP
         <div class="row">
@@ -264,14 +266,14 @@ class OemrUI
                     <div class="modal-content  oe-modal-content" style="height:700px">
                         <div class="modal-header clearfix">
                             <button type="button" class="close" data-dismiss="modal" aria-label="$close">
-                            <span aria-hidden="true" style="color:#000000; font-size:1.5em;">×</span></button>
+                            <span aria-hidden="true" style="color:var(--black); font-size:1.5em;">×</span></button>
                         </div>
                         <div class="modal-body" style="height:80%;">
                             $modal_body
                         </div>
                         <div class="modal-footer" style="margin-top:0px;">
                            <button class="btn btn-link btn-cancel oe-pull-away" data-dismiss="modal" type="button">$close</button>
-                           <!--<button class="btn btn-default btn-print oe-pull-away" data-dismiss="modal" id="print-help-href" type="button">$print</button>-->
+                           <!--<button class="btn btn-secondary btn-print oe-pull-away" data-dismiss="modal" id="print-help-href" type="button">$print</button>-->
                         </div>
                     </div>
                 </div>
@@ -283,14 +285,8 @@ HELP;
         $jquery_draggable = <<<JQD
         <script>
         // Jquery draggable
-            $('.modal-dialog').draggable({
-                    handle: ".modal-header, .modal-footer"
-            });
-            $( ".modal-content" ).resizable({
-                aspectRatio: true,
-                minHeight: 300,
-                minWidth: 300
-            });
+            $(".modal-dialog").addClass('drag-action');
+            $(".modal-content").addClass('resize-action');
             var helpTitle = $('#help-href').prop('title');
             $('#myModal').on('hidden.bs.modal', function (e) {
                 $('#help-href').prop('title', '');

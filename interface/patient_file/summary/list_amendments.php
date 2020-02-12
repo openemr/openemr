@@ -15,19 +15,14 @@
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Core\Header;
+
 ?>
 
 <html>
 <head>
 
-<!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-
-
-<!-- page styles -->
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 
 <style>
 .highlight {
@@ -73,9 +68,9 @@ tr.selected {
     $query = "SELECT * FROM amendments WHERE pid = ? ORDER BY amendment_date DESC";
     $resultSet = sqlStatement($query, array($pid));
 if (sqlNumRows($resultSet)) { ?>
-            <table cellspacing="0" cellpadding="0" style="width:100%">
+            <table class="w-100" cellspacing="0" cellpadding="0">
                 <tr>
-                    <td><a href="javascript:checkForAmendments();" class="css_button"><span><?php echo xlt("Print Amendments"); ?></span></a></td>
+                    <td><a href="javascript:checkForAmendments();" class="btn btn-primary"><span><?php echo xlt("Print Amendments"); ?></span></a></td>
                     <td align="right">
                         <a href="#" class="small" onClick="checkUncheck(1);"><span><?php echo xlt('Check All');?></span></a> |
                         <a href="#" class="small" onClick="checkUncheck(0);"><span><?php echo xlt('Clear All');?></span></a>
@@ -83,8 +78,8 @@ if (sqlNumRows($resultSet)) { ?>
                 </tr>
             </table>
         <div id="patient_stats">
-            <br>
-        <table border=0 cellpadding=0 cellspacing=0 style="margin-bottom:1em;">
+            <br />
+        <table border='0' cellpadding='0' cellspacing='0' style="margin-bottom:1em;">
 
         <tr class='head'>
             <th style="width:5%"></th>
@@ -109,7 +104,7 @@ if (sqlNumRows($resultSet)) { ?>
         </div>
 <?php } else { ?>
         <span style="color:red">
-            <br>
+            <br />
             <?php echo xlt("No amendment requests available"); ?>
         </span>
 <?php } ?>

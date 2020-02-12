@@ -36,7 +36,7 @@ use OpenEMR\Billing\PaymentGateway;
 use OpenEMR\Common\Crypto\CryptoGen;
 
 if ($_SESSION['portal_init'] !== true) {
-    $_SESSION['whereto'] = 'paymentpanel';
+    $_SESSION['whereto'] = 'paymentcard';
 }
 
 $_SESSION['portal_init'] = false;
@@ -69,7 +69,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
         return $ex->getMessage();
     }
 
-    $_SESSION['whereto'] = 'paymentpanel';
+    $_SESSION['whereto'] = 'paymentcard';
     if (!$response->isSuccessful()) {
         echo $response;
         exit();
@@ -106,7 +106,7 @@ if ($_POST['mode'] == 'Stripe') {
         echo $ex->getMessage();
     }
 
-    $_SESSION['whereto'] = 'paymentpanel';
+    $_SESSION['whereto'] = 'paymentcard';
     if (!$response->isSuccessful()) {
         echo $response;
         exit();

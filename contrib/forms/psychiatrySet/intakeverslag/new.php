@@ -24,6 +24,9 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/patient.inc");
+
+use OpenEMR\Core\Header;
+
 formHeader("Form: intakeverslag");
 $returnurl = 'encounter_top.php';
 
@@ -72,26 +75,31 @@ if ($tmpDate && $tmpDate != '0000-00-00 00:00:00') {
 
 <html>
 <head>
-    <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+    <?php Header::setupHeader('datetime-picker'); ?>
+    <style>
+    body {
+        font-family: sans-serif;
+        font-size: 0.8125rem;
+        font-weight: normal;
+    }
+    .dehead {
+        font-family: sans-serif;
+        font-size: 0.8125rem;
+        font-weight: bold;
+        padding-left: 3px;
+        padding-right: 3px;
+    }
+    .detail {
+        font-family: sans-serif;
+        font-size: 0.8125rem;
+        font-weight: normal;
+        padding-left: 3px;
+        padding-right: 3px;
+    }
+</style>
 </head>
 
-
-
-<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
-
-<style type="text/css">
- body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
-  .dehead    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold;
-                padding-left:3px; padding-right:3px; }
-                 .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal;
-                               padding-left:3px; padding-right:3px; }
-</style>
-
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+<body class="body_top">
 
 <?php
 
@@ -200,7 +208,7 @@ function autosave( )
 
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 <form method=post action="<?php echo $rootdir;?>/forms/intakeverslag/save.php?mode=new&saveid=<?php echo attr_url($intakeverslag_id); ?>" name="my_form">
-<span class="title"><?php echo xlt('Psychiatric Intake'); ?></span><br><br>
+<span class="title"><?php echo xlt('Psychiatric Intake'); ?></span><br /><br />
 
 <table>
 <tr>
@@ -215,27 +223,27 @@ function autosave( )
 </tr>
 </table>
 
-<br><span class=text><?php echo xlt('Reason for Visit'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo text($obj["reden_van_aanmelding"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Problem List'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="klachten_probleemgebieden" id="klachten_probleemgebieden"><?php echo text($obj["klachten_probleemgebieden"]);?></textarea><br>
+<br /><span class=text><?php echo xlt('Reason for Visit'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo text($obj["reden_van_aanmelding"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Problem List'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="klachten_probleemgebieden" id="klachten_probleemgebieden"><?php echo text($obj["klachten_probleemgebieden"]);?></textarea><br />
 
-<br><span class=text><?php echo xlt('Psychiatric History'); ?></span><br>
-<textarea cols=80 rows=10 wrap=virtual name="hulpverlening_onderzoek" id="hulpverlening_onderzoek"><?php echo text($obj["hulpverlening_onderzoek"]);?></textarea><br>
+<br /><span class=text><?php echo xlt('Psychiatric History'); ?></span><br />
+<textarea cols=80 rows=10 wrap=virtual name="hulpverlening_onderzoek" id="hulpverlening_onderzoek"><?php echo text($obj["hulpverlening_onderzoek"]);?></textarea><br />
 
-<br><span class=text><?php echo xlt('Treatment Goals'); ?></span><br>
-<textarea cols=80 rows=10 wrap=virtual name="hulpvraag_en_doelen" id="hulpvraag_en_doelen"><?php echo text($obj["hulpvraag_en_doelen"]);?></textarea><br>
+<br /><span class=text><?php echo xlt('Treatment Goals'); ?></span><br />
+<textarea cols=80 rows=10 wrap=virtual name="hulpvraag_en_doelen" id="hulpvraag_en_doelen"><?php echo text($obj["hulpvraag_en_doelen"]);?></textarea><br />
 
-<br><span class=text><?php echo xlt('Specialty Systems'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="bijzonderheden_systeem" id="bijzonderheden_systeem"><?php echo text($obj["bijzonderheden_systeem"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Work/ Education/ Hobbies'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="werk_opleiding_vrije_tijdsbesteding" id="werk_opleiding_vrije_tijdsbesteding"><?php echo text($obj["werk_opleiding_vrije_tijdsbesteding"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Relation(s) / Children'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="relatie_kinderen" id="relatie_kinderen"><?php echo text($obj["relatie_kinderen"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Somatic Context'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="somatische_context" id="somatische_context"><?php echo text($obj["somatische_context"]);?></textarea><br>
+<br /><span class=text><?php echo xlt('Specialty Systems'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="bijzonderheden_systeem" id="bijzonderheden_systeem"><?php echo text($obj["bijzonderheden_systeem"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Work/ Education/ Hobbies'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="werk_opleiding_vrije_tijdsbesteding" id="werk_opleiding_vrije_tijdsbesteding"><?php echo text($obj["werk_opleiding_vrije_tijdsbesteding"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Relation(s) / Children'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="relatie_kinderen" id="relatie_kinderen"><?php echo text($obj["relatie_kinderen"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Somatic Context'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="somatische_context" id="somatische_context"><?php echo text($obj["somatische_context"]);?></textarea><br />
 
-<br>
+<br />
 <table>
 <tr>
 <td align="right"  class=text><?php echo xlt('Alcohol'); ?></td>
@@ -249,16 +257,16 @@ function autosave( )
 </tr>
 </table>
 
-<br><span class=text><?php echo xlt('Medications'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="medicatie" id="medicatie"><?php echo text($obj["medicatie"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Family History'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="familieanamnese" id="familieanamnese"><?php echo text($obj["familieanamnese"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Assessment'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="indruk_observaties" id="indruk_observaties"><?php echo text($obj["indruk_observaties"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Conclusions'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="beschrijvende_conclusie" id="beschrijvende_conclusie"><?php echo text($obj["beschrijvende_conclusie"]);?></textarea><br>
-<br><span class=text><?php echo xlt('Treatment Plan'); ?></span><br>
-<textarea cols=80 rows=5 wrap=virtual name="behandelvoorstel" id="behandelvoorstel"><?php echo text($obj["behandelvoorstel"]);?></textarea><br>
+<br /><span class=text><?php echo xlt('Medications'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="medicatie" id="medicatie"><?php echo text($obj["medicatie"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Family History'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="familieanamnese" id="familieanamnese"><?php echo text($obj["familieanamnese"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Assessment'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="indruk_observaties" id="indruk_observaties"><?php echo text($obj["indruk_observaties"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Conclusions'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="beschrijvende_conclusie" id="beschrijvende_conclusie"><?php echo text($obj["beschrijvende_conclusie"]);?></textarea><br />
+<br /><span class=text><?php echo xlt('Treatment Plan'); ?></span><br />
+<textarea cols=80 rows=5 wrap=virtual name="behandelvoorstel" id="behandelvoorstel"><?php echo text($obj["behandelvoorstel"]);?></textarea><br />
 
 <table><tr>
 
@@ -268,9 +276,9 @@ function autosave( )
 ?>
 </tr></table>
 
-<br><br>
+<br /><br />
 <a href="javascript:document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
-<br>
+<br />
 <a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link_submit" onclick="delete_autosave();top.restoreSession()">[<?php echo xlt('Don\'t Save'); ?>]</a>
 </form>
 

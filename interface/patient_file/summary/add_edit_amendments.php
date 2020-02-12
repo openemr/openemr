@@ -17,6 +17,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (isset($_POST['mode'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -112,28 +113,20 @@ $customAttributes = ( $onlyRead ) ? array("disabled" => "true") : null;
 <html>
 <head>
 
-<!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-
-<!-- page styles -->
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+<?php Header::setupHeader('datetime-picker'); ?>
 
 <style>
 .highlight {
-  color: green;
+  color: var(--success);
 }
 tr.selected {
-  background-color: white;
+  background-color: var(--white);
 }
 .historytbl {
  border-collapse: collapse;
 }
 .historytbl td th{
-  border: 1px solid #000;
+  border: 1px solid var(--black);
 }
 </style>
 
@@ -180,19 +173,19 @@ $(function() {
         </td>
         <?php if (! $onlyRead) { ?>
         <td>
-            <a href=# onclick="formValidation()" class="css_button_small"><span><?php echo xlt('Save');?></span></a>
+            <a href=# onclick="formValidation()" class="btn btn-primary btn-sm"><span><?php echo xlt('Save');?></span></a>
         </td>
         <?php } ?>
         <td>
-            <a href="list_amendments.php" class="css_button_small"><span><?php echo xlt('Back');?></span></a>
+            <a href="list_amendments.php" class="btn btn-secondary btn-sm"><span><?php echo xlt('Back');?></span></a>
         </td>
     </tr>
     </table>
 
-    <br>
-    <table border=0 cellpadding=1 cellspacing=1>
+    <br />
+    <table border='0' cellpadding='1' cellspacing='1'>
         <tr>
-            <td><span class=text ><?php echo xlt('Requested Date'); ?></span></td>
+            <td><span class='text'><?php echo xlt('Requested Date'); ?></span></td>
             <td>
             <?php if (! $onlyRead) { ?>
                 <input type='text' size='10' class='datepicker' name="amendment_date" id="amendment_date"

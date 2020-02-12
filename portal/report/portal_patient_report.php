@@ -37,6 +37,8 @@ require_once("$srcdir/lists.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Core\Header;
+
 // get various authorization levels
 $auth_notes_a  = true; //AclMain::aclCheckCore('encounters', 'notes_a');
 $auth_notes    = true; //AclMain::aclCheckCore('encounters', 'notes');
@@ -55,132 +57,158 @@ if ($GLOBALS['gbl_portal_cms_enable']) {
 $ignoreAuth = 1;
 ?>
 
-<script type="text/javascript" src="../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<?php Header::setupAssets('textformat'); ?>
 
 <style>
-input[type="checkbox"], input[type="radio"] {
-    margin: 0 5px 5px;
-    line-height: normal;
-}
-/*=============================================================
+    input[type="checkbox"],
+    input[type="radio"] {
+        margin: 0 5px 5px;
+        line-height: normal;
+    }
+
+    /*=============================================================
  * Patient Reports
  * seen in the patient reports screens
  *============================================================*/
-#patient_reports {
-  width: 100%;
-}
-#patient_reports .issues {
-  padding-right: 30px;
-}
-#patient_reports .issues table {
-  margin: 10px 0px 10px 0px;
-}
-#patient_reports .issues td {
-  padding: 2px;
-}
-#patient_reports .encounters td {
-  padding: 2px;
-}
-#patient_reports .encounter_forms {
-  margin: 5px 15px 5px 15px;
-}
-#patient_reports td {
-  vertical-align: top;
-}
-#patient_reports ul {
-  list-style: none;
-}
+    #patient_reports {
+        width: 100%;
+    }
 
-/*=============================================================
+    #patient_reports .issues {
+        padding-right: 30px;
+    }
+
+    #patient_reports .issues table {
+        margin: 10px 0 10px 0;
+    }
+
+    #patient_reports .issues td {
+        padding: 2px;
+    }
+
+    #patient_reports .encounters td {
+        padding: 2px;
+    }
+
+    #patient_reports .encounter_forms {
+        margin: 5px 15px 5px 15px;
+    }
+
+    #patient_reports td {
+        vertical-align: top;
+    }
+
+    #patient_reports ul {
+        list-style: none;
+    }
+
+    /*=============================================================
  * Report - Custom
  * seen as the patient report (portal_custom_report.php)
  *============================================================*/
-#report_custom {
-  width: 100%;
-}
-#report_custom hr {
-  border: 2px dotted black;
-}
-#report_custom .billing {
-  margin: 5px;
-  padding: 5px;
-}
-#report_custom h1 {
-  font-size: 120%;
-  margin: 0px 0px 5px 0px;
-  padding: 0px;
-}
-#report_custom .immunizations {
-  margin: 5px;
-  padding: 5px;
-}
-#report_custom .notes {
-  margin: 5px;
-  padding: 5px;
-}
-#report_custom .transactions {
-  margin: 5px;
-  padding: 5px;
-}
-#report_custom .communications {
-  margin: 5px;
-  padding: 5px;
-}
-#report_custom .documents {
-  margin: 5px;
-  padding: 5px;
-}
-#report_custom .demographics {
-  margin: 5px;
-  padding: 5px;
-}
-#report_custom .insurance {
-  margin: 5px;
-  padding: 5px;
-}
-#report_custom .history {
-  margin: 5px;
-  padding: 5px;
-}
-#report_custom .issue {
-  margin-left: 20px;
-}
-#report_custom .issue_type {
-  font-weight: bold;
-  padding: 5px 0px 5px 0px;
-}
-#report_custom .issue_diag {
-  margin: 0px 20px 0px 20px;
-}
-#report_custom .encounter {
-  width: 100%;
-  border-top: 2px dotted black;
-  padding: 10px 5px 10px 5px;
-  margin-top: 10px;
-}
-#report_custom .encounter h1 {
-  font-size: 140%;
-  margin: 0px;
-  padding: 0px;
-}
-#report_custom .encounter_form {
-  margin: 10px;
-  padding: 10px;
-  border-top: 1px solid gray;
-}
+    #report_custom {
+        width: 100%;
+    }
 
-#addressbook_list tr.evenrow {
-  background-color: #ddddff;
-}
+    #report_custom hr {
+        border: 2px dotted #000;
+    }
 
-#addressbook_list tr.oddrow {
-  background-color: #ffffff;
-}
+    #report_custom .billing {
+        margin: 5px;
+        padding: 5px;
+    }
 
-tr.odd, td.even {
-  background-color: #ffffff !important;
-}
+    #report_custom h1 {
+        font-size: 120%;
+        margin: 0 0 5px 0;
+        padding: 0;
+    }
 
+    #report_custom .immunizations {
+        margin: 5px;
+        padding: 5px;
+    }
+
+    #report_custom .notes {
+        margin: 5px;
+        padding: 5px;
+    }
+
+    #report_custom .transactions {
+        margin: 5px;
+        padding: 5px;
+    }
+
+    #report_custom .communications {
+        margin: 5px;
+        padding: 5px;
+    }
+
+    #report_custom .documents {
+        margin: 5px;
+        padding: 5px;
+    }
+
+    #report_custom .demographics {
+        margin: 5px;
+        padding: 5px;
+    }
+
+    #report_custom .insurance {
+        margin: 5px;
+        padding: 5px;
+    }
+
+    #report_custom .history {
+        margin: 5px;
+        padding: 5px;
+    }
+
+    #report_custom .issue {
+        margin-left: 20px;
+    }
+
+    #report_custom .issue_type {
+        font-weight: bold;
+        padding: 5px 0 5px 0;
+    }
+
+    #report_custom .issue_diag {
+        margin: 0 20px 0 20px;
+    }
+
+    #report_custom .encounter {
+        width: 100%;
+        border-top: 2px dotted #000;
+        padding: 10px 5px 10px 5px;
+        margin-top: 10px;
+    }
+
+    #report_custom .encounter h1 {
+        font-size: 140%;
+        margin: 0;
+        padding: 0;
+    }
+
+    #report_custom .encounter_form {
+        margin: 10px;
+        padding: 10px;
+        border-top: 1px solid #808080;
+    }
+
+    #addressbook_list tr.evenrow {
+        background-color: #ddddff;
+    }
+
+    #addressbook_list tr.oddrow {
+        background-color: #ffffff;
+    }
+
+    tr.odd,
+    td.even {
+        background-color: #ffffff !important;
+    }
 </style>
 
 <script>
@@ -219,43 +247,39 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 <input type='hidden' name='ccrAction'>
 <input type='hidden' name='raw'>
 <input type="checkbox" name="show_date" id="show_date" onchange="show_date_fun();" ><span class='text'><?php echo xlt('Use Date Range'); ?></span>
-<br>
+<br />
 <div id="date_div" style="display:none" >
-  <br>
+  <br />
   <table border="0" cellpadding="0" cellspacing="0" >
     <tr>
       <td>
         <span class='bold'><?php echo xlt('Start Date');?>: </span>
       </td>
       <td>
-        <input type='text' size='10' name='Start' id='Start'
-         class='datepicker'
-         title='<?php echo xla('yyyy-mm-dd'); ?>' />
+        <input type='text' size='10' name='Start' id='Start' class='datepicker' title='<?php echo xla('yyyy-mm-dd'); ?>' />
       </td>
       <td>
         &nbsp;
         <span class='bold'><?php echo xlt('End Date');?>: </span>
       </td>
       <td>
-        <input type='text' size='10' name='End' id='End'
-         class='datepicker'
-         title='<?php echo xla('yyyy-mm-dd'); ?>' />
+        <input type='text' size='10' name='End' id='End' class='datepicker' title='<?php echo xla('yyyy-mm-dd'); ?>' />
       </td>
     </tr>
   </table>
 </div>
-<br>
+<br />
 
-<!-- <button data-target="#reportdialog" data-toggle="modal" class="btn btn-default">
+<!-- <button data-target="#reportdialog" data-toggle="modal" class="btn btn-secondary">
     <?php //echo xla('Generate Report'); ?></button> -->
 <input type="button" class="generateCCR" value="<?php echo xla('Generate Report'); ?>" />
 <!-- <input type="button" class="generateCCR_download_h" value="<?php echo xl('Download')." (Hybrid)"; ?>" /> -->
 <input type="button" class="generateCCR_download_p" value="<?php echo xla('Download'); ?>" />
     <?php if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccr_enable']==true) { ?>
 <input type="button" class="viewCCR_send_dialog" value="<?php echo xla('Transmit'); ?>" />
-             <br>
+             <br />
              <div id="ccr_send_dialog" style="display:none" >
-              <br>
+              <br />
               <table border="0" cellpadding="0" cellspacing="0" >
                <tr>
                 <td>
@@ -281,9 +305,9 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 <input type="button" class="viewCCD_download" value="<?php echo xla('Download'); ?>" />
     <?php if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { ?>
 <input type="button" class="viewCCD_send_dialog" value="<?php echo xla('Transmit'); ?>" />
-             <br>
+             <br />
              <div id="ccd_send_dialog" style="display:none" >
-              <br>
+              <br />
               <table border="0" cellpadding="0" cellspacing="0" >
                <tr>
                 <td>
@@ -309,7 +333,7 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 
 <form name='report_form' id="report_form" method='post' action='./report/portal_custom_report.php'>
 
-<span class='panel-heading'><?php echo xlt('Patient Report'); ?></span>&nbsp;&nbsp;
+<span class='card-heading'><?php echo xlt('Patient Report'); ?></span>&nbsp;&nbsp;
 <a class="link_submit" href="#" onclick="return checkAll(true)"><?php echo xlt('Check All'); ?></a>
 |
 <a class="link_submit" href="#" onclick="return checkAll(false)"><?php echo xlt('Clear All'); ?></a>
@@ -318,32 +342,32 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 <table class="table includes">
  <tr>
   <td class='text'>
-   <input type='checkbox' name='include_demographics' id='include_demographics' value="demographics" checked><?php echo xlt('Demographics'); ?><br>
-   <input type='checkbox' name='include_history' id='include_history' value="history"><?php echo xlt('History'); ?><br>
-   <input type='checkbox' name='include_insurance' id='include_insurance' value="insurance"><?php echo xlt('Insurance'); ?><br>
+   <input type='checkbox' name='include_demographics' id='include_demographics' value="demographics" checked><?php echo xlt('Demographics'); ?><br />
+   <input type='checkbox' name='include_history' id='include_history' value="history"><?php echo xlt('History'); ?><br />
+   <input type='checkbox' name='include_insurance' id='include_insurance' value="insurance"><?php echo xlt('Insurance'); ?><br />
    <input type='checkbox' name='include_billing' id='include_billing' value="billing"
     <?php if (!$GLOBALS['simplified_demographics']) {
         echo 'checked';
-    } ?>><?php echo xlt('Billing'); ?><br>
+    } ?>><?php echo xlt('Billing'); ?><br />
   </td>
   <td class='text'>
    <!--
-   <input type='checkbox' name='include_allergies' id='include_allergies' value="allergies">Allergies<br>
-   <input type='checkbox' name='include_medications' id='include_medications' value="medications">Medications<br>
+   <input type='checkbox' name='include_allergies' id='include_allergies' value="allergies">Allergies<br />
+   <input type='checkbox' name='include_medications' id='include_medications' value="medications">Medications<br />
    -->
-   <input type='checkbox' name='include_immunizations' id='include_immunizations' value="immunizations"><?php echo xlt('Immunizations'); ?><br>
+   <input type='checkbox' name='include_immunizations' id='include_immunizations' value="immunizations"><?php echo xlt('Immunizations'); ?><br />
    <!--
-   <input type='checkbox' name='include_medical_problems' id='include_medical_problems' value="medical_problems">Medical Problems<br>
+   <input type='checkbox' name='include_medical_problems' id='include_medical_problems' value="medical_problems">Medical Problems<br />
    -->
-   <input type='checkbox' name='include_notes' id='include_notes' value="notes"><?php echo xlt('Patient Notes'); ?><br>
-   <input type='checkbox' name='include_transactions' id='include_transactions' value="transactions"><?php echo xlt('Transactions'); ?><br>
-   <input type='checkbox' name='include_batchcom' id='include_batchcom' value="batchcom"><?php echo xlt('Communications'); ?><br>
+   <input type='checkbox' name='include_notes' id='include_notes' value="notes"><?php echo xlt('Patient Notes'); ?><br />
+   <input type='checkbox' name='include_transactions' id='include_transactions' value="transactions"><?php echo xlt('Transactions'); ?><br />
+   <input type='checkbox' name='include_batchcom' id='include_batchcom' value="batchcom"><?php echo xlt('Communications'); ?><br />
   </td>
  </tr>
 </table>
 
 <input type='hidden' name='pdf' value='0'>
-<br>
+<br />
 
 <!-- old ccr button position -->
 
@@ -354,8 +378,8 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
   <td class='text'>
   <div class="issues">
   <span class='bold'><?php echo xlt('Issues'); ?>:</span>
-   <br>
-   <br>
+   <br />
+   <br />
 
    <table>
 
@@ -423,8 +447,8 @@ while ($prow = sqlFetchArray($pres)) {
 
 <td class='text'>
 <div class='encounters'>
-<span class='bold'><?php echo xlt('Encounters &amp; Forms'); ?>:</span>
-<br><br>
+<span class='bold'><?php echo xlt('Encounters & Forms'); ?>:</span>
+<br /><br />
 
 <?php if (!($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) : ?>
 (Encounters not authorized)
@@ -461,7 +485,7 @@ while ($prow = sqlFetchArray($pres)) {
                 $html_strings = array();
                 echo "</div>\n"; // end DIV encounter_forms
                 echo "</div>\n\n";  //end DIV encounter_data
-                echo "<br>";
+                echo "<br />";
             }
 
             $isfirst = 0;
@@ -516,7 +540,7 @@ while ($prow = sqlFetchArray($pres)) {
                                                 " id='" . attr($result["formdir"]) . "_" . attr($result["form_id"]) . "'".
                                                 " value='" . attr($result["encounter"]) . "'" .
                                                 " class='encounter_form' ".
-                                                ">" . text(xl_form_title($result["form_name"])) . "<br>\n");
+                                                ">" . text(xl_form_title($result["form_name"])) . "<br />\n");
         }
     }
 
@@ -585,7 +609,7 @@ while ($row = sqlFetchArray($res)) {
 </table>
 
 <hr/>
-<span class="bold"><?php echo xlt('Documents'); ?></span>:<br>
+<span class="bold"><?php echo xlt('Documents'); ?></span>:<br />
 <ul>
 <?php
 // show available documents
@@ -624,10 +648,11 @@ while ($result && !$result->EOF) {
 
 // jQuery stuff to make the page a little easier to use
 initReport = function(){
-    $(".genreport").click(function() {
+    $("body").on("click", ".genreport", function() {
           document.report_form.pdf.value = 0;
           showCustom();
-          /*$("#report_form").submit();*/
+
+          return false;
          });
     $(".genpdfrep").click(function() {  document.report_form.pdf.value = 1; $("#report_form").submit(); });
     $(".genportal").click(function() {  document.report_form.pdf.value = 2; $("#report_form").submit(); });
@@ -637,53 +662,34 @@ initReport = function(){
 
     // check/uncheck all Forms of an encounter
     $(".encounter").click(function() { SelectForms($(this)); });
-    function showCCR() {
-        var title = 'CCR Report';
-        var params = {
-            buttons: [
-               { text: 'Close', close: true, style: 'danger' },
-               { text: 'Print', close: false, style: 'success', click: showCCR }
-            ],
 
-            size: eModal.size.lg,
-            title: title,
-            type: "POST",
-            url: '../ccr/createCCR.php',
-            data:{'portal_auth':'1','ccrAction':'generate','raw':'yes'}
-        };
-
-        return eModal
-            .ajax(params)
-            .then(function () {  });
-    }
     function showCustom(){
         var formval = $( "#report_form" ).serializeArray();
         var title = 'Custom Reports';
         var params = {
             buttons: [
                { text: 'Close', close: true, style: 'danger' },
-               //{ text: 'Print', close: false, style: 'success', click: showCustom }
             ],
-
-            size: eModal.size.lg,
+            sizeHeight: 'full', // @todo fix this lazy bones in dialog to allow any height!
+            size: 'modal-lg',
             title: title,
-            //type: "POST",
+            type: "POST",
             url: './report/portal_custom_report.php',
             data: formval
         };
 
-        return eModal
-            .ajax(params)
-            .then(function () {  });
+        // returns a promise after dialog closes. Just an empty fulfill for an example.
+        // Could do an alert or confirm etc.
+        return dialog.ajax(params).then(function () {});
     }
     $(".generateCCR").click(
         function() {
-                if(document.getElementById('show_date').checked == true){
-                    if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
-                       alert(<?php echo xlj('Please select a start date and end date'); ?>);
-                            return false;
-                    }
+            if(document.getElementById('show_date').checked == true){
+                if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
+                   alert(<?php echo xlj('Please select a start date and end date'); ?>);
+                        return false;
                 }
+            }
         var ccrAction = document.getElementsByName('ccrAction');
         ccrAction[0].value = 'generate';
         var raw = document.getElementsByName('raw');
@@ -691,8 +697,6 @@ initReport = function(){
 
         ccr_form.setAttribute("target", "_blank");
         $("#ccr_form").submit();
-        //showCCR();
-
         ccr_form.setAttribute("target", "");
     });
         $(".generateCCR_raw").click(
@@ -717,40 +721,40 @@ initReport = function(){
         });
         $(".generateCCR_download_p").click(
         function() {
-                if(document.getElementById('show_date').checked == true){
-                        if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
-                                alert(<?php echo xlj('Please select a start date and end date'); ?>);
-                                return false;
-                        }
+            if(document.getElementById('show_date').checked === true){
+                if(document.getElementById('Start').value === '' || document.getElementById('End').value === ''){
+                        alert(<?php echo xlj('Please select a start date and end date'); ?>);
+                        return false;
                 }
-                var ccrAction = document.getElementsByName('ccrAction');
-                ccrAction[0].value = 'generate';
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'pure';
+            }
+            var ccrAction = document.getElementsByName('ccrAction');
+            ccrAction[0].value = 'generate';
+            var raw = document.getElementsByName('raw');
+            raw[0].value = 'pure';
 
-                $("#ccr_form").submit();
+            $("#ccr_form").submit();
         });
     $(".viewCCD").click(
     function() {
         var ccrAction = document.getElementsByName('ccrAction');
         ccrAction[0].value = 'viewccd';
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'no';
+            var raw = document.getElementsByName('raw');
+            raw[0].value = 'no';
 
-                ccr_form.setAttribute("target", "_blank");
+            ccr_form.setAttribute("target", "_blank");
         $("#ccr_form").submit();
                 ccr_form.setAttribute("target", "");
     });
         $(".viewCCD_raw").click(
         function() {
-                var ccrAction = document.getElementsByName('ccrAction');
-                ccrAction[0].value = 'viewccd';
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'yes';
+            var ccrAction = document.getElementsByName('ccrAction');
+            ccrAction[0].value = 'viewccd';
+            var raw = document.getElementsByName('raw');
+            raw[0].value = 'yes';
 
-                ccr_form.setAttribute("target", "_blank");
-                $("#ccr_form").submit();
-                ccr_form.setAttribute("target", "");
+            ccr_form.setAttribute("target", "_blank");
+            $("#ccr_form").submit();
+            ccr_form.setAttribute("target", "");
         });
         $(".viewCCD_download").click(
         function() {
@@ -773,7 +777,7 @@ initReport = function(){
                 var ccrRecipient = $("#ccr_send_to").val();
                 var raw = document.getElementsByName('raw');
                 raw[0].value = 'send '+ccrRecipient;
-                if(ccrRecipient=="") {
+                if(ccrRecipient === "") {
                   $("#ccr_send_message").html("<?php
                     echo xla('Please enter a valid Direct Address above.'); ?>");
                   $("#ccr_send_result").show();
@@ -785,7 +789,7 @@ initReport = function(){
                   var action=$("#ccr_form").attr('action');
                   $.post(action, {ccrAction:'generate',raw:'send '+ccrRecipient,requested_by:'user'},
                      function(data) {
-                       if(data=="SUCCESS") {
+                       if(data === "SUCCESS") {
                          $("#ccr_send_message").html("<?php
                             echo xla('Your message was submitted for delivery to');
                             ?> "+ccrRecipient);
@@ -812,7 +816,7 @@ if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { 
                 var ccdRecipient = $("#ccd_send_to").val();
                 var raw = document.getElementsByName('raw');
                 raw[0].value = 'send '+ccdRecipient;
-                if(ccdRecipient=="") {
+                if(ccdRecipient === "") {
                   $("#ccd_send_message").html("<?php
                     echo xla('Please enter a valid Direct Address above.'); ?>");
                   $("#ccd_send_result").show();
@@ -824,7 +828,7 @@ if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { 
                   var action=$("#ccr_form").attr('action');
                   $.post(action, {ccrAction:'viewccd',raw:'send '+ccdRecipient,requested_by:'user'},
                      function(data) {
-                       if(data=="SUCCESS") {
+                       if(data === "SUCCESS") {
                          $("#ccd_send_message").html("<?php
                             echo xla('Your message was submitted for delivery to');
                             ?> "+ccdRecipient);
@@ -837,17 +841,16 @@ if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { 
                 }
         });
 <?php } ?>
-/* */
-
 }; // end initReport
+
 $(function(){
-        initReport();
+
+    initReport();
 
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_formatInput = false; ?>
         <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });
 

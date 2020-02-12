@@ -59,7 +59,7 @@ function edih_segments_text($segments, $delimiter)
     if (!is_array($segments) || !count($segments) || strlen($delimiter) != 1) {
         // debug
         csv_edihist_log('edih_generic_text: invalid argument');
-        $str_html = "Invalid arguments for view of x12 file text<br>";
+        $str_html = "Invalid arguments for view of x12 file text<br />";
         return $str_html;
     }
 
@@ -95,7 +95,7 @@ function edih_837_text($segments, $delimiter, $err_seg = '')
     if (!is_array($segments) || !count($segments) || strlen($delimiter) != 1) {
         // debug
         csv_edihist_log('edih_837_text: invalid argument');
-        $str_html .= "Invalid arguments for view of x12 file text<br>";
+        $str_html .= "Invalid arguments for view of x12 file text<br />";
         return $str_html;
     }
 
@@ -361,7 +361,7 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
     if (!is_array($segments) || !count($segments) || strlen($delimiter) != 1) {
         // debug
         csv_edihist_log('edih_271_text: invalid argument');
-        $str_html .= "Invalid arguments for view of x12 file text<br>";
+        $str_html .= "Invalid arguments for view of x12 file text<br />";
         return $str_html;
     }
 
@@ -561,7 +561,7 @@ function edih_835_text($segments, $delimiter, $err_seg = '')
     if (!is_array($segments) || !count($segments) || strlen($delimiter) != 1) {
         //debug
         csv_edihist_log('edih_835_text: invalid segments');
-        $str_html .= "Invalid arguments for view of x12 file text<br>";
+        $str_html .= "Invalid arguments for view of x12 file text<br />";
         return $str_html;
     }
 
@@ -675,7 +675,7 @@ function edih_277_text($segments, $delimiter, $stpos = '')
     if (!is_array($segments) || !count($segments) || strlen($delimiter) != 1) {
         //debug
         csv_edihist_log('edih_277_text: invlid segments');
-        $str_html .= "Invalid arguments for view of x12 file text<br>";
+        $str_html .= "Invalid arguments for view of x12 file text<br />";
         return $str_html;
     }
 
@@ -860,7 +860,7 @@ function edih_278_text($segments, $delimiter, $err_seg = '')
     if (!is_array($segments) || !count($segments) || strlen($delimiter) != 1) {
         // debug
         csv_edihist_log('edih_278_text(): invalid argument');
-        $str_html .= "Invalid arguments for view of x12 file text<br>";
+        $str_html .= "Invalid arguments for view of x12 file text<br />";
         return $str_html;
     }
 

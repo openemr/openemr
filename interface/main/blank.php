@@ -10,10 +10,13 @@
  */
 
 require_once("../globals.php");
+
+use OpenEMR\Core\Header;
+
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 </head>
 <body class="body_bottom">
 </body>

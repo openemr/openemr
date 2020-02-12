@@ -34,19 +34,19 @@ if ($_POST['form_action']=='save') {
     }
 
     if ($_POST['Send_SMS_Before_Hours']=="") {
-        $form_err .= xl('Empty value in "SMS Hours"') . '<br>';
+        $form_err .= xl('Empty value in "SMS Hours"') . '<br />';
     }
 
     if ($_POST['Send_Email_Before_Hours']=="") {
-        $form_err .= xl('Empty value in "Email Hours"') . '<br>';
+        $form_err .= xl('Empty value in "Email Hours"') . '<br />';
     }
 
     if ($_POST['SMS_gateway_username']=="") {
-        $form_err .= xl('Empty value in "Username"') . '<br>';
+        $form_err .= xl('Empty value in "Username"') . '<br />';
     }
 
     if ($_POST['SMS_gateway_password']=="") {
-        $form_err .= xl('Empty value in "Password"') . '<br>';
+        $form_err .= xl('Empty value in "Password"') . '<br />';
     }
 
     //process sql
@@ -94,7 +94,7 @@ if ($result) {
             <small><?php echo xlt('SMS/Email Alert Settings'); ?></small>
         </h1>
     </header>
-    <main>
+    <main class="mx-4">
         <?php
         if ($form_err) {
             echo '<div class="alert alert-danger">' . xlt('The following errors occurred') . ': ' . text($form_err) . '</div>';
@@ -137,7 +137,7 @@ if ($result) {
             </div>
             <div class="row">
                 <div class="col-md-12 form-group">
-                    <button class="btn btn-default btn-save" type="submit" name="form_action" value="save"><?php echo xlt('Save'); ?></button>
+                    <button class="btn btn-secondary btn-save" type="submit" name="form_action" value="save"><?php echo xlt('Save'); ?></button>
                 </div>
             </div>
 

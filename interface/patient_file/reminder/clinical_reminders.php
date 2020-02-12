@@ -4,8 +4,10 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ensofttek, LLC
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2011-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2011 Ensofttek, LLC
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -33,21 +35,19 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 <div>
   <span class='title'><?php echo xlt('Clinical Reminders'); ?></span>
 </div>
-<div id='namecontainer_creminders' class='namecontainer_creminders' style='float:left;margin-right:10px'>
+<div id='namecontainer_creminders' class='namecontainer_creminders' style='float: left; margin-right: 10px'>
     <?php echo xlt('for');?>&nbsp;
   <span class="title">
     <a href="../summary/demographics.php" onclick="top.restoreSession()"><?php echo text(getPatientName($pid)); ?></a>
   </span>
 </div>
 <div>
-  <a href="../summary/demographics.php" class="css_button" onclick="top.restoreSession()">
-    <span><?php echo xlt('Back To Patient');?></span>
-  </a>
+  <a href="../summary/demographics.php" class="btn btn-secondary" onclick="top.restoreSession()"><?php echo xlt('Back To Patient');?></a>
 </div>
 
-<br>
-<br>
-<br>
+<br />
+<br />
+<br />
 
 <?php
   // collect the pertinent plans and rules
@@ -62,19 +62,19 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 </ul>
 
 <div class="tabContainer">
-  <div class="tab current text" style="height:auto;width:97%;">
+  <div class="tab current text h-auto" style="width: 97%;">
     <?php
       clinical_summary_widget($pid, "reminders-all", '', 'default', $_SESSION['authUser']);
     ?>
   </div>
 
-  <div class="tab text" style="height:auto;width:97%;">
+  <div class="tab text h-auto" style="width: 97%;">
     <?php
       clinical_summary_widget($pid, "reminders-all", '', "plans", $_SESSION['authUser']);
     ?>
   </div>
 
-  <div class="tab" style="height:auto;width:97%;">
+  <div class="tab h-auto" style="width: 97%;">
     <div id='report_results'>
       <table>
         <tr>
@@ -83,7 +83,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
         </tr>
         <tr>
           <th><?php echo xlt('Patient Setting'); ?></th>
-          <th style="left-margin:1em;"><?php echo xlt('Practice Default Setting'); ?></th>
+          <th style="left-margin: 1em;"><?php echo xlt('Practice Default Setting'); ?></th>
         </tr>
         <?php foreach ($plans_default as $plan) { ?>
             <?php
@@ -94,7 +94,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
             }
             ?>
           <tr>
-            <td style="border-right:1px solid black;"><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'), $plan['id']); ?></td>
+            <td style="border-right: 1px solid var(--black);"><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'), $plan['id']); ?></td>
             <td align="center">
                 <?php
 
@@ -118,7 +118,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
                 <option value="off" <?php echo ($select == "off") ? "selected" : ""; ?>><?php echo xlt('Off'); ?></option>
               </select>
             </td>
-            <td align="center" style="border-right:1px solid black;">
+            <td align="center" style="border-right: 1px solid var(--black);">
                 <?php
                 if ($plan['normal_flag'] == "1") {
                     echo xlt('On');
@@ -130,8 +130,8 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
           </tr>
         <?php } ?>
       </table>
-      <br>
-      <br>
+      <br />
+      <br />
       <table>
         <tr>
           <th rowspan="2"><?php echo xlt('Rule'); ?></th>
@@ -140,13 +140,13 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
         </tr>
         <tr>
           <th><?php echo xlt('Patient Setting'); ?></th>
-          <th style="left-margin:1em;"><?php echo xlt('Practice Default Setting'); ?></th>
+          <th style="left-margin: 1em;"><?php echo xlt('Practice Default Setting'); ?></th>
           <th><?php echo xlt('Patient Setting'); ?></th>
-          <th style="left-margin:1em;"><?php echo xlt('Practice Default Setting'); ?></th>
+          <th style="left-margin: 1em;"><?php echo xlt('Practice Default Setting'); ?></th>
         </tr>
         <?php foreach ($rules_default as $rule) { ?>
           <tr>
-            <td style="border-right:1px solid black;"><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $rule['id']); ?></td>
+            <td style="border-right: 1px solid var(--black);"><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $rule['id']); ?></td>
             <td align="center">
                 <?php
                 $patient_rule = collect_rule($rule['id'], $patient_id);
@@ -168,7 +168,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
                 <option value="off" <?php echo ($select == "off") ? "selected" : ""; ?>><?php echo xlt('Off'); ?></option>
               </select>
             </td>
-            <td align="center" style="border-right:1px solid black;">
+            <td align="center" style="border-right: 1px solid var(--black);">
                 <?php
                 if ($rule['passive_alert_flag'] == "1") {
                     echo xlt('On');
@@ -213,7 +213,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
   </div>
 </div>
 
-<script type="text/javascript">
+<script>
   $(function() {
 
     tabbify();

@@ -37,6 +37,7 @@ require_once("../globals.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -143,7 +144,7 @@ if ($form_step == 104) {
 <html>
 
 <head>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<?php Header::setupHeader(); ?>
 <title><?php echo xlt('Backup'); ?></title>
 </head>
 
@@ -179,28 +180,28 @@ $eventlog=0;  // Eventlog Flag
 if ($form_step == 0) {
     echo "<table>\n";
     echo " <tr>\n";
-    echo "  <td><input type='submit' name='form_create' value='" . attr($BTN_TEXT_CREATE) . "' /></td>\n";
+    echo "  <td><input class='btn btn-secondary' type='submit' name='form_create' value='" . attr($BTN_TEXT_CREATE) . "' /></td>\n";
     echo "  <td>" . xlt('Create and download a full backup') . "</td>\n";
     echo " </tr>\n";
   // The config import/export feature is optional.
     if (!empty($GLOBALS['configuration_import_export'])) {
         echo " <tr>\n";
-        echo "  <td><input type='submit' name='form_export' value='" . attr($BTN_TEXT_EXPORT) . "' /></td>\n";
+        echo "  <td><input class='btn btn-secondary' type='submit' name='form_export' value='" . attr($BTN_TEXT_EXPORT) . "' /></td>\n";
         echo "  <td>" . xlt('Download configuration data') . "</td>\n";
         echo " </tr>\n";
         echo " <tr>\n";
-        echo "  <td><input type='submit' name='form_import' value='" . attr($BTN_TEXT_IMPORT) . "' /></td>\n";
+        echo "  <td><input class='btn btn-secondary' type='submit' name='form_import' value='" . attr($BTN_TEXT_IMPORT) . "' /></td>\n";
         echo "  <td>" . xlt('Upload configuration data') . "</td>\n";
         echo " </tr>\n";
     }
 
 // ViSolve : Add ' Create Log table backup Button'
     echo " <tr>\n";
-    echo "  <td><input type='submit' name='form_backup' value='" . attr($BTN_TEXT_CREATE_EVENTLOG) . "' /></td>\n";
+    echo "  <td><input class='btn btn-secondary' type='submit' name='form_backup' value='" . attr($BTN_TEXT_CREATE_EVENTLOG) . "' /></td>\n";
     echo "  <td>" . xlt('Create Eventlog Backup') . "</td>\n";
     echo " </tr>\n";
     echo " <tr>\n";
-    echo "  <td></td><td class='text'><b>" . xlt('Note')."</b>&nbsp;" . xlt('Please refer to') . '&nbsp;README-Log-Backup.txt&nbsp;' . xlt('file in the Documentation directory to learn how to automate the process of creating log backups') . "</td>\n";
+    echo "  <td></td><td class='text'><strong>" . xlt('Note') . "</strong>&nbsp;" . xlt('Please refer to') . '&nbsp;README-Log-Backup.txt&nbsp;' . xlt('file in the Documentation directory to learn how to automate the process of creating log backups') . "</td>\n";
     echo " </tr>\n";
     echo "</table>\n";
 }
@@ -311,11 +312,11 @@ if ($form_step == 5) {   // create the final compressed tar containing all files
 }
 
 if ($form_step == 101) {
-    echo "<p><b>&nbsp;" . xlt('Select the configuration items to export') . ":</b></p>";
+    echo "<p class='font-weight-bold'>&nbsp;" . xlt('Select the configuration items to export') . ":</p>";
 
     echo "<table cellspacing='10' cellpadding='0'>\n<tr>\n<td valign='top' nowrap>\n";
 
-    echo "<b>" . xlt('Tables') . "</b><br />\n";
+    echo "<strong>" . xlt('Tables') . "</strong><br />\n";
     echo "<input type='checkbox' name='form_cb_services' value='1' />\n";
     echo " " . xlt('Services') . "<br />\n";
     echo "<input type='checkbox' name='form_cb_products' value='1' />\n";
@@ -331,8 +332,8 @@ if ($form_step == 101) {
 
   // Multi-select for lists.
     echo "</td><td valign='top'>\n";
-    echo "<b>" . xlt('Lists') . "</b><br />\n";
-    echo "<select multiple name='form_sel_lists[]' size='15'>";
+    echo "<strong>" . xlt('Lists') . "</strong><br />\n";
+    echo "<select class='form-control' multiple name='form_sel_lists[]' size='15'>";
     $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
     "list_id = 'lists' AND activity = 1 ORDER BY title, seq");
     while ($lrow = sqlFetchArray($lres)) {
@@ -344,8 +345,8 @@ if ($form_step == 101) {
 
     // Multi-select for layouts.
     echo "</td><td valign='top'>\n";
-    echo "<b>" . xlt('Layouts') . "</b><br />\n";
-    echo "<select multiple name='form_sel_layouts[]' size='15'>";
+    echo "<strong>" . xlt('Layouts') . "</strong><br />\n";
+    echo "<select class='form-control' multiple name='form_sel_layouts[]' size='15'>";
     $lres = sqlStatement("SELECT grp_form_id, grp_title FROM layout_group_properties WHERE " .
       "grp_group_id = '' AND grp_activity = 1 ORDER BY grp_form_id");
     while ($lrow = sqlFetchArray($lres)) {
@@ -357,7 +358,7 @@ if ($form_step == 101) {
     echo "</select>\n";
 
     echo "</td>\n</tr>\n</table>\n";
-    echo "&nbsp;<br /><input type='submit' value='" . xla('Continue') . "' />\n";
+    echo "&nbsp;<br /><input class='btn btn-primary' type='submit' value='" . xla('Continue') . "' />\n";
 }
 
 if ($form_step == 102) {
@@ -512,7 +513,7 @@ if ($form_step == 201) {
     echo xlt('File to upload') . ":\n";
     echo "<input type='hidden' name='MAX_FILE_SIZE' value='4000000' />\n";
     echo "<input type='file' name='userfile' /><br />&nbsp;<br />\n";
-    echo "<input type='submit' value='" . xla('Continue') . "' />\n";
+    echo "<input class='btn btn-primary' type='submit' value='" . xla('Continue') . "' />\n";
 }
 
 if ($form_step == 202) {
@@ -567,7 +568,7 @@ if ($form_step == 301) {
     $res=sqlStatement("rename table log to log_backup,log_new to log");
     $res=sqlStatement("create table if not exists log_validator_new like log_validator");
     $res=sqlStatement("rename table log_validator to log_validator_backup, log_validator_new to log_validator");
-    echo "<br>";
+    echo "<br />";
     $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($sqlconf["login"]) .
     " -p" . escapeshellarg($sqlconf["pass"]) .
     " -h " . escapeshellarg($sqlconf["host"]) .
@@ -617,7 +618,7 @@ if ($cmd) {
         $res=sqlStatement("drop table if exists log_backup");
         $res=sqlStatement("drop table if exists log_comment_encrypt_backup");
         $res=sqlStatement("drop table if exists log_validator_backup");
-        echo "<br><b>";
+        echo "<br /><b>";
         echo xlt('Backup Successfully taken in') . " ";
         echo text($BACKUP_EVENTLOG_DIR);
         echo "</b>";
@@ -637,8 +638,8 @@ if ($file_to_compress) {
 </center>
 
 <?php if ($auto_continue) { ?>
-<script language="JavaScript">
- setTimeout("document.forms[0].submit();", 500);
+<script>
+    setTimeout("document.forms[0].submit();", 500);
 </script>
 <?php }
 

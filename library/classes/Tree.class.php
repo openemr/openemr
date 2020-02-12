@@ -184,7 +184,7 @@ class Tree
         // we've got the left value, and now that we've processed
         // the children of this node we also know the right value
         $sql = "UPDATE " . $this->_table . " SET lft=?, rght=? WHERE id=?;";
-        //echo $sql . "<br>";
+        //echo $sql . "<br />";
         $this->_db->Execute($sql, [$left, $right, $parent]) or die("Error: " . text($sql) . " " . text($this->_db->ErrorMsg()));
 
         // return the right value of this node + 1
@@ -207,7 +207,7 @@ class Tree
         $result = $this->_db->Execute($sql, [$parent_id, $name]) or die("Error: " . text($this->_db->ErrorMsg()));
 
         if ($result && !$result->EOF) {
-            die("You cannot add a node with the name '" . text($name) ."' because one already exists under parent " . text($parent_id) . "<br>");
+            die("You cannot add a node with the name '" . text($name) ."' because one already exists under parent " . text($parent_id) . "<br />");
         }
 
         $sql = "SELECT * from " . $this->_table . " where id = ?";
@@ -246,7 +246,7 @@ class Tree
         "c1.id = ? AND c2.id != c1.id AND c2.parent = c1.parent AND c2.name = ?";
         $result = $this->_db->Execute($sql, [$id, $name]) or die(xlt('Error') . ": " . text($this->_db->ErrorMsg()));
         if ($result && !$result->EOF) {
-              die(xlt('This name already exists under this parent.') . "<br>");
+              die(xlt('This name already exists under this parent.') . "<br />");
         }
 
         $sql = "UPDATE " . $this->_table . " SET name = ?, value = ?, aco_spec = ? WHERE id = ?";
@@ -264,7 +264,7 @@ class Tree
     {
 
         $sql = "SELECT * from " . $this->_table . " where id = ?";
-        //echo $sql . "<br>";
+        //echo $sql . "<br />";
         $result = $this->_db->Execute($sql, [$id]) or die("Error: " . text($this->_db->ErrorMsg()));
 
         $left = 0;
@@ -278,26 +278,26 @@ class Tree
         }
 
         $sql = "UPDATE " . $this->_table . " SET rght=rght-2 WHERE rght>?";
-        //echo $sql . "<br>";
+        //echo $sql . "<br />";
         $this->_db->Execute($sql, [$right]) or die("Error: " . text($this->_db->ErrorMsg()));
 
         $sql = "UPDATE " . $this->_table . " SET lft=lft-2 WHERE lft>?";
-        //echo $sql . "<br>";
+        //echo $sql . "<br />";
         $this->_db->Execute($sql, [$right]) or die("Error: " . text($this->_db->ErrorMsg()));
 
         $sql = "UPDATE " . $this->_table . " SET lft=lft-1, rght=rght-1 WHERE lft>? and rght < ?";
-        //echo $sql . "<br>";
+        //echo $sql . "<br />";
         $this->_db->Execute($sql, [$left, $right]) or die("Error: " . text($this->_db->ErrorMsg()));
 
         //only update the childrens parent setting if the node has children
         if ($right > ($left +1)) {
             $sql = "UPDATE " . $this->_table . " SET parent=? WHERE parent=?";
-            //echo $sql . "<br>";
+            //echo $sql . "<br />";
             $this->_db->Execute($sql, [$new_parent, $id]) or die("Error: " . text($this->_db->ErrorMsg()));
         }
 
         $sql = "DELETE FROM " . $this->_table . " where id=?";
-        //echo $sql . "<br>";
+        //echo $sql . "<br />";
         $this->_db->Execute($sql, [$id]) or die("Error: " . text($this->_db->ErrorMsg()));
         $this->load_tree();
 

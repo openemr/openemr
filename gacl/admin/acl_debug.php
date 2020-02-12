@@ -77,7 +77,7 @@ switch ($_GET['action']) {
 			}
 		}
 
-		//echo "<br><br>$x ACL_CHECK()'s<br>\n";
+		//echo "<br /><br />$x ACL_CHECK()'s<br />\n";
 
 		$smarty->assign('acls', $acls);
 

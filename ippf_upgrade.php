@@ -104,7 +104,7 @@ function do_visit_form($irow, $encounter, $first)
 <body>
 <center>
 <span class='title'>OpenEMR IPPF Upgrade</span>
-<br>
+<br />
 </center>
 <?php
 if (!empty($_POST['form_submit'])) {

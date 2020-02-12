@@ -43,7 +43,7 @@ function sqlQuery($statement, $link)
 <link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css" type="text/css">
 <link rel="stylesheet" href="public/assets/jquery-ui/jquery-ui.css" type="text/css">
 <script type="text/javascript" src="public/assets/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="public/assets/bootstrap/dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script type="text/javascript" src="public/assets/jquery-ui/jquery-ui.js"></script>
 <link rel="stylesheet" href="public/assets/font-awesome/css/font-awesome.min.css" type="text/css">
 <link rel="shortcut icon" href="public/images/favicon.ico" />
@@ -225,7 +225,7 @@ function sqlQuery($statement, $link)
                     <div class="modal-content  oe-modal-content" style="height:700px">
                         <div class="modal-header clearfix">
                             <button type="button" class="close" data-dismiss="modal" aria-label=Close>
-                            <span aria-hidden="true" style="color:#000000; font-size:1.5em;">×</span></button>
+                            <span aria-hidden="true" style="color:var(--black); font-size:1.5em;">×</span></button>
                         </div>
                         <div class="modal-body" style="height:80%;">
                             <iframe src="" id="targetiframe" style="height:100%; width:100%; overflow-x: hidden; border:none"
@@ -233,7 +233,7 @@ function sqlQuery($statement, $link)
                         </div>
                         <div class="modal-footer" style="margin-top:0px;">
                            <button class="btn btn-link btn-cancel oe-pull-away" data-dismiss="modal" type="button">Close</button>
-                           <!--<button class="btn btn-default btn-print oe-pull-away" data-dismiss="modal" id="print-help-href" type="button">Print</button>-->
+                           <!--<button class="btn btn-secondary btn-print oe-pull-away" data-dismiss="modal" id="print-help-href" type="button">Print</button>-->
                         </div>
                     </div>
                 </div>
@@ -251,14 +251,8 @@ function sqlQuery($statement, $link)
                 })
             });
             // Jquery draggable
-            $('.modal-dialog').draggable({
-                    handle: ".modal-header, .modal-footer"
-            });
-           $( ".modal-content" ).resizable({
-                aspectRatio: true,
-                minHeight: 300,
-                minWidth: 300
-            });
+            $(".modal-dialog").addClass('drag-action');
+            $(".modal-content").addClass('resize-action');
         </script>
 </body>
 </html>

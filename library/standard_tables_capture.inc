@@ -565,7 +565,7 @@ function icd_import($type)
 
         closedir($handle);
     } else {
-        echo htmlspecialchars(xl('ERROR: No ICD import directory.'), ENT_NOQUOTES)."<br>";
+        echo htmlspecialchars(xl('ERROR: No ICD import directory.'), ENT_NOQUOTES)."<br />";
         return;
     }
 
@@ -682,13 +682,13 @@ function handle_zip_file($mode, $file)
 {
         // 1. copy the file to temp directory
     if (!temp_copy($file, $mode)) {
-        echo htmlspecialchars(xl('ERROR: Unable to copy the file.'), ENT_NOQUOTES)."<br>";
+        echo htmlspecialchars(xl('ERROR: Unable to copy the file.'), ENT_NOQUOTES)."<br />";
         temp_dir_cleanup($mode);
         exit;
     }
         // 2. unarchive the file
     if (!temp_unarchive($file, $mode)) {
-        echo htmlspecialchars(xl('ERROR: Unable to extract the file.'), ENT_NOQUOTES)."<br>";
+        echo htmlspecialchars(xl('ERROR: Unable to extract the file.'), ENT_NOQUOTES)."<br />";
         temp_dir_cleanup($mode);
         exit;
     }

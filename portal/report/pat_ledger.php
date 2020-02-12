@@ -302,7 +302,7 @@ $form_to_date   = fixDate($_REQUEST['form_to_date'], date('Y-m-d')); ?>
 <html>
 <head>
 
-    <?php Header::setupHeader(['no_main-theme', 'datetime-picker']); ?>
+    <?php Header::setupHeader(['datetime-picker']); ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script type="text/javascript">
@@ -379,13 +379,13 @@ function checkSubmit() {
     <div style='float:left'>
     <table class='text'>
         <tr>
-      <td class='control-label'>
+      <td class='col-form-label'>
         <?php echo xlt('From'); ?>:
       </td>
       <td>
         <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>' title='yyyy-mm-dd'>
       </td>
-      <td class='control-label'>
+      <td class='col-form-label'>
           &nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('To{{Range}}'); ?>:
       </td>
       <td>
@@ -615,7 +615,7 @@ function checkSubmit() {
             echo " </tr>\n";
             ?>
         </table>
-      <tr><td>&nbsp;</td></tr><br><br>
+      <tr><td>&nbsp;</td></tr><br /><br />
             <?php if ($GLOBALS['print_next_appointment_on_ledger'] == 1) {
                         $next_day = mktime(0, 0, 0, date('m'), date('d')+1, date('Y'));
                         # add one day to date so it will not get todays appointment

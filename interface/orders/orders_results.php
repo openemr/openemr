@@ -16,6 +16,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lab.inc");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\Header;
 
 // Indicates if we are entering in batch mode.
 $form_batch = empty($_GET['batch']) ? 0 : 1;
@@ -43,7 +44,7 @@ if ($_GET['set_pid'] && $form_review) {
 
     $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
     ?>
-  <script language='JavaScript'>
+  <script>
     parent.left_nav.setPatient(<?php echo js_escape($result['fname'] . " " . $result['lname']) . "," . js_escape($pid) . "," . js_escape($result['pubpid']) . ",''," . js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age') . ": " . getPatientAge($result['DOB_YMD'])); ?>);
   </script>
     <?php
@@ -152,61 +153,61 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
 
 <head>
 
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+<?php Header::setupHeader('datetime-picker'); ?>
 
 <title><?php echo xlt('Procedure Results'); ?></title>
 
 <style>
 
-tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
-tr.detail { font-size:10pt; }
-a, a:visited, a:hover { color:#0000cc; }
+tr.head {
+    font-size: 13px;
+    background-color: var(--gray400);
+    text-align:center;
+}
+tr.detail {
+    font-size: 13px;
+}
 
 .celltext {
- font-size:10pt;
- font-weight:normal;
- border-style:solid;
- border-top-width:0px;
- border-bottom-width:0px;
- border-left-width:0px;
- border-right-width:0px;
- border-color: #aaaaaa;
- background-color:transparent;
- width:100%;
- color:#0000cc;
+    font-size: 13px;
+    font-weight: normal;
+    border-style: solid;
+    border-top-width: 0px;
+    border-bottom-width: 0px;
+    border-left-width: 0px;
+    border-right-width: 0px;
+    border-color: var(--gray500);
+    background-color: transparent;
+    width: 100%;
+    color: var(--primary);
 }
 
 .celltextfw {
- font-size:10pt;
- font-weight:normal;
- border-style:solid;
- border-top-width:0px;
- border-bottom-width:0px;
- border-left-width:0px;
- border-right-width:0px;
- border-color: #aaaaaa;
- background-color:transparent;
- color:#0000cc;
+    font-size: 13px;
+    font-weight: normal;
+    border-style: solid;
+    border-top-width: 0px;
+    border-bottom-width: 0px;
+    border-left-width: 0px;
+    border-right-width: 0px;
+    border-color: var(--gray500);
+    background-color: transparent;
+    color: var(--primary);
 }
 
 .cellselect {
- font-size:10pt;
- background-color:transparent;
- color:#0000cc;
+    font-size: 13px;
+    background-color: transparent;
+    color: var(--primary);
 }
 
 .reccolor {
- color:#008800;
+    color: var(--success);
 }
 
 </style>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 
-<script language="JavaScript">
+<script>
 
 // This invokes the find-procedure-type popup.
 var ptvarname;
@@ -318,12 +319,11 @@ $(function () {
 </head>
 
 <body class="body_top">
-<form method='post' action='orders_results.php?batch=<?php echo attr_url($form_batch); ?>&review=<?php echo attr_url($form_review); ?>'
- onsubmit='return validate(this)'>
+<form method='post' action='orders_results.php?batch=<?php echo attr_url($form_batch); ?>&review=<?php echo attr_url($form_review); ?>' onsubmit='return validate(this)'>
 
 <table>
  <tr>
-  <td class='text'>
+  <td class='text form-inline'>
 <?php
 if ($form_batch) {
     $form_from_date = isset($_POST['form_from_date']) ? trim($_POST['form_from_date']) : '';
@@ -345,7 +345,7 @@ if ($form_batch) {
     }
     ?>
     <?php echo xlt('Procedure'); ?>:
-   <input type='text' size='30' name='form_proc_type_desc'
+   <input class='form-control' type='text' size='30' name='form_proc_type_desc'
     value='<?php echo attr($form_proc_type_desc) ?>'
     onclick='sel_proc_type()' onfocus='this.blur()'
     title='<?php echo xla('Click to select the desired procedure'); ?>'
@@ -353,25 +353,21 @@ if ($form_batch) {
    <input type='hidden' name='form_proc_type' value='<?php echo attr($form_proc_type); ?>' />
 
    &nbsp;<?php echo xlt('From'); ?>:
-   <input type='text' size='10' class='datepicker' name='form_from_date' id='form_from_date'
-    value='<?php echo attr($form_from_date); ?>'
-    title='<?php echo xla('yyyy-mm-dd'); ?>' />
+   <input type='text' size='10' class='form-control datepicker' name='form_from_date' id='form_from_date' value='<?php echo attr($form_from_date); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' />
 
    &nbsp;<?php echo xlt('To{{Range}}'); ?>:
-   <input type='text' size='10' class='datepicker' name='form_to_date' id='form_to_date'
-    value='<?php echo attr($form_to_date); ?>'
-    title='<?php echo xla('yyyy-mm-dd'); ?>' />
+   <input type='text' size='10' class='form-control datepicker' name='form_to_date' id='form_to_date' value='<?php echo attr($form_to_date); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' />
 
    &nbsp;
     <?php
 } // end header for batch option
 ?>
    <!-- removed by jcw -- check/submit sequece too tedious.  This is a quick fix -->
-<!--   <input type='checkbox' name='form_all' value='1' <?php if ($_POST['form_all']) {
+<!--   <input type='checkbox' name='form_all' value='1'<?php if ($_POST['form_all']) {
     echo " checked";
-                                                        } ?>><?php echo xlt('Include Completed') ?>
+                                                       } ?>><?php echo xlt('Include Completed') ?>
    &nbsp;-->
-   <input type='submit' name='form_refresh' value='<?php echo xla('Refresh'); ?>'>
+   <input class='btn btn-primary' type='submit' name='form_refresh' value='<?php echo xla('Refresh'); ?>' />
   </td>
  </tr>
 </table>
@@ -382,7 +378,7 @@ if ($form_batch) {
  <tr class='head'>
   <td colspan='2'><?php echo $form_batch ? xlt('Patient') : xlt('Order'); ?></td>
   <td colspan='4'><?php echo xlt('Report'); ?></td>
-  <td colspan='7'><?php echo xlt('Results and'); ?> <span class='reccolor''>
+  <td colspan='7'><?php echo xlt('Results and'); ?> <span class='reccolor'>
     <?php echo xlt('Recommendations'); ?></span></td>
  </tr>
 
@@ -718,7 +714,7 @@ if ($form_batch) {
               " style='width:100%' />" . text($result_notes) .
               "</textarea></td></tr>\n" .
               "</table>\n" .
-              "<p><center><input type='button' value='" . xla('Close') . "' " .
+              "<p><center><input class='btn btn-primary' type='button' value='" . xla('Close') . "' " .
               "onclick='extShow(" . attr_js($lino) . ", false)' /></center></p>\n".
               "</div>";
 
@@ -759,20 +755,20 @@ if ($form_batch) {
         if ($reviewauth) {
             ?>
      <center><p>
-         <input type='submit' name='form_submit' value='<?php echo xla('Sign Results'); ?>' />
+         <input class='btn btn-primary' type='submit' name='form_submit' value='<?php echo xla('Sign Results'); ?>' />
      </p></center>
             <?php
         } else {
             ?>
      <center><p>
-         <input type='button' name='form_submit' value='<?php echo xla('Sign Results'); ?>' onclick="alert(<?php echo attr_js(xl('Not authorized')) ?>);" />
+         <input class='btn btn-primary' type='button' name='form_submit' value='<?php echo xla('Sign Results'); ?>' onclick="alert(<?php echo attr_js(xl('Not authorized')) ?>);" />
      </p></center>
             <?php
         }
     } else {
         ?>
  <center><p>
-  <input type='submit' name='form_submit' value='<?php echo xla('Save'); ?>' />
+  <input class='btn btn-primary' type='submit' name='form_submit' value='<?php echo xla('Save'); ?>' />
  </p></center>
         <?php
     }

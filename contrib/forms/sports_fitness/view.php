@@ -22,6 +22,8 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
+use OpenEMR\Core\Header;
+
 $row = array();
 
 if (! $encounter) { // comes from globals.php
@@ -108,7 +110,7 @@ if ($formid) {
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+    <?php Header::setupHeader(); ?>
 </head>
 
 <body class="body_top">
@@ -183,7 +185,7 @@ if ($formid) {
  </tr>
 
  <tr>
-  <td>Body<br>Composition</td>
+  <td>Body<br />Composition</td>
   <td nowrap>
    <table width='100%'>
     <tr>

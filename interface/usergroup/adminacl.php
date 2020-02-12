@@ -127,7 +127,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
                         //Remove Loading indicator and show errors
                         $("#div_acl_add_form span.loading").hide();
                         $("#acl_error").empty();
-                        $("#acl_error").append("<span class='alert'>" + <?php echo xlj('ERROR, unable to collect data from server'); ?> + "<br></span>");
+                        $("#acl_error").append("<span class='alert'>" + <?php echo xlj('ERROR, unable to collect data from server'); ?> + "<br /></span>");
                         $("#acl_error").show();
                     }
                 });
@@ -197,7 +197,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
                         //Remove Loading indicator and show errors
                         $("#div_acl_remove_form span.loading").hide();
                         $("#acl_error").empty();
-                        $("#acl_error").append("<span class='alert'>" + <?php echo xlj('ERROR, unable to collect data from server'); ?> + "<br></span>");
+                        $("#acl_error").append("<span class='alert'>" + <?php echo xlj('ERROR, unable to collect data from server'); ?> + "<br /></span>");
                         $("#acl_error").show();
                     }
                 });
@@ -225,7 +225,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
                         $("#membership").empty();
                         $(xml).find("user").each(function(){
                             username = $(this).find("username").text();
-                            $("#membership").append("<div id='link_" + username + "'><span class='text'>" + username + "</span><a class='link_submit' href='no_javascript' id='" + username + "_membership_list' title='" + <?php echo xlj('Edit'); ?> + " " + username + "'>&nbsp;<i class='fa fa-pencil' aria-hidden='true'></i></a></span><a class='link_submit' href='no_javascript' id='" + username +  "_membership_hide' style='display: none' title='" + <?php echo xlj('Hide'); ?> + " " + username + "'>&nbsp;<i class='fa fa-eye-slash' aria-hidden='true'></i></a><span class='alert' style='display: none;'>&nbsp;&nbsp;" + <?php echo xlj('This user is not a member of any group'); ?> + "!!!</span><span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + <?php echo xlj('LOADING'); ?> + "...</span></div><div id='error_" + username + "'></div><div id='" + username +  "' style='display: none'><div class='table-responsive'><table class='head'><thead><tr><th class='text-center'><span class='bold'>" + <?php echo xlj('Active'); ?> + "</span></th><th class='text-center'><span class='bold'>" + <?php echo xlj('Inactive'); ?> + "</span></th></tr><tbody><tr><td align='center'><select name='active[]' multiple></select><br /><p align='center'><input class='button_submit' type='button' title='" + <?php echo xlj('Remove'); ?> + "' id='" + username  + "_membership_remove' value=' >> '></p></td><td align='center'><select name='inactive[]' multiple></select><br /><p align='center'><input class='button_submit' type='button' title='" + <?php echo xlj('Add'); ?> + "' id='" + username + "_membership_add' value=' << ' ></p></td></tr></tbody></table></div></div>");
+                            $("#membership").append("<div id='link_" + username + "'><span class='text'>" + username + "</span><a class='link_submit' href='no_javascript' id='" + username + "_membership_list' title='" + <?php echo xlj('Edit'); ?> + " " + username + "'>&nbsp;<i class='fa fa-pencil' aria-hidden='true'></i></a></span><a class='link_submit' href='no_javascript' id='" + username +  "_membership_hide' style='display: none' title='" + <?php echo xlj('Hide'); ?> + " " + username + "'>&nbsp;<i class='fa fa-eye-slash' aria-hidden='true'></i></a><span class='alert' style='display: none;'>&nbsp;&nbsp;" + <?php echo xlj('This user is not a member of any group'); ?> + "!!!</span><span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + <?php echo xlj('LOADING'); ?> + "...</span></div><div id='error_" + username + "'></div><div id='" + username +  "' style='display: none'><div class='table-responsive'><table class='head'><thead><tr><th class='text-center'><span class='bold'>" + <?php echo xlj('Active'); ?> + "</span></th><th class='text-center'><span class='bold'>" + <?php echo xlj('Inactive'); ?> + "</span></th></tr><tbody><tr><td align='center'><select class='form-control' name='active[]' multiple></select><br /><p align='center'><input class='button_submit btn btn-primary btn-sm' type='button' title='" + <?php echo xlj('Remove'); ?> + "' id='" + username  + "_membership_remove' value=' >> '></p></td><td align='center'><select class='form-control' name='inactive[]' multiple></select><br /><p align='center'><input class='button_submit btn btn-primary btn-sm' type='button' title='" + <?php echo xlj('Add'); ?> + "' id='" + username + "_membership_add' value=' << ' ></p></td></tr></tbody></table></div></div>");
                             if ($(this).find("alert").text() == "no membership") {
                                 $("#link_" + username + " span.alert").show();
                             }
@@ -242,7 +242,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
                         //Remove Loading indicator and previous error, if any, then show error
                         $("#membership_edit span.loading:first").hide();
                         $("#membership_error").empty();
-                        $("#membership_error").append("<span class='alert'>" + <?php echo xlj('ERROR, unable to collect data from server'); ?> + "<br><br></span>");
+                        $("#membership_error").append("<span class='alert'>" + <?php echo xlj('ERROR, unable to collect data from server'); ?> + "<br /><br /></span>");
                         $("#membership_error").show();
                     }
                 });
@@ -279,7 +279,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
                             return_value = $(this).find("returnid").text();
                             return_title = $(this).find("returntitle").text();
                             note = $(this).find("note").text();
-                            $("#acl").append("<div id='acl_link_" + titleDash + "_" + return_value + "'><span class='text' title='" + note  + "'>" + title + "-" + return_title  + "</span><a class='link_submit' href='no_javascript' id='" + titleDash  + "_aco_list_" + return_value  + "' title='" + <?php echo xlj('Edit'); ?> + " " + title + "-" + return_title  + "'>&nbsp;<i class='fa fa-pencil' aria-hidden='true'></i></a></span><a class='link_submit' href='no_javascript' id='" + titleDash + "_acl_hide_" + return_value + "' style='display: none' title='" + <?php echo xlj('Hide'); ?> + " " + title + "-" + return_title  + "'>&nbsp;<i class='fa fa-eye-slash' aria-hidden='true'></i></a><span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + <?php echo xlj('LOADING'); ?> + "...</span></div><div id='acl_error_" + titleDash + "_" + return_value + "'></div><div id='acl_" + titleDash + "_" + return_value  + "' style='display: none'><div class='table-responsive'><table class='head'><thead><tr><th class='text-center'><span class='bold'>" + <?php echo xlj('Active'); ?> + "</span></th><th  class='text-center'><span class='bold'>" + <?php echo xlj('Inactive'); ?> + "</span></th></tr></thead><tbody><tr><td align='center'><select name='active[]' size='6' multiple class='form-control'></select><br /><p align='center'><input class='button_submit' type='button' title='" + <?php echo xlj('Remove'); ?> + "' id='" + titleDash  +"_aco_remove_" + return_value  + "' value=' >> '></p></td><td align='center'><select name='inactive[]' size='6' multiple class='form-control'></select><br /><p align='center'><input class='button_submit' type='button' title='" + <?php echo xlj('Add'); ?> + "' id='" + titleDash  + "_aco_add_" + return_value  + "' value=' << ' ></p></td></tr></tbody></table></div></div>");
+                            $("#acl").append("<div id='acl_link_" + titleDash + "_" + return_value + "'><span class='text' title='" + note  + "'>" + title + "-" + return_title  + "</span><a class='link_submit' href='no_javascript' id='" + titleDash  + "_aco_list_" + return_value  + "' title='" + <?php echo xlj('Edit'); ?> + " " + title + "-" + return_title  + "'>&nbsp;<i class='fa fa-pencil' aria-hidden='true'></i></a></span><a class='link_submit' href='no_javascript' id='" + titleDash + "_acl_hide_" + return_value + "' style='display: none' title='" + <?php echo xlj('Hide'); ?> + " " + title + "-" + return_title  + "'>&nbsp;<i class='fa fa-eye-slash' aria-hidden='true'></i></a><span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + <?php echo xlj('LOADING'); ?> + "...</span></div><div id='acl_error_" + titleDash + "_" + return_value + "'></div><div id='acl_" + titleDash + "_" + return_value  + "' style='display: none'><div class='table-responsive'><table class='head'><thead><tr><th class='text-center'><span class='bold'>" + <?php echo xlj('Active'); ?> + "</span></th><th  class='text-center'><span class='bold'>" + <?php echo xlj('Inactive'); ?> + "</span></th></tr></thead><tbody><tr><td align='center'><select name='active[]' size='6' multiple class='form-control'></select><br /><p align='center'><input class='button_submit btn btn-primary' type='button' title='" + <?php echo xlj('Remove'); ?> + "' id='" + titleDash  +"_aco_remove_" + return_value  + "' value=' >> '></p></td><td align='center'><select name='inactive[]' size='6' multiple class='form-control'></select><br /><p align='center'><input class='button_submit btn btn-primary' type='button' title='" + <?php echo xlj('Add'); ?> + "' id='" + titleDash  + "_aco_add_" + return_value  + "' value=' << ' ></p></td></tr></tbody></table></div></div>");
                         });
                         //Show the acl list and add link. Remove loading indicator.
                         $("#acl").show("slow");
@@ -295,7 +295,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
                         //Remove Loading indicator and previous error, if any, then show error
                         $("#acl_edit div span.loading:first").hide();
                         $("#acl_error").empty();
-                        $("#acl_error").append("<span class='alert'>" + <?php echo xlj('ERROR, unable to collect data from server'); ?> + "<br><br></span>");
+                        $("#acl_error").append("<span class='alert'>" + <?php echo xlj('ERROR, unable to collect data from server'); ?> + "<br /><br /></span>");
                         $("#acl_error").show();
                     }
                 });
@@ -481,7 +481,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
                         //Remove old errors, then display any new errors to user
                         $(errorPointer).empty();
                         $(xml).find("error").each(function(){
-                            $(errorPointer).append("<span class='alert'>" + $(this).text() + "<br></span>");
+                            $(errorPointer).append("<span class='alert'>" + $(this).text() + "<br /></span>");
                             $(errorPointer).show();
                         });
                     },
@@ -493,7 +493,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
                         //Remove Loading indicator and show errors
                         $(linkPointer + " span.loading" + linkPointerPost).hide();
                         $(errorPointer).empty();
-                        $(errorPointer).append("<span class='alert'>" + <?php echo xlj('ERROR, unable to collect data from server'); ?> + "<br></span>");
+                        $(errorPointer).append("<span class='alert'>" + <?php echo xlj('ERROR, unable to collect data from server'); ?> + "<br /></span>");
                         $(errorPointer).show();
                     }
                 });
@@ -526,7 +526,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div id='membership_edit'>
                     <span class="bold"><input id='membership_show' type='checkbox'><?php echo xlt('User Memberships'); ?></span> <i id='user-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i>
                     <span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('LOADING'); ?>...</span>
@@ -537,55 +537,55 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
                     <div style='margin-bottom:5px'>
                         <span class="bold" ><input id='acl_show' type='checkbox'><?php echo xlt('Groups and Access Controls'); ?></span> <i id='group-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i>
                     </div>
-                    <a class='link_submit btn btn-default btn-add' href='no_javascript' id='none_acl_returns' style='display: none;' title='<?php echo xla('Add New Group'); ?>'><?php echo xlt('Add New Group'); ?></a>
-                    <a class='link_submit btn btn-default btn-cancel' href='no_javascript' id='none_acl_list' style='display: none;' title='<?php echo xla('Remove Group'); ?>'><?php echo xlt('Remove Group'); ?></a>
+                    <a class='link_submit btn btn-secondary btn-add' href='no_javascript' id='none_acl_returns' style='display: none;' title='<?php echo xla('Add New Group'); ?>'><?php echo xlt('Add New Group'); ?></a>
+                    <a class='link_submit btn btn-secondary btn-cancel' href='no_javascript' id='none_acl_list' style='display: none;' title='<?php echo xla('Remove Group'); ?>'><?php echo xlt('Remove Group'); ?></a>
                     <span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('LOADING'); ?>...</span>
                     <div id='acl_error'></div>
                     <div id='div_acl_add_form' class='section' style='display: none;'>
                         <form action="no_javascript" class="clearfix" id="acl_add_form" method="post" name="acl_add_form">
                             <span class='bold'><?php echo xlt('New Group Information'); ?></span>  <i id='new-group-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i>
                             <span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('LOADING'); ?>...</span>
-                            <div class='col-xs-12'>
+                            <div class='col-12'>
                                 <div class='row'>
-                                    <div class='col-xs-4'>
+                                    <div class='col-4'>
                                         <label class="control-label" for="title_field"><?php echo xlt('Title'); ?>:</label>
                                         <input id="title_field" type="text" class="form-control">
                                     </div>
-                                    <div class='col-xs-6'>
-                                        <br><span class="alert" id="title_error"></span>
+                                    <div class='col-6'>
+                                        <br /><span class="alert" id="title_error"></span>
                                     </div>
                                 </div>
                                 <div class='row'>
-                                    <div class='col-xs-4'>
+                                    <div class='col-4'>
                                         <label class="control-label" for="id_field"><?php echo xlt('Identifier(one word)'); ?>:</label>
                                         <input id="id_field" type="text" class="form-control">
                                     </div>
-                                    <div class='col-xs-6'>
-                                       <br><span class="alert" id="identifier_error"></span>
+                                    <div class='col-6'>
+                                       <br /><span class="alert" id="identifier_error"></span>
                                     </div>
                                 </div>
                                 <div class='row'>
-                                    <div class='col-xs-4'>
+                                    <div class='col-4'>
                                         <label class="control-label" for="return_field"><?php echo xlt('Return Value'); ?>:</label>
                                         <select id="return_field" class="form-control">
                                         </select>
                                     </div>
-                                    <div class='col-xs-6'>
-                                        <br><span class="alert" id="return_error"></span>
+                                    <div class='col-6'>
+                                        <br /><span class="alert" id="return_error"></span>
                                     </div>
                                 </div>
                                 <div class='row'>
-                                    <div class='col-xs-4'>
+                                    <div class='col-4'>
                                         <label class="control-label" for="desc_field"><?php echo xlt('Description'); ?>:</label>
                                         <input id="desc_field" type="text" class="form-control">
                                     </div>
-                                    <div class='col-xs-6'>
-                                        <br><span class="alert" id="description_error"></span>
+                                    <div class='col-6'>
+                                        <br /><span class="alert" id="description_error"></span>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-12" style="padding:15px 18px">
-                                        <button type="submit" class="button_acl_add btn btn-default" id="button_acl_add_submit" title='<?php echo xla('Add Group'); ?>'><?php echo xlt('Add Group'); ?></button>
+                                    <div class="col-12" style="padding: 15px 18px">
+                                        <button type="submit" class="button_acl_add btn btn-secondary" id="button_acl_add_submit" title='<?php echo xla('Add Group'); ?>'><?php echo xlt('Add Group'); ?></button>
                                         <button type="reset" class="button_acl_add btn btn-link" id="button_acl_add_clear" title='<?php echo xla('Clear'); ?>'><?php echo xlt('Clear'); ?></button>
                                         <button type="reset" class="button_acl_add btn btn-link btn-cancel oe-opt-btn-separate-left" id="button_acl_add_cancel" title='<?php echo xla('Cancel'); ?>'><?php echo xlt('Cancel'); ?></button>
                                     </div>
@@ -599,36 +599,36 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
                                 <span class='bold'><?php echo xlt('Remove Group Form'); ?></span>   <i id='remove-group-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i>
                                 <span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('LOADING'); ?>...</span>
                             </div>
-                            <div class='col-xs-12'>
+                            <div class='col-12'>
                                 <div class='row'>
-                                    <div class='col-xs-4'>
+                                    <div class='col-4'>
                                         <label class="control-label" for="acl_field"><?php echo xlt('Group'); ?>:</label>
                                         <select id="acl_field" class='form-control'>
                                         </select>
                                     </div>
-                                    <div class='col-xs-6'>
-                                        <br><span class="alert" id="aclTitle_error"></span>
+                                    <div class='col-6'>
+                                        <br /><span class="alert" id="aclTitle_error"></span>
                                     </div>
                                 </div>
                                 <div class='row'>
-                                    <div class='col-xs-12'>
-                                        <br>
+                                    <div class='col-12'>
+                                        <br />
                                         <span class='text'><?php echo xlt('Do you really want to delete this group'); ?>?</span>
                                     </div>
                                 </div>
                                 <div class='row'>
-                                    <div class='col-xs-4'>
-                                        <br>
+                                    <div class='col-4'>
+                                        <br />
                                         <input type="radio" name="acl_remove_confirm" value="yes"><span class='text'><?php echo xlt('Yes'); ?></span>
                                         <input type="radio" name="acl_remove_confirm" value="no" checked><span class='text'><?php echo xlt('No'); ?></span>
                                     </div>
-                                    <div class='col-xs-6'>
-                                        <br><span class="alert" id="remove_confirm_error"></span>
+                                    <div class='col-6'>
+                                        <br /><span class="alert" id="remove_confirm_error"></span>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-12" style="padding:15px 18px">
-                                        <button type="submit" class="button_acl_remove btn btn-default" id="button_acl_remove_delete" title='<?php echo xla('Delete Group'); ?>'><?php echo xlt('Delete Group'); ?></button>
+                                    <div class="col-12" style="padding:15px 18px">
+                                        <button type="submit" class="button_acl_remove btn btn-secondary" id="button_acl_remove_delete" title='<?php echo xla('Delete Group'); ?>'><?php echo xlt('Delete Group'); ?></button>
                                         <button type="reset" class="button_acl_remove btn btn-link btn-cancel oe-opt-btn-separate-left" id="button_acl_remove_cancel" title='<?php echo xla('Cancel'); ?>'><?php echo xlt('Cancel'); ?></button>
                                     </div>
                                 </div>
@@ -640,7 +640,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
             </div>
         </div>
     </div><!--end of container div-->
-    <br>
+    <br />
     <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>
 </html>

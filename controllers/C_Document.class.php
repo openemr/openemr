@@ -395,8 +395,8 @@ class C_Document extends Controller
         // Added by Rod to support document delete:
         $delete_string = '';
         if (AclMain::aclCheckCore('patients', 'docs_rm')) {
-            $delete_string = "<a href='' class='css_button' onclick='return deleteme(" . attr_js($d->get_id()) .
-                ")'><span><font color='red'>" . xlt('Delete') . "</font></span></a>";
+            $delete_string = "<a href='' class='btn btn-danger' onclick='return deleteme(" . attr_js($d->get_id()) .
+                ")'>" . xlt('Delete') . "</a>";
         }
         $this->assign("delete_string", $delete_string);
         $this->assign("REFRESH_ACTION", $this->_link("list"));
@@ -1059,8 +1059,8 @@ class C_Document extends Controller
         }
 
         $current_hash = sha1($content);
-        $messages = xl('Current Hash').": ".$current_hash."<br>";
-        $messages .= xl('Stored Hash').": ".$d->get_hash()."<br>";
+        $messages = xl('Current Hash').": ".$current_hash."<br />";
+        $messages .= xl('Stored Hash').": ".$d->get_hash()."<br />";
         if ($d->get_hash() == '') {
             $d->hash = $current_hash;
             $d->persist();
@@ -1099,7 +1099,7 @@ class C_Document extends Controller
                 // Ready to rename - check for relocation
                 $old_url = $this->_check_relocation($d->get_url());
                 $new_url = $this->_check_relocation($d->get_url(), null, $docname);
-                $messages .= sprintf("%s -> %s<br>", $old_url, $new_url);
+                $messages .= sprintf("%s -> %s<br />", $old_url, $new_url);
                 if (rename($old_url, $new_url)) {
                     // check the "converted" file, and delete it if it exists. It will be regenerated when report is run
                     if (file_exists($old_url)) {
@@ -1108,9 +1108,9 @@ class C_Document extends Controller
                     $d->url = $new_url;
                     $d->persist();
                     $d->populate();
-                    $messages .= xl('Document successfully renamed.')."<br>";
+                    $messages .= xl('Document successfully renamed.')."<br />";
                 } else {
-                    $messages .= xl('The file could not be succesfully renamed, this error is usually related to permissions problems on the storage system.')."<br>";
+                    $messages .= xl('The file could not be succesfully renamed, this error is usually related to permissions problems on the storage system.')."<br />";
                 }
             }
 
@@ -1135,7 +1135,7 @@ class C_Document extends Controller
                 "WHERE id = '$document_id'";
                 $this->tree->_db->Execute($sql);
             }
-            $messages .= xl('Document date and issue updated successfully') . "<br>";
+            $messages .= xl('Document date and issue updated successfully') . "<br />";
         }
 
         $this->_state = false;
@@ -1245,13 +1245,13 @@ class C_Document extends Controller
             $icon = 'folder.gif';
             if (is_array($ar)  || !empty($id)) {
                 if ($node == null) {
-                    //echo "r:" . $this->tree->get_node_name($id) . "<br>";
+                    //echo "r:" . $this->tree->get_node_name($id) . "<br />";
                     $rnode = new HTML_TreeNode(array("id" => $id, 'text' => $this->tree->get_node_name($id), 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon, 'expanded' => false));
                     $this->_last_node = &$rnode;
                     $node = &$rnode;
                     $current_node = &$rnode;
                 } else {
-                    //echo "p:" . $this->tree->get_node_name($id) . "<br>";
+                    //echo "p:" . $this->tree->get_node_name($id) . "<br />";
                     $this->_last_node = &$node->addItem(new HTML_TreeNode(array("id" => $id, 'text' => $this->tree->get_node_name($id), 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon)));
                     $current_node = &$this->_last_node;
                 }
@@ -1260,13 +1260,13 @@ class C_Document extends Controller
             } else {
                 if ($id === 0 && !empty($ar)) {
                     $info = $this->tree->get_node_info($id);
-                  //echo "b:" . $this->tree->get_node_name($id) . "<br>";
+                  //echo "b:" . $this->tree->get_node_name($id) . "<br />";
                     $current_node = &$node->addItem(new HTML_TreeNode(array("id" => $id, 'text' => $info['value'], 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon)));
                 } else {
                     //there is a third case that is implicit here when title === 0 and $ar is empty, in that case we do not want to do anything
                     //this conditional tree could be more efficient but working with recursive trees makes my head hurt, TODO
                     if ($id !== 0 && is_object($node)) {
-                      //echo "n:" . $this->tree->get_node_name($id) . "<br>";
+                      //echo "n:" . $this->tree->get_node_name($id) . "<br />";
                         $current_node = &$node->addItem(new HTML_TreeNode(array("id" => $id, 'text' => $this->tree->get_node_name($id), 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon)));
                     }
                 }
@@ -1433,7 +1433,7 @@ class C_Document extends Controller
             $d->set_encounter_check($encounter_check);
             $d->persist();
 
-            $messages .= xlt('Document tagged to Encounter successfully') . "<br>";
+            $messages .= xlt('Document tagged to Encounter successfully') . "<br />";
         }
 
         $this->_state = false;

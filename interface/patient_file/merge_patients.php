@@ -35,7 +35,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 <title><?php echo xlt('Merge Patients'); ?></title>
     <?php Header::setupHeader(['jquery-ui']); ?>
 
-<script language="JavaScript">
+<script>
 
 var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
@@ -100,7 +100,7 @@ if (!empty($_POST['form_submit'])) {
 
     $target_pid = intval($_POST['form_target_pid']);
     $source_pid = intval($_POST['form_source_pid']);
-    echo "<div class='well'>";
+    echo "<div class='jumbotron jumbotron-fluid'>";
     if ($target_pid == $source_pid) {
         die(xlt('Target and source pid may not be the same!'));
     }
@@ -234,16 +234,13 @@ if (!empty($_POST['form_submit'])) {
 <form method='post' action='merge_patients.php'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <div class="table-responsive">
-<table style='width:100%'>
+<table class="table w-100">
  <tr>
   <td>
     <?php echo xlt('Target Patient') ?>
   </td>
   <td>
-   <input type='text' size='30' name='form_target_patient'
-    value=' (<?php echo xla('Click to select'); ?>)'
-    onclick='sel_patient(this, this.form.form_target_pid)'
-    title='<?php echo xla('Click to select patient'); ?>' readonly />
+   <input type='text' class="form-control" size='30' name='form_target_patient' value=' (<?php echo xla('Click to select'); ?>)' onclick='sel_patient(this, this.form.form_target_pid)' title='<?php echo xla('Click to select patient'); ?>' readonly />
    <input type='hidden' name='form_target_pid' value='0' />
   </td>
   <td>
@@ -255,7 +252,7 @@ if (!empty($_POST['form_submit'])) {
     <?php echo xlt('Source Patient') ?>
   </td>
   <td>
-   <input type='text' size='30' name='form_source_patient'
+   <input type='text' class='form-control' size='30' name='form_source_patient'
     value=' (<?php echo xla('Click to select'); ?>)'
     onclick='sel_patient(this, this.form.form_source_pid)'
     title='<?php echo xla('Click to select patient'); ?>' readonly />
@@ -266,11 +263,11 @@ if (!empty($_POST['form_submit'])) {
   </td>
  </tr>
 </table>
-<p><input type='submit' name='form_submit' value='<?php echo xla('Merge'); ?>' /></p>
+<p><input type='submit' class="btn btn-primary" name='form_submit' value='<?php echo xla('Merge'); ?>' /></p>
 </div>
 </form>
-<div class="well well-lg">
-    <p><strong><?php echo xlt('This utility is experimental.  Back up your database and documents before using it!'); ?></strong></p>
+<div class="jumbotron">
+    <p class="font-weight-bold"><?php echo xlt('This utility is experimental. Back up your database and documents before using it!'); ?></p>
 
 <?php if (!$PRODUCTION) { ?>
 <p><?php echo xlt('This will be a "dry run" with no physical data updates.'); ?></p>

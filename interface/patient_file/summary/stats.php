@@ -100,7 +100,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
             <?php
             if (sqlNumRows($res) == 0) {
                 ?>
-  <tr class=text>
+  <tr class="text">
 <td><?php echo xlt('None{{Prescriptions}}'); ?></td>
   </tr>
                 <?php
@@ -170,10 +170,8 @@ if ($row_currentMed['size'] > 0) {
             ?>
             <tr class='issuetitle'>
             <td colspan='$numcols'>
-            <span class="text"><b><?php echo text($arr[0]); ?></b></span>
-            <a href="javascript:;" class="small" onclick="load_location(<?php echo attr_js("stats_full.php?active=all&category=".urlencode($key)); ?>)">
-            (<b><?php echo xlt('Manage'); ?></b>)
-            </a>
+            <span class="text font-weight-bold"><?php echo text($arr[0]); ?></span>
+            <a href="javascript:;" class="small font-weight-bold" onclick="load_location(<?php echo attr_js("stats_full.php?active=all&category=".urlencode($key)); ?>)">(<?php echo xlt('Manage'); ?>)</a>
             </td>
             </tr>
             <?php
@@ -284,7 +282,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
     } else { ?>
 <td colspan='<?php echo $numcols ?>' valign='top'>
-<span class="text"><b><?php echo xlt('Immunizations'); ?></b></span>
+<span class="text font-weight-bold"><?php echo xlt('Immunizations'); ?></span>
 <a href="javascript:;" class="small" onclick="javascript:load_location('immunizations.php')">
     (<b><?php echo xlt('Manage'); ?></b>)
 </a>
@@ -327,7 +325,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
             }
         }
 
-        echo "</a><br>\n";
+        echo "</a><br />\n";
     }
     ?>
 
@@ -367,7 +365,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
         <?php
         if (sqlNumRows($res)==0) {
             ?>
-    <tr class=text>
+    <tr class="text">
         <td><?php echo xlt('None{{Prescriptions}}');?></td>
     </tr>
             <?php
@@ -379,7 +377,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
             $rroute = generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row_currentMed['route']);
             $rint = generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), $row_currentMed['interval']);
             ?>
-    <tr class=text >
+    <tr class="text">
         <td><?php echo text($row_currentMed['drug']); ?></td>
         <td><?php $unit='';
         if ($row_currentMed['size']>0) {
@@ -420,7 +418,7 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
         $fixedWidth = false;
         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
     } else { ?>
-    <span class='text'><b><?php echo xlt('Prescriptions'); ?></b></span>
+    <span class='text font-weight-bold'><?php echo xlt('Prescriptions'); ?></span>
     </td></tr>
     </tr><td>
     <?php } ?>

@@ -285,7 +285,7 @@ if ($_POST['form_get_hl7']==='true') {
 
     <?php Header::setupHeader('datetime-picker'); ?>
 
-    <script language="JavaScript">
+    <script>
 
         <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
@@ -304,7 +304,7 @@ if ($_POST['form_get_hl7']==='true') {
 
     </script>
 
-    <style type="text/css">
+    <style>
     /* specifically include & exclude from printing */
     @media print {
         #report_parameters {
@@ -352,7 +352,7 @@ if ($_POST['form_get_hl7']==='true') {
     <div style='float:left'>
       <table class='text'>
         <tr>
-          <td class='control-label'>
+          <td class='col-form-label'>
             <?php echo xlt('Diagnosis'); ?>:
           </td>
           <td>
@@ -382,7 +382,7 @@ while ($crow = sqlFetchArray($cres)) {
  echo "   </select>\n";
 ?>
           </td>
-          <td class='control-label'>
+          <td class='col-form-label'>
             <?php echo xlt('From'); ?>:
           </td>
           <td>
@@ -390,7 +390,7 @@ while ($crow = sqlFetchArray($cres)) {
             class='datepicker form-control'
             size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
           </td>
-          <td class='control-label'>
+          <td class='col-form-label'>
             <?php echo xlt('To{{Range}}'); ?>:
           </td>
           <td>
@@ -402,13 +402,13 @@ while ($crow = sqlFetchArray($cres)) {
       </table>
     </div>
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+  <td class='h-100' align='left' valign='middle'>
+    <table class='w-100 h-100' style='border-left:1px solid;'>
       <tr>
         <td>
           <div class="text-center">
             <div class="btn-group" role="group">
-              <a href='#' class='btn btn-default btn-refresh'
+              <a href='#' class='btn btn-secondary btn-refresh'
                 onclick='
                   $("#form_refresh").attr("value","true");
                   $("#form_get_hl7").attr("value","false");
@@ -417,10 +417,10 @@ while ($crow = sqlFetchArray($cres)) {
                 <?php echo xlt('Refresh'); ?>
               </a>
                 <?php if ($_POST['form_refresh']) { ?>
-                <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                     <?php echo xlt('Print'); ?>
                 </a>
-                <a href='#' class='btn btn-default btn-transmit' onclick=
+                <a href='#' class='btn btn-secondary btn-transmit' onclick=
                   "if(confirm(<?php echo xlj('This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?'); ?>)) {
                     $('#form_get_hl7').attr('value','true');
                     $('#theform').submit();
@@ -443,8 +443,8 @@ while ($crow = sqlFetchArray($cres)) {
 if ($_POST['form_refresh']) {
     ?>
 <div id="report_results">
-<table>
-<thead align="left">
+<table class='table'>
+<thead class='thead-light' align="left">
 <th> <?php echo xlt('Patient ID'); ?> </th>
 <th> <?php echo xlt('Patient Name'); ?> </th>
 <th> <?php echo xlt('Diagnosis'); ?> </th>
@@ -498,7 +498,7 @@ if ($_POST['form_refresh']) {
 </div> <!-- end of results -->
 <?php } else { ?>
 <div class='text'>
-    <?php echo xlt('Click Refresh to view all results, or please input search criteria above to view specific results.'); ?><br>
+    <?php echo xlt('Click Refresh to view all results, or please input search criteria above to view specific results.'); ?><br />
   (<?php echo xlt('This report currently only works for ICD9 codes.'); ?>)
 </div>
 <?php } ?>

@@ -1,42 +1,61 @@
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 bootstrap nav menu*~~~~~~~~~~~~~~~~~*/
+/* OpenEMR Bootstrap Nav Menu Override */
 
-.navbar-custom, .navbar-nav, .nav>.active>a, .navbar-nav>.active>a:hover, .navbar-nav>.active>a:focus {
-    /* color: white;
-    background-color: transparent !important;*/
+/* TODO: Fix compatibility issue here */
+
+.navbar-custom,
+.navbar-nav,
+.nav > .active > a,
+.navbar-nav > .active > a:hover,
+.navbar-nav > .active > a:focus {
+    color: $white;
+    background-color: transparent !important;
 }
-.navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus, .navbar-default .navbar-nav>.active>a:hover {
+
+.navbar-light .navbar-nav > .active > a,
+.navbar-light .navbar-nav > .active > a:focus,
+.navbar-light .navbar-nav > .active > a:hover {
     background-color: $palepale !important;
 }
-.dropdown-menu>li>a:focus, .dropdown-menu>li>a:hover {
+
+.dropdown-menu > li > a:focus,
+.dropdown-menu > li > a:hover {
     background-color: $palepale !important;
 }
+
 .dropdown-menu {
     background-color: $paler !important;
     border-top: 1px solid $paler !important;
-    border-radius: 0px !important;
+    border-radius: 0 !important;
 }
+
 .navbar-nav {
-    font-size: 15px;
+    @include font-size("15px !important");
 }
-.navbar-default {
+
+.navbar-light {
     background-color: $dark !important;
     border: none;
 }
-.navbar-default .navbar-nav>li>a:focus, .navbar-default .navbar-nav>li>a:hover {
+
+.navbar-light .navbar-nav > li > a:focus,
+.navbar-light .navbar-nav > li > a:hover {
     background-color: $palepale !important;
 }
-.navbar-nav>li>.dropdown-menu {
-    box-shadow: 0px 2px 2px $midpale !important;
+
+.navbar-nav > li > .dropdown-menu {
+    box-shadow: 0 2px 2px $midpale !important;
 }
+
 .navbar-collapse.collapse.in {
     background-color: $dark !important;
     font-weight: 700;
-    color: #000000 !important;
+    color: $black !important;
 }
-.navbar-default .navbar-brand {
-    color: #000000 !important;
+
+.navbar-light .navbar-brand {
+    color: $black !important;
 }
-.navbar-default .navbar-nav>li>a {
-    color: #000000 !important;
+
+.navbar-light .navbar-nav > li > a {
+    color: $black !important;
 }
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5 bootstrap nav menu*~~~~~~~~~~~~~~~~~*/

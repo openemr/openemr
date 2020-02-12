@@ -31,10 +31,10 @@ function writeRow($method, $name, $allowEdit = false)
     echo text($name);
     echo "&nbsp;</td><td>";
     if ($allowEdit) {
-        echo "<button type='button' class='btn btn-default btn-search' onclick='editclick(" . attr_js($method) . ")'>" . xlt('View') . "</button> &nbsp";
+        echo "<button type='button' class='btn btn-secondary btn-search' onclick='editclick(" . attr_js($method) . ")'>" . xlt('View') . "</button> &nbsp";
     }
     if ($name) {
-        echo "<button type='button' class='btn btn-default btn-delete' onclick='delclick(" . attr_js($method) . ", " .
+        echo "<button type='button' class='btn btn-secondary btn-delete' onclick='delclick(" . attr_js($method) . ", " .
         attr_js($name) . ")'>" . xlt('Delete') . "</button>";
     }
     echo "</td></tr>\n";
@@ -168,7 +168,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <div>
                         <fieldset>
                             <legend><?php echo xlt('Select/Add New Authentication Method for') . " " . $user_full_name; ?></legend>
-                            <div class='col-sm-4 col-sm-offset-4'>
+                            <div class='col-sm-4 offset-sm-4'>
                                 <select name='form_add' onchange='addclick(this)'class='col-sm-12'>
                                     <option value=''><?php echo xlt('Add New...'); ?></option>
                                     <option value='U2F'><?php echo xlt('U2F USB Device'); ?></option>

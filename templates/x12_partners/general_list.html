@@ -1,30 +1,32 @@
-<a href="{$CURRENT_ACTION}action=edit&id=default" onclick="top.restoreSession()" class="btn btn-default btn-add">
+<a href="{$CURRENT_ACTION}action=edit&id=default" onclick="top.restoreSession()" class="btn btn-secondary btn-add">
     {xlt t='Add New Partner'}
 </a>
-<br><br>
-<table class="table table-responsive table-striped">
-    <thead>
-    <tr>
-        <th>{xlt t='Name'}</th>
-        <th>{xlt t='Sender ID'}</th>
-        <th>{xlt t='Receiver ID'}</th>
-        <th>{xlt t='Version'}</th>
-    </tr>
-    </thead>
-    {foreach from=$partners item=partner}
-    <tr>
-        <td>
-            <a href="{$CURRENT_ACTION}action=edit&x12_partner_id={$partner->id|attr}" onclick="top.restoreSession()">
-                {$partner->get_name()|text}&nbsp;
-            </a>
-        </td>
-        <td>{$partner->get_x12_sender_id()|text}&nbsp;</td>
-        <td>{$partner->get_x12_receiver_id()|text}&nbsp;</td>
-        <td>{$partner->get_x12_version()|text}&nbsp;</td>
-    </tr>
-    {foreachelse}
-    <tr>
-        <td colspan="4">{xlt t='No Partners Found'}</td>
-    </tr>
-    {/foreach}
-</table>
+<br /><br />
+<div class="table-responsive">
+  <table class="table table-striped">
+      <thead>
+      <tr>
+          <th>{xlt t='Name'}</th>
+          <th>{xlt t='Sender ID'}</th>
+          <th>{xlt t='Receiver ID'}</th>
+          <th>{xlt t='Version'}</th>
+      </tr>
+      </thead>
+      {foreach from=$partners item=partner}
+      <tr>
+          <td>
+              <a href="{$CURRENT_ACTION}action=edit&x12_partner_id={$partner->id|attr}" onclick="top.restoreSession()">
+                  {$partner->get_name()|text}&nbsp;
+              </a>
+          </td>
+          <td>{$partner->get_x12_sender_id()|text}&nbsp;</td>
+          <td>{$partner->get_x12_receiver_id()|text}&nbsp;</td>
+          <td>{$partner->get_x12_version()|text}&nbsp;</td>
+      </tr>
+      {foreachelse}
+      <tr>
+          <td colspan="4">{xlt t='No Partners Found'}</td>
+      </tr>
+      {/foreach}
+  </table>
+</div>

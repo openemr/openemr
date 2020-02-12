@@ -56,7 +56,7 @@ require_once("../../interface/globals.php");
                 <p><i class="fa fa-exclamation-circle oe-text-orange"  aria-hidden="true"></i> <strong><?php echo xlt("It is a part of the medical record"); ?>.</strong>
 
                 <p><?php echo xlt("Upon logging in to openEMR a small envelope icon is visible on the top right. It shows the number of pending messages and dated reminders"); ?>.
-                <button type="button" class="btn btn-default btn-sm oe-no-float"><i class="fa fa-envelope"></i></button>
+                <button type="button" class="btn btn-secondary btn-sm oe-no-float"><i class="fa fa-envelope"></i></button>
 
                 <p><?php echo xlt("You can click on the envelope icon to access the messaging center"); ?>.
 
@@ -75,7 +75,7 @@ require_once("../../interface/globals.php");
                 <p><strong><?php echo xlt("CREATING A NEW MESSAGE"); ?> :</strong>
 
                 <p><?php echo xlt("To create a new message click on the Add New button at the bottom"); ?>.
-                <button type="button" class="btn btn-default btn-add btn-sm oe-no-float"><?php echo xlt("Add New"); ?></button>
+                <button type="button" class="btn btn-secondary btn-add btn-sm oe-no-float"><?php echo xlt("Add New"); ?></button>
 
                 <p><?php echo xlt("It will open the Create New Message section"); ?>.
 
@@ -91,24 +91,24 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("Clicking on either the Enter Name or Enter ID tab will bring up the search box which you can use to select a patient"); ?>.
 
                 <p><?php echo xlt("Click on Add to List button to add to the bottom section"); ?>.
-                <button class="btn btn-default btn-sm oe-no-float"><?php echo xlt("Add to list"); ?></button>
+                <button class="btn btn-secondary btn-sm oe-no-float"><?php echo xlt("Add to list"); ?></button>
 
                 <p><?php echo xlt("You can add multiple patients to the list"); ?>.
 
                 <p><?php echo xlt("Click OK to import these patients into the patient input box"); ?>.
 
                 <p><?php echo xlt("Click the Clear button to clear the imported patient names and start afresh"); ?>.
-                <button type="button" class="btn btn-default btn-undo btn-sm oe-no-float"><?php echo xlt("Clear"); ?></button>
+                <button type="button" class="btn btn-secondary btn-undo btn-sm oe-no-float"><?php echo xlt("Clear"); ?></button>
 
                 <p><?php echo xlt("Use the Select User dropdown box to select the user(s) to whom the message will be sent"); ?>.
 
                 <p><?php echo xlt("You can add multiple users by selecting them one at a time"); ?>.
 
                 <p><?php echo xlt("Click the Clear button to start afresh"); ?>.
-                <button type="button" class="btn btn-default btn-undo btn-sm oe-no-float"><?php echo xlt("Clear"); ?></button>
+                <button type="button" class="btn btn-secondary btn-undo btn-sm oe-no-float"><?php echo xlt("Clear"); ?></button>
 
                 <p><?php echo xlt("Type the message and click Send Message "); ?>.
-                <button type="button" class="btn btn-default btn-send-msg btn-sm oe-no-float"><?php echo xlt("Send Message"); ?></button>
+                <button type="button" class="btn btn-secondary btn-send-msg btn-sm oe-no-float"><?php echo xlt("Send Message"); ?></button>
 
                 <p><?php echo xlt("A new message can thus be sent to a single or multiple users and/or can be about a single or multiple patients"); ?>.
 
@@ -137,7 +137,7 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("If desired the current message can be printed"); ?>.
 
                 <p><?php echo xlt("Clicking on the Delete button will delete the message"); ?>.
-                <button type="button" class="btn btn-default btn-delete btn-sm oe-no-float"><?php echo xlt("Delete"); ?></button>
+                <button type="button" class="btn btn-secondary btn-delete btn-sm oe-no-float"><?php echo xlt("Delete"); ?></button>
             </div>
             <div class= "row" id="reminders">
                 <h4 class="oe-help-heading"><?php echo xlt("Reminders"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
@@ -152,14 +152,14 @@ require_once("../../interface/globals.php");
                 <p><strong><?php echo xlt("CREATING A NEW DATED REMINDER"); ?> :</strong>
 
                 <p><?php echo xlt("Clicking on the Create A Dated Reminder button will bring up the Send a Reminder popup"); ?>.
-                <button type="button" class="btn btn-default btn-add btn-sm oe-no-float"><?php echo xlt("Create A Dated Reminder"); ?></button>
+                <button type="button" class="btn btn-secondary btn-add btn-sm oe-no-float"><?php echo xlt("Create A Dated Reminder"); ?></button>
 
                 <p><?php echo xlt("The first section lets you either link this message to a patient if so desired."); ?>.
 
                 <p><?php echo xlt("The second section lets you choose to whom you wish to send the message"); ?>.
 
                 <p><?php echo xlt("You can click on the Select All button to choose all authorized users"); ?>.
-                <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Select All"); ?></button>
+                <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Select All"); ?></button>
 
                 <p><?php echo xlt("If the checkbox is checked and the message is sent to multiple users then each user has to sign off on the message by clicking the Set As Completed Button for that message"); ?>.
 
@@ -168,7 +168,7 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("Set the priority level"); ?>.
 
                 <p><?php echo xlt("Type a brief message and hit Send Message "); ?>.
-                <button type="button" class="btn btn-default btn-send-msg btn-sm oe-no-float"><?php echo xlt("Send Message"); ?></button>
+                <button type="button" class="btn btn-secondary btn-send-msg btn-sm oe-no-float"><?php echo xlt("Send Message"); ?></button>
 
                 <p><?php echo xlt("The messages that were sent by the user on that day will be displayed in the table below"); ?>.
 
@@ -192,8 +192,8 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("Go to Administration > Globals > CDR > Dated reminders maximum alerts to show and change the value to a higher number"); ?>.
 
                 <p><?php echo xlt("A dated reminder message can be either forwarded by clicking the Forward button or removed from the dated reminders list by clicking on the Set As Completed button"); ?>.
-                <button type="button" class="btn btn-default btn-send-msg btn-sm oe-no-float"><?php echo xlt("Forward"); ?></button>
-                <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Set As Completed"); ?></button>
+                <button type="button" class="btn btn-secondary btn-send-msg btn-sm oe-no-float"><?php echo xlt("Forward"); ?></button>
+                <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Set As Completed"); ?></button>
 
                 <p><strong><?php echo xlt("FORWARD A DATED REMINDER"); ?> :</strong>
 
@@ -202,14 +202,14 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("While forwarding a dated reminder the old message is displayed, it can be overwritten"); ?>.
 
                 <p><?php echo xlt("The previous message can however be viewed by clicking on the View Log button"); ?>.
-                <button type="button" class="btn btn-default btn-save btn-show btn-sm oe-no-float"><?php echo xlt("View Log"); ?></button>
+                <button type="button" class="btn btn-secondary btn-save btn-show btn-sm oe-no-float"><?php echo xlt("View Log"); ?></button>
 
                 <p><?php echo xlt("Clicking on the View Log button will bring up the Dated Message Log popup"); ?>.
 
                 <p><?php echo xlt("Lets you filter the results as per the chosen criteria"); ?>.
 
                 <p><?php echo xlt("If you hit the refresh button without setting any filters then all dated reminders for the user will appear below"); ?>.
-                <button type="button" class="btn btn-default btn-sm btn-refresh oe-no-float"><?php echo xlt("Refresh"); ?></button>
+                <button type="button" class="btn btn-secondary btn-sm btn-refresh oe-no-float"><?php echo xlt("Refresh"); ?></button>
 
                 <p><?php echo xlt("The log table will show a list of both messages and dated reminders if any"); ?>.
 
@@ -224,7 +224,7 @@ require_once("../../interface/globals.php");
                 <p><strong><?php echo xlt("SET AS COMPLETED"); ?> :</strong>
 
                 <p><?php echo xlt("Clicking on Set As Completed will remove the reminder from the active display"); ?>.
-                <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Set As Completed"); ?></button>
+                <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Set As Completed"); ?></button>
             </div>
             <div class= "row" id="recalls">
                 <h4 class="oe-help-heading"><?php echo xlt("Recalls"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
@@ -233,8 +233,8 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("Once an appointment is scheduled the name automatically drops off the recall board"); ?>.
 
                 <p><?php echo xlt("The Recalls tab has two buttons New Recall and Recall Board"); ?>.
-                <button type="button" class="btn btn-default btn-sm btn-add oe-no-float"><?php echo xlt("New Recall"); ?></button>
-                <button type="button" class="btn btn-default btn-sm btn-transmit oe-no-float"><?php echo xlt("Recall Board"); ?></button>
+                <button type="button" class="btn btn-secondary btn-sm btn-add oe-no-float"><?php echo xlt("New Recall"); ?></button>
+                <button type="button" class="btn btn-secondary btn-sm btn-transmit oe-no-float"><?php echo xlt("Recall Board"); ?></button>
 
                 <p><strong><?php echo xlt("ADD A NEW RECALL"); ?> :</strong>
 
@@ -259,19 +259,19 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("You could manually edit this date should you choose to or an entirely different date"); ?>.
 
                 <p><?php echo xlt("Fill in the reason and select a provider and clinic and click the Add Recall button to complete the process"); ?>.
-                <button type="button" class="btn btn-default btn-sm btn-add oe-no-float"><?php echo xlt("Add Recall"); ?></button>
+                <button type="button" class="btn btn-secondary btn-sm btn-add oe-no-float"><?php echo xlt("Add Recall"); ?></button>
 
                 <p><strong><?php echo xlt("RECALL BOARD - Default - without MedEx Communication Service"); ?> :</strong>
 
                 <p><?php echo xlt("This fully functional Recall Board included in the default install can be used to add patients to the recall list"); ?>.
 
                 <p><?php echo xlt("To access it click on the Recall Board menu item in the top navigation bar or click on the Recall Board button in the Message Center"); ?>.
-                <button type="button" class="btn btn-default btn-sm btn-transmit oe-no-float"><?php echo xlt("Recall Board"); ?></button>
+                <button type="button" class="btn btn-secondary btn-sm btn-transmit oe-no-float"><?php echo xlt("Recall Board"); ?></button>
 
                 <p><?php echo xlt("The top portion of the Recall Board allows the setting of filters to display specified data"); ?>.
 
                 <p><?php echo xlt("Enter or select the options in the various boxes to filter the results according to need and press Filter"); ?>.
-                <button type="button" class="btn btn-default btn-sm btn-filter oe-no-float"><?php echo xlt("Filter"); ?></button>
+                <button type="button" class="btn btn-secondary btn-sm btn-filter oe-no-float"><?php echo xlt("Filter"); ?></button>
 
                 <p><?php echo xlt("The filtered results will show up in the section below it"); ?>.
 
@@ -328,7 +328,7 @@ require_once("../../interface/globals.php");
                 <p><i class="fa fa-exclamation-triangle  oe-text-red" aria-hidden="true"></i> <strong><?php echo xlt("You need administrator privileges to enable the MedEx Communication Service"); ?>.</strong>
 
                 <p><?php echo xlt("Go to Administration > Globals > Connectors and check the Enable MedEx Communication Service check box and click Save"); ?>.
-                <button type="button" class="btn btn-default btn-sm btn-save oe-no-float"><?php echo xlt("Save"); ?></button>
+                <button type="button" class="btn btn-secondary btn-sm btn-save oe-no-float"><?php echo xlt("Save"); ?></button>
 
                 <p><?php echo xlt("Refresh the Message Center or just reopen it"); ?>.
 

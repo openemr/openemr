@@ -146,7 +146,7 @@ function edih_archive_report($period = '')
                 $str_html .= ($old_ct) ? "<li>Archive date " . text($strdt) . " would archive " . text($old_ct) . " files </li>".PHP_EOL : "";
                 $str_html .= "</ul>".PHP_EOL;
             } else {
-                $str_html .= "<p><em>Type</em> <b>" . text($tp) . "</b> <br> -- empty " . text($tp) . " file directory</p>".PHP_EOL;
+                $str_html .= "<p><em>Type</em> <b>" . text($tp) . "</b> <br /> -- empty " . text($tp) . " file directory</p>".PHP_EOL;
             }
         } else {
             $str_html .= "<p><em>warning</em> <b>" . text($tp) . "</b> file directory does not exist</p>".PHP_EOL;
@@ -742,10 +742,10 @@ function edih_archive_restore($archive_name)
     //
     if (is_file($archdir.DS.$archive_name)) {
         $arch = realpath($archdir.DS.$archive_name);
-        $str_out .= "Archive: restoring " . text($archive_name) . "<br>";
+        $str_out .= "Archive: restoring " . text($archive_name) . "<br />";
         csv_edihist_log("edih_archive_restore: restoring $archive_name");
     } else {
-        $str_out = "Archive: restore archive bad file name " . text($archive_name) . " <br>";
+        $str_out = "Archive: restore archive bad file name " . text($archive_name) . " <br />";
         csv_edihist_log("edih_archive_restore: restore archive bad file name $archive_name");
         return $str_out;
     }
@@ -756,21 +756,21 @@ function edih_archive_restore($archive_name)
     //$res = $zip_obj->open($arch, ZipArchive::CHECKCONS);
     if ($zip_obj->open($arch, ZipArchive::CHECKCONS) === true) {
         $f_ct = $zip_obj->numFiles;
-        $str_out .= "Extracting " . text($f_ct) . " items from " . text($archive_name) . " <br>";
+        $str_out .= "Extracting " . text($f_ct) . " items from " . text($archive_name) . " <br />";
         csv_edihist_log("edih_archive_restore: Extracting $f_ct items from $archive_name");
         $isOK = $zip_obj->extractTo($tmpdir);
         if (!$isOK) {
             $msg = $zip_obj->getStatusString();
             csv_edihist_log("edih_archive_restore: error extracting archive");
-            $str_out .= "Archive: error extracting archive " . text($archive_name) . " <br>";
-            $str_out .= "zipArchive: " . text($msg) . " <br>";
+            $str_out .= "Archive: error extracting archive " . text($archive_name) . " <br />";
+            $str_out .= "zipArchive: " . text($msg) . " <br />";
             return $str_out;
         }
     } else {
         $msg = $zip_obj->getStatusString();
         csv_edihist_log("edih_archive_restore: error opening archive");
-        $str_out .= "Archive: error opening archive <br>".PHP_EOL;
-        $str_out .= "zipArchive: " . text($msg) . " <br>";
+        $str_out .= "Archive: error opening archive <br />".PHP_EOL;
+        $str_out .= "zipArchive: " . text($msg) . " <br />";
         return $str_out;
     }
 
@@ -801,10 +801,10 @@ function edih_archive_restore($archive_name)
 
     //
     csv_edihist_log("edih_archive_restore: types in archive $tpstr");
-    $str_out .= "Archive: types in archive " . text($tpstr) . " <br>".PHP_EOL;
+    $str_out .= "Archive: types in archive " . text($tpstr) . " <br />".PHP_EOL;
     //
     foreach ($type_ar as $ft) {
-        $str_out .= "Archive: now restoring " . text($ft) . "<br>".PHP_EOL;
+        $str_out .= "Archive: now restoring " . text($ft) . "<br />".PHP_EOL;
         csv_edihist_log("edih_archive_restore: now restoring $ft");
         //
         $frows = edih_archive_csv_combine($ft, 'file');
@@ -821,25 +821,25 @@ function edih_archive_restore($archive_name)
             if (is_file($tmpdir.DS.$ft.DS.$fn)) {
                 $rn = rename($tmpdir.DS.$ft.DS.$fn, $bdir.DS.$ft.DS.$fn);
                 if (!$rn) {
-                    $str_out .= " -- error restoring " . text($ft) . DS . text($fn) ."<br>".PHP_EOL;
+                    $str_out .= " -- error restoring " . text($ft) . DS . text($fn) ."<br />".PHP_EOL;
                     csv_edihist_log("edih_archive_restore: error restoring ".$ft.DS.$fn);
                 }
             }
         }
 
         // this will catch the csv files for the particulat type
-        $str_out .= "Archive: now replacing csv tables for " . text($ft) . "<br>".PHP_EOL;
+        $str_out .= "Archive: now replacing csv tables for " . text($ft) . "<br />".PHP_EOL;
         csv_edihist_log("edih_archive_restore: now replacing csv tables for $ft");
         //
         $rnf = rename($tmpdir.DS.'cmb_files_'.$ft.'.csv', $bdir.DS.'csv'.DS.'files_'.$ft.'.csv');
         $rnc = rename($tmpdir.DS.'cmb_claims_'.$ft.'.csv', $bdir.DS.'csv'.DS.'claims_'.$ft.'.csv');
-        $str_out .= ($rnf) ? "" : " -- error restoring files_" . text($ft) . ".csv <br>".PHP_EOL;
-        $str_out .= ($rnc) ? "" : " -- error restoring claims_" . text($ft) . ".csv <br>".PHP_EOL;
+        $str_out .= ($rnf) ? "" : " -- error restoring files_" . text($ft) . ".csv <br />".PHP_EOL;
+        $str_out .= ($rnc) ? "" : " -- error restoring claims_" . text($ft) . ".csv <br />".PHP_EOL;
     }
 
     //
     csv_edihist_log("edih_archive_restore: now removing archive file");
-    $str_out .= "Archive:  now removing archive file <br>".PHP_EOL;
+    $str_out .= "Archive:  now removing archive file <br />".PHP_EOL;
     $rm = unlink($arch);
     if (!$rm) {
         csv_edihist_log("edih_archive_restore: error removing $archdir.DS.$archive_name");
@@ -849,14 +849,14 @@ function edih_archive_restore($archive_name)
     //
     //edih_archive_cleanup($arch_fn, $tp_ar);
     csv_edihist_log("edih_archive_restore: now removing temporary files");
-    $str_out .= "Archive:  now removing temporary files <br>".PHP_EOL;
+    $str_out .= "Archive:  now removing temporary files <br />".PHP_EOL;
     //
 
     $is_clear = csv_clear_tmpdir();
     if ($is_clear) {
-        $str_out .= "Archive: temporary files removed. Process complete.<br>" .PHP_EOL;
+        $str_out .= "Archive: temporary files removed. Process complete.<br />" .PHP_EOL;
     } else {
-        $str_out .= "Archive: still some files in /history/tmp/. Process complete.<br>" .PHP_EOL;
+        $str_out .= "Archive: still some files in /history/tmp/. Process complete.<br />" .PHP_EOL;
     }
 
     //
@@ -924,7 +924,7 @@ function edih_archive_undo()
             if (in_array($fa, $types_ar)) {
                 $fpath = $params[$fa]['directory'];
                 if ($dh = opendir($tmpdir.DS.$fa)) {
-                    $str_out .= "Archive: undo restoring " . text($fa) . " files<br>".PHP_EOL;
+                    $str_out .= "Archive: undo restoring " . text($fa) . " files<br />".PHP_EOL;
                     csv_edihist_log("edih_archive_undo: restoring $fa files");
                     while (false !== ($entry = readdir($dh))) {
                         if ($entry != "." && $entry != "..") {
@@ -1034,7 +1034,7 @@ function edih_archive_cleanup($archivename, $types_ar)
     $fct = 0;
     // move archive file to archive directory
     csv_edihist_log("edih_archive_cleanup: now clearing temporary files");
-    $str_out .= "Archive: now clearing temporary files<br>".PHP_EOL;
+    $str_out .= "Archive: now clearing temporary files<br />".PHP_EOL;
     // delete archived files from edih tmp dir
     foreach ($tdirs as $td) {
         csv_edihist_log("edih_archive_cleanup: cleaning up for $td");
@@ -1111,14 +1111,14 @@ function edih_archive_main($period)
     if (is_dir($archive_dir)) {
         if (is_file($archive_dir.DS.$arch_fn)) {
             csv_edihist_log("edih_archive_main: archive file $arch_fn already exists");
-            $out_html = "Archive: archive file " . text($arch_fn) . " already exists<br>" .PHP_EOL;
+            $out_html = "Archive: archive file " . text($arch_fn) . " already exists<br />" .PHP_EOL;
             return $out_html;
         }
     } else {
         // should have been created at setup
         if (!mkdir($archive_dir, 0755)) {
             csv_edihist_log("edih_archive_main: archive directory does not exist");
-            $out_html = "Archive: archive directory does not exist<br>" .PHP_EOL;
+            $out_html = "Archive: archive directory does not exist<br />" .PHP_EOL;
             return $out_html;
         }
     }
@@ -1209,13 +1209,13 @@ function edih_archive_main($period)
                 if (isset($arch_new['keep'])) {
                     // write the new
                     $frws = edih_archive_rewrite_csv($fn_files_keep, $fh_ar, $arch_new['keep']);
-                    $out_html .= "type " . text($ft) . " keep files_csv file with " . text($frws) . " rows<br>";
+                    $out_html .= "type " . text($ft) . " keep files_csv file with " . text($frws) . " rows<br />";
                 }
 
                 if (isset($arch_new['arch'])) {
                     // write the old
                     $frws2 = edih_archive_rewrite_csv($fn_files_arch, $fh_ar, $arch_new['arch']);
-                    $out_html .= "type " . text($ft) . " archive files_csv file with " . text($frws2) . " rows<br>";
+                    $out_html .= "type " . text($ft) . " archive files_csv file with " . text($frws2) . " rows<br />";
                 }
             } else {
                 $out_html .= "type $ft error creating new files_csv tables";
@@ -1227,16 +1227,16 @@ function edih_archive_main($period)
                 if (isset($arch_new['keep'])) {
                     // write the new
                     $crws = edih_archive_rewrite_csv($fn_claims_keep, $ch_ar, $arch_new['keep']);
-                    $out_html .= "type " . text($ft) . " keep claims_csv file with " . text($crws) . " rows<br>";
+                    $out_html .= "type " . text($ft) . " keep claims_csv file with " . text($crws) . " rows<br />";
                 }
 
                 if (isset($arch_new['arch'])) {
                     // write the old
                     $crws = edih_archive_rewrite_csv($fn_claims_arch, $ch_ar, $arch_new['arch']);
-                    $out_html .= "type " . text($ft) . " archive claims_csv file with " . text($crws) . " rows<br>";
+                    $out_html .= "type " . text($ft) . " archive claims_csv file with " . text($crws) . " rows<br />";
                 }
             } else {
-                $out_html .= "type " . text($ft) . " error creating new claims csv tables<br>";
+                $out_html .= "type " . text($ft) . " error creating new claims csv tables<br />";
             }
 
             // now the csv_records are in files
@@ -1268,15 +1268,15 @@ function edih_archive_main($period)
                 // $rndir = mkdir($tmpdir.DS.$fdir);
                 csv_edihist_log("edih_archive_main: $ft now moving old files ");
                 $del = edih_archive_move_old($p, $fn_ar);
-                $out_html .= "Archive moved " . text($del . " " . $ft) . " type files<br>".PHP_EOL;
+                $out_html .= "Archive moved " . text($del . " " . $ft) . " type files<br />".PHP_EOL;
                 //
             } else {
                 csv_edihist_log("edih_archive_main: type $ft error in creating archive");
-                $out_html .= "type " . text($ft) . " error in creating archive<br>" .PHP_EOL;
+                $out_html .= "type " . text($ft) . " error in creating archive<br />" .PHP_EOL;
             }
         } else {
             csv_edihist_log("edih_archive_main: search found no type $ft files older than $period");
-            $out_html .= "Archive: type " . text($ft) . " archive found no files older than " . text($period) . "<br>" .PHP_EOL;
+            $out_html .= "Archive: type " . text($ft) . " archive found no files older than " . text($period) . "<br />" .PHP_EOL;
         }
     } // end foreach($params as $k=>$p)
     //
@@ -1296,9 +1296,9 @@ function edih_archive_main($period)
     //edih_archive_cleanup($arch_fn, $tp_ar);
     $is_clear = csv_clear_tmpdir();
     if ($is_clear) {
-        $out_html .= "Archive: temporary files removed. Process complete.<br>" .PHP_EOL;
+        $out_html .= "Archive: temporary files removed. Process complete.<br />" .PHP_EOL;
     } else {
-        $out_html .= "Archive: still some files in /history/tmp/. Process complete.<br>" .PHP_EOL;
+        $out_html .= "Archive: still some files in /history/tmp/. Process complete.<br />" .PHP_EOL;
     }
 
     //

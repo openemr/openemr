@@ -73,11 +73,11 @@ echo "<html><head>";
 
 <?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
 
-<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog', 'dygraphs']); ?>
+<?php Header::setupHeader('dygraphs'); ?>
 
 <link rel="stylesheet" href="<?php echo $web_root; ?>/interface/themes/labdata.css" type="text/css">
 
-<script type="text/javascript" language="JavaScript">
+<script>
 function checkAll(bx) {
     for (var tbls=document.getElementsByTagName("table"), i=tbls.length; i--; )
       for (var bxs=tbls[i].getElementsByTagName("input"), j=bxs.length; j--; )
@@ -172,21 +172,21 @@ if ($mode == 'list') {
     echo "checked='checked' ";
 }
 
-    echo " value='list'> " . xlt('List') . "<br>";
+    echo " value='list'> " . xlt('List') . "<br />";
 
     echo "<input type='radio' name='mode' ";
 if ($mode != 'list') {
     echo "checked='checked' ";
 }
 
-    echo " value='matrix'> " . xlt('Matrix') . "<br>";
+    echo " value='matrix'> " . xlt('Matrix') . "<br />";
 
     echo "<td></td></td>";
     echo "</tr><tr>";
     echo "<td>";
 
     echo "<a href='../summary/demographics.php' ";
-    echo " class='css_button' onclick='top.restoreSession()'>";
+    echo " class='btn btn-secondary' onclick='top.restoreSession()'>";
     echo "<span>" . xlt('Back to Patient') . "</span></a>";
 
     echo "</td>";
@@ -194,7 +194,7 @@ if ($mode != 'list') {
     echo "</tr></table>";
     echo "</form>";
 } // end "if printable"
-    echo "<br><br><hr><br>";
+    echo "<br /><br /><hr><br />";
 
 // print results of patient's items
 //-------------------------------------------
@@ -207,7 +207,7 @@ if ($value_select) {
         $i = 0;
         $item_graph = 0;
         $rowspan = count($value_select);
-        echo "<table border='1' cellspacing='3'>";
+        echo "<table class='border' cellspacing='3'>";
         echo "<tr>";
         #echo "<th class='list'>Item</td>";
         echo "<th class='list'>" . xlt('Name') . "</th> ";
@@ -276,11 +276,11 @@ if ($value_select) {
 
             if ($value_count > 1 && !$printable) {
                 echo "<tr><td colspan='7' align='center'>";
-                echo "<input type='button' class='graph_button'  onclick='get_my_graph" . attr($item_graph) . "()' name='' value='" . xla('Plot item') . " \"" . attr($the_item) . "\"'>";
+                echo "<input type='button' class='graph_button btn btn-secondary' onclick='get_my_graph" . attr($item_graph) . "()' name='' value='" . xla('Plot item') . " \"" . attr($the_item) . "\"'>";
                 echo "</td></tr>";
             }
             ?>
-            <script type="text/javascript">
+            <script>
             // prepare to plot the stuff
             top.restoreSession();
             function get_my_graph<?php echo attr($item_graph) ?>(){
@@ -325,7 +325,7 @@ if ($value_select) {
             $item_graph++;
         }
 
-        echo "</table><br>";
+        echo "</table><br />";
     }// end if mode = list
 
     //##########################################################################################################################
@@ -373,7 +373,7 @@ if ($value_select) {
         $itemcount = count($value_matrix);
 
         // print matrix
-        echo "<table border='1' cellpadding='2'>";
+        echo "<table class='border' cellpadding='2'>";
         echo "<tr>";
         #echo "<th class='matrix'>Item</th>";
         echo "<th class='matrix'>" . xlt('Name') . "</th>";
@@ -453,8 +453,8 @@ if (!$printable) {
 
         echo "<input type='submit' name='print' value='" . xla('View Printable Version') . "' />";
         echo "</form>";
-        echo "<br><a href='../summary/demographics.php' ";
-        echo " class='css_button' onclick='top.restoreSession()'>";
+        echo "<br /><a href='../summary/demographics.php' ";
+        echo " class='btn btn-secondary' onclick='top.restoreSession()'>";
         echo "<span>" . xlt('Back to Patient') . "</span></a>";
     }
 } else {
@@ -462,7 +462,7 @@ if (!$printable) {
 }
 
 echo "</span>";
-echo "<br><br>";
+echo "<br /><br />";
 echo "</div>";
 echo "</body></html>";
 ?>

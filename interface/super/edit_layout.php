@@ -851,7 +851,7 @@ function writeFieldLine($linedata)
     }
 
     // The "?" to click on for yet more field attributes.
-    echo "  <td class='bold' id='querytd_" . attr($fld_line_no) . "' style='cursor:pointer;";
+    echo "  <td class='font-weight-bold' id='querytd_" . attr($fld_line_no) . "' style='cursor:pointer;";
     if (!empty($linedata['conditions']) || !empty($linedata['validation'])) {
         echo "background-color:#77ff77;";
     }
@@ -876,7 +876,7 @@ function writeFieldLine($linedata)
       "z-index:1000;left:-1000px;top:0px;font-size:8pt;'>\n" .
       "<table width='100%'>\n" .
       " <tr>\n" .
-      "  <th colspan='3' align='left' class='bold'>" .
+      "  <th colspan='3' align='left' class='font-weight-bold'>" .
       xlt('For') . " " . text($linedata['field_id']) . " " .
       "<select name='fld[" . attr($fld_line_no) . "][action]' onchange='actionChanged(" . attr_js($fld_line_no) . ")'>" .
       "<option value='skip'  " . ($action == 'skip' ? 'selected' : '') . ">" . xlt('hide this field') . "</option>" .
@@ -889,11 +889,11 @@ function writeFieldLine($linedata)
       "value='" . xla('Close') . "' onclick='extShow(" . attr_js($fld_line_no) . ", false)' />&nbsp;</th>\n" .
       " </tr>\n" .
       " <tr>\n" .
-      "  <th align='left' class='bold'>" . xlt('Field ID') . "</th>\n" .
-      "  <th align='left' class='bold'>" . xlt('List item ID') . "</th>\n" .
-      "  <th align='left' class='bold'>" . xlt('Operator') . "</th>\n" .
-      "  <th align='left' class='bold'>" . xlt('Value if comparing') . "</th>\n" .
-      "  <th align='left' class='bold'>&nbsp;</th>\n" .
+      "  <th align='left' class='font-weight-bold'>" . xlt('Field ID') . "</th>\n" .
+      "  <th align='left' class='font-weight-bold'>" . xlt('List item ID') . "</th>\n" .
+      "  <th align='left' class='font-weight-bold'>" . xlt('Operator') . "</th>\n" .
+      "  <th align='left' class='font-weight-bold'>" . xlt('Value if comparing') . "</th>\n" .
+      "  <th align='left' class='font-weight-bold'>&nbsp;</th>\n" .
       " </tr>\n";
     // There may be multiple condition lines for each field.
     foreach ($conditions as $i => $condition) {
@@ -970,11 +970,11 @@ function writeFieldLine($linedata)
 
     $extra_html .=  "<table width='100%'>\n" .
     " <tr>\n" .
-    "  <td colspan='3' align='left' class='bold'>\"" . text($linedata['field_id']) . "\" " .
+    "  <td colspan='3' align='left' class='font-weight-bold'>\"" . text($linedata['field_id']) . "\" " .
     xlt('will have the following validation rules') . ":</td>\n" .
     " </tr>\n" .
     " <tr>\n" .
-    "  <td align='left' class='bold'>" . xlt('Validation rule') . "  </td>\n" .
+    "  <td align='left' class='font-weight-bold'>" . xlt('Validation rule') . "  </td>\n" .
     " </tr>\n".
     " <tr>\n" .
     "  <td align='left' title='" . xla('Select a validation rule') . "'>\n" .
@@ -1013,17 +1013,40 @@ function writeFieldLine($linedata)
 <title><?php echo xlt('Layout Editor'); ?></title>
 
 <style>
-.orgTable tr.head   { font-size:8pt; background-color:#cccccc; }
-.orgTable tr.detail { font-size:8pt; }
-.orgTable td        { font-size:8pt; }
-.orgTable input     { font-size:8pt; }
-.orgTable select    { font-size:8pt; }
-a, a:visited, a:hover { color:#0000cc; }
-.optcell  { }
-.optin    { background: transparent; }
+.orgTable tr.head {
+    font-size: 11px;
+    background-color: var(--gray400);
+}
+
+.orgTable tr.detail {
+    font-size: 11px;
+}
+
+.orgTable td {
+    font-size: 11px;
+}
+
+.orgTable input {
+    font-size: 11px;
+}
+
+.orgTable select {
+    font-size: 11px;
+}
+
+a,
+a:visited,
+a:hover {
+    color: var(--primary);
+}
+
+.optin {
+    background: transparent;
+}
+
 .group {
-    margin: 0pt 0pt 8pt 0pt;
-    padding :0pt;
+    margin: 0 0 11px 0;
+    padding: 0;
     width: 100%;
 }
 
@@ -1032,46 +1055,72 @@ a, a:visited, a:hover { color:#0000cc; }
     width: 100%;
 
 }
+
 .orgTable .odd td {
-    background-color: #ddddff;
+    background-color: var(--gray300);
     padding: 3px 0px 3px 0px;
 }
+
 .orgTable .even td {
-    background-color: #ffdddd;
+    background-color: var(--light);
     padding: 3px 0px 3px 0px;
 }
-.help { cursor: help; }
-.layouts_title { font-size: 110%; }
+
+.help {
+    cursor: help;
+}
+
+.layouts_title {
+    font-size: 110%;
+}
+
 .translation {
-    color: green;
-    font-size:8pt;
+    color: var(--success);
+    font-size: 11px;
 }
+
 .highlight * {
-    border: 2px solid blue;
-    background-color: yellow;
-    color: black;
+    border: 2px solid var(--primary);
+    background-color: var(--yellow);
+    color: var(--black);
 }
+
 .select2-container--default .select2-selection--multiple {
     cursor: pointer;
 }
+
 .select2-search__field {
     cursor: pointer;
     width: 0 !important;
 }
+
 .select2-selection__choice {
     font-size: 12px;
 }
+
 .select2-container {
     cursor: pointer;
     opacity: 0.99 !important;
 }
+
 .select2-dropdown {
     opacity: 0.99 !important;
 }
+
 .tips {
     display: none;
 }
 
+.select2-container--default .select2-selection--multiple {
+    background-color: var(--white) !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: var(--light) !important;
+}
+.optin {
+    color: var(--black) !important;
+}
 </style>
 
 <script>
@@ -1299,7 +1348,7 @@ function myChangeCheck() {
 <div class="menubar" style='padding:5px 0;'>
 
 <b><?php echo xlt('Edit layout'); ?>:</b>&nbsp;
-<select name='layout_id' id='layout_id' class='form-control' style='display:inline-block;margin-bottom:5px;width:20%;'>
+<select name='layout_id' id='layout_id' class='form-control form-control-sm' style='display:inline-block;margin-bottom:5px;width:20%;'>
  <option value=''>-- <?php echo xlt('Select') ?> --</option>
 <?php
 $lastgroup = '';
@@ -1324,25 +1373,25 @@ if ($lastgroup) {
 </select>
 
 <?php if ($layout_id) { ?>
-<input type='button' value='<?php echo xla('Layout Properties'); ?>' onclick='edit_layout_props("")' />&nbsp;
-<input type='button' class='addgroup'  id='addgroup'  value='<?php echo xla('Add Group'); ?>' />
+<input type='button' class='btn btn-secondary btn-sm' value='<?php echo xla('Layout Properties'); ?>' onclick='edit_layout_props("")' />&nbsp;
+<input type='button' class='btn btn-secondary btn-sm addgroup' id='addgroup' value='<?php echo xla('Add Group'); ?>' />
 <span style="font-size:90%"> &nbsp;
-<input type='button' class="btn btn-danger" name='save' id='save' value='<?php echo xla('Save Changes'); ?>' /></span> &nbsp;&nbsp;
+<input type='button' class="btn btn-danger btn-sm" name='save' id='save' value='<?php echo xla('Save Changes'); ?>' /></span> &nbsp;&nbsp;
     <?php echo xlt('With selected:');?>
-<input type='button' name='deletefields' id='deletefields' value='<?php echo xla('Delete'); ?>' style="font-size:90%" disabled="disabled" />
-<input type='button' name='movefields' id='movefields' value='<?php echo xla('Move to...'); ?>' style="font-size:90%" disabled="disabled" />
-<input type='button' value='<?php echo xla('Tips'); ?>' onclick='$("#tips").toggle();' />&nbsp;
-<input type='button' value='<?php echo xla('Encounter Preview'); ?>' onclick='layoutLook();' />
+<input type='button' class='btn btn-secondary btn-sm' name='deletefields' id='deletefields' value='<?php echo xla('Delete'); ?>' disabled="disabled" />
+<input type='button' class='btn btn-secondary btn-sm' name='movefields' id='movefields' value='<?php echo xla('Move to...'); ?>' disabled="disabled" />
+<input type='button' class='btn btn-secondary btn-sm' value='<?php echo xla('Tips'); ?>' onclick='$("#tips").toggle();' />&nbsp;
+<input type='button' class='btn btn-secondary btn-sm' value='<?php echo xla('Encounter Preview'); ?>' onclick='layoutLook();' />
 
 <?php } else { ?>
-<input type='button' value='<?php echo xla('New Layout'); ?>' onclick='edit_layout_props("")' />&nbsp;
+<input type='button' class='btn btn-primary btn-sm' value='<?php echo xla('New Layout'); ?>' onclick='edit_layout_props("")' />&nbsp;
 <?php } ?>
 
-<div id="tips" class="container tips"><section class="panel panel-primary">
-  <header class="panel-heading">
-   <h3 class="panel-title"><?php echo xlt('Usage Tips') ?></h3>
+<div id="tips" class="container tips"><section class="card bg-light p-3">
+  <header class="card-heading">
+   <h3 class="card-title"><?php echo xlt('Usage Tips') ?></h3>
   </header>
-  <div class="panel-body">
+  <div class="card-body">
    <ul>
 <?php
     echo "<li>" . xlt("Clicking Options will present a multiselection drop menu to add behaviors to the selected data type. Typing after pull down activates allows search in options.") . "</li>";
@@ -1358,7 +1407,7 @@ if ($lastgroup) {
     echo "<li>" . xlt("Please see http://www.open-emr.org/wiki/index.php/LBV_Forms for more on this topic") . "</li>";
 ?>
    </ul>
-   <button class='btn btn-xs btn-success pull-right' onclick='$("#tips").toggle();return false;'><?php echo xlt('Dismiss')?></button>
+   <button class='btn btn-success btn-sm float-right' onclick='$("#tips").toggle();return false;'><?php echo xlt('Dismiss')?></button>
   </div>
 </section></div></div>
 <?php
@@ -1382,7 +1431,7 @@ while ($row = sqlFetchArray($res)) {
         } else { // making first group flag useful for maintaining top fixed nav bar.
             echo "<div id='" . attr($group_id) . "' class='group' style='padding-top:40px'>";
         }
-        echo "<div class='text bold layouts_title' style='position:relative; background-color: #c9dbf2;'>";
+        echo "<div class='text font-weight-bold layouts_title p-2 bg-light' style='position:relative;'>";
 
         // Get the fully qualified descriptive name of this group (i.e. including ancestor names).
         $gdispname = '';
@@ -1403,23 +1452,23 @@ while ($row = sqlFetchArray($res)) {
         }
 
         echo "&nbsp; ";
-        echo " <input type='button' class='addfield' id='addto~" . attr($group_id) . "' value='" . xla('Add Field') . "'/>";
+        echo " <input type='button' class='btn btn-primary btn-sm addfield' id='addto~" . attr($group_id) . "' value='" . xla('Add Field') . "'/>";
         echo "&nbsp; &nbsp; ";
-        echo " <input type='button' class='renamegroup' id='" . attr($group_id) . "~" . attr($gmyname) . "' value='" . xla('Rename Group') . "'/>";
+        echo " <input type='button' class='btn btn-secondary btn-sm renamegroup' id='" . attr($group_id) . "~" . attr($gmyname) . "' value='" . xla('Rename Group') . "'/>";
         /******************************************************************
         echo "&nbsp; &nbsp; ";
         echo " <input type='button' class='deletegroup' id='" . attr($group_id) . "' value='" . xla('Delete Group') . "'/>";
         ******************************************************************/
         echo "&nbsp; &nbsp; ";
-        echo " <input type='button' class='movegroup' id='" . attr($group_id) . "~up' value='" . xla('Move Up') . "'/>";
+        echo " <input type='button' class='btn btn-secondary btn-sm movegroup' id='" . attr($group_id) . "~up' value='" . xla('Move Up') . "'/>";
         echo "&nbsp; &nbsp; ";
-        echo " <input type='button' class='movegroup' id='" . attr($group_id) . "~down' value='" . xla('Move Down') . "'/>";
+        echo " <input type='button' class='btn btn-secondary btn-sm movegroup' id='" . attr($group_id) . "~down' value='" . xla('Move Down') . "'/>";
         echo "&nbsp; &nbsp; ";
-        echo "<input type='button' value='" . xla('Group Properties') . "' onclick='edit_layout_props(" . attr_js($group_id) . ")' />";
+        echo "<input type='button' class='btn btn-secondary btn-sm' value='" . xla('Group Properties') . "' onclick='edit_layout_props(" . attr_js($group_id) . ")' />";
         echo "</div>";
         $firstgroup = false;
         ?>
-  <table class='table table-condensed table-striped'>
+  <table class='table table-sm table-striped'>
   <thead>
    <tr class='head'>
     <th style='width:1%'><?php echo xlt('Order{{Sequence}}'); ?></th>
@@ -1465,30 +1514,32 @@ while ($row = sqlFetchArray($res)) {
 </form>
 
 <!-- template DIV that appears when user chooses to rename an existing group -->
-<div id="renamegroupdetail"
- style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: lightgrey;">
+<div id="renamegroupdetail" class="bg-light p-3" style="border: 1px solid black; display: none; visibility: hidden;">
 <input type="hidden" name="renameoldgroupname" id="renameoldgroupname" value="" />
-<?php echo xlt('Group Name'); ?>:
-<input type="text" size="20" maxlength="30" name="renamegroupname" id="renamegroupname" />
-&nbsp;&nbsp;
-<?php echo xlt('Parent'); ?>:
-<?php echo genGroupSelector('renamegroupparent', $layout_id); ?>
-<br>
-<input type="button" class="saverenamegroup .btn-save" value="<?php echo xla('Rename Group'); ?>" />
-<input type="button" class="cancelrenamegroup" value="<?php echo xla('Cancel'); ?>" />
+<div class="form-group">
+    <label for="renamegroupname"><?php echo xlt('Group Name'); ?>:</label>
+    <input type="text" class="form-control" size="20" maxlength="30" name="renamegroupname" id="renamegroupname" />
+</div>
+<div class="form-group">
+    <label for="renamegroupparent"><?php echo xlt('Parent'); ?>:</label>
+    <?php echo genGroupSelector('renamegroupparent', $layout_id); ?>
+</div>
+<div class="btn-group">
+    <input type="button" class="btn btn-primary btn-sm saverenamegroup btn-save" value="<?php echo xla('Rename Group'); ?>" />
+    <input type="button" class="btn btn-secondary btn-sm cancelrenamegroup" value="<?php echo xla('Cancel'); ?>" />
+</div>
 </div>
 
 <!-- template DIV that appears when user chooses to add a new group -->
-<div id="groupdetail"
- style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: lightgrey;">
-<span class='bold'>
+<div id="groupdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: var(--gray);">
+<span class='font-weight-bold'>
 <?php echo xlt('Group Name'); ?>:
 <input type="text" size="20" maxlength="30" name="newgroupname" id="newgroupname" />
 &nbsp;&nbsp;
 <?php echo xlt('Parent'); ?>:
 <?php echo genGroupSelector('newgroupparent', $layout_id); ?>
-<br>
-<table class='table table-condensed table-striped' style="border-collapse: collapse; margin-top: 5px;">
+<br />
+<table class='table table-sm table-striped' style="border-collapse: collapse; margin-top: 5px;">
 <thead>
  <tr class='head'>
   <th style='width:1%'><?php echo xlt('Order{{Sequence}}'); ?></th>
@@ -1509,7 +1560,7 @@ while ($row = sqlFetchArray($res)) {
 </thead>
 <tbody>
 <tr class='center'>
-<td ><input type="text" name="gnewseq" id="gnewseq" value="" size="2" maxlength="4"> </td>
+<td><input type="text" name="gnewseq" id="gnewseq" value="" size="2" maxlength="4" /> </td>
 <td<?php echo " $lbfonly"; ?>>
 <select class='form-control' name='gnewsource' id='gnewsource'>
 <?php
@@ -1520,8 +1571,8 @@ foreach ($sources as $key => $value) {
 </select>
 </td>
 <td><input type="text" name="gnewid" id="gnewid" value="" size="10" maxlength="20"
-     onclick='FieldIDClicked(this)'> </td>
-<td><input type="text" name="gnewtitle" id="gnewtitle" value="" size="20" maxlength="63"> </td>
+     onclick='FieldIDClicked(this)' /> </td>
+<td><input type="text" name="gnewtitle" id="gnewtitle" value="" size="20" maxlength="63" /> </td>
 <td>
 <select class='form-control' name="gnewuor" id="gnewuor">
 <option value="0"><?php echo xlt('Unused'); ?></option>
@@ -1540,10 +1591,10 @@ foreach ($datatypes as $key => $value) {
 ?>
 </select>
 </td>
-<td><input type="text" name="gnewlengthWidth" id="gnewlengthWidth" value="" size="1" maxlength="3" title="<?php echo xla('Width'); ?>">
-    <input type="text" name="gnewlengthHeight" id="gnewlengthHeight" value="" size="1" maxlength="3" title="<?php echo xla('Height'); ?>"></td>
-<td><input type="text" name="gnewmaxSize" id="gnewmaxSize" value="" size="1" maxlength="3" title="<?php echo xla('Maximum Size (entering 0 will allow any size)'); ?>"></td>
-<td><input type="text" name="gnewlistid" id="gnewlistid" value="" size="8" maxlength="100" class="listid">
+<td><input type="text" name="gnewlengthWidth" id="gnewlengthWidth" value="" size="1" maxlength="3" title="<?php echo xla('Width'); ?>" />
+    <input type="text" name="gnewlengthHeight" id="gnewlengthHeight" value="" size="1" maxlength="3" title="<?php echo xla('Height'); ?>" /></td>
+<td><input type="text" name="gnewmaxSize" id="gnewmaxSize" value="" size="1" maxlength="3" title="<?php echo xla('Maximum Size (entering 0 will allow any size)'); ?>" /></td>
+<td><input type="text" name="gnewlistid" id="gnewlistid" value="" size="8" maxlength="100" class="listid" />
     <select class='form-control' name='gcontextName' id='gcontextName' style='display:none'>
         <?php
         $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
@@ -1553,25 +1604,25 @@ foreach ($datatypes as $key => $value) {
         ?>
     </select>
 </td>
-<td><input type="text" name="gnewbackuplistid" id="gnewbackuplistid" value="" size="8" maxlength="100" class="listid"></td>
-<td><input type="text" name="gnewtitlecols" id="gnewtitlecols" value="" size="3" maxlength="3"> </td>
-<td><input type="text" name="gnewdatacols" id="gnewdatacols" value="" size="3" maxlength="3"> </td>
-<td><select name="gnewedit_options[]" id="gnewedit_options" class="typeAddons" multiple style='width:100%' value="" size="3"></select>
+<td><input type="text" name="gnewbackuplistid" id="gnewbackuplistid" value="" size="8" maxlength="100" class="listid" /></td>
+<td><input type="text" name="gnewtitlecols" id="gnewtitlecols" value="" size="3" maxlength="3" /> </td>
+<td><input type="text" name="gnewdatacols" id="gnewdatacols" value="" size="3" maxlength="3" /> </td>
+<td><select name="gnewedit_options[]" id="gnewedit_options" class="w-100 typeAddons" multiple value="" size="3"></select>
     <input type="hidden"  name="gnewdefault" id="gnewdefault" value="" /> </td>
-<td><input type="text" name="gnewdesc" id="gnewdesc" value="" size="30"> </td>
+<td><input type="text" name="gnewdesc" id="gnewdesc" value="" size="30" /> </td>
 </tr>
 </tbody>
 </table>
-<br>
-<input type="button" class="savenewgroup" value='<?php echo xla('Save New Group'); ?>'>
-<input type="button" class="cancelnewgroup" value='<?php echo xla('Cancel'); ?>'>
+<br />
+<input type="button" class="btn btn-primary btn-sm savenewgroup" value='<?php echo xla('Save New Group'); ?>' />
+<input type="button" class="btn btn-secondary btn-sm cancelnewgroup" value='<?php echo xla('Cancel'); ?>'>
 </span>
 </div>
 
 <!-- template DIV that appears when user chooses to add a new field to a group -->
 <div id="fielddetail" class="fielddetail" style="display: none; visibility: hidden">
 <input type="hidden" name="newfieldgroupid" id="newfieldgroupid" value="">
-<table class="table table-condensed" style="border-collapse: collapse;">
+<table class="table table-sm" style="border-collapse: collapse;">
  <thead>
   <tr class='head'>
    <th style='width:1%'><?php echo xlt('Order{{Sequence}}'); ?></th>
@@ -1592,7 +1643,7 @@ foreach ($datatypes as $key => $value) {
  </thead>
  <tbody>
   <tr class='center'>
-   <td ><input type="text" name="newseq" id="newseq" value="" size="2" maxlength="4"> </td>
+   <td><input type="text" name="newseq" id="newseq" value="" size="2" maxlength="4" /> </td>
    <td<?php echo " $lbfonly"; ?>>
     <select class='form-control' name='newsource' id='newsource'>
 <?php
@@ -1602,9 +1653,8 @@ foreach ($sources as $key => $value) {
 ?>
     </select>
    </td>
-   <td ><input type="text" name="newid" id="newid" value="" size="10" maxlength="20"
-         onclick='FieldIDClicked(this)'> </td>
-   <td><input type="text" name="newtitle" id="newtitle" value="" size="20" maxlength="63"> </td>
+   <td ><input type="text" name="newid" id="newid" value="" size="10" maxlength="20" onclick='FieldIDClicked(this)' /> </td>
+   <td><input type="text" name="newtitle" id="newtitle" value="" size="20" maxlength="63" /> </td>
    <td>
     <select class='form-control' name="newuor" id="newuor">
      <option value="0"><?php echo xlt('Unused'); ?></option>
@@ -1623,10 +1673,10 @@ foreach ($datatypes as $key => $value) {
 ?>
     </select>
    </td>
-   <td><input type="text" name="newlengthWidth" id="newlengthWidth" value="" size="1" maxlength="3" title="<?php echo xla('Width'); ?>">
-       <input type="text" name="newlengthHeight" id="newlengthHeight" value="" size="1" maxlength="3" title="<?php echo xla('Height'); ?>"></td>
-   <td><input type="text" name="newmaxSize" id="newmaxSize" value="" size="1" maxlength="3" title="<?php echo xla('Maximum Size (entering 0 will allow any size)'); ?>"></td>
-   <td><input type="text" name="newlistid" id="newlistid" value="" size="8" maxlength="31" class="listid">
+   <td><input type="text" name="newlengthWidth" id="newlengthWidth" value="" size="1" maxlength="3" title="<?php echo xla('Width'); ?>" />
+       <input type="text" name="newlengthHeight" id="newlengthHeight" value="" size="1" maxlength="3" title="<?php echo xla('Height'); ?>" /></td>
+   <td><input type="text" name="newmaxSize" id="newmaxSize" value="" size="1" maxlength="3" title="<?php echo xla('Maximum Size (entering 0 will allow any size)'); ?>" /></td>
+   <td><input type="text" name="newlistid" id="newlistid" value="" size="8" maxlength="31" class="listid" />
        <select class='form-control' name='contextName' id='contextName' style='display:none'>
         <?php
         $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
@@ -1636,24 +1686,23 @@ foreach ($datatypes as $key => $value) {
         ?>
        </select>
    </td>
-   <td><input type="text" name="newbackuplistid" id="newbackuplistid" value="" size="8" maxlength="31" class="listid"></td>
-   <td><input type="text" name="newtitlecols" id="newtitlecols" value="" size="3" maxlength="3"> </td>
-   <td><input type="text" name="newdatacols" id="newdatacols" value="" size="3" maxlength="3"> </td>
-   <td><select name="newedit_options[]" id="newedit_options"  multiple class='typeAddons'  style='width:100%'></select>
+   <td><input type="text" name="newbackuplistid" id="newbackuplistid" value="" size="8" maxlength="31" class="listid" /></td>
+   <td><input type="text" name="newtitlecols" id="newtitlecols" value="" size="3" maxlength="3" /> </td>
+   <td><input type="text" name="newdatacols" id="newdatacols" value="" size="3" maxlength="3" /> </td>
+   <td><select name="newedit_options[]" id="newedit_options"  multiple class='typeAddons w-100'></select>
        <input type="hidden"  name="newdefault" id="newdefault" value="" /> </td>
    <td><input type="text" name="newdesc" id="newdesc" value="" size="30"> </td>
   </tr>
   <tr>
    <td colspan="9">
-    <input type="button" class="savenewfield" value='<?php echo xla('Save New Field'); ?>'>
-    <input type="button" class="cancelnewfield" value='<?php echo xla('Cancel'); ?>'>
+    <input type="button" class="btn btn-primary btn-sm savenewfield" value='<?php echo xla('Save New Field'); ?>'>
+    <input type="button" class="btn btn-secondary btn-sm cancelnewfield" value='<?php echo xla('Cancel'); ?>'>
    </td>
   </tr>
  </tbody>
 </table>
 </div>
 </div>
-</body>
 
 <script>
 /* Field modifier objects - heading towards context based.
@@ -2251,5 +2300,5 @@ function IsNumeric(value, min, max) {
 function IsN(num) { return !/\D/.test(num); }
 
 </script>
-
+</body>
 </html>

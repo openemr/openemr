@@ -130,7 +130,7 @@ $ptid = lookup_openemr_patient($userlogin);
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_dialog']); ?>
+<?php Header::setupHeader(); ?>
 
 <style>
 

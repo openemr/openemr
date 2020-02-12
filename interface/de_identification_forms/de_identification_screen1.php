@@ -19,6 +19,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt('Not authorized'));
@@ -29,12 +30,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 <html>
 <head>
 <title><?php echo xlt('De Identification'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+    <?php Header::setupHeader('datetime-picker'); ?>
 <style type="text/css">
 .style1 {
     text-align: center;
@@ -271,11 +267,11 @@ if (empty($row)) {
     <tr valign="top">
        <td>&nbsp;</td>
        <td rowspan="3">
-       <br>
+       <br />
         <?php echo xlt('Please upgrade OpenEMR Database to include De Identification procedures, function, tables'); ?>
-    </br></br><a  target="Blank" href="../../contrib/util/de_identification_upgrade.php"><?php echo xlt('Click here');?></a>
+    <br /><br /><a  target="Blank" href="../../contrib/util/de_identification_upgrade.php"><?php echo xlt('Click here');?></a>
     <?php echo xlt('to run');
-      echo " de_identification_upgrade.php</br>";?><br>
+      echo " de_identification_upgrade.php<br />";?><br />
         </td>
         <td>&nbsp;</td>
     </tr>
@@ -312,11 +308,11 @@ if (empty($row)) {
     <tr valign="top">
         <td>&nbsp;</td>
         <td rowspan="3">
-        <br>
+        <br />
         <?php echo xlt('De Identification Process is ongoing');
-          echo "</br></br>";
+          echo "<br /><br />";
           echo xlt('Please visit De Identification screen after some time');
-        echo "</br>";   ?>      <br>
+        echo "<br />";   ?>      <br />
            </td>
            <td>&nbsp;</td>
        </tr>
@@ -351,11 +347,11 @@ if (empty($row)) {
 
         <td>&nbsp;</td>
         <td rowspan="3">
-        <br>
+        <br />
             <?php echo xlt('No Patient record found for given Selection criteria');
-            echo "</br></br>";
+            echo "<br /><br />";
             echo xlt('Please start new De Identification process');
-            echo "</br>"; ?> </br>
+            echo "<br />"; ?> <br />
           </td>
           <td>&nbsp;</td>
       </tr>
@@ -377,11 +373,11 @@ if (empty($row)) {
         <tr valign="top">
         <td>&nbsp;</td>
         <td rowspan="3">
-        <br>
+        <br />
             <?php echo xlt('De Identification Process is completed');
-            echo "</br></br>";
+            echo "<br /><br />";
             echo xlt('Please Click download button to download the De Identified data');
-            echo "</br>";    ?>      <br>
+            echo "<br />";    ?>      <br />
            </td>
            <td>&nbsp;</td>
        </tr>
@@ -407,13 +403,13 @@ if (empty($row)) {
         <tr valign="top">
         <td>&nbsp;</td>
         <td rowspan="3">
-        <br>
+        <br />
         <?php echo xlt('Some error has occured during De Identification Process');
-          echo "</br></br>";
+          echo "<br /><br />";
           echo xlt('De Identified data may not be complete');
-          echo "</br></br>";
+          echo "<br /><br />";
         ?><span class="text"><?php echo xlt('Please view De Identification error log table for more details');
-    echo "</br>";   ?></span>   <br>
+    echo "<br />";   ?></span>   <br />
            </td>
            <td>&nbsp;</td>
        </tr>
@@ -468,7 +464,7 @@ if (empty($row)) {
                 <input type="checkbox" name="prescriptions" id="prescriptions" value="prescriptions"><span class="text"><?php echo xlt('Prescriptions'); ?></span>
 
   &nbsp;</td>     <br />
-                <td><br>
+                <td><br />
                 <input type="checkbox" name="lists" id="lists" value="lists"><span class="text"><?php echo xlt('Issues'); ?> </span><br />
                 <input type="checkbox" name="transactions" id="transactions" value="transactions"><span class="text"><?php echo xlt('Transactions'); ?></span>
                 <br />
@@ -483,7 +479,7 @@ if (empty($row)) {
     </tr>
     <tr>
         <td>&nbsp;</td>
-        <td colspan="2"><br>
+        <td colspan="2"><br />
         </td>
         <td>&nbsp;</td>
     </tr>
@@ -504,7 +500,7 @@ if (empty($row)) {
                 <!--drugs--><span class="text"><?php echo xlt('Enter Drugs'); ?></span>
                 <input type="radio" id="drugs" name="drugs" value="all"); onclick="disable_controls('drugs')"/><span class="text"> <?php echo xlt('All'); ?></span>
                 <input type="radio" id="drugs" name="drugs" value="select_drug" onclick="enable_controls('drugs')" />
-                <span class="text"><?php echo xlt('Select Drugs'); ?> <br></span>
+                <span class="text"><?php echo xlt('Select Drugs'); ?> <br /></span>
                 <select id="drug_list" name="drug_list" size="10" style="width: 60%">
                 </select>
 
@@ -523,16 +519,16 @@ if (empty($row)) {
     <tr>
         <td>&nbsp;</td>
         <td colspan="2" class="style1">
-        <!--immunizations--><br>
+        <!--immunizations--><br />
         <span class="text"><?php echo xlt('Enter Immunizations'); ?></span>
         <input type="radio" id="immunizations" name="immunizations" value="all" onclick="disable_controls('immunizations')"/><span class="text"> <?php echo xlt('All'); ?></span>
         <input type="radio" id="immunizations" name="immunizations" value="select_immunization" onclick="enable_controls('immunizations')" />
-        <span class="text"><?php echo xlt('Select Immunizations'); ?></span> <br>
+        <span class="text"><?php echo xlt('Select Immunizations'); ?></span> <br />
         <select id="immunization_list" name="immunization_list" size="10" width="300" style="width: 30%">
-        </select> <br>
+        </select> <br />
         <input type="button" name="add_immunization" id="add_immunization" value="<?php echo xla("Add Immunization"); ?>" onclick="get_values('immunizations')">
         <input type="button" name="remove_immunization" id="remove_immunization" value="<?php echo xla("Remove"); ?>" onclick="remove_selected('immunizations')">
-        <br>
+        <br />
   &nbsp;</td>
         <td>&nbsp;</td>
     </tr>
@@ -543,8 +539,8 @@ if (empty($row)) {
         <td>&nbsp;</td>
     </tr>
 
-    <input type="hidden" name="diagnosis_text" id="diagnosis_text"><br>
-        <input type="hidden" name="drug_text" id="drug_text"><br>
+    <input type="hidden" name="diagnosis_text" id="diagnosis_text"><br />
+        <input type="hidden" name="drug_text" id="drug_text"><br />
         <input type="hidden" name="immunization_text" id="immunization_text">
   </table>
         <?php

@@ -15,7 +15,7 @@
 {headerTemplate assets='no_textformat|no_dialog'}
 
 {literal}
-<script language="javascript">
+<script>
 
 function changeLinkHref(id,addValue,value) {
     var myRegExp = new RegExp(":" + value + ":");
@@ -147,39 +147,39 @@ $(function(){
 <form name="presc">
 
 <div id="print_links">
-    <table width="100%">
+    <table class="w-100">
         <tr>
             <td align="left">
                 <table>
                     <tr>
                         <td>
                         {if $GLOBALS.rx_zend_pdf_template}
-                            <a target="_blank" id="multiprint" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-pdf-template/{$GLOBALS.rx_zend_pdf_action}?id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xlt t='Download'} ({xlt t='PDF'})</span></a>
+                            <a target="_blank" id="multiprint" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-pdf-template/{$GLOBALS.rx_zend_pdf_action}?id={$printm|attr_url}" onclick="top.restoreSession()" class="btn btn-primary">{xlt t='Download'} ({xlt t='PDF'})</a>
                         {else}
-                            <a id="multiprint" href="{$CONTROLLER}prescription&multiprint&id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xlt t='Download'} ({xl t='PDF'})</span></a>
+                            <a id="multiprint" href="{$CONTROLLER}prescription&multiprint&id={$printm|attr_url}" onclick="top.restoreSession()" class="btn btn-primary">{xlt t='Download'} ({xl t='PDF'})</a>
                         {/if}
                         </td>
                         <td>
                         {if $GLOBALS.rx_zend_html_template}
-                            <a target="_blank" id="multiprintcss" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-html-template/{$GLOBALS.rx_zend_html_action}?id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xl t='View Printable Version'|text} ({xlt t='HTML'})</span></a>
+                            <a target="_blank" id="multiprintcss" href="{$GLOBALS.webroot}/{$GLOBALS.baseModDir}{$GLOBALS.zendModDir}/public/prescription-html-template/{$GLOBALS.rx_zend_html_action}?id={$printm|attr_url}" onclick="top.restoreSession()" class="btn btn-primary">{xl t='View Printable Version'|text} ({xlt t='HTML'})</a>
                         {else}
                           <!-- TajEmo work by CB 2012/06/14 02:16:32 PM target="_script" opens better -->
-                            <a target="_script" id="multiprintcss" href="{$CONTROLLER}prescription&multiprintcss&id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xlt t='View Printable Version'} ({xlt t='HTML'})</span></a>
+                            <a target="_script" id="multiprintcss" href="{$CONTROLLER}prescription&multiprintcss&id={$printm|attr_url}" onclick="top.restoreSession()" class="btn btn-primary">{xlt t='View Printable Version'} ({xlt t='HTML'})</a>
                         {/if}
                         </td>
                         {if $GLOBALS.rx_use_fax_template}
                         <td style="border-style:none;">
-                            <a id="multiprintToFax" href="{$CONTROLLER}prescription&multiprintfax&id={$printm|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xlt t='Download'} ({xlt t='Fax'})</span></a>
+                            <a id="multiprintToFax" href="{$CONTROLLER}prescription&multiprintfax&id={$printm|attr_url}" onclick="top.restoreSession()" class="btn btn-primary">{xlt t='Download'} ({xlt t='Fax'})</a>
                         </td>
                         {/if}
                         {if $GLOBALS.weno_rx_enable}
                             <td style="border-style:none;">
-                                <a id="multiprintToFax" href="{$GLOBALS.webroot}/interface/weno/validate.php?csrf_token_form={$CSRF_TOKEN_FORM|attr_url}" onclick="top.restoreSession()" class="css_button"><span>{xlt t='Transmit'} {xlt t='Rx'}</span></a>
+                                <a id="multiprintToFax" href="{$GLOBALS.webroot}/interface/weno/validate.php?csrf_token_form={$CSRF_TOKEN_FORM|attr_url}" onclick="top.restoreSession()" class="btn btn-primary">{xlt t='Transmit'} {xlt t='Rx'}</a>
                             </td>
                         {/if}
                         {if $CAMOS_FORM == true}
                             <td>
-                                <a id="four_panel_rx" href="{$GLOBALS.webroot}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()" class="css_button"><span>{xlt t='View Four Panel'}</span></a>
+                                <a id="four_panel_rx" href="{$GLOBALS.webroot}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()" class="btn btn-primary">{xlt t='View Four Panel'}</a>
                             </td>
                         {/if}
                     </tr>
@@ -230,7 +230,7 @@ $(function(){
     </td>
     {if $prescription->erx_source==0}
     <td class="editscript"  id="{$prescription->id|attr}">
-        <a class='editscript css_button_small' id='{$prescription->id|attr}' href="controller.php?prescription&edit&id={$prescription->id|attr_url}"><span>{xlt t='Edit'}</span></a>
+        <a class='editscript btn btn-primary btn-sm' id='{$prescription->id|attr}' href="controller.php?prescription&edit&id={$prescription->id|attr_url}">{xlt t='Edit'}</a>
       <!-- TajEmo Changes 2012/06/14 02:02:22 PM by CB commented out, to avoid duplicate display of drug name
         {if $prescription->active > 0}<b>{/if}{$prescription->drug}{if $prescription->active > 0}</b>{/if}&nbsp;
       -->
@@ -315,7 +315,7 @@ $(function(){
 
 </body>
 {literal}
-<script language='JavaScript'>
+<script>
 
 $(function(){
 $("#multiprint").on("click", function() { return CheckForChecks(document.presc.check_list); });

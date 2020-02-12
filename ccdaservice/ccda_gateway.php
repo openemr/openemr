@@ -75,7 +75,7 @@ $h = '';
 if (!$parameterArray ['view']) {
     header('Content-Type: application/xml');
 } else {
-    $h = '<a href="./../portal/home.php" </a><button style="color: red; background: white;" >' . xlt("Return Home") . '</button><br>';
+    $h = '<a class="text-danger bg-white" href="./../portal/home.php">' . xlt("Return Home") . '</a><br />';
 }
 
 print_r($h . $ccdaxml . $h);

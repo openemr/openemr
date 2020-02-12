@@ -53,6 +53,9 @@ require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 use ESign\Api;
 use Mpdf\Mpdf;
 
+$staged_docs = array();
+$archive_name = '';
+
 // For those who care that this is the patient report.
 $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
 
@@ -146,6 +149,43 @@ function postToGet($arin)
 
     return $getstring;
 }
+
+function report_basename($pid)
+{
+    $ptd = getPatientData($pid, "fname,lname");
+    // escape names for pesky periods hyphen etc.
+    $esc = $ptd['fname'] . '_' . $ptd['lname'];
+    $esc = str_replace(array('.', ',', ' '), '', $esc);
+    $fn = basename_international(strtolower($esc . '_' . $pid . '_' . xl('report')));
+
+    return array('base'=>$fn, 'fname'=>$ptd['fname'], 'lname'=>$ptd['lname']);
+}
+
+function zip_content($source, $destination, $content = '', $create = true)
+{
+    if (!extension_loaded('zip')) {
+        return false;
+    }
+
+    $zip = new ZipArchive();
+    if ($create) {
+        if (!$zip->open($destination, ZipArchive::CREATE)) {
+            return false;
+        }
+    } else {
+        if (!$zip->open($destination, ZipArchive::OVERWRITE)) {
+            return false;
+        }
+    }
+
+    if (is_file($source) === true) {
+        $zip->addFromString(basename($source), file_get_contents($source));
+    } elseif (!empty($content)) {
+        $zip->addFromString(basename($source), $content);
+    }
+
+    return $zip->close();
+}
 ?>
 
 <?php if ($PDF_OUTPUT) { ?>
@@ -164,20 +204,22 @@ function postToGet($arin)
 
 <style>
 
-.h3, h3 {
+.h3,
+h3 {
     font-size: 20px;
 }
-.report_search_div{
+.report_search_div {
 font-size: 20px !important;
-font-style:bold;
+font-style: bold;
 }
 .label {
-color:black;
+color: black;
 }/*
 .groupname {
 color:green;
 }*/
-input[type="checkbox"], input[type="radio"] {
+input[type="checkbox"],
+input[type="radio"] {
     margin: 0 5px 5px;
     line-height: normal;
 }
@@ -186,14 +228,15 @@ input[type="checkbox"], input[type="radio"] {
 <?php if (!$PDF_OUTPUT) { ?>
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign_report.css?v=<?php echo $v_js_includes; ?>" />
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/SearchHighlight.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript">var $j = jQuery.noConflict();</script>
+    <!-- Unclear where a conflict occurs but if jquery is already in scope then !!!! removed noconflict sjp 12-1-2019-->
+<script>var $j = '$';</script>
 
     <?php // if the track_anything form exists, then include the styling
     if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
  <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
     <?php  } ?>
 
-<script type="text/javascript">
+<script>
 
   // Code for search & Highlight
   function reset_highlight(form_id,form_dir,class_name) { // Removes <span class='hilite' id=''>VAL</span> with VAL
@@ -534,24 +577,24 @@ if ($printable) {
     }
     ?>
     <h2><?php echo text($facility['name']); ?></h2>
-    <?php echo text($facility['street']); ?><br>
+    <?php echo text($facility['street']); ?><br />
     <?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><br clear='all'>
-    <?php echo $facility['phone'] ?><br>
+    <?php echo $facility['phone'] ?><br />
 
-<a href="javascript:window.close();"><span class='title'><?php echo text($titleres['fname']) . " " . text($titleres['lname']); ?></span></a><br>
+<a href="javascript:window.close();"><span class='title'><?php echo text($titleres['fname']) . " " . text($titleres['lname']); ?></span></a><br />
 <span class='text'><?php echo xlt('Generated on'); ?>: <?php echo text(oeFormatShortDate()); ?></span>
-<br><br>
+<br /><br />
 
     <?php
 } else { // not printable
     ?>
 
     <!-- old href was here
-    <br><br> -->
+    <br /><br /> -->
 
     <a href="./report/portal_custom_report.php?printable=1&<?php echo postToGet($ar); ?>" class='link_submit' target='new'>
 <button><?php echo xlt('Printable Version'); ?></button>
-</a><br>
+</a><br />
 <!--<div class="report_search_bar" style="width:100%;" id="search_options">
   <table style="width:100%;">
     <tr>
@@ -559,13 +602,13 @@ if ($printable) {
     <input type="text" onKeyUp="clear_last_visit();remove_mark_all();find_all();" name="search_element" id="search_element" style="width:180px;"/>
   </td>
   <td>
-     <a class="css_button" onClick="clear_last_visit();remove_mark_all();find_all();" ><span><?php //echo xlt('Find'); ?></span></a>
+     <a class="btn btn-primary" onClick="clear_last_visit();remove_mark_all();find_all();" ><span><?php //echo xlt('Find'); ?></span></a>
   </td>
   <td>
-     <a class="css_button" onClick="next_prev('prev');" ><span><?php //echo xlt('Prev'); ?></span></a>
+     <a class="btn btn-primary" onClick="next_prev('prev');" ><span><?php //echo xlt('Prev'); ?></span></a>
   </td>
   <td>
-     <a class="css_button" onClick="next_prev('next');" ><span><?php //echo xlt('Next'); ?></span></a>
+     <a class="btn btn-primary" onClick="next_prev('next');" ><span><?php //echo xlt('Next'); ?></span></a>
   </td>
   <td>
     <input type="checkbox" onClick="clear_last_visit();remove_mark_all();find_all();" name="search_case" id="search_case" />
@@ -575,7 +618,7 @@ if ($printable) {
   </td>
   <td style="padding-left:10px;">
     <span class="text"><b><?php //echo xlt('Search In'); ?>:</b></span>
-    <br>
+    <br />
     <?php
     /*         $form_id_arr = array();
     $form_dir_arr = array();
@@ -663,17 +706,17 @@ foreach ($ar as $key => $val) {
             echo "</div>";
 
             // } elseif ($val == "employer") {
-            //   print "<br><span class='bold'>".xl('Employer Data').":</span><br>";
+            //   print "<br /><span class='bold'>".xl('Employer Data').":</span><br />";
             //   printRecDataOne($employer_data_array, getRecEmployerData ($pid), $N);
         } elseif ($val == "insurance") {
             echo "<hr />";
             echo "<div class='text insurance'>";
             echo "<h1>".xlt('Insurance Data').":</h1>";
-            print "<br><span class=bold>".xlt('Primary Insurance Data').":</span><br>";
+            print "<br /><span class='font-weight-bold'>".xlt('Primary Insurance Data').":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
-            print "<span class=bold>".xlt('Secondary Insurance Data').":</span><br>";
+            print "<span class='font-weight-bold'>".xlt('Secondary Insurance Data').":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
-            print "<span class=bold>".xlt('Tertiary Insurance Data').":</span><br>";
+            print "<span class='font-weight-bold'>".xlt('Tertiary Insurance Data').":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
             echo "</div>";
         } elseif ($val == "billing") {
@@ -683,7 +726,7 @@ foreach ($ar as $key => $val) {
             if ((!empty($ar['newpatient'])) && (count($ar['newpatient']) > 0)) {
                 $billings = array();
                 echo "<table>";
-                echo "<tr><td width='400' class='bold'>" . xlt('Code') . "</td><td class='bold'>".xlt('Fee')."</td></tr>\n";
+                echo "<tr><td width='400' class='font-weight-bold'>" . xlt('Code') . "</td><td class='font-weight-bold'>".xlt('Fee')."</td></tr>\n";
                 $total = 0.00;
                 $copays = 0.00;
                 foreach ($ar['newpatient'] as $be) {
@@ -692,10 +735,10 @@ foreach ($ar as $key => $val) {
                     $billings[] = $billing;
                     foreach ($billing as $b) {
                         echo "<tr>\n";
-                        echo "<td class=text>";
+                        echo "<td class='text'>";
                         echo text($b['code_type']) . ":\t" . text($b['code']) . "&nbsp;". text($b['modifier']) . "&nbsp;&nbsp;&nbsp;" . text($b['code_text']) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
                         echo "</td>\n";
-                        echo "<td class=text>";
+                        echo "<td class='text'>";
                         echo text(oeFormatMoney($b['fee']));
                         echo "</td>\n";
                         echo "</tr>\n";
@@ -707,9 +750,9 @@ foreach ($ar as $key => $val) {
                 }
 
                 echo "<tr><td>&nbsp;</td></tr>";
-                echo "<tr><td class=bold>".xlt('Sub-Total')."</td><td class=text>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
-                echo "<tr><td class=bold>".xlt('Paid')."</td><td class=text>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
-                echo "<tr><td class=bold>".xlt('Total')."</td><td class=text>" . text(oeFormatMoney($total)) . "</td></tr>";
+                echo "<tr><td class='font-weight-bold'>".xlt('Sub-Total')."</td><td class='text'>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
+                echo "<tr><td class='font-weight-bold'>".xlt('Paid')."</td><td class='text'>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
+                echo "<tr><td class='font-weight-bold'>".xlt('Total')."</td><td class='text'>" . text(oeFormatMoney($total)) . "</td></tr>";
                 echo "</table>";
                 echo "<pre>";
                 //print_r($billings);
@@ -724,17 +767,17 @@ foreach ($ar as $key => $val) {
 
         } elseif ($val == "allergies") {
 
-            print "<span class=bold>Patient Allergies:</span><br>";
+            print "<span class='font-weight-bold'>Patient Allergies:</span><br />";
             printListData($pid, "allergy", "1");
 
         } elseif ($val == "medications") {
 
-            print "<span class=bold>Patient Medications:</span><br>";
+            print "<span class='font-weight-bold'>Patient Medications:</span><br />";
             printListData($pid, "medication", "1");
 
         } elseif ($val == "medical_problems") {
 
-            print "<span class=bold>Patient Medical Problems:</span><br>";
+            print "<span class='font-weight-bold'>Patient Medical Problems:</span><br />";
             printListData($pid, "medical_problem", "1");
 
     ****/
@@ -767,7 +810,7 @@ foreach ($ar as $key => $val) {
                      echo " - " . text($row['immunization_note']);
                 }
 
-                echo "<br>\n";
+                echo "<br />\n";
             }
 
                 echo "</div>\n";
@@ -782,7 +825,7 @@ foreach ($ar as $key => $val) {
             // echo $sql;
             $result = sqlStatement($sql, [$pid]);
             while ($row=sqlFetchArray($result)) {
-                echo text($row['batchcom_data']).", " . xlt('By') . ": ".text($row['user_name'])."<br>" . xlt('Text') . ":<br> ".text($row['msg_txt'])."<br>\n";
+                echo text($row['batchcom_data']).", " . xlt('By') . ": ".text($row['user_name'])."<br />" . xlt('Text') . ":<br /> ".text($row['msg_txt'])."<br />\n";
             }
 
             echo "</div>\n";
@@ -829,7 +872,7 @@ foreach ($ar as $key => $val) {
                     echo '<td>' . xlt('Date') . ': ' . text(oeFormatShortDate($note->get_date())) . '</td>';
                     echo '</tr>';
                     echo '<tr>';
-                    echo '<td>' . text($note->get_note()) . '<br><br></td>';
+                    echo '<td>' . text($note->get_note()) . '<br /><br /></td>';
                     echo '</tr>';
                 }
 
@@ -853,11 +896,11 @@ foreach ($ar as $key => $val) {
                             echo " class='bigimage'";
                         }
                         $tmp_files_remove[] = $from_file_tmp_web_name;
-                        echo " /><br><br>";
+                        echo " /><br /><br />";
                     } else {
                         echo "<img src='" . $GLOBALS['webroot'] .
                             "/controller.php?document&retrieve&patient_id=&document_id=" .
-                            attr_url($document_id) . "&as_file=false'><br><br>";
+                            attr_url($document_id) . "&as_file=false'><br /><br />";
                     }
                 } else {
                     // Most clinic documents are expected to be PDFs, and in that happy case
@@ -866,26 +909,41 @@ foreach ($ar as $key => $val) {
                         echo "</div></div>\n"; // HTML to PDF conversion will fail if there are open tags.
                         $content = getContent();
                         $pdf->writeHTML($content); // catch up with buffer.
-                        $tempDocC = new C_Document;
-                        $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
-                        // tmp file in temporary_files_dir
-                        $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
-                        file_put_contents($from_file_tmp_name, $pdfTemp);
-                        $pagecount = $pdf->setSourceFile($from_file_tmp_name);
-                        for ($i = 0; $i < $pagecount; ++$i) {
-                            $pdf->AddPage();
-                            $itpl = $pdf->importPage($i+1);
-                            $pdf->useTemplate($itpl);
+                        $err = '';
+                        try {
+                            $tempDocC = new C_Document;
+                            $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
+                            // tmp file in temporary_files_dir
+                            $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
+                            file_put_contents($from_file_tmp_name, $pdfTemp);
+
+                            $pagecount = $pdf->setSourceFile($from_file_tmp_name);
+                            for ($i = 0; $i < $pagecount; ++$i) {
+                                $pdf->AddPage();
+                                $itpl = $pdf->importPage($i + 1);
+                                $pdf->useTemplate($itpl);
+                            }
+                        } catch (Exception $e) {
+                            // chances are PDF is > v1.4 and compression level not supported.
+                            // regardless, we're here so lets dispose in different way.
+                            //
+                            unlink($from_file_tmp_name);
+                            $archive_name = ($GLOBALS['temporary_files_dir'] . '/' . report_basename($pid)['base'] . ".zip");
+                            $rtn = zip_content(basename($d->url), $archive_name, $pdfTemp);
+                            $err = "<span>" . xlt('PDF Document Parse Error and not included. Check if included in archive.') . " : " . text($fname) ."</span>";
+                            $pdf->writeHTML($err);
+                            $staged_docs[] = array('path'=>$d->url, 'fname'=>$fname);
+                        } finally {
+                            unlink($from_file_tmp_name);
+                            // Make sure whatever follows is on a new page. Maybe!
+                            // okay if not a series of pdfs so if so need @todo
+                            if (empty($err)) {
+                                $pdf->AddPage();
+                            }
+                            // Resume output buffering and the above-closed tags.
+                            ob_start();
+                            echo "<div><div class='text documents'>\n";
                         }
-                        unlink($from_file_tmp_name);
-
-                        // Make sure whatever follows is on a new page.
-                        $pdf->AddPage();
-
-                        // Resume output buffering and the above-closed tags.
-                        ob_start();
-
-                        echo "<div><div class='text documents'>\n";
                     } else {
                         if ($PDF_OUTPUT) {
                             // OK to link to the image file because it will be accessed by the mPDF parser and not the browser.
@@ -894,10 +952,10 @@ foreach ($ar as $key => $val) {
                             // tmp file in ../documents/temp since need to be available via webroot
                             $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'].'/documents/temp', "oer");
                             file_put_contents($from_file_tmp_web_name, $fileTemp);
-                            echo "<img src='$from_file_tmp_web_name'><br><br>";
+                            echo "<img src='$from_file_tmp_web_name'><br /><br />";
                             $tmp_files_remove[] = $from_file_tmp_web_name;
                         } else {
-                            echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br><br>";
+                            echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br /><br />";
                         }
                     }
                 } // end if-else
@@ -946,11 +1004,11 @@ foreach ($ar as $key => $val) {
             // Show issue's chief diagnosis and its description:
             if ($diagnosis) {
                 echo "<div class='text issue_diag'>";
-                echo "<span class='bold'>[".xlt('Diagnosis')."]</span><br>";
+                echo "<span class='bold'>[".xlt('Diagnosis')."]</span><br />";
                 $dcodes = explode(";", $diagnosis);
                 foreach ($dcodes as $dcode) {
                     echo "<span class='italic'>".text($dcode)."</span>: ";
-                    echo lookup_code_descriptions($dcode)."<br>\n";
+                    echo lookup_code_descriptions($dcode)."<br />\n";
                 }
 
                 //echo $diagnosis." -- ".lookup_code_descriptions($diagnosis)."\n";
@@ -999,7 +1057,7 @@ foreach ($ar as $key => $val) {
                     echo ' '. xlt('Provider') . ': ' . text(getProviderName(getProviderIdOfEncounter($form_encounter)));
                 }
 
-                echo "<br>\n";
+                echo "<br />\n";
 
                 // call the report function for the form
                 ?>
@@ -1035,7 +1093,7 @@ foreach ($ar as $key => $val) {
                     );
                     while ($brow=sqlFetchArray($bres)) {
                         echo "<span class='bold'>&nbsp;".xlt('Procedure').": </span><span class='text'>" .
-                            text($brow['code']) . " " . text($brow['code_text']) . "</span><br>\n";
+                            text($brow['code']) . " " . text($brow['code_text']) . "</span><br />\n";
                     }
                 }
 
@@ -1055,9 +1113,48 @@ if ($printable) {
 <?php
 if ($PDF_OUTPUT) {
     $content = getContent();
-    $pdf->writeHTML($content);
+    $ptd = report_basename($pid);
+    $fn = $ptd['base'] . ".pdf";
+    $pdf->SetTitle(ucfirst($ptd['fname']) . ' ' . $ptd['lname'] . ' ' . xl('Id') . ':' . $pid . ' ' . xl('Report'));
+    $isit_utf8 = preg_match('//u', $content); // quick check for invalid encoding
+    if (!$isit_utf8) {
+        if (function_exists('iconv')) { // if we can lets save the report
+            $content = iconv("UTF-8", "UTF-8//IGNORE", $content);
+        } else { // no sense going on.
+            $die_str = xlt("Failed UTF8 encoding check! Could not automatically fix.");
+            die($die_str);
+        }
+    }
+
+    try {
+        $pdf->writeHTML($content); // convert html
+    } catch (Exception $exception) {
+        die(text($exception));
+    }
+
     if ($PDF_OUTPUT == 1) {
-        $pdf->Output('report.pdf', $GLOBALS['pdf_output']); // D = Download, I = Inline
+        try {
+            if (!empty($archive_name) && sizeof($staged_docs) > 0) {
+                $rtn = zip_content(basename($fn), $archive_name, $pdf->Output($fn, 'S'));
+                header('Content-Description: File Transfer');
+                header('Content-Transfer-Encoding: binary');
+                header('Expires: 0');
+                header("Cache-control: private");
+                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+                header("Content-Type: application/zip; charset=utf-8");
+                header("Content-Length: " . filesize($archive_name));
+                header('Content-Disposition: attachment; filename="' . basename($archive_name) . '"');
+
+                ob_end_clean();
+                @readfile($archive_name) or error_log("Archive temp file not found: " . $archive_name);
+
+                unlink($archive_name);
+            } else {
+                $pdf->Output($fn, $GLOBALS['pdf_output']); // D = Download, I = Inline
+            }
+        } catch (Exception $exception) {
+            die(text($exception));
+        }
     } else {
         // This is the case of writing the PDF as a message to the CMS portal.
         $ptdata = getPatientData($pid, 'cmsportal_login');
@@ -1065,13 +1162,13 @@ if ($PDF_OUTPUT) {
         echo "<html><head>\n";
         echo "</head><body class='body_top'>\n";
         $result = cms_portal_call(array(
-        'action'   => 'putmessage',
-        'user'     => $ptdata['cmsportal_login'],
-        'title'    => xl('Your Clinical Report'),
-        'message'  => xl('Please see the attached PDF.'),
-        'filename' => 'report.pdf',
-        'mimetype' => 'application/pdf',
-        'contents' => base64_encode($contents),
+            'action' => 'putmessage',
+            'user' => $ptdata['cmsportal_login'],
+            'title' => xl('Your Clinical Report'),
+            'message' => xl('Please see the attached PDF.'),
+            'filename' => 'report.pdf',
+            'mimetype' => 'application/pdf',
+            'contents' => base64_encode($contents),
         ));
         if ($result['errmsg']) {
             die(text($result['errmsg']));

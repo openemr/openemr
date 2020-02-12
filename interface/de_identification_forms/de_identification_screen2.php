@@ -19,6 +19,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     die(xlt('Not authorized'));
@@ -93,8 +94,9 @@ if ($deIdentificationStatus == 0) {
 <html>
 <head>
 <title>De Identification</title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+
+    <?php Header::setupHeader(); ?>
+
 <style type="text/css">
 .style1 {
     text-align: center;
@@ -172,11 +174,11 @@ if ($deIdentificationStatus == 0) {
     <tr valign="top">
 
         <td>&nbsp;</td>
-        <td rowspan="3"><br>
+        <td rowspan="3"><br />
                         <?php echo xlt('No Patient record found for given Selection criteria');
-                        echo "</br></br>";
+                        echo "<br /><br />";
                         echo xlt('Please start new De Identification process');
-                        echo "</br>";   ?> </br>
+                        echo "<br />";   ?> <br />
         </td>
         <td>&nbsp;</td>
     </tr>
@@ -225,11 +227,11 @@ if ($deIdentificationStatus == 0) {
     <table class="de_identification_status_message" align="center">
     <tr valign="top">
         <td>&nbsp;</td>
-        <td rowspan="3"><br>
+        <td rowspan="3"><br />
                         <?php echo xlt('De Identification Process is ongoing');
-                        echo "</br></br>";
+                        echo "<br /><br />";
                         echo xlt('Please visit De Identification screen after some time');
-                        echo "</br>";   ?> </br>
+                        echo "<br />";   ?> <br />
         </td>
         <td>&nbsp;</td>
     </tr>

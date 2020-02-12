@@ -70,49 +70,49 @@ if (empty($facility['postal_code'])) {
 }
 
 if (empty($GLOBALS['weno_account_id'])) {
-    print xlt("Weno Account ID information missing")."<br>";
+    print xlt("Weno Account ID information missing")."<br />";
     exit;
 }
 if (empty($GLOBALS['weno_provider_id'])) {
-    print xlt("Weno Account Clinic ID information missing")."<br>";
+    print xlt("Weno Account Clinic ID information missing")."<br />";
     exit;
 }
 if (empty($patient['DOB'])) {
-    print xlt("Patient DOB missing"). "<br>";
+    print xlt("Patient DOB missing"). "<br />";
     exit;
 }
 if (empty($patient['street'])) {
-    print xlt("Patient street missing"). "<br>";
+    print xlt("Patient street missing"). "<br />";
     exit;
 }
 if (empty($patient['postal_code'])) {
-    print xlt("Patient Zip Code missing"). "<br>";
+    print xlt("Patient Zip Code missing"). "<br />";
     exit;
 }
 if (empty($patient['city'])) {
-    print xlt("Patient city missing"). "<br>";
+    print xlt("Patient city missing"). "<br />";
     exit;
 }
 if (empty($patient['state'])) {
-    print xlt("Patient state missing"). "<br>";
+    print xlt("Patient state missing"). "<br />";
     exit;
 }
 if (empty($patient['sex'])) {
-    print xlt("Patient sex missing"). "<br>";
+    print xlt("Patient sex missing"). "<br />";
     exit;
 }
 if (empty($pharmacy['name'])) {
-    print xlt("Pharmacy not assigned to the patient"). "<br>";
+    print xlt("Pharmacy not assigned to the patient"). "<br />";
     exit;
 }
 $ncpdpLength = strlen($pharmacy['ncpdp']);
 if (empty($pharmacy['ncpdp']) || $ncpdpLength < 7) {
-    print xlt("Pharmacy missing NCPDP ID or less than 7 digits"). "<br>";
+    print xlt("Pharmacy missing NCPDP ID or less than 7 digits"). "<br />";
     exit;
 }
 $npiLength = strlen($pharmacy['npi']);
 if (empty($pharmacy['npi'] || $npiLength < 10)) {
-    print xlt("Pharmacy missing NPI  or less than 10 digits"). "<br>";
+    print xlt("Pharmacy missing NPI  or less than 10 digits"). "<br />";
     exit;
 }
 //validate NPI exist

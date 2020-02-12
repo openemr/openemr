@@ -16,7 +16,6 @@
 
 class Installer
 {
-
     public function __construct($cgi_variables)
     {
         // Installation variables
@@ -330,7 +329,7 @@ class Installer
             return false;
         }
 
-        $sql_results .= "OK<br>\n";
+        $sql_results .= "OK<br />\n";
         fclose($fd);
         return $sql_results;
     }
@@ -915,7 +914,7 @@ FDIV;
                 case 5://end row
                     echo $img_div . "\r\n";
                     echo $div_end . "\r\n";
-                    echo "<br>" . "\r\n";
+                    echo "<br />" . "\r\n";
                     break;
 
                 default:
@@ -941,13 +940,13 @@ FDIV;
                         <div class="row">
                             <div class="col-sm-12">
                                 <h4>Current Theme:</h4>
-                                <div class="col-sm-4 col-sm-offset-4 checkboxgroup">
+                                <div class="col-sm-4 offset-sm-4 checkboxgroup">
                                     <label for="nothing"><img  id="current_theme" src="{$theme_file_path}" width="100%"></label>
                                     <p id="current_theme_title"style="margin:0">{$theme_title}</p>
                                 </div>
                             </div>
                         </div>
-                        <br>
+                        <br />
 DSTD;
         echo $display_selected_theme_div . "\r\n";
         return;
@@ -965,13 +964,13 @@ DSTD;
         $display_selected_theme_div = <<<DSTD
                         <div class="row">
                             <div class="col-sm-12">
-                                <div class="col-sm-4 col-sm-offset-4 checkboxgroup">
+                                <div class="col-sm-4 offset-sm-4 checkboxgroup">
                                     <label for="nothing"><img  id="current_theme" src="{$theme_file_path}" width="75%"></label>
                                     <p id="current_theme_title"style="margin:0">{$theme_title}</p>
                                 </div>
                             </div>
                         </div>
-                        <br>
+                        <br />
 DSTD;
         echo $display_selected_theme_div . "\r\n";
         return;
@@ -986,7 +985,7 @@ DSTD;
                     <div class="modal-content  oe-modal-content" style="height:700px">
                         <div class="modal-header clearfix">
                             <button type="button" class="close" data-dismiss="modal" aria-label=Close>
-                            <span aria-hidden="true" style="color:#000000; font-size:1.5em;">×</span></button>
+                            <span aria-hidden="true" style="color:var(--black); font-size:1.5em;">×</span></button>
                         </div>
                         <div class="modal-body" style="height:80%;">
                             <iframe src="" id="targetiframe" style="height:100%; width:100%; overflow-x: hidden; border:none"
@@ -994,7 +993,7 @@ DSTD;
                         </div>
                         <div class="modal-footer" style="margin-top:0px;">
                            <button class="btn btn-link btn-cancel oe-pull-away" data-dismiss="modal" type="button">Close</button>
-                           <!--<button class="btn btn-default btn-print oe-pull-away" data-dismiss="modal" id="print-help-href" type="button">Print</button>-->
+                           <!--<button class="btn btn-secondary btn-print oe-pull-away" data-dismiss="modal" id="print-help-href" type="button">Print</button>-->
                         </div>
                     </div>
                 </div>
@@ -1012,14 +1011,8 @@ DSTD;
                 })
             });
             // Jquery draggable
-            $('.modal-dialog').draggable({
-                    handle: ".modal-header, .modal-footer"
-            });
-           $( ".modal-content" ).resizable({
-                aspectRatio: true,
-                minHeight: 300,
-                minWidth: 300
-            });
+            $(".modal-dialog").addClass('drag-action');
+            $(".modal-content").addClass('resize-action');
         </script>
 SETHLP;
         echo $setup_help_modal  ."\r\n";

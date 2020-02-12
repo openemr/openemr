@@ -16,6 +16,7 @@ require_once("../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $feid = $_GET['feid'] + 0; // id from form_encounter table
 
@@ -27,7 +28,7 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
 ?>
 <html>
 <head>
-<link rel=stylesheet href='<?php echo $css_header ?>' type='text/css'>
+<?php Header::setupHeader(); ?>
 
 <style>
 </style>

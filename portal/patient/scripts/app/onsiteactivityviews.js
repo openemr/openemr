@@ -38,7 +38,7 @@ var actpage = {
             var params = {
                 buttons: [
                     {text: 'Help', close: false, style: 'info btn-sm', id: 'formHelp'},
-                    {text: 'Cancel', close: true, style: 'default btn-sm'},
+                    {text: 'Cancel', close: true, style: 'secondary btn-sm'},
                     {text: 'Done', style: 'danger btn-sm', close: true}],
                 onClosed: 'reload',
                 type: 'GET',

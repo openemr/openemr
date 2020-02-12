@@ -16,61 +16,62 @@
  */
 
 
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 formHeader("Form: ankleinjury");
 ?>
 
 <html><head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+    <?php Header::setupHeader(); ?>
 </head>
 
 <body class="body_top">
 <form method=post action="<?php echo $rootdir;?>/forms/ankleinjury/save.php?mode=new" name="my_form">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<span class="title"><?php echo xlt('Ankle Evaluation Form'); ?></span><br></br>
+<span class="title"><?php echo xlt('Ankle Evaluation Form'); ?></span><br /><br />
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" style="color: #483D8B"
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save'); ?>]</a>
-<br></br>
+<br /><br />
 
 <span class="text" ><?php echo xlt('Date of Injury'); ?>: </span><input type="entry" name="ankle_date_of_injuary" value=""></input>
 <tr>
 <td width="120" align="right"><?php echo xlt('Work related?'); ?></td>
 <td><input type="checkbox" name="ankle_work_related"></input></td>
 </tr>
-<br><br>
+<br /><br />
 
 <span class="text"><?php echo xlt('Foot:'); ?> </span>
    <td><?php echo xlt('Left'); ?><input type="radio" name='ankle_foot' value="<?php echo xla('Left'); ?>"></input></td>
    <td><?php echo xlt('Right'); ?><input type="radio" name='ankle_foot' value="<?php echo xla('Right'); ?>"></input></td>
-<br><br>
+<br /><br />
 
 <span class="text"><?php echo xlt('Severity of Pain'); ?>:   </span>
    <td>1<input type="radio" name='ankle_severity_of_pain' value="1"></input></td>
    <td>2<input type="radio" name='ankle_severity_of_pain' value="2"></input></td>
    <td>3<input type="radio" name='ankle_severity_of_pain' value="3"></input></td>
-<br><br>
+<br /><br />
 
 <td width="140"><?php echo xlt('Significant Swelling:'); ?></td>
 <td align="right"></td>
 <td><input type="checkbox" name="ankle_significant_swelling"></input></td>
-<br><br>
+<br /><br />
 
 <span class="text"><?php echo xlt('Onset of Swelling:'); ?>   </span>
    <td><?php echo xlt('within minutes'); ?><input type="radio" name='ankle_onset_of_swelling' value="<?php echo xla('within minutes'); ?>"></input></td>
    <td><?php echo xlt('within hours'); ?><input type="radio" name='ankle_onset_of_swelling' value="<?php echo xla('within hours'); ?>"></input></td>
-   <br><br>
+   <br /><br />
 
-<span class="text" ><?php echo xlt('How did Injury Occur?'); ?>:</span><br>
+<span class="text" ><?php echo xlt('How did Injury Occur?'); ?>:</span><br />
 <textarea name="ankle_how_did_injury_occur" rows="4" cols="67" wrap="virtual name"></textarea>
-<br></br>
+<br /><br />
 
 <table ><th colspan="5"><?php echo xlt('Ottawa Ankle Rules'); ?></th>
 <tr>
@@ -80,12 +81,12 @@ formHeader("Form: ankleinjury");
 <td><?php echo xlt('At the Navicular'); ?><input type="radio" name='ankle_ottawa_bone_tenderness' value="At the Navicular"></input></td>
 </tr>
 </table>
-<br>
+<br />
 
 <span class="text"><?php echo xlt('Able to Bear Weight four (4) steps:'); ?></span>
   <td><?php echo xlt('Yes'); ?><input type="radio" name='ankle_able_to_bear_weight_steps' value="<?php echo xla('Yes'); ?>"></input></td>
   <td><?php echo xlt('No'); ?><input type="radio" name='ankle_able_to_bear_weight_steps' value="<?php echo xla('No'); ?>"></input></td>
-<br>
+<br />
 
 <table>
 <tr><th><?php echo xlt('X-RAY Interpretation:'); ?></th> <th><?php echo xlt('Additional X-RAY Notes:'); ?></th></tr>
@@ -147,7 +148,7 @@ formHeader("Form: ankleinjury");
 </td>
 <td rowspan="4">
 <textarea cols=30 rows=2 wrap=virtual name="ankle_additional_diagnisis" ></textarea>
-<br><br>
+<br /><br />
 <table>
 <tr>
     <td width="10"></td>
@@ -157,9 +158,9 @@ formHeader("Form: ankleinjury");
 <tr>
     <td></td>
     <td colspan="2">
-        &nbsp;&nbsp;&nbsp;<input type="radio" name="openemr_net_cptcode" value=""><?php echo xlt('none{{Code}}'); ?><br>
-        &nbsp;&nbsp;&nbsp;<input type="radio" name="openemr_net_cptcode" value="99212 Established - Uncomplicated"><?php echo xlt('99212 Established - Uncomplicated'); ?><br>
-        &nbsp;&nbsp;&nbsp;<input type="radio" name="openemr_net_cptcode" value="99213 Established - Low Complexity"><?php echo xlt('99213 Established - Low Complexity'); ?><br>
+        &nbsp;&nbsp;&nbsp;<input type="radio" name="openemr_net_cptcode" value=""><?php echo xlt('none{{Code}}'); ?><br />
+        &nbsp;&nbsp;&nbsp;<input type="radio" name="openemr_net_cptcode" value="99212 Established - Uncomplicated"><?php echo xlt('99212 Established - Uncomplicated'); ?><br />
+        &nbsp;&nbsp;&nbsp;<input type="radio" name="openemr_net_cptcode" value="99213 Established - Low Complexity"><?php echo xlt('99213 Established - Low Complexity'); ?><br />
     </td>
 </tr>
 </table>

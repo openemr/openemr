@@ -1,4 +1,4 @@
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5login*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/* OpenEMR Login CSS Override */
 
 .login div.container {
     margin-top: 5%;
@@ -9,7 +9,7 @@
     border-right: solid $palepale 1px;
     border-bottom: solid $palepale 1px;
 }
+
 body.login {
-    background: #fcfcfc !important;
+    background: $light !important;
 }
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~openemr5login*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

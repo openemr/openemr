@@ -27,7 +27,7 @@ function track_anything_report($pid, $encounter, $cols, $id)
     $dummy = array(); // counter to decide if graph-button is shown
     $formid = $id;
     $shownameflag = 0;
-    echo "<div id='graph" . attr($formid) . "' class='chart-dygraphs'> </div><br>";
+    echo "<div id='graph" . attr($formid) . "' class='chart-dygraphs'> </div><br />";
     echo "<table border='1'>";
 
     // get name of selected track, used for GraphTitle
@@ -130,7 +130,7 @@ function track_anything_report($pid, $encounter, $cols, $id)
 
     //---/end graph button------------------
         echo "</table>";
-        echo "<br>";
+        echo "<br />";
     echo "<div class='navigateLink'>"; // see custom_report.php
         echo "<form method='post' action='../../forms/track_anything/history.php' onsubmit='return top.restoreSession()'>";
         echo "<input type='hidden' name='formid' value='". attr($formid) . "'>";

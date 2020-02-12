@@ -49,8 +49,8 @@
         </div>
         
         <div class="esign-signature-form-element">
-              <input type='submit' value='<?php echo xla('Back'); ?>' id='esign-back-button' /> 
-              <input type='button' value='<?php echo xla('Sign'); ?>' id='esign-sign-button-encounter' />
+              <input type='submit' class="btn btn-secondary btn-sm" value='<?php echo xla('Back'); ?>' id='esign-back-button' /> 
+              <input type='button' class="btn btn-primary btn-sm" value='<?php echo xla('Sign'); ?>' id='esign-sign-button-encounter' />
         </div>
         
         <input type='hidden' id='table' name='table' value='<?php echo attr($this->form->table); ?>' /> 

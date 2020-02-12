@@ -12,6 +12,8 @@ require_once("$srcdir/forms.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 
+use OpenEMR\Core\Header;
+
 $CPR = 4; // cells per row
 
 $pprow = array();
@@ -106,7 +108,7 @@ if ($formid) {
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+    <?php Header::setupHeader(); ?>
 <style>
 
 td, input, select, textarea {
@@ -123,8 +125,6 @@ div.section {
 }
 
 </style>
-
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 

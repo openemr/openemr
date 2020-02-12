@@ -41,7 +41,7 @@ class ProviderController extends AppBaseController
             $cuser = $_SESSION['authUserID'];
         } else {
             header("refresh:5;url= ./provider");
-            echo 'Shared session not allowed with Portal!!!  <br>Onsite portal is using this session<br>Waiting until Onsite Portal is logged out........';
+            echo 'Shared session not allowed with Portal!!!  <br />Onsite portal is using this session<br />Waiting until Onsite Portal is logged out........';
             exit;
         }
 

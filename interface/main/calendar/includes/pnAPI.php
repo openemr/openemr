@@ -194,7 +194,7 @@ function pnConfigGetVar($name)
 
 /**
  * Initialise PostNuke
- * <br>
+ * <br />
  * Carries out a number of initialisation tasks to get PostNuke up and
  * running.
  * @returns void
@@ -331,7 +331,7 @@ function pnDBGetTables()
 
 /**
  * clean user input
- * <br>
+ * <br />
  * Gets a global variable, cleaning it up to try to ensure that
  * hack attacks don't work
  * @param var name of variable to get
@@ -386,7 +386,7 @@ function pnVarCleanFromInput()
 
 /**
  * ready user output
- * <br>
+ * <br />
  * Gets a variable, cleaning it up such that the text is
  * shown exactly as expected
  * @param var variable to prepare
@@ -437,7 +437,7 @@ function pnVarPrepForDisplay()
 
 /**
  * ready HTML output
- * <br>
+ * <br />
  * Gets a variable, cleaning it up such that the text is
  * shown exactly as expected, except for allowed HTML tags which
  * are allowed through
@@ -510,7 +510,7 @@ function pnVarPrepHTMLDisplay()
 
 /**
  * ready databse output
- * <br>
+ * <br />
  * Gets a variable, cleaning it up such that the text is
  * stored in a database exactly as expected
  * @param var variable to prepare
@@ -540,7 +540,7 @@ function pnVarPrepForStore()
 
 /**
  * ready operating system output
- * <br>
+ * <br />
  * Gets a variable, cleaning it up such that any attempts
  * to access files outside of the scope of the PostNuke
  * system is not allowed

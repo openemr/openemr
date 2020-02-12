@@ -174,42 +174,39 @@ class PatientMenuRole extends MenuRole
         $menu_restrictions = $this->getMenu();
         $li_id = 1;
         $str_top = <<<EOT
-        <nav class="navbar navbar-default navbar-color navbar-static-top patient-menu">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <button class="navbar-toggle" data-target="#myNavbar" data-toggle="collapse" type="button"><span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span></button>
-                </div>
-                <div class="collapse navbar-collapse" id="myNavbar" >
-                    <ul class="nav navbar-nav">
+        <!--navbar-light is needed for color override in other themes-->
+        <nav class="navbar navbar-expand-md navbar-light bg-light py-4 mb-2">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#myNavbar" aria-controls="myNavbar" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="myNavbar">
+                    <ul class="navbar-nav">
 EOT;
         echo $str_top. "\r\n";
         foreach ($menu_restrictions as $key => $value) {
             if (!empty($value->children)) {
                 // create dropdown if there are children (bootstrap3 horizontal nav bar with dropdown)
                 $class = isset($value->class) ? $value->class : '';
-                $list = '<li class="dropdown"><a href="#"  id="' . attr($value->menu_id) . '" class="dropdown-toggle oe-bold-black ' . attr($class) . '" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">' . text($value->label) . ' <span class="caret"></span></a>';
+                $list = '<li class="dropdown"><a href="#"  id="' . attr($value->menu_id) . '" class="nav-link dropdown-toggle font-weight-bold text-body ' . attr($class) . '" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">' . text($value->label) . ' <span class="caret"></span></a>';
                 $list .='<ul class="dropdown-menu">';
                 foreach ($value->children as $children_key => $children_value) {
                     $link = ($children_value->pid != "true") ? $children_value->url : $children_value->url . attr($pid);
                     $class = isset($children_value->class) ? $children_value->class : '';
-                    $list .= '<li class="oe-bold-black ' . attr($class) . '" id="' . attr($children_value->menu_id) . '">';
-                    $list .= '<a class="oe-bold-black"  href="' . attr($link) . '" onclick="' . $children_value->on_click .'"> ' . text($children_value->label) . ' </a>';
+                    $list .= '<li class="nav-item ' . attr($class) . '" id="' . attr($children_value->menu_id) . '">';
+                    $list .= '<a class="nav-link font-weight-bold text-body"  href="' . attr($link) . '" onclick="' . $children_value->on_click .'"> ' . text($children_value->label) . ' </a>';
                     $list .= '</li>';
                 }
                 $list .= '</ul>';
             } else {
                 $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
                 $class = isset($value->class) ? $value->class : '';
-                $list = '<li class="oe-bold-black ' . attr($class) . '" id="' . attr($value->menu_id) . '">';
-                $list .= '<a href="' . attr($link) . '" onclick="' . $value->on_click .'"> ' . text($value->label) . ' </a>';
+                $list = '<li class="nav-item ' . attr($class) . '" id="' . attr($value->menu_id) . '">';
+                $list .= '<a class="nav-link font-weight-bold text-body" href="' . attr($link) . '" onclick="' . $value->on_click .'"> ' . text($value->label) . ' </a>';
                 $list .= '</li>';
             }
             echo $list. "\r\n";
             $li_id++;
         }
         $str_bot = <<<EOB
-                    </ul>
-                </div>
+                </ul>
             </div>
         </nav>
 EOB;

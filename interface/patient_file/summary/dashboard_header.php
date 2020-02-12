@@ -7,7 +7,7 @@
   * @author    Ranganath Pathak <pathak@scrs1.org>
   * @author    Brady Miller <brady.g.miller@gmail.com>
   * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
-  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+  * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
   * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
   */
 
@@ -26,7 +26,7 @@ $portal_login_href = $url_webroot ."/interface/patient_file/summary/create_porta
 // If patient is deceased, then show this (along with the number of days patient has been deceased for)
 $days_deceased = is_patient_deceased($pid);
 if ($days_deceased) { ?>
-    <p class="deceased" style="font-weight:bold;color:red">
+    <p class="deceased font-weight-bold text-danger">
 
         <?php
         $deceased_days = intval($days_deceased['days_deceased']);
@@ -60,7 +60,7 @@ if ($days_deceased) { ?>
 
             <?php
             if (AclMain::aclCheckCore('admin', 'super') && $GLOBALS['allow_pat_delete']) { ?>
-                <a class='btn btn-default btn-sm btn-delete deleter delete'
+                <a class='btn btn-secondary btn-sm btn-delete deleter delete'
                    href='<?php echo attr($url_webroot)?>/interface/patient_file/deleter.php?patient=<?php echo attr_url($pid);?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>'
                    onclick='return top.restoreSession()'>
                     <span><?php echo xlt('Delete');?></span>
@@ -68,10 +68,10 @@ if ($days_deceased) { ?>
                 <?php
             } // Allow PT delete
             if ($GLOBALS['erx_enable']) { ?>
-                <a class="btn btn-default btn-sm btn-add erx" href="<?php echo attr($url_webroot)?>/interface/eRx.php?page=medentry" onclick="top.restoreSession()">
+                <a class="btn btn-secondary btn-sm btn-add erx" href="<?php echo attr($url_webroot)?>/interface/eRx.php?page=medentry" onclick="top.restoreSession()">
                     <span><?php echo xlt('NewCrop MedEntry');?></span>
                 </a>
-                <a class="btn btn-default btn-sm btn-save iframe1"
+                <a class="btn btn-secondary btn-sm btn-save iframe1"
                    href="<?php echo attr($url_webroot)?>/interface/soap_functions/soap_accountStatusDetails.php"
                    onclick="top.restoreSession()">
                     <span><?php echo xlt('NewCrop Account Status');?></span>
@@ -86,7 +86,7 @@ if ($days_deceased) { ?>
                 if ($portalStatus['allow_patient_portal']=='YES') {
                     $portalLogin = sqlQuery("SELECT pid FROM `patient_access_onsite` WHERE `pid`=?", array($pid));?>
                     <?php $display_class = (empty($portalLogin)) ? "btn-save" : "btn-undo"; ?>
-                    <a class='small_modal btn btn-default btn-sm <?php echo attr($display_class); ?>'
+                    <a class='small_modal btn btn-secondary btn-sm <?php echo attr($display_class); ?>'
                         href='<?php echo attr($portal_login_href); ?>?portalsite=on&patient=<?php echo attr_url($pid);?>'
                         onclick='top.restoreSession()'>
                         <?php $display = (empty($portalLogin)) ? xl('Create Onsite Portal Credentials') : xl('Reset Onsite Portal Credentials'); ?>
@@ -104,7 +104,7 @@ if ($days_deceased) { ?>
                     $portalLogin = sqlQuery("SELECT pid FROM `patient_access_offsite` WHERE `pid`=?", array($pid));
                     ?>
                     <?php $display_class = (empty($portalLogin)) ? "btn-save" : "btn-undo"; ?>
-                    <a class='small_modal btn btn-default btn-sm <?php echo attr($display_class); ?>'
+                    <a class='small_modal btn btn-secondary btn-sm <?php echo attr($display_class); ?>'
                        href='<?php echo attr($portal_login_href); ?>?portalsite=off&patient=<?php echo attr_url($pid);?>'
                        onclick='top.restoreSession()'>
                         <span>

@@ -9,7 +9,7 @@ require_once("custom/code_types.inc.php");
 function description_test($codes, $mode)
 {
     $descriptions=lookup_code_descriptions($codes, $mode);
-    echo $descriptions."    <br>".PHP_EOL;
+    echo $descriptions."    <br />".PHP_EOL;
 }
 echo PHP_EOL;
 description_test("ICD9:401.1");

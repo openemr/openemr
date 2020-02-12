@@ -127,8 +127,8 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("OpenEMR allows one TOTP but multiple U2F methods per user");?>.
 
                     <p><?php echo xlt("This section will allow the logged in user to view existing methods or to delete them ");?>.
-                    <button type="button" class="btn btn-default btn-search btn-sm oe-no-float"><?php echo xlt("View"); ?></button>
-                    <button type="button" class="btn btn-default btn-delete btn-sm oe-no-float"><?php echo xlt("Delete"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-search btn-sm oe-no-float"><?php echo xlt("View"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-delete btn-sm oe-no-float"><?php echo xlt("Delete"); ?></button>
 
                     <p><?php echo xlt("When the user initially visits this page the following message will be visible");?> <i class="fa fa-exclamation-circle oe-text-orange"  aria-hidden="true"></i>  <strong><?php echo xlt("No method enabled") ;?></strong>.
 
@@ -143,7 +143,7 @@ require_once("../../interface/globals.php");
                         <p><?php echo xlt("These are free and can be downloaded from the respective app store for ios and android devices");?>.
 
                         <p><?php echo xlt("Enter the OpenEMR login password for the user and click Submit");?>.
-                        <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Submit"); ?></button>
+                        <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Submit"); ?></button>
 
                         <p><?php echo xlt("This will reveal the Register TOTP Key section for logged in user");?>.
 
@@ -152,7 +152,7 @@ require_once("../../interface/globals.php");
                         <p><?php echo xlt("Once the app captures the QR code it will show the OpenEMR user name in the app");?>.
 
                         <p><?php echo xlt("Click Register to register the TOTP");?>.
-                        <button type="button" class="btn btn-default btn-save btn-sm oe-no-float"><?php echo xlt("Register"); ?></button>
+                        <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Register"); ?></button>
 
                         <p><i class="fa fa-exclamation-circle  oe-text-orange" aria-hidden="true"></i> <?php echo xlt("If only capture the QR code but do not register the TOTP key with OpenEMR this feature will not be enabled at login");?>.
 
@@ -287,7 +287,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Login with your user id and password and it will automatically authenticate you");?>.
 
                     <p><?php echo xlt("If you change your Smartphone you can recapture the TOTP key QR code on to a new device by first logging in using the authenticator app on your old phone and then going to Miscellaneous > MFA Authentication and clicking the View button on the Current Authentication Method section");?>.
-                    <button type="button" class="btn btn-default btn-search btn-sm oe-no-float"><?php echo xlt("View"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-search btn-sm oe-no-float"><?php echo xlt("View"); ?></button>
 
                     <p><?php echo xlt("This will re-display the secret key via the QR code that can then be captured and stored on the new Smartphone via its authenticator app");?>.
 

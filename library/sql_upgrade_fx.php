@@ -204,7 +204,7 @@ function clickOptionsMigrate()
         $file_handle = fopen(dirname(__FILE__)."/../sites/".$_SESSION['site_id']."/clickoptions.txt", "rb");
         $seq  = 10;
         $prev = '';
-        echo "Importing clickoption setting<br>";
+        echo "Importing clickoption setting<br />";
         while (!feof($file_handle)) {
             $line_of_text = fgets($file_handle);
             if (preg_match('/^#/', $line_of_text)) {

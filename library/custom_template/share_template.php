@@ -28,12 +28,14 @@
 
 
 require_once("../../interface/globals.php");
+
+use OpenEMR\Core\Header;
+
 $list_id = $_REQUEST['list_id'];
 ?>
 <html>
     <head>
-        <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
+        <?php Header::setupHeader(); ?>
         <script type="text/javascript">
         function add_template(){
                 top.restoreSession();
@@ -100,7 +102,7 @@ $list_id = $_REQUEST['list_id'];
                         </select>
                     </td>
                     <td>
-                    <a href="#" onclick="add_template()" class="css_button"><span><?php echo htmlspecialchars(xl('Save'), ENT_QUOTES);?></span></a>
+                    <a href="#" onclick="add_template()" class="btn btn-primary"><span><?php echo htmlspecialchars(xl('Save'), ENT_QUOTES);?></span></a>
                     </td>
                 </tr>
             </table>

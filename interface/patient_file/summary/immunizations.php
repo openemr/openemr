@@ -323,7 +323,7 @@ function saveImmunizationObservationResults($id, $immunizationdata)
 <html>
 <head>
 
-<?php Header::setupHeader(['no_bootstrap', 'datetime-picker', 'jquery-ui', 'jquery-ui-base']); ?>
+<?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-base']); ?>
 
 <style>
 .highlight {
@@ -346,7 +346,7 @@ tr.selected {
 <input type="hidden" name="mode" id="mode" value="add">
 <input type="hidden" name="id" id="id" value="<?php echo attr($id); ?>">
 <input type="hidden" name="pid" id="pid" value="<?php echo attr($pid); ?>">
-<br>
+<br />
       <table border=0 cellpadding=1 cellspacing=1>
         <?php
         if ($isAddedError) {
@@ -600,7 +600,7 @@ tr.selected {
                                 <td <?php echo ($value['imo_criteria'] != 'disease_with_presumed_immunity' || $id == 0) ? 'style="display: none;"' : ''; ?> class="code_serach_td" id="code_search_td_<?php echo attr(($key + 1)); ?>">
                                     <?php $key_snomed = ($key > 0) ? (($key*2) + 2) : ($key + 2);?>
                                   <label><?php echo xlt('SNOMED-CT Code'); ?></label>
-                                  <input type="text" id="sct_code_<?php echo attr($key_snomed); ?>" style="width:140px" name="sct_code[]" class="code" value="<?php echo ($id != 0 && $value['imo_criteria'] == 'disease_with_presumed_immunity') ? attr($value['imo_code']) : ''; ?>"  onclick='sel_code(this.id);'><br>
+                                  <input type="text" id="sct_code_<?php echo attr($key_snomed); ?>" style="width:140px" name="sct_code[]" class="code" value="<?php echo ($id != 0 && $value['imo_criteria'] == 'disease_with_presumed_immunity') ? attr($value['imo_code']) : ''; ?>"  onclick='sel_code(this.id);'><br />
                                   <span id="displaytext_<?php echo attr($key_snomed); ?>" style="width:210px !important;display: block;font-size:13px;color: blue;" class="displaytext"><?php  echo text($value['imo_codetext']);?></span>
                                   <input type="hidden" id="codetext_<?php echo attr($key_snomed); ?>" name="codetext[]" class="codetext" value="<?php echo attr($value['imo_codetext']); ?>">
                                   <input type="hidden"  value="SNOMED-CT" name="codetypehidden[]" id="codetypehidden<?php echo attr($key_snomed); ?>" />
@@ -658,7 +658,7 @@ tr.selected {
                         </td>
       <td <?php echo ($value['imo_criteria'] != 'disease_with_presumed_immunity' || $id == 0) ? 'style="display: none;"' : ''; ?> class="code_serach_td" id="code_search_td_1">
         <label><?php echo xlt('SNOMED-CT Code');?></label>
-        <input type="text" id="sct_code_2" style="width:140px" name="sct_code[]" class="code" value="<?php echo ($id != 0 && $value['imo_criteria'] == 'disease_with_presumed_immunity') ? attr($value['imo_code']) : ''; ?>"  onclick='sel_code(this.id);'><br>
+        <input type="text" id="sct_code_2" style="width:140px" name="sct_code[]" class="code" value="<?php echo ($id != 0 && $value['imo_criteria'] == 'disease_with_presumed_immunity') ? attr($value['imo_code']) : ''; ?>"  onclick='sel_code(this.id);'><br />
         <span id="displaytext_2" style="width:210px !important;display: block;font-size:13px;color: blue;" class="displaytext"><?php echo text($value['imo_codetext']);?></span>
         <input type="hidden" id="codetext_2" name="codetext[]" class="codetext" value="<?php echo attr($value['imo_codetext']); ?>">
                           <input type="hidden"  value="SNOMED-CT" name="codetypehidden[]" id="codetypehidden2" />
@@ -1116,7 +1116,7 @@ function addNewRow()
               '<td id="observation_criteria_value_td_'+new_tr_count+'" class="observation_criteria_value_td" style="display: none;"><label>'+label2+'</label><select name="observation_criteria_value[]" id="observation_criteria_value_'+new_tr_count+'" style="width: 220px;"></select>'+
               '</td>'+
               '<td class="code_serach_td" id="code_search_td_'+new_tr_count+'" style="display: none;"><label>'+label3+'</label>'+
-                '<input type="text" id="sct_code_'+new_tr_count_2+'" style="width:140px" name="sct_code[]" class="code" onclick=sel_code(this.id) /><br>'+
+                '<input type="text" id="sct_code_'+new_tr_count_2+'" style="width:140px" name="sct_code[]" class="code" onclick=sel_code(this.id) /><br />'+
                 '<span id="displaytext_'+new_tr_count_2+'" style="width:210px !important;display: block;font-size:13px;color: blue;" class="displaytext"></span>'+
                 '<input type="hidden" id="codetext_'+new_tr_count_2+'" name="codetext[]" class="codetext">'+
                 '<input type="hidden"  value="SNOMED-CT" name="codetypehidden[]" id="codetypehidden'+new_tr_count_2+'" /> '+

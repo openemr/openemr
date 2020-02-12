@@ -27,6 +27,9 @@
 
 
 require_once("../../interface/globals.php");
+
+use OpenEMR\Core\Header;
+
 if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_POST['form_delete']) && $_POST['form_delete'] == 'Delete')) {
     $count = $_POST['count'];
     $k = 1;
@@ -63,34 +66,30 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
 ?>
 <html>
 <head>
-    <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-    <script type="text/javascript"
-            src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script type="text/javascript"
-            src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
+    <?php Header::setupHeader('opener'); ?>
     <style>
         .bottom {
-            border-bottom: 1px solid black;
+            border-bottom: 1px solid var(--black);
         }
 
         .top {
-            border-top: 1px solid black;
+            border-top: 1px solid var(--black);
         }
 
         .left {
-            border-left: 1px solid black;
+            border-left: 1px solid var(--black);
         }
 
         .right {
-            border-right: 1px solid black;
+            border-right: 1px solid var(--black);
         }
 
         .class1 {
-            background-color: #7dc1db
+            background-color: #7dc1db;
         }
 
         .class2 {
-            background-color: #ef2983
+            background-color: #ef2983;
         }
     </style>
 </head>
@@ -106,8 +105,7 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
         <tr>
             <td align="center" class="title_bar_top ">#</td>
             <td align="center" class="title_bar_top "><?php echo htmlspecialchars(xl('Value'), ENT_QUOTES); ?></td>
-            <td align="center"
-                class="title_bar_top "><?php echo htmlspecialchars(xl('Display Name'), ENT_QUOTES); ?></td>
+            <td align="center" class="title_bar_top "><?php echo htmlspecialchars(xl('Display Name'), ENT_QUOTES); ?></td>
             <td align="center" class="title_bar_top "><?php echo htmlspecialchars(xl('Order'), ENT_QUOTES); ?></td>
             <td align="center" class="title_bar_top ">&nbsp;</td>
         </tr>
@@ -124,25 +122,15 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
             $i = $row['cl_list_slno'];
             $class = 'class1';
             ?>
-            <tr class='<?php echo htmlspecialchars($class, ENT_QUOTES); ?>'><input type='hidden'
-                                                                                   name='<?php echo htmlspecialchars("hidid" . $i, ENT_QUOTES); ?>'
-                                                                                   value='<?php echo htmlspecialchars($row['cl_list_slno'], ENT_QUOTES); ?>'>
-                <td align='center'><input type='text' name="<?php echo htmlspecialchars("sl" . $i, ENT_QUOTES); ?>"
-                                          value="<?php echo htmlspecialchars($sl, ENT_QUOTES); ?>" readonly=""
-                                          style="width:25px; background-color:#C9C9C9"/></td>
-                <td align='center'><input type='text' name="<?php echo htmlspecialchars("inshort" . $i, ENT_QUOTES); ?>"
-                                          size="10"
-                                          value="<?php echo htmlspecialchars($row['cl_list_item_short'], ENT_QUOTES); ?>"/>
+            <tr class='<?php echo htmlspecialchars($class, ENT_QUOTES); ?>'><input type='hidden' name='<?php echo htmlspecialchars("hidid" . $i, ENT_QUOTES); ?>' value='<?php echo htmlspecialchars($row['cl_list_slno'], ENT_QUOTES); ?>'>
+                <td align='center'><input type='text' name="<?php echo htmlspecialchars("sl" . $i, ENT_QUOTES); ?>" value="<?php echo htmlspecialchars($sl, ENT_QUOTES); ?>" readonly="" style="width:25px; background-color:#C9C9C9" /></td>
+                <td align='center'><input type='text' name="<?php echo htmlspecialchars("inshort" . $i, ENT_QUOTES); ?>" size="10" value="<?php echo htmlspecialchars($row['cl_list_item_short'], ENT_QUOTES); ?>"/>
                 </td>
-                <td align='center'><input type='text'
-                                          name="<?php echo htmlspecialchars("designation" . $i, ENT_QUOTES); ?>"
-                                          value="<?php echo htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES); ?>"/>
+                <td align='center'><input type='text' name="<?php echo htmlspecialchars("designation" . $i, ENT_QUOTES); ?>" value="<?php echo htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES); ?>"/>
                 </td>
-                <td align='center'><input type='text' name='<?php echo htmlspecialchars("level" . $i, ENT_QUOTES); ?>'
-                                          value="<?php echo htmlspecialchars($row['cl_order'], ENT_QUOTES); ?>" size=1>
+                <td align='center'><input type='text' name='<?php echo htmlspecialchars("level" . $i, ENT_QUOTES); ?>' value="<?php echo htmlspecialchars($row['cl_order'], ENT_QUOTES); ?>" size=1>
                 </td>
-                <td align='center'><input type='checkbox' name='<?php echo htmlspecialchars("chk" . $i, ENT_QUOTES); ?>'
-                                          value='<?php echo htmlspecialchars($row['cl_list_slno'], ENT_QUOTES); ?>'>
+                <td align='center'><input type='checkbox' name='<?php echo htmlspecialchars("chk" . $i, ENT_QUOTES); ?>' value='<?php echo htmlspecialchars($row['cl_list_slno'], ENT_QUOTES); ?>'>
                 </td>
             </tr>
             <?php

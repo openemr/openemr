@@ -17,9 +17,9 @@
 /**
  * Smarty {xla} function plugin
  *
- * Type:     function<br>
- * Name:     xla<br>
- * Purpose:  translate in OpenEMR and escape for html attr - Smarty templates<br>
+ * Type:     function<br />
+ * Name:     xla<br />
+ * Purpose:  translate in OpenEMR and escape for html attr - Smarty templates<br />
  *
  * Examples:
  *

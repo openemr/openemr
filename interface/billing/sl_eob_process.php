@@ -9,7 +9,7 @@
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019-2020 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -23,6 +23,7 @@ use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 use OpenEMR\Services\InsuranceService;
 
 $debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
@@ -149,6 +150,8 @@ function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor)
 
     // This is called back by ParseERA::parse_era() once per claim.
     //
+
+// TODO: Sort colors here for Bootstrap themes
 function era_callback_check(&$out)
 {
     global $InsertionId;//last inserted ID of
@@ -156,8 +159,8 @@ function era_callback_check(&$out)
 
     if ($_GET['original']=='original') {
         $StringToEcho="<br/><br/><br/><br/><br/><br/>";
-        $StringToEcho.="<table border='1' cellpadding='0' cellspacing='0'  width='750'>";
-        $StringToEcho.="<tr bgcolor='#cccccc'><td width='50'></td><td class='dehead' width='150' align='center'>" . xlt('Check Number') . "</td><td class='dehead' width='400'  align='center'>" . xlt('Payee Name') . "</td><td class='dehead'  width='150' align='center'>" . xlt('Check Amount') . "</td></tr>";
+        $StringToEcho.="<table class='table table-bordered' cellpadding='0' cellspacing='0' width='750'>";
+        $StringToEcho.="<tr class='table-light'><td width='50'></td><td class='dehead' width='150' align='center'>" . xlt('Check Number') . "</td><td class='dehead' width='400' align='center'>" . xlt('Payee Name') . "</td><td class='dehead' width='150' align='center'>" . xlt('Check Amount') . "</td></tr>";
         $WarningFlag=false;
         for ($check_count=1; $check_count<=$out['check_count']; $check_count++) {
             if ($check_count%2==1) {
@@ -180,9 +183,9 @@ function era_callback_check(&$out)
             $StringToEcho.="</tr>";
         }
 
-        $StringToEcho.="<tr bgcolor='#cccccc'><td colspan='4' align='center'><input type='submit'  name='CheckSubmit' value='Submit'/></td></tr>";
+        $StringToEcho.="<tr class='table-light'><td colspan='4' align='center'><input type='submit' name='CheckSubmit' value='Submit'/></td></tr>";
         if ($WarningFlag==true) {
-            $StringToEcho.="<tr bgcolor='#ff0000'><td colspan='4' align='center'>" . xlt('Warning, Check Number already exist in the database') . "</td></tr>";
+            $StringToEcho.="<tr class='table-danger'><td colspan='4' align='center'>" . xlt('Warning, Check Number already exist in the database') . "</td></tr>";
         }
 
         $StringToEcho.="</table>";
@@ -212,13 +215,13 @@ function era_callback(&$out)
     if (isset($_REQUEST['chk'.$chk_123])) {
         if ($encount == 0) {
             writeMessageLine(
-                '#ffffff',
+                'var(--white)',
                 'infdetail',
                 "Payer: " . $out['payer_name']
             );
             if ($debug) {
                 writeMessageLine(
-                    '#ffffff',
+                    'var(--white)',
                     'infdetail',
                     "WITHOUT UPDATE is selected; no changes will be applied."
                 );
@@ -687,19 +690,46 @@ if (!$debug) {
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-<style type="text/css">
- body       { font-family:sans-serif; font-size:8pt; font-weight:normal }
- .dehead    { color:#000000; font-family:sans-serif; font-size:9pt; font-weight:bold }
- .olddetail { color:#000000; font-family:sans-serif; font-size:9pt; font-weight:normal }
- .newdetail { color:#00dd00; font-family:sans-serif; font-size:9pt; font-weight:normal }
- .errdetail { color:#dd0000; font-family:sans-serif; font-size:9pt; font-weight:normal }
- .infdetail { color:#0000ff; font-family:sans-serif; font-size:9pt; font-weight:normal }
+<?php Header::setupHeader(); ?>
+<style>
+    body {
+        font-family: sans-serif;
+        font-size: 0.6875rem;
+        font-weight: normal;
+    }
+    .dehead {
+        font-family: sans-serif;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+    .olddetail {
+        font-family: sans-serif;
+        font-size: 0.75rem;
+        font-weight: normal;
+    }
+    .newdetail {
+        color: var(--success);
+        font-family: sans-serif;
+        font-size: 0.75rem;
+        font-weight: normal;
+    }
+    .errdetail {
+        color: var(--danger);
+        font-family: sans-serif;
+        font-size: 0.75rem;
+        font-weight: normal;
+    }
+    .infdetail {
+        color: var(--primary);
+        font-family: sans-serif;
+        font-size: 0.75rem;
+        font-weight: normal;
+    }
 </style>
-<title><?php echo xlt('EOB Posting - Electronic Remittances')?></title>
+<title><?php echo xlt('EOB Posting - Electronic Remittances'); ?></title>
 </head>
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
-<form action="sl_eob_process.php" method="get" >
+<body class='m-0'>
+<form action="sl_eob_process.php" method="get">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <center>
@@ -709,9 +739,9 @@ if ($_GET['original']=='original') {
     echo $StringToEcho;
 } else {
     ?>
-    <table border='0' cellpadding='2' cellspacing='0' width='100%'>
+    <table class='table table-borderless w-100' cellpadding='2' cellspacing='0'>
 
-     <tr bgcolor="#cccccc">
+     <tr class="table-light">
       <td class="dehead">
     <?php echo xlt('Patient'); ?>
       </td>
@@ -770,7 +800,7 @@ if ($_GET['original']=='original') {
 }
 ?>
 </center>
-<script language="JavaScript">
+<script>
 <?php
 if ($alertmsg) {
     echo " alert(" . js_escape($alertmsg) . ");\n";

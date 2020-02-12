@@ -34,6 +34,8 @@ require_once($GLOBALS['srcdir'].'/amc.php');
 require_once($GLOBALS['fileroot'].'/interface/eRxSOAP.php');
 require_once($GLOBALS['fileroot'].'/interface/eRx_xml.php');
 
+use OpenEMR\Core\Header;
+
 set_time_limit(0);
 
 $eRxSOAP = new eRxSOAP;
@@ -52,7 +54,7 @@ $accountStatus = $eRxSOAP->getAccountStatus()
 
 ?>
 <head>
-    <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+    <?php Header::setupHeader(); ?>
 </head>
 <body class='body_top'>
     <table class='text' align=center width='90%' height='80%' style='padding-top:6%'>

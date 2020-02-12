@@ -9,6 +9,7 @@
  * @author    Tony McCormick <tony@mi-squared.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -32,9 +33,13 @@ require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 use ESign\Api;
 use Mpdf\Mpdf;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
+
+$staged_docs = array();
+$archive_name = '';
 
 // For those who care that this is the patient report.
 $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
@@ -132,16 +137,52 @@ function postToGet($arin)
 
     return $getstring;
 }
+
+function report_basename($pid)
+{
+    $ptd = getPatientData($pid, "fname,lname");
+    // escape names for pesky periods hyphen etc.
+    $esc = $ptd['fname'] . '_' . $ptd['lname'];
+    $esc = str_replace(array('.', ',', ' '), '', $esc);
+    $fn = basename_international(strtolower($esc . '_' . $pid . '_' . xl('report')));
+
+    return array('base'=>$fn, 'fname'=>$ptd['fname'], 'lname'=>$ptd['lname']);
+}
+
+function zip_content($source, $destination, $content = '', $create = true)
+{
+    if (!extension_loaded('zip')) {
+        return false;
+    }
+
+    $zip = new ZipArchive();
+    if ($create) {
+        if (!$zip->open($destination, ZipArchive::CREATE)) {
+            return false;
+        }
+    } else {
+        if (!$zip->open($destination, ZipArchive::OVERWRITE)) {
+            return false;
+        }
+    }
+
+    if (is_file($source) === true) {
+        $zip->addFromString(basename($source), file_get_contents($source));
+    } elseif (!empty($content)) {
+        $zip->addFromString(basename($source), $content);
+    }
+
+    return $zip->close();
+}
+
 ?>
 
 <?php if ($PDF_OUTPUT) { ?>
-<link rel="stylesheet" href="<?php echo  $web_root . '/interface/themes/style_pdf.css' ?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="<?php echo $web_root; ?>/library/ESign/css/esign_report.css" />
+    <?php Header::setupAssets(['pdf-style', 'esign-theme-only']); ?>
 <?php } else {?>
-<html>
-<head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign_report.css" />
+    <html>
+    <head>
+    <?php Header::setupHeader(['esign-theme-only', 'search-highlight']); ?>
 <?php } ?>
 
 <?php // do not show stuff from report.php in forms that is encaspulated
@@ -150,39 +191,39 @@ function postToGet($arin)
       // encounter listings output, but not in the custom report. ?>
 <style>
   div.navigateLink {display:none;}
-  .hilite {background-color: #FFFF00;}
+  .hilite {background-color: var(--yellow);}
   .hilite2 {background-color: transparent;}
-  mark {background-color: #FFFF00;}
-  .css_button{cursor:pointer;}
-  .next {background-color: #FFFF00;}
+  mark {background-color: var(--yellow);}
+  .btn {
+      cursor:pointer;
+    }
+  .next {
+      background-color: var(--yellow);
+    }
   #search_options{
     position:fixed;
     left:0px;
     top:0px;
     z-index:10;
-    border-bottom: solid thin #6D6D6D;
+    border-bottom: solid thin var(--gray);
     padding:0% 2% 0% 2.5%;
   }
   img { max-width:700px; }
 </style>
 
 <?php if (!$PDF_OUTPUT) { ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/SearchHighlight.js"></script>
-<script type="text/javascript">var $j = jQuery.noConflict();</script>
-
     <?php // if the track_anything form exists, then include the styling
     if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
- <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']?>/interface/forms/track_anything/style.css" type="text/css">
+        <?php Header::setupAssets('track-anything'); ?>
     <?php  } ?>
 
-</head>
+    </head>
     <?php
-// remove blank header for printable version to conserve space
-// adjust this if you are printing to letterhead to appropriate height
+    // remove blank header for printable version to conserve space
+    // adjust this if you are printing to letterhead to appropriate height
     ($printable) ? ($style = ''):($style='padding-top:95px;');
     ?>
-<body class="body_top" style="<?php echo $style; ?>">
+    <body class="body_top" style="<?php echo $style; ?>">
 <?php } ?>
 <div id="report_custom" style="width: 100%;">  <!-- large outer DIV -->
 
@@ -230,11 +271,11 @@ if ($printable) {
     }
     ?>
     <h2><?php echo text($facility['name']); ?></h2>
-    <?php echo text($facility['street']); ?><br>
+    <?php echo text($facility['street']); ?><br />
     <?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><br clear='all'>
-    <?php echo text($facility['phone']); ?><br>
+    <?php echo text($facility['phone']); ?><br />
 
-<a href="javascript:window.close();"><span class='title'><?php echo xlt('Patient') . ": " . text($titleres['fname']) . " " . text($titleres['lname']); ?></span></a><br>
+<a href="javascript:window.close();"><span class='title'><?php echo xlt('Patient') . ": " . text($titleres['fname']) . " " . text($titleres['lname']); ?></span></a><br />
 <span class='text'><?php echo xlt('Generated on'); ?>: <?php echo text(oeFormatShortDate()); ?></span>
     <?php echo "</td></tr></tbody></table></div>";?>
 
@@ -245,10 +286,10 @@ if ($printable) {
     <a href="patient_report.php" onclick='top.restoreSession()'>
  <span class='title'><?php echo xlt('Patient Report'); ?></span>
  <span class='back'><?php echo text($tback); ?></span>
-</a><br><br>
+</a><br /><br />
 <a href="custom_report.php?printable=1&<?php print postToGet($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
  [<?php echo xlt('Printable Version'); ?>]
-</a><br>
+</a><br />
 <div class="report_search_bar" style="width: 100%;" id="search_options">
   <table style="width: 100%;">
     <tr>
@@ -256,13 +297,13 @@ if ($printable) {
     <input type="text" onKeyUp="clear_last_visit();remove_mark_all();find_all();" name="search_element" id="search_element" style="width: 180px;"/>
   </td>
   <td>
-     <a class="css_button" onClick="clear_last_visit();remove_mark_all();find_all();" ><span><?php echo xlt('Find'); ?></span></a>
+     <a class="btn btn-secondary" onClick="clear_last_visit();remove_mark_all();find_all();" ><span><?php echo xlt('Find'); ?></span></a>
   </td>
   <td>
-     <a class="css_button" onClick="next_prev('prev');" ><span><?php echo xlt('Prev'); ?></span></a>
+     <a class="btn btn-secondary" onClick="next_prev('prev');" ><span><?php echo xlt('Prev'); ?></span></a>
   </td>
   <td>
-     <a class="css_button" onClick="next_prev('next');" ><span><?php echo xlt('Next'); ?></span></a>
+     <a class="btn btn-secondary" onClick="next_prev('next');" ><span><?php echo xlt('Next'); ?></span></a>
   </td>
   <td>
     <input type="checkbox" onClick="clear_last_visit();remove_mark_all();find_all();" name="search_case" id="search_case" />
@@ -272,7 +313,7 @@ if ($printable) {
   </td>
   <td style="padding-left: 10px;">
     <span class="text"><b><?php echo xlt('Search In'); ?>:</b></span>
-    <br>
+    <br />
     <?php
     $form_id_arr = array();
     $form_dir_arr = array();
@@ -354,7 +395,7 @@ foreach ($ar as $key => $val) {
                 echo "<div class='text' >";
                 echo "<span>" . xlt('None{{Appointment}}') . "</span>";
                 echo "</div>";
-                echo "<br>";
+                echo "<br />";
             } else {
                 foreach ($recurrences as $row) {
                     //checks if there are recurrences and if they are current (git didn't end yet)
@@ -364,9 +405,9 @@ foreach ($ar as $key => $val) {
 
                     echo "<div class='text' >";
                     echo "<span>" . xlt('Appointment Category') . ': ' . xlt($row['pc_catname']) . "</span>";
-                    echo "<br>";
+                    echo "<br />";
                     echo "<span>" . xlt('Recurrence') . ': ' .text($row['pc_recurrspec']) . "</span>";
-                    echo "<br>";
+                    echo "<br />";
                     $red_text = ""; //if ends in a week, make font red
                     if (ends_in_a_week($row['pc_endDate'])) {
                         $red_text = " style=\"color:red;\" ";
@@ -374,11 +415,11 @@ foreach ($ar as $key => $val) {
 
                     echo "<span" . $red_text . ">" . xlt('End Date') . ': ' . text($row['pc_endDate']) . "</span>";
                     echo "</div>";
-                    echo "<br>";
+                    echo "<br />";
                 }
             }
 
-            echo "</div><br>";
+            echo "</div><br />";
         } elseif ($val == "demographics") {
             echo "<hr />";
             echo "<div class='text demographics' id='DEM'>\n";
@@ -405,17 +446,17 @@ foreach ($ar as $key => $val) {
             echo "</div>";
 
             // } elseif ($val == "employer") {
-            //   print "<br><span class='bold'>".xl('Employer Data').":</span><br>";
+            //   print "<br /><span class='bold'>".xl('Employer Data').":</span><br />";
             //   printRecDataOne($employer_data_array, getRecEmployerData ($pid), $N);
         } elseif ($val == "insurance") {
             echo "<hr />";
             echo "<div class='text insurance'>";
             echo "<h1>".xlt('Insurance Data').":</h1>";
-            print "<br><span class=bold>".xlt('Primary Insurance Data').":</span><br>";
+            print "<br /><span class=bold>".xlt('Primary Insurance Data').":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
-            print "<span class=bold>".xlt('Secondary Insurance Data').":</span><br>";
+            print "<span class=bold>".xlt('Secondary Insurance Data').":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
-            print "<span class=bold>".xlt('Tertiary Insurance Data').":</span><br>";
+            print "<span class=bold>".xlt('Tertiary Insurance Data').":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
             echo "</div>";
         } elseif ($val == "billing") {
@@ -466,17 +507,17 @@ foreach ($ar as $key => $val) {
 
         } elseif ($val == "allergies") {
 
-            print "<span class=bold>Patient Allergies:</span><br>";
+            print "<span class=bold>Patient Allergies:</span><br />";
             printListData($pid, "allergy", "1");
 
         } elseif ($val == "medications") {
 
-            print "<span class=bold>Patient Medications:</span><br>";
+            print "<span class=bold>Patient Medications:</span><br />";
             printListData($pid, "medication", "1");
 
         } elseif ($val == "medical_problems") {
 
-            print "<span class=bold>Patient Medical Problems:</span><br>";
+            print "<span class=bold>Patient Medical Problems:</span><br />";
             printListData($pid, "medical_problem", "1");
 
     ****/
@@ -509,7 +550,7 @@ foreach ($ar as $key => $val) {
                          echo " - " . text($row['immunization_note']);
                     }
 
-                    echo "<br>\n";
+                    echo "<br />\n";
                 }
 
                 echo "</div>\n";
@@ -524,7 +565,7 @@ foreach ($ar as $key => $val) {
             // echo $sql;
             $result = sqlStatement($sql, array($pid));
             while ($row=sqlFetchArray($result)) {
-                echo text($row['batchcom_data']) . ", By: " . text($row['user_name']) . "<br>Text:<br> " . text($row['msg_txt']) . "<br>\n";
+                echo text($row['batchcom_data']) . ", By: " . text($row['user_name']) . "<br />Text:<br /> " . text($row['msg_txt']) . "<br />\n";
             }
 
             echo "</div>\n";
@@ -576,7 +617,7 @@ foreach ($ar as $key => $val) {
                     echo '<td>' . xlt('Date') . ': ' . text(oeFormatShortDate($note->get_date())) . '</td>';
                     echo '</tr>';
                     echo '<tr>';
-                    echo '<td>' . text($note->get_note()) . '<br><br></td>';
+                    echo '<td>' . text($note->get_note()) . '<br /><br /></td>';
                     echo '</tr>';
                 }
 
@@ -612,11 +653,11 @@ foreach ($ar as $key => $val) {
                             echo " class='bigimage'";
                         }
                         $tmp_files_remove[] = $from_file_tmp_web_name;
-                        echo " /><br><br>";
+                        echo " /><br /><br />";
                     } else {
                         echo "<img src='" . $GLOBALS['webroot'] .
                         "/controller.php?document&retrieve&patient_id=&document_id=" .
-                        attr_url($document_id) . "&as_file=false&original_file=true&disable_exit=false&show_original=true'><br><br>";
+                        attr_url($document_id) . "&as_file=false&original_file=true&disable_exit=false&show_original=true'><br /><br />";
                     }
                 } else {
                     // Most clinic documents are expected to be PDFs, and in that happy case
@@ -625,27 +666,43 @@ foreach ($ar as $key => $val) {
                         echo "</div></div>\n"; // HTML to PDF conversion will fail if there are open tags.
                         $content = getContent();
                         $pdf->writeHTML($content); // catch up with buffer.
-                        $pg_header = "<span>" . xlt('Document') . " " . text($fname) ."</span>";
-                        $tempDocC = new C_Document;
-                        $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
-                        // tmp file in temporary_files_dir
-                        $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
-                        file_put_contents($from_file_tmp_name, $pdfTemp);
-                        $pagecount = $pdf->setSourceFile($from_file_tmp_name);
-                        for ($i = 0; $i < $pagecount; ++$i) {
-                            $pdf->AddPage();
-                            $itpl = $pdf->importPage($i+1);
-                            $pdf->useTemplate($itpl);
+                        $err = '';
+                        try {
+                            // below header isn't being used. missed maybe!
+                            $pg_header = "<span>" . xlt('Document') . " " . text($fname) ."</span>";
+                            $tempDocC = new C_Document;
+                            $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
+                            // tmp file in temporary_files_dir
+                            $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
+                            file_put_contents($from_file_tmp_name, $pdfTemp);
+
+                            $pagecount = $pdf->setSourceFile($from_file_tmp_name);
+                            for ($i = 0; $i < $pagecount; ++$i) {
+                                $pdf->AddPage();
+                                $itpl = $pdf->importPage($i + 1);
+                                $pdf->useTemplate($itpl);
+                            }
+                        } catch (Exception $e) {
+                            // chances are PDF is > v1.4 and compression level not supported.
+                            // regardless, we're here so lets dispose in different way.
+                            //
+                            unlink($from_file_tmp_name);
+                            $archive_name = ($GLOBALS['temporary_files_dir'] . '/' . report_basename($pid)['base'] . ".zip");
+                            $rtn = zip_content(basename($d->url), $archive_name, $pdfTemp);
+                            $err = "<span>" . xlt('PDF Document Parse Error and not included. Check if included in archive.') . " : " . text($fname) ."</span>";
+                            $pdf->writeHTML($err);
+                            $staged_docs[] = array('path'=>$d->url, 'fname'=>$fname);
+                        } finally {
+                            unlink($from_file_tmp_name);
+                            // Make sure whatever follows is on a new page. Maybe!
+                            // okay if not a series of pdfs so if so need @todo
+                            if (empty($err)) {
+                                $pdf->AddPage();
+                            }
+                            // Resume output buffering and the above-closed tags.
+                            ob_start();
+                            echo "<div><div class='text documents'>\n";
                         }
-                        unlink($from_file_tmp_name);
-
-                        // Make sure whatever follows is on a new page.
-                        $pdf->AddPage();
-
-                        // Resume output buffering and the above-closed tags.
-                        ob_start();
-
-                        echo "<div><div class='text documents'>\n";
                     } elseif ($extension == ".txt") {
                         echo "<pre>";
                         $tempDocC = new C_Document;
@@ -660,10 +717,10 @@ foreach ($ar as $key => $val) {
                             // tmp file in ../documents/temp since need to be available via webroot
                             $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'].'/documents/temp', "oer");
                             file_put_contents($from_file_tmp_web_name, $fileTemp);
-                            echo "<img src='$from_file_tmp_web_name'><br><br>";
+                            echo "<img src='$from_file_tmp_web_name'><br /><br />";
                             $tmp_files_remove[] = $from_file_tmp_web_name;
                         } else {
-                            echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br><br>";
+                            echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br /><br />";
                         }
                     }
                 } // end if-else
@@ -711,11 +768,11 @@ foreach ($ar as $key => $val) {
             // Show issue's chief diagnosis and its description:
             if ($diagnosis) {
                 echo "<div class='text issue_diag'>";
-                echo "<span class='bold'>[" . xlt('Diagnosis') . "]</span><br>";
+                echo "<span class='bold'>[" . xlt('Diagnosis') . "]</span><br />";
                 $dcodes = explode(";", $diagnosis);
                 foreach ($dcodes as $dcode) {
                     echo "<span class='italic'>" . text($dcode) . "</span>: ";
-                    echo text(lookup_code_descriptions($dcode)) . "<br>\n";
+                    echo text(lookup_code_descriptions($dcode)) . "<br />\n";
                 }
 
                 //echo $diagnosis." -- ".lookup_code_descriptions($diagnosis)."\n";
@@ -764,7 +821,7 @@ foreach ($ar as $key => $val) {
                     echo ' '. xlt('Provider') . ': ' . text(getProviderName(getProviderIdOfEncounter($form_encounter)));
                 }
 
-                echo "<br>\n";
+                echo "<br />\n";
 
                 // call the report function for the form
                 ?>
@@ -800,7 +857,7 @@ foreach ($ar as $key => $val) {
                     );
                     while ($brow=sqlFetchArray($bres)) {
                         echo "<div class='bold' style='display: inline-block'>&nbsp;" . xlt('Procedure') . ": </div><div class='text' style='display: inline-block'>" .
-                            text($brow['code']) . " " . text($brow['code_text']) . "</div><br>\n";
+                            text($brow['code']) . " " . text($brow['code_text']) . "</div><br />\n";
                     }
                 }
 
@@ -820,11 +877,8 @@ if ($printable && ! $PDF_OUTPUT) {// Patched out of pdf 04/20/2017 sjpadgett
 <?php
 if ($PDF_OUTPUT) {
     $content = getContent();
-    $ptd = getPatientData($pid, "fname,lname");
-    // escape names for pesky periods hyphen etc.
-    $esc = $ptd['fname'] . '_' . $ptd['lname'];
-    $esc = str_replace(array('.', ',', ' '), '', $esc);
-    $fn = basename_international(strtolower($esc . '_' . $pid . '_' . xl('report') . '.pdf'));
+    $ptd = report_basename($pid);
+    $fn = $ptd['base'] . ".pdf";
     $pdf->SetTitle(ucfirst($ptd['fname']) . ' ' . $ptd['lname'] . ' ' . xl('Id') . ':' . $pid . ' ' . xl('Report'));
     $isit_utf8 = preg_match('//u', $content); // quick check for invalid encoding
     if (! $isit_utf8) {
@@ -851,7 +905,24 @@ if ($PDF_OUTPUT) {
                 echo $tmp_file;
                 exit();
             } else {
-                $pdf->Output($fn, $GLOBALS['pdf_output']); // D = Download, I = Inline
+                if (!empty($archive_name) && sizeof($staged_docs) > 0) {
+                    $rtn = zip_content(basename($fn), $archive_name, $pdf->Output($fn, 'S'));
+                    header('Content-Description: File Transfer');
+                    header('Content-Transfer-Encoding: binary');
+                    header('Expires: 0');
+                    header("Cache-control: private");
+                    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+                    header("Content-Type: application/zip; charset=utf-8");
+                    header("Content-Length: " . filesize($archive_name));
+                    header('Content-Disposition: attachment; filename="'. basename($archive_name) .'"');
+
+                    ob_end_clean();
+                    @readfile($archive_name) or error_log("Archive temp file not found: " . $archive_name);
+
+                    unlink($archive_name);
+                } else {
+                    $pdf->Output($fn, $GLOBALS['pdf_output']); // D = Download, I = Inline
+                }
             }
         } catch (MpdfException $exception) {
             die(text($exception));
@@ -861,7 +932,7 @@ if ($PDF_OUTPUT) {
         $ptdata = getPatientData($pid, 'cmsportal_login');
         $contents = $pdf->Output('', true);
         echo "<html><head>\n";
-        echo "<link rel='stylesheet' href='$css_header' type='text/css'>\n";
+        Header::setupHeader();
         echo "</head><body class='body_top'>\n";
         $result = cms_portal_call(array(
             'action' => 'putmessage',

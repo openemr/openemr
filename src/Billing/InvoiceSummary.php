@@ -126,7 +126,7 @@ class InvoiceSummary
         // Get payments and adjustments. (includes copays)
         $res = sqlStatement("SELECT " .
             "a.code_type, a.code, a.modifier, a.memo, a.payer_type, a.adj_amount, a.pay_amount, a.reason_code, " .
-            "a.post_time, a.session_id, a.sequence_no, a.account_code, " .
+            "a.post_time, a.session_id, a.sequence_no, a.account_code, a.follow_up_note, " .
             "s.payer_id, s.reference, s.check_date, s.deposit_date " .
             ",i.name " .
             "FROM ar_activity AS a " .
@@ -172,7 +172,7 @@ class InvoiceSummary
                 if ($row['adj_amount'] != 0 || $row['pay_amount'] == 0) {
                     $tmp['chg'] = 0 - $row['adj_amount'];
                     // $tmp['rsn'] = (empty($row['memo']) || empty($row['session_id'])) ? 'Unknown adjustment' : $row['memo'];
-                    $tmp['rsn'] = empty($row['memo']) ? 'Unknown adjustment' : $row['memo'];
+                    $tmp['rsn'] = empty($row['memo']) ? $row['follow_up_note'] : $row['memo'];
                     $tmp['rsn'] = str_replace("Ins1", $ins_data['primary'], $tmp['rsn']);
                     $tmp['rsn'] = str_replace("Ins2", $ins_data['secondary'], $tmp['rsn']);
                     $tmp['rsn'] = str_replace("Ins3", $ins_data['tertiary'], $tmp['rsn']);
@@ -228,7 +228,7 @@ class InvoiceSummary
         // There is no unclosed insurance, so see if there is an unpaid balance.
         // Currently hoping that form_encounter.balance_due can be discarded.
         $balance = 0;
-        $codes = ar_get_invoice_summary($patient_id, $encounter_id);
+        $codes = self::ar_get_invoice_summary($patient_id, $encounter_id);
         foreach ($codes as $cdata) {
             $balance += $cdata['bal'];
         }

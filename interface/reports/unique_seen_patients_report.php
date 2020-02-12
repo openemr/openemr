@@ -67,7 +67,7 @@ if ($_POST['form_labels']) {
 
     <?php Header::setupHeader('datetime-picker'); ?>
 
-<script language="JavaScript">
+<script>
 
 $(function() {
     var win = top.printLogSetup ? top : opener.top;
@@ -134,13 +134,13 @@ $(function() {
 
    <table class='text'>
        <tr>
-           <td class='control-label'>
+           <td class='col-form-label'>
                 <?php echo xlt('Visits From'); ?>:
            </td>
            <td>
              <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
            </td>
-           <td class='control-label'>
+           <td class='col-form-label'>
                 <?php echo xlt('To{{Range}}'); ?>:
            </td>
            <td>
@@ -152,20 +152,20 @@ $(function() {
    </div>
 
  </td>
- <td align='left' valign='middle' height="100%">
-   <table style='border-left:1px solid; width:100%; height:100%' >
+ <td class='h-100' align='left' valign='middle' height="100%">
+   <table class='w-100 h-100' style='border-left:1px solid'>
        <tr>
            <td>
                <div class="text-center">
          <div class="btn-group" role="group">
-                     <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#form_labels").val(""); $("#theform").submit();'>
+                     <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#form_labels").val(""); $("#theform").submit();'>
                         <?php echo xlt('Submit'); ?>
                      </a>
                     <?php if ($_POST['form_refresh']) { ?>
-                        <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                        <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                 <?php echo xlt('Print'); ?>
                         </a>
-                        <a href='#' class='btn btn-default btn-transmit' onclick='$("#form_labels").attr("value","true"); $("#theform").submit();'>
+                        <a href='#' class='btn btn-secondary btn-transmit' onclick='$("#form_labels").attr("value","true"); $("#theform").submit();'>
                             <?php echo xlt('Labels'); ?>
                         </a>
                     <?php } ?>
@@ -180,9 +180,9 @@ $(function() {
 </div> <!-- end of parameters -->
 
 <div id="report_results">
-<table>
+<table class='table'>
 
-<thead>
+<thead class='thead-light'>
 <th> <?php echo xlt('Last Visit'); ?> </th>
 <th> <?php echo xlt('Patient'); ?> </th>
 <th align='right'> <?php echo xlt('Visits'); ?> </th>

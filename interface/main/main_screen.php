@@ -279,7 +279,7 @@ if (isset($_POST['new_login_session_management'])) {
                 echo '              <fieldset>';
                 echo '                  <legend>' . xlt('Provide TOTP code') . '</legend>';
                 echo '                  <div class="form-group">';
-                echo '                      <div class="col-sm-6 col-sm-offset-3">';
+                echo '                      <div class="col-sm-6 offset-sm-3">';
                 echo '                          <label for="totp">' . xlt('Enter the code from your authentication application on your device') . ':</label>';
                 echo '                          <input type="text" name="totp" class="form-control input-lg" id="totp" maxlength="12" required>';
                 echo '                          <input type="hidden" name="form_response" value="true" />';
@@ -288,7 +288,7 @@ if (isset($_POST['new_login_session_management'])) {
                 echo '              </fieldset>';
                 echo '                  <div class="form-group clearfix">';
                 echo '                      <div class="col-sm-12 text-left position-override">';
-                echo '                          <button type="submit" class="btn btn-default btn-save">' . xlt('Authenticate TOTP') . '</button>';
+                echo '                          <button type="submit" class="btn btn-secondary btn-save">' . xlt('Authenticate TOTP') . '</button>';
                 echo '                  </div>';
                 echo '              </div>';
                 echo '          </div>';
@@ -322,7 +322,7 @@ if (isset($_POST['new_login_session_management'])) {
                 echo '              <fieldset>';
                 echo '                  <legend>' . xlt('Insert U2F Key') . '</legend>';
                 echo '                  <div class="form-group">';
-                echo '                      <div class="col-sm-6 col-sm-offset-3">';
+                echo '                      <div class="col-sm-6 offset-sm-3">';
                 echo '                          <ul>';
                 echo '                              <li>' . xlt('Insert your key into a USB port and click the Authenticate button below.') . '</li>';
                 echo '                              <li>' . xlt('Then press the flashing button on your key within 1 minute.') . '</li>';
@@ -331,7 +331,7 @@ if (isset($_POST['new_login_session_management'])) {
                 echo '              </fieldset>';
                 echo '                  <div class="form-group clearfix">';
                 echo '                      <div class="col-sm-12 text-left position-override">';
-                echo '                          <button type="button"  id="authutf" class="btn btn-default btn-save" onclick="doAuth()">' . xlt('Authenticate U2F') . '</button>';
+                echo '                          <button type="button"  id="authutf" class="btn btn-secondary btn-save" onclick="doAuth()">' . xlt('Authenticate U2F') . '</button>';
                 echo '                          <input type="hidden" name="form_requests" value="' . attr($requests) . '" />';
                 echo '                          <input type="hidden" name="form_response" value="" />';
                 generate_html_middle();

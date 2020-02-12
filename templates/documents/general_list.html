@@ -13,27 +13,27 @@
 {headerTemplate assets='datetime-picker|jquery-ui|jquery-ui-lightness'}
 <link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.css">
 {literal}
-<style type="text/css">
+<style>
 .warn_diagnostic {
     margin: 10 auto 10 auto;
     color: rgb(255, 0, 0);
-    font-size: 1.5em;
+    font-size: 1.5rem;
 }
 .ui-autocomplete {
     position: absolute;
     top: 0;
     left: 0;
-    min-width:200px;
+    min-width: 200px;
     cursor: default;
 }
-.ui-menu-item{
-     min-width:200px;
+.ui-menu-item {
+     min-width: 200px;
 }
-.fixed-height{
-min-width:200px;
-padding: 1px;
-max-height: 35%;
-overflow: auto;
+.fixed-height {
+    min-width: 200px;
+    padding: 1px;
+    max-height: 35%;
+    overflow: auto;
 }
 </style>
 {/literal}
@@ -73,15 +73,15 @@ overflow: auto;
 				<fieldset>
 				<legend>{xlt t='Documents List'}</legend>
                 <div style="padding: 0 10px">
-                    <div class="ui-widget"style="float:right;">
-                        <button id='pid' class="pBtn" type="button" style="float:right;">0</button>
-                         <input id="selectPatient" type="text" placeholder="{$place_hld|attr}">
+                    <div class="ui-widget form-inline" style="float:right;">
+                         <input id="selectPatient" class="form-control" type="text" placeholder="{$place_hld|attr}" style="border-radius: 0.25rem 0 0 0.25rem" />
+                        <button id='pid' class="btn btn-primary pBtn" type="button" style="float:right; border-radius: 0 0.25rem 0.25rem 0">0</button>
                     </div>
                     <a id="list_collapse" href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">&nbsp;({xlt t='Collapse all'})</a>
                     {$tree_html}
                 </div>
-			</div>
 			</fieldset>
+            </div>
 		</div>
 
 		<div class="col-sm-9">
@@ -92,10 +92,10 @@ overflow: auto;
 					<legend>{xlt t='Document Uploader/Viewer'}</legend>
                     <div style="padding: 0 10px">
 						{if $message}
-							<div class='text' style="margin-bottom:-10px; margin-top:-8px; padding:10px;"><i>{$message|text}</i></div><br>
+							<div class='text' style="margin-bottom:-10px; margin-top:-8px; padding:10px;"><i>{$message|text}</i></div><br />
 						{/if}
 						{if $messages}
-							<div class='text' style="margin-bottom:-10px; margin-top:-8px; padding:10px;"><i>{$messages|text}</i></div><br>
+							<div class='text' style="margin-bottom:-10px; margin-top:-8px; padding:10px;"><i>{$messages|text}</i></div><br />
 						{/if}
 						{$activity}
 					</div>
@@ -178,8 +178,8 @@ $(function () {
         }
         dlgopen(popsrc, 'popdoc', size, 600, '', '', {
             buttons: [
-                {text: btnText, close: true, style: 'primary btn-xs', click: poContentModal},
-                {text: btnClose, close: true, style: 'default btn-xs'}
+                {text: btnText, close: true, style: 'primary btn-sm', click: poContentModal},
+                {text: btnClose, close: true, style: 'default btn-sm'}
             ],
             sizeHeight: sizeHeight,
             allowResize: true,

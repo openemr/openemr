@@ -13,6 +13,7 @@
 require_once("../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 // This may be more appropriate to move to the library
 // later
@@ -47,7 +48,7 @@ document.copay_form.codeH.value="";
 </script>
 
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 </head>
 <body class="body_bottom">
 
@@ -63,11 +64,11 @@ document.copay_form.codeH.value="";
 
 <dt><span class=title><?php echo xlt('Copay'); ?></span></dt>
 
-<br>
+<br />
 <input type=hidden name=code>
 <span class='text'><?php echo xlt('$'); ?> </span><input type='entry' name='codeH' value='' size='5' />
 
-<input type="SUBMIT" value="<?php echo xla('Save');?>" onclick="cleartext('clear')"><br><br>
+<input type="SUBMIT" value="<?php echo xla('Save');?>" onclick="cleartext('clear')"><br /><br />
 
 
 <div<?php if ($GLOBALS['simplified_copay']) {
@@ -76,7 +77,7 @@ document.copay_form.codeH.value="";
 <input type="RADIO" name="payment_method" value="cash" checked><?php echo xlt('cash'); ?>
 <input type="RADIO" name="payment_method" value="credit card"><?php echo xlt('credit'); ?>
 <input type="RADIO" name="payment_method" value="check"><?php echo xlt('check'); ?>
-<input type="RADIO" name="payment_method" value="other"><?php echo xlt('other'); ?><br><br>
+<input type="RADIO" name="payment_method" value="other"><?php echo xlt('other'); ?><br /><br />
 <input type="RADIO" name="payment_method" value="insurance"><?php echo xlt('insurance'); ?>
 <?php
 if ($ret=getInsuranceCompanies($pid)) {
@@ -95,7 +96,7 @@ if ($ret=getInsuranceCompanies($pid)) {
     }
 }
 ?>
-<br><br>
+<br /><br />
 <input type="RADIO" name="payment_method" value="write off"><?php echo xlt('write off'); ?>
 
 </div>

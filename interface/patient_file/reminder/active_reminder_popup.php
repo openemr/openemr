@@ -13,11 +13,12 @@
 require_once("../../globals.php");
 require_once("$srcdir/clinical_rules.php");
 
+use OpenEMR\Core\Header;
+
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+<?php Header::setupHeader('opener'); ?>
 </head>
 
 <body class="body_top">
@@ -27,7 +28,7 @@ require_once("$srcdir/clinical_rules.php");
 $_SESSION['alert_notify_pid'] = $pid;
 
 ?>
-<table cellspacing='0' cellpadding='0' border='0'>
+<table class="border-0" cellspacing='0' cellpadding='0'>
 <tr>
 
 <?php
@@ -53,20 +54,18 @@ if (!empty($active_alerts) && empty($all_allergy_alerts)) {
 ?>
 </span>&nbsp;&nbsp;&nbsp;</td>
 <td>
-    <a href="#" id="close" class="css_button large_button" onclick="dlgclose(); return false;">
-        <span class='css_button_span large_button_span'><?php echo xlt('Close');?></span>
-    </a>
+    <a href="#" id="close" class="btn btn-secondary btn-lg" onclick="dlgclose(); return false;"><?php echo xlt('Close');?></a>
 </td>
 </tr>
 </table>
-<br>
+<br />
 <?php
 foreach ($all_allergy_alerts as $allergy) {
-    echo xlt("ALLERGY WARNING") . ":" . text($allergy) ."<br>";
+    echo xlt("ALLERGY WARNING") . ":" . text($allergy) ."<br />";
 }
 
 if (!empty($all_allergy_alerts)) {
-    echo "<br>";
+    echo "<br />";
 }
 
 echo $active_alerts;

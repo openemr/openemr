@@ -74,9 +74,8 @@ function get_history_codes($pid)
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><?php xlt("Find Code History"); ?></title>
+    <meta charset="utf-8" />
     <?php Header::setupHeader(['opener']); ?>
     <style>
         body {
@@ -89,7 +88,7 @@ function get_history_codes($pid)
         .loading {
              position: relative;
              top: 40vh;
-             background: #fff;
+             background: var(--white);
          }
     </style>
     <script>
@@ -171,18 +170,19 @@ function get_history_codes($pid)
 </head>
 
 <body>
-    <div class="container-fluid" style="position:fixed;width:100%;margin-right:10px;">
-        <div class="input-group" style="background:white;">
-            <span class="input-group-addon" onclick='clearCodes(this)'><i class="fa fa-trash fa-1x"></i></span>
-            <input class='form-control text-danger' type='text' id='workingDx' style="color:#a94442;"
-                title='<?php echo xla('Current Working Procedure Diagnoses'); ?>' value='' />
+    <div class="container-fluid w-100" style="position: fixed; margin-right: 10px;">
+        <div class="input-group bg-white">
+            <div class="input-group-prepend">
+                <button class="btn btn-secondary" onclick='clearCodes(this)'><i class="fa fa-trash fa-1x"></i></button>
+            </div>
+            <input class='form-control text-danger' type='text' id='workingDx' title='<?php echo xla('Current Working Procedure Diagnoses'); ?>' value='' />
         </div>
         <div id="tips" class="tips">
-            <section class="panel panel-default">
-                <header class="panel-heading panel-heading-sm">
-                    <h4 class="panel-title"><?php echo xlt('Usage Tips') ?></h4>
+            <section class="card panel-default">
+                <header class="card-heading card-heading-sm">
+                    <h4 class="card-title"><?php echo xlt('Usage Tips') ?></h4>
                 </header>
-                <div class="panel-body bg-warning">
+                <div class="card-body bg-warning">
                     <ul>
                         <?php
                         echo "<li>" . xlt("This dialog is generated from patient problem diagnoses and the accumulated diagnoses of all past procedures.") . "</li>";
@@ -194,15 +194,15 @@ function get_history_codes($pid)
                         echo "<li>" . xlt("The legacy code finder is still available for codes not found in this finder or code list editing.") . "</li>";
                         ?>
                     </ul>
-                    <button class='btn btn-xs btn-success pull-right' onclick='$("#tips").toggle();return false;'><?php echo xlt('Dismiss') ?></button>
+                    <button class='btn btn-sm btn-success float-right' onclick='$("#tips").toggle();return false;'><?php echo xlt('Dismiss') ?></button>
                 </div>
             </section>
         </div>
         <div class="loading text-center"><i class="fa fa-refresh fa-3x fa-spin"></i></div>
     </div>
     <div class="container-fluid">
-        <div style="margin-top:45px;">
-            <table class="table table-condensed table-hover" id="historyTable">
+        <div style="margin-top: 45px;">
+            <table class="table table-sm table-hover" id="historyTable">
                 <thead>
                 <tr>
                     <th><?php echo xlt('Origin'); ?></th>
@@ -220,8 +220,8 @@ function get_history_codes($pid)
                     $code[1] = text($code[1]);
                     echo "<tr>\n" .
                         "<td>" . $pc['origin'] . "</td>\n" .
-                        "<td><button class='btn btn-xs btn-default' onclick='rtnCode(this)' " .
-                        " value='" . attr($pc['code']) . "'>$code[0]:&nbsp;<u style='color:red;'>" . $code[1] . "</u></button></td>\n" .
+                        "<td><button class='btn btn-sm btn-secondary' onclick='rtnCode(this)' " .
+                        " value='" . attr($pc['code']) . "'>$code[0]:&nbsp;<u style='color: var(--danger);'>" . $code[1] . "</u></button></td>\n" .
                         "<td>" . text($pc['desc']) . "</td>\n" .
                         "<td>" . text($pc['procedure']) . "</td>\n" .
                         "</tr>\n";

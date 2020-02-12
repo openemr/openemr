@@ -32,14 +32,14 @@
 <body class="body_top">
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="page-header">
                     <h2>{xlt t="Review Of Systems"}</h2>
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <form name="ros" class="form-horizontal" method="post" action="{$FORM_ACTION}/interface/forms/ros/save.php" onsubmit="return top.restoreSession()">
                     <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}">
                     <fieldset>
@@ -740,9 +740,9 @@
 
                     </fieldset>
                     <div class="form-group clearfix">
-                        <div class="col-sm-12 col-sm-offset-2 position-override">
+                        <div class="col-sm-12 offset-sm-2 position-override">
                             <div class="btn-group oe-opt-btn-group-pinch" role="group">
-                                <button type="submit" class="btn btn-default btn-save" onclick="top.restoreSession();" name="Submit">{xlt t='Save'}</button>
+                                <button type="submit" class="btn btn-secondary btn-save" onclick="top.restoreSession();" name="Submit">{xlt t='Save'}</button>
                                 <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); location.href='{$DONT_SAVE_LINK}';">{xlt t='Cancel'}</button>
                             </div>
                             <input type="hidden" name="id" value="{$form->get_id()|attr}" />

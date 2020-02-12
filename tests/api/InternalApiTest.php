@@ -18,10 +18,12 @@ exit;
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
+
 ?>
 <html>
 <head>
-    <script src="../../public/assets/jquery/dist/jquery.min.js"></script>
+    <?php Header::setupAssets('jquery'); ?>
 
     <script language="JavaScript">
         function testAjaxApi() {
@@ -70,16 +72,16 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 
 // CALL the api via a local jquery ajax call
 //  See above testAjaxApi() function for details.
-echo "<b>local jquery ajax call:</b><br>";
+echo "<b>local jquery ajax call:</b><br />";
 echo "<div id='ajaxapi'></div>";
-echo "<br><br>";
+echo "<br /><br />";
 
 
 // CALL the api via a local fetch call
 //  See above testFetchApi() function for details.
-echo "<b>local fetch call:</b><br>";
+echo "<b>local fetch call:</b><br />";
 echo "<div id='fetchapi'></div>";
-echo "<br><br>";
+echo "<br /><br />";
 
 
 // CALL the api via route handler
@@ -91,28 +93,28 @@ require_once(dirname(__FILE__) . "/../../_rest_config.php");
 $gbl = RestConfig::GetInstance();
 $gbl::setNotRestCall();
 // below will return as json
-echo "<b>api via route handler call returning json:</b><br>";
+echo "<b>api via route handler call returning json:</b><br />";
 echo HttpRestRouteHandler::dispatch($gbl::$ROUTE_MAP, '/api/facility', "GET", 'direct-json');
-echo "<br><br>";
+echo "<br /><br />";
 // below will return as php array
-echo "<b>api via route handler call returning php array:</b><br>";
+echo "<b>api via route handler call returning php array:</b><br />";
 echo print_r(HttpRestRouteHandler::dispatch($gbl::$ROUTE_MAP, '/api/facility', "GET", 'direct'));
-echo "<br><br>";
+echo "<br /><br />";
 
 
 // CALL the underlying service that is used by the api
 use OpenEMR\Services\FacilityService;
 
-echo "<b>service call:</b><br>";
+echo "<b>service call:</b><br />";
 echo json_encode((new FacilityService())->getAll());
-echo "<br><br>";
+echo "<br /><br />";
 
 
 // CALL the underlying controller that is used by the api
 use OpenEMR\RestControllers\FacilityRestController;
 
-echo "<b>controller call:</b><br>";
+echo "<b>controller call:</b><br />";
 echo json_encode((new FacilityRestController())->getAll());
-echo "<br><br>";
+echo "<br /><br />";
 ?>
 </html>

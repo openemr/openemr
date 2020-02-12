@@ -326,33 +326,28 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             </tr>
         </table>
     </fieldset>
-    <table align="center" width="100%">
+    <table align="center w-100">
         <tr class="text">
             <td colspan="3">
-                <a href=# class="css_button"
-                   onclick="top.restoreSession();personalize_save()"><span><?php echo htmlspecialchars(xl('Save'), ENT_QUOTES); ?></span></a>
+                <a href=# class="btn btn-primary" onclick="top.restoreSession();personalize_save()"><span><?php echo htmlspecialchars(xl('Save'), ENT_QUOTES); ?></span></a>
                 <?php
                 if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
                     ?>
-                    <a href="delete_category.php" id="share_link" class="iframe_medium css_button"
-                       onclick="top.restoreSession();"><span><?php echo htmlspecialchars(xl('Delete Category'), ENT_QUOTES); ?></span></a>
+                    <a href="delete_category.php" id="share_link" class="iframe_medium btn btn-primary" onclick="top.restoreSession();"><span><?php echo htmlspecialchars(xl('Delete Category'), ENT_QUOTES); ?></span></a>
                     <?php
                 }
                 ?>
                 <?php
                 if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
                     ?>
-                    <a href="add_template.php?list_id=<?php echo attr($_REQUEST['list_id']); ?>"
-                       onclick="top.restoreSession();" class="iframe_small css_button"
-                       title="<?php echo htmlspecialchars(xl('Add Category'), ENT_QUOTES); ?>"><span><?php echo htmlspecialchars(xl('Add Category'), ENT_QUOTES); ?></span></a>
+                    <a href="add_template.php?list_id=<?php echo attr($_REQUEST['list_id']); ?>" onclick="top.restoreSession();" class="iframe_small btn btn-primary" title="<?php echo htmlspecialchars(xl('Add Category'), ENT_QUOTES); ?>"><span><?php echo htmlspecialchars(xl('Add Category'), ENT_QUOTES); ?></span></a>
                     <?php
                 }
                 ?>
                 <?php
                 if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
                     ?>
-                    <a href="add_context.php" class="iframe_medium css_button" onclick="top.restoreSession();"
-                       title="<?php echo htmlspecialchars(xl('Add Context'), ENT_QUOTES); ?>"><span><?php echo htmlspecialchars(xl('Add Context'), ENT_QUOTES); ?></span></a>
+                    <a href="add_context.php" class="iframe_medium btn btn-primary" onclick="top.restoreSession();" title="<?php echo htmlspecialchars(xl('Add Context'), ENT_QUOTES); ?>"><span><?php echo htmlspecialchars(xl('Add Context'), ENT_QUOTES); ?></span></a>
                     <?php
                 }
                 ?>
@@ -365,9 +360,8 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             <th><?php echo htmlspecialchars(xl('Categories for') . " " . $user['fname'] . " " . $user['lname'], ENT_QUOTES); ?></th>
         </tr>
         <tr class="text">
-            <td align=right>
-                <select multiple name="topersonalized[]" id="topersonalized" size="6" style="width:220px"
-                        onchange="display_category_item(document.myform,'topersonalized');">
+            <td align="right">
+                <select multiple name="topersonalized[]" id="topersonalized" size="6" style="width:220px" onchange="display_category_item(document.myform,'topersonalized');">
                     <?php
                     $where = '';
                     $join = '';
@@ -422,7 +416,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             </td>
             <td align="center">
                 <input type="button" name="remove" value=&raquo;
-                       onclick="jsub_selected(document.myform,'personalized','topersonalized')"></br>
+                       onclick="jsub_selected(document.myform,'personalized','topersonalized')"><br />
                 <input type="button" name="remove" value=&laquo;
                        onclick="check_user_category(document.myform,'topersonalized','personalized')">
             </td>

@@ -112,7 +112,7 @@ $form_facility   = $_POST['form_facility'];
         }
     </style>
 
-    <script language="JavaScript">
+    <script>
         $(function() {
             oeFixedHeaderSetup(document.getElementById('mymaintable'));
             var win = top.printLogSetup ? top : opener.top;
@@ -173,13 +173,13 @@ $form_facility   = $_POST['form_facility'];
 
     <table class='text'>
         <tr>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Facility'); ?>:
             </td>
             <td>
             <?php dropdown_facility($form_facility, 'form_facility'); ?>
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Provider'); ?>:
             </td>
             <td>
@@ -216,14 +216,14 @@ $form_facility   = $_POST['form_facility'];
             </td>
         </tr>
         <tr>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('From'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'
                 title='<?php echo xla('Date of appointments'); ?>' >
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('To{{Range}}'); ?>:
             </td>
             <td>
@@ -233,7 +233,7 @@ $form_facility   = $_POST['form_facility'];
             <td>&nbsp;</td>
         </tr>
         <tr>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php
                 if (!$GLOBALS['simplified_demographics']) {
                     echo '&nbsp;' . xlt('Procedure/Service') . ':';
@@ -248,7 +248,7 @@ $form_facility   = $_POST['form_facility'];
                 } ?>>
             </td>
 
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php
                 if (!$GLOBALS['simplified_demographics']) {
                     echo '&nbsp;' . xlt('Diagnosis') . ':';
@@ -279,18 +279,18 @@ $form_facility   = $_POST['form_facility'];
 
   </td>
 
-  <td align='left' valign='middle' height="100%">
+  <td class='h-100' align='left' valign='middle'>
 
-    <table style='border-left:1px solid; width:100%; height:100%' >
+    <table class='w-100 h-100' style='border-left:1px solid;'>
         <tr>
             <td>
                 <div class="text-center">
           <div class="btn-group" role="group">
-                      <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                      <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
                       </a>
                         <?php if ($_POST['form_refresh']) { ?>
-                        <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                        <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                 <?php echo xlt('Print'); ?>
                         </a>
                         <?php } ?>
@@ -312,7 +312,7 @@ if ($_POST['form_refresh']) {
 
     ?>
 <div id="report_results">
-<table border='0' cellpadding='1' cellspacing='2' width='98%' id='mymaintable'>
+<table class='table' cellpadding='1' cellspacing='2' width='98%' id='mymaintable'>
 <thead>
  <th>
     <?php echo xlt('Practitioner') ?>

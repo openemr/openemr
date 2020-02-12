@@ -55,7 +55,7 @@ function printAmendment($amendmentID, $lastAmendment)
     echo "</table>";
 
     echo "<hr>";
-    echo "<span class='bold'>" . xlt("History") . "</span><br>";
+    echo "<span class='bold'>" . xlt("History") . "</span><br />";
     $pageBreak = ( $lastAmendment ) ? "" : "page-break-after:always";
     echo "<table border='1' cellspacing=0 cellpadding=3 style='width:75%;margin-top:10px;margin-bottom:20px;" . $pageBreak . "'>";
     echo "<tr class='text bold'>";
@@ -81,7 +81,7 @@ function printAmendment($amendmentID, $lastAmendment)
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['no_bootstrap', 'no_fontawesome']); ?>
+    <?php Header::setupHeader(); ?>
 </head>
 
 <body class="body_top">

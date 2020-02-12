@@ -140,11 +140,11 @@ margin:1px !Important;
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-5 col-sm-offset-3">
+            <div class="col-sm-5 offset-sm-3">
                 <form name="vitals" method="post" action="{$FORM_ACTION}/interface/forms/vitals/save.php" onSubmit="return vitalsFormSubmitted()">
                     <input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}">
                     <div id="chart" class="chart-dygraphs" style="margin-left:-15px"></div>
-                    <table class="table table-condensed">
+                    <table class="table table-sm">
                         <thead>
                             <tr>
                                 <th align="left" >{xlt t="Name"}</th>
@@ -350,13 +350,13 @@ margin:1px !Important;
                 <div class="form-group clearfix">
                     <div class="text-left position-override">
                             <div class="btn-group" role="group">
-                                <button type="submit" class="btn btn-default btn-save editonly" name="Submit" value=''>{xlt t="Save"}</button>
+                                <button type="submit" class="btn btn-secondary btn-save editonly" name="Submit" value=''>{xlt t="Save"}</button>
                                 <button type="button" class="btn btn-link btn-cancel btn-separate-left editonly" id="cancel" value=''>{xlt t="Cancel"}</button>
                             </div>
                     </div>
                 </div>
             </div>
-            <br><br>
+            <br /><br />
             <input type="hidden" name="id" id='id' value="{$vitals->get_id()|attr}" />
             <input type="hidden" name="activity" id='activity' value="{$vitals->get_activity()|attr}">
             <input type="hidden" name="pid" id='pid' value="{$vitals->get_pid()|attr}">

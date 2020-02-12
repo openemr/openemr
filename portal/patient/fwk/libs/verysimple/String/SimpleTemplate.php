@@ -66,7 +66,7 @@ class SimpleTemplate
         $html = str_replace("</p>", "</p>\n\n", $html);
         $html = str_replace("<p></p>", "<p>&nbsp;</p>", $html);
         
-        // Wipes <br> after block tags (for when the user includes some html in the text).
+        // Wipes <br /> after block tags (for when the user includes some html in the text).
         $wipebr = array (
                 "table",
                 "tr",

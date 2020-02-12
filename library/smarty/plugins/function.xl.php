@@ -18,9 +18,9 @@
 /**
  * Smarty {xl} function plugin
  *
- * Type:     function<br>
- * Name:     xl<br>
- * Purpose:  translate in OpenEMR - Smarty templates<br>
+ * Type:     function<br />
+ * Name:     xl<br />
+ * Purpose:  translate in OpenEMR - Smarty templates<br />
  *
  * Examples:
  *

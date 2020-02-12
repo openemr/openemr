@@ -5,7 +5,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -69,13 +69,13 @@ $form_doc_only = isset($_POST['mode']) ? (empty($_POST['form_doc_only']) ? 0 : 1
 if ($_REQUEST['s'] == '1') {
     $inbox = "";
     $outbox = "current";
-    $inbox_style = "style='display:none;border:5px solid #FFFFFF;'";
-    $outbox_style = "style='border:5px solid #FFFFFF;'";
+    $inbox_style = "style='display:none;border:5px solid var(--white);'";
+    $outbox_style = "style='border:5px solid var(--white);'";
 } else {
     $inbox = "current";
     $outbox = "";
-    $inbox_style = "style='border:5px solid #FFFFFF;'";
-    $outbox_style = "style='display:none;border:5px solid #FFFFFF;'";
+    $inbox_style = "style='border:5px solid var(--white);'";
+    $outbox_style = "style='display:none;border:5px solid var(--white);'";
 }
 
 if (!isset($offset)) {
@@ -312,11 +312,11 @@ $title = text(getPatientName($patient_id));
     </div>
     <div class="row oe-margin-b-10">
         <div class="col-md-12">
-            <a href="pnotes_full_add.php?<?php echo $urlparms; ?>" class="btn btn-default note_modal" onclick='return top.restoreSession()'><span><?php echo xlt('Add'); ?></span></a>
-            <a href="#" class="change_activity btn btn-default" ><span><?php echo xlt('Update Active'); ?></span></a>
-            <a href="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" class="btn btn-default" id='Submit' onclick='return top.restoreSession()'><span><?php echo xlt('Refresh'); ?></span></a>
+            <a href="pnotes_full_add.php?<?php echo $urlparms; ?>" class="btn btn-secondary note_modal" onclick='return top.restoreSession()'><span><?php echo xlt('Add'); ?></span></a>
+            <a href="#" class="change_activity btn btn-secondary" ><span><?php echo xlt('Update Active'); ?></span></a>
+            <a href="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" class="btn btn-secondary" id='Submit' onclick='return top.restoreSession()'><span><?php echo xlt('Refresh'); ?></span></a>
             <?php if (!$orderid) { ?>
-                <a href="demographics.php" class="btn btn-default" onclick="top.restoreSession()"><span><?php echo xlt('Back to Patient'); ?></span></a>
+                <a href="demographics.php" class="btn btn-secondary" onclick="top.restoreSession()"><span><?php echo xlt('Back to Patient'); ?></span></a>
             <?php } ?>
         </div>
 
@@ -373,19 +373,19 @@ $title = text(getPatientName($patient_id));
             <?php if ($active == "all") { ?>
                 <span><?php echo xlt('Show All'); ?></span>
             <?php } else { ?>
-                <a href="pnotes_full.php?<?php echo $urlparms; ?>" class="link btn btn-default" onclick="return top.restoreSession()"><span><?php echo xlt('Show All'); ?></span></a>
+                <a href="pnotes_full.php?<?php echo $urlparms; ?>" class="link btn btn-secondary" onclick="return top.restoreSession()"><span><?php echo xlt('Show All'); ?></span></a>
             <?php } ?>
             |
             <?php if ($active == '1') { ?>
                 <span><?php echo xlt('Show Active'); ?></span>
             <?php } else { ?>
-                <a href="pnotes_full.php?form_active=1&<?php echo $urlparms; ?>" class="link btn btn-default" onclick="return top.restoreSession()"><span><?php echo xlt('Show Active'); ?></span></a>
+                <a href="pnotes_full.php?form_active=1&<?php echo $urlparms; ?>" class="link btn btn-secondary" onclick="return top.restoreSession()"><span><?php echo xlt('Show Active'); ?></span></a>
             <?php } ?>
             |
             <?php if ($active == '0') { ?>
                 <span><?php echo xlt('Show Inactive'); ?></span>
             <?php } else { ?>
-                <a href="pnotes_full.php?form_inactive=1&<?php echo $urlparms; ?>" class="link btn btn-default" onclick="return top.restoreSession()"><span><?php echo xlt('Show Inactive'); ?></span></a>
+                <a href="pnotes_full.php?form_inactive=1&<?php echo $urlparms; ?>" class="link btn btn-secondary" onclick="return top.restoreSession()"><span><?php echo xlt('Show Inactive'); ?></span></a>
             <?php } ?>
         </div>
     </div>
@@ -489,12 +489,12 @@ if ($result != "") {
 
 
         echo "  <td><a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) .
-        "' class='css_button_small note_modal' onclick='return top.restoreSession()'><span>" . xlt('Edit') ."</span></a>\n";
+        "' class='btn btn-primary btn-sm note_modal' onclick='return top.restoreSession()'><span>" . xlt('Edit') ."</span></a>\n";
 
         // display, or not, a button to delete the note
         // if the user is an admin or if they are the author of the note, they can delete it
         if (($iter['user'] == $_SESSION['authUser']) || (AclMain::aclCheckCore('admin', 'super', '', 'write'))) {
-            echo " <a href='#' class='deletenote css_button_small' id='del" . attr($row_note_id) .
+            echo " <a href='#' class='deletenote btn btn-danger btn-sm' id='del" . attr($row_note_id) .
             "' title='" . xla('Delete this note') . "' onclick='return top.restoreSession()'><span>" .
             xlt('Delete') . "</span>\n";
         }
@@ -656,12 +656,12 @@ if ($result_sent != "") {
         }
 
         echo "  <td><a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) .
-        "' class='css_button_small note_modal' onclick='return top.restoreSession()'><span>" . xlt('Edit') . "</span></a>\n";
+        "' class='btn btn-primary btn-sm note_modal' onclick='return top.restoreSession()'><span>" . xlt('Edit') . "</span></a>\n";
 
         // display, or not, a button to delete the note
         // if the user is an admin or if they are the author of the note, they can delete it
         if (($iter['user'] == $_SESSION['authUser']) || (AclMain::aclCheckCore('admin', 'super', '', 'write'))) {
-            echo " <a href='#' class='deletenote css_button_small' id='del" . attr($row_note_id) .
+            echo " <a href='#' class='deletenote btn btn-danger btn-sm' id='del" . attr($row_note_id) .
             "' title='" . xla('Delete this note') . "' onclick='return restoreSession()'><span>" .
             xlt('Delete') . "</span>\n";
         }

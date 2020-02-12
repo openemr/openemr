@@ -1,85 +1,80 @@
-/*below section is override bootstrap 3 for openemr and some new classes all prefixed with oe-*/
-input[type=checkbox], input[type=radio] {
-	margin: 4px;
+/*below section is override bootstrap 4 for openemr and some new classes all prefixed with oe-*/
+input[type=checkbox],
+input[type=radio] {
+    margin: 4px;
 }
+
 .form-group {
-	margin-bottom: 5px !important;
+    margin-bottom: 5px !important;
 }
-legend {
-	border-bottom: 2px solid #E5E5E5 !important;
-	background: #E5E5E5 !important;
-	padding: 0 10px !important;
-}
+
 .form-horizontal .control-label {
-	padding-top: 2px;
+    padding-top: 2px;
 }
+
+/* This code needs to be gone cuz it's terrible */
 fieldset {
-	background-color: #F2F2F2!important;
-	margin-bottom: 10px!important;
-	padding: 0px 0px 15px 0px!important;
+    margin-bottom: 10px;
+    padding: 0px 0px 15px 0px;
 }
-.btn-link.btn-cancel:focus, .btn-link.btn-cancel:hover {
 
+legend {
+    padding: 0 10px;
 }
-.btn-link.btn-cancel {
 
+.oe-custom-line {
+    padding-bottom: 5px;
 }
-.btn-link.btn-cancel.active, .btn-link.btn-cancel.focus,
-.btn-link.btn-cancel:active, .btn-link.btn-cancel:focus,
-.btn-link.btn-cancel:hover, .open>.dropdown-toggle.btn-link.btn-cancel {
 
-}
-.btn-separate-left,  .oe-opt-btn-separate-left{
-
-}
-.btn-group>.btn:first-child:not(:last-child):not(.dropdown-toggle) {
-
-}
-.btn-group-pinch>.btn:nth-last-child(2):not(.dropdown-toggle), .oe-opt-btn-group-pinch>.btn:nth-last-child(2):not(.dropdown-toggle) {
-
-}
-.oe-custom-line{
-	padding-bottom:5px;
-}
 .oe-large {
-	display: inline-block;
+    display: inline-block;
 }
+
 .oe-small {
-	display: none;
+    display: none;
 }
+
 .oe-show-hide {
-	display: none;
+    display: none;
 }
-.oe-legend-radio{
-	font-size:12px;
-	padding:5px 5px 0px 0px;
+
+.oe-legend-radio {
+    font-size: 12px;
+    padding: 5px 5px 0px 0px;
 }
+
 .oe-bold-black {
-	font-weight: 700;
-	color: black;
+    font-weight: 700;
+    color: $body-color;
 }
+
 .oe-payment-select {
-	width: 80px !important;
-	text-align: right;
-	font-size: 12px;
+    width: 80px !important;
+    text-align: right;
+    font-size: 12px;
 }
-.oe-ckbox-label{
-	padding-left: 30px;
-	font-weight: 500;
+
+.oe-ckbox-label {
+    padding-left: 30px;
+    font-weight: 500;
 }
-.oe-file-div{
-	padding:10px 15px;
+
+.oe-file-div {
+    padding: 10px 15px;
 }
-.oe-modal-dialog{
-	width:65% !important;
+
+.oe-modal-dialog {
+    width: 65% !important;
 }
+
 .oe-btn-circle {
-	width: 30px;
-	height: 30px;
-	text-align: center;
-	padding: 6px 0;
-	font-size: 12px;
-	line-height: 1.428571429;
-	border-radius: 15px;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    padding: 6px 0;
+    font-size: 12px;
+    line-height: 1.428571429;
+    border-radius: 15px;
 }
-/*above section is override bootstrap 3 for openemr and some new classes all prefixed with oe-*/
+
+/*above section is override bootstrap 4 for openemr and some new classes all prefixed with oe-*/

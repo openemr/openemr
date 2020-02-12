@@ -72,7 +72,7 @@ $(function() {
 
 </script>
 
-<style type="text/css">
+<style>
 
 /* specifically include & exclude from printing */
 @media print {
@@ -108,7 +108,7 @@ $(function() {
 <body class="body_top">
 
 <!-- Required for the popup date selectors -->
-<div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
+<div id="overDiv" style="position: absolute; visibility: hidden; z-index: 1000;"></div>
 
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Patient List'); ?></span>
 
@@ -133,7 +133,7 @@ $(function() {
 
     <table class='text'>
         <tr>
-      <td class='control-label'>
+      <td class='col-form-label'>
         <?php echo xlt('Provider'); ?>:
       </td>
       <td>
@@ -142,13 +142,13 @@ $(function() {
             'empty_title' => '-- All --'), $_POST['form_provider']);
             ?>
       </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Visits From'); ?>:
             </td>
             <td>
                <input class='datepicker form-control' type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>'>
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('To{{Range}}'); ?>:
             </td>
             <td>
@@ -160,20 +160,20 @@ $(function() {
     </div>
 
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+  <td class="h-100" align='left' valign='middle'>
+    <table class="w-100 h-100" style='border-left: 1px solid;'>
         <tr>
             <td>
         <div class="text-center">
                   <div class="btn-group" role="group">
-                    <a href='#' class='btn btn-default btn-save' onclick='$("#form_csvexport").val(""); $("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                    <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_csvexport").val(""); $("#form_refresh").attr("value","true"); $("#theform").submit();'>
                         <?php echo xlt('Submit'); ?>
                     </a>
-                    <a href='#' class='btn btn-default btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
+                    <a href='#' class='btn btn-secondary btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
                         <?php echo xlt('Export to CSV'); ?>
                     </a>
                     <?php if ($_POST['form_refresh']) { ?>
-                      <a href='#' id='printbutton' class='btn btn-default btn-print'>
+                      <a href='#' id='printbutton' class='btn btn-secondary btn-print'>
                             <?php echo xlt('Print'); ?>
                       </a>
                     <?php } ?>
@@ -208,8 +208,8 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         ?>
 
   <div id="report_results">
-  <table id='mymaintable'>
-   <thead>
+  <table class='table' id='mymaintable'>
+   <thead class='thead-light'>
     <th> <?php echo xlt('Last Visit'); ?> </th>
     <th> <?php echo xlt('Patient'); ?> </th>
     <th> <?php echo xlt('ID'); ?> </th>

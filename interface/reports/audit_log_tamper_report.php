@@ -17,6 +17,7 @@ require_once("../globals.php");
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\Header;
 
 if (!empty($_GET)) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -30,12 +31,7 @@ if (!empty($_GET)) {
 
 <title><?php echo xlt("Audit Log Tamper Report"); ?></title>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+<?php Header::setupHeader('datetime-picker'); ?>
 
 <style>
 #logview {
@@ -54,7 +50,7 @@ if (!empty($_GET)) {
 }
 
 #logview td {
-    background-color: #ffffff;
+    background-color: var(--white);
     border-bottom: 1px solid #808080;
     cursor: default;
     padding: 5px 5px;
@@ -96,7 +92,7 @@ function eventTypeChange(eventname)
 </head>
 <body class="body_top">
 <font class="title"><?php echo xlt('Audit Log Tamper Report'); ?></font>
-<br>
+<br />
 <?php
 $err_message=0;
 
@@ -125,7 +121,7 @@ if ($form_patient == '') {
 }
 
 ?>
-<br>
+<br />
 <FORM METHOD="GET" name="theform" id="theform" onSubmit='top.restoreSession()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <?php

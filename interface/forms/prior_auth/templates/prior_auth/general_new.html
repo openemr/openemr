@@ -44,14 +44,14 @@ a {
 	<td>Prior Authorization Number</td><td><input type="text" size="35" name="prior_auth_number" value="{$prior_auth->get_prior_auth_number()|attr}"></td>
 </tr>
 <tr>
-	<td><br><br>Comments</td>
+	<td><br /><br />Comments</td>
 </tr>
 <tr>
 	<td colspan="2"><textarea name="comments" value="{$prior_auth->get_comments()|attr}" wrap="virtual" cols="75" rows="8">{$prior_auth->get_comments()|text}</textarea></td>
 </tr>
 {if $VIEW != true}
 <tr>
-	<td><br><br><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a></td>
+	<td><br /><br /><input type="submit" name="Submit" value="Save Form">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="{$DONT_SAVE_LINK}" class="link">[Don't Save]</a></td>
 </tr>
 {/if}
 </table>

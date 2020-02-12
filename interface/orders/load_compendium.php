@@ -24,12 +24,11 @@
 
 set_time_limit(0);
 
-
-
-
 require_once("../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+
+use OpenEMR\Core\Header;
 
 // This array is an important reference for the supported labs and their NPI
 // numbers as known to this program.  The clinic must define at least one
@@ -81,13 +80,12 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
 <html>
 
 <head>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<?php Header::setupHeader(); ?>
 <title><?php echo xlt('Load Lab Configuration'); ?></title>
 </head>
 
-<body class="body_top">
-<center>
-&nbsp;<br />
+<body class="body_top text-center">
+<div class="container">
 <form method='post' action='load_compendium.php' enctype='multipart/form-data'>
 
 <table>
@@ -96,7 +94,7 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
 if ($form_step == 0) {
     echo " <tr>\n";
     echo "  <td width='1%' nowrap>" . xlt('Vendor') . "</td>\n";
-    echo "  <td><select name='vendor'>";
+    echo "  <td><select class='form-control' name='vendor'>";
     foreach ($lab_npi as $key => $value) {
         echo "<option value='" . attr($key) . "'";
         if (!getLabID($key)) {
@@ -112,7 +110,7 @@ if ($form_step == 0) {
 
     echo " <tr>\n";
     echo "  <td nowrap>" . xlt('Action') . "</td>\n";
-    echo "  <td><select name='action'>";
+    echo "  <td><select class='form-control' name='action'>";
     echo "<option value='1'>" . xlt('Load Order Definitions') . "</option>";
     echo "<option value='2'>" . xlt('Load Order Entry Questions') . "</option>";
     echo "<option value='3'>" . xlt('Load OE Question Options') . "</option>";
@@ -121,7 +119,7 @@ if ($form_step == 0) {
 
     echo " <tr>\n";
     echo "  <td nowrap>" . xlt('Container Group Name') . "</td>\n";
-    echo "  <td><select name='group'>";
+    echo "  <td><select class='form-control' name='group'>";
     $gres = sqlStatement("SELECT procedure_type_id, name FROM procedure_type " .
     "WHERE procedure_type = 'grp' ORDER BY name, procedure_type_id");
     while ($grow = sqlFetchArray($gres)) {
@@ -135,12 +133,12 @@ if ($form_step == 0) {
     echo " <tr>\n";
     echo "  <td nowrap>" . xlt('File to Upload') . "</td>\n";
     echo "<td><input type='hidden' name='MAX_FILE_SIZE' value='4000000' />";
-    echo "<input type='file' name='userfile' /></td>\n";
+    echo "<input class='form-control' type='file' name='userfile' /></td>\n";
     echo " </tr>\n";
 
     echo " <tr>\n";
     echo "  <td nowrap>&nbsp;</td>\n";
-    echo "  <td><input type='submit' value='" . xla('Submit') . "' /></td>\n";
+    echo "  <td><input class='btn btn-primary' type='submit' value='" . xla('Submit') . "' /></td>\n";
     echo " </tr>\n";
 }
 
@@ -543,13 +541,14 @@ ob_flush();
 flush();
 ?>
 
-</center>
+
 
 <?php if ($auto_continue) { ?>
-<script language="JavaScript">
+<script>
  setTimeout("document.forms[0].submit();", 500);
 </script>
 <?php } ?>
+</div>
 
 </body>
 </html>

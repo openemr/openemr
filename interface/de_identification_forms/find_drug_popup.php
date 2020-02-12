@@ -17,6 +17,7 @@ require_once("$srcdir/patient.inc");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $info_msg = "";
 $codetype = $_REQUEST['codetype'];
@@ -25,7 +26,7 @@ $form_code_type = $_POST['form_code_type'];
 <html>
 <head>
 <title><?php echo xlt('Drug Finder'); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
+<?php Header::setupHeader(); ?>
 
 <style>
 td { font-size:10pt; }
@@ -179,7 +180,7 @@ function check_search_str()
               $itercode = $row['drug_id'];
               $itertext = ucfirst(strtolower(trim($row['name'])));
             ?>
-               <input type="checkbox" id="chkbox" name ="chkbox" value= "<?php echo attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "</br>";
+               <input type="checkbox" id="chkbox" name ="chkbox" value= "<?php echo attr($itercode) . "-" . attr($itertext); ?>" > <?php echo text($itercode) . "    " . text($itertext) . "<br />";
         }
     }
 

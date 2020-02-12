@@ -657,7 +657,7 @@ class EDI_270
             $showString .= "</div>";
         }
         if ($title === 1) {
-            $showString = "<br><span><b>" . xlt("Nothing To Report") . "</b></span><br>";
+            $showString = "<br /><span><b>" . xlt("Nothing To Report") . "</b></span><br />";
         }
         $showString .= "</div>\n";
         echo $showString;

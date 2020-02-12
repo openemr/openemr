@@ -17,7 +17,6 @@
 
 require_once('../globals.php');
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/payment_jav.inc.php");
 
 use OpenEMR\Core\Header;
 
@@ -44,9 +43,12 @@ $display_collapse_msg = "display:inline;";
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'datetime-picker', 'common']); ?>
+<?php
+    Header::setupHeader(['datetime-picker', 'common']);
+    require_once("$srcdir/payment_jav.inc.php");
+?>
 
-<script type="text/javascript">
+<script>
     var global_date_format = '<?php echo DateFormatRead(); ?>';
     $(function () {
         $("#docdiv a").each(function() {
@@ -125,27 +127,26 @@ $display_collapse_msg = "display:inline;";
 <style type="text/css">
 
 .linkcell {
-    max-width: 250px ;
+    max-width: 250px;
     text-overflow: ellipsis;
     overflow: hidden;
-    valign : absbottom;
 }
 
 .tooltip_container{
-    background-color:lightgrey;
-    width:75%;
-    height:50%;
+    background-color: var(--gray);
+    width: 75%;
+    height: 50%;
     z-index: 1;
-    display:none;
-    position:absolute;
-    box-sizing:border-box;
-    border:10px solid lightgrey;
+    display: none;
+    position: absolute;
+    box-sizing: border-box;
+    border: 10px solid var(--gray);
 }
 
 
-.tooltip_doc{
-    width:100%;
-    height:100%;
+.tooltip_doc {
+    width: 100%;
+    height: 100%;
 }
 
 
@@ -158,25 +159,17 @@ $display_collapse_msg = "display:inline;";
     <span class='title'><?php echo xlt('Lab Documents'); ?></span>
     <span id='docexpand' onclick='expandOrCollapse(1,"doc")' style='cursor:pointer;<?php echo $display_expand_msg ?>'>(<?php echo xlt('expand'); ?>)</span>
     <span id='doccollapse' onclick='expandOrCollapse(2,"doc")' style='cursor:pointer;<?php echo $display_collapse_msg ?>'>(<?php echo xlt('collapse'); ?>)</span>
-    <br><br>
+    <br /><br />
     <div id='docfilterdiv'<?php echo $display_div; ?>>
-    <table style="margin-left:10px; " width='40%'>
-        <tr>
-            <td scope="row" class='label_custom'><?php echo xlt('From'); ?>:</td>
-            <td><input type='text' class='datepicker' name='form_from_doc_date' id="form_from_doc_date"
-                size='10' value='<?php echo attr($form_from_doc_date) ?>' title='<?php echo attr($title_tooltip) ?>'>
-            </td>
-            <td class='label_custom'><?php echo xlt('To{{Range}}'); ?>:</td>
-            <td><input type='text' class='datepicker' name='form_to_doc_date' id="form_to_doc_date"
-                size='10' value='<?php echo attr($form_to_doc_date) ?>' title='<?php echo attr($title_tooltip) ?>'>
-            </td>
-            <td>
-                <span style='float: left;' id="docrefresh">
-                    <a href='#' class='css_button'  onclick='return validateDate("form_from_doc_date","form_to_doc_date")'> <span><?php echo xlt('Refresh'); ?> </span></a>
-                </span>
-            </td>
-        </tr>
-    </table>
+    <div class="form-inline mb-2">
+        <label for='form_from_doc_date' class='label_custom mx-1'><?php echo xlt('From'); ?>:</label>
+        <input type='text' class='form-control datepicker mx-1' name='form_from_doc_date' id="form_from_doc_date" size='10' value='<?php echo attr($form_from_doc_date) ?>' title='<?php echo attr($title_tooltip) ?>' />
+        <label for='form_to_doc_date' class='label_custom mx-1'><?php echo xlt('To{{Range}}'); ?>:</label>
+        <input type='text' class='form-control datepicker mx-1' name='form_to_doc_date' id="form_to_doc_date" size='10' value='<?php echo attr($form_to_doc_date) ?>' title='<?php echo attr($title_tooltip) ?>' />
+        <span id="docrefresh" class="mx-1">
+            <a href='#' class='btn btn-primary' onclick='return validateDate("form_from_doc_date","form_to_doc_date")'><?php echo xlt('Refresh'); ?></a>
+        </span>
+    </div>
     </div>
 </div>
 
@@ -211,15 +204,18 @@ $display_collapse_msg = "display:inline;";
         array_unshift($query_array, $catID);
     $resultSet = sqlStatement($query, $query_array);
     ?>
-
-    <table border="1" cellpadding=3 cellspacing=0>
-    <tr class='text bold'>
-        <th align="left" width="10%"><?php echo xlt('Date'); ?></th>
-        <th align="left" class="linkcell" width="20%" ><?php echo xlt('Name'); ?></th>
-        <th align="left" width="20%"><?php echo xlt('Patient'); ?></th>
-        <th align="left" width="30%"><?php echo xlt('Note'); ?></th>
+    
+    <div class="table-responsive">
+    <table class="table table-bordered" cellpadding="3" cellspacing="0">
+    <thead class='thead-light'>
+    <tr class='text font-weight-bold text-left'>
+        <th width="10%"><?php echo xlt('Date'); ?></th>
+        <th class="linkcell" width="20%"><?php echo xlt('Name'); ?></th>
+        <th><?php echo xlt('Patient'); ?></th>
+        <th><?php echo xlt('Note'); ?></th>
         <th width="10%"><?php echo xlt('Encounter ID'); ?></th>
     </tr>
+    </thead>
     <?php
     if (sqlNumRows($resultSet)) {
         while ($row = sqlFetchArray($resultSet)) {
@@ -251,9 +247,10 @@ $display_collapse_msg = "display:inline;";
     } ?>
     </table>
     </div>
+    </div>
 
     <div class="tooltip_container">
-        <iframe class="tooltip_doc"></frame>
+        <iframe class="tooltip_doc"></iframe>
     </div>
 </body>
 </html>

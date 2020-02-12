@@ -1,10 +1,70 @@
 // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
-// Copyright (C) 2018 Jerry Padgett <sjpadgett@gmail.com>
+// Copyright (C) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
+
+(function (define) {
+    define(['jquery'], function ($, root) {
+        let opts_default = {};
+        root = root || {};
+        root.alert = alert;
+        root.ajax = ajax;
+        root.closeAjax = closeAjax;
+
+        return root;
+
+        function ajax(data) {
+            let opts = {
+                buttons: data.buttons,
+                sizeHeight: data.sizeHeight || '',
+                type: data.type,
+                data: data.data,
+                url: data.url,
+                dataType: data.dataType || '' // xml/json/text etc.
+            };
+
+            let title = data.title;
+
+            return dlgopen('', '', data.size, 250, '', title, opts);
+        }
+
+        function alert(data, title) {
+            title = title ? title : 'Alert';
+            let alertTitle = '<i class="fa fa-warning alert-danger"></i>&nbsp;<span>' + title + '</span>';
+            return dlgopen('', '', 675, 250, '', alertTitle, {
+                buttons: [
+                    {text: '<i class="fa fa-thumbs-up">&nbsp;OK</i>', close: true, style: 'default'}
+                ],
+                type: 'Alert',
+                html: '<blockquote class="blockquote">' + data + '</blockquote>'
+            });
+        }
+
+        function closeAjax() {
+            dlgCloseAjax();
+        }
+    });
+
+    if (typeof window.xl !== 'function') {
+        let utilfn = top.webroot_url + '/library/js/utility.js';
+        let load = async () => {
+            await includeScript(utilfn, false, 'script');
+        };
+        load().then(rtn => {
+            console.log('Utilities Unavailable! loading:[ ' + utilfn + ' ] For: [ ' + location + ' ]');
+        });
+    }
+}(typeof define == 'function' && define.amd ?
+    define :
+    function (args, mName) {
+        this.dialog = typeof module != 'undefined' && module.exports ?
+            mName(require(args[0], {}), module.exports) :
+            mName(window.$);
+    }));
+
 
 // open a new cascaded window
 function cascwin(url, winname, width, height, options) {
@@ -98,9 +158,7 @@ function my_del_related(s, elem, usetitle) {
 
 function dialogID() {
     function s4() {
-        return Math.floor((1 + Math.random()) * 0x10000)
-            .toString(16)
-            .substring(1);
+        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
     }
 
     return s4() + s4() + s4() + s4() + s4() + +s4() + s4() + s4();
@@ -117,7 +175,6 @@ function dialogID() {
 *
 * */
 function includeScript(url, async, type) {
-
     try {
         let rqit = new XMLHttpRequest();
         if (type === "link") {
@@ -130,7 +187,10 @@ function includeScript(url, async, type) {
             console.log('Needed to load:[ ' + url + ' ] For: [ ' + location + ' ]');
             return false;
         }
-
+        
+        if (async === false) {
+            console.log("The url of " + url + " is deprecated due to synchronous requests. Let's find a way to remediate this soon!");
+        }
         rqit.open("GET", url, async); // false = synchronous.
         rqit.send(null);
 
@@ -146,7 +206,7 @@ function includeScript(url, async, type) {
             }
         }
 
-        throw new Error("Failed to get URL:" + url);
+        new Error("Failed to get URL:" + url);
 
     } catch (e) {
         throw e;
@@ -158,14 +218,30 @@ function includeScript(url, async, type) {
 function inDom(dependency, type, remove) {
     let el = type;
     let attr = type === 'script' ? 'src' : type === 'link' ? 'href' : 'none';
-    let all = document.getElementsByTagName(el)
+    let all = document.getElementsByTagName(el);
     for (let i = all.length; i > -1; i--) {
-        if (all[i] && all[i].getAttribute(attr) != null && all[i].getAttribute(attr).indexOf(dependency) != -1) {
+        if (all[i] && all[i].getAttribute(attr) !== null && all[i].getAttribute(attr).indexOf(dependency) !== -1) {
             if (remove) {
                 all[i].parentNode.removeChild(all[i]);
-                console.log("Removed from DOM: " + dependency)
-                return true
+                console.log("Removed from DOM: " + dependency);
+                return true;
             } else {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+// test to see if bootstrap theming is loaded (via standard or custom bootstrap library)
+//  Will check for the badge-secondary class
+//   - if exist, then assume bootstrap loaded
+//   - if not exist, then assume bootstrap not loaded
+function isBootstrapCss() {
+    for (let i = 0; i < document.styleSheets.length; i++) {
+        let rules = document.styleSheets[i].rules || document.styleSheets[i].cssRules;
+        for (let x in rules) {
+            if (rules[x].selectorText == '.badge-secondary') {
                 return true;
             }
         }
@@ -207,13 +283,12 @@ if (typeof alertMsg !== "function") {
             let oSize = (size == 'lg') ? 'left:10%;width:80%;' : 'left:25%;width:50%;';
             let style = "position:fixed;top:25%;" + oSize + " bottom:0;z-index:9999;";
             $("body").prepend("<div class='container text-center' id='alert_box' style='" + style + "'></div>");
-            let mHtml = '<div id="alertmsg" hidden class="alert alert-' + type + ' alert-dismissable">' +
+            let mHtml = '<div id="alertmsg" class="alert alert-' + type + ' alert-dismissable">' +
                 '<button type="button" class="btn btn-link ' + oHidden + '" id="dontShowAgain" data-dismiss="alert">' +
                 xl.alert.gotIt + '&nbsp;<i class="fa fa-thumbs-up"></i></button>' +
                 '<h4 class="alert-heading text-center">' + xl.alert.title + '!</h4><hr>' + '<p style="color:#000;">' + message + '</p>' +
-                '<button type="button" class="pull-right btn btn-link" data-dismiss="alert">' + xl.alert.dismiss + '</button></br></div>';
+                '<button type="button" class="pull-right btn btn-link" data-dismiss="alert">' + xl.alert.dismiss + '</button><br /></div>';
             $('#alert_box').append(mHtml);
-            $('#alertmsg').fadeIn(800);
             $('#alertmsg').on('closed.bs.alert', function () {
                 clearTimeout(AlertMsg);
                 $('#alert_box').remove();
@@ -231,6 +306,7 @@ if (typeof alertMsg !== "function") {
             console.log(error.message)
         });
     }
+
     const persistUserOption = function (option, value) {
         return $.ajax({
             url: top.webroot_url + "/library/ajax/user_settings.php",
@@ -242,7 +318,7 @@ if (typeof alertMsg !== "function") {
                 setting: value
             },
             beforeSend: function () {
-                top.restoreSession;
+                top.restoreSession();
             },
             error: function (jqxhr, status, errorThrown) {
                 console.log(errorThrown);
@@ -252,11 +328,10 @@ if (typeof alertMsg !== "function") {
 }
 
 
-
 // Test if supporting dialog callbacks and close dependencies are in scope.
 // This is useful when opening and closing the dialog is in the same scope. Still use include_opener.js
 // in script that will close a dialog that is not in the same scope dlgopen was used
-// or use parent.dlgclose() if known decendent.
+// or use parent.dlgclose() if known decedent.
 // dlgopen() will always have a name whether assigned by dev or created by function.
 // Callback, onClosed and button clicks are still available either way.
 // For a callback on close use: dlgclose(functionName, farg1, farg2 ...) which becomes: functionName(farg1,farg2, etc)
@@ -311,7 +386,7 @@ if (typeof dlgclose !== "function") {
 * @param {Object} opts Dialogs options.
 * @returns {Object} dialog object reference.
 * */
-function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
+const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
     // First things first...
     top.restoreSession();
     // A matter of Legacy
@@ -332,33 +407,28 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         // Check for dependencies we will need.
         // webroot_url is a global defined in main_screen.php or main.php.
         let bscss = top.webroot_url + '/public/assets/bootstrap/dist/css/bootstrap.min.css';
-        let bscssRtl = top.webroot_url + '/public/assets/bootstrap-rtl/dist/css/bootstrap-rtl.min.css';
-        let bsurl = top.webroot_url + '/public/assets/bootstrap/dist/js/bootstrap.min.js';
-        let jqui = top.webroot_url + '/public/assets/jquery-ui/jquery-ui.min.js';
+        let bscssRtl = top.webroot_url + '/public/assets/bootstrap-v4-rtl/dist/css/bootstrap-rtl.min.css';
+        let bsurl = top.webroot_url + '/public/assets/bootstrap/dist/js/bootstrap.bundle.min.js';
 
         let version = jQuery.fn.jquery.split(' ')[0].split('.');
-        if ((version[0] < 2 && version[1] < 9) || (version[0] == 1 && version[1] == 9 && version[2] < 1)) {
+        if ((version[0] < 2 && version[1] < 9) || (version[0] === 1 && version[1] === 9 && version[2] < 1)) {
             inDom('jquery-min', 'script', true);
             includeScript(jqurl, false, 'script');
             console.log('Replacing jQuery version:[ ' + version + ' ]');
         }
-        if (!inDom('bootstrap.min.css', 'link', false)) {
+        if (!isBootstrapCss()) {
             includeScript(bscss, false, 'link');
             if (top.jsLanguageDirection === 'rtl') {
                 includeScript(bscssRtl, false, 'link');
             }
         }
         if (typeof jQuery.fn.modal === 'undefined') {
-            if (!inDom('bootstrap.min.js', 'script', false))
+            if (!inDom('bootstrap.bundle.min.js', 'script', false))
                 includeScript(bsurl, false, 'script');
-        }
-        if (typeof jQuery.ui === 'undefined') {
-            includeScript(jqui, false, 'script');
         }
     });
 
     // onward
-
     var opts_defaults = {
         type: 'iframe', // POST, GET (ajax) or iframe
         async: true,
@@ -371,8 +441,10 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         onClosed: false,
         callBack: false // use {call: 'functionName, args: args, args} if known or use dlgclose.
     };
-    if (!opts) var opts = {};
 
+    if (!opts) {
+        opts = {};
+    }
     opts = jQuery.extend({}, opts_defaults, opts);
     opts.type = opts.type ? opts.type.toLowerCase() : '';
 
@@ -381,7 +453,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     where = opts.type === 'iframe' ? top : window;
 
     // get url straight...
-    var fullURL = "";
+    fullURL = "";
     if (opts.url) {
         url = opts.url;
     }
@@ -404,34 +476,34 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     var sizeChoices = ['modal-sm', 'modal-md', 'modal-mlg', 'modal-lg', 'modal-xl'];
     if (Math.abs(width) > 0) {
         width = Math.abs(width);
-        mWidth = (width / where.innerWidth * 100).toFixed(4) + '%';
-        msSize = '<style>.modal-custom-' + winname + ' {width:' + mWidth + ';}</style>';
+        mWidth = (width / where.innerWidth * 100).toFixed(1) + '%';
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:' + mWidth + ' !important;}</style>';
         mSize = 'modal-custom' + winname;
     } else if (jQuery.inArray(width, sizeChoices) !== -1) {
         mSize = width; // is a modal class
     } else {
-        msSize = '<style>.modal-custom-' + winname + ' {width:35%;}</style>'; // standard B.S. modal default (modal-md)
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:35% !important;}</style>'; // standard B.S. modal default (modal-md)
     }
     // leave below for legacy
     if (mSize === 'modal-sm') {
-        msSize = '<style>.modal-custom-' + winname + ' {width:25%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:25% !important;}</style>';
     } else if (mSize === 'modal-md') {
-        msSize = '<style>.modal-custom-' + winname + ' {width:40%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:40% !important;}</style>';
     } else if (mSize === 'modal-mlg') {
-        msSize = '<style>.modal-custom-' + winname + ' {width:55%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:55% !important;}</style>';
     } else if (mSize === 'modal-lg') {
-        msSize = '<style>.modal-custom-' + winname + ' {width:75%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:75% !important;}</style>';
     } else if (mSize === 'modal-xl') {
-        msSize = '<style>.modal-custom-' + winname + ' {width:92%;}</style>';
+        msSize = '<style>.modal-custom-' + winname + ' {max-width:92% !important;}</style>';
     }
     mSize = 'modal-custom-' + winname;
 
     // Initial responsive height.
     var vpht = where.innerHeight;
-    mHeight = height > 0 ? (height / vpht * 100).toFixed(4) + 'vh' : '';
+    mHeight = height > 0 ? (height / vpht * 100).toFixed(1) + 'vh' : '';
 
     // Build modal template. For now !title = !header and modal full height.
-    var mTitle = title > "" ? '<h4 class=modal-title>' + title + '</h4>' : '';
+    var mTitle = title > "" ? '<h5 class=modal-title>' + title + '</h5>' : '';
 
     var waitHtml =
         '<div class="loadProgress text-center">' +
@@ -439,47 +511,39 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         '</div>';
 
     var headerhtml =
-        ('<div class=modal-header><span type=button class="x close" data-dismiss=modal>' +
-            '<span aria-hidden=true>&times;</span>' +
-            '</span><h5 class=modal-title>%title%</h5></div>')
-            .replace('%title%', mTitle);
-
-    var frameHead =
-        ('<div><span class="close data-dismiss=modal aria-hidden="true">&times;</span></div>');
+        ('<div class=modal-header>%title%<button type=button class="close" data-dismiss=modal>' +
+            '&times;</button></div>').replace('%title%', mTitle);
 
     var frameHtml =
-        ('<iframe id="modalframe" class="embed-responsive-item modalIframe" name="%winname%" %url% frameborder=0></iframe>')
-            .replace('%winname%', winname)
-            .replace('%url%', fullURL ? 'src=' + fullURL : '');
+        ('<iframe id="modalframe" class="w-100 h-100 modalIframe" name="%winname%" %url% frameborder=0></iframe>')
+        .replace('%winname%', winname).replace('%url%', fullURL ? 'src=' + fullURL : '');
 
-    var embedded = 'embed-responsive embed-responsive-16by9';
-
-    var bodyStyles = (' style="margin:2px;padding:2px;height:%initHeight%;max-height:94vh;overflow-y:auto;"')
-        .replace('%initHeight%', opts.sizeHeight !== 'full' ? mHeight : '94vh');
+    var bodyStyles = (' style="overflow-y:auto;height:%initHeight%;max-height:92vh;"')
+        .replace('%initHeight%', opts.sizeHeight !== 'full' ? mHeight : '80vh');
 
     var altClose = '<div class="closeDlgIframe" data-dismiss="modal" ></div>';
 
+    const position = { x: 0, y: 0 };
+
     var mhtml =
-        ('<div id="%id%" class="modal fade dialogModal" tabindex="-1" role="dialog">%sStyle%' +
-            '<style>.modal-backdrop{opacity:0; transition:opacity 1s;}.modal-backdrop.in{opacity:0.2;}</style>' +
-            '<div %dialogId% class="modal-dialog %szClass%" role="document">' +
-            '<div class="modal-content">' +
-            '%head%' + '%altclose%' + '%wait%' +
-            '<div class="modal-body %embedded%" %bodyStyles%>' +
-            '%body%' + '</div></div></div></div>')
-            .replace('%id%', winname)
-            .replace('%sStyle%', msSize ? msSize : '')
-            .replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '')
-            .replace('%szClass%', mSize ? mSize : '')
-            .replace('%head%', mTitle !== '' ? headerhtml : '')
-            .replace('%altclose%', mTitle === '' ? altClose : '')
-            .replace('%wait%', '') // maybe option later
-            .replace('%bodyStyles%', bodyStyles)
-            .replace('%embedded%', opts.type === 'iframe' ? embedded : '')
-            .replace('%body%', opts.type === 'iframe' ? frameHtml : '');
+        ('<div id="%id%" class="modal fade dialogModal" tabindex="-1" role="dialog">%sizeStyle%' +
+            '<style>.drag-resize {touch-action:none;user-select:none;}</style>' +
+            '<div %dialogId% class="modal-dialog %drag-action% %sizeClass%" role="document">' +
+            '<div class="modal-content %resize-action%">' + '%head%' + '%altclose%' + '%wait%' +
+            '<div class="modal-body px-1" %bodyStyles%>' + '%body%' + '</div></div></div></div>')
+        .replace('%id%', winname)
+        .replace('%sizeStyle%', msSize ? msSize : '')
+        .replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '')
+        .replace('%sizeClass%', mSize ? mSize : '')
+        .replace('%head%', mTitle !== '' ? headerhtml : '')
+        .replace('%altclose%', mTitle === '' ? altClose : '')
+        .replace('%drag-action%', (opts.allowDrag) ? 'drag-action' : '')
+        .replace('%resize-action%', (opts.allowResize) ? 'resize-action' : '')
+        .replace('%wait%', '')
+        .replace('%bodyStyles%', bodyStyles)
+        .replace('%body%', opts.type === 'iframe' ? frameHtml : '');
 
     // Write modal template.
-    //
     dlgContainer = where.jQuery(mhtml);
     dlgContainer.attr("name", winname);
 
@@ -492,7 +556,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     if (opts.buttons) {
         dlgContainer.find('.modal-content').append(buildFooter());
     }
-// Ajax setup
+    // Ajax setup
     if (opts.type === 'alert') {
         dlgContainer.find('.modal-body').html(opts.html);
     }
@@ -505,7 +569,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             dataType: opts.dataType || '' // xml/json/text etc.
         };
 
-        dialogAjax(params, dlgContainer);
+        dialogAjax(params, dlgContainer, opts);
     }
 
     // let opener array know about us.
@@ -514,102 +578,98 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     // Write the completed template to calling document or 'where' window.
     where.jQuery("body").append(dlgContainer);
 
-    jQuery(function () {
-        // DOM Ready. Handle events and cleanup.
-        if (opts.type === 'iframe') {
-            var modalwin = where.jQuery('body').find("[name='" + winname + "']");
-            jQuery('div.modal-dialog', modalwin).css({'margin': '15px auto'});
-            modalwin.on('load', function (e) {
-                setTimeout(function () {
-                    if (opts.sizeHeight === 'auto') {
-                        SizeModaliFrame(e, height);
-                    } else if (opts.sizeHeight === 'fixed') {
-                        sizing(e, height);
-                    } else {
-                        sizing(e, height); // must be full height of container
-                    }
-                }, 500);
-            });
-        }
-
-        dlgContainer.on('show.bs.modal', function () {
-            if (opts.allowResize) {
-                jQuery('.modal-content', this).resizable({
-                    grid: [5, 5],
-                    animate: true,
-                    animateEasing: "swing",
-                    animateDuration: "fast",
-                    alsoResize: jQuery('div.modal-body', this)
-                })
-            }
-            if (opts.allowDrag) {
-                jQuery('.modal-dialog', this).draggable({
-                    iframeFix: true,
-                    cursor: false
+    // We promised
+    return new Promise((resolve, reject) => {
+        jQuery(function () {
+            // DOM Ready. Handle events and cleanup.
+            if (opts.type === 'iframe') {
+                var modalwin = where.jQuery('body').find("[name='" + winname + "']");
+                jQuery('div.modal-dialog', modalwin).css({'margin': '15px auto'});
+                modalwin.on('load', function (e) {
+                    setTimeout(function () {
+                        if (opts.sizeHeight === 'auto') {
+                            SizeModaliFrame(e, height);
+                        } else if (opts.sizeHeight === 'fixed') {
+                            sizing(e, height);
+                        } else {
+                            sizing(e, height); // must be full height of container
+                        }
+                    }, 800);
                 });
             }
-        }).on('shown.bs.modal', function () {
-            // Remove waitHtml spinner/loader etc.
-            jQuery(this).parent().find('div.loadProgress')
-                .fadeOut(function () {
+
+            // events chain.
+            dlgContainer.on('show.bs.modal', function () {
+                if (opts.allowResize || opts.allowDrag) {
+                    initDragResize(where.document, where.document);
+                }
+            }).on('shown.bs.modal', function () {
+                // Remove waitHtml spinner/loader etc.
+                jQuery(this).parent().find('div.loadProgress').fadeOut(function () {
                     jQuery(this).remove();
                 });
-            dlgContainer.modal('handleUpdate'); // allow for scroll bar
-        }).on('hidden.bs.modal', function (e) {
-            // remove our dialog
-            jQuery(this).remove();
-
-            // now we can run functions in our window.
-            if (opts.onClosed) {
-                console.log('Doing onClosed:[' + opts.onClosed + ']');
-                if (opts.onClosed === 'reload') {
-                    window.location.reload();
-                } else {
-                    window[opts.onClosed]();
+                dlgContainer.modal('handleUpdate'); // allow for scroll bar
+            }).on('hidden.bs.modal', function (e) {
+                // remove our dialog
+                jQuery(this).remove();
+                // now we can run functions in our window.
+                if (opts.onClosed) {
+                    console.log('Doing onClosed:[' + opts.onClosed + ']');
+                    if (opts.onClosed === 'reload') {
+                        window.location.reload();
+                    } else {
+                        window[opts.onClosed]();
+                    }
                 }
-            }
-            if (opts.callBack.call) {
-                console.log('Doing callBack:[' + opts.callBack.call + '|' + opts.callBack.args + ']');
-                if (opts.callBack.call === 'reload') {
-                    window.location.reload();
-                } else {
-                    window[opts.callBack.call](opts.callBack.args);
+                if (opts.callBack.call) {
+                    console.log('Doing callBack:[' + opts.callBack.call + '|' + opts.callBack.args + ']');
+                    if (opts.callBack.call === 'reload') {
+                        window.location.reload();
+                    } else {
+                        window[opts.callBack.call](opts.callBack.args);
+                    }
                 }
-            }
+                // We resolve on modal closing so we can run after action items.
+                // Todo: Move our closed and callback functions to new library function.
+                // then() continue promise chain back to calling script.
+                //
+                resolve(true);
 
-        }).modal({backdrop: 'static', keyboard: true}, 'show');// Show Modal
+            }).modal({backdrop: 'static', keyboard: true}, 'show');// Show Modal
 
-        // define local dialog close() function. openers scope
-        window.dlgCloseAjax = function (calling, args) {
-            if (calling) {
+            // define local dialog close() function. openers scope
+            window.dlgCloseAjax = function (calling, args) {
+                if (calling) {
+                    opts.callBack = {call: calling, args: args};
+                }
+                dlgContainer.modal('hide'); // important to clean up in only one place, hide event....
+                return false;
+            };
+
+            // define local callback function. Set with opener or from opener, will exe on hide.
+            window.dlgSetCallBack = function (calling, args) {
                 opts.callBack = {call: calling, args: args};
-            }
-            dlgContainer.modal('hide'); // important to clean up in only one place, hide event....
-            return false;
-        };
+                return false;
+            };
 
-        // define local callback function. Set with opener or from opener, will exe on hide.
-        window.dlgSetCallBack = function (calling, args) {
-            opts.callBack = {call: calling, args: args};
-            return false;
-        };
+            // in residents dialog scope
+            where.setCallBack = function (calling, args) {
+                opts.callBack = {call: calling, args: args};
+                return true;
+            };
 
-        // in residents dialog scope
-        where.setCallBack = function (calling, args) {
-            opts.callBack = {call: calling, args: args};
-            return true;
-        };
+            where.getOpener = function () {
+                return where;
+            };
 
-        where.getOpener = function () {
-            return where;
-        };
+            // Return the dialog ref. looking towards deferring...
+            return dlgContainer;
 
-        // Return the dialog ref. looking towards deferring...
-        return dlgContainer;
+        }); // end events
+    }); /* promise */
 
-    }); // end events
-// Ajax call with promise
-    function dialogAjax(data, $dialog) {
+    // Ajax call with promise
+    function dialogAjax(data, $dialog, opts) {
         var params = {
             async: data.async,
             method: data.method || '',
@@ -622,13 +682,12 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             jQuery.extend(params, data);
         }
 
-        jQuery.ajax(params)
-            .done(aOkay)
-            .fail(oops);
+        jQuery.ajax(params).done(aOkay).fail(oops);
 
         return true;
 
         function aOkay(html) {
+            opts.ajax = true;
             $dialog.find('.modal-body').html(data.success ? data.success(html) : html);
 
             return true;
@@ -655,8 +714,10 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             for (var i = 0, k = opts.buttons.length; i < k; i++) {
                 var btnOp = opts.buttons[i];
                 if (typeof btnOp.class !== 'undefined') {
+                    btnOp.class = btnOp.class.replace(/default/gi, 'secondary');
                     var btn = jQuery('<button>').addClass('btn ' + (btnOp.class || 'btn-primary'));
                 } else { // legacy
+                    btnOp.style = btnOp.style.replace(/default/gi, 'secondary');
                     var btn = jQuery('<button>').addClass('btn btn-' + (btnOp.style || 'primary'));
                     btnOp.style = "";
                 }
@@ -691,7 +752,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             }
         } else {
             //if no buttons defined by user, add a standard close button.
-            oFoot.append('<button class="closeBtn btn btn-default" data-dismiss=modal type=button><i class="fa fa-times-circle"></i></button>');
+            oFoot.append('<button class="closeBtn btn btn-secondary" data-dismiss=modal type=button><i class="fa fa-times-circle"></i></button>');
         }
 
         return oFoot; // jquery object of modal footer.
@@ -726,7 +787,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         jQuery(e.currentTarget).parent('div.modal-body').css({'height': 0});
         viewPortHt = top.window.innerHeight || 0;
         //minSize = 100;
-        let frameContentHt = Math.max(jQuery(idoc).height(), idoc.body.offsetHeight || 0) + 30;
+        let frameContentHt = Math.max(jQuery(idoc).height(), idoc.body.offsetHeight || 0) + 40;
         frameContentHt = frameContentHt < minSize ? minSize : frameContentHt;
         frameContentHt = frameContentHt > viewPortHt ? viewPortHt : frameContentHt;
         let hasHeader = jQuery(e.currentTarget).parents('div.modal-content').find('div.modal-header').length;

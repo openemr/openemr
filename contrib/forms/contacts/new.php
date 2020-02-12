@@ -25,16 +25,17 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 formHeader("Form: contacts");
 ?>
 <html><head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+    <?php Header::setupHeader(); ?>
 </head>
 <body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
 <form method=post action="<?php echo $rootdir;?>/forms/contacts/save.php?mode=new" name="my_form">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-<span class="title">Contacts</span><br><br>
+<span class="title">Contacts</span><br /><br />
 <table>
 <tr>
 <td valign=top>
@@ -71,13 +72,13 @@ formHeader("Form: contacts");
 <table>
 <tr>
 <td valign=top>
-<span class=text>Additional Notes: </span><br><textarea cols=40 rows=8 wrap=virtual name="additional_notes" ></textarea><br>
+<span class=text>Additional Notes: </span><br /><textarea cols=40 rows=8 wrap=virtual name="additional_notes" ></textarea><br />
 </td>
 </tr>
 </table>
-<br>
+<br />
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
-<br>
+<br />
 <a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
  onclick="top.restoreSession()">[Don't Save]</a>
 </form>

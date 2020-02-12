@@ -89,12 +89,12 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 <table>
  <tr>
   <td width='470px'>
-    <div style='float:left'>
+    <div style='float: left'>
 
     <table class='text'>
 
                    <tr>
-                      <td class='control-label'>
+                      <td class='col-form-label'>
                             <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
@@ -104,7 +104,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
                    </tr>
 
                 <tr>
-                        <td class='control-label'>
+                        <td class='col-form-label'>
                                 <?php echo xlt('End Date'); ?>:
                         </td>
                         <td>
@@ -117,12 +117,12 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 
   </td>
   <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+    <table style='border-left: 1px solid; width:100%; height:100%' >
         <tr>
             <td>
                 <div class="text-center">
           <div class="btn-group" role="group">
-            <a id='search_button' href='#' class='btn btn-default btn-search' onclick='top.restoreSession(); $("#theform").submit()'>
+            <a id='search_button' href='#' class='btn btn-secondary btn-search' onclick='top.restoreSession(); $("#theform").submit()'>
                             <?php echo xlt('Search'); ?>
             </a>
           </div>
@@ -136,11 +136,11 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
 
 </div>  <!-- end of search parameters -->
 
-<br>
+<br />
 
 <?php if ($_POST['search'] == 1) { ?>
  <div id="report_results">
- <table>
+ <table class="table">
 
  <thead>
   <th align='center'>
@@ -208,9 +208,9 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
                   generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
                   ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $target) .
                   " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $alert['due_status']) . ")" .
-                  "<span><br>";
+                  "<span><br />";
             } else { // $row['category'] == 'allergy_alert'
-                 echo $alert . "<br>";
+                 echo $alert . "<br />";
             }
         }
         ?>
@@ -229,9 +229,9 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
                       generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
                       ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $target) .
                       " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $alert['due_status']) . ")" .
-                      "<span><br>";
+                      "<span><br />";
                 } else { // $row['category'] == 'allergy_alert'
-                    echo $alert . "<br>";
+                    echo $alert . "<br />";
                 }
             }
         } else {

@@ -729,9 +729,9 @@ function postcalendar_admin_clearCache()
     $spec_err = '';
 
     if (!file_exists($tpl->compile_dir)) {
-        $spec_err .= "Error: folder '" .text($tpl->compile_dir) . "' doesn't exist!<br>";
+        $spec_err .= "Error: folder '" .text($tpl->compile_dir) . "' doesn't exist!<br />";
     } else if (!is_writeable($tpl->compile_dir)) {
-        $spec_err .= "Error: folder '" . text($tpl->compile_dir) . "' not writeable!<br>";
+        $spec_err .= "Error: folder '" . text($tpl->compile_dir) . "' not writeable!<br />";
     }
 
     //note: we don't abort on error... like before.

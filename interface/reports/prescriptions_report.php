@@ -65,7 +65,7 @@ $form_facility   = isset($_POST['form_facility']) ? $_POST['form_facility'] : ''
 
 </script>
 
-<style type="text/css">
+<style>
 
 /* specifically include & exclude from printing */
 @media print {
@@ -96,7 +96,7 @@ $form_facility   = isset($_POST['form_facility']) ? $_POST['form_facility'] : ''
 <body class="body_top">
 
 <!-- Required for the popup date selectors -->
-<div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
+<div id="overDiv" style="position: absolute; visibility: hidden; z-index: 1000;"></div>
 
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Prescriptions and Dispensations'); ?></span>
 
@@ -113,45 +113,44 @@ $form_facility   = isset($_POST['form_facility']) ? $_POST['form_facility'] : ''
 <table>
  <tr>
   <td width='640px'>
-    <div style='float:left'>
+    <div style='float: left'>
 
     <table class='text'>
         <tr>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Facility'); ?>:
             </td>
             <td>
             <?php dropdown_facility($form_facility, 'form_facility', true); ?>
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('From'); ?>:
             </td>
             <td>
-               <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
+               <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>' />
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('To{{Range}}'); ?>:
             </td>
             <td>
-               <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
+               <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>' />
             </td>
         </tr>
         <tr>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Patient ID'); ?>:
             </td>
             <td>
-               <input type='text' class='form-control' name='form_patient_id' size='10' maxlength='20' value='<?php echo attr($form_patient_id); ?>'
-                title='<?php echo xla('Optional numeric patient ID'); ?>' />
+               <input type='text' class='form-control' name='form_patient_id' size='10' maxlength='20' value='<?php echo attr($form_patient_id); ?>' title='<?php echo xla('Optional numeric patient ID'); ?>' />
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Drug'); ?>:
             </td>
             <td>
                <input type='text' class='form-control' name='form_drug_name' size='10' maxlength='250' value='<?php echo attr($form_drug_name); ?>'
                 title='<?php echo xla('Optional drug name, use % as a wildcard'); ?>' />
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Lot'); ?>:
             </td>
             <td>
@@ -164,17 +163,17 @@ $form_facility   = isset($_POST['form_facility']) ? $_POST['form_facility'] : ''
     </div>
 
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+  <td class='h-100' align='left' valign='middle'>
+    <table class='w-100 h-100' style='border-left:1px solid;'>
         <tr>
             <td>
        <div class="text-center">
                 <div class="btn-group" role="group">
-                    <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                    <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                         <?php echo xlt('Submit'); ?>
                     </a>
                     <?php if ($_POST['form_refresh']) { ?>
-                    <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                    <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                             <?php echo xlt('Print'); ?>
                     </a>
                     <?php } ?>
@@ -192,8 +191,8 @@ $form_facility   = isset($_POST['form_facility']) ? $_POST['form_facility'] : ''
 if ($_POST['form_refresh']) {
     ?>
 <div id="report_results">
-<table id='mymaintable'>
-<thead>
+<table class='table' id='mymaintable'>
+<thead class='thead-light'>
 <th> <?php echo xlt('Patient'); ?> </th>
 <th> <?php echo xlt('ID'); ?> </th>
 <th> <?php echo xlt('RX'); ?> </th>

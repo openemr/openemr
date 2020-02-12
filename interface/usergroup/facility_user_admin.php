@@ -97,7 +97,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
 
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-12">
                 <div class="page-title">
                     <h3><?php echo xlt('Edit Facility Specific User Information'); ?></h3>
                 </div>
@@ -145,7 +145,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                     <tr>
                         <td>&nbsp;</td>
                         <td>
-                            <button type="submit" class="btn btn-default btn-save" name='form_save' id='form_save' href='#' >
+                            <button type="submit" class="btn btn-secondary btn-save" name='form_save' id='form_save' href='#' >
                                 <?php echo xlt('Save');?>
                             </button>
                             <a class="btn btn-link btn-cancel oe-opt-btn-separate-left" id='cancel' href='#'>

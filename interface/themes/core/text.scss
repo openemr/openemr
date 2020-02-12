@@ -1,105 +1,120 @@
 .text {
-    color: #000000;
     text-decoration: none;
-    font-size: 0.9em;
+    @include font-size("0.9rem !important");
 }
+
 .required {
     text-decoration: none;
-    font-size: 0.9em;
-    color: #880000;
+    @include font-size("0.9rem !important");
+    color: $danger;
     font-weight: bold;
 }
+
+/* Deprecated - Please use font-weight-bold class - Will be removed soon */
 .bold {
     text-decoration: none;
-    font-size: 0.9em;
-    color: #000000;
+    @include font-size("0.9rem !important");
     font-weight: bold;
 }
+
 .small {
     text-decoration: none;
-    color: #000000;
-    font-size: 0.8em;
+    @include font-size("0.8rem !important");
 }
+
 .sellistclass {
     float: $left;
 }
-.disabled_button {
-    color: grey;
-}
+
+.disabled_button,
 a.disabled_button:hover {
-    color: grey;
+    color: $gray;
 }
+
 /* Password alert styles */
 
 .pwdalert {
     display: block;
-    width: 390pt;
+    width: 520px;
     margin-left: 100px;
     padding: 10px 10px 10px 15px;
-    color: black;
 }
+
 .alertmsg1 {
-    border: 3px solid #fe7b7a;
-    background-color: #ffd6d6;
+    border: 3px solid $danger;
+    background-color: rgba(lighten($orange, 60%), 0.5);
 }
+
 .alertmsg2 {
-    border: 3px solid #f56fff;
-    background-color: #fabfff;
+    border: 3px solid lighten($pink, 20%);
+    background-color: lighten($pink, 30%);
 }
+
 .alertmsg3 {
-    border: 3px solid #9acc2e;
-    background-color: #eef7dd;
+    border: 3px solid $yellow;
+    background-color: lighten($yellow, 60%);
 }
+
 /* Password alert styles */
 
 /* Style for red font */
 
 .redtext {
     text-decoration: none;
-    color: #FF0000;
+    color: $danger;
 }
+
 /* Style for red font */
 
 .de_identification_status_message {
     width: 50%;
-    border: 1px solid #0000FF;
+    border: 1px solid $primary;
 }
+
 .de_identification_input_controls_box {
     width: 100%;
-    border: 1px solid #0000FF;
+    border: 1px solid $primary;
 }
+
 .de_id_upgrade_login {
     width: 40%;
-    border: 1px solid Black;
-    background-color: #ffffff;
+    border: 1px solid $black;
+    background-color: $white;
 }
+
 body.admin-layout input[type="button"] {
     display: inline-block;
     float: none;
 }
+
 /* error message = new validation */
 
 .error-message {
-    color: red;
+    color: $danger;
     display: block;
     white-space: nowrap;
     font-weight: normal;
 }
+
 .error-border {
-    border: 1px solid red !important;
+    border: 1px solid $danger !important;
 }
+
 .tinylogocontainer {
     display: inline-block;
     border: none;
 }
+
 .tinylogopng {
     display: inline-block;
     width: 44px;
     height: 22px;
 }
-.oe-text-to-right{
+
+.oe-text-to-right {
     text-align: $right;
 }
-.oe-text-to-left{
+
+.oe-text-to-left {
     text-align: $left;
 }

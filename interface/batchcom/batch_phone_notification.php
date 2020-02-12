@@ -51,7 +51,7 @@ $fac_msg_map = $facilities['msg_map'];
 
 // get patient data for send alert
 $db_patient = cron_getPhoneAlertpatientData($type, $before_trigger_hours);
-echo "<br>" . xlt("Total Records Found") . ": " . count($db_patient);
+echo "<br />" . xlt("Total Records Found") . ": " . count($db_patient);
 
 //Create a new instance of the phone service client
 $client = new MaviqClient($phone_id, $phone_token, $phone_url);
@@ -128,7 +128,7 @@ function cron_updateentry($type, $pid, $pc_eid)
     }
 
     $query .=" where pc_pid=? and pc_eid=? ";
-    //echo "<br>".$query;
+    //echo "<br />".$query;
     $db_sql = (sqlStatement($query, array($pid, $pc_eid)));
 }
 

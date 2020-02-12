@@ -146,6 +146,7 @@ abstract class C_AbstractClickmap extends Controller
         $this->assign("form", $model);
         $this->set_context($model);
         $model->hideNav = "true";
+        $this->assign("reportMode", true);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 

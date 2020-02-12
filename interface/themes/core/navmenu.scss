@@ -1,38 +1,45 @@
 .menu {
-    color: #0000cc;
+    color: $primary;
     text-decoration: none;
     text-align: $left;
 }
+
 .menu_selected {
-    color: #000000;
+    color: $body-color;
     text-decoration: none;
     text-align: $left;
 }
+
 /* see .titlebar below */
 
 .title_bar {
-    font-size: 1.0em;
+    @include font-size("1.0rem !important");
     font-weight: bold;
     text-decoration: none;
-    color: #000000;
+    color: $body-color;
 }
+
 .title_bar_top {
     font-weight: bold;
     text-decoration: none;
-    color: #000000;
+    color: $body-color;
 }
+
 .sidebar {
-    background: #fffbeb;
+    background: darken($light, 10%);
     font-size: 95%;
     padding-left: 0 !important;
     padding-right: 0 !important;
+
     .submenu {
         padding-left: 15px;
     }
+
     ul.mainmenu {
         padding-bottom: 55px;
     }
 }
+
 /*=============================================================
  * Here we have taken variables from globals.php and turned them into CSS classes
  * these should be used in place of the GLOBAL variables -- JRM March 2008
@@ -43,97 +50,109 @@ body {
 }
 
 .body_top {
-    background-color: #fffbeb;
-    margin: 8px
+    margin: 8px;
 }
+
 /* $top_bg_line */
 
 .bgcolor2 {
-    background-color: #fffbeb;
+    background-color: darken($light, 10%);
 }
+
 /* $GLOBALS['style']['BGCOLOR2'] */
 
 .body_bottom {
     background: url('../pic/aquabg.gif') repeat;
-    margin: 8px
+    margin: 8px;
 }
+
 /* $bottom_bg_line */
 
 .body_title {
-    background-color: #fedf98;
+    background-color: lighten($yellow, 50%);
 }
+
 /* $title_bg_line */
 
 .body_nav {
-    background-color: #fefdcf;
+    background-color: lighten($yellow, 60%);
 }
+
 /* $nav_bg_line */
 
 .body_filler {
-    background-color: #f7f0d5;
+    background-color: lighten($yellow, 70%);
 }
+
 /* $login_filler_line */
 
 .body_login {
     background: url('../pic/aquabg.gif') repeat;
 }
-/* $login_body_line */
 
-.table_bg {
-    background-color: #ccc;
-}
+/* $login_body_line */
 /* $table_bg */
 
+.table_bg,
 .bgcolor1 {
-    background-color: #ccc;
+    background-color: $gray-400;
 }
+
 /* $GLOBALS['style']['BGCOLOR1'] */
 
 .textcolor11 {
-    background-color: #222;
+    background-color: $dark;
 }
+
 /* $GLOBALS['style']['TEXTCOLOR11'] */
 
 .highlightcolor {
-    background-color: #ddd;
+    background-color: $gray-300;
 }
+
 /* $GLOBALS['style']['HIGHLIGHTCOLOR'] */
 
 .bottom_line {
     background: url('../pic/aquabg.gif') repeat;
 }
+
 /* $GLOBALS['style']['BOTTOM_BG_LINE'] */
 
 .logobar {
-    background-color: #24262c;
+    background-color: $dark;
     height: 110px;
 }
+
 /* $GLOBALS['logoBarHeight'] */
 
 .navbar {
     height: 22px;
 }
+
 /* $GLOBALS['navBarHeight'] */
 
 .titlebar {
     height: 20px;
 }
+
 /* $GLOBALS['titleBarHeight'] */
 
 /* The top navigation icon styling*/
 
 .top-nav-icons {
     margin-right: 15px;
-    margin-top: 5px
+    margin-top: 5px;
 }
+
 .text-area {
-    background-color: #FFFFFF;
-    border: 1px solid black;
+    background-color: $white;
+    border: 1px solid $black;
     width: 100%;
     height: 100px;
     overflow: auto;
     text-align: $left;
 }
+
 .example_menu {
     list-style: none;
     margin: 0;
@@ -141,26 +160,37 @@ body {
     vertical-align: top;
     width: 136px;
 }
-.expand_all, .collapse_all {
+
+.expand_all,
+.collapse_all {
     cursor: pointer;
 }
+
 .example_menu ul {
     display: none;
     list-style: none;
     margin: 0;
     padding: 0;
 }
-#menu1 li, #menu2 li, #menu3 li, #menu4 li, #menu5 li, .example_menu li {
+
+#menu1 li,
+#menu2 li,
+#menu3 li,
+#menu4 li,
+#menu5 li,
+.example_menu li {
     background-image: none;
     margin: 0;
     padding: 0;
-    border-bottom: 1px solid white;
+    border-bottom: 1px solid $white;
 }
+
 .example_menu ul ul {
     display: block;
 }
+
 .example_menu a {
-    color: #000;
+    color: $black;
     cursor: pointer;
     display: block;
     font-weight: bold;
@@ -168,46 +198,62 @@ body {
     padding: 2px 2px 2px 17px;
     width: 160px;
 }
+
 .example_menu a.expanded {
-    background: #bbb url('collapse.gif') no-repeat 3px 50%;
+    background: $gray-300 url('collapse.gif') no-repeat 3px 50%;
 }
+
 .example_menu a.collapsed {
-    background: #bbb url('expand.gif') no-repeat 3px 50%;
+    background: $gray-300 url('expand.gif') no-repeat 3px 50%;
 }
+
 .example_menu a:hover {
     text-decoration: none;
 }
+
 .example_menu ul li span {
-    background: #d9d1a4;
-    color: #000;
+    background: lighten($yellow, 60%);
+    color: $body-color;
     display: block;
     font-weight: normal;
     width: 100%;
 }
+
 .example_menu ul a:Subjective {
     font-weight: normal;
 }
+
 .example_menu ul a:hover {
-    background: #f5f5f5;
+    background: lighten($light, 20%);
     text-decoration: underline;
 }
+
 .example_menu li.active a {
-    background: #fff;
+    background: $white;
 }
+
 .example_menu li.active li a {
-    background: #e8e8e8;
+    background: $gray-200;
 }
-#menu1 li.footer, #menu2 li.footer, #menu3 li.footer, #menu4 li.footer, #menu5 li.footer, .example_menu .footer {
+
+#menu1 li.footer,
+#menu2 li.footer,
+#menu3 li.footer,
+#menu4 li.footer,
+#menu5 li.footer,
+.example_menu .footer {
     background: transparent url('footer.jpg') no-repeat 0 0;
-    border-top: 2px solid #fff;
+    border-top: 2px solid $white;
     height: 9px;
     line-height: 15px;
     margin: 0 0 10px 0;
     width: 131px;
 }
+
 .example_menu .footer span {
     display: none;
 }
+
 .cke_contents {
     height: 300px !important;
 }

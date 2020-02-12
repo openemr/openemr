@@ -244,7 +244,7 @@ if (is_dir($mainPATH)) {
                 <?php
             } else {
                 ?>
-                <div class="error_msg"><?php echo xlt("UNSUPPORTED database load file"); ?>: <BR><?php echo text(basename($file)) ?><span class="msg" id="<?php echo attr($db); ?>_unsupportedmsg">!</span></div>
+                <div class="error_msg"><?php echo xlt("UNSUPPORTED database load file"); ?>: <br /><?php echo text(basename($file)) ?><span class="msg" id="<?php echo attr($db); ?>_unsupportedmsg">!</span></div>
                 <?php
             }
         }
@@ -431,7 +431,7 @@ if ($supported_file === 1) {
                 $rf = "rf2";
             }
             ?>
-            <input id="<?php echo attr($db); ?>_install_button" version="<?php echo attr($file_revision); ?>" rf="<?php echo $rf; ?>" file_revision_date="<?php echo attr($file_revision_date); ?>" file_checksum="<?php echo attr($file_checksum); ?>" type="button" value="<?php echo attr($action); ?>"/>
+            <input id="<?php echo attr($db); ?>_install_button" class="btn btn-secondary btn-sm" version="<?php echo attr($file_revision); ?>" rf="<?php echo $rf; ?>" file_revision_date="<?php echo attr($file_revision_date); ?>" file_checksum="<?php echo attr($file_checksum); ?>" type="button" value="<?php echo attr($action); ?>"/>
       </div>
             <?php
         }

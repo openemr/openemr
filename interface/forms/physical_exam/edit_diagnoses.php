@@ -12,10 +12,11 @@
  */
 
 
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $line_id = $_REQUEST['lineid'];
 $info_msg = "";
@@ -26,10 +27,9 @@ if ($issue && !AclMain::aclCheckCore('patients', 'med', '', 'write')) {
 ?>
 <html>
 <head>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <title><?php echo xlt('Edit Diagnoses for');?><?php echo text($line_id); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
+<?php Header::setupHeader('opener'); ?>
 
 </head>
 

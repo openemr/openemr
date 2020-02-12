@@ -43,25 +43,25 @@ if ($_POST['form_action']=='save') {
 
     //validation uses the functions in notification.inc.php
     if ($_POST['email_sender']=="") {
-        $form_err .= xl('Empty value in "Email Sender"') . '<br>';
+        $form_err .= xl('Empty value in "Email Sender"') . '<br />';
     }
 
     if ($_POST['email_subject']=="") {
-        $form_err .= xl('Empty value in "Email Subject"') . '<br>';
+        $form_err .= xl('Empty value in "Email Subject"') . '<br />';
     }
 
     //validate dates
     if (!check_date_format($_POST['next_app_date'])) {
-        $form_err .= xl('Date format for "Next Appointment" is not valid') . '<br>';
+        $form_err .= xl('Date format for "Next Appointment" is not valid') . '<br />';
     }
 
     // validates and or
     if ($_POST['provider_name']=="") {
-        $form_err .= xl('Empty value in "Name of Provider"') . '<br>';
+        $form_err .= xl('Empty value in "Name of Provider"') . '<br />';
     }
 
     if ($_POST['message']=="") {
-        $form_err .= xl('Empty value in "Email Text"') . '<br>';
+        $form_err .= xl('Empty value in "Email Text"') . '<br />';
     }
 
     //process sql
@@ -117,7 +117,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
             <small><?php echo xlt('Email Notification'); ?></small>
         </h1>
     </header>
-    <main>
+    <main class="mx-4">
         <?php
         if ($form_err) {
             echo '<div class="alert alert-danger">' . xlt('The following errors occurred') . ': ' . text($form_err) . '</div>';
@@ -153,7 +153,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
             </div>
             <div class="row">
                 <div class="col-md-12 form-group">
-                    <button class="btn btn-default btn-save" type="submit" name="form_action" value="save"><?php echo xlt('Save'); ?></button>
+                    <button class="btn btn-secondary btn-save" type="submit" name="form_action" value="save"><?php echo xlt('Save'); ?></button>
                 </div>
             </div>
         </form>

@@ -12,10 +12,11 @@
  */
 
 
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("../../../library/api.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $out_of_encounter = false;
 if ((($_SESSION['encounter'] == '') || ($_SESSION['pid'] == '')) || ($_GET['mode'] == 'external')) {
@@ -221,9 +222,9 @@ if ($preselect_category == '' && !$out_of_encounter) {
 ?>
 
 <html><head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+<?php Header::setupHeader(); ?>
 
-<script language="javascript" type="text/javascript">
+<script>
 
 var array1 = new Array();
 var array2 = new Array();
@@ -1096,35 +1097,35 @@ function processEnter(e,message) {
 
 </script>
 </head>
-<body <?php echo $top_bg_line;?> topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0 onload="init()">
+<body class="body_top" onload="init()">
 <div name="form_container" onKeyPress="gotoOne(event)">
-<form method=post action="<?php echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="CAMOS">
+<form method='post' action="<?php echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="CAMOS">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <?php
 if (!$out_of_encounter) {
 //  echo "<h1>$out_of_encounter</h1>\n";
     ?>
-<input type=button name=clone value='<?php echo xla('Clone'); ?>' onClick="js_button('clone', 'clone')">
-<input type=button name=clone_visit value='<?php echo xla('Clone Past Visit'); ?>' onClick="js_button('clone last visit', 'clone last visit')">
-<select name=stepback>
-  <option value=1><?php echo xlt('Back one visit'); ?></option>
-  <option value=2><?php echo xlt('Back two visits'); ?></option>
-  <option value=3><?php echo xlt('Back three visits'); ?></option>
-  <option value=4><?php echo xlt('Back four visits'); ?></option>
-  <option value=5><?php echo xlt('Back five visits'); ?></option>
-  <option value=6><?php echo xlt('Back six visits'); ?></option>
-  <option value=7><?php echo xlt('Back seven visits'); ?></option>
-  <option value=8><?php echo xlt('Back eight visits'); ?></option>
-  <option value=9><?php echo xlt('Back nine visits'); ?></option>
-  <option value=10><?php echo xlt('Back ten visits'); ?></option>
-  <option value=11><?php echo xlt('Back eleven visits'); ?></option>
-  <option value=12><?php echo xlt('Back twelve visits'); ?></option>
+<input type='button' name='clone' value='<?php echo xla('Clone'); ?>' onClick="js_button('clone', 'clone')">
+<input type='button' name='clone_visit' value='<?php echo xla('Clone Past Visit'); ?>' onClick="js_button('clone last visit', 'clone last visit')">
+<select name='stepback'>
+  <option value='1'><?php echo xlt('Back one visit'); ?></option>
+  <option value='2'><?php echo xlt('Back two visits'); ?></option>
+  <option value='3'><?php echo xlt('Back three visits'); ?></option>
+  <option value='4'><?php echo xlt('Back four visits'); ?></option>
+  <option value='5'><?php echo xlt('Back five visits'); ?></option>
+  <option value='6'><?php echo xlt('Back six visits'); ?></option>
+  <option value='7'><?php echo xlt('Back seven visits'); ?></option>
+  <option value='8'><?php echo xlt('Back eight visits'); ?></option>
+  <option value='9'><?php echo xlt('Back nine visits'); ?></option>
+  <option value='10'><?php echo xlt('Back ten visits'); ?></option>
+  <option value='11'><?php echo xlt('Back eleven visits'); ?></option>
+  <option value='12'><?php echo xlt('Back twelve visits'); ?></option>
 </select>
     <?php
     echo "<a href='{$GLOBALS['form_exit_url']}' onclick='top.restoreSession()'>[".xlt('Leave The Form')."]</a>";
     ?>
-<input type=button name='hide columns' value='<?php echo xla('Hide/Show Columns'); ?>' onClick="hide_columns()">
-<input type=button name='submit form' value='<?php echo xla('Submit Selected Content'); ?>' onClick="js_button('submit','submit_selection')">
+<input type='button' name='hide columns' value='<?php echo xla('Hide/Show Columns'); ?>' onClick="hide_columns()">
+<input type='button' name='submit form' value='<?php echo xla('Submit Selected Content'); ?>' onClick="js_button('submit','submit_selection')">
     <?php
 } //end of if !$out_of_encounter
 ?>
@@ -1137,20 +1138,20 @@ if ($error != '') {
     echo "<h1> error: ".text($error)."</h1>\n";
 }
 ?>
-<table border=1>
+<table border='1'>
 <tr>
   <td>
-  <div id=id_category_column_header style="display:inline">
+  <div id='id_category_column_header' style="display:inline">
     <?php echo xlt('Category'); ?>
   </div> <!-- end of id_category_column_header -->
   </td>
   <td>
-  <div id=id_subcategory_column_header style="display:inline">
+  <div id='id_subcategory_column_header' style="display:inline">
     <?php echo xlt('Subcategory'); ?>
   </div> <!-- end of id_subcategory_column_header -->
   </td>
   <td>
-  <div id=id_item_column_header style="display:inline">
+  <div id='id_item_column_header' style="display:inline">
     <?php echo xlt('Item'); ?>
   </div> <!-- end of id_item_column_header -->
   </td>
@@ -1161,73 +1162,73 @@ if ($error != '') {
 
 <tr>
   <td>
-  <div id=id_category_column style="display:inline">
-    <select name=select_category size=<?php echo attr($select_size); ?> onchange="click_category()"></select><br>
+  <div id='id_category_column' style="display:inline">
+    <select name='select_category' size='<?php echo attr($select_size); ?>' onchange="click_category()"></select><br />
 <?php
 
 if (myAuth() == 1) {//root user only can see administration option
     ?>
-    <input type=text name=change_category><br>
-    <input type=button name=add1 value='<?php echo xla('add'); ?>' onClick="js_button('add','change_category')">
-    <input type=button name=alter1 value='<?php echo xla('alter'); ?>' onClick="js_button('alter','change_category')">
-    <input type=button name=del1 value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_category')"><br>
+    <input type='text' name='change_category'><br />
+    <input type='button' name='add1' value='<?php echo xla('add'); ?>' onClick="js_button('add','change_category')">
+    <input type='button' name='alter1' value='<?php echo xla('alter'); ?>' onClick="js_button('alter','change_category')">
+    <input type='button' name='del1' value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_category')"><br />
     <?php
 }
 ?>
   </div> <!-- end of id_category_column -->
   </td>
   <td>
-  <div id=id_subcategory_column style="display:inline">
-    <select name=select_subcategory size=<?php echo attr($select_size); ?> onchange="click_subcategory()"></select><br>
+  <div id='id_subcategory_column' style="display:inline">
+    <select name='select_subcategory' size='<?php echo attr($select_size); ?>' onchange="click_subcategory()"></select><br />
 <?php
 
 if (myAuth() == 1) {//root user only can see administration option
     ?>
-    <input type=text name=change_subcategory><br>
-    <input type=button name=add2 value='<?php echo xla('add'); ?>' onClick="js_button('add','change_subcategory')">
-    <input type=button name=alter1 value='<?php echo xla('alter'); ?>' onClick="js_button('alter','change_subcategory')">
-    <input type=button name=del2 value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_subcategory')"><br>
+    <input type='text' name='change_subcategory'><br />
+    <input type='button' name='add2' value='<?php echo xla('add'); ?>' onClick="js_button('add','change_subcategory')">
+    <input type='button' name='alter1' value='<?php echo xla('alter'); ?>' onClick="js_button('alter','change_subcategory')">
+    <input type='button' name='del2' value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_subcategory')"><br />
     <?php
 }
 ?>
   </div> <!-- end of id_subcategory_column -->
   </td>
   <td>
-  <div id=id_item_column style="display:inline">
-    <select name=select_item[] size=<?php echo attr($select_size); ?> onchange="click_item()" multiple="multiple"></select><br>
+  <div id='id_item_column' style="display:inline">
+    <select name='select_item[]' size='<?php echo attr($select_size); ?>' onchange="click_item()" multiple="multiple"></select><br />
 <?php
 
 if (myAuth() == 1) {//root user only can see administration option
     ?>
-    <input type=text name=change_item><br>
-    <input type=button name=add3 value='<?php echo xla('add'); ?>' onClick="js_button('add','change_item')">
-    <input type=button name=alter1 value='<?php echo xla('alter'); ?>' onClick="js_button('alter','change_item')">
-    <input type=button name=del3 value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_item')"><br>
+    <input type='text' name='change_item'><br />
+    <input type='button' name='add3' value='<?php echo xla('add'); ?>' onClick="js_button('add','change_item')">
+    <input type='button' name='alter1' value='<?php echo xla('alter'); ?>' onClick="js_button('alter','change_item')">
+    <input type='button' name='del3' value='<?php echo xla('del'); ?>' onClick="js_button('delete','change_item')"><br />
     <?php
 }
 ?>
   </div> <!-- end of id_item_column -->
   </td>
   <td>
-<div id=id_textarea_content style="display:inline">
-    <textarea name=textarea_content cols=<?php echo attr($textarea_cols); ?> rows=<?php echo attr($textarea_rows); ?> onFocus="content_focus()" onBlur="content_blur()" onDblClick="specialSelect(this,'/*','*/')" tabindex=2></textarea>
+<div id='id_textarea_content' style="display:inline">
+    <textarea name='textarea_content' cols='<?php echo attr($textarea_cols); ?>' rows='<?php echo attr($textarea_rows); ?>' onFocus="content_focus()" onBlur="content_blur()" onDblClick="specialSelect(this,'/*','*/')" tabindex='2'></textarea>
     <br/>
-<input type=text size=35 name=clone_others_search value='<?php echo attr($_POST['clone_others_search']); ?>' tabindex=1 onKeyPress="processEnter(event,'clone_others_search')"/>
-<input type=button name=clone_others_search_button value='<?php echo xla('Search'); ?>' onClick="js_button('clone others', 'clone others')"/>
-<input type=button name=clone_others_selected_search_button value='<?php echo xla('Search Selected'); ?>' onClick="js_button('clone others selected', 'clone others selected')"/>
+<input type='text' size='35' name='clone_others_search' value='<?php echo attr($_POST['clone_others_search']); ?>' tabindex='1' onKeyPress="processEnter(event,'clone_others_search')"/>
+<input type='button' name='clone_others_search_button' value='<?php echo xla('Search'); ?>' onClick="js_button('clone others', 'clone others')"/>
+<input type='button' name='clone_others_selected_search_button' value='<?php echo xla('Search Selected'); ?>' onClick="js_button('clone others selected', 'clone others selected')"/>
 <?php
 
 if (myAuth() == 1) {//root user only can see administration option
     ?>
-<div id=id_main_content_buttons style="display:block">
-    <input type=button name=add4 value='<?php echo xla('Add'); ?>' onClick="js_button('add','change_content')">
-    <input type=button name=add4 value='<?php echo xla('Add to'); ?>' onClick="js_button('add to','change_content')">
-    <input type=button name=lock value='<?php echo xla('Lock'); ?>' onClick="lock_content()">
+<div id='id_main_content_buttons' style="display:block">
+    <input type='button' name='add4' value='<?php echo xla('Add'); ?>' onClick="js_button('add','change_content')">
+    <input type='button' name='add4' value='<?php echo xla('Add to'); ?>' onClick="js_button('add to','change_content')">
+    <input type='button' name='lock' value='<?php echo xla('Lock'); ?>' onClick="lock_content()">
     <?php
 
     if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
         ?>
-    <input type=button name=icd9 value='<?php echo xla('ICD9'); ?>' onClick="append_icd9()">
+    <input type='button' name='icd9' value='<?php echo xla('ICD9'); ?>' onClick="append_icd9()">
 </div> <!-- end of id_main_content_buttons-->
         <?php
     }
@@ -1240,22 +1241,22 @@ if (myAuth() == 1) {//root user only can see administration option
 </tr>
 </table>
 
-<input type=hidden name=hidden_mode>
-<input type=hidden name=hidden_selection>
-<input type=hidden name=hidden_category>
-<input type=hidden name=hidden_subcategory>
-<input type=hidden name=hidden_item>
+<input type='hidden' name='hidden_mode' />
+<input type='hidden' name='hidden_selection' />
+<input type='hidden' name='hidden_category' />
+<input type='hidden' name='hidden_subcategory' />
+<input type='hidden' name='hidden_item' />
 
-<input type=hidden name=category>
-<input type=hidden name=subcategory>
-<input type=hidden name=item>
-<input type=hidden name=content>
+<input type='hidden' name='category' />
+<input type='hidden' name='subcategory' />
+<input type='hidden' name='item' />
+<input type='hidden' name='content' />
 <?php
 
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
     ?>
-<input type=button name='submit form' value='<?php echo xla('Submit All Content'); ?>' onClick="js_button('submit','submit')">
-<input type=button name='submit form' value='<?php echo xla('Submit Selected Content'); ?>' onClick="js_button('submit','submit_selection')">
+<input type='button' name='submit form' value='<?php echo xla('Submit All Content'); ?>' onClick="js_button('submit','submit')">
+<input type='button' name='submit form' value='<?php echo xla('Submit Selected Content'); ?>' onClick="js_button('submit','submit_selection')">
     <?php
 }
 ?>

@@ -38,9 +38,9 @@ class GaclApi extends Gacl {
 	 *
 	 */
 	function showarray($array) {
-		echo "<br><pre>\n";
+		echo "<br /><pre>\n";
 		var_dump($array);
-		echo "</pre><br>\n";
+		echo "</pre><br />\n";
 	}
 
 	/**

@@ -274,15 +274,14 @@ $form_proc_code = $tmp_code_array[1];
         }
 
         table.mymaintable, table.mymaintable td {
-            border: 1px solid #aaaaaa;
             border-collapse: collapse;
         }
         table.mymaintable td {
-            padding: 1pt 4pt 1pt 4pt;
+            padding: 1px 5px 1px 5px;
         }
     </style>
 
-    <script language="JavaScript">
+    <script>
         $(function() {
             oeFixedHeaderSetup(document.getElementById('mymaintable'));
             var win = top.printLogSetup ? top : opener.top;
@@ -335,7 +334,7 @@ $form_proc_code = $tmp_code_array[1];
 
     <table class='text'>
         <tr>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('Report by'); ?>
             </td>
             <td>
@@ -357,7 +356,7 @@ $form_proc_code = $tmp_code_array[1];
             <?php dropdown_facility($form_facility, 'form_facility', false); ?>
             </td>
 
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php
                 if (!$GLOBALS['simplified_demographics']) {
                     echo '&nbsp;' . xlt('Procedure/Service') . ':';
@@ -370,7 +369,7 @@ $form_proc_code = $tmp_code_array[1];
                 if ($GLOBALS['simplified_demographics']) {
                     echo "style='display:none'";
                 } ?> />
-                                <br>
+                                <br />
           <div class="checkbox">
                   <label><input type='checkbox' name='form_details' value='1'<?php echo ($_POST['form_details']) ? " checked" : ""; ?> /><?php echo xlt('Details')?></label>
           </div>
@@ -387,7 +386,7 @@ $form_proc_code = $tmp_code_array[1];
             <td>
                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
             </td>
-            <td class='control-label'>
+            <td class='col-form-label'>
                 <?php echo xlt('To{{Range}}'); ?>:
             </td>
             <td>
@@ -399,17 +398,17 @@ $form_proc_code = $tmp_code_array[1];
     </div>
 
   </td>
-  <td align='left' valign='middle' height="100%">
-    <table style='border-left:1px solid; width:100%; height:100%' >
+  <td class='h-100' align='left' valign='middle'>
+    <table class='w-100 h-100' style='border-left:1px solid;'>
         <tr>
             <td>
                 <div class="text-center">
           <div class="btn-group" role="group">
-                      <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                      <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
                       </a>
                         <?php if ($_POST['form_refresh']) { ?>
-                        <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                        <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
                                 <?php echo xlt('Print'); ?>
                         </a>
                         <?php } ?>
@@ -429,9 +428,9 @@ if ($_POST['form_refresh']) {
     ?>
 <div id="report_results">
 
-<table width='98%' id='mymaintable' class='mymaintable'>
+<table width='98%' id='mymaintable' class='table mymaintable'>
 
-<thead>
+<thead class='thead-light'>
 <tr bgcolor="#dddddd">
  <th>
     <?php echo xlt('Method') ?>

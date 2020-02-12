@@ -198,7 +198,7 @@ class Userforms extends UserAudit
         if ($diagnosis) {
             ?>
         <div class='text issue_diag'>
-        <span class='bold'>[<?php echo htmlspecialchars(xl('Diagnosis'), ENT_QUOTES);?>]</span><br>
+        <span class='bold'>[<?php echo htmlspecialchars(xl('Diagnosis'), ENT_QUOTES);?>]</span><br />
             <?php
             $dcodes = explode(";", $diagnosis);
             foreach ($dcodes as $dcode) {
@@ -207,7 +207,7 @@ class Userforms extends UserAudit
                 <?php
                 echo htmlspecialchars(lookup_code_descriptions($dcode), ENT_QUOTES);
                 ?>
-            <br>
+            <br />
                 <?php
             }
             ?>
@@ -283,15 +283,15 @@ class Userforms extends UserAudit
             <hr />
             <div class='text insurance'>";
             <h6><?php echo htmlspecialchars(xl('Insurance Data').":", ENT_QUOTES);?></h6>
-            <br><span class=bold><?php echo htmlspecialchars(xl('Primary Insurance Data').":", ENT_QUOTES);?></span><br>
+            <br /><span class=bold><?php echo htmlspecialchars(xl('Primary Insurance Data').":", ENT_QUOTES);?></span><br />
             <?php
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
             ?>
-            <span class=bold><?php echo htmlspecialchars(xl('Secondary Insurance Data').":", ENT_QUOTES);?></span><br>
+            <span class=bold><?php echo htmlspecialchars(xl('Secondary Insurance Data').":", ENT_QUOTES);?></span><br />
             <?php
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
             ?>
-        <span class=bold><?php echo htmlspecialchars(xl('Tertiary Insurance Data').":", ENT_QUOTES);?></span><br>
+        <span class=bold><?php echo htmlspecialchars(xl('Tertiary Insurance Data').":", ENT_QUOTES);?></span><br />
             <?php
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
             ?>
@@ -362,7 +362,7 @@ class Userforms extends UserAudit
                 echo htmlspecialchars($row['immunization_data'], ENT_QUOTES);
                 echo generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
                 ?>
-              <br>
+              <br />
                 <?php
             }
             ?>
@@ -379,7 +379,7 @@ class Userforms extends UserAudit
             while ($row=sqlFetchArray($result)) {
                 echo htmlspecialchars($row['batchcom_data'].", ".xl('By').": ".$row['user_name'], ENT_QUOTES);
                 ?>
-            <br><?php echo htmlspecialchars(xl('Text'), ENT_QUOTES);?>:<br><?php echo htmlspecialchars($row['msg_txt'], ENT_QUOTES);?><br>
+            <br /><?php echo htmlspecialchars(xl('Text'), ENT_QUOTES);?>:<br /><?php echo htmlspecialchars($row['msg_txt'], ENT_QUOTES);?><br />
                 <?php
             }
             ?>

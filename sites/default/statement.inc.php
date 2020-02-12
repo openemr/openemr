@@ -7,18 +7,18 @@
  *
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>
- * @author Bill Cernansky <bill@mi-squared.com>
- * @author Tony McCormick <tony@mi-squared.com>
- * @author Raymond Magauran <magauran@medfetch.com>
- * @author Jerry Padgett <sjpadgett@gmail.com>
- * @author Stephen Waite <stephen.waite@cmsvt.com>
- * @author Daniel Pflieger <daniel@growlingflea.com>
  * @copyright Copyright (c) 2006 Rod Roark <rod@sunsetsystems.com>
+ * @author Bill Cernansky <bill@mi-squared.com>
  * @copyright Copyright (c) 2009 Bill Cernansky <bill@mi-squared.com>
+ * @author Tony McCormick <tony@mi-squared.com>
  * @copyright Copyright (c) 2009 Tony McCormick <tony@mi-squared.com>
+ * @author Raymond Magauran <magauran@medfetch.com>
  * @copyright Copyright (c) 2016 Raymond Magauran <magauran@medfetch.com>
+ * @author Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2017 Stephen Waite <stephen.waite@cmsvt.com>
+ * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2020 Stephen Waite <stephen.waite@cmsvt.com>
+ * @author Daniel Pflieger <daniel@growlingflea.com>
  * @copyright Copyright (c) 2018 Daniel Pflieger <daniel@growlingflea.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -221,11 +221,10 @@ function create_HTML_statement($stmt)
     $out .= sprintf("_______________________ %s _______________________\n", $label_pgbrk);
     $out .= "\n";
     $out .= sprintf("%-11s %-46s %s\n", $label_visit, $label_desc, $label_amt);
-    $out .= "\n";
 
     // This must be set to the number of lines generated above.
-    //
-    $count = 6;
+    $count = 5;
+
     $num_ages = 4;
     $aging = array();
     for ($age_index = 0; $age_index < $num_ages; ++$age_index) {
@@ -256,7 +255,11 @@ function create_HTML_statement($stmt)
         $age_index = (int) (($age_in_days - 1) / 30);
         $age_index = max(0, min($num_ages - 1, $age_index));
         $aging[$age_index] += $line['amount'] - $line['paid'];
-
+        // suppressing individual adjustments = improved statement printing
+        $adj_flag = false;
+        $note_flag = false;
+        $pt_paid_flag = false;
+        $prev_ddate = '';
         foreach ($line['detail'] as $dkey => $ddata) {
             $ddate = substr($dkey, 0, 10);
             if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
@@ -267,13 +270,30 @@ function create_HTML_statement($stmt)
 
             if ($ddata['pmt']) {
                 $amount = sprintf("%.2f", 0 - $ddata['pmt']);
-                $desc = xl('Paid') .' '. oeFormatShortDate($ddate) .': '. $ddata['src'].' '. $ddata['pmt_method'].' '. $ddata['insurance_company'];
+                $desc = xl('Paid') . ' ' . substr(oeFormatShortDate($ddate), 0, 6) .
+                    substr(oeFormatShortDate($ddate), 8, 2) .
+                    ': ' . $ddata['src'] . ' ' . $ddata['pmt_method']. ' ' . $ddata['insurance_company'];
+                if ($ddata['src'] == 'Pt Paid') {
+                    $pt_paid_flag = true;
+                }
             } else if ($ddata['rsn']) {
                 if ($ddata['chg']) {
-                    $amount = sprintf("%.2f", $ddata['chg']);
-                    $desc = xl('Adj') .' '.  oeFormatShortDate($ddate) .': ' . $ddata['rsn'].' '.$ddata['pmt_method'].' '. $ddata['insurance_company'];
+                    // this is where the adjustments used to be printed individually
+                    $adj_flag = true;
                 } else {
-                    $desc = xl('Note') .' '. oeFormatShortDate($ddate) .': '. $ddata['rsn'].' '.$ddata['pmt_method'].' '. $ddata['insurance_company'];
+                    if ($ddate == $prev_ddate) {
+                        if ($note_flag) {
+                            // only 1 note per item or results in too much detail
+                            continue;
+                        } else {
+                            $desc = xl('Note') . ' ' . substr(oeFormatShortDate($ddate), 0, 6) .
+                                substr(oeFormatShortDate($ddate), 8, 2) .
+                                ': ' . ': ' . $ddata['rsn'] . ' ' . $ddata['pmt_method'] . ' ' . $ddata['insurance_company'];
+                            $note_flag = true;
+                        }
+                    } else {
+                        continue; // no need to print notes for 2nd insurances
+                    }
                 }
             } else if ($ddata['chg'] < 0) {
                 $amount = sprintf("%.2f", $ddata['chg']);
@@ -283,8 +303,25 @@ function create_HTML_statement($stmt)
                 $desc = $description;
             }
 
-            $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), $desc, $amount);
+            if (!$adj_flag) {
+                $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), $desc, $amount);
+                ++$count;
+            }
+
             $dos = '';
+            $adj_flag = false;
+            $note_flag = false;
+            $prev_ddate = $ddate;
+        }
+        // print the adjustments summed after all other postings
+        if ($line['adjust'] !== '0.00') {
+            $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), "Insurance adjusted", sprintf("%.2f", 0 - $line['adjust']));
+            ++$count;
+        }
+
+        // don't print a balance after a "Paidpatient payment since it's on it's own line
+        if (!$pt_paid_flag) {
+            $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), "Item balance ", sprintf("%.2f", ($line['amount'] - $line['paid'])));
             ++$count;
         }
     }
@@ -441,8 +478,7 @@ function create_HTML_statement($stmt)
       </tr></table>';
 
     $out .= "      </div></div>";
-    $out .= "\014
-  <br /><br />"; // this is a form feed
+    $out .= "<formfeed />";
     echo $out;
     $output = ob_get_clean();
     return $output;
@@ -527,7 +563,7 @@ function create_statement($stmt)
     }
 
     #minimum_amount_to _print
-    if ($stmt[amount] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) {
+    if ($stmt['amount'] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) {
         return "";
     }
 
