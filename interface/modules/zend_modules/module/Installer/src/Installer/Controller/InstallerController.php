@@ -640,7 +640,7 @@ class InstallerController extends AbstractActionController
         $moduleId       = null;
         $div            = [];
 
-        echo PHP_EOL . '--- Run command in modules:  '.$moduleAction.'---' . PHP_EOL;
+        echo PHP_EOL . '--- Run command ['.$moduleAction.'] in module:  '.$moduleName.'---' . PHP_EOL;
         echo 'start process - ' . date('Y-m-d H:i:s') . PHP_EOL;
 
 
@@ -648,29 +648,23 @@ class InstallerController extends AbstractActionController
             $moduleId = $this->getModuleId($moduleName);
         }
 
-//
-//        if($moduleName === "all" && $moduleId !== null) {
-//
-//        }
-
-        if($moduleAction === "install_sql" && $moduleId !== null) {
+        if ($moduleAction === "install_sql" && $moduleId !== null) {
             $this->InstallModuleSQL($moduleId);
         }
 
         if ($moduleAction === "upgrade_sql") {
-           $div = $this->UpgradeModuleSQL($moduleId);
+            $div = $this->UpgradeModuleSQL($moduleId);
         }
 
         if ($moduleAction === "install_acl") {
-           $div = $this->InstallModuleACL($moduleId);
+            $div = $this->InstallModuleACL($moduleId);
         }
 
         if ($moduleAction === "upgrade_acl") {
-           $div = $this->UpgradeModuleACL($moduleId);
+            $div = $this->UpgradeModuleACL($moduleId);
         }
 
         echo implode("<br />\n", $div).PHP_EOL;
-        echo $moduleAction. " ----- ".$moduleName."-----".PHP_EOL;
         exit('command completed successfully' . PHP_EOL);
     }
 }
