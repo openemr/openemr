@@ -6,8 +6,10 @@
  * @link      http://www.open-emr.org
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -34,14 +36,13 @@ $mailOrder = $tData->mailOrderPharmacy();
 
 <html>
 <head>
-    <?php Header::setupHeader(['jquery-ui', 'jquery-ui-sunny']); ?>
+    <?php Header::setupHeader(); ?>
 
 
     <style>
         footer {
-            padding: 0.5em;
-            font-size: 0.5em;
-
+            padding: 0.5rem;
+            font-size: 0.5rem;
             clear: left;
             text-align: center;
             top: 200px;
@@ -52,7 +53,7 @@ $mailOrder = $tData->mailOrderPharmacy();
 <body class="body_top">
 
 <h2><?php print xlt("Prescription Transmit Review"); ?></h2>
-<div class="table-responsive text-center" style="margin-left:10%;width:75%;">
+<div class="table-responsive text-center w-75" style="margin-left: 10%;">
 <table class="table table-sm table-striped">
     <thead>
         <th class='text-center'><?php print xlt("Drug"); ?></th>
@@ -72,38 +73,38 @@ $mailOrder = $tData->mailOrderPharmacy();
 </table>
 </div>
 <?php if (empty($drug)) {
-    echo "<br /> <p class='text-danger'><strong> ".xlt("No prescriptions selected"). "</strong></p>";
+    echo "<br /> <p class='text-danger font-weight-bold'> " . xlt("No prescriptions selected") . "</p>";
     exit;
 }
 ?>
 <div id="fields">
     <h3><?php echo xlt("Select Pharmacy"); ?></h3>
     <?php echo xlt("Patient Default"); ?> <br />
-    <input type = 'radio' name = "pharmacy" id = 'patientPharmacy' value="<?php print attr($patientPharmacy['pharmacy_id']) ?>" checked="checked">
+    <input type='radio' name="pharmacy" id='patientPharmacy' value="<?php print attr($patientPharmacy['pharmacy_id']) ?>" checked="checked">
     <?php
     if (!$patientPharmacy['name']) {
-        print "<b>".xlt("Please set pharmacy in patient\'s chart!")."</b><br /> <br />";
+        print "<strong>".xlt("Please set pharmacy in patient\'s chart!")."</strong><br /> <br />";
     } else {
         print text($patientPharmacy['name']);
     }
     ?><br /> <br />
 
     <?php print xlt("Mail Order") ?> <br />
-    <input type = 'radio' name = 'pharmacy' id = 'mailOrder' value = "<?php print attr($mailOrder['id']) ?>"><?php print "CCS Medical 	14255 49th Street, North, Clearwater, FL 33762 <br />" ?>
+    <input type='radio' name='pharmacy' id='mailOrder' value="<?php print attr($mailOrder['id']) ?>"><?php print "CCS Medical 14255 49th Street, North, Clearwater, FL 33762 <br />" ?>
 
     <div id="confirm" show>
         <br /><br />
-        <input type='submit' id='confirm_btn' value='<?php print xla("Approve Order"); ?>' >
+        <input type='submit' id='confirm_btn' value='<?php print xla("Approve Order"); ?>' />
     </div>
 
     <div id="transmit" hidden>
         <br /><br />
-        <input type='submit' id='order' value='<?php print xla("Transmit Order"); ?>' >
+        <input type='submit' id='order' value='<?php print xla("Transmit Order"); ?>' />
     </div>
     <div id="success"></div>
 </div>
 
-<script type="text/javascript">
+<script>
 
 
     $(function(){

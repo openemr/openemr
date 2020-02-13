@@ -40,6 +40,9 @@ function sqlQuery($statement, $link)
 <html>
 <head>
 <title>OpenEMR Site Administration</title>
+    
+<!-- TODO: Remove jQuery UI !-->
+    
 <link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css" type="text/css">
 <link rel="stylesheet" href="public/assets/jquery-ui/jquery-ui.css" type="text/css">
 <script type="text/javascript" src="public/assets/jquery/dist/jquery.min.js"></script>
@@ -48,37 +51,44 @@ function sqlQuery($statement, $link)
 <link rel="stylesheet" href="public/assets/font-awesome/css/font-awesome.min.css" type="text/css">
 <link rel="shortcut icon" href="public/images/favicon.ico" />
 <style>
-    .oe-pull-away{
-        float:right;
+    .oe-pull-away {
+        float: right;
     }
+
     .oe-help-x {
         color: grey;
         padding: 0 5px;
     }
+
     .oe-superscript {
         position: relative;
         top: -.5em;
-        font-size: 70%!important;
+        font-size: 70% !important;
     }
-    .oe-setup-legend{
-        background-color:  WHITESMOKE;
-        padding:0 10px;
+
+    .oe-setup-legend {
+        background-color: WHITESMOKE;
+        padding: 0 10px;
     }
+
     .oe-text-green {
         color: green;
     }
+
     button {
-    font-weight:bold;
+        font-weight: bold;
     }
+
     .button-wait {
         color: grey;
         cursor: not-allowed;
         opacity: 0.6;
     }
+
     @media only screen {
-        fieldset > [class*="col-"] {
+        fieldset>[class*="col-"] {
             width: 100%;
-            text-align:left!Important;
+            text-align: left !Important;
         }
     }
 </style>

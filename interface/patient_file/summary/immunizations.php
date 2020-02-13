@@ -10,6 +10,8 @@
  */
 
 
+// TODO: Code cleanup
+
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/immunization_helper.php");
@@ -323,7 +325,7 @@ function saveImmunizationObservationResults($id, $immunizationdata)
 <html>
 <head>
 
-<?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-base']); ?>
+<?php Header::setupHeader(['datetime-picker']); ?>
 
 <style>
 .highlight {
@@ -343,22 +345,21 @@ tr.selected {
 <form action="immunizations.php" name="add_immunization" id="add_immunization">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<input type="hidden" name="mode" id="mode" value="add">
-<input type="hidden" name="id" id="id" value="<?php echo attr($id); ?>">
-<input type="hidden" name="pid" id="pid" value="<?php echo attr($pid); ?>">
+<input type="hidden" name="mode" id="mode" value="add" />
+<input type="hidden" name="id" id="id" value="<?php echo attr($id); ?>" />
+<input type="hidden" name="pid" id="pid" value="<?php echo attr($pid); ?>" />
 <br />
-      <table border=0 cellpadding=1 cellspacing=1>
+      <table class='border-0' cellpadding='1' cellspacing='1'>
         <?php
         if ($isAddedError) {
-            echo "<tr><font color='red'><b>" . xlt("Entered in Error") . "</b></font></tr>";
+            echo "<tr class='text-danger font-weight-bold'>" . xlt("Entered in Error") . "</tr>";
         }
         ?>
 
         <?php if (!($useCVX)) { ?>
         <tr>
           <td align="right">
-            <span class=text>
-                <?php echo xlt('Immunization'); ?>            </span>          </td>
+            <span class='text'><?php echo xlt('Immunization'); ?></span></td>
           <td>
                 <?php
                 // Modified 7/2009 by BM to incorporate the immunization items into the list_options listings
@@ -369,8 +370,7 @@ tr.selected {
         <?php } else { ?>
         <tr>
           <td align="right" valign="top" style="padding-top:4px;">
-            <span class=text>
-                <?php echo xlt('Immunization'); ?> (<?php echo xlt('CVX Code'); ?>)            </span>          </td>
+            <span class='text'><?php echo xlt('Immunization'); ?> (<?php echo xlt('CVX Code'); ?>)</span></td>
           <td>
            <input type='text' size='10' name='cvx_code' id='cvx_code'
             value='<?php echo attr($cvx_code); ?>' onclick='sel_cvxcode(this)'
@@ -383,9 +383,10 @@ tr.selected {
 
         <tr>
           <td align="right">
-            <span class=text>
+            <span class='text'>
                 <?php echo xlt('Date & Time Administered'); ?>            </span>          </td>
-          <td><table border="0">
+          <td>
+            <table class="border-0">
      <tr>
        <td><input type='text' size='14' class='datetimepicker' name="administered_date" id="administered_date"
             value='<?php echo $administered_date ? attr($administered_date) : date('Y-m-d H:i'); ?>'
@@ -412,14 +413,14 @@ tr.selected {
         </tr>
         <tr>
           <td align="right">
-            <span class=text>
+            <span class='text'>
                 <?php echo xlt('Immunization Manufacturer'); ?>            </span>          </td>
           <td>
                 <?php echo generate_select_list('manufacturer', 'Immunization_Manufacturer', $manufacturer, 'Select Manufacturer', '');?>
         </tr>
         <tr>
           <td align="right">
-            <span class=text>
+            <span class='text'>
                 <?php echo xlt('Immunization Lot Number'); ?>            </span>          </td>
           <td>
             <input class='text auto' type='text' name="lot_number" size="25" value="<?php echo attr($lot_number); ?>">          </td>
@@ -441,9 +442,9 @@ tr.selected {
 
                 $result = sqlStatement($sql);
                 while ($row = sqlFetchArray($result)) {
-                    echo '<OPTION VALUE=' . attr($row['id']);
+                    echo '<option value=' . attr($row['id']);
                     echo (isset($administered_by_id) && $administered_by_id != "" ? $administered_by_id : $_SESSION['authUserID']) == $row['id'] ? ' selected>' : '>';
-                    echo text($row['full_name']) . '</OPTION>';
+                    echo text($row['full_name']) . '</option>';
                 }
                 ?>
             </select>          </td>
@@ -523,9 +524,9 @@ tr.selected {
 
                 $result = sqlStatement($sql);
                 while ($row = sqlFetchArray($result)) {
-                    echo '<OPTION VALUE=' . attr($row['id']);
+                    echo '<option value=' . attr($row['id']);
                     echo (isset($ordered_by_id) && $ordered_by_id != "" ? $ordered_by_id : $_SESSION['authUserID']) == $row['id'] ? ' selected>' : '>';
-                    echo text($row['full_name']) . '</OPTION>';
+                    echo text($row['full_name']) . '</option>';
                 }
                 ?>
             </select>
@@ -717,7 +718,7 @@ tr.selected {
 
 <div id="immunization_list">
 
-    <table border=0 cellpadding=3 cellspacing=0>
+    <table class='border-0' cellpadding='3' cellspacing='0'>
 
     <!-- some columns are sortable -->
     <tr class='text bold'>

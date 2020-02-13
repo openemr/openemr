@@ -163,7 +163,7 @@ var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']);
 var jsGlobals = {};
 </script>
 
-<?php Header::setupHeader(["knockout", "tabs-theme", "jquery-ui", "i18next"]); ?>
+<?php Header::setupHeader(["knockout", "tabs-theme", "i18next"]); ?>
 
 <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
@@ -353,7 +353,7 @@ if (isset($_SESSION['app1'])) {
 <div id="mainBox" <?php echo $disp_mainBox ?> data-bind='attr: {id: responsiveDisplay.objWidth().mainBoxId}  '>
 
     <div id="dialogDiv"></div>
-    
+
     <div class="body_top" id="body_top_div" data-bind='css: responsiveDisplay.objWidth().bodyTopDivWidth'>
         <div id="logo_menu">
             <a href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank">
@@ -374,7 +374,7 @@ if (isset($_SESSION['app1'])) {
     </div>
     <div id="attendantData" class="body_title acck"  data-bind="template: {name: app_view_model.attendant_template_type, data: application_data}, css: responsiveDisplay.objWidth().attendantDataClear ">
     </div>
-    
+
     <div class="body_title" id="tabs_div" data-bind="template: {name: 'tabs-controls', data: application_data}, css: responsiveDisplay.objWidth().tabsDivWidth"> </div>
 
     <div class="mainFrames d-flex" id="mainFrames_div">

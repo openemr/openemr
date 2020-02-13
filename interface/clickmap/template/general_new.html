@@ -1,9 +1,9 @@
 {if !$reportMode}
     <html>
     <head>
-	{headerTemplate assets='jquery-ui|jquery-ui-lightness'}
+	{headerTemplate}
 {else}
-    {assetsTemplate assets='jquery-ui|jquery-ui-lightness'}
+    {assetsTemplate}
 {/if}
 <script type="text/javascript" src="{php}echo $GLOBALS['webroot'];{/php}/library/js/clickmap.js"></script>
 <link rel="stylesheet" type="text/css" href="{$form->template_dir}/css/clickmap.css" />

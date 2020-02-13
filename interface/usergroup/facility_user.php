@@ -56,7 +56,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
 
     <title><?php echo xlt("Facility Specific User Information"); ?></title>
 
-    <?php Header::setupHeader(['common','jquery-ui']); ?>
+    <?php Header::setupHeader(['common']); ?>
 
     <script type="text/javascript">
         function refreshme() {
@@ -66,7 +66,8 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
 
         $(function(){
             $(".small_modal").on('click', function(e) {
-                e.preventDefault();e.stopPropagation();
+                e.preventDefault();
+                e.stopPropagation();
                 dlgopen('', '', 500, 200, '', '', {
                     //onClosed: 'refreshme',
                     sizeHeight: 'auto',
@@ -122,12 +123,12 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th><b><?php echo xlt('Username'); ?></b></th>
-                            <th><b><?php echo xlt('Full Name'); ?></b></th>
-                            <th><b><span class="bold"><?php echo xlt('Facility'); ?></span></b></th>
+                            <th class="font-weight-bold"><?php echo xlt('Username'); ?></th>
+                            <th class="font-weight-bold"><?php echo xlt('Full Name'); ?></th>
+                            <th class="font-weight-bold"><?php echo xlt('Facility'); ?></th>
                             <?php
                             foreach ($l_arr as $layout_entry) {
-                                echo "<th>" . text(xl_layout_label($layout_entry['title'])) . "&nbsp;</th>";
+                                echo "<th class='font-weight-bold'>" . text(xl_layout_label($layout_entry['title'])) . "&nbsp;</th>";
                             }
                             ?>
                         </tr>
@@ -137,13 +138,12 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
                         while ($user = sqlFetchArray($u_res)) {
                             foreach ($f_arr as $facility) { ?>
                                 <tr>
-                                    <td><a href="facility_user_admin.php?user_id=<?php echo attr_url($user['id']);?>&fac_id=<?php echo attr_url($facility['id']); ?>" class="small_modal" onclick="top.restoreSession()"><b><?php echo text($user['username']);?></b></a>&nbsp;</td>
+                                    <td class="font-weight-bold"><a href="facility_user_admin.php?user_id=<?php echo attr_url($user['id']);?>&fac_id=<?php echo attr_url($facility['id']); ?>" class="small_modal" onclick="top.restoreSession()"><?php echo text($user['username']);?></a>&nbsp;</td>
                                     <td><?php echo text($user['fname'] . " " . $user['lname']);?></td>
                                     <td><?php echo text($facility['name']);?>&nbsp;</td>
                                     <?php
                                     foreach ($l_arr as $layout_entry) {
-                                        $entry_data = sqlQuery("SELECT `field_value` FROM `facility_user_ids` " .
-                                                               "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user['id'],$facility['id'],$layout_entry['field_id']));
+                                        $entry_data = sqlQuery("SELECT `field_value` FROM `facility_user_ids` " . "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user['id'],$facility['id'],$layout_entry['field_id']));
                                         echo "<td>" . generate_display_field($layout_entry, $entry_data['field_value']) . "&nbsp;</td>";
                                     }
                                     ?>

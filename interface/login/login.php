@@ -88,7 +88,7 @@ if (count($emr_app)) {
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <?php Header::setupHeader(['jquery-ui', 'jquery-ui-darkness']); ?>
+    <?php Header::setupHeader(); ?>
 
     <title><?php echo text($openemr_name) . " " . xlt('Login'); ?></title>
 
@@ -159,7 +159,7 @@ if (count($emr_app)) {
                         <div style="width: 50%;" class="mx-auto m-4">
                             <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?>
                         </div>
-                        
+
                         <input type='hidden' name='new_login_session_management' value='1' />
 
                         <?php

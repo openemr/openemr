@@ -36,7 +36,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 
     <script type="text/JavaScript">
         $(function(){
-            //using jquery-ui-1-12-1 tooltip instead of bootstrap tooltip
+            // Using Bootstrap tooltip
             var groupTitle = <?php echo xlj('This section allows you to create and remove groups and modify or grant access privileges to existing groups. Check the check box to display section'); ?>;
             $('#advanced-tooltip').attr( "title", <?php echo xlj('Click to manually configure access control, recommended for advanced users'); ?> ).tooltip();
             $('#user-tooltip').attr("title", <?php echo xlj('Click the pencil icon to grant and remove access privileges to the selected user'); ?> ).tooltip();

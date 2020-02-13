@@ -119,6 +119,9 @@ if (!$COMMAND_LINE && empty($_REQUEST['site'])) {
     <!DOCTYPE html>
     <html>
     <head>
+    
+    <!-- TODO: REMOVE JQUERY UI !-->
+    
         <title>OpenEMR Setup Tool</title>
         <!--<link rel=stylesheet href="interface/themes/style_blue.css">-->
         <link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css" type="text/css">

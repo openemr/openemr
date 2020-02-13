@@ -10,31 +10,34 @@
 <html>
 <head>
 
-{headerTemplate assets='datetime-picker|jquery-ui|jquery-ui-lightness'}
+{headerTemplate assets='datetime-picker'}
 <link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.css">
 {literal}
 <style>
-.warn_diagnostic {
-    margin: 10 auto 10 auto;
-    color: rgb(255, 0, 0);
-    font-size: 1.5rem;
-}
-.ui-autocomplete {
-    position: absolute;
-    top: 0;
-    left: 0;
-    min-width: 200px;
-    cursor: default;
-}
-.ui-menu-item {
-     min-width: 200px;
-}
-.fixed-height {
-    min-width: 200px;
-    padding: 1px;
-    max-height: 35%;
-    overflow: auto;
-}
+    .warn_diagnostic {
+        margin: 10 auto 10 auto;
+        color: rgb(255, 0, 0);
+        font-size: 1.5rem;
+    }
+
+    .ui-autocomplete {
+        position: absolute;
+        top: 0;
+        left: 0;
+        min-width: 200px;
+        cursor: default;
+    }
+
+    .ui-menu-item {
+        min-width: 200px;
+    }
+
+    .fixed-height {
+        min-width: 200px;
+        padding: 1px;
+        max-height: 35%;
+        overflow: auto;
+    }
 </style>
 {/literal}
 <script type="text/javascript" src="{$GLOBALS.webroot}/library/js/DocumentTreeMenu.js"></script>

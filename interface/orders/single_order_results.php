@@ -104,18 +104,18 @@ if (!empty($_POST['form_send_to_portal'])) {
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['jquery-ui']); ?>
+    <?php Header::setupHeader(); ?>
 <title><?php echo xlt('Order Results'); ?></title>
 <style>
-body {
- margin: 9pt;
- font-family: sans-serif;
- font-size: 1em;
-}
+    body {
+        margin: 9pt;
+        font-family: sans-serif;
+        font-size: 1rem;
+    }
 </style>
 
 <script type="text/javascript" src="../../library/topdialog.js"></script>
-<script language="JavaScript">
+<script>
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 </script>
 
@@ -126,7 +126,7 @@ if (empty($_POST['form_sign'])) {
     generate_order_report($orderid, true, true, $finals_only);
 } else {
     ?>
-<script language='JavaScript'>
+<script>
  if (opener.document.forms && opener.document.forms[0]) {
   // Opener should be list_reports.php. Make it refresh.
   var f = opener.document.forms[0];

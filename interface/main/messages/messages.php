@@ -75,9 +75,9 @@ if (($_POST['setting_bootstrap_submenu']) ||
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="description" content="MedEx Bank" />
     <meta name="author" content="OpenEMR: MedExBank" />
-    <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-redmond', 'opener', 'moment']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'opener', 'moment']); ?>
     <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>" type="text/css" />
-    
+
     <script>
         var xljs1 = '<?php echo xla('Preferences updated successfully'); ?>';
         var format_date_moment_js = '<?php echo attr(DateFormatRead("validateJS")); ?>';
@@ -163,7 +163,7 @@ if (!empty($_REQUEST['go'])) { ?>
         'help_file_name' => "message_center_help.php"
     );
     $oemr_ui = new OemrUI($arrOeUiSettings);
-    
+
     echo "<title>" .  xlt('Message Center') . "</title>";
     ?>
 </head>
@@ -353,8 +353,8 @@ if (!empty($_REQUEST['go'])) { ?>
                         if ($task == "addnew" or $task == "edit") {
                             // Display the Messages page layout.
                             echo "<form name='form_patient' id='new_note'
-                                    class='form-horizontal' 
-                                    action=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&$activity_string_html\" 
+                                    class='form-horizontal'
+                                    action=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&$activity_string_html\"
                                     method='post'>
                                     <input type='hidden' name='noteid' id='noteid' value='" . attr($noteid) . "' />
                                     <input type='hidden' name='task' id='task' value='add' />";
@@ -678,7 +678,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             echo "  </table>
                                             </form>
                                             <div class='row oe-margin-t-10'>
-                                                
+
                                                 <div class=\"col-12 col-md-12 col-lg-12\"><a href=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&task=addnew&$activity_string_html\" class=\"btn btn-secondary btn-add\" onclick=\"top.restoreSession()\">" .
                                                 xlt('Add New{{Message}}') . "</a> &nbsp; <a href=\"javascript:confirmDeleteSelected()\" class=\"btn btn-secondary btn-delete\" onclick=\"top.restoreSession()\">" .
                                                 xlt('Delete') . "</a>
@@ -873,8 +873,6 @@ if (!empty($_REQUEST['go'])) { ?>
             });
         });
         $(function (){
-            //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
-            // the relevant css file needs to be called i.e. jquery-ui-darkness
             $('#see-all-tooltip').attr( "title", "<?php echo xla('Click to show messages for all users'); ?>" );
             $('#see-all-tooltip').tooltip();
             $('#just-mine-tooltip').attr( "title", "<?php echo xla('Click to show messages for only the current user'); ?>" );

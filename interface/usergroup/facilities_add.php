@@ -23,7 +23,7 @@ $alertmsg = '';
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['opener', 'jquery-ui']); ?>
+    <?php Header::setupHeader(['opener']); ?>
     <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/AnchorPosition.js"></script>
     <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/PopupWindow.js"></script>
     <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/ColorPicker2.js"></script>

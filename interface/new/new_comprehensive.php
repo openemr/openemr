@@ -77,7 +77,7 @@ $fres = getLayoutRes();
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['common','datetime-picker', 'jquery-ui']); ?>
+<?php Header::setupHeader(['common','datetime-picker']); ?>
 <title><?php echo xlt("Search or Add Patient"); ?></title>
 <?php require_once("$srcdir/erx_javascript.inc.php"); ?>
 <style>

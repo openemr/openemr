@@ -9,9 +9,11 @@
  * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author    Amiel Elboim <amielel@matrix.co.il>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @copyright Copyright (c) 2016 Amiel Elboim <amielel@matrix.co.il>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -25,7 +27,7 @@ use OpenEMR\Core\Header;
 <head>
     <meta charset="utf-8">
 
-    <?php Header::setupHeader(['datetime-picker', 'topdialog', 'moment', 'datatables', 'datatables-jqui-theme', 'jquery-ui', 'jquery-ui-theme']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'topdialog', 'moment', 'datatables']); ?>
 
     <script>
         <?php require $GLOBALS['srcdir'] . "/formatting_DateToYYYYMMDD_js.js.php" ?>

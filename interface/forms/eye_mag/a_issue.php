@@ -5,15 +5,17 @@
  *
  * Originally culled from /interface/patient_file/summary and adapted...
  *
- * @packageOpenEMR
- * @linkhttp://www.open-emr.org
- * @authorRod Roark <rod@sunsetsystems.com>
- * @authorRay Magauran <magauran@MedFetch.com>
- * @authorBrady Miller <brady.g.miller@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Ray Magauran <magauran@MedFetch.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2005-2011 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2015-2016 Ray Magauran <magauran@MedFetch.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
- * @licensehttps://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 /* TODO: Code cleanup */
@@ -587,7 +589,7 @@ foreach (explode(',', $given) as $item) {
     </script>
     <!-- Add Font stuff for the look and feel.  -->
 
-    <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-excite-bike', 'purecss', 'shortcut', 'opener']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'purecss', 'shortcut', 'opener']); ?>
     <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css" />
 
     <style>
@@ -709,7 +711,7 @@ foreach (explode(',', $given) as $item) {
                 echo $HELLO['POH'] . $HELLO['POS'] . $HELLO['Eye Meds'] . $HELLO['PMH'] . $HELLO['Medication'] . $HELLO['Surgery'] . $HELLO['Allergy'] . $HELLO['FH'] . $HELLO['SOCH'] . $HELLO['ROS'];
                 ?>
             </div>
-            <div class="borderShadow" style="text-align:left;">
+            <div class="borderShadow text-left">
                 <table class='border-0 w-100'>
                     <tr id='row_quick_picks'>
                         <td valign='top' nowrap>&nbsp;</td>
@@ -720,13 +722,13 @@ foreach (explode(',', $given) as $item) {
                         <td>
                     </tr>
                     <tr id="row_title">
-                        <td valign='top' class="right font-weight-bold" id='title_diagnosis' nowrap style="vertical-align:middle;"><?php echo xlt('Title'); ?>:</td>
+                        <td valign='top' class="right font-weight-bold align-middle" id='title_diagnosis' nowrap><?php echo xlt('Title'); ?>:</td>
                         <td colspan="3">
                             <input type='text' size='40' name='form_title' id='form_title' value='<?php echo attr($irow['title']) ?>' />
                         </td>
                     </tr>
                     <tr id="row_diagnosis">
-                        <td valign='top' class="right font-weight-bold" nowrap style="vertical-align:middle;"><strong><?php echo xlt('Code'); ?>:</strong></td>
+                        <td valign='top' class="right font-weight-bold align-middle" nowrap><?php echo xlt('Code'); ?>:</td>
                         <td colspan="3">
                             <input type='text' size='50' name='form_diagnosis' id='form_diagnosis' value='<?php echo attr($irow['diagnosis']) ?>' onclick='top.restoreSession();sel_diagnosis();' title='<?php echo xla('Click to select or change diagnoses'); ?>' />
                         </td>
@@ -743,7 +745,7 @@ foreach (explode(',', $given) as $item) {
                     </tr>
 
                     <tr id='row_occurrence'>
-                        <td valign='top' class="right" nowrap><strong><?php echo xlt('Course'); ?>:</strong></td>
+                        <td valign='top' class="right font-weight-bold" nowrap><?php echo xlt('Course'); ?>:</td>
                         <td colspan="2">
                             <?php
 // Modified 6/2009 by BM to incorporate the occurrence items into the list_options listings
@@ -761,7 +763,7 @@ foreach (explode(',', $given) as $item) {
                     </tr>
 
                     <tr id='row_classification'>
-                        <td valign='top' class="right" nowrap><strong><?php echo xlt('Classification'); ?>:</strong></td>
+                        <td valign='top' class="right font-weight-bold" nowrap><?php echo xlt('Classification'); ?>:</td>
                         <td colspan="3">
                             <select name='form_classification' id='form_classification'>
                                 <?php
@@ -778,7 +780,7 @@ foreach (explode(',', $given) as $item) {
                         </td>
                     </tr>
                     <tr id='row_reaction'>
-                        <td valign='top' class="right" nowrap><strong><?php echo xlt('Reaction'); ?>:</strong></td>
+                        <td valign='top' class="right font-weight-bold" nowrap><?php echo xlt('Reaction'); ?>:</td>
                         <td colspan="3">
                             <input type='text' size='40' name='form_reaction' id='form_reaction' value='<?php echo attr($irow['reaction']) ?>' title='<?php echo xla('Allergy Reaction'); ?>' />
                         </td>
@@ -796,18 +798,18 @@ foreach (explode(',', $given) as $item) {
                             if ($irow['subtype'] == 'eye') {
                                 echo " checked";
                             }
-                            ?> style="margin:3px 3px 3px 5px;" title='<?php echo xla('Indicates if this issue is an ophthalmic-specific medication'); ?>' />
+                            ?> style="margin: 3px 3px 3px 5px;" title='<?php echo xla('Indicates if this issue is an ophthalmic-specific medication'); ?>' />
                         </td>
                     </tr>
 
                     <tr id='row_comments'>
-                        <td valign='top' class="right align-self-center" nowrap><strong><?php echo xlt('Comments'); ?>:</strong></td>
+                        <td valign='top' class="right align-self-center font-weight-bold" nowrap><?php echo xlt('Comments'); ?>:</td>
                         <td colspan="3">
                             <textarea name='form_comments' id='form_comments' cols='40' wrap='virtual'><?php echo text($irow['comments']) ?></textarea>
                         </td>
                     </tr>
                     <tr id="row_outcome">
-                        <td class="right align-self-center" nowrap><strong><?php echo xlt('Outcome'); ?>:</strong></td>
+                        <td class="right align-self-center font-weight-bold" nowrap><?php echo xlt('Outcome'); ?>:</td>
                         <td>
                             <?php
                             echo generate_select_list('form_outcome', 'outcome', $irow['outcome'], '', '', '', 'outcomeClicked(this);');
@@ -815,7 +817,7 @@ foreach (explode(',', $given) as $item) {
                         </td>
                     </tr>
                     <tr id="row_destination">
-                        <td valign='top' class="right" nowrap><strong><?php echo xlt('Destination'); ?>:</strong></td>
+                        <td valign='top' class="right font-weight-bold" nowrap><?php echo xlt('Destination'); ?>:</td>
                         <td colspan="3">
                             <?php if (true) { ?>
                             <input type='text' size='40' name='form_destination' value='<?php echo attr($irow['destination']) ?>' title='GP, Secondary care specialist, etc.' />
@@ -911,7 +913,7 @@ foreach (explode(',', $given) as $item) {
                         .data td {
                             font-size: 10px;
                             min-width: 40px;
-                            padding: 0px 3px;
+                            padding: 0 3px;
                         }
 
                         .data input[type="text"] {
@@ -923,7 +925,7 @@ foreach (explode(',', $given) as $item) {
                         }
 
                         #theform table table {
-                            margin: 0px;
+                            margin: 0;
                             border: none;
                         }
 

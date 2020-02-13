@@ -165,7 +165,7 @@ if (!$_REQUEST['flb_table']) {
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="author" content="OpenEMR: MedExBank">
-    <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-cupertino', 'opener', 'purecss']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'opener', 'purecss']); ?>
     <title><?php echo xlt('Flow Board'); ?></title>
     <script type="text/javascript">
         <?php require_once "$srcdir/restoreSession.php"; ?>
@@ -642,7 +642,7 @@ if (!$_REQUEST['flb_table']) {
                                     $icon_4_CALL = $icons[$row['msg_type']]['CALL']['html'];
                                     $icon_CALL = "<span onclick=\"doCALLback(" . attr_js($date_squash) . "," . attr_js($appointment['eid']) . "," . attr_js($appointment['pc_cattype']) . ")\">" . $icon_4_CALL . "</span>
                                     <span class='hidden' name='progCALLback_" . attr($appointment['eid']) . "' id='progCALLback_" . attr($appointment['eid']) . "'>
-                                      <form id='notation_" . attr($appointment['eid']) . "' method='post' 
+                                      <form id='notation_" . attr($appointment['eid']) . "' method='post'
                                       action='#'>
                                         <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken()); ?>' />
                                         <h4>" . xlt('Call Back Notes') . ":</h4>

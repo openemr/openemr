@@ -6,8 +6,10 @@
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -80,7 +82,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 <!DOCTYPE html>
 <html>
 <head>
-<?php Header::setupHeader(['datetime-picker', 'common', 'jquery-ui', 'jquery-ui-darkness']);?>
+<?php Header::setupHeader(['datetime-picker', 'common']);?>
 <title><?php echo xlt('Patient Encounter'); ?></title>
 
 
@@ -91,7 +93,7 @@ $use_validate_js = 1;
 require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 
 <?php include_once("{$GLOBALS['srcdir']}/ajax/facility_ajax_jav.inc.php"); ?>
-<script language="JavaScript">
+<script>
 
 
     var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;

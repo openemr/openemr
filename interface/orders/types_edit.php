@@ -84,60 +84,61 @@ function recursiveDelete($typeid)
 <!DOCTYPE html>
 <html>
 <head>
-    <?php Header::setupHeader(['opener','topdialog','datetime-picker', 'jquery-ui', 'jquery-ui-base']);?>
+    <?php Header::setupHeader(['opener','topdialog','datetime-picker']); ?>
 
 <title><?php echo $typeid ? xlt('Edit') : xlt('Add New{{Type}}'); ?> <?php echo xlt('Order/Result Type'); ?></title>
 
 
 <style>
-.disabled {
-    pointer-events: none;
-    opacity: 0.50;
-    font-weight: bold;
-}
-
-td {
-    font-size: 10pt;
-}
-
-.inputtext {
-    padding-left: 2px;
-    padding-right: 2px;
-}
-
-.button {
-    font-family: sans-serif;
-    font-size: 9pt;
-    font-weight: bold;
-}
-
-.ordonly {
-
-}
-
-.resonly {
-
-}
-.label-div > a {
-    display:none;
-}
-.label-div:hover > a {
-   display:inline-block;
-}
-div[id$="_info"] {
-    background: #F7FAB3;
-    padding: 20px;
-    margin: 10px 15px 0px 15px;
-}
-div[id$="_info"] > a {
-    margin-left:10px;
-}
-@media only screen {
-        fieldset > [class*="col-"] {
-        width: 100%;
-        text-align:left!Important;
+    .disabled {
+        pointer-events: none;
+        opacity: 0.50;
+        font-weight: bold;
     }
-}
+
+    td {
+        font-size: 10pt;
+    }
+
+    .inputtext {
+        padding-left: 2px;
+        padding-right: 2px;
+    }
+
+    .button {
+        font-family: sans-serif;
+        font-size: 9pt;
+        font-weight: bold;
+    }
+
+    .ordonly {}
+
+    .resonly {}
+
+    .label-div>a {
+        display: none;
+    }
+
+    .label-div:hover>a {
+        display: inline-block;
+    }
+
+    div[id$="_info"] {
+        background: #F7FAB3;
+        padding: 20px;
+        margin: 10px 15px 0px 15px;
+    }
+
+    div[id$="_info"]>a {
+        margin-left: 10px;
+    }
+
+    @media only screen {
+        fieldset>[class*="col-"] {
+            width: 100%;
+            text-align: left !Important;
+        }
+    }
 </style>
 
 <script language="JavaScript">
@@ -258,7 +259,7 @@ function proc_type_changed() {
 </head>
 
     <body class="body_top">
-        <div class= "container">
+        <div class="container">
             <?php
             // If we are saving, then save and close the window.
             //
@@ -336,7 +337,7 @@ function proc_type_changed() {
                                 <div class="col-sm-12">
                                     <div class="clearfix">
                                         <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_procedure_type"><?php echo xlt('Procedure Tier'); ?>:</label> <a href="#procedure_type_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label class="col-form-label" for="form_procedure_type"><?php echo xlt('Procedure Tier'); ?>:</label> <a href="#procedure_type_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="col-sm-12">
                                             <?php
@@ -380,7 +381,7 @@ function proc_type_changed() {
                                 <div class="col-sm-12">
                                     <div class="clearfix">
                                         <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_name"><?php echo xlt('Name'); ?>:</label><a href="#name_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label class="col-form-label" for="form_name"><?php echo xlt('Name'); ?>:</label><a href="#name_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="col-sm-12">
                                             <input type='text' name='form_name' id='form_name 'maxlength='63'
@@ -399,7 +400,7 @@ function proc_type_changed() {
                                 <div class="col-sm-12">
                                     <div class="clearfix">
                                         <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_description"><?php echo xlt('Description'); ?>:</label><a href="#description_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label class="col-form-label" for="form_description"><?php echo xlt('Description'); ?>:</label><a href="#description_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="col-sm-12">
                                             <input type='text' name='form_description' id='form_description'
@@ -419,13 +420,10 @@ function proc_type_changed() {
                                 <div class="col-sm-12">
                                     <div class="clearfix">
                                         <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_seq"><?php echo xlt('Sequence'); ?>:</label><a href="#sequence_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label class="col-form-label" for="form_seq"><?php echo xlt('Sequence'); ?>:</label><a href="#sequence_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="col-sm-12">
-                                            <input type='text' name='form_seq' id=='form_seq' maxlength='11'
-                                                value='<?php echo attr($row['seq'] + 0); ?>'
-                                                title='<?php echo xla('Relative ordering of this entity'); ?>'
-                                                class='form-control'>
+                                            <input type='text' name='form_seq' id='form_seq' maxlength='11' value='<?php echo attr($row['seq'] + 0); ?>' title='<?php echo xla('Relative ordering of this entity'); ?>' class='form-control' />
                                         </div>
                                     </div>
                                     <div id="sequence_info" class="collapse">
@@ -439,7 +437,7 @@ function proc_type_changed() {
                                 <div class="col-sm-12 ordonly  fgponly foronly">
                                     <div class="clearfix">
                                         <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_lab_id"><?php echo xlt('Order From'); ?>:</label><a href="#order_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label class="col-form-label" for="form_lab_id"><?php echo xlt('Order From'); ?>:</label><a href="#order_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="col-sm-12">
                                             <?php
@@ -454,8 +452,7 @@ function proc_type_changed() {
                                                 $ord_disabled = '';
                                             }
                                             ?>
-                                            <select name='form_lab_id' id='form_lab_id' class='form-control <?php echo $ord_disabled ;?>'
-                                                title='<?php echo attr($title); ?>'>
+                                            <select name='form_lab_id' id='form_lab_id' class='form-control <?php echo $ord_disabled ;?>' title='<?php echo attr($title); ?>'>
                                                 <?php
                                                 if ($ordtype) {
                                                     $ppres = sqlStatement("SELECT ppid, name FROM procedure_providers WHERE ppid = ? ORDER BY name, ppid", array($labid));
@@ -488,14 +485,10 @@ function proc_type_changed() {
                                 <div class="col-sm-12 ordonly resonly fgponly foronly">
                                     <div class="clearfix">
                                         <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_procedure_code"><?php echo xlt('Identifying Code'); ?>:</label><a href="#procedure_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label class="col-form-label" for="form_procedure_code"><?php echo xlt('Identifying Code'); ?>:</label><a href="#procedure_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="col-sm-12">
-                                            <input type='text' name='form_procedure_code' id='form_procedure_code'
-                                                maxlength='31'
-                                                value='<?php echo attr($row['procedure_code']); ?>'
-                                                title='<?php echo xla('The vendor-specific code identifying this procedure or result'); ?>'
-                                                class='form-control'>
+                                            <input type='text' name='form_procedure_code' id='form_procedure_code' maxlength='31' value='<?php echo attr($row['procedure_code']); ?>' title='<?php echo xla('The vendor-specific code identifying this procedure or result'); ?>' class='form-control' />
                                         </div>
                                     </div>
                                     <div id="procedure_code_info" class="collapse">
@@ -510,13 +503,10 @@ function proc_type_changed() {
                                 <div class="col-sm-12 ordonly foronly">
                                     <div class="clearfix">
                                         <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_standard_code"><?php echo xlt('Standard Code'); ?>:</label><a href="#standard_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label class="col-form-label" for="form_standard_code"><?php echo xlt('Standard Code'); ?>:</label><a href="#standard_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="col-sm-12">
-                                            <input type='text' name='form_standard_code' id='form_standard_code'
-                                                value='<?php echo attr($row['standard_code']); ?>'
-                                                title='<?php echo xla('Enter the LOINC code for this procedure'); ?>'
-                                                class='form-control'>
+                                            <input type='text' name='form_standard_code' id='form_standard_code' value='<?php echo attr($row['standard_code']); ?>' title='<?php echo xla('Enter the LOINC code for this procedure'); ?>' class='form-control' />
                                         </div>
                                     </div>
                                     <div id="standard_code_info" class="collapse">
@@ -531,14 +521,10 @@ function proc_type_changed() {
                                 <div class="col-sm-12 foronly">
                                     <div class="clearfix">
                                         <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_diagnosis_code"><?php echo xlt('Diagnosis Codes'); ?>:</label><a href="#diagnosis_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label class="col-form-label" for="form_diagnosis_code"><?php echo xlt('Diagnosis Codes'); ?>:</label><a href="#diagnosis_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="col-sm-12">
-                                            <input type='text'  name='form_diagnosis_code' id='form_diagnosis_code'
-                                                   value='<?php echo attr($row['related_code']) //data stored in related_code field?>'
-                                                   onclick='sel_related("form_diagnosis_code")'
-                                                   title='<?php echo xla('Click to select diagnosis or procedure code to default to order'); ?>'
-                                                   class='form-control' readonly />
+                                            <input type='text'  name='form_diagnosis_code' id='form_diagnosis_code' value='<?php echo attr($row['related_code']) //data stored in related_code field?>' onclick='sel_related("form_diagnosis_code")' title='<?php echo xla('Click to select diagnosis or procedure code to default to order'); ?>' class='form-control' readonly />
                                         </div>
                                     </div>
                                     <div id="diagnosis_code_info" class="collapse">
@@ -552,7 +538,7 @@ function proc_type_changed() {
                                 <div class="col-sm-12 ordonly foronly">
                                     <div class="clearfix">
                                         <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_body_site"><?php echo xlt('Body Site'); ?>:</label><a href="#body_site_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label class="col-form-label" for="form_body_site"><?php echo xlt('Body Site'); ?>:</label><a href="#body_site_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="col-sm-12">
                                             <?php
@@ -575,7 +561,7 @@ function proc_type_changed() {
                                 <div class="col-sm-12 ordonly foronly">
                                     <div class="clearfix">
                                         <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_specimen"><?php echo xlt('Specimen Type'); ?>:</label><a href="#specimen_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label class="col-form-label" for="form_specimen"><?php echo xlt('Specimen Type'); ?>:</label><a href="#specimen_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="col-sm-12">
                                             <?php
@@ -599,7 +585,7 @@ function proc_type_changed() {
                                 <div class="col-sm-12 ordonly foronly">
                                     <div class="clearfix">
                                         <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_route_admin"><?php echo xlt('Administer Via'); ?>:</label><a href="#administer_via_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label class="col-form-label" for="form_route_admin"><?php echo xlt('Administer Via'); ?>:</label><a href="#administer_via_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="col-sm-12">
                                             <?php
@@ -623,7 +609,7 @@ function proc_type_changed() {
                                 <div class="col-sm-12 ordonly foronly">
                                     <div class="clearfix">
                                         <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_laterality"><?php echo xlt('Laterality'); ?>:</label><a href="#laterality_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label class="col-form-label" for="form_laterality"><?php echo xlt('Laterality'); ?>:</label><a href="#laterality_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="col-sm-12">
                                             <?php
@@ -647,7 +633,7 @@ function proc_type_changed() {
                                 <div class="col-sm-12 resonly">
                                     <div class="clearfix">
                                         <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_units"><?php echo xlt('Default Units'); ?>:</label><a href="#units_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label class="col-form-label" for="form_units"><?php echo xlt('Default Units'); ?>:</label><a href="#units_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="col-sm-12">
                                             <?php
@@ -671,13 +657,10 @@ function proc_type_changed() {
                                 <div class="col-sm-12 resonly">
                                     <div class="clearfix">
                                         <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_range"><?php echo xlt('Default Range'); ?>:</label><a href="#range_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label class="col-form-label" for="form_range"><?php echo xlt('Default Range'); ?>:</label><a href="#range_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="col-sm-12">
-                                            <input type='text' name='form_range' id='form_range' maxlength='255'
-                                                value='<?php echo attr($row['range']); ?>'
-                                                title='<?php echo xla('Optional default range for manual entry of results'); ?>'
-                                                class='form-control' >
+                                            <input type='text' name='form_range' id='form_range' maxlength='255' value='<?php echo attr($row['range']); ?>' title='<?php echo xla('Optional default range for manual entry of results'); ?>' class='form-control' />
                                         </div>
                                     </div>
                                     <div id="range_info" class="collapse">
@@ -691,14 +674,10 @@ function proc_type_changed() {
                                 <div class="col-sm-12 resonly">
                                     <div class="clearfix">
                                         <div class="col-sm-12 label-div">
-                                            <label class="control-label" for="form_related_code"><?php echo xlt('Followup Services'); ?>:</label><a href="#related_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label class="col-form-label" for="form_related_code"><?php echo xlt('Followup Services'); ?>:</label><a href="#related_code_info" class="icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="col-sm-12">
-                                            <input type='text'  name='form_related_code' id='form_related_code'
-                                                value='<?php echo attr($row['related_code']) ?>'
-                                                onclick='sel_related("form_related_code")'
-                                                title='<?php echo xla('Click to select services to perform if this result is abnormal'); ?>'
-                                                class='form-control' readonly />
+                                            <input type='text'  name='form_related_code' id='form_related_code' value='<?php echo attr($row['related_code']) ?>' onclick='sel_related("form_related_code")' title='<?php echo xla('Click to select services to perform if this result is abnormal'); ?>' class='form-control' readonly />
                                         </div>
                                     </div>
                                     <div id="related_code_info" class="collapse">
@@ -726,10 +705,8 @@ function proc_type_changed() {
             </div>
         </div><!--end of conatainer div-->
         <script>
-            //jqury-ui tooltip
+            // Bootstrap tooltip
             $(function () {
-                //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
-                // the relevant css file needs to be called i.e. jquery-ui-darkness - to get a black tooltip
                 $('.icon-tooltip').attr("title", <?php echo xlj('Click to see more information'); ?>).tooltip({
                     show: {
                         delay: 700,

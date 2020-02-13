@@ -8,6 +8,9 @@
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+// TODO: Remove jQuery UI
+
 namespace OpenEMR\OeUI;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -15,7 +18,7 @@ use OpenEMR\Core\Header;
 
 // Special case where not setting up the header for a script, so using setupAssets function,
 //  which does not autoload anything. The actual header is set up in another script.
-Header::setupAssets(['jquery-ui', 'jquery-ui-base']);
+Header::setupAssets();
 
 class OemrUI
 {

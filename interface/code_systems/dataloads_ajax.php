@@ -36,7 +36,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
 <html>
 <head>
 <title><?php echo xlt('External Data Loads'); ?></title>
-<?php Header::setupHeader(['jquery-ui', 'jquery-ui-lightness']); ?>
+<?php Header::setupHeader(); ?>
 <script>
 
 var db_list = [ "ICD9", "ICD10", "RXNORM", "SNOMED", "CQM_VALUESET"];

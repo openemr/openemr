@@ -50,7 +50,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['common', 'opener', 'jquery-ui', 'select2', 'ckeditor']); ?>
+<?php Header::setupHeader(['common', 'opener', 'select2', 'ckeditor']); ?>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajax_functions_writer.js"></script>
 
 <script>

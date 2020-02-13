@@ -8,10 +8,12 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019-2020 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -58,7 +60,7 @@ if (isset($_POST['mode'])) {
         $results = $db->Execute($sql);
         $billings = array();
         if ($results->RecordCount() == 0) {
-            echo "<fieldset id='error_info' style='border:1px solid var(--danger) !important; background-color: var(--danger) !important; color: var(--white) !important; font-weight: bold; font-family: sans-serif; border-radius: 5px; padding: 20px 5px !important;'>";
+            echo "<fieldset id='error_info' class='bg-danger text-white font-weight-bold border border-danger' style='font-family: sans-serif; border-radius: 5px; padding: 20px 5px !important;'>";
             echo xlt("No Bills Found to Include in OFX Export") . "<br />";
             echo "</fieldset>";
         } else {
@@ -386,7 +388,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
         function SubmitTheScreen() { //Action on Update List link
             if (!ProcessBeforeSubmitting()) return false;
-            $("#update-tooltip").replaceWith("<i class='fa fa-refresh fa-spin fa-1x' style=\"color:red\"></i>");
+            $("#update-tooltip").replaceWith("<i class='fa fa-refresh fa-spin fa-1x text-danger'></i>");
             top.restoreSession();
             document.the_form.mode.value = 'change';
             document.the_form.target = '_self';
@@ -1447,7 +1449,7 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
                 <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
-            // jquery-ui tooltip converted to bootstrap tooltip
+            // bootstrap tooltip
             $('#update-tooltip').attr("title", <?php echo xlj('Click Update List to display billing information filtered by the selected Current Criteria'); ?>).tooltip();
 
         });

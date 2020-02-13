@@ -24,7 +24,7 @@ use OpenEMR\Services\VersionService;
 <html>
 <head>
 
-    <?php Header::setupHeader(["jquery-ui","jquery-ui-darkness"]); ?>
+    <?php Header::setupHeader(); ?>
     <title><?php echo xlt("About");?> OpenEMR</title>
     <style>
         .donations-needed {

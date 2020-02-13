@@ -31,7 +31,7 @@ function invalue($name)
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['opener','jquery-ui', 'jquery-ui-base']);?>
+<?php Header::setupHeader(['opener']);?>
 <title><?php echo $ppid ? xlt('Edit') : xlt('Add New{{Provider}}') ?> <?php echo xlt('Procedure Provider'); ?></title>
 <style>
     td {
@@ -111,7 +111,7 @@ function invalue($name)
 
         if ($_POST['form_save'] || $_POST['form_delete']) {
           // Close this window and redisplay the updated list.
-            echo "<script language='JavaScript'>\n";
+            echo "<script>\n";
             if ($info_msg) {
                 echo " alert(" . js_escape($info_msg) . ");\n";
             }
@@ -146,7 +146,7 @@ function invalue($name)
             <div class="col-sm-12">
                 <form method='post' name='theform' action='procedure_provider_edit.php?ppid=<?php echo attr_url($ppid) ?>'>
                     <div class="card">
-                        <div class="card-header" name="form_legend" id="form_legend"><?php echo xlt('Enter Provider Details'); ?>  <i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript" aria-hidden="true"></i></div>
+                        <div class="card-header" name="form_legend" id="form_legend"><?php echo xlt('Enter Provider Details'); ?>  <i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript" aria-hidden="true" data-toggle="tooltip"></i></div>
                         
                         <div class="card-body">
                         
@@ -174,7 +174,7 @@ function invalue($name)
                                 <div class="col-sm-6">
                                     <div class="clearfix">
                                         <div class="label-div">
-                                            <label class="control-label" for="form_npi"><?php echo xlt('NPI'); ?>:</label> <a href="#npi_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label class="col-form-label" for="form_npi"><?php echo xlt('NPI'); ?>:</label> <a href="#npi_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="">
                                             <input type='text' name='form_npi' id='form_npi' maxlength='10'
@@ -195,7 +195,7 @@ function invalue($name)
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_DorP"><?php echo xlt('Usage'); ?>:</label> <a href="#usage_info" class="info-anchor icon-tooltip"  data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_DorP"><?php echo xlt('Usage'); ?>:</label> <a href="#usage_info" class="info-anchor icon-tooltip"  data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <select name='form_DorP' id='form_DorP' class='form-control' title='<?php echo xla('HL7 - MSH-11 - Processing ID'); ?>'>
@@ -228,7 +228,7 @@ function invalue($name)
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_send_app_id"><?php echo xlt('Sender IDs'); ?>:</label> <a href="#sender_id_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_send_app_id"><?php echo xlt('Sender IDs'); ?>:</label> <a href="#sender_id_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-6">
                                         <input type='text' name='form_send_app_id' id='form_send_app_id' maxlength='100'
@@ -259,7 +259,7 @@ function invalue($name)
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_recv_app_id"><?php echo xlt('Receiver IDs'); ?>:</label> <a href="#receiver_id_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_recv_app_id"><?php echo xlt('Receiver IDs'); ?>:</label> <a href="#receiver_id_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-6">
                                         <input type='text' name='form_recv_app_id' id='form_recv_app_id' maxlength='100' value='<?php echo attr($row['recv_app_id']); ?>' title='<?php echo xla('HL7 - MSH-5.1 - Receiving application'); ?>' placeholder='<?php echo xla('Enter Application Name'); ?>' class='form-control' />
@@ -355,7 +355,7 @@ function invalue($name)
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_remote_host"><?php echo xlt('Remote Host'); ?>:</label> <a href="#remote_host_info"  class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_remote_host"><?php echo xlt('Remote Host'); ?>:</label> <a href="#remote_host_info"  class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <input type='text' name='form_remote_host' id='form_remote_host' maxlength='255' value='<?php echo attr($row['remote_host']); ?>' class='form-control' />
@@ -372,7 +372,7 @@ function invalue($name)
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_orders_path"><?php echo xlt('Orders Path'); ?>:</label> <a href="#orders_path_info"  class="info-anchor icon-tooltip" data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_orders_path"><?php echo xlt('Orders Path'); ?>:</label> <a href="#orders_path_info"  class="info-anchor icon-tooltip" data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <input type='text' name='form_orders_path' id='form_orders_path' maxlength='255'
@@ -390,7 +390,7 @@ function invalue($name)
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_results_path"><?php echo xlt('Results Path'); ?>:</label> <a href="#results_path_info"  class="info-anchor icon-tooltip" data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_results_path"><?php echo xlt('Results Path'); ?>:</label> <a href="#results_path_info"  class="info-anchor icon-tooltip" data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <input type='text' name='form_results_path' id='form_results_path' maxlength='255'
@@ -408,7 +408,7 @@ function invalue($name)
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_notes"><?php echo xlt('Notes'); ?>:</label> <a href="#notes_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_notes"><?php echo xlt('Notes'); ?>:</label> <a href="#notes_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <textarea rows='3' name='form_notes' id='form_notes' wrap='virtual' class='form-control'><?php echo text($row['notes']); ?></textarea>
@@ -441,15 +441,16 @@ function invalue($name)
     <script>
             //jqury-ui tooltip
             $(function () {
-                //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
-                // the relevant css file needs to be called i.e. jquery-ui-darkness - to get a black tooltip
+                
+                // TODO: Address the delay here
+                
                 $('.icon-tooltip').attr("title", <?php echo xlj('Click to see more information'); ?>).tooltip({
                     show: {
                         delay: 700,
                         duration: 0
                     }
                 });
-                $('#enter-details-tooltip').attr( "title", <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed'); ?> + ". " + <?php echo xlj('On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?> + ".").tooltip();
+                $('#enter-details-tooltip').attr( "title", <?php echo xlj('Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed'); ?> + ". " + <?php echo xlj('On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section'); ?> + ".");
             });
         </script>
 </body>

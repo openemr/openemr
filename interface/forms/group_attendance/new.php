@@ -7,9 +7,11 @@
  * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author    Amiel Elboim <amielel@matrix.co.il>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @copyright Copyright (c) 2016 Amiel Elboim <amielel@matrix.co.il>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -60,7 +62,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
 
 <head>
 
-    <?php Header::setupHeader(['datatables', 'datatables-jqui-theme', 'jquery-ui']); ?>
+    <?php Header::setupHeader(['datatables']); ?>
 
 </head>
 
@@ -124,7 +126,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
                 <td >
                     <input class="comment" type="text" name="<?php echo "patientData[" . attr($participant['pid']) . "][comment]";  ?>" value="<?php echo attr($participant['meeting_patient_comment']) ;?>" <?php if (!$can_edit) {
                         ?> disabled <?php
-                                                             } ?> ></input>
+                                                             } ?> />
                 </td>
             </tr>
         <?php } ?>

@@ -6,8 +6,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2009-2019 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -321,25 +323,25 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['opener', 'common', 'datetime-picker', 'jquery-ui',]); ?>
+    <?php Header::setupHeader(['opener', 'common', 'datetime-picker']); ?>
 
     <style>
-
-        td, input, select, textarea {
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 10pt;
+        td,
+        input,
+        select,
+        textarea {
+            font-family: "Arial", "Helvetica", sans-serif;
+            font-size: 0.8125rem;
         }
 
-        .table > tbody > tr > td {
+        .table>tbody>tr>td {
             border-top: 0;
         }
 
         div.section {
-            border: solid;
-            border-width: 1px;
-            border-color: #0000ff;
-            margin: 0 0 0 10pt;
-            padding: 5pt;
+            border: 1px solid var(--primary);
+            margin: 0 0 0 13px;
+            padding: 7px;
         }
 
         .form-control {
@@ -356,10 +358,9 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 
         .RO {
             border-style: solid;
-            border-width: 1px 1px 1px 1px !important;
+            border-width: 1px !important;
             border-color: #999999;
         }
-
     </style>
 
     <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
@@ -368,7 +369,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
     <?php echo lbf_canvas_head(); ?>
     <?php echo signer_head(); ?>
 
-    <script language="JavaScript">
+    <script>
 
         // Support for beforeunload handler.
         var somethingChanged = false;

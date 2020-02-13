@@ -283,7 +283,7 @@ if ($fend > $count) {
 <head>
     <title><?php echo xlt("Codes"); ?></title>
 
-    <?php Header::setupHeader(['jquery-ui', 'jquery-ui-base']); ?>
+    <?php Header::setupHeader(); ?>
 
 <style>
     .ui-autocomplete { max-height: 350px; max-width: 35%; overflow-y: auto; overflow-x: hidden; }
@@ -837,7 +837,7 @@ if ($fend > $count) {
 
 </center>
 
-<script language="JavaScript">
+<script>
     <?php
     if ($alertmsg) {
         echo "alert(" . js_escape($alertmsg) . ");\n";

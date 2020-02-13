@@ -9,8 +9,10 @@
  * @author    Eldho Chacko <eldho@zhservices.com>
  * @author    Paul Simon K <paul@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @copyright Copyright (c) 2019-2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -206,7 +208,7 @@ if (isset($_POST["mode"])) {
 <html>
 <head>
 
-    <?php Header::setupHeader(['jquery-ui', 'datetime-picker']); ?>
+    <?php Header::setupHeader(['datetime-picker']); ?>
 
     <?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
     <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
@@ -305,71 +307,87 @@ function SearchPayingEntityAction()
 document.onclick=HideTheAjaxDivs;
 </script>
 <style>
-.class1 {
-    width:125px;
-}
-.class2 {
-    width:250px;
-}
-.class3 {
-    width:100px;
-}
-.class4 {
-    width:103px;
-}
-#ajax_div_insurance {
-    position: absolute;
-    z-index:10;
-    background-color: #FBFDD0;
-    border: 1px solid var(--gray);
-    padding: 10px;
-}
-#ajax_div_patient {
-    position: absolute;
-    z-index:10;
-    background-color: #FBFDD0;
-    border: 1px solid var(--gray);
-    padding: 10px;
-}
-.bottom {
-    border-bottom: 1px solid var(--black);
-}
-.top {
-    border-top: 1px solid var(--black);
-}
-.left {
-    border-left: 1px solid var(--black);
-}
-.right {
-    border-right: 1px solid var(--black);
-}
-.form-group {
-    margin-bottom: 5px;
-}
-@media only screen and (max-width: 768px) {
-    [class*="col-"] {
-        width: 100%;
-        text-align: left !important;
+    .class1 {
+        width: 125px;
     }
-}
-.table {
-    margin: auto;
-    width: 90% !important;
-}
-@media (min-width: 992px) {
-    .modal-lg {
-        width: 1000px !Important;
+
+    .class2 {
+        width: 250px;
     }
-}
-.oe-modal-dialog {
-    width: 65% !Important;
-}
-.oe-modal-content {
-    padding: 20px 0px 20px 0px;
-}
-.modalclass {
-    overflow-x: hidden !Important;
-}
+
+    .class3 {
+        width: 100px;
+    }
+
+    .class4 {
+        width: 103px;
+    }
+
+    #ajax_div_insurance {
+        position: absolute;
+        z-index: 10;
+        background-color: #FBFDD0;
+        border: 1px solid var(--gray);
+        padding: 10px;
+    }
+
+    #ajax_div_patient {
+        position: absolute;
+        z-index: 10;
+        background-color: #FBFDD0;
+        border: 1px solid var(--gray);
+        padding: 10px;
+    }
+
+    .bottom {
+        border-bottom: 1px solid var(--black);
+    }
+
+    .top {
+        border-top: 1px solid var(--black);
+    }
+
+    .left {
+        border-left: 1px solid var(--black);
+    }
+
+    .right {
+        border-right: 1px solid var(--black);
+    }
+
+    .form-group {
+        margin-bottom: 5px;
+    }
+
+    @media only screen and (max-width: 768px) {
+        [class*="col-"] {
+            width: 100%;
+            text-align: left !important;
+        }
+    }
+
+    .table {
+        margin: auto;
+        width: 90% !important;
+    }
+
+    @media (min-width: 992px) {
+        .modal-lg {
+            width: 1000px !Important;
+        }
+    }
+
+    .oe-modal-dialog {
+        width: 65% !Important;
+    }
+
+    .oe-modal-content {
+        padding: 20px 0 20px 0;
+    }
+
+    .modalclass {
+        overflow-x: hidden !Important;
+    }
 </style>
 <title><?php echo xlt("Search Payments"); ?></title>
 <?php
@@ -656,7 +674,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <div class="modal-body">
                             <iframe src="" id="targetiframe1" style="height:650px; width:100%; overflow-x: hidden; border:none" allowtransparency="true"></iframe>
                         </div>
-                        <div class="modal-footer" style="margin-top:0px;">
+                        <div class="modal-footer mt-0">
                            <button class="btn btn-link btn-cancel float-right" data-dismiss="modal" type="button"><?php echo xlt('close'); ?></button>
                         </div>
                     </div>

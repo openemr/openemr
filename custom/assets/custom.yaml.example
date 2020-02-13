@@ -11,7 +11,7 @@
 #     asset-short-name: Short name
 #         basePath: %assets_static_relative%/full/path/to/deepest/common/file
 #         script: null filename or null
-#         link: jquery-ui.min.css filename or null
+#         link: jquery.min.css filename or null
 #         autoload: true (defaults to false)
 #         loadInFile: relative path to file
 #

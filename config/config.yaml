@@ -8,7 +8,7 @@
 #     asset-short-name: Short name
 #         basePath: %assets_static_relative%/full/path/to/deepest/common/file
 #         script: null filename or null
-#         link: jquery-ui.min.css filename or null
+#         link: jquery.min.css filename or null
 #         autoload: true (defaults to false)
 #         loadInFile: relative path to file, load always in specific file (defaults to false) for custom assets.
 assets:
@@ -67,33 +67,6 @@ assets:
     knockout:
         basePath: '%assets_static_relative%/knockout/build/output/'
         script: knockout-latest.js
-    jquery-ui:
-        basePath: '%assets_static_relative%/jquery-ui/'
-        script: jquery-ui.min.js
-    jquery-ui-theme:
-        basePath: '%assets_static_relative%/jquery-ui/'
-        link: jquery-ui.theme.css
-    jquery-ui-base:
-        basePath: '%assets_static_relative%/jquery-ui-themes/themes/base/'
-        link: jquery-ui.min.css
-    jquery-ui-darkness:
-        basePath: '%assets_static_relative%/jquery-ui-themes/themes/ui-darkness/'
-        link: jquery-ui.min.css
-    jquery-ui-sunny:
-        basePath: '%assets_static_relative%/jquery-ui-themes/themes/sunny/'
-        link: jquery-ui.min.css
-    jquery-ui-redmond:
-        basePath: '%assets_static_relative%/jquery-ui-themes/themes/redmond/'
-        link: jquery-ui.min.css
-    jquery-ui-cupertino:
-        basePath: '%assets_static_relative%/jquery-ui-themes/themes/cupertino/'
-        link: jquery-ui.min.css
-    jquery-ui-lightness:
-        basePath: '%assets_static_relative%/jquery-ui-themes/themes/ui-lightness/'
-        link: jquery-ui.min.css
-    jquery-ui-excite-bike:
-        basePath: '%assets_static_relative%/jquery-ui-themes/themes/excite-bike/'
-        link: jquery-ui.min.css
     jquery-gritter:
         basePath: '%assets_static_relative%/gritter/'
         link: css/jquery.gritter.css
@@ -108,18 +81,9 @@ assets:
     datatables-dt:
         basePath: '%assets_static_relative%/datatables.net-dt/css/'
         link: jquery.dataTables.min.css
-    datatables-jqui:
-        basePath: '%assets_static_relative%/datatables.net-jqui/js/'
-        script: dataTables.jqueryui.js
-    datatables-jqui-theme:
-        basePath: '%assets_static_relative%/datatables.net-jqui/css/'
-        link: dataTables.jqueryui.css
     datatables-scroller:
         basePath: '%assets_static_relative%/datatables.net-scroller/js/'
         script: dataTables.scroller.js
-    datatables-scroller-jqui-theme:
-        basePath: '%assets_static_relative%/datatables.net-scroller-jqui/css/'
-        link: scroller.jqueryui.css
     fontawesome:
         basePath: '%assets_static_relative%/font-awesome/css/'
         link: font-awesome.min.css

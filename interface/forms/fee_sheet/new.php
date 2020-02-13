@@ -7,10 +7,14 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+// TODO: Remove jQuery UI
 
 
 require_once(__DIR__ . "/../../globals.php");
@@ -572,7 +576,7 @@ $billresult = BillingUtilities::getBillingByEncounter($fs->pid, $fs->encounter, 
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['knockout', 'jquery-ui', 'jquery-ui-base']);?>
+<?php Header::setupHeader(['knockout']);?>
 <style>
 /*.billcell { font-family: sans-serif; font-size: 10pt }*/
 .ui-autocomplete {

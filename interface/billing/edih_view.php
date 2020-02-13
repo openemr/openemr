@@ -6,10 +6,14 @@
  * @link      http://www.open-emr.org
  * @author    Kevin McCormick Longview, Texas
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2012 Kevin McCormick Longview, Texas
  * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+// TODO: Major code cleanup from jQuery UI
 
 
 require_once(dirname(__FILE__) . '/../globals.php');
@@ -33,7 +37,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     
     <!-- TODO: Address no_bootstrap here !-->
-    <?php Header::setupHeader(['no_main-theme', 'no_bootstrap', 'datetime-picker', 'datatables', 'datatables-jqui', 'datatables-jqui-theme', 'datatables-scroller', 'datatables-scroller-jqui-theme', 'jquery-ui', 'jquery-ui-sunny']); ?>
+    <?php Header::setupHeader(['no_main-theme', 'no_bootstrap', 'datetime-picker', 'datatables', 'datatables-scroller']); ?>
 
     <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history_v2.css" type="text/css" />
 
@@ -61,8 +65,8 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                 <legend><?php echo xlt("Select one or more files to upload"); ?></legend>
                 <input type="file" id="uplmulti" name="fileUplMulti[]" multiple />
                 <input type="hidden" name="NewFiles" form="formupl" value="ProcessNew" />
-                <input type="submit" id="uplsubmit" name="upl_submit" form="formupl" value=<?php echo xla("Submit"); ?> />
-                <input type="reset" id="uplreset" name="upl_reset" form="formupl" value=<?php echo xla("Reset"); ?> />
+                <input type="submit" id="uplsubmit" name="upl_submit" form="formupl" value="<?php echo xla("Submit"); ?>" />
+                <input type="reset" id="uplreset" name="upl_reset" form="formupl" value="<?php echo xla("Reset"); ?>" />
                 </fieldset>
             </form>
          </td>
@@ -93,7 +97,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
     <div id="csvdatatables">
         <table>
         <tr>
-        <td colspan=4>
+        <td colspan="4">
 
         <form id="formcsvtables" name="form_csvtables" action="edih_main.php" method="GET">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />

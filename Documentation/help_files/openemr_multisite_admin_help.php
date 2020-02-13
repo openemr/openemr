@@ -12,6 +12,9 @@
 <!DOCTYPE HTML>
 <html>
     <head>
+        
+        <!-- TODO: Remove jQuery UI !-->
+        
         <link rel=stylesheet href="../../public/themes/style_light.css">
         <link rel="stylesheet" href="../../public/assets/jquery-ui/jquery-ui.css" type="text/css">
         <script type="text/javascript" src="../../public/assets/jquery/dist/jquery.min.js"></script>

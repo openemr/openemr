@@ -9,9 +9,13 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Ray Magauran <rmagauran@gmail.com>
- * @copyright Copyright (c) 2016- Raymond Magauran <rmagauran@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2016 Raymond Magauran <rmagauran@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+// TODO: Replace jQuery UI here
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/FeeSheetHtml.class.php");
@@ -187,13 +191,13 @@ if ($refresh and $refresh != 'fullscreen') {
       <meta name="description" content="OpenEMR: Eye Exam" />
       <meta name="author" content="OpenEMR: Ophthalmology" />
       
-      <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor' ]); ?>
+      <?php Header::setupHeader(['datetime-picker', 'dialog' ,'jscolor']); ?>
 
       <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
 
   </head>
   <!--Need a margin-top due to fixed nav, move to style.css to separate view stuff? Long way from that... -->
-  <body class="bgcolor2" background="<?php echo $GLOBALS['backpic']?>" style="margin:5px 0 0 0;">
+  <body class="bgcolor2" background="<?php echo $GLOBALS['backpic']?>" style="margin: 5px 0 0 0;">
 
   <div id="tabs_left" class="tabs ui-tabs ui-widget ui-widget-content ui-corner-all nodisplay">
       <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-corner-all">

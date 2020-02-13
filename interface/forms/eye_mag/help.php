@@ -7,11 +7,13 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Ray Magauran <magauran@MedFetch.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/* TODO: Cleanup code */
+/* TODO: Cleanup code & jQuery UI */
 
 require_once("../../globals.php");
 require_once("$srcdir/lists.inc");
@@ -34,9 +36,8 @@ if ($showit=='ext') {
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="description" content="Eye Exam Help" />
     <meta name="author" content="openEMR: ophthalmology help" />
-    <?php Header::setupHeader(['jquery-ui', 'jquery-ui-excite-bike']); ?>
+    <?php Header::setupHeader(['purecss']); ?>
 
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/purecss/pure-min.css" />
     <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css" />
 
     <script>
@@ -74,90 +75,100 @@ if ($showit=='ext') {
     <style>
         body {
             font-family: "FontAwesome", "Arial", sans-serif;
-         }
-         .nodisplay {
-            display: none;
-         }
-            table th {
-                text-align: center;
-                vertical-align: middle;
-                margin: 20px;
-                border: 1px solid var(--black);
-                padding: 5px;
-            }
-            table td {
-                text-align: left;
-                vertical-align: top;
-                margin: 20px;
-                border: 1px solid var(--black);
-                padding: 5px;
-                font-size:0.7rem;
-            }
-            blockquote.style2 {
-                margin-top: 0;
-                margin-bottom: 10px;
-                margin-left: 20px;
-                margin-right: 20px;
-                padding: 10px;
-                border: none;
-                width: 98%;
-                font-size: 1rem;
-                display: inline-block;
-            }
-            .style3 {
-                margin: 20px;
-                border-bottom: 1px solid var(--black);
-                background-color: #c0C0c0;
-                text-align: left;
-            }
-            .underline {
-                text-decoration: underline;
-            }
-            .kb_entry {
-                width: 85%;
-                min-height: 0.3in;
-                text-align: center;
-                margin: 2px 5px 20px 5px;
-                border: 1px solid #129FEA;
-                background-color: #ff9;
-                padding: 10px;
-                vertical-align: middle;
-                top: 50%;
-            }
-            .output_EMR {
-                clear: both;
-                float: left;
-                border: 1px solid var(--black);
-                width: 50%;
-                padding: 0 10px;
-                margin: 5px;
-                height: 340px;
-            }
-            .output_reports {
-                float: left;
-                border:1px solid var(--black);
-                width: 45%;
-                padding: 0 10px;
-                margin: 5px;
-                height: 340px;
-            }
-            .ui-state-active {
-                background: #97C4FE;
+        }
 
-            }
-            .field {
-                color: var(--danger);
-                font-weight: 600;
-            }
-            .bold {
-                font-weight: 600;
-            }
+        .nodisplay {
+            display: none;
+        }
+
+        table th {
+            text-align: center;
+            vertical-align: middle;
+            margin: 20px;
+            border: 1px solid var(--black);
+            padding: 5px;
+        }
+
+        table td {
+            text-align: left;
+            vertical-align: top;
+            margin: 20px;
+            border: 1px solid var(--black);
+            padding: 5px;
+            font-size: 0.7rem;
+        }
+
+        blockquote.style2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            margin-left: 20px;
+            margin-right: 20px;
+            padding: 10px;
+            border: none;
+            width: 98%;
+            font-size: 1rem;
+            display: inline-block;
+        }
+
+        .style3 {
+            margin: 20px;
+            border-bottom: 1px solid var(--black);
+            background-color: #c0C0c0;
+            text-align: left;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .kb_entry {
+            width: 85%;
+            min-height: 0.3in;
+            text-align: center;
+            margin: 2px 5px 20px 5px;
+            border: 1px solid #129FEA;
+            background-color: #ff9;
+            padding: 10px;
+            vertical-align: middle;
+            top: 50%;
+        }
+
+        .output_EMR {
+            clear: both;
+            float: left;
+            border: 1px solid var(--black);
+            width: 50%;
+            padding: 0 10px;
+            margin: 5px;
+            height: 340px;
+        }
+
+        .output_reports {
+            float: left;
+            border: 1px solid var(--black);
+            width: 45%;
+            padding: 0 10px;
+            margin: 5px;
+            height: 340px;
+        }
+
+        .ui-state-active {
+            background: #97C4FE;
+
+        }
+
+        .field {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .bold {
+            font-weight: 600;
+        }
     </style>
     </head>
     <body style="font-size:1.2em; padding:25px;">
-        <div class="w-100" style="position:absolute; top: 0; left: 0; height: 30px; background-color: #C9DBF2; font-family: 'FontAwesome', sans-serif; font-weight:400; font-size:1.1rem; padding:5px 10px 5px 10px;">
-<img class="little_image left" height="18" src="<?php echo $GLOBALS['webroot']; ?>/sites/default/images/login_logo.gif" />  OpenEMR: Eye Exam <span class="bold">Shorthand Help</span>
-        </div>
+        <div class="w-100" style="position:absolute; top: 0; left: 0; height: 30px; background-color: #C9DBF2; font-family: 'FontAwesome', sans-serif; font-weight:400; font-size:1.1rem; padding:5px 10px 5px 10px;"><img class="little_image left" height="18" src="<?php echo $GLOBALS['webroot']; ?>/sites/default/images/login_logo.gif" />  OpenEMR: Eye Exam <span class="bold">Shorthand Help</span></div>
 <br />
         <button id="general_button">Introduction</button>
         <button id="hpi_button">HPI</button>

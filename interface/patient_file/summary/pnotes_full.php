@@ -69,13 +69,13 @@ $form_doc_only = isset($_POST['mode']) ? (empty($_POST['form_doc_only']) ? 0 : 1
 if ($_REQUEST['s'] == '1') {
     $inbox = "";
     $outbox = "current";
-    $inbox_style = "style='display:none;border:5px solid var(--white);'";
+    $inbox_style = "style='display:none; border:5px solid var(--white);'";
     $outbox_style = "style='border:5px solid var(--white);'";
 } else {
     $inbox = "current";
     $outbox = "";
     $inbox_style = "style='border:5px solid var(--white);'";
-    $outbox_style = "style='display:none;border:5px solid var(--white);'";
+    $outbox_style = "style='display:none; border:5px solid var(--white);'";
 }
 
 if (!isset($offset)) {
@@ -211,7 +211,7 @@ $result_sent = getSentPnotesByDate(
 <html>
 <head>
 
-    <?php Header::setupHeader(['common', 'jquery-ui', 'opener']); ?>
+    <?php Header::setupHeader(['common', 'opener']); ?>
 
 <script type="text/javascript">
 /// todo, move this to a common library
@@ -302,21 +302,20 @@ $title = text(getPatientName($patient_id));
                 <h3><?php echo xlt('Patient Messages') . text($title_docname) . " " . xlt('for');
                 if (!$orderid) {
                     ?>&nbsp;
-                        <span><a href="../summary/demographics.php"
-                                           onclick="return top.restoreSession()"><?php echo $title; ?></a></span>
+                        <a href="../summary/demographics.php" onclick="return top.restoreSession()"><?php echo $title; ?></a>
                     <?php } else { ?>
-                        <span><?php echo $title; ?></span><?php } ?>
+                        <?php echo $title; ?><?php } ?>
                 </h3>
             </div>
         </div>
     </div>
     <div class="row oe-margin-b-10">
         <div class="col-md-12">
-            <a href="pnotes_full_add.php?<?php echo $urlparms; ?>" class="btn btn-secondary note_modal" onclick='return top.restoreSession()'><span><?php echo xlt('Add'); ?></span></a>
-            <a href="#" class="change_activity btn btn-secondary" ><span><?php echo xlt('Update Active'); ?></span></a>
-            <a href="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" class="btn btn-secondary" id='Submit' onclick='return top.restoreSession()'><span><?php echo xlt('Refresh'); ?></span></a>
+            <a href="pnotes_full_add.php?<?php echo $urlparms; ?>" class="btn btn-secondary note_modal" onclick='return top.restoreSession()'><?php echo xlt('Add'); ?></a>
+            <a href="#" class="change_activity btn btn-secondary"><?php echo xlt('Update Active'); ?></a>
+            <a href="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" class="btn btn-secondary" id='Submit' onclick='return top.restoreSession()'><?php echo xlt('Refresh'); ?></a>
             <?php if (!$orderid) { ?>
-                <a href="demographics.php" class="btn btn-secondary" onclick="top.restoreSession()"><span><?php echo xlt('Back to Patient'); ?></span></a>
+                <a href="demographics.php" class="btn btn-secondary" onclick="top.restoreSession()"><?php echo xlt('Back to Patient'); ?></a>
             <?php } ?>
         </div>
 
@@ -332,7 +331,7 @@ $title = text(getPatientName($patient_id));
             if (!empty($resnote['billing_note'])) {
                 $billing_note = $resnote['billing_note'];
                 $colorbeg = "<span style='color:red'>";
-                $colorend = "</span>";
+                $colorend = "";
             }
 
             //Display what the patient owes
@@ -371,21 +370,21 @@ $title = text(getPatientName($patient_id));
     <div class="row">
         <div class="col-md-12">
             <?php if ($active == "all") { ?>
-                <span><?php echo xlt('Show All'); ?></span>
+                <?php echo xlt('Show All'); ?>
             <?php } else { ?>
-                <a href="pnotes_full.php?<?php echo $urlparms; ?>" class="link btn btn-secondary" onclick="return top.restoreSession()"><span><?php echo xlt('Show All'); ?></span></a>
+                <a href="pnotes_full.php?<?php echo $urlparms; ?>" class="link btn btn-secondary" onclick="return top.restoreSession()"><?php echo xlt('Show All'); ?></a>
             <?php } ?>
             |
             <?php if ($active == '1') { ?>
-                <span><?php echo xlt('Show Active'); ?></span>
+                <?php echo xlt('Show Active'); ?>
             <?php } else { ?>
-                <a href="pnotes_full.php?form_active=1&<?php echo $urlparms; ?>" class="link btn btn-secondary" onclick="return top.restoreSession()"><span><?php echo xlt('Show Active'); ?></span></a>
+                <a href="pnotes_full.php?form_active=1&<?php echo $urlparms; ?>" class="link btn btn-secondary" onclick="return top.restoreSession()"><?php echo xlt('Show Active'); ?></a>
             <?php } ?>
             |
             <?php if ($active == '0') { ?>
-                <span><?php echo xlt('Show Inactive'); ?></span>
+                <?php echo xlt('Show Inactive'); ?>
             <?php } else { ?>
-                <a href="pnotes_full.php?form_inactive=1&<?php echo $urlparms; ?>" class="link btn btn-secondary" onclick="return top.restoreSession()"><span><?php echo xlt('Show Inactive'); ?></span></a>
+                <a href="pnotes_full.php?form_inactive=1&<?php echo $urlparms; ?>" class="link btn btn-secondary" onclick="return top.restoreSession()"><?php echo xlt('Show Inactive'); ?></a>
             <?php } ?>
         </div>
     </div>
@@ -412,16 +411,16 @@ $title = text(getPatientName($patient_id));
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <!-- start of previous notes DIV -->
 <div class=pat_notes>
-<input type='hidden' name='mode' value="update">
-<input type='hidden' name='offset' id='offset' value="<?php echo attr($offset); ?>">
-<input type='hidden' name='offset_sent' id='offset_sent' value="<?php echo attr($offset_sent); ?>">
-<input type='hidden' name='noteid' id='noteid' value="0">
-<table border='0' cellpadding="1" class="text">
+<input type='hidden' name='mode' value="update" />
+<input type='hidden' name='offset' id='offset' value="<?php echo attr($offset); ?>" />
+<input type='hidden' name='offset_sent' id='offset_sent' value="<?php echo attr($offset_sent); ?>" />
+<input type='hidden' name='noteid' id='noteid' value="0" />
+<table class="border-0" cellpadding="1" class="text">
 <?php if ($result != "") : ?>
 </table>
 <?php endif; ?>
 
-<table border='0' cellpadding="1"  class="text" width = "100%">
+<table cellpadding="1" class="border-0 w-100 text" >
 <?php
 // display all of the notes for the day, as well as others that are active
 // from previous dates, up to a certain number, $N
@@ -482,21 +481,21 @@ if ($result != "") {
 
         // highlight the row if it's been selected for updating
         if ($_REQUEST['noteid'] == $row_note_id) {
-            echo " <tr height=20 class='noterow highlightcolor' id='" . attr($row_note_id) . "'>\n";
+            echo " <tr height='20' class='noterow highlightcolor' id='" . attr($row_note_id) . "'>\n";
         } else {
             echo " <tr class='noterow' id='" . attr($row_note_id) . "'>\n";
         }
 
 
         echo "  <td><a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) .
-        "' class='btn btn-primary btn-sm note_modal' onclick='return top.restoreSession()'><span>" . xlt('Edit') ."</span></a>\n";
+        "' class='btn btn-primary btn-sm note_modal' onclick='return top.restoreSession()'>" . xlt('Edit') ."</a>\n";
 
         // display, or not, a button to delete the note
         // if the user is an admin or if they are the author of the note, they can delete it
         if (($iter['user'] == $_SESSION['authUser']) || (AclMain::aclCheckCore('admin', 'super', '', 'write'))) {
             echo " <a href='#' class='deletenote btn btn-danger btn-sm' id='del" . attr($row_note_id) .
-            "' title='" . xla('Delete this note') . "' onclick='return top.restoreSession()'><span>" .
-            xlt('Delete') . "</span>\n";
+            "' title='" . xla('Delete this note') . "' onclick='return top.restoreSession()'>" .
+            xlt('Delete') . "\n";
         }
 
         echo "  </td>\n";
@@ -583,23 +582,23 @@ if ($result_count == $N) {
 
 </div>
   <div id='outbox_div' <?php echo $outbox_style; ?> >
-<table border='0' cellpadding="1" class="text">
+<table cellpadding="1" class="border-0 text">
 <?php if ($result_sent != "") : ?>
  <tr>
   <td colspan='5' style="padding: 5px;" >
     <a href="pnotes_full.php?<?php echo $urlparms; ?>&s=1&<?php echo $activity_string_html; ?>"
-     class="" id='Submit' onclick='return top.restoreSession()'><span><?php echo xlt('Refresh'); ?></span></a>
+     class="" id='Submit' onclick='return top.restoreSession()'><?php echo xlt('Refresh'); ?></a>
   </td>
  </tr></table>
 <?php endif; ?>
 
-<table border='0' cellpadding="1"  class="text" width = "80%">
+<table cellpadding="1" class="border-0 text" width="80%">
 <?php
 // display all of the notes for the day, as well as others that are active
 // from previous dates, up to a certain number, $N
 
 if ($result_sent != "") {
-    echo " <tr class=showborder_head align='left'>\n";
+    echo " <tr class='showborder_head' align='left'>\n";
     echo "  <th style='width:100px';>&nbsp;</th>\n";
     echo "  <th>" . xlt('Active{{Note}}') . "&nbsp;</th>\n";
     echo "  <th>" . (($docid || $orderid) ? xlt('Linked') : '') . "</th>\n";
@@ -650,20 +649,20 @@ if ($result_sent != "") {
 
         // highlight the row if it's been selected for updating
         if ($_REQUEST['noteid'] == $row_note_id) {
-            echo " <tr height=20 class='noterow highlightcolor' id='" . attr($row_note_id) . "'>\n";
+            echo " <tr height='20' class='noterow highlightcolor' id='" . attr($row_note_id) . "'>\n";
         } else {
             echo " <tr class='noterow' id='" . attr($row_note_id) . "'>\n";
         }
 
         echo "  <td><a href='pnotes_full_add.php?$urlparms&trigger=edit&noteid=" . attr_url($row_note_id) .
-        "' class='btn btn-primary btn-sm note_modal' onclick='return top.restoreSession()'><span>" . xlt('Edit') . "</span></a>\n";
+        "' class='btn btn-primary btn-sm note_modal' onclick='return top.restoreSession()'>" . xlt('Edit') . "</a>\n";
 
         // display, or not, a button to delete the note
         // if the user is an admin or if they are the author of the note, they can delete it
         if (($iter['user'] == $_SESSION['authUser']) || (AclMain::aclCheckCore('admin', 'super', '', 'write'))) {
             echo " <a href='#' class='deletenote btn btn-danger btn-sm' id='del" . attr($row_note_id) .
-            "' title='" . xla('Delete this note') . "' onclick='return restoreSession()'><span>" .
-            xlt('Delete') . "</span>\n";
+            "' title='" . xla('Delete this note') . "' onclick='return restoreSession()'>" .
+            xlt('Delete') . "\n";
         }
 
         echo "  </td>\n";
@@ -703,7 +702,7 @@ if ($result_sent != "") {
 
 </table>
 
-<table width='400' border='0' cellpadding='0' cellspacing='0'>
+<table class='border-0' width='400' cellpadding='0' cellspacing='0'>
  <tr>
   <td>
 <?php
@@ -740,7 +739,7 @@ if ($result_sent_count == $M) {
 
   </div>
 </div>
-<script language='JavaScript'>
+<script>
 
 <?php
 if ($_GET['set_pid']) {
@@ -770,10 +769,7 @@ if ($noteid /* && $title == 'New Document' */) {
 </script>
 
 </div> <!-- end outer 'pnotes' -->
-
-</body>
-
-<script language="javascript">
+<script>
 
 // jQuery stuff to make the page a little easier to use
 
@@ -820,5 +816,5 @@ $(function(){
 });
 
 </script>
-
+</body>
 </html>

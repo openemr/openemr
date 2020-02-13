@@ -71,7 +71,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
 <html>
 <head>
 
-    <?php Header::setupHeader(['common', 'opener', 'jquery-ui',]); ?>
+    <?php Header::setupHeader(['common', 'opener']); ?>
 
     <script type="text/javascript">
 

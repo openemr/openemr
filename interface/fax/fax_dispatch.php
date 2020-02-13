@@ -6,8 +6,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -463,30 +465,40 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 <html>
 <head>
 
-    <?php Header::setupHeader(['opener', 'datetime-picker', 'jquery-ui']);?>
+    <?php Header::setupHeader(['opener', 'datetime-picker']);?>
     <title><?php echo xlt('Dispatch Received Document'); ?></title>
 
 <style>
+    td,
+    input,
+    select,
+    textarea {
+        font-size: 0.8125rem;
+    }
 
-td, input, select, textarea {
- font-size: 10pt;
-}
+    .itemtitle {
+        font-weight: bold;
+    }
 
-.itemtitle {
- font-weight: bold;
-}
+    div.section {
+        border: solid;
+        border-width: 1px;
+        border-color: var(--primary);
+        margin-left: 2em;
+        padding: 1em;
+    }
 
-div.section {
- border: solid;
- border-width: 1px;
- border-color: #0000ff;
- margin-left: 2em;
- padding: 1em;
-}
+    @media print {
+        td,
+        input,
+        select,
+        textarea {
+            font-size: 10pt;
+        }
 
+    }
 </style>
-
-<script language="JavaScript">
+<script>
 
     <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
@@ -615,43 +627,39 @@ div.section {
 
 <body class="body_top" onunload='imclosing()'>
 
-<center><h2><?php echo xlt('Dispatch Received Document'); ?></h2></center>
+<h2 class="text-center"><?php echo xlt('Dispatch Received Document'); ?></h2>
 
 <form method='post' name='theform'
  action='fax_dispatch.php?<?php echo ($mode == 'fax') ? 'file' : 'scan'; ?>=<?php echo attr_url($filename); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>' onsubmit='return validate()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<p><input type='checkbox' name='form_cb_copy' value='1'
- onclick='return divclick(this,"div_copy");' />
-<b><?php echo xlt('Copy Pages to Patient Chart'); ?></b></p>
+<p><input type='checkbox' name='form_cb_copy' value='1' onclick='return divclick(this,"div_copy");' />
+<strong><?php echo xlt('Copy Pages to Patient Chart'); ?></strong></p>
 
 <div id='div_copy' class='section' style='display:none;'>
  <table>
   <tr>
    <td class='itemtitle' width='1%' nowrap><?php echo xlt('Patient'); ?></td>
    <td>
-    <input type='text' size='10' name='form_patient' style='width:100%'
-     value=' (<?php echo xla('Click to select'); ?>)' onclick='sel_patient()'
-     title='<?php echo xla('Click to select patient'); ?>' readonly />
+    <input type='text' class='w-100' size='10' name='form_patient' value='(<?php echo xla('Click to select'); ?>)' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' readonly />
     <input type='hidden' name='form_pid' value='0' />
    </td>
   </tr>
   <tr>
-   <td colspan='2' style='padding-top:0.5em;'>
-    <input type='radio' name='form_cb_copy_type' value='1'
-     onclick='return divclick(this,"div_copy_doc");' checked />
-    <b><?php echo xlt('Patient Document'); ?></b>&nbsp;
+   <td colspan='2' style='padding-top: 0.5em;'>
+    <input type='radio' name='form_cb_copy_type' value='1' onclick='return divclick(this,"div_copy_doc");' checked />
+    <strong><?php echo xlt('Patient Document'); ?></strong>&nbsp;
 <?php if ($using_scanned_notes) { ?>
     <input type='radio' name='form_cb_copy_type' value='2'
      onclick='return divclick(this,"div_copy_sn");' />
-    <b><?php echo xlt('Scanned Encounter Note'); ?></b>
+    <strong><?php echo xlt('Scanned Encounter Note'); ?></strong>
 <?php } ?>
     <div id='div_copy_doc' class='section' style='margin-top:0.5em;'>
-     <table width='100%'>
+     <table class='w-100'>
       <tr>
        <td class='itemtitle' nowrap><?php echo xlt('Category'); ?></td>
        <td>
-        <select name='form_category' style='width:100%'>
+        <select name='form_category' class='w-100'>
 <?php
 foreach ($categories as $catkey => $catname) {
     echo "         <option value='" . attr($catkey) . "'";
@@ -664,36 +672,30 @@ foreach ($categories as $catkey => $catname) {
       <tr>
        <td class='itemtitle' nowrap><?php echo xlt('Filename'); ?></td>
        <td>
-        <input type='text' size='10' name='form_filename' style='width:100%'
-        value='<?php echo attr($filebase) . ".pdf" ?>'
-        title='Name for this document in the patient chart' />
+        <input type='text' class='w-100' size='10' name='form_filename' value='<?php echo attr($filebase) . ".pdf" ?>' title='Name for this document in the patient chart' />
        </td>
       </tr>
       <tr>
        <td class='itemtitle' nowrap><?php echo xlt('Document Date'); ?></td>
        <td>
-        <input type='text' class='datepicker' size='10' name='form_docdate' id='form_docdate'
-        value='<?php echo date('Y-m-d'); ?>'
-        title='<?php echo xla('yyyy-mm-dd date associated with this document'); ?>' />
+        <input type='text' class='datepicker' size='10' name='form_docdate' id='form_docdate' value='<?php echo date('Y-m-d'); ?>' title='<?php echo xla('yyyy-mm-dd date associated with this document'); ?>' />
        </td>
       </tr>
      </table>
     </div><!-- end div_copy_doc -->
     <div id='div_copy_sn' class='section' style='display:none;margin-top:0.5em;'>
-     <table width='100%'>
+     <table class='w-100'>
       <tr>
        <td class='itemtitle' width='1%' nowrap><?php echo xlt('Visit Date'); ?></td>
        <td>
-        <select name='form_copy_sn_visit' style='width:100%'>
+        <select name='form_copy_sn_visit' class='w-100'>
         </select>
        </td>
       </tr>
       <tr>
        <td class='itemtitle' width='1%' nowrap><?php echo xlt('Comments'); ?></td>
        <td>
-        <textarea name='form_copy_sn_comments' rows='3' cols='30' style='width:100%'
-         title='Comments associated with this scanned note'
-         /></textarea>
+        <textarea name='form_copy_sn_comments' rows='3' cols='30' class='w-100' title='Comments associated with this scanned note'></textarea>
        </td>
       </tr>
      </table>
@@ -704,7 +706,7 @@ foreach ($categories as $catkey => $catname) {
    <td colspan='2' style='padding-top:0.5em;'>
     <input type='checkbox' name='form_cb_note' value='1'
      onclick='return divclick(this,"div_note");' />
-    <b><?php echo xlt('Create Patient Note'); ?></b>
+    <strong><?php echo xlt('Create Patient Note'); ?></strong>
     <div id='div_note' class='section' style='display:none;margin-top:0.5em;'>
      <table>
       <tr>
@@ -719,7 +721,7 @@ foreach ($categories as $catkey => $catname) {
       <tr>
        <td class='itemtitle' width='1%' nowrap>To</td>
        <td>
-        <select name='form_note_to' style='width:100%'>
+        <select name='form_note_to' class="w-100">
 <?php
 while ($urow = sqlFetchArray($ures)) {
     echo "         <option value='" . attr($urow['username']) . "'";
@@ -738,8 +740,7 @@ while ($urow = sqlFetchArray($ures)) {
       <tr>
        <td class='itemtitle' nowrap><?php echo xlt('Message'); ?></td>
        <td>
-        <textarea name='form_note_message' rows='3' cols='30' style='width:100%'
-         title='Your comments' /></textarea>
+        <textarea name='form_note_message' class='w-100' rows='3' cols='30' title='Your comments'></textarea>
        </td>
       </tr>
      </table>
@@ -751,36 +752,32 @@ while ($urow = sqlFetchArray($ures)) {
 
 <p><input type='checkbox' name='form_cb_forward' value='1'
  onclick='return divclick(this,"div_forward");' />
-<b><?php echo xlt('Forward Pages via Fax'); ?></b></p>
+<strong><?php echo xlt('Forward Pages via Fax'); ?></strong></p>
 
 <div id='div_forward' class='section' style='display:none;'>
  <table>
   <tr>
    <td class='itemtitle' width='1%' nowrap><?php echo xlt('From'); ?></td>
    <td>
-    <input type='text' size='10' name='form_from' style='width:100%'
-     title='Type your name here' />
+    <input type='text' class='w-100' size='10' name='form_from' title='Type your name here' />
    </td>
   </tr>
   <tr>
    <td class='itemtitle' nowrap><?php echo xlt('To{{Destination}}'); ?></td>
    <td>
-    <input type='text' size='10' name='form_to' style='width:100%'
-     title='Type the recipient name here' />
+    <input type='text' class='w-100' size='10' name='form_to' title='Type the recipient name here' />
    </td>
   </tr>
   <tr>
    <td class='itemtitle' nowrap><?php echo xlt('Fax'); ?></td>
    <td>
-    <input type='text' size='10' name='form_fax' style='width:100%'
-     title='The fax phone number to send this to' />
+    <input type='text' class='w-100' size='10' name='form_fax' title='The fax phone number to send this to' />
    </td>
   </tr>
   <tr>
    <td class='itemtitle' nowrap><?php echo xlt('Message'); ?></td>
    <td>
-    <textarea name='form_message' rows='3' cols='30' style='width:100%'
-     title='Your comments to include with this message' /></textarea>
+    <textarea name='form_message' class='w-100' rows='3' cols='30' title='Your comments to include with this message'></textarea>
    </td>
   </tr>
   <tr>
@@ -793,7 +790,7 @@ while ($urow = sqlFetchArray($ures)) {
  </table>
 </div><!-- end div_forward -->
 
-<p><b><?php echo xlt('Delete Pages'); ?>:</b>&nbsp;
+<p><strong><?php echo xlt('Delete Pages'); ?>:</strong>&nbsp;
 <input type='radio' name='form_cb_delete' value='2' />All&nbsp;
 <input type='radio' name='form_cb_delete' value='1' checked />Selected&nbsp;
 <input type='radio' name='form_cb_delete' value='0' />None
@@ -810,7 +807,7 @@ while ($urow = sqlFetchArray($ures)) {
 <input type='button' value='<?php echo xla('Clear All'); ?>' onclick='allCheckboxes(false)' />
 </p>
 
-<p><br /><b><?php echo xlt('Please select the desired pages to copy or forward:'); ?></b></p>
+<p><br /><strong><?php echo xlt('Please select the desired pages to copy or forward:'); ?></strong></p>
 <table>
 
 <?php

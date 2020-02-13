@@ -33,7 +33,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 <head>
 <title><?php echo xlt('Merge Patients'); ?></title>
-    <?php Header::setupHeader(['jquery-ui']); ?>
+    <?php Header::setupHeader(); ?>
 
 <script>
 
@@ -252,10 +252,7 @@ if (!empty($_POST['form_submit'])) {
     <?php echo xlt('Source Patient') ?>
   </td>
   <td>
-   <input type='text' class='form-control' size='30' name='form_source_patient'
-    value=' (<?php echo xla('Click to select'); ?>)'
-    onclick='sel_patient(this, this.form.form_source_pid)'
-    title='<?php echo xla('Click to select patient'); ?>' readonly />
+   <input type='text' class='form-control' size='30' name='form_source_patient' value=' (<?php echo xla('Click to select'); ?>)' onclick='sel_patient(this, this.form.form_source_pid)' title='<?php echo xla('Click to select patient'); ?>' readonly />
    <input type='hidden' name='form_source_pid' value='0' />
   </td>
   <td>
@@ -269,17 +266,17 @@ if (!empty($_POST['form_submit'])) {
 <div class="jumbotron">
     <p class="font-weight-bold"><?php echo xlt('This utility is experimental. Back up your database and documents before using it!'); ?></p>
 
-<?php if (!$PRODUCTION) { ?>
-<p><?php echo xlt('This will be a "dry run" with no physical data updates.'); ?></p>
-<?php } ?>
+    <?php if (!$PRODUCTION) { ?>
+    <p><?php echo xlt('This will be a "dry run" with no physical data updates.'); ?></p>
+    <?php } ?>
 
-<p><?php echo xlt('This will merge two patient charts into one.  It is useful when a patient has been duplicated by mistake.  If that happens often, fix your office procedures - do not run this routinely!'); ?></p>
+    <p><?php echo xlt('This will merge two patient charts into one.  It is useful when a patient has been duplicated by mistake.  If that happens often, fix your office procedures - do not run this routinely!'); ?></p>
 
-<p><?php echo xlt('The first ("target") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.'); ?></p>
+    <p><?php echo xlt('The first ("target") chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.'); ?></p>
 
-<p><?php echo xlt('The second ("source") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.'); ?></p>
+    <p><?php echo xlt('The second ("source") chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.'); ?></p>
 
-<p><?php echo xlt('The merge will not run unless SSN and DOB for the two charts are identical. DOBs cannot be empty.'); ?></p>
+    <p><?php echo xlt('The merge will not run unless SSN and DOB for the two charts are identical. DOBs cannot be empty.'); ?></p>
 </div>
 </div>
 </body>

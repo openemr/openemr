@@ -11,9 +11,11 @@
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2005-2010 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -1245,7 +1247,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 
     ?>
     $(function () {
-//using jquery-ui-1-12-1 tooltip instead of bootstrap tooltip
+        // bootstrap tooltip
         $('#select-method-tooltip').attr("title", <?php echo xlj('Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>).tooltip();
     });
 </script>

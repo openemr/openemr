@@ -17,7 +17,7 @@ use OpenEMR\Core\Header;
 
 // Special case where not setting up the header for a script, so using setupAssets function,
 //  which does not autoload anything. The actual header is set up in another script.
-Header::setupAssets(['jquery-ui', 'jquery-ui-base']);
+Header::setupAssets();
 ?>
  <br />
 <?php
@@ -30,11 +30,10 @@ $help_modal = <<<HELP
         <div class="modal-dialog modal-lg">
             <div class="modal-content oe-modal-content" style="height: 700px">
                 <div class="modal-header clearfix">
-                    <button type="button" class="close" data-dismiss="modal" aria-label=$close>
-                    <span aria-hidden="true" class="text-body" style="font-size: 1.5rem;">&times;</span></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label=$close><span aria-hidden="true" class="text-body" style="font-size: 1.5rem;">&times;</span></button>
                 </div>
-                <div class="modal-body" style="height:80%;">
-                    <iframe src="" id="targetiframe" class="border-0 h-100 w-100" style="overflow-x: hidden;" allowtransparency="true"></iframe>  
+                <div class="modal-body" style="height: 80%;">
+                    <iframe src="" id="targetiframe" class="border-0 h-100 w-100" style="overflow-x: hidden;" allowtransparency="true"></iframe>
                 </div>
                 <div class="modal-footer mt-0">
                    <button class="btn btn-link btn-cancel oe-pull-away" data-dismiss="modal" type="button">$close</button>
@@ -51,7 +50,7 @@ echo $help_modal;
 <script>
     var helpFilePath = '<?php echo "$webroot/Documentation/help_files/"?>';
     $(function() {
-        $('#help-href').click (function(){
+        $('#help-href').click(function(){
             document.getElementById('targetiframe').src = helpFilePath + helpFile;
         })
     });
