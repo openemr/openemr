@@ -670,18 +670,18 @@ foreach ($ar as $key => $val) {
                         $err = '';
                         try {
                             // below header isn't being used. missed maybe!
-                        $pg_header = "<span>" . xlt('Document') . " " . text($fname) ."</span>";
-                        $tempDocC = new C_Document;
-                        $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
+                            $pg_header = "<span>" . xlt('Document') . " " . text($fname) ."</span>";
+                            $tempDocC = new C_Document;
+                            $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                         // tmp file in temporary_files_dir
-                        $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
-                        file_put_contents($from_file_tmp_name, $pdfTemp);
-                        $pagecount = $pdf->setSourceFile($from_file_tmp_name);
-                        for ($i = 0; $i < $pagecount; ++$i) {
-                            $pdf->AddPage();
-                            $itpl = $pdf->importPage($i+1);
-                            $pdf->useTemplate($itpl);
-                        }
+                            $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
+                            file_put_contents($from_file_tmp_name, $pdfTemp);
+                            $pagecount = $pdf->setSourceFile($from_file_tmp_name);
+                            for ($i = 0; $i < $pagecount; ++$i) {
+                                $pdf->AddPage();
+                                $itpl = $pdf->importPage($i+1);
+                                $pdf->useTemplate($itpl);
+                            }
                         } catch (Exception $e) {
                             // chances are PDF is > v1.4 and compression level not supported.
                             // regardless, we're here so lets dispose in different way.
@@ -693,16 +693,16 @@ foreach ($ar as $key => $val) {
                             $pdf->writeHTML($err);
                             $staged_docs[] = array('path'=>$d->url, 'fname'=>$fname);
                         } finally {
-                        unlink($from_file_tmp_name);
+                            unlink($from_file_tmp_name);
                             // Make sure whatever follows is on a new page. Maybe!
                             // okay if not a series of pdfs so if so need @todo
                             if (empty($err)) {
-                        $pdf->AddPage();
+                                $pdf->AddPage();
                             }
                         // Resume output buffering and the above-closed tags.
-                        ob_start();
+                            ob_start();
 
-                        echo "<div><div class='text documents'>\n";
+                            echo "<div><div class='text documents'>\n";
                         }
                     } elseif ($extension == ".txt") {
                         echo "<pre>";
@@ -922,8 +922,8 @@ if ($PDF_OUTPUT) {
 
                     unlink($archive_name);
                 } else {
-                $pdf->Output($fn, $GLOBALS['pdf_output']); // D = Download, I = Inline
-            }
+                    $pdf->Output($fn, $GLOBALS['pdf_output']); // D = Download, I = Inline
+                }
             }
         } catch (MpdfException $exception) {
             die(text($exception));
