@@ -89,72 +89,72 @@ foreach (RuleType::values() as $type) {
                                 ?>:</span></td>
                             <td colspan="3">
                                 <?php
-                                    if ($something) {
-                                        if ($rule->hasRuleType(RuleType::from('activealert')) || $rule->hasRuleType(RuleType::from('passivealert'))) {
-                                            $clinical = '1';
-                                        }
-                                        if ($rule->hasRuleType(RuleType::from('activealert')) && $rule->hasRuleType(RuleType::from('passivealert'))) {
-                                            $timing .= xlt("This CR has both an") .
-                                                "<span class='bold'
+                                if ($something) {
+                                    if ($rule->hasRuleType(RuleType::from('activealert')) || $rule->hasRuleType(RuleType::from('passivealert'))) {
+                                        $clinical = '1';
+                                    }
+                                    if ($rule->hasRuleType(RuleType::from('activealert')) && $rule->hasRuleType(RuleType::from('passivealert'))) {
+                                        $timing .= xlt("This CR has both an") .
+                                            "<span class='bold'
                                                                   data-toggle='popover'
                                                                   data-trigger='hover'
                                                                   data-placement='auto'
                                                                   title='" . xla("Active Alerts") . "'" .
-                                                "data-content='" . xla("A Pop-up will occur daily when the demographics page is opened listing any Treatment Goals needing attention.") . "'>" .
-                                                xlt("Active Alert") .
-                                                "</span>" .
-                                                xlt("and a") . "
+                                            "data-content='" . xla("A Pop-up will occur daily when the demographics page is opened listing any Treatment Goals needing attention.") . "'>" .
+                                            xlt("Active Alert") .
+                                            "</span>" .
+                                            xlt("and a") . "
                                                              <span class='bold'
                                                                   data-toggle='popover'
                                                                   data-toggle='popover'
                                                                   data-trigger='hover'
                                                                   data-placement='auto'
                                                                   title='" . xla("Passive Alerts") . "'" .
-                                                "data-content='" . xla("These alerts appear on the Dashboard page inside the CR widget") . "'>" .
-                                                xlt("Passive Alert") .
-                                                "</span>
+                                            "data-content='" . xla("These alerts appear on the Dashboard page inside the CR widget") . "'>" .
+                                            xlt("Passive Alert") .
+                                            "</span>
                                                              <br /> " . text($timings['clinical']['pre']['amount']) . " " . text($timings['clinical']['pre']['timeUnit2']) .
-                                                xlt("before its Due date, this CR is marked") . " <span class='due_soon bolder'>" . xlt("Due Soon") . "</span>. <br />";
-                                            $timing .= xlt("Then for") . " " . text($timings['clinical']['post']['amount'])." ".$timings['clinical']['post']['timeUnit2'] . " " . xlt("it is") . " <span class='due_now'>" . xlt("Due") . "</span>. ";
-                                            $timing .= xlt("After this, it is marked as") . " <span class='past_due'>" . xlt("Past due") . "</span>.";
-                                            $timing = "<div>" . $timing . "</div><br />";
-                                        } elseif ($rule->hasRuleType(RuleType::from('activealert'))) {
-                                            $timing = "<div><span class='bold'>" . xlt("Active Alert") . "</span> " . xlt("will pop-up daily listing any Treatment Goals needing attention.") . "</div>";
-                                        } elseif ($rule->hasRuleType(RuleType::from('passivealert'))) {
-                                            $timing = "<span class='bold'>" . xlt("Passive Alert") . "</span> " . xlt("will appear in the") .
-                                                "<a href='#' data-toggle='popover'
+                                            xlt("before its Due date, this CR is marked") . " <span class='due_soon bolder'>" . xlt("Due Soon") . "</span>. <br />";
+                                        $timing .= xlt("Then for") . " " . text($timings['clinical']['post']['amount'])." ".$timings['clinical']['post']['timeUnit2'] . " " . xlt("it is") . " <span class='due_now'>" . xlt("Due") . "</span>. ";
+                                        $timing .= xlt("After this, it is marked as") . " <span class='past_due'>" . xlt("Past due") . "</span>.";
+                                        $timing = "<div>" . $timing . "</div><br />";
+                                    } elseif ($rule->hasRuleType(RuleType::from('activealert'))) {
+                                        $timing = "<div><span class='bold'>" . xlt("Active Alert") . "</span> " . xlt("will pop-up daily listing any Treatment Goals needing attention.") . "</div>";
+                                    } elseif ($rule->hasRuleType(RuleType::from('passivealert'))) {
+                                        $timing = "<span class='bold'>" . xlt("Passive Alert") . "</span> " . xlt("will appear in the") .
+                                            "<a href='#' data-toggle='popover'
                                                             data-trigger='hover'
                                                             data-placement='auto'
                                                             title='" . xla("Clinical Reminders Widget(CR)") . "'" .
-                                                "data-content='" . xla("The CR Widget is located on the demographics page.") . "'>" . xlt("CR Widget") . "</a> ";
-                                            $timing .= text($timings['clinical']['pre']['amount']) . " " . $timings['clinical']['pre']['timeUnit2'] . " " . xlt("before its Due date, this CR is marked") . " <span class='due_soon bolder'>" . xlt("Due Soon") . "</span>.";
-                                            $timing .= text($timings['clinical']['post']['amount']) . " " . $timings['clinical']['post']['timeUnit2'] . " " . xlt("after the Due Date, it is marked") . " <span class='past_due'>" . xlt("Past Due") . "</span>. <br />";
-                                            $timing .= xlt("Alerts stop when their Treatment Goals are completed.");
-                                            $timing = "<div>" . $timing . "</div><br />";
-                                        }
-                                        if ($rule->hasRuleType(RuleType::from('patientreminder'))) {
-                                            if ($clinical=='1') {
-                                                $timing_pt .= xlt("This CR also triggers a") . " <span class='bold'>" . xlt("Patient Reminder") . "</span>.";
-                                            } else {
-                                                $timing_pt .= xlt("This CR triggers a") . " <span class='bold'>" . xlt("Patient Reminder") . "</span>.";
-                                            }
-                                            $timing_pt = "<div>" . $timing_pt . "<br /></div><div class='indent10'>";
-
-                                            $timing_pt .= xlt("A message will be sent to the patient.");
-                                            if ($GLOBALS['medex_enable'] == '1') {
-                                                $timing_pt .= " <br /><a href='https://medexbank.com/'>MedEx</a> " . xlt("will send an e-mail, SMS text and/or a voice message as requested.");
-                                            }
-                                            $timing_pt .= "</div>";
-                                        }
-                                        if ( ($GLOBALS['medex_enable'] == '1') && ($rule->hasRuleType(RuleType::from('provideralert'))) ) {
-                                            $timing_prov = "<div><span class='bolder red'>" . xlt("This CR has a Provider Alert!") . "</span></div>";
-                                            $timing_prov .= "<div class='indent10'><span class='bold'>" . xlt("Provider Alert") . "</span>: " . xlt("A message will be sent to the provider.");
-                                            $timing_prov .="<br /><a href='https://medexbank.com/'>MedEx</a> " . xlt("will send an e-mail, SMS text and/or a voice message as requested.");
-                                            $timing_prov .= "</div>";
-                                        }
-                                    } else {
-                                        $timing = "<span class='bold'>".xlt('None. Edit this CR to create an Alert!')."</span><br />";
+                                            "data-content='" . xla("The CR Widget is located on the demographics page.") . "'>" . xlt("CR Widget") . "</a> ";
+                                        $timing .= text($timings['clinical']['pre']['amount']) . " " . $timings['clinical']['pre']['timeUnit2'] . " " . xlt("before its Due date, this CR is marked") . " <span class='due_soon bolder'>" . xlt("Due Soon") . "</span>.";
+                                        $timing .= text($timings['clinical']['post']['amount']) . " " . $timings['clinical']['post']['timeUnit2'] . " " . xlt("after the Due Date, it is marked") . " <span class='past_due'>" . xlt("Past Due") . "</span>. <br />";
+                                        $timing .= xlt("Alerts stop when their Treatment Goals are completed.");
+                                        $timing = "<div>" . $timing . "</div><br />";
                                     }
+                                    if ($rule->hasRuleType(RuleType::from('patientreminder'))) {
+                                        if ($clinical=='1') {
+                                            $timing_pt .= xlt("This CR also triggers a") . " <span class='bold'>" . xlt("Patient Reminder") . "</span>.";
+                                        } else {
+                                            $timing_pt .= xlt("This CR triggers a") . " <span class='bold'>" . xlt("Patient Reminder") . "</span>.";
+                                        }
+                                        $timing_pt = "<div>" . $timing_pt . "<br /></div><div class='indent10'>";
+
+                                        $timing_pt .= xlt("A message will be sent to the patient.");
+                                        if ($GLOBALS['medex_enable'] == '1') {
+                                            $timing_pt .= " <br /><a href='https://medexbank.com/'>MedEx</a> " . xlt("will send an e-mail, SMS text and/or a voice message as requested.");
+                                        }
+                                        $timing_pt .= "</div>";
+                                    }
+                                    if (($GLOBALS['medex_enable'] == '1') && ($rule->hasRuleType(RuleType::from('provideralert')))) {
+                                        $timing_prov = "<div><span class='bolder red'>" . xlt("This CR has a Provider Alert!") . "</span></div>";
+                                        $timing_prov .= "<div class='indent10'><span class='bold'>" . xlt("Provider Alert") . "</span>: " . xlt("A message will be sent to the provider.");
+                                        $timing_prov .="<br /><a href='https://medexbank.com/'>MedEx</a> " . xlt("will send an e-mail, SMS text and/or a voice message as requested.");
+                                        $timing_prov .= "</div>";
+                                    }
+                                } else {
+                                    $timing = "<span class='bold'>".xlt('None. Edit this CR to create an Alert!')."</span><br />";
+                                }
 
                                     echo $timing;
                                     echo $timing_pt;

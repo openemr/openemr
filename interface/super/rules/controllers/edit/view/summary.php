@@ -168,7 +168,7 @@
                                 <li> <?php echo xlt('If a CR containing a');?> <span class="bold"><?php echo xlt('Patient Reminder');?></span>
                                     <?php echo xlt("is triggered, a reminder message for the patient is queued, if allowed by patient’s HIPAA preferences (found in the Contact tab of the Demographics page)."); ?>'
                                     <?php if ($GLOBALS['medex_enable']==1) {?>
-                                    <?php echo xlt('You can use the internal messaging functions in OpenEMR or enable this CR on MedEx where you will build the desired message templates. E-mail, SMS, and voice (text-to-speech or pre-recorded audio) templates are available.'); ?>
+                                        <?php echo xlt('You can use the internal messaging functions in OpenEMR or enable this CR on MedEx where you will build the desired message templates. E-mail, SMS, and voice (text-to-speech or pre-recorded audio) templates are available.'); ?>
                                     <?php } ?>
                                 </li>
                             </ul>

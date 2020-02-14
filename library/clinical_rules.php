@@ -187,7 +187,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             echo xla("once per")." " . attr($interval[0]['value']).".<br />";
         } else {
             echo xla("every")." ".attr($interval[0]['interval'])." ".attr($interval[0]['value']);
-            if ( ($GLOBALS['language_default'] =='English (Standard)') && ($interval[0]['interval'] <> '1') ) {
+            if (($GLOBALS['language_default'] =='English (Standard)') && ($interval[0]['interval'] <> '1')) {
                 echo "s";
             }
             echo ".<br />";
