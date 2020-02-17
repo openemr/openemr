@@ -26,7 +26,9 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Common\Crypto\CryptoGen;
 
+$cryptoGen = new CryptoGen();
 $pid = $_REQUEST['hidden_patient_code'] > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
 
 $facilityService = new FacilityService();
@@ -36,7 +38,17 @@ $facilityService = new FacilityService();
 <html>
 <head>
 <?php Header::setupHeader(['opener']);?>
-
+    <?php if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
+        <script type="text/javascript" src="https://js.stripe.com/v3/"></script>
+    <?php } ?>
+    <?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') {
+        // Must be loaded from their server
+        $script = "https://jstest.authorize.net/v1/Accept.js"; // test script
+        if ($GLOBALS['gateway_mode_production']) {
+            $script = "https://js.authorize.net/v1/Accept.js"; // Production script
+        } ?>
+        <script type="text/javascript" src=<?php echo $script; ?> charset="utf-8"></script>
+    <?php } ?>
 <?php
 // Format dollars for display.
 
@@ -140,9 +152,6 @@ function calcTaxes($row, $amount)
 $now = time();
 $today = date('Y-m-d', $now);
 $timestamp = date('Y-m-d H:i:s', $now);
-
-
-// $patdata = getPatientData($pid, 'fname,lname,pubpid');
 
 $patdata = sqlQuery("SELECT " .
     "p.fname, p.mname, p.lname, p.pubpid,p.pid, i.copay " .
@@ -420,7 +429,6 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
 <title><?php echo xlt('Receipt for Payment'); ?></title>
     <?php Header::setupHeader(['jquery-ui']); ?>
 <script language="JavaScript">
-
     <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
 $(document).ready(function () {
@@ -589,8 +597,6 @@ function toencounter(enc, datestr, topframe) {
 </style>
 <!--Removed standard dependencies 12/29/17 as not needed any longer since moved to a tab/frame not popup.-->
 
-
-
 <!-- supporting javascript code -->
 <script language='JavaScript'>
     var mypcc = '1';
@@ -601,9 +607,31 @@ function toencounter(enc, datestr, topframe) {
 </script>
 
 <script type="text/javascript" src="../../library/topdialog.js"></script>
-
-<script language="JavaScript">
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript">
+    var chargeMsg = <?php echo xlj('Payment was successfully authorized and charged. Thank You.'); ?>;
+    var publicKey = <?php echo json_encode($cryptoGen->decryptStandard($GLOBALS['gateway_public_key'])); ?>;
+    var apiKey = <?php echo json_encode($cryptoGen->decryptStandard($GLOBALS['gateway_api_key'])); ?>;
+$(function() {
+    $('#openPayModal').on('show.bs.modal', function () {
+        let total = $("[name='form_paytotal']").val();
+        let prepay = $("#form_prepayment").val();
+        if (Number(total) < 1) {
+            if (Number(prepay) < 1) {
+                let error = <?php echo xlj("Please enter a payment amount"); ?>;
+                alert(error);
+                return false;
+            }
+            total = prepay;
+        }
+        $("#form_method").val('credit_card');
+        $("#payTotal").text(total);
+        $("#paymentAmount").val(total);
+    });
+});
     <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+
 function closeHow(e) {
     if (top.tab_mode) {
         top.activateTabByName('pat', true);
@@ -618,6 +646,7 @@ function closeHow(e) {
         window.history.back();
     }
 }
+
 function calctotal() {
     var f = document.forms[0];
     var total = 0;
@@ -701,19 +730,19 @@ function validate() {
         document.getElementById('check_number').focus();
         return false;
     }
-    if (document.getElementById('radio_type_of_payment_self1').checked == false &&
-        document.getElementById('radio_type_of_payment1').checked == false &&
-        document.getElementById('radio_type_of_payment2').checked == false &&
-        document.getElementById('radio_type_of_payment4').checked == false) {
+    if (document.getElementById('radio_type_of_payment_self1').checked === false &&
+        document.getElementById('radio_type_of_payment1').checked === false &&
+        document.getElementById('radio_type_of_payment2').checked === false &&
+        document.getElementById('radio_type_of_payment4').checked === false) {
         alert(<?php echo xlj('Please Select Type Of Payment.'); ?>);
         return false;
     }
-    if (document.getElementById('radio_type_of_payment_self1').checked == true ||
-        document.getElementById('radio_type_of_payment1').checked == true) {
+    if (document.getElementById('radio_type_of_payment_self1').checked === true ||
+        document.getElementById('radio_type_of_payment1').checked === true) {
         for (var i = 0; i < f.elements.length; ++i) {
             var elem = f.elements[i];
             var ename = elem.name;
-            if (ename.indexOf('form_upay[0') == 0) //Today is this text box.
+            if (ename.indexOf('form_upay[0') === 0) //Today is this text box.
             {
                 if (elem.value * 1 > 0) {//A warning message, if the amount is posted with out encounter.
                     if (confirm(<?php echo xlj('If patient has appointment click OK to create encounter otherwise, cancel this and then create an encounter for today visit.'); ?>)) {
@@ -728,13 +757,13 @@ function validate() {
         }
     }
 
-    if (document.getElementById('radio_type_of_payment1').checked == true){//CO-PAY
+    if (document.getElementById('radio_type_of_payment1').checked === true){//CO-PAY
         var total = 0;
         for (var i = 0; i < f.elements.length; ++i) {
             var elem = f.elements[i];
             var ename = elem.name;
-            if (ename.indexOf('form_upay[0]') == 0) {//Today is this text box.
-                if (f.form_paytotal.value * 1 != elem.value * 1) {//Total CO-PAY is not posted against today
+            if (ename.indexOf('form_upay[0]') === 0) {//Today is this text box.
+                if (f.form_paytotal.value * 1 !== elem.value * 1) {//Total CO-PAY is not posted against today
                 //A warning message, if the amount is posted against an old encounter.
                     if (confirm(<?php echo xlj('You are posting against an old encounter?'); ?>)) {
                         ok = 1;
@@ -747,11 +776,11 @@ function validate() {
             }
         }
     }//Co Pay
-    else if (document.getElementById('radio_type_of_payment2').checked == true) {//Invoice Balance
+    else if (document.getElementById('radio_type_of_payment2').checked === true) {//Invoice Balance
         for (var i = 0; i < f.elements.length; ++i) {
             var elem = f.elements[i];
             var ename = elem.name;
-            if (ename.indexOf('form_upay[0') == 0) {
+            if (ename.indexOf('form_upay[0') === 0) {
                 if (elem.value * 1 > 0) {
                     alert(<?php echo xlj('Invoice Balance cannot be posted. No Encounter is created.'); ?>);
                     return false;
@@ -760,7 +789,7 @@ function validate() {
             }
         }
     }
-    if (ok == -1) {
+    if (ok === -1) {
         if (confirm(<?php echo xlj('Would you like to save?'); ?>)) {
             return true;
         }
@@ -776,7 +805,7 @@ function cursor_pointer() { //Point the cursor to the latest encounter(Today)
     for (var i = 0; i < f.elements.length; ++i) {
         var elem = f.elements[i];
         var ename = elem.name;
-        if (ename.indexOf('form_upay[') == 0) {
+        if (ename.indexOf('form_upay[') === 0) {
             elem.focus();
             break;
         }
@@ -963,7 +992,7 @@ function make_insurance() {
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>
-<body>
+<body style="margin-bottom: 20px;">
     <div class="container"><!--begin container div for form-->
         <div class="row">
             <div class="col-sm-12">
@@ -1261,6 +1290,12 @@ function make_insurance() {
                         <div class="col-sm-12 text-left position-override">
                             <div class="btn-group btn-group-pinch" role="group">
                                 <button type='submit' class="btn btn-default btn-save" name='form_save' value='<?php echo xla('Generate Invoice');?>'><?php echo xlt('Generate Invoice');?></button>
+                                <?php if ($GLOBALS['cc_front_payments']) {
+                                    echo '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Manual CC Pay") . '</button>';
+                                }
+                                if ($GLOBALS['cc_inperson_payments']) {
+                                    echo '<button type="button" class="btn btn-primary" onclick="processInPerson(this)">' . xlt("In Person") . '</button>';
+                                } ?>
                                 <button type='button' class="btn btn-link btn-cancel btn-separate-left"  value='<?php echo xla('Cancel'); ?>' onclick='closeHow(event)'><?php echo xlt('Cancel'); ?></button>
                                 <input type="hidden" name="hidden_patient_code" id="hidden_patient_code" value="<?php echo attr($pid);?>"/>
                                 <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
@@ -1274,6 +1309,325 @@ function make_insurance() {
         <script language="JavaScript">
         calctotal();
         </script>
+        <!-- credit payment modal -->
+        <div id="openPayModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4><?php echo xlt('Submit Payment for Authorization'); ?></h4>
+                        <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
+                    </div>
+                    <div class="modal-body">
+                        <?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') { ?>
+                            <form id='paymentForm' method='post' action='./front_payment_cc.php'>
+                                <fieldset>
+                                    <div class="form-group">
+                                        <label label-default="label-default"
+                                            class="control-label"><?php echo xlt('Name on Card'); ?></label>
+                                        <div class="controls">
+                                            <input name="cardHolderName" id="cardHolderName" type="text" class="form-control"
+                                                pattern="\w+ \w+.*"
+                                                title="<?php echo xla('Fill your first and last name'); ?>"
+                                                value="<?php echo attr($patdata['fname']) . ' ' . attr($patdata['lname']) ?>"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label"><?php echo xlt('Card Number'); ?></label>
+                                        <div class="controls">
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <input name="cardNumber" id="cardNumber" type="text"
+                                                        class="form-control inline col-sm-4"
+                                                        autocomplete="off" maxlength="19" pattern="\d"
+                                                        onchange="validateCC()"
+                                                        title="<?php echo xla('Card Number'); ?>" value=""/>&nbsp;&nbsp;
+                                                    <h4 name="cardtype" id="cardtype" style="display: inline-block; color:#cc0000;"><?php echo xlt('Validating') ?></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label label-default="label-default"
+                                            class="control-label"><?php echo xlt('Card Expiry Date and Card Holders Zip'); ?></label>
+                                        <div class="controls">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <select name="month" id="expMonth" class="form-control">
+                                                        <option value=""><?php echo xlt('Select Month'); ?></option>
+                                                        <option value="01"><?php echo xlt('January'); ?></option>
+                                                        <option value="02"><?php echo xlt('February'); ?></option>
+                                                        <option value="03"><?php echo xlt('March'); ?></option>
+                                                        <option value="04"><?php echo xlt('April'); ?></option>
+                                                        <option value="05"><?php echo xlt('May'); ?></option>
+                                                        <option value="06"><?php echo xlt('June'); ?></option>
+                                                        <option value="07"><?php echo xlt('July'); ?></option>
+                                                        <option value="08"><?php echo xlt('August'); ?></option>
+                                                        <option value="09"><?php echo xlt('September'); ?></option>
+                                                        <option value="10"><?php echo xlt('October'); ?></option>
+                                                        <option value="11"><?php echo xlt('November'); ?></option>
+                                                        <option value="12"><?php echo xlt('December'); ?></option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <select name="year" id="expYear" class="form-control">
+                                                        <option value=""><?php echo xlt('Select Year'); ?></option>
+                                                        <option value="2019">2019</option>
+                                                        <option value="2020">2020</option>
+                                                        <option value="2021">2021</option>
+                                                        <option value="2022">2022</option>
+                                                        <option value="2023">2023</option>
+                                                        <option value="2024">2024</option>
+                                                        <option value="2025">2025</option>
+                                                        <option value="2026">2026</option>
+                                                        <option value="2027">2027</option>
+                                                        <option value="2028">2028</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <input name="zip" id="cczip" type="text" class="form-control"
+                                                        pattern="\d"
+                                                        title="<?php echo xla('Enter Your Zip'); ?>"
+                                                        placeholder="<?php echo xla('Card Holder Zip'); ?>"
+                                                        value="<?php echo attr($patdata['postal_code']) ?>"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label label-default="label-default" class="control-label"><?php echo xlt('Card CVV'); ?></label>
+                                        <div class="controls">
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <input name="cardCode" id="cardCode" type="text" class="form-control"
+                                                        autocomplete="off" maxlength="4" onfocus="validateCC()"
+                                                        title="<?php echo xla('Three or four digits at back of your card'); ?>"
+                                                        value=""/>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <img src='./images/img_cvc.png' style='height: 40px; width: auto'>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <h4 style="display: inline-block;"><?php echo xlt('Payment Amount'); ?>:&nbsp;
+                                                        <strong><span id="payTotal"></span></strong></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type='hidden' name='pid' id='pid' value='<?php echo attr($pid) ?>'/>
+                                    <input type='hidden' name='mode' id='mode' value=''/>
+                                    <input type='hidden' name='cc_type' id='cc_type' value=''/>
+                                    <input type='hidden' name='payment' id='paymentAmount' value=''/>
+                                    <input type='hidden' name='invValues' id='invValues' value=''/>
+                                    <input type="hidden" name="dataValue" id="dataValue" />
+                                    <input type="hidden" name="dataDescriptor" id="dataDescriptor" />
+                                </fieldset>
+                            </form>
+                        <?php } elseif ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
+                            <form method="post" name="payment-form" id="payment-form">
+                                <fieldset>
+                                    <div class="form-group">
+                                        <label label-default="label-default"
+                                            class="control-label"><?php echo xlt('Name on Card'); ?></label>
+                                        <div class="controls">
+                                            <input name="cardHolderName" id="cardHolderName" type="text"
+                                                class="form-control"
+                                                pattern="\w+ \w+.*"
+                                                title="<?php echo xla('Fill your first and last name'); ?>"
+                                                value="<?php echo attr($patdata['fname']) . ' ' . attr($patdata['lname']) ?>"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-row form-group">
+                                        <label for="card-element"><?php echo xlt('Credit or Debit Card') ?></label>
+                                        <div id="card-element"></div>
+                                        <div id="card-errors" role="alert"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h4 style="display: inline-block;"><?php echo xlt('Payment Amount'); ?>:&nbsp;
+                                            <strong><span id="payTotal"></span></strong></h4>
+                                    </div>
+                                    <input type='hidden' name='mode' id='mode' value=''/>
+                                    <input type='hidden' name='cc_type' id='cc_type' value=''/>
+                                    <input type='hidden' name='payment' id='paymentAmount' value=''/>
+                                    <input type='hidden' name='invValues' id='invValues' value=''/>
+                                </fieldset>
+                            </form>
+                        <?php } ?>
+                    </div>
+                    <!-- Body  -->
+                    <div class="modal-footer">
+                        <div class="button-group">
+                            <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
+                            <?php
+                            if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') { ?>
+                                <button id="payAurhorizeNet" class="btn btn-primary"
+                                    onclick="sendPaymentDataToAnet(event)"><?php echo xlt('Pay Now'); ?></button>
+                            <?php } if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
+                                <button id="stripeSubmit" class="btn btn-primary"><?php echo xlt('Pay Now'); ?></button>
+                            <?php } ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') {
+            // Include Authorize.Net dependency to tokenize card.
+            // Will return a token to use for payment request keeping
+            // credit info off the server.
+            ?>
+            <script type="text/javascript">
+                function sendPaymentDataToAnet(e) {
+                    e.preventDefault();
+                    const authData = {};
+                    authData.clientKey = publicKey;
+                    authData.apiLoginID = apiKey;
+
+                    const cardData = {};
+                    cardData.cardNumber = document.getElementById("cardNumber").value;
+                    cardData.month = document.getElementById("expMonth").value;
+                    cardData.year = document.getElementById("expYear").value;
+                    cardData.cardCode = document.getElementById("cardCode").value;
+                    cardData.fullName = document.getElementById("cardHolderName").value;
+                    cardData.zip = document.getElementById("cczip").value;
+
+                    const secureData = {};
+                    secureData.authData = authData;
+                    secureData.cardData = cardData;
+
+                    Accept.dispatchData(secureData, acceptResponseHandler);
+
+                    function acceptResponseHandler(response) {
+                        if (response.messages.resultCode === "Error") {
+                            let i = 0;
+                            let errorMsg = '';
+                            while (i < response.messages.message.length) {
+                                errorMsg = errorMsg + response.messages.message[i].code + ": " +response.messages.message[i].text;
+                                console.log(errorMsg);
+                                i = i + 1;
+                            }
+                            alert(errorMsg);
+                        } else {
+                            paymentFormUpdate(response.opaqueData);
+                        }
+                    }
+                }
+
+                function paymentFormUpdate(opaqueData) {
+                    // this is card tokenized
+                    document.getElementById("dataDescriptor").value = opaqueData.dataDescriptor;
+                    document.getElementById("dataValue").value = opaqueData.dataValue;
+                    let oForm = document.forms['paymentForm'];
+                    oForm.elements['mode'].value = "AuthorizeNet";
+                    // empty out the fields before submitting to server.
+                    document.getElementById("cardNumber").value = "";
+                    document.getElementById("expMonth").value = "";
+                    document.getElementById("expYear").value = "";
+                    document.getElementById("cardCode").value = "";
+
+                    // Submit payment to server
+                    fetch('./front_payment_cc.php', {
+                        method: 'POST',
+                        body: new FormData(oForm)
+                    }).then(function(data) {
+                        if(data.status !== 'ok') {
+                            alert(data);
+                            return;
+                        }
+                        document.getElementById("check_number").value = data.authCode;
+                        alert(chargeMsg + "\n" + 'Auth: ' + data.authCode + ' TransId: ' + data.transId);
+                        $("[name='form_save']").click();
+                    }).catch(function(error) {
+                        alert(error)
+                    });
+                }
+            </script>
+        <?php }  // end authorize.net ?>
+
+        <?php if ($GLOBALS['payment_gateway'] == 'Stripe') { // Begin Include Stripe ?>
+            <script type="text/javascript">
+                const stripe = Stripe(publicKey);
+                const elements = stripe.elements();// Custom styling can be passed to options when creating an Element.
+                const style = {
+                    base: {
+                        color: '#32325d',
+                        lineHeight: '18px',
+                        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                        fontSmoothing: 'antialiased',
+                        fontSize: '16px',
+                        '::placeholder': {
+                            color: '#aaa8a8'
+                        }
+                    },
+                    invalid: {
+                        color: '#fa755a',
+                        iconColor: '#fa755a'
+                    }
+
+                };
+                // Create an instance of the card Element.
+                const card = elements.create('card', {style: style});
+                // Add an instance of the card Element into the `card-element` <div>.
+                card.mount('#card-element');
+                // Handle real-time validation errors from the card Element.
+                card.addEventListener('change', function (event) {
+                    let displayError = document.getElementById('card-errors');
+                    if (event.error) {
+                        displayError.textContent = event.error.message;
+                    } else {
+                        displayError.textContent = '';
+                    }
+                });
+                // Handle form submission.
+                let form = document.getElementById('stripeSubmit');
+                form.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    stripe.createToken(card).then(function (result) {
+                        if (result.error) {
+                            // Inform the user if there was an error.
+                            let errorElement = document.getElementById('card-errors');
+                            errorElement.textContent = result.error.message;
+                        } else {
+                            // Send the token to server.
+                            stripeTokenHandler(result.token);
+                        }
+                    });
+                });
+                // Submit the form with the token ID.
+                function stripeTokenHandler(token) {
+                    // Insert the token ID into the form so it gets submitted to the server
+                    let oForm = document.forms['payment-form'];
+                    oForm.elements['mode'].value = "Stripe";
+
+                    let hiddenInput = document.createElement('input');
+                    hiddenInput.setAttribute('type', 'hidden');
+                    hiddenInput.setAttribute('name', 'stripeToken');
+                    hiddenInput.setAttribute('value', token.id);
+                    oForm.appendChild(hiddenInput);
+
+                    // Submit payment to server
+                    fetch('./front_payment_cc.php', {
+                        method: 'POST',
+                        body: new FormData(oForm)
+                    }).then((response) => {
+                        if (!response.ok) {
+                            throw Error(response.statusText);
+                        }
+                        return response.json();
+                    }).then(function(data) {
+                        if(data.status !== 'ok') {
+                            alert(data);
+                            return;
+                        }
+                        document.getElementById("check_number").value = data.authCode;
+                        alert(chargeMsg + "\n" + 'Auth: ' + data.authCode + ' TransId: ' + data.transId);
+                        $("[name='form_save']").click();
+                    }).catch(function(error) {
+                        alert(error)
+                    });
+                }
+            </script>
+        <?php } ?>
+
     </div><!--end of container div of accept payment i.e the form-->
     <?php
         $oemr_ui->oeBelowContainerDiv();
