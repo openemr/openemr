@@ -9,14 +9,16 @@
 #   1. go to contrib/util/docker directory
 #   2. docker-compose up -d
 #   3. Choose one of any of the following links:
-#        http://localhost:8080 (with Apache and PHP 7.1)
-#        http://localhost:8081 (with Apache and PHP 7.2)
-#        http://localhost:8082 (with Apache and PHP 7.3)
-#        http://localhost:8083 (with Alpine Edge (Apache and now PHP 7.3))
-#        http://localhost:8084 (with Apache and PHP 7.1 with redis)
-#        http://localhost:8085 (with Apache and PHP 7.2 with redis)
-#        http://localhost:8086 (with Apache and PHP 7.3 with redis)
-#        http://localhost:8087 (with Alpine Edge (Apache and now PHP 7.3) with redis)
+#        http://localhost:8080 (with Alpine 3.7 (Apache and PHP 7.1))
+#        http://localhost:8081 (with Alpine 3.9 (Apache and PHP 7.2))
+#        http://localhost:8082 (with Alpine 3.10 (Apache and PHP 7.3))
+#        http://localhost:8083 (with Alpine 3.11 (Apache and PHP 7.3))
+#        http://localhost:8084 (with Alpine Edge (Apache and now PHP 7.3))
+#        http://localhost:8085 (with Alpine 3.7 (Apache and PHP 7.1) with redis)
+#        http://localhost:8086 (with Alpine 3.9 (Apache and PHP 7.2) with redis)
+#        http://localhost:8087 (with Alpine 3.10 (Apache and PHP 7.3) with redis)
+#        http://localhost:8088 (with Alpine 3.11 (Apache and PHP 7.3) with redis)
+#        http://localhost:8089 (with Alpine Edge (Apache and now PHP 7.3) with redis)
 #        http://localhost:8100 (with Nginx and PHP-FPM 5.6)
 #        http://localhost:8101 (with Nginx and PHP-FPM 7.0)
 #        http://localhost:8102 (with Nginx and PHP-FPM 7.1)
@@ -31,14 +33,16 @@
 #        http://localhost:8154 (with Nginx and PHP-FPM 7.3 with redis)
 #        http://localhost:8155 (with Nginx and PHP-FPM 7.4 with redis)
 #        http://localhost:8156 (with Nginx and PHP-FPM 8.0 with redis)
-#        https://localhost:9080 with SSL (with Apache and PHP 7.1)
-#        https://localhost:9081 with SSL (with Apache and PHP 7.2)
-#        https://localhost:9082 with SSL (with Apache and PHP 7.3)
-#        https://localhost:9083 (with Alpine Edge (Apache and now PHP 7.3))
-#        https://localhost:9084 with SSL (with Apache and PHP 7.1 with redis)
-#        https://localhost:9085 with SSL (with Apache and PHP 7.2 with redis)
-#        https://localhost:9086 with SSL (with Apache and PHP 7.3 with redis)
-#        https://localhost:9087 (with Alpine Edge (Apache and now PHP 7.3) with redis)
+#        https://localhost:9080 with SSL and Alpine 3.7 (with Apache and PHP 7.1)
+#        https://localhost:9081 with SSL and Alpine 3.9 (with Apache and PHP 7.2)
+#        https://localhost:9082 with SSL and Alpine 3.10 (with Apache and PHP 7.3)
+#        https://localhost:9083 with SSL and Alpine 3.11 (with Apache and PHP 7.3)
+#        https://localhost:9084 with SSL and Alpine Edge (with Apache and now PHP 7.3))
+#        https://localhost:9085 with SSL and Alpine 3.7 (with Apache and PHP 7.1 with redis)
+#        https://localhost:9086 with SSL and Alpine 3.9 (with Apache and PHP 7.2 with redis)
+#        https://localhost:9087 with SSL and Alpine 3.10 (with Apache and PHP 7.3 with redis)
+#        https://localhost:9088 with SSL and Alpine 3.11 (with Apache and PHP 7.3 with redis)
+#        https://localhost:9089 with SSL and Alpine Edge (with Apache and now PHP 7.3 with redis)
 #        https://localhost:9100 with SSL (with Nginx and PHP-FPM 5.6)
 #        https://localhost:9101 with SSL (with Nginx and PHP-FPM 7.0)
 #        https://localhost:9102 with SSL (with Nginx and PHP-FPM 7.1)
@@ -88,7 +92,7 @@ services:
     environment:
       FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
-  openemr-7-3:
+  openemr-7-3-310:
     restart: always
     image: openemr/openemr:flex-3.10
     ports:
@@ -98,12 +102,23 @@ services:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
       EMPTY: "yes"
+  openemr-7-3-311:
+    restart: always
+    image: openemr/openemr:flex-3.11
+    ports:
+    - 8083:80
+    - 9083:443
+    volumes:
+    - ../../..:/var/www/localhost/htdocs/openemr
+    environment:
+      FORCE_NO_BUILD_MODE: "yes"
+      EMPTY: "yes"
   openemr-edge:
     restart: always
     image: openemr/openemr:flex-edge
     ports:
-    - 8083:80
-    - 9083:443
+    - 8084:80
+    - 9084:443
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
@@ -113,8 +128,8 @@ services:
     restart: always
     image: openemr/openemr:flex-3.7
     ports:
-    - 8084:80
-    - 9084:443
+    - 8085:80
+    - 9085:443
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
@@ -125,20 +140,32 @@ services:
     restart: always
     image: openemr/openemr:flex-3.9
     ports:
-    - 8085:80
-    - 9085:443
+    - 8086:80
+    - 9086:443
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
-  openemr-7-3-redis:
+  openemr-7-3-redis-310:
     restart: always
     image: openemr/openemr:flex-3.10
     ports:
-    - 8086:80
-    - 9086:443
+    - 8087:80
+    - 9087:443
+    volumes:
+    - ../../..:/var/www/localhost/htdocs/openemr
+    environment:
+      FORCE_NO_BUILD_MODE: "yes"
+      REDIS_SERVER: "redis"
+      EMPTY: "yes"
+  openemr-7-3-redis-311:
+    restart: always
+    image: openemr/openemr:flex-3.11
+    ports:
+    - 8088:80
+    - 9088:443
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
@@ -149,8 +176,8 @@ services:
     restart: always
     image: openemr/openemr:flex-edge
     ports:
-    - 8087:80
-    - 9087:443
+    - 8089:80
+    - 9089:443
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
