@@ -2820,6 +2820,20 @@ $GLOBALS_METADATA = array(
             xl('Allow insurance eligibility checks using Office Ally')
         ),
 
+        'cc_front_payments' => array(
+            xl('Accept Credit Card transactions from Front Payments'),
+            'bool',                           // data type
+            '0',
+            xl('Allow manual entry and authorise credit card payments. Ensure a gateway is enabled.')
+        ),
+
+        'cc_inperson_payments' => array(
+            xl('Accept Credit Cards In Person POS'),
+            'bool',                           // data type
+            '0',
+            xl('Enable POS payment terminal support. Currently P-400')
+        ),
+
         'payment_gateway' => array(
             xl('Select Credit Card Payment Gateway'),
             array(
