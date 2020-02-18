@@ -10,7 +10,7 @@ https://github.com/openemr/openemr/blob/master/CONTRIBUTING.md#code-contribution
 ---
 
 ### Insane Development Docker Environment ###
-The Insane Development Docker Environment will load up about 30 separate dockers and allow you to
+The Insane Development Docker Environment will load up about 35 separate dockers and allow you to
 test almost any version of mysql/mariadb/php, however it is not nearly as easy to use as the above Easy Development
 Docker Environment. See below for instructions of use of the Insane Development Docker Environment.
 
