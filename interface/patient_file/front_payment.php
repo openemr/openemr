@@ -1332,17 +1332,20 @@ function make_insurance() {
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label class="control-label"><?php echo xlt('Card Number'); ?></label>
                                         <div class="controls">
                                             <div class="row">
-                                                <div class="col-sm-12">
+                                                <div class="col-sm-6">
+                                                    <label class="control-label"><?php echo xlt('Card Number'); ?></label>
                                                     <input name="cardNumber" id="cardNumber" type="text"
-                                                        class="form-control inline col-sm-4"
+                                                        class="form-control"
                                                         autocomplete="off" maxlength="19" pattern="\d"
                                                         onchange="validateCC()"
-                                                        title="<?php echo xla('Card Number'); ?>" value=""/>&nbsp;&nbsp;
-                                                    <h4 name="cardtype" id="cardtype" style="display: inline-block; color:#cc0000;"><?php echo xlt('Validating') ?></h4>
+                                                        title="<?php echo xla('Card Number'); ?>" value="" />&nbsp;&nbsp;
                                                 </div>
+                                                <span class="col-sm-6">
+                                                    <label class="control-label"><?php echo xlt('Entry Status'); ?></label>
+                                                    <h5 name="cardtype" id="cardtype" style="color:#cc0000;"><?php echo xlt('Validating') ?></h5>
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -1476,6 +1479,41 @@ function make_insurance() {
             // credit info off the server.
             ?>
             <script type="text/javascript">
+                var ccerr = <?php echo xlj('Invalid Credit Card Number'); ?>
+
+                    // In House CC number Validation
+                    $('#cardNumber').validateCreditCard(function (result) {
+                        var r = (result.card_type === null ? '' : result.card_type.name.toUpperCase())
+                        var v = (result.valid === true ? ' Valid Number' : ' Validating')
+                        if (result.valid === true) {
+                            document.getElementById("cardtype").style.color = "#00aa00";
+                        } else {
+                            document.getElementById("cardtype").style.color = "#aa0000";
+                        }
+                        $('#cardtype').text(r + v);
+                    });
+
+                // Authorize.net
+                function validateCC() {
+                    var result = $('#cardNumber').validateCreditCard();
+                    var r = (result.card_type == null ? '' : result.card_type.name.toUpperCase())
+                    var v = (result.valid == true ? ' Valid Card Number' : ' Invalid Card Number')
+                    if (result.valid === true) {
+                        document.getElementById("cardtype").style.color = "#00aa00";
+                    } else {
+                        document.getElementById("cardtype").style.color = "#aa0000";
+                    }
+                    $('#cardtype').text(r + v);
+                    $('#cc_type').val(r);
+                    if (!result.valid) {
+                        alert(ccerr);
+                        return false;
+                    }
+                    else {
+                        return true;
+                    }
+                }
+
                 function sendPaymentDataToAnet(e) {
                     e.preventDefault();
                     const authData = {};
@@ -1528,6 +1566,11 @@ function make_insurance() {
                     fetch('./front_payment_cc.php', {
                         method: 'POST',
                         body: new FormData(oForm)
+                    }).then((response) => {
+                        if (!response.ok) {
+                            throw Error(response.statusText);
+                        }
+                        return response.json();
                     }).then(function(data) {
                         if(data.status !== 'ok') {
                             alert(data);
