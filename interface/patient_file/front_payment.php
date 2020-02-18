@@ -1407,7 +1407,7 @@ function make_insurance() {
                                                         value=""/>
                                                 </div>
                                                 <div class="col-md-3">
-                                                    <img src='./images/img_cvc.png' style='height: 40px; width: auto'>
+                                                    <img src='./../../portal/images/img_cvc.png' style='height: 40px; width: auto'>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <h4 style="display: inline-block;"><?php echo xlt('Payment Amount'); ?>:&nbsp;
