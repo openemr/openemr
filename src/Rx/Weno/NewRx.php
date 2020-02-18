@@ -64,7 +64,7 @@ class NewRx
         $from = $mHeader->addChild('From', $GLOBALS['weno_provider_id']);
         $from->addAttribute('Qualifier', 'C');
         $mHeader->addChild('MessageID', 'jse'.$messageid);
-        $mHeader->addChild('SentTime', date('Y-m-d')."T".date('H:i:s'));
+        $mHeader->addChild('SentTime', gmdate('Y-m-d\TH:i:s.u'));
 
         $security = $mHeader->addchild('Security');
         $username = $security->addChild('UsernameToken');
@@ -166,7 +166,7 @@ class NewRx
         $unitof = $measurement->addChild('UnitOfMeasure', 'pounds');
         $ucumv = $measurement->addChild('UCUMVersion', 'string');
         $obdate = $measurement->addChild('ObservationDate');
-        $obdate->addChild('DateTime', '2011-01-05T12:00:05.16');
+        $obdate->addChild('DateTime', gmdate('Y-m-d\TH:i:s.u'));
         $measurement2 = $observation->addChild('Measurement');
         $vitals2 = $measurement2->addChild('VitalSign', 'Height');
         $loincv2 = $measurement2->addChild('LOINCVersion', '4415');
@@ -176,6 +176,7 @@ class NewRx
         $obdate2 = $measurement2->addChild('ObservationDate');
         $takenDate = $vitalsData['date'];
         $taken = explode(" ", $takenDate);
+
         $obdate2->addChild('DateTime', $taken[0].'T'.$taken[1]);
         $obnotes = $observation->addChild('ObservationNotes', ($vitalsData['note'] == "" ? 'NA' : $vitalsData['note']));
 
@@ -197,7 +198,8 @@ class NewRx
         $writtendate = $medicationpres->addChild('WrittenDate');
         $writtendate->addChild('Date', date("Y-m-d"));
         $substitution = $medicationpres->addChild('Substitutions', '0');
-        $refills = $medicationpres->addChild('NumberOfRefills', $medData['refills']);
+        if (empty($medData['refills'])) { $refills = 0; } else { $refills = $medData['refills']; }
+        $refills = $medicationpres->addChild('NumberOfRefills', $refills);
         $diagnosis = $medicationpres->addChild('Diagnosis');
         $clinical = $diagnosis->addChild('ClinicalInformationQualifier', '1');
         $primary = $diagnosis->addChild('Primary');
