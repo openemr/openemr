@@ -56,7 +56,7 @@
 
 #
 #    On the main setup input screen:
-#     1. for Server Host, use either 'mariadb' or 'mysql' or 'mysql-old' or 'mysql-very-old' or 'mariadb-old' or 'mariadb-very-old' or 'mariadb-very-very-old' (have both mariadb/mysql/mariadb-dev/mysql dockers ready to go make testing either one easy; mysql is version 8.0; mysql-old is version 5.7; mysql-very-old is version 5.6; mariadb is version 10.4; mariadb-old is version 10.3; mariadb-very-old is version 10.2; mariadb-very-very-old is version 10.1)
+#     1. for Server Host, use either 'mariadb' or 'mysql' or 'mysql-old' or 'mysql-very-old' or 'mariadb-old' or 'mariadb-very-old' or 'mariadb-very-very-old' or 'mariadb-dev' (have both mariadb/mysql/mariadb-dev/mysql dockers ready to go make testing either one easy; mysql is version 8.0; mysql-old is version 5.7; mysql-very-old is version 5.6; mariadb is version 10.4; mariadb-old is version 10.3; mariadb-very-old is version 10.2; mariadb-very-very-old is version 10.1; mariadb-dev is version 10.5)
 #     2. for Root Pass, use 'root'
 #     3. for User Hostname, use '%'
 #    And when need to tear it down and restart it
@@ -157,6 +157,12 @@ services:
       FORCE_NO_BUILD_MODE: "yes"
       REDIS_SERVER: "redis"
       EMPTY: "yes"
+  mariadb-dev:
+    restart: always
+    image: mariadb:10.5
+    command: ['mysqld','--character-set-server=utf8']
+    environment:
+      MYSQL_ROOT_PASSWORD: root
   mariadb:
     restart: always
     image: mariadb:10.4
@@ -209,7 +215,7 @@ services:
     ports:
     - 8200:80
     environment:
-      PMA_HOSTS: mariadb,mariadb-old,mariadb-very-old,mariadb-very-very-old,mysql,mysql-old,mysql-very-old
+      PMA_HOSTS: mariadb,mariadb-old,mariadb-very-old,mariadb-very-very-old,mariadb-dev,mysql,mysql-old,mysql-very-old
   couchdb:
     restart: always
     image: couchdb
