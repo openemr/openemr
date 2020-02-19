@@ -635,8 +635,9 @@ class InstallerController extends AbstractActionController
             throw new RuntimeException('You can only use this action from a console!');
         }
 
-        $moduleName     = $request->getParam('moduleName');
-        $moduleAction   = $request->getParam('moduleAction');
+        $moduleAction   = $request->getParam('modaction');
+        $moduleName     = $request->getParam('modname');
+
         $moduleId       = null;
         $div            = [];
 
@@ -648,22 +649,25 @@ class InstallerController extends AbstractActionController
             $moduleId = $this->getModuleId($moduleName);
         }
 
-        if ($moduleAction === "install_sql" && $moduleId !== null) {
-            $this->InstallModuleSQL($moduleId);
-        }
+        if ($moduleId !== null) {
+            echo 'module ['.$moduleName.'] was find'. PHP_EOL;
 
-        if ($moduleAction === "upgrade_sql") {
-            $div = $this->UpgradeModuleSQL($moduleId);
-        }
+            if ($moduleAction === "install_sql") {
+                $this->InstallModuleSQL($moduleId);
+            }
 
-        if ($moduleAction === "install_acl") {
-            $div = $this->InstallModuleACL($moduleId);
-        }
+            if ($moduleAction === "upgrade_sql") {
+                $div = $this->UpgradeModuleSQL($moduleId);
+            }
 
-        if ($moduleAction === "upgrade_acl") {
-            $div = $this->UpgradeModuleACL($moduleId);
-        }
+            if ($moduleAction === "install_acl") {
+                $div = $this->InstallModuleACL($moduleId);
+            }
 
+            if ($moduleAction === "upgrade_acl") {
+                $div = $this->UpgradeModuleACL($moduleId);
+            }
+        }
         echo implode("<br />\n", $div).PHP_EOL;
         exit('command completed successfully' . PHP_EOL);
     }

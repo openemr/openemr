@@ -56,7 +56,7 @@ return array(
             'routes' => array(
                 'zfc-module' => array(
                     'options' => array(
-                        'route' => 'zfc-module <moduleAction> <moduleName>',
+                        'route' => 'zfc-module --site= --modaction= --modname= ',
                         'defaults' => array(
                             'controller' => Installer\Controller\InstallerController::class,
                             'action' => 'command-install-module',
