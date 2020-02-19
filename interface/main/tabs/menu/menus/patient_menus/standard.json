@@ -7,7 +7,7 @@
         "pid":"false",
         "children": [],
         "requirement": 0
-    },	
+    },
 	{
         "label": "History",
         "menu_id": "history",
@@ -81,6 +81,21 @@
         "pid":"false",
         "children": [],
         "requirement": 0
+    },
+    {
+        "label": "PRO{{Patient Reported Outcomes}}",
+        "menu_id": "patient_reported_outcomes",
+        "target": "main",
+        "on_click":"top.restoreSession()",
+        "url": "interface/easipro/pro.php",
+        "pid":"false",
+        "children": [],
+        "requirement": 0,
+        "global_req_strict": [
+            "easipro_enable",
+            "easipro_server",
+            "easipro_name"
+        ]
     },
     {
         "label": "Publish",
