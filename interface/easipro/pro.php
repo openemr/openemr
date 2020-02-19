@@ -4,9 +4,9 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    Shiqiang Tao <shiqiang.tao@uky.edu>
+ * @author    Shiqiang Tao <StrongTSQ@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2018 Shiqiang Tao <shiqiang.tao@uky.edu>
+ * @copyright Copyright (c) 2018 Shiqiang Tao <StrongTSQ@gmail.com>
  * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -44,7 +44,9 @@ use OpenEMR\OeUI\OemrUI;
                 });
             });
 
-            function listForms() {
+            function listForms(param) {
+                param.innerHTML = "<i class='fa fa-circle-o-notch fa-spin'></i> <?php echo xla('Loading'); ?>";
+
                 top.restoreSession();
                 $.ajax({
                     url: "../../library/ajax/easipro_util.php",
@@ -156,9 +158,12 @@ use OpenEMR\OeUI\OemrUI;
                         list += "</ul>"
                         $('#form-list').append(tbi_qol_container);
                         $('#form-list').append(list);
-                    },
 
+                        param.innerHTML = "<?php echo xla('List Forms'); ?>";
+                    },
                     error: function(jqXHR, textStatus, errorThrown) {
+                        param.innerHTML = "<?php echo xla('List Forms'); ?>";
+
                         document.write(jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
                     }
                 })
@@ -176,7 +181,9 @@ use OpenEMR\OeUI\OemrUI;
                 }
             }
 
-            function orderForm(){
+            function orderForm(param){
+                param.innerHTML = "<i class='fa fa-circle-o-notch fa-spin'></i> <?php echo xla('Ordering'); ?>";
+
                 var selectedForm = $('#form-list').find('input:checked');
                 if(selectedForm.length>0){
                     // Ajax call started to start an assessment
@@ -199,8 +206,12 @@ use OpenEMR\OeUI\OemrUI;
                                 success: function(data) {
                                     // Expiration: Timestamp; duration: 3 days; timezone: CST
                                     writeOrder(formOID, formName, data.OID, data.Expiration, 'ordered')
+
+                                    param.innerHTML = "<?php echo xla('Order Form'); ?>";
                                 },
                                 error: function(jqXHR, textStatus, errorThrown) {
+                                    param.innerHTML = "<?php echo xla('Order Form'); ?>";
+
                                     document.write(jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
                                 }
                             });
@@ -268,10 +279,12 @@ use OpenEMR\OeUI\OemrUI;
             </div>
         </div>
 
-        <ul class="nav nav-pills">
-            <li id="ext-enc" class="active"><a href="#"><?php echo xlt('Existing Forms'); ?></a></li>
-            <li id="ext-proc"><a href="#"><?php echo xlt('Add New Form'); ?></a></li>
-        </ul>
+        <nav class="nav nav-pills">
+            <a href="#" id="ext-enc" class="nav-item nav-link active"><?php echo xlt('Existing Forms'); ?></a>
+            <a href="#" id="ext-proc" class="nav-item nav-link"><?php echo xlt('Add New Form'); ?></a>
+        </nav>
+
+        <hr />
 
         <div id="ext-enc-out">
             <?php
@@ -300,9 +313,8 @@ use OpenEMR\OeUI\OemrUI;
             <?php } ?>
         </div>
         <div id="ext-proc-out">
-            <hr />
-           <a href="#" class="btn btn-sm btn-default" onclick="listForms()"><?php echo xlt('List Forms'); ?></a>
-           <a href="#" class="btn btn-sm btn-default" onclick="orderForm()"><?php echo xlt('Order Form'); ?></a>
+           <button class="btn btn-sm btn-secondary" id="listforms" onclick="listForms(this)"><?php echo xlt('List Forms'); ?></button>
+           <button class="btn btn-sm btn-secondary" onclick="orderForm(this)"><?php echo xlt('Order Form'); ?></button>
            <div id='form-list'></div>
         </div>
     </div><!--end of container div-->

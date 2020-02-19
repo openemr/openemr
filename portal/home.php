@@ -6,10 +6,10 @@
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @author    Shiqiang Tao <shiqiang.tao@uky.edu>
+ * @author    Shiqiang Tao <StrongTSQ@gmail.com>
  * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019-2020 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2020 Shiqiang Tao <shiqiang.tao@uky.edu>
+ * @copyright Copyright (c) 2020 Shiqiang Tao <StrongTSQ@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -122,7 +122,7 @@ foreach ($msgs as $i) {
             });
             <?php } ?>
 
-            <?php if ($GLOBALS['easipro_enable']) { ?>
+            <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) { ?>
                 $("#pro").load("./get_pro.php", {}, function () {});
             <?php } ?>
 
@@ -227,7 +227,7 @@ foreach ($msgs as $i) {
             dlgopen("./account/index_reset.php", '', 600, 360, null, title, {});
         }
 
-        <?php if ($GLOBALS['easipro_enable']) { ?>
+        <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) { ?>
             function writeResult(score, stdErr, assessmentOID){
                 $.ajax({
                     url: '../library/ajax/easipro_util.php',
@@ -240,9 +240,6 @@ foreach ($msgs as $i) {
                     },
                     type: 'POST',
                     dataType: 'script'
-                    // success: function(data){
-                    //     alert('data written');
-                    // }
                 });
             }
 
@@ -297,7 +294,9 @@ foreach ($msgs as $i) {
                 })
             }
 
-            function startAssessment(assessmentOID){
+            function startAssessment (param, assessmentOID) {
+                param.innerHTML = "<i class='fa fa-circle-o-notch fa-spin'></i> <?php echo xla('Loading'); ?>";
+
                 $.ajax({
                     url: '../library/ajax/easipro_util.php',
                     type: "POST",
@@ -319,8 +318,12 @@ foreach ($msgs as $i) {
                             }
                         }
                         document.getElementById("Content").innerHTML = screen;
+
+                        param.innerHTML = "<?php echo xla('Start Assessment') ?>";
                     },
                     error: function(jqXHR, textStatus, errorThrown){
+                        param.innerHTML = "<?php echo xla('Start Assessment') ?>";
+
                         //document.write(jqXHR.responseText);
                         alert("An error occurred");
                     }
@@ -437,14 +440,12 @@ foreach ($msgs as $i) {
                                 data-parent="#cardgroup"> <i class="fa fa-envelope"></i> <span><?php echo xlt("Secure Chat"); ?></span>
                             </a></li>
                     <?php } ?>
+                    <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) { ?>
+                        <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#procard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-edit"></i> <span><?php echo xlt("Patient Reported Outcomes"); ?></span></a></li>
+                    <?php } ?>
                     <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#openSignModal" data-toggle="modal" data-type="patient-signature">
                             <i class="fa fa-sign-in"></i><span><?php echo xlt('Signature on File'); ?></span>
                         </a></li>
-
-                    <?php if ($GLOBALS['easipro_enable']) { ?>
-                        <li class="nav-item" data-toggle="pill"><a href="#procard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-edit"></i> <span><?php echo xlt("Patient Reported Outcomes"); ?></span></a></li>
-                    <?php } ?>
-
                     <li class="nav-item"><a class="nav-link" href="logout.php"><i class="fa fa-ban fa-fw"></i> <span><?php echo xlt('Logout'); ?></span></a></li>
                 </ul>
             </section>
@@ -581,7 +582,7 @@ foreach ($msgs as $i) {
                             </div>
                         </div>
                     <?php } ?>
-                    <?php if ($GLOBALS['easipro_enable']) { ?>
+                    <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) { ?>
                         <div class="row card collapse" id="procard">
                             <header class="card-header bg-primary text-light"> <?php echo xlt('Patient Reported Outcomes'); ?> </header>
                             <div id="pro" class="card-body bg-light"></div>

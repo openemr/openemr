@@ -1,70 +1,73 @@
 <?php
 /**
-* Easipro class
-*
-* @package   OpenEMR
-* @link      http://www.open-emr.org
-* @author    Shiqiang Tao <shiqiang.tao@uky.edu>
-* @author    Brady Miller <brady.g.miller@gmail.com>
-* @copyright Copyright (c) 2018 Shiqiang Tao <shiqiang.tao@uky.edu>
-* @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
-* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
-*/
+ * Easipro utility class
+ *
+ * For licensing options for this feature, please contact api@assessmentcenter.net
+ *
+ * Can get developer sandbox credentials for server https://www.assessmentcenter.net/ac_api by
+ *  getting an account at https://www.assessmentcenter.net
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Shiqiang Tao <StrongTSQ@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018 Shiqiang Tao <StrongTSQ@gmail.com>
+ * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 namespace OpenEMR\Easipro;
 
 use MyMailer;
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Http\oeHttp;
 
 class Easipro
 {
-    public function __construct()
+    // Package authentication
+    private static function packageAuth()
     {
-        // direct to easipro dev server
-        $this->server = "https://www.assessmentcenter.net/ac_api/2014-01/";
-
-        // credential token for easipro dev server
-        $this->devAuth = "QkJENjI5MzUtRjc2Ri00RUM4LTg4MzQtQkRBQTc1REFEOEFCOjlBMzVEMzEzLUU3QkMtNDFDOS04OTMzLTNBM0Q3Mzk1M0Y3Mw==";
+        return base64_encode($GLOBALS['easipro_name'].":".(new CryptoGen)->decryptStandard($GLOBALS['easipro_pass']));
     }
 
     // Collect list of forms (returns json)
-    public function listForms()
+    public static function listForms()
     {
-        $response = oeHttp::usingHeaders(['Authorization' => 'Basic ' . $this->devAuth])->get($this->server . 'Forms/.json');
+        $response = oeHttp::usingHeaders(['Authorization' => 'Basic ' . self::packageAuth()])->get($GLOBALS['easipro_server'] . '/2014-01/Forms/.json');
         $data = $response->body();
         return $data;
     }
 
     // Order form (returns json)
-    public function orderForm($form_oid)
+    public static function orderForm($form_oid)
     {
-        $response = oeHttp::usingHeaders(['Authorization' => 'Basic ' . $this->devAuth])->get($this->server . 'Assessments/' . $form_oid . '.json');
+        $response = oeHttp::usingHeaders(['Authorization' => 'Basic ' . self::packageAuth()])->get($GLOBALS['easipro_server'] . '/2014-01/Assessments/' . $form_oid . '.json');
         $data = $response->body();
         return $data;
     }
 
     // Start assessment (returns json)
-    public function startAssessment($assessment_oid)
+    public static function startAssessment($assessment_oid)
     {
-        $response = oeHttp::usingHeaders(['Authorization' => 'Basic ' . $this->devAuth])->get($this->server . 'Participants/' . $assessment_oid . '.json');
+        $response = oeHttp::usingHeaders(['Authorization' => 'Basic ' . self::packageAuth()])->get($GLOBALS['easipro_server'] . '/2014-01/Participants/' . $assessment_oid . '.json');
         $data = $response->body();
         return $data;
     }
 
     // Select response during assessment (returns json)
-    public function selectResponse($assessment_oid, $itemresponse_oid, $response)
+    public static function selectResponse($assessment_oid, $itemresponse_oid, $response)
     {
         $query = ['ItemResponseOID' => $itemresponse_oid, 'Response' => $response];
         //$query = "ItemResponseOID=" . $itemresponse_oid . "&Response=" . $response;
-        $response = oeHttp::usingHeaders(['Authorization' => 'Basic ' . $this->devAuth])->get($this->server . 'Participants/' . $assessment_oid . '.json', $query);
+        $response = oeHttp::usingHeaders(['Authorization' => 'Basic ' . self::packageAuth()])->get($GLOBALS['easipro_server'] . '/2014-01/Participants/' . $assessment_oid . '.json', $query);
         $data = $response->body();
         return $data;
     }
 
     // Collect results after completing assessment (returns json)
-    public function collectResults($assessment_oid)
+    public static function collectResults($assessment_oid)
     {
-        $response = oeHttp::usingHeaders(['Authorization' => 'Basic ' . $this->devAuth])->get($this->server . 'Results/' . $assessment_oid . '.json');
+        $response = oeHttp::usingHeaders(['Authorization' => 'Basic ' . self::packageAuth()])->get($GLOBALS['easipro_server'] . '/2014-01/Results/' . $assessment_oid . '.json');
         $data = $response->body();
         return $data;
     }

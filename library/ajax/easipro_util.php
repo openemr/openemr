@@ -4,9 +4,9 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    Shiqiang Tao <shiqiang.tao@uky.edu>
+ * @author    Shiqiang Tao <StrongTSQ@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2018 Shiqiang Tao <shiqiang.tao@uky.edu>
+ * @copyright Copyright (c) 2018 Shiqiang Tao <StrongTSQ@gmail.com>
  * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -44,29 +44,24 @@ if ($_POST['function'] == 'request_assessment') {
 } else if ($_POST['function'] == 'start_assessment') {
     // Start assessment
     header('Content-Type: application/json');
-    $easipro = new Easipro();
-    echo $easipro->startAssessment($_POST['assessmentOID']);
+    echo Easipro::startAssessment($_POST['assessmentOID']);
 } else if ($_POST['function'] == 'select_response') {
     // Render screen during assessment
     header('Content-Type: application/json');
-    $easipro = new Easipro();
-    echo $easipro->selectResponse($_POST['assessmentOID'], $_POST['ItemResponseOID'], $_POST['Response']);
+    echo Easipro::selectResponse($_POST['assessmentOID'], $_POST['ItemResponseOID'], $_POST['Response']);
 } else if ($_POST['function'] == 'collect_results') {
     // Collect results after completing assessment
     header('Content-Type: application/json');
-    $easipro = new Easipro();
-    echo $easipro->collectResults($_POST['assessmentOID']);
+    echo Easipro::collectResults($_POST['assessmentOID']);
 } else if ($_POST['function'] == 'record_result') {
     // Record result of assessment
     Easipro::recordResult($pid, $_POST['score'], $_POST['assessmentOID'], $_POST['stdErr']);
 } else if ($_POST['function'] == 'list_forms') {
     // Provide list of forms
     header('Content-Type: application/json');
-    $easipro = new Easipro();
-    echo $easipro->listForms();
+    echo Easipro::listForms();
 } else if ($_POST['function'] == 'order_form') {
     // Order form
     header('Content-Type: application/json');
-    $easipro = new Easipro();
-    echo $easipro->orderForm($_POST['formOID']);
+    echo Easipro::orderForm($_POST['formOID']);
 }

@@ -91,7 +91,11 @@
         "pid":"false",
         "children": [],
         "requirement": 0,
-        "global_req":"easipro_enable"
+        "global_req_strict": [
+            "easipro_enable",
+            "easipro_server",
+            "easipro_name"
+        ]
     },
     {
         "label": "Publish",
