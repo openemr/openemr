@@ -5,8 +5,10 @@
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 /* We should really try to keep this library jQuery free ie javaScript only! */
@@ -268,7 +270,7 @@ if (typeof persistUserOption !== "function") {
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  */
 
-if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDebug === '3')) {
+if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDebug === '4')) {
     window.onerror = function (msg, url, lineNo, columnNo, error) {
         const is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
         const is_firefox = navigator.userAgent.indexOf('Firefox') > -1;

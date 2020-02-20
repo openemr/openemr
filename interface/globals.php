@@ -6,7 +6,9 @@
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -604,8 +606,13 @@ $GLOBALS['temporary_files_dir'] = rtrim(sys_get_temp_dir(), '/');
 
 // turn off PHP compatibility warnings
 ini_set("session.bug_compat_warn", "off");
+
 // user debug mode
-if ((int) $GLOBALS['user_debug'] > 1) {
-    error_reporting(error_reporting() & ~E_WARNING & ~E_NOTICE & ~E_USER_WARNING);
+if ($GLOBALS['user_debug'] > 1) {
+    if ($GLOBALS['user_debug'] >= 3) {
+        error_reporting(E_ALL);
+    } else {
+        error_reporting(error_reporting() & ~E_WARNING & ~E_NOTICE & ~E_USER_WARNING);
+    }
     ini_set('display_errors', 1);
 }

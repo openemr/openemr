@@ -7,9 +7,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2015 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -107,15 +109,19 @@ if (stristr(PHP_OS, 'WIN')) {
 // xl('Miscellaneous')
 
 // List of user specific tabs and globals
-$USER_SPECIFIC_TABS = array('Appearance',
+$USER_SPECIFIC_TABS = array(
+    'Appearance',
     'Locale',
     'Features',
     'Billing',
     'Report',
     'Calendar',
     'CDR',
-    'Connectors');
-$USER_SPECIFIC_GLOBALS = array('default_top_pane',
+    'Connectors',
+    'Logging'
+);
+$USER_SPECIFIC_GLOBALS = array(
+    'default_top_pane',
     'default_second_tab',
     'theme_tabs_layout',
     'css_header',
@@ -146,7 +152,9 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'checkout_roll_off',
     'patient_birthday_alert',
     'patient_birthday_alert_manual_off',
-    'erx_import_status_message');
+    'erx_import_status_message',
+    'user_debug'
+);
 
 // Gets array of time zones supported by PHP.
 //
@@ -2613,14 +2621,15 @@ $GLOBALS_METADATA = array(
             xl('User Debugging Options'),
             array(
                 '0' => xl('None'),
-                '1' => xl('Display Window Errors Only'),
-                '2' => xl('Display Application Errors Only'),
-                '3' => xl('All'),
+                '1' => xl('Display Window (JavaScript) Errors Only'),
+                '2' => xl('Display Only PHP Inline Application Warnings'),
+                '3' => xl('Display All PHP Inline Logs Only'),
+                '4' => xl('Display All'),
             ),
             '0',                               // default
             xl('User Debugging Mode.')
         ),
-
+        
         'enable_auditlog' => array(
             xl('Enable Audit Logging'),
             'bool',                           // data type
