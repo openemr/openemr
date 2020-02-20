@@ -80,9 +80,9 @@
 //   Ukrainian                      // xl('Ukrainian')
 //   Urdu                           // xl('Urdu')
 //   Vietnamese                     // xl('Vietnamese')
-
-use \OpenEMR\Services\Globals\GlobalsService;
+use OpenEMR\Common\Acl\AclMain;
 use \OpenEMR\Events\Globals\GlobalsInitializedEvent;
+use \OpenEMR\Services\Globals\GlobalsService;
 
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
@@ -117,9 +117,14 @@ $USER_SPECIFIC_TABS = array(
     'Report',
     'Calendar',
     'CDR',
-    'Connectors',
-    'Logging'
+    'Connectors'
 );
+
+// Logging requires the super privilege
+if (AclMain::aclCheckCore('admin', 'super')) {
+    array_push($USER_SPECIFIC_TABS, 'Logging');
+}
+
 $USER_SPECIFIC_GLOBALS = array(
     'default_top_pane',
     'default_second_tab',
@@ -152,9 +157,13 @@ $USER_SPECIFIC_GLOBALS = array(
     'checkout_roll_off',
     'patient_birthday_alert',
     'patient_birthday_alert_manual_off',
-    'erx_import_status_message',
-    'user_debug'
+    'erx_import_status_message'
 );
+
+// Logging requires the super privilege
+if (AclMain::aclCheckCore('admin', 'super')) {
+    array_push($USER_SPECIFIC_GLOBALS, 'user_debug');
+}
 
 // Gets array of time zones supported by PHP.
 //
