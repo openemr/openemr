@@ -59,7 +59,7 @@ if (!empty($code_text)) {
             user = ?,
             encounter = ?,
             authorized = ?, 
-            activity = '?,
+            activity = ?,
             code = ?,
             codetext = ?,
             description= ?,
