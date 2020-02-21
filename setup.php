@@ -9,10 +9,12 @@
  * @author    Scott Wakefield <scott@npclinics.com.au>
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2016 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2016 Scott Wakefield <scott@npclinics.com.au>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -31,7 +33,7 @@ set_time_limit(0);
 // Warning. If you set $allow_multisite_setup to true, this is a potential security vulnerability.
 // Recommend setting it back to false (or removing this setup.php script entirely) after you
 //  are done with the multisite procedure.
-$allow_multisite_setup = false;
+$allow_multisite_setup = true;
 
 // Warning. If you set $allow_cloning_setup to true, this is a potential security vulnerability.
 // Recommend setting it back to false (or removing this setup.php script entirely) after you
@@ -202,7 +204,7 @@ if (!$allow_multisite_setup && $site_id != 'default') {
 
 //If having problems with file and directory permission
 // checking, then can be manually disabled here.
-$checkPermissions = true;
+$checkPermissions = false;
 
 global $OE_SITE_DIR; // The Installer sets this
 
@@ -1486,7 +1488,7 @@ TMF;
                                         <p><span class="text">Welcome to OpenEMR. This utility will step you through the installation and configuration of OpenEMR for your practice.</span></p>
                                         <ul>
                                             <li><span class="text">Before proceeding, be sure that you have a properly installed and configured MySQL server available, and a PHP configured webserver.</span></li>
-                                            <li><span class="mark">Detailed installation instructions can be found in the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span style='text-decoration: underline;'>'INSTALL'</span></a> manual file.</span></li>
+                                            <li><span class="text">Detailed installation instructions can be found in the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span style='text-decoration: underline;'>'INSTALL'</span></a> manual file.</span></li>
                                             <li>If you are upgrading from a previous version, <strong>DO NOT</strong> use this script. Please read the <strong>'Upgrading'</strong> section found in the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span style='text-decoration: underline;'>'INSTALL'</span></a> manual file.
                                             </li>
                                         </ul>
@@ -1557,7 +1559,19 @@ CHKDIR;
 FRM;
                             echo $form ."\r\n";
                         } else {
-                            echo "<br />Click to continue installation.<br />\n";
+                            $form = <<<FRM
+                                        <br />
+                                        <p class='p-1 bg-warning'>$caution: Permisssions checking has been disabled. All required files and directories have NOT been verified, please manually verify sites/$site_id .</p>
+                                        <p class='mark'>Click <b>Proceed to Step 1</b> to continue with a new installation.</p>
+                                        <p class='p-1 bg-warning'>$caution: If you are upgrading from a previous version, <strong>DO NOT</strong> use this script. Please read the <strong>'Upgrading'</strong> section found in the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><span style='text-decoration: underline;'>'INSTALL'</span></a> manual file.</p>
+                                        <br />
+                                        <form method='post'>
+                                            <input name='state' type='hidden' value='1'>
+                                            <input name='site' type='hidden' value='$site_id'>
+                                            <button type='submit' value='Continue'><b>Proceed to Step 1</b></button>
+                                        </form>
+FRM;
+                            echo $form ."\r\n";
                         }
                 }
             }
