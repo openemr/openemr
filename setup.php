@@ -33,7 +33,7 @@ set_time_limit(0);
 // Warning. If you set $allow_multisite_setup to true, this is a potential security vulnerability.
 // Recommend setting it back to false (or removing this setup.php script entirely) after you
 //  are done with the multisite procedure.
-$allow_multisite_setup = true;
+$allow_multisite_setup = false;
 
 // Warning. If you set $allow_cloning_setup to true, this is a potential security vulnerability.
 // Recommend setting it back to false (or removing this setup.php script entirely) after you
@@ -204,7 +204,7 @@ if (!$allow_multisite_setup && $site_id != 'default') {
 
 //If having problems with file and directory permission
 // checking, then can be manually disabled here.
-$checkPermissions = false;
+$checkPermissions = true;
 
 global $OE_SITE_DIR; // The Installer sets this
 
