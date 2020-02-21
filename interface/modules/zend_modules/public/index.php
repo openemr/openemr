@@ -14,7 +14,7 @@
  * This makes our life easier when dealing with paths. Everything is relative
  * to the application root now.
  */
-
+use Laminas\Console\Request as ConsoleRequest;
 
 //fetching controller name and action name from the SOAP request
 $urlArray = explode('/', $_SERVER['REQUEST_URI']);
@@ -34,6 +34,17 @@ if ($_REQUEST['recipient'] === 'patient' && $_REQUEST['site'] && $controllerName
         $ignoreAuth_onsite_portal_two = true;
     }
 }
+
+if (php_sapi_name() === 'cli' && count($argv) != 0) {
+    $ignoreAuth = true;
+    $siteDefault = 'default';
+    foreach ($argv as $arg) {
+        if (strpos($arg, "--site=") !== false) {
+            $siteDefault = explode("=", $arg)[1];
+        }
+    }
+    $_GET['site'] = $siteDefault;
+};
 
 require_once(dirname(__FILE__)."/../../../globals.php");
 require_once(dirname(__FILE__)."/../../../../library/forms.inc");
