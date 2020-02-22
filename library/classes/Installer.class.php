@@ -329,7 +329,7 @@ class Installer
             return false;
         }
 
-        $sql_results .= "OK<br />\n";
+        $sql_results .= "<span class='text-success'><b>OK</b></span>.<br>\n";
         fclose($fd);
         return $sql_results;
     }
