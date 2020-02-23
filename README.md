@@ -32,7 +32,7 @@ Check out [API_README.md](API_README.md)
 
 ### For Developers
 
-If using OpenEMR directly from the code repository, then the following commands will build OpenEMR:
+If using OpenEMR directly from the code repository, then the following commands will build OpenEMR (Node.js version 10.* or 12.* is required) :
 ```
 composer install
 npm install
