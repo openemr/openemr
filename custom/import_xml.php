@@ -219,7 +219,7 @@ if ($_POST['form_import']) {
                         <button type='submit' class='btn btn-secondary btn-save' name='form_import' value='bn_import'>
                             <?php echo xlt('Import'); ?>
                         </button>
-                        <button type="button" class="btn btn-link btn-cancel" onclick="window.close()">
+                        <button type="button" class="btn btn-link btn-cancel" onclick="dlgclose()">
                             <?php echo xlt("Cancel"); ?>
                         </button>
                     </div>
