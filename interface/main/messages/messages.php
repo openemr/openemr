@@ -786,7 +786,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         <span class="title"><?php echo xlt('SMS Zone'); ?></span>
                         <br/><br/>
                         <form id="smsForm" class="input-group">
-                            <input id="SMS_patient" type="text" style="margin:0;max-width:100%;" class="form-control" placeholder="<?php echo xla("Patient Name"); ?>" />
+                            <input id="SMS_patient" type="text" class="form-control m-0 mw-100" placeholder="<?php echo xla("Patient Name"); ?>" />
                             <span class="input-group-addon" onclick="SMS_direct();"><i class="glyphicon glyphicon-phone"></i></span>
                             <input type="hidden" id="sms_pid" />
                             <input type="hidden" id="sms_mobile" value="" />
@@ -880,22 +880,26 @@ if (!empty($_REQUEST['go'])) { ?>
         });
         $(function () {
             var f = $("#smsForm");
-            $("#SMS_patient").autocomplete({
-                source: "save.php?go=sms_search",
-                minLength: 2,
-                select: function (event, ui) {
-                    event.preventDefault();
-                    $("#SMS_patient").val(ui.item.label + ' ' + ui.item.mobile);
-                    $("#sms_pid").val(ui.item.pid);
-                    $("#sms_mobile").val(ui.item.mobile);
-                    $("#sms_allow").val(ui.item.allow);
-                }
+            $("#SMS_patient").select2({
+                ajax: {
+                    url: 'save.php',
+                    data: function (params) {
+                      var query = {
+                        go: 'sms_search',
+                        search: params.term
+                      }
+                      return query;
+                    }
+                  },
+            });
+            $('#SMS_patient').on('select2:select', function (e) {
+                e.preventDefault();
+                $("#SMS_patient").val(e.params.item.label + ' ' + e.params.item.mobile);
+                $("#sms_pid").val(e.params.item.pid);
+                $("#sms_mobile").val(e.params.item.mobile);
+                $("#sms_allow").val(e.params.item.allow);
             });
         });
-        jQuery.ui.autocomplete.prototype._resizeMenu = function () {
-            var ul = this.menu.element;
-            ul.outerWidth(this.element.outerWidth());
-        };
         $(function () {
             $("#newnote").click(function (event) {
                 NewNote(event);

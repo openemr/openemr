@@ -501,11 +501,10 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
 
             // TODO: Old jQuery UI Dialog
 
-            $('<div/>', {
+            $('</div>', {
                     'class': 'edihDlg',
                     'id': 'link-' + ($(this).index() + 1)
-                })
-                .load($(this).attr('href')).appendTo('#tbcsvhist').dialog(options);
+                }).load($(this).attr('href')).appendTo('#tbcsvhist').dialog(options);
         });
         /* #csvTable  ****  */
         $('#tblshow').on('click', 'a', function(e) {
@@ -516,18 +515,17 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
 
             // TODO: Old jQuery UI Dialog
 
-            $('<div/>', {
+            $('</div>', {
                     'class': 'edihDlg',
                     'id': 'link-' + ($(this).index() + 1)
-                })
-                .load($(this).attr('href')).appendTo('#tblshow').dialog(options);
+                }).load($(this).attr('href')).appendTo('#tblshow').dialog(options);
         });
         /*
             $('#tbrpt').on('click', 'a', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 var options = dialogOptions('#tblshow');
-                $('<div/>', {'class':'edihDlg', 'id':'link-'+($(this).index()+1)})
+                $('</div>', {'class':'edihDlg', 'id':'link-'+($(this).index()+1)})
                     .load($(this).attr('href')).appendTo('#tblshow').dialog(options);
             });
         */
@@ -539,11 +537,10 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
 
             // TODO: Old jQuery UI Dialog
 
-            $('<div/>', {
+            $('</div>', {
                     'class': 'edihDlg',
                     'id': 'link-' + ($(this).index() + 1)
-                })
-                .load($(this).attr('href')).appendTo('#processed').dialog(options);
+                }).load($(this).attr('href')).appendTo('#processed').dialog(options);
         });
 
         /*
@@ -670,8 +667,8 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                     }
                 ],
                 error: function(xhr, status) {
-                    alert(<?php echo xlj('Sorry, there was a problem!'); ?>),
-                        $('#processed').html(status)
+                    alert(<?php echo xlj('Sorry, there was a problem!'); ?>);
+                    $('#processed').html(status);
                 }
             });
             upld_ct = 0;
@@ -787,7 +784,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                 height: 'auto',
                 width: 568,
                 maxWidth: 616,
-                title: '<?php echo xlj("Encounter EDI Record"); ?>',
+                title: <?php echo xlj("Encounter EDI Record"); ?>,
                 close: function(event, ui) {
                     $(this).empty();
                     $(this).dialog('close');
@@ -799,11 +796,10 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                 data: $('#formcsvhist').serialize(), //{ csvenctr: chenctr },
                 dataType: "html",
                 success: [function(data) {
-                    $('<div/>', {
+                    $('</div>', {
                             'class': 'edihDlg',
                             'id': 'link-' + ($(this).index() + 1)
-                        })
-                        .appendTo('#tbcsvhist').html($.trim(data)).dialog(histopts).dialog('open');
+                    }).appendTo('#tbcsvhist').html($.trim(data)).dialog(histopts).dialog('open');
                 }]
             });
         });
