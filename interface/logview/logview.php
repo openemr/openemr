@@ -71,7 +71,7 @@ if (!empty($_GET)) {
     <div class="row">
         <div class="col-sm-12">
             <div class="page-header clearfix">
-                <h2>Logs Viewer</h2>
+                <h2><?php echo xlt('Logs Viewer'); ?></h2>
             </div>
         </div>
     </div><!--end of header div-->
