@@ -109,17 +109,21 @@ function initInteractors(dragContext = document, resizeContext = '') {
     interact(".drag-action", {context: dragContext}).draggable({
         enabled: true,
         inertia: true,
-        restrict: {
-            restriction: "parent",
-            endOnly: true,
-            elementRect: {top: 0, left: 0, bottom: 1, right: 1}
-        },
-        snap: {
-            targets: [interact.createSnapGrid({x: 1, y: 1})],
-            range: Infinity,
-            relativePoints: [{x: 0, y: 0}]
-        },
-        autoScroll: true,
+        modifiers: [
+            interact.modifiers.snap({
+                targets: [
+                    interact.createSnapGrid({x: 20, y: 20})
+                ],
+                range: Infinity,
+                relativePoints: [{x: 0, y: 0}]
+            }),
+            interact.modifiers.restrict({
+                restriction: "parent",
+                elementRect: {top: 0, left: 0, bottom: 1, right: 1},
+                endOnly: true
+            })
+        ],
+        autoScroll: false,
         maxPerElement: 2
     }).on('dragstart', function (event) {
         event.preventDefault();
