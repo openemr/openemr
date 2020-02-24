@@ -304,3 +304,9 @@ if ($_POST['edit']) {
 }
 
 ?>
+<script>
+    $("#definition-link").addClass("active");
+    $("#language-link").removeClass("active");
+    $("#constant-link").removeClass("active");
+    $("#manage-link").removeClass("active");
+</script>

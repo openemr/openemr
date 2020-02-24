@@ -82,3 +82,9 @@ if ($_POST['add']) {
 </TR>
 </FORM>
 </TABLE>
+<script>
+    $("#language-link").addClass("active");
+    $("#definition-link").removeClass("active");
+    $("#constant-link").removeClass("active");
+    $("#manage-link").removeClass("active");
+</script>

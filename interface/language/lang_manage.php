@@ -208,3 +208,9 @@ if ($_POST['check'] || $_POST['synchronize']) {
   </TR>
 </FORM>
 </TABLE>
+<script>
+    $("#manage-link").addClass("active");
+    $("#definition-link").removeClass("active");
+    $("#language-link").removeClass("active");
+    $("#constant-link").removeClass("active");
+</script>
