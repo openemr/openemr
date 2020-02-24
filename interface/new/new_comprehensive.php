@@ -916,7 +916,7 @@ $(function () {
         } else {
             url+="&close";
         }
-        dlgopen(url, '_blank', 700, 500);
+        dlgopen(url, '_blank', 875, 500);
         } // end function
     } // end function
 
