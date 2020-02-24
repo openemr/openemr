@@ -207,7 +207,7 @@ if ($_POST['edit']) {
     $res = SqlStatement($sql, $bind_sql_array);
 
         $isResults = false; //flag to record whether there are any results
-    echo ('<table><FORM METHOD=POST ACTION="?m=definition&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken()) . '" onsubmit="return top.restoreSession()">');
+    echo ('<table><form method="post" action="?m=definition&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken()) . '" onsubmit="return top.restoreSession()">');
     echo ('<input type="hidden" name="csrf_token_form" value="' . attr(CsrfUtils::collectCsrfToken()) . '" />');
     // only english definitions
     if ($lang_id==1) {
@@ -231,7 +231,7 @@ if ($_POST['edit']) {
                 }
             }
 
-            $stringTemp .= '<td><INPUT TYPE="text" size="50" NAME="' . attr($cons_name) . '" value="' . attr($row['definition']) . '">';
+            $stringTemp .= '<td><input type="text" size="50" NAME="' . attr($cons_name) . '" value="' . attr($row['definition']) . '">';
             $stringTemp .= '</td><td></td></tr>';
             if ($isShow) {
                 //definition filter passed, so show
@@ -240,7 +240,7 @@ if ($_POST['edit']) {
             }
         }
 
-        echo ('<INPUT TYPE="hidden" name="lang_id" value="'.attr($lang_id).'">');
+        echo ('<input type="hidden" name="lang_id" value="'.attr($lang_id).'">');
     // english plus the other
     } else {
         while ($row=SqlFetchArray($res)) {
@@ -277,7 +277,7 @@ if ($_POST['edit']) {
                 }
             }
 
-            $stringTemp .= '<td><INPUT TYPE="text" size="50" NAME="'.attr($cons_name).'" value="'.attr($row['definition']).'">';
+            $stringTemp .= '<td><input type="text" size="50" name="'.attr($cons_name).'" value="'.attr($row['definition']).'">';
             $stringTemp .='</td></tr>';
             if ($isShow) {
         //definition filter passed, so show
@@ -286,21 +286,21 @@ if ($_POST['edit']) {
             }
         }
 
-        echo ('<INPUT TYPE="hidden" name="lang_id" value="'.attr($lang_id).'">');
+        echo ('<input type="hidden" name="lang_id" value="'.attr($lang_id).'">');
     }
 
     if ($isResults) {
-            echo ('<tr><td colspan=3><INPUT TYPE="submit" name="load" Value="' . xla('Load Definitions') . '"></td></tr>');
+            echo ('<tr><td colspan=3><input type="submit" name="load" Value="' . xla('Load Definitions') . '"></td></tr>');
         ?>
-            <INPUT TYPE="hidden" name="filter_cons" value="<?php echo attr($_POST['filter_cons']); ?>">
-            <INPUT TYPE="hidden" name="filter_def" value="<?php echo attr($_POST['filter_def']); ?>">
-            <INPUT TYPE="hidden" name="language_select" value="<?php echo attr($_POST['language_select']); ?>">
+            <input type="hidden" name="filter_cons" value="<?php echo attr($_POST['filter_cons']); ?>">
+            <input type="hidden" name="filter_def" value="<?php echo attr($_POST['filter_def']); ?>">
+            <input type="hidden" name="language_select" value="<?php echo attr($_POST['language_select']); ?>">
             <?php
     } else {
         echo xlt('No Results Found For Search');
     }
 
-    echo ('</FORM></table>');
+    echo ('</form></table>');
 }
 
 ?>
