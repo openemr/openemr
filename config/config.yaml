@@ -229,6 +229,9 @@ assets:
     jszip:
         basePath: '%assets_static_relative%/jszip/dist/'
         script: jszip.min.js
+    jspdf:
+        basePath: '%assets_static_relative%/jspdf/dist/'
+        script: jspdf.min.js
     dwv:
         basePath: '%assets_static_relative%/dwv/'
         script:
