@@ -340,9 +340,9 @@ while ($row = sqlFetchArray($eres)) {
 
  <tr>
   <td colspan='2' align='center'>
-   <input type='submit' name='form_save' value='<?php echo xla('Save'); ?>' disabled /> &nbsp;
-   <input type='button' value='<?php echo xla('Add Issue'); ?>' onclick='newIssue()' />
-   <input type='button' value='<?php echo xla('Cancel'); ?>' onclick='dlgclose()' />
+   <input type='submit' class='btn btn-secondary btn-sm btn-save' name='form_save' value='<?php echo xla('Save'); ?>' disabled /> &nbsp;
+   <input type='button' class='btn btn-primary btn-sm' value='<?php echo xla('Add Issue'); ?>' onclick='newIssue()' />
+   <button  class='btn btn-link btn-cancel' onclick='dlgclose()'><?php echo xla('Cancel'); ?></button>
   </td>
  </tr>
 

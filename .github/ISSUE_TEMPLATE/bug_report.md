@@ -6,7 +6,7 @@ about: Report a bug and help us improve
 
 ### Describe the bug
 
-- write concise description of what the bug is.
+write concise description of what the bug is.
 
 ### To Reproduce
 <!-- if Applicable add screenshots -->
@@ -19,7 +19,7 @@ Steps to reproduce the behavior:
 
 ### Expected behavior
 
-- 
+
 
 
 ### Client configuration
