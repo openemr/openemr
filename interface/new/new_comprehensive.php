@@ -857,11 +857,11 @@ $(function () {
     $('#create').click(function() { check()});
 
     var check = function(e) {
+        var f = document.forms[0];
         <?php if ($GLOBALS['new_validate']) {?>
             var valid = submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,e,"DEM",constraints);
         <?php } else {?>
             top.restoreSession();
-            var f = document.forms[0];
             var valid = validate(f);
         <?php }?>
         if (valid) {
