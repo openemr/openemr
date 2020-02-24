@@ -70,17 +70,23 @@ if ($_POST['add']) {
 
 ?>
 
-<TABLE>
-<FORM name="cons_form" METHOD=POST ACTION="?m=constant&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-<TR>
-    <TD><?php echo xlt('constant name'); ?></TD>
-    <TD><INPUT TYPE="text" NAME="constant_name" size="100" value="<?php echo attr($val_constant); ?>"></TD>
-</TR>
-<TR>
-    <TD></TD>
-    <TD><INPUT TYPE="submit" name="add" value="<?php echo xla('Add'); ?>"></TD>
-</TR>
-</FORM>
-</TABLE>
+<table>
+<form name="cons_form" method="post" action="?m=constant&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+    <tr>
+        <td><?php echo xlt('constant name'); ?></td>
+        <td><input type="text" name="constant_name" size="100" value="<?php echo attr($val_constant); ?>"></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><input type="submit" name="add" value="<?php echo xla('Add'); ?>"></td>
+    </tr>
+</form>
+</table>
 <span class="text"><?php echo xlt('Please Note: constants are case sensitive and any string is allowed.'); ?></span>
+<script>
+    $("#constant-link").addClass("active");
+    $("#definition-link").removeClass("active");
+    $("#language-link").removeClass("active");
+    $("#manage-link").removeClass("active");
+</script>
