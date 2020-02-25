@@ -114,7 +114,7 @@ if ($Source=="add_template") {
     $multi = preg_replace('/\|$/', '', $multi);
     $val = str_replace("|", ",", $multi);
     echo "<select multiple name='topersonalizeditem[]' id='topersonalizeditem' size='6' style='width:220px' onchange='display_item()'>";
-    $resTemplates = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=4 AND cl_deleted=0 AND cl_list_id IN ($val) ORDER BY cl_list_item_long");
+    $resTemplates = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=4 AND cl_deleted=0 AND cl_list_id IN (?) ORDER BY cl_list_item_long", [$val]);
     while ($rowTemplates = sqlFetchArray($resTemplates)) {
         echo "<option value='".htmlspecialchars($rowTemplates['cl_list_slno'], ENT_QUOTES)."'>".htmlspecialchars($rowTemplates['cl_list_item_long'], ENT_QUOTES)."</option>";
     }
