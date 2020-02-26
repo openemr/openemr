@@ -128,3 +128,31 @@ function sanitizeNumber($number)
         return $clean_number;
     }
 }
+
+/**
+ * Function to get sql statement for empty datetime check.
+ *
+ * @param  string  $sqlColumn     SQL column/field name
+ * @param  boolean  $time         flag used to determine if it's a datetime or a date
+ * @param  boolean  $rev          flag used to reverse the condition
+ * @return string                 SQL statement checking if passed column is empty
+ */
+
+function dateEmptySql($sqlColumn, $time = false, $rev = false)
+{
+    if (!$rev) {
+        if ($time) {
+            $stat = " (`"  .  $sqlColumn . "` IS NULL OR `" .  $sqlColumn . "`= '0000-00-00 00:00:00') ";
+        } else {
+            $stat = " (`"  .  $sqlColumn . "` IS NULL OR `" .  $sqlColumn . "`= '0000-00-00') ";
+        }
+    } else {
+        if ($time) {
+            $stat = " (`"  .  $sqlColumn . "` IS NOT NULL AND `" .  $sqlColumn . "`!= '0000-00-00 00:00:00') ";
+        } else {
+            $stat = " (`"  .  $sqlColumn . "` IS NOT NULL AND `" .  $sqlColumn . "`!= '0000-00-00') ";
+        }
+    }
+
+    return $stat;
+}

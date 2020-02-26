@@ -299,10 +299,14 @@ function allergy_conflict($patient_id, $mode, $user, $test = false)
 {
 
   // Collect allergies
+    $sqlParam = array();
+    array_push($sqlParam, $patient_id);
     $res_allergies = sqlStatement("SELECT `title` FROM `lists` WHERE `type`='allergy' " .
                                 "AND `activity`=1 " .
-                                "AND ( `enddate` IS NULL OR `enddate`='' OR `enddate` > NOW() ) " .
-                                "AND `pid`=?", array($patient_id));
+                                "AND ( " .
+                                dateEmptySql('enddate') .
+                                "OR `enddate` > NOW() ) " .
+                                "AND `pid`=?", $sqlParam);
     $allergies = array();
     for ($iter=0; $row=sqlFetchArray($res_allergies); $iter++) {
         $allergies[$iter]=$row['title'];
@@ -329,7 +333,9 @@ function allergy_conflict($patient_id, $mode, $user, $test = false)
         array_push($sqlParam, $patient_id);
         $res_meds = sqlStatement("SELECT `title` FROM `lists` WHERE `type`='medication' " .
                              "AND `activity`=1 " .
-                             "AND ( `enddate` IS NULL OR `enddate`='' OR `enddate` > NOW() ) " .
+                             "AND ( " .
+                             dateEmptySql('enddate') .
+                             "OR `enddate` > NOW() )" .
                              "AND `title` IN (" . $sqlIN . ") AND `pid`=?", $sqlParam);
         while ($urow = sqlFetchArray($res_meds)) {
               array_push($conflicts, $urow['title']);
