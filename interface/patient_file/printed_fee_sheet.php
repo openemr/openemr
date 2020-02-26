@@ -22,8 +22,8 @@ require_once("$srcdir/appointments.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/user.inc");
 
-use OpenEMR\Services\FacilityService;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
 
@@ -313,9 +313,9 @@ height: " . attr($page_height) . "pt;
 }
 </style>";
 
-$html .= "<title>" . text($frow['name']) . "</title>
-".Header::setupHeader(['opener', 'topdialog', 'dialog'])."
-<script language=\"JavaScript\">";
+$html .= "<title>" . text($frow['name']) . "</title>" .
+    Header::setupHeader(['opener', 'topdialog'], false) .
+    "<script language=\"JavaScript\">";
 
 $html .= "
 $(function() {
