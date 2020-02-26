@@ -30,6 +30,11 @@ $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
 $ignoreAuth_onsite_portal_two = true;
 
 require_once("../../interface/globals.php");
+if (!$GLOBALS['portal_onsite_two_register']) {
+    echo xlt("Not Authorized");
+    @header('HTTP/1.1 401 Unauthorized');
+    die();
+}
 
 $res2 = sqlStatement("select * from lang_languages where lang_description = ?", array(
     $GLOBALS['language_default']
@@ -88,7 +93,7 @@ if ($GLOBALS['language_menu_login']) {
     <meta name="description" content="Developed By sjpadgett@gmail.com">
 
     <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'patientportal-register']); ?>
-    
+
     <script>
         var newPid = 0;
         var curPid = 0;
@@ -125,11 +130,11 @@ if ($GLOBALS['language_menu_login']) {
 
             allNextBtn.click(function () {
                 var profile = $("#profileFrame").contents();
-                
+
                 // Fix for iFrame height
                 window.addEventListener('message', function(e) {
                     var scroll_height = e.data;
-                    document.getElementById('profileFrame').style.height = scroll_height + 'px'; 
+                    document.getElementById('profileFrame').style.height = scroll_height + 'px';
                 }, false);
 
                 var curStep = $(this).closest(".setup-content"),
