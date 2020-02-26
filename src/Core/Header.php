@@ -28,7 +28,6 @@ class Header
     private static $scripts;
     private static $links;
     private static $isHeader;
-    private static $output;
 
     /**
      * Setup various <head> elements.
@@ -78,7 +77,7 @@ class Header
         // Required tag
         $output = '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />';
         $output .= self::setupAssets($assets, true);
-        if ($echoOutput == true) {
+        if ($echoOutput) {
             echo $output;
         } else {
             return $output;
@@ -102,7 +101,7 @@ class Header
         }
 
         try {
-            echo self::includeAsset($assets);
+            return self::includeAsset($assets);
         } catch (\InvalidArgumentException $e) {
             error_log(errorLogEscape($e->getMessage()));
         }
