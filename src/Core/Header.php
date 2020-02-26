@@ -69,6 +69,8 @@ class Header
      * bring in the requested assets from config.yaml
      *
      * @param array|string $assets Asset(s) to include
+     * @param boolean $echoOutput - if true then echo
+     *                              if false then return string
      * @throws ParseException If unable to parse the config file
      * @return string
      */
