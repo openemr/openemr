@@ -311,6 +311,7 @@ function menuActionClick(data,evt)
           for (var i = 0; i < frames.length; ++i) {
             if (frames[i].twAddFrameTab) {
               frames[i].twAddFrameTab('enctabs', data.label(), webroot_url + dataurl);
+              activateTabByName(data.target,true);
               return;
             }
           }

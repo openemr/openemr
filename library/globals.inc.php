@@ -207,7 +207,7 @@ $GLOBALS_METADATA = array(
             'style_light.css',
             xl('Pick a general theme (need to logout/login after changing this setting).')
         ),
-        
+
         'font-family' => array(
             xl('Default font') .'*',
             array(
@@ -3356,7 +3356,35 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',
             xl('phiMail Allow CCR Send')
-        )
+        ),
+
+        'easipro_enable' => array(
+            xl('Enable Easipro'),
+            'bool',                           // data type
+            '0',
+            xl('Enable Easipro. For licensing options for this feature, please contact').' api@assessmentcenter.net'
+        ),
+
+        'easipro_server' => array(
+            xl('Easipro Server'),
+            'text',                           // data type
+            '',
+            xl('Easipro Server')
+        ),
+
+        'easipro_name' => array(
+            xl('Easipro Server Username'),
+            'text',                           // data type
+            '',
+            xl('Easipro Server Username')
+        ),
+
+        'easipro_pass' => array(
+            xl('Easipro Server Password'),
+            'encrypted',                      // data type
+            '',
+            xl('Easipro Server Password')
+        ),
     ),
 
     'Rx' => array(

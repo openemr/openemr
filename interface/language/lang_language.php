@@ -65,20 +65,26 @@ if ($_POST['add']) {
 
 ?>
 
-<TABLE>
-<FORM name="lang_form" METHOD=POST ACTION="?m=language&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-<TR>
-    <TD><?php  echo xlt('Language Code'); ?>:</TD>
-    <TD><INPUT TYPE="text" NAME="lang_code" size="2" maxlength="2" value="<?php echo attr($val_lang_code); ?>"></TD>
-</TR>
-<TR>
-    <TD><?php  echo xlt('Language Name'); ?>:</TD>
-    <TD><INPUT TYPE="text" NAME="lang_name" size="24" value="<?php echo attr($val_lang_name); ?>"></TD>
-</TR>
-<TR>
-    <TD></TD>
-    <TD><INPUT TYPE="submit" name="add" value="<?php echo xla('Add'); ?>"></TD>
-</TR>
-</FORM>
-</TABLE>
+<table>
+    <form name="lang_form" method="post" action="?m=language&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <tr>
+            <td><?php  echo xlt('Language Code'); ?>:</td>
+            <td><input type="text" name="lang_code" size="2" maxlength="2" value="<?php echo attr($val_lang_code); ?>"></td>
+        </tr>
+        <tr>
+            <td><?php  echo xlt('Language Name'); ?>:</td>
+            <td><input type="text" name="lang_name" size="24" value="<?php echo attr($val_lang_name); ?>"></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="submit" name="add" value="<?php echo xla('Add'); ?>"></td>
+        </tr>
+    </form>
+</table>
+<script>
+    $("#language-link").addClass("active");
+    $("#definition-link").removeClass("active");
+    $("#constant-link").removeClass("active");
+    $("#manage-link").removeClass("active");
+</script>

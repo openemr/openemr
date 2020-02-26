@@ -17,6 +17,7 @@ use Installer\Model\InstModule;
 use Installer\Model\InstModuleTable;
 use Laminas\Db\ResultSet\ResultSet;
 use Laminas\Db\TableGateway\TableGateway;
+use Laminas\Console\Adapter\AdapterInterface as Console;
 
 /**
  * Handles the initial module load.  Any configuration should in the module.config.php file
@@ -40,5 +41,15 @@ class Module
     public function getConfig()
     {
         return include __DIR__ . '/config/module.config.php';
+    }
+
+    public function getConsoleUsage(Console $console)
+    {
+        return [
+            ['zfc-module', 'Part of route for console call'],
+            ['--site=<site_name>', 'Name of site, by default: "default" '],
+            ['--modaction=<action_name>', 'Available actions: install_sql, install_acl, upgrade_acl, upgrade_sql'],
+            ['--modname=<module_name>', 'Name of module'],
+        ];
     }
 }

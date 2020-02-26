@@ -415,7 +415,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <div class="row">
              <div class="col-sm-12">
-                <div class="page-header">
+                <div class="page-header mt-3">
                     <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
                 </div>
             </div>
@@ -487,10 +487,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
                                             // mdsupport - Check for matches
                                             $srch_cl = '';
+                                            $highlight_search = false;
 
                                             if (!empty($_POST['srch_desc']) && (stristr(($fldname.$flddesc), $_POST['srch_desc']) !== false)) {
                                                 $srch_cl = ' srch';
                                                 $srch_item++;
+                                                $highlight_search = true;
                                             }
 
                                             // Most parameters will have a single value, but some will be arrays.
@@ -519,9 +521,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             }
 
                                             if ($userMode) {
-                                                echo " <div class='row form-group" . $srch_cl  . "'><div class='col-sm-4 font-weight-bold'>" . text($fldname) . "</div><div class='col-sm-4 oe-input' title='" . attr($flddesc) ."'>\n";
+                                                echo " <div class='row form-group" . $srch_cl  . "'><div class='col-sm-4 font-weight-bold'>".($highlight_search? '<mark>': ''). text($fldname) .($highlight_search? '</mark>': '')."</div><div class='col-sm-4 oe-input' title='" . attr($flddesc) ."'>\n";
                                             } else {
-                                                echo " <div class='row form-group" . $srch_cl . "'><div class='col-sm-6 font-weight-bold'>" . text($fldname) . "</div><div class='col-sm-6 oe-input' title='" . attr($flddesc) ."'>\n";
+                                                echo " <div class='row form-group" . $srch_cl . "'><div class='col-sm-6 font-weight-bold'>".($highlight_search? '<mark>': ''). text($fldname) .($highlight_search? '</mark>': ''). "</div><div class='col-sm-6 oe-input' title='" . attr($flddesc) ."'>\n";
                                             }
 
                                             if (is_array($fldtype)) {

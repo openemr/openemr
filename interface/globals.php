@@ -241,7 +241,7 @@ require_once $GLOBALS['vendor_dir'] ."/autoload.php";
  * @link http://open-emr.org/wiki/index.php/Dotenv_Usage
  */
 if (file_exists("{$webserver_root}/.env")) {
-    $dotenv = Dotenv::create($webserver_root);
+    $dotenv = Dotenv::createImmutable($webserver_root);
     $dotenv->load();
 }
 

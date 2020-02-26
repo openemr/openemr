@@ -6,18 +6,22 @@
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Shiqiang Tao <StrongTSQ@gmail.com>
  * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019-2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Shiqiang Tao <StrongTSQ@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Core\Header;
 
 require_once("verify_session.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 require_once("lib/portal_mail.inc");
 require_once(dirname(__FILE__)."/../library/appointments.inc.php");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if ($_SESSION['register'] === true) {
     require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
@@ -116,6 +120,10 @@ foreach ($msgs as $i) {
             <?php if ($GLOBALS['portal_two_payments']) { ?>
             $("#payment").load("./portal_payment.php", {}, function () {
             });
+            <?php } ?>
+
+            <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) { ?>
+                $("#pro").load("./get_pro.php", {}, function () {});
             <?php } ?>
 
             $(".generateDoc_download").click(function () {
@@ -218,6 +226,110 @@ foreach ($msgs as $i) {
             title = <?php echo xlj('Please Enter New Credentials'); ?>;
             dlgopen("./account/index_reset.php", '', 600, 360, null, title, {});
         }
+
+        <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) { ?>
+            function writeResult(score, stdErr, assessmentOID){
+                $.ajax({
+                    url: '../library/ajax/easipro_util.php',
+                    data: {
+                        'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                        'function': 'record_result',
+                        'score': score,
+                        'stdErr':stdErr,
+                        'assessmentOID': assessmentOID
+                    },
+                    type: 'POST',
+                    dataType: 'script'
+                });
+            }
+
+            function selectResponse(obj, assessmentOID){
+                $.ajax({
+                    url: '../library/ajax/easipro_util.php',
+                    type: "POST",
+                    data: {
+                        'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                        'function': 'select_response',
+                        'assessmentOID': assessmentOID,
+                        'ItemResponseOID': obj.name,
+                        'Response': + obj.id
+                    },
+                    dataType: "json",
+                    success: function(data) {
+                        if (data.DateFinished !='') {
+                            document.getElementById("Content").innerHTML = "<?php xla('You have finished the assessment.'); ?>" + "<br /> " + "<?php echo xla('Thank you'); ?>";
+                            document.getElementById("asst_"+assessmentOID).innerHTML = "<i class='fa fa-check-circle'></i>";
+                            document.getElementById("asst_status_"+assessmentOID).innerHTML = "completed";
+                            $.ajax({
+                                url: '../library/ajax/easipro_util.php',
+                                type: "POST",
+                                data: {
+                                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                                    'function': 'collect_results',
+                                    'assessmentOID': assessmentOID
+                                },
+                                dataType: "json",
+                                success: function(data){
+                                    writeResult(data.Items[0].Theta, data.Items[0].StdError, assessmentOID);
+                                }
+                            });
+                            return
+                        }
+                        var screen ="";
+                        for (var j=0; j < data.Items[0].Elements.length; j++) {
+                            if (typeof(data.Items[0].Elements[j].Map) == 'undefined') {
+                                screen = screen +"<div style=\'height: 30px\' >" +  data.Items[0].Elements[j].Description + "</div>"
+                            } else {
+                                for (var k=0; k < data.Items[0].Elements[j].Map.length; k++) {
+                                    screen = screen + "<div style=\'height: 50px\' ><input type=\'button\' class='btn-submit' id=\'" + data.Items[0].Elements[j].Map[k].Value + "\' name=\'" + data.Items[0].Elements[j].Map[k].ItemResponseOID + "\' value=\'" + data.Items[0].Elements[j].Map[k].Description +  "\' onclick=selectResponse(this,'"+assessmentOID+"') />"    + "</div>";
+                                }
+                            }
+                        }
+                        document.getElementById("Content").innerHTML = screen;
+                    },
+                    error: function(jqXHR, textStatus, errorThrown){
+                        //document.write(jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
+                        alert("An error occurred");
+                    }
+                })
+            }
+
+            function startAssessment (param, assessmentOID) {
+                param.innerHTML = "<i class='fa fa-circle-o-notch fa-spin'></i> <?php echo xla('Loading'); ?>";
+
+                $.ajax({
+                    url: '../library/ajax/easipro_util.php',
+                    type: "POST",
+                    data: {
+                        'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                        'function': 'start_assessment',
+                        'assessmentOID': assessmentOID
+                    },
+                    dataType: "json",
+                    success: function(data) {
+                        var screen ="";
+                        for (var j=0; j < data.Items[0].Elements.length; j++) {
+                            if (typeof(data.Items[0].Elements[j].Map) == 'undefined') {
+                                screen = screen + "<div style=\'height: 30px\' >" + data.Items[0].Elements[j].Description + "</div>"
+                            } else {
+                                for (var k=0; k < data.Items[0].Elements[j].Map.length; k++) {
+                                    screen = screen + "<div style=\'height: 50px\' ><input type=\'button\' class='btn-submit' id=\'" + data.Items[0].Elements[j].Map[k].Value + "\' name=\'" + data.Items[0].Elements[j].Map[k].ItemResponseOID + "\' value=\'" + data.Items[0].Elements[j].Map[k].Description +  "\' onclick=selectResponse(this,'"+assessmentOID+"') />"    + "</div>";
+                                }
+                            }
+                        }
+                        document.getElementById("Content").innerHTML = screen;
+
+                        param.innerHTML = "<?php echo xla('Start Assessment') ?>";
+                    },
+                    error: function(jqXHR, textStatus, errorThrown){
+                        param.innerHTML = "<?php echo xla('Start Assessment') ?>";
+
+                        //document.write(jqXHR.responseText);
+                        alert("An error occurred");
+                    }
+                })
+            }
+        <?php } // end if $GLOBALS['easipro_enable'] ?>
     </script>
 </head>
 
@@ -327,6 +439,9 @@ foreach ($msgs as $i) {
                         <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#messagescard" data-toggle="collapse"
                                 data-parent="#cardgroup"> <i class="fa fa-envelope"></i> <span><?php echo xlt("Secure Chat"); ?></span>
                             </a></li>
+                    <?php } ?>
+                    <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) { ?>
+                        <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#procard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-edit"></i> <span><?php echo xlt("Patient Reported Outcomes"); ?></span></a></li>
                     <?php } ?>
                     <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#openSignModal" data-toggle="modal" data-type="patient-signature">
                             <i class="fa fa-sign-in"></i><span><?php echo xlt('Signature on File'); ?></span>
@@ -465,6 +580,12 @@ foreach ($msgs as $i) {
                                     <iframe src="./report/pat_ledger.php" width="100%" height="475" scrolling="yes"></iframe>
                                 </div>
                             </div>
+                        </div>
+                    <?php } ?>
+                    <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) { ?>
+                        <div class="row card collapse" id="procard">
+                            <header class="card-header bg-primary text-light"> <?php echo xlt('Patient Reported Outcomes'); ?> </header>
+                            <div id="pro" class="card-body bg-light"></div>
                         </div>
                     <?php } ?>
                     <div class="row card collapse" id="profilecard">

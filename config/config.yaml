@@ -75,9 +75,9 @@ assets:
         basePath: '%assets_static_relative%/datatables.net/js/'
         script: jquery.dataTables.js
     datatables-colreorder:
-        basePath: '%assets_static_relative%/datatables.net-colreorder/'
-        link: css/colReorder.dataTables.min.css
-        script: js/dataTables.colReorder.min.js
+        basePath: '%assets_static_relative%'
+        link: /datatables.net-colreorder-dt/css/colReorder.dataTables.min.css
+        script: /datatables.net-colreorder/js/dataTables.colReorder.min.js
     datatables-dt:
         basePath: '%assets_static_relative%/datatables.net-dt/css/'
         link: jquery.dataTables.min.css
@@ -116,10 +116,10 @@ assets:
         autoload: true
         allowNoLoad: true
     select2:
-        basePath: '%assets_static_relative%/'
-        script: select2/dist/js/select2.full.min.js
+        basePath: '%assets_static_relative%/select2/dist/'
+        script: js/select2.full.min.js
         link:
-            - select2/dist/css/select2.min.css
+            - css/select2.min.css
             # BS4 theme moved to main theme assets to allow fluidity
     jscolor:
         basePath: '%assets_static_relative%/jscolor/'

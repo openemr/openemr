@@ -289,7 +289,7 @@ if ($rowed['id']) {
            <div class="form-group">
               <div class="col-12 text-right">
                  <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-secondary btn-cancel" onclick="window.close()"><?php echo xlt("Close"); ?></button>
+                    <button type="button" class="btn btn-secondary btn-cancel" onclick="dlgclose()"><?php echo xlt("Close"); ?></button>
                  </div>
               </div>
            </div>

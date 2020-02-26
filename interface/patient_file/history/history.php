@@ -32,9 +32,10 @@ $(function(){
 });
 <?php
     require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal
-    require_once("$srcdir/options.js.php");
 ?>
 </script>
+
+<?php require_once("$srcdir/options.js.php"); ?> <!-- Don't include inside of script tags. Include already have.-->
 
 <style type="text/css">
 <?php

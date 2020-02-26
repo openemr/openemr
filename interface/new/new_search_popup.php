@@ -298,7 +298,10 @@ var f = opener.document.forms[0];
 alert(<?php echo xlj('A patient with this ID already exists.'); ?>);
 <?php } else { ?>
 opener.force_submit = true;
+    // unclear if still needed.
+    if (typeof f.create !== 'undefined') {
 f.create.value = <?php echo xlj('Confirm Create New Patient'); ?>;
+    }
 <?php } ?>
 
 <?php if (!count($result)) { ?>
