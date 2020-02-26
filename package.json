@@ -67,7 +67,6 @@
     "jszip": "3.2.2",
     "knockout": "3.5.1",
     "konva": "4.0.18",
-    "literallycanvas": "0.5.2",
     "magic-wand-js": "1.0.0",
     "moment": "2.24.0",
     "numeral": "2.0.6",
@@ -82,6 +81,7 @@
     "jquery-creditcardvalidator": "https://github.com/PawelDecowski/jquery-creditcardvalidator/archive/v1.1.0.tar.gz",
     "jquery-panelslider": "https://github.com/eduardomb/jquery-panelslider/archive/1.0.0.tar.gz",
     "summernote-nugget": "https://github.com/pHAlkaline/summernote-plugins",
+    "literallycanvas": "https://github.com/literallycanvas/literallycanvas/archive/v0.4.14.tar.gz",
     "react": "https://github.com/facebook/react/releases/download/v15.1.0/react-15.1.0.zip"
   },
   "napa-config": {
