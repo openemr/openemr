@@ -28,6 +28,7 @@ class Header
     private static $scripts;
     private static $links;
     private static $isHeader;
+    private static $output;
 
     /**
      * Setup various <head> elements.
@@ -72,11 +73,16 @@ class Header
      * @throws ParseException If unable to parse the config file
      * @return string
      */
-    public static function setupHeader($assets = [])
+    public static function setupHeader($assets = [], $echoOutput = true)
     {
         // Required tag
-        echo '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />';
-        self::setupAssets($assets, true);
+        $output = '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />';
+        $output .= self::setupAssets($assets, true);
+        if ($echoOutput == true) {
+            echo $output;
+        } else {
+            return $output;
+        }
     }
 
     /**
