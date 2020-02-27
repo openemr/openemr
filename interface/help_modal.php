@@ -3,21 +3,16 @@
  * Help modal.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
- * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once('globals.php');
 
-use OpenEMR\Core\Header;
-
-// Special case where not setting up the header for a script, so using setupAssets function,
-//  which does not autoload anything. The actual header is set up in another script.
-Header::setupAssets(['jquery-ui', 'jquery-ui-base']);
 ?>
  <br />
 <?php
