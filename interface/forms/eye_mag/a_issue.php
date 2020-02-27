@@ -587,7 +587,7 @@ foreach (explode(',', $given) as $item) {
     </script>
     <!-- Add Font stuff for the look and feel.  -->
 
-    <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-excite-bike', 'purecss', 'shortcut', 'opener']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'purecss', 'shortcut', 'opener']); ?>
     <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css" />
 
     <style>
@@ -1365,7 +1365,7 @@ foreach (explode(',', $given) as $item) {
                     </tr>
                 </table>
             </div>
-            <p class="text-center" style="width:100%;margin-top:0px;">
+            <p class="text-center w-100 mt-0">
                 <input type="hidden" id="issue_js" name="issue_js" value="test">
                 <input type="hidden" id="pid" name="pid" value="<?php echo attr($pid); ?>">
                 <input type='button' id='form_save' name='form_save' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only navy" onclick='top.restoreSession();submit_this_form();' value='<?php echo xla('Save'); ?>' />

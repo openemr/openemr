@@ -287,7 +287,7 @@ if ($_REQUEST['dispensed']) {
     <title><?php echo xlt('Rx Dispensed History'); ?></title>
     <head>
 
-        <?php Header::setupHeader([ 'opener', 'jquery-ui', 'jquery-ui-redmond', 'pure', 'jscolor' ]); ?>
+        <?php Header::setupHeader(['opener', 'pure', 'jscolor' ]); ?>
 
         <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
 
@@ -508,7 +508,7 @@ if ($_REQUEST['dispensed']) {
                                                 </tr>
                                                 <tr>
                                                     <td rowspan="2"
-                                                        style="text-align:right;font-weight:bold;"><?php echo xlt('Distance'); ?></td>
+                                                    class='text-right font-weight-bold'><?php echo xlt('Distance'); ?></td>
                                                     <td><b><?php echo xlt('OD{{right eye}}'); ?></b></td>
                                                     <td><?php echo text($row['ODSPH']); ?></td>
                                                     <td><?php echo text($row['ODCYL']); ?></td>
@@ -692,7 +692,7 @@ if ($_REQUEST['dispensed']) {
 ?>
 <html>
 <head>
-    <?php Header::setupHeader([ 'opener', 'jquery-ui', 'jquery-ui-redmond', 'pure', 'jscolor' ]); ?>
+    <?php Header::setupHeader([ 'opener', 'pure', 'jscolor' ]); ?>
     <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
 
     <style>
@@ -908,7 +908,7 @@ if ($REFTYPE == "CTL") {
     &nbsp;&nbsp;     <?php echo text($expir_date); ?>
 
 <form method="post" action="<?php echo $rootdir; ?>/forms/<?php echo text($form_folder); ?>/SpectacleRx.php?mode=update"
-      id="Spectacle" class="eye_mag pure-form" name="Spectacle" style="text-align:center;">
+      id="Spectacle" class='eye_mag pure-form text-center' name="Spectacle" >
     <!-- start container for the main body of the form -->
     <input type="hidden" name="REFDATE" id="REFDATE" value="<?php echo attr($data['date']); ?>">
     <input type="hidden" name="RXTYPE" id="RXTYPE" value="<?php echo attr($RXTYPE); ?>">
@@ -926,7 +926,7 @@ if ($REFTYPE == "CTL") {
                     if ($REFTYPE != "CTL") { ?>
                             <table id="SpectacleRx" name="SpectacleRx" class="refraction bordershadow"
                                    style="min-width:610px;top:0px;">
-                                <tr style="font-weight:bold;text-align:center;">
+                                <tr class='font-weight-bold text-center'>
                                     <td><i name="reverse" id="reverse" class="fa fa-gamepad fa-2x"></i></td>
                                     <td></td>
                                     <td><?php echo xlt('Sph{{Sphere}}'); ?></td>
@@ -1044,7 +1044,7 @@ if ($REFTYPE == "CTL") {
                                         title="<?php echo xla('Vertex Distance'); ?>"><?php echo xlt('Vert Distance{{abbreviation for Vertex Distance}}'); ?></td>
                                 </tr>
                                 <tr class="dispense_data">
-                                    <td name="W_wide" style="text-align:right;font-weight:bold;"
+                                <td name="W_wide" class='text-right font-weight-bold'
                                         colspan="1"><?php echo xlt('OD{{right eye}}'); ?></td>
                                     <td name="W_wide"><input type="text" class="prism" id="ODHPD" name="ODHPD"
                                                              value="<?php echo attr($ODHPD); ?>"></td>
@@ -1060,7 +1060,7 @@ if ($REFTYPE == "CTL") {
                                                              value="<?php echo attr($ODVERTEXDIST); ?>"></td>
                                 </tr>
                                 <tr class="dispense_data">
-                                    <td name="W_wide" style="text-align:right;font-weight:bold;"
+                                    <td name="W_wide" class='text-right font-weight-bold'
                                         colspan="1"><?php echo xlt('OS{{left eye}}'); ?></td>
                                     <td name="W_wide"><input type="text" class="prism" id="OSHPD" name="OSHPD"
                                                              value="<?php echo attr($OSHPD); ?>"></td>
@@ -1080,7 +1080,7 @@ if ($REFTYPE == "CTL") {
                                         <hr/>
                                     </td>
                                 </tr>
-                                <tr class="dispense_data" style="font-weight:bold;text-align:center;">
+                                <tr class="dispense_data" class='font-weight-bold text-center'>
                                     <td></td>
                                     <td name="W_wide"
                                         title="<?php echo xla('Monocular Pupillary Diameter - Distance'); ?>"><?php echo xlt('MPD-D{{abbreviation for Monocular Pupillary Diameter - Distance}}'); ?></td>
@@ -1094,7 +1094,7 @@ if ($REFTYPE == "CTL") {
                                     <td colspan="2">Lens Material:</td>
                                 </tr>
                                 <tr>
-                                    <td name="W_wide" style="text-align:right;font-weight:bold;"
+                                    <td name="W_wide" class='text-right font-weight-bold'
                                         colspan="1"><?php echo xlt('OD{{right eye}}'); ?></td>
                                     <td name="W_wide"><input type="text" class="prism" id="ODMPDD" name="ODMPDD"
                                                              value="<?php echo attr($ODMPDD); ?>"></td>
@@ -1118,14 +1118,14 @@ if ($REFTYPE == "CTL") {
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td name="W_wide" style="text-align:right;font-weight:bold;"
+                                    <td name="W_wide" class='text-right font-weight-bold'
                                         colspan="1"><?php echo xlt('OS{{left eye}}'); ?></td>
                                     <td name="W_wide"><input type="text" class="prism" id="OSMPDD" name="OSMPDD"
                                                              value="<?php echo attr($OSMPDD); ?>"></td>
                                     <td name="W_wide"><input type="text" class="prism" id="OSMPDN" name="OSMPDN"
                                                              value="<?php echo attr($OSMPDN); ?>"></td>
                                 </tr>
-                                <tr style="font-weight:bold;text-align:center;">
+                                <tr class="font-weight-bold text-center">
                                     <td colspan="3"><?php echo xlt('Lens Treatments'); ?>
                                     </td>
                                 </tr>

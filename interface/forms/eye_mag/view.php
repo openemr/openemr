@@ -187,7 +187,7 @@ if ($refresh and $refresh != 'fullscreen') {
       <meta name="description" content="OpenEMR: Eye Exam" />
       <meta name="author" content="OpenEMR: Ophthalmology" />
       
-      <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor' ]); ?>
+      <?php Header::setupHeader([ 'datetime-picker', 'dialog' ,'jscolor' ]); ?>
 
       <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
 
@@ -1006,7 +1006,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                     </div>
                                 </td>
                                 <td></td>
-                                <td colspan=3 style="text-align:center;">
+                                <td colspan=3 class='text-center'>
                                     <div class="AmslerValue">
                                         <span id="AmslerOSvalue"><?php echo text($AMSLEROS); ?></span>/5
                                     </div>
@@ -2502,8 +2502,8 @@ if ($refresh and $refresh != 'fullscreen') {
                         <div id="NEURO_color" class="borderShadow">
                           <table>
                             <tr>
-                              <td></td><td style="text-align:center;"><?php echo xlt('OD{{right eye}}'); ?></td>
-                              <td style="text-align:center;"><?php echo xlt('OS{{left eye}}'); ?></td>
+                              <td></td><td class='text-center'><?php echo xlt('OD{{right eye}}'); ?></td>
+                              <td class='text-center'><?php echo xlt('OS{{left eye}}'); ?></td>
                             </tr>
                             <tr>
                                 <td class="right"><?php echo xlt('Color'); ?>: </td>
@@ -2621,14 +2621,14 @@ if ($refresh and $refresh != 'fullscreen') {
                                                         <br />
                                                         <table>
                                                            <tr>
-                                                                <td style="text-align:center;"><?php echo xlt('R{{right}}'); ?></td>
+                                                                <td class='text-center'><?php echo xlt('R{{right}}'); ?></td>
                                                                 <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:right;">
                                                                 <textarea id="ACT1CCDIST" name="ACT1CCDIST" class="ACT"><?php echo text($ACT1CCDIST); ?></textarea></td>
                                                                 <td style="border:1pt solid black;border-top:0pt;text-align:center;">
                                                                 <textarea id="ACT2CCDIST"  name="ACT2CCDIST"class="ACT"><?php echo text($ACT2CCDIST); ?></textarea></td>
                                                                 <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:left;">
                                                                 <textarea id="ACT3CCDIST"  name="ACT3CCDIST" class="ACT"><?php echo text($ACT3CCDIST); ?></textarea></td>
-                                                                <td style="text-align:center;"><?php echo xlt('L{{left}}'); ?></td>
+                                                                <td class='text-center'><?php echo xlt('L{{left}}'); ?></td>
                                                             </tr>
                                                             <tr>
                                                                 <td style="text-align:middle;"><i class="fa fa-reply rotate-left"></i></td>
@@ -2660,14 +2660,14 @@ if ($refresh and $refresh != 'fullscreen') {
                                                         <br />
                                                         <table>
                                                             <tr>
-                                                                <td style="text-align:center;"><?php echo xlt('R{{right}}'); ?></td>
+                                                                <td class='text-center'><?php echo xlt('R{{right}}'); ?></td>
                                                                 <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:right;">
                                                                 <textarea id="ACT1SCNEAR" name="ACT1SCNEAR" class="ACT"><?php echo text($ACT1SCNEAR); ?></textarea></td>
                                                                 <td style="border:1pt solid black;border-top:0pt;text-align:center;">
                                                                 <textarea id="ACT2SCNEAR"  name="ACT2SCNEAR"class="ACT"><?php echo text($ACT2SCNEAR); ?></textarea></td>
                                                                 <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:left;">
                                                                 <textarea id="ACT3SCNEAR"  name="ACT3SCNEAR" class="ACT"><?php echo text($ACT3SCNEAR); ?></textarea></td>
-                                                                <td style="text-align:center;"><?php echo xlt('L{{left}}'); ?></td>
+                                                                <td class='text-center'><?php echo xlt('L{{left}}'); ?></td>
                                                             </tr>
                                                             <tr>
                                                                 <td style="text-align:middle;"><i class="fa fa-reply rotate-left"></i></td>
@@ -2699,14 +2699,14 @@ if ($refresh and $refresh != 'fullscreen') {
                                                         <br />
                                                         <table>
                                                             <tr>
-                                                                <td style="text-align:center;"><?php echo xlt('R{{right}}'); ?></td>
+                                                                <td class='text-center'><?php echo xlt('R{{right}}'); ?></td>
                                                                 <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:right;">
                                                                 <textarea id="ACT1CCNEAR" name="ACT1CCNEAR" class="ACT"><?php echo text($ACT1CCNEAR); ?></textarea></td>
                                                                 <td style="border:1pt solid black;border-top:0pt;text-align:center;">
                                                                 <textarea id="ACT2CCNEAR"  name="ACT2CCNEAR"class="ACT"><?php echo text($ACT2CCNEAR); ?></textarea></td>
                                                                 <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:left;">
                                                                 <textarea id="ACT3CCNEAR"  name="ACT3CCNEAR" class="ACT"><?php echo text($ACT3CCNEAR); ?></textarea></td>
-                                                                <td style="text-align:center;"><?php echo xlt('L{{left}}'); ?></td>
+                                                                <td class='text-center'><?php echo xlt('L{{left}}'); ?></td>
                                                             </tr>
                                                             <tr>
                                                                 <td style="text-align:middle;"><i class="fa fa-reply rotate-left"></i></td>
