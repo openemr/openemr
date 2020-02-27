@@ -32,7 +32,7 @@ use OpenEMR\Core\Header;
     <body>
         <div class="container oe-help-container">
             <div>
-                <center><h2><a name = 'entire_doc'><?php echo xlt("Access Control Lists");?></a></h2></center>
+                <h2 class="text-center"><a name='entire_doc'><?php echo xlt("Access Control Lists");?></a></h2>
             </div>
             <div class= "row">
                 <p><?php echo xlt("A large application like openEMR is used by a multitude of users with varying roles and degrees of responsibility. It is imperative that access to various parts of the program be granted to users on a need to know basis. To achieve this - Access Control Lists (ACL) are used.");?></p>
@@ -178,7 +178,7 @@ use OpenEMR\Core\Header;
 
                 <p><?php echo xlt("The user's actual privileges are determined by the access to the parts of the program i.e. (ACO) that each group (ARO) has."); ?></p>
 
-                <p><?php echo xlt("To move the groups from one column to another select one or more items from the column that you need to move them out of and press the relevant button with the double chevrons."); ?></p> <input class='button_submit oe-inline oe-no-float' type='button' value=' >> ' >&nbsp;&nbsp;<input class='button_submit oe-inline oe-no-float' type='button' value=' << ' >
+                <p><?php echo xlt("To move the groups from one column to another select one or more items from the column that you need to move them out of and press the relevant button with the double chevrons."); ?></p> <input class='button_submit btn btn-primary oe-inline oe-no-float' type='button' value=' >> ' >&nbsp;&nbsp;<input class='button_submit btn btn-primary oe-inline oe-no-float' type='button' value=' << ' >
 
                 <p><?php echo xlt("To select multiple groups hold down the 'Shift' or 'Ctrl' keys while clicking."); ?></p>
 
@@ -202,7 +202,7 @@ use OpenEMR\Core\Header;
 
                 <p><?php echo xlt("The items listed in the 'Active' column delineate the privileges of this group (ARO) and constitutes this group's Access Control List (ACL)."); ?></p>
 
-                <p><?php echo xlt("Move the individual items from 'Active' to 'Inactive' or vice-versa by selecting the items and pressing the relevant button with the double chevron."); ?></p>  <input class='button_submit oe-inline oe-no-float' type='button' value=' >> ' >&nbsp;&nbsp;<input class='button_submit oe-inline oe-no-float' type='button' value=' << ' >
+                <p><?php echo xlt("Move the individual items from 'Active' to 'Inactive' or vice-versa by selecting the items and pressing the relevant button with the double chevron."); ?></p>  <input class='button_submit btn btn-primary oe-inline oe-no-float' type='button' value=' >> ' >&nbsp;&nbsp;<input class='button_submit btn btn-primary oe-inline oe-no-float' type='button' value=' << ' >
 
                 <p><i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i><strong><?php echo xlt("Note there is no 'Save' button."); ?></strong></p> 
 

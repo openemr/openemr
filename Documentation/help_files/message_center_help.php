@@ -31,7 +31,7 @@ require_once("../../interface/globals.php");
     <body>
         <div class="container oe-help-container">
             <div>
-                <center><h2><a name = 'entire_doc'><?php echo xlt("Messages, Reminders, Recalls");?></a></h2></center>
+                <h2 class="text-center"><a name='entire_doc'><?php echo xlt("Messages, Reminders, Recalls");?></a></h2>
             </div>
             <div class= "row">
                 <p><?php echo xlt("The messaging center conveniently consolidates communications options in one place");?>.</p>
@@ -234,7 +234,7 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("To reveal the filters click on the eye icon"); ?>.
                     <i class="fa fa-eye text-warning" aria-hidden="true"></i>
                 </p>
-                
+
                 <p><strong><?php echo xlt("SET AS COMPLETED"); ?> :</strong></p>
 
                 <p><?php echo xlt("Clicking on Set As Completed will remove the reminder from the active display"); ?>.

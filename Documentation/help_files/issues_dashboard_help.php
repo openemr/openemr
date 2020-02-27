@@ -22,9 +22,9 @@ require_once("../../interface/globals.php");
     <body>
         <div class="container oe-help-container">
             <div>
-                <center><h2><a name='entire_doc'><?php echo xlt("Issues Help");?></a></h2></center>
+                <h2 class="text-center"><a name='entire_doc'><?php echo xlt("Issues Help");?></a></h2>
             </div>
-            <div class= "row">
+            <div class="row">
                 <div class="col-sm-12">
                     <p><?php echo xlt("An Issue concerns matters relating to the patient's health");?>.</p>
 
@@ -54,7 +54,6 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("You can enter data into all 5 categories from this page");?>.</p>
 
                     <p><i class="fa fa-lightbulb-o fa-lg  oe-text-green" aria-hidden="true"></i>&nbsp <?php echo xlt("To use the help page as an instruction manual it is suggested that you reduce the size of the browser to cover half the viewport, resize the help pop-up by clicking and dragging the bottom right corner of the pop-up. Open another instance of the browser and resize it to cover the other half of the viewport, login to openEMR ");?>.</p>
-
 
                 </div>
             </div>

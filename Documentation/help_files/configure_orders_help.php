@@ -22,9 +22,9 @@ require_once("../../interface/globals.php");
     <body>
         <div class="container oe-help-container">
             <div>
-                <center><h2><a name='entire_doc'><?php echo xlt("Configure Orders Help");?></a></h2></center>
+                <h2 class="text-center"><a name='entire_doc'><?php echo xlt("Configure Orders Help");?></a></h2>
             </div>
-            <div class= "row">
+            <div class="row">
                 <div class="col-sm-12">
                     <p><?php echo xlt("This page lets you configure the orders and results");?>.</p>
 
@@ -467,7 +467,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Click Save");?>.
                         <button type="button" class="btn btn-secondary btn-sm btn-save oe-no-float" ><?php echo xlt('Save');?></button>
                     </p>
-                    
+
                     <p><?php echo xlt("If configured correctly the Name column should say Blood Glucose with a vertical bar before it indicating no descendants or children, the Category column should say Custom Order and both Name and Category columns will be highlighted in pink indicating a custom grouped order");?>.</p>
 
                     <p><?php echo xlt("In a likewise manner create a Custom Favorite Item each for TSH (Sequence 2, Identifying Code WWT02, Standard Code 30166-3) and Vitamin D (Sequence 3, Identifying Code WWT03, Standard Code 35365-6)");?>.</p>

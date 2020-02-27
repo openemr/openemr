@@ -25,12 +25,12 @@ require_once("../../interface/globals.php");
            text-align:left!Important;
             }
         }
-    </style
+    </style>
     </head>
     <body>
         <div class="container oe-help-container">
             <div>
-                <center><h2><a name = 'entire_doc'><?php echo xlt("Using the Feesheet");?></a></h2></center>
+                <h2 class="text-center"><a name='entire_doc'><?php echo xlt("Using the Feesheet");?></a></h2>
             </div>
             <div class= "row">
                 <p><?php echo xlt("Use the fee sheet to charge for services or products. ");?></p>
@@ -39,11 +39,11 @@ require_once("../../interface/globals.php");
 
                 <p><?php echo xlt("The default fee sheet can be modified and customized to make it more useful.");?></p>
 
-                <p><?php echo xlt("A followup appointment can also be scheduled right from the fee sheet.");?></p>
-                <button type="button" class="btn btn-secondary btn-sm btn-calendar oe-no-float"><?php echo xlt("New Appointment");?></button>
+                <p><?php echo xlt("A followup appointment can also be scheduled right from the fee sheet.");?>
+                    <button type="button" class="btn btn-secondary btn-sm btn-calendar oe-no-float"><?php echo xlt("New Appointment");?></button>
+                </p>
 
                 <p><?php echo xlt("The default fee sheet is divided into several sections and is designed to be filled from top to bottom with the save button at the very end.");?></p>
-
 
                 <ul>
                     <li><a href="#price_level"><?php echo xlt("Set Price Level");?></a></li>
@@ -73,9 +73,10 @@ require_once("../../interface/globals.php");
                 <h4 class="oe-help-heading"><?php echo xlt("Select Code"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
                 <p><?php echo xlt("This section is where the codes use to charge for the visit are selected"); ?>.</p>
 
-                <p><?php echo xlt("The default has two buttons that is set for 'New Patient' and 'Established' patient"); ?>.</p>
-                <button  class="oe-no-float oe-inline"><?php echo xlt("New Patient"); ?></button>
-                <button  class="oe-no-float oe-inline"><?php echo xlt("Established"); ?></button>
+                <p><?php echo xlt("The default has two buttons that is set for 'New Patient' and 'Established' patient"); ?>.
+                    <button  class="oe-no-float oe-inline"><?php echo xlt("New Patient"); ?></button>
+                    <button  class="oe-no-float oe-inline"><?php echo xlt("Established"); ?></button>
+                </p>
 
                 <p><?php echo xlt("Clicking the button will reveal a popup that will list the E/M codes, check the appropriate code and click 'OK'"); ?>.</p>
 
@@ -91,8 +92,9 @@ require_once("../../interface/globals.php");
 
                 <p><i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i> <strong><?php echo xlt("For a search to show results the codes must exist in the database.");?></strong>  <strong><a href="#setup" class="oe-help-redirect"><?php echo xlt("See Setup the Fee Sheet"); ?></a></strong></p>
 
-                <p><?php echo xlt("Select the appropriate radio button. Enter the search term in the search box and click 'Search'"); ?>.</p>
-                <button class="oe-no-float oe-inline"><?php echo xlt("Search"); ?></button>
+                <p><?php echo xlt("Select the appropriate radio button. Enter the search term in the search box and click 'Search'"); ?>.
+                    <button class="oe-no-float oe-inline"><?php echo xlt("Search"); ?></button>
+                </p>
 
                 <p><?php echo xlt("A popup box will alert you about success or failure"); ?>.</p>
 
@@ -131,14 +133,16 @@ require_once("../../interface/globals.php");
                     <li><?php echo xlt("To fully delete hit 'Save'"); ?>. <button type="button" class="btn btn-secondary btn-sm btn-save oe-no-float"><?php echo xlt("Save");?></button></li>
                 </ul>
 
-                <p><?php echo xlt("To add a copay click the 'Add Copay' button"); ?>.</p>
-                <button class="oe-no-float oe-inline"><?php echo xlt("Add Copay"); ?></button>
+                <p><?php echo xlt("To add a copay click the 'Add Copay' button"); ?>.
+                    <button class="oe-no-float oe-inline"><?php echo xlt("Add Copay"); ?></button>
+                </p>
 
                 <p><i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i> <strong><?php echo xlt("To display the copay amount it must have been entered in the patient's insurance under Edit > Demographics"); ?>.</strong></p>
 
-                <p><?php echo xlt("Clicking on 'Review' will list all the codes entered for previous encounters"); ?>.</p>
-                <button class="oe-no-float oe-inline"><?php echo xlt("Review"); ?></button>
-
+                <p><?php echo xlt("Clicking on 'Review' will list all the codes entered for previous encounters"); ?>.
+                    <button class="oe-no-float oe-inline"><?php echo xlt("Review"); ?></button>
+                </p>
+                
                 <p><?php echo xlt("By default all codes are selected, uncheck the codes you do not want and click 'Add'. These codes will then be added to the current encounter"); ?>.</p>
 
                 <p><?php echo xlt("Another way to select an ICD code to justify the CPT4 code is to click on the label CPT4 at the beginning of the row"); ?>.</p>

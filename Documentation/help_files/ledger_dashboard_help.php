@@ -22,7 +22,7 @@ require_once("../../interface/globals.php");
     <body>
         <div class="container oe-help-container">
             <div>
-                <center><h2><a name='entire_doc'><?php echo xlt("Patient Ledger Help");?></a></h2></center>
+                <h2 class="text-center"><a name='entire_doc'><?php echo xlt("Patient Ledger Help");?></a></h2>
             </div>
             <div class= "row">
                 <div class="col-sm-12">
@@ -31,7 +31,8 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Click on the Ledger menu item in the navigation bar to to enter the Patient Ledger page");?>.</p>
                     
                     <p><?php echo xlt("Select a date range and click Submit");?>.
-                    <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Submit"); ?></button></p>
+                        <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Submit"); ?></button>
+                    </p>
                     
                     <p><?php echo xlt("Financial transactions corresponding to the date range, if any, will be listed in the table");?>.</p>
                     

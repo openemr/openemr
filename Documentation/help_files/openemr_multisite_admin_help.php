@@ -32,9 +32,9 @@
    <body>
         <div class="container oe-help-container">
             <div>
-                <center><h2><a name='entire_doc'><?php echo ("OpenEMR Multi Site Administration");?></a></h2></center>
+                <h2 class="text-center"><a name='entire_doc'><?php echo ("OpenEMR Multi Site Administration");?></a></h2>
             </div>
-            <div class= "row">
+            <div class="row">
                 <div class="col-sm-12">
                     <p><?php echo ("This is the central location to manage multisite intallations");?>.</p>
 
