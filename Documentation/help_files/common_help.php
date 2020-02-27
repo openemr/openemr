@@ -84,8 +84,9 @@ require_once("../../interface/globals.php");
 
                 <p><?php echo xlt("It is used to link problems with encounters and is also used to see which encounters are associated to a particular issue");?>.</p>
 
-                <p><?php echo xlt("Clicking on the Add Issue button brings up the add issue pop-up box");?>.</p>
-                <a class="btn btn-primary btn-sm oe-no-float oe-inline" style="color:white !Important"><?php echo xlt("Add Issue");?></a>
+                <p><?php echo xlt("Clicking on the Add Issue button brings up the add issue pop-up box");?>.
+                    <a class="btn btn-primary btn-sm oe-no-float oe-inline" style="color:white !Important"><?php echo xlt("Add Issue");?></a>
+                </p>
 
                 <p><?php echo xlt("The default issue type is set to Problem");?>.</p>
 
@@ -95,10 +96,10 @@ require_once("../../interface/globals.php");
 
                 <p><?php echo xlt("Select an appropriate ICD/CPT code. This helps search for education material to give to the patient for that particular problem");?>.</p>
 
-                <p><?php echo xlt("To link this encounter/consult to an existing issue, click the desired issue above to highlight it and then click Save");?>.</p>
+                <p><?php echo xlt("To link this encounter/consult to an existing issue, click the desired issue above to highlight it and then click Save");?>.
+                    <button type="button" class="btn btn-secondary btn-sm btn-save oe-inline oe-no-float"><?php echo xlt("Save");?></button>
+                </p>
                 
-                <button type="button" class="btn btn-secondary btn-sm btn-save oe-inline oe-no-float"><?php echo xlt("Save");?></button>
-
                 <p><?php echo xlt("Hold down Ctrl button to select multiple issues");?>.</p>
 
                 <p><?php echo xlt("For more information on Issues see the ");?>. <strong><a href="https://www.open-emr.org/wiki/index.php/Issues_%26_Immunizations" rel="noopener" target="_blank" class="oe-help-redirect"><?php echo xlt("Issues and Immunizations wiki page");?></a></strong></p>
