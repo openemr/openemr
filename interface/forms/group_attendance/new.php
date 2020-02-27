@@ -60,7 +60,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
 
 <head>
 
-    <?php Header::setupHeader(['datatables', 'datatables-jqui-theme', 'jquery-ui']); ?>
+    <?php Header::setupHeader(['datatables']); ?>
 
 </head>
 
