@@ -50,7 +50,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['common', 'opener', 'jquery-ui', 'select2', 'ckeditor']); ?>
+<?php Header::setupHeader(['common', 'opener', 'select2', 'ckeditor']); ?>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajax_functions_writer.js"></script>
 
 <script>
@@ -177,9 +177,9 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
                                 <?php if (!$isNN) { ?>
                                     <td>
                                         <div id="searchCriteria">
-                                            <div class="select-box form-inline" style="margin-bottom:5px;">
+                                            <div class="select-box form-inline mb-1">
                                                 <label><?php echo xlt('Context') . ':'; ?></label>
-                                                <select id="contextSearch" name="contextId" class="form-control" style="width:50%;">
+                                                <select id="contextSearch" name="contextId" class="form-control w-50">
                                                     <option value=""></option>
                                                 </select>
                                             </div>
@@ -189,7 +189,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
                             </tr>
                             <tr class="text">
                                 <td id="templateDD">
-                                    <select name="template" id="template" onchange="TemplateSentence(this.value)" style="width: 180px">
+                                    <select name="template" id="template" onchange="TemplateSentence(this.value)" class="w-100">
                                         <option value=""><?php echo htmlspecialchars(xl('Select category'), ENT_QUOTES); ?></option>
                                         <?php
                                         $resTemplates = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE tu.tu_user_id=? AND c.cl_list_type=3 AND cl_list_id=? AND cl_deleted=0 ORDER BY c.cl_list_item_long", array($_SESSION['authUserID'], $rowContext['cl_list_id']));

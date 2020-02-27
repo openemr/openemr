@@ -56,7 +56,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
 
     <title><?php echo xlt("Facility Specific User Information"); ?></title>
 
-    <?php Header::setupHeader(['common','jquery-ui']); ?>
+    <?php Header::setupHeader(['common']); ?>
 
     <script type="text/javascript">
         function refreshme() {

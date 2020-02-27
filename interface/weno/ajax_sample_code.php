@@ -19,7 +19,7 @@ use OpenEMR\Core\Header;
 <html>
 <head>
 <title><?php print xlt("Weno Sample Code") ?></title>
-<?php Header::setupHeader(['jquery-ui', 'jquery-ui-sunny']); ?>
+<?php Header::setupHeader(); ?>
 
 </head>
 
