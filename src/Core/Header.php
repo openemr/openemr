@@ -78,7 +78,7 @@ class Header
     {
         // Required tag
         $output = '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />';
-        $output .= self::setupAssets($assets, true);
+        $output .= self::setupAssets($assets, true, false);
         if ($echoOutput) {
             echo $output;
         } else {
@@ -93,8 +93,10 @@ class Header
      * @param array $assets Asset(s) to include
      * @param boolean $headerMode - if true, then include autoloaded assets
      *                              if false, then do not include autoloaded assets
+     * @param boolean $echoOutput - if true then echo
+     *                              if false then return string
      */
-    public static function setupAssets($assets = [], $headerMode = false)
+    public static function setupAssets($assets = [], $headerMode = false, $echoOutput = true)
     {
         if ($headerMode) {
             self::$isHeader = true;
@@ -103,7 +105,11 @@ class Header
         }
 
         try {
-            return self::includeAsset($assets);
+            if ($echoOutput) {
+                echo self::includeAsset($assets);
+            } else {
+                return self::includeAsset($assets);
+            }
         } catch (\InvalidArgumentException $e) {
             error_log(errorLogEscape($e->getMessage()));
         }
