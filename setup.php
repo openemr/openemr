@@ -1251,7 +1251,7 @@ STP4TOP;
                         }
                         $btn_text = 'Proceed to Step 5';
                         $step4_bottom = <<<STP4BOT
-                        <p>Gave the '{$installer->iuser}' user (password is '{$installer->iuserpass}') administrator access.</p>
+                        <p><b>Gave the <span class='text-primary'>$installer->iuser</span> user (password is <span class='text-primary'>$installer->iuserpass</span>) administrator access.</b></p>
                         <p>Done installing and configuring access controls (php-gacl).</p>
                         <p>The next step will configure php.</p>
                         <p class='mark'>Click <strong>$btn_text</strong> to continue.</p>
