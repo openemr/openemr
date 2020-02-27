@@ -31,9 +31,9 @@ require_once("../../interface/globals.php");
     <body>
         <div class="container oe-help-container" id="home-div">
             <div>
-                <center><h2><a name = 'entire_doc'><?php echo xlt("EOB Data Entry");?></a></h2></center>
+                <h2 class="text-center"><a name='entire_doc'><?php echo xlt("EOB Data Entry");?></a></h2>
             </div>
-            <div class= "row">
+            <div class="row">
                 <p><?php echo xlt("This module promotes efficient entry of EOB data.");?></p>
 
                 <p><?php echo xlt("There are two ways this can be accomplished, either by the manual method, by searching and entering data for individual invoices or by uploading an entire electronic remittance advice ERA file.");?></p>

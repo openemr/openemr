@@ -22,7 +22,7 @@ require_once("../../interface/globals.php");
     <body>
         <div class="container oe-help-container">
             <div>
-                <center><h2><a name='entire_doc'><?php echo xlt("Medical Dashboard Help");?></a></h2></center>
+                <h2 class="text-center"><a name='entire_doc'><?php echo xlt("Medical Dashboard Help");?></a></h2>
             </div>
             <div class= "row">
                 <div class="col-sm-12">

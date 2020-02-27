@@ -22,7 +22,7 @@ require_once("../../interface/globals.php");
     <body>
         <div class="container oe-help-container">
             <div>
-                <center><h2><a name='entire_doc'><?php echo xlt("Add Edit Transactions Help");?></a></h2></center>
+               <h2 class="text-center"><a name='entire_doc'><?php echo xlt("Add Edit Transactions Help");?></a></h2>
             </div>
             <div class= "row">
                 <div class="col-sm-12">
@@ -82,7 +82,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("Select as appropriate and fill in the text box and click Save");?>.
                         <button type="button" class="btn btn-secondary btn-save btn-sm oe-no-float"><?php echo xlt("Save"); ?></button>
                     </p>
-                    
+
                     <p><?php echo xlt("Once a Transaction is saved it will appear on the Transaction page");?>.</p>
 
                     <p><?php echo xlt("These Transactions are generally used to document events that have already occurred");?>.</p>
