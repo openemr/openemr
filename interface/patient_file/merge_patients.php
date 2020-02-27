@@ -33,7 +33,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 <head>
 <title><?php echo xlt('Merge Patients'); ?></title>
-    <?php Header::setupHeader(['jquery-ui']); ?>
+    <?php Header::setupHeader(); ?>
 
 <script>
 

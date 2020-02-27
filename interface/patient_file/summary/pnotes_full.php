@@ -211,7 +211,7 @@ $result_sent = getSentPnotesByDate(
 <html>
 <head>
 
-    <?php Header::setupHeader(['common', 'jquery-ui', 'opener']); ?>
+    <?php Header::setupHeader(['common', 'opener']); ?>
 
 <script type="text/javascript">
 /// todo, move this to a common library
