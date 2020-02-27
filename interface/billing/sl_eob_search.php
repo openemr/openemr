@@ -1245,8 +1245,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 
     ?>
     $(function () {
-//using jquery-ui-1-12-1 tooltip instead of bootstrap tooltip
-        $('#select-method-tooltip').attr("title", <?php echo xlj('Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>).tooltip();
+        $('#select-method-tooltip').attr({"title": <?php echo xlj('Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
     });
 </script>
 <?php

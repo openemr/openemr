@@ -356,13 +356,12 @@ if ($popup && $_POST['form_save']) {
         $(function (){
             //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
             // the relevant css file needs to be called i.e. jquery-ui-darkness - to get a black tooltip
-            $('#name-tooltip').attr( "title", <?php echo xlj('The actual tests or procedures that can be searched for and ordered are highlighted in yellow'); ?> +  ". "  + <?php echo xlj('Click on the blue plus sign under Name to reveal test names'); ?>).tooltip();
-            $('#order-tooltip').attr( "title", <?php echo xlj('The entries highlighted in yellow can be ordered as a test or procedure those highlighted in pink can be ordered as a Custom Group'); ?> +  ". "  + <?php echo xlj('Click on the blue plus sign under Name to reveal test names'); ?>).tooltip();
-            $('#code-tooltip').attr( "title", <?php echo xlj('Category - Order, Result and Recommendation need an identifying code');?> + ". " + <?php echo xlj('Red Triangle indicates a required code that is missing')?> + ".").
-            tooltip();
-            $('#tier-tooltip').attr( "title", <?php echo xlj('Shows the hierarchal level of this line');?> + ". " + <?php echo xlj('Tier 1 entries should be of Category Top Group')?> + ".").
-            tooltip();
-            $('table td .required-tooltip').attr( "title", <?php echo xlj('For proper tabulated display of tests and results an identifying code is required'); ?>).tooltip();
+            $('#name-tooltip').attr({"title": <?php echo xlj('The actual tests or procedures that can be searched for and ordered are highlighted in yellow'); ?> +  ". "  + <?php echo xlj('Click on the blue plus sign under Name to reveal test names'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+            $('#order-tooltip').attr({"title": <?php echo xlj('The entries highlighted in yellow can be ordered as a test or procedure those highlighted in pink can be ordered as a Custom Group'); ?> +  ". "  + <?php echo xlj('Click on the blue plus sign under Name to reveal test names'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+            $('#code-tooltip').attr({"title": <?php echo xlj('Category - Order, Result and Recommendation need an identifying code');?> + ". " + <?php echo xlj('Red Triangle indicates a required code that is missing')?> + ".", "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+            $('#tier-tooltip').attr({"title": <?php echo xlj('Shows the hierarchal level of this line');?> + ". " + <?php echo xlj('Tier 1 entries should be of Category Top Group')?> + ".", "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+            $('table td .required-tooltip').attr({"title": <?php echo xlj('For proper tabulated display of tests and results an identifying code is required'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+
             $("table td .required-tooltip").fadeIn(500);
             $("table td .required-tooltip3").fadeOut(1000);
             $("table td .required-tooltip").fadeIn(500);
