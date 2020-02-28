@@ -332,20 +332,7 @@ function refreshVisitDisplay() {
 </script>
 
 <script>
-function expandcollapse(atr) {
-  for (var i = 1; i < 15; ++i) {
-    var mydivid="divid_" + i; var myspanid = "spanid_" + i;
-    var ele = document.getElementById(mydivid);
-    var text = document.getElementById(myspanid);
-    if (!ele) continue;
-    if (atr == "expand") {
-      ele.style.display = "block"; text.innerHTML = <?php echo xlj('Collapse'); ?>;
-    }
-    else {
-      ele.style.display = "none" ; text.innerHTML = <?php echo xlj('Expand'); ?>;
-    }
-  }
-}
+
 
 function divtoggle(spanid, divid) {
     var ele = document.getElementById(divid);
@@ -770,7 +757,7 @@ if ($esign->isButtonViewable()) {
 <?php if ($GLOBALS['enable_follow_up_encounters']) { ?>
     <a href='#' class='btn btn-primary' onclick='return createFollowUpEncounter()'><?php echo xlt('Create follow-up encounter') ?></a>
 <?php } ?>
-&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#demo""><?php echo xlt('Expand / Collapse'); ?></button>
+&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#demo"><?php echo xlt('Expand / Collapse'); ?></button>
 </div>
 </div>
 
