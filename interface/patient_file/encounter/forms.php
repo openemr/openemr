@@ -770,8 +770,7 @@ if ($esign->isButtonViewable()) {
 <?php if ($GLOBALS['enable_follow_up_encounters']) { ?>
     <a href='#' class='btn btn-primary' onclick='return createFollowUpEncounter()'><?php echo xlt('Create follow-up encounter') ?></a>
 <?php } ?>
-&nbsp;&nbsp;&nbsp;<a href="#" onClick='expandcollapse("expand");' style="font-size:80%;"><?php echo xlt('Expand All'); ?></a>
-&nbsp;&nbsp;&nbsp;<a  style="font-size: 80%;" href="#" onClick='expandcollapse("collapse");'><?php echo xlt('Collapse All'); ?></a>
+&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#demo""><?php echo xlt('Expand / Collapse'); ?></button>
 </div>
 </div>
 
@@ -1018,7 +1017,7 @@ if ($pass_sens_squad &&
         echo "<a href='javascript:void(0);' onclick='divtoggle(" . attr_js('spanid_'.$divnos) . "," . attr_js('divid_'.$divnos) . ");' class='small' id='aid_" . attr($divnos) . "'>" .
           "<div class='formname'>" . text($form_name) . "</div> " .
           xlt('by') . " " . text($form_author) . " " .
-          "(<span id=spanid_" . attr($divnos) . " class=\"indicator\">" . ($divnos == 1 ? xlt('Collapse') : xlt('Expand')) . "</span>)</a>";
+          "</a>";
         echo "</div>";
 
         // a link to edit the form
@@ -1076,7 +1075,7 @@ if ($pass_sens_squad &&
         echo "</td>\n";
         echo "</tr>";
         echo "<tr>";
-        echo "<td valign='top' class='formrow'><div id='divid_" . attr($divnos) . "' ";
+        echo "<td valign='top' class='formrow'><div id='demo' class='collapse' ";
         echo "class='tab " . ($divnos == 1 ? 'd-block' : 'd-none') . "'>";
 
         // Use the form's report.php for display.  Forms with names starting with LBF

@@ -19,3 +19,9 @@ ccdaservice/node_modules
 # dev editor configs
 /.idea/*
 /nbproject/*
+
+sites/default/documents/smarty/main/%%1E/
+        sites/default/documents/smarty/main/%%5B/
+        sites/default/documents/smarty/main/%%61/
+        sites/default/documents/smarty/main/%%71/
+        sites/default/documents/smarty/main/%%DB/
