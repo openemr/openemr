@@ -591,7 +591,7 @@ if (!empty($reg)) {
                 if ($old_category != '') {
                     $StringEcho .= "</div></div>";
                 }
-                $StringEcho .= "<div class='dropdown d-inline'><button class='btn btn-secondary dropdown-toggle' type='button' id='menu" . text($new_category) . "' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>" .text($new_category) . "</button>";
+                $StringEcho .= "<div class='dropdown d-inline'><button class='btn btn-secondary dropdown-toggle' type='button' id='menu" . attr($new_category) . "' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>" .text($new_category) . "</button>";
                 $StringEcho .= "<div class='dropdown-menu' aria-labelledby='dropdownMenu2'>";
                 $old_category = $new_category;
                 $DivId++;
@@ -601,7 +601,6 @@ if (!empty($reg)) {
             attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($entry['directory'])) .
             ", " . attr_js(xl_form_title($nickname)) . ")\" href='JavaScript:void(0);'>" .
             text(xl_form_title($nickname)) . "</button>";
-
         }
     }
     $StringEcho.= '</div></div>';
