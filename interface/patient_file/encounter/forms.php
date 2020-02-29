@@ -563,7 +563,7 @@ isset($GLOBALS['encounter']) &&
 }
 
 if (!empty($reg)) {
-    $StringEcho= '<ul id="sddm">';
+    $StringEcho= '<ul>';
     if ($encounterLocked === false) {
         foreach ($reg as $entry) {
           // Check permission to create forms of this type.
@@ -589,19 +589,22 @@ if (!empty($reg)) {
                 $new_category_ = $new_category;
                 $new_category_ = str_replace(' ', '_', $new_category_);
                 if ($old_category != '') {
-                    $StringEcho .= "</table></div></li>";
+                    $StringEcho .= "</div></div>";
                 }
-                $StringEcho .= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen(" . attr_js($DivId) . ");\" >" . text($new_category) . "</a><div id='" . attr($DivId) . "' ><table border='0' cellspacing='0' cellpadding='0'>";
+                $StringEcho .= "<div class='dropdown d-inline'><button class='btn btn-secondary dropdown-toggle' type='button' id='menu" . text($new_category) . "' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>" .text($new_category) . "</button>";
+                $StringEcho .= "<div class='dropdown-menu' aria-labelledby='dropdownMenu2'>";
                 $old_category = $new_category;
                 $DivId++;
             }
-            $StringEcho .= "<tr><td class='border-top border-dark p-0'><a onclick=\"openNewForm(" .
-                attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($entry['directory'])) .
-                ", " . attr_js(xl_form_title($nickname)) . ")\" href='JavaScript:void(0);'>" .
-                text(xl_form_title($nickname)) . "</a></td></tr>";
+
+            $StringEcho .= "<button class='dropdown-item' onclick=\"openNewForm(" .
+            attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($entry['directory'])) .
+            ", " . attr_js(xl_form_title($nickname)) . ")\" href='JavaScript:void(0);'>" .
+            text(xl_form_title($nickname)) . "</button>";
+
         }
     }
-    $StringEcho.= '</table></div></li>';
+    $StringEcho.= '</div></div>';
 }
 
 if ($StringEcho) {
@@ -620,7 +623,7 @@ if ($encounterLocked === false) {
 
     if (sqlNumRows($lres)) {
         if (!$StringEcho) {
-            $StringEcho= '<ul id="sddm">';
+            $StringEcho= '<div id="sddm">';
         }
         $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('lbf');\" >" .
         xlt('Layout Based') . "</a><div id='lbf' ><table class='border-0' cellspacing='0' cellpadding='0'>";
