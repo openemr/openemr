@@ -20,7 +20,6 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     ```
 4. Navigate to `http://localhost:8300/` to login as `admin`. Password is `pass`.
 5. Make changes to any files on your local file system. Most changes will appear after a refresh of the page or iFrame you're working on...
-    - Note that changes to SCSS files will not automatically show unless the node build process is running. For more info on this, see the [README.md in /interface](interface/README.md)
 6. If you wish to connect to the sql database, this docker environment provides the following 2 options:
     - Navigate to `http://localhost:8310/` where you can login into phpMyAdmin.
     - Or you can directly connect to port 8320 via your favorite sql tool (Mysql Workbench etc.).
