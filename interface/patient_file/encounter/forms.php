@@ -1062,7 +1062,7 @@ if ($pass_sens_squad &&
         echo "</td>\n";
         echo "</tr>";
         echo "<tr>";
-        echo "<td valign='top' class='formrow'><div id='demo' class='collapse show' style='margin-bottom:20px;' ";
+        echo "<td valign='top' class='formrow'><div id='demo' class='collapse show' style='margin-bottom:40px;' ";
         echo "class='tab " . ($divnos == 1 ? 'd-block' : 'd-none') . "'>";
 
         // Use the form's report.php for display.  Forms with names starting with LBF
