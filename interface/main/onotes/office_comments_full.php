@@ -76,7 +76,7 @@ if ($userauthorized) {
 <input type="hidden" name="offset" value="<?php echo attr($offset); ?>">
 <input type="hidden" name="active" value="<?php echo attr($active); ?>">
 
-<textarea name="note" class="form-control" rows="3" placeholder="<?php echo xla("Enter new office note here"); ?>" ></textarea>
+<textarea name="note" class="form-control" rows="3" placeholder="<?php echo xla("Enter new office note here"); ?>" required="required"></textarea>
 <input type="submit" value="<?php echo xla('Add New Note'); ?>" />
 </form>
 
