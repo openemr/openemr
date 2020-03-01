@@ -25,7 +25,7 @@ use OpenEMR\Core\Header;
 <head>
     <meta charset="utf-8">
 
-    <?php Header::setupHeader(['datetime-picker', 'topdialog', 'moment', 'datatables', 'datatables-jqui-theme', 'jquery-ui', 'jquery-ui-theme']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'topdialog', 'moment', 'datatables']); ?>
 
     <script>
         <?php require $GLOBALS['srcdir'] . "/formatting_DateToYYYYMMDD_js.js.php" ?>

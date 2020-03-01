@@ -323,7 +323,7 @@ function saveImmunizationObservationResults($id, $immunizationdata)
 <html>
 <head>
 
-<?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-base']); ?>
+<?php Header::setupHeader(['datetime-picker', 'select2']); ?>
 
 <style>
 .highlight {
@@ -422,7 +422,7 @@ tr.selected {
             <span class=text>
                 <?php echo xlt('Immunization Lot Number'); ?>            </span>          </td>
           <td>
-            <input class='text auto' type='text' name="lot_number" size="25" value="<?php echo attr($lot_number); ?>">          </td>
+            <select class='text auto' type='text' name="lot_number" style='width: 100px' size="25" value="<?php echo attr($lot_number); ?>"></select>        </td>
         </tr>
         <tr>
           <td align="right">
@@ -1166,12 +1166,31 @@ function sel_code(id)
 }
 
 $(function() {
-
-  //autocomplete
-  $(".auto").autocomplete({
-    source: "../../../library/ajax/imm_autocomplete/search.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>,
-    minLength: 1
-  });
+  $(".auto").select2({
+        ajax: {
+            url: "../../../library/ajax/imm_autocomplete/search.php",
+            dataType: 'json',
+            data: function(params) {
+                return {
+                  csrf_token_form: <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>,
+                  term: params.term
+                };
+            },
+            processResults: function(data) {
+                return  {
+                    results: $.map(data, function(item, index) {
+                        return {
+                            text: item,
+                            id: index
+                        }
+                    })
+                };
+                return x;
+            },
+            cache: true
+        },
+        minimumInputLength: 1
+    })
 
 });
 </script>
