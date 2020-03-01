@@ -140,29 +140,31 @@ function twSetup(tabsid) {
 
 // Get the ID that will be used for the next added tab. Nothing is changed.
 // This may be useful as an iframe's name so it can later call twCloseTab().
-function twNextTabId(tabsid) {
-  return tabsid + '-' + ++twObject[tabsid].counter;
-}
 
 function activateTab(tab){
   $('.nav-tabs a[href="#' + tab + '"]').tab('show');
 };
 
+function nextPanelId(tabsid){
+  return tabsid + '-' + twObject[tabsid].counter + 1;
+}
+
 // Add a new tab to the specified tab set and make it the selected tab.
 function twAddTab(tabsid, label, content) {
   var oldcount = twObject[tabsid].nav.find(".nav-tabs li").length;
-  var panelId = tabsid + '-' + (++twObject[tabsid].counter);
+  var panelId = nextPanelId(tabsid);
   var li = "<li class='tabs-tabs'><a data-toggle='tab' class='tabs-anchor' href='#" + panelId + "'>" + label + "<span aria-label='close' class='icon-close' role='close'>X</span></a> </li>";
   twObject[tabsid].nav.append(li);
   top.restoreSession();
   twObject[tabsid].content.append("<div class='tab-pane tabs-panel' id='" + panelId + "'>" + content + "</div>");
+  twObject[tabsid].counter++;
   activateTab(panelId);
   return panelId;
 }
 
 // Add a new tab using an iframe loading a specified URL.
 function twAddFrameTab(tabsid, label, url) {
-  var panelId = twNextTabId(tabsid);
+  var panelId = nextPanelId(tabsid);
   top.restoreSession();
   twAddTab(
     tabsid,
@@ -174,7 +176,7 @@ function twAddFrameTab(tabsid, label, url) {
 
 // Remove the specified tab from the specified tab set.
 function twCloseTab(tabsid, panelId) {
-  let lastTabId = twObject[tabsid].content.find("#" + panelId).prev().attr('id');;
+  let lastTabId = twObject[tabsid].content.find("#" + panelId).prev().attr('id');
   twObject[tabsid].nav.find("[href='#" + panelId + "']").closest("li").remove();
   twObject[tabsid].content.find("#" + panelId).remove();
   top.restoreSession();
