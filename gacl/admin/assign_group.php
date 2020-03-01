@@ -1,8 +1,14 @@
 <?php
+/*
+Ready for smarty 3
+Changes: Used smarty 3 data object
+*/
 //First make sure user has access
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+//make a smarty 3 data object
+$data = new Smarty_Data;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'acl')) {
@@ -101,8 +107,8 @@ switch ($_POST['action']) {
 	}
 
 	//showarray($options_sections);
-	$smarty->assign('options_sections', $options_sections);
-	$smarty->assign('section_value', reset($options_sections));
+	$data->assign('options_sections', $options_sections);
+	$data->assign('section_value', reset($options_sections));
 
 	//
 	//Grab all objects for select box
@@ -140,8 +146,8 @@ switch ($_POST['action']) {
 		}
 	}
 
-	$smarty->assign('js_array', $js_array);
-	$smarty->assign('js_array_name', $group_type);
+	$data->assign('js_array', $js_array);
+	$data->assign('js_array_name', $group_type);
 
 	//Grab list of assigned Objects
 	$query = '
@@ -168,32 +174,32 @@ switch ($_POST['action']) {
 			);
 		}
 
-		$smarty->assign('total_objects', $rs->_maxRecordCount);
+		$data->assign('total_objects', $rs->_maxRecordCount);
 
-		$smarty->assign('paging_data', $gacl_api->get_paging_data($rs));
+		$data->assign('paging_data', $gacl_api->get_paging_data($rs));
 	}
 	//showarray($aros);
 
-	$smarty->assign('rows', $object_rows);
+	$data->assign('rows', $object_rows);
 
 	//Get group name.
 	$group_data = $gacl_api->get_group_data($_GET['group_id'], $group_type);
-	$smarty->assign('group_name', $group_data[2]);
+	$data->assign('group_name', $group_data[2]);
 
-	$smarty->assign('group_id', $_GET['group_id']);
+	$data->assign('group_id', $_GET['group_id']);
 
 	break;
 }
 
-$smarty->assign('group_type', $group_type);
-$smarty->assign('object_type', $object_type);
-$smarty->assign('return_page', $_SERVER['REQUEST_URI'] );
+$data->assign('group_type', $group_type);
+$data->assign('object_type', $object_type);
+$data->assign('return_page', $_SERVER['REQUEST_URI'] );
 
-$smarty->assign('current','assign_group_'. $group_type);
-$smarty->assign('page_title', 'Assign Group - '. strtoupper($group_type));
+$data->assign('current','assign_group_'. $group_type);
+$data->assign('page_title', 'Assign Group - '. strtoupper($group_type));
 
-$smarty->assign('phpgacl_version', $gacl_api->get_version() );
-$smarty->assign('phpgacl_schema_version', $gacl_api->get_schema_version() );
+$data->assign('phpgacl_version', $gacl_api->get_version() );
+$data->assign('phpgacl_schema_version', $gacl_api->get_schema_version() );
 
-$smarty->display('phpgacl/assign_group.tpl');
+$smarty->display('phpgacl/assign_group.tpl',$data);
 ?>

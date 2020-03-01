@@ -1,3 +1,4 @@
+{* Ready for smarty 3  no change*}
 {include file="phpgacl/header.tpl"}
 {include file="phpgacl/acl_admin_js.tpl"}
 {literal}

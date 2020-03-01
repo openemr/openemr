@@ -1,3 +1,4 @@
+{* Ready for smarty 3 No changes *}
 		</div></div>
 
 		<div id="bot-br"><div id="bot-bl"><div id="bot-tr"><div id="bot-tl">

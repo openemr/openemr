@@ -1,8 +1,15 @@
 <?php
+/*
+Ready for smarty 3
+Changes: Used smarty 3 data object
+*/
 //First make sure user has access
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+
+//make a smarty 3 data object
+$data = new Smarty_Data;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'acl')) {
@@ -196,76 +203,76 @@ switch ($_POST['action']) {
 		//echo "Section ID: $section_id<br />\n";
 		//echo "Section Value: ". $acl_section_value ."<br />\n";
 
-		$smarty->assign('options_acl_sections', $options_acl_sections);
-		$smarty->assign('acl_section_value', $acl_section_value);
+		$data->assign('options_acl_sections', $options_acl_sections);
+		$data->assign('acl_section_value', $acl_section_value);
 
-		$smarty->assign('options_axo_sections', $options_axo_sections);
-		$smarty->assign('axo_section_value', $axo_section_value);
+		$data->assign('options_axo_sections', $options_axo_sections);
+		$data->assign('axo_section_value', $axo_section_value);
 
-		$smarty->assign('options_aro_sections', $options_aro_sections);
-		$smarty->assign('aro_section_value', $aro_section_value);
+		$data->assign('options_aro_sections', $options_aro_sections);
+		$data->assign('aro_section_value', $aro_section_value);
 
-		$smarty->assign('options_aco_sections', $options_aco_sections);
-		$smarty->assign('aco_section_value', $aco_section_value);
+		$data->assign('options_aco_sections', $options_aco_sections);
+		$data->assign('aco_section_value', $aco_section_value);
 
-		$smarty->assign('js_array', $js_array);
+		$data->assign('js_array', $js_array);
 
-		$smarty->assign('js_aco_array_name', 'aco');
-		$smarty->assign('js_aro_array_name', 'aro');
-		$smarty->assign('js_axo_array_name', 'axo');
+		$data->assign('js_aco_array_name', 'aco');
+		$data->assign('js_aro_array_name', 'aro');
+		$data->assign('js_axo_array_name', 'axo');
 
 		//Grab formatted ARO Groups for select box
-		$smarty->assign('options_aro_groups', $gacl_api->format_groups($gacl_api->sort_groups('ARO')) );
-		$smarty->assign('selected_aro_groups', $selected_aro_groups);
+		$data->assign('options_aro_groups', $gacl_api->format_groups($gacl_api->sort_groups('ARO')) );
+		$data->assign('selected_aro_groups', $selected_aro_groups);
 
 		//Grab formatted AXO Groups for select box
-		$smarty->assign('options_axo_groups', $gacl_api->format_groups($gacl_api->sort_groups('AXO')) );
-		$smarty->assign('selected_axo_groups', $selected_axo_groups);
+		$data->assign('options_axo_groups', $gacl_api->format_groups($gacl_api->sort_groups('AXO')) );
+		$data->assign('selected_axo_groups', $selected_axo_groups);
 
-		$smarty->assign('allow', $allow);
-		$smarty->assign('enabled', $enabled);
-		$smarty->assign('return_value', $return_value);
-		$smarty->assign('note', $note);
+		$data->assign('allow', $allow);
+		$data->assign('enabled', $enabled);
+		$data->assign('return_value', $return_value);
+		$data->assign('note', $note);
 
 		if (isset($options_selected_aco)) {
-			$smarty->assign('options_selected_aco', $options_selected_aco);
+			$data->assign('options_selected_aco', $options_selected_aco);
 		}
-		$smarty->assign('selected_aco', @array_keys($options_selected_aco));
+		$data->assign('selected_aco', @array_keys($options_selected_aco));
 
 		if (isset($options_selected_aro)) {
-			$smarty->assign('options_selected_aro', $options_selected_aro);
+			$data->assign('options_selected_aro', $options_selected_aro);
 		}
-		$smarty->assign('selected_aro', @array_keys($options_selected_aro));
+		$data->assign('selected_aro', @array_keys($options_selected_aro));
 
 		if (isset($options_selected_axo)) {
-			$smarty->assign('options_selected_axo', $options_selected_axo);
+			$data->assign('options_selected_axo', $options_selected_axo);
 		}
 		$selected_axo = @array_keys($options_selected_axo);
 
-		$smarty->assign('selected_axo', $selected_axo);
+		$data->assign('selected_axo', $selected_axo);
 
 		//Show AXO layer if AXO's are selected.
-		$smarty->assign('show_axo', $show_axo);
+		$data->assign('show_axo', $show_axo);
 
 		if (isset($_GET['acl_id'])) {
-			$smarty->assign('acl_id', $_GET['acl_id'] );
+			$data->assign('acl_id', $_GET['acl_id'] );
 		}
 
 		break;
 }
 
-//$smarty->assign('return_page', urlencode($_SERVER[REQUEST_URI]) );
+//$data->assign('return_page', urlencode($_SERVER[REQUEST_URI]) );
 if (isset($_GET['return_page'])) {
-	$smarty->assign('return_page', $_GET['return_page']);
+	$data->assign('return_page', $_GET['return_page']);
 }
 if (isset($_GET['action'])) {
-	$smarty->assign('action', $_GET['action']);
+	$data->assign('action', $_GET['action']);
 }
 
-$smarty->assign('current','acl_admin');
-$smarty->assign('page_title', 'ACL Admin');
+$data->assign('current','acl_admin');
+$data->assign('page_title', 'ACL Admin');
 
-$smarty->assign('phpgacl_version', $gacl_api->get_version() );
-$smarty->assign('phpgacl_schema_version', $gacl_api->get_schema_version() );
-$smarty->display('phpgacl/acl_admin.tpl');
+$data->assign('phpgacl_version', $gacl_api->get_version() );
+$data->assign('phpgacl_schema_version', $gacl_api->get_schema_version() );
+$smarty->display('phpgacl/acl_admin.tpl',$data);
 ?>
