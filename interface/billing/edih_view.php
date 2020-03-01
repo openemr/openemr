@@ -12,7 +12,7 @@
  */
 
 
-require_once(dirname(__FILE__) . '/../globals.php');
+require_once dirname(__FILE__) . '/../globals.php';
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -33,7 +33,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     
     <!-- TODO: Address no_bootstrap here !-->
-    <?php Header::setupHeader(['no_main-theme', 'no_bootstrap', 'datetime-picker', 'datatables', 'datatables-jqui', 'datatables-jqui-theme', 'datatables-scroller', 'datatables-scroller-jqui-theme', 'jquery-ui', 'jquery-ui-sunny']); ?>
+    <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'datatables', 'datatables-jqui', 'datatables-jqui-theme', 'datatables-scroller', 'datatables-scroller-jqui-theme', 'jquery-ui', 'jquery-ui-sunny']); ?>
 
     <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history_v2.css" type="text/css" />
 
@@ -42,16 +42,16 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
 <body style='background-color: #fefdcf'>
 
 <!-- Begin tabs section  class="Clear"-->
-<div id="tabs" style="visibility: hidden">
-  <ul>
-   <li><a href="#newfiles" id="btn-newfiles"><?php echo xlt("New Files"); ?></a></li>
-   <li><a href="#csvdatatables" id="btn-csvdatatables"><?php echo xlt("CSV Tables"); ?></a></li>
-   <li><a href="#x12text" id="btn-x12text"><?php echo xlt("EDI File"); ?></a></li>
-   <li><a href="#edinotes" id="btn-edinotes"><?php echo xlt("Notes"); ?></a></li>
-   <li><a href="#archive" id="btn-archive"><?php echo xlt("Archive"); ?></a></li>
-  </ul>
 
-    <div id="newfiles">
+  <ul class="nav nav-tabs" id="myTab">
+   <li><a class="nav-link active" data-toggle="tab" role="tab" href="#newfiles" id="btn-newfiles"><?php echo xlt("New Files"); ?></a></li>
+   <li><a class="nav-link" data-toggle="tab" href="#csvdatatables" id="btn-csvdatatables"><?php echo xlt("CSV Tables"); ?></a></li>
+   <li><a class="nav-link" data-toggle="tab" href="#x12text" id="btn-x12text"><?php echo xlt("EDI File"); ?></a></li>
+   <li><a class="nav-link" data-toggle="tab" href="#edinotes" id="btn-edinotes"><?php echo xlt("Notes"); ?></a></li>
+   <li><a class="nav-link" data-toggle="tab" href="#archive" id="btn-archive"><?php echo xlt("Archive"); ?></a></li>
+  </ul>
+  <div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" role="tabpanel" id="newfiles">
         <table>
         <tr vertical-align="middle">
          <td align="center">
@@ -90,7 +90,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
         <div id="seg" title="<?php echo xla("x12 Segments"); ?>"></div>
     </div>
 
-    <div id="csvdatatables">
+    <div class="tab-pane fade" role="tabpanel" id="csvdatatables">
         <table>
         <tr>
         <td colspan=4>
@@ -180,7 +180,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
     </div>
  -->
 
-    <div id="x12text" >
+    <div class="tab-pane fade" role="tabpanel" id="x12text" >
         <form id="x12view" name="x12_view" action="edih_main.php" enctype="multipart/form-data" method="post">
         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
         <fieldset>
@@ -213,7 +213,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
 
     </div>
 
-    <div id="edinotes">
+    <div class="tab-pane fade" role="tabpanel" id="edinotes">
         <table>
             <tr>
                 <td colspan="2"><a href="<?php echo $web_root; ?>/Documentation/Readme_edihistory.html" rel="noopener" target="_blank"><?php echo xlt("View the README file"); ?></a></td>
@@ -251,7 +251,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
 
     </div>
 
-    <div id="archive">
+    <div class="tab-pane fade" role="tabpanel" id="archive">
         <table>
             <tr>
                 <td colspan="3"><?php echo xlt("Selected files and data will be removed from folders and tables"); ?></td>
@@ -296,7 +296,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
         <div id="archiversp"></div>
 
     </div>
-</div>
+    </div>
 <!-- End tabs section -->
 <!--  -->
 
@@ -304,8 +304,6 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
 <script>
     $(function() {
         // activate tab interface
-        $("#tabs").tabs();
-        $("#tabs").tabs().css('visibility','visible');
         // set some button disabled
         $('#processfiles').prop('disabled', true);
         $('#archivesubmit').prop('disabled', true);
@@ -323,7 +321,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -469,7 +467,7 @@ jquery-UI dialog
         var ttl = $(this).attr('title');
         var options = dialogOptions('#tblshow');
         $('<div/>', {'class':'edihDlg', 'id':'link-'+($(this).index()+1)})
-            .load($(this).attr('href')).appendTo('#tblshow').dialog(options);
+            // .load($(this).attr('href')).appendTo('#tblshow').dialog(options);
     });
 /*
     $('#tbrpt').on('click', 'a', function(e) {
@@ -486,23 +484,11 @@ jquery-UI dialog
         e.stopPropagation();
         var options = dialogOptions('#processed');
         $('<div/>', {'class':'edihDlg', 'id':'link-'+($(this).index()+1)})
-            .load($(this).attr('href')).appendTo('#processed').dialog(options);
+            // .load($(this).attr('href')).appendTo('#processed').dialog(options);
     });
 
 /*
 // **** script ****
-/* ****
- * jquery-UI accordian -- for 27x file html (not used -- have not figured out how to invoke)
- */
-    function apply_accordion(selector) {
-        var sel = selector + ' > #accordion';
-        $( sel )
-          .accordion({
-            header: "h3",
-            collapsible: true,
-            heightStyle: "content"
-          });
-      };
 /* ****************************
  *
  * === upload multiple files
@@ -709,37 +695,52 @@ jquery-UI dialog
                         'scrollX': true,
                         'paging': true,
                         <?php // Bring in the translations ?>
-                        <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
+                        <?php require $GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'; ?>
                     });
                 },
             ]
         });
     });
 
+    function doModal({placementId = 'idMyDialog', body, btnType ,heading, strSubmitFunc, btnText})
+{
+    var html =  '<div id="modalWindow" class="modal hide fade in" style="display:none;" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">'
+    html +=         '<div class="modal-dialog modal-dialog-centered" role="document">'
+    html +=             '<div class="modal-content">'
+    html +=                 '<div class="modal-header">'
+    html +=                     '<h5 class="modal-title" id="exampleModalLongTitle">'+heading+'</h5>'
+    html +=                     '<button type="button" class="close" data-dismiss="modal" aria-label="Close">'
+    html +=                         '<span aria-hidden="true">&times;</span>'
+    html +=                     '</button>'
+    html +=                 '</div>'
+    html +=                 '<div class="modal-body">'
+    html +=                 body
+    html +=                 '</div>'
+    html +=                 '<div class="modal-footer">'
+    html +=                     '<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>'
+    if (btnText && btnText!='') {
+        html += '<button class="btn btn-'+btnType ? btnType : 'primary'+'"';
+        html += ' onClick="'+strSubmitFunc+'">'+btnText;
+        html += '</button>';
+    }
+    html +=                 '</div>'
+    html +=             '</div>'
+    html +=         '</div>'
+    html +=     '</div>'
+    $("#"+placementId).html(html);
+    $("#modalWindow").modal();
+}
+
     // csv encounter history
     $('#formcsvhist').on('submit', function(e) {
         e.preventDefault();
-        $('#tbcsvhist').empty();
-        var chenctr = $('#histenctr').value;
-        var histopts = { modal: false,
-                    appendTo: '#tbcsvhist',
-                    height: 'auto',
-                    width: 568,
-                    maxWidth: 616,
-                    title: <?php echo xlj("Encounter EDI Record"); ?>,
-                    close: function(event, ui) {
-                        $(this).empty();
-                        $(this).dialog('close');
-                    }
-                };
         $.ajax({
             type: "GET",
             url: $('#formcsvhist').attr('action'),
             data: $('#formcsvhist').serialize(), //{ csvenctr: chenctr },
             dataType: "html",
             success: [ function(data){
-                $('<div/>', {'class':'edihDlg', 'id':'link-'+($(this).index()+1)})
-                    .appendTo('#tbcsvhist').html($.trim(data)).dialog(histopts).dialog('open');
+                doModal({heading: <?php echo xlj("Encounter EDI Record"); ?>, body: $.trim(data)});
                 }
             ]
         });
@@ -1014,7 +1015,7 @@ jquery-UI dialog
  * end of javascript block
  */
 </script>
-
+<div id="idMyDialog"></div>
 </body>
 
 </html>
