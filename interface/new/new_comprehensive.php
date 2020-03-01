@@ -77,7 +77,7 @@ $fres = getLayoutRes();
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['common','datetime-picker', 'jquery-ui']); ?>
+<?php Header::setupHeader(['common','datetime-picker']); ?>
 <title><?php echo xlt("Search or Add Patient"); ?></title>
 <?php require_once("$srcdir/erx_javascript.inc.php"); ?>
 <style>
@@ -673,7 +673,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                         </tr>
 
                                         <tr <?php echo ($GLOBALS['omit_employers']) ? " class='d-none'" : ""; ?>>
-                                            <td class='required'><?php echo xlt('Subscriber Employer (SE)'); ?><br /><span style='font-weight: normal'>
+                                            <td class='required'><?php echo xlt('Subscriber Employer (SE)'); ?><br /><span class='font-weight-normal'>
                                               (<?php echo xlt('if unemployed enter Student'); ?>,<br /><?php echo xlt('PT Student, or leave blank'); ?>): </span>
                                             </td>
                                             <td>
