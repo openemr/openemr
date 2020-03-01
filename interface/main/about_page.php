@@ -24,7 +24,7 @@ use OpenEMR\Services\VersionService;
 <html>
 <head>
 
-    <?php Header::setupHeader(["jquery-ui","jquery-ui-darkness"]); ?>
+    <?php Header::setupHeader(); ?>
     <title><?php echo xlt("About");?> OpenEMR</title>
     <style>
         .donations-needed {
@@ -128,7 +128,7 @@ $version = $versionService->fetch();
     </div>
 
 
-    <div class="product-registration-modal" style="display: none">
+    <div class="product-registration-modal d-none">
         <p class="context"><?php echo xlt("Register your installation with OEMR to receive important notifications, such as security fixes and new release announcements."); ?></p>
         <input placeholder="<?php echo xla('email'); ?>" type="email" class="email w-100" style="color: var(--black)" />
         <p class="message" style="font-style: italic"></p>
