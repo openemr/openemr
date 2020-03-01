@@ -435,7 +435,7 @@ if ($_POST['form_get_hl7']==='true') {
                     $res = sqlStatement($query, $sqlBindArray);
 
                     while ($row = sqlFetchArray($res)) {
-                    ?>
+                        ?>
                         <tr>
                         <td>
                                 <?php echo text($row['patientid']); ?>
