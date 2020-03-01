@@ -108,6 +108,10 @@ assets:
     datatables-dt:
         basePath: '%assets_static_relative%/datatables.net-dt/css/'
         link: jquery.dataTables.min.css
+    datatables-bs:
+        basePath: '%assets_static_relative%/datatables.net-bs4/'
+        script: js/dataTables.bootstrap4.min.js
+        link: css/dataTables.bootstrap4.min.css
     datatables-jqui:
         basePath: '%assets_static_relative%/datatables.net-jqui/js/'
         script: dataTables.jqueryui.js
