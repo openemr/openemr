@@ -52,30 +52,24 @@ class TabsWrapper
         // Therefore we invent a general purpose convention for communicating which DOM libraries
         // are included and will implement it as needed.
         // Note: require.js may be another option, but trying to keep it simple for now.
-        if (!defined('INCLUDED_JQUERY_UI_CSS')) {
-            define('INCLUDED_JQUERY_UI_CSS', '1-12-1');
-            // jquery 1-12-1 is now the default jquery-ui-themes package
-            //$s .= "<link rel='stylesheet' href='$web_root/public/assets/jquery-ui-" . INCLUDED_JQUERY_UI_CSS . "/themes/base/jquery-ui.css'>\n";
-            $s .= "<link rel='stylesheet' href='$web_root/public/assets/jquery-ui-themes/themes/base/jquery-ui.min.css'>\n";
-        }
         $s .= <<<EOD
 <style>
 EOD;
         if (!defined('INCLUDED_TW_ONETIME_CSS')) {
             define('INCLUDED_TW_ONETIME_CSS', true);
             $s .= <<<EOD
-        .ui-tabs .ui-tabs-panel {
+        .tabs .tabs-panel {
           padding: 0px 0px;
         }
-        .ui-tabs .ui-tabs-nav .ui-tabs-anchor {
+        .tabs .tabs-nav .tabs-anchor {
           padding: .1em .4em;
         }
 EOD;
             if ($_SESSION['language_direction'] == 'rtl') {
                 $s .= <<<EOD
-            .ui-tabs { direction: rtl; }
-            .ui-tabs .ui-tabs-nav li.ui-tabs-tab {float: right; }
-            .ui-tabs .ui-tabs-nav li a { float: right; }
+            .tabs { direction: rtl; }
+            .tabs .tabs-nav li.tabs-tab {float: right; }
+            .tabs .tabs-nav li a { float: right; }
                 
 EOD;
             }
@@ -83,10 +77,28 @@ EOD;
 
 
         $s .= <<<EOD
-#{$this->tabsid} li .ui-icon-close {
-  float: left;
-  margin: 0.2em 0.2em 0 0;
+#{$this->tabsid} li .icon-close {
+  font-weight: bolder;
+  margin: 0.2em 0.2em 0 3px;
   cursor: pointer;
+}
+#{$this->tabsid} li .icon-close:hover {
+  color: red!important;
+}
+.tabs-anchor {
+  margin-right: 3px;
+  color: white;
+  display: block;
+  background: grey;
+  text-decoration: none !important;
+}
+.tabs-anchor:hover {
+  color: white;
+  text-decoration: none !important;
+}
+a.active {
+  color: white ;
+  background: #007FFF;
 }
 </style>
 EOD;
@@ -99,11 +111,6 @@ EOD;
     {
         global $web_root;
         $s = '';
-        if (!defined('INCLUDED_JQUERY_UI')) {
-            define('INCLUDED_JQUERY_UI', '1-12-1');
-            // jquery 1-12-1 is now the default jquery-ui package
-            $s .= "<script src='$web_root/public/assets/jquery-ui/jquery-ui.min.js'></script>\n";
-        }
         if (!defined('INCLUDED_TW_ONETIME_JS')) {
             define('INCLUDED_TW_ONETIME_JS', true);
             $s .= <<<EOD
@@ -117,43 +124,47 @@ var twObject = {};
 // Call this to initialize a tab set.
 // tabsid is a unique identifier usable as a DOM element ID.
 function twSetup(tabsid) {
-  var tabs = $('#' + tabsid).tabs({
-    heightStyle: "content"
-  });
+  var nav = $('#' + tabsid);
+  var content = $('#' + tabsid + '-tabs');
   twObject[tabsid] = {};
-  twObject[tabsid].tabs = tabs;
+  twObject[tabsid].nav = nav;
+  twObject[tabsid].content = content;
   twObject[tabsid].counter = 100;
   // Close icon: removing the tab on click
-  tabs.on("click", "span.ui-icon-close", function() {
-    var mytabsid = $(this).closest("div").attr("id");
-    var panelId = $(this).prev().attr("href").substring(1);
+  nav.on("click", "span.icon-close", function() {
+    var panelId = $(this).parent().attr("href").substring(1);
     top.restoreSession();
-    twCloseTab(mytabsid, panelId);
+    twCloseTab(tabsid, panelId);
   });
 }
 
 // Get the ID that will be used for the next added tab. Nothing is changed.
 // This may be useful as an iframe's name so it can later call twCloseTab().
-function twNextTabId(tabsid) {
-  return tabsid + '-' + (twObject[tabsid].counter + 1);
+
+function activateTab(tab){
+  $('.nav-tabs a[href="#' + tab + '"]').tab('show');
+};
+
+function nextPanelId(tabsid){
+  return tabsid + '-' + twObject[tabsid].counter + 1;
 }
 
 // Add a new tab to the specified tab set and make it the selected tab.
 function twAddTab(tabsid, label, content) {
-  var oldcount = twObject[tabsid].tabs.find(".ui-tabs-nav li").length;
-  var panelId = tabsid + '-' + (++twObject[tabsid].counter);
-  var li = "<li><a href='#" + panelId + "'>" + label + "</a> <span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
-  twObject[tabsid].tabs.find(".ui-tabs-nav").append(li);
+  var oldcount = twObject[tabsid].nav.find(".nav-tabs li").length;
+  var panelId = nextPanelId(tabsid);
+  var li = "<li class='tabs-tabs'><a data-toggle='tab' class='tabs-anchor' href='#" + panelId + "'>" + label + "<span aria-label='close' class='icon-close' role='close'>X</span></a> </li>";
+  twObject[tabsid].nav.append(li);
   top.restoreSession();
-  twObject[tabsid].tabs.append("<div id='" + panelId + "'>" + content + "</div>");
-  twObject[tabsid].tabs.tabs("refresh");
-  twObject[tabsid].tabs.tabs("option", "active", oldcount);
+  twObject[tabsid].content.append("<div class='tab-pane tabs-panel' id='" + panelId + "'>" + content + "</div>");
+  twObject[tabsid].counter++;
+  activateTab(panelId);
   return panelId;
 }
 
 // Add a new tab using an iframe loading a specified URL.
 function twAddFrameTab(tabsid, label, url) {
-  var panelId = twNextTabId(tabsid);
+  var panelId = nextPanelId(tabsid);
   top.restoreSession();
   twAddTab(
     tabsid,
@@ -165,10 +176,11 @@ function twAddFrameTab(tabsid, label, url) {
 
 // Remove the specified tab from the specified tab set.
 function twCloseTab(tabsid, panelId) {
-  twObject[tabsid].tabs.find("[href='#" + panelId + "']").closest("li").remove();
-  twObject[tabsid].tabs.find("#" + panelId).remove();
+  let lastTabId = twObject[tabsid].content.find("#" + panelId).prev().attr('id');
+  twObject[tabsid].nav.find("[href='#" + panelId + "']").closest("li").remove();
+  twObject[tabsid].content.find("#" + panelId).remove();
   top.restoreSession();
-  twObject[tabsid].tabs.tabs("refresh");
+  activateTab(lastTabId);
 }
 
 </script>
@@ -182,24 +194,27 @@ EOD;
     public function genHtml()
     {
         $s = '';
-        $s .= "<div id='{$this->tabsid}'><ul>\n";
+        $s .= "<div class='tabs'>\n";
+        $s .= "<ul id='{$this->tabsid}' class='nav nav-tabs tabs-nav'>\n";
         $i = 0;
         foreach ($this->tabs as $val) {
             ++$i;
-            $s .= "<li><a href='#{$this->tabsid}-$i'>" . text($val['title']) . "</a>";
+            $s .= "<li class='tabs-tabs' ><a data-toggle='tab' class='tabs-anchor active' href='#{$this->tabsid}-$i'>" . text($val['title']) . "</a>";
             if ($val['closeable']) {
-                $s .= " <span class='ui-icon ui-icon-close' role='presentation'>" . xlt('Remove Tab') . "</span>";
+                $s .= " <span class='icon icon-close' role='presentation'>" . xlt('Remove Tab') . "</span>";
             }
             $s .= "</li>\n";
         }
         $s .= "</ul>\n";
+        $s .= "<div class='tab-content' id='{$this->tabsid}-tabs'>";
         $i = 0;
         foreach ($this->tabs as $val) {
             ++$i;
-            $s .= "<div id='{$this->tabsid}-$i'>\n";
+            $s .= "<div class='tab-pane tabs-panel active' id='{$this->tabsid}-$i'>\n";
             $s .= $val['content'];
             $s .= "</div>\n";
         }
+        $s .= "</div>\n";
         $s .= "</div>\n";
         return $s;
     }
