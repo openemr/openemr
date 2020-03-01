@@ -1189,7 +1189,8 @@ $(function() {
             },
             cache: true
         },
-        minimumInputLength: 1
+        minimumInputLength: 1,
+        tags: true
     })
 
 });
