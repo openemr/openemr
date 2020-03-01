@@ -1172,7 +1172,7 @@ $(function() {
             dataType: 'json',
             data: function(params) {
                 return {
-                  csrf_token_form: <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>,
+                  csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
                   term: params.term
                 };
             },
