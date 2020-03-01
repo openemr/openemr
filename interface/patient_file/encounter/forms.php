@@ -576,10 +576,12 @@ if (!empty($reg)) {
                 $new_category_ = $new_category;
                 $new_category_ = str_replace(' ', '_', $new_category_);
                 if ($old_category != '') {
-                    $StringEcho .= "</div></div>";
+                    $StringEcho.= "</div>\n";
+                    $StringEcho.= '</div>';
                 }
-                $StringEcho .= "<div class='dropdown d-inline'><button class='btn btn-secondary dropdown-toggle' type='button' id='menu" . attr($new_category) . "' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>" .text($new_category) . "</button>";
-                $StringEcho .= "<div class='dropdown-menu' aria-labelledby='dropdownMenu2'>";
+                $StringEcho .= "<div class='dropdown d-inline'>\n";
+                $StringEcho .= "<button class='btn btn-secondary dropdown-toggle' type='button' id='menu" . attr($new_category) . "' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>" .text($new_category) . "</button>\n";
+                $StringEcho .= "<div class='dropdown-menu' aria-labelledby='dropdownMenu2'>\n";
                 $old_category = $new_category;
                 $DivId++;
             }
@@ -587,10 +589,11 @@ if (!empty($reg)) {
             $StringEcho .= "<button class='dropdown-item' onclick=\"openNewForm(" .
             attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($entry['directory'])) .
             ", " . attr_js(xl_form_title($nickname)) . ")\" href='JavaScript:void(0);'>" .
-            text(xl_form_title($nickname)) . "</button>";
+            text(xl_form_title($nickname)) . "</button>\n";
         }
     }
-    $StringEcho.= '</div></div>';
+    $StringEcho.= "</div>\n";
+    $StringEcho.= '</div>';
 }
 
 if ($StringEcho) {
@@ -609,10 +612,12 @@ if ($encounterLocked === false) {
 
     if (sqlNumRows($lres)) {
         if (!$StringEcho) {
-            $StringEcho= '<div id="sddm">';
+            $StringEcho= '<ul>';
         }
-        $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('lbf');\" >" .
-        xlt('Layout Based') . "</a><div id='lbf' ><table class='border-0' cellspacing='0' cellpadding='0'>";
+        
+        $StringEcho.= "<div class=\"dropdown d-inline\">\n";
+        $StringEcho.= "<button class='btn btn-secondary dropdown-toggle' type='button' id='lbf' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>" .xlt('Layout Based'). "</button>\n";
+        $StringEcho.= "<div class='dropdown-menu' aria-labelledby='dropdownMenu2'>\n";
         while ($lrow = sqlFetchArray($lres)) {
             $option_id = $lrow['option_id']; // should start with LBF
             $title = $lrow['title'];
@@ -623,12 +628,19 @@ if ($encounterLocked === false) {
                     continue;
                 }
             }
-            $StringEcho .= "<tr><td class='border-top border-dark p-0'><a onclick=\"openNewForm(" .
-                attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($option_id)) .
+            $StringEcho .= "<button class='dropdown-item' onclick=\"openNewForm(" .
+            attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($option_id)) .
                 ", " . attr_js(xl_form_title($title)) . ")\" href='JavaScript:void(0);'>" .
-                text(xl_form_title($title)) . "</a></td></tr>";
+            text(xl_form_title($title)) . "</button>\n";
         }
+        $StringEcho.= "</div>\n";
+        $StringEcho.= '</div>';
     }
+}
+if ($StringEcho) {
+    $StringEcho2= '<div style="clear: both"></div>';
+} else {
+    $StringEcho2="";
 }
 ?>
 <!-- DISPLAYING HOOKS STARTS HERE -->
@@ -638,6 +650,9 @@ if ($encounterLocked === false) {
                                     WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='encounter' ORDER BY mod_id");
     $DivId = 'mod_installer';
     if (sqlNumRows($module_query)) {
+        if (!$StringEcho) {
+            $StringEcho= '<ul>';
+        }
         $jid = 0;
         $modid = '';
         while ($modulerow = sqlFetchArray($module_query)) {
@@ -655,23 +670,29 @@ if ($encounterLocked === false) {
             $relative_link = "../../modules/".$modulePath."/".$modulerow['path'];
             $nickname = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';
             if ($jid==0 || ($modid!=$modulerow['mod_id'])) {
-                if ($modid!='') {
-                    $StringEcho.= '</table></div></li>';
+                if ($jid !== 0) {
+                    $StringEcho.= "</div>\n";
+                    $StringEcho.= '</div>';
                 }
-                $StringEcho.= "<li><a href='JavaScript:void(0);' onClick=\"mopen(" . attr_js($DivId) . ");\" >" . text($new_category) . "</a><div id='" . attr($DivId) . "' ><table border='0' cellspacing='0' cellpadding='0'>";
+                $StringEcho .= "<div class='dropdown d-inline'>\n";
+                $StringEcho .= "<button class='btn btn-secondary dropdown-toggle' type='button' id='menu" . attr($new_category) . "' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>" .text($new_category) . "</button>\n";
+                $StringEcho .= "<div class='dropdown-menu' aria-labelledby='dropdownMenu2'>\n";
             }
             $jid++;
             $modid = $modulerow['mod_id'];
-            $StringEcho.= "<tr><td class='border-top border-dark p-0'><a onclick=" .
-                "\"openNewForm(" . attr_js($relative_link) . ", " . attr_js(xl_form_title($nickname)) . ")\" " .
-                "href='JavaScript:void(0);'>" . text(xl_form_title($nickname)) . "</a></td></tr>";
+            $StringEcho .= "<button class='dropdown-item' onclick=\"openNewForm(" .
+            attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($option_id)) .
+                ", " . attr_js($relative_link) . ", " . attr_js(xl_form_title($nickname)) . ")\" href='JavaScript:void(0);'>" .
+            text(xl_form_title($nickname)) . "</button>\n";
         }
+        $StringEcho.= "</div>\n";
+        $StringEcho.= '</div>';
     }
     ?>
 <!-- DISPLAYING HOOKS ENDS HERE -->
 <?php
 if ($StringEcho) {
-    $StringEcho.= "</table></div></li></ul>".$StringEcho2;
+    $StringEcho.= "</ul>".$StringEcho2;
 }
 ?>
 <table cellspacing="0" cellpadding="0" align="center">
