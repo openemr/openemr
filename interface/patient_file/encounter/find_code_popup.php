@@ -124,6 +124,7 @@ if (!empty($target_element)) {
 
  <tr class="head bg-light form-inline font-weight-bold">
   <td>
+  <div class="form-group">
 <?php
 if (!empty($allowed_codes)) {
     if (count($allowed_codes) === 1) {
@@ -165,17 +166,21 @@ if (!empty($allowed_codes)) {
 }
 ?>
 
-    <?php echo xlt('Search for:'); ?>
-   <input type='text' class='form-control' name='search_term' size='12' value='<?php echo attr($_REQUEST['search_term']); ?>' title='<?php echo xla('Any part of the desired code or its description'); ?>' />
-   &nbsp;
-   <input type='submit' class='btn btn-primary' name='bn_search' value='<?php echo xla('Search'); ?>' />
-   &nbsp;&nbsp;&nbsp;
+
+   <label for="searchTerm" class="mt-3"><?php echo xlt('Search for:'); ?></label>
+   <input type='text' class='form-control' name='search_term' size='12' id="searchTerm" value='<?php echo attr($_REQUEST['search_term']); ?>' title='<?php echo xla('Any part of the desired code or its description'); ?>' />
+  
+   <center>
+   <input type='submit' class='btn btn-primary mt-3' name='bn_search' value='<?php echo xla('Search'); ?>' />
+ 
     <?php if (!empty($target_element)) { ?>
-     <input type='button' class='btn btn-primary' value='<?php echo xla('Erase'); ?>' onclick="selcode_target('', '', '', '', <?php echo attr_js($target_element); ?>)" />
+     <input type='button' class='btn btn-primary mt-3' value='<?php echo xla('Erase'); ?>' onclick="selcode_target('', '', '', '', <?php echo attr_js($target_element); ?>)" />
     <?php } else { ?>
-     <input type='button' class='btn btn-danger' value='<?php echo xla('Erase'); ?>' onclick="selcode('', '', '', '')" />
+     <input type='button' class='btn btn-danger mt-3' value='<?php echo xla('Erase'); ?>' onclick="selcode('', '', '', '')" />
     <?php } ?>
-   
+
+    </center>
+    </div>
   </td>
  </tr>
 
