@@ -31,13 +31,13 @@ switch(strtolower(trim($group_type))) {
 		$group_type = 'axo';
 		$group_table = $gacl_api->_db_table_prefix . 'axo_groups';
 		$group_map_table = $gacl_api->_db_table_prefix . 'groups_axo_map';
-		$smarty->assign('current','axo_group');
+		$data->assign('current','axo_group');
 		break;
 	default:
 		$group_type = 'aro';
 		$group_table = $gacl_api->_db_table_prefix . 'aro_groups';
 		$group_map_table = $gacl_api->_db_table_prefix . 'groups_aro_map';
-		$smarty->assign('current','aro_group');
+		$data->assign('current','aro_group');
 		break;
 }
 
@@ -81,18 +81,18 @@ switch ($_POST['action']) {
 			);
 		}
 
-		$smarty->assign('groups', $groups);
+		$data->assign('groups', $groups);
 		break;
 }
 
-$smarty->assign('group_type', $group_type);
-$smarty->assign('return_page', $_SERVER['REQUEST_URI']);
+$data->assign('group_type', $group_type);
+$data->assign('return_page', $_SERVER['REQUEST_URI']);
 
-$smarty->assign('current', $group_type .'_group');
-$smarty->assign('page_title', strtoupper($group_type) .' Group Admin');
+$data->assign('current', $group_type .'_group');
+$data->assign('page_title', strtoupper($group_type) .' Group Admin');
 
-$smarty->assign('phpgacl_version', $gacl_api->get_version());
-$smarty->assign('phpgacl_schema_version', $gacl_api->get_schema_version());
+$data->assign('phpgacl_version', $gacl_api->get_version());
+$data->assign('phpgacl_schema_version', $gacl_api->get_schema_version());
 
 $smarty->display('phpgacl/group_admin.tpl',$data);
 ?>
