@@ -70,12 +70,12 @@ if (count($emr_app)) {
 
         $div_app = sprintf(
             '
-<div id="divApp" class="form-group">
-	<label for="appChoice" class="text-right">%s:</label>
-    <div>
-        <select class="form-control" id="selApp" name="appChoice" size="1">%s</select>
-    </div>
-</div>',
+            <div id="divApp" class="form-group">
+                <label for="appChoice" class="text-right">%s:</label>
+                <div>
+                    <select class="form-control" id="selApp" name="appChoice" size="1">%s</select>
+                </div>
+            </div>',
             xlt('App'),
             $opt_htm
         );
@@ -88,7 +88,7 @@ if (count($emr_app)) {
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <?php Header::setupHeader(['jquery-ui', 'jquery-ui-darkness']); ?>
+    <?php Header::setupHeader(); ?>
 
     <title><?php echo text($openemr_name) . " " . xlt('Login'); ?></title>
 
@@ -156,7 +156,7 @@ if (count($emr_app)) {
             <div class="row">
                 <div class="col-sm-12">
                     <div>
-                        <div style="width: 50%;" class="mx-auto m-4">
+                        <div  class="mx-auto m-4 w-50">
                             <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?>
                         </div>
                         
@@ -341,7 +341,7 @@ if (count($emr_app)) {
                         <a href="../../acknowledge_license_cert.html" target="main"><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></a>
                     </p>
                 </div>
-                <div class="product-registration-modal" style="display: none">
+                <div class="product-registration-modal d-none">
                     <p class="context"><?php echo xlt("Register your installation with OEMR to receive important notifications, such as security fixes and new release announcements."); ?></p>
                     <input placeholder="<?php echo xlt('email'); ?>" type="email" class="email w-100 text-body" />
                     <p class="message font-italic"></p>
