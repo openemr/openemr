@@ -20,7 +20,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     ```
 4. Navigate to `http://localhost:8300/` to login as `admin`. Password is `pass`.
 5. Make changes to any files on your local file system. Most changes will appear after a refresh of the page or iFrame you're working on.
-    - An exception to this is if making changes to styling scripts in interface/themes. In that case will need clear web browser cache and run the following command to rebuild the theme files:
+    - An exception to this is if making changes to styling scripts in interface/themes/. In that case will need to clear web browser cache and run the following command to rebuild the theme files:
     ```
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cd openemr; npm run build'
     ```
