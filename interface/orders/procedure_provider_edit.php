@@ -171,10 +171,10 @@ function invalue($name)
                                         <p><?php echo xlt("For detailed instructions close the 'Enter Provider Details' popup and click on the Help icon on the main form. ");?><i class="fa fa-question-circle" aria-hidden="true"></i></p>
                                     </div>
                                 </div>
-                                <div class="col-sm-6">
+                                <div class="col-sm-6 mt-3">
                                     <div class="clearfix">
                                         <div class="label-div">
-                                            <label class="control-label" for="form_npi"><?php echo xlt('NPI'); ?>:</label> <a href="#npi_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                            <label class="col-form-label" for="form_npi"><?php echo xlt('NPI'); ?>:</label> <a href="#npi_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                         </div>
                                         <div class="">
                                             <input type='text' name='form_npi' id='form_npi' maxlength='10'
@@ -191,13 +191,13 @@ function invalue($name)
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row mt-3">
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_DorP"><?php echo xlt('Usage'); ?>:</label> <a href="#usage_info" class="info-anchor icon-tooltip"  data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_DorP"><?php echo xlt('Usage'); ?>:</label> <a href="#usage_info" class="info-anchor icon-tooltip"  data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
-                                    <div class="col-sm-12">
+                                    <div class="col-sm-6">
                                         <select name='form_DorP' id='form_DorP' class='form-control' title='<?php echo xla('HL7 - MSH-11 - Processing ID'); ?>'>
                                         <?php
                                         foreach (array(
@@ -224,12 +224,13 @@ function invalue($name)
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row mt-3">
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_send_app_id"><?php echo xlt('Sender IDs'); ?>:</label> <a href="#sender_id_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_send_app_id"><?php echo xlt('Sender IDs'); ?>:</label> <a href="#sender_id_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
+                                <div class="row col-12">
                                     <div class="col-sm-6">
                                         <input type='text' name='form_send_app_id' id='form_send_app_id' maxlength='100'
                                         value='<?php echo attr($row['send_app_id']); ?>'
@@ -245,6 +246,7 @@ function invalue($name)
                                         class='form-control' />
                                     </div>
                                 </div>
+                                </div>
                                 <div id="sender_id_info" class="collapse">
                                     <a href="#sender_id_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                     <p><?php echo xlt("Sender IDs - is only required if you are submitting an electronic order to an external facility");?></p>
@@ -255,19 +257,21 @@ function invalue($name)
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row mt-3">
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_recv_app_id"><?php echo xlt('Receiver IDs'); ?>:</label> <a href="#receiver_id_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_recv_app_id"><?php echo xlt('Receiver IDs'); ?>:</label> <a href="#receiver_id_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
+                                    <div class="row col-12">
                                     <div class="col-sm-6">
                                         <input type='text' name='form_recv_app_id' id='form_recv_app_id' maxlength='100' value='<?php echo attr($row['recv_app_id']); ?>' title='<?php echo xla('HL7 - MSH-5.1 - Receiving application'); ?>' placeholder='<?php echo xla('Enter Application Name'); ?>' class='form-control' />
                                     </div>
                                     <div class="col-sm-6">
                                         <input type='text' name='form_recv_fac_id' id='form_recv_fac_id' maxlength='100' value='<?php echo attr($row['recv_fac_id']); ?>' title='<?php echo xla('HL7 - MSH-6.1 - Receiving facility'); ?>' placeholder='<?php echo xla('Enter Facility Name'); ?>' class='form-control' />
                                     </div>
-                                </div>
+                                    </div>
+                                    </div>
                                 <div id="receiver_id_info" class="collapse">
                                     <a href="#receiver_id_info" data-toggle="collapse" class="oe-pull-away"><i class="fa fa-times oe-help-x" aria-hidden="true"></i></a>
                                     <p><?php echo xlt("Receiver IDs - is only required if you are submitting an electronic order to an external facility");?></p>
@@ -277,12 +281,13 @@ function invalue($name)
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row mt-3">
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
                                         <label for="form_protocol"><?php echo xlt('Protocol'); ?>:</label> <a href="#protocol_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
+                                   <div class="row col-12">
                                     <div class="col-sm-6">
                                         <select name='form_protocol' id='form_protocol' class='form-control'>
                                         <?php
@@ -317,6 +322,7 @@ function invalue($name)
                                         }
                                         ?>
                                         </select>
+                                        </div>
                                     </div>
                                 </div>
                                 <div id="protocol_info" class="collapse">
@@ -331,17 +337,19 @@ function invalue($name)
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row mt-3">
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
                                         <label for="form_login"><?php echo xlt('Login'); ?>:</label> <a href="#login_info" class="info-anchor icon-tooltip" data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
+                                    <div class="row col-12">
                                     <div class="col-sm-6">
                                         <input type='text' name='form_login' id='form_login' maxlength='255' value='<?php echo attr($row['login']); ?>' placeholder='<?php echo xla('Enter User Login ID'); ?>' class='form-control' />
                                     </div>
                                     <div class="col-sm-6">
                                         <input type='text' name='form_password' id='form_password' maxlength='255' value='<?php echo attr($row['password']); ?>' placeholder='<?php echo xla('Enter Password'); ?>' class='form-control' />
+                                    </div>
                                     </div>
                                 </div>
                                 <div id="login_info" class="collapse">
@@ -351,11 +359,11 @@ function invalue($name)
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row mt-3">
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_remote_host"><?php echo xlt('Remote Host'); ?>:</label> <a href="#remote_host_info"  class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_remote_host"><?php echo xlt('Remote Host'); ?>:</label> <a href="#remote_host_info"  class="info-anchor icon-tooltip" data-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <input type='text' name='form_remote_host' id='form_remote_host' maxlength='255' value='<?php echo attr($row['remote_host']); ?>' class='form-control' />
@@ -368,11 +376,11 @@ function invalue($name)
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row mt-3">
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_orders_path"><?php echo xlt('Orders Path'); ?>:</label> <a href="#orders_path_info"  class="info-anchor icon-tooltip" data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_orders_path"><?php echo xlt('Orders Path'); ?>:</label> <a href="#orders_path_info"  class="info-anchor icon-tooltip" data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <input type='text' name='form_orders_path' id='form_orders_path' maxlength='255'
@@ -386,11 +394,11 @@ function invalue($name)
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row mt-3">
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_results_path"><?php echo xlt('Results Path'); ?>:</label> <a href="#results_path_info"  class="info-anchor icon-tooltip" data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_results_path"><?php echo xlt('Results Path'); ?>:</label> <a href="#results_path_info"  class="info-anchor icon-tooltip" data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <input type='text' name='form_results_path' id='form_results_path' maxlength='255'
@@ -404,11 +412,11 @@ function invalue($name)
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row mt-3">
                             <div class="col-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_notes"><?php echo xlt('Notes'); ?>:</label> <a href="#notes_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_notes"><?php echo xlt('Notes'); ?>:</label> <a href="#notes_info"  class="info-anchor icon-tooltip"  data-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <textarea rows='3' name='form_notes' id='form_notes' wrap='virtual' class='form-control'><?php echo text($row['notes']); ?></textarea>
@@ -423,8 +431,9 @@ function invalue($name)
                     </div>
                     </div>
                     <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets ?>
+                   <div class="mt-3">
                     <div class="form-group clearfix" id="button-container">
-                        <div class="col-sm-12 text-left position-override">
+                        <div class="col-sm-12 text-center position-override">
                             <div class="btn-group btn-group-pinch" role="group">
                                 <button type='submit' name='form_save'  class="btn btn-secondary btn-save"  value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
                                 <button type="button" class="btn btn-link btn-cancel btn-separate-left" onclick='window.close()';><?php echo xlt('Cancel');?></button>
@@ -433,6 +442,7 @@ function invalue($name)
                                 <?php } ?>
                             </div>
                         </div>
+                       </div>
                     </div>
                 </form>
             </div>
