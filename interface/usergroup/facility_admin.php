@@ -141,17 +141,11 @@ if (isset($_GET["fid"])) {
 </head>
 <body class="body_top">
 <div class="container-fluid">
-<table>
-    <tr>
-        <td>
-            <span class="title"><?php echo xlt('Edit Facility'); ?></span>&nbsp;&nbsp;&nbsp;
-        </td>
-        <td>
-            <a class="btn btn-primary btn-lg" name='form_save' id='form_save' onclick='submitform()' href='#'><?php echo xlt('Save'); ?></a>
-            <a class="btn btn-secondary btn-lg" id='cancel' href='#'><?php echo xlt('Cancel'); ?></a>
-        </td>
-    </tr>
-</table>
+<h5 class="title"><?php echo xlt('Edit Facility'); ?></h5>
+<div class="py-3">
+ <a class="btn btn-primary btn-lg" name='form_save' id='form_save' onclick='submitform()' href='#'><?php echo xlt('Save'); ?></a>
+<a class="btn btn-secondary btn-lg" id='cancel' href='#'><?php echo xlt('Cancel'); ?></a>
+</div>
 
 <form name='facility-form' id="facility-form" method='post' action="facilities.php">
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
@@ -160,7 +154,7 @@ if (isset($_GET["fid"])) {
     <!-- diffrentiate Admin and add post backs !-->
     <input type=hidden name=fid value="<?php echo attr($my_fid); ?>" />
     <?php $facility = $facilityService->getById($my_fid); ?>
-    
+
     <div class="row">
         <div class="col-6">
             <div class="form-row my-2">
@@ -219,13 +213,13 @@ if (isset($_GET["fid"])) {
                     <input type='entry' class='form-control form-control-sm' size='20' name='iban' value="<?php echo attr($facility["iban"]); ?>" />
                 </div>
             </div>
-            <div class="form-row custom-control custom-switch text-center my-2">
+            <div class="form-row custom-control custom-switch my-2">
                 <div class="col">
                     <input type='checkbox' class='custom-control-input' name='billing_location' value='1' <?php echo ($facility['billing_location'] != 0) ? 'checked' : ''; ?> />
                     <label for='billing_location' class='custom-control-label'><?php echo xlt('Billing Location'); ?></label>
                 </div>
             </div>
-            <div class="form-row custom-control custom-switch text-center my-2">
+            <div class="form-row custom-control custom-switch my-2">
                 <div class="col">
                     <input type='checkbox' class='custom-control-input' name='accepts_assignment' value='1' <?php if ($facility['accepts_assignment'] == 1) {
                         echo 'checked="checked"';
@@ -236,13 +230,13 @@ if (isset($_GET["fid"])) {
                     <small class="form-text text-muted mt-0">(<?php echo xlt('only if billing location'); ?>)</small>
                 </div>
             </div>
-            <div class="form-row custom-control custom-switch text-center my-2">
+            <div class="form-row custom-control custom-switch my-2">
                 <div class="col">
                     <input type='checkbox' class='custom-control-input' name='service_location' value='1' <?php echo ($facility['service_location'] == 1) ? 'checked' : ''; ?> />
                     <label for='service_location' class='custom-control-label'><?php echo xlt('Service Location'); ?></label>
                 </div>
             </div>
-            <div class="form-row text-center custom-control custom-switch my-2">
+            <div class="form-row custom-control custom-switch my-2">
                 <div class="col">
                     <?php
                         $disabled = '';
@@ -267,7 +261,7 @@ if (isset($_GET["fid"])) {
                     [<a href="javascript:void(0);" onClick="pick('pick','newcolor'); return false;" NAME="pick" ID="pick"><?php echo xlt('Pick'); ?></a>]
                 </div>
             </div>
-            <div class="form-row my-2">
+            <div class="form-row my-2 d-flex align-items-center">
                 <div class="col-2">
                     <label for='pos_code' class='col-form-label col-form-label-sm'><?php echo xlt('POS Code'); ?>:</label>
                 </div>
@@ -290,7 +284,7 @@ if (isset($_GET["fid"])) {
                     </select>
                 </div>
             </div>
-            <div class="form-row my-2">
+            <div class="form-row my-2 d-flex align-items-center">
                 <div class="col-2">
                     <label for="domain_identifier" class="col-form-label col-form-label-sm"><?php echo xlt('CLIA Number'); ?>:</label>
                 </div>
@@ -318,7 +312,7 @@ if (isset($_GET["fid"])) {
                     <small class="form-text text-muted"><?php echo xlt('as'); ?> (000) 000-0000</small>
                 </div>
             </div>
-            <div class="form-row my-2">
+            <div class="form-row my-2 d-flex align-items-center">
                 <div class="col-2">
                     <label for='postal_code' class='col-form-label col-form-label-sm'><?php echo xlt('Zip Code'); ?>:</label>
                 </div>
@@ -349,7 +343,7 @@ if (isset($_GET["fid"])) {
                     <input type='entry' class='form-control form-control-sm' size='11' name='federal_ein' value="<?php echo attr($facility["federal_ein"]); ?>" />
                 </div>
             </div>
-            <div class="form-row my-2">
+            <div class="form-row my-2 d-flex align-items-center">
                 <div class="col-2">
                     <label for='facility_npi' class='col-form-label col-form-label-sm'><?php echo($GLOBALS['simplified_demographics'] ? xlt('Facility Code') : xlt('Facility NPI')); ?>:</label>
                 </div>
@@ -357,7 +351,7 @@ if (isset($_GET["fid"])) {
                     <input type='entry' class='form-control form-control-sm' size='20' name='facility_npi' value="<?php echo attr($facility["facility_npi"]); ?>" />
                 </div>
             </div>
-            <div class="form-row my-2">
+            <div class="form-row my-2 d-flex align-items-center">
                 <div class="col-2">
                     <label for='facility_taxonomy' class='col-form-label col-form-label-sm'><?php echo xlt('Facility Taxonomy'); ?>:</label>
                 </div>
@@ -373,7 +367,7 @@ if (isset($_GET["fid"])) {
                     <input type='entry' class='form-control form-control-sm' size='20' name='email' value="<?php echo attr($facility["email"]); ?>" />
                 </div>
             </div>
-            <div class="form-row my-2">
+            <div class="form-row my-2 d-flex align-items-center">
                 <div class="col-2">
                     <label for="attn" class="col-form-label col-form-label-sm"><?php echo xlt('Billing Attn'); ?>:</label>
                 </div>
@@ -381,7 +375,7 @@ if (isset($_GET["fid"])) {
                     <input type="entry" class="form-control form-control-sm" name="attn" size="45" value="<?php echo attr($facility['attn']); ?>" />
                 </div>
             </div>
-            <div class="form-row my-2">
+            <div class="form-row my-2 d-flex align-items-center">
                 <div class="col-2">
                     <label for="facility_id" class="col-form-label col-form-label-sm"><?php echo xlt('Facility ID'); ?>:</label>
                 </div>
@@ -399,9 +393,9 @@ if (isset($_GET["fid"])) {
             </div>
         </div>
     </div>
-    
+
     <hr />
-    
+
     <div class="form-row my-2">
         <div class="col-2">
             <label for="mail_street" class="col-form-label col-form-label-sm"><?php echo xlt('Mailing Address'); ?>:</label>
@@ -410,7 +404,7 @@ if (isset($_GET["fid"])) {
             <input type="entry" class="form-control form-control-sm" size="20" name="mail_street" value="<?php echo attr($facility["mail_street"]) ?>" />
         </div>
     </div>
-    
+
     <div class="form-row my-2">
         <div class="col-2">
             <label for="mail_street2" class="col-form-label col-form-label-sm"><?php echo xlt('Suite'); ?>: </label>
@@ -419,7 +413,7 @@ if (isset($_GET["fid"])) {
             <input type="entry" class="form-control form-control-sm" size="20" name="mail_street2" value="<?php echo attr($facility["mail_street2"]) ?>" />
         </div>
     </div>
-    
+
     <div class="form-row my-2">
         <div class="col-2">
             <label for="mail_city" class="col-form-label col-form-label-sm"><?php echo xlt('City'); ?>: </label>
@@ -428,7 +422,7 @@ if (isset($_GET["fid"])) {
             <input type="entry" class="form-control form-control-sm" size="20" name="mail_city" value="<?php echo attr($facility["mail_city"]) ?>" />
         </div>
     </div>
-    
+
     <div class="form-row my-2">
         <div class="col-2">
             <label for="mail_state" class="col-form-label col-form-label-sm"><?php echo xlt('State'); ?>: </label>
@@ -446,7 +440,7 @@ if (isset($_GET["fid"])) {
             <input type="entry" class="form-control form-control-sm" size="20" name="mail_zip" value="<?php echo attr($facility["mail_zip"]) ?>" />
         </div>
     </div>
-    
+
     <div class="form-row my-2">
         <div class="col-2">
             <label for="info" class="col-form-label col-form-label-sm"><?php echo xlt('Info'); ?>:</label>
@@ -455,7 +449,7 @@ if (isset($_GET["fid"])) {
             <textarea class="form-control form-control-sm" size="20" name="info"><?php echo attr($facility["info"]) ?></textarea>
         </div>
     </div>
-    
+
     <p class="text"><span class="mandatory">*</span> <?php echo xlt('Required'); ?></p>
 </form>
 </div>
