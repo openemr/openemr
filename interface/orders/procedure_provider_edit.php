@@ -37,22 +37,22 @@ function invalue($name)
     td {
         font-size: 0.8125rem;
     }
-    
+
     .inputtext {
         padding-left: 2px;
         padding-right: 2px;
     }
-    
+
     .button {
         font-family: sans-serif;
         font-size: 0.75rem;
         font-weight: bold;
     }
-    
+
     .label-div > a {
         display: none;
     }
-    
+
     .label-div:hover > a {
         display: inline-block;
     }
@@ -147,9 +147,9 @@ function invalue($name)
                 <form method='post' name='theform' action='procedure_provider_edit.php?ppid=<?php echo attr_url($ppid) ?>'>
                     <div class="card">
                         <div class="card-header" name="form_legend" id="form_legend"><?php echo xlt('Enter Provider Details'); ?>  <i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript" aria-hidden="true"></i></div>
-                        
+
                         <div class="card-body">
-                        
+
                         <div class="row">
                             <div class="col-12">
                                 <div class="col-sm-6">
@@ -433,7 +433,7 @@ function invalue($name)
                     <?php //can change position of buttons by creating a class 'position-override' and adding rule text-alig:center or right as the case may be in individual stylesheets ?>
                    <div class="mt-3">
                     <div class="form-group clearfix" id="button-container">
-                        <div class="col-sm-12 text-center position-override">
+                        <div class="col-sm-12 text-left position-override">
                             <div class="btn-group btn-group-pinch" role="group">
                                 <button type='submit' name='form_save'  class="btn btn-secondary btn-save"  value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
                                 <button type="button" class="btn btn-link btn-cancel btn-separate-left" onclick='window.close()';><?php echo xlt('Cancel');?></button>
