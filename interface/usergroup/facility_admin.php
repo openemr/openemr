@@ -215,13 +215,13 @@ if (isset($_GET["fid"])) {
                     </div>
                     <div class="form-row custom-control custom-switch my-2">
                         <div class="col">
-                            <input type='checkbox' class='custom-control-input' name='billing_location' value='1' <?php echo ($facility['billing_location'] != 0) ? 'checked' : ''; ?> />
+                            <input type='checkbox' class='custom-control-input' name='billing_location' id='billing_location' value='1' <?php echo ($facility['billing_location'] != 0) ? 'checked' : ''; ?> />
                             <label for='billing_location' class='custom-control-label'><?php echo xlt('Billing Location'); ?></label>
                         </div>
                     </div>
                     <div class="form-row custom-control custom-switch my-2">
                         <div class="col">
-                            <input type='checkbox' class='custom-control-input' name='accepts_assignment' value='1' <?php if ($facility['accepts_assignment'] == 1) {
+                            <input type='checkbox' class='custom-control-input' name='accepts_assignment' id='accepts_assignment' value='1' <?php if ($facility['accepts_assignment'] == 1) {
                                 echo 'checked="checked"';
                                                                                                                     }; ?> />
                             <label for='accepts_assignment' class='custom-control-label'><?php echo xlt('Accepts Assignment'); ?></label>
@@ -232,7 +232,7 @@ if (isset($_GET["fid"])) {
                     </div>
                     <div class="form-row custom-control custom-switch my-2">
                         <div class="col">
-                            <input type='checkbox' class='custom-control-input' name='service_location' value='1' <?php echo ($facility['service_location'] == 1) ? 'checked' : ''; ?> />
+                            <input type='checkbox' class='custom-control-input' name='service_location' id='service_location' value='1' <?php echo ($facility['service_location'] == 1) ? 'checked' : ''; ?> />
                             <label for='service_location' class='custom-control-label'><?php echo xlt('Service Location'); ?></label>
                         </div>
                     </div>
