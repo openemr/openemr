@@ -223,7 +223,7 @@ if (isset($_GET["fid"])) {
                         <div class="col">
                             <input type='checkbox' class='custom-control-input' name='accepts_assignment' id='accepts_assignment' value='1' <?php if ($facility['accepts_assignment'] == 1) {
                                 echo 'checked="checked"';
-                                                                                                                    }; ?> />
+                                                                                                                                            }; ?> />
                             <label for='accepts_assignment' class='custom-control-label'><?php echo xlt('Accepts Assignment'); ?></label>
                         </div>
                         <div class="col">
