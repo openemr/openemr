@@ -174,7 +174,7 @@ function displayAlert() {
 <body class="body_top">
 <div class="container">
 <h5 class="title"><?php echo xlt('Add Facility'); ?></h5>
-<div class="btn-group py-3" role="group" aria-label="Submission Buttons">
+<div class="py-3">
     <a onclick="submitform();" class="btn btn-primary btn-lg" name='form_save' id='form_save' href='#'><?php echo xlt('Save'); ?></a>
     <a class="btn btn-secondary btn-lg" id='cancel' href='#'><?php echo xlt('Cancel'); ?></a>
 </div>
