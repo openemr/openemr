@@ -47,9 +47,7 @@ function postcalendar_admin_modifyconfig($msg = '', $showMenu = true)
 EOF;
     // $header .= '"' . attr($GLOBALS['style']['BGCOLOR2']) . '">';
     $output->Text($header);
-    if ($showMenu && empty($msg)) {
-        $output->Text(postcalendar_adminmenu(""));
-    } else {
+    if ($showMenu) {
         $output->Text(postcalendar_adminmenu("clearCache"));
     }
 
