@@ -130,8 +130,8 @@ class OemrUI
         }
         $expandable_icon = '';
         if ($expandable) {
-            $expandable_icon = "<i id='exp_cont_icon' class='oe-superscript-small expand_contract fa " .  attr($expand_icon_class) . "'" . " title='" . attr($expand_title) . "' 
-            aria-hidden='true'></i>";
+            $expandable_icon = "<a href='#' id='exp_cont_icon' class='text-dark text-decoration-none oe-superscript-small expand_contract fa " .  attr($expand_icon_class) . "'" . " title='" . attr($expand_title) . "'
+            aria-hidden='true'></a>";
         }
         return array($expandable_icon, $container);
     }
@@ -329,7 +329,7 @@ JQD;
         $(function() {
             $(window).trigger('resize');// to avoid repeating code triggers above on page open
         });
-        
+
         $(function () {
             $('.expand_contract').click(function () {
                 var elementTitle;
@@ -343,7 +343,7 @@ JQD;
                     $('#container_div').toggleClass('container container-fluid');
                     if ($(arrFiles).length) {
                         $.each(arrFiles, function (index, value) {
-                        
+
                             $.post(
                                 "{$web_root}/library/ajax/user_settings.php",
                                 {
