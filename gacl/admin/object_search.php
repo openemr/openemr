@@ -1,8 +1,15 @@
 <?php
+/*
+Ready for smarty 3
+Changes: Used smarty 3 data object
+*/
 //First make sure user has access
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+
+//make a smarty 3 data object
+$data = new Smarty_Data;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'acl')) {
@@ -109,5 +116,5 @@ $smarty->assign('page_title', strtoupper($object_type) .' Search');
 $smarty->assign('phpgacl_version', $gacl_api->get_version());
 $smarty->assign('phpgacl_schema_version', $gacl_api->get_schema_version());
 
-$smarty->display('phpgacl/object_search.tpl');
+$smarty->display('phpgacl/object_search.tpl',$data);
 ?>

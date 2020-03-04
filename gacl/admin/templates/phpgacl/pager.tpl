@@ -1,3 +1,7 @@
+{* Ready for smarty 3 No changes  
+Possible Changes:
+Removed literal tag, no longer required if {/space content /space}
+*}
 <table width="100%" cellspacing="0" cellpadding="2" border="0">
   <tr valign="middle">
     <td align="left">

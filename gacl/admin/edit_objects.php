@@ -4,6 +4,9 @@ require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 
+//make a smarty 3 data object
+$data = new Smarty_Data;
+
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'acl')) {
             echo xlt('ACL Administration Not Authorized');
@@ -143,5 +146,5 @@ $smarty->assign('page_title', 'Edit '. strtoupper($object_type) .' Objects');
 $smarty->assign("phpgacl_version", $gacl_api->get_version() );
 $smarty->assign("phpgacl_schema_version", $gacl_api->get_schema_version() );
 
-$smarty->display('phpgacl/edit_objects.tpl');
+$smarty->display('phpgacl/edit_objects.tpl',$data);
 ?>

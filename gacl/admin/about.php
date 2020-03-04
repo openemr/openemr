@@ -1,4 +1,8 @@
 <?php
+/*
+Ready for smarty 3
+Changes: Used smarty 3 data object
+*/
 //First make sure user has access
 require_once("../../interface/globals.php");
 
@@ -11,7 +15,8 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 }
 
 require_once("gacl_admin.inc.php");
-
+//make a smarty data object
+$data = new Smarty_Data;
 function get_system_info() {
 	global $gacl_api;
 
@@ -55,7 +60,7 @@ function get_system_info() {
 }
 
 function submit_system_info($system_information, $system_info_md5) {
-
+    
 	$md5sum = md5(trim($system_information));
 	if (trim($system_info_md5) == $md5sum) {
 		$tainted = 'FALSE';
@@ -81,26 +86,26 @@ switch ($_POST['action']) {
 		$system_info = get_system_info();
 
 		//Read credits.
-		$smarty->assign("credits", implode('',file('../CREDITS')) );
+		$data->assign("credits", implode('',file('../CREDITS')) );
 
-		$smarty->assign("system_info", $system_info);
-		$smarty->assign("system_info_md5", md5($system_info) );
+		$data->assign("system_info", $system_info);
+		$data->assign("system_info_md5", md5($system_info) );
         break;
 }
 
-$smarty->assign("first_run", $_GET['first_run'] );
-$smarty->assign("return_page", $_SERVER['PHP_SELF'] );
+$data->assign("first_run", $_GET['first_run'] );
+$data->assign("return_page", $_SERVER['PHP_SELF'] );
 
-$smarty->assign('current','about');
+$data->assign('current','about');
 if ($_GET['first_run']) {
-	$smarty->assign('page_title', 'Installation Report');
-	$smarty->assign('hidemenu', 1);
+	$data->assign('page_title', 'Installation Report');
+	$data->assign('hidemenu', 1);
 } else {
-	$smarty->assign('page_title', 'About phpGACL');
+	$data->assign('page_title', 'About phpGACL');
 }
 
-$smarty->assign("phpgacl_version", $gacl_api->get_version() );
-$smarty->assign("phpgacl_schema_version", $gacl_api->get_schema_version() );
+$data->assign("phpgacl_version", $gacl_api->get_version() );
+$data->assign("phpgacl_schema_version", $gacl_api->get_schema_version() );
 
-$smarty->display('phpgacl/about.tpl');
+$smarty->display('phpgacl/about.tpl',$data);
 ?>

@@ -1,3 +1,7 @@
+{* Ready for smarty 3 No changes  
+Possible Changes:
+Removed literal tag, no longer required if {/space content /space}
+*}
 {include file="phpgacl/header.tpl"}
     <style type="text/css">
     {literal}

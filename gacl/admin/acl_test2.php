@@ -1,5 +1,9 @@
 <?php
 /*
+Ready for smarty 3
+Changes: Used smarty 3 data object
+*/
+/*
 if (!empty($_GET['debug'])) {
 	$debug = $_GET['debug'];
 }
@@ -97,25 +101,25 @@ while (list(,$row) = @each($rows)) {
 
 //echo "<br /><br />$x ACL_CHECK()'s<br />\n";
 
-$smarty->assign("acls", $acls);
+$data->assign("acls", $acls);
 
-$smarty->assign("total_acl_checks", $total_rows);
-$smarty->assign("total_acl_check_time", $total_acl_check_time);
+$data->assign("total_acl_checks", $total_rows);
+$data->assign("total_acl_check_time", $total_acl_check_time);
 
 if ($total_rows > 0) {
 	$avg_acl_check_time = $total_acl_check_time / $total_rows;
 }
-$smarty->assign("avg_acl_check_time", number_format( ($avg_acl_check_time + 0) ,2));
+$data->assign("avg_acl_check_time", number_format( ($avg_acl_check_time + 0) ,2));
 
-$smarty->assign("paging_data", $gacl_api->get_paging_data($rs));
+$data->assign("paging_data", $gacl_api->get_paging_data($rs));
 
-$smarty->assign("return_page", $_SERVER['PHP_SELF'] );
+$data->assign("return_page", $_SERVER['PHP_SELF'] );
 
-$smarty->assign('current','acl_test');
-$smarty->assign('page_title', '2-dim. ACL Test');
+$data->assign('current','acl_test');
+$data->assign('page_title', '2-dim. ACL Test');
 
-$smarty->assign("phpgacl_version", $gacl_api->get_version() );
-$smarty->assign("phpgacl_schema_version", $gacl_api->get_schema_version() );
+$data->assign("phpgacl_version", $gacl_api->get_version() );
+$data->assign("phpgacl_schema_version", $gacl_api->get_schema_version() );
 
-$smarty->display('phpgacl/acl_test2.tpl');
+$smarty->display('phpgacl/acl_test2.tpl',$data);
 ?>

@@ -1,3 +1,4 @@
+{* Ready for smarty 3  no change*}
 {* Smarty *}
 
 {* debug.tpl, last updated version 2.0.1 *}

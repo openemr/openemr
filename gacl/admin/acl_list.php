@@ -12,6 +12,10 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 
 require_once('gacl_admin.inc.php');
 
+//make a smarty 3 data object
+$data = new Smarty_Data;
+
+
 switch ($_GET['action']) {
 	case 'Delete':
 		$gacl_api->debug_text('Delete!');
@@ -123,7 +127,7 @@ switch ($_GET['action']) {
 
 		$rs = $db->PageExecute($query, $gacl_api->_items_per_page, $_GET['page']);
 		if ( is_object($rs) ) {
-			$smarty->assign('paging_data', $gacl_api->get_paging_data($rs));
+			$data->assign('paging_data', $gacl_api->get_paging_data($rs));
 
 			while ( $row = $rs->FetchRow() ) {
 				$acl_ids[] = $row[0];
@@ -216,25 +220,25 @@ switch ($_GET['action']) {
 			}
 		}
 
-		$smarty->assign('acls', $acls);
+		$data->assign('acls', $acls);
 
-		$smarty->assign('filter_aco', $_GET['filter_aco']);
-        $smarty->assign('filter_aco_escaped', attr($_GET['filter_aco']));
+		$data->assign('filter_aco', $_GET['filter_aco']);
+        $data->assign('filter_aco_escaped', attr($_GET['filter_aco']));
 
-		$smarty->assign('filter_aro', $_GET['filter_aro']);
-        $smarty->assign('filter_aro_escaped', attr($_GET['filter_aro']));
+		$data->assign('filter_aro', $_GET['filter_aro']);
+        $data->assign('filter_aro_escaped', attr($_GET['filter_aro']));
 
-		$smarty->assign('filter_aro_group', $_GET['filter_aro_group']);
-        $smarty->assign('filter_aro_group_escaped', attr($_GET['filter_aro_group']));
+		$data->assign('filter_aro_group', $_GET['filter_aro_group']);
+        $data->assign('filter_aro_group_escaped', attr($_GET['filter_aro_group']));
 
-		$smarty->assign('filter_axo', $_GET['filter_axo']);
-        $smarty->assign('filter_axo_escaped', attr($_GET['filter_axo']));
+		$data->assign('filter_axo', $_GET['filter_axo']);
+        $data->assign('filter_axo_escaped', attr($_GET['filter_axo']));
 
-		$smarty->assign('filter_axo_group', $_GET['filter_axo_group']);
-        $smarty->assign('filter_axo_group_escaped', attr($_GET['filter_axo_group']));
+		$data->assign('filter_axo_group', $_GET['filter_axo_group']);
+        $data->assign('filter_axo_group_escaped', attr($_GET['filter_axo_group']));
 
-		$smarty->assign('filter_return_value', $_GET['filter_return_value']);
-        $smarty->assign('filter_return_value_escaped', attr($_GET['filter_return_value']));
+		$data->assign('filter_return_value', $_GET['filter_return_value']);
+        $data->assign('filter_return_value_escaped', attr($_GET['filter_return_value']));
 
 		foreach(array('aco','aro','axo','acl') as $type) {
 			//
@@ -257,18 +261,18 @@ switch ($_GET['action']) {
 				}
 			}
 
-			$smarty->assign('options_filter_'. $type . '_sections',  $options);
+			$data->assign('options_filter_'. $type . '_sections',  $options);
 
 			if (!isset($_GET['filter_' . $type . '_section']) OR $_GET['filter_' . $type . '_section'] == '') {
 				$_GET['filter_' . $type . '_section'] = '-1';
 			}
 
-			$smarty->assign('filter_' . $type . '_section', $_GET['filter_' . $type .'_section']);
-            $smarty->assign('filter_' . $type . '_section_escaped', attr($_GET['filter_' . $type .'_section']));
+			$data->assign('filter_' . $type . '_section', $_GET['filter_' . $type .'_section']);
+            $data->assign('filter_' . $type . '_section_escaped', attr($_GET['filter_' . $type .'_section']));
 		}
 
-		$smarty->assign('options_filter_allow', array('-1' => 'Any', 1 => 'Allow', 0 => 'Deny'));
-		$smarty->assign('options_filter_enabled', array('-1' => 'Any', 1 => 'Yes', 0 => 'No'));
+		$data->assign('options_filter_allow', array('-1' => 'Any', 1 => 'Allow', 0 => 'Deny'));
+		$data->assign('options_filter_enabled', array('-1' => 'Any', 1 => 'Yes', 0 => 'No'));
 
 		if (!isset($_GET['filter_allow']) OR $_GET['filter_allow'] == '') {
 			$_GET['filter_allow'] = '-1';
@@ -277,23 +281,23 @@ switch ($_GET['action']) {
 			$_GET['filter_enabled'] = '-1';
 		}
 
-		$smarty->assign('filter_allow', $_GET['filter_allow']);
-        $smarty->assign('filter_allow_escaped', attr($_GET['filter_allow']));
+		$data->assign('filter_allow', $_GET['filter_allow']);
+        $data->assign('filter_allow_escaped', attr($_GET['filter_allow']));
 
-		$smarty->assign('filter_enabled', $_GET['filter_enabled']);
-        $smarty->assign('filter_enabled_escaped', attr($_GET['filter_enabled']));
+		$data->assign('filter_enabled', $_GET['filter_enabled']);
+        $data->assign('filter_enabled_escaped', attr($_GET['filter_enabled']));
 }
 
-$smarty->assign('action', $_GET['action']);
-$smarty->assign('action_escaped', attr($_GET['action']));
+$data->assign('action', $_GET['action']);
+$data->assign('action_escaped', attr($_GET['action']));
 
-$smarty->assign('return_page', $_SERVER['PHP_SELF']);
+$data->assign('return_page', $_SERVER['PHP_SELF']);
 
-$smarty->assign('current','acl_list');
-$smarty->assign('page_title', 'ACL List');
+$data->assign('current','acl_list');
+$data->assign('page_title', 'ACL List');
 
-$smarty->assign('phpgacl_version', $gacl_api->get_version());
-$smarty->assign('phpgacl_schema_version', $gacl_api->get_schema_version());
+$data->assign('phpgacl_version', $gacl_api->get_version());
+$data->assign('phpgacl_schema_version', $gacl_api->get_schema_version());
 
-$smarty->display('phpgacl/acl_list.tpl');
+$smarty->display('phpgacl/acl_list.tpl',$data);
 ?>

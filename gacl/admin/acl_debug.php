@@ -1,4 +1,8 @@
 <?php
+/*
+Ready for smarty 3
+Changes: Used smarty 3 data object
+*/
 //First make sure user has access
 require_once("../../interface/globals.php");
 
@@ -11,6 +15,9 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 }
 
 require_once('gacl_admin.inc.php');
+
+//make a smarty 3 data object
+$data = new Smarty_Data;
 
 switch ($_GET['action']) {
     case 'Submit':
@@ -79,28 +86,28 @@ switch ($_GET['action']) {
 
 		//echo "<br /><br />$x ACL_CHECK()'s<br />\n";
 
-		$smarty->assign('acls', $acls);
+		$data->assign('acls', $acls);
 
-		$smarty->assign('aco_section_value', $_GET['aco_section_value']);
-		$smarty->assign('aco_value', $_GET['aco_value']);
-		$smarty->assign('aro_section_value', $_GET['aro_section_value']);
-		$smarty->assign('aro_value', $_GET['aro_value']);
-		$smarty->assign('axo_section_value', $_GET['axo_section_value']);
-		$smarty->assign('axo_value', $_GET['axo_value']);
-		$smarty->assign('root_aro_group_id', $_GET['root_aro_group_id']);
-		$smarty->assign('root_axo_group_id', $_GET['root_axo_group_id']);
+		$data->assign('aco_section_value', $_GET['aco_section_value']);
+		$data->assign('aco_value', $_GET['aco_value']);
+		$data->assign('aro_section_value', $_GET['aro_section_value']);
+		$data->assign('aro_value', $_GET['aro_value']);
+		$data->assign('axo_section_value', $_GET['axo_section_value']);
+		$data->assign('axo_value', $_GET['axo_value']);
+		$data->assign('root_aro_group_id', $_GET['root_aro_group_id']);
+		$data->assign('root_axo_group_id', $_GET['root_axo_group_id']);
         break;
     default:
 		break;
 }
 
-$smarty->assign('return_page', $_SERVER['PHP_SELF']);
+$data->assign('return_page', $_SERVER['PHP_SELF']);
 
-$smarty->assign('current','acl_debug');
-$smarty->assign('page_title', 'ACL Debug');
+$data->assign('current','acl_debug');
+$data->assign('page_title', 'ACL Debug');
 
-$smarty->assign('phpgacl_version', $gacl_api->get_version());
-$smarty->assign('phpgacl_schema_version', $gacl_api->get_schema_version());
+$data->assign('phpgacl_version', $gacl_api->get_version());
+$data->assign('phpgacl_schema_version', $gacl_api->get_schema_version());
 
-$smarty->display('phpgacl/acl_debug.tpl');
+$smarty->display('phpgacl/acl_debug.tpl',$data);
 ?>

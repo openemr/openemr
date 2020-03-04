@@ -1,3 +1,4 @@
+{* Ready for smarty 3 No changes *}
 		<div id="top-tr"><div id="top-tl"><div id="top-br"><div id="top-bl">
 			<h1><span>phpGACL</span></h1>
 			<h2>{$page_title|escape:'html'}</h2>
