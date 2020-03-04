@@ -213,20 +213,28 @@ function displayAlert() {
                         <label for="iban"><?php echo xlt('IBAN'); ?>: </label>
                         <input class="form-control" type="entry" size="20" name="iban" value="" />
                     </div>
-                    <div class="form-group">
-                        <label for="billing_location"><?php echo xlt('Billing Location'); ?>:</label>
-                        <input type="checkbox" name="billing_location" value="1" />
+                    <div class="form-row custom-control custom-switch my-2">
+                        <div class="col">
+                            <input type="checkbox" class='custom-control-input' name="billing_location" id="billing_location" value="1" />
+                            <label for="billing_location" class='custom-control-label'><?php echo xlt('Billing Location'); ?></label>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="service_location"><?php echo xlt('Service Location'); ?>:</label>
-                        <input type="checkbox" name="service_location" value="1" />
+                    <div class="form-row custom-control custom-switch my-2">
+                        <div class="col">
+                            <input type="checkbox" class='custom-control-input' name="service_location" id="service_location" value="1" />
+                            <label for="service_location" class='custom-control-label'><?php echo xlt('Service Location'); ?></label>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="accepts_assignment"><?php echo xlt('Accepts Assignment'); ?>:</label>
-                        <input type="checkbox" name="accepts_assignment" value="1" aria-describedby="assignmentHelp">
-                        <small id="assignmentHelp" class="text-muted">
-                            (<?php echo xlt('only if billing location'); ?>)
-                        </small>
+                    <div class="form-row custom-control custom-switch my-2">
+                        <div class="col">
+                            <input type="checkbox" class='custom-control-input' name="accepts_assignment" id="accepts_assignment" value="1" aria-describedby="assignmentHelp">
+                            <label for="accepts_assignment" class='custom-control-label'><?php echo xlt('Accepts Assignment'); ?></label>
+                        </div>
+                        <div class="col">
+                            <small id="assignmentHelp" class="text-muted">
+                                (<?php echo xlt('only if billing location'); ?>)
+                            </small>
+                        </div>
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -281,12 +289,14 @@ function displayAlert() {
                 $disabled='disabled';
             }
             ?>
-            <div class="form-group">
-                <label for="primary_business_entity"><?php echo xlt('Primary Business Entity'); ?>: </label>
-                    <input type='checkbox' name='primary_business_entity' id='primary_business_entity' value='1' <?php echo ($facility['primary_business_entity'] == 1) ? 'checked' : ''; ?>
-                            <?php if ($GLOBALS['erx_enable']) { ?>
-                                onchange='return displayAlert()'
-                            <?php } ?> <?php echo $disabled;?>>
+            <div class="form-row custom-control custom-switch my-2">
+                <div class="col">
+                    <input type='checkbox' class='custom-control-input' name='primary_business_entity' id='primary_business_entity' value='1' <?php echo ($facility['primary_business_entity'] == 1) ? 'checked' : ''; ?>
+                                    <?php if ($GLOBALS['erx_enable']) { ?>
+                                        onchange='return displayAlert()'
+                                    <?php } ?> <?php echo $disabled;?>>
+                    <label for="primary_business_entity" class='custom-control-label'><?php echo xlt('Primary Business Entity'); ?></label>
+                </div>
             </div>
             <div class="form-group">
                 <label for="pos_code"><?php echo xlt('POS Code'); ?>: </label>
