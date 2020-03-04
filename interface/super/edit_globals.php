@@ -676,7 +676,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 "maxlength='15' value='" . attr($fldvalue) . "' />" .
                                                 "<input type='button' value='" . xla('Default'). "' onclick=\"document.forms[0].form_$i.jscolor.fromString(" . attr_js($flddef) . ")\">\n";
                                             } elseif ($fldtype == 'default_visit_category') {
-                                                $sql = "SELECT pc_catid, pc_catname, pc_cattype 
+                                                $sql = "SELECT pc_catid, pc_catname, pc_cattype
                                                 FROM openemr_postcalendar_categories
                                                 WHERE pc_active = 1 ORDER BY pc_seq";
                                                 $result = sqlStatement($sql);
@@ -807,7 +807,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         }
                                     }
 
-                                    echo "<div><div class='oe-pull-away oe-margin-t-10' style=''>". xlt($grpname) ." &nbsp;<i class='fa fa-lg fa-arrow-circle-up oe-help-redirect scroll' aria-hidden='true'></i></div><div class='clearfix'></div></div>";
+                                    echo "<div><div class='oe-pull-away oe-margin-t-10' style=''>". xlt($grpname) ." &nbsp;<a href='#' class='text-dark text-decoration-none fa fa-lg fa-arrow-circle-up oe-help-redirect scroll' aria-hidden='true'></a></div><div class='clearfix'></div></div>";
                                     echo " </div>\n";
                                     echo " </div>\n";
                                 }
