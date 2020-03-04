@@ -110,27 +110,38 @@ $res = sqlStatement($query, $sqlBindArray);
         <form class='navbar-form' method='post' action='addrbook_list.php' onsubmit='return top.restoreSession()'>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-            <div class="text-center">
+            
                 <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-2">
                     <label for="form_organization"><?php echo xlt('Organization') ?>:</label>
-                    <input type='text' name='form_organization' size='10' value='<?php echo attr($_POST['form_organization']); ?>' class='inputtext' title='<?php echo xla("All or part of the organization") ?>'/>&nbsp;
+                    <input type='text' class="form-control inputtext" name='form_organization' size='10' value='<?php echo attr($_POST['form_organization']); ?>'  title='<?php echo xla("All or part of the organization") ?>'/>&nbsp;
+                    </div>
+                    <div class="col-sm-2">
                     <label for="form_fname"><?php echo xlt('First Name') ?>:</label>
-                    <input type='text' name='form_fname' size='10' value='<?php echo attr($_POST['form_fname']); ?>' class='inputtext' title='<?php echo xla("All or part of the first name") ?>'/>&nbsp;
+                    <input type='text' class="form-control inputtext" name='form_fname' size='10' value='<?php echo attr($_POST['form_fname']); ?>'  title='<?php echo xla("All or part of the first name") ?>'/>&nbsp;
+                    </div>
+                    <div class="col-sm-2">
                     <label for="form_lname"><?php echo xlt('Last Name') ?>:</label>
-                    <input type='text' name='form_lname' size='10' value='<?php echo attr($_POST['form_lname']); ?>' class='inputtext' title='<?php echo xla("All or part of the last name") ?>'/>&nbsp;
+                    <input type='text' class="form-control inputtext" name='form_lname' size='10' value='<?php echo attr($_POST['form_lname']); ?>'  title='<?php echo xla("All or part of the last name") ?>'/>&nbsp;
+                    </div>
+                    <div class="col-sm-2">
                     <label for="form_specialty"><?php echo xlt('Specialty') ?>:</label>
-                    <input type='text' name='form_specialty' size='10' value='<?php echo attr($_POST['form_specialty']); ?>' class='inputtext' title='<?php echo xla("Any part of the desired specialty") ?>'/>&nbsp;
+                    <input type='text' class="form-control inputtext" name='form_specialty' size='10' value='<?php echo attr($_POST['form_specialty']); ?>' title='<?php echo xla("Any part of the desired specialty") ?>'/>&nbsp;
+                    </div>
+                    <div class="col-sm-2">
                     <?php
-                    echo xlt('Type') . ": ";
+                    echo '<label>'.xlt('Type').": ".'</label>';
                     // Generates a select list named form_abook_type:
                     echo generate_select_list("form_abook_type", "abook_type", $_REQUEST['form_abook_type'], '', 'All');
                     ?>
-                    <input type='checkbox' name='form_external' value='1'<?php echo ($form_external) ? ' checked ' : ''; ?> title='<?php echo xla("Omit internal users?") ?>' />
-                    <?php echo xlt('External Only') ?>
+                    </div>
+                    </div>
+                    <input type='checkbox' id="formExternal" name='form_external' value='1'<?php echo ($form_external) ? ' checked ' : ''; ?> title='<?php echo xla("Omit internal users?") ?>' />
+                    <label for="formExternal"><?php echo xlt('External Only') ?></label>
                     <input type='button' class='btn btn-primary' value='<?php echo xla("Add New"); ?>' onclick='doedclick_add(document.forms[0].form_abook_type.value)' />&nbsp;&nbsp;
-                    <input type='submit' title='<?php echo xla("Use % alone in a field to just sort on that column") ?>' class='btn btn-primary' name='form_search' value='<?php echo xla("Search") ?>'/>
-                </div>
-            </div>
+                    <input type='submit' title='<?php echo xla("Use % alone in a field to just sort on that column") ?>' class='btn btn-primary btn-search' name='form_search' value='<?php echo xla("Search") ?>'/>
+                    </div>
         </form>
     </div>
     </div>
