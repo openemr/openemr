@@ -138,7 +138,11 @@ function amcRemove($amc_id, $patient_id, $object_category = '', $object_id = '0'
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
 function amcComplete($amc_id, $patient_id, $object_category = '', $object_id = '0')
 {
-    sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NOW() WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? AND (`date_completed` IS NULL OR `date_completed`='')", array($amc_id,$patient_id,$object_category,$object_id));
+    sqlStatement(
+        "UPDATE `amc_misc_data` SET `date_completed`=NOW() WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? AND " .
+        dateEmptySql('date_completed', true),
+        array($amc_id,$patient_id,$object_category,$object_id)
+    );
 }
 
 // Function to complete an item from the amc_misc_data sql table
@@ -150,7 +154,9 @@ function amcComplete($amc_id, $patient_id, $object_category = '', $object_id = '
 //   $date_created - date created.
 function amcCompleteSafe($amc_id, $patient_id, $object_category = '', $object_id = '0', $date_created = '')
 {
-    sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NOW() WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? AND (`date_completed` IS NULL OR `date_completed`='') AND `date_created`=?", array($amc_id,$patient_id,$object_category,$object_id,$date_created));
+    sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NOW() WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? AND".
+        dateEmptySql('date_completed', true) .
+        "AND `date_created`=?", array($amc_id,$patient_id,$object_category,$object_id,$date_created));
 }
 
 // Function to remove completion date/flag from  an item in the amc_misc_data sql table
@@ -248,7 +254,9 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
                 array_push($sqlBindArray, $end);
             }
 
-            $rez = sqlStatement("SELECT * FROM `amc_misc_data` WHERE `amc_id`='provide_rec_pat_amc' AND `pid`=? AND (`date_completed` IS NULL OR `date_completed`='') $where ORDER BY `date_created` DESC", $sqlBindArray);
+            $rez = sqlStatement("SELECT * FROM `amc_misc_data` WHERE `amc_id`='provide_rec_pat_amc' AND `pid`=? AND " .
+            dateEmptySql('date_completed', true) .
+            "$where ORDER BY `date_created` DESC", $sqlBindArray);
             while ($res = sqlFetchArray($rez)) {
                 // Records have not been sent, so send this back
                 array_push($tempResults, array("pid"=>$patient['pid'], "fname"=>$patient['fname'], "lname"=>$patient['lname'], "date"=>$res['date_created']));
