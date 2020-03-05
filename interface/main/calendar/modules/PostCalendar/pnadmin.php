@@ -856,14 +856,13 @@ EOF;
     $header .= '"' . attr($GLOBALS['style']['BGCOLOR2']) . '">';
     $output .= $header;
     $output  = postcalendar_adminmenu("testSystem");
-    $output .= '<table border="1" cellpadding="3" cellspacing="1">';
-    $output .= '  <tr><th align="left">' . xlt('Name') . '</th><th align="left">' . xlt('Value') . '</th>';
-    $output .= '</tr>';
+    $output .= '<div class="container"><table class="table table-bordered table-striped"><thead>';
+    $output .= '<tr><th>' . xlt('Name') . '</th><th>' . xlt('Value') . '</th></tr></thead>';
     foreach ($infos as $info) {
-        $output.= '<tr><td ><b>' . pnVarPrepHTMLDisplay($info[0]) . '</b></td>';
+        $output.= '<tr><td><b>' . pnVarPrepHTMLDisplay($info[0]) . '</b></td>';
         $output.= '<td>' . pnVarPrepHTMLDisplay($info[1]) . '</td></tr>';
     }
-    $output .= '</table>';
+    $output .= '</div></table>';
     $output .= '<br /><br />';
     $output .= postcalendar_admin_modifyconfig('', false);
     $output .= "</body></html>";
