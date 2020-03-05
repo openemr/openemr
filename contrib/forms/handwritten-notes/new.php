@@ -19,8 +19,8 @@ if (!$encounter) {
 
 if ($_POST) {
     if (!empty($_POST['docid'])) {
-        $setdocid = "UPDATE `form_handwritten` SET `value` = " . $_POST['docid'] . " WHERE `name` = 'doc_category'";
-        sqlStatement($setdocid);
+        $setdocid = "UPDATE `form_handwritten` SET `value` = ? WHERE `name` = 'doc_category'";
+        sqlStatement($setdocid, $_POST['docid']);
         echo xlt("Your data has been saved.");
     }
 }
@@ -33,7 +33,7 @@ function getDocCats()
     $categories = sqlStatement($sql);
 
     while ($cat = sqlFetchArray($categories)) {
-        $output .= '<option value="' . $cat['id'] . '">' . $cat['name'] . '</option>\n';
+        $output .= '<option value="' . attr($cat['id']) . '">' . text($cat['name']) . '</option>\n';
     }
 
     return $output;
