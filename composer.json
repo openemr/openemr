@@ -82,7 +82,8 @@
             "library/classes/smtp/"
         ],
         "classmap": [
-            "library/classes"
+            "library/classes",
+            "interface/modules"
         ],
         "files": [
             "library/htmlspecialchars.inc.php",

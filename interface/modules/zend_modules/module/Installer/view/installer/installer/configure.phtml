@@ -11,6 +11,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Warning : PoC code
+// TBD - Must handle modules in external namespaces
+Use OpenEMR\Modules;
 
 $listener	= $this->listenerObject;
 $hangers  = $this->hangers;
@@ -194,11 +197,33 @@ if(isset($TabSettings[3]) && $TabSettings[3] > 0){
     </div>
   </div>
 <?php
-} else{
+} else {
+    // Warning : PoC code.  Expect a valid objModule at this point.
+    $rs_mod = sqlQuery('select * from modules where mod_id=?', [$mod_id]);
+    // TBD : Change field from mod_description based on clsOeModule specification for class name string
+    if (strlen(trim($rs_mod['mod_description'])) > 0) {
+        $compAuto = require_once ($GLOBALS['vendor_dir']."/composer/autoload_classmap.php");
+        $compAutoCls = $rs_mod['mod_description'];
+        $objMod = new $compAutoCls;
+    }
+    if ((is_object($objMod)) && (method_exists($objMod, 'actionConfig'))) {
+        // TBD : Resolve path issues by providing OeModule map function or property.
+        $modNode = "/".($rs_mod['type']==1?'zend':'custom').'_modules/';
+        $ifSrc = dirname($this->basePath(), 2).$modNode.explode($modNode, $objMod->actionConfig())[1];
+?>
+    <div class="easyui-tabs" id="tab<?php echo $this->escapeHtml($mod_id); ?>" style="width:800px;height:auto;">
+      <iframe scrolling="yes" frameborder="0"  
+              src="<?php echo $ifSrc ?>" 
+              style="width:100%;height:400px;">
+      </iframe>
+    </div>
+<?php 
+    } else {
 ?>
     <div class="easyui-tabs" id="tab<?php echo $this->escapeHtml($mod_id); ?>" style="width:800px;height:auto;">
     <?php echo $listener->z_xlt('No Configuration Defined for this Module');?>
     </div>
 <?php
+    }
 }
 ?>
