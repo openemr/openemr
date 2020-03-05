@@ -184,7 +184,7 @@ function displayAlert() {
             <input type="hidden" name="mode" value="facility" />
 
             <div class="row">
-                <div class="col-6">
+                <div class="col-sm-6">
                     <div class="form-group">
                         <label for="facility"><?php echo xlt('Name'); ?>:</label>
                         <input class="form-control" type="entry" name="facility" size="20" value="" required />
