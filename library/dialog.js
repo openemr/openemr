@@ -187,7 +187,7 @@ function includeScript(url, async, type) {
             console.log('Needed to load:[ ' + url + ' ] For: [ ' + location + ' ]');
             return false;
         }
-        
+
         if (async === false) {
             console.log("The url of " + url + " is deprecated due to synchronous requests. Let's find a way to remediate this soon!");
         }
@@ -523,8 +523,6 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
 
     var altClose = '<div class="closeDlgIframe" data-dismiss="modal" ></div>';
 
-    const position = { x: 0, y: 0 };
-
     var mhtml =
         ('<div id="%id%" class="modal fade dialogModal" tabindex="-1" role="dialog">%sizeStyle%' +
             '<style>.drag-resize {touch-action:none;user-select:none;}</style>' +
@@ -584,7 +582,7 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
             // DOM Ready. Handle events and cleanup.
             if (opts.type === 'iframe') {
                 var modalwin = where.jQuery('body').find("[name='" + winname + "']");
-                jQuery('div.modal-dialog', modalwin).css({'margin': '15px auto'});
+                jQuery('div.modal-dialog', modalwin).css({'margin': '15px auto auto'});
                 modalwin.on('load', function (e) {
                     setTimeout(function () {
                         if (opts.sizeHeight === 'auto') {
@@ -750,11 +748,7 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
 
                 oFoot.append(btn);
             }
-        } else {
-            //if no buttons defined by user, add a standard close button.
-            oFoot.append('<button class="closeBtn btn btn-secondary" data-dismiss=modal type=button><i class="fa fa-times-circle"></i></button>');
         }
-
         return oFoot; // jquery object of modal footer.
     }
 
@@ -792,9 +786,9 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
         frameContentHt = frameContentHt > viewPortHt ? viewPortHt : frameContentHt;
         let hasHeader = jQuery(e.currentTarget).parents('div.modal-content').find('div.modal-header').length;
         let hasFooter = jQuery(e.currentTarget).parents('div.modal-content').find('div.modal-footer').length;
-        size = (frameContentHt / viewPortHt * 100).toFixed(4);
-        let maxsize = hasHeader ? 90 : hasFooter ? 87.5 : 96;
-        maxsize = hasHeader && hasFooter ? 80 : maxsize;
+        size = (frameContentHt / viewPortHt * 100).toFixed(1);
+        let maxsize = hasHeader ? 85 : hasFooter ? 85 : 95;
+        maxsize = hasHeader && hasFooter ? 76 : maxsize;
         maxsize = maxsize + 'vh';
         size = size + 'vh'; // will start the dialog as responsive. Any resize by user turns dialog to absolute positioning.
 
