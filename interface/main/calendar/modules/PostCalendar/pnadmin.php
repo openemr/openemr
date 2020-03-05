@@ -47,9 +47,9 @@ function postcalendar_admin_modifyconfig($msg = '', $showMenu = true)
 
     if (!empty($msg)) {
         $output->Text(postcalendar_adminmenu("clearCache"));
-        $output -> Text('<center><div class="alert alert-success ml-1 mr-1" role="alert">');
+        $output -> Text('<div class="alert alert-success ml-1 mr-1 text-center" role="alert">');
         $output->Text("<b>$msg</b>");
-        $output -> Text('</div></center>');
+        $output -> Text('</div>');
     } else {
         if ($showMenu) {
             $output->Text(postcalendar_adminmenu(""));
