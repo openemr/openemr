@@ -27,6 +27,7 @@
  */
 
 use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Core\Header;
 
 //=========================================================================
 //  Load the API Functions
@@ -40,21 +41,19 @@ function postcalendar_admin_modifyconfig($msg = '', $showMenu = true)
     $output->SetInputMode(_PNH_VERBATIMINPUT);
 
     $header = "<html><head><title>" . xlt("Calendar") . "</title>";
-    $header .= '<link rel="stylesheet" href="../../../public/assets/bootstrap/dist/css/bootstrap.min.css"></head>';
-    $header .= <<<EOF
+    $header .= Header::setupHeader('', false)  . '</head><body>';
 
-	<body>
-EOF;
-    // $header .= '"' . attr($GLOBALS['style']['BGCOLOR2']) . '">';
     $output->Text($header);
-    if ($showMenu) {
-        $output->Text(postcalendar_adminmenu("clearCache"));
-    }
 
     if (!empty($msg)) {
+        $output->Text(postcalendar_adminmenu("clearCache"));
         $output -> Text('<div class="alert alert-success ml-5 mr-5" role="alert">');
         $output->Text("<b>$msg</b>");
         $output -> Text('</div>');
+    } else {
+        if ($showMenu) {
+            $output->Text(postcalendar_adminmenu(""));
+        }
     }
 
     $output->Text("</body></html>");
