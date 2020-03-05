@@ -47,9 +47,9 @@ function postcalendar_admin_modifyconfig($msg = '', $showMenu = true)
 
     if (!empty($msg)) {
         $output->Text(postcalendar_adminmenu("clearCache"));
-        $output -> Text('<div class="alert alert-success ml-5 mr-5" role="alert">');
+        $output -> Text('<center><div class="alert alert-success ml-1 mr-1" role="alert">');
         $output->Text("<b>$msg</b>");
-        $output -> Text('</div>');
+        $output -> Text('</div></center>');
     } else {
         if ($showMenu) {
             $output->Text(postcalendar_adminmenu(""));
@@ -443,14 +443,14 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
     $output->Text(postcalendar_adminmenu("category"));
 
     if (!empty($e)) {
-        $output -> Text('<div class="alert alert-danger ml-5 mr-5" role="alert">');
-        $output->Text('<b>'. text($e) .'</b>');
+        $output -> Text('<div class="alert alert-danger ml-1 mr-1" role="alert">');
+        $output->Text('<span class="text-center font-weight-bold">'. text($e) .'</span>');
         $output -> Text('</div><br />');
     }
 
     if (!empty($msg)) {
-        $output -> Text('<div class="alert alert-success ml-5 mr-5" role="alert">');
-        $output->Text('<b>' . text($msg) . '</b>');
+        $output -> Text('<div class="alert alert-success ml-1 mr-1" role="alert">');
+        $output->Text('<span class="text-center font-weight-bold">' . text($msg) . '</span>');
         $output -> Text('</div><br />');
     }
 
@@ -854,7 +854,7 @@ function postcalendar_admin_testSystem()
 EOF;
     $output .= $header;
     $output  = postcalendar_adminmenu("testSystem");
-    $output .= '<div class="container"><table class="table table-bordered table-striped"><thead>';
+    $output .= '<div class="container table-responsive"><table class="table table-bordered table-striped  "><thead>';
     $output .= '<tr><th>' . xlt('Name') . '</th><th>' . xlt('Value') . '</th></tr></thead>';
     foreach ($infos as $info) {
         $output.= '<tr><td><b>' . pnVarPrepHTMLDisplay($info[0]) . '</b></td>';
