@@ -312,7 +312,7 @@ $(function() {
             data: function(params) {
                 return {
                   {/literal}
-                  csrf_token_form: {$CSRF_TOKEN_FORM|js_url},
+                  csrf_token_form: {$CSRF_TOKEN_FORM|js_escape},
                   term: params.term
                   {literal}
                 };
@@ -362,6 +362,7 @@ $(function() {
             },
             cache: true
             },
+            tags: true,
             minimumInputLength: 3
           });
         {/literal}
