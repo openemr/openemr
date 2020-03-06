@@ -47,7 +47,7 @@ function postcalendar_admin_modifyconfig($msg = '', $showMenu = true)
 
     if (!empty($msg)) {
         $output->Text(postcalendar_adminmenu("clearCache"));
-        $output -> Text('<div class="alert alert-success ml-5 mr-5" role="alert">');
+        $output -> Text('<div class="alert alert-success ml-1 mr-1 text-center" role="alert">');
         $output->Text("<b>$msg</b>");
         $output -> Text('</div>');
     } else {
@@ -68,9 +68,8 @@ function postcalendar_admin_categoriesConfirm()
     $header = <<<EOF
 	<html>
 	<head></head>
-	<body bgcolor=
+	<body>
 EOF;
-    $header .= '"' . attr($GLOBALS['style']['BGCOLOR2']) . '">';
     $output->Text($header);
     $output->Text(postcalendar_adminmenu("category"));
     list($id, $del, $name, $constantid, $value_cat_type, $desc, $color,
@@ -444,15 +443,15 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
     $output->Text(postcalendar_adminmenu("category"));
 
     if (!empty($e)) {
-        $output->Text('<div style="padding:5px; border:1px solid red; background-color: pink;">');
-        $output->Text('<center><b>' . text($e) . '</b></center>');
-        $output->Text('</div><br />');
+        $output -> Text('<div class="alert alert-danger ml-1 mr-1" role="alert">');
+        $output->Text('<span class="text-center font-weight-bold">'. text($e) .'</span>');
+        $output -> Text('</div><br />');
     }
 
     if (!empty($msg)) {
-        $output->Text('<div style="padding:5px; border:1px solid green; background-color: lightgreen;">');
-        $output->Text('<center><b>' . text($msg) . '</b></center>');
-        $output->Text('</div><br />');
+        $output -> Text('<div class="alert alert-success ml-1 mr-1" role="alert">');
+        $output->Text('<span class="text-center font-weight-bold">' . text($msg) . '</span>');
+        $output -> Text('</div><br />');
     }
 
     //=================================================================
@@ -769,7 +768,7 @@ function postcalendar_admin_clearCache()
     $tpl->clear_all_cache();
     $tpl->clear_compiled_tpl();
 
-    return postcalendar_admin_modifyconfig('<center>'. $spec_err . text(_PC_CACHE_CLEARED) .'</center>');
+    return postcalendar_admin_modifyconfig('<div class="text-center">'. $spec_err . text(_PC_CACHE_CLEARED) .'</div>');
 }
 
 function postcalendar_admin_testSystem()
@@ -824,7 +823,7 @@ function postcalendar_admin_testSystem()
 
     $error = '';
     if ($modversion['version'] != $version) {
-        $error  = '<br /><div style=\"color: red;\">';
+        $error  = '<br /><div class="text-danger">';
         $error .= "new version $modversion[version] installed but not updated!";
         $error .= '</div>';
     }
@@ -844,26 +843,24 @@ function postcalendar_admin_testSystem()
         }
     }
     if (strlen($error) > 0) {
-        $info .= "<br /><div style=\"color: red;\">$error</div>";
+        $info .= "<br /><div class='text-danger'>$error</div>";
     }
     array_push($infos, array('smarty compile dir',  $info));
 
     $header = <<<EOF
 	<h1>
 	<head></head>
-	<body bgcolor=
+	<body>
 EOF;
-    $header .= '"' . attr($GLOBALS['style']['BGCOLOR2']) . '">';
     $output .= $header;
     $output  = postcalendar_adminmenu("testSystem");
-    $output .= '<table border="1" cellpadding="3" cellspacing="1">';
-    $output .= '  <tr><th align="left">' . xlt('Name') . '</th><th align="left">' . xlt('Value') . '</th>';
-    $output .= '</tr>';
+    $output .= '<div class="container table-responsive"><table class="table table-bordered table-striped  "><thead>';
+    $output .= '<tr><th>' . xlt('Name') . '</th><th>' . xlt('Value') . '</th></tr></thead>';
     foreach ($infos as $info) {
-        $output.= '<tr><td ><b>' . pnVarPrepHTMLDisplay($info[0]) . '</b></td>';
+        $output.= '<tr><td><b>' . pnVarPrepHTMLDisplay($info[0]) . '</b></td>';
         $output.= '<td>' . pnVarPrepHTMLDisplay($info[1]) . '</td></tr>';
     }
-    $output .= '</table>';
+    $output .= '</div></table>';
     $output .= '<br /><br />';
     $output .= postcalendar_admin_modifyconfig('', false);
     $output .= "</body></html>";
