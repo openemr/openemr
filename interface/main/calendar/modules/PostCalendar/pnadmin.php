@@ -67,9 +67,9 @@ function postcalendar_admin_categoriesConfirm()
     $output->SetInputMode(_PNH_VERBATIMINPUT);
     $header = <<<EOF
 	<html>
-	<head></head>
-	<body>
+	<head>
 EOF;
+    $header .= Header::setupHeader('', false)  . '</head><body><div class="container">';
     $output->Text($header);
     $output->Text(postcalendar_adminmenu("category"));
     list($id, $del, $name, $constantid, $value_cat_type, $desc, $color,
@@ -666,7 +666,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
         $tpl->assign('FormHidden', $form_hidden);
     }
     $form_submit = '<input type=hidden name="form_action" value="commit"/>
-				   ' . text($authkey) . '<input type="submit" name="submit" value="' . xla('go') . '">';
+				   ' . text($authkey) . '<input class="btn btn-primary" type="submit" name="submit" value="' . xla('go') . '">';
     $tpl->assign('FormSubmit', $form_submit);
 
     $output->Text($tpl->fetch($template_name.'/admin/submit_category.html'));
