@@ -199,11 +199,11 @@ EOD;
         $i = 0;
         foreach ($this->tabs as $val) {
             ++$i;
-            $s .= "<li class='tabs-tabs' ><a data-toggle='tab' class='tabs-anchor active' href='#{$this->tabsid}-$i'>" . text($val['title']) . "</a>";
+            $s .= "<li class='tabs-tabs' ><a data-toggle='tab' class='tabs-anchor active' href='#{$this->tabsid}-$i'>" . text($val['title']);
             if ($val['closeable']) {
-                $s .= " <span class='icon icon-close' role='presentation'>" . xlt('Remove Tab') . "</span>";
+                $s .= " <span aria-label='close' class='icon-close' role='close'>X</span>";
             }
-            $s .= "</li>\n";
+            $s .= "</a> </li>\n";
         }
         $s .= "</ul>\n";
         $s .= "<div class='tab-content' id='{$this->tabsid}-tabs'>";
