@@ -252,7 +252,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
     $visit_date = oeFormatShortDate($dated);
     ?>
 
-    <?php Header::setupHeader(); ?>
+    <?php Header::setupHeader(['no_dialog','no_jquery']); ?>
   <link rel="stylesheet" href="../../forms/<?php echo attr($form_folder); ?>/css/report.css" type="text/css">
   <style>
 
