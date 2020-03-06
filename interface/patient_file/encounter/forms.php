@@ -780,7 +780,7 @@ if ($esign->isButtonViewable()) {
 <?php if ($GLOBALS['enable_follow_up_encounters']) { ?>
     <a href='#' class='btn btn-primary' onclick='return createFollowUpEncounter()'><?php echo xlt('Create follow-up encounter') ?></a>
 <?php } ?>
-<button style="margin-left:50px;"  type="button" class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#demo"><?php echo xlt('Expand / Collapse'); ?></button>
+<button style="margin-left:50px;"  type="button" onClick="$('.collapse').collapse('toggle');" class="btn btn-primary btn-sm" ><?php echo xlt('Expand / Collapse'); ?></button>
 </div>
 </div>
 
@@ -1080,12 +1080,14 @@ if ($pass_sens_squad &&
                 // do not show delete button for main encounter here since it is displayed at top
             }
         }
+
+        echo "<a class='btn btn-primary btn-sm collapse-button-form text-white' title='" . xla('Expand/Collapse this form') . "' data-toggle='collapse' data-target='#divid_" . attr($divnos) . "'>" . xlt('Expand / Collapse') . "</a>";
         echo "</div>\n"; // Added as bug fix.
 
         echo "</td>\n";
         echo "</tr>";
         echo "<tr>";
-        echo "<td valign='top' class='formrow'><div id='demo' class='collapse show' style='margin-bottom:40px;' ";
+        echo "<td valign='top' class='formrow'><div id='divid_" . attr($divnos) . "' class='collapse show' style='margin-bottom:40px;' ";
         echo "class='tab " . ($divnos == 1 ? 'd-block' : 'd-none') . "'>";
 
         // Use the form's report.php for display.  Forms with names starting with LBF
