@@ -41,10 +41,8 @@ function sqlQuery($statement, $link)
 <head>
 <title>OpenEMR Site Administration</title>
 <link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css" type="text/css">
-<link rel="stylesheet" href="public/assets/jquery-ui/jquery-ui.css" type="text/css">
 <script type="text/javascript" src="public/assets/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript" src="public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script type="text/javascript" src="public/assets/jquery-ui/jquery-ui.js"></script>
 <link rel="stylesheet" href="public/assets/font-awesome/css/font-awesome.min.css" type="text/css">
 <link rel="shortcut icon" href="public/images/favicon.ico" />
 <style>
