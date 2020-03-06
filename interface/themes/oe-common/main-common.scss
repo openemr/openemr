@@ -43,7 +43,6 @@
     border: 1px solid $black;
     border-radius: 50%;
     height: 31px;
-    left: 0;
     width: 30px;
     margin: 3px;
     padding: 4px;
@@ -57,7 +56,7 @@
 }
 
 .oe-expandable-search button.btn-globals-legacy {
-    left: 6rem;
+    right: 0;
 }
 
 .oe-expandable-search .any-search-modern {
