@@ -206,7 +206,7 @@ if (isset($_POST["mode"])) {
 <html>
 <head>
 
-    <?php Header::setupHeader(['jquery-ui', 'datetime-picker']); ?>
+    <?php Header::setupHeader(['datetime-picker']); ?>
 
     <?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
     <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
@@ -654,9 +654,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <div class="modal-content oe-modal-content">
                         <!--<div class="modal-header" style="border:hidden"></div>-->
                         <div class="modal-body">
-                            <iframe src="" id="targetiframe1" style="height:650px; width:100%; overflow-x: hidden; border:none" allowtransparency="true"></iframe>
+                            <iframe src="" id="targetiframe1" class="w-100 border-0" style="height:650px; overflow-x: hidden;" allowtransparency="true"></iframe>
                         </div>
-                        <div class="modal-footer" style="margin-top:0px;">
+                        <div class="modal-footer" class="mt-0">
                            <button class="btn btn-link btn-cancel float-right" data-dismiss="modal" type="button"><?php echo xlt('close'); ?></button>
                         </div>
                     </div>
