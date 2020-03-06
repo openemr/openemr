@@ -15,7 +15,7 @@ use OpenEMR\Core\Header;
 
 // Special case where not setting up the header for a script, so using setupAssets function,
 //  which does not autoload anything. The actual header is set up in another script.
-Header::setupAssets(['jquery-ui', 'jquery-ui-base']);
+Header::setupAssets();
 
 class OemrUI
 {
@@ -80,7 +80,6 @@ class OemrUI
         if ($arrOeUiSettings['expandable'] && $arrOeUiSettings['expandable_files']) {
             $this->current_state = collectAndOrganizeExpandSetting($arrOeUiSettings['expandable_files']);
         }
-        echo "\r\n<script src='" . $GLOBALS['webroot'] . "/library/js/oeUI/universalTooltip.js?v=" . $v_js_includes. "'></script>\r\n";
     }
 
     /**
@@ -254,7 +253,7 @@ class OemrUI
         if ($help_file) {
             $help_file = attr($help_file);
             $help_file = $GLOBALS['webroot']."/Documentation/help_files/$help_file";
-            $modal_body = "<iframe src=\"$help_file\" id='targetiframe' style='height:100%; width:100%; overflow-x: hidden; border:none'
+            $modal_body = "<iframe src=\"$help_file\" id='targetiframe' class='w-100 h-100 border-0' style='overflow-x: hidden;'
                                 allowtransparency='true'></iframe>";
         } else {
             $modal_body = "<h3> <i class='fa fa-exclamation-triangle  oe-text-red' aria-hidden='true'></i> " . xlt("Check if a help file exists for this page in") . " " . text("Documentation/help_files") . ".<br /><br />" . xlt("Then pass it's name as a value to the element" ." " . text("'help_file_name'") . " "  .  "in the associative array") . " " . text("\$arrOeUiSettings"). ".<br /><br />" . xlt("If the help file does not exist create one and place it in") . " " . text("Documentation/help_files") . ".<br />" . "</h3>";
@@ -266,12 +265,12 @@ class OemrUI
                     <div class="modal-content  oe-modal-content" style="height:700px">
                         <div class="modal-header clearfix">
                             <button type="button" class="close" data-dismiss="modal" aria-label="$close">
-                            <span aria-hidden="true" style="color:var(--black); font-size:1.5em;">×</span></button>
+                            <span aria-hidden="true" class='text-black' style='font-size:1.5em;'>×</span></button>
                         </div>
                         <div class="modal-body" style="height:80%;">
                             $modal_body
                         </div>
-                        <div class="modal-footer" style="margin-top:0px;">
+                        <div class="modal-footer" class='mt-0'>
                            <button class="btn btn-link btn-cancel oe-pull-away" data-dismiss="modal" type="button">$close</button>
                            <!--<button class="btn btn-secondary btn-print oe-pull-away" data-dismiss="modal" id="print-help-href" type="button">$print</button>-->
                         </div>
