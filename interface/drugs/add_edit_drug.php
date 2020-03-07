@@ -363,8 +363,9 @@ if ($drug_id) {
     'related_code' => '',
     );
 }
+$title = $drug_id ? xl("Update Drug") : xl("Add Drug");
 ?>
-
+<h3 class="ml-1"><?php echo text($title);?></h3>
 <form class="form" method='post' name='theform' action='add_edit_drug.php?drug=<?php echo attr_url($drug_id); ?>'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <center>
@@ -613,9 +614,9 @@ for ($i = 0; $i < $blank_lines; ++$i) {
 
 </table>
 <div class="btn-group">
-<input type='submit' class="btn btn-primary" name='form_save' value='<?php echo xla('Save'); ?>' />
+<input type='submit' class="btn btn-primary" name='form_save' value='<?php echo  $drug_id ? xla('Update') : xla('Add') ; ?>' />
 
-<?php if (AclMain::aclCheckCore('admin', 'super')) { ?>
+<?php if (AclMain::aclCheckCore('admin', 'super') && $drug_id) { ?>
 <input class="btn btn-danger" type='submit' name='form_delete' value='<?php echo xla('Delete'); ?>' />
 <?php } ?>
 <input type='button' class="btn btn-secondary" value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
