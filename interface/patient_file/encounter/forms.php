@@ -780,7 +780,10 @@ if ($esign->isButtonViewable()) {
 <?php if ($GLOBALS['enable_follow_up_encounters']) { ?>
     <a href='#' class='btn btn-primary' onclick='return createFollowUpEncounter()'><?php echo xlt('Create follow-up encounter') ?></a>
 <?php } ?>
-<button style="margin-left:50px;"  type="button" onClick="$('.collapse').collapse('toggle');" class="btn btn-primary btn-sm" ><?php echo xlt('Expand / Collapse'); ?></button>
+<div class='btn-group' role="group">
+<button  type="button" onClick="$('.collapse').collapse('hide');" class="btn btn-primary btn-sm ml-3" ><?php echo xlt('Collapse All'); ?></button>
+<button  type="button" onClick="$('.collapse').collapse('show');" class="btn btn-primary btn-sm" ><?php echo xlt('Expand All'); ?></button>
+</div>
 </div>
 </div>
 
