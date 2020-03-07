@@ -148,7 +148,7 @@ if ($_POST['form_save']) {
     }
 
     $drugName = trim($_POST['form_name']);
-    if ($drugName === '' ) {
+    if ($drugName === '') {
         $alertmsg = xl('Drug name is required');
     } else {
         $crow = sqlQuery(
