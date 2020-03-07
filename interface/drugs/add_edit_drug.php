@@ -147,25 +147,30 @@ if ($_POST['form_save']) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $crow = sqlQuery(
-        "SELECT COUNT(*) AS count FROM drugs WHERE " .
-        "name = ? AND " .
-        "form = ? AND " .
-        "size = ? AND " .
-        "unit = ? AND " .
-        "route = ? AND " .
-        "drug_id != ?",
-        array(
-            trim($_POST['form_name']),
-            trim($_POST['form_form']),
-            trim($_POST['form_size']),
-            trim($_POST['form_unit']),
-            trim($_POST['form_route']),
-            $drug_id
-        )
-    );
-    if ($crow['count']) {
-        $alertmsg = xl('Cannot add this entry because it already exists!');
+    $drugName = trim($_POST['form_name']);
+    if ($drugName === '') {
+        $alertmsg = xl('Drug name is required');
+    } else {
+        $crow = sqlQuery(
+            "SELECT COUNT(*) AS count FROM drugs WHERE " .
+            "name = ? AND " .
+            "form = ? AND " .
+            "size = ? AND " .
+            "unit = ? AND " .
+            "route = ? AND " .
+            "drug_id != ?",
+            array(
+                trim($_POST['form_name']),
+                trim($_POST['form_form']),
+                trim($_POST['form_size']),
+                trim($_POST['form_unit']),
+                trim($_POST['form_route']),
+                $drug_id
+            )
+        );
+        if ($crow['count']) {
+            $alertmsg = xl('Cannot add this entry because it already exists!');
+        }
     }
 }
 
