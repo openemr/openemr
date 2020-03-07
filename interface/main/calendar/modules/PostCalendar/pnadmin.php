@@ -47,7 +47,7 @@ function postcalendar_admin_modifyconfig($msg = '', $showMenu = true)
 
     if (!empty($msg)) {
         $output->Text(postcalendar_adminmenu("clearCache"));
-        $output -> Text('<div class="alert alert-success ml-1 mr-1 text-center" role="alert">');
+        $output -> Text('<div class="alert alert-success mx-1 text-center" role="alert">');
         $output->Text("<b>$msg</b>");
         $output -> Text('</div>');
     } else {
@@ -67,9 +67,9 @@ function postcalendar_admin_categoriesConfirm()
     $output->SetInputMode(_PNH_VERBATIMINPUT);
     $header = <<<EOF
 	<html>
-	<head></head>
-	<body>
+	<head>
 EOF;
+    $header .= Header::setupHeader('', false)  . '</head><body><div class="container">';
     $output->Text($header);
     $output->Text(postcalendar_adminmenu("category"));
     list($id, $del, $name, $constantid, $value_cat_type, $desc, $color,
@@ -443,13 +443,13 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
     $output->Text(postcalendar_adminmenu("category"));
 
     if (!empty($e)) {
-        $output -> Text('<div class="alert alert-danger ml-1 mr-1" role="alert">');
+        $output -> Text('<div class="alert alert-danger mx-1" role="alert">');
         $output->Text('<span class="text-center font-weight-bold">'. text($e) .'</span>');
         $output -> Text('</div><br />');
     }
 
     if (!empty($msg)) {
-        $output -> Text('<div class="alert alert-success ml-1 mr-1" role="alert">');
+        $output -> Text('<div class="alert alert-success mx-1" role="alert">');
         $output->Text('<span class="text-center font-weight-bold">' . text($msg) . '</span>');
         $output -> Text('</div><br />');
     }
@@ -666,7 +666,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
         $tpl->assign('FormHidden', $form_hidden);
     }
     $form_submit = '<input type=hidden name="form_action" value="commit"/>
-				   ' . text($authkey) . '<input type="submit" name="submit" value="' . xla('go') . '">';
+				   ' . text($authkey) . '<input class="btn btn-primary" type="submit" name="submit" value="' . xla('go') . '">';
     $tpl->assign('FormSubmit', $form_submit);
 
     $output->Text($tpl->fetch($template_name.'/admin/submit_category.html'));
@@ -700,52 +700,53 @@ function postcalendar_adminmenu($menuItem)
 
     if ($menuItem === "clearCache") {
         $output .= <<<EOF
-<li class="nav-item">
-    <a class="nav-link active" href="$cacheURL">$cacheText</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link" href="$systemURL">$systemText</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link" href="$categoryURL">$categoryText</a>
-</li>
-EOF;
+        <li class="nav-item">
+            <a class="nav-link active" href="$cacheURL">$cacheText</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="$systemURL">$systemText</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="$categoryURL">$categoryText</a>
+        </li>
+        EOF;
     } else if ($menuItem === "testSystem") {
         $output .= <<<EOF
-<li class="nav-item">
-    <a class="nav-link" href="$cacheURL">$cacheText</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link active" href="$systemURL">$systemText</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link" href="$categoryURL">$categoryText</a>
-</li>
-EOF;
+        <li class="nav-item">
+            <a class="nav-link" href="$cacheURL">$cacheText</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" href="$systemURL">$systemText</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="$categoryURL">$categoryText</a>
+        </li>
+        EOF;
     } else if ($menuItem === "category") {
         $output .= <<<EOF
-<li class="nav-item">
-    <a class="nav-link" href="$cacheURL">$cacheText</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link" href="$systemURL">$systemText</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link active" href="$categoryURL">$categoryText</a>
-</li>
-EOF;
+        <li class="nav-item">
+            <a class="nav-link" href="$cacheURL">$cacheText</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="$systemURL">$systemText</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" href="$categoryURL">$categoryText</a>
+        </li>
+        EOF;
     } else {
         $output .= <<<EOF
-<li class="nav-item">
-    <a class="nav-link" href="$cacheURL">$cacheText</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link" href="$systemURL">$systemText</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link" href="$categoryURL">$categoryText</a>
-</li>
-EOF;
+        <li class="nav-item">
+            <a class="nav-link" href="$cacheURL">$cacheText</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="$systemURL">$systemText</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="$categoryURL">$categoryText</a>
+        </li>
+        EOF;
+
     }
     $output .= "</ul></div>";
     // Return the output that has been generated by this function
@@ -848,7 +849,6 @@ function postcalendar_admin_testSystem()
     array_push($infos, array('smarty compile dir',  $info));
 
     $header = <<<EOF
-	<h1>
 	<head></head>
 	<body>
 EOF;
