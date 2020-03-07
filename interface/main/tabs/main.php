@@ -402,7 +402,6 @@ displayViewModel.objWidth = ko.computed(function() {
                 currWidth.bodyTopDivWidth = "col-sm-1";
                 currWidth.bodyMain = "body_main_widescreen";
             } else {
-                currWidth.bodyTopDivWidth = "col-sm-2";
                 currWidth.bodyMain = "body_main";
             }
             if(this.oeVerticalMenu()){
@@ -411,7 +410,6 @@ displayViewModel.objWidth = ko.computed(function() {
                     currWidth.bodyTopDivWidth = "col-sm-1";
                 } else {
                     currWidth.tabsDivWidth = "col-sm-10";
-                    currWidth.bodyTopDivWidth = "col-sm-2";
                 }
             } else {
                currWidth.tabsDivWidth = "col-sm-12";
