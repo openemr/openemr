@@ -1336,7 +1336,7 @@ function generate_form_field($frow, $currvalue)
             $datatype = 'admin-signature';
         }
         echo "<input type='hidden' id='form_$field_id_esc' name='form_$field_id_esc' value='' />\n";
-        echo "<img class='signature' id='form_{$field_id_esc}_img' title='$description' 
+        echo "<img class='signature' id='form_{$field_id_esc}_img' title='$description'
             data-pid='$cpid' data-user='$cuser' data-type='$datatype'
             data-action='fetch_signature' alt='Get Signature' src='" . attr($currvalue) . "'>\n";
     }
@@ -2694,6 +2694,10 @@ function generate_plaintext_field($frow, $currvalue)
 
             $s .= $resdate;
         }
+    } elseif ($data_type == 35) { // Facility, so facility can be listed in plain-text, as in patient finder column
+        $facilityService = new FacilityService();
+        $facility = $facilityService->getById($currvalue);
+        $s = $facility['name'];
     } elseif ($data_type == 36) { // Multi select. Supports backup lists
         $values_array = explode("|", $currvalue);
 
