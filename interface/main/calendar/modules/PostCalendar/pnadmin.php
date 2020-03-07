@@ -47,7 +47,7 @@ function postcalendar_admin_modifyconfig($msg = '', $showMenu = true)
 
     if (!empty($msg)) {
         $output->Text(postcalendar_adminmenu("clearCache"));
-        $output -> Text('<div class="alert alert-success ml-1 mr-1 text-center" role="alert">');
+        $output -> Text('<div class="alert alert-success mx-1 text-center" role="alert">');
         $output->Text("<b>$msg</b>");
         $output -> Text('</div>');
     } else {
@@ -443,13 +443,13 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
     $output->Text(postcalendar_adminmenu("category"));
 
     if (!empty($e)) {
-        $output -> Text('<div class="alert alert-danger ml-1 mr-1" role="alert">');
+        $output -> Text('<div class="alert alert-danger mx-1" role="alert">');
         $output->Text('<span class="text-center font-weight-bold">'. text($e) .'</span>');
         $output -> Text('</div><br />');
     }
 
     if (!empty($msg)) {
-        $output -> Text('<div class="alert alert-success ml-1 mr-1" role="alert">');
+        $output -> Text('<div class="alert alert-success mx-1" role="alert">');
         $output->Text('<span class="text-center font-weight-bold">' . text($msg) . '</span>');
         $output -> Text('</div><br />');
     }
@@ -848,7 +848,6 @@ function postcalendar_admin_testSystem()
     array_push($infos, array('smarty compile dir',  $info));
 
     $header = <<<EOF
-	<h1>
 	<head></head>
 	<body>
 EOF;
