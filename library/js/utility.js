@@ -74,36 +74,21 @@ document.addEventListener('DOMContentLoaded', function () {
     let isNeeded = document.querySelectorAll('.drag-action').length;
     let isNeededResize = document.querySelectorAll('.resize-action').length;
     if (isNeeded || isNeededResize) {
-        initDragResize();
+        waitForVariable("interact",initInteractors);
     }
 
 }, false);
 
-/*
-* @function initDragResize(dragContext, resizeContext)
-* @summary call this function from scripts you may want to provide a different
-*  context other than the page context of this utility
-*
-* @param {object} context of element to apply drag.
-* @param {object} optional context of element. document is default.
-*/
-function initDragResize(dragContext, resizeContext = document) {
-    let isLoaded = typeof window.interact;
-    if (isLoaded !== 'function') {
-        let load = async () => {
-            let interactfn = top.webroot_url + '/public/assets/interactjs/dist/interact.js';
-            await includeScript(interactfn, false, 'script');
-        };
-        load().then(rtn => {
-            initInteractors(dragContext, resizeContext);
-        });
-    } else {
-        initInteractors(dragContext, resizeContext);
-    }
+function loadInteract(){
+    let load = async () => {
+        let interactfn = top.webroot_url + '/public/assets/interactjs/dist/interact.js';
+        await includeScript(interactfn, false, 'script');
+    };
+    load();
 }
 
 /* function to init all page drag/resize elements.*/
-function initInteractors(dragContext = document, resizeContext = '') {
+function initInteractors(dragContext = document, resizeContext = document) {
     resizeContext = resizeContext ? resizeContext : dragContext;
     /* Draggable */
     interact(".drag-action", {context: dragContext}).draggable({
@@ -188,7 +173,118 @@ function initInteractors(dragContext = document, resizeContext = '') {
         target.setAttribute('data-y', y);
     }
 }
+/* function to get surety is element is loaded.*/
+function waitForVariable(variable,fn,fnVar = []){
+    let isLoaded = typeof window[variable];
+    if(isLoaded === 'function'){
+        fn(...fnVar);
+    }
+    else{
+        if(variable === 'interact'){
+            loadInteract();
+        }
+        setTimeout(function() {
+            waitForVariable(variable, fn, fnVar);
+        }, 250);
+    }
+}
+/* function to enable sort for draggable/droppable element*/
+function oeSortable(callBackFn) {
+    function clearTranslate(elem){
+        elem.style.webkitTransform =
+            elem.style.transform =
+            'translate(' + 0 + 'px, ' + 0 + 'px)'
+        elem.setAttribute('data-x', 0)
+        elem.setAttribute('data-y', 0)
+    }
+    function switchElem(elem1, elem2, clear = false){
+        $(elem2).append($(elem1).children()[0]);
+        $(elem1).append($(elem2).children()[0]);
+        if(clear){
+             clearTranslate($(elem2).children()[0]);
+             clearTranslate($(elem1).children()[0]);
+        }
+    }
+    function moveUp(elem){
+        if(elem){
+            let prevElem = $(elem).prev(".droppable");
+            if(prevElem.length > 0){
+                let childIsDragging = prevElem.children("li.is-dragging")[0];
+                if(childIsDragging){
+                    switchElem(elem, prevElem[0], true);
+                    return true;
+                }else{ 
+                    if(prevElem[0]){
+                        if(moveUp(prevElem[0])){
+                            switchElem(elem, prevElem[0]);
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    function moveDown(elem){
+        if(elem){
+            let nxtElem = $(elem).next(".droppable");
+            if(nxtElem.length > 0){
+                let childIsDragging = nxtElem.children("li.is-dragging")[0];
+                if(childIsDragging){
+                    switchElem(elem, nxtElem[0], true);
+                    return true;
+                }else{ 
+                    if(nxtElem[0]){
+                        if(moveDown(nxtElem[0])){
+                            switchElem(elem, nxtElem[0]);
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    function dragMoveListener (event) {
+        var target = event.target
+        var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
+        var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
+        target.style.webkitTransform =
+            target.style.transform =
+            'translate(' + x + 'px, ' + y + 'px)'
+        target.setAttribute('data-x', x)
+        target.setAttribute('data-y', y)
+    }
+    interact('.droppable').dropzone({
+        accept: null,
+        overlap: 0.7,
+        ondropactivate: function (event) {
+            event.relatedTarget.classList.add('is-dragging');
+        },
+        ondragenter: function (event) {
+            let isUpper = moveUp(event.target);
+            if(!isUpper){
+                moveDown(event.target);
+            }
+        },
+        ondropdeactivate: function (event) {
+            event.relatedTarget.classList.remove('is-dragging');
+            clearTranslate(event.relatedTarget);
+            callBackFn && callBackFn();
+        }
+    })
 
+    interact('.draggable')
+        .draggable({
+            inertia: true,
+            modifiers: [
+            interact.modifiers.restrictRect({
+                restriction: null,
+                endOnly: true
+            })
+            ],
+            autoScroll: true,
+            listeners: { move: dragMoveListener }
+    })
+};
 /*
 * Universal async BS alert message with promise
 * Note the use of new javaScript translate function xl().

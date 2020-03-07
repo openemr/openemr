@@ -158,7 +158,7 @@ if ($Source!="add_template") {
     $i=0;
     while ($row = sqlFetchArray($res)) {
         $i++;
-        echo "<li id='clorder_".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."' style='cursor:pointer'><span>";
+        echo "<div class='droppable'><li class='draggable' id='clorder_".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."' style='cursor:pointer'><span>";
         if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
             echo "<img src='" . $GLOBALS['images_static_relative'] . "/b_edit.png' onclick=update_item_div('".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."')>";
         }
@@ -168,7 +168,7 @@ if ($Source!="add_template") {
             echo "<div id='update_item".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."' style='display:none'><textarea name='update_item_txt".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."' id='update_item_txt".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."'>".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."</textarea><br />";
             echo "<input type='button' name='update' onclick=update_item('".$row['cl_list_slno']."') value='".htmlspecialchars(xl('Update'), ENT_QUOTES)."'><input type='button' name='cancel' value='". htmlspecialchars(xl('Cancel'), ENT_QUOTES)."' onclick=cancel_item('".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."')></div>";
         }
-        echo "</span></li>";
+        echo "</span></li></div>";
     }
     if (AclMain::aclCheckCore('nationnotes', 'nn_configure') && $templateid) {
         echo "<li style='cursor:pointer'><span onclick='add_item()'>".htmlspecialchars(xl('Click to add new components'), ENT_QUOTES);

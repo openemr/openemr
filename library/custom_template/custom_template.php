@@ -141,14 +141,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
 </script>
 <script type="text/javascript">
     $(function () {
-        $(function () {
-            $("#menu5 div").sortable({
-                opacity: 0.3, cursor: 'move', update: function () {
-                    var order = $(this).sortable("serialize") + '&action=updateRecordsListings';
-                    $.post("updateDB.php", order);
-                }
-            });
-        });
+        waitForVariable("interact",oeSortable);
     });
     <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 </script>

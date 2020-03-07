@@ -599,7 +599,7 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
             // events chain.
             dlgContainer.on('show.bs.modal', function () {
                 if (opts.allowResize || opts.allowDrag) {
-                    initDragResize(where.document, where.document);
+                    waitForVariable("interact",initInteractors,[where.document, where.document]);
                 }
             }).on('shown.bs.modal', function () {
                 // Remove waitHtml spinner/loader etc.
