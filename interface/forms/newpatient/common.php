@@ -80,7 +80,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 <!DOCTYPE html>
 <html>
 <head>
-<?php Header::setupHeader(['datetime-picker', 'common', 'jquery-ui', 'jquery-ui-darkness']);?>
+<?php Header::setupHeader(['datetime-picker', 'common']);?>
 <title><?php echo xlt('Patient Encounter'); ?></title>
 
 
@@ -483,7 +483,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <legend><?php echo xlt('Link/Add Issues (Injuries/Medical/Allergy) to Current Visit')?></legend>
                     <div id="visit-issues">
                         <div class="form-row px-5">
-                            <div style="padding-bottom: 5px">
+                            <div class="pb-1">
                                 <div class="btn-group" role="group">
                                     <?php if (AclMain::aclCheckCore('patients', 'med', '', 'write')) { ?>
                                    <a href="../../patient_file/summary/add_edit_issue.php" class="btn btn-primary btn-sm enc_issue" onclick="top.restoreSession()"><?php echo xlt('Add Issue'); ?></a>
@@ -614,12 +614,8 @@ if ($GLOBALS['enable_group_therapy']) { ?>
 
 $(function (){
     $('#billing_facility').addClass('col-sm-9');
-    //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
-    // the relevant css file needs to be called i.e. jquery-ui-darkness - to get a black tooltip
-    $('#sensitivity-tooltip').attr( "title", <?php echo xlj('If set as high will restrict visibility of encounter to users belonging to certain groups (AROs). By default - Physicians and Administrators'); ?> );
-    $('#sensitivity-tooltip').tooltip();
-    $('#onset-tooltip').attr( "title", <?php echo xlj('Hospital date needed for successful billing of hospital encounters'); ?> );
-    $('#onset-tooltip').tooltip();
+    $('#sensitivity-tooltip').attr({"title": <?php echo xlj('If set as high will restrict visibility of encounter to users belonging to certain groups (AROs). By default - Physicians and Administrators'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+    $('#onset-tooltip').attr({"title": <?php echo xlj('Hospital date needed for successful billing of hospital encounters'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
 });
 </script>
 </html>

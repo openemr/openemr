@@ -416,3 +416,7 @@ CREATE TABLE `pro_assessments` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 #EndIf
+
+#IfNotRow2D list_options list_id LBF_Validations option_id future_date
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','future_date','Future Date','{\"futureDate\":{\"message\":\"must be future date\"}}','32');
+#EndIf

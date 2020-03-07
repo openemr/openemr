@@ -143,18 +143,28 @@ if ($_POST['form_submit'] && !$alertmsg) {
     }
 
     if ($layout_id) {
-      // They have edited an existing layout.
-        $sqlvars[] = $layout_id;
-        $sqlvars[] = $group_id;
-        sqlStatement(
-            "UPDATE layout_group_properties SET $sets " .
-            "WHERE grp_form_id = ? AND grp_group_id = ?",
-            $sqlvars
-        );
+        // They have edited an existing layout.
+        $form_title = $_POST['form_title'];
+        if ($form_title == '') {
+            $alertmsg = xl('Title is required');
+        } else {
+            $sqlvars[] = $layout_id;
+            $sqlvars[] = $group_id;
+            sqlStatement(
+                "UPDATE layout_group_properties SET $sets " .
+                "WHERE grp_form_id = ? AND grp_group_id = ?",
+                $sqlvars
+            );
+        }
     } else if (!$group_id) {
         // They want to add a new layout. New groups not supported here.
         $form_form_id = $_POST['form_form_id'];
-        if (preg_match('/(LBF|LBT)[0-9A-Za-z_]+/', $form_form_id)) {
+        $form_title = $_POST['form_title'];
+        if ($form_form_id == '') {
+            $alertmsg = xl('Layout ID is required');
+        } else if ($form_title == '') {
+            $alertmsg = xl('Title is required');
+        } else if (preg_match('/(LBF|LBT)[0-9A-Za-z_]+/', $form_form_id)) {
             $tmp = sqlQuery(
                 "SELECT grp_form_id FROM layout_group_properties WHERE " .
                 "grp_form_id = ? AND grp_group_id = ''",

@@ -165,7 +165,7 @@ if (!$_REQUEST['flb_table']) {
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="author" content="OpenEMR: MedExBank">
-    <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-cupertino', 'opener', 'purecss']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'opener', 'purecss']); ?>
     <title><?php echo xlt('Flow Board'); ?></title>
     <script type="text/javascript">
         <?php require_once "$srcdir/restoreSession.php"; ?>

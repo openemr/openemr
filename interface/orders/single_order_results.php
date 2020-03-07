@@ -104,7 +104,7 @@ if (!empty($_POST['form_send_to_portal'])) {
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['jquery-ui']); ?>
+    <?php Header::setupHeader(); ?>
 <title><?php echo xlt('Order Results'); ?></title>
 <style>
 body {

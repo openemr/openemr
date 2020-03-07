@@ -39,10 +39,10 @@ use OpenEMR\Core\Header;
 <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 <meta charset="utf-8" />
 <?php if ($isAuthorized !== true) {
-    Header::setupHeader(['no_main-theme', 'opener', 'common', 'datetime-picker', 'jquery-ui',]);
+    Header::setupHeader(['no_main-theme', 'opener', 'common', 'datetime-picker', 'select2']);
     ?>
 
-<script type="text/javascript">
+<script>
 $(function() {
     $( "[title*='DATE']" ).datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
@@ -62,124 +62,160 @@ $(function() {
     });
 
     $( function() {
-        var cache = {};
-        $( "[title*='REVENUE CODE']" ).autocomplete({
-          minLength: 1,
-          source: function( request, response ) {
-            var term = request.term;
-            request.code_group = "revenue_code";
-            if ( term in cache ) {
-              response( cache[ term ] );
-              return;
-            }
-            $.getJSON( "./ub04_helpers.php", request, function( data, status, xhr ) {
-              cache[ term ] = data;
-              response( data );
+        $("[title*='REVENUE CODE']").select2({
+                ajax: {
+                    url: "./ub04_helpers.php",
+                    dataType: 'json',
+                    data: function(params) {
+                        return {
+                        code_group: "revenue_code",
+                        term: params.term
+                        };
+                    },
+                    processResults: function(data) {
+                        return  {
+                            results: $.map(data, function(item, index) {
+                                return {
+                                    text: item,
+                                    id: index,
+                                }
+                            })
+                        };
+                        return x;
+                    },
+                    cache: true
+                }
             });
-          }
-        }).dblclick(function(event) {
-            $(this).autocomplete('search'," ");
-        });
       });
     $( function() {
-        var cache = {};
-        $( "[title*='OCCURRENCE CODE']" ).autocomplete({
-            minLength: 1,
-            source: function( request, response ) {
-              var term = request.term;
-              request.code_group = "occurrence_code";
-              if ( term in cache ) {
-                response( cache[ term ] );
-                return;
-              }
-              $.getJSON( "./ub04_helpers.php", request, function( data, status, xhr ) {
-                cache[ term ] = data;
-                response( data );
-              });
-            }
-          }).dblclick(function(event) {
-              $(this).autocomplete('search'," ");
-          });
+        $("[title*='OCCURRENCE CODE']").select2({
+                ajax: {
+                    url: "./ub04_helpers.php",
+                    dataType: 'json',
+                    data: function(params) {
+                        return {
+                        code_group: "occurrence_code",
+                        term: params.term
+                        };
+                    },
+                    processResults: function(data) {
+                        return  {
+                            results: $.map(data, function(item, index) {
+                                return {
+                                    text: item,
+                                    id: index,
+                                }
+                            })
+                        };
+                        return x;
+                    },
+                    cache: true
+                }
+            });
     });
     $( function() {
-        var cache = {};
-        $( "[title*='OCCURRENCE SPAN CODE']" ).autocomplete({
-            minLength: 1,
-            source: function( request, response ) {
-              var term = request.term;
-              request.code_group = "occurrence_span_code";
-              if ( term in cache ) {
-                response( cache[ term ] );
-                return;
-              }
-              $.getJSON( "./ub04_helpers.php", request, function( data, status, xhr ) {
-                cache[ term ] = data;
-                response( data );
-              });
-            }
-          }).dblclick(function(event) {
-              $(this).autocomplete('search'," ");
-          });
+        $("[title*='OCCURRENCE SPAN CODE']").select2({
+                ajax: {
+                    url: "./ub04_helpers.php",
+                    dataType: 'json',
+                    data: function(params) {
+                        return {
+                        code_group: "occurrence_span_code",
+                        term: params.term
+                        };
+                    },
+                    processResults: function(data) {
+                        return  {
+                            results: $.map(data, function(item, index) {
+                                return {
+                                    text: item,
+                                    id: index,
+                                }
+                            })
+                        };
+                        return x;
+                    },
+                    cache: true
+                }
+            });
     });
     $( function() {
-        var cache = {};
-        $( "[title*='VALUE CODE']" ).autocomplete({
-          minLength: 1,
-          source: function( request, response ) {
-            var term = request.term;
-            request.code_group = "value_codes";
-            if ( term in cache ) {
-              response( cache[ term ] );
-              return;
-            }
-            $.getJSON( "./ub04_helpers.php", request, function( data, status, xhr ) {
-              cache[ term ] = data;
-              response( data );
+        $("[title*='VALUE CODE']").select2({
+                ajax: {
+                    url: "./ub04_helpers.php",
+                    dataType: 'json',
+                    data: function(params) {
+                        return {
+                        code_group: "value_codes",
+                        term: params.term
+                        };
+                    },
+                    processResults: function(data) {
+                        return  {
+                            results: $.map(data, function(item, index) {
+                                return {
+                                    text: item,
+                                    id: index,
+                                }
+                            })
+                        };
+                        return x;
+                    },
+                    cache: true
+                }
             });
-          }
-        }).dblclick(function(event) {
-            $(this).autocomplete('search'," ");
-        });
       });
     $( function() {
-        var cache = {};
-        $( "[title*='CONDITION CODE']" ).autocomplete({
-          minLength: 1,
-          source: function( request, response ) {
-            var term = request.term;
-            request.code_group = "condition_code";
-            if ( term in cache ) {
-              response( cache[ term ] );
-              return;
-            }
-            $.getJSON( "./ub04_helpers.php", request, function( data, status, xhr ) {
-              cache[ term ] = data;
-              response( data );
+        $("[title*='CONDITION CODE']").select2({
+                ajax: {
+                    url: "./ub04_helpers.php",
+                    dataType: 'json',
+                    data: function(params) {
+                        return {
+                        code_group: "condition_code",
+                        term: params.term
+                        };
+                    },
+                    processResults: function(data) {
+                        return  {
+                            results: $.map(data, function(item, index) {
+                                return {
+                                    text: item,
+                                    id: index,
+                                }
+                            })
+                        };
+                        return x;
+                    },
+                    cache: true
+                }
             });
-          }
-        }).dblclick(function(event) {
-            $(this).autocomplete('search'," ");
-        });
       });
     $( function() {
-        var cache = {};
-        $( "[title*='STATUS']" ).autocomplete({
-          minLength: 1,
-          source: function( request, response ) {
-            var term = request.term;
-            request.code_group = "patient_status_code";
-            if ( term in cache ) {
-              response( cache[ term ] );
-              return;
-            }
-            $.getJSON( "./ub04_helpers.php", request, function( data, status, xhr ) {
-              cache[ term ] = data;
-              response( data );
+        $("[title*='STATUS']").select2({
+                ajax: {
+                    url: "./ub04_helpers.php",
+                    dataType: 'json',
+                    data: function(params) {
+                        return {
+                        code_group: "patient_status_code",
+                        term: params.term
+                        };
+                    },
+                    processResults: function(data) {
+                        return  {
+                            results: $.map(data, function(item, index) {
+                                return {
+                                    text: item,
+                                    id: index,
+                                }
+                            })
+                        };
+                        return x;
+                    },
+                    cache: true
+                }
             });
-          }
-        }).dblclick(function(event) {
-            $(this).autocomplete('search'," ");
-        });
       });
 
     $('form :input').change(function(e){
@@ -188,9 +224,10 @@ $(function() {
            return false;
     });
 });
+</script>
 <?php } else {?>
-<script type="text/javascript">
 <?php } ?>
+<script>
 var pid;
 var encounter;
 var align = true;
@@ -998,76 +1035,76 @@ textarea{
 <input type="text"   maxlength="1"  id="ub04id27" value=""  title="14. PATIENT PRIORITY (TYPE) OF VISIT"  name="ub04Block_26"/>
 <input type="text"   maxlength="1"  id="ub04id28" value=""  title="15. PATIENT POINT OF ORIGIN FOR ADMISSION OR VISIT"  name="ub04Block_27"/>
 <input type="text"   maxlength="2"  id="ub04id29" value=""  title="16. PATIENT DISCHARGE HOUR"  name="ub04Block_28"/>
-<input type="text"   maxlength="2"  id="ub04id30" value=""  title="17. PATIENT DISCHARGE STATUS"  name="ub04Block_29"/>
-<input type="text"   maxlength="2"  id="ub04id31" value=""  title="18. CONDITION CODE"  name="ub04Block_30"/>
-<input type="text"   maxlength="2"  id="ub04id32" value=""  title="19. CONDITION CODE"  name="ub04Block_31"/>
-<input type="text"   maxlength="2"  id="ub04id33" value=""  title="20. CONDITION CODE"  name="ub04Block_32"/>
-<input type="text"   maxlength="2"  id="ub04id34" value=""  title="21. CONDITION CODE"  name="ub04Block_33"/>
-<input type="text"   maxlength="2"  id="ub04id35" value=""  title="22. CONDITION CODE"  name="ub04Block_34"/>
-<input type="text"   maxlength="2"  id="ub04id36" value=""  title="23. CONDITION CODE"  name="ub04Block_35"/>
-<input type="text"   maxlength="2"  id="ub04id37" value=""  title="24. CONDITION CODE"  name="ub04Block_36"/>
-<input type="text"   maxlength="2"  id="ub04id38" value=""  title="25. CONDITION CODE"  name="ub04Block_37"/>
-<input type="text"   maxlength="2"  id="ub04id39" value=""  title="26. CONDITION CODE"  name="ub04Block_38"/>
-<input type="text"   maxlength="2"  id="ub04id40" value=""  title="27. CONDITION CODE"  name="ub04Block_39"/>
-<input type="text"   maxlength="2"  id="ub04id41" value=""  title="28. CONDITION CODE"  name="ub04Block_40"/>
+<select type="text"   maxlength="2"  id="ub04id30" value=""  title="17. PATIENT DISCHARGE STATUS"  name="ub04Block_29"></select>
+<select type="text"   maxlength="2"  id="ub04id31" value=""  title="18. CONDITION CODE"  name="ub04Block_30"></select>
+<select type="text"   maxlength="2"  id="ub04id32" value=""  title="19. CONDITION CODE"  name="ub04Block_31"></select>
+<select type="text"   maxlength="2"  id="ub04id33" value=""  title="20. CONDITION CODE"  name="ub04Block_32"></select>
+<select type="text"   maxlength="2"  id="ub04id34" value=""  title="21. CONDITION CODE"  name="ub04Block_33"></select>
+<select type="text"   maxlength="2"  id="ub04id35" value=""  title="22. CONDITION CODE"  name="ub04Block_34"></select>
+<select type="text"   maxlength="2"  id="ub04id36" value=""  title="23. CONDITION CODE"  name="ub04Block_35"></select>
+<select type="text"   maxlength="2"  id="ub04id37" value=""  title="24. CONDITION CODE"  name="ub04Block_36"></select>
+<select type="text"   maxlength="2"  id="ub04id38" value=""  title="25. CONDITION CODE"  name="ub04Block_37"></select>
+<select type="text"   maxlength="2"  id="ub04id39" value=""  title="26. CONDITION CODE"  name="ub04Block_38"></select>
+<select type="text"   maxlength="2"  id="ub04id40" value=""  title="27. CONDITION CODE"  name="ub04Block_39"></select>
+<select type="text"   maxlength="2"  id="ub04id41" value=""  title="28. CONDITION CODE"  name="ub04Block_40"></select>
 <input type="text"   maxlength="2"  id="ub04id42" value=""  title="29. ACCIDENT STATE"  name="ub04Block_41"/>
 <input type="text" disabled   id="ub04id43" value="" data-objref="520" title="30. RESERVED"  name="ub04Block_42"/>
-<input type="text"   maxlength="2"  id="ub04id44" value=""  title="31a. OCCURRENCE CODE"  name="ub04Block_43"/>
+<select type="text"   maxlength="2"  id="ub04id44" value=""  title="31a. OCCURRENCE CODE"  name="ub04Block_43"></select>
 <input type="text" data-dp   maxlength="10"  id="ub04id45" value=""  title="31a. OCCURRENCE DATE"  name="ub04Block_44"/>
-<input type="text"   maxlength="2"  id="ub04id46" value=""  title="32a. OCCURRENCE CODE"  name="ub04Block_45"/>
+<select type="text"   maxlength="2"  id="ub04id46" value=""  title="32a. OCCURRENCE CODE"  name="ub04Block_45"></select>
 <input type="text" data-dp   maxlength="10"  id="ub04id47" value=""  title="32a. OCCURRENCE DATE"  name="ub04Block_46"/>
-<input type="text"   maxlength="2"  id="ub04id48" value=""  title="33a. OCCURRENCE CODE"  name="ub04Block_47"/>
+<select type="text"   maxlength="2"  id="ub04id48" value=""  title="33a. OCCURRENCE CODE"  name="ub04Block_47"></select>
 <input type="text" data-dp   maxlength="10"  id="ub04id49" value=""  title="33a. OCCURRENCE DATE"  name="ub04Block_48"/>
-<input type="text"   maxlength="2"  id="ub04id50" value=""  title="34a. OCCURRENCE CODE"  name="ub04Block_49"/>
+<select type="text"   maxlength="2"  id="ub04id50" value=""  title="34a. OCCURRENCE CODE"  name="ub04Block_49"></select>
 <input type="text" data-dp  maxlength="10"  id="ub04id51" value=""  title="34a. OCCURRENCE DATE"  name="ub04Block_50"/>
-<input type="text"   maxlength="2"  id="ub04id52" value=""  title="35a. OCCURRENCE SPAN CODE"  name="ub04Block_59"/>
+<select type="text"   maxlength="2"  id="ub04id52" value=""  title="35a. OCCURRENCE SPAN CODE"  name="ub04Block_59"></select>
 <input type="text" data-dp   maxlength="10"  id="ub04id53" value=""  title="35a. OCCURRENCE SPAN DATE FROM"  name="ub04Block_60"/>
 <input type="text" data-dp  maxlength="10"  id="ub04id54" value=""  title="35a. OCCURRENCE SPAN DATE THROUGH"  name="ub04Block_61"/>
-<input type="text"   maxlength="2"  id="ub04id55" value=""  title="36a. OCCURRENCE SPAN CODE"  name="ub04Block_62"/>
+<select type="text"   maxlength="2"  id="ub04id55" value=""  title="36a. OCCURRENCE SPAN CODE"  name="ub04Block_62"></select>
 <input type="text" data-dp   maxlength="10"  id="ub04id56" value=""  title="36a. OCCURRENCE SPAN DATE FROM"  name="ub04Block_63"/>
 <input type="text" data-dp   maxlength="10"  id="ub04id57" value=""  title="36a. OCCURRENCE SPAN DATE THROUGH"  name="ub04Block_64"/>
 <input type="text" disabled  maxlength="8"  id="ub04id58" value=""  title="37a. RESERVED"  name="ub04Block_71"/>
-<input type="text"   maxlength="2"  id="ub04id59" value=""  title="31b. OCCURRENCE CODE"  name="ub04Block_51"/>
+<select type="text"   maxlength="2"  id="ub04id59" value=""  title="31b. OCCURRENCE CODE"  name="ub04Block_51"></select>
 <input type="text" data-dp  maxlength="10"  id="ub04id60" value=""  title="31b. OCCURRENCE DATE"  name="ub04Block_52"/>
-<input type="text"   maxlength="2"  id="ub04id61" value=""  title="32b. OCCURRENCE CODE"  name="ub04Block_53"/>
+<select type="text"   maxlength="2"  id="ub04id61" value=""  title="32b. OCCURRENCE CODE"  name="ub04Block_53"></select>
 <input type="text" data-dp  maxlength="10"  id="ub04id62" value=""  title="32b. OCCURRENCE DATE"  name="ub04Block_54"/>
-<input type="text"   maxlength="2"  id="ub04id63" value=""  title="33b. OCCURRENCE CODE"  name="ub04Block_55"/>
+<select type="text"   maxlength="2"  id="ub04id63" value=""  title="33b. OCCURRENCE CODE"  name="ub04Block_55"></select>
 <input type="text" data-dp  maxlength="10"  id="ub04id64" value=""  title="33b. OCCURRENCE DATE"  name="ub04Block_56"/>
-<input type="text"   maxlength="2"  id="ub04id65" value=""  title="34b. OCCURRENCE CODE"  name="ub04Block_57"/>
+<select type="text"   maxlength="2"  id="ub04id65" value=""  title="34b. OCCURRENCE CODE"  name="ub04Block_57"></select>
 <input type="text" data-dp   maxlength="10"  id="ub04id66" value=""  title="34b. OCCURRENCE DATE"  name="ub04Block_58"/>
-<input type="text"   maxlength="2"  id="ub04id67" value=""  title="35b. OCCURRENCE SPAN CODE"  name="ub04Block_65"/>
+<select type="text"   maxlength="2"  id="ub04id67" value=""  title="35b. OCCURRENCE SPAN CODE"  name="ub04Block_65"></select>
 <input type="text" data-dp   maxlength="10"  id="ub04id68" value=""  title="35b. OCCURRENCE SPAN DATE FROM"  name="ub04Block_66"/>
 <input type="text" data-dp   maxlength="10"  id="ub04id69" value=""  title="35b. OCCURRENCE SPAN DATE THROUGH"  name="ub04Block_67"/>
-<input type="text"   maxlength="2"  id="ub04id70" value=""  title="36b. OCCURRENCE SPAN CODE"  name="ub04Block_68"/>
+<select type="text"   maxlength="2"  id="ub04id70" value=""  title="36b. OCCURRENCE SPAN CODE"  name="ub04Block_68"></select>
 <input type="text" data-dp   maxlength="10"  id="ub04id71" value=""  title="36b. OCCURRENCE SPAN DATE FROM"  name="ub04Block_69"/>
 <input type="text" data-dp   maxlength="10"  id="ub04id72" value=""  title="36b. OCCURRENCE SPAN DATE THROUGH"  name="ub04Block_70"/>
 <input type="text" disabled  maxlength="8"  id="ub04id73" value=""  title="37b. RESERVED"  name="ub04Block_72"/>
-<input type="text"   maxlength="2"  id="ub04id74" value=""  title="39a. VALUE CODE"  name="ub04Block_74"/>
+<select type="text"   maxlength="2"  id="ub04id74" value=""  title="39a. VALUE CODE"  name="ub04Block_74"></select>
 <input type="text"   maxlength="9"  id="ub04id75" value=""  title="39a. VALUE AMOUNT"  name="ub04Block_75"/>
-<input type="text"   maxlength="2"  id="ub04id76" value=""  title="40a. VALUE CODE"  name="ub04Block_76"/>
+<select type="text"   maxlength="2"  id="ub04id76" value=""  title="40a. VALUE CODE"  name="ub04Block_76"></select>
 <input type="text"   maxlength="9"  id="ub04id77" value=""  title="40a. VALUE AMOUNT"  name="ub04Block_77"/>
-<input type="text"   maxlength="2"  id="ub04id78" value=""  title="41a. VALUE CODE"  name="ub04Block_78"/>
+<select type="text"   maxlength="2"  id="ub04id78" value=""  title="41a. VALUE CODE"  name="ub04Block_78"></select>
 <input type="text"   maxlength="9"  id="ub04id79" value=""  title="41a. VALUE AMOUNT"  name="ub04Block_79"/>
-<input type="text"   maxlength="2"  id="ub04id80" value=""  title="39b. VALUE CODE"  name="ub04Block_80"/>
+<select type="text"   maxlength="2"  id="ub04id80" value=""  title="39b. VALUE CODE"  name="ub04Block_80"></select>
 <input type="text"   maxlength="9"  id="ub04id81" value=""  title="39b. VALUE AMOUNT"  name="ub04Block_81"/>
-<input type="text"   maxlength="2"  id="ub04id82" value=""  title="40b. VALUE CODE"  name="ub04Block_82"/>
+<select type="text"   maxlength="2"  id="ub04id82" value=""  title="40b. VALUE CODE"  name="ub04Block_82"></select>
 <input type="text"   maxlength="9"  id="ub04id83" value=""  title="40b. VALUE AMOUNT"  name="ub04Block_83"/>
-<input type="text"   maxlength="2"  id="ub04id84" value=""  title="41b. VALUE CODE"  name="ub04Block_84"/>
+<select type="text"   maxlength="2"  id="ub04id84" value=""  title="41b. VALUE CODE"  name="ub04Block_84"></select>
 <input type="text"   maxlength="9"  id="ub04id85" value=""  title="41b. VALUE AMOUNT"  name="ub04Block_85"/>
-<input type="text"   maxlength="2"  id="ub04id86" value=""  title="39c. VALUE CODE"  name="ub04Block_86"/>
+<select type="text"   maxlength="2"  id="ub04id86" value=""  title="39c. VALUE CODE"  name="ub04Block_86"></select>
 <input type="text"   maxlength="9"  id="ub04id87" value=""  title="39c. VALUE AMOUNT"  name="ub04Block_87"/>
-<input type="text"   maxlength="2"  id="ub04id88" value=""  title="40c. VALUE CODE"  name="ub04Block_88"/>
+<select type="text"   maxlength="2"  id="ub04id88" value=""  title="40c. VALUE CODE"  name="ub04Block_88"></select>
 <input type="text"   maxlength="9"  id="ub04id89" value=""  title="40c. VALUE AMOUNT"  name="ub04Block_89"/>
-<input type="text"   maxlength="2"  id="ub04id90" value=""  title="41c. VALUE CODE"  name="ub04Block_90"/>
+<select type="text"   maxlength="2"  id="ub04id90" value=""  title="41c. VALUE CODE"  name="ub04Block_90"></select>
 <input type="text"   maxlength="9"  id="ub04id91" value=""  title="41c. VALUE AMOUNT"  name="ub04Block_91"/>
-<input type="text"   maxlength="2"  id="ub04id92" value=""  title="39d. VALUE CODE"  name="ub04Block_92"/>
+<select type="text"   maxlength="2"  id="ub04id92" value=""  title="39d. VALUE CODE"  name="ub04Block_92"></select>
 <input type="text"   maxlength="9"  id="ub04id93" value=""  title="39d. VALUE AMOUNT"  name="ub04Block_93"/>
-<input type="text"   maxlength="2"  id="ub04id94" value=""  title="40d. VALUE CODE"  name="ub04Block_94"/>
+<select type="text"   maxlength="2"  id="ub04id94" value=""  title="40d. VALUE CODE"  name="ub04Block_94"></select>
 <input type="text"   maxlength="9"  id="ub04id95" value=""  title="40d. VALUE AMOUNT"  name="ub04Block_95"/>
-<input type="text"   maxlength="2"  id="ub04id96" value=""  title="41d. VALUE CODE"  name="ub04Block_96"/>
+<select type="text"   maxlength="2"  id="ub04id96" value=""  title="41d. VALUE CODE"  name="ub04Block_96"></select>
 <input type="text"   maxlength="9"  id="ub04id97" value=""  title="41d. VALUE AMOUNT"  name="ub04Block_97"/>
 <textarea   id="ub04id98"  title="38. RESPONSIBLE PARTY NAME AND ADDRESS"  name="ub04Block_73"></textarea>
-<input type="text" class="revcode" maxlength="4"  id="ub04id99" value=""   title="42. REVENUE CODE, Line 1"  name="ub04Block_98"/>
+<select type="text" class="revcode" maxlength="4"  id="ub04id99" value=""   title="42. REVENUE CODE, Line 1"  name="ub04Block_98"></select>
 <input type="text"   maxlength="25"  id="ub04id100" value="" title="43. REVENUE DESCRIPTION, Line 1"  name="ub04Block_99"/>
 <input type="text"   maxlength="24"  id="ub04id101" value="" title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 1"  name="ub04Block_100"/>
 <input type="text"   maxlength="10"  id="ub04id102" value=""  title="45. SERVICE DATE, Line 1"  name="ub04Block_101"/>
@@ -1075,7 +1112,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id104" value=""  title="47. TOTAL CHARGES, Line 1"  name="ub04Block_103"/>
 <input type="text"   maxlength="9"  id="ub04id105" value=""  title="48. NON-COVERED CHARGES, Line 1"  name="ub04Block_104"/>
 <input type="text" disabled  maxlength="2"  id="ub04id106" value=""  title="49. RESERVED, Line 1"  name="ub04Block_105"/>
-<input type="text" class="revcode" maxlength="4"  id="ub04id107" value=""  title="42. REVENUE CODE, Line 2"  name="ub04Block_106"/>
+<select type="text" class="revcode" maxlength="4"  id="ub04id107" value=""  title="42. REVENUE CODE, Line 2"  name="ub04Block_106"></select>
 <input type="text"   maxlength="25"  id="ub04id108" value=""  title="43. REVENUE DESCRIPTION, Line 2"  name="ub04Block_107"/>
 <input type="text"   maxlength="24"  id="ub04id109" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 2"  name="ub04Block_108"/>
 <input type="text"   maxlength="10"  id="ub04id110" value=""  title="45. SERVICE DATE, Line 2"  name="ub04Block_109"/>
@@ -1083,7 +1120,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id112" value=""  title="47. TOTAL CHARGES, Line 2"  name="ub04Block_111"/>
 <input type="text"   maxlength="9"  id="ub04id113" value=""  title="48. NON-COVERED CHARGES, Line 2"  name="ub04Block_112"/>
 <input type="text" disabled  maxlength="2"  id="ub04id114" value=""  title="49. RESERVED, Line 2"  name="ub04Block_113"/>
-<input type="text"   maxlength="4"  id="ub04id115" value=""  title="42. REVENUE CODE, Line 3"  name="ub04Block_114"/>
+<select type="text"   maxlength="4"  id="ub04id115" value=""  title="42. REVENUE CODE, Line 3"  name="ub04Block_114"></select>
 <input type="text"   maxlength="25"  id="ub04id116" value=""  title="43. REVENUE DESCRIPTION, Line 3"  name="ub04Block_115"/>
 <input type="text"   maxlength="24"  id="ub04id117" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 3"  name="ub04Block_116"/>
 <input type="text" class="revcode" maxlength="10"  id="ub04id118" value=""  title="45. SERVICE DATE, Line 3"  name="ub04Block_117"/>
@@ -1091,7 +1128,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id120" value=""  title="47. TOTAL CHARGES, Line 3"  name="ub04Block_119"/>
 <input type="text"   maxlength="9"  id="ub04id121" value=""  title="48. NON-COVERED CHARGES, Line 3"  name="ub04Block_120"/>
 <input type="text"  disabled maxlength="2"  id="ub04id122" value=""  title="49. RESERVED, Line 3"  name="ub04Block_121"/>
-<input type="text"   maxlength="4"  id="ub04id123" value=""  title="42. REVENUE CODE, Line 4"  name="ub04Block_122"/>
+<select type="text"   maxlength="4"  id="ub04id123" value=""  title="42. REVENUE CODE, Line 4"  name="ub04Block_122"></select>
 <input type="text"   maxlength="25"  id="ub04id124" value=""  title="43. REVENUE DESCRIPTION, Line 4"  name="ub04Block_123"/>
 <input type="text"   maxlength="24"  id="ub04id125" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 4"  name="ub04Block_124"/>
 <input type="text"   maxlength="10"  id="ub04id126" value=""  title="45. SERVICE DATE, Line 4"  name="ub04Block_125"/>
@@ -1099,7 +1136,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id128" value=""  title="47. TOTAL CHARGES, Line 4"  name="ub04Block_127"/>
 <input type="text"   maxlength="9"  id="ub04id129" value=""  title="48. NON-COVERED CHARGES, Line 4"  name="ub04Block_128"/>
 <input type="text" disabled  maxlength="2"  id="ub04id130" value=""  title="49. RESERVED, Line 4"  name="ub04Block_129"/>
-<input type="text"   maxlength="4"  id="ub04id131" value=""  title="42. REVENUE CODE, Line 5"  name="ub04Block_130"/>
+<select type="text"   maxlength="4"  id="ub04id131" value=""  title="42. REVENUE CODE, Line 5"  name="ub04Block_130"></select>
 <input type="text"   maxlength="25"  id="ub04id132" value=""  title="43. REVENUE DESCRIPTION, Line 5"  name="ub04Block_131"/>
 <input type="text"   maxlength="24"  id="ub04id133" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 5"  name="ub04Block_132"/>
 <input type="text"   maxlength="10"  id="ub04id134" value=""  title="45. SERVICE DATE, Line 5"  name="ub04Block_133"/>
@@ -1107,7 +1144,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id136" value=""  title="47. TOTAL CHARGES, Line 5"  name="ub04Block_135"/>
 <input type="text"   maxlength="9"  id="ub04id137" value=""  title="48. NON-COVERED CHARGES, Line 5"  name="ub04Block_136"/>
 <input type="text" disabled  maxlength="2"  id="ub04id138" value=""  title="49. RESERVED, Line 5"  name="ub04Block_137"/>
-<input type="text"   maxlength="4"  id="ub04id139" value=""  title="42. REVENUE CODE, Line 6"  name="ub04Block_138"/>
+<select type="text"   maxlength="4"  id="ub04id139" value=""  title="42. REVENUE CODE, Line 6"  name="ub04Block_138"></select>
 <input type="text"   maxlength="25"  id="ub04id140" value=""  title="43. REVENUE DESCRIPTION, Line 6"  name="ub04Block_139"/>
 <input type="text"   maxlength="24"  id="ub04id141" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 6"  name="ub04Block_140"/>
 <input type="text"   maxlength="10"  id="ub04id142" value=""  title="45. SERVICE DATE, Line 6"  name="ub04Block_141"/>
@@ -1115,7 +1152,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id144" value=""  title="47. TOTAL CHARGES, Line 6"  name="ub04Block_143"/>
 <input type="text"   maxlength="9"  id="ub04id145" value=""  title="48. NON-COVERED CHARGES, Line 6"  name="ub04Block_144"/>
 <input type="text" disabled  maxlength="2"  id="ub04id146" value=""  title="49. RESERVED, Line 6"  name="ub04Block_145"/>
-<input type="text"   maxlength="4"  id="ub04id147" value=""  title="42. REVENUE CODE, Line 7"  name="ub04Block_146"/>
+<select type="text"   maxlength="4"  id="ub04id147" value=""  title="42. REVENUE CODE, Line 7"  name="ub04Block_146"></select>
 <input type="text"   maxlength="25"  id="ub04id148" value=""  title="43. REVENUE DESCRIPTION, Line 7"  name="ub04Block_147"/>
 <input type="text"   maxlength="24"  id="ub04id149" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 7"  name="ub04Block_148"/>
 <input type="text"   maxlength="10"  id="ub04id150" value=""  title="45. SERVICE DATE, Line 7"  name="ub04Block_149"/>
@@ -1123,7 +1160,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id152" value=""  title="47. TOTAL CHARGES, Line 7"  name="ub04Block_151"/>
 <input type="text"   maxlength="9"  id="ub04id153" value=""  title="48. NON-COVERED CHARGES, Line 7"  name="ub04Block_152"/>
 <input type="text" disabled  maxlength="2"  id="ub04id154" value=""  title="49. RESERVED, Line 7"  name="ub04Block_153"/>
-<input type="text"   maxlength="4"  id="ub04id155" value=""  title="42. REVENUE CODE, Line 8"  name="ub04Block_154"/>
+<select type="text"   maxlength="4"  id="ub04id155" value=""  title="42. REVENUE CODE, Line 8"  name="ub04Block_154"></select>
 <input type="text"   maxlength="25"  id="ub04id156" value=""  title="43. REVENUE DESCRIPTION, Line 8"  name="ub04Block_155"/>
 <input type="text"   maxlength="24"  id="ub04id157" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 8"  name="ub04Block_156"/>
 <input type="text"   maxlength="10"  id="ub04id158" value=""  title="45. SERVICE DATE, Line 8"  name="ub04Block_157"/>
@@ -1131,7 +1168,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id160" value=""  title="47. TOTAL CHARGES, Line 8"  name="ub04Block_159"/>
 <input type="text"   maxlength="9"  id="ub04id161" value=""  title="48. NON-COVERED CHARGES, Line 8"  name="ub04Block_160"/>
 <input type="text"   maxlength="2"  id="ub04id162" value=""  title="49. RESERVED, Line 8"  name="ub04Block_161"/>
-<input type="text"   maxlength="4"  id="ub04id163" value=""  title="42. REVENUE CODE, Line 9"  name="ub04Block_162"/>
+<select type="text"   maxlength="4"  id="ub04id163" value=""  title="42. REVENUE CODE, Line 9"  name="ub04Block_162"></select>
 <input type="text"   maxlength="25"  id="ub04id164" value=""  title="43. REVENUE DESCRIPTION, Line 9"  name="ub04Block_163"/>
 <input type="text"   maxlength="24"  id="ub04id165" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 9"  name="ub04Block_164"/>
 <input type="text"   maxlength="10"  id="ub04id166" value=""  title="45. SERVICE DATE, Line 9"  name="ub04Block_165"/>
@@ -1139,7 +1176,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id168" value=""  title="47. TOTAL CHARGES, Line 9"  name="ub04Block_167"/>
 <input type="text"   maxlength="9"  id="ub04id169" value=""  title="48. NON-COVERED CHARGES, Line 9"  name="ub04Block_168"/>
 <input type="text" disabled  maxlength="2"  id="ub04id170" value=""  title="49. RESERVED, Line 9"  name="ub04Block_169"/>
-<input type="text"   maxlength="4"  id="ub04id171" value=""  title="42. REVENUE CODE, Line 10"  name="ub04Block_170"/>
+<select type="text"   maxlength="4"  id="ub04id171" value=""  title="42. REVENUE CODE, Line 10"  name="ub04Block_170"></select>
 <input type="text"   maxlength="25"  id="ub04id172" value=""  title="43. REVENUE DESCRIPTION, Line 10"  name="ub04Block_171"/>
 <input type="text"   maxlength="24"  id="ub04id173" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 10"  name="ub04Block_172"/>
 <input type="text"   maxlength="10"  id="ub04id174" value=""  title="45. SERVICE DATE, Line 10"  name="ub04Block_173"/>
@@ -1147,7 +1184,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id176" value=""  title="47. TOTAL CHARGES, Line 10"  name="ub04Block_175"/>
 <input type="text"   maxlength="9"  id="ub04id177" value=""  title="48. NON-COVERED CHARGES, Line 10"  name="ub04Block_176"/>
 <input type="text"  disabled maxlength="2"  id="ub04id178" value=""  title="49. RESERVED, Line 10"  name="ub04Block_177"/>
-<input type="text"   maxlength="4"  id="ub04id179" value=""  title="42. REVENUE CODE, Line 11"  name="ub04Block_178"/>
+<select type="text"   maxlength="4"  id="ub04id179" value=""  title="42. REVENUE CODE, Line 11"  name="ub04Block_178"></select>
 <input type="text"   maxlength="25"  id="ub04id180" value=""  title="43. REVENUE DESCRIPTION, Line 11"  name="ub04Block_179"/>
 <input type="text"   maxlength="24"  id="ub04id181" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 11"  name="ub04Block_180"/>
 <input type="text"   maxlength="10"  id="ub04id182" value=""  title="45. SERVICE DATE, Line 11"  name="ub04Block_181"/>
@@ -1155,7 +1192,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id184" value=""  title="47. TOTAL CHARGES, Line 11"  name="ub04Block_183"/>
 <input type="text"   maxlength="9"  id="ub04id185" value=""  title="48. NON-COVERED CHARGES, Line 11"  name="ub04Block_184"/>
 <input type="text" disabled  maxlength="2"  id="ub04id186" value=""  title="49. RESERVED, Line 11"  name="ub04Block_185"/>
-<input type="text"   maxlength="4"  id="ub04id187" value=""  title="42. REVENUE CODE, Line 12"  name="ub04Block_186"/>
+<select type="text"   maxlength="4"  id="ub04id187" value=""  title="42. REVENUE CODE, Line 12"  name="ub04Block_186"></select>
 <input type="text"   maxlength="25"  id="ub04id188" value=""  title="43. REVENUE DESCRIPTION, Line 12"  name="ub04Block_187"/>
 <input type="text"   maxlength="24"  id="ub04id189" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 12"  name="ub04Block_188"/>
 <input type="text"   maxlength="10"  id="ub04id190" value=""  title="45. SERVICE DATE, Line 12"  name="ub04Block_189"/>
@@ -1163,7 +1200,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id192" value=""  title="47. TOTAL CHARGES, Line 12"  name="ub04Block_191"/>
 <input type="text"   maxlength="9"  id="ub04id193" value=""  title="48. NON-COVERED CHARGES, Line 12"  name="ub04Block_192"/>
 <input type="text" disabled  maxlength="2"  id="ub04id194" value=""  title="49. RESERVED, Line 12"  name="ub04Block_193"/>
-<input type="text"   maxlength="4"  id="ub04id195" value=""  title="42. REVENUE CODE, Line 13"  name="ub04Block_194"/>
+<select type="text"   maxlength="4"  id="ub04id195" value=""  title="42. REVENUE CODE, Line 13"  name="ub04Block_194"></select>
 <input type="text"   maxlength="25"  id="ub04id196" value=""  title="43. REVENUE DESCRIPTION, Line 13"  name="ub04Block_195"/>
 <input type="text"   maxlength="24"  id="ub04id197" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 13"  name="ub04Block_196"/>
 <input type="text"   maxlength="10"  id="ub04id198" value=""  title="45. SERVICE DATE, Line 13"  name="ub04Block_197"/>
@@ -1171,7 +1208,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id200" value=""  title="47. TOTAL CHARGES, Line 13"  name="ub04Block_199"/>
 <input type="text"   maxlength="9"  id="ub04id201" value=""  title="48. NON-COVERED CHARGES, Line 13"  name="ub04Block_200"/>
 <input type="text" disabled  maxlength="2"  id="ub04id202" value=""  title="49. RESERVED, Line 13"  name="ub04Block_201"/>
-<input type="text"   maxlength="4"  id="ub04id203" value=""  title="42. REVENUE CODE, Line 14"  name="ub04Block_202"/>
+<select type="text"   maxlength="4"  id="ub04id203" value=""  title="42. REVENUE CODE, Line 14"  name="ub04Block_202"></select>
 <input type="text"   maxlength="25"  id="ub04id204" value=""  title="43. REVENUE DESCRIPTION, Line 14"  name="ub04Block_203"/>
 <input type="text"   maxlength="24"  id="ub04id205" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 14"  name="ub04Block_204"/>
 <input type="text"   maxlength="10"  id="ub04id206" value=""  title="45. SERVICE DATE, Line 14"  name="ub04Block_205"/>
@@ -1179,7 +1216,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id208" value=""  title="47. TOTAL CHARGES, Line 14"  name="ub04Block_207"/>
 <input type="text"   maxlength="9"  id="ub04id209" value=""  title="48. NON-COVERED CHARGES, Line 14"  name="ub04Block_208"/>
 <input type="text"  disabled maxlength="2"  id="ub04id210" value=""  title="49. RESERVED, Line 14"  name="ub04Block_209"/>
-<input type="text"   maxlength="4"  id="ub04id211" value=""  title="42. REVENUE CODE, Line 15"  name="ub04Block_210"/>
+<select type="text"   maxlength="4"  id="ub04id211" value=""  title="42. REVENUE CODE, Line 15"  name="ub04Block_210"></select>
 <input type="text"   maxlength="25"  id="ub04id212" value=""  title="43. REVENUE DESCRIPTION, Line 15"  name="ub04Block_211"/>
 <input type="text"   maxlength="24"  id="ub04id213" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 15"  name="ub04Block_212"/>
 <input type="text"   maxlength="10"  id="ub04id214" value=""  title="45. SERVICE DATE, Line 15"  name="ub04Block_213"/>
@@ -1187,7 +1224,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id216" value=""  title="47. TOTAL CHARGES, Line 15"  name="ub04Block_215"/>
 <input type="text"   maxlength="9"  id="ub04id217" value=""  title="48. NON-COVERED CHARGES, Line 15"  name="ub04Block_216"/>
 <input type="text" disabled  maxlength="2"  id="ub04id218" value=""  title="49. RESERVED, Line 15"  name="ub04Block_217"/>
-<input type="text"   maxlength="4"  id="ub04id219" value=""  title="42. REVENUE CODE, Line 16"  name="ub04Block_218"/>
+<select type="text"   maxlength="4"  id="ub04id219" value=""  title="42. REVENUE CODE, Line 16"  name="ub04Block_218"></select>
 <input type="text"   maxlength="25"  id="ub04id220" value=""  title="43. REVENUE DESCRIPTION, Line 16"  name="ub04Block_219"/>
 <input type="text"   maxlength="24"  id="ub04id221" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 16"  name="ub04Block_220"/>
 <input type="text"   maxlength="10"  id="ub04id222" value=""  title="45. SERVICE DATE, Line 16"  name="ub04Block_221"/>
@@ -1195,7 +1232,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id224" value=""  title="47. TOTAL CHARGES, Line 16"  name="ub04Block_223"/>
 <input type="text"   maxlength="9"  id="ub04id225" value=""  title="48. NON-COVERED CHARGES, Line 16"  name="ub04Block_224"/>
 <input type="text" disabled  maxlength="2"  id="ub04id226" value=""  title="49. RESERVED, Line 16"  name="ub04Block_225"/>
-<input type="text"   maxlength="4"  id="ub04id227" value=""  title="42. REVENUE CODE, Line 17"  name="ub04Block_226"/>
+<select type="text"   maxlength="4"  id="ub04id227" value=""  title="42. REVENUE CODE, Line 17"  name="ub04Block_226"></select>
 <input type="text"   maxlength="25"  id="ub04id228" value=""  title="43. REVENUE DESCRIPTION, Line 17"  name="ub04Block_227"/>
 <input type="text"   maxlength="24"  id="ub04id229" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 17"  name="ub04Block_228"/>
 <input type="text"   maxlength="10"  id="ub04id230" value=""  title="45. SERVICE DATE, Line 17"  name="ub04Block_229"/>
@@ -1203,7 +1240,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id232" value=""  title="47. TOTAL CHARGES, Line 17"  name="ub04Block_231"/>
 <input type="text"   maxlength="9"  id="ub04id233" value=""  title="48. NON-COVERED CHARGES, Line 17"  name="ub04Block_232"/>
 <input type="text" disabled  maxlength="2"  id="ub04id234" value=""  title="49. RESERVED, Line 17"  name="ub04Block_233"/>
-<input type="text"   maxlength="4"  id="ub04id235" value=""  title="42. REVENUE CODE, Line 18"  name="ub04Block_234"/>
+<select type="text"   maxlength="4"  id="ub04id235" value=""  title="42. REVENUE CODE, Line 18"  name="ub04Block_234"></select>
 <input type="text"   maxlength="25"  id="ub04id236" value=""  title="43. REVENUE DESCRIPTION, Line 18"  name="ub04Block_235"/>
 <input type="text"   maxlength="24"  id="ub04id237" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 18"  name="ub04Block_236"/>
 <input type="text"   maxlength="10"  id="ub04id238" value=""  title="45. SERVICE DATE, Line 18"  name="ub04Block_237"/>
@@ -1211,7 +1248,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id240" value=""  title="47. TOTAL CHARGES, Line 18"  name="ub04Block_239"/>
 <input type="text"   maxlength="9"  id="ub04id241" value=""  title="48. NON-COVERED CHARGES, Line 18"  name="ub04Block_240"/>
 <input type="text" disabled  maxlength="2"  id="ub04id242" value=""  title="49. RESERVED, Line 18"  name="ub04Block_241"/>
-<input type="text"   maxlength="4"  id="ub04id243" value=""  title="42. REVENUE CODE, Line 19"  name="ub04Block_242"/>
+<select type="text"   maxlength="4"  id="ub04id243" value=""  title="42. REVENUE CODE, Line 19"  name="ub04Block_242"></select>
 <input type="text"   maxlength="25"  id="ub04id244" value=""  title="43. REVENUE DESCRIPTION, Line 19"  name="ub04Block_243"/>
 <input type="text"   maxlength="24"  id="ub04id245" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 19"  name="ub04Block_244"/>
 <input type="text"   maxlength="10"  id="ub04id246" value=""  title="45. SERVICE DATE, Line 19"  name="ub04Block_245"/>
@@ -1219,7 +1256,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id248" value=""  title="47. TOTAL CHARGES, Line 19"  name="ub04Block_247"/>
 <input type="text"   maxlength="9"  id="ub04id249" value=""  title="48. NON-COVERED CHARGES, Line 19"  name="ub04Block_248"/>
 <input type="text" disabled  maxlength="2"  id="ub04id250" value=""  title="49. RESERVED, Line 19"  name="ub04Block_249"/>
-<input type="text"   maxlength="4"  id="ub04id251" value=""  title="42. REVENUE CODE, Line 20"  name="ub04Block_250"/>
+<select type="text"   maxlength="4"  id="ub04id251" value=""  title="42. REVENUE CODE, Line 20"  name="ub04Block_250"></select>
 <input type="text"   maxlength="25"  id="ub04id252" value=""  title="43. REVENUE DESCRIPTION, Line 20"  name="ub04Block_251"/>
 <input type="text"   maxlength="24"  id="ub04id253" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 20"  name="ub04Block_252"/>
 <input type="text"   maxlength="10"  id="ub04id254" value=""  title="45. SERVICE DATE, Line 20"  name="ub04Block_253"/>
@@ -1227,7 +1264,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id256" value=""  title="47. TOTAL CHARGES, Line 20"  name="ub04Block_255"/>
 <input type="text"   maxlength="9"  id="ub04id257" value=""  title="48. NON-COVERED CHARGES, Line 20"  name="ub04Block_256"/>
 <input type="text" disabled  maxlength="2"  id="ub04id258" value=""  title="49. RESERVED, Line 20"  name="ub04Block_257"/>
-<input type="text"   maxlength="4"  id="ub04id259" value=""  title="42. REVENUE CODE, Line 21"  name="ub04Block_258"/>
+<select type="text"   maxlength="4"  id="ub04id259" value=""  title="42. REVENUE CODE, Line 21"  name="ub04Block_258"></select>
 <input type="text"   maxlength="25"  id="ub04id260" value=""  title="43. REVENUE DESCRIPTION, Line 21"  name="ub04Block_259"/>
 <input type="text"   maxlength="24"  id="ub04id261" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 21"  name="ub04Block_260"/>
 <input type="text"   maxlength="10"  id="ub04id262" value=""  title="45. SERVICE DATE, Line 21"  name="ub04Block_261"/>
@@ -1235,7 +1272,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id264" value=""  title="47. TOTAL CHARGES, Line 21"  name="ub04Block_263"/>
 <input type="text"   maxlength="9"  id="ub04id265" value=""  title="48. NON-COVERED CHARGES, Line 21"  name="ub04Block_264"/>
 <input type="text" disabled  maxlength="2"  id="ub04id266" value=""  title="49. RESERVED, Line 21"  name="ub04Block_265"/>
-<input type="text"   maxlength="4"  id="ub04id267" value=""  title="42. REVENUE CODE, Line 22"  name="ub04Block_266"/>
+<select type="text"   maxlength="4"  id="ub04id267" value=""  title="42. REVENUE CODE, Line 22"  name="ub04Block_266"></select>
 <input type="text"   maxlength="25"  id="ub04id268" value=""  title="43. REVENUE DESCRIPTION, Line 22"  name="ub04Block_267"/>
 <input type="text"   maxlength="24"  id="ub04id269" value=""  title="44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 22"  name="ub04Block_268"/>
 <input type="text"   maxlength="10"  id="ub04id270" value=""  title="45. SERVICE DATE, Line 22"  name="ub04Block_269"/>
@@ -1243,7 +1280,7 @@ textarea{
 <input type="text"   maxlength="9"  id="ub04id272" value=""  title="47. TOTAL CHARGES, Line 22"  name="ub04Block_271"/>
 <input type="text"   maxlength="9"  id="ub04id273" value=""  title="48. NON-COVERED CHARGES, Line 22"  name="ub04Block_272"/>
 <input type="text" disabled  maxlength="2"  id="ub04id274" value=""  title="49. RESERVED, Line 22"  name="ub04Block_273"/>
-<input type="text"    id="ub04id275" value=""  title="42. REVENUE CODE, Line 23"  name="ub04Block_274"/>
+<select type="text"    id="ub04id275" value=""  title="42. REVENUE CODE, Line 23"  name="ub04Block_274"></select>
 <input type="text"   maxlength="3"  id="ub04id276" value=""  title="43. CLAIM PAGE NUMBER"  name="ub04Block_275"/>
 <input type="text"   maxlength="3"  id="ub04id277" value=""  title="43. TOTAL NUMBER OF CLAIM PAGES"  name="ub04Block_276"/>
 <input type="text"    id="ub04id278" value=""  title="45. CREATION DATE, Line 23"  name="ub04Block_277"/>

@@ -27,6 +27,7 @@
  */
 
 use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Core\Header;
 
 //=========================================================================
 //  Load the API Functions
@@ -39,21 +40,20 @@ function postcalendar_admin_modifyconfig($msg = '', $showMenu = true)
 
     $output->SetInputMode(_PNH_VERBATIMINPUT);
 
-    $header = "<html><head><title>" . xlt("Calendar") . "</title></head>";
-    $header .= <<<EOF
-	
-	<body bgcolor=
-EOF;
-    $header .= '"' . attr($GLOBALS['style']['BGCOLOR2']) . '">';
+    $header = "<html><head><title>" . xlt("Calendar") . "</title>";
+    $header .= Header::setupHeader('', false)  . '</head><body>';
+
     $output->Text($header);
-    if ($showMenu) {
-        $output->Text(postcalendar_adminmenu());
-    }
 
     if (!empty($msg)) {
-        $output->Text('<center><div style="padding:5px; border:1px solid green; background-color: lightgreen;">');
+        $output->Text(postcalendar_adminmenu("clearCache"));
+        $output -> Text('<div class="alert alert-success mx-1 text-center" role="alert">');
         $output->Text("<b>$msg</b>");
-        $output->Text('</div></center><br />');
+        $output -> Text('</div>');
+    } else {
+        if ($showMenu) {
+            $output->Text(postcalendar_adminmenu(""));
+        }
     }
 
     $output->Text("</body></html>");
@@ -67,12 +67,11 @@ function postcalendar_admin_categoriesConfirm()
     $output->SetInputMode(_PNH_VERBATIMINPUT);
     $header = <<<EOF
 	<html>
-	<head></head>
-	<body bgcolor=
+	<head>
 EOF;
-    $header .= '"' . attr($GLOBALS['style']['BGCOLOR2']) . '">';
+    $header .= Header::setupHeader('', false)  . '</head><body><div class="container">';
     $output->Text($header);
-    $output->Text(postcalendar_adminmenu());
+    $output->Text(postcalendar_adminmenu("category"));
     list($id, $del, $name, $constantid, $value_cat_type, $desc, $color,
         $event_repeat, $event_repeat_freq,
         $event_repeat_freq_type, $event_repeat_on_num,
@@ -441,18 +440,18 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
         $template_name ='default';
     }
 
-    $output->Text(postcalendar_adminmenu());
+    $output->Text(postcalendar_adminmenu("category"));
 
     if (!empty($e)) {
-        $output->Text('<div style="padding:5px; border:1px solid red; background-color: pink;">');
-        $output->Text('<center><b>' . text($e) . '</b></center>');
-        $output->Text('</div><br />');
+        $output -> Text('<div class="alert alert-danger mx-1" role="alert">');
+        $output->Text('<span class="text-center font-weight-bold">'. text($e) .'</span>');
+        $output -> Text('</div><br />');
     }
 
     if (!empty($msg)) {
-        $output->Text('<div style="padding:5px; border:1px solid green; background-color: lightgreen;">');
-        $output->Text('<center><b>' . text($msg) . '</b></center>');
-        $output->Text('</div><br />');
+        $output -> Text('<div class="alert alert-success mx-1" role="alert">');
+        $output->Text('<span class="text-center font-weight-bold">' . text($msg) . '</span>');
+        $output -> Text('</div><br />');
     }
 
     //=================================================================
@@ -490,7 +489,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
 
     $tpl->assign('pcDir', $modir);
     $tpl->assign('action', pnModURL(__POSTCALENDAR__, 'admin', 'categoriesConfirm'));
-    $tpl->assign('adminmenu', postcalendar_adminmenu());
+    $tpl->assign('adminmenu', postcalendar_adminmenu("category"));
     $tpl->assign('BGCOLOR2', $GLOBALS['style']['BGCOLOR2']);
     $tpl->assign('css_header', $GLOBALS['css_header']);
     $tpl->assign('_PC_REP_CAT_TITLE_S', _PC_REP_CAT_TITLE_S);
@@ -667,7 +666,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
         $tpl->assign('FormHidden', $form_hidden);
     }
     $form_submit = '<input type=hidden name="form_action" value="commit"/>
-				   ' . text($authkey) . '<input type="submit" name="submit" value="' . xla('go') . '">';
+				   ' . text($authkey) . '<input class="btn btn-primary" type="submit" name="submit" value="' . xla('go') . '">';
     $tpl->assign('FormSubmit', $form_submit);
 
     $output->Text($tpl->fetch($template_name.'/admin/submit_category.html'));
@@ -678,7 +677,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
 /**
  * Main administration menu
  */
-function postcalendar_adminmenu($upgraded = false)
+function postcalendar_adminmenu($menuItem)
 {
     global $bgcolor1, $bgcolor2;
 
@@ -697,28 +696,59 @@ function postcalendar_adminmenu($upgraded = false)
     $cacheText    = text(_PC_CLEAR_CACHE);
     $systemText   = text(_PC_TEST_SYSTEM);
 
-    $output = <<<EOF
-<table border="0" cellpadding="1" cellspacing="0" width="100%" bgcolor="$bgcolor2"><tr><td>
-<table border="0" cellpadding="5" cellspacing="0" width="100%" bgcolor="$bgcolor1">
-	<tr>
-        <td width="100%" align="left" valign="middle">
-			<table border="0" cellpadding="1" cellspacing="0"><tr><td bgcolor="$bgcolor2">
-			<table border="0" cellpadding="5" cellspacing="0" width="100%" bgcolor="$bgcolor1">
-				<tr>
-					<td nowrap>
-						<a href="$cacheURL">$cacheText</a> |
-						<a href="$systemURL">$systemText</a> |
-						<a href="$categoryURL">$categoryText</a>
-				</tr>
-			</table>
-			</td></tr></table>
-		</td>
-    </tr>
-</table>
-</td></tr></table>
-<br />
+    $output = " <div class='container mt-3 mb-3'><ul class='nav nav-pills'>";
+
+    if ($menuItem === "clearCache") {
+        $output .= <<<EOF
+<li class="nav-item">
+    <a class="nav-link active" href="$cacheURL">$cacheText</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="$systemURL">$systemText</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="$categoryURL">$categoryText</a>
+</li>
 EOF;
-// Return the output that has been generated by this function
+    } else if ($menuItem === "testSystem") {
+        $output .= <<<EOF
+<li class="nav-item">
+    <a class="nav-link" href="$cacheURL">$cacheText</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link active" href="$systemURL">$systemText</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="$categoryURL">$categoryText</a>
+</li>
+EOF;
+    } else if ($menuItem === "category") {
+        $output .= <<<EOF
+<li class="nav-item">
+    <a class="nav-link" href="$cacheURL">$cacheText</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="$systemURL">$systemText</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link active" href="$categoryURL">$categoryText</a>
+</li>
+EOF;
+    } else {
+        $output .= <<<EOF
+<li class="nav-item">
+    <a class="nav-link" href="$cacheURL">$cacheText</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="$systemURL">$systemText</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="$categoryURL">$categoryText</a>
+</li>
+EOF;
+    }
+    $output .= "</ul></div>";
+    // Return the output that has been generated by this function
     return $output;
 }
 
@@ -738,7 +768,7 @@ function postcalendar_admin_clearCache()
     $tpl->clear_all_cache();
     $tpl->clear_compiled_tpl();
 
-    return postcalendar_admin_modifyconfig('<center>'. $spec_err . text(_PC_CACHE_CLEARED) .'</center>');
+    return postcalendar_admin_modifyconfig('<div class="text-center">'. $spec_err . text(_PC_CACHE_CLEARED) .'</div>');
 }
 
 function postcalendar_admin_testSystem()
@@ -793,7 +823,7 @@ function postcalendar_admin_testSystem()
 
     $error = '';
     if ($modversion['version'] != $version) {
-        $error  = '<br /><div style=\"color: red;\">';
+        $error  = '<br /><div class="text-danger">';
         $error .= "new version $modversion[version] installed but not updated!";
         $error .= '</div>';
     }
@@ -813,26 +843,23 @@ function postcalendar_admin_testSystem()
         }
     }
     if (strlen($error) > 0) {
-        $info .= "<br /><div style=\"color: red;\">$error</div>";
+        $info .= "<br /><div class='text-danger'>$error</div>";
     }
     array_push($infos, array('smarty compile dir',  $info));
 
     $header = <<<EOF
-	<html>
 	<head></head>
-	<body bgcolor=
+	<body>
 EOF;
-    $header .= '"' . attr($GLOBALS['style']['BGCOLOR2']) . '">';
     $output .= $header;
-    $output  = postcalendar_adminmenu();
-    $output .= '<table border="1" cellpadding="3" cellspacing="1">';
-    $output .= '  <tr><th align="left">' . xlt('Name') . '</th><th align="left">' . xlt('Value') . '</th>';
-    $output .= '</tr>';
+    $output  = postcalendar_adminmenu("testSystem");
+    $output .= '<div class="container table-responsive"><table class="table table-bordered table-striped  "><thead>';
+    $output .= '<tr><th>' . xlt('Name') . '</th><th>' . xlt('Value') . '</th></tr></thead>';
     foreach ($infos as $info) {
-        $output.= '<tr><td ><b>' . pnVarPrepHTMLDisplay($info[0]) . '</b></td>';
+        $output.= '<tr><td><b>' . pnVarPrepHTMLDisplay($info[0]) . '</b></td>';
         $output.= '<td>' . pnVarPrepHTMLDisplay($info[1]) . '</td></tr>';
     }
-    $output .= '</table>';
+    $output .= '</div></table>';
     $output .= '<br /><br />';
     $output .= postcalendar_admin_modifyconfig('', false);
     $output .= "</body></html>";

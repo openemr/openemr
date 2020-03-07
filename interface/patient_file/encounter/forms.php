@@ -332,20 +332,7 @@ function refreshVisitDisplay() {
 </script>
 
 <script>
-function expandcollapse(atr) {
-  for (var i = 1; i < 15; ++i) {
-    var mydivid="divid_" + i; var myspanid = "spanid_" + i;
-    var ele = document.getElementById(mydivid);
-    var text = document.getElementById(myspanid);
-    if (!ele) continue;
-    if (atr == "expand") {
-      ele.style.display = "block"; text.innerHTML = <?php echo xlj('Collapse'); ?>;
-    }
-    else {
-      ele.style.display = "none" ; text.innerHTML = <?php echo xlj('Expand'); ?>;
-    }
-  }
-}
+
 
 function divtoggle(spanid, divid) {
     var ele = document.getElementById(divid);
@@ -563,7 +550,7 @@ isset($GLOBALS['encounter']) &&
 }
 
 if (!empty($reg)) {
-    $StringEcho= '<ul id="sddm">';
+    $StringEcho= '<ul>';
     if ($encounterLocked === false) {
         foreach ($reg as $entry) {
           // Check permission to create forms of this type.
@@ -589,19 +576,24 @@ if (!empty($reg)) {
                 $new_category_ = $new_category;
                 $new_category_ = str_replace(' ', '_', $new_category_);
                 if ($old_category != '') {
-                    $StringEcho .= "</table></div></li>";
+                    $StringEcho.= "</div>\n";
+                    $StringEcho.= '</div>';
                 }
-                $StringEcho .= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen(" . attr_js($DivId) . ");\" >" . text($new_category) . "</a><div id='" . attr($DivId) . "' ><table border='0' cellspacing='0' cellpadding='0'>";
+                $StringEcho .= "<div class='dropdown d-inline'>\n";
+                $StringEcho .= "<button class='btn btn-secondary dropdown-toggle' type='button' id='menu" . attr($new_category) . "' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>" .text($new_category) . "</button>\n";
+                $StringEcho .= "<div class='dropdown-menu' aria-labelledby='dropdownMenu2'>\n";
                 $old_category = $new_category;
                 $DivId++;
             }
-            $StringEcho .= "<tr><td class='border-top border-dark p-0'><a onclick=\"openNewForm(" .
-                attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($entry['directory'])) .
-                ", " . attr_js(xl_form_title($nickname)) . ")\" href='JavaScript:void(0);'>" .
-                text(xl_form_title($nickname)) . "</a></td></tr>";
+
+            $StringEcho .= "<button class='dropdown-item' onclick=\"openNewForm(" .
+            attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($entry['directory'])) .
+            ", " . attr_js(xl_form_title($nickname)) . ")\" href='JavaScript:void(0);'>" .
+            text(xl_form_title($nickname)) . "</button>\n";
         }
     }
-    $StringEcho.= '</table></div></li>';
+    $StringEcho.= "</div>\n";
+    $StringEcho.= '</div>';
 }
 
 if ($StringEcho) {
@@ -620,10 +612,12 @@ if ($encounterLocked === false) {
 
     if (sqlNumRows($lres)) {
         if (!$StringEcho) {
-            $StringEcho= '<ul id="sddm">';
+            $StringEcho= '<ul>';
         }
-        $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('lbf');\" >" .
-        xlt('Layout Based') . "</a><div id='lbf' ><table class='border-0' cellspacing='0' cellpadding='0'>";
+        
+        $StringEcho.= "<div class=\"dropdown d-inline\">\n";
+        $StringEcho.= "<button class='btn btn-secondary dropdown-toggle' type='button' id='lbf' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>" .xlt('Layout Based'). "</button>\n";
+        $StringEcho.= "<div class='dropdown-menu' aria-labelledby='dropdownMenu2'>\n";
         while ($lrow = sqlFetchArray($lres)) {
             $option_id = $lrow['option_id']; // should start with LBF
             $title = $lrow['title'];
@@ -634,12 +628,19 @@ if ($encounterLocked === false) {
                     continue;
                 }
             }
-            $StringEcho .= "<tr><td class='border-top border-dark p-0'><a onclick=\"openNewForm(" .
-                attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($option_id)) .
+            $StringEcho .= "<button class='dropdown-item' onclick=\"openNewForm(" .
+            attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($option_id)) .
                 ", " . attr_js(xl_form_title($title)) . ")\" href='JavaScript:void(0);'>" .
-                text(xl_form_title($title)) . "</a></td></tr>";
+            text(xl_form_title($title)) . "</button>\n";
         }
+        $StringEcho.= "</div>\n";
+        $StringEcho.= '</div>';
     }
+}
+if ($StringEcho) {
+    $StringEcho2= '<div style="clear: both"></div>';
+} else {
+    $StringEcho2="";
 }
 ?>
 <!-- DISPLAYING HOOKS STARTS HERE -->
@@ -649,6 +650,9 @@ if ($encounterLocked === false) {
                                     WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='encounter' ORDER BY mod_id");
     $DivId = 'mod_installer';
     if (sqlNumRows($module_query)) {
+        if (!$StringEcho) {
+            $StringEcho= '<ul>';
+        }
         $jid = 0;
         $modid = '';
         while ($modulerow = sqlFetchArray($module_query)) {
@@ -666,23 +670,29 @@ if ($encounterLocked === false) {
             $relative_link = "../../modules/".$modulePath."/".$modulerow['path'];
             $nickname = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';
             if ($jid==0 || ($modid!=$modulerow['mod_id'])) {
-                if ($modid!='') {
-                    $StringEcho.= '</table></div></li>';
+                if ($jid !== 0) {
+                    $StringEcho.= "</div>\n";
+                    $StringEcho.= '</div>';
                 }
-                $StringEcho.= "<li><a href='JavaScript:void(0);' onClick=\"mopen(" . attr_js($DivId) . ");\" >" . text($new_category) . "</a><div id='" . attr($DivId) . "' ><table border='0' cellspacing='0' cellpadding='0'>";
+                $StringEcho .= "<div class='dropdown d-inline'>\n";
+                $StringEcho .= "<button class='btn btn-secondary dropdown-toggle' type='button' id='menu" . attr($new_category) . "' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>" .text($new_category) . "</button>\n";
+                $StringEcho .= "<div class='dropdown-menu' aria-labelledby='dropdownMenu2'>\n";
             }
             $jid++;
             $modid = $modulerow['mod_id'];
-            $StringEcho.= "<tr><td class='border-top border-dark p-0'><a onclick=" .
-                "\"openNewForm(" . attr_js($relative_link) . ", " . attr_js(xl_form_title($nickname)) . ")\" " .
-                "href='JavaScript:void(0);'>" . text(xl_form_title($nickname)) . "</a></td></tr>";
+            $StringEcho .= "<button class='dropdown-item' onclick=\"openNewForm(" .
+            attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($option_id)) .
+                ", " . attr_js($relative_link) . ", " . attr_js(xl_form_title($nickname)) . ")\" href='JavaScript:void(0);'>" .
+            text(xl_form_title($nickname)) . "</button>\n";
         }
+        $StringEcho.= "</div>\n";
+        $StringEcho.= '</div>';
     }
     ?>
 <!-- DISPLAYING HOOKS ENDS HERE -->
 <?php
 if ($StringEcho) {
-    $StringEcho.= "</table></div></li></ul>".$StringEcho2;
+    $StringEcho.= "</ul>".$StringEcho2;
 }
 ?>
 <table cellspacing="0" cellpadding="0" align="center">
@@ -770,8 +780,7 @@ if ($esign->isButtonViewable()) {
 <?php if ($GLOBALS['enable_follow_up_encounters']) { ?>
     <a href='#' class='btn btn-primary' onclick='return createFollowUpEncounter()'><?php echo xlt('Create follow-up encounter') ?></a>
 <?php } ?>
-&nbsp;&nbsp;&nbsp;<a href="#" onClick='expandcollapse("expand");' style="font-size:80%;"><?php echo xlt('Expand All'); ?></a>
-&nbsp;&nbsp;&nbsp;<a  style="font-size: 80%;" href="#" onClick='expandcollapse("collapse");'><?php echo xlt('Collapse All'); ?></a>
+<button style="margin-left:50px;"  type="button" onClick="$('.collapse').collapse('toggle');" class="btn btn-primary btn-sm" ><?php echo xlt('Expand / Collapse'); ?></button>
 </div>
 </div>
 
@@ -1018,7 +1027,7 @@ if ($pass_sens_squad &&
         echo "<a href='javascript:void(0);' onclick='divtoggle(" . attr_js('spanid_'.$divnos) . "," . attr_js('divid_'.$divnos) . ");' class='small' id='aid_" . attr($divnos) . "'>" .
           "<div class='formname'>" . text($form_name) . "</div> " .
           xlt('by') . " " . text($form_author) . " " .
-          "(<span id=spanid_" . attr($divnos) . " class=\"indicator\">" . ($divnos == 1 ? xlt('Collapse') : xlt('Expand')) . "</span>)</a>";
+          "</a>";
         echo "</div>";
 
         // a link to edit the form
@@ -1071,12 +1080,14 @@ if ($pass_sens_squad &&
                 // do not show delete button for main encounter here since it is displayed at top
             }
         }
+
+        echo "<a class='btn btn-primary btn-sm collapse-button-form text-white' title='" . xla('Expand/Collapse this form') . "' data-toggle='collapse' data-target='#divid_" . attr($divnos) . "'>" . xlt('Expand / Collapse') . "</a>";
         echo "</div>\n"; // Added as bug fix.
 
         echo "</td>\n";
         echo "</tr>";
         echo "<tr>";
-        echo "<td valign='top' class='formrow'><div id='divid_" . attr($divnos) . "' ";
+        echo "<td valign='top' class='formrow'><div id='divid_" . attr($divnos) . "' class='collapse show' style='margin-bottom:40px;' ";
         echo "class='tab " . ($divnos == 1 ? 'd-block' : 'd-none') . "'>";
 
         // Use the form's report.php for display.  Forms with names starting with LBF

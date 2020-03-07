@@ -306,7 +306,7 @@ if ($popup && $_POST['form_save']) {
                     ?>'>
                     <div class="btn-group">
                         <button type="button" name="form_search" class="btn btn-secondary btn-refresh" onclick="refreshme()"><?php echo xlt('Refresh');?></button>
-                        <button type="button" class="btn btn-secondary btn-add" name='add_node_btn' id='add_node_button'  onclick='handleNode(0,"","")'><?php echo xlt('Add Top Level');?></button>
+                        <button type="button" class="btn btn-secondary btn-add" name='add_node_btn' id='add_node_button'  onclick='handleNode(0,"",true,"")'><?php echo xlt('Add Top Level');?></button>
                     </div>
                     <br />
                     <br />
