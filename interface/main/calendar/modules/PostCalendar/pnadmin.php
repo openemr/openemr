@@ -698,54 +698,54 @@ function postcalendar_adminmenu($menuItem)
 
     $output = " <div class='container mt-3 mb-3'><ul class='nav nav-pills'>";
 
-    if ($menuItem === "clearCache") {
-        $output .= <<<EOF
-        <li class="nav-item">
-            <a class="nav-link active" href="$cacheURL">$cacheText</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="$systemURL">$systemText</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="$categoryURL">$categoryText</a>
-        </li>
-        EOF;
+if ($menuItem === "clearCache") {
+    $output .= <<<EOF
+<li class="nav-item">
+    <a class="nav-link active" href="$cacheURL">$cacheText</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="$systemURL">$systemText</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="$categoryURL">$categoryText</a>
+</li>
+EOF;
     } else if ($menuItem === "testSystem") {
         $output .= <<<EOF
-        <li class="nav-item">
-            <a class="nav-link" href="$cacheURL">$cacheText</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link active" href="$systemURL">$systemText</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="$categoryURL">$categoryText</a>
-        </li>
-        EOF;
+<li class="nav-item">
+    <a class="nav-link" href="$cacheURL">$cacheText</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link active" href="$systemURL">$systemText</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="$categoryURL">$categoryText</a>
+</li>
+EOF;
     } else if ($menuItem === "category") {
         $output .= <<<EOF
-        <li class="nav-item">
-            <a class="nav-link" href="$cacheURL">$cacheText</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="$systemURL">$systemText</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link active" href="$categoryURL">$categoryText</a>
-        </li>
-        EOF;
+<li class="nav-item">
+    <a class="nav-link" href="$cacheURL">$cacheText</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="$systemURL">$systemText</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link active" href="$categoryURL">$categoryText</a>
+</li>
+EOF;
     } else {
         $output .= <<<EOF
-        <li class="nav-item">
-            <a class="nav-link" href="$cacheURL">$cacheText</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="$systemURL">$systemText</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="$categoryURL">$categoryText</a>
-        </li>
-        EOF;
+<li class="nav-item">
+    <a class="nav-link" href="$cacheURL">$cacheText</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="$systemURL">$systemText</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="$categoryURL">$categoryText</a>
+</li>
+EOF;
 
     }
     $output .= "</ul></div>";
