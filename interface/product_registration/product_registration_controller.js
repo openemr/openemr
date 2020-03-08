@@ -44,15 +44,19 @@ function ProductRegistrationController() {
         buttonObject[registrationTranslations.submit] = _formSubmissionHandler;
         buttonObject[registrationTranslations.noThanks] = _formCancellationHandler;
 
-        $('.product-registration-modal').dialog({
-            resizable: false,
-            height: "auto",
-            width: 400,
-            draggable: false,
-            title: registrationTranslations.title,
-            modal: true,
-            buttons: buttonObject,
-            closeText: registrationTranslations.closeTooltip
+        $('.product-registration-modal').ready(function (){
+            $('.modal-header').text(registrationTranslations.title);
+            $('.submit').on('click', _formSubmissionHandler);
+            $('.noThanks').on('click', _formCancellationHandler);
+            $('.product-registration-modal').modal('toggle');
+            // resizable: false,
+            // height: "auto",
+            // width: 400,
+            // draggable: false,
+            // title: registrationTranslations.title,
+            // modal: true,
+            // buttons: buttonObject,
+            // closeText: registrationTranslations.closeTooltip
         });
 
         // Wire up "enter key" handler in case user doesn't click the modal buttons manually
