@@ -24,6 +24,7 @@
 
 
 require_once("../../interface/globals.php");
+
 use OpenEMR\Core\Header;
 
 ?>

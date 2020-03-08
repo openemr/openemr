@@ -232,7 +232,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
                     $(stg_load_id).hide();
                     $(stg_dets_id).html(data);
                     $(`#${dbName}_instrmsg`).hover( function() {
-                        dlgopen(`${dbName}_howto.php`, '', 800, 250, false, `<div class='text-warning'>${dbName} Installation Details</div>`, {
+                        dlgopen(`${dbName.toLowerCase()}_howto.php`, '', 800, 250, false, `<div class='text-warning'>${dbName} <?php echo xla("Installation Details"); ?></div>`, {
                             buttons: [{
                                 text: '<?php echo xlt("Close"); ?>',
                                 close: true,
@@ -266,7 +266,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
                                 const stg_load_id = `#${dbName}_stg_loading`;
                                 $(stg_load_id).hide();
 
-                                dlgopen('', '', 800, 250, '', `<div class='text-success'>Successfully upgraded ${dbName}</div>`, {
+                                dlgopen('', '', 800, 250, '', `<div class='text-success'><?php echo xla("Successfully upgraded"); ?> ${dbName}</div>`, {
                                     buttons: [{
                                         text: '<?php echo xlt("Close"); ?>',
                                         close: true,
