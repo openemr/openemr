@@ -471,7 +471,7 @@ class pnHTML
     function FormSubmit($label = 'Submit', $accesskey = '')
     {
         $this->tabindex++;
-        $output = '<input'
+        $output = '<input class="btn btn-primary"'
             .' type="submit"'
             .' value="'.pnVarPrepForDisplay($label).'"'
             .' align="middle"'

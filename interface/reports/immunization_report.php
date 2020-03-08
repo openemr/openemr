@@ -317,165 +317,162 @@ if ($_POST['form_get_hl7']==='true') {
 
 <body class="body_top">
 
-<span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Immunization Registry'); ?></span>
+    <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Immunization Registry'); ?></span>
 
-<div id="report_parameters_daterange">
-    <?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt('to{{Range}}') . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
-</div>
-
-<form name='theform' id='theform' method='post' action='immunization_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-<div id="report_parameters">
-<input type='hidden' name='form_refresh' id='form_refresh' value=''/>
-<input type='hidden' name='form_get_hl7' id='form_get_hl7' value=''/>
-<table>
- <tr>
-  <td width='410px'>
-    <div style='float:left'>
-      <table class='text'>
-        <tr>
-          <td class='col-form-label'>
-            <?php echo xlt('Codes'); ?>:
-          </td>
-          <td>
-<?php
- // Build a drop-down list of codes.
- //
- $query1 = "select id, concat('CVX:',code) as name from codes ".
-   " left join code_types ct on codes.code_type = ct.ct_id ".
-   " where ct.ct_key='CVX' ORDER BY name";
- $cres = sqlStatement($query1);
- echo "   <select multiple='multiple' size='3' name='form_code[]' class='form-control'>\n";
- //echo "    <option value=''>-- " . xl('All Codes') . " --\n";
-while ($crow = sqlFetchArray($cres)) {
-    $codeid = $crow['id'];
-    echo "    <option value='" . attr($codeid) . "'";
-    if (in_array($codeid, $form_code)) {
-        echo " selected";
-    }
-
-    echo ">" . text($crow['name']) . "\n";
-}
-
- echo "   </select>\n";
-?>
-          </td>
-          <td class='col-form-label'>
-            <?php echo xlt('From'); ?>:
-          </td>
-          <td>
-            <input type='text' name='form_from_date' id="form_from_date"
-            class='datepicker form-control'
-            size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
-          </td>
-          <td class='col-form-label'>
-            <?php echo xlt('To{{Range}}'); ?>:
-          </td>
-          <td>
-            <input type='text' name='form_to_date' id="form_to_date"
-            class='datepicker form-control'
-            size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
-          </td>
-        </tr>
-      </table>
+    <div id="report_parameters_daterange">
+        <?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt('to{{Range}}') . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
     </div>
-  </td>
-  <td class='h-100' align='left' valign='middle'>
-    <table class='w-100 h-100' style='border-left:1px solid;'>
-      <tr>
-        <td>
-          <div class="text-center">
-            <div class="btn-group" role="group">
-              <a href='#' class='btn btn-secondary btn-save'
-                onclick='
-                $("#form_refresh").attr("value","true");
-                $("#form_get_hl7").attr("value","false");
-                $("#theform").submit();
-                '>
-                <?php echo xlt('Refresh'); ?>
-              </a>
-                <?php if ($_POST['form_refresh']) { ?>
-                <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
-                    <?php echo xlt('Print'); ?>
-                </a>
-                <a href='#' class='btn btn-secondary btn-transmit' onclick=
-                  "if(confirm(<?php echo xlj('This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?'); ?>)) {
-                    $('#form_get_hl7').attr('value','true');
-                    $('#theform').submit();
-                    }">
-                    <?php echo xlt('Get HL7'); ?>
-                </a>
-                <?php } ?>
-            </div>
-          </div>
-        </td>
-      </tr>
-    </table>
-  </td>
- </tr>
-</table>
-</div> <!-- end of parameters -->
 
+    <form name='theform' id='theform' method='post' action='immunization_report.php' onsubmit='return top.restoreSession()'>
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <div id="report_parameters">
+            <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
+            <input type='hidden' name='form_get_hl7' id='form_get_hl7' value=''/>
+            <table>
+                <tr>
+                    <td class='w-50'>
+                        <div style='float:left'>
+                            <table class='text'>
+                                <tr>
+                                    <td class='col-form-label'>
+                                        <?php echo xlt('Codes'); ?>:
+                                    </td>
+                                    <td>
+                                        <?php
+                                        // Build a drop-down list of codes.
+                                        //
+                                        $query1 = "select id, concat('CVX:',code) as name from codes ".
+                                        " left join code_types ct on codes.code_type = ct.ct_id ".
+                                        " where ct.ct_key='CVX' ORDER BY name";
+                                        $cres = sqlStatement($query1);
+                                        echo "   <select multiple='multiple' size='3' name='form_code[]' class='form-control'>\n";
+                                        //echo "    <option value=''>-- " . xl('All Codes') . " --\n";
+                                        while ($crow = sqlFetchArray($cres)) {
+                                            $codeid = $crow['id'];
+                                            echo "    <option value='" . attr($codeid) . "'";
+                                            if (in_array($codeid, $form_code)) {
+                                                echo " selected";
+                                            }
 
-<?php
-if ($_POST['form_refresh']) {
-    ?>
-<div id="report_results">
-<table class='table'>
-<thead class='thead-light' align="left">
-<th> <?php echo xlt('Patient ID'); ?> </th>
-<th> <?php echo xlt('Patient Name'); ?> </th>
-<th> <?php echo xlt('Immunization Code'); ?> </th>
-<th> <?php echo xlt('Immunization Title'); ?> </th>
-<th> <?php echo xlt('Immunization Date'); ?> </th>
-</thead>
-<tbody>
-    <?php
-    $total = 0;
-//echo "<p> DEBUG query: $query </p>\n"; // debugging
-    $res = sqlStatement($query, $sqlBindArray);
+                                            echo ">" . text($crow['name']) . "\n";
+                                        }
 
+                                        echo "   </select>\n";
+                                        ?>
+                                    </td>
+                                    <td class='col-form-label'>
+                                        <?php echo xlt('From'); ?>:
+                                    </td>
+                                    <td>
+                                        <input type='text' name='form_from_date' id="form_from_date"
+                                        class='datepicker form-control'
+                                        size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
+                                    </td>
+                                    <td class='col-form-label'>
+                                        <?php echo xlt('To{{Range}}'); ?>:
+                                    </td>
+                                    <td>
+                                        <input type='text' name='form_to_date' id="form_to_date"
+                                        class='datepicker form-control'
+                                        size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>
+                    <td class='h-100' valign='middle'>
+                        <table class='w-100 h-100' style='border-left:1px solid;'>
+                            <tr>
+                                <td>
+                                    <div class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a href='#' class='btn btn-secondary btn-save'
+                                                onclick='
+                                                $("#form_refresh").attr("value","true");
+                                                $("#form_get_hl7").attr("value","false");
+                                                $("#theform").submit();
+                                                '>
+                                                <?php echo xlt('Refresh'); ?>
+                                            </a>
+                                            <?php if ($_POST['form_refresh']) { ?>
+                                            <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
+                                                <?php echo xlt('Print'); ?>
+                                            </a>
+                                            <a href='#' class='btn btn-secondary btn-transmit' onclick=
+                                            "if(confirm(<?php echo xlj('This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?'); ?>)) {
+                                                $('#form_get_hl7').attr('value','true');
+                                                $('#theform').submit();
+                                                }">
+                                                <?php echo xlt('Get HL7'); ?>
+                                            </a>
+                                            <?php } ?>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div> <!-- end of parameters -->
 
-    while ($row = sqlFetchArray($res)) {
-        ?>
-<tr>
-<td>
-        <?php echo text($row['patientid']); ?>
-</td>
-<td>
-        <?php echo text($row['patientname']); ?>
-</td>
-<td>
-        <?php echo text($row['cvx_code']); ?>
-</td>
-<td>
-        <?php echo text($row['immunizationtitle']); ?>
-</td>
-<td>
-        <?php echo text($row['immunizationdate']); ?>
-</td>
-</tr>
         <?php
-        ++$total;
-    }
-    ?>
-<tr class="report_totals">
- <td colspan='9'>
-    <?php echo xlt('Total Number of Immunizations'); ?>
-  :
-    <?php echo text($total); ?>
- </td>
-</tr>
+        if ($_POST['form_refresh']) {
+            ?>
+        <div id="report_results">
+            <table class='table'>
+                <thead class='thead-light'>
+                    <th> <?php echo xlt('Patient ID'); ?> </th>
+                    <th> <?php echo xlt('Patient Name'); ?> </th>
+                    <th> <?php echo xlt('Immunization Code'); ?> </th>
+                    <th> <?php echo xlt('Immunization Title'); ?> </th>
+                    <th> <?php echo xlt('Immunization Date'); ?> </th>
+                </thead>
+                <tbody>
+                    <?php
+                    $total = 0;
+                    //echo "<p> DEBUG query: $query </p>\n"; // debugging
+                    $res = sqlStatement($query, $sqlBindArray);
 
-</tbody>
-</table>
-</div> <!-- end of results -->
-<?php } else { ?>
-<div class='text'>
-    <?php echo xlt('Click Refresh to view all results, or please input search criteria above to view specific results.'); ?>
-</div>
-<?php } ?>
-</form>
+                    while ($row = sqlFetchArray($res)) {
+                        ?>
+                        <tr>
+                        <td>
+                                <?php echo text($row['patientid']); ?>
+                        </td>
+                        <td>
+                                <?php echo text($row['patientname']); ?>
+                        </td>
+                        <td>
+                                <?php echo text($row['cvx_code']); ?>
+                        </td>
+                        <td>
+                                <?php echo text($row['immunizationtitle']); ?>
+                        </td>
+                        <td>
+                                <?php echo text($row['immunizationdate']); ?>
+                        </td>
+                        </tr>
+                        <?php
+                        ++$total;
+                    }
+                    ?>
+                        <tr class="report_totals">
+                            <td colspan='9'>
+                                <?php echo xlt('Total Number of Immunizations'); ?>
+                            :
+                                <?php echo text($total); ?>
+                            </td>
+                        </tr>
+                </tbody>
+            </table>
+        </div> <!-- end of results -->
+        <?php } else { ?>
+        <div class='text'>
+            <?php echo xlt('Click Refresh to view all results, or please input search criteria above to view specific results.'); ?>
+        </div>
+        <?php } ?>
+    </form>
 
 </body>
 </html>

@@ -283,7 +283,7 @@ if ($fend > $count) {
 <head>
     <title><?php echo xlt("Codes"); ?></title>
 
-    <?php Header::setupHeader(['jquery-ui', 'jquery-ui-base']); ?>
+    <?php Header::setupHeader(['select2']); ?>
 
 <style>
     .ui-autocomplete { max-height: 350px; max-width: 35%; overflow-y: auto; overflow-x: hidden; }
@@ -291,24 +291,31 @@ if ($fend > $count) {
     <script>
     <?php if ($institutional) { ?>
     $( function() {
-        var cache = {};
-        $( ".revcode" ).autocomplete({
-            minLength: 1,
-            source: function( request, response ) {
-                var term = request.term;
-                request.code_group = "revenue_code";
-                if ( term in cache ) {
-                  response( cache[ term ] );
-                  return;
-                }
-                $.getJSON( "<?php echo $GLOBALS['web_root'] ?>/interface/billing/ub04_helpers.php", request, function( data, status, xhr ) {
-                  cache[ term ] = data;
-                  response( data );
-                });
+        $(".revcode").select2({
+        ajax: {
+            url: "<?php echo $GLOBALS['web_root'] ?>/interface/billing/ub04_helpers.php",
+            dataType: 'json',
+            data: function(params) {
+                return {
+                  code_group: "revenue_code",
+                  term: params.term
+                };
+            },
+            processResults: function(data) {
+                return  {
+                    results: $.map(data, function(item, index) {
+                        return {
+                            text: item.label,
+                            id: index,
+                            value: item.value
+                        }
+                    })
+                };
+                return x;
+            },
+            cache: true
             }
-        }).dblclick(function(event) {
-            $(this).autocomplete('search'," ");
-        });
+        })
     });
     <?php } ?>
 
@@ -546,9 +553,9 @@ if ($fend > $count) {
                 <?php if ($institutional) { ?>
                     <?php echo xlt('Revenue Code'); ?>:
                     <?php if ($mode == "modify") { ?>
-                        <input type='text' size='6' name="revenue_code" readonly="readonly" value='<?php echo attr($revenue_code) ?>'>
+                        <input type='text' size='6' name="revenue_code" readonly="readonly" value='<?php echo attr($revenue_code) ?>' />
                     <?php } else { ?>
-                        <input type='text' size='6' class='revcode' name="revenue_code" title='<?php echo xla('Type to search and select revenue code'); ?>' value='<?php echo attr($revenue_code) ?>'>
+                        <select size='6' style='width:150px' class='revcode' name="revenue_code" title='<?php echo xla('Type to search and select revenue code'); ?>' value='<?php echo attr($revenue_code) ?>'> </select>
                     <?php } ?>
                 <?php } ?>
                 </td>

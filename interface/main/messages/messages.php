@@ -75,7 +75,7 @@ if (($_POST['setting_bootstrap_submenu']) ||
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="description" content="MedEx Bank" />
     <meta name="author" content="OpenEMR: MedExBank" />
-    <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-redmond', 'opener', 'moment']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'opener', 'moment', 'select2']); ?>
     <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>" type="text/css" />
 
     <script>
@@ -536,11 +536,11 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 $body = preg_replace('/(:\d{2}\s\()' . $result['pid'] . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
                                                 $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
                                                 $body =nl2br(text(oeFormatPatientNote($body)));
-                                                echo "<div class='text oe-margin-t-3' style='border: 1px solid var(--gray); padding: 5px;'>" . $body . "</div>";
+                                                echo "<div class='text oe-margin-t-3 p-2' style='border: 1px solid var(--gray);'>" . $body . "</div>";
                                             }
 
                                             ?>
-                                            <textarea name='note' id='note' class='form-control oe-margin-t-3' style='margin-left: -1px !important; border: 1px solid var(--gray); padding: 5px; height: 100px !important;'><?php echo nl2br(text($note)); ?></textarea>
+                                            <textarea name='note' id='note' class='form-control oe-margin-t-3 p-1' style='margin-left: -1px !important; border: 1px solid var(--gray); height: 100px !important;'><?php echo nl2br(text($note)); ?></textarea>
                                         </div>
                                         <div class="col-12 position-override oe-margin-t-10">
                                             <?php if ($noteid) { ?>
@@ -786,7 +786,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         <span class="title"><?php echo xlt('SMS Zone'); ?></span>
                         <br/><br/>
                         <form id="smsForm" class="input-group">
-                            <input id="SMS_patient" type="text" style="margin:0;max-width:100%;" class="form-control" placeholder="<?php echo xla("Patient Name"); ?>" />
+                            <select id="SMS_patient" type="text" class="form-control m-0 w-100" placeholder="<?php echo xla("Patient Name"); ?>" > </select>
                             <span class="input-group-addon" onclick="SMS_direct();"><i class="glyphicon glyphicon-phone"></i></span>
                             <input type="hidden" id="sms_pid" />
                             <input type="hidden" id="sms_mobile" value="" />
@@ -873,31 +873,49 @@ if (!empty($_REQUEST['go'])) { ?>
             });
         });
         $(function (){
-            //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
-            // the relevant css file needs to be called i.e. jquery-ui-darkness
-            $('#see-all-tooltip').attr( "title", "<?php echo xla('Click to show messages for all users'); ?>" );
-            $('#see-all-tooltip').tooltip();
-            $('#just-mine-tooltip').attr( "title", "<?php echo xla('Click to show messages for only the current user'); ?>" );
-            $('#just-mine-tooltip').tooltip();
+            $('#see-all-tooltip').attr({"title": <?php echo xlj('Click to show messages for all users'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+            $('#just-mine-tooltip').attr({"title": <?php echo xlj('Click to show messages for only the current user'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
         });
         $(function () {
             var f = $("#smsForm");
-            $("#SMS_patient").autocomplete({
-                source: "save.php?go=sms_search",
-                minLength: 2,
-                select: function (event, ui) {
-                    event.preventDefault();
-                    $("#SMS_patient").val(ui.item.label + ' ' + ui.item.mobile);
-                    $("#sms_pid").val(ui.item.pid);
-                    $("#sms_mobile").val(ui.item.mobile);
-                    $("#sms_allow").val(ui.item.allow);
+            $("#SMS_patient").select2({
+                ajax: {
+                    url: "save.php",
+                    dataType: 'json',
+                    data: function(params) {
+                        return {
+                        go: "sms_search",
+                        term: params.term
+                        };
+                    },
+                    processResults: function(data) {
+                        return  {
+                            results: $.map(data, function(item, index) {
+                                return {
+                                    text: item.value,
+                                    id: index,
+                                    value: item.Label + ' ' + item.mobile,
+                                    pid: item.pid,
+                                    mobile: item.mobile,
+                                    allow: item.allow
+                                }
+                            })
+                        };
+                        return x;
+                    },
+                    cache: true
                 }
+            })
+
+            $('#SMS_patient').on('select2:select', function (e) {
+                        e.preventDefault();
+                        $("#SMS_patient").val(e.params.data.value);
+                        $("#sms_pid").val(e.params.data.pid);
+                        $("#sms_mobile").val(e.params.data.mobile);
+                        $("#sms_allow").val(e.params.data.allow);
             });
-        });
-        jQuery.ui.autocomplete.prototype._resizeMenu = function () {
-            var ul = this.menu.element;
-            ul.outerWidth(this.element.outerWidth());
-        };
+        })
+
         $(function () {
             $("#newnote").click(function (event) {
                 NewNote(event);

@@ -163,7 +163,7 @@ var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']);
 var jsGlobals = {};
 </script>
 
-<?php Header::setupHeader(["knockout", "tabs-theme", "jquery-ui", "i18next"]); ?>
+<?php Header::setupHeader(['knockout', 'tabs-theme', 'i18next']); ?>
 
 <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 

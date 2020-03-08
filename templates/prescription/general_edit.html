@@ -11,7 +11,7 @@
 <html>
 <head>
 
-    {headerTemplate assets='jquery-ui|jquery-ui-base|datetime-picker'}
+    {headerTemplate assets='datetime-picker|select2'}
 
 {literal}
 <style type="text/css">
@@ -107,7 +107,7 @@ select{
     {if $DRUG_ARRAY_VALUES}
     &nbsp; &nbsp; &nbsp; &nbsp;
         {if $prescription->get_refills() >= $prescription->get_dispensation_count()}
-            <input type="submit" name="disp_button"class='btn btn-primary btn-sm'  style="margin:0 5px 0 2px;" value="{xla t='Save and Dispense'}" />
+            <input type="submit" name="disp_button"class='btn btn-primary btn-sm my-0 mr-1 ml-1' value="{xla t='Save and Dispense'}" />
             <input class="input-sm" type="text" name="disp_quantity" size="2" maxlength="10" value="{$DISP_QUANTITY|attr}" />
             units, {$GBL_CURRENCY_SYMBOL|text}
             <input class="input-sm" type="text" name="disp_fee" size="5" maxlength="10" value="{$DISP_FEE|attr}" />
@@ -120,8 +120,8 @@ select{
 </table>
 
 {if $GLOBALS.enable_amc_prompting}
-  <div style='float:right; margin-right: 25px; border-style: solid; border-width: 1px;'>
-    <div style='float:left; margin:5px 5px 5px 5px;'>
+  <div class='float-right' style='margin-right: 25px; border-style: solid; border-width: 1px;'>
+    <div class='float-left m-1'>
       {amcCollect amc_id='e_prescribe_amc' patient_id=$prescription->patient->id object_category='prescriptions' object_id=$prescription->id}
       {if not $amcCollectReturn}
         <input type="checkbox" id="escribe_flag" name="escribe_flag" />
@@ -174,7 +174,7 @@ select{
 <tr>
   <td colspan="1" class="text" align="right" valign="middle" >{xlt t='Drug'}</td>
   <td colspan="2" align="left" valign="middle" >
-            <input class="input-sm" type="input" size="35" name="drug" id="drug" value="{$prescription->drug|attr}"/>
+            <select style="width:150px;" class="input-sm" type="input" size="35" name="drug" id="drug" value="{$prescription->drug|attr}"></select>
             <a href="javascript:;" id="druglookup" class="small" name="B4" onclick="$('#hiddendiv').show(); document.getElementById('hiddendiv').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;75&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">
             ({xlt t='click here to search'})</a>
             <div class="jumbotron jumbotron-fluid" id="hiddendiv" style="display: none">&nbsp;</div>
@@ -305,21 +305,66 @@ $(function() {
     {/literal}
     {if $GLOBALS.weno_rx_enable}
         {literal}
-        $('#drug').autocomplete({
-            {/literal}
-            source: 'library/ajax/drug_autocomplete/search.php?csrf_token_form=' + {$CSRF_TOKEN_FORM|js_url},
-            minLength: 3
-            {literal}
-        });
+        $("#drug").select2({
+        ajax: {
+            url: "library/ajax/drug_autocomplete/search.php",
+            dataType: 'json',
+            data: function(params) {
+                return {
+                  {/literal}
+                  csrf_token_form: {$CSRF_TOKEN_FORM|js_escape},
+                  term: params.term
+                  {literal}
+                };
+            },
+            processResults: function(data) {
+                return  {
+                    results: $.map(data, function(item, index) {
+                      return {
+                            text: item,
+                            id: index,
+                            value: item
+                        }
+                    })
+                };
+                return x;
+            },
+            cache: true,
+            minimumInputLength: 3
+            }
+          });
         {/literal}
     {else}
         {literal}
-        $('#drug').autocomplete({
-            {/literal}
-            source: 'library/ajax/prescription_drugname_lookup.php?csrf_token_form=' + {$CSRF_TOKEN_FORM|js_url},
-            minLength: 1
-            {literal}
-        });
+        $("#drug").select2({
+        ajax: {
+            url: "library/ajax/prescription_drugname_lookup.php",
+            dataType: 'json',
+            data: function(params) {
+                return {
+                  {/literal}
+                  csrf_token_form: {$CSRF_TOKEN_FORM|js_escape},
+                  {literal}
+                  term: params.term
+                };
+            },
+            processResults: function(data) {
+                return  {
+                    results: $.map(data, function(item, index) {
+                        return {
+                            text: item,
+                            id: index,
+                            value: item
+                        }
+                    })
+                };
+                return x;
+            },
+            cache: true
+            },
+            tags: true,
+            minimumInputLength: 3
+          });
         {/literal}
     {/if}
     {literal}
