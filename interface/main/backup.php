@@ -411,19 +411,28 @@ if ($form_step == 102) {
         }
 
         if ($tables) {
-            $cmd .= escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($sqlconf["login"]) .
-                " -p" . escapeshellarg($sqlconf["pass"]) .
-                " -h " . escapeshellarg($sqlconf["host"]) .
-                " --port=".escapeshellarg($sqlconf["port"]) .
-                " --opt --quote-names $mysql_ssl " .
-                escapeshellarg($sqlconf["dbase"]) . " $tables";
             if (IS_WINDOWS) {
-              # The Perl script differs in windows also.
-                $cmd .= " | " . escapeshellcmd($perl) . " -pe \"s/ DEFAULT CHARSET=utf8//i; s/ collate[ =][^ ;,]*//i;\"" .
-                " >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                $cmd .= escapeshellcmd('"' . $mysql_dump_cmd . '"') . " -u " . escapeshellarg($sqlconf["login"]) .
+                    " -p" . escapeshellarg($sqlconf["pass"]) .
+                    " -h " . escapeshellarg($sqlconf["host"]) .
+                    " --port=".escapeshellarg($sqlconf["port"]) .
+                    " --opt --quote-names $mysql_ssl " .
+                    escapeshellarg($sqlconf["dbase"]) . " $tables";
+            } else {
+                $cmd .= escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($sqlconf["login"]) .
+                    " -p" . escapeshellarg($sqlconf["pass"]) .
+                    " -h " . escapeshellarg($sqlconf["host"]) .
+                    " --port=".escapeshellarg($sqlconf["port"]) .
+                    " --opt --quote-names $mysql_ssl " .
+                    escapeshellarg($sqlconf["dbase"]) . " $tables";
+            }
+            if (IS_WINDOWS) {
+                # The Perl script differs in windows also.
+                $cmd .= " | " . escapeshellcmd('"' . $perl . '"') . " -pe \"s/ DEFAULT CHARSET=utf8//i; s/ collate[ =][^ ;,]*//i;\"" .
+                    " >> " . escapeshellarg($EXPORT_FILE) . " & ";
             } else {
                 $cmd .= " | " . escapeshellcmd($perl) . " -pe 's/ DEFAULT CHARSET=utf8//i; s/ collate[ =][^ ;,]*//i;'" .
-                " > " . escapeshellarg($EXPORT_FILE) . ";";
+                    " > " . escapeshellarg($EXPORT_FILE) . ";";
             }
         }
 
