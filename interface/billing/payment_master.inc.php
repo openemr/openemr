@@ -246,7 +246,7 @@ if (($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && 
                         </div>
                         <div class="col-3">
                             <label class="control-label" for="TdUnappliedAmount"><?php echo xlt('Undistributed'); ?>:</label>
-                            <div id="TdUnappliedAmount" class="form-control bg-danger text-light"><?php echo ($UndistributedAmount*1==0)? attr("0.00") : attr(number_format($UndistributedAmount, 2, '.', ','));?></div>
+                            <div id="TdUnappliedAmount" class="form-control bg-danger"><?php echo ($UndistributedAmount*1==0)? attr("0.00") : attr(number_format($UndistributedAmount, 2, '.', ','));?></div>
                             <input name="HidUnappliedAmount" id="HidUnappliedAmount" value="<?php echo ($UndistributedAmount*1==0)? attr("0.00") : attr(number_format($UndistributedAmount, 2, '.', ','));?>" type="hidden"/>
                             <input name="HidUnpostedAmount" id="HidUnpostedAmount" value="<?php echo attr($UndistributedAmount); ?>" type="hidden" />
                             <input name="HidCurrentPostedAmount" id="HidCurrentPostedAmount" value="" type="hidden" />
@@ -341,7 +341,7 @@ if ($screen=='new_payment' && $payment_id*1>0) {//After saving from the New Paym
                         </div>
                         <div class="forms col-3">
                             <label class="control-label" for="TdUnappliedAmount"><?php echo xlt('Undistributed'); ?>:</label>
-                            <div  id="TdUnappliedAmount" class="form-control bg-danger text-light"><?php echo ($UndistributedAmount*1==0)? attr("0.00") : attr(number_format($UndistributedAmount, 2, '.', ','));?></div>
+                            <div  id="TdUnappliedAmount" class="form-control bg-danger"><?php echo ($UndistributedAmount*1==0)? attr("0.00") : attr(number_format($UndistributedAmount, 2, '.', ','));?></div>
                             <input name="HidUnappliedAmount" id="HidUnappliedAmount" value="<?php echo ($UndistributedAmount*1==0)? attr("0.00") : attr(number_format($UndistributedAmount, 2, '.', ','));?>" type="hidden" />
                             <input name="HidUnpostedAmount" id="HidUnpostedAmount"  value="<?php echo attr($UndistributedAmount); ?>" type="hidden" />
                             <input name="HidCurrentPostedAmount" id="HidCurrentPostedAmount" value="" type="hidden" />

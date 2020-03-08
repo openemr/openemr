@@ -230,7 +230,7 @@ if (count($emr_app)) {
                         <?php unset($_SESSION['relogin']);
                     endif;
                     if (isset($_SESSION['loginfailure']) && ($_SESSION['loginfailure'] == 1)) : // Begin login failure block ?>
-                    <div class="alert alert-danger login-failure m-1 text-light">
+                    <div class="alert alert-danger login-failure m-1">
                         <?php echo xlt('Invalid username or password'); ?>
                     </div>
                     <?php endif; // End login failure block ?>
