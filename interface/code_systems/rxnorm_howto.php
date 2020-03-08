@@ -33,12 +33,12 @@ use OpenEMR\Core\Header;
     <p>
         <?php echo xlt("Steps to install the RxNorm database"); ?>:
         <ol>
-            <li><?php echo xlt("The first step is to open an account with the Unified Medical Language System web site"); ?> <b><a href="https://utslogin.nlm.nih.gov/cas/login" target="_blank" rel="noopener"><?php echo xlt("here"); ?></a></b>
+            <li><?php echo xlt("The first step is to open an account with the Unified Medical Language System web site"); ?> <span class='font-weight-bold'><a href="https://utslogin.nlm.nih.gov/cas/login" target="_blank" rel="noopener"><?php echo xlt("here"); ?></a></span>
             </li>
-            <li><?php echo xlt("Then the raw data feed release can be obtained from"); ?> <b><a href="https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html" target="_blank" rel="noopener"><?php echo xlt("this location"); ?></a></b>
+            <li><?php echo xlt("Then the raw data feed release can be obtained from"); ?> <span class='font-weight-bold'><a href="https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html" target="_blank" rel="noopener"><?php echo xlt("this location"); ?></a></span>
             </li>
             <li><?php echo xlt("Place the downloaded RxNorm database zip file into the following directory"); ?>: contrib/rxnorm.
-            </li>            
+            </li>
             <li><?php echo xlt("Return to this page and you will be able to complete the RxNorm installation process by clicking on the RXNORM section header"); ?>
             </li>
         </ol>

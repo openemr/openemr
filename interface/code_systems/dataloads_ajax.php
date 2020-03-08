@@ -145,7 +145,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
         </div>
         </div>
     </div>
-    
+
     <!-- List Database collapse -->
     <?php
     //
@@ -174,7 +174,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
                             </div>
                             <hr>
                             <div id="<?php echo attr($db); ?>_install_details">
-                                <div id='<?php echo attr($db); ?>_inst_loading' style='margin: 10px; display: none;'>
+                                <div id='<?php echo attr($db); ?>_inst_loading' class='m-2 d-none'>
                                     <img src='../pic/ajax-loader.gif'/>
                                 </div>
                             </div>
@@ -187,7 +187,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
                             <hr>
                             <div id="<?php echo attr($db); ?>_stage_details">
                             </div>
-                            <div id='<?php echo attr($db); ?>_stg_loading' style='margin: 10px; display: none;'>
+                            <div id='<?php echo attr($db); ?>_stg_loading' class='m-2 d-none'>
                                 <img src='../pic/ajax-loader.gif'/>
                             </div>
                         </div>
@@ -248,7 +248,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
                     $(`#${dbName}_dirmsg`).attr({"title": "<?php echo xla("Please create the following directory before proceeding"); ?>: contrib/" + (dbName).toLowerCase(), "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
 
                     $(`#${dbName}_msg`).attr({"title": "<?php echo xla("Please place your install files in following directory"); ?>: contrib/" + (dbName).toLowerCase(), "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
-                    
+
                     // Upgrade Database button event
                     $(`#${dbName}_install_button`).click(function(e) {
                         $(this).prop("disabled", "disabled");
@@ -265,7 +265,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
                             success: function(data) {
                                 const stg_load_id = `#${dbName}_stg_loading`;
                                 $(stg_load_id).hide();
-            
+
                                 dlgopen('', '', 800, 250, '', `<div class='text-success'>Successfully upgraded ${dbName}</div>`, {
                                     buttons: [{
                                         text: '<?php echo xlt("Close"); ?>',

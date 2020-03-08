@@ -33,7 +33,7 @@ use OpenEMR\Core\Header;
     <p>
         <?php echo xlt("Steps to install the ICD 10 database"); ?>:
         <ol>
-            <li><?php echo xlt("The raw data feed release can be obtained from"); ?> <b><a href="https://www.cms.gov/Medicare/Coding/ICD10/index" target="_blank" rel="noopener"><?php echo xlt("this location"); ?></a></b>
+            <li><?php echo xlt("The raw data feed release can be obtained from"); ?> <span class='font-weight-bold'><a href="https://www.cms.gov/Medicare/Coding/ICD10/index" target="_blank" rel="noopener"><?php echo xlt("this location"); ?></a></span>
             </li>
             <li><?php echo xlt("Place the downloaded ICD 10 database zip files into the following directory"); ?>: contrib/icd10
             </li>
