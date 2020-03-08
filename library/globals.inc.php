@@ -183,6 +183,7 @@ $GLOBALS_METADATA = array(
         'default_second_tab' => array(
             xl('Default Second Tab'),       // descriptive name
             array(
+                '' => xl('None'),
                 '../../interface/main/messages/messages.php?form_active=1' => xl('Messages Screen'),
                 'main_info.php' => xl('Calendar Screen'),
                 '../new/new.php' => xl('Patient Search/Add Screen'),

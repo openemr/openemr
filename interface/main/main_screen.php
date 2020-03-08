@@ -459,8 +459,9 @@ if ($is_expired) {
             $frame2target = "msc";
         }
     } else {
-        $frame2url = "../../interface/main/messages/messages.php?form_active=1";
-        $frame2target = "msg";
+        // In the case where no second default tab is specified, set these session variables to null
+        $frame2url = null;
+        $frame2target = null;
     }
 }
 

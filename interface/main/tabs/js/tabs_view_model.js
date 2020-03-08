@@ -23,13 +23,15 @@ function tabStatus(title,url,name,closable,visible,locked)
     return this;
 }
 
+/**
+ *
+ * @returns {tabs_view_model}
+ *
+ * Initial setup of the tabs view model to be an observable array
+ */
 function tabs_view_model()
 {
     this.tabsList=ko.observableArray();
-    this.tabsList.push(new tabStatus("Loading...",webroot_url+"/interface/main/main_info.php","cal",true,true,false));
-    this.tabsList.push(new tabStatus("Loading...",webroot_url+"/interface/main/messages/messages.php?form_active=1","msg",true,false,false));
-//    this.tabsList.push(new tabStatus("Three"));
-    this.text=ko.observable("Test");
     return this;
 }
 
