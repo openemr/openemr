@@ -431,7 +431,7 @@ if ($supported_file === 1) {
                 $rf = "rf2";
             }
             ?>
-            <input id="<?php echo attr($db); ?>_install_button" class="btn btn-secondary btn-sm" version="<?php echo attr($file_revision); ?>" rf="<?php echo $rf; ?>" file_revision_date="<?php echo attr($file_revision_date); ?>" file_checksum="<?php echo attr($file_checksum); ?>" type="button" value="<?php echo attr($action); ?>"/>
+            <input id="<?php echo attr($db); ?>_install_button" class="btn btn-primary btn-sm" version="<?php echo attr($file_revision); ?>" rf="<?php echo $rf; ?>" file_revision_date="<?php echo attr($file_revision_date); ?>" file_checksum="<?php echo attr($file_checksum); ?>" type="button" value="<?php echo attr($action); ?>"/>
       </div>
             <?php
         }
