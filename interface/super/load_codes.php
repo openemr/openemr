@@ -147,86 +147,84 @@ if (!empty($_POST['bn_upload'])) {
         $zipin->close();
     }
 
-    echo "<p style='color:green'>" .
+    echo "<p class='text-success'>" .
        xlt('LOAD SUCCESSFUL. Codes inserted') . ": " . text($inscount) . ", " .
        xlt('replaced') . ": " . text($repcount) .
        "</p>\n";
 }
 
 ?>
-<div class="container">
+    <div class="container">
 
-    <form method='post' action='load_codes.php' enctype='multipart/form-data'
-    onsubmit='return top.restoreSession()'>
+        <form method='post' action='load_codes.php' enctype='multipart/form-data'
+        onsubmit='return top.restoreSession()'>
 
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-        <div class="table-responsive">
-            <table class="table table-bordered">
-                <thead>
-                    <tr class="dehead">
-                        <th colspan="2" class='text-center'><?php echo xlt('Install Code Set'); ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <?php echo xlt('Code Type'); ?>
-                        </td>
-                        <td>
-                            <select name='form_code_type'>
-                                <?php
-                                foreach (array('RXCUI') as $codetype) {
-                                    echo "    <option value='" . attr($codetype) . "'>" . text($codetype) . "</option>\n";
-                                }
-                                ?>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="detail">
-                            <?php echo xlt('Source File'); ?>
-                            <input type="hidden" name="MAX_FILE_SIZE" value="350000000" />
-                        </td>
-                        <td class="detail">
-                            <input type="file" name="form_file" size="40" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="detail">
-                            <?php echo xlt('Replace entire code set'); ?>
-                        </td>
-                        <td class="detail">
-                            <input type='checkbox' name='form_replace' value='1' checked />
-                        </td>
-                    </tr>
-                    <tr class="bg-secondary">
-                        <td colspan="2" class="text-center detail">
-                            <input type='submit' class='btn btn-primary' name='bn_upload' value='<?php echo xlt('Upload and Install') ?>' />
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <p class='font-weight-bold text-center'>
-            <?php echo xlt('Be patient, some files can take several minutes to process!'); ?>
-        </p>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr class="dehead">
+                            <th colspan="2" class='text-center'><?php echo xlt('Install Code Set'); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <?php echo xlt('Code Type'); ?>
+                            </td>
+                            <td>
+                                <select name='form_code_type'>
+                                    <?php
+                                    foreach (array('RXCUI') as $codetype) {
+                                        echo "    <option value='" . attr($codetype) . "'>" . text($codetype) . "</option>\n";
+                                    }
+                                    ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="detail">
+                                <?php echo xlt('Source File'); ?>
+                                <input type="hidden" name="MAX_FILE_SIZE" value="350000000" />
+                            </td>
+                            <td class="detail">
+                                <input type="file" name="form_file" size="40" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="detail">
+                                <?php echo xlt('Replace entire code set'); ?>
+                            </td>
+                            <td class="detail">
+                                <input type='checkbox' name='form_replace' value='1' checked />
+                            </td>
+                        </tr>
+                        <tr class="bg-secondary">
+                            <td colspan="2" class="text-center detail">
+                                <input type='submit' class='btn btn-primary' name='bn_upload' value='<?php echo xlt('Upload and Install') ?>' />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class='font-weight-bold text-center'>
+                <?php echo xlt('Be patient, some files can take several minutes to process!'); ?>
+            </p>
 
+            <!-- No translation because this text is long and US-specific and quotes other English-only text. -->
+            <p class='text'>
+            <span class="font-weight-bold">RXCUI codes</span> may be downloaded from
+            <a href='https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html' rel="noopener" target='_blank'>
+            www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html</a>.
+            Get the "Current Prescribable Content Monthly Release" zip file, marked "no license required".
+            Then you can upload that file as-is here, or extract the file RXNCONSO.RRF from it and upload just
+            that (zipped or not). You may do the same with the weekly updates, but for those uncheck the
+            "<?php echo xlt('Replace entire code set'); ?>" checkbox above.
+            </p>
 
-    <!-- No translation because this text is long and US-specific and quotes other English-only text. -->
-    <p class='text'>
-    <span class="font-weight-bold">RXCUI codes</span> may be downloaded from
-    <a href='https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html' rel="noopener" target='_blank'>
-    www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html</a>.
-    Get the "Current Prescribable Content Monthly Release" zip file, marked "no license required".
-    Then you can upload that file as-is here, or extract the file RXNCONSO.RRF from it and upload just
-    that (zipped or not). You may do the same with the weekly updates, but for those uncheck the
-    "<?php echo xlt('Replace entire code set'); ?>" checkbox above.
-    </p>
-
-    <!-- TBD: Another paragraph of instructions here for each code type. -->
-
-    </form>
-</div>
+            <!-- TBD: Another paragraph of instructions here for each code type. -->
+        </form>
+    </div>
 </body>
 </html>
