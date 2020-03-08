@@ -52,7 +52,7 @@ function setpatient(pid, lname, fname, dob) {
 function sel_patient(ename, epid) {
  el_pt_name = ename;
  el_pt_id = epid;
- dlgopen('../main/calendar/find_patient_popup.php', '_blank', 600, 400);
+ dlgopen('../main/calendar/find_patient_popup.php?pflag=0', '_blank', 600, 400);
 }
 
 </script>
