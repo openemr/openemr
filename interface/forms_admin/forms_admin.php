@@ -46,195 +46,217 @@ $bigdata = getRegistered("%") or $bigdata = false;
 
 //START OUT OUR PAGE....
 ?>
+
 <html>
 <head>
 <?php Header::setupHeader(); ?>
 </head>
 <body class="body_top">
-<span class="title"><?php echo xlt('Forms Administration');?></span>
-<br /><br />
-<?php
-if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
-    foreach ($_POST as $key => $val) {
-        if (preg_match('/nickname_(\d+)/', $key, $matches)) {
-            sqlQuery("update registry set nickname = ? where id = ?", array($val, $matches[1]));
-        } else if (preg_match('/category_(\d+)/', $key, $matches)) {
-            sqlQuery("update registry set category = ? where id = ?", array($val, $matches[1]));
-        } else if (preg_match('/priority_(\d+)/', $key, $matches)) {
-            sqlQuery("update registry set priority = ? where id = ?", array($val, $matches[1]));
-        } else if (preg_match('/aco_spec_(\d+)/', $key, $matches)) {
-            sqlQuery("update registry set aco_spec = ? where id = ?", array($val, $matches[1]));
-        }
-    }
-}
 
-?>
-
-<?php //ERROR REPORTING
-if ($err) {
-    echo "<span class=bold>" . text($err) . "</span><br /><br />\n";
-}
-?>
-
-<?php //REGISTERED SECTION ?>
-<span class=bold><?php echo xlt('Registered');?></span><br />
-<form method=POST action ='./forms_admin.php'>
-<i><?php echo xlt('click here to update priority, category, nickname and access control settings'); ?></i>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-<input type='submit' name='update' value='<?php echo xla('update'); ?>'><br />
-<table border=0 cellpadding=1 cellspacing=2 width="500">
-    <tr>
-        <td> </td>
-        <td> </td>
-        <td> </td>
-        <td> </td>
-        <td> </td>
-        <td><?php echo xlt('Priority'); ?> </td>
-        <td><?php echo xlt('Category'); ?> </td>
-        <td><?php echo xlt('Nickname'); ?> </td>
-        <td><?php echo xlt('Access Control'); ?></td>
-    </tr>
-<?php
-$color="#CCCCCC";
-if ($bigdata != false) {
-    foreach ($bigdata as $registry) {
-        $priority_category = sqlQuery(
-            "select priority, category, nickname, aco_spec from registry where id = ?",
-            array($registry['id'])
-        );
-        ?>
-      <tr>
-    <td bgcolor="<?php echo $color; ?>" width="2%">
-      <span class='text'><?php echo text($registry['id']); ?></span>
-    </td>
-    <td bgcolor="<?php echo attr($color); ?>" width="30%">
-      <span class='bold'><?php echo text(xl_form_title($registry['name'])); ?></span>
-    </td>
-        <?php
-        if ($registry['sql_run'] == 0) {
-            echo "<td bgcolor='" . attr($color) . "' width='10%'><span class='text'>" . xlt('registered') . "</span>";
-        } elseif ($registry['state'] == "0") {
-            echo "<td bgcolor='#FFCCCC' width='10%'><a class='link_submit' href='./forms_admin.php?id=" . attr_url($registry['id']) . "&method=enable&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "'>" . xlt('disabled') . "</a>";
-        } else {
-            echo "<td bgcolor='#CCFFCC' width='10%'><a class='link_submit' href='./forms_admin.php?id=" . attr_url($registry['id']) . "&method=disable&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "'>" . xlt('enabled') . "</a>";
-        }
-        ?></td>
-        <td bgcolor="<?php echo attr($color); ?>" width="10%">
-      <span class='text'><?php
-        if ($registry['unpackaged']) {
-            echo xlt('PHP extracted');
-        } else {
-            echo xlt('PHP compressed');
-        }
-        ?></span>
-        </td>
-        <td bgcolor="<?php echo attr($color); ?>" width="10%">
-        <?php
-        if ($registry['sql_run']) {
-            echo "<span class='text'>" . xlt('DB installed') . "</span>";
-        } else {
-            echo "<a class='link_submit' href='./forms_admin.php?id=" . attr_url($registry['id']) . "&method=install_db&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "'>" . xlt('install DB') . "</a>";
-        }
-        ?>
-        </td>
-        <?php
-          echo "<td><input type='text' size='4'  name='priority_" . attr($registry['id']) . "' value='" . attr($priority_category['priority']) . "'></td>";
-          echo "<td><input type='text' size='10' name='category_" . attr($registry['id']) . "' value='" . attr($priority_category['category']) . "'></td>";
-          echo "<td><input type='text' size='10' name='nickname_" . attr($registry['id']) . "' value='" . attr($priority_category['nickname']) . "'></td>";
-          echo "<td>";
-          echo "<select name='aco_spec_" . attr($registry['id']) . "'>";
-          echo "<option value=''></option>";
-          echo AclExtended::genAcoHtmlOptions($priority_category['aco_spec']);
-          echo "</select>";
-          echo "</td>";
-        ?>
-      </tr>
-        <?php
-        if ($color=="#CCCCCC") {
-            $color="#999999";
-        } else {
-            $color="#CCCCCC";
-        }
-    } //end of foreach
-}
-?>
-</table>
-<hr>
-
-<?php  //UNREGISTERED SECTION ?>
-<span class='bold'><?php echo xlt('Unregistered'); ?></span><br />
-<table border=0 cellpadding=1 cellspacing=2 width="500">
-<?php
-$dpath = "$srcdir/../interface/forms/";
-$dp = opendir($dpath);
-$color="#CCCCCC";
-for ($i=0; false != ($fname = readdir($dp)); $i++) {
-    if ($fname != "." && $fname != ".." && $fname != "CVS" && $fname != "LBF" &&
-    (is_dir($dpath.$fname) || stristr($fname, ".tar.gz") ||
-    stristr($fname, ".tar") || stristr($fname, ".zip") ||
-    stristr($fname, ".gz"))) {
-        $inDir[$i] = $fname;
-    }
-}
-
-// ballards 11/05/2005 fixed bug in removing registered form from the list
-if ($bigdata != false) {
-    foreach ($bigdata as $registry) {
-        $key = array_search($registry['directory'], $inDir) ;  /* returns integer or FALSE */
-        unset($inDir[$key]);
-    }
-}
-
-foreach ($inDir as $fname) {
-    if (stristr($fname, ".tar.gz") || stristr($fname, ".tar") || stristr($fname, ".zip") || stristr($fname, ".gz")) {
-        $phpState = "PHP compressed";
-    } else {
-        $phpState =  "PHP extracted";
-    }
-    ?>
-    <tr>
-        <td bgcolor="<?php echo $color?>" width="1%">
-            <span class=text> </span>
-        </td>
-        <td bgcolor="<?php echo $color?>" width="20%">
-            <?php
-                $form_title_file = @file($GLOBALS['srcdir']."/../interface/forms/$fname/info.txt");
-            if ($form_title_file) {
-                    $form_title = $form_title_file[0];
-            } else {
-                $form_title = $fname;
+    <div class="container-fluid">
+        <!-- Page header -->
+        <div class="row">
+            <div class="col-12">
+                <div class="page-header">
+                    <h2 class="title"><?php echo xlt('Forms Administration');?></h2>
+                </div>
+            </div>
+        </div>
+        <!-- Form table -->
+        <div class="row">
+           <div class="col-12 mt-3">
+           <?php
+            if (!empty($_POST)) {
+                if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+                    CsrfUtils::csrfNotVerified();
+                }
+                foreach ($_POST as $key => $val) {
+                    if (preg_match('/nickname_(\d+)/', $key, $matches)) {
+                        sqlQuery("update registry set nickname = ? where id = ?", array($val, $matches[1]));
+                    } else if (preg_match('/category_(\d+)/', $key, $matches)) {
+                        sqlQuery("update registry set category = ? where id = ?", array($val, $matches[1]));
+                    } else if (preg_match('/priority_(\d+)/', $key, $matches)) {
+                        sqlQuery("update registry set priority = ? where id = ?", array($val, $matches[1]));
+                    } else if (preg_match('/aco_spec_(\d+)/', $key, $matches)) {
+                        sqlQuery("update registry set aco_spec = ? where id = ?", array($val, $matches[1]));
+                    }
+                }
             }
             ?>
-            <span class=bold><?php echo text(xl_form_title($form_title)); ?></span>
-        </td>
-        <td bgcolor="<?php echo $color?>" width="10%"><?php
-        if ($phpState == "PHP extracted") {
-            echo '<a class=link_submit href="./forms_admin.php?name=' . attr_url($fname) . '&method=register&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken()) . '">' . xlt('register') . '</a>';
-        } else {
-            echo '<span class=text>' . xlt('n/a') . '</span>';
-        }
-        ?></td>
-        <td bgcolor="<?php echo $color?>" width="20%">
-            <span class=text><?php echo xlt($phpState); ?></span>
-        </td>
-        <td bgcolor="<?php echo $color?>" width="10%">
-            <span class=text><?php echo xlt('n/a'); ?></span>
-        </td>
-    </tr>
-    <?php
-    if ($color=="#CCCCCC") {
-            $color="#999999";
-    } else {
-        $color="#CCCCCC";
-    }
 
-    flush();
-}//end of foreach
-?>
-</table>
+            <?php //ERROR REPORTING
+            if ($err) {
+                echo "<span class='font-weight-bold text-danger'>" . text($err) . "</span>\n";
+            }
+            ?>
 
+            <?php //REGISTERED SECTION ?>
+            <span class="font-weight-bold"><?php echo xlt('Registered');?></span>
+            <form method="post" action ='./forms_admin.php'>
+                <span class="font-italic">
+                    <?php echo xlt('click here to update priority, category, nickname and access control settings'); ?>
+                </span>
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input class="btn btn-primary" type='submit' name='update' value='<?php echo xla('Update'); ?>'>
+
+                <div class="table-responsive mt-3">
+                    <table class="table table-striped">
+                        <tr>
+                            <td colspan="5"></td>
+                            <td><?php echo xlt('Priority'); ?> </td>
+                            <td><?php echo xlt('Category'); ?> </td>
+                            <td><?php echo xlt('Nickname'); ?> </td>
+                            <td><?php echo xlt('Access Control'); ?></td>
+                        </tr>
+                        <?php
+                        $tdStyle = "bg-dark text-light";
+                        if ($bigdata != false) {
+                            foreach ($bigdata as $registry) {
+                                $priority_category = sqlQuery(
+                                    "select priority, category, nickname, aco_spec from registry where id = ?",
+                                    array($registry['id'])
+                                );
+                                ?>
+                            <tr>
+                                <td class="<?php echo attr($tdStyle); ?>">
+                                    <span class='text'><?php echo text($registry['id']); ?></span>
+                                </td>
+                                <td class="<?php echo attr($tdStyle); ?>">
+                                    <span class='bold'><?php echo text(xl_form_title($registry['name'])); ?></span>
+                                </td>
+                                <?php
+                                if ($registry['sql_run'] == 0) {
+                                    echo "<td class='" . attr($tdStyle) . "' ><span class='text'>" . xlt('registered') . "</span>";
+                                } elseif ($registry['state'] == "0") {
+                                    echo "<td><a class='link_submit text-danger' href='./forms_admin.php?id=" . attr_url($registry['id']) . "&method=enable&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "'>" . xlt('disabled') . "</a>";
+                                } else {
+                                    echo "<td><a class='link_submit text-success' href='./forms_admin.php?id=" . attr_url($registry['id']) . "&method=disable&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "'>" . xlt('enabled') . "</a>";
+                                }
+                                ?>
+                                </td>
+                                <td class="<?php echo attr($tdStyle); ?>">
+                                    <span class='text'><?php
+                                        if ($registry['unpackaged']) {
+                                            echo xlt('PHP extracted');
+                                        } else {
+                                            echo xlt('PHP compressed');
+                                        }
+                                        ?>
+                                    </span>
+                                </td>
+                                <td class="<?php echo attr($tdStyle); ?>">
+                                    <?php
+                                    if ($registry['sql_run']) {
+                                        echo "<span class='text'>" . xlt('DB installed') . "</span>";
+                                    } else {
+                                        echo "<a class='link_submit' href='./forms_admin.php?id=" . attr_url($registry['id']) . "&method=install_db&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "'>" . xlt('install DB') . "</a>";
+                                    }
+                                    ?>
+                                </td>
+                                <?php
+                                echo "<td><input type='text' size='4'  name='priority_" . attr($registry['id']) . "' value='" . attr($priority_category['priority']) . "'></td>";
+                                echo "<td><input type='text' size='10' name='category_" . attr($registry['id']) . "' value='" . attr($priority_category['category']) . "'></td>";
+                                echo "<td><input type='text' size='10' name='nickname_" . attr($registry['id']) . "' value='" . attr($priority_category['nickname']) . "'></td>";
+                                echo "<td>";
+                                echo "<select name='aco_spec_" . attr($registry['id']) . "'>";
+                                echo "<option value=''></option>";
+                                echo AclExtended::genAcoHtmlOptions($priority_category['aco_spec']);
+                                echo "</select>";
+                                echo "</td>";
+                                ?>
+                            </tr>
+                                <?php
+                                if ($tdStyle=="bg-dark text-light") {
+                                    $tdStyle="bg-light";
+                                } else {
+                                    $tdStyle="bg-dark text-light";
+                                }
+                            } //end of foreach
+                        }
+                        ?>
+                    </table>
+                </div>
+                <hr>
+
+                <?php  //UNREGISTERED SECTION ?>
+                <span class="font-weight-bold"><?php echo xlt('Unregistered'); ?></span>
+                <div class="table-responsive mt3">
+                    <table class="table table-striped">
+                        <?php
+                        $dpath = "$srcdir/../interface/forms/";
+                        $dp = opendir($dpath);
+                        $tdStyle = "bg-dark text-light";
+
+                        for ($i=0; false != ($fname = readdir($dp)); $i++) {
+                            if ($fname != "." && $fname != ".." && $fname != "CVS" && $fname != "LBF" &&
+                            (is_dir($dpath.$fname) || stristr($fname, ".tar.gz") ||
+                            stristr($fname, ".tar") || stristr($fname, ".zip") ||
+                            stristr($fname, ".gz"))) {
+                                $inDir[$i] = $fname;
+                            }
+                        }
+
+                        // ballards 11/05/2005 fixed bug in removing registered form from the list
+                        if ($bigdata != false) {
+                            foreach ($bigdata as $registry) {
+                                $key = array_search($registry['directory'], $inDir) ;  /* returns integer or FALSE */
+                                unset($inDir[$key]);
+                            }
+                        }
+
+                        foreach ($inDir as $fname) {
+                            if (stristr($fname, ".tar.gz") || stristr($fname, ".tar") || stristr($fname, ".zip") || stristr($fname, ".gz")) {
+                                $phpState = "PHP compressed";
+                            } else {
+                                $phpState =  "PHP extracted";
+                            }
+                            ?>
+                            <tr>
+                                <td class="<?php echo $tdStyle?>">
+                                    <span class=text></span>
+                                </td>
+                                <td class="<?php echo $tdStyle?>">
+                                    <?php
+                                        $form_title_file = @file($GLOBALS['srcdir']."/../interface/forms/$fname/info.txt");
+                                    if ($form_title_file) {
+                                            $form_title = $form_title_file[0];
+                                    } else {
+                                        $form_title = $fname;
+                                    }
+                                    ?>
+                                    <span class="font-weight-bold"><?php echo text(xl_form_title($form_title)); ?></span>
+                                </td>
+                                <td>
+                                    <?php
+                                    if ($phpState == "PHP extracted") {
+                                        echo '<a class=link_submit href="./forms_admin.php?name=' . attr_url($fname) . '&method=register&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken()) . '">' . xlt('register') . '</a>';
+                                    } else {
+                                        echo '<span class=text>' . xlt('n/a') . '</span>';
+                                    }
+                                    ?>
+                                </td>
+                                <td class="<?php echo $tdStyle?>">
+                                    <span class=text><?php echo xlt($phpState); ?></span>
+                                </td>
+                                <td class="<?php echo $tdStyle?>">
+                                    <span class=text><?php echo xlt('n/a'); ?></span>
+                                </td>
+                            </tr>
+                            <?php
+                                if ($tdStyle=="bg-dark text-light") {
+                                    $tdStyle="bg-light";
+                                } else {
+                                    $tdStyle="bg-dark text-light";
+                                }
+
+                            flush();
+                        }//end of foreach
+                        ?>
+                    </table>
+                </div>
+            </form>
+           </div>
+        </div>
+    </div>
 </body>
 </html>
