@@ -408,6 +408,10 @@ function writeOptionLine(
             "value='" . attr($value) . "' onclick='sel_cvxcode(this)' " .
             "title='" . xla('Click to select or change CVX code') . "'/>";
         echo "</td>\n";
+    } elseif ($list_id == 'ptlistcols') {
+        echo "  <td>";
+        echo generate_select_list("opt[$opt_line_no][toggle_setting_1]", 'Sort_Direction', $tog1, 'Sort Direction', null, 'option');
+        echo "</td>\n";
     }
 
     // IPPF includes the ability to map each list item to a "master" identifier.
@@ -1199,6 +1203,8 @@ function writeITLine($it_array)
                 <th class="font-weight-bold"><?php echo xlt('Type'); ?></th>
             <?php } elseif ($list_id == 'immunizations') { ?>
                 <th class="font-weight-bold">&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('CVX Code Mapping'); ?></th>
+            <?php } else if ($list_id == 'ptlistcols') { ?>
+                <th class="font-weight-bold">&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Default Sort Direction'); ?></th>
             <?php }
             if ($GLOBALS['ippf_specific']) { ?>
     <th class="font-weight-bold"><?php echo xlt('Global ID'); ?></th>

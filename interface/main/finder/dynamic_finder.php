@@ -37,10 +37,12 @@ $colcount = 0;
 $header0 = "";
 $header = "";
 $coljson = "";
-$res = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
+$orderjson = "";
+$res = sqlStatement("SELECT option_id, title, toggle_setting_1 FROM list_options WHERE " .
     "list_id = 'ptlistcols' AND activity = 1 ORDER BY seq, title");
 while ($row = sqlFetchArray($res)) {
     $colname = $row['option_id'];
+    $colorder = generate_display_field(array('data_type'=>'1','list_id'=>'Sort_Direction'), $row['toggle_setting_1']);
     $title = xl_list_label($row['title']);
     $title1 = ($title == xl('Full Name'))? xl('Name'): $title;
     $header .= "   <th>";
@@ -52,6 +54,10 @@ while ($row = sqlFetchArray($res)) {
         $coljson .= ", ";
     }
     $coljson .= "{\"sName\": \"" . addcslashes($colname, "\t\r\n\"\\") . "\"}";
+    if ($orderjson) {
+        $orderjson .= ", ";
+    }
+    $orderjson .= "[\"$colcount\", \"" . addcslashes($colorder, "\t\r\n\"\\") . "\"]";
     ++$colcount;
 }
 $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
@@ -275,6 +281,7 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
             // See: http://datatables.net/usage/columns and
             // http://datatables.net/release-datatables/extras/ColReorder/server_side.html
             "columns": [ <?php echo $coljson; ?> ],
+            "order": [ <?php echo $orderjson; ?> ],
             "lengthMenu": [10, 25, 50, 100],
             "pageLength": <?php echo empty($GLOBALS['gbl_pt_list_page_size']) ? '10' : $GLOBALS['gbl_pt_list_page_size']; ?>,
             <?php // Bring in the translations ?>
