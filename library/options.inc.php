@@ -202,6 +202,8 @@ function generate_select_list(
 
     $got_selected = false;
 
+//    $s_i='';
+
     while ($lrow = sqlFetchArray($lres)) {
         $selectedValues = explode("|", $currvalue);
 
@@ -217,6 +219,20 @@ function generate_select_list(
         // the xl_list_label() function here
         $optionLabel = text($lrow ['title']);
         $s .= ">$optionLabel</option>\n";
+
+//	if ($optionValue=="OTH") {
+//		$field_id_esc=$lrow ['list_id'];
+//		if (count($selectedValues)==0){$display="display:none"; $comment="";} 
+//		else {$display="display:inline_block"; $comment=$selectedValues[count($selectedValues)-1];} 
+//            	$s_i .= "<tr><td><input type='text'" .
+//            	" name='form_text_$field_id_esc'" .
+//            	" id='form_text_$field_id_esc'" .
+//            	" size='$fldlength'" .
+//            	" class='form-control'" .
+//	    	" style='$display'".
+//            	" value='$comment' />&nbsp;</td></tr>";  
+//	}
+
     }
 
     /*
@@ -286,7 +302,7 @@ function generate_select_list(
     } else {
         $s .= "</select>";
     }
-
+//    $s .= $s_i;
     return $s;
 }
 
@@ -384,11 +400,33 @@ function generate_form_field($frow, $currvalue)
             ($showEmpty ? $empty_title : ''),
             '',
             $lbfchange,
-            '',
+            "form_$field_id",
             ($disabled ? array('disabled' => 'disabled') : null),
             false,
             $backup_list
         );
+   ////////////////////////////////////////////////////////////////////////////////////////////
+   ////////////////////////////////////////////////////////////////////////////////////////////
+
+	$field_id_esc=$list_id;
+        $selectedValues = explode("|", $currvalue);
+	if (count($selectedValues)==1){$display="display:none"; $comment="";} 
+	else {$display="display:inline-block"; $comment=$selectedValues[count($selectedValues)-1];} 
+        // input text
+	if ($field_id_esc==="gender_identity" || $field_id_esc==="sexual_orientation") {
+            echo "<input type='text'" .
+            " name='form_text_$field_id_esc'" . 
+            " id='form_text_$field_id_esc'" .
+            " size='$fldlength'" .
+            " class='form-control'" .
+            " $string_maxlength" .
+	    " style='$display'".
+            " value='$comment'/>";
+        //    " value='$comment' $disabled />&nbsp;";
+	}
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////	
     } elseif ($data_type == 2) { // simple text field
         $fldlength = htmlspecialchars($frow['fld_length'], ENT_QUOTES);
         $maxlength = $frow['max_length'];
@@ -2028,6 +2066,16 @@ function generate_display_field($frow, $currvalue)
     // generic selection list or the generic selection list with add on the fly
     // feature
     if ($data_type == 1 || $data_type == 26 || $data_type == 33) {
+	//get the option_id for data type 1 with comment
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        $selectedValues = explode("|", $currvalue);
+	$currvalue=$selectedValues[0];
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         $lrow = sqlQuery("SELECT title FROM list_options " .
         "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$currvalue));
           $s = htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
@@ -2038,6 +2086,21 @@ function generate_display_field($frow, $currvalue)
               "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$currvalue));
               $s = htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
         }
+
+	//for data type 1 comment
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    	if ($data_type == 1) {
+	$resnote=$selectedValues[1];
+            if (!empty($resnote)) {
+                $s .= "<td class='text' valign='top'>" . htmlspecialchars($resnote, ENT_NOQUOTES) . "&nbsp;&nbsp;</td>";
+            }
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         // If match is not found in main and backup lists, return the key with exclamation mark
         if ($s == '') {
             $s = nl2br(text(xl_list_label($currvalue))).
@@ -3475,7 +3538,15 @@ function get_layout_form_value($frow, $prefix = 'form_')
 
                 $i++;
             }
-        } else {
+        } elseif ($data_type == 1) {
+              $reslist = trim($_POST["$prefix$field_id"]);
+	      if ($reslist=="OTH") {
+            	      $res_comment = str_replace('|', ' ', $_POST["{$prefix}text_$field_id"]);
+          	      $value = $reslist."|".$res_comment;
+	      } else {
+            	     $value = $_POST["$prefix$field_id"];
+        	} 
+	 } else {
             $value = $_POST["$prefix$field_id"];
         }
     }
