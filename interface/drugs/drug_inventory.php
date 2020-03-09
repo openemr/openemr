@@ -50,12 +50,79 @@ $orderby = $ORDERHASH[$form_orderby];
 
  function generateEmptyTd($n)
  {
-     $temp;
+     $temp = '';
      while ($n>0) {
          $temp .= "<td></td>";
          $n--;
      }
      echo $temp;
+ }
+ function processData($data)
+ {
+     $data['inventory_id'] = [$data['inventory_id']];
+     $data['lot_number'] = [$data['lot_number']];
+     $data['title'] =  [$data['title']];
+     $data['on_hand'] = [$data['on_hand']];
+     $data['expiration'] = [$data['expiration']];
+     return $data;
+ }
+ function mergeData($d1, $d2)
+ {
+     $d1['inventory_id'] = array_merge($d1['inventory_id'], $d2['inventory_id']);
+     $d1['lot_number'] = array_merge($d1['lot_number'], $d2['lot_number']);
+     $d1['title'] = array_merge($d1['title'], $d2['title']);
+     $d1['on_hand'] = array_merge($d1['on_hand'], $d2['on_hand']);
+     $d1['expiration'] = array_merge($d1['expiration'], $d2['expiration']);
+     return $d1;
+ }
+ function mapToTable($row)
+ {
+     echo " <tr class='detail'>\n";
+     $lastid = $row['drug_id'];
+     echo "<td title='" . xla('Click to edit') . "' onclick='dodclick(" . attr(addslashes($lastid)) . ")'>" .
+     "<a href='' onclick='return false'>" .
+     text($row['name']) . "</a></td>\n";
+     echo "  <td>" . ($row['active'] ? xlt('Yes') : xlt('No')) . "</td>\n";
+     echo "  <td>" . text($row['ndc_number']) . "</td>\n";
+     echo "  <td>" .
+     generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
+     "</td>\n";
+     echo "  <td>" . text($row['size']) . "</td>\n";
+     echo "  <td>" .
+     generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']) .
+     "</td>\n";
+     echo "  <td title='" . xla('Click to receive (add) new lot') . "' onclick='doiclick(" . attr(addslashes($lastid)) . ",0)' title='" . xla('Add new lot and transaction') . "'>" .
+     "<a href='' onclick='return false'>" . xlt('New') . "</a></td>\n";
+
+     if (!empty($row['inventory_id'][0])) {
+         echo "<td>";
+         foreach ($row['inventory_id'] as $key => $value) {
+             echo "<div title='" . xla('Click to edit') . "' onclick='doiclick(" . attr(addslashes($lastid)) . "," . attr(addslashes($row['inventory_id'][$key])) . ")'>" .
+             "<a href='' onclick='return false'>" . text($row['lot_number'][$key]) . "</a></div>";
+         }
+         echo "</td>\n<td>";
+
+         foreach ($row['title'] as $value) {
+             $value = $value != null ? $value : "N/A";
+             echo "<div >" .  text($value) . "</div>";
+         }
+         echo "</td>\n<td>";
+
+         foreach ($row['on_hand'] as $value) {
+             $value = $value != null ? $value : "N/A";
+             echo "<div >" . text($value) . "</div>";
+         }
+         echo "</td>\n<td>";
+
+         foreach ($row['expiration'] as $value) {
+             $value = $value != null ? $value : "N/A";
+             echo "<div >" . text(oeFormatShortDate($value)) . "</div>";
+         }
+         echo "</td>\n";
+     } else {
+             generateEmptyTd(4);
+     }
+     echo " </tr>\n";
  }
     ?>
 <html>
@@ -162,43 +229,21 @@ $(function() {
  </thead>
  <tbody>
 <?php
- $lastid = "";
- $encount = 0;
+ $prevRow = '';
 while ($row = sqlFetchArray($res)) {
-    echo " <tr class='detail'>\n";
-    if ($lastid != $row['drug_id']) {
-        ++$encount;
-        $lastid = $row['drug_id'];
-        echo "<td title='" . xla('Click to edit') . "' onclick='dodclick(" . attr(addslashes($lastid)) . ")'>" .
-        "<a href='' onclick='return false'>" .
-        text($row['name']) . "</a></td>\n";
-        echo "  <td>" . ($row['active'] ? xlt('Yes') : xlt('No')) . "</td>\n";
-        echo "  <td>" . text($row['ndc_number']) . "</td>\n";
-        echo "  <td>" .
-        generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
-        "</td>\n";
-        echo "  <td>" . text($row['size']) . "</td>\n";
-        echo "  <td>" .
-        generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']) .
-        "</td>\n";
-        echo "  <td title='" . xla('Click to receive (add) new lot') . "' onclick='doiclick(" . attr(addslashes($lastid)) . ",0)' title='" . xla('Add new lot and transaction') . "'>" .
-        "<a href='' onclick='return false'>" . xlt('New') . "</a></td>\n";
-    } else {
-        generateEmptyTd(7);
+    $row = processData($row);
+    if ($prevRow == '') {
+        $prevRow = $row;
+        continue;
     }
-
-    if (!empty($row['inventory_id'])) {
-        echo "  <td title='" . xla('Click to edit') . "' onclick='doiclick(" . attr(addslashes($lastid)) . "," . attr(addslashes($row['inventory_id'])) . ")'>" .
-        "<a href='' onclick='return false'>" . text($row['lot_number']) . "</a></td>\n";
-        echo "  <td>" . text($row['title']) . "</td>\n";
-        echo "  <td>" . text($row['on_hand']) . "</td>\n";
-        echo "  <td>" . text(oeFormatShortDate($row['expiration'])) . "</td>\n";
+    if ($prevRow['drug_id'] == $row['drug_id']) {
+        $row = mergeData($prevRow, $row);
     } else {
-        generateEmptyTd(4);
+        mapToTable($prevRow);
     }
-
-    echo " </tr>\n";
+    $prevRow = $row;
 } // end while
+mapToTable($prevRow);
 ?>
  </tbody>
 </table>
