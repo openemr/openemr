@@ -69,9 +69,8 @@ class FormSOAP extends ORDataObject
         if ($id != "") {
             $this->populate();
             //$this->date = $this->get_date();
-            $this->histroy();
         }
-        $this->histroy();
+        $this->history();
     }
 
     function populate()
@@ -80,7 +79,7 @@ class FormSOAP extends ORDataObject
         //$this->temp_methods = parent::_load_enum("temp_locations",false);
     }
 
-    function histroy()
+    function history()
     {
         parent::get_history();
     }
