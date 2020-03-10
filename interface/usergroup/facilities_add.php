@@ -136,10 +136,6 @@ $(function(){
 });
 
 $(function(){
-    $("#cancel").click(function() {
-          dlgclose();
-     });
-
     /**
      * add required/star sign to required form fields
      */
@@ -175,8 +171,8 @@ function displayAlert() {
     <div class="container">
         <h5 class="title"><?php echo xlt('Add Facility'); ?></h5>
         <div class="py-3">
-            <a onclick="submitform();" class="btn btn-primary btn-lg" name='form_save' id='form_save' href='#'><?php echo xlt('Save'); ?></a>
-            <a class="btn btn-secondary btn-lg" id='cancel' href='#'><?php echo xlt('Cancel'); ?></a>
+            <a onclick="submitform();" class="btn btn-primary" name='form_save' id='form_save' href='#'><?php echo xlt('Save'); ?></a>
+            <a onclick="dlgclose();" class="btn btn-secondary" id='cancel' href='#'><?php echo xlt('Cancel'); ?></a>
         </div>
 
         <form name='facility-add' id='facility-add' method='post' action="facilities.php">
@@ -328,13 +324,7 @@ function displayAlert() {
                     
                 </div>
             </div>
-
             <hr />
-
-            
-            
-            
-            
             <div class="form-group">
                 <label for="mail_stret"><?php echo xlt('Mailing Address'); ?>: </label>
                 <input class="form-control" type="entry" size="20" name="mail_street" value="<?php echo attr($facility["mail_street"]) ?>" />
@@ -361,6 +351,10 @@ function displayAlert() {
             </div>
             <p class="text"><span class="mandatory">*</span> <?php echo xlt('Required'); ?></p>
         </form>
+        <div class="py-3">
+            <a onclick="submitform();" class="btn btn-primary" name='form_save' id='form_save' href='#'><?php echo xlt('Save'); ?></a>
+            <a onclick="dlgclose();" class="btn btn-secondary" href='#'><?php echo xlt('Cancel'); ?></a>
+        </div>
     </div>
     <script type="text/javascript">
     <?php
