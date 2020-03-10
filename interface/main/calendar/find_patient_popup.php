@@ -100,21 +100,6 @@ form {
 }
 </style>
 
-<!-- ViSolve: Verify the noresult parameter -->
-<?php
-if (isset($_GET["res"])) {
-    echo '
-<script>
-    // Pass the variable to parent hidden type and submit
-    opener.document.theform.resname.value = "noresult";
-    opener.document.theform.submit();
-    // Close the window
-    window.self.close();
-</script>';
-}
-?>
-<!-- ViSolve: Verify the noresult parameter -->
-
 </head>
 
 <body class="body_top">
@@ -156,7 +141,7 @@ if (isset($_GET["res"])) {
 <div id="searchstatus" class="alert alert-danger rounded-0"><?php echo htmlspecialchars(xl('No records found. Please expand your search criteria.'), ENT_NOQUOTES); ?>
 <br />
 <!--VicarePlus :: If pflag is set the new patient create link will not be displayed -->
-<a class="noresult" href='find_patient_popup.php?res=noresult'
+<a class="noresult" href='#'
     <?php
     if (isset($_GET['pflag']) || (!AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly')))) {
         ?> style="display: none;"
@@ -228,7 +213,13 @@ $(function(){
     $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
     $(".oneresult").click(function() { SelectPatient(this); });
     //ViSolve
-    $(".noresult").click(function () { SubmitForm(this);});
+    callSearch = function(){
+        document.theform.submit();
+    }
+    //Onclick open new "Add/Search Patient" tab
+    $(".noresult").click(function () { 
+        dlgopen("../../new/new.php", "pat",700, 700,'','',{onClosed:'callSearch'});
+    });
 
     //$(".event").dblclick(function() { EditEvent(this); });
     $("#theform").submit(function() { SubmitForm(this); });

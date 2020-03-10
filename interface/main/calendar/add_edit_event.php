@@ -1365,20 +1365,7 @@ function find_available(extra) {
 </nav> <!-- nav-group -->
 <form role="form" method='post' name='theform' id='theform' action='add_edit_event.php?eid=<?php echo attr($eid) ?>'>
 
-<!-- ViSolve : Requirement - Redirect to Create New Patient Page -->
-<input type='hidden' size='2' name='resname' value='empty' />
 <?php
-if ($_POST["resname"]=="noresult") {
-    echo '
-<script>
-    // refresh and redirect the parent window
-    if (!opener.closed && opener.refreshme) opener.refreshme();
-    top.restoreSession();
-    opener.document.location="../../new/new.php";
-    // Close the window
-    dlgclose();
-</script>';
-}
 $classprov='current';
 $classpati='';
 ?>
