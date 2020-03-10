@@ -778,13 +778,13 @@ if ($_REQUEST["mode"] == "new") {
 
             $dups[$item["code"]] = "1";
             $sql = "SELECT codes.*, prices.pr_price FROM codes " .
-                "LEFT OUTER JOIN patient_data ON patient_data.pid = '$pid' " .
+                "LEFT OUTER JOIN patient_data ON patient_data.pid = ? " .
                 "LEFT OUTER JOIN prices ON prices.pr_id = codes.id AND " .
                 "prices.pr_selector = '' AND " .
                 "prices.pr_level = patient_data.pricelevel " .
                 "WHERE code =?" .
                 " LIMIT 1";
-            $result = sqlStatement($sql, array($item['code']));
+            $result = sqlStatement($sql, array($pid, $item['code']));
             while ($res = sqlFetchArray($result)) {
                 $item["codedesc"] = $res["code_text"];// eg. = "NP EYE intermediate exam"
                 if (!$item["modifier"]) {
