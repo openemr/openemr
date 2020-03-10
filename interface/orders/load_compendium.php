@@ -81,11 +81,18 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
 
 <head>
 <?php Header::setupHeader(); ?>
-<title><?php echo xlt('Load Lab Configuration'); ?></title>
+<title><?php echo xlt('Load Compendium'); ?></title>
 </head>
 
 <body class="body_top text-center">
 <div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header text-left">
+                <h2><?php echo xlt('Load Compendium'); ?></h2>
+            </div>
+        </div>
+    </div>
 <form method='post' action='load_compendium.php' enctype='multipart/form-data'>
 
 <table>
@@ -138,7 +145,7 @@ if ($form_step == 0) {
 
     echo " <tr>\n";
     echo "  <td nowrap>&nbsp;</td>\n";
-    echo "  <td><input class='btn btn-primary' type='submit' value='" . xla('Submit') . "' /></td>\n";
+    echo "  <td><input class='btn btn-primary mt-3' type='submit' value='" . xla('Submit') . "' /></td>\n";
     echo " </tr>\n";
 }
 
