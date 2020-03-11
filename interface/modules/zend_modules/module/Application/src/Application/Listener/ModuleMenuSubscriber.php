@@ -52,15 +52,39 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
      */
     public function onMenuUpdate(MenuEvent $menu)
     {
+        $updateMethods = [
+            'modimg' => 'updateModulesModulesMenu',
+            'repimg' => 'updateModulesReportsMenu',
+        ];
+        // Check if any url_maps are active
+        $rsConf = sqlStatement(
+            "SELECT mc.field_value url_map FROM module_configuration mc
+            INNER JOIN modules m ON m.mod_id = mc.module_id
+            WHERE m.mod_active = 1 and mc.field_name=?",
+            ['url_map']
+        );
+        $url_maps = [];
+        while ($recConf = sqlFetchArray($rsConf)) {
+            $aMap = explode(' ', $recConf['url_map']);
+            // Last map rules!
+            if (count($aMap) == 2) {
+                $url_maps[$aMap[0]] = $aMap[1];
+            }
+        }
+
         $menuItems = $menu->getMenu();
+
         // we are working with objects so this will modify the objects in memory
         foreach ($menuItems as $menuItem) {
-            // We don't use the label as the menu's have been translated at this point
-            // We want to update the modules
-            if ($menuItem->menu_id === 'modimg') {
-                $this->updateModulesModulesMenu($menuItem);
-            } elseif ($menuItem->menu_id === 'repimg') {
-                $this->updateModulesReportsMenu($menuItem);
+            $menu_id = $menuItem->menu_id;
+            if (array_key_exists($menu_id, $updateMethods)) {
+                // We don't use the label as the menu's have been translated at this point
+                // We want to update the modules
+                $this->{$updateMethods[$menu_id]}($menuItem);
+            } else {
+                if (count($url_maps) > 0) {
+                    $this->applyModulesUrlMap($menuItem, $url_maps);
+                }
             }
         }
         return $menu;
@@ -73,6 +97,34 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
     public function onMenuRestrict(MenuEvent $menu)
     {
         return $menu;
+    }
+
+    /*
+     * Allow modules to modify standard menu urls using url_maps in module configuration.
+     * Multiple url_maps may be specified by the module.
+     * Start with brute force by replacing standard url (no regex at this time).
+     * Storing menus in db will make this process easier in future.
+     */
+    private function applyModulesUrlMap(&$menu_list, $url_maps)
+    {
+        if (!is_object($menu_list)) return false;
+
+        if (property_exists($menu_list, 'url') &&
+            array_key_exists($menu_list->url, $url_maps)) {
+            $menu_list->url = $url_maps[$menu_list->url];
+            return true;
+        }
+
+        if (property_exists($menu_list, 'children')) {
+            foreach ($menu_list->children as $key => $val) {
+                if (is_object($val)) {
+                    $this->applyModulesUrlMap($menu_list->children[$key], $url_maps);
+                }
+            }
+            return true;
+        }
+
+        return false;
     }
 
     /**
