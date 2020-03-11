@@ -156,8 +156,20 @@ $form_facility   = $_POST['form_facility'];
 </head>
 
 <body class="body_top">
-
-<span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Cash Receipts by Provider'); ?></span>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="page-header clearfix">
+                <h2 class="title">
+                    <?php echo xlt('Report'); ?> - <?php echo xlt('Cash Receipts by Provider'); ?>
+                </h2>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+    </div>
+</div>
+<!-- <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Cash Receipts by Provider'); ?></span> -->
 
 <form method='post' action='sl_receipts_report.php' id='theform' onsubmit='return top.restoreSession()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
@@ -190,7 +202,7 @@ $form_facility   = $_POST['form_facility'];
                     $query = "select id, lname, fname from users where " .
                         "authorized = 1 order by lname, fname";
                     $res = sqlStatement($query);
-                    echo "   &nbsp;<select name='form_doctor' class='form-control'>\n";
+                    echo "<select name='form_doctor' class='form-control'>\n";
                     echo "    <option value=''>-- " . xlt('All Providers') . " --\n";
                     while ($row = sqlFetchArray($res)) {
                         $provid = $row['id'];
