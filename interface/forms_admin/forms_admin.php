@@ -135,12 +135,12 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                 </td>
                                 <td>
                                     <span class='text'><?php
-                                        if ($registry['unpackaged']) {
-                                            echo xlt('PHP extracted');
-                                        } else {
-                                            echo xlt('PHP compressed');
-                                        }
-                                        ?>
+                                    if ($registry['unpackaged']) {
+                                        echo xlt('PHP extracted');
+                                    } else {
+                                        echo xlt('PHP compressed');
+                                    }
+                                    ?>
                                     </span>
                                 </td>
                                 <td>
@@ -165,7 +165,6 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                 ?>
                             </tr>
                                 <?php
-
                             } //end of foreach
                         }
                         ?>
