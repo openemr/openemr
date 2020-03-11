@@ -24,6 +24,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
+$expand_default = (int)$GLOBALS['expand_form'] ? 'show' : 'hide';
 $reviewMode = false;
 if (!empty($_REQUEST['review_id'])) {
     $reviewMode = true;
@@ -1011,7 +1012,7 @@ if ($pass_sens_squad &&
         }
         echo "<div class='form_header'>";
         echo "<a href='#' data-toggle='collapse' data-target='#divid_" . attr($divnos) . "' class='small' id='aid_" . attr($divnos) . "'>" .
-          "<div class='formname'>" . text($form_name) . "</div> " . xlt('by') . " " . text($form_author) . " " .
+          "<div class='formname' title='" . xla('Expand/Collapse this form') . "'>" . text($form_name) . "</div> " . xlt('by') . " " . text($form_author) . " " .
           "</a>";
         echo "</div>";
 
@@ -1072,7 +1073,7 @@ if ($pass_sens_squad &&
         echo "</td>\n";
         echo "</tr>";
         echo "<tr>";
-        echo "<td valign='top' class='formrow'><div id='divid_" . attr($divnos) . "' class='collapse show' style='margin-bottom:40px;' ";
+        echo "<td valign='top' class='formrow'><div id='divid_" . attr($divnos) . "' class='collapse " . attr($expand_default) . "' style='margin-bottom:40px;' ";
         echo "class='tab " . ($divnos == 1 ? 'd-block' : 'd-none') . "'>";
 
         // Use the form's report.php for display.  Forms with names starting with LBF
