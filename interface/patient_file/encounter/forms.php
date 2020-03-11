@@ -331,23 +331,6 @@ function refreshVisitDisplay() {
 
 </script>
 
-<script>
-
-
-function divtoggle(spanid, divid) {
-    var ele = document.getElementById(divid);
-    var text = document.getElementById(spanid);
-    if(ele.style.display == "block") {
-        ele.style.display = "none";
-        text.innerHTML = <?php echo xlj('Expand'); ?>;
-    }
-    else {
-        ele.style.display = "block";
-        text.innerHTML = <?php echo xlj('Collapse'); ?>;
-    }
-}
-</script>
-
 <style type="text/css">
     div.tab {
         min-height: 50px;
@@ -614,7 +597,7 @@ if ($encounterLocked === false) {
         if (!$StringEcho) {
             $StringEcho= '<ul>';
         }
-        
+
         $StringEcho.= "<div class=\"dropdown d-inline\">\n";
         $StringEcho.= "<button class='btn btn-secondary dropdown-toggle' type='button' id='lbf' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>" .xlt('Layout Based'). "</button>\n";
         $StringEcho.= "<div class='dropdown-menu' aria-labelledby='dropdownMenu2'>\n";
@@ -704,7 +687,7 @@ if ($StringEcho) {
 <!-- Form menu stop -->
 <!-- *************** -->
 
-<div id="encounter_forms">
+<div id="encounter_forms" class="mx-1">
 
 <?php
 $dateres = getEncounterDateByEncounter($encounter);
@@ -1027,9 +1010,8 @@ if ($pass_sens_squad &&
             $form_author = $user['fname'] . "  " . $user['lname'];
         }
         echo "<div class='form_header'>";
-        echo "<a href='javascript:void(0);' onclick='divtoggle(" . attr_js('spanid_'.$divnos) . "," . attr_js('divid_'.$divnos) . ");' class='small' id='aid_" . attr($divnos) . "'>" .
-          "<div class='formname'>" . text($form_name) . "</div> " .
-          xlt('by') . " " . text($form_author) . " " .
+        echo "<a href='#' data-toggle='collapse' data-target='#divid_" . attr($divnos) . "' class='small' id='aid_" . attr($divnos) . "'>" .
+          "<div class='formname'>" . text($form_name) . "</div> " . xlt('by') . " " . text($form_author) . " " .
           "</a>";
         echo "</div>";
 
