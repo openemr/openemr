@@ -1336,7 +1336,7 @@ function generate_form_field($frow, $currvalue)
             $datatype = 'admin-signature';
         }
         echo "<input type='hidden' id='form_$field_id_esc' name='form_$field_id_esc' value='' />\n";
-        echo "<img class='signature' id='form_{$field_id_esc}_img' title='$description' 
+        echo "<img class='signature' id='form_{$field_id_esc}_img' title='$description'
             data-pid='$cpid' data-user='$cuser' data-type='$datatype'
             data-action='fetch_signature' alt='Get Signature' src='" . attr($currvalue) . "'>\n";
     }
@@ -2020,6 +2020,34 @@ function generate_print_field($frow, $currvalue)
     }
 }
 
+/**
+ * @param $list_id
+ * @param bool $translate
+ * @return array
+ *
+ * Generate a key-value array containing each row of the specified list,
+ * with the option ID as the index, and the title as the element
+ *
+ * Pass in the list_id to specify this list.
+ *
+ * Use the translate flag to run the title element through the translator
+ */
+function generate_list_map($list_id, $translate = false)
+{
+    $result = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ?", [$list_id]);
+    $map = [];
+    while ($row = sqlFetchArray($result)) {
+        if ($translate === true) {
+            $title = xl_list_label($row['title']);
+        } else {
+            $title = $row['title'];
+        }
+        $map[$row['option_id']] = $title;
+    }
+
+    return $map;
+}
+
 function generate_display_field($frow, $currvalue)
 {
     global $ISSUE_TYPES, $facilityService;
@@ -2694,6 +2722,10 @@ function generate_plaintext_field($frow, $currvalue)
 
             $s .= $resdate;
         }
+    } elseif ($data_type == 35) { // Facility, so facility can be listed in plain-text, as in patient finder column
+        $facilityService = new FacilityService();
+        $facility = $facilityService->getById($currvalue);
+        $s = $facility['name'];
     } elseif ($data_type == 36) { // Multi select. Supports backup lists
         $values_array = explode("|", $currvalue);
 
