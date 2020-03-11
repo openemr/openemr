@@ -325,13 +325,14 @@ $GLOBALS['allow_issue_menu_link'] = ((AclMain::aclCheckCore('encounters', 'notes
     }
 
     html, body {
+        width: max-content;
         min-height: 100% !important;
         height: 100% !important;
     }
 </style>
 
 </head>
-<body data-bind="css: responsiveDisplay.objWidth().bodyMain">
+<body data-bind="css: responsiveDisplay.objWidth().bodyMain" class="min-vw-100">
 <!-- Below iframe is to support auto logout when timeout is reached -->
 <iframe name="timeout" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="timeout_iframe.php"></iframe>
 <!-- Below iframe is to support logout, which needs to be run in an inner iframe to work as intended -->
