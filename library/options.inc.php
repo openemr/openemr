@@ -2020,6 +2020,35 @@ function generate_print_field($frow, $currvalue)
     }
 }
 
+/**
+ * @param $list_id
+ * @param bool $translate
+ * @return array
+ *
+ * Generate a key-value array containing each row of the specified list,
+ * with the option ID as the index, and the title as the element
+ *
+ * Pass in the list_id to specify this list.
+ *
+ * Use the translate flag to run the title element through the translator
+ */
+function generate_list_map($list_id, $translate = false)
+{
+    $result = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ?", [$list_id]);
+    $map = [];
+    while ($row = sqlFetchArray($result)) {
+
+        if ($translate === true) {
+            $title = xl_list_label($row['title']);
+        } else {
+            $title = $row['title'];
+        }
+        $map[$row['option_id']] = $title;
+    }
+
+    return $map;
+}
+
 function generate_display_field($frow, $currvalue)
 {
     global $ISSUE_TYPES, $facilityService;

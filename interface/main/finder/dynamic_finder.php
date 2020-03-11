@@ -40,9 +40,10 @@ $coljson = "";
 $orderjson = "";
 $res = sqlStatement("SELECT option_id, title, toggle_setting_1 FROM list_options WHERE " .
     "list_id = 'ptlistcols' AND activity = 1 ORDER BY seq, title");
+$sort_dir_map = generate_list_map('Sort_Direction');
 while ($row = sqlFetchArray($res)) {
     $colname = $row['option_id'];
-    $colorder = generate_display_field(array('data_type'=>'1','list_id'=>'Sort_Direction'), $row['toggle_setting_1']);
+    $colorder = $sort_dir_map[$row['toggle_setting_1']]; // Get the title 'asc' or 'desc' using the value
     $title = xl_list_label($row['title']);
     $title1 = ($title == xl('Full Name'))? xl('Name'): $title;
     $header .= "   <th>";
