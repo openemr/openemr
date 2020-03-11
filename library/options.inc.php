@@ -2037,7 +2037,6 @@ function generate_list_map($list_id, $translate = false)
     $result = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ?", [$list_id]);
     $map = [];
     while ($row = sqlFetchArray($result)) {
-
         if ($translate === true) {
             $title = xl_list_label($row['title']);
         } else {
