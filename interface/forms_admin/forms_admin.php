@@ -97,7 +97,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                     <?php echo xlt('click here to update priority, category, nickname and access control settings'); ?>
                 </span>
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                <input class="btn btn-primary" type='submit' name='update' value='<?php echo xla('Update'); ?>'>
+                <input class="btn btn-primary" type='submit' name='update' value='<?php echo xla('Save'); ?>'>
 
                 <div class="table-responsive mt-3">
                     <table class="table table-striped">
@@ -109,7 +109,6 @@ $bigdata = getRegistered("%") or $bigdata = false;
                             <td><?php echo xlt('Access Control'); ?></td>
                         </tr>
                         <?php
-                        $tdStyle = "bg-dark text-light";
                         if ($bigdata != false) {
                             foreach ($bigdata as $registry) {
                                 $priority_category = sqlQuery(
@@ -118,15 +117,15 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                 );
                                 ?>
                             <tr>
-                                <td class="<?php echo attr($tdStyle); ?>">
+                                <td>
                                     <span class='text'><?php echo text($registry['id']); ?></span>
                                 </td>
-                                <td class="<?php echo attr($tdStyle); ?>">
+                                <td>
                                     <span class='bold'><?php echo text(xl_form_title($registry['name'])); ?></span>
                                 </td>
                                 <?php
                                 if ($registry['sql_run'] == 0) {
-                                    echo "<td class='" . attr($tdStyle) . "' ><span class='text'>" . xlt('registered') . "</span>";
+                                    echo "<td><span class='text'>" . xlt('registered') . "</span>";
                                 } elseif ($registry['state'] == "0") {
                                     echo "<td><a class='link_submit text-danger' href='./forms_admin.php?id=" . attr_url($registry['id']) . "&method=enable&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "'>" . xlt('disabled') . "</a>";
                                 } else {
@@ -134,7 +133,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                 }
                                 ?>
                                 </td>
-                                <td class="<?php echo attr($tdStyle); ?>">
+                                <td>
                                     <span class='text'><?php
                                         if ($registry['unpackaged']) {
                                             echo xlt('PHP extracted');
@@ -144,7 +143,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                         ?>
                                     </span>
                                 </td>
-                                <td class="<?php echo attr($tdStyle); ?>">
+                                <td>
                                     <?php
                                     if ($registry['sql_run']) {
                                         echo "<span class='text'>" . xlt('DB installed') . "</span>";
@@ -166,11 +165,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                 ?>
                             </tr>
                                 <?php
-                                if ($tdStyle=="bg-dark text-light") {
-                                    $tdStyle="bg-light";
-                                } else {
-                                    $tdStyle="bg-dark text-light";
-                                }
+
                             } //end of foreach
                         }
                         ?>
@@ -185,7 +180,6 @@ $bigdata = getRegistered("%") or $bigdata = false;
                         <?php
                         $dpath = "$srcdir/../interface/forms/";
                         $dp = opendir($dpath);
-                        $tdStyle = "bg-dark text-light";
 
                         for ($i=0; false != ($fname = readdir($dp)); $i++) {
                             if ($fname != "." && $fname != ".." && $fname != "CVS" && $fname != "LBF" &&
@@ -212,10 +206,10 @@ $bigdata = getRegistered("%") or $bigdata = false;
                             }
                             ?>
                             <tr>
-                                <td class="<?php echo $tdStyle?>">
+                                <td>
                                     <span class=text></span>
                                 </td>
-                                <td class="<?php echo $tdStyle?>">
+                                <td>
                                     <?php
                                         $form_title_file = @file($GLOBALS['srcdir']."/../interface/forms/$fname/info.txt");
                                     if ($form_title_file) {
@@ -235,20 +229,14 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                     }
                                     ?>
                                 </td>
-                                <td class="<?php echo $tdStyle?>">
+                                <td>
                                     <span class=text><?php echo xlt($phpState); ?></span>
                                 </td>
-                                <td class="<?php echo $tdStyle?>">
+                                <td>
                                     <span class=text><?php echo xlt('n/a'); ?></span>
                                 </td>
                             </tr>
                             <?php
-                                if ($tdStyle=="bg-dark text-light") {
-                                    $tdStyle="bg-light";
-                                } else {
-                                    $tdStyle="bg-dark text-light";
-                                }
-
                             flush();
                         }//end of foreach
                         ?>
