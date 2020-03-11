@@ -31,7 +31,7 @@ Scope must match a site that has been setup in OpenEMR in the /sites/ directory.
 then 'default' should be the scope.
 
 ```
-curl -X POST -H 'Content-Type: application/json' 'https://localhost:8300/apis/api/auth' \
+curl -X POST -H 'Content-Type: application/json' 'http://localhost:8300/apis/api/auth' \
 -d '{
     "grant_type":"password",
     "username": "ServiceUser",
