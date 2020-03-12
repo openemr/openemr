@@ -131,7 +131,7 @@ function navigateTab(url,name,afterLoadFunction)
     }
     else
     {
-        curTab=new tabStatus(xl('New'),url,name,true,false,false);
+        curTab=new tabStatus(xl("Loading") + " <a style='font-size:80%'><i class='fa fa-spinner fa-pulse'></i></a>",url,name,true,false,false);
         app_view_model.application_data.tabs.tabsList.push(curTab);
         if(typeof afterLoadFunction === 'function'){
             afterLoadFunction();
