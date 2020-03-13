@@ -10,15 +10,24 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-function tabStatus(title,url,name,closable,visible,locked)
+function tabStatus(title,url,name,loading_label,closable,visible,locked)
 {
     var self=this;
     self.visible=ko.observable(visible);
     self.locked=ko.observable(locked);
     self.closable=ko.observable(closable);
     self.title=ko.observable(title);
+    //Start Spinning motor
+    self.spinner=ko.observable("fa-spin");
     self.url=ko.observable(url);
     self.name=ko.observable(name);
+    self.loading_text=ko.observable(loading_label + "...");
+    self.loading_text_status = ko.observable(true);
+    self.title.subscribe(function() {
+        self.loading_text_status(false);
+        //Stop Spinning motor
+        self.spinner("");
+    });
     self.window=null;
     return this;
 }
@@ -113,7 +122,7 @@ function tabCloseByName(name)
     }
 }
 
-function navigateTab(url,name,afterLoadFunction)
+function navigateTab(url,name,afterLoadFunction,loading_label='')
 {
 
     top.restoreSession();
@@ -131,7 +140,7 @@ function navigateTab(url,name,afterLoadFunction)
     }
     else
     {
-        curTab=new tabStatus(xl("Loading") + " <a style='font-size:80%'><i class='fa fa-spinner fa-pulse'></i></a>",url,name,true,false,false);
+        curTab=new tabStatus(xl("Loading") + "...",url,name,loading_label,true,false,false);
         app_view_model.application_data.tabs.tabsList.push(curTab);
         if(typeof afterLoadFunction === 'function'){
             afterLoadFunction();
@@ -307,6 +316,7 @@ function menuActionClick(data,evt)
 
         // Fixups for loading a new encounter form, as these are now in tabs.
         var dataurl = data.url();
+        var dataLabel = data.label()
         var matches = dataurl.match(/load_form.php\?formname=(\w+)/);
         if (matches) {
           // If the encounter frameset already exists, just tell it to add a tab for this form.
@@ -324,7 +334,7 @@ function menuActionClick(data,evt)
 
         navigateTab(webroot_url + dataurl, data.target, function () {
             activateTabByName(data.target,true);
-        });
+        },xl("Loading") + " " + dataLabel);
 
         var par = $(evt.currentTarget).closest("ul.menuEntries");
         par.wrap("<ul class='timedReplace' style='display:none;'></ul>");

@@ -17,8 +17,8 @@
         </div>
         <!-- ko  foreach: tabsList -->
             <div class="tabSpan bgcolor2" data-bind="click: tabClicked, css: {tabNotchosen: !visible()}">
-                <span class="tabTitle" data-bind="html: title, click: tabClicked, css: {tabHidden: !visible()}"></span>
-                <span class="fa fa-fw fa-refresh" data-bind="click: tabRefresh"></span>
+                <span class="tabTitle" data-bind="text: title, click: tabClicked, css: {tabHidden: !visible()}"></span>
+                <span class="fa fa-fw fa-refresh" data-bind="click: tabRefresh, class: spinner"></span>
                 <!--ko if:!locked() -->
                     <span class="fa fa-fw fa-unlock"  data-bind="click: tabLockToggle"></span>
                 <!-- /ko -->
@@ -38,6 +38,7 @@
 
         <!-- ko  foreach: tabs.tabsList -->
         <div class="frameDisplay" data-bind="visible:visible">
+            <h5 class="text-center position-relative" style="top:50%;" data-bind="text: loading_text,visible:loading_text_status"></h5>
             <iframe data-bind="location: $data, iframeName: $data.name, ">
 
             </iframe>
