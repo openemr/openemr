@@ -229,7 +229,6 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
                 success: function(data) {
                     $(stg_load_id).hide();
                     $(stg_dets_id).html(data);
-                    $(document).ready(function() {});
                     $(`#${dbName}_instrmsg`).click( function() {
                         dlgopen(`${dbName.toLowerCase()}_howto.php`, '', 800, 250, false, `${dbName} <?php echo xla("Installation Details"); ?>`, {
                             buttons: [{
