@@ -43,8 +43,8 @@ class NewRx
          */
         $scriptPrescriber = $scriptData->getPrescriberData();
 
-        $wenoid = 157;
-        $partnerID = 'DA51A758AC5EBF04A095D0B7A356C50490A828C4';//'9039730E79C1167765840EDABC6AB2A6';
+        $wenoid = 137; //157;
+        $partnerID = '7C84773D5063B20BC9E41636A091C6F17E9C1E34';//'DA51A758AC5EBF04A095D0B7A356C50490A828C4';
 
         /**
          * The generation of the prescription XML

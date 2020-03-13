@@ -9,6 +9,8 @@
 
 namespace OpenEMR\Rx\Weno;
 
+require_once "../../../interface/globals.php";
+
 use OpenEMR\Common\Database\Connector;
 use OpenEMR\Entities\PatientData;
 
