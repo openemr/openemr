@@ -77,52 +77,54 @@ $orderby = $ORDERHASH[$form_orderby];
  }
  function mapToTable($row)
  {
-     echo " <tr class='detail'>\n";
-     $lastid = $row['drug_id'];
-     echo "<td title='" . xla('Click to edit') . "' onclick='dodclick(" . attr(addslashes($lastid)) . ")'>" .
-     "<a href='' onclick='return false'>" .
-     text($row['name']) . "</a></td>\n";
-     echo "  <td>" . ($row['active'] ? xlt('Yes') : xlt('No')) . "</td>\n";
-     echo "  <td>" . text($row['ndc_number']) . "</td>\n";
-     echo "  <td>" .
-     generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
-     "</td>\n";
-     echo "  <td>" . text($row['size']) . "</td>\n";
-     echo "  <td>" .
-     generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']) .
-     "</td>\n";
-     echo "  <td title='" . xla('Click to receive (add) new lot') . "' onclick='doiclick(" . attr(addslashes($lastid)) . ",0)' title='" . xla('Add new lot and transaction') . "'>" .
-     "<a href='' onclick='return false'>" . xlt('New') . "</a></td>\n";
+     if ($row) {
+         echo " <tr class='detail'>\n";
+         $lastid = $row['drug_id'];
+         echo "<td title='" . xla('Click to edit') . "' onclick='dodclick(" . attr(addslashes($lastid)) . ")'>" .
+         "<a href='' onclick='return false'>" .
+         text($row['name']) . "</a></td>\n";
+         echo "  <td>" . ($row['active'] ? xlt('Yes') : xlt('No')) . "</td>\n";
+         echo "  <td>" . text($row['ndc_number']) . "</td>\n";
+         echo "  <td>" .
+         generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
+         "</td>\n";
+         echo "  <td>" . text($row['size']) . "</td>\n";
+         echo "  <td>" .
+         generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']) .
+         "</td>\n";
+         echo "  <td title='" . xla('Click to receive (add) new lot') . "' onclick='doiclick(" . attr(addslashes($lastid)) . ",0)' title='" . xla('Add new lot and transaction') . "'>" .
+         "<a href='' onclick='return false'>" . xlt('New') . "</a></td>\n";
 
-     if (!empty($row['inventory_id'][0])) {
-         echo "<td>";
-         foreach ($row['inventory_id'] as $key => $value) {
-             echo "<div title='" . xla('Click to edit') . "' onclick='doiclick(" . attr(addslashes($lastid)) . "," . attr(addslashes($row['inventory_id'][$key])) . ")'>" .
-             "<a href='' onclick='return false'>" . text($row['lot_number'][$key]) . "</a></div>";
-         }
-         echo "</td>\n<td>";
+         if (!empty($row['inventory_id'][0])) {
+             echo "<td>";
+             foreach ($row['inventory_id'] as $key => $value) {
+                 echo "<div title='" . xla('Click to edit') . "' onclick='doiclick(" . attr(addslashes($lastid)) . "," . attr(addslashes($row['inventory_id'][$key])) . ")'>" .
+                 "<a href='' onclick='return false'>" . text($row['lot_number'][$key]) . "</a></div>";
+             }
+             echo "</td>\n<td>";
 
-         foreach ($row['title'] as $value) {
-             $value = $value != null ? $value : "N/A";
-             echo "<div >" .  text($value) . "</div>";
-         }
-         echo "</td>\n<td>";
+             foreach ($row['title'] as $value) {
+                 $value = $value != null ? $value : "N/A";
+                 echo "<div >" .  text($value) . "</div>";
+             }
+             echo "</td>\n<td>";
 
-         foreach ($row['on_hand'] as $value) {
-             $value = $value != null ? $value : "N/A";
-             echo "<div >" . text($value) . "</div>";
-         }
-         echo "</td>\n<td>";
+             foreach ($row['on_hand'] as $value) {
+                 $value = $value != null ? $value : "N/A";
+                 echo "<div >" . text($value) . "</div>";
+             }
+             echo "</td>\n<td>";
 
-         foreach ($row['expiration'] as $value) {
-             $value = $value != null ? $value : "N/A";
-             echo "<div >" . text(oeFormatShortDate($value)) . "</div>";
+             foreach ($row['expiration'] as $value) {
+                 $value = $value != null ? $value : "N/A";
+                 echo "<div >" . text(oeFormatShortDate($value)) . "</div>";
+             }
+             echo "</td>\n";
+         } else {
+                 generateEmptyTd(4);
          }
-         echo "</td>\n";
-     } else {
-             generateEmptyTd(4);
+         echo " </tr>\n";
      }
-     echo " </tr>\n";
  }
     ?>
 <html>
