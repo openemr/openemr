@@ -60,6 +60,10 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
 <head>
     <?php Header::setupHeader(['datatables', 'datatables-colreorder', 'datatables-dt']); ?>
     <title><?php echo xlt("Patient Finder"); ?></title>
+
+
+    <link rel="stylesheet" href="./../../../public/assets/datatables.net-bs4/css/dataTables.bootstrap4.min.css">
+    <script src="./../../../public/assets/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
 <style>
     /* Finder Processing style */
     div.dataTables_wrapper div.dataTables_processing {
@@ -177,51 +181,6 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
 
     table.dataTable.no-footer {
         border-bottom: 1px solid var(--gray900) !important;
-    }
-
-    .dataTables_wrapper .dataTables_paginate .paginate_button {
-        color: var(--dark) !important;
-    }
-
-    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
-    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
-        color: var(--dark) !important;
-        border: 1px solid var(--gray600) !important;
-        background-color: var(--white) !important;
-        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, var(--white)), color-stop(100%, var(--gray300))) !important;
-        background: -webkit-linear-gradient(top, var(--white) 0%, var(--gray300) 100%) !important;
-        background: -moz-linear-gradient(top, var(--white) 0%, var(--gray300) 100%) !important;
-        background: -ms-linear-gradient(top, var(--white) 0%, var(--gray300) 100%) !important;
-        background: -o-linear-gradient(top, var(--white) 0%, var(--gray300) 100%) !important;
-        background: linear-gradient(to bottom, var(--white) 0%, var(--gray300) 100%) !important;
-    }
-
-    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled. .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover,
-    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:active {
-        color: var(--gray700) !important;
-    }
-
-    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-        color: var(--white) !important;
-        border: 1px solid var(--gray900) !important;
-        background-color: var(--gray700) !important;
-        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #585858), color-stop(100%, var(--gray900))) !important;
-        background: -webkit-linear-gradient(top, var(--gray700) 0%, var(--gray900) 100%) !important;
-        background: -moz-linear-gradient(top, var(--gray700) 0%, var(--gray900) 100%) !important;
-        background: -ms-linear-gradient(top, var(--gray700) 0%, var(--gray900) 100%) !important;
-        background: -o-linear-gradient(top, var(--gray700) 0%, var(--gray900) 100%) !important;
-        background: linear-gradient(to bottom, var(--gray700) 0%, var(--gray900) 100%) !important;
-    }
-
-    .dataTables_wrapper .dataTables_paginate .paginate_button:active {
-        background-color: var(--dark) !important;
-        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, var(--dark)), color-stop(100%, var(--gray900))) !important;
-        background: -webkit-linear-gradient(top, var(--dark) 0%, var(--gray900) 100%) !important;
-        background: -moz-linear-gradient(top, var(--dark) 0%, var(--gray900) 100%) !important;
-        background: -ms-linear-gradient(top, var(--dark) 0%, var(--gray900) 100%) !important;
-        background: -o-linear-gradient(top, var(--dark) 0%, var(--gray900) 100%) !important;
-        background: linear-gradient(to bottom, var(--dark) 0%, var(--gray900) 100%) !important;
-        box-shadow: inset 0 0 3px var(--gray900) !important;
     }
 
     .dataTables_wrapper .dataTables_processing {
