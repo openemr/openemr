@@ -140,7 +140,7 @@ function SaveMe(frmId,mod_id){
 				$.each(data, function(jsonIndex, jsonValue){
 					if (jsonValue['return'] == 1) {
 						$("#hook_response"+mod_id).html(jsonValue['msg']).fadeIn().fadeOut(1000);
-						$(document).ready(function(){
+						$(function(){
 						if(Tabtitle)
 						$('#tab'+mod_id).tabs('select',Tabtitle);
 						});
@@ -171,7 +171,7 @@ function DeleteACL(aclID,user,mod_id,msg){
 							$("#ConfigRow_"+mod_id).hide();
 							configure(mod_id,'');
 							alert(jsonValue['msg']);
-							$(document).ready(function(){
+							$(function(){
 								if(Acctitle)
 									$('#configaccord'+mod_id).accordion('select',Acctitle);
 							});
@@ -199,7 +199,7 @@ function DeleteHooks(hooksID,mod_id,msg){
            $("#ConfigRow_"+mod_id).hide();
            configure(mod_id,'');
            alert(jsonValue['msg']);
-           $(document).ready(function(){
+           $(function(){
            if(Tabtitle)
            $('#tab'+mod_id).tabs('select',Tabtitle);
            });
