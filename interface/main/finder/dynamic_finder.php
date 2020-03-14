@@ -58,12 +58,8 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['datatables', 'datatables-colreorder', 'datatables-dt']); ?>
+    <?php Header::setupHeader(['datatables', 'datatables-colreorder', 'datatables-dt', 'datatables-bs']); ?>
     <title><?php echo xlt("Patient Finder"); ?></title>
-
-
-    <link rel="stylesheet" href="./../../../public/assets/datatables.net-bs4/css/dataTables.bootstrap4.min.css">
-    <script src="./../../../public/assets/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
 <style>
     /* Finder Processing style */
     div.dataTables_wrapper div.dataTables_processing {
@@ -179,6 +175,11 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
         background-color: var(--gray200) !important;
     }
 
+    table.dataTable.display tbody .odd:hover,
+    table.dataTable.display tbody .even:hover {
+        background-color: var(--gray200) !important;
+    }
+
     table.dataTable.no-footer {
         border-bottom: 1px solid var(--gray900) !important;
     }
@@ -203,6 +204,23 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
 
     .dataTables_wrapper.no-footer .dataTables_scrollBody {
         border-bottom: 1px solid var(--gray900) !important;
+    }
+
+    /* Pagination button Overrides for jQuery-DT */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0 !important;
+        margin: 0 !important;
+        border: 0 !important;
+    }
+
+    /* Sort indicator Overrides for jQuery-DT */
+    table thead .sorting::before,
+    table thead .sorting_asc::before,
+    table thead .sorting_asc::after,
+    table thead .sorting_desc::before,
+    table thead .sorting_desc::after,
+    table thead .sorting::after {
+        display: none !important;
     }
 </style>
 <script>
