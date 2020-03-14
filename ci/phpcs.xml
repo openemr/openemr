@@ -27,7 +27,6 @@
   </rule>
 
   <exclude-pattern>*/vendor/*</exclude-pattern>
-  <exclude-pattern>*/bower_components/*</exclude-pattern>
   <exclude-pattern>*/node_modules/*</exclude-pattern>
   <exclude-pattern>*/public/assets/*</exclude-pattern>
   <exclude-pattern>*/gacl/*</exclude-pattern>
