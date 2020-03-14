@@ -274,12 +274,12 @@ $GLOBALS['allow_issue_menu_link'] = ((AclMain::aclCheckCore('encounters', 'notes
 <script type="text/javascript">
     <?php if (!empty($_SESSION['frame1url']) && !empty($_SESSION['frame1target'])) { ?>
         // Use session variables and tabStatus object to set up initial/default first tab
-        app_view_model.application_data.tabs.tabsList.push(new tabStatus(<?php echo xlj("Loading"); ?> + "...",<?php echo json_encode("../".$_SESSION['frame1url']); ?>,<?php echo json_encode($_SESSION['frame1target']); ?>,true,true,false));
+        app_view_model.application_data.tabs.tabsList.push(new tabStatus(<?php echo xlj("Loading"); ?> + "...",<?php echo json_encode("../".$_SESSION['frame1url']); ?>,<?php echo json_encode($_SESSION['frame1target']); ?>,<?php echo xlj("Loading"); ?> + " " + <?php echo json_encode($_SESSION['frame1label']); ?>,true,true,false));
     <?php } ?>
 
     <?php if (!empty($_SESSION['frame2url']) && !empty($_SESSION['frame2target'])) { ?>
         // Use session variables and tabStatus object to set up initial/default second tab, if none is set in globals, this tab will not be displayed initially
-        app_view_model.application_data.tabs.tabsList.push(new tabStatus(<?php echo xlj("Loading"); ?> + "...",<?php echo json_encode("../".$_SESSION['frame2url']); ?>,<?php echo json_encode($_SESSION['frame2target']); ?>,true,false,false));
+        app_view_model.application_data.tabs.tabsList.push(new tabStatus(<?php echo xlj("Loading"); ?> + "...",<?php echo json_encode("../".$_SESSION['frame2url']); ?>,<?php echo json_encode($_SESSION['frame2target']); ?>,<?php echo xlj("Loading"); ?> + " " + <?php echo json_encode($_SESSION['frame2label']); ?>,true,false,false));
     <?php } ?>
 
     app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($_SESSION["authUser"])
