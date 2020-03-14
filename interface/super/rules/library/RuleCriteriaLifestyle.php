@@ -28,7 +28,7 @@ class RuleCriteriaLifestyle extends RuleCriteria
         if (is_null($this->matchValue)) {
             $requirements .= xl("Any");
         } else {
-            $requirements .= "'" . $this->matchValue . "'";
+            $requirements .= "'" . text($this->matchValue) . "'";
         }
 
         return $requirements;

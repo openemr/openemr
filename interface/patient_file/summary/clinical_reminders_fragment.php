@@ -21,8 +21,8 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 
 //To improve performance and not freeze the session when running this
 // report, turn off session writing. Note that php session variables
-// can not be modified after the line below. So, if need to do any php
-// session work in the future, then will need to remove this line.
+// can not be modified after the line below. So, if you need to do any php
+// session work in the future, then you will need to remove this line.
 session_write_close();
 
 clinical_summary_widget($pid, "reminders-due", '', 'default', $_SESSION['authUser']);

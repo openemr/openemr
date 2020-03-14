@@ -4,13 +4,19 @@ var list_rules = function( args ) {
 
     var fn_create_row = function( rowData ) {
         var clone = $('.rule_row.template').clone().removeClass('template');
-        var anchor = clone.find('.rule_title a');
-            anchor.text( rowData.title );
-            anchor.attr('href', anchor.attr('href') + "&id=" + rowData.id);
-
-            anchor = clone.find('.rule_type a');
-            anchor.text( rowData.type );
-            anchor.attr('href', anchor.attr('href') + "&id=" + rowData.id);
+        
+        var anchor = clone.find('.rule_delete a');
+        //anchor.text( 'Delete' );
+        anchor.attr('href', anchor.attr('href') + "&id=" + rowData.id);
+        
+        anchor = clone.find('.rule_title a');
+        anchor.text( rowData.title );
+        anchor.attr('href', anchor.attr('href') + "&id=" + rowData.id);
+        
+        anchor = clone.find('.rule_type a');
+        anchor.text( rowData.type );
+        anchor.attr('href', anchor.attr('href') + "&id=" + rowData.id);
+        
         $('.rule_container').append(clone);
         clone.show();
     }

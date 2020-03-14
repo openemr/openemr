@@ -17,7 +17,14 @@ class Controller_detail extends BaseController
     function _action_view()
     {
         $ruleId = _get('id');
-        $rule = $this->getRuleManager()->getRule($ruleId);
+        $start  = _get('start');
+        if (is_null($ruleId) && ($start)) {
+            $rule = $this->getRuleManager()->newRule();
+        } else {
+            $rule = $this->getRuleManager()->getRule($ruleId);
+        }
+        $summary = _post("show");
+    
         if (is_null($rule)) {
             $this->redirect("index.php?action=browse!list");
         } else {

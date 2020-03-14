@@ -45,6 +45,10 @@ class ReminderIntervalType
             'clinical'  =>  new ReminderIntervalType('clinical', xl('Clinical')),
             'patient'   =>  new ReminderIntervalType('patient', xl('Patient'))
         );
+        if ($GLOBALS['enable_MedEx']=='1') {
+            $data = ['provider'  =>  new ReminderIntervalType('provider', xl('Provider')) ];
+            $map = array_push($data);
+        }
         return $map;
     }
 }

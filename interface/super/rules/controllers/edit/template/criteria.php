@@ -16,8 +16,7 @@ use OpenEMR\Core\Header;
 ?>
 <html>
 <head>
-    <!-- TODO: Why no bootstrap here????? !-->
-    <?php Header::setupHeader(['no_bootstrap', 'no_fontawesome', 'no_textformat', 'no_dialog']); ?>
+    <?php Header::setupHeader(); ?>
 
     <link rel="stylesheet" href="<?php css_src('rules.css') ?>" type="text/css">
 </head>

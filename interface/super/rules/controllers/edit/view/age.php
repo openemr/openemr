@@ -10,24 +10,36 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+    
+if ($criteria->getType()=='Min') {
+    $title = xl("Minimum Age");
+} elseif ($criteria->getType()=='Max') {
+    $title = xl("Maximum Age");
+}
 ?>
 <!-- age -->
-<p class="row">
-    <span class="left_col colhead req" data-fld="fld_value"><?php echo xlt('Age'); ?> <?php echo xlt($criteria->getType()); ?></span>
-    <span class="end_col"><input id="fld_value" type="text" name="fld_value" class="form-control field short" value="<?php echo attr($criteria->getRequirements()); ?>"></span>
-</p>
 
-<!-- age unit -->
-<p class="row">
-    <span class="left_col colhead req" data-fld="fld_timeunit"><?php echo xlt('Unit');?></span>
-    <span class="end_col">
-    <?php echo timeunit_select(array( "context" => "rule_age_intervals", "target"=>"fld_target_interval_type", "name" => "fld_target_interval_type", "value" => $criteria->timeUnit )); ?>
-    </span>
-</p>
+<div class="row">
+    <div class="col-12">
+        <span class="title2"><?php echo text($title); ?></span>
+    </div>
 
-<input type="hidden" name="fld_type" value="<?php echo attr($criteria->type); ?>"/>
+    <div class="col-8 offset-2">
+        <table class="table table-sm table-condensed table-hover">
+            <!-- category -->
+            <tr>
+                <td class="text-right"data-fld="fld_value">
+                    <?php echo xlt('Age'); ?>
+                </td>
+                <td class="tight">
+                    <input id="fld_value" type="text" name="fld_value" class="field short" value="<?php echo attr($criteria->getRequirements()); ?>">
+                    <?php echo timeunit_select(array( "context" => "rule_age_intervals", "target"=>"fld_target_interval_type", "name" => "fld_target_interval_type", "value" => $criteria->timeUnit )); ?>
+                    <input type="hidden" name="fld_type" value="<?php echo attr($criteria->type); ?>"/>
+                </td>
+            </tr>
+            <!-- optional/required and inclusion/exclusion fields -->
+            <?php //echo common_fields(array( "criteria" => $criteria)); ?>
+        </table>
 
-<br/>
-
-<!-- optional/required and inclusion/exclusion fields -->
-<?php echo common_fields(array( "criteria" => $criteria)); ?>
+    </div>
+</div>

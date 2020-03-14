@@ -853,10 +853,10 @@
             ]
           },
           {
-            "label": "Rules",
+            "label": "Care Plans",
             "menu_id": "adm0",
             "target": "adm",
-            "url": "/interface/super/rules/index.php?action=browse!list",
+            "url": "/interface/super/rules/index.php?action=browse!plans_config",
             "children": [],
             "requirement": 0,
             "acl_req": [
@@ -866,7 +866,7 @@
             "global_req": "enable_cdr"
           },
           {
-            "label": "Alerts",
+            "label": "Alert Manager",
             "menu_id": "adm0",
             "target": "adm",
             "url": "/interface/super/rules/index.php?action=alerts!listactmgr",

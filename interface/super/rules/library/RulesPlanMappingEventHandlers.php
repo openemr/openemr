@@ -118,8 +118,8 @@ function addNewPlan($plan_name, $plan_rules)
     }
     
     //Add plan into clinical_plans table
-    $sql_st = "INSERT INTO `clinical_plans` (`id`, `pid`, `normal_flag`, `cqm_flag`, `cqm_measure_group`) " .
-                "VALUES (?, 0, 1, 0, '');";
+    $sql_st = "INSERT INTO `clinical_plans` (`id`, `pid`, `cqm_flag`, `cqm_measure_group`) " .
+                "VALUES (?, 0, 0, '');";
     $res = sqlStatement($sql_st, array($plan_id));
     
     
@@ -141,8 +141,8 @@ function addNewPlan($plan_name, $plan_rules)
     
     //Insert plan into list_options table
     $sql_st = "INSERT INTO `list_options` " .
-                "(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) " .
-                "VALUES ('clinical_plans', ?, ?, ?, 0, 0, '', '', '');";
+                "(`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`,`activity`) " .
+                "VALUES ('clinical_plans', ?, ?, ?, 0, 0, '', '', '', '1');";
     $res = sqlStatement($sql_st, array($plan_id, $plan_name, $max_seq));
     
     

@@ -27,6 +27,7 @@ class Rule
     var $funding_source;
     var $release;
     var $web_ref;
+    var $public_description;
     /**
      * @var ReminderIntervals
      */
@@ -68,12 +69,17 @@ class Rule
     {
         $this->release = $s;
     }
-
+    
     function setWeb_ref($s)
     {
         $this->web_ref = $s;
     }
-
+    
+    function setPublicDescription($s)
+    {
+        $this->public_description = $s;
+    }
+    
     /**
      * @param RuleType $ruleType
      */
@@ -119,12 +125,18 @@ class Rule
     {
         return $this->hasRuleType(RuleType::from(RuleType::AMC));
     }
-
+    
     function isReminder()
     {
         return $this->hasRuleType(RuleType::from(RuleType::PatientReminder));
     }
-
+    
+    function isProviderAlert()
+    {
+        return $this->hasRuleType(RuleType::from(RuleType::ProviderAlert));
+    }
+    
+    
     /**
      * @param ReminderIntervals $reminderIntervals
      */
@@ -164,6 +176,7 @@ class Rule
         $this->actions = $actions;
     }
 
+    //maybe make rules that are CQM/AMC uneditable unless acl reached?
     function isEditable()
     {
         return true;

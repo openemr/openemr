@@ -51,4 +51,12 @@ class ReminderIntervalDetail
                  . xl($this->amount) . " " . xl($this->timeUnit->lbl);
         return $display;
     }
+    function displayWordy()
+    {
+        if ($this->amount > 1) {
+            $this->timeUnit->code .="s";
+        }
+        $display = xl($this->amount) . " " . xl($this->timeUnit->code);
+        return $display;
+    }
 }

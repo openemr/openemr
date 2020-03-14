@@ -34,6 +34,15 @@
     z-index: 1000 !important;
 }
 
+.navbar-fixed-top {
+    padding: 0px;
+    border-bottom: 0.1pt solid #7b777760;
+    -moz-box-shadow: 0 0 10px #000;
+    -webkit-box-shadow: 0 0 10px #000;
+    box-shadow: 0 0 10px #7b777760;
+    z-index: 1000;
+}
+
 .navbar-custom {
     padding: 0px !important;
     color: var(--black) !important;

@@ -1,22 +1,21 @@
 <?php
-/**
- * view/plans_config.php  UI for CDR admin rules plan
- *
- * UI to select or add new plans in plans configuration
- *
- * @package   OpenEMR
- * @link      https://www.open-emr.org
- * @author    Jan Jajalla <Jajalla23@gmail.com>
- * @author    Roberto Vasquez <robertogagliotta@gmail.com>
- * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2014 Jan Jajalla <Jajalla23@gmail.com>
- * @copyright Copyright (c) 2014 Roberto Vasquez <robertogagliotta@gmail.com>
- * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- */
+    /**
+     * view/plans_config.php  UI for CDR admin rules plan
+     *
+     * UI to select or add new plans in plans configuration
+     *
+     * @package   OpenEMR
+     * @link      https://www.open-emr.org
+     * @author    Jan Jajalla <Jajalla23@gmail.com>
+     * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+     * @author    Brady Miller <brady.g.miller@gmail.com>
+     * @copyright Copyright (c) 2014 Jan Jajalla <Jajalla23@gmail.com>
+     * @copyright Copyright (c) 2014 Roberto Vasquez <robertogagliotta@gmail.com>
+     * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+     * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+     */
 ?>
 
-<link type="text/css" rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] . '/jquery-ui-themes/themes/ui-lightness/jquery-ui.min.css'; ?>" />
 <link type="text/css" rel="stylesheet" href="<?php css_src('cdr-multiselect/common.css') ?>" />
 <link type="text/css" rel="stylesheet" href="<?php css_src('cdr-multiselect/ui.multiselect.css') ?>" />
 <link type="text/css" rel="stylesheet" href="<?php css_src('cdr-multiselect/plans_config.css') ?>" />
@@ -27,12 +26,12 @@
 <script language="javascript" src="<?php js_src('/cdr-multiselect/plugins/scrollTo/jquery.scrollTo-min.js') ?>"></script>
 <script language="javascript" src="<?php js_src('/cdr-multiselect/ui.multiselect.js') ?>"></script>
 <script type="text/javascript">
-// Below variables are to be used in the javascript for the cdr-multiselect(from cdr-multiselect/locale/ui-multiselect-cdr.js)
-$.extend($.ui.multiselect.locale, {
-    addAll:<?php echo xlj('Add all rules to plan'); ?>,
-    removeAll:<?php echo xlj('Remove all rules from plan'); ?>,
-    itemsCount:<?php echo xlj('rules already in plan'); ?>
-});
+    // Below variables are to be used in the javascript for the cdr-multiselect(from cdr-multiselect/locale/ui-multiselect-cdr.js)
+    $.extend($.ui.multiselect.locale, {
+        addAll:<?php echo xlj('Add all Reminders and Alerts to plan'); ?>,
+        removeAll:<?php echo xlj('Remove all from plan'); ?>,
+        itemsCount:<?php echo xlj('Reminders and Alerts already in plan'); ?>
+    });
 </script>
 
 <script language="javascript" src="<?php js_src('list.js') ?>"></script>
@@ -40,41 +39,46 @@ $.extend($.ui.multiselect.locale, {
 
 <script type="text/javascript">
     $(function() {
+        $("#cdr_hide_show-div").hide();
+        $("#delete_plan").hide();
+        $("#plan_status").hide();
         //load plans
         $("#cdr-plans").load('<?php library_src('RulesPlanMappingEventHandlers_ajax.php') ?>');
 
         $.post(
             '<?php echo  _base_url() . '/library/RulesPlanMappingEventHandlers_ajax.php?action=getNonCQMPlans'; ?>'
         )
-        .done(function(resp) {
-            var data = $.parseJSON(resp);
+         .done(function(resp) {
+             var data = $.parseJSON(resp);
 
-            $.each(data, function(idx, obj) {
-                $('<option id="' + obj.plan_id + '" p_id="' + obj.plan_pid + '" value="' + obj.plan_id + '">' + obj.plan_title + '</option>')
-                    .insertAfter('#select_plan')
-                    .insertBefore('#divider');
-            });
-        });
+             $.each(data, function(idx, obj) {
+                 $('<option id="' + obj.plan_id + '" p_id="' + obj.plan_pid + '" value="' + obj.plan_id + '">' + obj.plan_title + '</option>')
+                     .insertAfter('#select_plan')
+                     .insertBefore('#divider');
+             });
+         });
 
         //Change selected plan
         $("#cdr-plans-select").change(function() {
             $loadRules(
-                    $('#cdr-plans-select').find('option:selected').attr('id'),
-                    $('#cdr-plans-select').find('option:selected').attr('p_id')
+                $('#cdr-plans-select').find('option:selected').attr('id'),
+                $('#cdr-plans-select').find('option:selected').attr('p_id')
             );
+            $("#plan-status").trigger('click');
         });
 
         //Update Plan status
-        $("#cdr-status").click(function() {
-                        if (window.buttonStatus == "active")
-                            {
-                               $deactivatePlan();
-                               $togglePlanStatus(false);
-                             } else {
-
-                    $activatePlan();
-                    $togglePlanStatus(true);
-                             }
+        $("#plan_status").click(function() {
+            if (window.buttonStatus == "active")
+            {
+                $("#plan_status").html('<i class="fa fa-bell"> <?php echo xla('Inactive'); ?></i>');
+                $deactivatePlan();
+                $togglePlanStatus(false);
+            } else {
+                $("#plan_status").html('<i class="fa fa-bell"> <?php echo xla('Active'); ?></i>');
+                $activatePlan();
+                $togglePlanStatus(true);
+            }
         });
 
         //Cancel
@@ -96,20 +100,20 @@ $.extend($.ui.multiselect.locale, {
                 $("body").addClass("loading");
 
                 $.post
-                (
-                    '<?php echo  _base_url() .
-                            "/library/RulesPlanMappingEventHandlers_ajax.php?action=deletePlan&plan_id="; ?>' + encodeURIComponent(selected_plan)
-                            + '&plan_pid=' + encodeURIComponent(selected_plan_pid)
-                )
-                .done(function(resp) {
-                    $("body").removeClass("loading");
-                    location.reload();
-                })
-                .fail(function (jqXHR, textStatus) {
-                    console.log(textStatus);
-                                        alert(<?php echo xlj('Error while deleting the plan'); ?>);
-                    $("body").removeClass("loading");
-                });
+                 (
+                     '<?php echo  _base_url() .
+                         "/library/RulesPlanMappingEventHandlers_ajax.php?action=deletePlan&plan_id="; ?>' + encodeURIComponent(selected_plan)
+                     + '&plan_pid=' + encodeURIComponent(selected_plan_pid)
+                 )
+                 .done(function(resp) {
+                     $("body").removeClass("loading");
+                     location.reload();
+                 })
+                 .fail(function (jqXHR, textStatus) {
+                     console.log(textStatus);
+                     alert(<?php echo xlj('Error while deleting the plan'); ?>);
+                     $("body").removeClass("loading");
+                 });
             }
         });
 
@@ -123,8 +127,8 @@ $.extend($.ui.multiselect.locale, {
                 //reset
                 $('#new_plan_name')
                     .css({'border-color':'',
-                            'border-width':''
-                    });
+                             'border-width':''
+                         });
 
                 plan_name = $("#new_plan_name").val();
                 is_new_plan = true;
@@ -151,8 +155,8 @@ $.extend($.ui.multiselect.locale, {
                 alert(<?php echo xlj('Plan Name Missing'); ?>);
                 $('#new_plan_name')
                     .css({'border-color':'red',
-                            'border-width':'3px'
-                                });
+                             'border-width':'3px'
+                         });
                 $('#new_plan_name').focus();
                 return;
             }
@@ -171,57 +175,57 @@ $.extend($.ui.multiselect.locale, {
             $.post(
                 '<?php echo  _base_url() . '/library/RulesPlanMappingEventHandlers_ajax.php?action=commitChanges'; ?>',
                 dataString)
-            .done(function(resp) {
-                var obj = $.parseJSON(resp);
-                if (obj.status_code == '000') {
-                    //Success
-                    if (is_new_plan) {
-                        $('<option id="' + obj.plan_id + '" value="' + obj.plan_id + '">' + obj.plan_title + '</option>')
-                            .insertAfter('#select_plan')
-                            .insertBefore('#divider')
-                            .attr("selected","selected");
-                        plan_id = obj.plan_id;
+             .done(function(resp) {
+                 var obj = $.parseJSON(resp);
+                 if (obj.status_code == '000') {
+                     //Success
+                     if (is_new_plan) {
+                         $('<option id="' + obj.plan_id + '" value="' + obj.plan_id + '">' + obj.plan_title + '</option>')
+                             .insertAfter('#select_plan')
+                             .insertBefore('#divider')
+                             .attr("selected","selected");
+                         plan_id = obj.plan_id;
 
-                        alert(<?php echo xlj('Plan Added Successfully'); ?>);
+                         alert(<?php echo xlj('Plan Added Successfully'); ?>);
 
-                    } else {
-                        alert(<?php echo xlj('Plan Updated Successfully'); ?>);
-                    }
+                     } else {
+                         alert(<?php echo xlj('Plan Updated Successfully'); ?>);
+                     }
 
-                    $loadRules(plan_id, 0);
+                     $loadRules(plan_id, 0);
 
-                } else if (obj.status_code == '001') {
-                    alert(<?php echo xlj('Unknown Error'); ?>);
+                 } else if (obj.status_code == '001') {
+                     alert(<?php echo xlj('Unknown Error'); ?>);
 
-                } else if (obj.status_code == '002') {
-                    alert(<?php echo xlj('Plan Name Already Taken'); ?>);
-                    $('#new_plan_name')
-                        .css({'border-color':'red',
-                            'border-width':'3px'
-                        });
-                    $('#new_plan_name').focus();
-                } else {
-                    //Error
-                    console.log(obj.status_message);
-                    if (is_new_plan) {
-                        alert(<?php echo xlj('Error while adding new plan'); ?>);
-                    } else {
-                        alert(<?php echo xlj('Error while updating the plan'); ?>);
-                    }
-                }
+                 } else if (obj.status_code == '002') {
+                     alert(<?php echo xlj('Plan Name Already Taken'); ?>);
+                     $('#new_plan_name')
+                         .css({'border-color':'red',
+                                  'border-width':'3px'
+                              });
+                     $('#new_plan_name').focus();
+                 } else {
+                     //Error
+                     console.log(obj.status_message);
+                     if (is_new_plan) {
+                         alert(<?php echo xlj('Error while adding new plan'); ?>);
+                     } else {
+                         alert(<?php echo xlj('Error while updating the plan'); ?>);
+                     }
+                 }
 
-                $("body").removeClass("loading");
-            })
-            .fail(function (jqXHR, textStatus) {
-                console.log(textStatus);
-                if (is_new_plan) {
-                    alert(<?php echo xlj('Error while adding new plan'); ?>);
-                } else {
-                    alert(<?php echo xlj('Error while updating the plan'); ?>);
-                }
+                 $("body").removeClass("loading");
+             })
+             .fail(function (jqXHR, textStatus) {
+                 console.log(textStatus);
+                 if (is_new_plan) {
+                     alert(<?php echo xlj('Error while adding new plan'); ?>);
+                 } else {
+                     alert(<?php echo xlj('Error while updating the plan'); ?>);
+                 }
 
-                $("body").removeClass("loading");
-            });
+                 $("body").removeClass("loading");
+             });
         });
     });
 
@@ -238,7 +242,7 @@ $.extend($.ui.multiselect.locale, {
 
             if (selected_plan == 'add_new_plan') {
                 $("#delete_plan").hide();
-                $("#plan_status_div").hide();
+                $("#plan_status").hide();
                 $newPlan();
 
             } else {
@@ -246,33 +250,33 @@ $.extend($.ui.multiselect.locale, {
             }
 
             $.post
-                (
-                    '<?php echo  _base_url() .
-                            '/library/RulesPlanMappingEventHandlers_ajax.php?action=getRulesInAndNotInPlan&plan_id='; ?>' + selected_plan
-                )
-                .done(function(resp) {
-                    var data = $.parseJSON(resp);
+             (
+                 '<?php echo  _base_url() .
+                     '/library/RulesPlanMappingEventHandlers_ajax.php?action=getRulesInAndNotInPlan&plan_id='; ?>' + selected_plan
+             )
+             .done(function(resp) {
+                 var data = $.parseJSON(resp);
 
-                    $('#cdr_rules')
-                        .append('<select id="cdr_rules_select" class="multiselect" multiple="multiple" name="cdr_rules_select[]"/>');
+                 $('#cdr_rules')
+                     .append('<select id="cdr_rules_select" class="multiselect" multiple="multiple" name="cdr_rules_select[]"/>');
 
-                    $.each(data, function(idx, obj) {
-                        if (obj.selected  == "true") {
-                            $("#cdr_rules_select")
-                                .append(
-                                    $('<option value="' + obj.rule_id + '" selected="selected" init_value="selected">' + obj.rule_title + '</option>')
-                                );
-                        } else {
-                            $("#cdr_rules_select")
-                                .append(
-                                    $('<option value="' + obj.rule_id + '" init_value="not-selected">' + obj.rule_title + '</option>')
-                                );
-                        }
-                    });
+                 $.each(data, function(idx, obj) {
+                     if (obj.selected  == "true") {
+                         $("#cdr_rules_select")
+                             .append(
+                                 $('<option value="' + obj.rule_id + '" selected="selected" init_value="selected">' + obj.rule_title  +'</option>')
+                             );
+                     } else {
+                         $("#cdr_rules_select")
+                             .append(
+                                 $('<option value="' + obj.rule_id + '" init_value="not-selected">' + obj.rule_title +'</option>')
+                             );
+                     }
+                 });
 
-                    $("#cdr_rules_select").multiselect({dividerLocation: 0.45});
-                    $("body").removeClass("loading");
-                });
+                 $("#cdr_rules_select").multiselect({dividerLocation: 0.45});
+                 $("body").removeClass("loading");
+             });
         } else {
             $("#cdr_hide_show-div").hide();
             $("#delete_plan").hide();
@@ -281,32 +285,32 @@ $.extend($.ui.multiselect.locale, {
 
     $loadPlanStatus = function(selected_plan, selected_plan_pid) {
         $.post
-        (
-            '<?php echo  _base_url() .
-                    '/library/RulesPlanMappingEventHandlers_ajax.php?action=getPlanStatus&plan_id='; ?>' + encodeURIComponent(selected_plan)
-                    + '&plan_pid=' + encodeURIComponent(selected_plan_pid)
-        )
-        .done(function(resp) {
-            var obj = $.parseJSON(resp);
+         (
+             '<?php echo  _base_url() .
+                 '/library/RulesPlanMappingEventHandlers_ajax.php?action=getPlanStatus&plan_id='; ?>' + encodeURIComponent(selected_plan)
+             + '&plan_pid=' + encodeURIComponent(selected_plan_pid)
+         )
+         .done(function(resp) {
+             var obj = $.parseJSON(resp);
 
-            if (obj.is_plan_active) {
-                $activatePlan();
-            } else {
-                $deactivatePlan();
-            }
+             if (obj.is_plan_active) {
+                 $activatePlan();
+             } else {
+                 $deactivatePlan();
+             }
 
-        })
-        .fail(function (jqXHR, textStatus) {
-            console.log(textStatus);
-            alert('<?php echo xls('Error'); ?>');
-        });
+         })
+         .fail(function (jqXHR, textStatus) {
+             console.log(textStatus);
+             alert('<?php echo xls('Error'); ?>');
+         });
 
     }
 
     $newPlan = function() {
         $('#new_plan_container')
-                        .append('<?php echo '<label>' . xla('Plan Name') . ': </label>'; ?>')
-            .append('<input id="new_plan_name" type="text" name="new_plan_name">');
+            .append('<?php echo '<label>' . xla('Plan Name') . ': '; ?>')
+            .append('<input class="form-control" id="new_plan_name" type="text" name="new_plan_name"></label>');
 
         $("#cdr-rules_cont").removeClass("overlay");
     }
@@ -320,84 +324,106 @@ $.extend($.ui.multiselect.locale, {
             action = 'deactivate';
         }
 
-                var postToggle =
-                       {
-                          "selected_plan": selected_plan,
-                          "plan_pid":  selected_plan_pid,
-                          "plan_status": action
-                       }
-               var dataStringToggle = JSON.stringify(postToggle);
+        var postToggle =
+            {
+                "selected_plan": selected_plan,
+                "plan_pid":  selected_plan_pid,
+                "plan_status": action
+            }
+        var dataStringToggle = JSON.stringify(postToggle);
 
         $.post(
-      '<?php echo  _base_url() . '/library/RulesPlanMappingEventHandlers_ajax.php?action=togglePlanStatus'; ?>'
-               , dataStringToggle).done(function(resp) {
-                        var obj = $.parseJSON(resp);
-                           if (obj == '007')
-                            {
-                              alert(<?php echo xlj('Plan Status Changed'); ?>);
-                             }
-                           if (obj == '002') {
-                              alert(<?php echo xlj('Plan Status Failed to Change'); ?>);
-                             }
+            '<?php echo  _base_url() . '/library/RulesPlanMappingEventHandlers_ajax.php?action=togglePlanStatus'; ?>'
+            , dataStringToggle).done(function(resp) {
+            var obj = $.parseJSON(resp);
+            if (obj == '007')
+            {
+                alert(<?php echo xlj('Plan Status Changed'); ?>);
+            }
+            if (obj == '002') {
+                alert(<?php echo xlj('Plan Status Failed to Change'); ?>);
+            }
         })
-        .fail(function(jqXHR, textStatus) {
-            console.log(textStatus);
-            alert(<?php echo xlj('Error'); ?>);
-        });
+         .fail(function(jqXHR, textStatus) {
+             console.log(textStatus);
+             alert(<?php echo xlj('Error'); ?>);
+         });
     }
 
     $activatePlan = function() {
-        $("#plan-status-label").text('<?php echo xla('Status') . ': ' . xla('Active{{Plan}}'); ?>');
         window.buttonStatus = "active";
-        $("#cdr-status").removeAttr("disabled");
-        $("#cdr-status").text('<?php echo xla('Deactivate'); ?>');
+        $("#delete_plan").show();
+        $("#plan_status").html('<i class="fa fa-bell"> <?php echo xlt('Activated'); ?></i>').show();
 
         $("#cdr-rules_cont").removeClass("overlay");
     }
 
     $deactivatePlan = function() {
-        $("#plan-status-label").text('<?php echo xla('Status') . ': ' . xla('Inactive'); ?>');
         window.buttonStatus = "inactive";
-        $("#cdr-status").removeAttr("disabled");
-        $("#cdr-status").text('<?php echo xla('Activate'); ?>');
+        $("#delete_plan").show();
+        $("#plan_status").html('<i class="fa fa-bell-slash"><?php echo xlt('Inactive'); ?></i>').show();
 
         $("#cdr-rules_cont").addClass("overlay");
     }
 
 </script>
+<div class="title" style="display:none"><a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/rules/index.php?browse!plans_config"><?php
+            // this will display the TAB title
+            echo xlt('Care Plans'); ?><?php
+            $in = xl($rule->title);
+            echo mb_strlen($in) > 10 ? text(mb_substr($in, 0, 10))."..." : text($in);
+?></a>
+</div>
+<br /><br />
 
-<div class="cdr-mappings">
-    <br/>
-    <div><b><?php echo xlt('View Plan Rules'); ?></b></div>
-    <br/>
-    <div id="cdr_mappings_form-div" class="cdr-form">
-        <div class="cdr-plans">
-            <?php echo xlt('Plan') . ':'; ?>
-            <select id="cdr-plans-select" name="cdr-plans-select" class="cdr-plans-select-class">
-                             <option id="select_plan" value="select_plan">- <?php echo xlt('SELECT PLAN'); ?> -</option>
-                <option id="divider" value="divider" disabled/>
-                <option id="add_new_plan" value="add_new_plan"><?php echo xlt('ADD NEW PLAN'); ?></option>
-            </select>
-            <input title="<?php echo xla('Delete Plan'); ?>" id="delete_plan" class="delete_button" type="image" style="display: none;"/>
-        </div>
-        <div id="new_plan_container"></div>
-        <div id="cdr_hide_show-div" style="display: none;">
-            <div id="plan_status_div" class="plan-status_div">
-                                <label id='plan-status-label'><?php echo xlt('Status') . ':'; ?></label>
-                <button id='cdr-status' disable><?php echo xlt('Activate'); ?></button>
+
+<div class="row text-center">
+    <div class="col-9 offset-1">
+        <div class="col-12 text-left">
+            <div class="title"><?php echo xlt('Care Plans'); ?>:
+                <span class="small">
+                    <select id="cdr-plans-select" name="cdr-plans-select" class="cdr-plans-select-class">
+                        <option id="select_plan" value="select_plan">- <?php echo xlt('SELECT PLAN'); ?> -</option>
+                        <option id="divider" value="divider" disabled/>
+                        <option id="add_new_plan" value="add_new_plan"><?php echo xlt('ADD NEW PLAN'); ?></option>
+                    </select>
+                </span>
             </div>
-            <br/>
+        </div>
+        <div class="cdr-mappings row text-center">
+            <div class="col-12 text-center">
+                <button id="delete_plan"
+                        class="btn btn-sm btn-danger icon_1X"
+                        title="<?php echo xla('Delete Plan'); ?>"
+                        style="display: none;"><i class="fa fa-trash-o"></i>
+                </button>
+                <button id="plan_status"
+                        title="<?php echo xla('Plan Status: Active or Inactive'); ?>"
+                        class="btn btn-sm btn-primary icon_2X">
+                    <i class="fa fa-bell"><?php echo xlt('Activate'); ?></i>
+                </button>
+                <div  class="plan-status_div">
+                </div>
 
-            <div id="cdr-rules_cont">
-                <div id="cdr_rules" class="cdr-rules-class"></div>
+            </div>
+            <div id="cdr_mappings_form-div" class="cdr-form col-10 row text-left">
 
-                <div id="cdr_buttons_div" class="cdr-buttons-class">
-                    <button id='cdr-button-cancel'><?php echo xlt('Cancel'); ?></button>
-                    <button id='cdr-button-submit'><?php echo xlt('Submit'); ?></button>
+                <div id="new_plan_container" class="col-6"></div>
+                <div id="cdr_hide_show-div" style="display: none;">
+                    <div id="cdr-rules_cont">
+                        <div id="cdr_rules" class="cdr-rules-class"></div>
+                        <div id="cdr_buttons_div" class="cdr-buttons-class">
+                            <button id='cdr-button-cancel'><?php echo xlt('Cancel'); ?></button>
+                            <button id='cdr-button-submit'><?php echo xlt('Submit'); ?></button>
+                        </div>
+                    </div>
+
+
+
                 </div>
             </div>
         </div>
+
+        <div class="modal"></div>
     </div>
 </div>
-
-<div class="modal"></div>
