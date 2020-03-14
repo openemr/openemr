@@ -126,7 +126,7 @@ border:0!important;
 
 // Process click on destroyed drug.
 function doclick(id, lot) {
- dlgopen('../drugs/destroy_lot.php?drug=' + id + '&lot=' + lot, '_blank', 600, 475);
+ dlgopen('../drugs/destroy_lot.php?drug=' + encodeURIComponent(id) + '&lot=' + encodeURIComponent(lot), '_blank', 600, 475);
 }
 
 $(function() {
