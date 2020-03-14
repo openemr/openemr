@@ -62,7 +62,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 
 // jQuery makes life easier (sometimes)
 
-$(document).ready(function(){
+$(function(){
 
     /********************************************************/
     /************ List-box modification functions ***********/
