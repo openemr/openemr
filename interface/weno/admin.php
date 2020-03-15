@@ -83,7 +83,10 @@ if ($tableHasData['count'] > 1) {
 ?>
 
 <br><br>
+<?php
 
+
+?>
     <h2><?php echo xlt("Pharmacy Import / Update"); ?></h2><br>
     <form class="form-inline" id="addpharmacies">
         <div class="form-group">
