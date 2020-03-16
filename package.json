@@ -31,7 +31,7 @@
     "gulp-sass": "^4.0.2",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-watch": "^5.0.1",
-    "minimist": "^1.2.0",
+    "minimist": "^1.2.2",
     "napa": "^3.0.0",
     "replace-in-file": "^5.0.2"
   },
