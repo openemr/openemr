@@ -57,6 +57,11 @@ class PatientController extends AppBaseController
             $pid = ( int ) $_GET['pid'];
         }
 
+        // only allow patient to see themself
+        if (!empty($GLOBALS['bootstrap_pid'])) {
+            $pid = $GLOBALS['bootstrap_pid'];
+        }
+
         if (isset($_GET['user'])) {
             $user = $_GET['user'];
         }
@@ -111,6 +116,12 @@ class PatientController extends AppBaseController
         try {
             $criteria = new PatientCriteria();
             $pid = RequestUtil::Get('patientId');
+
+            // only allow patient to see themself
+            if (!empty($GLOBALS['bootstrap_pid'])) {
+                $pid = $GLOBALS['bootstrap_pid'];
+            }
+
             $criteria->Pid_Equals = $pid;
 
             $output = new stdClass();
