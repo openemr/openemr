@@ -74,249 +74,269 @@ GlobalConfig::$ROUTE_MAP = array (
 
         // default controller when no route specified
         // 'GET:' => array('route' => 'Default.Home'),
+        // permission setting:
+        //   p_all - available to all
+        //   p_limited - only the data that is pertinent to the patient is available
+        //   p_none - not available for patients
         'GET:' => array (
-                'route' => 'Provider.Home'
+                'route' => 'Provider.Home',
+                'p_acl' => 'p_all'
         ),
         'GET:provider' => array (
-                'route' => 'Provider.Home'
+                'route' => 'Provider.Home',
+                'p_acl' => 'p_all'
         ),
 
         // authentication routes
         'GET:loginform' => array (
-                'route' => 'SecureApp.LoginForm'
+                'route' => 'SecureApp.LoginForm',
+                'p_acl' => 'p_all'
         ),
         'POST:login' => array (
-                'route' => 'SecureApp.Login'
+                'route' => 'SecureApp.Login',
+                'p_acl' => 'p_all'
         ),
         'GET:secureuser' => array (
-                'route' => 'SecureApp.UserPage'
+                'route' => 'SecureApp.UserPage',
+                'p_acl' => 'p_all'
         ),
         'GET:secureadmin' => array (
-                'route' => 'SecureApp.AdminPage'
+                'route' => 'SecureApp.AdminPage',
+                'p_acl' => 'p_all'
         ),
         'GET:logout' => array (
-                'route' => 'SecureApp.Logout'
+                'route' => 'SecureApp.Logout',
+                'p_acl' => 'p_all'
         ),
 
         // Patient
         'GET:patientdata' => array (
-                'route' => 'Patient.ListView'
-        ),
-        'GET:patient/(:num)' => array (
-                'route' => 'Patient.SingleView',
-                'params' => array (
-                        'id' => 1
-                )
+                'route' => 'Patient.ListView',
+                'p_acl' => 'p_all' // Secured this at downstream function level
         ),
         'GET:api/patientdata' => array (
-                'route' => 'Patient.Query'
+                'route' => 'Patient.Query',
+                'p_acl' => 'p_all' // Secured this at downstream function level
         ),
         'POST:api/patient' => array (
-                'route' => 'Patient.Create'
+                'route' => 'Patient.Create',
+                'p_acl' => 'p_none'
         ),
         'GET:api/patient/(:num)' => array (
                 'route' => 'Patient.Read',
                 'params' => array (
                         'id' => 2
-                )
+                ),
+                'p_acl' => 'p_limited'
         ),
         'PUT:api/patient/(:num)' => array (
                 'route' => 'Patient.Update',
                 'params' => array (
                         'id' => 2
-                )
+                ),
+                'p_acl' => 'p_limited'
         ),
         'DELETE:api/patient/(:num)' => array (
                 'route' => 'Patient.Delete',
                 'params' => array (
                         'id' => 2
-                )
+                ),
+                'p_acl' => 'p_limited'
         ),
         'PUT:api/portalpatient/(:num)' => array (
                 'route' => 'PortalPatient.Update',
                 'params' => array (
                         'id' => 2
-                )
+                ),
+                'p_acl' => 'p_limited'
         ),
         'GET:api/portalpatient/(:num)' => array (
                 'route' => 'PortalPatient.Read',
                 'params' => array (
                         'id' => 2
-                )
+                ),
+                'p_acl' => 'p_limited'
         ),
 
         // OnsiteDocument
         'GET:onsitedocuments' => array (
-                'route' => 'OnsiteDocument.ListView'
+                'route' => 'OnsiteDocument.ListView',
+                'p_acl' => 'p_all' // Secured this at downstream function level
         ),
         'GET:onsitedocument/(:num)' => array (
                 'route' => 'OnsiteDocument.SingleView',
                 'params' => array (
                         'id' => 1
-                )
+                ),
+                'p_acl' => 'p_all' // Secured this at downstream function level
         ),
         'GET:api/onsitedocuments' => array (
-                'route' => 'OnsiteDocument.Query'
+                'route' => 'OnsiteDocument.Query',
+                'p_acl' => 'p_all' // Secured this at downstream function level
         ),
         'POST:api/onsitedocument' => array (
-                'route' => 'OnsiteDocument.Create'
+                'route' => 'OnsiteDocument.Create',
+                'p_acl' => 'p_all' // Secured this at downstream function level
         ),
         'GET:api/onsitedocument/(:num)' => array (
                 'route' => 'OnsiteDocument.Read',
                 'params' => array (
                         'id' => 2
-                )
+                ),
+                'p_acl' => 'p_all' // Secured this at downstream function level
         ),
         'PUT:api/onsitedocument/(:num)' => array (
                 'route' => 'OnsiteDocument.Update',
                 'params' => array (
                         'id' => 2
-                )
+                ),
+                'p_acl' => 'p_all' // Secured this at downstream function level
         ),
         'DELETE:api/onsitedocument/(:num)' => array (
                 'route' => 'OnsiteDocument.Delete',
                 'params' => array (
                         'id' => 2
-                )
+                ),
+                'p_acl' => 'p_all' // Secured this at downstream function level
         ),
 
         // OnsitePortalActivity
         'GET:onsiteportalactivities' => array (
-                'route' => 'OnsitePortalActivity.ListView'
-        ),
-        'GET:onsiteportalactivity/(:num)' => array (
-                'route' => 'OnsitePortalActivity.SingleView',
-                'params' => array (
-                        'id' => 1
-                )
+                'route' => 'OnsitePortalActivity.ListView',
+                'p_acl' => 'p_none'
         ),
         'GET:api/onsiteportalactivities' => array (
-                'route' => 'OnsitePortalActivity.Query'
+                'route' => 'OnsitePortalActivity.Query',
+                'p_acl' => 'p_none'
         ),
         'POST:api/onsiteportalactivity' => array (
-                'route' => 'OnsitePortalActivity.Create'
+                'route' => 'OnsitePortalActivity.Create',
+                'p_acl' => 'p_none'
         ),
         'GET:api/onsiteportalactivity/(:num)' => array (
                 'route' => 'OnsitePortalActivity.Read',
                 'params' => array (
                         'id' => 2
-                )
+                ),
+                'p_acl' => 'p_none'
         ),
         'PUT:api/onsiteportalactivity/(:num)' => array (
                 'route' => 'OnsitePortalActivity.Update',
                 'params' => array (
                         'id' => 2
-                )
+                ),
+                'p_acl' => 'p_none'
         ),
         'DELETE:api/onsiteportalactivity/(:num)' => array (
                 'route' => 'OnsitePortalActivity.Delete',
                 'params' => array (
                         'id' => 2
-                )
+                ),
+                'p_acl' => 'p_none'
         ),
         // OnsiteActivityView
         'GET:onsiteactivityviews' => array (
-                'route' => 'OnsiteActivityView.ListView'
-        ),
-        'GET:onsiteactivityview/(:any)' => array (
-                'route' => 'OnsiteActivityView.SingleView',
-                'params' => array (
-                        'id' => 1
-                )
+                'route' => 'OnsiteActivityView.ListView',
+                'p_acl' => 'p_none'
         ),
         'GET:api/onsiteactivityviews' => array (
-                'route' => 'OnsiteActivityView.Query'
+                'route' => 'OnsiteActivityView.Query',
+                'p_acl' => 'p_none'
         ),
         'POST:api/onsiteactivityview' => array (
-                'route' => 'OnsiteActivityView.Create'
+                'route' => 'OnsiteActivityView.Create',
+                'p_acl' => 'p_none'
         ),
         'GET:api/onsiteactivityview/(:any)' => array (
                 'route' => 'OnsiteActivityView.Read',
                 'params' => array (
                         'id' => 2
-                )
+                ),
+                'p_acl' => 'p_none'
         ),
         'PUT:api/onsiteactivityview/(:any)' => array (
                 'route' => 'OnsiteActivityView.Update',
                 'params' => array (
                         'id' => 2
-                )
+                ),
+                'p_acl' => 'p_none'
         ),
         'DELETE:api/onsiteactivityview/(:any)' => array (
                 'route' => 'OnsiteActivityView.Delete',
                 'params' => array (
                         'id' => 2
-                )
+                ),
+                'p_acl' => 'p_none'
         ),
 
         // User
         'GET:users' => array (
-                'route' => 'User.ListView'
-        ),
-        'GET:user/(:num)' => array (
-                'route' => 'User.SingleView',
-                'params' => array (
-                        'id' => 1
-                )
+                'route' => 'User.ListView',
+                'p_acl' => 'p_none'
         ),
         'GET:api/users' => array (
-                'route' => 'User.Query'
+                'route' => 'User.Query',
+                'p_acl' => 'p_all'
         ),
         'POST:api/user' => array (
-                'route' => 'User.Create'
+                'route' => 'User.Create',
+                'p_acl' => 'p_none'
         ),
         'GET:api/user/(:num)' => array (
                 'route' => 'User.Read',
                 'params' => array (
                         'id' => 2
-                )
+                ),
+                'p_acl' => 'p_none'
         ),
         'PUT:api/user/(:num)' => array (
                 'route' => 'User.Update',
                 'params' => array (
                         'id' => 2
-                )
+                ),
+                'p_acl' => 'p_none'
         ),
         'DELETE:api/user/(:num)' => array (
                 'route' => 'User.Delete',
                 'params' => array (
                         'id' => 2
-                )
+                ),
+                'p_acl' => 'p_none'
         ),
 
         // UsersFacility
         'GET:usersfacilities' => array (
-                'route' => 'UsersFacility.ListView'
-        ),
-        'GET:usersfacility/(:any)' => array (
-                'route' => 'UsersFacility.SingleView',
-                'params' => array (
-                        'tablename' => 1
-                )
+                'route' => 'UsersFacility.ListView',
+                'p_acl' => 'p_none'
         ),
         'GET:api/usersfacilities' => array (
-                'route' => 'UsersFacility.Query'
+                'route' => 'UsersFacility.Query',
+                'p_acl' => 'p_none'
         ),
         'POST:api/usersfacility' => array (
-                'route' => 'UsersFacility.Create'
+                'route' => 'UsersFacility.Create',
+                'p_acl' => 'p_none'
         ),
         'GET:api/usersfacility/(:any)' => array (
                 'route' => 'UsersFacility.Read',
                 'params' => array (
                         'tablename' => 2
-                )
+                ),
+                'p_acl' => 'p_none'
         ),
         'PUT:api/usersfacility/(:any)' => array (
                 'route' => 'UsersFacility.Update',
                 'params' => array (
                         'tablename' => 2
-                )
+                ),
+                'p_acl' => 'p_none'
         ),
         'DELETE:api/usersfacility/(:any)' => array (
                 'route' => 'UsersFacility.Delete',
                 'params' => array (
                         'tablename' => 2
-                )
+                ),
+                'p_acl' => 'p_none'
         ),
 
         // catch any broken API urls
