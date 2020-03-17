@@ -198,8 +198,8 @@ if (!empty($_POST['bn_upload'])) {
                                 echo "    <option value='" . attr($sfname) . "'";
                                 echo ">" . text($sfname) . "</option>\n";
                             }
-                        }   
-                           ?>
+                        }
+                        ?>
                         </select>
                         <div class="mt-3">
                            <input type='submit' class="btn btn-success" name='bn_download' value='<?php echo xla('Download') ?>' />
