@@ -43,7 +43,7 @@ function bucks($amt)
     <script>
         <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
-        $(function() {
+        $(function () {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
 

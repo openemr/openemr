@@ -213,7 +213,7 @@ if (isset($_POST["mode"])) {
 
 <script>
 
-$(function() {
+$(function () {
     $(".medium_modal").on('click', function (e) {
         e.preventDefault();
         e.stopPropagation();

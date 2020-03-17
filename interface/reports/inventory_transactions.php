@@ -203,7 +203,7 @@ if ($form_action == 'export') {
      color:var(--black);
      font-family:sans-serif;
      font-size:10pt;
-     font-weight:bold; 
+     font-weight:bold;
 }
  .detail { color:var(--black);
      font-family:sans-serif;
@@ -218,7 +218,7 @@ if ($form_action == 'export') {
 
 <script>
 
-    $(function() {
+    $(function () {
         oeFixedHeaderSetup(document.getElementById('mymaintable'));
         var win = top.printLogSetup ? top : opener.top;
         win.printLogSetup(document.getElementById('printbutton'));

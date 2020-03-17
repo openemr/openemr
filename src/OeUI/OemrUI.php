@@ -325,7 +325,7 @@ JQD;
                 $("#exp_cont_icon").removeClass ("hidden");
             }
         });
-        $(function() {
+        $(function () {
             $(window).trigger('resize');// to avoid repeating code triggers above on page open
         });
 

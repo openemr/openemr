@@ -1405,7 +1405,7 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
             echo "alert(" . js_escape($alertmsg) . ");\n";
         }
         ?>
-        $(function() {
+        $(function () {
             $("#view-log-link").click(function() {
                 top.restoreSession();
                 dlgopen('customize_log.php', '_blank', 750, 400);

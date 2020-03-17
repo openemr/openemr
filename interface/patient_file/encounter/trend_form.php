@@ -114,7 +114,7 @@ function show_graph(table_graph, name_graph, title_graph)
     });
 }
 
-$(function (){
+$(function () {
 
   // Use jquery to show the 'readonly' class entries
   $('.readonly').show();

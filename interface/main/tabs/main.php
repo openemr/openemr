@@ -310,7 +310,7 @@ $GLOBALS['allow_issue_menu_link'] = ((AclMain::aclCheckCore('encounters', 'notes
             $(".appMenu").removeClass('appMenu');
         }
     });
-    $(function() {
+    $(function () {
         $(window).trigger('resize');// to avoid repeating code triggers above on page open
     });
 </script>
@@ -470,7 +470,7 @@ $window.resize(function () {
     }
 
 });
-$(function() {
+$(function () {
         $(window).trigger('resize');// to avoid repeating code triggers above on page open
     });
 ko.bindingHandlers['css2'] = ko.bindingHandlers.css;
@@ -492,7 +492,7 @@ app_view_model.responsiveDisplay = displayViewModel;
     });
 </script>
 <script>
-$(function(){
+$(function () {
     $('#logo_menu').focus();
 });
 </script>

@@ -357,7 +357,7 @@ function checkSubmit() {
 <title><?php echo xlt('Patient Ledger by Date') ?></title>
 
 <script>
-  $(function() {
+  $(function () {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_formatInput = false; ?>

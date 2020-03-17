@@ -170,7 +170,7 @@ $res = sqlStatement($query, $sqlBindArray);
     </style>
 
     <script>
-        $(function() {
+        $(function () {
             oeFixedHeaderSetup(document.getElementById('mymaintable'));
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));

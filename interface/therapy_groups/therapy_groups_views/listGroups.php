@@ -166,7 +166,7 @@ use OpenEMR\Common\Acl\AclMain;
 
 
     /* ========= Initialise Data Table & Filters ========= */
-    $(function() {
+    $(function () {
 
 //        var lang = '<?php //echo $lang ?>//';//get language support for filters
 

@@ -461,7 +461,7 @@ if (!empty($_GET)) {
 <script>
 
 // jQuery stuff to make the page a little easier to use
-$(function(){
+$(function () {
     $("#other-logs-div").hide();
     $("#main-log-li").click(function(){
         $("#main-log-div").show(250);

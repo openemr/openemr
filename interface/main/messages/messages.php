@@ -812,7 +812,7 @@ if (!empty($_REQUEST['go'])) { ?>
 
         var collectvalidation = <?php echo $collectthis; ?>;
 
-        $(function (){
+        $(function () {
             $("#reminders-div").hide();
             $("#recalls-div").hide();
             $("#sms-div").hide();
@@ -867,12 +867,12 @@ if (!empty($_REQUEST['go'])) { ?>
             })
 
         });
-        $(function (){
+        $(function () {
             $( "ul.navbar-nav" ).children().click(function(){
                 $(".collapse").collapse('hide');
             });
         });
-        $(function (){
+        $(function () {
             $('#see-all-tooltip').attr({"title": <?php echo xlj('Click to show messages for all users'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
             $('#just-mine-tooltip').attr({"title": <?php echo xlj('Click to show messages for only the current user'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
         });

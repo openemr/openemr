@@ -289,7 +289,7 @@ if ($_POST['form_get_hl7']==='true') {
 
         <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
-        $(function() {
+        $(function () {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
 
