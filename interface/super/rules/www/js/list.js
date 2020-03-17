@@ -58,7 +58,7 @@ var list_rules = function( args ) {
 
     return {
             init: function() {
-                $( function() {
+                $(function () {
                     fn_wire_events();
                     fn_work();
                 });

@@ -222,7 +222,7 @@ if (isset($_GET["res"])) {
 
 // jQuery stuff to make the page a little easier to use
 
-$(function() {
+$(function () {
     $("#searchparm").focus();
     $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });

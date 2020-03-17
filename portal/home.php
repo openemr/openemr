@@ -93,7 +93,7 @@ foreach ($msgs as $i) {
     <?php } ?>
 
     <script type="text/javascript">
-        $(function() {
+        $(function () {
             $("#profilereport").load("get_profile.php", {}, function () {
                 $("table").addClass("table");
                 $(".demographics td").removeClass("label");
@@ -185,7 +185,7 @@ foreach ($msgs as $i) {
                     $(".right-side").toggleClass("strech");
                 }
             });
-            $(function() {
+            $(function () {
                 $('#popwait').hide();
                 $('#callccda').click(function () {
                     $('#popwait').show();

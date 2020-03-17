@@ -107,7 +107,7 @@ if ($_GET["id"]) {
 
 ?>
 <script>
-$(function() {
+$(function () {
         autosave();
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>

@@ -97,7 +97,7 @@ if ($_GET) {
         }
     </style>
     <script>
-      $(function() {
+      $(function () {
         $("#submitForm").click(function(){
           // top.restoreSession(); --> can't use this as it negates this ajax refresh
           $.get("dated_reminders_log.php?"+$("#logForm").serialize(),

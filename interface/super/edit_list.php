@@ -770,7 +770,7 @@ function writeITLine($it_array)
         }
     </style>
     <script>
-        $(function() {
+        $(function () {
             $(".select-dropdown").select2({
                 theme: "bootstrap4",
                 <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
@@ -1378,7 +1378,7 @@ function writeITLine($it_array)
 <script>
     // jQuery stuff to make the page a little easier to use
 
-    $(function() {
+    $(function () {
         $("#form_save").click(function (e) {
             e.preventDefault();
             SaveChanges();

@@ -861,7 +861,7 @@ if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
         <?php if ($eid) { ?>
         set_display();
         <?php } ?>
-        $(function() {
+        $(function () {
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>

@@ -226,7 +226,7 @@ function row_delete($table, $where)
         adjField.value = adjAmount = Math.round(adjAmount * 100) / 100;
     }
 
-    $(function() {
+    $(function () {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>

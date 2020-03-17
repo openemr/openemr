@@ -45,13 +45,13 @@ echo $help_modal;
 ?>
 <script>
     var helpFilePath = '<?php echo "$webroot/Documentation/help_files/"?>';
-    $(function() {
+    $(function () {
         $('#help-href').click (function(){
             document.getElementById('targetiframe').src = helpFilePath + helpFile;
         })
     });
     <?php //print needs work on ie, edge browsers?>
-    $(function() {
+    $(function () {
         $('#print-help-href').click (function(){
             $("#targetiframe").get(0).contentWindow.print();
         })

@@ -414,7 +414,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
         }
         var isPortal = 1;
 
-        $(function() {
+        $(function () {
             <?php // if something went wrong
             if (isset($_GET['requestNew'])) {
                 $_SESSION['register'] = true;

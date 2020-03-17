@@ -28,7 +28,7 @@ use OpenEMR\OeUI\OemrUI;
         <title><?php echo xlt('PRO{{Patient Reported Outcomes}}'); ?></title>
         <?php Header::setupHeader(); ?>
         <script>
-            $(function() {
+            $(function () {
                 $('#ext-proc-out').hide();
                 $('#ext-enc').on('click', function() {
                     $('#ext-enc').addClass('active');
@@ -321,7 +321,7 @@ use OpenEMR\OeUI\OemrUI;
     <?php $oemr_ui->oeBelowContainerDiv();?>
     <script>
         var listId = '#' + <?php echo js_escape($list_id); ?>;
-        $(function() {
+        $(function () {
             $(listId).addClass("active");
         });
     </script>

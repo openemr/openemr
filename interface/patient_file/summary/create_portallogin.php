@@ -208,7 +208,7 @@ function transmit(){
     document.forms[0].submit();
 }
 <?php if (!empty($credMessage)) { ?>
-    $(function() {
+    $(function () {
         top.printLogPrint(window);
     });
 <?php } ?>

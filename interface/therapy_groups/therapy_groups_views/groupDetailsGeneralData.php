@@ -198,7 +198,7 @@ use OpenEMR\Common\Acl\AclMain;
     </div>
 </main>
 <script>
-    $(function() {
+    $(function () {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>

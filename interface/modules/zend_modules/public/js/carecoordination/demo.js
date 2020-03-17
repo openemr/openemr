@@ -1,4 +1,4 @@
-$(function() {
+$(function () {
 
 	// first example
 	$("#browser").treeview();

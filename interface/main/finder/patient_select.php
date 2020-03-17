@@ -557,7 +557,7 @@ if ($result) {
 
 // jQuery stuff to make the page a little easier to use
 
-$(function() {
+$(function () {
     // $("#searchparm").focus();
     $(".oneresult").mouseover(function() { $(this).addClass("highlight"); });
     $(".oneresult").mouseout(function() { $(this).removeClass("highlight"); });

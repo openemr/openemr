@@ -205,7 +205,7 @@ function validate() {
  return true;
 }
 
-$(function() {
+$(function () {
     $("#form_type").on('change', function() {
         myRestoreSession();
         document.forms[0].submit();

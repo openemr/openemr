@@ -832,7 +832,7 @@ var tr_count = $('#tr_count').val();
 
 // jQuery stuff to make the page a little easier to use
 
-$(function() {
+$(function () {
     <?php if (!($useCVX)) { ?>
       $("#save").on("click", function() { SaveForm(); });
     <?php } else { ?>
@@ -1165,7 +1165,7 @@ function sel_code(id)
     dlgopen('<?php echo $GLOBALS['webroot'] . "/interface/patient_file/encounter/" ?>find_code_popup.php', '_blank', 700, 400);
 }
 
-$(function() {
+$(function () {
   $(".auto").select2({
         ajax: {
             url: "../../../library/ajax/imm_autocomplete/search.php",

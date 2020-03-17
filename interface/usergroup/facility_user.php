@@ -64,7 +64,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POS
             document.location.reload();
         }
 
-        $(function() {
+        $(function () {
             $(".small_modal").on('click', function(e) {
                 e.preventDefault();e.stopPropagation();
                 dlgopen('', '', 500, 200, '', '', {

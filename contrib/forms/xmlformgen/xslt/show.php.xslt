@@ -121,7 +121,7 @@ function PrintForm() {
 <script type="text/javascript">
 // jQuery stuff to make the page a little easier to use
 
-$(function() {
+$(function () {
     $(".print").click(function() { PrintForm(); });
 });
 </script>

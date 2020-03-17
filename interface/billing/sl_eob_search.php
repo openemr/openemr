@@ -653,7 +653,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
             setTimeout(function(){parent.left_nav.loadFrame('enc2', 'enc', encurl);}, 3000);
         }
 
-        $(function() {
+        $(function () {
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
@@ -1180,7 +1180,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         return false;
     }
 
-    $(function() {
+    $(function () {
 //https://www.abeautifulsite.net/whipping-file-inputs-into-shape-with-bootstrap-3
 // We can attach the `fileselect` event to all file inputs on the page
         $(document).on('change', ':file', function () {
@@ -1191,7 +1191,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         });
 
 // We can watch for our custom `fileselect` event like this
-        $(function() {
+        $(function () {
             $(':file').on('fileselect', function (event, numFiles, label) {
                 var input = $(this).parents('.input-group').find(':text'),
                     log = numFiles > 1 ? numFiles + ' files selected' : label;
@@ -1206,7 +1206,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         });
     });
     //to dynamically show /hide relevant divs and change Fieldset legends
-    $(function() {
+    $(function () {
         $("input[name=radio-search]").on("change", function () {
 
             let flip = $(this).val();
@@ -1244,7 +1244,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
     }
 
     ?>
-    $(function() {
+    $(function () {
         $('#select-method-tooltip').attr({"title": <?php echo xlj('Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
     });
 </script>

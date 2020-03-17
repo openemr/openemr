@@ -8,7 +8,7 @@ $(document).mouseup(function (e){
 	}
 });
 
-$(function() {
+$(function () {
 	$( ".dateClass_syndrome" ).datepicker({
 		changeMonth: true,
 		changeYear: true,

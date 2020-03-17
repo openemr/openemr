@@ -158,7 +158,7 @@ if (isset($this_message['pid'])) {
     <?php Header::setupHeader(['datetime-picker', 'opener' ,'topdialog', 'common', 'moment']); ?>
 
     <script>
-      $(function() {
+      $(function () {
 
         $('#timeSpan').change(function(){
           var value = $(this).val();
@@ -455,7 +455,7 @@ if (isset($this_message['pid'])) {
     ?>
     </div><!--end of container div-->
   <script>
-    $(function() {
+    $(function () {
         $('#link-tooltip').tooltip({title: "<?php echo xla('This message need not necessarily be linked to a patient'); ?>"});
         $('#select-tooltip').tooltip({title: "<?php echo xla('If the checkbox is checked then each individual of a group receiving this message will have to sign off by clicking the Set As Completed button'); ?>"});
     });

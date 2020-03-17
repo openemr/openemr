@@ -1827,9 +1827,9 @@ function validateNewField(idpfx) {
 
 // jQuery stuff to make the page a little easier to use
 
-$(function() {
+$(function () {
 
-    $(function() {
+    $(function () {
         $('.typeAddons').select2({
             data: fldOptions,
             theme: 'default',
@@ -1843,7 +1843,7 @@ $(function() {
         });
     });
       // Populate field option selects
-    $(function() {
+    $(function () {
       $('.typeAddons').each(function(i, obj) {
           var v = $(this).data('set')
           if(typeof v !== 'undefined' && v > ""){

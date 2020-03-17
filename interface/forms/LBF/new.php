@@ -383,7 +383,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             parent.closeTab(window.name, false);
         }
 
-        $(function() {
+        $(function () {
 
             if (window.tabbify) {
                 tabbify();

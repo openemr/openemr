@@ -43,7 +43,7 @@ use OpenEMR\Core\Header;
     ?>
 
 <script>
-$(function() {
+$(function () {
     $( "[title*='DATE']" ).datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -61,7 +61,7 @@ $(function() {
         $('#formHelp').toggle();
     });
 
-    $( function() {
+    $(function () {
         $("[title*='REVENUE CODE']").select2({
                 ajax: {
                     url: "./ub04_helpers.php",
@@ -87,7 +87,7 @@ $(function() {
                 }
             });
       });
-    $( function() {
+    $(function () {
         $("[title*='OCCURRENCE CODE']").select2({
                 ajax: {
                     url: "./ub04_helpers.php",
@@ -113,7 +113,7 @@ $(function() {
                 }
             });
     });
-    $( function() {
+    $(function () {
         $("[title*='OCCURRENCE SPAN CODE']").select2({
                 ajax: {
                     url: "./ub04_helpers.php",
@@ -139,7 +139,7 @@ $(function() {
                 }
             });
     });
-    $( function() {
+    $(function () {
         $("[title*='VALUE CODE']").select2({
                 ajax: {
                     url: "./ub04_helpers.php",
@@ -165,7 +165,7 @@ $(function() {
                 }
             });
       });
-    $( function() {
+    $(function () {
         $("[title*='CONDITION CODE']").select2({
                 ajax: {
                     url: "./ub04_helpers.php",
@@ -191,7 +191,7 @@ $(function() {
                 }
             });
       });
-    $( function() {
+    $(function () {
         $("[title*='STATUS']").select2({
                 ajax: {
                     url: "./ub04_helpers.php",

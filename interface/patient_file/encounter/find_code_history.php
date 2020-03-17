@@ -140,7 +140,7 @@ function get_history_codes($pid)
             }
         }
 
-        $(function() {
+        $(function () {
             setCodes();
             let targetDoneButton = top.document.getElementById('saveDx');
             let targetTipsButton = top.document.getElementById('showTips');

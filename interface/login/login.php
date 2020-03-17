@@ -117,7 +117,7 @@ if (count($emr_app)) {
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_controller.js?v=<?php echo $v_js_includes; ?>"></script>
 
     <script type="text/javascript">
-        $(function() {
+        $(function () {
             init();
 
             var productRegistrationController = new ProductRegistrationController();
@@ -159,7 +159,7 @@ if (count($emr_app)) {
                         <div style="width: 50%;" class="mx-auto m-4">
                             <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?>
                         </div>
-                        
+
                         <input type='hidden' name='new_login_session_management' value='1' />
 
                         <?php

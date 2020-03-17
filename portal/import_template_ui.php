@@ -227,7 +227,7 @@ function getTemplateList($dir)
             echo "</table>";
             ?>
             <script>
-                $(function() {
+                $(function () {
                     $("#popeditor").on("show.bs.modal", function () {
                         let height = $(window).height() - 200;
                         $(this).find(".modal-body").css("max-height", height);

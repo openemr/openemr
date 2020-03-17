@@ -106,7 +106,7 @@ $mailOrder = $tData->mailOrderPharmacy();
 <script type="text/javascript">
 
 
-    $(function() {
+    $(function () {
 
 
         var toTran = <?php echo json_encode($drug); ?>; //pass php array to jquery script

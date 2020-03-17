@@ -105,7 +105,7 @@ Date of signature:
 
 // jQuery stuff to make the page a little easier to use
 
-$(function() {
+$(function () {
     $(".save").click(function() { top.restoreSession(); document.my_form.submit(); });
     $(".dontsave").click(function() { parent.closeTab(window.name, false); });
 

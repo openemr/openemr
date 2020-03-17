@@ -277,7 +277,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
 <?php $oemr_ui->oeBelowContainerDiv();?>
 <script language="javascript">
     // jQuery stuff to make the page a little easier to use
-    $(function() {
+    $(function () {
         $(".dontsave").click(function () {
             <?php if (isset($_REQUEST['isBilling'])) { ?>
                 dlgclose();
@@ -296,7 +296,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
     });
 </script>
 <script>
-    $(function() {
+    $(function () {
         $('select').addClass("form-control");
     });
 </script>

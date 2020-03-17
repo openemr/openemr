@@ -54,7 +54,7 @@ if (!$_POST['submit_pdf'] && !$_POST['submit_html'] && !($_GET['pid'] && $_GET['
     <?php Header::setupHeader('datetime-picker'); ?>
 
 <script type="text/javascript">
-$(function() {
+$(function () {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>

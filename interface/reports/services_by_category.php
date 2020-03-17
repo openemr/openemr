@@ -77,7 +77,7 @@ function bucks($amount)
 
     <script>
 
-     $(function() {
+     $(function () {
          oeFixedHeaderSetup(document.getElementById('mymaintable'));
          var win = top.printLogSetup ? top : opener.top;
          win.printLogSetup(document.getElementById('printbutton'));

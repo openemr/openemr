@@ -137,7 +137,7 @@ $communication = trim($_POST["communication"]);
                 $("#theform").submit();
             }
 
-            $(function() {
+            $(function () {
                 $(".numeric_only").keydown(function(event) {
                     //alert(event.keyCode);
                     // Allow only backspace and delete

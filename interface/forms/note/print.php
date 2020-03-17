@@ -78,7 +78,7 @@ if ($obj['date_of_signature'] != "") {
 <script language="javascript">
 // jQuery stuff to make the page a little easier to use
 
-$(function() {
+$(function () {
     var win = top.printLogPrint ? top : opener.top;
     win.printLogPrint(window);
 });

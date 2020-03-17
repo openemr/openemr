@@ -328,7 +328,7 @@ $check_sum = isset($_GET['check_sum']);
 <script language="javascript">
 
 // jQuery stuff to make the page a little easier to use
-$(function() {
+$(function () {
     // funny thing here... good learning experience
     // the TR has TD children which have their own background and text color
     // toggling the TR color doesn't change the TD color

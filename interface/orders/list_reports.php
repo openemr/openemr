@@ -153,7 +153,7 @@ function openPatient(pid) {
     document.location.href = "../patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(pid);
 }
 
-$(function() {
+$(function () {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>

@@ -69,7 +69,7 @@ $(document).mouseup(function (e){
 	}
 });
 
-$(function() {
+$(function () {
 	$('.header_wrap_left').on("click",".search_button",function(){
 			var pos  = $(this).position();
 			$('.se_in_15').fadeToggle().css({

@@ -66,7 +66,7 @@ $encounter_date = date("Y-m-d", strtotime($dateres["date"]));
 <?php echo $tabset->genJavaScript(); ?>
 <script>
 
-$(function() {
+$(function () {
   // Initialize support for the tab set.
   twSetup('enctabs');
 });

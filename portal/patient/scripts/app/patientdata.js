@@ -89,7 +89,7 @@ var page = {
 		this.modelView.templateEl = $("#patientModelTemplate");
 
 		this.modelView.on('rendered',function(){ // model rendered
-			$(function() {
+			$(function () {
 				$('.jquery-date-picker').datetimepicker({
 					i18n:{
 				        en: {
@@ -177,7 +177,7 @@ var page = {
 
 			$(".controls .inline-inputs").find(':input:checked').parent('.btn').addClass('active');
 
-			$(function() {
+			$(function () {
 				$('.jquery-date-time-picker').datetimepicker({
 					i18n:{
 				        en: {

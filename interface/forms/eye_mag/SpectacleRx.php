@@ -1287,7 +1287,7 @@ if ($REFTYPE == "CTL") {
 
 </body>
 <script>
-    $(function() {
+    $(function () {
         $('.header').click(function () {
             var $this = $(this);
             $(this).nextUntil('tr.header').slideToggle(100).promise().done(function () {

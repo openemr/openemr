@@ -101,7 +101,7 @@ if (isset($_GET["fid"])) {
             return false;
         }
 
-        $(function() {
+        $(function () {
             /**
              * add required/star sign to required form fields
              */

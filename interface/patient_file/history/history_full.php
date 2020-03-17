@@ -172,7 +172,7 @@ function sel_related(e) {
 
 <script type="text/javascript">
 /// todo, move this to a common library
-$(function() {
+$(function () {
     if($("#form_tobacco").val()!=""){
         if(code_options_js[$("#form_tobacco").val()]!=""){
             $("#smoke_code").html(" ( "+code_options_js[$("#form_tobacco").val()]+" )");

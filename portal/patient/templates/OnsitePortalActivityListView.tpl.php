@@ -16,7 +16,7 @@
 
 <script type="text/javascript">
     $LAB.script("scripts/app/onsiteportalactivities.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
-        $(function() {
+        $(function () {
             page.init();
         });
 

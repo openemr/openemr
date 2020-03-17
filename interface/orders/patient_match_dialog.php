@@ -36,7 +36,7 @@ $form_DOB = $args['DOB'];
 </style>
 <script language="JavaScript">
 
-    $(function() {
+    $(function () {
         $(".oneresult").mouseover(function () {
             $(this).addClass("highlight");
         });

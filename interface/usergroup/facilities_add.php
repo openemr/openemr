@@ -128,14 +128,14 @@ function toggle( target, div ) {
 
 }
 
-$(function() {
+$(function () {
     $("#dem_view").click(function() {
         toggle($(this), "#DEM");
     });
 
 });
 
-$(function() {
+$(function () {
     /**
      * add required/star sign to required form fields
      */

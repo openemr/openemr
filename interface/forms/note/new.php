@@ -100,7 +100,7 @@ var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
 // jQuery stuff to make the page a little easier to use
 
-$(function() {
+$(function () {
     $(".save").click(function() { top.restoreSession(); $('#my_form').submit(); });
     $(".dontsave").click(function() { parent.closeTab(window.name, false); });
     //$("#printform").click(function() { PrintForm(); });

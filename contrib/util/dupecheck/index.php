@@ -243,7 +243,7 @@ if ($parameters['go'] == "Go") {
 
 <script language="javascript">
 
-$(function() {
+$(function () {
 
     // capture RETURN keypress
     $("#limit").on("keypress", function(evt) { if (evt.keyCode == 13) $("#do_search").click(); });

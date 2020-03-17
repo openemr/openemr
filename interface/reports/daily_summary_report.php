@@ -67,7 +67,7 @@ $selectedProvider = isset($_POST['form_provider']) ? $_POST['form_provider'] : "
                 }
             }
 
-            $(function() {
+            $(function () {
                 $('.datepicker').datetimepicker({
                     <?php $datetimepicker_timepicker = false; ?>
                     <?php $datetimepicker_showseconds = false; ?>

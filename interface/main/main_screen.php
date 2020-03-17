@@ -89,7 +89,7 @@ function input_focus()
 {
     ?>
     <script>
-        $(function() {
+        $(function () {
                 $('#totp').focus();
         });
     </script>
