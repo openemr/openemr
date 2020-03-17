@@ -450,7 +450,7 @@ function invalue($name)
     </div><!--end of conatainer div-->
     <script>
             //jqury-ui tooltip
-            $(function () {
+            $(function() {
                 $('.icon-tooltip').attr({"title": <?php echo xlj('Click to see more information'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip({
                     show: {
                         delay: 700,

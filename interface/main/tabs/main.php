@@ -482,7 +482,7 @@ app_view_model.responsiveDisplay = displayViewModel;
     $("#dialogDiv").hide();
     ko.applyBindings(app_view_model);
 
-    $(function () {
+    $(function() {
         $('.dropdown-toggle').dropdown();
         goRepeaterServices();
         $('#patient_caret').click(function() {
@@ -492,7 +492,7 @@ app_view_model.responsiveDisplay = displayViewModel;
     });
 </script>
 <script>
-$(function(){
+$(function() {
     $('#logo_menu').focus();
 });
 </script>

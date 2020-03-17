@@ -306,7 +306,7 @@ let bindFetch = '';
 
 // fetch modal template and append to body.
 //
-$(function () {
+$(function() {
     let url = top.webroot_url ? top.webroot_url : webRoot;
     url += "/portal/sign/assets/signer_modal.tpl.php?isPortal=" + encodeURIComponent(isPortal);
     fetch(url, {
@@ -535,7 +535,7 @@ function initSignerApi() {
                 }).catch(error => signerAlertMsg(error));
         });
 
-        $(function () {
+        $(function() {
             // default all signatures to icon regardless of new or edit..
             $(".signature").each(function (index, value) {
                 if (!$(this).attr('src'))

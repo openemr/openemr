@@ -101,7 +101,7 @@ Header::setupHeader(['no_main-theme', 'patientportal-style']);
 <script>
 $LAB.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsitedocuments.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait().script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsiteportalactivities.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(
     function () {
-        $(function () {
+        $(function() {
             page.init();
             pageAudit.init();
             console.log('init done template');

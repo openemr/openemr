@@ -39,7 +39,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
     <?php Header::setupHeader(['common','jquery-ui','datetime-picker','opener']); ?>
 
     <script language="JavaScript">
-        $(function(){
+        $(function() {
             $("#form_facility_user").submit(function (event) {
                 top.restoreSession();
                 event.preventDefault();

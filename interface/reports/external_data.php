@@ -225,7 +225,7 @@ $records2 = array();
         <?php $oemr_ui->oeBelowContainerDiv();?>
     <script>
         var listId = '#' + <?php echo js_escape($list_id); ?>;
-        $(function(){
+        $(function() {
             $(listId).addClass("active");
         });
     </script>

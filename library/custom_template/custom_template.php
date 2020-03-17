@@ -56,7 +56,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
 <script>
     let allowTemplateWarning = <?php echo $allowTemplateWarning; ?>;
     <?php if (!$isNN) { ?>
-        $(function () {
+        $(function() {
             $('#contextSearch').select2({
                 placeholder: '<?php echo xlj('Select Template Context'); ?>',
                 width: 'resolve',
@@ -89,7 +89,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
     }
 
     CKEDITOR.config.customConfig = top.webroot_url + '/library/js/nncustom_config.js';
-    $(function () {
+    $(function() {
 
         tabbify();
 
@@ -140,8 +140,8 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
     });
 </script>
 <script type="text/javascript">
-    $(function () {
-        $(function () {
+    $(function() {
+        $(function() {
             $("#menu5 div").sortable({
                 opacity: 0.3, cursor: 'move', update: function () {
                     var order = $(this).sortable("serialize") + '&action=updateRecordsListings';

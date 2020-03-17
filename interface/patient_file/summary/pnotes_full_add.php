@@ -397,7 +397,7 @@ if ($noteid /* && $title == 'New Document' */) {
 
 // jQuery stuff to make the page a little easier to use
 
-$(function(){
+$(function() {
     $("#appendnote").click(function() { AppendNote(); });
     $("#newnote").click(function() { NewNote(); });
     $("#printnote").click(function() { PrintNote(); });
@@ -446,7 +446,7 @@ $(function(){
     }
 
 });
-$(function(){
+$(function() {
     $("#cancel").click(function() {
           dlgclose();
      });

@@ -138,7 +138,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
     </div>
 </form>
 <script>
-    $(function () {
+    $(function() {
 
         /* Initialise Datatable */
         var table = $('#group_attendance_form_table').DataTable({

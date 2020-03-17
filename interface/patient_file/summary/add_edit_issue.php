@@ -450,7 +450,7 @@ ActiveIssueCodeRecycleFn($thispid, $ISSUE_TYPES);
   // Show or hide various rows depending on issue type, except do not
   // hide the comments or referred-by fields if they have data.
 
- $(function(){
+ $(function() {
  var comdisp = (aitypes[index] == 1) ? 'none' : '';
   var revdisp = (aitypes[index] == 1) ? '' : 'none';
   var injdisp = (aitypes[index] == 2) ? '' : 'none';

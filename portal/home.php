@@ -185,7 +185,7 @@ foreach ($msgs as $i) {
                     $(".right-side").toggleClass("strech");
                 }
             });
-            $(function () {
+            $(function() {
                 $('#popwait').hide();
                 $('#callccda').click(function () {
                     $('#popwait').show();

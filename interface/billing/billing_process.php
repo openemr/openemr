@@ -498,7 +498,7 @@ function process_form($ar)
 <head>
     <?php Header::setupHeader(); ?>
     <script>
-        $(function () {
+        $(function() {
             $("#close-link").click(function () {
                 window.close();
             });

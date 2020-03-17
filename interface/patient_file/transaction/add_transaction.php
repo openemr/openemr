@@ -167,7 +167,7 @@ $(function() {
 
 var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
-$(function(){
+$(function() {
   $("#send_sum_flag").click(function() {
     if ( $('#send_sum_flag').prop('checked') ) {
       // Enable the send_sum_elec_flag checkbox

@@ -833,7 +833,7 @@ if (f.form_phone_cell   ) phonekeyup(f.form_phone_cell   ,mypcc);
 // var matches = 0; // number of patients that match the demographic information being entered
 // var override = false; // flag that overrides the duplication warning
 
-$(function () {
+$(function() {
     $(".medium_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
         dlgopen('', '', 650, 460, '', '', {

@@ -101,7 +101,7 @@ echo xlt('You are about to delete the following form from this encounter') . ': 
 <script language="javascript">
 // jQuery stuff to make the page a little easier to use
 
-$(function (){
+$(function() {
     $("#confirmbtn").on("click", function() { return ConfirmDelete(); });
     $("#cancel").on("click", function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>'; });
 });

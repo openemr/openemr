@@ -19,7 +19,7 @@ $(document).mouseup(function (e)
 	}
 });
 
-$(function ()
+$(function()
 {
 	$( ".dateClass" ).datepicker({
 		changeMonth: true,

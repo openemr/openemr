@@ -249,7 +249,7 @@ if ($_POST['searchby'] && $_POST['searchparm']) {
 
     // jQuery stuff to make the page a little easier to use
 
-    $(function(){
+    $(function() {
         $("#searchparm").trigger("focus");
         $(".oneresult").on("mouseover", function() { $(this).toggleClass("highlight"); });
         $(".oneresult").on("mouseout", function() { $(this).toggleClass("highlight"); });

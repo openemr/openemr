@@ -843,7 +843,7 @@ if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { 
 <?php } ?>
 }; // end initReport
 
-$(function(){
+$(function() {
 
     initReport();
 

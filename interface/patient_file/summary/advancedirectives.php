@@ -57,7 +57,7 @@ use OpenEMR\Core\Header;
             return true;
         }
 
-        $(function(){
+        $(function() {
             $("#cancel").click(function() { dlgclose(); });
 
             $('.datepicker').datetimepicker({

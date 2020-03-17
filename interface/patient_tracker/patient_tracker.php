@@ -1127,7 +1127,7 @@ function myLocalJS()
             // refreshMe();
         }
 
-        $(function () {
+        $(function() {
             refreshMe();
             $("#kiosk").val('');
             $("[name='kiosk_hide']").show();

@@ -689,7 +689,7 @@ closedir($dh);
 
 // jQuery stuff to make the page a little easier to use
 
-$(function(){
+$(function() {
     $("#form_generate").click(function() { $("#formaction").val("generate"); $("#theform").submit(); });
     $("#form_template").change(function() { $("#formaction").val("loadtemplate"); $("#theform").submit(); });
 

@@ -329,7 +329,7 @@ JQD;
             $(window).trigger('resize');// to avoid repeating code triggers above on page open
         });
 
-        $(function () {
+        $(function() {
             $('.expand_contract').click(function () {
                 var elementTitle;
                 var expandTitle = {$expandTitle};
@@ -394,7 +394,7 @@ EXP;
         $arrAction = $this->arrAction;
         $action_top_js = <<<SHWTOP
         <script>
-        $(function () {
+        $(function() {
             $('#show_hide').click(function () {
                 var elementTitle = '';
 SHWTOP;

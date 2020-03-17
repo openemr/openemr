@@ -196,7 +196,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                   <div class="tabContainer">
                   <div class="tab current h-auto" style="width: 97%;">
                 <?php } ?>
-                      
+
                 <form method='post' name='theform' id='theform'>
 
                 <div id='report_parameters' class='hideaway'>
@@ -351,7 +351,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     </div><!--end of container div-->
 <?php $oemr_ui->oeBelowContainerDiv();?>
 <script>
-$(function(){
+$(function() {
 
   tabbify();
 

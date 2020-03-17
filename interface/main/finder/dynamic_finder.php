@@ -234,7 +234,7 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
 
     var uspfx = '<?php echo attr($uspfx); ?>';
 
-    $(function () {
+    $(function() {
         // Initializing the DataTable.
         //
         let serverUrl = "dynamic_finder_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
@@ -390,7 +390,7 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
     <?php $oemr_ui->oeBelowContainerDiv();?>
 
     <script>
-        $(function () {
+        $(function() {
             $("#exp_cont_icon").click(function () {
                 $("#pt_table").removeAttr("style");
             });

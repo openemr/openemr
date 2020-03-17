@@ -155,7 +155,7 @@ if ($popup && $_POST['form_save']) {
 
 
     // initiate by loading the top-level nodes
-    $(function (){
+    $(function() {
      nextOpen();
     });
 
@@ -353,7 +353,7 @@ if ($popup && $_POST['form_save']) {
     ?>
     <script>
     //jqury-ui tooltip
-        $(function (){
+        $(function() {
             //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
             // the relevant css file needs to be called i.e. jquery-ui-darkness - to get a black tooltip
             $('#name-tooltip').attr({"title": <?php echo xlj('The actual tests or procedures that can be searched for and ordered are highlighted in yellow'); ?> +  ". "  + <?php echo xlj('Click on the blue plus sign under Name to reveal test names'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();

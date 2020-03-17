@@ -87,7 +87,7 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
 // Support for beforeunload handler.
 var somethingChanged = false;
 
-$(function(){
+$(function() {
     tabbify();
 
     $(".medium_modal").on('click', function(e) {
@@ -1012,7 +1012,7 @@ $use_validate_js=$GLOBALS['new_validate'];
 
     <?php endif;?>
 
-    $(function(){
+    $(function() {
         //When document is ready collect all the values Marked with D (check duplicate) stored in the db into array duplicateFieldsArray.
         var flds = new Array(<?php echo $mflist; ?>);
         for (var i = 0; i < flds.length; ++i) {

@@ -28,7 +28,7 @@ ko.bindingHandlers.location={
                 }
 
                 if ( cwDocument ) {
-                    $(function () {
+                    $(function() {
                             var jqDocument = $(cwDocument);
                             var titleDocument = jqDocument.attr('title');
                             var titleText = "Unknown";

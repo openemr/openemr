@@ -110,7 +110,7 @@ endforeach;
                 document.getElementById("codetext" + checkId).value = codedesc;
                 document.getElementById("displaytext" + checkId).innerHTML  = codedesc;
             }
-            $(function () {
+            $(function() {
                 // special case to deal with static and dynamic datepicker items
                 $(document).on('mouseover','.datepicker', function(){
                     $(this).datetimepicker({

@@ -238,7 +238,7 @@ $.date = function (dateObject) {
     return date;
 };
 
-$(function () {
+$(function() {
     /*
      * this swallows backspace keys.
      * stops backspace -> back a page in the browser, a very annoying thing indeed.
@@ -345,7 +345,7 @@ function tabYourIt(tabNAME, url) {
     parent.left_nav.loadFrame('1', tabNAME, url);
 }
 
-$(function () {
+$(function() {
     //bootstrap menu functions
     $('.dropdown').hover(function () {
         $(".dropdown").removeClass('open');

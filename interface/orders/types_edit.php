@@ -249,7 +249,7 @@ function proc_type_changed() {
             "<?php echo xla('Enter Details for Recommendation'); ?>" + "   <i id='rec' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i>");
     }
 }
-    $(function () {
+    $(function() {
         proc_type_changed();
     });
 
@@ -727,7 +727,7 @@ function proc_type_changed() {
         </div><!--end of conatainer div-->
         <script>
             //jqury-ui tooltip
-            $(function () {
+            $(function() {
                 $('.icon-tooltip').attr({"title": <?php echo xlj('Click to see more information'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip({
                     show: {
                         delay: 700,

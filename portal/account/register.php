@@ -99,7 +99,7 @@ if ($GLOBALS['language_menu_login']) {
         var curPid = 0;
         var provider = 0;
 
-        $(function () {
+        $(function() {
             var navListItems = $('div.setup-panel div a'),
                 allWells = $('.setup-content'),
                 allNextBtn = $('.nextBtn'),

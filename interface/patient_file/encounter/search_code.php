@@ -157,7 +157,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
 
 // jQuery stuff to make the page a little easier to use
 
-$(function (){
+$(function() {
     $("#text").trigger("focus");
     $(".oneresult").on("mouseover", function() { $(this).toggleClass("highlight"); });
     $(".oneresult").on("mouseout", function() { $(this).toggleClass("highlight"); });

@@ -105,7 +105,7 @@ my $date_field_exists = 0;
 my $date_header =<<'START';
 
 <script language='JavaScript'>
-$(function (){
+$(function() {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>

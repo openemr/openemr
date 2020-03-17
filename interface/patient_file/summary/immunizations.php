@@ -832,7 +832,7 @@ var tr_count = $('#tr_count').val();
 
 // jQuery stuff to make the page a little easier to use
 
-$(function(){
+$(function() {
     <?php if (!($useCVX)) { ?>
       $("#save").on("click", function() { SaveForm(); });
     <?php } else { ?>

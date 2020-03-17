@@ -16,7 +16,7 @@ echo "<script>var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cu
 ?>
 <script>
     $LAB.script("../sign/assets/signature_pad.umd.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function () {
-        $(function () {
+        $(function() {
             console.log('*** Provider Template Load Done ***');
         });
     });

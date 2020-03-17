@@ -184,7 +184,7 @@ if ($vectAutosaveBAV['id']) {
 
 ?>
 <script type="text/javascript">
-$(function(){
+$(function() {
         autosave();
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>

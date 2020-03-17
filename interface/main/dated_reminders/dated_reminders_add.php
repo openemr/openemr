@@ -158,7 +158,7 @@ if (isset($this_message['pid'])) {
     <?php Header::setupHeader(['datetime-picker', 'opener' ,'topdialog', 'common', 'moment']); ?>
 
     <script>
-      $(function (){
+      $(function() {
 
         $('#timeSpan').change(function(){
           var value = $(this).val();

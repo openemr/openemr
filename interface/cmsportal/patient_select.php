@@ -74,7 +74,7 @@ if ($postid) {
 
 <script language="JavaScript">
 
-$(function(){
+$(function() {
   $(".oneresult").on("mouseover", function() {$(this).addClass("highlight");});
   $(".oneresult").on("mouseout", function() {$(this).removeClass("highlight");});
 });
