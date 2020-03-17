@@ -149,6 +149,14 @@ class oeHttpRequest extends oeOAuth
         ]);
     }
 
+    public function getCurlOptions($url, $queryParams = [], $curlOptions = [])
+    {
+        return $this->send('GET', $url, [
+            'query' => $queryParams,
+            'curl' => $curlOptions
+        ]);     
+    }
+
     public function post($url, $params = [])
     {
         return $this->send('POST', $url, [

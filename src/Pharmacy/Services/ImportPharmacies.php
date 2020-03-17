@@ -50,7 +50,8 @@ class ImportPharmacies
             'skip' => '',
             'version' => '2.1',
         ];
-        $response = oeHttp::get('https://npiregistry.cms.hhs.gov/api/', $query);
+        $response = oeHttpRequest::getCurlOptions('https://npiregistry.cms.hhs.gov/api/', $query,
+            [CURLOPT_SSL_CIPHER_LIST => 'ECDHE-RSA-AES256-GCM-SHA384']);
 
         $body = $response->body(); // already should be json.
 
