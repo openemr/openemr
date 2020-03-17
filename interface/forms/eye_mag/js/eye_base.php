@@ -1931,7 +1931,7 @@ shortcut.add("Control+K",function() {
 shortcut.add("Meta+K",function() {
              show_KB();
              });
-$(function(){
+$(function () {
   /*
    * this swallows backspace keys on the "rx" elements.
    * stops backspace -> back a page in the browser, a very annoying thing indeed.
@@ -2207,7 +2207,7 @@ show_left();
     return true;
 }
 
-$(function() {
+$(function () {
                   check_lock();
 
                   var allPanels = $('.building_blocks > dd').hide();

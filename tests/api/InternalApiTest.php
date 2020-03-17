@@ -59,7 +59,7 @@ use OpenEMR\Core\Header;
             .catch(error => console.error(error))
         }
 
-        $(function(){
+        $(function () {
             testAjaxApi();
             testFetchApi();
         });

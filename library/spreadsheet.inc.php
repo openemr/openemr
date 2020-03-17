@@ -587,7 +587,7 @@ foreach ($bcodes['Phys']['Physiotherapy Procedures'] as $key => $value) {
   inelem.value = s.substring(0, i) + sel.value + s.substring(j);
  }
 
-    $(function() {
+    $(function () {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>

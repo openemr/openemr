@@ -829,7 +829,7 @@ if (!empty($post_srch_desc) && $srch_item == 0) {
 ?>
 
 <script>
-$(function() {
+$(function () {
     tabbify();
     <?php // mdsupport - Highlight search results ?>
     $('.srch div.control-label').wrapInner("<mark></mark>");
@@ -893,7 +893,7 @@ $(window).on('resize', function() {
         }
     }
 });
-$(function() {
+$(function () {
     $(window).trigger('resize'); // to avoid repeating code triggers above on page open
 });
 </script>

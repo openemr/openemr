@@ -80,7 +80,7 @@ use OpenEMR\Services\VersionService;
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_controller.js?v=<?php echo $v_js_includes; ?>"></script>
 
     <script type="text/javascript">
-        $(function() {
+        $(function () {
             var productRegistrationController = new ProductRegistrationController();
             productRegistrationController.getProductRegistrationStatus(function(err, data) {
                 if (err) { return; }

@@ -123,7 +123,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
     }
     ?>
     var collectvalidation = <?php echo $collectthis; ?>;
-    $(function(){
+    $(function () {
         window.saveClicked = function(event) {
             var submit = submitme(1, event, 'new-encounter-form', collectvalidation);
             if (submit) {
@@ -538,8 +538,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 </div>
             </div>
         </form>
-        
-        
+
+
     </div><!--End of container div-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>
@@ -612,7 +612,7 @@ if ($GLOBALS['enable_group_therapy']) { ?>
     <?php
 } ?>
 
-$(function (){
+$(function () {
     $('#billing_facility').addClass('col-sm-9');
     $('#sensitivity-tooltip').attr({"title": <?php echo xlj('If set as high will restrict visibility of encounter to users belonging to certain groups (AROs). By default - Physicians and Administrators'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
     $('#onset-tooltip').attr({"title": <?php echo xlj('Hospital date needed for successful billing of hospital encounters'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();

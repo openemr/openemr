@@ -176,7 +176,7 @@ function doiclick(id, lot) {
 }
 
 
-$(function() {
+$(function () {
   $('#mymaintable').DataTable({
             stripeClasses:['stripe1','stripe2'],
             orderClasses: false,

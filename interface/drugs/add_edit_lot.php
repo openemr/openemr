@@ -175,7 +175,7 @@ td {
   document.getElementById('row_distributor').style.display = showDistributor ? '' : 'none';
  }
 
-    $(function(){
+    $(function () {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>

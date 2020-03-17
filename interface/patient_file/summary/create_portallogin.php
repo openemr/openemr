@@ -137,7 +137,7 @@ function displayLogin($patient_id, $message, $emailFlag)
             text($patientData['email']) . "<br /><br />" .
             $message;
     }
-    
+
     return $message;
 }
 
@@ -208,7 +208,7 @@ function transmit(){
     document.forms[0].submit();
 }
 <?php if (!empty($credMessage)) { ?>
-    $(function(){
+    $(function () {
         top.printLogPrint(window);
     });
 <?php } ?>
@@ -216,7 +216,7 @@ function transmit(){
 </head>
 <body class="body_top">
     <div class="container-fluid">
-        
+
         <?php if (!empty($credMessage)) { ?>
         <div class="alert alert-success" role="alert">
             <p class="font-weight-bold"><?php echo xlt("Portal Credential Information"); ?></p>

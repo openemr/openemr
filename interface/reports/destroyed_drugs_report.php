@@ -129,7 +129,7 @@ function doclick(id, lot) {
  dlgopen('../drugs/destroy_lot.php?drug=' + encodeURIComponent(id) + '&lot=' + encodeURIComponent(lot), '_blank', 600, 475);
 }
 
-$(function() {
+$(function () {
     var win = top.printLogSetup ? top : opener.top;
     win.printLogSetup(document.getElementById('printbutton'));
 

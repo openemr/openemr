@@ -1384,7 +1384,7 @@ foreach (explode(',', $given) as $item) {
                  echo $type_index;
              } ?>');
     newtype('Eye Meds');
-    $(function() {
+    $(function () {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>

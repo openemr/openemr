@@ -44,7 +44,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
     var provider_id = <?php echo js_escape($provider_id);?>;
     var zipFileArray = new Array();
     var failureMessage = "";
-    $(function(){
+    $(function () {
         $("#checkAll").on("change", function() {
             var checked =  ( $("#checkAll").prop("checked") ) ? true : false;
             $("#thisForm input:checkbox").each(function() {
