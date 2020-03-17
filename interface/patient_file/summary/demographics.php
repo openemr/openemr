@@ -1504,6 +1504,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }  // close advanced dir block
 
                     // Show Clinical Reminders for any user that has rules that are permitted.
+                    echo "test";
                     $clin_rem_check = resolve_rules_sql('', '0', true, '', $_SESSION['authUser']);
                     if (!empty($clin_rem_check) && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw'] &&
                         AclMain::aclCheckCore('patients', 'alert')) {
@@ -1523,7 +1524,67 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         echo "<div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>";
                         echo "</div>";
                     } // end if crw
+                     echo 'end';
+                     //////////////////////////////////////////////////////////////////
 
+                    // Show Clinical Reminders for any user that has rules that are permitted.
+
+                    if (isset($pid)) {
+
+                        // clinical summary expand collapse widget
+
+                        $widgetTitle = xl("Panels");
+
+                        $widgetLabel = "Panels";
+
+                        $widgetButtonLabel = xl("Edit");
+
+                        $widgetButtonLink = "../panel/panel.php?patient_id=" . attr_url($pid);
+
+                        ;
+
+                        $widgetButtonClass = "";
+
+                        $linkMethod = "html";
+
+                        $bodyClass = "summary_item small";
+
+                        $widgetAuth = AclMain::aclCheckCore('patients', 'alert', '', 'write');
+
+                        $fixedWidth = false;
+
+                        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,$widgetButtonLink,
+                         $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+                         /// print enrollment_id
+                         $query = "SELECT * FROM panel_enrollment WHERE patient_id = " . $pid;
+
+                         $resultSet = sqlStatement($query);
+
+
+
+                         while ($row = sqlFetchArray($resultSet)) {
+
+                           $panel_id = $row['panel_id'];
+
+
+
+                           $sql = "SELECT name FROM panel WHERE id=" . $panel_id;
+
+                           $result = sqlQuery($sql);
+
+                           echo attr($result['name']);
+
+
+                         }
+                        echo "<br/>";
+
+                        echo "<div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>";
+
+                        echo "</div>";
+
+                    } // end if crw
+
+                    //////////////////////////////////////////////////////////////////
                       // Show current and upcoming appointments.
                       //
                       // Recurring appointment support and Appointment Display Sets
