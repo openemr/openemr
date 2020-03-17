@@ -234,12 +234,12 @@ if ($GLOBALS['secure_upload']) {
 <style>
 .dehead {
     font-family: sans-serif;
-    font-size: 13px;
+    font-size: 0.8125rem;
     font-weight: bold;
 }
  .detail {
      font-family: sans-serif;
-     font-size: 13px;
+     font-size: 0.8125rem;
      font-weight: normal;
 }
 #generate_thumb {

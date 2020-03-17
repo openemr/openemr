@@ -147,7 +147,7 @@ function showDocument(&$drow)
     echo "<td colspan='3'>".
     text(xl('Document') . ": " . basename($drow['url']) . ' (' . xl_document_category($drow['name']) . ')') .
     "</td>\n";
-    echo "<td colspan=5>&nbsp;</td>\n";
+    echo "<td colspan='5'>&nbsp;</td>\n";
     echo "</tr>\n";
 }
 
@@ -209,7 +209,7 @@ function setDivContent(id, content) {
 function editNote(feid) {
   top.restoreSession();
   var c = "<iframe src='edit_billnote.php?feid=" + encodeURIComponent(feid) +
-    "' style='width:100%;height:88pt;'></iframe>";
+    "' class='w-100' style='height: 117px;'></iframe>";
   setDivContent('note_' + feid, c);
 }
 

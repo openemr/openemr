@@ -42,9 +42,19 @@ function applyCode($layoutid, $codetype, $code, $description)
 <title><?php echo xlt('Install Layout Service Codes'); ?></title>
 <?php Header::setupHeader(); ?>
 
-<style type="text/css">
- .dehead { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold }
- .detail { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal }
+<style>
+ .dehead {
+   color: var(--black);
+   font-family: sans-serif;
+   font-size: 0.8125rem;
+   font-weight: bold;
+  }
+ .detail {
+   color: var(--black);
+   font-family: sans-serif;
+   font-size: 0.8125rem;
+   font-weight:normal;
+ }
 </style>
 
 </head>

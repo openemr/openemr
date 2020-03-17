@@ -170,7 +170,7 @@ function get_history_codes($pid)
 </head>
 
 <body>
-    <div class="container-fluid w-100" style="position: fixed; margin-right: 10px;">
+    <div class="container-fluid w-100 position-fixed" style="margin-right: 10px;">
         <div class="input-group bg-white">
             <div class="input-group-prepend">
                 <button class="btn btn-secondary" onclick='clearCodes(this)'><i class="fa fa-trash fa-1x"></i></button>
@@ -221,7 +221,7 @@ function get_history_codes($pid)
                     echo "<tr>\n" .
                         "<td>" . $pc['origin'] . "</td>\n" .
                         "<td><button class='btn btn-sm btn-secondary' onclick='rtnCode(this)' " .
-                        " value='" . attr($pc['code']) . "'>$code[0]:&nbsp;<u style='color: var(--danger);'>" . $code[1] . "</u></button></td>\n" .
+                        " value='" . attr($pc['code']) . "'>$code[0]:&nbsp;<u class='text-danger'>" . $code[1] . "</u></button></td>\n" .
                         "<td>" . text($pc['desc']) . "</td>\n" .
                         "<td>" . text($pc['procedure']) . "</td>\n" .
                         "</tr>\n";

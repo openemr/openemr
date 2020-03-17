@@ -6,8 +6,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2013-2014 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -132,9 +134,19 @@ if (!empty($_POST['bn_upload'])) {
    <head>
       <title><?php echo xlt('Document Template Management'); ?></title>
       <?php Header::setupHeader(); ?>
-      <style type="text/css">
-         .dehead { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold }
-         .detail { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal }
+      <style>
+         .dehead {
+           color: var(--black);
+           font-family: sans-serif;
+           font-size: 0.8125rem;
+           font-weight:bold;
+         }
+         .detail {
+           color: var(--black);
+           font-family: sans-serif;
+           font-size: 0.8125rem;
+           font-weight: normal;
+         }
       </style>
    </head>
    <body class="body_top">
@@ -142,8 +154,8 @@ if (!empty($_POST['bn_upload'])) {
       <form method='post' action='manage_document_templates.php' enctype='multipart/form-data'
          onsubmit='return top.restoreSession()'>
          <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-         <center>
-            <h2><?php echo xlt('Document Template Management'); ?></h2>
+            <h2 class="text-center"><?php echo xlt('Document Template Management'); ?></h2>
+            <div class="row">
             <div class="col-6">
                <div class="mx-auto mt-3">
                   <div class="card">
@@ -151,19 +163,15 @@ if (!empty($_POST['bn_upload'])) {
                      <div class="card-body">
                         <div class="custom-file">
                            <input type="hidden" name="MAX_FILE_SIZE" value="250000000" />
-                           <input type="file"  name="form_file" size="40" class="custom-file-input" id="customFile">
+                           <input type="file" name="form_file" size="40" class="custom-file-input" id="customFile" />
                            <label class="custom-file-label" for="customFile"><?php echo xlt('Choose file'); ?></label>
                         </div>
-                        <div class="form-group mt-3">
-                           <?php echo xlt('Destination Filename'); ?>:
-                           <div class="row">
-                              <div class="col-10">
-                                 <input type='text' class="form-control" name='form_dest_filename' size='30' />
-                              </div>
-                              <div class="col-2">
-                                 <input type='submit' class="btn btn-primary" class="form-control" name='bn_upload' value='<?php echo xla('Upload') ?>' />
-                              </div>
-                           </div>
+                        <div class="input-group mt-3">
+                          <label for="form_dest_filename"><?php echo xlt('Destination Filename'); ?>:</label>
+                          <input type='text' class="form-control" name='form_dest_filename' id='form_dest_filename' size='30' />
+                          <div class="input-group-append">
+                            <input type='submit' class="btn btn-primary" name='bn_upload' value='<?php echo xla('Upload') ?>' />
+                          </div>
                         </div>
                      </div>
                   </div>
@@ -188,10 +196,10 @@ if (!empty($_POST['bn_upload'])) {
                                 if (substr($sfname, 0, 1) == '.') {
                                     continue;
                                 }
-                        
+
                                 $templateslist[$sfname] = $sfname;
                             }
-                        
+
                             closedir($dh);
                             ksort($templateslist);
                             foreach ($templateslist as $sfname) {
@@ -209,10 +217,10 @@ if (!empty($_POST['bn_upload'])) {
                   </div>
                </div>
             </div>
-         </center>
+          </div>
       </form>
       </div>
-      <script> 
+      <script>
       //dislpay file name
         $(".custom-file-input").on("change", function() {
         var fileName = $(this).val().split("\\").pop();

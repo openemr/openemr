@@ -44,14 +44,9 @@ $layout_id = empty($_GET['layout_id']) ? '' : $_GET['layout_id'];
 <head>
 <title><?php echo xlt('Code Finder'); ?></title>
 
-<?php Header::setupHeader(['opener']); ?>
+<?php Header::setupHeader(['opener', 'datatables', 'datatables-dt', 'datatables-colreorder']); ?>
 
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-dt/css/jquery.dataTables.css" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-dt/css/colReorder.dataTables.css" type="text/css">
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net/js/jquery.dataTables.js"></script>
-
-<script language="JavaScript">
+<script>
 
 var oTable;
 

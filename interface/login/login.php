@@ -156,7 +156,7 @@ if (count($emr_app)) {
             <div class="row">
                 <div class="col-sm-12">
                     <div>
-                        <div style="width: 50%;" class="mx-auto m-4">
+                        <div class="mx-auto m-4 w-50">
                             <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?>
                         </div>
 

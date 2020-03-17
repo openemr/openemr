@@ -378,14 +378,14 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
 <table class="table table-borderless w-100">
 
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('Name'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Name'); ?>:</td>
   <td>
    <input class="form-control w-100" size='40' name='form_name' maxlength='80' value='<?php echo attr($row['name']) ?>' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('Active{{Drug}}'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Active{{Drug}}'); ?>:</td>
   <td>
    <input type='checkbox' name='form_active' value='1'<?php
     if ($row['active']) {
@@ -395,7 +395,7 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
  </tr>
 
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('Allow'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Allow'); ?>:</td>
   <td>
    <input type='checkbox' name='form_allow_multiple' value='1'<?php
     if ($row['allow_multiple']) {
@@ -411,32 +411,32 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
  </tr>
 
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('NDC Number'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('NDC Number'); ?>:</td>
   <td>
    <input class="form-control w-100" size='40' name='form_ndc_number' maxlength='20' value='<?php echo attr($row['ndc_number']) ?>' onkeyup='maskkeyup(this,"<?php echo attr(addslashes($GLOBALS['gbl_mask_product_id'])); ?>")' onblur='maskblur(this,"<?php echo attr(addslashes($GLOBALS['gbl_mask_product_id'])); ?>")' />
   </td>
  </tr>
 <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('Drug Code'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Drug Code'); ?>:</td>
   <td>
    <input class="form-control" size='5' name='form_drug_code' maxlength='10'
     value='<?php echo attr($row['drug_code']) ?>' />
   </td>
 </tr>
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('On Order'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('On Order'); ?>:</td>
   <td>
    <input class="form-control" size='5' name='form_on_order' maxlength='7' value='<?php echo attr($row['on_order']) ?>' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('Limits'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Limits'); ?>:</td>
   <td>
    <table>
     <tr>
-     <td valign='top' nowrap>&nbsp;</td>
-     <td valign='top' nowrap><?php echo xlt('Global'); ?></td>
+     <td class="align-top text-nowrap">&nbsp;</td>
+     <td class="align-top text-nowrap"><?php echo xlt('Global'); ?></td>
 <?php
 // One column header per warehouse title.
 $pwarr = array();
@@ -452,19 +452,19 @@ $pwres = sqlStatement(
 );
 while ($pwrow = sqlFetchArray($pwres)) {
     $pwarr[] = $pwrow;
-    echo "     <td valign='top' nowrap>" .
+    echo "     <td class="align-top text-nowrap">" .
     text($pwrow['title']) . "</td>\n";
 }
 ?>
     </tr>
     <tr>
-     <td valign='top' nowrap><?php echo xlt('Min'); ?>&nbsp;</td>
-     <td valign='top'>
+     <td class="align-top text-nowrap"><?php echo xlt('Min'); ?>&nbsp;</td>
+     <td class="align-top">
       <input class="form-control" size='5' name='form_reorder_point' maxlength='7' value='<?php echo attr($row['reorder_point']) ?>' title='<?php echo xla('Reorder point, 0 if not applicable'); ?>' />&nbsp;&nbsp;
      </td>
 <?php
 foreach ($pwarr as $pwrow) {
-    echo "     <td valign='top'>";
+    echo "     <td class='align-top'>";
     echo "<input class='form-control' name='form_wh_min[" .
     attr($pwrow['option_id']) .
     "]' value='" . attr(0 + $pwrow['pw_min_level']) . "' size='5' " .
@@ -474,13 +474,13 @@ foreach ($pwarr as $pwrow) {
 ?>
     </tr>
     <tr>
-     <td valign='top' nowrap><?php echo xlt('Max'); ?>&nbsp;</td>
+     <td class="align-top text-nowrap"><?php echo xlt('Max'); ?>&nbsp;</td>
      <td>
       <input class='form-control' size='5' name='form_max_level' maxlength='7' value='<?php echo attr($row['max_level']) ?>' title='<?php echo xla('Maximum reasonable inventory, 0 if not applicable'); ?>' />
      </td>
 <?php
 foreach ($pwarr as $pwrow) {
-    echo "     <td valign='top'>";
+    echo "     <td class='align-top'>";
     echo "<input class='form-control' name='form_wh_max[" .
     attr($pwrow['option_id']) .
     "]' value='" . attr(0 + $pwrow['pw_max_level']) . "' size='5' " .
@@ -494,7 +494,7 @@ foreach ($pwarr as $pwrow) {
  </tr>
 
  <tr class='drugsonly'>
-  <td valign='top' nowrap><strong><?php echo xlt('Form'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Form'); ?>:</td>
   <td>
 <?php
  generate_form_field(array('data_type'=>1,'field_id'=>'form','list_id'=>'drug_form','empty_title'=>'SKIP'), $row['form']);
@@ -503,14 +503,14 @@ foreach ($pwarr as $pwrow) {
  </tr>
 
  <tr class='drugsonly'>
-  <td valign='top' nowrap><strong><?php echo xlt('Pill Size'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Pill Size'); ?>:</td>
   <td>
    <input class="form-control" size='5' name='form_size' maxlength='7' value='<?php echo attr($row['size']) ?>' />
   </td>
  </tr>
 
  <tr class='drugsonly'>
-  <td valign='top' nowrap><strong><?php echo xlt('Units'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Units'); ?>:</td>
   <td>
 <?php
  generate_form_field(array('data_type'=>1,'field_id'=>'unit','list_id'=>'drug_units','empty_title'=>'SKIP'), $row['unit']);
@@ -519,7 +519,7 @@ foreach ($pwarr as $pwrow) {
  </tr>
 
  <tr class='drugsonly'>
-  <td valign='top' nowrap><strong><?php echo xlt('Route'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Route'); ?>:</td>
   <td>
 <?php
  generate_form_field(array('data_type'=>1,'field_id'=>'route','list_id'=>'drug_route','empty_title'=>'SKIP'), $row['route']);
@@ -528,31 +528,29 @@ foreach ($pwarr as $pwrow) {
  </tr>
 
  <tr class='ippfonly'>
-  <td valign='top' nowrap><strong><?php echo xlt('CYP Factor'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('CYP Factor'); ?>:</td>
   <td>
    <input class="form-control" size='10' name='form_cyp_factor' maxlength='20' value='<?php echo attr($row['cyp_factor']) ?>' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('Relate To'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Relate To'); ?>:</td>
   <td>
    <input class="form-control w-100" type='text' size='50' name='form_related_code' value='<?php echo attr($row['related_code']) ?>' onclick='sel_related()' title='<?php echo xla('Click to select related code'); ?>' readonly />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap>
-   <strong><?php echo $GLOBALS['sell_non_drug_products'] == 2 ? xlt('Fees') : xlt('Templates'); ?>:</strong>
-  </td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo $GLOBALS['sell_non_drug_products'] == 2 ? xlt('Fees') : xlt('Templates'); ?>:</td>
   <td>
    <table class='border-0 w-100'>
     <tr>
-     <td class='drugsonly'><strong><?php echo xlt('Name'); ?></strong></td>
-     <td class='drugsonly'><strong><?php echo xlt('Schedule'); ?></strong></td>
-     <td class='drugsonly'><strong><?php echo xlt('Interval'); ?></strong></td>
-     <td class='drugsonly'><strong><?php echo xlt('Qty'); ?></strong></td>
-     <td class='drugsonly'><strong><?php echo xlt('Refills'); ?></strong></td>
+     <td class='drugsonly font-weight-bold'><?php echo xlt('Name'); ?></td>
+     <td class='drugsonly font-weight-bold'><?php echo xlt('Schedule'); ?></td>
+     <td class='drugsonly font-weight-bold'><?php echo xlt('Interval'); ?></td>
+     <td class='drugsonly font-weight-bold'><?php echo xlt('Qty'); ?></td>
+     <td class='drugsonly font-weight-bold'><?php echo xlt('Refills'); ?></td>
 <?php
 // Show a heading for each price level.  Also create an array of prices
 // for new template lines.
@@ -561,18 +559,18 @@ $pres = sqlStatement("SELECT option_id, title FROM list_options " .
     "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq");
 while ($prow = sqlFetchArray($pres)) {
     $emptyPrices[$prow['option_id']] = '';
-    echo "     <td><strong>" .
+    echo "     <td class='font-weight-bold'>" .
     generate_display_field(array('data_type'=>'1','list_id'=>'pricelevel'), $prow['option_id']) .
-    "</strong></td>\n";
+    "</td>\n";
 }
 
 // Show a heading for each tax rate.
 $pres = sqlStatement("SELECT option_id, title FROM list_options " .
     "WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq");
 while ($prow = sqlFetchArray($pres)) {
-    echo "     <td><strong>" .
+    echo "     <td class='font-weight-bold'>" .
         generate_display_field(array('data_type'=>'1','list_id'=>'taxrate'), $prow['option_id']) .
-        "</strong></td>\n";
+        "</td>\n";
 }
 ?>
     </tr>

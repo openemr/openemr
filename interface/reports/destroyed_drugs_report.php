@@ -101,28 +101,31 @@ function mapToTable($row)
     <?php Header::setupHeader(['datetime-picker','datatables', 'datatables-dt', 'datatables-bs', 'report-helper']); ?>
 
 <style>
-a, a:visited, a:hover { color:#0000cc; }
+/* TODO: Is the below code for links necessary? */
+a, a:visited, a:hover {
+  color: var(--primary);
+}
 #mymaintable thead .sorting::before,
 #mymaintable thead .sorting_asc::before,
 #mymaintable thead .sorting_asc::after,
 #mymaintable thead .sorting_desc::before,
 #mymaintable thead .sorting_desc::after,
 #mymaintable thead .sorting::after {
-display: none;
+  display: none;
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button {
-padding:0!important;
-margin:0!important;
-border:0!important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
 }
 
 .paginate_button:hover{
-  background: transparent!important;
+  background: transparent !important;
 }
 </style>
 
-<script language="JavaScript">
+<script>
 
 // Process click on destroyed drug.
 function doclick(id, lot) {
@@ -162,42 +165,27 @@ $(function () {
 
 <div class="col-sm-12">
     <span class="font-weight-bold"><?php echo xlt('From'); ?>:</span>
-    <input type='text' style="width:200px" class='datepicker form-control d-inline' name='form_from_date' id='form_from_date'
+    <input type='text' style="width: 200px" class='datepicker form-control d-inline' name='form_from_date' id='form_from_date'
     size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
     <span class="font-weight-bold"><?php echo xlt('To{{Range}}'); ?>:</span>
-    <input type='text' style="width:200px" class='datepicker form-control d-inline' name='form_to_date' id='form_to_date'
+    <input type='text' style="width: 200px" class='datepicker form-control d-inline' name='form_to_date' id='form_to_date'
     size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
-    <input class="btn btn-primary" type='submit' name='form_refresh' value='<?php echo xla('Refresh'); ?>'>
+    <input class="btn btn-primary" type='submit' name='form_refresh' value='<?php echo xla('Refresh'); ?>' />
     <input class="btn btn-secondary" type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />
 </div>
 
+<!-- TODO: Why didn't we use the BS4 table class here? !-->
 <table id='mymaintable' class="display table-striped">
  <thead>
  <tr>
-  <td>
-    <?php echo xlt('Drug Name'); ?>
-  </td>
-  <td>
-    <?php echo xlt('NDC'); ?>
-  </td>
-  <td>
-    <?php echo xlt('Lot'); ?>
-  </td>
-  <td>
-    <?php echo xlt('Qty'); ?>
-  </td>
-  <td>
-    <?php echo xlt('Date Destroyed'); ?>
-  </td>
-  <td>
-    <?php echo xlt('Method'); ?>
-  </td>
-  <td>
-    <?php echo xlt('Witness'); ?>
-  </td>
-  <td>
-    <?php echo xlt('Notes'); ?>
-  </td>
+  <th><?php echo xlt('Drug Name'); ?></th>
+  <th><?php echo xlt('NDC'); ?></th>
+  <th><?php echo xlt('Lot'); ?></th>
+  <th><?php echo xlt('Qty'); ?></th>
+  <th><?php echo xlt('Date Destroyed'); ?></th>
+  <th><?php echo xlt('Method'); ?></th>
+  <th><?php echo xlt('Witness'); ?></th>
+  <th><?php echo xlt('Notes'); ?></th>
  </tr>
  </thead>
  <tbody>
