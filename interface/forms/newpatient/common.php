@@ -94,7 +94,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 <script language="JavaScript">
 
 
-    var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+    const mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
     // Process click on issue title.
     function newissue() {
@@ -117,18 +117,18 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
     //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
     $collectthis = collectValidationPageRules("/interface/forms/newpatient/common.php");
     if (empty($collectthis)) {
-         $collectthis = "undefined";
+        $collectthis = "undefined";
     } else {
-         $collectthis = json_sanitize($collectthis["new_encounter"]["rules"]);
+        $collectthis = json_sanitize($collectthis["new_encounter"]["rules"]);
     }
     ?>
-    var collectvalidation = <?php echo $collectthis; ?>;
-    $(function(){
+    const collectvalidation = <?php echo $collectthis; ?>;
+    $(function() {
         window.saveClicked = function(event) {
-            var submit = submitme(1, event, 'new-encounter-form', collectvalidation);
+            const submit = submitme(1, event, 'new-encounter-form', collectvalidation);
             if (submit) {
-            top.restoreSession();
-            $('#new-encounter-form').submit();
+                top.restoreSession();
+                $('#new-encounter-form').submit();
             }
         }
 
@@ -156,9 +156,9 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
     });
 
     function bill_loc(){
-        var pid = <?php echo attr($pid);?>;
-        var dte = document.getElementById('form_date').value;
-        var facility = document.forms[0].facility_id.value;
+        const pid = <?php echo attr($pid);?>;
+        const dte = document.getElementById('form_date').value;
+        const facility = document.forms[0].facility_id.value;
         ajax_bill_loc(pid, dte, facility);
         <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
             $.ajax({
@@ -584,7 +584,7 @@ if (!$viewmode) { ?>
 <?php
 if ($GLOBALS['enable_group_therapy']) { ?>
 /* hide / show group name input */
-    var groupCategories = <?php echo json_encode($therapyGroupCategories); ?>;
+    const groupCategories = <?php echo json_encode($therapyGroupCategories); ?>;
     $('#pc_catid').on('change', function () {
         if(groupCategories.indexOf($(this).val()) > -1){
             $('#therapy_group_name').show();
@@ -595,7 +595,7 @@ if ($GLOBALS['enable_group_therapy']) { ?>
 
     function sel_group() {
       top.restoreSession();
-      var url = '<?php echo $GLOBALS['webroot']?>/interface/main/calendar/find_group_popup.php';
+      const url = '<?php echo $GLOBALS['webroot']?>/interface/main/calendar/find_group_popup.php';
       dlgopen(url, '_blank', 500, 400, '', '', {
           buttons: [
               {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
