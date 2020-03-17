@@ -570,7 +570,7 @@ function initSignerApi() {
 
         // this offsets signature image to center on element somewhat
         // on any form (css) box height:70px length:auto center at 20px.
-        $("body").ready(function (e) {
+        $(function (e) {
             let els = this.querySelectorAll("img[data-action=fetch_signature]");
             let i; // caution using let in for
             for (i = 0; i < els.length; i++) {
