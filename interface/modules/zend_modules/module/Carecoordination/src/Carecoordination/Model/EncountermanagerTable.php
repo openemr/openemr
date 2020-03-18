@@ -79,7 +79,7 @@ class EncountermanagerTable extends AbstractTableGateway
             return $resCount;
         }
 
-                $query       .= " LIMIT " . \Application\Plugin\CommonPlugin::escapeLimit($data['limit_start']) . "," . \Application\Plugin\CommonPlugin::escapeLimit($data['results']);
+                $query       .= " LIMIT " . escape_limit($data['limit_start']) . "," . escape_limit($data['results']);
                 $resDetails = $appTable->zQuery($query, $query_data);
         return $resDetails;
     }
