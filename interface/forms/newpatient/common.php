@@ -535,9 +535,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <div class="col-sm-12 text-left position-override">
                     <button type="button" class="btn btn-primary" onclick="top.restoreSession(); saveClicked(undefined);"><i class="fa fa-floppy-o mr-1" aria-hidden="true"></i><?php echo xlt('Save');?></button>
                     <?php if ($viewmode || empty($_GET["autoloaded"])) { // not creating new encounter ?>
-                        <button type="button" class="btn btn-danger btn-cancel btn-separate-left" onClick="return cancelClickedOld()"><?php echo xlt('Cancel');?></button>
+                        <button type="button" class="btn btn-secondary btn-cancel btn-separate-left" onClick="return cancelClickedOld()"><?php echo xlt('Cancel');?></button>
                     <?php } else { // not $viewmode ?>
-                    <button class="btn btn-danger btn-cancel btn-separate-left link_submit" onClick="return cancelClickedNew()">
+                    <button class="btn btn-secondary btn-cancel btn-separate-left link_submit" onClick="return cancelClickedNew()">
                             <?php echo xlt('Cancel'); ?></button>
                     <?php } // end not $viewmode ?>
                 </div>
