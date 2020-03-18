@@ -51,7 +51,7 @@ function submitform() {
     }
 }
 
-$(function() {
+$(function () {
     $("#disclosure_form").submit(function (event) {
         event.preventDefault(); //prevent default action
         var post_url = $(this).attr("action");

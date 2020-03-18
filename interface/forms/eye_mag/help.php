@@ -40,7 +40,7 @@ if ($showit=='ext') {
     <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css" />
 
     <script>
-     $(function() {
+     $(function () {
         $("[id^='accordion_']").accordion({
         heightStyle: "content",
         collapsible: true,
@@ -48,7 +48,7 @@ if ($showit=='ext') {
         active: 0
         });
     });
-    $(function() {
+    $(function () {
         $("[name^='accordion_']").hide();
         $("#accordion_<?php echo attr($showit); ?>_group").show()
         $("#<?php echo attr($showit); ?>_button").css("color","var(--danger)");

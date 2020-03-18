@@ -51,11 +51,21 @@ define('REPEAT_EVERY_OTHER', 2);
 define('REPEAT_EVERY_THIRD', 3);
 define('REPEAT_EVERY_FOURTH', 4);
 // $event_repeat_freq_type
-define('REPEAT_EVERY_DAY', 0);
-define('REPEAT_EVERY_WEEK', 1);
-define('REPEAT_EVERY_MONTH', 2);
-define('REPEAT_EVERY_YEAR', 3);
-define('REPEAT_EVERY_WORK_DAY', 4);
+if (!defined('REPEAT_EVERY_DAY')) {
+    define('REPEAT_EVERY_DAY', 0);
+}
+if (!defined('REPEAT_EVERY_WEEK')) {
+    define('REPEAT_EVERY_WEEK', 1);
+}
+if (!defined('REPEAT_EVERY_MONTH')) {
+    define('REPEAT_EVERY_MONTH', 2);
+}
+if (!defined('REPEAT_EVERY_YEAR')) {
+    define('REPEAT_EVERY_YEAR', 3);
+}
+if (!defined('REPEAT_EVERY_WORK_DAY')) {
+    define('REPEAT_EVERY_WORK_DAY', 4);
+}
 // $event_repeat_on_num
 define('REPEAT_ON_1ST', 1);
 define('REPEAT_ON_2ND', 2);

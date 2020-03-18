@@ -89,7 +89,7 @@ function input_focus()
 {
     ?>
     <script>
-        $(function() {
+        $(function () {
                 $('#totp').focus();
         });
     </script>
@@ -414,17 +414,20 @@ if ($is_expired) {
     //display the php file containing the password expiration message.
     $frame1url = "pwd_expires_alert.php?csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken());
     $frame1target = "adm";
+    $frame1label = "";
 } elseif (!empty($_POST['patientID'])) {
     $patientID = 0 + $_POST['patientID'];
     if (empty($_POST['encounterID'])) {
         // Open patient summary screen (without a specific encounter)
         $frame1url = "../patient_file/summary/demographics.php?set_pid=" . attr_url($patientID);
         $frame1target = "pat";
+        $frame1label = xl('Patient Search/Add Screen');
     } else {
         // Open patient summary screen with a specific encounter
         $encounterID = 0 + $_POST['encounterID'];
         $frame1url = "../patient_file/summary/demographics.php?set_pid=" . attr_url($patientID) . "&set_encounterid=" . attr_url($encounterID);
         $frame1target = "pat";
+        $frame1label = xl('Patient Search/Add Screen');
     }
 } elseif (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
     $frame1url = "calendar/index.php?pid=" . attr_url($_GET['pid']);
@@ -433,18 +436,30 @@ if ($is_expired) {
     }
 
     $frame1target = "cal";
+    $frame1label = xl('Calendar Screen');
 } else {
     // standard layout
     $map_paths_to_targets = array(
-        'main_info.php' => ('cal'),
-        '../new/new.php' => ('pat'),
-        '../../interface/main/finder/dynamic_finder.php' => ('fin'),
-        '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => ('flb'),
-        '../../interface/main/messages/messages.php?form_active=1' => ('msg')
+        'main_info.php' => array(
+            'target' => 'cal' , "label" => xl('Calendar Screen')
+        ),
+        '../new/new.php' => array(
+            'target' => 'pat' , "label" => xl('Patient Search/Add Screen')
+        ),
+        '../../interface/main/finder/dynamic_finder.php' => array(
+            'target' => 'fin' , "label" => xl('Patient Finder Screen')
+        ),
+        '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => array(
+            'target' => 'flb' , "label" => xl('Patient Flow Board')
+        ),
+        '../../interface/main/messages/messages.php?form_active=1' => array(
+            'target' => 'msg' , "label" => xl('Messages Screen')
+        )
     );
     if ($GLOBALS['default_top_pane']) {
         $frame1url=attr($GLOBALS['default_top_pane']);
-        $frame1target = $map_paths_to_targets[$GLOBALS['default_top_pane']];
+        $frame1target = $map_paths_to_targets[$GLOBALS['default_top_pane']]['target'];
+        $frame1label = $map_paths_to_targets[$GLOBALS['default_top_pane']]['label'];
         if (empty($frame1target)) {
             $frame1target = "msc";
         }
@@ -454,13 +469,15 @@ if ($is_expired) {
     }
     if ($GLOBALS['default_second_tab']) {
         $frame2url=attr($GLOBALS['default_second_tab']);
-        $frame2target = $map_paths_to_targets[$GLOBALS['default_second_tab']];
+        $frame2target = $map_paths_to_targets[$GLOBALS['default_second_tab']]['target'];
+        $frame2label = $map_paths_to_targets[$GLOBALS['default_second_tab']]['label'];
         if (empty($frame2target)) {
             $frame2target = "msc";
         }
     } else {
-        $frame2url = "../../interface/main/messages/messages.php?form_active=1";
-        $frame2target = "msg";
+        // In the case where no second default tab is specified, set these session variables to null
+        $frame2url = null;
+        $frame2target = null;
     }
 }
 
@@ -472,8 +489,10 @@ if (!empty($GLOBALS['gbl_nav_area_width'])) {
 // Will set Session variables to communicate settings to tab layout
 $_SESSION['frame1url'] = $frame1url;
 $_SESSION['frame1target'] = $frame1target;
+$_SESSION['frame1label'] = $frame1label;
 $_SESSION['frame2url'] = $frame2url;
 $_SESSION['frame2target'] = $frame2target;
+$_SESSION['frame2label'] = $frame2label;
 // mdsupport - Apps processing invoked for valid app selections from list
 if ((isset($_POST['appChoice'])) && ($_POST['appChoice'] !== '*OpenEMR')) {
     $_SESSION['app1'] = $_POST['appChoice'];

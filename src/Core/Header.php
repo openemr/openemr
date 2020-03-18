@@ -191,7 +191,7 @@ class Header
                     }
                 }
 
-                if ($rtl && $_SESSION['language_direction'] == 'rtl') {
+                if ($rtl && !empty($_SESSION['language_direction']) && $_SESSION['language_direction'] == 'rtl') {
                     $tmpRtl = self::buildAsset($rtl, $alreadyBuilt);
                     foreach ($tmpRtl['scripts'] as $s) {
                         self::$scripts[] = $s;

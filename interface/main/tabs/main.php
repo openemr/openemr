@@ -273,13 +273,13 @@ $GLOBALS['allow_issue_menu_link'] = ((AclMain::aclCheckCore('encounters', 'notes
 ?>
 <script type="text/javascript">
     <?php if (!empty($_SESSION['frame1url']) && !empty($_SESSION['frame1target'])) { ?>
-        app_view_model.application_data.tabs.tabsList()[0].url(<?php echo json_encode("../".$_SESSION['frame1url']); ?>);
-        app_view_model.application_data.tabs.tabsList()[0].name(<?php echo json_encode($_SESSION['frame1target']); ?>);
+        // Use session variables and tabStatus object to set up initial/default first tab
+        app_view_model.application_data.tabs.tabsList.push(new tabStatus(<?php echo xlj("Loading"); ?> + "...",<?php echo json_encode("../".$_SESSION['frame1url']); ?>,<?php echo json_encode($_SESSION['frame1target']); ?>,<?php echo xlj("Loading"); ?> + " " + <?php echo json_encode($_SESSION['frame1label']); ?>,true,true,false));
     <?php } ?>
 
     <?php if (!empty($_SESSION['frame2url']) && !empty($_SESSION['frame2target'])) { ?>
-    app_view_model.application_data.tabs.tabsList()[1].url(<?php echo json_encode("../".$_SESSION['frame2url']); ?>);
-    app_view_model.application_data.tabs.tabsList()[1].name(<?php echo json_encode($_SESSION['frame2target']); ?>);
+        // Use session variables and tabStatus object to set up initial/default second tab, if none is set in globals, this tab will not be displayed initially
+        app_view_model.application_data.tabs.tabsList.push(new tabStatus(<?php echo xlj("Loading"); ?> + "...",<?php echo json_encode("../".$_SESSION['frame2url']); ?>,<?php echo json_encode($_SESSION['frame2target']); ?>,<?php echo xlj("Loading"); ?> + " " + <?php echo json_encode($_SESSION['frame2label']); ?>,true,false,false));
     <?php } ?>
 
     app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($_SESSION["authUser"])
@@ -310,7 +310,7 @@ $GLOBALS['allow_issue_menu_link'] = ((AclMain::aclCheckCore('encounters', 'notes
             $(".appMenu").removeClass('appMenu');
         }
     });
-    $(function() {
+    $(function () {
         $(window).trigger('resize');// to avoid repeating code triggers above on page open
     });
 </script>
@@ -325,13 +325,14 @@ $GLOBALS['allow_issue_menu_link'] = ((AclMain::aclCheckCore('encounters', 'notes
     }
 
     html, body {
+        width: max-content;
         min-height: 100% !important;
         height: 100% !important;
     }
 </style>
 
 </head>
-<body data-bind="css: responsiveDisplay.objWidth().bodyMain">
+<body data-bind="css: responsiveDisplay.objWidth().bodyMain" class="min-vw-100">
 <!-- Below iframe is to support auto logout when timeout is reached -->
 <iframe name="timeout" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="timeout_iframe.php"></iframe>
 <!-- Below iframe is to support logout, which needs to be run in an inner iframe to work as intended -->
@@ -353,7 +354,7 @@ if (isset($_SESSION['app1'])) {
 <div id="mainBox" <?php echo $disp_mainBox ?> data-bind='attr: {id: responsiveDisplay.objWidth().mainBoxId}  '>
 
     <div id="dialogDiv"></div>
-    
+
     <div class="body_top" id="body_top_div" data-bind='css: responsiveDisplay.objWidth().bodyTopDivWidth'>
         <div id="logo_menu">
             <a href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank">
@@ -374,7 +375,7 @@ if (isset($_SESSION['app1'])) {
     </div>
     <div id="attendantData" class="body_title acck"  data-bind="template: {name: app_view_model.attendant_template_type, data: application_data}, css: responsiveDisplay.objWidth().attendantDataClear ">
     </div>
-    
+
     <div class="body_title" id="tabs_div" data-bind="template: {name: 'tabs-controls', data: application_data}, css: responsiveDisplay.objWidth().tabsDivWidth"> </div>
 
     <div class="mainFrames d-flex" id="mainFrames_div">
@@ -402,7 +403,6 @@ displayViewModel.objWidth = ko.computed(function() {
                 currWidth.bodyTopDivWidth = "col-sm-1";
                 currWidth.bodyMain = "body_main_widescreen";
             } else {
-                currWidth.bodyTopDivWidth = "col-sm-2";
                 currWidth.bodyMain = "body_main";
             }
             if(this.oeVerticalMenu()){
@@ -411,7 +411,6 @@ displayViewModel.objWidth = ko.computed(function() {
                     currWidth.bodyTopDivWidth = "col-sm-1";
                 } else {
                     currWidth.tabsDivWidth = "col-sm-10";
-                    currWidth.bodyTopDivWidth = "col-sm-2";
                 }
             } else {
                currWidth.tabsDivWidth = "col-sm-12";
@@ -471,7 +470,7 @@ $window.resize(function () {
     }
 
 });
-$(function() {
+$(function () {
         $(window).trigger('resize');// to avoid repeating code triggers above on page open
     });
 ko.bindingHandlers['css2'] = ko.bindingHandlers.css;
@@ -493,7 +492,7 @@ app_view_model.responsiveDisplay = displayViewModel;
     });
 </script>
 <script>
-$(function(){
+$(function () {
     $('#logo_menu').focus();
 });
 </script>

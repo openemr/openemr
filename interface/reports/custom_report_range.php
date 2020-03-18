@@ -142,7 +142,7 @@ if ($form_patient == '') {
 </style>
 
 <script>
- $(function() {
+ $(function () {
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
 

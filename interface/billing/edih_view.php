@@ -31,7 +31,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
 <head>
     <title><?php echo xlt("edi history"); ?></title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-    
+
     <!-- TODO: Address no_bootstrap here !-->
     <?php Header::setupHeader(['no_main-theme', 'no_bootstrap', 'datetime-picker', 'datatables', 'datatables-jqui', 'datatables-jqui-theme', 'datatables-scroller', 'datatables-scroller-jqui-theme', 'jquery-ui', 'jquery-ui-sunny']); ?>
 
@@ -302,7 +302,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
 
 <!-- end DataTables js Begin local js -->
 <script>
-    $(function() {
+    $(function () {
         // activate tab interface
         $("#tabs").tabs();
         $("#tabs").tabs().css('visibility','visible');
@@ -310,11 +310,11 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
         $('#processfiles').prop('disabled', true);
         $('#archivesubmit').prop('disabled', true);
         // update list of available csv tables
-        $(function() { csvlist() });
+        $(function () { csvlist() });
         // update list of available log files
-        $(function() { loglist() });
+        $(function () { loglist() });
         // update list of archive files
-        $(function() { archlist() });
+        $(function () { archlist() });
         // hide these div elements until used
         $("#fileupl1").toggle(false);
         $("#fileupl2").toggle(false);
@@ -342,7 +342,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
 /* *** variables for upload maximums *** */
 /* *** phpserver: 'maxfsize''maxfuploads''postmaxsize''tmpdir'  phpserver['postmaxsize'] *** */
     var phpserver = [];
-    $(function() {
+    $(function () {
         $.ajax({
             url: 'edih_main.php',
             data: {

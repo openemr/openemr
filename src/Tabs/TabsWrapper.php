@@ -70,7 +70,7 @@ EOD;
             .tabs { direction: rtl; }
             .tabs .tabs-nav li.tabs-tab {float: right; }
             .tabs .tabs-nav li a { float: right; }
-                
+
 EOD;
             }
         }
@@ -169,7 +169,7 @@ function twAddFrameTab(tabsid, label, url) {
   twAddTab(
     tabsid,
     label,
-    "<iframe name='" + panelId + "' frameborder='0' style='height:95.3%;width:100%;' src='" + url + "'>Oops</iframe>"
+    "<iframe name='" + panelId + "' frameborder='0' style='height:94.5%;width:100%;' src='" + url + "'>Oops</iframe>"
   );
   return panelId;
 }
@@ -199,11 +199,11 @@ EOD;
         $i = 0;
         foreach ($this->tabs as $val) {
             ++$i;
-            $s .= "<li class='tabs-tabs' ><a data-toggle='tab' class='tabs-anchor active' href='#{$this->tabsid}-$i'>" . text($val['title']) . "</a>";
+            $s .= "<li class='tabs-tabs' ><a data-toggle='tab' class='tabs-anchor active' href='#{$this->tabsid}-$i'>" . text($val['title']);
             if ($val['closeable']) {
-                $s .= " <span class='icon icon-close' role='presentation'>" . xlt('Remove Tab') . "</span>";
+                $s .= " <span aria-label='close' class='icon-close' role='close'>X</span>";
             }
-            $s .= "</li>\n";
+            $s .= "</a> </li>\n";
         }
         $s .= "</ul>\n";
         $s .= "<div class='tab-content' id='{$this->tabsid}-tabs'>";

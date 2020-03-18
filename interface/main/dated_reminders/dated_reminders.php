@@ -85,7 +85,7 @@ if (isset($_POST['drR'])) {
          }
       </style>
       <script>
-         $(function (){
+         $(function () {
             $(".hideDR").click(function(){
               if($(this).html() == "<span><?php echo xla('Hide Reminders') ?></span>"){
                 $(this).html("<span><?php echo xla('Show Reminders') ?></span>");

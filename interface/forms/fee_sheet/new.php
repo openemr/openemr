@@ -1515,7 +1515,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     </div><!--End of div container -->
     <?php $oemr_ui->oeBelowContainerDiv();?>
     <script>
-    $(function() {
+    $(function () {
         $('select').addClass("form-control");
     });
     </script>

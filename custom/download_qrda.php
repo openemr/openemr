@@ -37,14 +37,14 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
 <html>
 
 <head>
-<?php Header::setupHeader(['common', 'opener', 'jquery-ui']); ?>
+<?php Header::setupHeader(['common', 'opener']); ?>
 
 <script>
     var reportID = <?php echo js_escape($report_id); ?>;
     var provider_id = <?php echo js_escape($provider_id);?>;
     var zipFileArray = new Array();
     var failureMessage = "";
-    $(function(){
+    $(function () {
         $("#checkAll").on("change", function() {
             var checked =  ( $("#checkAll").prop("checked") ) ? true : false;
             $("#thisForm input:checkbox").each(function() {

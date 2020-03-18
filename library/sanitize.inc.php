@@ -28,7 +28,7 @@ function collectIpAddresses()
     return array(
         'ip_string' => $stringIp,
         'ip' => $mainIp,
-        'forward_ip' => $forwardIp
+        'forward_ip' => $forwardIp ?? ''
     );
 }
 

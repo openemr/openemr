@@ -51,7 +51,7 @@ if ($_POST['form_csvexport']) {
     <?php Header::setupHeader('datetime-picker'); ?>
 
 <script>
-    $(function() {
+    $(function () {
     var win = top.printLogSetup ? top : opener.top;
     win.printLogSetup(document.getElementById('printbutton'));
 

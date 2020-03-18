@@ -389,7 +389,7 @@ function setappt(year,mon,mday,hours,minutes) {
 <script type='text/javascript'>
 
 // jQuery stuff to make the page a little easier to use
-$(function() {
+$(function () {
     $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
     $(".oneresult a").mouseover(function () { $(this).toggleClass("blue_highlight"); $(this).children().toggleClass("blue_highlight"); });

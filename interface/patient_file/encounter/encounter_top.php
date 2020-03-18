@@ -40,7 +40,7 @@ if (isset($_GET["set_encounter"])) {
 $tabset = new TabsWrapper('enctabs');
 $tabset->declareInitialTab(
     xl('Summary'),
-    "<iframe frameborder='0' style='height:95.3%;width:100%;' src='forms.php'>Oops</iframe>"
+    "<iframe frameborder='0' style='height:94.5%;width:100%;' src='forms.php'>Oops</iframe>"
 );
 // We might have been invoked to load a particular encounter form.
 // In that case it will be the second tab, and removable.
@@ -48,7 +48,7 @@ if (!empty($_GET['formname'])) {
     $url = $rootdir . "/patient_file/encounter/load_form.php?formname=" . attr_url($_GET['formname']);
     $tabset->declareInitialTab(
         $_GET['formdesc'],
-        "<iframe name='enctabs-2' frameborder='0' style='height:95.3%;width:100%;' src='$url'>Oops</iframe>",
+        "<iframe name='enctabs-2' frameborder='0' style='height:94.5%;width:100%;' src='$url'>Oops</iframe>",
         true
     );
 }
@@ -66,7 +66,7 @@ $encounter_date = date("Y-m-d", strtotime($dateres["date"]));
 <?php echo $tabset->genJavaScript(); ?>
 <script>
 
-$(function() {
+$(function () {
   // Initialize support for the tab set.
   twSetup('enctabs');
 });

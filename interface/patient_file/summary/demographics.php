@@ -296,7 +296,7 @@ function doPublish() {
     });
 }
 
-$(function(){
+$(function () {
   var msg_updation='';
     <?php
     if ($GLOBALS['erx_enable']) {
@@ -1932,7 +1932,7 @@ checkSkipConditions();
 
 var isPost = <?php echo js_escape($showEligibility); ?>;
 var listId = '#' + <?php echo js_escape($list_id); ?>;
-$(function(){
+$(function () {
     $(listId).addClass("active");
     if(isPost === true) {
         $("#eligibility").click();

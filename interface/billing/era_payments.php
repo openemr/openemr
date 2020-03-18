@@ -134,7 +134,7 @@ if ($_FILES['form_erafile']['size']) {
         ?>
     }
 
-    $(function() {
+    $(function () {
        $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
@@ -158,7 +158,7 @@ if ($_FILES['form_erafile']['size']) {
     .bottom {
         border-bottom:1px solid var(--black);
     }
-    .top { 
+    .top {
         border-top:1px solid var(--black);
     }
     .left {

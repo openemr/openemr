@@ -1189,13 +1189,13 @@ function &postcalendar_userapi_pcGetEvents($args)
         $end_date = $ey.'-'.$em.'-'.$ed;
     }
 
-    if ($faFlag && !isset($events)) {
+    if (!empty($faFlag) && !isset($events)) {
         $a = array('faFlag' => true,'start'=>$start_date,'end'=>$end_date,'s_keywords'=>$s_keywords,'s_category'=>$s_category,'s_topic'=>$s_topic,'viewtype'=>$viewtype, 'provider_id' => $provider_id, 'event_status' => $event_status);
         $events = pnModAPIFunc(__POSTCALENDAR__, 'user', '<strong></strong>pcQueryEventsFA', $a);
-    } elseif ($collideFlag && !isset($events)) {
+    } elseif (!empty($collideFlag) && !isset($events)) {
         $a = array('collideFlag' => true,'start'=>$start_date,'end'=>$end_date, 'provider_id' => $provider_id, 'collide_stime' => $stime, 'collide_etime' => $etime);
         $events = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pcQueryEventsFA', $a);
-    } elseif ($listappsFlag && !isset($events)) {
+    } elseif (!empty($listappsFlag) && !isset($events)) {
         $a = array('listappsFlag' => true,'start'=>$start_date,'end'=>$end_date, 'patient_id' => $patient_id, 's_keywords' => $s_keywords);
         $events = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pcQueryEvents', $a);
     } else if (!isset($events)) {

@@ -143,7 +143,7 @@ require_once($GLOBALS['srcdir'].'/options_listadd.inc');
 <script type="text/javascript">
 // jQuery stuff to make the page a little easier to use
 
-$(function (){
+$(function () {
     $(".save").click(function() { top.restoreSession(); document.forms["<?php echo $form_folder; ?>"].submit(); });
     $(".dontsave").click(function() { location.href='parent.closeTab(window.name, false)'; });
 
