@@ -533,13 +533,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
             <div class="form-row">
                 <div class="col-sm-12 text-left position-override">
-                    <button type="button" class="btn btn-primary" onclick="top.restoreSession(); saveClicked(undefined);"><i class="fa fa-floppy-o mr-1" aria-hidden="true"></i><?php echo xlt('Save');?></button>
-                    <?php if ($viewmode || empty($_GET["autoloaded"])) { // not creating new encounter ?>
-                        <button type="button" class="btn btn-secondary btn-cancel btn-separate-left" onClick="return cancelClickedOld()"><?php echo xlt('Cancel');?></button>
-                    <?php } else { // not $viewmode ?>
-                    <button class="btn btn-secondary btn-cancel btn-separate-left link_submit" onClick="return cancelClickedNew()">
-                            <?php echo xlt('Cancel'); ?></button>
-                    <?php } // end not $viewmode ?>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-primary" onclick="top.restoreSession(); saveClicked(undefined);"><i class="fa fa-floppy-o mr-1" aria-hidden="true"></i><?php echo xlt('Save');?></button>
+                        <?php if ($viewmode || empty($_GET["autoloaded"])) { // not creating new encounter ?>
+                            <button type="button" class="btn btn-secondary btn-separate-left" onClick="return cancelClickedOld()"><i class="fa fa-times mr-1" aria-hidden="true"></i><?php echo xlt('Cancel');?></button>
+                        <?php } else { // not $viewmode ?>
+                        <button class="btn btn-secondary btn-separate-left link_submit" onClick="return cancelClickedNew()"><i class="fa fa-times mr-1" aria-hidden="true"></i><?php echo xlt('Cancel'); ?></button>
+                        <?php } // end not $viewmode ?>
+                    </div>
                 </div>
             </div>
         </form>
