@@ -491,7 +491,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <div class="pb-1">
                                 <div class="btn-group" role="group">
                                     <?php if (AclMain::aclCheckCore('patients', 'med', '', 'write')) { ?>
-                                   <a href="../../patient_file/summary/add_edit_issue.php" class="btn btn-primary btn-sm enc_issue" onclick="top.restoreSession()"><i class="fa fa-plus mr-1"></i><?php echo xlt('Add Issue'); ?></a>
+                                   <a href="../../patient_file/summary/add_edit_issue.php" class="btn btn-primary btn-add btn-sm enc_issue" onclick="top.restoreSession()"><?php echo xlt('Add Issue'); ?></a>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -534,11 +534,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <div class="form-row">
                 <div class="col-sm-12 text-left position-override">
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-primary" onclick="top.restoreSession(); saveClicked(undefined);"><i class="fa fa-floppy-o mr-1" aria-hidden="true"></i><?php echo xlt('Save');?></button>
+                        <button type="button" class="btn btn-primary btn-save" onclick="top.restoreSession(); saveClicked(undefined);"><?php echo xlt('Save');?></button>
                         <?php if ($viewmode || empty($_GET["autoloaded"])) { // not creating new encounter ?>
-                            <button type="button" class="btn btn-secondary btn-separate-left" onClick="return cancelClickedOld()"><i class="fa fa-times mr-1" aria-hidden="true"></i><?php echo xlt('Cancel');?></button>
+                            <button type="button" class="btn btn-secondary btn-cancel btn-separate-left" onClick="return cancelClickedOld()"><?php echo xlt('Cancel');?></button>
                         <?php } else { // not $viewmode ?>
-                        <button class="btn btn-secondary btn-separate-left link_submit" onClick="return cancelClickedNew()"><i class="fa fa-times mr-1" aria-hidden="true"></i><?php echo xlt('Cancel'); ?></button>
+                        <button class="btn btn-secondary btn-cancel btn-separate-left link_submit" onClick="return cancelClickedNew()"><?php echo xlt('Cancel'); ?></button>
                         <?php } // end not $viewmode ?>
                     </div>
                 </div>
