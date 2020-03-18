@@ -452,8 +452,7 @@ $pwres = sqlStatement(
 );
 while ($pwrow = sqlFetchArray($pwres)) {
     $pwarr[] = $pwrow;
-    echo "     <td class="align-top text-nowrap">" .
-    text($pwrow['title']) . "</td>\n";
+    echo "     <td class='align-top text-nowrap'>" . text($pwrow['title']) . "</td>\n";
 }
 ?>
     </tr>
