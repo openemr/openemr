@@ -14,7 +14,7 @@ $listener = $this->listenerObject;
 ?>
 <script type="text/javascript">
     var ajax_path = "<?php echo $GLOBALS['webroot']; ?>/interface/modules/zend_modules/public/acl/ajax";
-    $(function (){
+    $(function () {
         <?php if($this->component_id != ''){?>
             selectThis("<?php echo $this->component_id; ?>");
             selected_component = "<?php echo $this->component_id; ?>";

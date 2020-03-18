@@ -128,18 +128,14 @@ function toggle( target, div ) {
 
 }
 
-$(function(){
+$(function () {
     $("#dem_view").click(function() {
         toggle($(this), "#DEM");
     });
 
 });
 
-$(function(){
-    $("#cancel").click(function() {
-          dlgclose();
-     });
-
+$(function () {
     /**
      * add required/star sign to required form fields
      */
@@ -175,8 +171,8 @@ function displayAlert() {
     <div class="container">
         <h5 class="title"><?php echo xlt('Add Facility'); ?></h5>
         <div class="py-3">
-            <a onclick="submitform();" class="btn btn-primary btn-lg" name='form_save' id='form_save' href='#'><?php echo xlt('Save'); ?></a>
-            <a class="btn btn-secondary btn-lg" id='cancel' href='#'><?php echo xlt('Cancel'); ?></a>
+            <a onclick="submitform();" class="btn btn-primary" name='form_save' id='form_save' href='#'><?php echo xlt('Save'); ?></a>
+            <a onclick="dlgclose();" class="btn btn-secondary" id='cancel' href='#'><?php echo xlt('Cancel'); ?></a>
         </div>
 
         <form name='facility-add' id='facility-add' method='post' action="facilities.php">
@@ -184,7 +180,7 @@ function displayAlert() {
             <input type="hidden" name="mode" value="facility" />
 
             <div class="row">
-                <div class="col-sm-6">
+                <div class="col-6">
                     <div class="form-group">
                         <label for="facility"><?php echo xlt('Name'); ?>:</label>
                         <input class="form-control" type="entry" name="facility" size="20" value="" required />
@@ -213,20 +209,69 @@ function displayAlert() {
                         <label for="iban"><?php echo xlt('IBAN'); ?>: </label>
                         <input class="form-control" type="entry" size="20" name="iban" value="" />
                     </div>
-                    <div class="form-group">
-                        <label for="billing_location"><?php echo xlt('Billing Location'); ?>:</label>
-                        <input type="checkbox" name="billing_location" value="1" />
+                    <div class="form-row custom-control custom-switch my-2">
+                        <div class="col">
+                            <input type="checkbox" class='custom-control-input' name="billing_location" id="billing_location" value="1" />
+                            <label for="billing_location" class='custom-control-label'><?php echo xlt('Billing Location'); ?></label>
+                        </div>
+                    </div>
+                    <div class="form-row custom-control custom-switch my-2">
+                        <div class="col">
+                            <input type="checkbox" class='custom-control-input' name="accepts_assignment" id="accepts_assignment" value="1" aria-describedby="assignmentHelp">
+                            <label for="accepts_assignment" class='custom-control-label'><?php echo xlt('Accepts Assignment'); ?></label>
+                        </div>
+                        <div class="col">
+                            <small id="assignmentHelp" class="text-muted">
+                                (<?php echo xlt('only if billing location'); ?>)
+                            </small>
+                        </div>
+                    </div>
+                    <div class="form-row custom-control custom-switch my-2">
+                        <div class="col">
+                            <input type="checkbox" class='custom-control-input' name="service_location" id="service_location" value="1" />
+                            <label for="service_location" class='custom-control-label'><?php echo xlt('Service Location'); ?></label>
+                        </div>
+                    </div>
+                    <div class="form-row custom-control custom-switch my-2">
+                        <div class="col">
+                        <?php
+                        $disabled='';
+                        $resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => $my_fid));
+                        if (!empty($resPBE) && sizeof($resPBE)>0) {
+                            $disabled='disabled';
+                        }
+                        ?>
+                        <input type='checkbox' class='custom-control-input' name='primary_business_entity' id='primary_business_entity' value='1' <?php echo ($facility['primary_business_entity'] == 1) ? 'checked' : ''; ?>
+                                        <?php if ($GLOBALS['erx_enable']) { ?>
+                                            onchange='return displayAlert()'
+                                        <?php } ?> <?php echo $disabled;?>>
+                        <label for="primary_business_entity" class='custom-control-label'><?php echo xlt('Primary Business Entity'); ?></label>
+
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="service_location"><?php echo xlt('Service Location'); ?>:</label>
-                        <input type="checkbox" name="service_location" value="1" />
+                        <label for="ncolor"><?php echo xlt('Color'); ?>: </label>
+                        <input class="form-control" type="entry" name="ncolor" id="ncolor" size="20" value="" />
+                        <span>[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php echo xlt('Pick'); ?></a>]</span>
                     </div>
                     <div class="form-group">
-                        <label for="accepts_assignment"><?php echo xlt('Accepts Assignment'); ?>:</label>
-                        <input type="checkbox" name="accepts_assignment" value="1" aria-describedby="assignmentHelp">
-                        <small id="assignmentHelp" class="text-muted">
-                            (<?php echo xlt('only if billing location'); ?>)
-                        </small>
+                        <label for="pos_code"><?php echo xlt('POS Code'); ?>: </label>
+                        <select class="form-control" name="pos_code">
+                        <?php
+                        $pc = new POSRef();
+
+                        foreach ($pc->get_pos_ref() as $pos) {
+                            echo "<option value=\"" . attr($pos["code"]) . "\" ";
+                            echo ">" . text($pos['code'])  . ": ". text($pos['title']);
+                            echo "</option>\n";
+                        }
+
+                        ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="domain_identifier"><?php echo xlt('CLIA Number'); ?>:</label>
+                        <input class="form-control" type="entry" name="domain_identifier" size="45" />
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -265,60 +310,21 @@ function displayAlert() {
                         <input class="form-control" type="entry" size="20" name="email" value="" />
                     </div>
                     <div class="form-group">
-                        <label for="ncolor"><?php echo xlt('Color'); ?>: </label>
-                        <input class="form-control" type="entry" name="ncolor" id="ncolor" size="20" value="" />
-                        <span>[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php echo xlt('Pick'); ?></a>]</span>
+                        <label for="attn"><?php echo xlt('Billing Attn'); ?>:</label>
+                        <input class="form-control" type="entry" name="attn" size="45" />
                     </div>
+                    <div class="form-group">
+                        <label for="facility_id"><?php echo xlt('Facility ID'); ?>:</label>
+                        <input class="form-control" type="entry" name="facility_id" size="20" />
+                    </div>
+                    <div class="form-group">
+                        <label for="oid"><?php echo xlt('OID'); ?>: </label>
+                        <input class="form-control" type="entry" size="20" name="oid" value="<?php echo attr($facility["oid"]) ?>" />
+                    </div>
+
                 </div>
             </div>
-
             <hr />
-
-            <?php
-            $disabled='';
-            $resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => $my_fid));
-            if (!empty($resPBE) && sizeof($resPBE)>0) {
-                $disabled='disabled';
-            }
-            ?>
-            <div class="form-group">
-                <label for="primary_business_entity"><?php echo xlt('Primary Business Entity'); ?>: </label>
-                    <input type='checkbox' name='primary_business_entity' id='primary_business_entity' value='1' <?php echo ($facility['primary_business_entity'] == 1) ? 'checked' : ''; ?>
-                            <?php if ($GLOBALS['erx_enable']) { ?>
-                                onchange='return displayAlert()'
-                            <?php } ?> <?php echo $disabled;?>>
-            </div>
-            <div class="form-group">
-                <label for="pos_code"><?php echo xlt('POS Code'); ?>: </label>
-                <select class="form-control" name="pos_code">
-                <?php
-                $pc = new POSRef();
-
-                foreach ($pc->get_pos_ref() as $pos) {
-                    echo "<option value=\"" . attr($pos["code"]) . "\" ";
-                    echo ">" . text($pos['code'])  . ": ". text($pos['title']);
-                    echo "</option>\n";
-                }
-
-                ?>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="attn"><?php echo xlt('Billing Attn'); ?>:</label>
-                <input class="form-control" type="entry" name="attn" size="45" />
-            </div>
-            <div class="form-group">
-                <label for="domain_identifier"><?php echo xlt('CLIA Number'); ?>:</label>
-                <input class="form-control" type="entry" name="domain_identifier" size="45" />
-            </div>
-            <div class="form-group">
-                <label for="facility_id"><?php echo xlt('Facility ID'); ?>:</label>
-                <input class="form-control" type="entry" name="facility_id" size="20" />
-            </div>
-            <div class="form-group">
-                <label for="oid"><?php echo xlt('OID'); ?>: </label>
-                <input class="form-control" type="entry" size="20" name="oid" value="<?php echo attr($facility["oid"]) ?>" />
-            </div>
             <div class="form-group">
                 <label for="mail_stret"><?php echo xlt('Mailing Address'); ?>: </label>
                 <input class="form-control" type="entry" size="20" name="mail_street" value="<?php echo attr($facility["mail_street"]) ?>" />
@@ -345,6 +351,10 @@ function displayAlert() {
             </div>
             <p class="text"><span class="mandatory">*</span> <?php echo xlt('Required'); ?></p>
         </form>
+        <div class="py-3">
+            <a onclick="submitform();" class="btn btn-primary" name='form_save' id='form_save' href='#'><?php echo xlt('Save'); ?></a>
+            <a onclick="dlgclose();" class="btn btn-secondary" href='#'><?php echo xlt('Cancel'); ?></a>
+        </div>
     </div>
     <script type="text/javascript">
     <?php

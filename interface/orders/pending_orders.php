@@ -91,7 +91,7 @@ if ($_POST['form_csvexport']) {
 
     <script>
 
-        $(function() {
+        $(function () {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
 

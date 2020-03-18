@@ -282,7 +282,7 @@ $form_proc_code = $tmp_code_array[1];
     </style>
 
     <script>
-        $(function() {
+        $(function () {
             oeFixedHeaderSetup(document.getElementById('mymaintable'));
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));

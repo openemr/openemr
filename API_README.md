@@ -30,8 +30,8 @@ Obtain an API token with your login (returns an API token). For FHIR replace Uri
 Scope must match a site that has been setup in OpenEMR in the /sites/ directory.  If you haven't created additional sites
 then 'default' should be the scope.
 
-```
-curl -X POST -H 'Content-Type: application/json' 'https://localhost:8300/apis/api/auth' \
+```sh
+curl -X POST -H 'Content-Type: application/json' 'http://localhost:8300/apis/api/auth' \
 -d '{
     "grant_type":"password",
     "username": "ServiceUser",
@@ -40,7 +40,7 @@ curl -X POST -H 'Content-Type: application/json' 'https://localhost:8300/apis/ap
 }'
 ```
 Response:
-```
+```json
 {
 "token_type":"Bearer",
 "access_token":"d2870cb522230dbb8946b2f47d2c7e6664656661756c74",
@@ -49,14 +49,14 @@ Response:
 ```
 Each call must include the token:
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem' \
   -H 'Authorization: Bearer d2870cb522230dbb8946b2f47d2c7e6664656661756c74'
 ```
 
 #### POST /api/facility
 
-```
+```sh
 curl -X POST 'http://localhost:8300/apis/api/facility' -d \
 '{
     "name": "Aquaria",
@@ -75,7 +75,7 @@ curl -X POST 'http://localhost:8300/apis/api/facility' -d \
 
 #### PUT /api/facility/:fid
 
-```
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/facility/1' -d \
 '{
     "name": "Aquaria",
@@ -94,31 +94,31 @@ curl -X PUT 'http://localhost:8300/apis/api/facility/1' -d \
 
 #### GET /api/facility
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/facility'
 ```
 
 #### GET /api/facility/:fid
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/facility/1'
 ```
 
 #### GET /api/provider
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/provider'
 ```
 
 #### GET /api/provider/:prid
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/provider/1'
 ```
 
 #### POST /api/patient
 
-```
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient' -d \
 '{
     "title": "Mr",
@@ -140,7 +140,7 @@ curl -X POST 'http://localhost:8300/apis/api/patient' -d \
 
 #### PUT /api/patient/:pid
 
-```
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1' -d \
 '{
     "title": "Mr",
@@ -162,35 +162,35 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1' -d \
 
 #### GET /api/patient
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient'
 ```
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient&fname=...&lname=...&dob=...'
 ```
 
 #### GET /api/patient/:pid
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1'
 ```
 
 #### GET /api/patient/:pid/encounter
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter'
 ```
 
 #### GET /api/patient/:pid/encounter/:eid
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter/1'
 ```
 
 #### POST /api/patient/:pid/encounter/:eid/vital
 
-```
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter/1/vital' -d \
 '{
     "bps": "130",
@@ -210,7 +210,7 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter/1/vital' -d \
 
 #### PUT /api/patient/:pid/encounter/:eid/vital/:vid
 
-```
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/encounter/1/vital/1' -d \
 '{
     "bps": "140",
@@ -230,19 +230,19 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/encounter/1/vital/1' -d \
 
 #### GET /api/patient/:pid/encounter/:eid/vital
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter/1/vital'
 ```
 
 #### GET /api/patient/:pid/encounter/:eid/vital/:vid
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter/1/vital/1'
 ```
 
 #### POST /api/patient/:pid/encounter/:eid/soap_note
 
-```
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter/1/soap_note' -d \
 '{
     "subjective": "...",
@@ -254,7 +254,7 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter/1/soap_note' -d
 
 #### PUT /api/patient/:pid/encounter/:eid/soap_note/:sid
 
-```
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/encounter/1/soap_note/1' -d \
 '{
     "subjective": "...",
@@ -266,19 +266,19 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/encounter/1/soap_note/1' -
 
 #### GET /api/patient/:pid/encounter/:eid/soap_note
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter/1/soap_note'
 ```
 
 #### GET /api/patient/:pid/encounter/:eid/soap_note/:sid
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/encounter/1/soap_note/1'
 ```
 
 #### POST /api/patient/:pid/medical_problem
 
-```
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/medical_problem' -d \
 '{
     "title": "Dermatochalasis",
@@ -290,7 +290,7 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/medical_problem' -d \
 
 #### PUT /api/patient/:pid/medical_problem/:mid
 
-```
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/medical_problem/1' -d \
 '{
     "title": "Dermatochalasis",
@@ -302,25 +302,25 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/medical_problem/1' -d \
 
 #### GET /api/patient/:pid/medical_problem
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem'
 ```
 
 #### GET /api/patient/:pid/medical_problem/:mid
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem/1'
 ```
 
 #### DELETE /api/patient/:pid/medical_problem/:mid
 
-```
+```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/medical_problem/1'
 ```
 
 #### POST /api/patient/:pid/allergy
 
-```
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/allergy' -d \
 '{
     "title": "Iodine",
@@ -331,7 +331,7 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/allergy' -d \
 
 #### PUT /api/patient/:pid/allergy/:aid
 
-```
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/allergy/1' -d \
 '{
     "title": "Iodine",
@@ -342,25 +342,25 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/allergy/1' -d \
 
 #### GET /api/patient/:pid/allergy
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/allergy'
 ```
 
 #### GET /api/patient/:pid/allergy/:aid
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/allergy/1'
 ```
 
 #### DELETE /api/patient/:pid/allergy/:aid
 
-```
+```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/allergy/1'
 ```
 
 #### POST /api/patient/:pid/medication
 
-```
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/medication' -d \
 '{
     "title": "Norvasc",
@@ -371,7 +371,7 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/medication' -d \
 
 #### PUT /api/patient/:pid/medication/:mid
 
-```
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/medication/1' -d \
 '{
     "title": "Norvasc",
@@ -382,25 +382,25 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/medication/1' -d \
 
 #### GET /api/patient/:pid/medication
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/medication'
 ```
 
 #### GET /api/patient/:pid/medication/:mid
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/medication/1'
 ```
 
 #### DELETE /api/patient/:pid/medication/:mid
 
-```
+```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/medication/1'
 ```
 
 #### POST /api/patient/:pid/surgery
 
-```
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/surgery' -d \
 '{
     "title": "Blepharoplasty",
@@ -412,7 +412,7 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/surgery' -d \
 
 #### PUT /api/patient/:pid/surgery/:sid
 
-```
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/surgery/1' -d \
 '{
     "title": "Blepharoplasty",
@@ -424,25 +424,25 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/surgery/1' -d \
 
 #### GET /api/patient/:pid/surgery
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/surgery'
 ```
 
 #### GET /api/patient/:pid/surgery/:sid
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/surgery/1'
 ```
 
 #### DELETE /api/patient/:pid/surgery/:sid
 
-```
+```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/surgery/1'
 ```
 
 #### POST /api/patient/:pid/dental_issue
 
-```
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/dental_issue' -d \
 '{
     "title": "Halitosis",
@@ -453,7 +453,7 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/dental_issue' -d \
 
 #### PUT /api/patient/:pid/dental_issue/:did
 
-```
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/dental_issue/1' -d \
 '{
     "title": "Halitosis",
@@ -464,37 +464,37 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1/dental_issue/1' -d \
 
 #### GET /api/patient/:pid/dental_issue
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/dental_issue'
 ```
 
 #### GET /api/patient/:pid/dental_issue/:did
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/dental_issue/1'
 ```
 
 #### DELETE /api/patient/:pid/dental_issue/:did
 
-```
+```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/dental_issue/1'
 ```
 
 #### GET /api/patient/:pid/insurance
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/insurance'
 ```
 
 #### GET /api/patient/:pid/insurance/:type
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/insurance/secondary'
 ```
 
 #### POST /api/patient/:pid/insurance/:type
 
-```
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/10/insurance/primary' -d \
 '{
     "type": "primary",
@@ -536,7 +536,7 @@ Notes:
 
 #### PUT /api/patient/:pid/insurance/:type
 
-```
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/10/insurance/primary' -d \
 '{
     "type": "primary",
@@ -577,37 +577,37 @@ Notes:
 
 #### GET /api/list/:list_name
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/list/medical_problem_issue_list'
 ```
 
 #### GET /api/version
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/version'
 ```
 
 #### GET /api/product
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/product'
 ```
 
 #### GET /api/insurance_company
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/insurance_company'
 ```
 
 #### GET /api/insurance_type
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/insurance_type'
 ```
 
 #### POST /api/insurance_company
 
-```
+```sh
 curl -X POST 'http://localhost:8300/apis/api/insurance_company' -d \
 '{
     "name": "Cool Insurance Company",
@@ -630,7 +630,7 @@ Notes: `ins_type_code` can be found by inspecting the above route (/api/insuranc
 
 #### PUT /api/insurance_company/:iid
 
-```
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/insurance_company/1' -d \
 '{
     "name": "Super Insurance Company",
@@ -653,31 +653,31 @@ Notes: `ins_type_code` can be found by inspecting the above route (/api/insuranc
 
 #### GET /api/appointment
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/appointment'
 ```
 
 #### GET /api/appointment/:eid
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/appointment/1'
 ```
 
 #### GET /api/patient/:pid/appointment
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/appointment'
 ```
 
 #### GET /api/patient/:pid/appointment/:eid
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/appointment/1'
 ```
 
 #### POST /api/patient/:pid/appointment
 
-```
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/appointment' -d \
 '{
     "pc_eid":"1",
@@ -695,13 +695,13 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/appointment' -d \
 
 #### DELETE /api/patient/:pid/appointment/:eid
 
-```
+```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/appointment/1' -d \
 ```
 
 #### GET /api/patient/:pid/document
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/document&path=/eye_module/imaging-eye/drawings-eye'
 ```
 
@@ -712,7 +712,7 @@ Note: The `path` query string represents the OpenEMR documents paths with two ex
 
 #### POST /api/patient/:pid/document
 
-```
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/document&path=/eye_module/imaging-eye/drawings-eye' \
  -F document=@/home/someone/Desktop/drawing.jpg
 ```
@@ -724,13 +724,13 @@ Note: The `path` query string represents the OpenEMR documents paths with two ex
 
 #### GET /api/patient/:pid/document/:did
 
-```
+```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/document/1'
 ```
 
 #### POST /api/patient/:pid/message
 
-```
+```sh
 curl -X POST 'http://localhost:8300/apis/api/patient/1/message' -d \
 '{
     "body": "Test 123",
@@ -748,7 +748,7 @@ Notes:
 
 #### PUT /api/patient/:pid/message/:mid
 
-```
+```sh
 curl -X PUT 'http://localhost:8300/apis/api/patient/1/message/1' -d \
 '{
     "body": "Test 456",
@@ -766,7 +766,7 @@ Notes:
 
 #### DELETE /api/patient/:pid/message/:mid
 
-```
+```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/message/1'
 ```
 

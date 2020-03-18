@@ -39,7 +39,7 @@ $.extend($.ui.multiselect.locale, {
 <script language="javascript" src="<?php js_src('jQuery.fn.sortElements.js') ?>"></script>
 
 <script type="text/javascript">
-    $(function() {
+    $(function () {
         //load plans
         $("#cdr-plans").load('<?php library_src('RulesPlanMappingEventHandlers_ajax.php') ?>');
 

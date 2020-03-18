@@ -242,7 +242,7 @@ if ($imauthorized && $see_auth > 1) {
 
 /* added to adjust the height of this frame by the min/max buttons */
 var origRows = null;
-$(function (){
+$(function () {
 
     $(".noterow").on("mouseover", function() { $(this).toggleClass("highlight"); });
     $(".noterow").on("mouseout", function() { $(this).toggleClass("highlight"); });

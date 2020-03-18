@@ -1,6 +1,6 @@
 Thank you for your contribution. OpenEMR (and global healthcare) continues to get better because of people like you!
 
-The maintainers of OpenEMR want to get your pull request in as seamlessly as possible, so please ensure your code is consistent with our [development policies](http://open-emr.org/wiki/index.php/Development_Policies).
+The maintainers of OpenEMR want to get your pull request in as seamlessly as possible, so please ensure your code is consistent with our [development policies](https://open-emr.org/wiki/index.php/Development_Policies).
 
 ## Code Contributions (local development)
 You will need a "local" version of OpenEMR to make changes to the source code. The easiest way to do this is with [Docker](https://hub.docker.com/r/openemr/openemr/):
@@ -11,7 +11,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     - If you haven't already, [install Docker](https://docs.docker.com/install/) for your system
 3. Run `docker-compose up` from your command line
     - When the build is done, you'll see the following message:
-    ```
+    ```sh
     openemr_1  | Love OpenEMR? You can now support the project via the open collective:
     openemr_1  |  > https://opencollective.com/openemr/donate
     openemr_1  |
@@ -21,9 +21,13 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
 4. Navigate to `http://localhost:8300/` to login as `admin`. Password is `pass`.
 5. Make changes to any files on your local file system. Most changes will appear after a refresh of the page or iFrame you're working on.
     - An exception to this is if making changes to styling scripts in interface/themes/. In that case will need to clear web browser cache and run the following command to rebuild the theme files:
-    ```
+    ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cd openemr; npm run build'
     ```
+    -  To check PHP error logs run
+   ```sh
+   docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cat /var/log/apache2/error.log'
+   ```
 6. If you wish to connect to the sql database, this docker environment provides the following 2 options:
     - Navigate to `http://localhost:8310/` where you can login into phpMyAdmin.
     - Or you can directly connect to port 8320 via your favorite sql tool (Mysql Workbench etc.).
@@ -47,7 +51,7 @@ Anyone can file an expense. If the expense makes sense for the development of th
 ### Contributors
 
 Thank you to all the people who have already contributed to openemr!
-<a href="graphs/contributors"><img src="https://opencollective.com/openemr/contributors.svg?width=890" /></a>
+<a href="https://github.com/openemr/openemr/graphs/contributors"><img src="https://opencollective.com/openemr/contributors.svg?width=890" /></a>
 
 
 ### Backers

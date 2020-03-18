@@ -1,4 +1,4 @@
-/* 
+/*
  */
 var type_ahead = function( args ) {
 
@@ -9,7 +9,7 @@ var type_ahead = function( args ) {
     }
 
     var fn_wire_events = function() {
-        $(function() {
+        $(function () {
             $( "#" + inputId ).autocomplete(
                 url,
                 {
@@ -26,7 +26,7 @@ var type_ahead = function( args ) {
 
     return {
             init: function() {
-                $( document ).ready( function() {
+                $(function () {
                     fn_wire_events();
                     fn_work();
                 });

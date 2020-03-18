@@ -106,7 +106,7 @@ $row = sqlFetchArray($res);
             <form method='post' action='user_info.php' class='form-horizontal' onsubmit='return update_password()'>
                 <input type=hidden name=secure_pwd value="<?php echo attr($GLOBALS['secure_password']); ?>">
                 <fieldset>
-                    <legend><?php echo xlt('Change Password for') . " " . $user_full_name; ?></legend>
+                    <legend><?php echo xlt('Change Password for') . " " . text($user_full_name); ?></legend>
                     <div class="form-group">
                         <label class='control-label col-sm-2'><?php echo xlt('Full Name') . ":"; ?></label>
                         <div class="col-sm-10">

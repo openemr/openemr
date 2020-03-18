@@ -240,7 +240,7 @@ function download_file()
  document.de_identification.submit();
 }
 
-$(function(){
+$(function () {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>

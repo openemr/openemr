@@ -52,7 +52,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
             window.location.href = 'mfa_registrations.php';
         }
 
-        $(function() {
+        $(function () {
             $('#clearPass').focus();
         });
     </script>

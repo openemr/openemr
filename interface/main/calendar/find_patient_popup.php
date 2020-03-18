@@ -76,9 +76,9 @@ form {
     /*font-size: 0.7em;*/
     border-bottom: 1px solid var(--light);
 }
-.billing { 
+.billing {
     color: var(--danger);
-    font-weight: bold; 
+    font-weight: bold;
 }
 
 /* for search results or 'searching' notification */
@@ -222,7 +222,7 @@ if (isset($_GET["res"])) {
 
 // jQuery stuff to make the page a little easier to use
 
-$(function(){
+$(function () {
     $("#searchparm").focus();
     $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });

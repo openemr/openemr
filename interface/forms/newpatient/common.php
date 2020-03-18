@@ -618,7 +618,7 @@ if ($GLOBALS['enable_group_therapy']) { ?>
     <?php
 } ?>
 
-$(function (){
+$(function () {
     $('#sensitivity-tooltip').attr({"title": <?php echo xlj('If set as high will restrict visibility of encounter to users belonging to certain groups (AROs). By default - Physicians and Administrators'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
     $('#onset-tooltip').attr({"title": <?php echo xlj('Hospital date needed for successful billing of hospital encounters'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
 });
