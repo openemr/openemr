@@ -20,7 +20,7 @@ if (!$encounter) {
 if ($_POST) {
     if (!empty($_POST['docid'])) {
         $setdocid = "UPDATE `form_handwritten` SET `value` = ? WHERE `name` = 'doc_category'";
-        sqlStatement($setdocid, $_POST['docid']);
+        sqlStatement($setdocid, [$_POST['docid']]);
         echo xlt("Your data has been saved.");
     }
 }
