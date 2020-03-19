@@ -44,12 +44,11 @@ function ProductRegistrationController() {
         buttonObject[registrationTranslations.submit] = _formSubmissionHandler;
         buttonObject[registrationTranslations.noThanks] = _formCancellationHandler;
 
-        $('.product-registration-modal').ready (function() {
+        $('.product-registration-modal').ready(function() {
             $('.product-registration-modal .modal-header').text(registrationTranslations.title);
             $('.product-registration-modal .submit').on('click', _formSubmissionHandler);
             $('.product-registration-modal .noThanks').on('click', _formCancellationHandler);
             $('.product-registration-modal').modal('show');
-            
         });
 
         // Wire up "enter key" handler in case user doesn't click the modal buttons manually

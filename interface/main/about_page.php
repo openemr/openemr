@@ -138,8 +138,10 @@ $version = $versionService->fetch();
                     <p class="message font-italic"></p>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-primary submit">Submit</button>
-                    <button class="btn btn-danger noThanks">No Thanks</button>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-primary submit">Submit</button>
+                        <button class="btn btn-danger noThanks">No Thanks</button>
+                    </div>
                 </div>
            </div>
         </div>

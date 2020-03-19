@@ -342,20 +342,22 @@ if (count($emr_app)) {
                     </p>
                 </div>
                 <div class="product-registration-modal modal fade">
-                <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                <div class="modal-header"></div>
-                <div class="modal-body">
-                    <p class="context"><?php echo xlt("Register your installation with OEMR to receive important notifications, such as security fixes and new release announcements."); ?></p>
-                    <input placeholder="<?php echo xlt('email'); ?>" type="email" class="email w-100 text-body" />
-                    <p class="message font-italic"></p>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary submit">Submit</button>
-                    <button class="btn btn-danger noThanks">No Thanks</button>
-                </div>
-                </div>
-                </div>
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                        <div class="modal-header"></div>
+                        <div class="modal-body">
+                            <p class="context"><?php echo xlt("Register your installation with OEMR to receive important notifications, such as security fixes and new release announcements."); ?></p>
+                            <input placeholder="<?php echo xlt('email'); ?>" type="email" class="email w-100 text-body" />
+                            <p class="message font-italic"></p>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-primary submit">Submit</button>
+                                <button class="btn btn-danger noThanks">No Thanks</button>
+                            </div>
+                        </div>
+                     </div>
+                 </div>
                 </div>
             </div>
         </form>
