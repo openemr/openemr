@@ -49,14 +49,7 @@ function ProductRegistrationController() {
             $('.product-registration-modal .submit').on('click', _formSubmissionHandler);
             $('.product-registration-modal .noThanks').on('click', _formCancellationHandler);
             $('.product-registration-modal').modal('show');
-            // resizable: false,
-            // height: "auto",
-            // width: 400,
-            // draggable: false,
-            // title: registrationTranslations.title,
-            // modal: true,
-            // buttons: buttonObject,
-            // closeText: registrationTranslations.closeTooltip
+            
         });
 
         // Wire up "enter key" handler in case user doesn't click the modal buttons manually
