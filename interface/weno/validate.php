@@ -111,25 +111,10 @@ if (empty($patient['sex'])) {
 }
 if (empty($diagnosis)) {
     print xlt("Please enter a Medical Problem for this patient"). "<br />";
+	++$i;
 }
 
-$ncpdpLength = strlen($pharmacy['ncpdp']);
-if (empty($pharmacy['ncpdp']) || $ncpdpLength < 7) {
-    print xlt("Pharmacy missing NCPDP ID or less than 7 digits"). "<br />";
-    ++$i;
-}
-$npiLength = strlen($pharmacy['npi']);
-if (empty($pharmacy['npi'] || $npiLength < 10)) {
-    print xlt("Pharmacy missing NPI  or less than 10 digits"). "<br />";
-    ++$i;
-}
-//validate NPI exist
-//Test if the NPI is a valid number on file
-$seekvalidation = $validation->validateNPI($pharmacy['npi']);
-if ($seekvalidation == 0) {
-    print xlt("Please use valid NPI");
-    ++$i;
-}
+
 if ($i < 1) {
     header('Location: prescriptionorder.php');
 } else {

@@ -39,6 +39,7 @@ class PharmaciesRepository extends EntityRepository
             )
             ->where('pa.name LIKE :term')
             ->setParameter('term', '%'.$term.'%')
+            ->orderBy('pa.name', 'ASC')
             ->getQuery()
             ->getResult();
 
