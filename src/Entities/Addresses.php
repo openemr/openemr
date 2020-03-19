@@ -201,8 +201,5 @@ class Addresses
     {
         $this->foreign_id = $foreign_id;
     }
-
-
-
-
+    
 }

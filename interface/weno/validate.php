@@ -111,9 +111,8 @@ if (empty($patient['sex'])) {
 }
 if (empty($diagnosis)) {
     print xlt("Please enter a Medical Problem for this patient"). "<br />";
-	++$i;
+    ++$i;
 }
-
 
 if ($i < 1) {
     header('Location: prescriptionorder.php');
