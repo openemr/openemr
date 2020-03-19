@@ -21,7 +21,7 @@ use Pharmacy;
  * It can be adapted to work in other countries if a similar API is available.
  * There is a duplication check using the NPI number. If the NPI number exist in the table. The entry is skipped.
  * However, if the pharmacy gets a new NPI number, there could be two entries with the same address and different
- * NPI numbers. I have discovered that some times erroneous entries can be retrieved. 
+ * NPI numbers. I have discovered that some times erroneous entries can be retrieved.
  */
 class ImportPharmacies
 {
