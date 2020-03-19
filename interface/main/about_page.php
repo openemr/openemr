@@ -143,7 +143,7 @@ $version = $versionService->fetch();
                         <button class="btn btn-danger noThanks">No Thanks</button>
                     </div>
                 </div>
-           </div>
+            </div>
         </div>
     </div>
 </body>
