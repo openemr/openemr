@@ -198,7 +198,11 @@ class NewRx
         $writtendate = $medicationpres->addChild('WrittenDate');
         $writtendate->addChild('Date', date("Y-m-d"));
         $substitution = $medicationpres->addChild('Substitutions', '0');
-        if (empty($medData['refills'])) { $refills = 0; } else { $refills = $medData['refills']; }
+        if (empty($medData['refills'])) {
+            $refills = 0;
+        } else {
+            $refills = $medData['refills'];
+        }
         $refills = $medicationpres->addChild('NumberOfRefills', $refills);
         $diagnosis = $medicationpres->addChild('Diagnosis');
         $clinical = $diagnosis->addChild('ClinicalInformationQualifier', '1');
