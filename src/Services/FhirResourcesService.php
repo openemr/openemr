@@ -159,6 +159,39 @@ class FhirResourcesService
             return $resource;
         }
     }
+	
+	public function parsePatientResource($fhirJson)
+	{
+		$data["title"] = "";
+		$name = [];
+		foreach($fhirJson["name"] as $sub_name){
+			if($sub_name["use"] == "official"){
+				$name = $sub_name;
+				break;
+			}
+		}
+		$data["lname"] = $name["family"];
+		$data["fname"] = $name["given"][0];
+		$data["mname"] = $name["given"][1];
+		$data["street"] = $fhirJson["address"][0]["line"][0];
+		$data["postal_code"] = $fhirJson["address"][0]["postalCode"];
+		$data["city"] = $fhirJson["address"][0]["city"];
+		$data["state"] = $fhirJson["address"][0]["state"];
+		$data["country_code"] = "" ;
+		$phone = [];
+		foreach($fhirJson["telecom"] as $phone){
+			if($phone["use"] == "mobile"){
+				$name = $phone;
+				break;
+			}
+		}
+		$data["phone_contact"] = $phone["value"]; 
+		$data["dob"] = $fhirJson["birthDate"];
+		$data["sex"] = $fhirJson["gender"];
+		$data["race"] = "";
+		$data["ethnicity"] = "";
+		return $data;
+	}
 
     public function parsePatientResource($fhirJson)
     {
