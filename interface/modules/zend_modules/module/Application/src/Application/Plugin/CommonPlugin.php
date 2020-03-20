@@ -81,7 +81,7 @@ class CommonPlugin extends AbstractPlugin
         return $date_formatted;
     }
 
-    public function escapeLimit($val)
+    public static function escapeLimit($val)
     {
         return escape_limit($val);
     }
