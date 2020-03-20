@@ -331,10 +331,12 @@ function menuActionClick(data,evt)
           dataurl = '/interface/patient_file/encounter/encounter_top.php?formname=' +
             matches[1] + '&formdesc=' + encodeURIComponent(data.label());
         }
-
+        
+        if(!openExistingTab(data)){
         navigateTab(webroot_url + dataurl, data.target, function () {
             activateTabByName(data.target,true);
         },xl("Loading") + " " + dataLabel);
+    }
 
         var par = $(evt.currentTarget).closest("ul.menuEntries");
         par.wrap("<ul class='timedReplace' style='display:none;'></ul>");
@@ -409,4 +411,26 @@ function clearTherapyGroup()
 
         }
     });
+}
+
+function openExistingTab(data)
+{
+    let exist = false;
+    for(var tabIdx=0;tabIdx<app_view_model.application_data.tabs.tabsList().length;tabIdx++)
+    {
+        var curTab=app_view_model.application_data.tabs.tabsList()[tabIdx];
+        if(data.url()!==curTab.url())
+        {
+            if(!curTab.locked())
+            {
+                curTab.visible(false);
+            }
+        }
+        else
+        {
+            curTab.visible(true);
+            exist = true;
+        }
+    }
+    return exist;
 }
