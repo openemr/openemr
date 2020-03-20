@@ -3270,25 +3270,11 @@ $GLOBALS_METADATA = array(
             xl('Enable Weno eRx Service') . ' ' . xl('Contact Open Med Practice, www.openmedpractice.com for subscribing to the Weno Free eRx service.')
         ),
 
-        'weno_account_id' => array(
-            xl('Weno eRx Account Id'),
-            'text',
-            '137',
-            xl('Account Id issued for Weno eRx service.')
-        ),
-
-        'weno_account_pass' => array(
-            xl('Weno eRx Account Pass'),
-            'encrypted',                      // data type
-            '7C84773D5063B20BC9E41636A091C6F17E9C1E34',
-            xl('Account Id issued for Weno eRx service.')
-        ),
-
-        'weno_provider_id' => array(
-            xl('Weno eRx Clinic ID'),
-            'text',
-            'C36275',
-            xl('Account Id issued for Your clinics eRx service.')
+        'weno_rx_testing' => array(
+            xl('Disable Weno eRx Test Mode'),
+            'bool',
+            '1',
+            xl('Disable Weno eRx Test Mode') . ' ' . xl('By default the system will be in test mode until you are ready to go live')
         ),
 
         'ccda_alt_service_enable' => array(

@@ -33,7 +33,15 @@ foreach ($meds as $med) {
     $payloads .= $payload.":::";
 }
 
-$request_url = 'https://apa.openmedpractice.com/apa/interface/weno/receivingrx_v2';
+/**
+ * determine which gateway to transmit script
+ */
+if ($GLOBALS['weno_rx_testing'] == 1) {
+    $request_url = 'https://apa.openmedpractice.com/apa/interface/weno/receivingrx_test_v2';
+} else {
+    $request_url = 'https://apa.openmedpractice.com/apa/interface/weno/receivingrx_v2';
+}
+
 $response = get_url($request_url, $payloads);
 
 //Transmit RX payload to gateway
