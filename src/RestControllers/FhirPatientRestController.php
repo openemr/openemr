@@ -35,9 +35,14 @@ class FhirPatientRestController
     {
         $oept = $this->patientService->getOne();
         $pid = 'patient-' . $this->patientService->getPid();
-        $patientResource = $this->fhirService->createPatientResource($pid, $oept, false);
+        if ($oept) {
+            $resource = $this->fhirService->createPatientResource($pid, $oept, false);
+            $statusCode = 200;
+        } else {
+            $resource = $this->fhirService->createUnknownResource($pid, false);
+        }
 
-        return RestControllerHelper::responseHandler($patientResource, null, 200);
+        return RestControllerHelper::responseHandler($resource, null, $statusCode = 404);
     }
 
     public function getAll($search)
