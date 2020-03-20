@@ -352,14 +352,14 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::authorization_check("encounters", "auth_a");
         return (new FhirEncounterRestController())->getOne($eid);
     },
-    	"POST /fhir/Patient" => function () {
+    "POST /fhir/Patient" => function () {
         RestConfig::authorization_check("patients", "demo");
-        $data = (array)(json_decode(file_get_contents("php://input")));
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
         return (new FhirPatientRestController(null))->post($data);
     },
 	"PUT /fhir/Patient/:pid" => function ($pid) {
         RestConfig::authorization_check("patients", "demo");
-        $data = (array)(json_decode(file_get_contents("php://input")));
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
         return (new FhirPatientRestController(null))->put($pid, $data);
     }
 );
