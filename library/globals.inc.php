@@ -240,32 +240,6 @@ $GLOBALS_METADATA = array(
             xl("Select the default font size (need to logout/login after changing this setting)."),
         ),
 
-        'vertical_responsive_menu' => array(
-            xl('Responsive Vertical Menu Style for Tabs')  .'*' ,
-            array(
-                '736' => xl('iPhone 6/7/8 Plus') . " -  736 X 414" . xl('px'),
-                '740' => xl('Galaxy S9/S9 Plus') . " -  740 X 360" . xl('px'),
-                '812' => xl('iPhone X/XS') . " -  812 X 375" . xl('px'),
-                '896' => xl('iPhone XR/XS Max') . " -  896 X 414" . xl('px'),
-                '1024' => xl('iPad/iPad Mini, XGA') . " -  1024 X 768" . xl('px'),
-                '1112' => xl('iPad Pro 10.5 inches') . " -  1112 X 834" . xl('px'),
-                '1280' => xl('Kindle Fire HDX, Laptop MDPI, WXGA') . " -  1280 X 800" . xl('px'),
-                '1336' => xl('iPad Pro 12.5 inches') . " -  1336 X 1024" . xl('px'),
-                '1366' => xl('HD') . " -  1366 X 768" . xl('px'),
-                '1440' => xl('Laptop HiDPI, WXGA+') . " -  1440 X 900" . xl('px'),
-                '1600' => xl('HD+') . " -  1600 X 900" . xl('px'),
-                '1680' => xl('WSXGA+') . " -  1680 X 1050" . xl('px'),
-                '1920' => xl('FHD, WUXGA') . " -  1920 X 1080, 1920 X 1200" . xl('px'),
-                '2048' => xl('QWXGA') . " -  2048 X 1152" . xl('px'),
-                '2560' => xl('QHD') . " -  2560 X 1440" . xl('px'),
-                '3840' => xl('4K UHD') . " -  3840 X 2160" . xl('px'),
-
-            ),
-
-            '1024', //default iPad/iPad mini
-            xl('Selecting the width for responsive vertical style menus in tab based layout (need to logout/login after changing this setting)')
-        ),
-
         'menu_styling_vertical' => array(
             xl('Vertical Menu Style for Frames'),
             array(
