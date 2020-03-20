@@ -353,7 +353,7 @@ if (count($emr_app)) {
                             <div class="modal-footer">
                                 <div class="btn-group" role="group">
                                     <button class="btn btn-primary submit">Submit</button>
-                                    <button class="btn btn-danger noThanks">No Thanks</button>
+                                    <button class="btn btn-danger nothanks">No Thanks</button>
                                 </div>
                             </div>
                         </div>

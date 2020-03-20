@@ -47,7 +47,7 @@ function ProductRegistrationController() {
         $('.product-registration-modal').ready(function() {
             $('.product-registration-modal .modal-header').text(registrationTranslations.title);
             $('.product-registration-modal .submit').on('click', _formSubmissionHandler);
-            $('.product-registration-modal .noThanks').on('click', _formCancellationHandler);
+            $('.product-registration-modal .nothanks').on('click', _formCancellationHandler);
             $('.product-registration-modal').modal('show');
         });
 
