@@ -94,7 +94,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
 <script language="JavaScript">
 
 
-    var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+    const mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
     // Process click on issue title.
     function newissue() {
@@ -117,18 +117,18 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
     //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
     $collectthis = collectValidationPageRules("/interface/forms/newpatient/common.php");
     if (empty($collectthis)) {
-         $collectthis = "undefined";
+        $collectthis = "undefined";
     } else {
-         $collectthis = json_sanitize($collectthis["new_encounter"]["rules"]);
+        $collectthis = json_sanitize($collectthis["new_encounter"]["rules"]);
     }
     ?>
-    var collectvalidation = <?php echo $collectthis; ?>;
-    $(function () {
+    const collectvalidation = <?php echo $collectthis; ?>;
+    $(function() {
         window.saveClicked = function(event) {
-            var submit = submitme(1, event, 'new-encounter-form', collectvalidation);
+            const submit = submitme(1, event, 'new-encounter-form', collectvalidation);
             if (submit) {
-            top.restoreSession();
-            $('#new-encounter-form').submit();
+                top.restoreSession();
+                $('#new-encounter-form').submit();
             }
         }
 
@@ -156,9 +156,9 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
     });
 
     function bill_loc(){
-        var pid = <?php echo attr($pid);?>;
-        var dte = document.getElementById('form_date').value;
-        var facility = document.forms[0].facility_id.value;
+        const pid = <?php echo attr($pid);?>;
+        const dte = document.getElementById('form_date').value;
+        const facility = document.forms[0].facility_id.value;
         ajax_bill_loc(pid, dte, facility);
         <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
             $.ajax({
@@ -245,7 +245,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 </div>
             </div>
         </div>
-        <form id="new-encounter-form" method='post' action="<?php echo $rootdir ?>/forms/newpatient/save.php" name='new_encounter'>
+        <form class="mt-3" id="new-encounter-form" method='post' action="<?php echo $rootdir ?>/forms/newpatient/save.php" name='new_encounter'>
         <?php if ($viewmode && $mode !== "followup") { ?>
             <input type=hidden name='mode' value='update' />
             <input type=hidden name='id' value='<?php echo (isset($_GET["id"])) ? attr($_GET["id"]) : '' ?>' />
@@ -270,7 +270,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
                                     <?php
                                     //Bring only patient ang group categories
-                                    $visitSQL = "SELECT pc_catid, pc_catname, pc_cattype 
+                                    $visitSQL = "SELECT pc_catid, pc_catname, pc_cattype
                                                FROM openemr_postcalendar_categories
                                                WHERE pc_active = 1 and pc_cattype IN (0,3) and pc_constant_id  != 'no_show' ORDER BY pc_seq";
 
@@ -365,18 +365,19 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             ?>
                             </div>
                         </div>
-                        <div class="form-group w-50 mx-auto text-center">
+
+                        <div class="form-group mx-auto mt-2">
                             <label for='form_date' class="oe-text-to-right"><?php echo xlt('Date of Service:'); ?></label>
                             <input type='text' class='form-control datepicker' name='form_date' id='form_date' <?php echo $disabled ?> value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : attr(oeFormatShortDate(date('Y-m-d'))); ?>' title='<?php echo xla('Date of service'); ?>'/>
                         </div>
-                        <div class="form-group w-50 mx-auto text-center">
+                        <div class="form-group mx-auto mt-2">
                             <span <?php if ($GLOBALS['ippf_specific']) {
                                 echo " style='visibility:hidden;'"; } ?>>
                                 <label for='form_onset_date' class="oe-text-to-right"><?php echo xlt('Onset/hosp. date:'); ?> &nbsp;<i id='onset-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
                                 <input type='text' class='form-control datepicker' name='form_onset_date' id='form_onset_date' value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr($result['onset_date'], 0, 10))) : ''; ?>' title='<?php echo xla('Date of onset or hospitalization'); ?>' />
                             </span>
                         </div>
-                        <div class="form-row"
+                        <div class="form-group mx-auto mt-2"
                             <?php
                             if (!$GLOBALS['gbl_visit_referral_source']) {
                                 echo "style='display:none' " ;
@@ -390,7 +391,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             </div>
                         </div>
                         <?php if ($GLOBALS['enable_group_therapy']) { ?>
-                        <div class="form-row" id="therapy_group_name" style="display: none">
+                        <div class="form-group mx-auto mt-2" id="therapy_group_name" style="display: none">
                             <label for="form_group" class="col-sm-2 oe-text-to-right"><?php echo xlt('Group name'); ?>:</label>
                             <div class="col-sm">
                                 <input type='text' name='form_group' class='form-control' id="form_group" placeholder='<?php echo xla('Click to select');?>' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr(getGroup($result['external_id'])['group_name']) : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
@@ -398,8 +399,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             </div>
                         </div>
                         <?php }?>
-                        <div class="form-row">
-                            <label for='facility_id' class="col-sm-2 oe-text-to-right"><?php echo xlt('Facility'); ?>:</label>
+                        <div class="form-row align-items-center mt-2">
+                            <div class="col-sm-2">
+                                <label for='facility_id' class="oe-text-to-right"><?php echo xlt('Facility'); ?>:</label>
+                            </div>
                             <div class="col-sm">
                                 <select name='facility_id' id='facility_id' class='form-control' onChange="bill_loc()" <?php echo ($mode === "followup") ? 'disabled' : ''; ?> >
                                     <?php
@@ -432,7 +435,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <?php if ($mode === "followup") {?>
                                 <input name="facility_id" value="<?php echo attr($result['facility_id']); ?>" hidden />
                             <?php } ?>
-                            <label for='billing_facility' class="col-sm-2 oe-text-to-right"><?php echo xlt('Billing Facility'); ?>:</label>
+                            <div class="col-sm-2">
+                                <label for='billing_facility' class="oe-text-to-right"><?php echo xlt('Billing Facility'); ?>:</label>
+                            </div>
                             <div id="ajaxdiv" class="col-sm">
                                 <?php
                                     $default_bill_fac = isset($result['billing_facility']) ? $result['billing_facility'] : $def_facility;
@@ -486,7 +491,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <div class="pb-1">
                                 <div class="btn-group" role="group">
                                     <?php if (AclMain::aclCheckCore('patients', 'med', '', 'write')) { ?>
-                                   <a href="../../patient_file/summary/add_edit_issue.php" class="btn btn-primary btn-sm enc_issue" onclick="top.restoreSession()"><?php echo xlt('Add Issue'); ?></a>
+                                   <a href="../../patient_file/summary/add_edit_issue.php" class="btn btn-primary btn-add btn-sm enc_issue" onclick="top.restoreSession()"><?php echo xlt('Add Issue'); ?></a>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -528,13 +533,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
             <div class="form-row">
                 <div class="col-sm-12 text-left position-override">
-                    <button type="button" class="btn btn-secondary btn-save" onclick="top.restoreSession(); saveClicked(undefined);"><?php echo xlt('Save');?></button>
-                    <?php if ($viewmode || empty($_GET["autoloaded"])) { // not creating new encounter ?>
-                        <button type="button" class="btn btn-link btn-cancel btn-separate-left" onClick="return cancelClickedOld()"><?php echo xlt('Cancel');?></button>
-                    <?php } else { // not $viewmode ?>
-                    <button class="btn btn-link btn-cancel btn-separate-left link_submit" onClick="return cancelClickedNew()">
-                            <?php echo xlt('Cancel'); ?></button>
-                    <?php } // end not $viewmode ?>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-primary btn-save" onclick="top.restoreSession(); saveClicked(undefined);"><?php echo xlt('Save');?></button>
+                        <?php if ($viewmode || empty($_GET["autoloaded"])) { // not creating new encounter ?>
+                            <button type="button" class="btn btn-secondary btn-cancel btn-separate-left" onClick="return cancelClickedOld()"><?php echo xlt('Cancel');?></button>
+                        <?php } else { // not $viewmode ?>
+                        <button class="btn btn-secondary btn-cancel btn-separate-left link_submit" onClick="return cancelClickedNew()"><?php echo xlt('Cancel'); ?></button>
+                        <?php } // end not $viewmode ?>
+                    </div>
                 </div>
             </div>
         </form>
@@ -579,7 +585,7 @@ if (!$viewmode) { ?>
 <?php
 if ($GLOBALS['enable_group_therapy']) { ?>
 /* hide / show group name input */
-    var groupCategories = <?php echo json_encode($therapyGroupCategories); ?>;
+    const groupCategories = <?php echo json_encode($therapyGroupCategories); ?>;
     $('#pc_catid').on('change', function () {
         if(groupCategories.indexOf($(this).val()) > -1){
             $('#therapy_group_name').show();
@@ -590,7 +596,7 @@ if ($GLOBALS['enable_group_therapy']) { ?>
 
     function sel_group() {
       top.restoreSession();
-      var url = '<?php echo $GLOBALS['webroot']?>/interface/main/calendar/find_group_popup.php';
+      const url = '<?php echo $GLOBALS['webroot']?>/interface/main/calendar/find_group_popup.php';
       dlgopen(url, '_blank', 500, 400, '', '', {
           buttons: [
               {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
@@ -613,7 +619,6 @@ if ($GLOBALS['enable_group_therapy']) { ?>
 } ?>
 
 $(function () {
-    $('#billing_facility').addClass('col-sm-9');
     $('#sensitivity-tooltip').attr({"title": <?php echo xlj('If set as high will restrict visibility of encounter to users belonging to certain groups (AROs). By default - Physicians and Administrators'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
     $('#onset-tooltip').attr({"title": <?php echo xlj('Hospital date needed for successful billing of hospital encounters'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
 });
