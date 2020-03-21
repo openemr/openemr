@@ -16,7 +16,6 @@
 
 namespace OpenEMR\Services;
 
-
 use Particle\Validator\Validator;
 
 require_once(dirname(__FILE__) . "/../../library/forms.inc");
@@ -278,13 +277,13 @@ class EncounterService
         $sql .= "     provider_id = ?,";
         $sql .= "     parent_encounter_id = ?";
         
-      $results;
+        $results;
         addForm(
             $encounter,
             "New Patient Encounter",
-           $results = sqlInsert(
-            $sql,
-            [
+            $results = sqlInsert(
+                $sql,
+                [
                 $data["date"],
                 $data["onset_date"],
                 $data["reason"],
@@ -300,7 +299,7 @@ class EncounterService
                 $data["external_id"],
                 $data["provider_id"],
                 $data["parent_enc_id"]
-            ]
+                ]
             ),
             "newpatient",
             $pid,
@@ -311,7 +310,6 @@ class EncounterService
         if ($results) {
             return $results;
         }
-  
     }
     public function insertSoapNote($pid, $eid, $data)
     {

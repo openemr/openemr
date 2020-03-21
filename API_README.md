@@ -799,7 +799,6 @@ curl -X DELETE 'http://localhost:8300/apis/api/patient/1/message/1'
 
 ### Project Management
 
-- TODO(sherwin): Encounter POST
 - TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
 - TODO(?): API for fee sheets
 - TODO(?): API for pharmacies
