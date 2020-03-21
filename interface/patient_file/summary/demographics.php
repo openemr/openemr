@@ -1505,7 +1505,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     // Show Clinical Reminders for any user that has rules that are permitted.
                     //echo "test";
-                    echo "<div>";
                     $clin_rem_check = resolve_rules_sql('', '0', true, '', $_SESSION['authUser']);
                     if (!empty($clin_rem_check) && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw'] &&
                         AclMain::aclCheckCore('patients', 'alert')) {
@@ -1514,7 +1513,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $widgetLabel = "clinical_reminders";
                         $widgetButtonLabel = xl("Edit");
                         $widgetButtonLink = "../reminder/clinical_reminders.php?patient_id=" . attr_url($pid);
-                        ;
                         $widgetButtonClass = "";
                         $linkMethod = "html";
                         $bodyClass = "summary_item small";
@@ -1525,10 +1523,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         echo "<div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>";
                         echo "</div>";
                     } // end if crw
-                     //////////////////////////////////////////////////////////////////
+                    //////////////////////////////////////////////////////////////////
 
                     // Show Panels  for selected user.
-
                     echo "<div>";
                     if (isset($pid)) {
                         // Panels summary expand collapse widget
@@ -1580,8 +1577,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                          }
                         echo "<br/>";
                         echo "</div>";
-
-                    } // end if crw
+                    } // end panel
 
 
                     //////////////////////////////////////////////////////////////////
