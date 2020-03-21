@@ -17,19 +17,17 @@
 <script type="text/html" id="user-data-template">
     <!-- ko with: user -->
         <div id="username" class="appMenu">
-            <div class="menuSection userSection">
-                <div class='menuLabel oe-pull-toward-unimportant' id="username" title="<?php echo xla('Current user') ?>">
+                <div class='menuLabel nav-item dropdown' id="username" title="<?php echo xla('Current user') ?>">
                     <div><i class="fa fa-2x fa-user oe-show" aria-hidden="true" id="user_icon"></i></div>
                     <span data-bind="text:fname"></span>
                     <span data-bind="text:lname"></span>
                 </div>
-                <ul class="userfunctions menuEntries hideaway oe-pull-toward-unimportant">
-                    <li class="menuLabel" data-bind="click: editSettings"><?php echo xlt("Settings");?></li>
-                    <li class="menuLabel" data-bind="click: changePassword"><?php echo xlt("Change Password");?></li>
-                    <li class="menuLabel" data-bind="click: changeMFA"><?php echo xlt("MFA Management");?></li>
-                    <li class="menuLabel" data-bind="click: logout"><?php echo xlt("Logout");?></li>
+                <ul class="userfunctions menuEntries dropdown-menu">
+                    <li class="menuLabel dropdown-item" data-bind="click: editSettings"><?php echo xlt("Settings");?></li>
+                    <li class="menuLabel dropdown-item" data-bind="click: changePassword"><?php echo xlt("Change Password");?></li>
+                    <li class="menuLabel dropdown-item" data-bind="click: changeMFA"><?php echo xlt("MFA Management");?></li>
+                    <li class="menuLabel dropdown-item" data-bind="click: logout"><?php echo xlt("Logout");?></li>
                 </ul>
-            </div>
         </div>
     <!-- /ko -->
 </script>
