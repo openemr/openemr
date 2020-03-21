@@ -18,7 +18,7 @@
         <!-- ko  foreach: tabsList -->
             <div class="tabSpan bgcolor2" data-bind="click: tabClicked, css: {tabNotchosen: !visible()}">
                 <span class="tabTitle" data-bind="text: title, click: tabClicked, css: {tabHidden: !visible()}"></span>
-                <span class="fa fa-fw fa-refresh" data-bind="click: tabRefresh, class: spinner"></span>
+                <span class="fa fa-fw fa-sync" data-bind="click: tabRefresh, class: spinner"></span>
                 <!--ko if:!locked() -->
                     <span class="fa fa-fw fa-unlock"  data-bind="click: tabLockToggle"></span>
                 <!-- /ko -->

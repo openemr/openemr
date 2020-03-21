@@ -36,7 +36,7 @@
     "replace-in-file": "^5.0.2"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.12.1",
+    "@fortawesome/fontawesome-free": "5.12.1",
     "angular": "1.7.9",
     "angular-sanitize": "1.7.9",
     "angular-summernote": "0.8.1",
