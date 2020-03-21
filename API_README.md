@@ -176,6 +176,26 @@ curl -X GET 'http://localhost:8300/apis/api/patient&fname=...&lname=...&dob=...'
 curl -X GET 'http://localhost:8300/apis/api/patient/1'
 ```
 
+#### POST /api/patient/:pid/encounter
+
+```sh
+curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter' -d \
+'{
+    "date":"2020-11-10",
+    "onset_date": "",
+    "reason": "Pregnancy Test",
+    "facility": "Owerri General Hospital",
+    "pc_catid": "5",
+    "facility_id": "3",
+    "billing_facility": "3",
+    "sensitivity": "normal",
+    "referral_source": "",
+    "pos_code": "0",
+    "external_id": "",
+    "provider_id": "1"
+}'
+```
+
 #### GET /api/patient/:pid/encounter
 
 ```sh
