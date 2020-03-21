@@ -126,7 +126,7 @@ assets:
         link: scroller.jqueryui.css
     fontawesome:
         basePath: '%assets_static_relative%/@fortawesome/fontawesome-free/css/'
-        link: fontawesome.min.css
+        link: all.min.css
         autoload: true
         allowNoLoad: true
     datetime-picker:
