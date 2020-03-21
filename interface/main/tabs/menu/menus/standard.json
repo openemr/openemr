@@ -1095,7 +1095,7 @@
             "requirement": 0,
             "acl_req": [
               "admin",
-              "users"
+              "super"
             ]
           }
         ],
