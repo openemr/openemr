@@ -1,13 +1,3 @@
-/**
- * Global uses of the font awesome library
- * TODO: Update to FontAwesome 5
- */
-
-@font-face {
-    font-family: "Font Awesome 5 Free";
-    src: url("/public/assets/@fortawesome/fontawesome-free/webfonts/fa-regular-400.ttf") format("truetype");
-}
-
 /* fix for H2 Tags */
 .fa-oe-sm {
     @include font-size("1.3rem !important");
