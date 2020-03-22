@@ -50,7 +50,20 @@ class ImportPharmacies
             'skip' => '',
             'version' => '2.1',
         ];
-        $response = oeHttpRequest::getCurlOptions('https://npiregistry.cms.hhs.gov/api/', $query,
+        
+        /**
+         * The function call was changed in PR#3172 from oeHttp::get() to oeHttpRequest::getCurlOptions()
+         * with the 'ECDHE-RSA-AES256-GCM-SHA384' cipher passed to curl in order to handle an issue in 
+         * 5.0.2 (1) with OpenSSL 1.1.1c and 1.1.1d where attempting to import the pharmacies from 
+         * https://npiregistry.cms.hhs.gov/api/ results in the error:
+         *   PHP Fatal error: Uncaught GuzzleHttp\Exception\ConnectException: cURL error 35: 
+         *   error:141A318A:SSL routines:tls_process_ske_dhe:dh key too small
+         *   (see http://curl.haxx.se/libcurl/c/libcurl-errors.html)
+         * The latest versions of OpenSSL have deprecated the use of the 512-bit Diffie–Hellman key that is 
+         * apparently still used by the CMS server.  Once CMS updates their encryption it may be possible to
+         * revert this back to the original call.
+         */
+         $response = oeHttpRequest::getCurlOptions('https://npiregistry.cms.hhs.gov/api/', $query,
             [CURLOPT_SSL_CIPHER_LIST => 'ECDHE-RSA-AES256-GCM-SHA384']);
 
         $body = $response->body(); // already should be json.
