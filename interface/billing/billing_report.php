@@ -386,7 +386,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
         function SubmitTheScreen() { //Action on Update List link
             if (!ProcessBeforeSubmitting()) return false;
-            $("#update-tooltip").replaceWith("<i class='fa fa-refresh fa-spin fa-1x' style=\"color:red\"></i>");
+            $("#update-tooltip").replaceWith("<i class='fa fa-sync fa-spin fa-1x' style=\"color:red\"></i>");
             top.restoreSession();
             document.the_form.mode.value = 'change';
             document.the_form.target = '_self';

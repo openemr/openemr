@@ -78,7 +78,7 @@ switch ($search_any_type) {
             <!-- ko with: patient -->
             <a class="btn btn-sm btn-link" data-bind="click: clickEncounterList" href="#"
                 title="<?php echo xla("Visit History"); ?>">
-                <i class="fa fa-refresh"></i>
+                <i class="fa fa-sync"></i>
             </a>
             <a class="btn btn-sm btn-link" data-bind="click: clickNewEncounter" href="#"
                 title="<?php echo xla("New Encounter"); ?>">
