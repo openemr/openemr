@@ -704,9 +704,6 @@ function postcalendar_adminmenu($menuItem)
     <a class="nav-link active" href="$cacheURL">$cacheText</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link" href="$systemURL">$systemText</a>
-</li>
-<li class="nav-item">
     <a class="nav-link" href="$categoryURL">$categoryText</a>
 </li>
 EOF;
@@ -714,9 +711,6 @@ EOF;
         $output .= <<<EOF
 <li class="nav-item">
     <a class="nav-link" href="$cacheURL">$cacheText</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link active" href="$systemURL">$systemText</a>
 </li>
 <li class="nav-item">
     <a class="nav-link" href="$categoryURL">$categoryText</a>
@@ -728,9 +722,6 @@ EOF;
     <a class="nav-link" href="$cacheURL">$cacheText</a>
 </li>
 <li class="nav-item">
-    <a class="nav-link" href="$systemURL">$systemText</a>
-</li>
-<li class="nav-item">
     <a class="nav-link active" href="$categoryURL">$categoryText</a>
 </li>
 EOF;
@@ -738,9 +729,6 @@ EOF;
         $output .= <<<EOF
 <li class="nav-item">
     <a class="nav-link" href="$cacheURL">$cacheText</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link" href="$systemURL">$systemText</a>
 </li>
 <li class="nav-item">
     <a class="nav-link" href="$categoryURL">$categoryText</a>
@@ -847,19 +835,18 @@ function postcalendar_admin_testSystem()
     }
     array_push($infos, array('smarty compile dir',  $info));
 
-    $header = <<<EOF
-	<head></head>
-	<body>
-EOF;
+    $header = "<head><title>" . xlt("Diagnostics") . "</title></head><body>";
     $output .= $header;
-    $output  = postcalendar_adminmenu("testSystem");
-    $output .= '<div class="container table-responsive"><table class="table table-bordered table-striped  "><thead>';
+    $output .= '<div class="container mt-3"><div class="row"><div class="col-sm-12"><div class="page-header clearfix">';
+    $output .= '<h2>'. xlt('Diagnostics') . '</h2>';
+    $output .= '</div></div></div>';
+    $output .= '<div class="table-responsive"><table class="table table-bordered table-striped"><thead>';
     $output .= '<tr><th>' . xlt('Name') . '</th><th>' . xlt('Value') . '</th></tr></thead>';
     foreach ($infos as $info) {
         $output.= '<tr><td><b>' . pnVarPrepHTMLDisplay($info[0]) . '</b></td>';
         $output.= '<td>' . pnVarPrepHTMLDisplay($info[1]) . '</td></tr>';
     }
-    $output .= '</div></table>';
+    $output .= '</table></div></div>';
     $output .= '<br /><br />';
     $output .= postcalendar_admin_modifyconfig('', false);
     $output .= "</body></html>";
