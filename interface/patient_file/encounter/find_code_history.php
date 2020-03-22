@@ -198,7 +198,7 @@ function get_history_codes($pid)
                 </div>
             </section>
         </div>
-        <div class="loading text-center"><i class="fa fa-refresh fa-3x fa-spin"></i></div>
+        <div class="loading text-center"><i class="fa fa-sync fa-3x fa-spin"></i></div>
     </div>
     <div class="container-fluid">
         <div style="margin-top: 45px;">
