@@ -72,7 +72,9 @@ class FhirPatientRestController
 
         $searchParam = array(
             'name' => $search['name'],
-            'dob' => $search['birthdate']
+            'dob' => $search['birthdate'],
+			'fname' => $search['fname'],
+			'lname' => $search['lname']
         );
 
         $searchResult = $this->patientService->getAll($searchParam);
