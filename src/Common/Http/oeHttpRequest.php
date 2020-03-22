@@ -153,10 +153,10 @@ class oeHttpRequest extends oeOAuth
      * The getCurlOptions() function was added in PR#3172 to be able to pass a specific cipher to curl
      * in order to handle an issue in 5.0.2 (1) with OpenSSL 1.1.1c and 1.1.1d where attempting to import
      * the pharmacies from https://npiregistry.cms.hhs.gov/api/ results in the error:
-     *   PHP Fatal error: Uncaught GuzzleHttp\Exception\ConnectException: cURL error 35: 
+     *   PHP Fatal error: Uncaught GuzzleHttp\Exception\ConnectException: cURL error 35:
      *   error:141A318A:SSL routines:tls_process_ske_dhe:dh key too small
      *   (see http://curl.haxx.se/libcurl/c/libcurl-errors.html)
-     * The latest versions of OpenSSL have deprecated the use of the 512-bit Diffie–Hellman key that is 
+     * The latest versions of OpenSSL have deprecated the use of the 512-bit Diffie–Hellman key that is
      * apparently still used by the CMS server.  Once CMS updates their encryption it may be possible to
      * remove this additional function.
      */
@@ -165,7 +165,7 @@ class oeHttpRequest extends oeOAuth
         return $this->send('GET', $url, [
             'query' => $queryParams,
             'curl' => $curlOptions
-        ]);     
+        ]);
     }
 
     public function post($url, $params = [])
