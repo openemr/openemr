@@ -29,31 +29,32 @@ class FhirPatientRestController
         $this->fhirService = new FhirResourcesService();
     }
 
-	public function post($fhirJson){				
-		$data = $this->fhirService->parsePatientResource($fhirJson);
-		
+    public function post($fhirJson)
+    {
+        $data = $this->fhirService->parsePatientResource($fhirJson);
+        
         $validationResult = $this->patientService->validate($data);
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
             return $validationHandlerResult; }
-			
+            
         $fhirserviceResult = $this->patientService->insert($data);
         return RestControllerHelper::responseHandler($fhirserviceResult, array("pid" => $fhirserviceResult), 201);
-	}
+    }
 
     public function put($pid, $fhirJson)
-    {		
-		$data = $this->fhirService->parsePatientResource($fhirJson);
-		
-		$validationResult = $this->patientService->validate($data);
+    {
+        $data = $this->fhirService->parsePatientResource($fhirJson);
+        
+        $validationResult = $this->patientService->validate($data);
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
             return $validationHandlerResult; }
-			
+            
         $fhirserviceResult = $this->patientService->update($pid, $data);
         return RestControllerHelper::responseHandler($fhirserviceResult, array("pid" => $pid), 200);
     }
-	
+    
     public function getOne()
     {
         $oept = $this->patientService->getOne();

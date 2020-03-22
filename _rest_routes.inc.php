@@ -362,7 +362,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         $data = (array)(json_decode(file_get_contents("php://input"), true));
         return (new FhirPatientRestController(null))->post($data);
     },
-	"PUT /fhir/Patient/:pid" => function ($pid) {
+    "PUT /fhir/Patient/:pid" => function ($pid) {
         RestConfig::authorization_check("patients", "demo");
         $data = (array)(json_decode(file_get_contents("php://input"), true));
         return (new FhirPatientRestController(null))->put($pid, $data);
