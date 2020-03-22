@@ -139,8 +139,8 @@ $version = $versionService->fetch();
                 </div>
                 <div class="modal-footer">
                     <div class="btn-group" role="group">
-                        <button class="btn btn-primary submit">Submit</button>
-                        <button class="btn btn-danger nothanks">No Thanks</button>
+                        <button type="button" class="btn btn-primary submit" ><?php echo xlt("Submit"); ?></button>
+                        <button type="button" class="btn btn-danger nothanks" ><?php echo xlt("No Thanks"); ?></button>
                     </div>
                 </div>
             </div>

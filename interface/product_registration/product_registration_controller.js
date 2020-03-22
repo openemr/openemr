@@ -108,11 +108,6 @@ function ProductRegistrationController() {
     };
 
      var _registrationCreatedHandler = function (data) {
-        // $('.product-registration-modal').dialog('option', {
-        //     buttons: {},
-        //     title: registrationTranslations.success
-        // });
-
         $('.product-registration-modal .context').remove();
         $('.product-registration-modal .email').remove();
         $('.product-registration-modal .message').text(registrationTranslations.registeredSuccess);
