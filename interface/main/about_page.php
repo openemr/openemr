@@ -134,7 +134,7 @@ $version = $versionService->fetch();
                 <div class="modal-header"></div>
                 <div class="modal-body">
                     <p class="context"><?php echo xlt("Register your installation with OEMR to receive important notifications, such as security fixes and new release announcements."); ?></p>
-                    <input placeholder="<?php echo xlt('email'); ?>" type="email" class="email w-100 text-body" />
+                    <input placeholder="<?php echo xlt('email'); ?>" type="email" class="email w-100 text-body form-control" />
                     <p class="message font-italic"></p>
                 </div>
                 <div class="modal-footer">
