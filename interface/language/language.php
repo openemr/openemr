@@ -88,7 +88,7 @@ use OpenEMR\Core\Header;
                             endswitch;
                         } else {
                             // If m is parameter empty, To autoload Edit Definitions page content
-                            echo('<script>$(function() {$("#definition-link").get(0).click();});</script>');
+                            echo('<script>$(function () {$("#definition-link").get(0).click();});</script>');
                         }
                         ?>
                 </div>

@@ -36,6 +36,8 @@
     "replace-in-file": "^5.0.2"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "5.12.1",
+    "@ttskch/select2-bootstrap4-theme": "1.3.2",
     "angular": "1.7.9",
     "angular-sanitize": "1.7.9",
     "angular-summernote": "0.8.1",
@@ -56,7 +58,6 @@
     "datatables.net-scroller-jqui": "2.0.1",
     "dropzone": "5.7.0",
     "dwv": "0.25.2",
-    "font-awesome": "4.7.0",
     "gritter": "1.7.4",
     "i18next": "19.1.0",
     "i18next-browser-languagedetector": "4.0.1",
@@ -74,7 +75,6 @@
     "numeral": "2.0.6",
     "purecss": "1.0.1",
     "select2": "4.0.13",
-    "select2-bootstrap4-theme": "1.3.2",
     "summernote": "0.8.15",
     "underscore": "1.9.2",
     "validate.js": "0.13.1"

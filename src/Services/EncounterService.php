@@ -18,6 +18,10 @@ namespace OpenEMR\Services;
 
 use Particle\Validator\Validator;
 
+require_once(dirname(__FILE__) . "/../../library/forms.inc");
+require_once(dirname(__FILE__) . "/../../library/encounter.inc");
+
+
 class EncounterService
 {
 
@@ -28,6 +32,15 @@ class EncounterService
     {
     }
 
+    public function validateEncounter($encounter)
+    {
+        $validator = new Validator();
+        $validator->required('date')->datetime('Y-m-d');
+        $validator->required('pc_catid');
+
+
+        return $validator->validate($encounter);
+    }
     public function validateSoapNote($soapNote)
     {
         $validator = new Validator();
@@ -242,6 +255,62 @@ class EncounterService
         return sqlQuery($sql, array($pid, $eid));
     }
 
+    public function insertEncounter($pid, $data)
+    {
+
+        $encounter = generate_id();
+        
+        $sql .= " INSERT INTO form_encounter SET";
+        $sql .= "     date = ?,";
+        $sql .= "     onset_date = ?,";
+        $sql .= "     reason = ?,";
+        $sql .= "     facility = ?,";
+        $sql .= "     pc_catid = ?,";
+        $sql .= "     facility_id = ?,";
+        $sql .= "     billing_facility = ?,";
+        $sql .= "     sensitivity = ?,";
+        $sql .= "     referral_source = ?,";
+        $sql .= "     pid = ?,";
+        $sql .= "     encounter = ?,";
+        $sql .= "     pos_code = ?,";
+        $sql .= "     external_id = ?,";
+        $sql .= "     provider_id = ?,";
+        $sql .= "     parent_encounter_id = ?";
+        
+        $results;
+        addForm(
+            $encounter,
+            "New Patient Encounter",
+            $results = sqlInsert(
+                $sql,
+                [
+                $data["date"],
+                $data["onset_date"],
+                $data["reason"],
+                $data["facility"],
+                $data["pc_catid"],
+                $data["facility_id"],
+                $data["billing_facility"],
+                $data["sensitivity"],
+                $data["referral_source"],
+                $pid,
+                $encounter,
+                $data["pos_code"],
+                $data["external_id"],
+                $data["provider_id"],
+                $data["parent_enc_id"]
+                ]
+            ),
+            "newpatient",
+            $pid,
+            $data["provider_id"],
+            $data["date"]
+        );
+
+        if ($results) {
+            return $results;
+        }
+    }
     public function insertSoapNote($pid, $eid, $data)
     {
         $soapSql  = " INSERT INTO form_soap SET";

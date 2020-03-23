@@ -38,7 +38,7 @@ use OpenEMR\Core\Header;
 
 <script>
 
-$(function(){
+$(function () {
 
 
     $("#transmit").hide();
@@ -52,7 +52,7 @@ $(function(){
       });
 
     $('#order').click(function(){
-        $('#success').html("<i class="fa fa-refresh fa-spin fa-3x fa-fw"></i>");
+        $('#success').html("<i class="fa fa-sync fa-spin fa-3x fa-fw"></i>");
         var patient = { "patient": {
                      "lname" : "Ike",
                      "fname" : "Turner",

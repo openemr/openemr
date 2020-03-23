@@ -88,7 +88,7 @@ if (count($emr_app)) {
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <?php Header::setupHeader(['jquery-ui', 'jquery-ui-darkness']); ?>
+    <?php Header::setupHeader(); ?>
 
     <title><?php echo text($openemr_name) . " " . xlt('Login'); ?></title>
 
@@ -117,7 +117,7 @@ if (count($emr_app)) {
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_controller.js?v=<?php echo $v_js_includes; ?>"></script>
 
     <script type="text/javascript">
-        $(function() {
+        $(function () {
             init();
 
             var productRegistrationController = new ProductRegistrationController();
@@ -138,7 +138,7 @@ if (count($emr_app)) {
             // disable submit button to insert a notification of working
             element.disabled = true;
             // nothing fancy. mainly for mobile.
-            element.innerHTML = '<i class="fa fa-refresh fa-spin"></i> <?php echo xlt("Authenticating"); ?>';
+            element.innerHTML = '<i class="fa fa-sync fa-spin"></i> <?php echo xlt("Authenticating"); ?>';
             <?php if (!empty($GLOBALS['restore_sessions'])) { ?>
                 // Delete the session cookie by setting its expiration date in the past.
                 // This forces the server to create a new session ID.
@@ -156,10 +156,10 @@ if (count($emr_app)) {
             <div class="row">
                 <div class="col-sm-12">
                     <div>
-                        <div style="width: 50%;" class="mx-auto m-4">
+                        <div class="mx-auto m-4 w-50">
                             <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?>
                         </div>
-                        
+
                         <input type='hidden' name='new_login_session_management' value='1' />
 
                         <?php
@@ -331,7 +331,7 @@ if (count($emr_app)) {
                         </div>
                     <?php endif; // End facilities menu block ?>
                     <div class="form-group oe-pull-away">
-                        <button type="submit" class="btn btn-secondary btn-lg" onClick="transmit_form(this)"><i class="fa fa-sign-in"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
+                        <button type="submit" class="btn btn-secondary btn-lg" onClick="transmit_form(this)"><i class="fa fa-sign-in-alt"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
                     </div>
                 </div>
             </div>
@@ -341,10 +341,23 @@ if (count($emr_app)) {
                         <a href="../../acknowledge_license_cert.html" target="main"><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></a>
                     </p>
                 </div>
-                <div class="product-registration-modal" style="display: none">
-                    <p class="context"><?php echo xlt("Register your installation with OEMR to receive important notifications, such as security fixes and new release announcements."); ?></p>
-                    <input placeholder="<?php echo xlt('email'); ?>" type="email" class="email w-100 text-body" />
-                    <p class="message font-italic"></p>
+                <div class="product-registration-modal modal fade">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header"></div>
+                            <div class="modal-body">
+                                <p class="context"><?php echo xlt("Register your installation with OEMR to receive important notifications, such as security fixes and new release announcements."); ?></p>
+                                <input placeholder="<?php echo xlt('email'); ?>" type="email" class="email w-100 text-body" />
+                                <p class="message font-italic"></p>
+                            </div>
+                            <div class="modal-footer">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-primary submit" ><?php echo xlt("Submit"); ?></button>
+                                    <button type="button" class="btn btn-danger nothanks" ><?php echo xlt("No Thanks"); ?></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>

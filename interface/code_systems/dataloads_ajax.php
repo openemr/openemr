@@ -56,20 +56,16 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
         width: 300px;
     }
     .left_wrpr {
-        float: left;
-        clear: both;
         padding: 20px;
         background-color: #E4E7EA;
     }
     .wrpr {
-        float: left;
         padding: 20px;
         background-color: #E4E7EA;
     }
     .inst_dets {
         font-size: .8em;
         font-weight: normal;
-        clear: both;
         border-style: solid;
         border-width: 2px;
         padding: 25px;
@@ -77,7 +73,6 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
         outline-color:#E4E7EA;
         outline-style: solid;
         outline-width: 20px;
-        float: left;
     }
     .stg_dets {
         padding-left: 20px;
@@ -88,7 +83,6 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
         padding: 25px;
         margin: 20px;
         outline: 20px solid #E4E7EA;
-        float: left;
         background-color: #E4E7EA;
     }
     .stg {
@@ -168,7 +162,8 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
                 <div class="card-body">
                     <div class="status" id="<?php echo attr($db); ?>_status">
                     </div>
-                    <div class="left_wrpr">
+                    <div class="row px-5">
+                    <div class="left_wrpr col-md-2 col-sm-4">
                         <div class="inst_dets">
                             <div class="inst_hdr"><?php echo xlt("Installed Release"); ?>
                             </div>
@@ -179,8 +174,10 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
                                 </div>
                             </div>
                         </div>
+                        <div >
+                        </div>
                     </div>
-                    <div class="wrpr">
+                    <div class="wrpr col-md-4 col-sm-7 offset-sm-1">
                         <div class="stg_dets">
                             <div class="stg_hdr" id="<?php echo attr($db); ?>_stg_hdr"><?php echo xlt("Staged Releases"); ?>
                             </div>
@@ -192,6 +189,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
                             </div>
                         </div>
                     </div>
+    </div>
                 </div>
             </div>
         </div>
@@ -231,16 +229,14 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
                 success: function(data) {
                     $(stg_load_id).hide();
                     $(stg_dets_id).html(data);
-                    $(`#${dbName}_instrmsg`).hover( function() {
-                        dlgopen(`${dbName.toLowerCase()}_howto.php`, '', 800, 250, false, `<div class='text-warning'>${dbName} <?php echo xla("Installation Details"); ?></div>`, {
+                    $(`#${dbName}_instrmsg`).click( function() {
+                        dlgopen(`${dbName.toLowerCase()}_howto.php`, '', 800, 250, false, `${dbName} <?php echo xla("Installation Details"); ?>`, {
                             buttons: [{
                                 text: '<?php echo xlt("Close"); ?>',
                                 close: true,
-                                style: 'default btn-sm btn-secondary'}],
+                                style: 'btn btn-sm btn-danger'}],
                             allowDrag: false,
                         });
-                    },function() {
-
                     });
                     // Initial tooltip
                     $(`#${dbName}_unsupportedmsg`).attr({"title": "<?php echo xla("OpenEMR does not recognize the incoming file in the contrib directory. This is most likely because you need to configure the release in the supported_external_dataloads table in the MySQL database."); ?>", "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();

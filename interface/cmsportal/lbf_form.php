@@ -64,7 +64,7 @@ function openPatient() {
  opener.top.RTop.document.location.href = '../patient_file/summary/demographics.php?set_pid=<?php echo attr($ptid); ?>';
 }
 
-$(function() {
+$(function () {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>

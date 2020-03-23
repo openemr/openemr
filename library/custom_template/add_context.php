@@ -67,7 +67,7 @@ if (trim($_POST['contextname'])!='' && $_POST['action']=='add') {
             }
         </style>
         <script type="text/javascript">
-            $(function() {
+            $(function () {
             $('#contextadd').hide();
             $('#contextupdate').hide();
             $('#addcontextbtn').click(function() {

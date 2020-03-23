@@ -89,7 +89,7 @@ var rule_edit = function( args ) {
 
     return {
             init: function() {
-                $( document ).ready( function() {
+                $(function () {
                     fn_wire_events();
                     fn_work();
                 });

@@ -35,7 +35,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
     <?php Header::setupHeader(); ?>
 
     <script type="text/JavaScript">
-        $(function(){
+        $(function () {
             //Bootstrap tooltip
             var groupTitle = <?php echo xlj('This section allows you to create and remove groups and modify or grant access privileges to existing groups. Check the check box to display section'); ?>;
             $('#advanced-tooltip').attr({"title": <?php echo xlj('Click to manually configure access control, recommended for advanced users'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();

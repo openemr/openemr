@@ -24,6 +24,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
+$expand_default = (int)$GLOBALS['expand_form'] ? 'show' : 'hide';
 $reviewMode = false;
 if (!empty($_REQUEST['review_id'])) {
     $reviewMode = true;
@@ -89,7 +90,7 @@ if (!empty($_GET['attachid'])) {
 ?>
 
 <script type="text/javascript">
-$( function() {
+$(function () {
     var formConfig = <?php echo $esignApi->formConfigToJson(); ?>;
     $(".esign-button-form").esign(
         formConfig,
@@ -329,23 +330,6 @@ function refreshVisitDisplay() {
   location.href = <?php echo js_escape($rootdir); ?> + '/patient_file/encounter/forms.php';
 }
 
-</script>
-
-<script>
-
-
-function divtoggle(spanid, divid) {
-    var ele = document.getElementById(divid);
-    var text = document.getElementById(spanid);
-    if(ele.style.display == "block") {
-        ele.style.display = "none";
-        text.innerHTML = <?php echo xlj('Expand'); ?>;
-    }
-    else {
-        ele.style.display = "block";
-        text.innerHTML = <?php echo xlj('Collapse'); ?>;
-    }
-}
 </script>
 
 <style type="text/css">
@@ -614,7 +598,7 @@ if ($encounterLocked === false) {
         if (!$StringEcho) {
             $StringEcho= '<ul>';
         }
-        
+
         $StringEcho.= "<div class=\"dropdown d-inline\">\n";
         $StringEcho.= "<button class='btn btn-secondary dropdown-toggle' type='button' id='lbf' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>" .xlt('Layout Based'). "</button>\n";
         $StringEcho.= "<div class='dropdown-menu' aria-labelledby='dropdownMenu2'>\n";
@@ -704,7 +688,7 @@ if ($StringEcho) {
 <!-- Form menu stop -->
 <!-- *************** -->
 
-<div id="encounter_forms">
+<div id="encounter_forms" class="mx-1">
 
 <?php
 $dateres = getEncounterDateByEncounter($encounter);
@@ -1027,9 +1011,8 @@ if ($pass_sens_squad &&
             $form_author = $user['fname'] . "  " . $user['lname'];
         }
         echo "<div class='form_header'>";
-        echo "<a href='javascript:void(0);' onclick='divtoggle(" . attr_js('spanid_'.$divnos) . "," . attr_js('divid_'.$divnos) . ");' class='small' id='aid_" . attr($divnos) . "'>" .
-          "<div class='formname'>" . text($form_name) . "</div> " .
-          xlt('by') . " " . text($form_author) . " " .
+        echo "<a href='#' data-toggle='collapse' data-target='#divid_" . attr($divnos) . "' class='small' id='aid_" . attr($divnos) . "'>" .
+          "<div class='formname' title='" . xla('Expand/Collapse this form') . "'>" . text($form_name) . "</div> " . xlt('by') . " " . text($form_author) . " " .
           "</a>";
         echo "</div>";
 
@@ -1090,7 +1073,7 @@ if ($pass_sens_squad &&
         echo "</td>\n";
         echo "</tr>";
         echo "<tr>";
-        echo "<td valign='top' class='formrow'><div id='divid_" . attr($divnos) . "' class='collapse show' style='margin-bottom:40px;' ";
+        echo "<td valign='top' class='formrow'><div id='divid_" . attr($divnos) . "' class='collapse " . attr($expand_default) . "' style='margin-bottom:40px;' ";
         echo "class='tab " . ($divnos == 1 ? 'd-block' : 'd-none') . "'>";
 
         // Use the form's report.php for display.  Forms with names starting with LBF

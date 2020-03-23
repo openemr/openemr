@@ -627,7 +627,7 @@ $ResultSearchSub = sqlStatement("SELECT  distinct encounter,code_type,code,modif
     }
     //========================================================================================
 
-    $(function() {
+    $(function () {
        $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
@@ -1055,7 +1055,7 @@ fieldset {
                                 <td class="<?php echo attr($StringClass); ?>">
                                     <input autocomplete="off" id="Allowed<?php echo attr($CountIndex); ?>" name="Allowed<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Allowed','allowtotal');UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Payment','paymenttotal');UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'AdjAmount','AdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" onkeydown="PreventIt(event)" style="width:60px; font-size:12px" class="text-right" type="text" value="<?php echo attr($AllowedDB); ?>" />
                                 </td>
-                                
+
                                 <td class="<?php echo attr($StringClass); ?>">
                                     <input autocomplete="off" id="Payment<?php echo attr($CountIndex); ?>" name="Payment<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Payment','paymenttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" onkeydown="PreventIt(event)" style="width:60px; font-size:12px" class="text-right" type="text" value="<?php echo attr($PaymentDB); ?>" />
                                 </td>

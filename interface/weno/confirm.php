@@ -106,7 +106,7 @@ $mailOrder = $tData->mailOrderPharmacy();
 <script type="text/javascript">
 
 
-    $(function(){
+    $(function () {
 
 
         var toTran = <?php echo json_encode($drug); ?>; //pass php array to jquery script
@@ -165,7 +165,7 @@ $mailOrder = $tData->mailOrderPharmacy();
 
         //Transmit order(s)
         $('#order').click(function() {
-            $('#success').html("<i class='fa fa-refresh fa-spin fa-3x fa-fw'></i>");
+            $('#success').html("<i class='fa fa-sync fa-spin fa-3x fa-fw'></i>");
             var request = [];
             var responses = [];
             // Lets not talk to user here because most likely won't make to user anyway.

@@ -194,8 +194,8 @@ function install(done) {
                     .pipe(gulp.dest(config.dist.assets + key + '/dist'));
                 gulp.src('node_modules/' + key + '/scss/**/*')
                     .pipe(gulp.dest(config.dist.assets + key + '/scss'));
-            } else if (key == 'select2-bootstrap4-theme') {
-                // select2-bootstrap4-theme is special and need to copy dist and src
+            } else if (key == '@ttskch/select2-bootstrap4-theme') {
+                // @ttskch/select2-bootstrap4-theme is special and need to copy dist and src
                 //  modify src/layout.scss in order for sass build to work by removing:
                 //   @import "~bootstrap/scss/functions";
                 //   @import "~bootstrap/scss/variables";

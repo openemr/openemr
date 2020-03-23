@@ -24,6 +24,19 @@ class EncounterRestController
         $this->encounterService = new EncounterService();
     }
 
+    public function post($pid, $data)
+    {
+        
+        $validationResult = $this->encounterService->validateEncounter($data);
+
+        $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
+        if (is_array($validationHandlerResult)) {
+            return $validationHandlerResult; }
+ 
+        $serviceResult = $this->encounterService->insertEncounter($pid, $data);
+        return RestControllerHelper::responseHandler($serviceResult, array("eid" => $serviceResult), 200);
+    }
+
     public function getOne($pid, $eid)
     {
         $serviceResult = $this->encounterService->getEncounterForPatient($pid, $eid);

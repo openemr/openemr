@@ -43,7 +43,7 @@ $form_facility   = isset($_POST['form_facility']) ? $_POST['form_facility'] : ''
 
 <script language="JavaScript">
 
-    $(function() {
+    $(function () {
         oeFixedHeaderSetup(document.getElementById('mymaintable'));
         var win = top.printLogSetup ? top : opener.top;
         win.printLogSetup(document.getElementById('printbutton'));

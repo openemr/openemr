@@ -238,12 +238,12 @@ function sqlQuery($statement, $link)
             </div>
         </div>
         <script>
-            $(function() {
+            $(function () {
                 $('#help-href').click (function(){
                     document.getElementById('targetiframe').src = "Documentation/help_files/openemr_multisite_admin_help.php";
                 })
             });
-            $(function() {
+            $(function () {
                 $('#print-help-href').click (function(){
                     $("#targetiframe").get(0).contentWindow.print();
                 })

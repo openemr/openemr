@@ -2069,7 +2069,7 @@ class Display extends base
                 window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&pid=' + pid,'SMS_bot', 'width=370,height=600,resizable=0');
                 return false;
             }
-            $(function() {
+            $(function () {
                 show_this();
 
                 $('.datepicker').datetimepicker({
@@ -2703,7 +2703,7 @@ class Display extends base
 
             </div>
             <script>
-                $(function() {
+                $(function () {
                     $('.datepicker').datetimepicker({
                         <?php $datetimepicker_timepicker = false; ?>
                         <?php $datetimepicker_showseconds = false; ?>
@@ -3128,7 +3128,7 @@ class Setup extends Base
                 // great success!
                 return true;
             }
-            $(function() { 
+            $(function () { 
                 $("#Register").click(function() {
                      signUp();
                 });

@@ -186,7 +186,7 @@ echo "   <a id='nextmonth' href='$NEXT_MONTH_URL' onclick='top.restoreSession()'
 <div id="viewPicker">
 [-php-]
 echo "   <a href='#' id='printview' title='" . xla("View Printable Version") . "' class='btn btn-primary btn-sm'><i class='fa fa-print' aria-hidden='true'></i></a>\n";
-echo "   <a href='#' title='" . xla("Refresh") . "' onclick='javascript:refreshme()' class='btn btn-primary btn-sm'><i class='fa fa-refresh' aria-hidden='true'></i></a>\n";
+echo "   <a href='#' title='" . xla("Refresh") . "' onclick='javascript:refreshme()' class='btn btn-primary btn-sm'><i class='fa fa-sync' aria-hidden='true'></i></a>\n";
 echo "   <a href='#' type='button' id='dayview' title='" . xla('Day View') . "' class='btn btn-primary btn-sm'>" . xlt('Day') . "</a>\n";
 echo "   <a href='#' type='button' id='weekview' title='" . xla('Week View') . "' class='btn btn-primary btn-sm'>" . xlt('Week') . "</a>\n";
 echo "   <a href='#' type='button' id='monthview' title='" . xla('Month View') . "' class='btn btn-primary btn-sm'>" . xlt('Month') . "</a>\n";
@@ -649,7 +649,7 @@ foreach ($providers as $provider) {
 
 <script>
 
-    $(function (){
+    $(function () {
         $("#pc_username").change(function() { ChangeProviders(this); });
         $("#pc_facility").change(function() { ChangeProviders(this); });
         $("#dayview").click(function() { ChangeView(this); });

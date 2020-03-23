@@ -138,7 +138,7 @@ if (empty($collectthis)) {
 
 $group_disabled = ($_GET['group'] && !$g_edit && $have_group_global_enabled )?' disabled=true; ':'';
 if ($group_disabled) {
-    echo '<script>$(function (){$("input").prop("disabled", true);$("select").prop("disabled", true);}) </script>';
+    echo '<script>$(function () {$("input").prop("disabled", true);$("select").prop("disabled", true);}) </script>';
 }
 
 function InsertEventFull()
@@ -1783,7 +1783,7 @@ set_allday();
 set_repeat();
 set_days_every_week();
 /* and get it on with some javascript */
-$(function (){
+$(function () {
     $("#form_save").click(function (e) {
         validateform(e, "save");
     });
