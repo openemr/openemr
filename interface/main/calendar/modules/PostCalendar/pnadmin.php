@@ -26,6 +26,7 @@
  *
  */
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Core\Header;
 
@@ -835,20 +836,24 @@ function postcalendar_admin_testSystem()
     }
     array_push($infos, array('smarty compile dir',  $info));
 
-    $header = "<head><title>" . xlt("Diagnostics") . "</title></head><body>";
-    $output .= $header;
-    $output .= '<div class="container mt-3"><div class="row"><div class="col-sm-12"><div class="page-header clearfix">';
-    $output .= '<h2>'. xlt('Diagnostics') . '</h2>';
-    $output .= '</div></div></div>';
-    $output .= '<div class="table-responsive"><table class="table table-bordered table-striped"><thead>';
-    $output .= '<tr><th>' . xlt('Name') . '</th><th>' . xlt('Value') . '</th></tr></thead>';
-    foreach ($infos as $info) {
-        $output.= '<tr><td><b>' . pnVarPrepHTMLDisplay($info[0]) . '</b></td>';
-        $output.= '<td>' . pnVarPrepHTMLDisplay($info[1]) . '</td></tr>';
+    if (AclMain::aclCheckCore('admin', 'super')) {
+        $header = "<head><title>" . xlt("Diagnostics") . "</title></head><body>";
+        $output .= $header;
+        $output .= '<div class="container mt-3"><div class="row"><div class="col-sm-12"><div class="page-header clearfix">';
+        $output .= '<h2>'. xlt('Diagnostics') . '</h2>';
+        $output .= '</div></div></div>';
+        $output .= '<div class="table-responsive"><table class="table table-bordered table-striped"><thead>';
+        $output .= '<tr><th>' . xlt('Name') . '</th><th>' . xlt('Value') . '</th></tr></thead>';
+        foreach ($infos as $info) {
+            $output.= '<tr><td><b>' . pnVarPrepHTMLDisplay($info[0]) . '</b></td>';
+            $output.= '<td>' . pnVarPrepHTMLDisplay($info[1]) . '</td></tr>';
+        }
+        $output .= '</table></div></div>';
+        $output .= '<br /><br />';
+        $output .= postcalendar_admin_modifyconfig('', false);
+        $output .= "</body></html>";
+        return $output;
+    } else {
+        die(xlt("Not Authorized"));
     }
-    $output .= '</table></div></div>';
-    $output .= '<br /><br />';
-    $output .= postcalendar_admin_modifyconfig('', false);
-    $output .= "</body></html>";
-    return $output;
 }
