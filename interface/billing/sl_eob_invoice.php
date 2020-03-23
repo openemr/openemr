@@ -105,7 +105,7 @@ function row_delete($table, $where)
                     opener.toEncSummary(pid);
                 }
             }
-            window.close();
+            doClose();
         }
 
         function doClose() {
@@ -199,7 +199,6 @@ function row_delete($table, $where)
             if (mm < 10) {
                 mm = '0' + mm;
             }
-
             return (yyyy + '-' + mm + '-' + dd);
         }
 
@@ -601,8 +600,8 @@ $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1",
                         <thead>
                         <tr>
                             <th><?php echo xlt('Code') ?></th>
-                            <th align="right"><?php echo xlt('Charge') ?></th>
-                            <th align="right"><?php echo xlt('Balance') ?>&nbsp;</th>
+                            <th class="text-right"><?php echo xlt('Charge') ?></th>
+                            <th class="text-right"><?php echo xlt('Balance') ?>&nbsp;</th>
                             <th><?php echo xlt('By/Source') ?></th>
                             <th><?php echo xlt('Date') ?></th>
                             <th><?php echo xlt('Pay') ?></th>
