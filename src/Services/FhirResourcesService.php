@@ -101,7 +101,7 @@ class FhirResourcesService
 
     public function createPractitionerResource($provider_id = '', $encode = true)
     {
-        if(!$provider_id) {
+        if (!$provider_id) {
             return false;
         }
         $this->providerService = new ProviderService();
