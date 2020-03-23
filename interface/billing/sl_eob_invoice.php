@@ -93,7 +93,7 @@ function row_delete($table, $where)
     <title><?php echo xlt('EOB Posting - Invoice') ?></title>
     <script>
 
-        var adjDisable = <?php echo js_escape($posting_adj_disable); ?>;
+        const adjDisable = <?php echo js_escape($posting_adj_disable); ?>;
         // An insurance radio button is selected.
         function setins(istr) {
             return true;
@@ -114,14 +114,16 @@ function row_delete($table, $where)
 
         // Compute an adjustment that writes off the balance:
         function writeoff(code) {
-            var f = document.forms[0];
-            var belement = f['form_line[' + code + '][bal]'];
-            var pelement = f['form_line[' + code + '][pay]'];
-            var aelement = f['form_line[' + code + '][adj]'];
-            var relement = f['form_line[' + code + '][reason]'];
-            var tmp = belement.value - pelement.value;
+            const f = document.forms[0];
+            const belement = f['form_line[' + code + '][bal]'];
+            const pelement = f['form_line[' + code + '][pay]'];
+            const aelement = f['form_line[' + code + '][adj]'];
+            const relement = f['form_line[' + code + '][reason]'];
+            const tmp = belement.value - pelement.value;
             aelement.value = Number(tmp).toFixed(2);
-            if (aelement.value && !relement.value) relement.selectedIndex = 1;
+            if (aelement.value && !relement.value) {
+                relement.selectedIndex = 1;
+            }
             return false;
         }
 
@@ -130,21 +132,25 @@ function row_delete($table, $where)
             let delcount = 0;
             let allempty = true;
 
-            for (var i = 0; i < f.elements.length; ++i) {
+            for (let i = 0; i < f.elements.length; ++i) {
                 let ename = f.elements[i].name;
                 // Count deletes.
                 if (ename.substring(0, 9) == 'form_del[') {
-                    if (f.elements[i].checked) ++delcount;
+                    if (f.elements[i].checked) {
+                        ++delcount;
+                    }
                     continue;
                 }
                 let pfxlen = ename.indexOf('[pay]');
-                if (pfxlen < 0) continue;
+                if (pfxlen < 0) {
+                    continue
+                };
                 let pfx = ename.substring(0, pfxlen);
                 let code = pfx.substring(pfx.indexOf('[') + 1, pfxlen - 1);
                 let cPay = parseFloat(f[pfx + '[pay]'].value).toFixed(2);
                 let cAdjust = parseFloat(f[pfx + '[adj]'].value).toFixed(2);
 
-                if ((cPay != 0) || cAdjust != 0) {
+                if ((cPay !== 0) || cAdjust !== 0) {
                     allempty = false;
                 }
                 if(adjDisable) {
@@ -152,15 +158,15 @@ function row_delete($table, $where)
                         allempty = false;
                     }
                 }
-                if ((cPay != 0) && isNaN(parseFloat(f[pfx + '[pay]'].value))) {
+                if ((cPay !== 0) && isNaN(parseFloat(f[pfx + '[pay]'].value))) {
                     alert(<?php echo xlj('Payment value for code ') ?> + code + <?php echo xlj(' is not a number') ?>);
                     return false;
                 }
-                if ((cAdjust != 0) && isNaN(parseFloat(f[pfx + '[adj]'].value))) {
+                if ((cAdjust !== 0) && isNaN(parseFloat(f[pfx + '[adj]'].value))) {
                     alert(<?php echo xlj('Adjustment value for code ') ?> + code + <?php echo xlj(' is not a number') ?>);
                     return false;
                 }
-                if ((cAdjust != 0) && !f[pfx + '[reason]'].value) {
+                if ((cAdjust !== 0) && !f[pfx + '[reason]'].value) {
                     alert(<?php echo xlj('Please select an adjustment reason for code ') ?> + code);
                     return false;
                 }
@@ -178,7 +184,6 @@ function row_delete($table, $where)
                     ' ' + <?php echo xlj('This action will be logged'); ?> + '!')
                 ) return false;
             }
-
             return true;
         }
 
@@ -189,10 +194,10 @@ function row_delete($table, $where)
             let mm = today.getMonth() + 1; //January is 0!
             let yyyy = today.getFullYear();
             if (dd < 10) {
-                dd = '0' + dd
+                dd = '0' + dd;
             }
             if (mm < 10) {
-                mm = '0' + mm
+                mm = '0' + mm;
             }
 
             return (yyyy + '-' + mm + '-' + dd);
@@ -206,21 +211,29 @@ function row_delete($table, $where)
             let coPayAmount = 0.0;
 
             // coPayFiled will be null if there is no co-pay entry in the fee sheet
-            if (coPayField)
+            if (coPayField) {
                 coPayAmount = coPayField.value;
+            }
 
             // if balance field is 0.00, its value comes back as null, so check for nul-ness first
-            if (balField)
+            if (balField) {
                 balAmount = (balField.value) ? balField.value : 0;
-            if (payField)
+            }
+
+            if (payField) {
                 payAmount = (payField.value) ? payField.value : 0;
+            }
 
             // alert('balance = >' + balAmount +'<  payAmount = ' + payAmount + '  copay = ' + coPayAmount + '  isFirstProcCode = ' + isFirstProcCode);
 
             // subtract the co-pay only from the first procedure code
-            if (isFirstProcCode == 1)
+            if (isFirstProcCode == 1) {
                 balAmount = parseFloat(balAmount) + parseFloat(coPayAmount);
-            if (adjDisable) return;
+            }
+
+            if (adjDisable) {
+                return;
+            }
 
             adjAmount = balAmount - payAmount;
             // Assign rounded adjustment value back to TextField
