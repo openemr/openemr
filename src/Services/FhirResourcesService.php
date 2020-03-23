@@ -30,6 +30,8 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleLink;
 use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
 use OpenEMR\FHIR\R4\PHPFHIRResponseParser;
 
+use OpenEMR\Services\ProviderService;
+
 //use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterLocation;
 //use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterDiagnosis;
 //use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
@@ -97,13 +99,18 @@ class FhirResourcesService
         }
     }
 
-    public function createPractitionerResource($id = '', $data = '', $encode = true)
+    public function createPractitionerResource($provider_id = '', $encode = true)
     {
+        if (!$provider_id) {
+            return false;
+        }
+        $this->providerService = new ProviderService();
+        $data = $this->providerService->getById($provider_id);
         $resource = new FHIRPractitioner();
         $id = new FhirId();
         $name = new FHIRHumanName();
         $address = new FHIRAddress();
-        $id->setValue($id);
+        $id->setValue('' . $provider_id);
         $name->setUse('official');
         $name->setFamily($data['lname']);
         $name->given = [$data['fname'], $data['mname']];
@@ -128,16 +135,16 @@ class FhirResourcesService
 
     public function createEncounterResource($eid = '', $data = '', $encode = true)
     {
-        $pid = 'patient-' . $data['pid'];
-        $temp = $data['provider_id'];
+        $pid = $data['pid'];
+        //$temp = $data['provider_id'];
         //$r = $this->createPractitionerResource($data['provider_id'], $temp);
         $resource = new FHIREncounter();
         $id = new FhirId();
-        $id->setValue('encounter-' . $eid);
+        $id->setValue($eid);
         $resource->setId($id);
         $participant = new FHIREncounterParticipant();
         $prtref = new FHIRReference;
-        $temp = 'Practitioner/provider-' . $data['provider_id'];
+        $temp = 'Practitioner/' . $data['provider_id'];
         $prtref->setReference($temp);
         $participant->setIndividual($prtref);
         $date = date('Y-m-d', strtotime($data['date']));
@@ -146,7 +153,7 @@ class FhirResourcesService
         $resource->addParticipant($participant);
         $reason = new FHIRCodeableConcept();
         $reason->setText($data['reason']);
-        $resource->addReason($reason);
+        $resource->addReasonCode($reason);
         $resource->status = 'finished';
         $resource->setSubject(['reference' => "Patient/$pid"]);
 
@@ -156,7 +163,7 @@ class FhirResourcesService
             return $resource;
         }
     }
-    
+
     public function parsePatientResource($fhirJson)
     {
         $data["title"] = "";
