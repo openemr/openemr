@@ -58,7 +58,7 @@ class FhirPatientRestController
     public function getOne()
     {
         $oept = $this->patientService->getOne();
-        $pid = 'patient-' . $this->patientService->getPid();
+        $pid = $this->patientService->getPid();
         if ($oept) {
             $resource = $this->fhirService->createPatientResource($pid, $oept, false);
             $statusCode = 200;
