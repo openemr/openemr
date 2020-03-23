@@ -31,7 +31,8 @@ class EncounterRestController
 
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult; 
+        }
  
         $serviceResult = $this->encounterService->insertEncounter($pid, $data);
         return RestControllerHelper::responseHandler($serviceResult, array("eid" => $serviceResult), 200);
@@ -55,7 +56,8 @@ class EncounterRestController
 
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult; 
+        }
 
         $serviceResult = $this->encounterService->insertVital($pid, $eid, $data);
         return RestControllerHelper::responseHandler(
@@ -74,7 +76,8 @@ class EncounterRestController
 
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult; 
+        }
 
         $serviceResult = $this->encounterService->updateVital($pid, $eid, $vid, $data);
         return RestControllerHelper::responseHandler($serviceResult, array('vid' => $vid), 200);
@@ -110,7 +113,8 @@ class EncounterRestController
 
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult; 
+        }
 
         $serviceResult = $this->encounterService->insertSoapNote($pid, $eid, $data);
         return RestControllerHelper::responseHandler(
@@ -129,7 +133,8 @@ class EncounterRestController
 
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult; 
+        }
 
         $serviceResult = $this->encounterService->updateSoapNote($pid, $eid, $sid, $data);
         return RestControllerHelper::responseHandler($serviceResult, array('sid' => $sid), 200);

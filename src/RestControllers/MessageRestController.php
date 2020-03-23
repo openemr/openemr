@@ -30,7 +30,8 @@ class MessageRestController
 
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult; 
+        }
 
         $serviceResult = $this->messageService->update($pid, $mid, $data);
         return RestControllerHelper::responseHandler($serviceResult, array("mid" => $mid), 200);
@@ -42,7 +43,8 @@ class MessageRestController
 
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult; 
+        }
 
         $serviceResult = $this->messageService->insert($pid, $data);
         return RestControllerHelper::responseHandler($serviceResult, array("mid" => $serviceResult), 201);

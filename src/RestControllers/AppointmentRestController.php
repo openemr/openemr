@@ -48,7 +48,8 @@ class AppointmentRestController
 
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult; 
+        }
 
         $serviceResult = $this->appointmentService->insert($pid, $data);
         return RestControllerHelper::responseHandler(array("id" => $serviceResult), null, 200);
