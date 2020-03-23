@@ -9,8 +9,7 @@
 
 namespace OpenEMR\Rx\Weno;
 
-require_once "../../interface/globals.php";
-require_once $GLOBALS['fileroot'] . "/library/patient.inc";
+require_once dirname(__FILE__) . "/../../../library/patient.inc";
 
 class NewRxData
 {

@@ -10,7 +10,7 @@
 
 
 
-$(document).ready(function () {
+$(function () {
     $("#sendScript").toggle();
     $('#pharmacy-autocomplete').autocomplete({
 
@@ -48,7 +48,7 @@ function savePharm(e) {
     let setPharm = "../../src/Rx/Weno/PatientPharmacyController.php";//$("#savePharmUrl").data('savePharm-url');
     if (id[0] > 0) {
         $.ajax({
-            url: setPharm+'?id='+id[0],
+            url: setPharm+'?id=' + encodeURIComponent(id[0]),
             type: 'GET',
             dataType: 'json',
             success: function (result) {
@@ -89,7 +89,7 @@ function sendScripts(e) {
     if (scripts) {
         request.push(
             $.ajax({
-                url: sendrx+'?scripts='+scripts,  //send a list of id's to the server to build the rx message and send
+                url: sendrx+'?scripts=' + encodeURIComponent(scripts),  //send a list of id's to the server to build the rx message and send
                 method: 'GET',
                 success: function (response) {
                     parser = new DOMParser();
