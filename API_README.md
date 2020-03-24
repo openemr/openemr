@@ -1,16 +1,8 @@
 ![img](./public/images/openemr-rest-api.png)
 
-### Goal
+### Overview
 
-This project aims to provide an easy-to-use JSON-based REST API for OpenEMR's most common functions. All code will be done in classes and separate from the view to help with codebase modernization efforts.
-
-### Team
-
-- [@sjpadgett](https://github.com/sjpadgett)
-- [@matthewvita](https://github.com/matthewvita)
-- [@juggernautsei](https://github.com/juggernautsei)
-- [@kofiav](https://github.com/kofiav)
-- [@bradymiller](https://github.com/bradymiller)
+Easy-to-use JSON-based REST API for OpenEMR. All code is done in classes and separate from the view to help with codebase modernization efforts. FHIR is also supported.
 
 ### Prerequsite
 Enable this API service in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR REST API"
@@ -20,9 +12,9 @@ There are several ways to make API calls from an authorized session and maintain
 * See the script at tests/api/InternalApiTest.php for examples of internal API use cases.
 
 ### Endpoints
-Note: FHIR endpoints follow normal FHIR REST endpoints. Use `https://domain/apis/fhir as base URI.`
+Note: FHIR endpoints follow normal FHIR REST endpoints. Use `http://localhost:8300/apis/fhir as base URI.`
 
-_Example:_ `https://domain/apis/fhir/Patient` returns a Patients bundle resource and etc..
+_Example:_ `http://localhost:8300/apis/fhir/Patient` returns a Patients bundle resource and etc..
 
 #### POST /api/auth
 
@@ -42,16 +34,19 @@ curl -X POST -H 'Content-Type: application/json' 'http://localhost:8300/apis/api
 Response:
 ```json
 {
-"token_type":"Bearer",
-"access_token":"d2870cb522230dbb8946b2f47d2c7e6664656661756c74",
-"expires_in":"3600"
+    "token_type": "Bearer",
+    "access_token": "eyJ0b2tlbiI6IjAwNmZ4TWpsNWhsZmNPelZicXBEdEZVUlNPQUY5KzdzR1Jjejc4WGZyeGFjUjY2QlhaaEs4eThkU3cxbTd5VXFBeTVyeEZpck9mVzBQNWc5dUlidERLZ0trUElCME5wRDVtTVk5bE9WaE5DTHF5RnRnT0Q0OHVuaHRvbXZ6OTEyNmZGUmVPUllSYVJORGoyZTkzTDA5OWZSb0ZRVGViTUtWUFd4ZW5cL1piSzhIWFpJZUxsV3VNcUdjQXR5dmlLQXRXNDAiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6Im9lbXIifQ==",
+    "expires_in": "3600",
+    "user_data": {
+        "user_id": "1"
+    }
 }
 ```
 Each call must include the token:
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem' \
-  -H 'Authorization: Bearer d2870cb522230dbb8946b2f47d2c7e6664656661756c74'
+  -H 'Authorization: Bearer eyJ0b2tlbiI6IjAwNmZ4TWpsNWhsZmNPelZicXBEdEZVUlNPQUY5KzdzR1Jjejc4WGZyeGFjUjY2QlhaaEs4eThkU3cxbTd5VXFBeTVyeEZpck9mVzBQNWc5dUlidERLZ0trUElCME5wRDVtTVk5bE9WaE5DTHF5RnRnT0Q0OHVuaHRvbXZ6OTEyNmZGUmVPUllSYVJORGoyZTkzTDA5OWZSb0ZRVGViTUtWUFd4ZW5cL1piSzhIWFpJZUxsV3VNcUdjQXR5dmlLQXRXNDAiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6Im9lbXIifQ=='
 ```
 
 #### POST /api/facility
@@ -818,6 +813,8 @@ curl -X DELETE 'http://localhost:8300/apis/api/patient/1/message/1'
 
 ### Project Management
 
+#### General API
+
 - TODO(?): Prevent `ListService` from using `enddate` of `0000-00-00` by default
 - TODO(?): API for fee sheets
 - TODO(?): API for pharmacies
@@ -826,6 +823,8 @@ curl -X DELETE 'http://localhost:8300/apis/api/patient/1/message/1'
 - TODO(?): Drug search API
 - TODO(?): API for onotes
 
+#### FHIR
+- TODO(?): ?
 
 ### What is that dog drawing?
 
