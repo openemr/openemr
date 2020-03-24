@@ -36,7 +36,8 @@ class FhirPatientRestController
         $validationResult = $this->patientService->validate($data);
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult;
+        }
 
         $fhirserviceResult = $this->patientService->insert($data);
         return RestControllerHelper::responseHandler($fhirserviceResult, array("pid" => $fhirserviceResult), 201);
@@ -49,7 +50,8 @@ class FhirPatientRestController
         $validationResult = $this->patientService->validate($data);
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult;
+        }
 
         $fhirserviceResult = $this->patientService->update($pid, $data);
         return RestControllerHelper::responseHandler($fhirserviceResult, array("pid" => $pid), 200);
