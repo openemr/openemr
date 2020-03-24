@@ -4,7 +4,7 @@
 
 Easy-to-use JSON-based REST API for OpenEMR. All code is done in classes and separate from the view to help with codebase modernization efforts. FHIR is also supported.
 
-### Prerequsite
+### Prerequisite
 Enable this API service in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR REST API"
 
 ### Using API Internally
