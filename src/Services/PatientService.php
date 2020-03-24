@@ -275,6 +275,7 @@ class PatientService
         }
 
         $statementResults = sqlStatement($sql, $sqlBindArray);
+
         $results = array();
         while ($row = sqlFetchArray($statementResults)) {
             array_push($results, $row);
