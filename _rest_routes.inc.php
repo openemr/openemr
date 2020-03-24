@@ -94,6 +94,11 @@ RestConfig::$ROUTE_MAP = array(
         $data = (array)(json_decode(file_get_contents("php://input")));
         return (new EncounterRestController())->post($pid, $data);
     },
+    "PUT /api/patient/:pid/encounter/:eid" => function ($pid, $eid) {
+        RestConfig::authorization_check("encounters", "auth_a");
+        $data = (array)(json_decode(file_get_contents("php://input")));
+        return (new EncounterRestController())->put($pid, $eid, $data);
+    },
     "GET /api/patient/:pid/encounter/:eid" => function ($pid, $eid) {
         RestConfig::authorization_check("encounters", "auth_a");
         return (new EncounterRestController())->getOne($pid, $eid);

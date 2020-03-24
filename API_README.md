@@ -196,6 +196,25 @@ curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter' -d \
 }'
 ```
 
+
+#### PUT /api/patient/:pid/encounter/:eid
+
+```sh
+curl -X POST 'http://localhost:8300/apis/api/patient/1/encounter/1' -d \
+'{
+    "date":"2019-09-14",
+    "onset_date": "2019-04-20 00:00:00",
+    "reason": "Pregnancy Test",
+    "pc_catid": "5",
+    "facility_id": "3",
+    "billing_facility": "3",
+    "sensitivity": "normal",
+    "referral_source": "",
+    "pos_code": "0"
+}'
+```
+
+
 #### GET /api/patient/:pid/encounter
 
 ```sh

@@ -33,9 +33,28 @@ class EncounterRestController
         if (is_array($validationHandlerResult)) {
             return $validationHandlerResult;
         }
-
+ 
         $serviceResult = $this->encounterService->insertEncounter($pid, $data);
         return RestControllerHelper::responseHandler($serviceResult, array("eid" => $serviceResult), 200);
+    }
+
+    public function put($pid, $eid, $data)
+    {
+        
+        $validationResult = $this->encounterService->validateEncounter($data);
+
+        $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
+        if (is_array($validationHandlerResult)) {
+            return $validationHandlerResult;
+        }
+ 
+        $serviceResult = $this->encounterService->updateEncounter($pid, $eid, $data);
+
+        if (is_string($serviceResult)) {
+            return RestControllerHelper::responseHandler($serviceResult, null, 200);
+        }
+
+        return RestControllerHelper::responseHandler($serviceResult, array("eid" => $eid), 200);
     }
 
     public function getOne($pid, $eid)

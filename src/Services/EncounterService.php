@@ -16,6 +16,8 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Services\FacilityService;
 use Particle\Validator\Validator;
 
 require_once(dirname(__FILE__) . "/../../library/forms.inc");
@@ -257,7 +259,6 @@ class EncounterService
 
     public function insertEncounter($pid, $data)
     {
-
         $encounter = generate_id();
         
         $sql .= " INSERT INTO form_encounter SET";
@@ -310,6 +311,57 @@ class EncounterService
         if ($results) {
             return $results;
         }
+    }
+
+    public function updateEncounter($pid, $eid, $data)
+    {
+            $facilityService = new FacilityService();
+
+            $facilityresult = $facilityService->getById($data["facility_id"]);
+            $facility = $facilityresult['name'];
+       
+            $result = sqlQuery("SELECT encounter, sensitivity FROM form_encounter WHERE id = ?", array($eid));
+        if ($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) {
+            return "You are not authorized to see this encounter.";
+        }
+        
+            $encounter = $result['encounter'];
+            // See view.php to allow or disallow updates of the encounter date.
+            $datepart = "";
+            $sqlBindArray = array();
+        if (AclMain::aclCheckCore('encounters', 'date_a')) {
+            $datepart = "date = ?, ";
+            $sqlBindArray[] = $data["date"];
+        }
+            array_push(
+                $sqlBindArray,
+                $data["onset_date"],
+                $data["reason"],
+                $facility,
+                $data["pc_catid"],
+                $data["facility_id"],
+                $data["billing_facility"],
+                $data["sensitivity"],
+                $data["referral_source"],
+                $data["pos_code"],
+                $eid
+            );
+
+            $sql .= "  UPDATE form_encounter SET $datepart";
+            $sql .= "     onset_date = ?, ";
+            $sql .= "     reason = ?, ";
+            $sql .= "     facility = ?, ";
+            $sql .= "     pc_catid = ?, ";
+            $sql .= "     facility_id = ?, ";
+            $sql .= "     billing_facility = ?, ";
+            $sql .= "     sensitivity = ?, ";
+            $sql .= "     referral_source = ?, ";
+            $sql .= "     pos_code = ? WHERE id = ?";
+            
+            return sqlStatement(
+                $sql,
+                $sqlBindArray
+            );
     }
     public function insertSoapNote($pid, $eid, $data)
     {
