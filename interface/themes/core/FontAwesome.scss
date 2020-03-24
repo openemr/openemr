@@ -1,7 +1,6 @@
 /* fix for H2 Tags */
 .fa-oe-sm {
     @include font-size("1.3rem !important");
-    font-weight: 400 !important;
     line-height: 1 !important;
     color: $gray !important;
 }
