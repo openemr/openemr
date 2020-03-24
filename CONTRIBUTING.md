@@ -3,6 +3,7 @@ Thank you for your contribution. OpenEMR (and global healthcare) continues to ge
 The maintainers of OpenEMR want to get your pull request in as seamlessly as possible, so please ensure your code is consistent with our [development policies](https://open-emr.org/wiki/index.php/Development_Policies).
 
 ## Code Contributions (local development)
+
 You will need a "local" version of OpenEMR to make changes to the source code. The easiest way to do this is with [Docker](https://hub.docker.com/r/openemr/openemr/):
 
 1. [Create your own fork of OpenEMR](https://github.com/openemr/openemr/fork) (you will need a GitHub account) and `git clone` it to your local machine.
@@ -27,8 +28,9 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
 6. If you wish to connect to the sql database, this docker environment provides the following 2 options:
     - Navigate to `http://localhost:8310/` where you can login into phpMyAdmin.
     - Or you can directly connect to port 8320 via your favorite sql tool (Mysql Workbench etc.).
+    - Use `username/user`: openemr, `password`: openemr .
 7. Developer tools and tricks.
-    -  To check PHP error logs run:
+    - To check PHP error logs run:
     ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cat /var/log/apache2/error.log'
     ```
@@ -53,22 +55,18 @@ If you do not want to use Docker, you can always install OpenEMR directly on you
 We also welcome financial contributions in full transparency on our [open collective](https://opencollective.com/openemr).
 Anyone can file an expense. If the expense makes sense for the development of the community, it will be "merged" in the ledger of our open collective by the core contributors and the person who filed the expense will be reimbursed.
 
-
 ## Credits
-
 
 ### Contributors
 
 Thank you to all the people who have already contributed to openemr!
 <a href="https://github.com/openemr/openemr/graphs/contributors"><img src="https://opencollective.com/openemr/contributors.svg?width=890" /></a>
 
-
 ### Backers
 
 Thank you to all our backers! [[Become a backer](https://opencollective.com/openemr#backer)]
 
 <a href="https://opencollective.com/openemr#backers" target="_blank"><img src="https://opencollective.com/openemr/backers.svg?width=890"></a>
-
 
 ### Sponsors
 
