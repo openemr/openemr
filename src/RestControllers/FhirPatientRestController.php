@@ -81,8 +81,15 @@ class FhirPatientRestController
 
         $searchParam = array(
             'name' => $search['name'],
-            'dob' => $search['birthdate']
-        );
+            'dob' => $search['birthdate'],
+			'city' => $search['address-city'],
+			'state' => $search['address-state'],
+			'postal_code' => $search['address-postalcode'],
+			'phone_contact' => $search['phone'],
+			'address' => $search['address'],
+			'sex' => $search['gender'],
+			'country_code' => $search['address-country']
+		);
 
         $searchResult = $this->patientService->getAll($searchParam);
         if ($searchResult === false) {
