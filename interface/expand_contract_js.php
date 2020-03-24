@@ -15,7 +15,7 @@
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 ?>
-$(function() {
+$(function () {
     $('.expand_contract').click(function() {
         var elementTitle = $(this).prop('title');
         var contractTitle = <?php echo xlj('Click to Contract and set to henceforth open in Centered mode'); ?>;

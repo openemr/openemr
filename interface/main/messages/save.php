@@ -126,7 +126,7 @@ if ($_REQUEST['MedEx'] == "start") {
 								PHONE_country_code,LABELS_local,LABELS_choice)
 							VALUES (?,?,?,?,?,?,?,?,?,?)";
             sqlStatement($sqlINSERT, array($response['customer_id'], $response['API_key'], $_POST['new_email'], $facilities, $providers, "1", "1", "1", "1", "5160"));
-            sqlQuery("UPDATE `background_services` SET `active`='1',`execute_interval`='5', `require_once`='library/MedEx/MedEx_background.php' WHERE `name`='MedEx'");
+            sqlQuery("UPDATE `background_services` SET `active`='1',`execute_interval`='5', `require_once`='/library/MedEx/MedEx_background.php' WHERE `name`='MedEx'");
 
             $info = $MedEx->login('1');
 

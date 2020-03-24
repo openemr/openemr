@@ -102,10 +102,6 @@ if (isset($_GET["fid"])) {
         }
 
         $(function () {
-            $("#cancel").click(function () {
-                dlgclose();
-            });
-
             /**
              * add required/star sign to required form fields
              */
@@ -143,8 +139,8 @@ if (isset($_GET["fid"])) {
     <div class="container-fluid">
         <h5 class="title"><?php echo xlt('Edit Facility'); ?></h5>
         <div class="py-3">
-            <a class="btn btn-primary btn-lg" name='form_save' id='form_save' onclick='submitform()' href='#'><?php echo xlt('Save'); ?></a>
-            <a class="btn btn-secondary btn-lg" id='cancel' href='#'><?php echo xlt('Cancel'); ?></a>
+            <a class="btn btn-primary" name='form_save' id='form_save' onclick='submitform();' href='#'><?php echo xlt('Save'); ?></a>
+            <a class="btn btn-secondary" id='cancel' onclick='dlgclose();' href='#'><?php echo xlt('Cancel'); ?></a>
         </div>
 
         <form name='facility-form' id="facility-form" method='post' action="facilities.php">
@@ -452,6 +448,10 @@ if (isset($_GET["fid"])) {
 
             <p class="text"><span class="mandatory">*</span> <?php echo xlt('Required'); ?></p>
         </form>
+        <div class="py-3">
+            <a class="btn btn-primary" name='form_save' id='form_save' onclick='submitform();' href='#'><?php echo xlt('Save'); ?></a>
+            <a class="btn btn-secondary" id='cancel' onclick='dlgclose();' href='#'><?php echo xlt('Cancel'); ?></a>
+        </div>
     </div>
 </body>
 </html>

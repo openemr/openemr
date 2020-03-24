@@ -844,7 +844,7 @@ while ($drow /* && $count <= $N */) {
 </div> <!-- end 'encounters' large outer DIV -->
 
 <div id='tooltipdiv' style='position:absolute; width: 533px; border:1px solid var(--black); padding:2px; background-color: #ffffaa; visibility: hidden; z-index: 1000; font-size: 12px;'></div>
-    
+
 <script>
 // jQuery stuff to make the page a little easier to use
 function createFollowUpEncounter(event,encId){
@@ -853,7 +853,7 @@ function createFollowUpEncounter(event,encId){
     top.window.parent.newEncounter(data);
 }
 
-$(function() {
+$(function () {
     $(".encrow").on("mouseover", function() { $(this).toggleClass("highlight"); });
     $(".encrow").on("mouseout", function() { $(this).toggleClass("highlight"); });
     $(".encrow").on("click", function() { toencounter(this.id); });

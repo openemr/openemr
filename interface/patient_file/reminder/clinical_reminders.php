@@ -224,7 +224,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 </div>
 
 <script>
-  $(function() {
+  $(function () {
 
     tabbify();
 

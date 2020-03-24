@@ -12,7 +12,7 @@
   */
 ?>
 //erx account status and patient portal username generator popup modals
-$(function() {
+$(function () {
     $(".iframe1").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
         dlgopen('', '', 350, 300, '', '', {

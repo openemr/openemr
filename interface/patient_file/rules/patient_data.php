@@ -57,7 +57,7 @@ function submitme() {
  }
 }
 
-$(function(){
+$(function () {
   $("#cancel").click(function() {
       dlgclose();
   });

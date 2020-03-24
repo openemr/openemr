@@ -37,10 +37,13 @@ $colcount = 0;
 $header0 = "";
 $header = "";
 $coljson = "";
-$res = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
+$orderjson = "";
+$res = sqlStatement("SELECT option_id, title, toggle_setting_1 FROM list_options WHERE " .
     "list_id = 'ptlistcols' AND activity = 1 ORDER BY seq, title");
+$sort_dir_map = generate_list_map('Sort_Direction');
 while ($row = sqlFetchArray($res)) {
     $colname = $row['option_id'];
+    $colorder = $sort_dir_map[$row['toggle_setting_1']]; // Get the title 'asc' or 'desc' using the value
     $title = xl_list_label($row['title']);
     $title1 = ($title == xl('Full Name'))? xl('Name'): $title;
     $header .= "   <th>";
@@ -52,13 +55,17 @@ while ($row = sqlFetchArray($res)) {
         $coljson .= ", ";
     }
     $coljson .= "{\"sName\": \"" . addcslashes($colname, "\t\r\n\"\\") . "\"}";
+    if ($orderjson) {
+        $orderjson .= ", ";
+    }
+    $orderjson .= "[\"$colcount\", \"" . addcslashes($colorder, "\t\r\n\"\\") . "\"]";
     ++$colcount;
 }
-$loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
+$loading = "<i class='fa fa-sync fa-2x fa-spin'></i>";
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['datatables', 'datatables-colreorder', 'datatables-dt']); ?>
+    <?php Header::setupHeader(['datatables', 'datatables-colreorder', 'datatables-dt', 'datatables-bs']); ?>
     <title><?php echo xlt("Patient Finder"); ?></title>
 <style>
     /* Finder Processing style */
@@ -175,53 +182,13 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
         background-color: var(--gray200) !important;
     }
 
+    table.dataTable.display tbody .odd:hover,
+    table.dataTable.display tbody .even:hover {
+        background-color: var(--gray200) !important;
+    }
+
     table.dataTable.no-footer {
         border-bottom: 1px solid var(--gray900) !important;
-    }
-
-    .dataTables_wrapper .dataTables_paginate .paginate_button {
-        color: var(--dark) !important;
-    }
-
-    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
-    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
-        color: var(--dark) !important;
-        border: 1px solid var(--gray600) !important;
-        background-color: var(--white) !important;
-        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, var(--white)), color-stop(100%, var(--gray300))) !important;
-        background: -webkit-linear-gradient(top, var(--white) 0%, var(--gray300) 100%) !important;
-        background: -moz-linear-gradient(top, var(--white) 0%, var(--gray300) 100%) !important;
-        background: -ms-linear-gradient(top, var(--white) 0%, var(--gray300) 100%) !important;
-        background: -o-linear-gradient(top, var(--white) 0%, var(--gray300) 100%) !important;
-        background: linear-gradient(to bottom, var(--white) 0%, var(--gray300) 100%) !important;
-    }
-
-    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled. .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover,
-    .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:active {
-        color: var(--gray700) !important;
-    }
-
-    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-        color: var(--white) !important;
-        border: 1px solid var(--gray900) !important;
-        background-color: var(--gray700) !important;
-        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #585858), color-stop(100%, var(--gray900))) !important;
-        background: -webkit-linear-gradient(top, var(--gray700) 0%, var(--gray900) 100%) !important;
-        background: -moz-linear-gradient(top, var(--gray700) 0%, var(--gray900) 100%) !important;
-        background: -ms-linear-gradient(top, var(--gray700) 0%, var(--gray900) 100%) !important;
-        background: -o-linear-gradient(top, var(--gray700) 0%, var(--gray900) 100%) !important;
-        background: linear-gradient(to bottom, var(--gray700) 0%, var(--gray900) 100%) !important;
-    }
-
-    .dataTables_wrapper .dataTables_paginate .paginate_button:active {
-        background-color: var(--dark) !important;
-        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, var(--dark)), color-stop(100%, var(--gray900))) !important;
-        background: -webkit-linear-gradient(top, var(--dark) 0%, var(--gray900) 100%) !important;
-        background: -moz-linear-gradient(top, var(--dark) 0%, var(--gray900) 100%) !important;
-        background: -ms-linear-gradient(top, var(--dark) 0%, var(--gray900) 100%) !important;
-        background: -o-linear-gradient(top, var(--dark) 0%, var(--gray900) 100%) !important;
-        background: linear-gradient(to bottom, var(--dark) 0%, var(--gray900) 100%) !important;
-        box-shadow: inset 0 0 3px var(--gray900) !important;
     }
 
     .dataTables_wrapper .dataTables_processing {
@@ -244,6 +211,23 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
 
     .dataTables_wrapper.no-footer .dataTables_scrollBody {
         border-bottom: 1px solid var(--gray900) !important;
+    }
+
+    /* Pagination button Overrides for jQuery-DT */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0 !important;
+        margin: 0 !important;
+        border: 0 !important;
+    }
+
+    /* Sort indicator Overrides for jQuery-DT */
+    table thead .sorting::before,
+    table thead .sorting_asc::before,
+    table thead .sorting_asc::after,
+    table thead .sorting_desc::before,
+    table thead .sorting_desc::after,
+    table thead .sorting::after {
+        display: none !important;
     }
 </style>
 <script>
@@ -275,6 +259,7 @@ $loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
             // See: http://datatables.net/usage/columns and
             // http://datatables.net/release-datatables/extras/ColReorder/server_side.html
             "columns": [ <?php echo $coljson; ?> ],
+            "order": [ <?php echo $orderjson; ?> ],
             "lengthMenu": [10, 25, 50, 100],
             "pageLength": <?php echo empty($GLOBALS['gbl_pt_list_page_size']) ? '10' : $GLOBALS['gbl_pt_list_page_size']; ?>,
             <?php // Bring in the translations ?>

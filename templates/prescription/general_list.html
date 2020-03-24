@@ -126,7 +126,7 @@ function Checking(chk) {
     }
 }
 
-$(function(){
+$(function () {
   $(":checkbox:checked").each(function () {
       changeLinkHref('multiprint',this.checked, this.value);
       changeLinkHref('multiprintcss',this.checked, this.value);
@@ -317,7 +317,7 @@ $(function(){
 {literal}
 <script>
 
-$(function(){
+$(function () {
 $("#multiprint").on("click", function() { return CheckForChecks(document.presc.check_list); });
 $("#multiprintcss").on("click", function() { return CheckForChecks(document.presc.check_list); });
 $("#multiprintToFax").on("click", function() { return CheckForChecks(document.presc.check_list); });

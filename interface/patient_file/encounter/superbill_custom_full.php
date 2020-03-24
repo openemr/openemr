@@ -290,7 +290,7 @@ if ($fend > $count) {
 </style>
     <script>
     <?php if ($institutional) { ?>
-    $( function() {
+    $(function () {
         $(".revcode").select2({
         ajax: {
             url: "<?php echo $GLOBALS['web_root'] ?>/interface/billing/ub04_helpers.php",

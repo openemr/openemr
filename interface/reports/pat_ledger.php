@@ -438,7 +438,7 @@ if ($_REQUEST['form_csvexport']) {
         }
     </style>
     <script>
-        $(function() {
+        $(function () {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
 
@@ -944,7 +944,7 @@ if (! $_REQUEST['form_csvexport']) {
     <?php $oemr_ui->oeBelowContainerDiv();?>
     <script>
         var listId = '#' + <?php echo js_escape($list_id); ?>;
-        $(function(){
+        $(function () {
             $(listId).addClass("active");
         });
     </script>

@@ -100,7 +100,7 @@ if ($_POST['form_csvexport']) {
 <title><?php echo xlt('Pending Followup from Results') ?></title>
 
 <script language="JavaScript">
-    $(function() {
+    $(function () {
         var win = top.printLogSetup ? top : opener.top;
         win.printLogSetup(document.getElementById('printbutton'));
 

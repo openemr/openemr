@@ -204,7 +204,7 @@ $display_collapse_msg = "display:inline;";
         array_unshift($query_array, $catID);
     $resultSet = sqlStatement($query, $query_array);
     ?>
-    
+
     <div class="table-responsive">
     <table class="table table-bordered" cellpadding="3" cellspacing="0">
     <thead class='thead-light'>

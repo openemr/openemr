@@ -70,7 +70,7 @@ EOD;
             .tabs { direction: rtl; }
             .tabs .tabs-nav li.tabs-tab {float: right; }
             .tabs .tabs-nav li a { float: right; }
-                
+
 EOD;
             }
         }
@@ -169,7 +169,7 @@ function twAddFrameTab(tabsid, label, url) {
   twAddTab(
     tabsid,
     label,
-    "<iframe name='" + panelId + "' frameborder='0' style='height:95.3%;width:100%;' src='" + url + "'>Oops</iframe>"
+    "<iframe name='" + panelId + "' frameborder='0' style='height:94.5%;width:100%;' src='" + url + "'>Oops</iframe>"
   );
   return panelId;
 }
