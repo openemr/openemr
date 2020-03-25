@@ -93,7 +93,7 @@ class Documents extends AbstractPlugin
         return $document;
     }
 
-    public function fetchXmlDocuments()
+    public static function fetchXmlDocuments()
     {
         $obj = new ApplicationTable();
         $query = "SELECT doc.id 
