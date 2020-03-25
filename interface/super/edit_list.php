@@ -314,13 +314,13 @@ function writeOptionLine(
     echo "  <td>";
     //New line for hidden input, for update items
     echo "<input type='hidden' name='opt[" . attr($opt_line_no) . "][real_id]' value='" .
-        attr($option_id) . "' size='12' maxlength='70' class='optin' />";
+        attr($option_id) . "' size='12' maxlength='127' class='optin' />";
     echo "<input type='text' name='opt[" . attr($opt_line_no) . "][id]' value='" .
-        attr($option_id) . "' size='12' maxlength='70' class='optin' />";
+        attr($option_id) . "' size='12' maxlength='127' class='optin' />";
     echo "</td>\n";
     echo "  <td>";
     echo "<input type='text' name='opt[" . attr($opt_line_no) . "][title]' value='" .
-        attr($title) . "' size='20' maxlength='70' class='optin' />";
+        attr($title) . "' size='20' maxlength='127' class='optin' />";
     echo "</td>\n";
 
     // if not english and translating lists then show the translation
