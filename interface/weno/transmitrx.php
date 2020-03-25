@@ -26,7 +26,7 @@ $meds = explode(",", $list);
  */
 foreach ($meds as $med) {
     $sendScript = new NewRx();
-
+    $payloads = '';
     //Returns XML message to be transmitted to gateway
     $payload = $sendScript->creatOrderXMLBody($med);
     //These colons were added to have a way to separate the presciptions on the endpoint server

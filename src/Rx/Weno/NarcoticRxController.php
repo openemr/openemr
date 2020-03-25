@@ -46,7 +46,7 @@ class NarcoticRxController
             'pagetitle' => xl('Prescription Confirm & Transmit'),
             'prescriptions' => $prescriptions,
             'pharmacy' => $pharmacyOnFile,
-            'url' => '../../src/Rx/Weno/SetPharmacyController.php',
+            'url' => '../../interface/weno/setpharmacyhelper.php',
             'savePharmUrl' => '../../src/Rx/Weno/PatientPharmacyController.php'
             ]
         );

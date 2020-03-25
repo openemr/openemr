@@ -47,10 +47,4 @@ class SetPharmacyController
     }
 }
 
-if (!empty($_GET['term'])) {
-    $term = filter_input(INPUT_GET, 'term', FILTER_SANITIZE_SPECIAL_CHARS);
-    $list = new SetPharmacyController();
-    echo $rlist = $list->getPharmacyApi($term);
-} else {
-    echo json_encode(["error" => "No term sent!"]);
-}
+
