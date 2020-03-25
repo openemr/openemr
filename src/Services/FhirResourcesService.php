@@ -24,6 +24,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDate;
 use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterParticipant;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleLink;
@@ -74,6 +75,7 @@ class FhirResourcesService
         $name = new FHIRHumanName();
         $address = new FHIRAddress();
         $gender = new FHIRAdministrativeGender();
+        $birthDate = new FHIRDate();
         $meta = array('versionId' => '1', 'lastUpdated' => $nowDate);
         $initResource = array('id' => $id, 'meta' => $meta);
         $name->setUse('official');
@@ -84,6 +86,7 @@ class FhirResourcesService
         $address->setState($data['state']);
         $address->setPostalCode($data['postal_code']);
         $gender->setValue(strtolower($data['sex']));
+        $birthDate->setValue($data["dob"]);
 
         $patientResource = new FHIRPatient($initResource);
         //$patientResource->setId($id);
@@ -91,6 +94,7 @@ class FhirResourcesService
         $patientResource->setGender($gender);
         $patientResource->addName($name);
         $patientResource->addAddress($address);
+        $patientResource->setBirthDate($birthDate);
 
         if ($encode) {
             return json_encode($patientResource);
