@@ -16,8 +16,8 @@ require_once("$srcdir/registry.inc");
 require_once("language.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Utils\RandomGenUtils;
 
 //START OUT OUR PAGE....
 ?>

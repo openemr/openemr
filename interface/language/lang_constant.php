@@ -70,27 +70,19 @@ if ($_POST['add']) {
 
 ?>
 
-<!-- <table> -->
 <form name="cons_form" method="post" action="?m=constant&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-
+    <!-- Constant Name -->
     <div class="form-group">
         <label for="constantName"><?php  echo xlt('Constant Name'); ?>:</label>
         <input type="text" class="form-control" id="constantName" name="constant_name" size="100" value="<?php echo attr($val_constant); ?>">
     </div>
+    <!-- Submit Button -->
     <div class="form-group">
         <input type="submit" class="btn btn-primary" name="add" value="<?php echo xla('Add'); ?>">
     </div>
-
-    <!-- <tr>
-        <td><?php echo xlt('Constant Name:'); ?></td>
-        <td><input type="text" name="constant_name" size="100" value="<?php echo attr($val_constant); ?>"></td>
-    </!-->
-    <!-- <tr>
-        <td colspan="2"><input type="submit" class="btn btn-primary" name="add" value="<?php echo xla('Add'); ?>"></td>
-    </tr> -->
 </form>
-<!-- </table> -->
+
 <span class="text"><?php echo xlt('Please Note: constants are case sensitive and any string is allowed.'); ?></span>
 <script>
     $("#constant-link").addClass("active");
