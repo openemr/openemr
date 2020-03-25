@@ -101,13 +101,15 @@ $bigdata = getRegistered("%") or $bigdata = false;
 
                 <div class="table-responsive mt-3">
                     <table class="table table-striped">
+                      <thead>
                         <tr>
-                            <td colspan="5"></td>
-                            <td><?php echo xlt('Priority'); ?> </td>
-                            <td><?php echo xlt('Category'); ?> </td>
-                            <td><?php echo xlt('Nickname'); ?> </td>
-                            <td><?php echo xlt('Access Control'); ?></td>
+                            <th colspan="5"></th>
+                            <th><?php echo xlt('Priority'); ?> </th>
+                            <th><?php echo xlt('Category'); ?> </th>
+                            <th><?php echo xlt('Nickname'); ?> </th>
+                            <th><?php echo xlt('Access Control'); ?></th>
                         </tr>
+                      </thead>
                         <?php
                         if ($bigdata != false) {
                             foreach ($bigdata as $registry) {
@@ -121,7 +123,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                     <span class='text'><?php echo text($registry['id']); ?></span>
                                 </td>
                                 <td>
-                                    <span class='bold'><?php echo text(xl_form_title($registry['name'])); ?></span>
+                                    <span class='font-weight-bold'><?php echo text(xl_form_title($registry['name'])); ?></span>
                                 </td>
                                 <?php
                                 if ($registry['sql_run'] == 0) {
@@ -153,11 +155,11 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                     ?>
                                 </td>
                                 <?php
-                                echo "<td><input type='text' size='4'  name='priority_" . attr($registry['id']) . "' value='" . attr($priority_category['priority']) . "'></td>";
-                                echo "<td><input type='text' size='10' name='category_" . attr($registry['id']) . "' value='" . attr($priority_category['category']) . "'></td>";
-                                echo "<td><input type='text' size='10' name='nickname_" . attr($registry['id']) . "' value='" . attr($priority_category['nickname']) . "'></td>";
+                                echo "<td><input type='text' class='form-control' size='4'  name='priority_" . attr($registry['id']) . "' value='" . attr($priority_category['priority']) . "'></td>";
+                                echo "<td><input type='text' class='form-control' size='10' name='category_" . attr($registry['id']) . "' value='" . attr($priority_category['category']) . "'></td>";
+                                echo "<td><input type='text' class='form-control' size='10' name='nickname_" . attr($registry['id']) . "' value='" . attr($priority_category['nickname']) . "'></td>";
                                 echo "<td>";
-                                echo "<select name='aco_spec_" . attr($registry['id']) . "'>";
+                                echo "<select name='aco_spec_" . attr($registry['id']) . "' class='form-control'>";
                                 echo "<option value=''></option>";
                                 echo AclExtended::genAcoHtmlOptions($priority_category['aco_spec']);
                                 echo "</select>";
@@ -174,7 +176,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
 
                 <?php  //UNREGISTERED SECTION ?>
                 <span class="font-weight-bold"><?php echo xlt('Unregistered'); ?></span>
-                <div class="table-responsive mt3">
+                <div class="table-responsive mt-3">
                     <table class="table table-striped">
                         <?php
                         $dpath = "$srcdir/../interface/forms/";
@@ -205,10 +207,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                             }
                             ?>
                             <tr>
-                                <td>
-                                    <span class=text></span>
-                                </td>
-                                <td>
+                                <td colspan="2">
                                     <?php
                                         $form_title_file = @file($GLOBALS['srcdir']."/../interface/forms/$fname/info.txt");
                                     if ($form_title_file) {
@@ -222,17 +221,17 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                 <td>
                                     <?php
                                     if ($phpState == "PHP extracted") {
-                                        echo '<a class=link_submit href="./forms_admin.php?name=' . attr_url($fname) . '&method=register&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken()) . '">' . xlt('register') . '</a>';
+                                        echo '<a class="link_submit" href="./forms_admin.php?name=' . attr_url($fname) . '&method=register&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken()) . '">' . xlt('register') . '</a>';
                                     } else {
-                                        echo '<span class=text>' . xlt('n/a') . '</span>';
+                                        echo '<span class="text">' . xlt('n/a') . '</span>';
                                     }
                                     ?>
                                 </td>
                                 <td>
-                                    <span class=text><?php echo xlt($phpState); ?></span>
+                                    <span class="text"><?php echo xlt($phpState); ?></span>
                                 </td>
                                 <td>
-                                    <span class=text><?php echo xlt('n/a'); ?></span>
+                                    <span class="text"><?php echo xlt('n/a'); ?></span>
                                 </td>
                             </tr>
                             <?php

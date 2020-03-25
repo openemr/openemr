@@ -115,7 +115,7 @@ if (!empty($target_element)) {
 
 <center>
 
-<table class='border-0' cellpadding='5' cellspacing='0'>
+<table class='table-borderless' cellpadding='5' cellspacing='0'>
 
  <tr>
   <td height="1">
@@ -169,10 +169,10 @@ if (!empty($allowed_codes)) {
 
    <label for="searchTerm" class="mt-3"><?php echo xlt('Search for:'); ?></label>
    <input type='text' class='form-control' name='search_term' size='12' id="searchTerm" value='<?php echo attr($_REQUEST['search_term']); ?>' title='<?php echo xla('Any part of the desired code or its description'); ?>' />
-  
+
    <center>
    <input type='submit' class='btn btn-primary mt-3' name='bn_search' value='<?php echo xla('Search'); ?>' />
- 
+
     <?php if (!empty($target_element)) { ?>
      <input type='button' class='btn btn-primary mt-3' value='<?php echo xla('Erase'); ?>' onclick="selcode_target('', '', '', '', <?php echo attr_js($target_element); ?>)" />
     <?php } else { ?>

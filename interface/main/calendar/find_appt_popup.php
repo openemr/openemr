@@ -293,8 +293,8 @@ if (isset($_REQUEST['cktime'])) {
 <style>
 form {
     /* this eliminates the padding normally around a FORM tag */
-    padding: 0px;
-    margin: 0px;
+    padding: 0;
+    margin: 0;
 }
 #searchCriteria {
     text-align: center;
@@ -319,7 +319,7 @@ form {
     background-color: var(--white);
 }
 #searchResults td {
-    font-size: 0.9em;
+    font-size: 0.9rem;
     border-bottom: 1px solid var(--gray);
     padding: 1px 5px 1px 5px;
 }

@@ -470,17 +470,14 @@ if ($fend > $count) {
 
     <br />
 
-    <center>
-        <table border='0' cellpadding='0' cellspacing='0'>
+        <table class='table-borderless' cellpadding='0' cellspacing='0'>
 
             <tr>
                 <td colspan="3"> <?php echo xlt('Not all fields are required for all codes or code types.'); ?><br /><br /></td>
             </tr>
 
             <tr>
-                <td><?php echo xlt('Type'); ?>:</td>
-                <td width="5">
-                </td>
+                <td colspan="2"><?php echo xlt('Type'); ?>:</td>
                 <td>
 
                     <?php if ($mode != "modify") { ?>
@@ -542,8 +539,7 @@ if ($fend > $count) {
             </tr>
 
             <tr>
-                <td><?php echo xlt('Description'); ?>:</td>
-                <td></td>
+                <td colspan="2"><?php echo xlt('Description'); ?>:</td>
                 <td>
                     <?php if ($mode == "modify") { ?>
                         <input type='text' size='50' name="code_text" readonly="readonly" value='<?php echo attr($code_text) ?>'>
@@ -582,7 +578,7 @@ if ($fend > $count) {
             </tr>
 
             <tr<?php if (empty($GLOBALS['ippf_specific'])) {
-                echo " style='display:none'";
+                echo " class='d-none'";
                } ?>>
                 <td><?php echo xlt('CYP Factor'); ?>:</td>
                 <td></td>
@@ -593,7 +589,7 @@ if ($fend > $count) {
 
 
             <tr<?php if (!related_codes_are_used()) {
-                echo " style='display:none'";
+                echo " class='d-none'";
                } ?>>
                 <td><?php echo xlt('Relate To'); ?>:</td>
                 <td></td>
@@ -606,8 +602,7 @@ if ($fend > $count) {
             </tr>
 
             <tr>
-                <td><?php echo xlt('Fees'); ?>:</td>
-                <td></td>
+                <td colspan="2"><?php echo xlt('Fees'); ?>:</td>
                 <td>
                     <?php
                     $pres = sqlStatement("SELECT lo.option_id, lo.title, p.pr_price " .
@@ -658,7 +653,7 @@ if ($fend > $count) {
             } ?>
 
             <tr>
-                <td colspan="3" align="center">
+                <td class="text-center" colspan="3">
                     <input type="hidden" name="code_id" value="<?php echo attr($code_id) ?>"><br />
                     <input type="hidden" name="code_type_name_external" value="<?php echo attr($code_type_name_external) ?>">
                     <input type="hidden" name="code_external" value="<?php echo attr($code_external) ?>">
@@ -675,7 +670,7 @@ if ($fend > $count) {
             </tr>
         </table>
         <br />
-        <table border='0' cellpadding='5' cellspacing='0' width='96%'>
+        <table class='table-borderless' cellpadding='5' cellspacing='0' width='96%'>
             <tr>
 
                 <td class='text'>
@@ -707,7 +702,7 @@ if ($fend > $count) {
                     <input type='hidden' name='fstart' value='<?php echo attr($fstart) ?>'>
                 </td>
 
-                <td class='text' align='right'>
+                <td class='text text-right'>
                     <?php if ($fstart) { ?>
                         <a href="javascript:submitList(<?php echo attr_js($pagesize); ?>)">
                             &lt;&lt;
@@ -726,22 +721,22 @@ if ($fend > $count) {
 
 </form>
 
-<table border='0' cellpadding='5' cellspacing='0' width='96%'>
+<table class='table-borderless' cellpadding='5' cellspacing='0' width='96%'>
     <tr>
-        <td><span class='bold'><?php echo xlt('Code'); ?></span></td>
-        <td><span class='bold'><?php echo xlt('Mod'); ?></span></td>
+        <td><span class='font-weight-bold'><?php echo xlt('Code'); ?></span></td>
+        <td><span class='font-weight-bold'><?php echo xlt('Mod'); ?></span></td>
         <?php if ($institutional) { ?>
-            <td><span class='bold'><?php echo xlt('Revenue'); ?></span></td>
+            <td><span class='font-weight-bold'><?php echo xlt('Revenue'); ?></span></td>
         <?php } ?>
-        <td><span class='bold'><?php echo xlt('Act'); ?></span></td>
-        <td><span class='bold'><?php echo xlt('Category'); ?></span></td>
-        <td><span class='bold'><?php echo xlt('Dx Rep'); ?></span></td>
-        <td><span class='bold'><?php echo xlt('Serv Rep'); ?></span></td>
-        <td><span class='bold'><?php echo xlt('Type'); ?></span></td>
-        <td><span class='bold'><?php echo xlt('Description'); ?></span></td>
-        <td><span class='bold'><?php echo xlt('Short Description'); ?></span></td>
+        <td><span class='font-weight-bold'><?php echo xlt('Act'); ?></span></td>
+        <td><span class='font-weight-bold'><?php echo xlt('Category'); ?></span></td>
+        <td><span class='font-weight-bold'><?php echo xlt('Dx Rep'); ?></span></td>
+        <td><span class='font-weight-bold'><?php echo xlt('Serv Rep'); ?></span></td>
+        <td><span class='font-weight-bold'><?php echo xlt('Type'); ?></span></td>
+        <td><span class='font-weight-bold'><?php echo xlt('Description'); ?></span></td>
+        <td><span class='font-weight-bold'><?php echo xlt('Short Description'); ?></span></td>
         <?php if (related_codes_are_used()) { ?>
-            <td><span class='bold'><?php echo xlt('Related'); ?></span></td>
+            <td><span class='font-weight-bold'><?php echo xlt('Related'); ?></span></td>
         <?php } ?>
         <?php
         $pres = sqlStatement("SELECT title FROM list_options " .
@@ -842,9 +837,7 @@ if ($fend > $count) {
 
 </table>
 
-</center>
-
-<script language="JavaScript">
+<script>
     <?php
     if ($alertmsg) {
         echo "alert(" . js_escape($alertmsg) . ");\n";

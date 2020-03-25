@@ -11,6 +11,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+ // TODO: Replace tables with BS4 grid classes for GSoC
+
 
 require_once("../globals.php");
 require_once("drugs.inc.php");
@@ -81,9 +83,9 @@ function genWarehouseList($tag_name, $currvalue, $title, $class = '')
     if (!$got_selected && strlen($currvalue) > 0) {
         echo "<option value='".attr($currvalue)."' selected>* ".text($currvalue)." *</option>";
         echo "</select>";
-        echo " <font color='red' title='" .
+        echo " <span class='text-danger' title='" .
         xla('Please choose a valid selection from the list.') . "'>" .
-        xlt('Fix this') . "!</font>";
+        xlt('Fix this') . "!</span>";
     } else {
         echo "</select>";
     }
@@ -118,7 +120,7 @@ td {
 }
 </style>
 
-<script language="JavaScript">
+<script>
 
  function validate() {
   var f = document.forms[0];
@@ -356,7 +358,7 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
 
   // Close this window and redisplay the updated list of drugs.
   //
-    echo "<script language='JavaScript'>\n";
+    echo "<script>\n";
     if ($info_msg) {
         echo " alert('".addslashes($info_msg)."');\n";
     }
@@ -369,29 +371,26 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
 $title = $lot_id ? xl("Update Lot") : xl("Add Lot");
 ?>
 <h3 class="ml-1"><?php echo text($title);?></h3>
-<form method='post' name='theform' action='add_edit_lot.php?drug=<?php echo attr_url($drug_id); ?>&lot=<?php echo attr_url($lot_id); ?>'
- onsubmit='return validate()'>
+<form method='post' name='theform' action='add_edit_lot.php?drug=<?php echo attr_url($drug_id); ?>&lot=<?php echo attr_url($lot_id); ?>' onsubmit='return validate()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-<center>
 
 <table class="table table-borderless w-100">
-
  <tr>
-  <td class="font-weight-bold" valign='top' nowrap><?php echo xlt('Lot Number'); ?>:</td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Lot Number'); ?>:</td>
   <td>
    <input class="form-control w-100" type='text' size='40' name='form_lot_number' maxlength='40' value='<?php echo attr($row['lot_number']) ?>' />
   </td>
  </tr>
 
  <tr>
-  <td class="font-weight-bold" valign='top' nowrap><?php echo xlt('Manufacturer'); ?>:</td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Manufacturer'); ?>:</td>
   <td>
    <input class="form-control w-100" type='text' size='40' name='form_manufacturer' maxlength='250' value='<?php echo attr($row['manufacturer']) ?>' />
   </td>
  </tr>
 
  <tr>
-  <td class="font-weight-bold" valign='top' nowrap><?php echo xlt('Expiration'); ?>:</td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Expiration'); ?>:</td>
   <td>
    <input type='text' class='datepicker form-control w-50' size='10' name='form_expiration' id='form_expiration'
     value='<?php echo attr($row['expiration']) ?>'
@@ -400,7 +399,7 @@ $title = $lot_id ? xl("Update Lot") : xl("Add Lot");
  </tr>
 
  <tr>
-  <td class="font-weight-bold" valign='top' nowrap><?php echo xlt('Vendor'); ?>:</td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Vendor'); ?>:</td>
   <td>
 <?php
 // Address book entries for vendors.
@@ -415,7 +414,7 @@ generate_form_field(
  </tr>
 
  <tr>
-  <td class="font-weight-bold" valign='top' nowrap><?php echo xlt('Warehouse'); ?>:</td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Warehouse'); ?>:</td>
   <td>
 <?php
   // generate_select_list("form_warehouse_id", 'warehouse',
@@ -433,14 +432,14 @@ if (!genWarehouseList(
  </tr>
 
  <tr>
-  <td class="font-weight-bold" valign='top' nowrap><?php echo xlt('On Hand'); ?>:</td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('On Hand'); ?>:</td>
   <td>
     <span><?php echo text($row['on_hand'] + 0); ?></span>
   </td>
  </tr>
 
  <tr>
-  <td class="font-weight-bold" valign='top' nowrap><?php echo xlt('Transaction'); ?>:</td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Transaction'); ?>:</td>
   <td>
    <select class="form-control" name='form_trans_type' onchange='trans_type_changed()'>
 <?php
@@ -465,7 +464,7 @@ foreach (array(
  </tr>
 
  <tr id='row_distributor'>
-  <td class="font-weight-bold" valign='top' nowrap><?php echo xlt('Distributor'); ?>:</td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Distributor'); ?>:</td>
   <td>
 <?php
 // Address book entries for distributors.
@@ -477,7 +476,7 @@ generate_form_field(array('data_type' => 14, 'field_id' => 'distributor_id',
  </tr>
 
  <tr id='row_sale_date'>
-  <td class="font-weight-bold" valign='top' nowrap><?php echo xlt('Date'); ?>:</td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Date'); ?>:</td>
   <td>
    <input type='text' class='datepicker form-control w-50' size='10' name='form_sale_date' id='form_sale_date'
     value='<?php echo attr(date('Y-m-d')) ?>'
@@ -486,21 +485,21 @@ generate_form_field(array('data_type' => 14, 'field_id' => 'distributor_id',
  </tr>
 
  <tr id='row_quantity'>
-  <td class="font-weight-bold" valign='top' nowrap><?php echo xlt('Quantity'); ?>:</td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Quantity'); ?>:</td>
   <td>
    <input class="form-control" type='text' size='5' name='form_quantity' maxlength='7' />
   </td>
  </tr>
 
  <tr id='row_cost'>
-  <td class="font-weight-bold" valign='top' nowrap><?php echo xlt('Total Cost'); ?>:</td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Total Cost'); ?>:</td>
   <td>
    <input class="form-control" type='text' size='7' name='form_cost' maxlength='12' />
   </td>
  </tr>
 
  <tr id='row_source_lot'>
-  <td class="font-weight-bold" valign='top' nowrap><?php echo xlt('Source Lot'); ?>:</td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Source Lot'); ?>:</td>
   <td>
    <select class="form-control" name='form_source_lot'>
     <option value='0'> </option>
@@ -529,7 +528,7 @@ while ($lrow = sqlFetchArray($lres)) {
  </tr>
 
  <tr id='row_notes'>
-  <td class="font-weight-bold" valign='top' nowrap><?php echo xlt('Comments'); ?>:</td>
+  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Comments'); ?>:</td>
   <td>
    <input class="form-control w-100" type='text' size='40' name='form_notes' maxlength='255' />
   </td>
@@ -537,22 +536,19 @@ while ($lrow = sqlFetchArray($lres)) {
 
 </table>
 
-<p class="mt-3">
+<div class="btn-group mt-3">
 <input type='submit' class="btn btn-primary" name='form_save' value='<?php echo $lot_id ? xla('Update') : xla('Add') ?>' />
 
 <?php if ($lot_id) { ?>
-&nbsp;
 <input type='button' class="btn btn-danger" value='<?php echo xla('Destroy'); ?>'
  onclick="window.location.href='destroy_lot.php?drug=<?php echo attr_url($drug_id); ?>&lot=<?php echo attr_url($lot_id); ?>'" />
 <?php } ?>
 
-&nbsp;
 <input type='button' class="btn btn-warning" value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
-</p>
+</div>
 
-</center>
 </form>
-<script language='JavaScript'>
+<script>
 <?php
 if ($info_msg) {
     echo " alert('".addslashes($info_msg)."');\n";

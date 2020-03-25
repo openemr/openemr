@@ -123,11 +123,16 @@ if (!empty($_POST['bn_delete'])) {
 <title><?php echo xlt('Portal Requests'); ?></title>
 
 <style>
+tr.head {
+  font-size: 0.8125rem;
+  background-color: var(--gray400);
+  text-align: center;
+}
 
-tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
-tr.detail { font-size:10pt; }
-a, a:visited, a:hover { color:#0000cc; }
-
+tr.detail {
+  font-size: 0.8125rem;
+  background-color: var(--gray300);
+}
 </style>
 
 <script language="JavaScript">

@@ -9,11 +9,13 @@
  * @author    Robert Down <robertdown@live.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 ?>
@@ -105,12 +107,10 @@ switch ($search_any_type) {
                     aria-haspopup="true"
                     aria-expanded="true">
                     <?php echo xlt("View Past Encounters"); ?>&nbsp;
-                    (<span data-bind="text:encounterArray().length"></span>)
-                    <span class="caret"></span>
-                </button>
+                    (<span data-bind="text:encounterArray().length"></span>)<span class="caret"></span></button>
                 <ul class="dropdown-menu" aria-labelledby="pastEncounters">
                     <!-- ko foreach:encounterArray -->
-                    <li style="display: inline-flex;">
+                    <li class="d-inline-flex">
                         <a class="dropdown-item" href="#" data-bind="click:chooseEncounterEvent">
                             <span data-bind="text:date"></span>
                             <span data-bind="text:category"></span>
@@ -130,13 +130,8 @@ switch ($search_any_type) {
             <div class="oe-expandable-search mr-auto" id="div-search-globals">
                 <?php //adapted from https://codepen.io/brandonkennedy/pen/yGjsi ?>
                 <form name="frm_search_globals">
-                    <input type="text" id="anySearchBox" class="<?php echo $any_search_class ?> mr-1 mt-1" name="anySearchBox"
-                        placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">
-                    <button type="button" id="search_globals"
-                        class="btn btn-secondary text-body btn-search btn-search1 mr-1 <?php echo $search_globals_class ?>"
-                        title='<?php echo xla("Search for patient by entering whole or part of any demographics field information"); ?>'
-                        data-bind="event: {mousedown: viewPtFinder.bind( $data, '<?php echo xla("The search field cannot be empty. Please enter a search term") ?>', '<?php echo attr($search_any_type); ?>')}">
-                    </button>
+                    <input type="text" id="anySearchBox" class="<?php echo $any_search_class ?> mr-1 mt-1" name="anySearchBox" placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">
+                    <button type="button" id="search_globals" class="btn btn-secondary text-body btn-search btn-search1 mr-1 <?php echo $search_globals_class ?>" title='<?php echo xla("Search for patient by entering whole or part of any demographics field information"); ?>' data-bind="event: {mousedown: viewPtFinder.bind( $data, '<?php echo xla("The search field cannot be empty. Please enter a search term") ?>', '<?php echo attr($search_any_type); ?>')}"></button>
                 </form>
             </div>
             <!-- ko if: user -->

@@ -42,10 +42,10 @@ if (isset($mode)) {
 
 <a href="encounter_bottom.php" onclick="top.restoreSession()">
 
-<span class=title><?php echo xlt('Billing'); ?></span>
-<font class=more><?php echo text($tback); ?></font></a>
+<span class='title'><?php echo xlt('Billing'); ?></span>
+<span class='more'><?php echo text($tback); ?></span></a>
 
-<table border=0 cellpadding=3 cellspacing=0>
+<table class='table-borderless' cellpadding='3' cellspacing='0'>
 
 <?php
 if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
@@ -53,7 +53,7 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
     foreach ($result as $iter) {
         if ($iter["code_type"] == "ICD9") {
             $html = "<tr>";
-            $html .= "<td valign=\"middle\"></td>" .
+            $html .= "<td class='align-middle'></td>" .
                 "<td><div><a class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
                 text($iter["code"]) . "</b> " . text(ucwords(strtolower($iter["code_text"]))) .
                 "</a></div></td>\n";

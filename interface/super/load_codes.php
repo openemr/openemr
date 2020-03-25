@@ -34,9 +34,19 @@ $code_type = empty($_POST['form_code_type']) ? '' : $_POST['form_code_type'];
 <title><?php echo xlt('Install Code Set'); ?></title>
 <?php Header::setupHeader(); ?>
 
-<style type="text/css">
- .dehead { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold }
- .detail { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal }
+<style>
+ .dehead {
+   color: var(--black);
+   font-family: sans-serif;
+   font-size: 0.8125rem;
+   font-weight: bold;
+  }
+ .detail {
+   color: var(--black);
+   font-family: sans-serif;
+   font-size: 0.8125rem;
+   font-weight:normal;
+ }
 </style>
 
 </head>
