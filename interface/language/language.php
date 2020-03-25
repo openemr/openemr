@@ -23,7 +23,7 @@ use OpenEMR\Common\Utils\RandomGenUtils;
 ?>
 <html>
 <head>
-<?php Header::setupHeader([]); ?>
+<?php Header::setupHeader(); ?>
 </head>
 
 <body class="body_top">
