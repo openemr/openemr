@@ -194,20 +194,26 @@ if ($_POST['check'] || $_POST['synchronize']) {
 }
 ?>
 
-<table>
-    <form name="manage_form" method="post" action="?m=manage&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
+    <form class="form-inline" name="manage_form" method="post" action="?m=manage&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-        <tr>
-            <td><input type="submit" name="check" value="<?php echo xla('Check'); ?>"></td>
-            <td class="text">(<?php echo xlt('Check for differences of translations with custom language table.'); ?>)</td>
-        </tr>
-        <tr></tr>
-        <tr>
-            <td><input type="submit" name="synchronize" value="<?php echo xla('Synchronize'); ?>"></td>
-            <td class="text">(<?php echo xlt('Synchronize translations with custom language table.'); ?>)</td>
-        </tr>
+        <div class="container">
+            <div class="row">
+                <div class="col-2">
+                    <input type="submit" class="btn btn-primary" name="check" value="<?php echo xla('Check'); ?>">
+                </div>
+                <div class="col-10">
+                    <p class="text">(<?php echo xlt('Check for differences of translations with custom language table.'); ?>)</p>
+                </div>
+                <div class="col-2">
+                    <input type="submit" class="btn btn-primary" name="synchronize" value="<?php echo xla('Synchronize'); ?>">
+                </div>
+                <div class="col-10">
+                    <p class="text">(<?php echo xlt('Synchronize translations with custom language table.'); ?>)</p>
+                </div>
+            </div>
+        </div>
     </form>
-</table>
+
 <script>
     $("#manage-link").addClass("active");
     $("#definition-link").removeClass("active");

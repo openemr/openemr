@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 ?>
 <html>
 <head>
-<?php Header::setupHeader(); ?>
+<?php Header::setupHeader([]); ?>
 </head>
 
 <body class="body_top">
@@ -95,7 +95,7 @@ use OpenEMR\Core\Header;
             </div>
         </div><!--end of page content div-->
         <br>
-        <a href="lang.info.html" target="_blank"><?php echo xlt('Info'); ?></a>
+        <a href="lang.info.html" class="text-decoration-none" target="_blank"><?php echo xlt('Info'); ?></a>
     </div>
 
 </body>
