@@ -159,7 +159,7 @@ function row_delete($table, $where)
                     }
                 }
                 if ((cPay !== 0) && isNaN(parseFloat(f[pfx + '[pay]'].value))) {
-                    dlgopen('', '', 675, 250, '', '<div class="text-danger">Warning</div>', {
+                    dlgopen('', '', 475, 125, '', '<div class="text-danger">Warning</div>', {
                         type: 'Alert',
                         html: '<p>Payment value for code ' + code + ' is not a number</p>',
                     });
@@ -167,14 +167,14 @@ function row_delete($table, $where)
                 }
                 if ((cAdjust !== 0) && isNaN(parseFloat(f[pfx + '[adj]'].value))) {
                     alert('OK')
-                    dlgopen('', '', 675, 250, '', '<div class="text-danger">Warning</div>', {
+                    dlgopen('', '', 475, 125, '', '<div class="text-danger">Warning</div>', {
                         type: 'Alert',
                         html: '<p>Adjustment value for code ' + code + ' is not a number</p>',
                     });
                     return false;
                 }
                 if ((cAdjust !== 0) && !f[pfx + '[reason]'].value) {
-                    dlgopen('', '', 675, 250, '', '<div class="text-danger">Warning</div>', {
+                    dlgopen('', '', 475, 125, '', '<div class="text-danger">Warning</div>', {
                         type: 'Alert',
                         html: '<p>Please select an adjustment reason for code ' + code + '</p>',
                     });
@@ -184,7 +184,7 @@ function row_delete($table, $where)
             }
             // Check if save is clicked with nothing to post.
             if (allempty && delcount === 0) {
-                dlgopen('', '', 675, 250, '', '<div class="text-danger">Warning</div>', {
+                dlgopen('', '', 475, 125, '', '<div class="text-danger">Warning</div>', {
                     type: 'Alert',
                     html: '<p>Nothing to Post! Please review entries or use Cancel to exit transaction</p>',
                 });
