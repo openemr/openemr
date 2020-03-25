@@ -23,6 +23,10 @@ require_once("verysimple/Phreeze/Dispatcher.php");
 $gc = GlobalConfig::GetInstance();
 
 try {
+    if (!$_SERVER['HTTP_REFERER']) {
+        $error = 'Unauthorized';
+        throw new Exception($error);
+    }
     Dispatcher::Dispatch(
         $gc->GetPhreezer(),
         $gc->GetRenderEngine(),

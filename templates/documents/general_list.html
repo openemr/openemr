@@ -10,24 +10,18 @@
 <html>
 <head>
 
-{headerTemplate assets='datetime-picker|jquery-ui|jquery-ui-lightness'}
+{headerTemplate assets='datetime-picker|select2'}
 <link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.css">
 {literal}
 <style>
+.select2-selection {
+height: 35px!important;
+border-radius: 4px 0 0 4px!important;
+}
 .warn_diagnostic {
     margin: 10 auto 10 auto;
     color: rgb(255, 0, 0);
     font-size: 1.5rem;
-}
-.ui-autocomplete {
-    position: absolute;
-    top: 0;
-    left: 0;
-    min-width: 200px;
-    cursor: default;
-}
-.ui-menu-item {
-     min-width: 200px;
 }
 .fixed-height {
     min-width: 200px;
@@ -73,9 +67,10 @@
 				<fieldset>
 				<legend>{xlt t='Documents List'}</legend>
                 <div style="padding: 0 10px">
-                    <div class="ui-widget form-inline" style="float:right;">
-                         <input id="selectPatient" class="form-control" type="text" placeholder="{$place_hld|attr}" style="border-radius: 0.25rem 0 0 0.25rem" />
-                        <button id='pid' class="btn btn-primary pBtn" type="button" style="float:right; border-radius: 0 0.25rem 0.25rem 0">0</button>
+                    <div class="ui-widget form-inline" class='float-right'>
+                         <select id="selectPatient" class="form-control" type="text" data-placeholder="{$place_hld|attr}" style="width:150px;" >
+                            <option></option></select>
+                        <button id='pid' class="btn btn-primary pBtn" type="button" class='float-right' style="border-radius: 0 0.25rem 0.25rem 0">0</button>
                     </div>
                     <a id="list_collapse" href="#" onclick="javascript:objTreeMenu_1.collapseAll();return false;">&nbsp;({xlt t='Collapse all'})</a>
                     {$tree_html}
@@ -117,30 +112,52 @@ if(curpid == demoPid && !newVersion){
 else{
     $("#pid").text(curpid);
 }
-$(function() {
-    $( "#selectPatient" ).autocomplete({
-    	source: "{/literal}{$GLOBALS.webroot}/library/ajax/document_helpers.php?csrf_token_form=" + {$CSRF_TOKEN_FORM|js_url}{literal},
-    	focus: function(event, sel) {
-            event.preventDefault();
+$(function () {
+    $("#selectPatient").select2({
+        ajax: {
+            url: "{/literal}{$GLOBALS.webroot}/library/ajax/document_helpers.php{literal}",
+            dataType: 'json',
+            data: function(params) {
+                return {
+                  {/literal}
+                  csrf_token_form: {$CSRF_TOKEN_FORM|js_escape},
+                  {literal}
+                  term: params.term
+                };
+            },
+            processResults: function(data) {
+                return  {
+                    results: $.map(data, function(item, index) {
+                        return {
+                            text: item.label,
+                            id: index,
+                            value: item.value,
+                            label: item.label
+                        }
+                    })
+                };
+                return x;
+            },
+            cache: true
         },
-        select: function(event, sel) {
-            event.preventDefault();
-            if (sel.item.value == '00' && ! sel.item.label.match({/literal}{xlj t="Reset"}{literal})){
-            	alert(inUseMsg);
-            	return false;
-            }
-            $(this).val(sel.item.label);
-            location.href = "{/literal}{$GLOBALS.webroot}{literal}/controller.php?document&list&patient_id=" + encodeURIComponent(sel.item.value) + "&patient_name=" + encodeURIComponent(sel.item.label);
-            $("#pid").text(sel.item.value);
-        },
-        minLength: 3
-    }).autocomplete("widget").addClass("fixed-height");
- });
-$(".pBtn").click(function(event) {
+        minimumInputLength: 3
+    });
+
+    $('#selectPatient').on('select2:select', function (e) {
+        e.preventDefault();
+        if (e.params.data.value == '00' && ! e.params.data.label.match({/literal}{xlj t="Reset"}{literal})){
+            alert(inUseMsg);
+            return false;
+        }
+        $(this).val(e.params.data.label);
+        location.href  = "{/literal}{$GLOBALS.webroot}{literal}/controller.php?document&list&patient_id=" + encodeURIComponent(e.params.data.value) + "&patient_name=" + encodeURIComponent(e.params.data.label);
+        $("#pid").text(e.params.data.value);
+    });
+
+    $(".pBtn").click(function(event) {
     var $input = $("#selectPatient");
-        $input.val('*');
-        $input.autocomplete('search'," ");
-        $input.val('');
+    $input.val('');
+    });
 });
 $("#list_collapse").detach().appendTo("#objTreeMenu_1_node_1 nobr");
 
@@ -191,7 +208,7 @@ $(function () {
     });
 });
 
-$(function(){{/literal}
+$(function () {{/literal}
     {datetimepickerSupport}
 {literal}});{/literal}
 

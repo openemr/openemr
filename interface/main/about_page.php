@@ -24,7 +24,7 @@ use OpenEMR\Services\VersionService;
 <html>
 <head>
 
-    <?php Header::setupHeader(["jquery-ui","jquery-ui-darkness"]); ?>
+    <?php Header::setupHeader(); ?>
     <title><?php echo xlt("About");?> OpenEMR</title>
     <style>
         .donations-needed {
@@ -80,7 +80,7 @@ use OpenEMR\Services\VersionService;
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_controller.js?v=<?php echo $v_js_includes; ?>"></script>
 
     <script type="text/javascript">
-        $(function() {
+        $(function () {
             var productRegistrationController = new ProductRegistrationController();
             productRegistrationController.getProductRegistrationStatus(function(err, data) {
                 if (err) { return; }
@@ -128,10 +128,23 @@ $version = $versionService->fetch();
     </div>
 
 
-    <div class="product-registration-modal" style="display: none">
-        <p class="context"><?php echo xlt("Register your installation with OEMR to receive important notifications, such as security fixes and new release announcements."); ?></p>
-        <input placeholder="<?php echo xla('email'); ?>" type="email" class="email w-100" style="color: var(--black)" />
-        <p class="message" style="font-style: italic"></p>
+    <div class="product-registration-modal modal fade">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header"></div>
+                <div class="modal-body">
+                    <p class="context"><?php echo xlt("Register your installation with OEMR to receive important notifications, such as security fixes and new release announcements."); ?></p>
+                    <input placeholder="<?php echo xlt('email'); ?>" type="email" class="email w-100 text-body form-control" />
+                    <p class="message font-italic"></p>
+                </div>
+                <div class="modal-footer">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-primary submit" ><?php echo xlt("Submit"); ?></button>
+                        <button type="button" class="btn btn-danger nothanks" ><?php echo xlt("No Thanks"); ?></button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>

@@ -123,12 +123,12 @@ body {
     height: 110px;
 }
 
-/* $GLOBALS['logoBarHeight'] */
-
+/* $GLOBALS['logoBarHeight']
+removed as doesn't make sense and ruins responsive sjp
 .navbar {
     height: 22px;
 }
-
+*/
 /* $GLOBALS['navBarHeight'] */
 
 .titlebar {

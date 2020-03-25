@@ -69,7 +69,7 @@ if ($_POST['form_labels']) {
 
 <script>
 
-$(function() {
+$(function () {
     var win = top.printLogSetup ? top : opener.top;
     win.printLogSetup(document.getElementById('printbutton'));
 

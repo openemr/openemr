@@ -1061,7 +1061,7 @@ f['form_show[]'].style.visibility = isdis;
 
 // End experimental code
 
-$(function() {
+$(function () {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>

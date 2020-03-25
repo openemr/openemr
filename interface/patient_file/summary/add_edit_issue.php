@@ -359,7 +359,7 @@ if (!empty($irow['type'])) {
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['common', 'jquery-ui', 'datetime-picker', 'select2']); ?>
+<?php Header::setupHeader(['common', 'datetime-picker', 'select2']); ?>
 <title><?php echo ($issue) ? xlt('Edit Issue') : xlt('Add New Issue'); ?></title>
 
 <style>
@@ -450,7 +450,7 @@ ActiveIssueCodeRecycleFn($thispid, $ISSUE_TYPES);
   // Show or hide various rows depending on issue type, except do not
   // hide the comments or referred-by fields if they have data.
 
- $(function(){
+ $(function () {
  var comdisp = (aitypes[index] == 1) ? 'none' : '';
   var revdisp = (aitypes[index] == 1) ? '' : 'none';
   var injdisp = (aitypes[index] == 2) ? '' : 'none';
@@ -623,7 +623,7 @@ function divclick(cb, divid) {
  return true;
 }
 
-$(function() {
+$(function () {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -896,7 +896,7 @@ if ($issue) {
  // Set up the tabbed UI.
  tabbify();
 
-$(function() {
+$(function () {
     // Include bs3 / bs4 classes here.  Keep html tags functional.
     $('table').addClass('table table-sm');
 });

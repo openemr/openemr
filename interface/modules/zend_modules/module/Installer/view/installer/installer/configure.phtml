@@ -11,6 +11,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Warning : PoC code
+// TBD - Must handle modules in external namespaces
+Use OpenEMR\Modules;
 
 $listener	= $this->listenerObject;
 $hangers  = $this->hangers;
@@ -195,10 +198,25 @@ if(isset($TabSettings[3]) && $TabSettings[3] > 0){
   </div>
 <?php
 } else{
+    // Final check for config
+    // TBD : clsOeModule
+    $rs_mod = sqlQuery('select * from modules where mod_id=? and mod_active=1', [$mod_id]);
+    $fConfig = dirname(realpath('.')) . '/custom_modules/' . $rs_mod['mod_directory'] . '/moduleConfig.php';
+    if (($rs_mod['type'] == 0) && file_exists($fConfig)) {
+        ?>
+        <div class="easyui-tabs" id="tab<?php echo $this->escapeHtml($mod_id); ?>" style="width:800px;height:auto;">
+            <iframe scrolling="yes" frameborder="0"
+                src="<?php echo dirname($this->basePath(), 2) . '/custom_modules/' . $rs_mod['mod_directory'] . '/moduleConfig.php'; ?>"
+                style="width:100%;height:400px;">
+            </iframe>
+        </div>
+        <?php
+    } else {
 ?>
     <div class="easyui-tabs" id="tab<?php echo $this->escapeHtml($mod_id); ?>" style="width:800px;height:auto;">
     <?php echo $listener->z_xlt('No Configuration Defined for this Module');?>
     </div>
 <?php
+}
 }
 ?>

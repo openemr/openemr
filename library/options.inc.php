@@ -469,12 +469,13 @@ function generate_form_field($frow, $currvalue)
         }
         if ($data_type == 4) {
             $modtmp = isOption($frow['edit_options'], 'F') === false ? 0 : 1;
+            $datetimepickerclass = $frow['validation'] === 'past_date' ? '-past' : ( $frow['validation'] === 'future_date' ? '-future' : '' );
             if (!$modtmp) {
                 $dateValue  = oeFormatShortDate(substr($currescaped, 0, 10));
-                echo "<input type='text' size='10' class='datepicker form-control$smallform' name='form_$field_id_esc' id='form_$field_id_esc'" . " value='" .  attr($dateValue)  ."'";
+                echo "<input type='text' size='10' class='datepicker$datetimepickerclass form-control$smallform' name='form_$field_id_esc' id='form_$field_id_esc'" . " value='" .  attr($dateValue)  ."'";
             } else {
                 $dateValue  = oeFormatDateTime(substr($currescaped, 0, 20), 0);
-                echo "<input type='text' size='20' class='datetimepicker form-control$smallform' name='form_$field_id_esc' id='form_$field_id_esc'" . " value='" . attr($dateValue) . "'";
+                echo "<input type='text' size='20' class='datetimepicker$datetimepickerclass form-control$smallform' name='form_$field_id_esc' id='form_$field_id_esc'" . " value='" . attr($dateValue) . "'";
             }
         }
         if (!$agestr) {
@@ -1335,7 +1336,7 @@ function generate_form_field($frow, $currvalue)
             $datatype = 'admin-signature';
         }
         echo "<input type='hidden' id='form_$field_id_esc' name='form_$field_id_esc' value='' />\n";
-        echo "<img class='signature' id='form_{$field_id_esc}_img' title='$description' 
+        echo "<img class='signature' id='form_{$field_id_esc}_img' title='$description'
             data-pid='$cpid' data-user='$cuser' data-type='$datatype'
             data-action='fetch_signature' alt='Get Signature' src='" . attr($currvalue) . "'>\n";
     }
@@ -2019,6 +2020,34 @@ function generate_print_field($frow, $currvalue)
     }
 }
 
+/**
+ * @param $list_id
+ * @param bool $translate
+ * @return array
+ *
+ * Generate a key-value array containing each row of the specified list,
+ * with the option ID as the index, and the title as the element
+ *
+ * Pass in the list_id to specify this list.
+ *
+ * Use the translate flag to run the title element through the translator
+ */
+function generate_list_map($list_id, $translate = false)
+{
+    $result = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ?", [$list_id]);
+    $map = [];
+    while ($row = sqlFetchArray($result)) {
+        if ($translate === true) {
+            $title = xl_list_label($row['title']);
+        } else {
+            $title = $row['title'];
+        }
+        $map[$row['option_id']] = $title;
+    }
+
+    return $map;
+}
+
 function generate_display_field($frow, $currvalue)
 {
     global $ISSUE_TYPES, $facilityService;
@@ -2046,7 +2075,7 @@ function generate_display_field($frow, $currvalue)
         // If match is not found in main and backup lists, return the key with exclamation mark
         if ($s == '') {
             $s = nl2br(text(xl_list_label($currvalue))).
-            '<sup> <i class="fa fas fa-exclamation-circle ml-1"></i></sup>';
+            '<span> <i class="fa fas fa-exclamation-circle ml-1"></i></span>';
         }
     } elseif ($data_type == 2) { // simple text field
         $s = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
@@ -2693,6 +2722,10 @@ function generate_plaintext_field($frow, $currvalue)
 
             $s .= $resdate;
         }
+    } elseif ($data_type == 35) { // Facility, so facility can be listed in plain-text, as in patient finder column
+        $facilityService = new FacilityService();
+        $facility = $facilityService->getById($currvalue);
+        $s = $facility['name'];
     } elseif ($data_type == 36) { // Multi select. Supports backup lists
         $values_array = explode("|", $currvalue);
 

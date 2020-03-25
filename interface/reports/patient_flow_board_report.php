@@ -81,7 +81,7 @@ if ($form_patient == '') {
     <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
     <script type="text/javascript">
-        $(function() {
+        $(function () {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
 
@@ -647,7 +647,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 <div class='text'><?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
 </div>
 <?php } ?>
-<input type="hidden" name="form_orderby" value="<?php echo attr($form_orderby) ?>" /> <input type="hidden" name="patient" value="<?php echo attr($patient) ?>" /> 
+<input type="hidden" name="form_orderby" value="<?php echo attr($form_orderby) ?>" /> <input type="hidden" name="patient" value="<?php echo attr($patient) ?>" />
 <input type='hidden' name='form_refresh' id='form_refresh' value='' />
 </form>
 

@@ -35,14 +35,14 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
     <?php Header::setupHeader(); ?>
 
     <script type="text/JavaScript">
-        $(function(){
-            //using jquery-ui-1-12-1 tooltip instead of bootstrap tooltip
+        $(function () {
+            //Bootstrap tooltip
             var groupTitle = <?php echo xlj('This section allows you to create and remove groups and modify or grant access privileges to existing groups. Check the check box to display section'); ?>;
-            $('#advanced-tooltip').attr( "title", <?php echo xlj('Click to manually configure access control, recommended for advanced users'); ?> ).tooltip();
-            $('#user-tooltip').attr("title", <?php echo xlj('Click the pencil icon to grant and remove access privileges to the selected user'); ?> ).tooltip();
-            $('#group-tooltip').attr("title", groupTitle).tooltip();
-            $('#new-group-tooltip').attr("title", <?php echo xlj('Enter values in this section to create a new group also known as Access Request Object (ARO)'); ?>).tooltip();
-            $('#remove-group-tooltip').attr("title", <?php echo xlj('Use this section to delete existing groups or Access Request Objects (AROs)'); ?>).tooltip();
+            $('#advanced-tooltip').attr({"title": <?php echo xlj('Click to manually configure access control, recommended for advanced users'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+            $('#user-tooltip').attr({"title": <?php echo xlj('Click the pencil icon to grant and remove access privileges to the selected user'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+            $('#group-tooltip').attr({"title": groupTitle, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+            $('#new-group-tooltip').attr({"title": <?php echo xlj('Enter values in this section to create a new group also known as Access Request Object (ARO)'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+            $('#remove-group-tooltip').attr({"title": <?php echo xlj('Use this section to delete existing groups or Access Request Objects (AROs)'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
             //Show membership section by default
             $("#membership_show").click();
             membership_show();

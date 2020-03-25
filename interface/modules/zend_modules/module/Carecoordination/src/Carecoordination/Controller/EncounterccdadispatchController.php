@@ -445,7 +445,7 @@ class EncounterccdadispatchController extends AbstractActionController
                 }
             } else {
                 error_log("Failed to connect to mirth server on ip " . errorLogEscape($ip) . " and port " . errorLogEscape($port));
-                throw new Exception("Connection Failed");
+                throw new Exception("Please Enable C-CDA Alternate Service in Global Settings");
             }
         }
 

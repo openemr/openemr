@@ -63,4 +63,4 @@ function initialize_review() {
     get_fee_sheet_options('standard');
     ko.applyBindings(view_model, review.get(0));
 }
-$(document).ready(initialize_review);
+$(initialize_review);

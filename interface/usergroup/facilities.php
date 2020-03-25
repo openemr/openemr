@@ -120,7 +120,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] =
 
 <title><?php echo xlt("Facilities") ; ?></title>
 
-    <?php Header::setupHeader(['common', 'jquery-ui']); ?>
+    <?php Header::setupHeader(['common']); ?>
 
 <script type="text/javascript">
 
@@ -128,7 +128,7 @@ function refreshme() {
     top.restoreSession();
     document.location.reload();
 }
-$(function(){
+$(function () {
 
     $(".medium_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();

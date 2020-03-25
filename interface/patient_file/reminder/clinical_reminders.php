@@ -76,7 +76,8 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 
   <div class="tab h-auto" style="width: 97%;">
     <div id='report_results'>
-      <table>
+    <div class="table-responsive">
+      <table class="table table-bordered table-active table-hover">
         <tr>
           <th rowspan="2"><?php echo xlt('Plan'); ?></th>
           <th colspan="2"><?php echo xlt('Show'); ?></th>
@@ -94,7 +95,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
             }
             ?>
           <tr>
-            <td style="border-right: 1px solid var(--black);"><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'), $plan['id']); ?></td>
+            <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'), $plan['id']); ?></td>
             <td align="center">
                 <?php
 
@@ -112,13 +113,15 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
                         $select = "default";
                     }
                 } ?>
-              <select class="plan_show" name="<?php echo attr($plan['id']); ?>">
+            <div class="form-group">
+              <select class="plan_show form-control col-4" name="<?php echo attr($plan['id']); ?>">
                 <option value="default" <?php echo ($select == "default") ? "selected" : ""; ?>><?php echo xlt('Default'); ?></option>
                 <option value="on" <?php echo ($select == "on") ? "selected" : ""; ?>><?php echo xlt('On'); ?></option>
                 <option value="off" <?php echo ($select == "off") ? "selected" : ""; ?>><?php echo xlt('Off'); ?></option>
               </select>
+            </div>
             </td>
-            <td align="center" style="border-right: 1px solid var(--black);">
+            <td align="center">
                 <?php
                 if ($plan['normal_flag'] == "1") {
                     echo xlt('On');
@@ -130,9 +133,11 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
           </tr>
         <?php } ?>
       </table>
+      </div>
       <br />
       <br />
-      <table>
+    <div class="table-responsive">
+      <table class="table table-bordered table-active table-hover">
         <tr>
           <th rowspan="2"><?php echo xlt('Rule'); ?></th>
           <th colspan="2"><?php echo xlt('Passive Alert'); ?></th>
@@ -146,7 +151,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
         </tr>
         <?php foreach ($rules_default as $rule) { ?>
           <tr>
-            <td style="border-right: 1px solid var(--black);"><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $rule['id']); ?></td>
+            <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $rule['id']); ?></td>
             <td align="center">
                 <?php
                 $patient_rule = collect_rule($rule['id'], $patient_id);
@@ -162,13 +167,15 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
                         $select = "default";
                     }
                 } ?>
-              <select class="passive_alert" name="<?php echo attr($rule['id']); ?>">
+                <div class="form-group">
+              <select class="passive_alert form-control" name="<?php echo attr($rule['id']); ?>">
                 <option value="default" <?php echo ($select == "default") ? "selected" : ""; ?>><?php echo xlt('Default'); ?></option>
                 <option value="on" <?php echo ($select == "on") ? "selected" : ""; ?>><?php echo xlt('On'); ?></option>
                 <option value="off" <?php echo ($select == "off") ? "selected" : ""; ?>><?php echo xlt('Off'); ?></option>
               </select>
+                </div>
             </td>
-            <td align="center" style="border-right: 1px solid var(--black);">
+            <td align="center">
                 <?php
                 if ($rule['passive_alert_flag'] == "1") {
                     echo xlt('On');
@@ -191,11 +198,13 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
                         $select = "default";
                     }
                 } ?>
-              <select class="active_alert" name="<?php echo attr($rule['id']); ?>">
+                 <div class="form-group">
+              <select class="active_alert form-control" name="<?php echo attr($rule['id']); ?>">
                 <option value="default" <?php echo ($select == "default") ? "selected" : ""; ?>><?php echo xlt('Default'); ?></option>
                 <option value="on" <?php echo ($select == "on") ? "selected" : ""; ?>><?php echo xlt('On'); ?></option>
                 <option value="off" <?php echo ($select == "off") ? "selected" : ""; ?>><?php echo xlt('Off'); ?></option>
               </select>
+              </div>
             </td>
             <td align="center">
                 <?php
@@ -209,12 +218,13 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
           </tr>
         <?php } ?>
       </table>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-  $(function() {
+  $(function () {
 
     tabbify();
 

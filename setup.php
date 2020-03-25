@@ -122,12 +122,10 @@ if (!$COMMAND_LINE && empty($_REQUEST['site'])) {
         <title>OpenEMR Setup Tool</title>
         <!--<link rel=stylesheet href="interface/themes/style_blue.css">-->
         <link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css" type="text/css">
-        <link rel="stylesheet" href="public/assets/jquery-ui/jquery-ui.css" type="text/css">
         <script type="text/javascript" src="public/assets/jquery/dist/jquery.min.js"></script>
         <script type="text/javascript" src="public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
         <link rel="stylesheet" href="public/assets/font-awesome/css/font-awesome.min.css" type="text/css">
         <link rel="shortcut icon" href="public/images/favicon.ico" />
-        <script type="text/javascript" src="public/assets/jquery-ui/jquery-ui.js"></script>
         <style>
         .oe-pull-away {
             float:right;
@@ -232,10 +230,8 @@ if (file_exists($OE_SITE_DIR)) {
 <title>OpenEMR Setup Tool</title>
 <!--<link rel=stylesheet href="interface/themes/style_blue.css">-->
 <link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css" type="text/css">
-<link rel="stylesheet" href="public/assets/jquery-ui/jquery-ui.css" type="text/css">
 <script type="text/javascript" src="public/assets/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript" src="public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script type="text/javascript" src="public/assets/jquery-ui/jquery-ui.js"></script>
 <link rel="stylesheet" href="public/assets/font-awesome/css/font-awesome.min.css" type="text/css">
 <link rel="shortcut icon" href="public/images/favicon.ico" />
 
@@ -1251,7 +1247,7 @@ STP4TOP;
                         }
                         $btn_text = 'Proceed to Step 5';
                         $step4_bottom = <<<STP4BOT
-                        <p>Gave the '{$installer->iuser}' user (password is '{$installer->iuserpass}') administrator access.</p>
+                        <p><b>Gave the <span class='text-primary'>$installer->iuser</span> user (password is <span class='text-primary'>$installer->iuserpass</span>) administrator access.</b></p>
                         <p>Done installing and configuring access controls (php-gacl).</p>
                         <p>The next step will configure php.</p>
                         <p class='mark'>Click <strong>$btn_text</strong> to continue.</p>
@@ -1573,7 +1569,7 @@ BOT;
     <?php $installer->setupHelpModal();?>
     <script>
         //jquery-ui tooltip
-        $(function() {
+        $(function () {
             $('.icon-tooltip').prop( "title", "Click to see more information").tooltip({
                 show: {
                     delay: 700,
@@ -1587,7 +1583,7 @@ BOT;
         });
     </script>
     <script type = "text/javascript" >
-        $(function() {
+        $(function () {
             $("input[type='radio']").click(function() {
                 var radioValue = $("input[name='stylesheet']:checked").val();
                 var imgPath = "public/images/stylesheets/";

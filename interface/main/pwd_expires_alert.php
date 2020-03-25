@@ -46,7 +46,7 @@ if (strtotime($current_date) > strtotime($pwd_expires)) {
 
 <html>
 <head>
-    <?php Header::setupHeader(["jquery-ui","jquery-ui-darkness"]); ?>
+    <?php Header::setupHeader(); ?>
     <title><?php echo xlt('Password Expiration'); ?></title>
 </head>
 <body class="body_top">

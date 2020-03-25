@@ -146,7 +146,7 @@ if ($form_output == 3) {
 </style>
 
 <script language="JavaScript">
-    $(function() {
+    $(function () {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>

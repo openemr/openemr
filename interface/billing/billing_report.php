@@ -386,7 +386,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
         function SubmitTheScreen() { //Action on Update List link
             if (!ProcessBeforeSubmitting()) return false;
-            $("#update-tooltip").replaceWith("<i class='fa fa-refresh fa-spin fa-1x' style=\"color:red\"></i>");
+            $("#update-tooltip").replaceWith("<i class='fa fa-sync fa-spin fa-1x' style=\"color:red\"></i>");
             top.restoreSession();
             document.the_form.mode.value = 'change';
             document.the_form.target = '_self';
@@ -536,7 +536,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         .table td {
             border-top: none !important;
         }
-        
+
         a,
         a:visited,
         a:hover {
@@ -702,7 +702,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             </div>
         </div>
     </div>
-    <div class="container mt-1">
+    <div class="container-fluid mt-1">
         <form class="form-inline" name='update_form' method='post' action='billing_process.php'>
             <nav class="nav navbar-expand-md navbar-light bg-light px-3 py-2">
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#billing-nav-detail" aria-controls="" aria-expanded="false" aria-label="Actions">
@@ -1233,7 +1233,7 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
                             if ($skipping) {
                                 continue;
                             }
-                            
+
                             // Collect info related to the missing modifiers test.
                             if ($iter['fee'] > 0) {
                                 ++$mmo_num_charges;
@@ -1405,7 +1405,7 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
             echo "alert(" . js_escape($alertmsg) . ");\n";
         }
         ?>
-        $(function() {
+        $(function () {
             $("#view-log-link").click(function() {
                 top.restoreSession();
                 dlgopen('customize_log.php', '_blank', 750, 400);

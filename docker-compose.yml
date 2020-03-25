@@ -46,6 +46,7 @@ services:
       OE_PASS: pass
       EASY_DEV_MODE: "yes"
       EASY_DEV_MODE_NEW: "yes"
+      DEVELOPER_TOOLS: "yes"
     depends_on:
     - mysql
   phpmyadmin:

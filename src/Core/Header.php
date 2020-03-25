@@ -69,14 +69,21 @@ class Header
      * bring in the requested assets from config.yaml
      *
      * @param array|string $assets Asset(s) to include
+     * @param boolean $echoOutput - if true then echo
+     *                              if false then return string
      * @throws ParseException If unable to parse the config file
      * @return string
      */
-    public static function setupHeader($assets = [])
+    public static function setupHeader($assets = [], $echoOutput = true)
     {
         // Required tag
-        echo '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />';
-        self::setupAssets($assets, true);
+        $output = '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />';
+        $output .= self::setupAssets($assets, true, false);
+        if ($echoOutput) {
+            echo $output;
+        } else {
+            return $output;
+        }
     }
 
     /**
@@ -86,8 +93,10 @@ class Header
      * @param array $assets Asset(s) to include
      * @param boolean $headerMode - if true, then include autoloaded assets
      *                              if false, then do not include autoloaded assets
+     * @param boolean $echoOutput - if true then echo
+     *                              if false then return string
      */
-    public static function setupAssets($assets = [], $headerMode = false)
+    public static function setupAssets($assets = [], $headerMode = false, $echoOutput = true)
     {
         if ($headerMode) {
             self::$isHeader = true;
@@ -96,7 +105,11 @@ class Header
         }
 
         try {
-            echo self::includeAsset($assets);
+            if ($echoOutput) {
+                echo self::includeAsset($assets);
+            } else {
+                return self::includeAsset($assets);
+            }
         } catch (\InvalidArgumentException $e) {
             error_log(errorLogEscape($e->getMessage()));
         }
@@ -178,7 +191,7 @@ class Header
                     }
                 }
 
-                if ($rtl && $_SESSION['language_direction'] == 'rtl') {
+                if ($rtl && !empty($_SESSION['language_direction']) && $_SESSION['language_direction'] == 'rtl') {
                     $tmpRtl = self::buildAsset($rtl, $alreadyBuilt);
                     foreach ($tmpRtl['scripts'] as $s) {
                         self::$scripts[] = $s;

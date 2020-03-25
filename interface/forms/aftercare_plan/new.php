@@ -32,7 +32,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
 <?php Header::setupHeader('datetime-picker'); ?>
 
 <script language="JavaScript">
- $(function() {
+ $(function () {
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
 

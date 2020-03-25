@@ -417,12 +417,12 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
     ?>
 
 <title><?php echo xlt('Receipt for Payment'); ?></title>
-    <?php Header::setupHeader(['jquery-ui']); ?>
+    <?php Header::setupHeader(); ?>
 <script language="JavaScript">
 
     <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
-$(function() {
+$(function () {
     var win = top.printLogSetup ? top : opener.top;
     win.printLogSetup(document.getElementById('printbutton'));
 });

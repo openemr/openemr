@@ -22,6 +22,7 @@ require_once("$srcdir/appointments.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/user.inc");
 
+use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -312,13 +313,12 @@ height: " . attr($page_height) . "pt;
 }
 </style>";
 
-$html .= "<title>" . text($frow['name']) . "</title>
-<script type='text/javascript' src='" . $GLOBALS['assets_static_relative'] . "/jquery/dist/jquery.min.js'></script>
-<script type=\"text/javascript\" src=\"../../library/dialog.js?v=" . $v_js_includes . "\"></script>
-<script language=\"JavaScript\">";
+$html .= "<title>" . text($frow['name']) . "</title>" .
+    Header::setupHeader(['opener', 'topdialog'], false) .
+    "<script language=\"JavaScript\">";
 
 $html .= "
-$(function() {
+$(function () {
  var win = top.printLogSetup ? top : opener.top;
  win.printLogSetup(document.getElementById('printbutton'));
 });
@@ -602,7 +602,7 @@ foreach ($pid_list as $pid) {
 if ($form_fill != 2) {   //use native browser 'print' for multipage
     $html .= "<div id='hideonprint'>
 <p>
-<input type='button' value='";
+<input type='button' class='btn btn-secondary btn-print mt-3' value='";
 
     $html .= xla('Print');
     $html .="' id='printbutton' />

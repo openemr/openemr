@@ -211,12 +211,12 @@ $result_sent = getSentPnotesByDate(
 <html>
 <head>
 
-    <?php Header::setupHeader(['common', 'jquery-ui', 'opener']); ?>
+    <?php Header::setupHeader(['common', 'opener']); ?>
 
 <script type="text/javascript">
 /// todo, move this to a common library
 
-$(function(){
+$(function () {
 
     $("#dem_view").click( function() {
         toggle( $(this), "#DEM" );
@@ -777,7 +777,7 @@ if ($noteid /* && $title == 'New Document' */) {
 
 // jQuery stuff to make the page a little easier to use
 
-$(function(){
+$(function () {
     $("#appendnote").click(function() { AppendNote(); });
     $("#newnote").click(function() { NewNote(); });
     $("#printnote").click(function() { PrintNote(); });
