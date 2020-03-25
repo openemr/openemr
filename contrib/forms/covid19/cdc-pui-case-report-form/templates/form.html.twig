@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {{ setupHeader('select2') }}
+    <title>Title</title>
+</head>
+<body class="body_top">
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1>nCOV19 Person Under Investion &amp; Case Report Form
+                <small class="text-muted"><br>Center for Disease Prevention and Control</small>
+            </h1>
+            <small class="lead">
+                Point to PDF form here?
+            </small>
+        </div>
+    </div>
+</div>
+
+<form action="{{ formAction }}" method="post" class="container">
+    <fieldset class="pl-1">
+        <legend>Basic Information</legend>
+        <div class="form-group row">
+            <div class="col-4">
+                <div class="form-group row">
+                    <label for="current_status" class="col-4 col-form-label text-right">Current Status</label>
+                    <select name="current_status" id="current_status" class="form-control col-8">
+                        <option></option>
+                        {% for value, display in current_status %}
+                            <option value="{{ value }}">{{ display }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group row">
+                    <label for="ethnicity" class="col-4 col-form-label text-right pt-1">Ethnicity</label>
+                    <select name="ethnicity" id="ethnicity" class="form-control col-8">
+                        <option></option>
+                        {% for value, display in ethnicity %}
+                            <option value="{{ value }}">{{ display }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group row">
+                    <label for="sex" class="col-4 col-form-label text-right pt-1">Sex</label>
+                    <select name="sex" id="sex" class="form-control col-8">
+                        <option></option>
+                        {% for value, display in sex %}
+                            <option value="{{ value }}">{{ display }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group row">
+                    <label for="race" class="col-4 col-form-label text-right pt-1">Race</label>
+                    <div class="col-8">
+                        {% for value, display in race %}
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" value="1" id="{{ value }}">
+                                <label for="{{ value }}" class="form-check-label">{{ display }}</label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="res_county" class="col-6 col-form-label text-right pt-2">County of Residence</label>
+                    <input type="text" class="text col-6 form-control" id="res_county">
+                </div>
+                <div class="form-group row">
+                    <label for="res_state" class="col-6 col-form-label text-right pt-2">State of Residence</label>
+                    <input type="text" id="res_state" class="col-6 form-control" value="">
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <small>* Testing performed by state, local, or CDC lab. † At this time, all confirmatory testing occurs at CDC<br></small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="form-group row">
+                    <label for="pui_cdcreport_dt" class="col-7 col-form-label text-right">Report date of PUI to CDC</label>
+                    <input type="date" id="case_cdcreport_dt" class="col-5 form-control" value="">
+                </div>
+                <div class="form-group row">
+                    <label for="case_cdcreport_dt" class="col-7 col-form-label pt-1 text-right">Report date of case to CDC</label>
+                    <input type="date" id="case_cdcreport_dt" class="col-5 form-control" value="">
+                </div>
+            </div>
+
+            <div class="col-4">
+
+
+            </div>
+        </div>
+    </fieldset>
+</form>
+<script>
+$(document).ready(function(){
+    $("select").select2({
+        placeholder: "Select an option",
+        allowClear: true,
+        minimumResultsForSearch: 15,
+    });
+});
+</script>
+</body>
+</html>
