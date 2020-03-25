@@ -159,22 +159,34 @@ function row_delete($table, $where)
                     }
                 }
                 if ((cPay !== 0) && isNaN(parseFloat(f[pfx + '[pay]'].value))) {
-                    alert(<?php echo xlj('Payment value for code ') ?> + code + <?php echo xlj(' is not a number') ?>);
+                    dlgopen('', '', 675, 250, '', 'Warning', {
+                        type: 'Alert',
+                        html: '<p><?php echo xlj('Payment value for code ') ?> + code + <?php echo xlj(' is not a number') ?></p>',
+                    });
                     return false;
                 }
                 if ((cAdjust !== 0) && isNaN(parseFloat(f[pfx + '[adj]'].value))) {
-                    alert(<?php echo xlj('Adjustment value for code ') ?> + code + <?php echo xlj(' is not a number') ?>);
+                    dlgopen('', '', 675, 250, '', 'Warning', {
+                        type: 'Alert',
+                        html: '<p><?php echo xlj('Adjustment value for code ') ?> + code + <?php echo xlj(' is not a number') ?></p>',
+                    });
                     return false;
                 }
                 if ((cAdjust !== 0) && !f[pfx + '[reason]'].value) {
-                    alert(<?php echo xlj('Please select an adjustment reason for code ') ?> + code);
+                    dlgopen('', '', 675, 250, '', 'Warning', {
+                        type: 'Alert',
+                        html: '<p><?php echo xlj('Please select an adjustment reason for code ') ?>' + code + '</p>',
+                    });
                     return false;
                 }
             // TBD: validate the date format
             }
             // Check if save is clicked with nothing to post.
             if (allempty && delcount === 0) {
-                alert(<?php echo xlj('Nothing to Post! Please review entries or use Cancel to exit transaction')?>);
+                dlgopen('', '', 675, 250, '', 'Warning', {
+                        type: 'Alert',
+                        html: '<p><?php echo xlj('Nothing to Post! Please review entries or use Cancel to exit transaction')?></p>',
+                    });
                 return false;
             }
             // Demand confirmation if deleting anything.
