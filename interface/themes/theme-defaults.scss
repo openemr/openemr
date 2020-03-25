@@ -176,6 +176,11 @@ ul.tabNav a:focus {
     outline: none;
 }
 
+/* Override BS4 dropdown toggle */
+.oe-dropdown-toggle::after {
+    content: none !important;
+}
+
 /**
 * List-table formatting
 **/

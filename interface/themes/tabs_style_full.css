@@ -72,14 +72,14 @@ body {
 }
 
 #mainBox .logo {
-    float: left;
-    margin-top: 14px !important;
-    margin-left: 10px !important;
-    margin-right: 4px !important;
     width: 20px;
     height: 20px;
     z-index: 10000;
-    padding: 0 !important;
+    padding: 0;
+    margin-top: 0.1875rem;
+    margin-bottom: auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #mainBox_vertical .logo {
@@ -251,6 +251,7 @@ body {
     padding: 1px 1px 1px 10px;
 }
 
+/* TODO: Marked this class for removal */
 .top {
     vertical-align: top;
 }
@@ -305,7 +306,6 @@ body {
 }
 
 .menuSection > .menuEntries {
-    background: var(--white);
     display: none;
     position: absolute;
     top: 40px;
@@ -326,6 +326,12 @@ body {
 .menuSection:hover > .menuEntries {
     display: block;
 }
+
+/* Needed for things that require it */
+.menu-shadow-ovr {
+    box-shadow: 0 5px 5px var(--gray) !important;
+}
+
 
 /* Need separate styling for top level vs submenu items
  * This currently controls ALL links in menu, no bueno
@@ -416,7 +422,7 @@ div.menuLabel:hover {
     display: inline-block;
     float: right;
     position: relative;
-    top: 6px;
+    top: 14px;
     right: 5px;
 }
 

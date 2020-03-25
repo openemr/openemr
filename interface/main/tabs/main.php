@@ -320,7 +320,7 @@ $esignApi = new Api();
     ?>
     <div id="mainBox" <?php echo $disp_mainBox ?> >
         <nav class="navbar navbar-expand-xl navbar-light bg-light py-0">
-            <a class="navbar-brand" href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank">
+            <a class="navbar-brand mr-2" href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank">
                 <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/menu-logo.svg"); ?>
             </a>
             <!--<a href="../../logout.php" target="logoutinnerframe" class="d-lg-none" id="logout_link" onclick="top.restoreSession()" title="<?php /*echo xla("Logout"); */ ?>"><i class="fa fa-2x fa-sign-out oe-pull-toward" aria-hidden="true" id="logout_icon"></i>
@@ -329,6 +329,7 @@ $esignApi = new Api();
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="mainMenu" data-bind="template: {name: 'menu-template', data: application_data} "></div>
+            <span id="userData" data-bind="template: {name: 'user-data-template', data: application_data} "></span>
         </nav>
             <div id="attendantData" class="body_title acck" data-bind="template: {name: app_view_model.attendant_template_type, data: application_data}">
             </div>
