@@ -166,14 +166,13 @@ function row_delete($table, $where)
                     return false;
                 }
                 if ((cAdjust !== 0) && isNaN(parseFloat(f[pfx + '[adj]'].value))) {
-                    alert('OK')
                     dlgopen('', '', 475, 125, '', '<div class="text-danger">Warning</div>', {
                         type: 'Alert',
                         html: '<p>Adjustment value for code ' + code + ' is not a number</p>',
                     });
                     return false;
                 }
-                if ((cAdjust !== 0) && !f[pfx + '[reason]'].value) {
+                if ((cAdjust !== 0) && !f[pfx + '[reason]'].value && !adjDisable) {
                     dlgopen('', '', 475, 125, '', '<div class="text-danger">Warning</div>', {
                         type: 'Alert',
                         html: '<p>Please select an adjustment reason for code ' + code + '</p>',
