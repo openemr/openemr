@@ -63,11 +63,10 @@ class NewRx
 
         $xml = new \SimpleXMLElement($envelope);
 
-
         $mHeader = $xml->addChild('Header');
         $to = $mHeader->addChild('To', $pai['ncpdp']);
         $to->addAttribute('Qualifier', 'P');
-        $from = $mHeader->addChild('From', $GLOBALS['weno_provider_id']);
+        $from = $mHeader->addChild('From', $scriptPrescriber[0]['weno_prov_id']);
         $from->addAttribute('Qualifier', 'C');
         $mHeader->addChild('MessageID', 'jse'.$messageid);
         $mHeader->addChild('SentTime', gmdate('Y-m-d\TH:i:s.u'));
