@@ -61,7 +61,7 @@ while ($row = sqlFetchArray($res)) {
     $orderjson .= "[\"$colcount\", \"" . addcslashes($colorder, "\t\r\n\"\\") . "\"]";
     ++$colcount;
 }
-$loading = "<i class='fa fa-refresh fa-2x fa-spin'></i>";
+$loading = "<i class='fa fa-sync fa-2x fa-spin'></i>";
 ?>
 <html>
 <head>

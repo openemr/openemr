@@ -89,6 +89,16 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::authorization_check("encounters", "auth_a");
         return (new EncounterRestController())->getAll($pid);
     },
+    "POST /api/patient/:pid/encounter" => function ($pid) {
+        RestConfig::authorization_check("encounters", "auth_a");
+        $data = (array)(json_decode(file_get_contents("php://input")));
+        return (new EncounterRestController())->post($pid, $data);
+    },
+    "PUT /api/patient/:pid/encounter/:eid" => function ($pid, $eid) {
+        RestConfig::authorization_check("encounters", "auth_a");
+        $data = (array)(json_decode(file_get_contents("php://input")));
+        return (new EncounterRestController())->put($pid, $eid, $data);
+    },
     "GET /api/patient/:pid/encounter/:eid" => function ($pid, $eid) {
         RestConfig::authorization_check("encounters", "auth_a");
         return (new EncounterRestController())->getOne($pid, $eid);
@@ -352,4 +362,14 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::authorization_check("encounters", "auth_a");
         return (new FhirEncounterRestController())->getOne($eid);
     },
+    "POST /fhir/Patient" => function () {
+        RestConfig::authorization_check("patients", "demo");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        return (new FhirPatientRestController(null))->post($data);
+    },
+    "PUT /fhir/Patient/:pid" => function ($pid) {
+        RestConfig::authorization_check("patients", "demo");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        return (new FhirPatientRestController(null))->put($pid, $data);
+    }
 );

@@ -224,7 +224,7 @@ class PatientService
                    ethnicity
                 FROM patient_data";
 
-        if ($search['name'] || $search['fname'] || $search['lname'] || $search['dob']) {
+        if ($search['name'] || $search['dob'] || $search['city'] || $search['state'] || $search['postal_code'] || $search['phone_contact'] || $search['address'] || $search['sex'] || $search['country_code']) {
             $sql .= " WHERE ";
 
             $whereClauses = array();
@@ -233,18 +233,42 @@ class PatientService
                 array_push($whereClauses, "CONCAT(lname,' ', fname) LIKE ?");
                 array_push($sqlBindArray, $search['name']);
             }
-            if ($search['fname']) {
-                array_push($whereClauses, "fname=?");
-                array_push($sqlBindArray, $search['fname']);
-            }
-            if ($search['lname']) {
-                array_push($whereClauses, "lname=?");
-                array_push($sqlBindArray, $search['lname']);
-            }
             if ($search['dob'] || $search['birthdate']) {
                 $search['dob'] = !empty($search['dob']) ? $search['dob'] : $search['birthdate'];
                 array_push($whereClauses, "dob=?");
                 array_push($sqlBindArray, $search['dob']);
+            }
+            if ($search['city']) {
+                array_push($whereClauses, "city=?");
+                array_push($sqlBindArray, $search['city']);
+            }
+            if ($search['state']) {
+                array_push($whereClauses, "state=?");
+                array_push($sqlBindArray, $search['state']);
+            }
+            if ($search['postal_code']) {
+                array_push($whereClauses, "postal_code=?");
+                array_push($sqlBindArray, $search['postal_code']);
+            }
+            if ($search['phone_contact']) {
+                array_push($whereClauses, "phone_contact=?");
+                array_push($sqlBindArray, $search['phone_contact']);
+            }
+            if ($search['address']) {
+                $search['address'] = '%' . $search['address'] . '%';
+                array_push($whereClauses, "city LIKE ? OR street LIKE ? OR state LIKE ? OR postal_code LIKE ?");
+                array_push($sqlBindArray, $search['address']);
+                array_push($sqlBindArray, $search['address']);
+                array_push($sqlBindArray, $search['address']);
+                array_push($sqlBindArray, $search['address']);
+            }
+            if ($search['sex']) {
+                array_push($whereClauses, "sex=?");
+                array_push($sqlBindArray, $search['sex']);
+            }
+            if ($search['country_code']) {
+                array_push($whereClauses, "country_code=?");
+                array_push($sqlBindArray, $search['country_code']);
             }
 
             $sql .= implode(" AND ", $whereClauses);

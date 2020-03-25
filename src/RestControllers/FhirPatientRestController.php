@@ -29,15 +29,47 @@ class FhirPatientRestController
         $this->fhirService = new FhirResourcesService();
     }
 
-    // implement put post in future
+    public function post($fhirJson)
+    {
+        $data = $this->fhirService->parsePatientResource($fhirJson);
+
+        $validationResult = $this->patientService->validate($data);
+        $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
+        if (is_array($validationHandlerResult)) {
+            return $validationHandlerResult;
+        }
+
+        $fhirserviceResult = $this->patientService->insert($data);
+        return RestControllerHelper::responseHandler($fhirserviceResult, array("pid" => $fhirserviceResult), 201);
+    }
+
+    public function put($pid, $fhirJson)
+    {
+        $data = $this->fhirService->parsePatientResource($fhirJson);
+
+        $validationResult = $this->patientService->validate($data);
+        $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
+        if (is_array($validationHandlerResult)) {
+            return $validationHandlerResult;
+        }
+
+        $fhirserviceResult = $this->patientService->update($pid, $data);
+        return RestControllerHelper::responseHandler($fhirserviceResult, array("pid" => $pid), 200);
+    }
 
     public function getOne()
     {
         $oept = $this->patientService->getOne();
-        $pid = 'patient-' . $this->patientService->getPid();
-        $patientResource = $this->fhirService->createPatientResource($pid, $oept, false);
+        $pid = $this->patientService->getPid();
+        if ($oept) {
+            $resource = $this->fhirService->createPatientResource($pid, $oept, false);
+            $statusCode = 200;
+        } else {
+            $statusCode = 404;
+            $resource = $this->fhirService->createUnknownResource($pid, false);
+        }
 
-        return RestControllerHelper::responseHandler($patientResource, null, 200);
+        return RestControllerHelper::responseHandler($resource, null, $statusCode);
     }
 
     public function getAll($search)
@@ -49,7 +81,14 @@ class FhirPatientRestController
 
         $searchParam = array(
             'name' => $search['name'],
-            'dob' => $search['birthdate']
+            'dob' => $search['birthdate'],
+            'city' => $search['address-city'],
+            'state' => $search['address-state'],
+            'postal_code' => $search['address-postalcode'],
+            'phone_contact' => $search['phone'],
+            'address' => $search['address'],
+            'sex' => $search['gender'],
+            'country_code' => $search['address-country']
         );
 
         $searchResult = $this->patientService->getAll($searchParam);

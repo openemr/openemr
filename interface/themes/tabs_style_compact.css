@@ -452,10 +452,6 @@ body {
         padding-left: 1px;
     }
 
-    #tabs_div > div:first-child {
-        width: 25px !important;
-    }
-
     #framesDisplay > div {
         height: 100vh;
         width: 100%;

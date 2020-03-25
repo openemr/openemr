@@ -119,7 +119,7 @@ function parse_row_justify(row)
 
 function justify_start(evt) {
     const jqElem = $(this); // make sure is in scope after save.
-    const wait = '<i id="wait" class="fa fa-refresh fa-spin fa-1x"></i>';
+    const wait = '<i id="wait" class="fa fa-sync fa-spin fa-1x"></i>';
     jqElem.after().append(wait); // for the slow pokes..
     let myForm = document.getElementById('fee_sheet_form');
     let formData = new FormData(myForm);
