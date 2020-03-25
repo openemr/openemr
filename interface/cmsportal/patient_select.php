@@ -49,30 +49,27 @@ if ($postid) {
 #searchResults table {
   width: 96%;
   border-collapse: collapse;
-  background-color: white;
+  background-color: var(--white);
 }
 #searchResults th {
-  background-color: lightgrey;
-  font-size: 0.7em;
+  background-color: var(--gray300);
+  font-size: 0.7rem;
   text-align: left;
 }
 #searchResults td {
-  font-size: 0.7em;
-  border-bottom: 1px solid #eee;
+  font-size: 0.7rem;
+  border-bottom: 1px solid var(--gray200);
   cursor: hand;
   cursor: pointer;
 }
 
 .highlight {
-  background-color: #336699;
-  color: white;
+  background-color: var(--primary);
+  color: var(--white);
 }
-
-.oneResult {}
-
 </style>
 
-<script language="JavaScript">
+<script>
 
 $(function () {
   $(".oneresult").on("mouseover", function() {$(this).addClass("highlight");});
@@ -192,12 +189,12 @@ if ($postid) {
    <th><?php echo xlt('Address'); ?></th>
   </tr>
   <tr>
-   <th style='font-weight:normal'><?php echo text($result['post']['user']); ?></th>
-   <th style='font-weight:normal'><?php echo text("$lname, $fname"); ?></th>
-   <th style='font-weight:normal'><?php echo text($phone); ?></th>
-   <th style='font-weight:normal'><?php echo text($ssn); ?></th>
-   <th style='font-weight:normal'><?php echo text($dob); ?></th>
-   <th style='font-weight:normal'><?php echo text($result['fields']['street'] . ' ' . $zip); ?></th>
+   <th class='font-weight-normal'><?php echo text($result['post']['user']); ?></th>
+   <th class='font-weight-normal'><?php echo text("$lname, $fname"); ?></th>
+   <th class='font-weight-normal'><?php echo text($phone); ?></th>
+   <th class='font-weight-normal'><?php echo text($ssn); ?></th>
+   <th class='font-weight-normal'><?php echo text($dob); ?></th>
+   <th class='font-weight-normal'><?php echo text($result['fields']['street'] . ' ' . $zip); ?></th>
   </tr>
 
     <?php
@@ -235,7 +232,7 @@ if ($postid) {
          ")\">\n";
         echo "   <td";
         if ($row['cmsportal_login'] !== '' && $result['post']['user'] !== $row['cmsportal_login']) {
-            echo " style='color:red' title='" . xla('Portal ID does not match request from portal!') . "'";
+            echo " class='text-danger' title='" . xla('Portal ID does not match request from portal!') . "'";
         }
 
         echo ">" . text($row['cmsportal_login']) . "</td>\n";
@@ -256,20 +253,18 @@ if ($login_matches == 1) {
   // There is exactly one match by portal login name, this must be it.
   // There should not be more than one, but if there is then we will
   // leave them onscreen and let the user choose.
-    echo "<script language='JavaScript'>\n";
+    echo "<script>\n";
     echo "openPatient('" . addslashes($login_pid) . "');\n";
     echo "</script>\n";
 }
 ?>
 
-<p>
-<input type='button' value='<?php echo xla('Add New Patient'); ?>' onclick="openPatient(0)" />
-&nbsp;
-<input type='button' value='<?php echo xla('Back'); ?>' onclick="myRestoreSession();location='list_requests.php'" />
-</p>
+<div class='btn-group'>
+  <input type='button' class='btn btn-primary' value='<?php echo xla('Add New Patient'); ?>' onclick="openPatient(0)" />
+  <input type='button' class='btn btn-secondary' value='<?php echo xla('Back'); ?>' onclick="myRestoreSession();location='list_requests.php'" />
+</div>
 
 </form>
 </center>
 </body>
 </html>
-

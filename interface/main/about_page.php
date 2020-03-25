@@ -14,6 +14,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// TODO: jQuery UI Removal
+
 
 require_once("../globals.php");
 
@@ -130,8 +132,8 @@ $version = $versionService->fetch();
 
     <div class="product-registration-modal" style="display: none">
         <p class="context"><?php echo xlt("Register your installation with OEMR to receive important notifications, such as security fixes and new release announcements."); ?></p>
-        <input placeholder="<?php echo xla('email'); ?>" type="email" class="email w-100" style="color: var(--black)" />
-        <p class="message" style="font-style: italic"></p>
+        <input placeholder="<?php echo xla('email'); ?>" type="email" class="email w-100 text-body" />
+        <p class="message font-italic"></p>
     </div>
 </body>
 </html>

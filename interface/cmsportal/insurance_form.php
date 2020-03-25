@@ -226,14 +226,23 @@ $ptid = lookup_openemr_patient($result['post']['user']);
 <?php Header::setupHeader('datetime-picker'); ?>
 
 <style>
+tr.head {
+  font-size: 0.8125rem;
+  background-color: var(--gray400);
+  text-align: center;
+}
 
-tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
-tr.detail { font-size:10pt; background-color:#ddddff; }
-td input  { background-color:transparent; }
+tr.detail {
+  font-size: 0.8125rem;
+  background-color: var(--gray300);
+}
 
+td input {
+  background-color: transparent;
+}
 </style>
 
-<script language="JavaScript">
+<script>
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
@@ -288,10 +297,10 @@ $(function () {
 
 <form method='post' action='insurance_form.php' onsubmit='return validate()'>
 
-<input type='hidden' name='ptid'   value='<?php echo attr($ptid);   ?>' />
+<input type='hidden' name='ptid' value='<?php echo attr($ptid); ?>' />
 <input type='hidden' name='postid' value='<?php echo attr($postid); ?>' />
 
-<table width='100%' cellpadding='1' cellspacing='2'>
+<table class='w-100' cellpadding='1' cellspacing='2'>
  <tr class='head'>
   <th align='left'><?php echo xlt('Field'); ?></th>
   <th align='left'><?php echo xlt('Current Value'); ?></th>
@@ -336,7 +345,7 @@ foreach ($insurance_layout as $lorow) {
     }
 
     echo " <tr class='detail'>\n";
-    echo "  <td class='bold'>" . text($field_title) . "</td>\n";
+    echo "  <td class='font-weight-bold'>" . text($field_title) . "</td>\n";
     echo "  <td>";
     echo generate_display_field($lorow, $currvalue);
     echo "</td>\n";
@@ -349,12 +358,11 @@ foreach ($insurance_layout as $lorow) {
 
 </table>
 
-<p>
-<input type='submit' name='bn_save' value='<?php echo xla('Save and Delete Request'); ?>' />
-&nbsp;
-<input type='button' value='<?php echo xla('Back'); ?>' onclick="window.history.back()" />
+<div class="btn-group">
+<input type='submit' class='btn btn-primary' name='bn_save' value='<?php echo xla('Save and Delete Request'); ?>' />
+<input type='button' class='btn btn-secondary' value='<?php echo xla('Back'); ?>' onclick="window.history.back()" />
 <!-- Was: onclick="myRestoreSession();location='list_requests.php'" -->
-</p>
+</div>
 
 </form>
 

@@ -10,6 +10,8 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+ /*  TODO: Move to /interface/themes for GSoC so we can have a centralized area for CSS */
+
 h1 {
     margin: 0 10px;
     padding: 10px 10px;

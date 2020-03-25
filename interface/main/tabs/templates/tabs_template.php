@@ -12,7 +12,7 @@
 
 <script type="text/html" id="tabs-controls">
     <div class="tabControls" data-bind="with: tabs">
-        <div class="tabNotchosen" style="width:2%">
+        <div class="tabNotchosen" style="width: 2%">
             <i class="fa fa-caret-up menu_arrow" id="patient_caret" title="<?php echo xla('Toggle the Patient Panel'); ?>" aria-hidden="true"></i>
         </div>
         <!-- ko  foreach: tabsList -->
@@ -20,10 +20,10 @@
                 <span class="tabTitle" data-bind="text: title, click: tabClicked, css: {tabHidden: !visible()}"></span>
                 <span class="fa fa-fw fa-refresh" data-bind="click: tabRefresh, class: spinner"></span>
                 <!--ko if:!locked() -->
-                    <span class="fa fa-fw fa-unlock"  data-bind="click: tabLockToggle"></span>
+                    <span class="fa fa-fw fa-unlock" data-bind="click: tabLockToggle"></span>
                 <!-- /ko -->
                 <!--ko if:locked() -->
-                    <span class="fa fa-fw fa-lock"  data-bind="click: tabLockToggle"></span>
+                    <span class="fa fa-fw fa-lock" data-bind="click: tabLockToggle"></span>
                 <!-- /ko -->
 
                 <!-- ko if:closable-->
@@ -31,14 +31,14 @@
                 <!-- /ko -->
             </div>
         <!-- /ko -->
-        <div class="tabsNoHover" style="width:100%;"></div>
+        <div class="tabsNoHover w-100"></div>
     </div>
 </script>
 <script type="text/html" id="tabs-frames">
 
         <!-- ko  foreach: tabs.tabsList -->
         <div class="frameDisplay" data-bind="visible:visible">
-            <h5 class="text-center position-relative" style="top:50%;" data-bind="text: loading_text,visible:loading_text_status"></h5>
+            <h5 class="text-center position-relative" style="top: 50%;" data-bind="text: loading_text,visible:loading_text_status"></h5>
             <iframe data-bind="location: $data, iframeName: $data.name, ">
 
             </iframe>
