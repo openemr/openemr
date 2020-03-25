@@ -89,7 +89,7 @@ function row_delete($table, $where)
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['datetime-picker', 'opener', 'no_dialog']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'opener']); ?>
     <title><?php echo xlt('EOB Posting - Invoice') ?></title>
     <script>
 
@@ -159,23 +159,24 @@ function row_delete($table, $where)
                     }
                 }
                 if ((cPay !== 0) && isNaN(parseFloat(f[pfx + '[pay]'].value))) {
-                    dlgopen('', '', 675, 250, '', 'Warning', {
+                    dlgopen('', '', 675, 250, '', '<div class="text-danger">Warning</div>', {
                         type: 'Alert',
-                        html: '<p><?php echo xlj('Payment value for code ') ?> + code + <?php echo xlj(' is not a number') ?></p>',
+                        html: '<p>Payment value for code ' + code + ' is not a number</p>',
                     });
                     return false;
                 }
                 if ((cAdjust !== 0) && isNaN(parseFloat(f[pfx + '[adj]'].value))) {
-                    dlgopen('', '', 675, 250, '', 'Warning', {
+                    alert('OK')
+                    dlgopen('', '', 675, 250, '', '<div class="text-danger">Warning</div>', {
                         type: 'Alert',
-                        html: '<p><?php echo xlj('Adjustment value for code ') ?> + code + <?php echo xlj(' is not a number') ?></p>',
+                        html: '<p>Adjustment value for code ' + code + ' is not a number</p>',
                     });
                     return false;
                 }
                 if ((cAdjust !== 0) && !f[pfx + '[reason]'].value) {
-                    dlgopen('', '', 675, 250, '', 'Warning', {
+                    dlgopen('', '', 675, 250, '', '<div class="text-danger">Warning</div>', {
                         type: 'Alert',
-                        html: '<p><?php echo xlj('Please select an adjustment reason for code ') ?>' + code + '</p>',
+                        html: '<p>Please select an adjustment reason for code ' + code + '</p>',
                     });
                     return false;
                 }
@@ -183,10 +184,10 @@ function row_delete($table, $where)
             }
             // Check if save is clicked with nothing to post.
             if (allempty && delcount === 0) {
-                dlgopen('', '', 675, 250, '', 'Warning', {
-                        type: 'Alert',
-                        html: '<p><?php echo xlj('Nothing to Post! Please review entries or use Cancel to exit transaction')?></p>',
-                    });
+                dlgopen('', '', 675, 250, '', '<div class="text-danger">Warning</div>', {
+                    type: 'Alert',
+                    html: '<p>Nothing to Post! Please review entries or use Cancel to exit transaction</p>',
+                });
                 return false;
             }
             // Demand confirmation if deleting anything.
