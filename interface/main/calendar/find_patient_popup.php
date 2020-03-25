@@ -124,7 +124,7 @@ if (isset($_GET["res"])) {
     echo "pflag=0"; } ?>'>
     <div class="form-row">
     <label for="searchby" class="col-form-label col-form-label-sm col"><?php echo htmlspecialchars(xl('Search by:'), ENT_NOQUOTES); ?></label>
-   <select name='searchby' id='searchby' class="form-control form-control-sm col">
+   <select name='searchby' id='searchby' class="form-control-sm col">
     <option value="Last"><?php echo htmlspecialchars(xl('Name'), ENT_NOQUOTES); ?></option>
     <!-- (CHEMED) Search by phone number -->
     <option value="Phone"<?php if ($searchby == 'Phone') {
@@ -141,7 +141,7 @@ if (isset($_GET["res"])) {
                        } ?>><?php echo htmlspecialchars(xl('DOB'), ENT_NOQUOTES); ?></option>
     </select>
     <label for="searchparm" class="col-form-label col-form-label-sm col"><?php echo htmlspecialchars(xl('for:'), ENT_NOQUOTES); ?></label>
-   <input type='text' class="form-control form-control-sm col" id='searchparm' name='searchparm' size='12' value='<?php echo htmlspecialchars($_REQUEST['searchparm'], ENT_QUOTES); ?>' title='<?php echo htmlspecialchars(xl('If name, any part of lastname or lastname,firstname'), ENT_QUOTES); ?>' />
+   <input type='text' class="form-control-sm col" id='searchparm' name='searchparm' size='12' value='<?php echo htmlspecialchars($_REQUEST['searchparm'], ENT_QUOTES); ?>' title='<?php echo htmlspecialchars(xl('If name, any part of lastname or lastname,firstname'), ENT_QUOTES); ?>' />
     <div class="col">
     <input class='btn btn-primary btn-sm' type='submit' id="submitbtn" value='<?php echo htmlspecialchars(xl('Search'), ENT_QUOTES); ?>' />
         <div id="searchspinner"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif" /></div>
@@ -233,7 +233,7 @@ $(function () {
     //$(".event").dblclick(function() { EditEvent(this); });
     $("#theform").submit(function() { SubmitForm(this); });
 
-    $('select[name="searchby"').on('change', function () {
+    $('select[name="searchby"]').on('change', function () {
         if($(this).val() === 'DOB'){
             $('#searchparm').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
