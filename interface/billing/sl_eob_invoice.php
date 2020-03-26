@@ -159,34 +159,38 @@ function row_delete($table, $where)
                     }
                 }
                 if ((cPay !== 0) && isNaN(parseFloat(f[pfx + '[pay]'].value))) {
-                    dlgopen('', '', 475, 125, '', '<div class="text-danger">Warning</div>', {
-                        type: 'Alert',
-                        html: '<p>Payment value for code ' + code + ' is not a number</p>',
-                    });
+                    let message = `Payment value for code ${code} is not a number`;
+                    (async (message, time) => {
+                        await asyncAlertMsg(message, time, 'danger', 'lg');
+                    })(message, 3000)
+                    .then(res => { });
                     return false;
                 }
                 if ((cAdjust !== 0) && isNaN(parseFloat(f[pfx + '[adj]'].value))) {
-                    dlgopen('', '', 475, 125, '', '<div class="text-danger">Warning</div>', {
-                        type: 'Alert',
-                        html: '<p>Adjustment value for code ' + code + ' is not a number</p>',
-                    });
+                    let message = `Adjustment value for code ${code} is not a number`;
+                    (async (message, time) => {
+                        await asyncAlertMsg(message, time, 'danger', 'lg');
+                    })(message, 3000)
+                    .then(res => { });
                     return false;
                 }
                 if ((cAdjust !== 0) && !f[pfx + '[reason]'].value && !adjDisable) {
-                    dlgopen('', '', 475, 125, '', '<div class="text-danger">Warning</div>', {
-                        type: 'Alert',
-                        html: '<p>Please select an adjustment reason for code ' + code + '</p>',
-                    });
+                    let message = `Please select an adjustment reason for code ${code}`;
+                    (async (message, time) => {
+                        await asyncAlertMsg(message, time, 'danger', 'lg');
+                    })(message, 3000)
+                    .then(res => { });
                     return false;
                 }
             // TBD: validate the date format
             }
             // Check if save is clicked with nothing to post.
             if (allempty && delcount === 0) {
-                dlgopen('', '', 475, 125, '', '<div class="text-danger">Warning</div>', {
-                    type: 'Alert',
-                    html: '<p>Nothing to Post! Please review entries or use Cancel to exit transaction</p>',
-                });
+                let message = 'Nothing to Post! Please review entries or use Cancel to exit transaction';
+                (async (message, time) => {
+                    await asyncAlertMsg(message, time, 'danger', 'lg');
+                })(message, 3000)
+                .then(res => { });
                 return false;
             }
             // Demand confirmation if deleting anything.
