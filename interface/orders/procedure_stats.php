@@ -337,18 +337,18 @@ $(function () {
             <?php echo xlt('Rows'); ?>:
         </div>
         <div class="col">
-        <select name='form_by' class='form-control' title='Left column of report'>
-            <?php
-            foreach ($arr_by as $key => $value) {
-                echo "    <option value='" . attr($key) . "'";
-                if ($key == $form_by) {
-                    echo " selected";
-                }
+            <select name='form_by' class='form-control' title='Left column of report'>
+                <?php
+                    foreach ($arr_by as $key => $value) {
+                        echo "    <option value='" . attr($key) . "'";
+                        if ($key == $form_by) {
+                            echo " selected";
+                        }
 
-                echo ">" . text($value) . "</option>\n";
-            }
-            ?>
-        </select>
+                        echo ">" . text($value) . "</option>\n";
+                    }
+                ?>
+            </select>
         </div>
         <div class="col">
             <?php echo xlt('Filters'); ?>:
@@ -357,17 +357,17 @@ $(function () {
             <?php echo xlt('Sex'); ?>:
         </div>
         <div class="col">
-        <select class='form-control' name='form_sexes' title='<?php echo xla('To filter by sex'); ?>'>
-            <?php
-            foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Only')) as $key => $value) {
-                echo "       <option value='" . attr($key) . "'";
-                if ($key == $form_sexes) {
-                    echo " selected";
-                }
+            <select class='form-control' name='form_sexes' title='<?php echo xla('To filter by sex'); ?>'>
+                <?php
+                    foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Only')) as $key => $value) {
+                        echo "       <option value='" . attr($key) . "'";
+                        if ($key == $form_sexes) {
+                            echo " selected";
+                        }
 
-                echo ">" . text($value) . "</option>\n";
-            }
-            ?>
+                        echo ">" . text($value) . "</option>\n";
+                    }
+                ?>
             </select>
         </div>
     </div>
@@ -382,10 +382,10 @@ $(function () {
         <div class="col">
             <?php echo xlt('From'); ?>
             <input type='text' class='form-control datepicker' name='form_from_date' id='form_from_date' size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>' />
-            </div>
-            <div class="col">
+        </div>
+        <div class="col">
             <?php echo xlt('To{{Range}}'); ?>
-        <input type='text' class='form-control datepicker' name='form_to_date' id='form_to_date' size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>' />
+            <input type='text' class='form-control datepicker' name='form_to_date' id='form_to_date' size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>' />
         </div>
     </div>
 </div>
@@ -396,19 +396,19 @@ $(function () {
             <?php echo xlt('Columns'); ?>:
             <select class='form-control' name='form_show[]' size='4' multiple title='<?php echo xla('Hold down Ctrl to select multiple items'); ?>'>
                 <?php
-                foreach ($arr_show as $key => $value) {
-                    $title = $value['title'];
-                    if (empty($title) || $key == 'title') {
-                        $title = $value['description'];
-                    }
+                    foreach ($arr_show as $key => $value) {
+                        $title = $value['title'];
+                        if (empty($title) || $key == 'title') {
+                            $title = $value['description'];
+                        }
 
-                    echo "    <option value='" . attr($key) . "'";
-                    if (is_array($form_show) && in_array($key, $form_show)) {
-                        echo " selected";
-                    }
+                        echo "    <option value='" . attr($key) . "'";
+                        if (is_array($form_show) && in_array($key, $form_show)) {
+                            echo " selected";
+                        }
 
-                    echo ">" . text($title) . "</option>\n";
-                }
+                        echo ">" . text($title) . "</option>\n";
+                    }
                 ?>
             </select>
         </div>
@@ -421,14 +421,14 @@ $(function () {
             <?php echo xlt('To{{Destination}}'); ?>:
 
             <?php
-            foreach (array(1 => xl('Screen'), 2 => xl('Printer'), 3 => xl('Export File')) as $key => $value) {
-                echo "   <input type='radio' name='form_output' value='" . attr($key) . "'";
-                if ($key == $form_output) {
-                    echo ' checked';
-                }
+                foreach (array(1 => xl('Screen'), 2 => xl('Printer'), 3 => xl('Export File')) as $key => $value) {
+                    echo "   <input type='radio' name='form_output' value='" . attr($key) . "'";
+                    if ($key == $form_output) {
+                        echo ' checked';
+                    }
 
-                echo " />" . text($value) . " &nbsp;";
-            }
+                    echo " />" . text($value) . " &nbsp;";
+                }
             ?>
         </div>
     </div>
