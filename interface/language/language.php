@@ -16,8 +16,8 @@ require_once("$srcdir/registry.inc");
 require_once("language.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Utils\RandomGenUtils;
 
 //START OUT OUR PAGE....
 ?>
@@ -95,7 +95,7 @@ use OpenEMR\Core\Header;
             </div>
         </div><!--end of page content div-->
         <br>
-        <a href="lang.info.html" target="_blank"><?php echo xlt('Info'); ?></a>
+        <a href="lang.info.html" class="text-decoration-none" target="_blank"><?php echo xlt('Info'); ?></a>
     </div>
 
 </body>

@@ -39,24 +39,28 @@ if (!$thisauth) {
 
 ?>
 
-  <table>
-    <form name='filterform' id='filterform' method='post' action='?m=definition&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>' onsubmit="return top.restoreSession()">
+<form name='filterform' id='filterform' method='post' action='?m=definition&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>' onsubmit="return top.restoreSession()">
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-
-    <tr>
-      <td><?php echo xlt('Filter for Constants'); ?>:</td>
-      <td><input type='text' name='filter_cons' size='8' value='<?php echo attr($_POST['filter_cons']); ?>' />
-        <span class="text"><?php echo xlt('(% matches any string, _ matches any character)'); ?></span></td>
-    </tr>
-    <tr>
-      <td><?php echo xlt('Filter for Definitions'); ?>:</td>
-      <td><input type='text' name='filter_def' size='8' value='<?php echo attr($_POST['filter_def']); ?>' />
-        <span class="text"><?php echo xlt('(% matches any string, _ matches any character)'); ?></span></td>
-    </tr>
-    <tr>
-      <td><?php echo xlt('Select Language').":"; ?></td>
-      <td>
-    <select name='language_select'>
+    <!-- Filter for Constants -->
+    <div class="form-group">
+        <label for="filterForConstants"><?php echo xlt('Filter for Constants'); ?>:</label>
+        <input type='text' class="form-control" id="filterForConstants" name='filter_cons' size='8' value='<?php echo attr($_POST['filter_cons']); ?>' />
+        <small class="form-text text-muted">
+            <?php echo xlt('(% matches any string, _ matches any character)'); ?>
+        </small>
+    </div>
+    <!-- Filter for Definitions -->
+    <div class="form-group">
+        <label for="filterForDefinitions"><?php echo xlt('Filter for Definitions'); ?>:</label>
+        <input type='text' class="form-control" id="filterForDefinitions" name='filter_def' size='8' value='<?php echo attr($_POST['filter_def']); ?>' />
+        <small class="form-text text-muted">
+            <?php echo xlt('(% matches any string, _ matches any character)'); ?>
+        </small>
+    </div>
+    <!-- Select Language -->
+    <div class="form-group">
+        <label for="selectLanguage"><?php echo xlt('Select Language').":"; ?></label>
+        <select class="form-control" name='language_select' id="selectLanguage">
             <?php
           // sorting order of language titles depends on language translation options.
             $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
@@ -86,14 +90,13 @@ if (!$thisauth) {
             }
             ?>
         </select>
-      </td>
-    </tr>
-    <tr>
-      <td colspan=2><INPUT TYPE="submit" name="edit" value="<?php echo xla('Search'); ?>"></td>
-    </tr>
-    </form>
-  </table>
-  <br />
+    </div>
+    <!-- Submit Button -->
+    <div class="form-group">
+        <input type="submit" class="btn btn-primary" name="edit" value="<?php echo xla('Search'); ?>">
+    </div>
+</form>
+<br />
 <?php
 
 // set up the mysql collation string to ensure case is sensitive (or insensitive) in the mysql queries
