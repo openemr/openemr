@@ -15,6 +15,7 @@ namespace Carecoordination\Model;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use Application\Model\ApplicationTable;
 use Laminas\Db\Adapter\Driver\Pdo\Result;
+use Carecoordination\Model\CarecoordinationTable;
 
 require_once(dirname(__FILE__) . "/../../../../../../../../custom/code_types.inc.php");
 require_once(dirname(__FILE__) . "/../../../../../../../forms/vitals/report.php");
@@ -595,8 +596,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 }
 
                 if ($row['reaction']) {
-                    $reaction_text = \Carecoordination\Model\CarecoordinationTable::getListTitle($row['reaction'], 'reaction', '');
-                    $reaction_code = \Carecoordination\Model\CarecoordinationTable::getCodes($row['reaction'], 'reaction');
+                    $reaction_text = CarecoordinationTable::getListTitle($row['reaction'], 'reaction', '');
+                    $reaction_code = CarecoordinationTable::getCodes($row['reaction'], 'reaction');
                 }
 
                 $allergies .= "<allergy>
@@ -1669,13 +1670,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $social_history .= "<social_history>";
         foreach ($res as $row) {
             $tobacco        = explode('|', $row['tobacco']);
-            $status_code    = \Carecoordination\Model\CarecoordinationTable::getListCodes($tobacco[3], 'smoking_status');
+            $status_code    = CarecoordinationTable::getListCodes($tobacco[3], 'smoking_status');
             $status_code    = str_replace("SNOMED-CT:", "", $status_code);
             $social_history .= "<history_element>
                                   <extension>".htmlspecialchars(base64_encode('smoking'.$_SESSION['site_id'].$row['id']), ENT_QUOTES)."</extension>
                                   <sha_extension>".htmlspecialchars("9b56c25d-9104-45ee-9fa4-e0f3afaa01c1", ENT_QUOTES)."</sha_extension>
                                   <element>".htmlspecialchars('Smoking', ENT_QUOTES)."</element>
-                                  <description>".htmlspecialchars(\Carecoordination\Model\CarecoordinationTable::getListTitle($tobacco[3], 'smoking_status'), ENT_QUOTES)."</description>
+                                  <description>".htmlspecialchars(CarecoordinationTable::getListTitle($tobacco[3], 'smoking_status'), ENT_QUOTES)."</description>
                                   <status_code>".htmlspecialchars(($status_code ? $status_code : 0), ENT_QUOTES)."</status_code>
                                   <status>".htmlspecialchars(($snomeds_status[$tobacco[1]] ? $snomeds_status[$tobacco[1]] : 'NULL'), ENT_QUOTES)."</status>
                                   <date>".($tobacco[2] ? htmlspecialchars($this->date_format($tobacco[2]), ENT_QUOTES) : 0)."</date>
