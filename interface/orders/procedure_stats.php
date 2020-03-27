@@ -433,7 +433,7 @@ $(function () {
 <br>
 <div class="col-4 col-md-4">
     <div class="col">
-         <button type='submit' class='btn btn-primary' name='form_submit' title='<?php echo xla('Click to generate the report'); ?>'><i class="btn btn-save"></i></button>
+         <button type='submit' class='btn btn-primary btn-save' name='form_submit' title='<?php echo xla('Click to generate the report'); ?>'><?php echo xla('Submit') ?></button>
     </div>
 </div>
 <br>
