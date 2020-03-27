@@ -52,6 +52,46 @@ $race = [
     'race_other' => 'Other',
 ];
 
+
+$ageunit = [
+    '1' => 'Years',
+    '2' => 'Months',
+    '3' => 'Days',
+]
+
+$yn =  [
+    '1' => 'Yes',
+    '0' => 'No',
+    '9' => 'Unknown',
+]
+
+$sympstatus = [
+    '1' => 'Symptomatic',
+    '0' => 'Asymptomatic',
+    '9' => 'Unknown',
+]
+
+$symp_res_yn = [
+    '1' => 'Still symptomatic',
+    '0' => 'Symptoms resolved, unknown date',
+    '9' => 'Unknown',
+]
+
+$resp = [
+    '1' => 'Positive',
+    '2' => 'Negative',
+    '3' => 'Pending',
+    '4' => 'Not Done',
+]
+
+$spec = [
+    '1' => 'Positive',
+    '2' => 'Negative',
+    '3' => 'Pending',
+    '4' => 'Not Done',
+    '5' => 'Indeterminate',
+]
+
 $vars = [
     'current_status' => $current_status,
     'ethnicity' => $ethnicity,
@@ -59,6 +99,12 @@ $vars = [
     'patient' => $patient,
     'encounter' => $encounter,
     'race' => $race,
+    'ageunit' => $ageunit,
+    'yn' => $yn,
+    'sympstatus' => $sympstatus,
+    'symp_res_yn' => $symp_res_yn,
+    'resp' => $resp,
+    'spec' => $spec,
 ];
 
 echo $GLOBALS['twig']->render("@cdccovid/form.html.twig", $vars);
