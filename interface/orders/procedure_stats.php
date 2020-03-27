@@ -334,6 +334,23 @@ $(function () {
 <div class="col-8 col-md-8">
     <div class="row">
         <div class="col">
+            <?php echo xlt('Facility'); ?>:
+            <?php dropdown_facility($form_facility, 'form_facility', false); ?>
+        </div>
+        <div class="col">
+            <?php echo xlt('From'); ?>
+            <input type='text' class='form-control datepicker' name='form_from_date' id='form_from_date' size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>' />
+        </div>
+        <div class="col">
+            <?php echo xlt('To{{Range}}'); ?>
+            <input type='text' class='form-control datepicker' name='form_to_date' id='form_to_date' size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>' />
+        </div>
+    </div>
+</div>
+<br>
+<div class="col-8 col-md-8">
+    <div class="row">
+        <div class="col">
             <?php echo xlt('Rows'); ?>:
         </div>
         <div class="col">
@@ -351,9 +368,6 @@ $(function () {
             </select>
         </div>
         <div class="col">
-            <?php echo xlt('Filters'); ?>:
-        </div>
-        <div class="col">
             <?php echo xlt('Sex'); ?>:
         </div>
         <div class="col">
@@ -369,23 +383,6 @@ $(function () {
                     }
                 ?>
             </select>
-        </div>
-    </div>
-</div>
-<br>
-<div class="col-8 col-md-8">
-    <div class="row">
-        <div class="col">
-            <?php echo xlt('Facility'); ?>:
-            <?php dropdown_facility($form_facility, 'form_facility', false); ?>
-        </div>
-        <div class="col">
-            <?php echo xlt('From'); ?>
-            <input type='text' class='form-control datepicker' name='form_from_date' id='form_from_date' size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>' />
-        </div>
-        <div class="col">
-            <?php echo xlt('To{{Range}}'); ?>
-            <input type='text' class='form-control datepicker' name='form_to_date' id='form_to_date' size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>' />
         </div>
     </div>
 </div>
@@ -436,7 +433,7 @@ $(function () {
 <br>
 <div class="col-4 col-md-4">
     <div class="col">
-         <input type='submit' class='btn btn-primary' name='form_submit' value='<?php echo xla('Submit'); ?>' title='<?php echo xla('Click to generate the report'); ?>' />
+         <button type='submit' class='btn btn-primary' name='form_submit' title='<?php echo xla('Click to generate the report'); ?>'><i class="btn btn-save"></i></button>
     </div>
 </div>
 <br>
