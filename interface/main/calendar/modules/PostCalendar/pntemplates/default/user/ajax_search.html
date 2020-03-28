@@ -2,7 +2,6 @@
 [-include file="$TPL_NAME/views/header.html"-]
 
 [-* we want to include our stylesheet for this view*-]
-<!-- <link rel="stylesheet" href="[-$TPL_STYLE_PATH-]/ajax_search.css" type="text/css"> -->
 <link rel="stylesheet" href="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery-datetimepicker/build/jquery.datetimepicker.min.css" type="text/css">
 
 <!--<script type="text/javascript" src="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery/dist/jquery.min.js"></script>-->
@@ -26,7 +25,6 @@
                 echo "<a href='".$GLOBALS['webroot']."/interface/main/main_info.php' class='menu text-decoration-none' onclick='top.restoreSession()'>";
             [-/php-]
             [-xlt t='Return to calendar'-]</a>
-            <div id="calsearch_params">
                 <form name="theform" id="theform" action="[-$FORM_ACTION-]" method="post"> <!-- onsubmit="return top.restoreSession()"> -->
                     <!-- Keywords -->
                     <div class="form-group">
@@ -94,24 +92,23 @@
                         <img src='[-php-] echo $GLOBALS['webroot'] [-/php-]/interface/pic/ajax-loader.gif'> [-xlt t='Searching...'-]
                     </div>
                 </form>
-            </div>
             <!-- end of search parameters -->
 
             [-if $SEARCH_PERFORMED-]
-            <div id="calsearch_results mt-3">
+            <div class="mt-3">
                 <!-- Table Header -->
-                <div class="table-responsive" id="calsearch_results_header" class="head">
+                <div class="table-responsive" class="head">
                     <table class="table">
                         <tr class="table-active">
-                            <th class="calsearch_datetime">[-xlt t='Date'-]-[-xlt t='Time'-]</th>
-                            <th class="calsearch_provider">[-xlt t='Provider'-]</th>
-                            <th class="calsearch_category">[-xlt t='Category'-]</th>
-                            <th class="calsearch_patient">[-xlt t='Patient'-]</th>
+                            <th>[-xlt t='Date'-]-[-xlt t='Time'-]</th>
+                            <th>[-xlt t='Provider'-]</th>
+                            <th>[-xlt t='Category'-]</th>
+                            <th>[-xlt t='Patient'-]</th>
                         </tr>
                     </table>
                 </div>
                 <!-- Table Result -->
-                <div class="table-responsive" id="calsearch_results_data">
+                <div class="table-responsive">
                     <table class="table">
                     [-php-]
                     /* I've given up on playing nice with the Smarty tag crap, it's pointlessly used
@@ -135,24 +132,24 @@
 
                             // date and time
                             $eDatetime = strtotime($eDate." ".$event['startTime']);
-                            echo "<td class='calsearch_datetime'>";
+                            echo "<td>";
                             echo text(date("Y-m-d h:i a", $eDatetime));
                             echo "</td>";
 
                             // provider
-                            echo "<td class='calsearch_provider'>" . text($event['provider_name']);
+                            echo "<td>" . text($event['provider_name']);
                             $imgtitle = $provinfo['fname'] . " " . xl('contact info') . ":\n";
                             $imgtitle .= $provinfo['phonew1']."\n".$provinfo['street']."\n".$provinfo['city']." ".$provinfo['state'];
                             echo " <img class'provinfo' src='". $GLOBALS['images_static_relative'] . "/info.png' title=\"" . attr($imgtitle) . "\" />";
                             echo "</td>";
 
                             // category
-                            echo "<td class='calsearch_category'>";
+                            echo "<td>";
                             echo text($event['catname']);
                             echo " </td>";
 
                             // patient
-                            echo "<td class='calsearch_patient'>";
+                            echo "<td>";
                             echo text($event['patient_name']);
                             echo "</td>";
                     /*
@@ -189,8 +186,6 @@
 $(function () {
     $("#pc_keywords").focus();
     $("#theform").submit(function() { SubmitForm(this); });
-    $(".calsearch_event").mouseover(function() { $(this).toggleClass("highlight"); });
-    $(".calsearch_event").mouseout(function() { $(this).toggleClass("highlight"); });
     $(".calsearch_event").click(function() { EditEvent(this); });
 
     $('.datepicker').datetimepicker({
