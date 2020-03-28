@@ -36,11 +36,11 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     ```
     - To create a report of PSR2 code styling issues (this takes several minutes):
     ```sh
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cd openemr; php -d memory_limit=512M /root/.composer/vendor/squizlabs/php_codesniffer/bin/phpcs -n --extensions=php,inc --standard=ci/phpcs.xml --report=full .'
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cd openemr; php -d memory_limit=640M /root/.composer/vendor/squizlabs/php_codesniffer/bin/phpcs -n --extensions=php,inc --standard=ci/phpcs.xml --report=full .'
     ```
     - To fix PSR2 code styling issues (this takes several minutes):
     ```sh
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cd openemr; php -d memory_limit=512M /root/.composer/vendor/squizlabs/php_codesniffer/bin/phpcbf -n --extensions=php,inc --standard=ci/phpcs.xml .'
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cd openemr; php -d memory_limit=640M /root/.composer/vendor/squizlabs/php_codesniffer/bin/phpcbf -n --extensions=php,inc --standard=ci/phpcs.xml .'
     ```
     - To check PHP parsing errors (this takes several minutes):
     ```sh
