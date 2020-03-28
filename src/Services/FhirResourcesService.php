@@ -15,22 +15,18 @@ namespace OpenEMR\Services;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationOutcome;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType;
 use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterParticipant;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleLink;
-use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
 use OpenEMR\FHIR\R4\PHPFHIRResponseParser;
 
 use OpenEMR\Services\ProviderService;
+use OpenEMR\Services\FhirValidationService;
 
 //use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterLocation;
 //use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterDiagnosis;
@@ -195,27 +191,6 @@ class FhirResourcesService
         $data["race"] = "";
         $data["ethnicity"] = "";
         return $data;
-    }
-
-    public function createUnknownResource($id = '', $encode = true)
-    {
-        $resource = new FHIROperationOutcome();
-        $issue= new FHIROperationOutcomeIssue();
-        $severity = new FHIRIssueSeverity();
-        $severity->setValue("error");
-        $issue->setSeverity($severity);
-        $code = new FHIRIssueType();
-        $code->setValue("invalid");
-        $issue->setCode($code);
-        $details = new FHIRCodeableConcept();
-        $details->setText("Resource Id $id does not exist");
-        $issue->setDetails($details);
-        $resource->addIssue($issue);
-        if ($encode) {
-            return json_encode($resource);
-        } else {
-            return $resource;
-        }
     }
 
     public function parseResource($rjson = '', $scheme = 'json')
