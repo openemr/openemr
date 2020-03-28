@@ -57,39 +57,39 @@ $ageunit = [
     '1' => 'Years',
     '2' => 'Months',
     '3' => 'Days',
-]
+];
 
 $yn =  [
     '1' => 'Yes',
     '0' => 'No',
     '9' => 'Unknown',
-]
+];
 
 $yn_with_na =  [
     '1' => 'Yes',
     '0' => 'No',
     '9' => 'Unknown',
     '5' => 'N/A',
-]
+];
 
 $sympstatus = [
     '1' => 'Symptomatic',
     '0' => 'Asymptomatic',
     '9' => 'Unknown',
-]
+];
 
 $symp_res_yn = [
     '1' => 'Still symptomatic',
     '0' => 'Symptoms resolved, unknown date',
     '9' => 'Unknown',
-]
+];
 
 $resp = [
     '1' => 'Positive',
     '2' => 'Negative',
     '3' => 'Pending',
     '4' => 'Not Done',
-]
+];
 
 $spec = [
     '1' => 'Positive',
@@ -97,7 +97,7 @@ $spec = [
     '3' => 'Pending',
     '4' => 'Not Done',
     '5' => 'Indeterminate',
-]
+];
 
 $exp = [
     'exp_wuhan' => 'Travel to Wuhan',
@@ -114,7 +114,7 @@ $exp = [
     'exp_cluster' => 'Exposure to a cluster of patients with severe acute lower respiratory distress of unknown etiology',
     'exp_other' => 'Other', 
     'exp_unk' => 'Unknown',
-]
+];
 
 $process = [
     'process_pui' => 'Clinical evaluation leading to PUI determination',  
@@ -123,7 +123,7 @@ $process = [
     'process_unk' => 'Unknown',  
     'process_other' => 'Other',  
     'process_epix' => 'EpiX notification of travelers',  
-]
+];
 
 $vars = [
     'current_status' => $current_status,
