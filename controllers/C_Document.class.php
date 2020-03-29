@@ -373,7 +373,7 @@ class C_Document extends Controller
         return $this->list_action();
     }
 
-    function view_action(doc_id, $patient_id = "")
+    function view_action($doc_id, $patient_id = "")
     {
         global $ISSUE_TYPES;
 

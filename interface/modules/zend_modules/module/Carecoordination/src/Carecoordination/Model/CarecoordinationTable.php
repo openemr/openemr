@@ -1299,7 +1299,7 @@ class CarecoordinationTable extends AbstractTableGateway
         return $records;
     }
 
-    public function getListTitle(list_id, $option_id = '', $codes = '')
+    public function getListTitle($list_id, $option_id = '', $codes = '')
     {
         $appTable = new ApplicationTable();
         if ($option_id) {
