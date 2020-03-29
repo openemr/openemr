@@ -332,7 +332,7 @@ function menuActionClick(data,evt)
             matches[1] + '&formdesc=' + encodeURIComponent(data.label());
         }
         
-        if(!openExistingTab(data)){
+        if(!openExistingTab(dataurl)){
         navigateTab(webroot_url + dataurl, data.target, function () {
             activateTabByName(data.target,true);
         },xl("Loading") + " " + dataLabel);
@@ -413,13 +413,13 @@ function clearTherapyGroup()
     });
 }
 
-function openExistingTab(data)
+function openExistingTab(url)
 {
     let exist = false;
     for(var tabIdx=0;tabIdx<app_view_model.application_data.tabs.tabsList().length;tabIdx++)
     {
         var curTab=app_view_model.application_data.tabs.tabsList()[tabIdx];
-        if(webroot_url+data.url()!==curTab.url())
+        if(webroot_url+url!==curTab.url())
         {
             if(!curTab.locked())
             {
