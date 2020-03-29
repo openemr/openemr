@@ -1724,7 +1724,7 @@ function database_check($patient_id, $filter, $interval = '', $dateTarget = '')
             // Default mode
             // Row description
             //   [0]=>special modes(BLANK) [1]=>table [2]=>column [3]=>value comparison [4]=>value [5]=>number of hits comparison [6]=>number of hits
-            if (exist_database_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $temp_df[6], $intervalType, $intervalValue, $dateTarget)) {
+            if (exist_database_item($patient_id, $temp_df[1],$temp_df[3], $temp_df[5], $temp_df[6], $temp_df[2], $temp_df[4], $intervalType, $intervalValue, $dateTarget)) {
                 // Record the match
                 if ($cond_loop > 0) { // For multiple condition check
                     $isMatch = $isMatch && true;
@@ -1886,7 +1886,7 @@ function lists_check($patient_id, $filter, $dateTarget)
  * (2) If $data contains '#CURDATE#', then it will be converted to the current date.
  *
  */
-function exist_database_item($patient_id, $table, $column = '', $data_comp, $data = '', $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget = '')
+function exist_database_item($patient_id, $table, $data_comp, $num_items_comp, $num_items_thres, $column = '', $data = '', $intervalType = '', $intervalValue = '', $dateTarget = '')
 {
 
   // Set date to current if not set

@@ -1374,7 +1374,7 @@ class C_Document extends Controller
         //$this->_last_node = &$node1;
 
 // Function to tag a document to an encounter.
-    function tag_action_process($patient_id = "", $document_id)
+    function tag_action_process($document_id, $patient_id = "")
     {
         if ($_POST['process'] != "true") {
             die("process is '" . text($_POST['process']) . "', expected 'true'");

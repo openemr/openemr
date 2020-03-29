@@ -32,10 +32,10 @@ class AMC_302f_STG2_Denominator implements AmcFilterIF
     {
         // If height/length, weight, and blood pressure (all) within scope of practice:
         // Number of unique patients seen by the EP during the EHR reporting period
-        if ((exist_database_item($patient->id, 'form_vitals', 'height', 'gt', '0', 'ge', 1, '', '', $endDate)) &&
-             (exist_database_item($patient->id, 'form_vitals', 'weight', 'gt', '0', 'ge', 1, '', '', $endDate)) &&
-             (exist_database_item($patient->id, 'form_vitals', 'bps', 'gt', '0', 'ge', 1, '', '', $endDate)) &&
-             (exist_database_item($patient->id, 'form_vitals', 'bpd', 'gt', '0', 'ge', 1, '', '', $endDate))
+        if ((exist_database_item($patient->id, 'form_vitals', 'gt', 'ge', 1, 'height', '0', '', '', $endDate)) &&
+             (exist_database_item($patient->id, 'form_vitals', 'gt', 'ge', 1, 'weight', '0', '', '', $endDate)) &&
+             (exist_database_item($patient->id, 'form_vitals', 'gt', 'ge', 1, 'bps', '0', '', '', $endDate)) &&
+             (exist_database_item($patient->id, 'form_vitals', 'gt', 'ge', 1, 'bpd', '0', '', '', $endDate))
            ) {
             $options = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
             if (Helper::checkAnyEncounter($patient, $beginDate, $endDate, $options)) {
@@ -43,8 +43,8 @@ class AMC_302f_STG2_Denominator implements AmcFilterIF
             } else {
                 return false;
             }
-        } else if ((exist_database_item($patient->id, 'form_vitals', 'height', 'gt', '0', 'ge', 1, '', '', $endDate)) &&
-                (exist_database_item($patient->id, 'form_vitals', 'weight', 'gt', '0', 'ge', 1, '', '', $endDate))) {
+        } else if ((exist_database_item($patient->id, 'form_vitals', 'gt', 'ge', 1, 'height', '0', '', '', $endDate)) &&
+                (exist_database_item($patient->id, 'form_vitals', 'gt', 'ge', 1, 'weight', '0', '', '', $endDate))) {
             // If height/length and weight (only) within scope of practice:
             // Number of unique patients seen by the EP during the EHR reporting period
             $options = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
@@ -53,8 +53,8 @@ class AMC_302f_STG2_Denominator implements AmcFilterIF
             } else {
                 return false;
             }
-        } else if ((exist_database_item($patient->id, 'form_vitals', 'bps', 'gt', '0', 'ge', 1, '', '', $endDate)) &&
-                 (exist_database_item($patient->id, 'form_vitals', 'bpd', 'gt', '0', 'ge', 1, '', '', $endDate))) {
+        } else if ((exist_database_item($patient->id, 'form_vitals', 'gt', 'ge', 1, 'bps', '0', '', '', $endDate)) &&
+                 (exist_database_item($patient->id, 'form_vitals', 'gt', 'ge', 1, 'bpd', '0', '', '', $endDate))) {
             // If blood pressure (only) within scope of practice:
             // Number of unique patients 3 years of age or older seen by the EP during the EHR reporting period.
             $options = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
