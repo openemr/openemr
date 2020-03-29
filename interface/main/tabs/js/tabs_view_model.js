@@ -419,7 +419,7 @@ function openExistingTab(data)
     for(var tabIdx=0;tabIdx<app_view_model.application_data.tabs.tabsList().length;tabIdx++)
     {
         var curTab=app_view_model.application_data.tabs.tabsList()[tabIdx];
-        if(data.url()!==curTab.url())
+        if(webroot_url+data.url()!==curTab.url())
         {
             if(!curTab.locked())
             {
