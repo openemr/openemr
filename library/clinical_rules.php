@@ -1724,7 +1724,7 @@ function database_check($patient_id, $filter, $interval = '', $dateTarget = '')
             // Default mode
             // Row description
             //   [0]=>special modes(BLANK) [1]=>table [2]=>column [3]=>value comparison [4]=>value [5]=>number of hits comparison [6]=>number of hits
-            if (exist_database_item($patient_id, $temp_df[1],$temp_df[3], $temp_df[5], $temp_df[6], $temp_df[2], $temp_df[4], $intervalType, $intervalValue, $dateTarget)) {
+            if (exist_database_item($patient_id, $temp_df[1], $temp_df[3], $temp_df[5], $temp_df[6], $temp_df[2], $temp_df[4], $intervalType, $intervalValue, $dateTarget)) {
                 // Record the match
                 if ($cond_loop > 0) { // For multiple condition check
                     $isMatch = $isMatch && true;
