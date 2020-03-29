@@ -1754,13 +1754,15 @@ if ($_GET['prov'] != true) { ?>
     </div>
 </div>
 <div class="form-row mx-2 mt-3">
-    <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-primary" type='button' name='form_save' id='form_save' value='<?php echo xla('Save'); ?>' />
-    <?php if (!($GLOBALS['select_multi_providers'])) { //multi providers appt is not supported by check slot avail window, so skip ?>
-        <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-secondary" type='button' id='find_available' value='<?php echo xla('Find Available{{Provider}}'); ?>' />
-    <?php } ?>
-    <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-danger" type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete'); ?>'<?php echo (!$eid) ? " disabled" : ""; ?> />
-    <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-secondary" type='button' id='cancel' value='<?php echo xla('Cancel'); ?>' />
-    <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-secondary" type='button' name='form_duplicate' id='form_duplicate' value='<?php echo xla('Create Duplicate'); ?>' />
+    <div class="btn-group">
+        <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-primary" type='button' name='form_save' id='form_save' value='<?php echo xla('Save'); ?>' />
+        <?php if (!($GLOBALS['select_multi_providers'])) { //multi providers appt is not supported by check slot avail window, so skip ?>
+            <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-secondary" type='button' id='find_available' value='<?php echo xla('Find Available{{Provider}}'); ?>' />
+        <?php } ?>
+        <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-danger" type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete'); ?>'<?php echo (!$eid) ? " disabled" : ""; ?> />
+        <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-secondary" type='button' id='cancel' value='<?php echo xla('Cancel'); ?>' />
+        <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-secondary" type='button' name='form_duplicate' id='form_duplicate' value='<?php echo xla('Create Duplicate'); ?>' />
+    </div>
 </div>
 <?php if ($informant) {
     echo "<label><p class='text'>" . xlt('Last update by') . " " .
