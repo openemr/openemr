@@ -419,7 +419,26 @@ function openExistingTab(url)
     for(let tabIdx=0;tabIdx<app_view_model.application_data.tabs.tabsList().length;tabIdx++)
     {
         let currTab=app_view_model.application_data.tabs.tabsList()[tabIdx];
-        if(webroot_url+url!==currTab.url())
+        let currTabUrl = currTab.url();
+        //Check if URL is from $GLOBAL['default_tab']
+        switch(currTabUrl){
+            case '../main_info.php':
+              currTabUrl = webroot_url+'/interface/main/main_info.php';
+              break;
+            case '../../new/new.php':
+              currTabUrl = webroot_url+'/interface/new/new.php'
+              break;
+            case '../../../interface/main/finder/dynamic_finder.php':
+              currTabUrl = webroot_url+'/interface/main/finder/dynamic_finder.php'
+              break;
+            case '../../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1':
+              currTabUrl = webroot_url+'/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1'
+              break;
+            case '../../../interface/main/messages/messages.php?form_active=1':
+              currTabUrl = webroot_url+'/interface/main/messages/messages.php?form_active=1'
+              break;
+        }
+        if(webroot_url+url!==currTabUrl)
         {
             if(!currTab.locked())
             {
