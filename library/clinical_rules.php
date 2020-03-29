@@ -1243,25 +1243,25 @@ function test_targets($patient_id, $rule, $dateTarget, $group_id = '')
 {
 
   // -------- Interval Target ----
-    $interval = resolve_target_sql($rule, $group_id, 'target_interval');
+    $interval = resolve_target_sql($rule, 'target_interval', $group_id);
 
   // -------- Database Target ----
   // Database Target (includes)
-    $target = resolve_target_sql($rule, $group_id, 'target_database');
+    $target = resolve_target_sql($rule, 'target_database', $group_id);
     if ((!empty($target)) && !database_check($patient_id, $target, $interval, $dateTarget)) {
         return false;
     }
 
   // -------- Procedure (labs,imaging,test,procedures,etc) Target ----
   // Procedure Target (includes)
-    $target = resolve_target_sql($rule, $group_id, 'target_proc');
+    $target = resolve_target_sql($rule, 'target_proc', $group_id);
     if ((!empty($target)) && !procedure_check($patient_id, $target, $interval, $dateTarget)) {
         return false;
     }
 
   // -------- Appointment Target ----
   // Appointment Target (includes) (Specialized functionality for appointment reminders)
-    $target = resolve_target_sql($rule, $group_id, 'target_appt');
+    $target = resolve_target_sql($rule, 'target_appt', $group_id);
     if ((!empty($target)) && appointment_check($patient_id, $dateTarget)) {
         return false;
     }
@@ -1609,12 +1609,12 @@ function resolve_filter_sql($rule, $filter_method, $include_flag = 1)
  * Function to return applicable targets
  *
  * @param  string   $rule           id(string) of selected rule
- * @param  integer  $group_id       group id of target group (if blank, then will ignore grouping)
  * @param  string   $target_method  string label of target type
+ * @param  integer  $group_id       group id of target group (if blank, then will ignore grouping)
  * @param  string   $include_flag   to allow selection for included or excluded targets
  * @return array                    targets
  */
-function resolve_target_sql($rule, $group_id = '', $target_method, $include_flag = 1)
+function resolve_target_sql($rule, $target_method, $group_id = '', $include_flag = 1)
 {
 
     if ($group_id) {
