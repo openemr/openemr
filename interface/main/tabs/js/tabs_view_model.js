@@ -416,19 +416,19 @@ function clearTherapyGroup()
 function openExistingTab(url)
 {
     let exist = false;
-    for(var tabIdx=0;tabIdx<app_view_model.application_data.tabs.tabsList().length;tabIdx++)
+    for(let tabIdx=0;tabIdx<app_view_model.application_data.tabs.tabsList().length;tabIdx++)
     {
-        var curTab=app_view_model.application_data.tabs.tabsList()[tabIdx];
-        if(webroot_url+url!==curTab.url())
+        let currTab=app_view_model.application_data.tabs.tabsList()[tabIdx];
+        if(webroot_url+url!==currTab.url())
         {
-            if(!curTab.locked())
+            if(!currTab.locked())
             {
-                curTab.visible(false);
+                currTab.visible(false);
             }
         }
         else
         {
-            curTab.visible(true);
+            currTab.visible(true);
             exist = true;
         }
     }
