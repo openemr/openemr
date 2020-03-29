@@ -54,7 +54,10 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cd openemr; vendor/bin/phpunit --testsuite api --testdox'
     ```
-    - **Support for e2e testing is pending**
+    - To run e2e testing:
+    ```sh
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'export PANTHER_NO_SANDBOX=1; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver; cd openemr; vendor/bin/phpunit --testsuite e2e --testdox'
+    ```
 8. When you're done, it's best to clean up after yourself with `docker-compose down -v`
     - If you don't want to build from scratch every time, just use `docker-compose down` so your next `docker-compose up` will use the cached volumes.
 9. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!

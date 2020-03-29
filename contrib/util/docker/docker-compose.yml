@@ -101,9 +101,8 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
-      DEVELOPER_TOOLS: "yes"
-      GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
   openemr-7-3-311:
     restart: always
     image: openemr/openemr:flex-3.11
@@ -113,8 +112,9 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
-      FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
+      DEVELOPER_TOOLS: "yes"
+      GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
   openemr-edge:
     restart: always
     image: openemr/openemr:flex-edge

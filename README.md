@@ -34,7 +34,7 @@ Check out [API_README.md](API_README.md)
 
 If using OpenEMR directly from the code repository, then the following commands will build OpenEMR (Node.js version 10.* or 12.* is required) :
 ```shell
-composer install
+composer install --no-dev
 npm install
 npm run build
 composer dump-autoload -o
