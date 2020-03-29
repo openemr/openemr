@@ -26,8 +26,6 @@ services:
     ports:
     - 8300:80
     - 9300:443
-    - 3000:3000 # browsersync
-    - 3001:3001 # browsersync-admin
     volumes:
     - .:/openemr:ro
     - .:/var/www/localhost/htdocs/openemr:rw
