@@ -353,7 +353,7 @@ class ApplicationTable extends AbstractTableGateway
     * @param    Date format set in GLOBALS
     * @return   Date format in PHP
     **/
-    public function dateFormat($format = null)
+    public static function dateFormat($format = null)
     {
         if ($format == "0") {
             $date_format = 'yyyy/mm/dd';
