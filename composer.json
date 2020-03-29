@@ -60,7 +60,9 @@
         "twig/twig": "2.12.5",
         "vlucas/phpdotenv": "4.1.0",
         "waryway/php-traits-library": "1.0.4",
-        "yubico/u2flib-server": "1.0.2"
+        "yubico/u2flib-server": "1.0.2",
+        "phpunit/phpunit": "8.*",
+        "symfony/panther": "^0.6"
     },
     "config": {
         "platform": {

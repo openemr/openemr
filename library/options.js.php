@@ -231,6 +231,35 @@ function checkSkipConditions() {
   }
   // If any errors, all show in the first pass and none in subsequent passes.
   cskerror = cskerror || myerror;
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  if (document.getElementById("form_gender_identity")!=null) {	
+      if(document.getElementById("form_gender_identity").options[document.getElementById("form_gender_identity").selectedIndex].value=="OTH"){ 
+		if (document.getElementById("form_text_gender_identity").style.display == "none") {	
+		document.getElementById("form_text_gender_identity").style.display='inline-block';
+		} 
+      } else {
+	    document.getElementById("form_text_gender_identity").value='';
+	    document.getElementById("form_text_gender_identity").style.display= "none";
+        }
+  }
+
+  if (document.getElementById("form_sexual_orientation")!=null) {	
+      if (document.getElementById("form_sexual_orientation").options[document.getElementById("form_sexual_orientation").selectedIndex].value=="OTH") {  
+		if (document.getElementById("form_text_sexual_orientation").style.display== "none") {	
+		document.getElementById("form_text_sexual_orientation").style.display='inline-block';
+		}
+      } else {	
+	    document.getElementById("form_text_sexual_orientation").value='';
+	    document.getElementById("form_text_sexual_orientation").style.display= "none";
+        }
+  }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 ///////////////////////////////////////////////////////////////////////
