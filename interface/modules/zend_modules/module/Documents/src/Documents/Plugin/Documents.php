@@ -89,7 +89,7 @@ class Documents extends AbstractPlugin
     public function getDocument($documentId, $doEncryption = false, $encryption_key = '')
     {
                 $obj = new \C_Document();
-                $document = $obj->retrieve_action("", $documentId, true, true, true);
+                $document = $obj->retrieve_action($documentId, "", true, true, true);
         return $document;
     }
 

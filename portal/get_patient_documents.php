@@ -57,7 +57,7 @@ while ($file = sqlFetchArray($fres)) {
     // copy the document
     $documentId = $file['id'];
     $obj = new \C_Document();
-    $document = $obj->retrieve_action("", $documentId, true, true, true);
+    $document = $obj->retrieve_action($documentId, "", true, true, true);
     if ($document) {
         $pos = strpos(substr($file['url'], -5), '.');
         // check if has an extension or find it from the mimetype

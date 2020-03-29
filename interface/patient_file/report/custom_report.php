@@ -628,7 +628,7 @@ foreach ($ar as $key => $val) {
                 // adding support for .txt MDM-TXA interface/orders/receive_hl7_results.inc.php
                 if ($extension != (".pdf" || ".txt")) {
                     $tempCDoc = new C_Document;
-                    $tempFile = $tempCDoc->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
+                    $tempFile = $tempCDoc->retrieve_action($document_id, $d->get_foreign_id(), false, true, true, true);
                     // tmp file in temporary_files_dir
                     $tempFileName = tempnam($GLOBALS['temporary_files_dir'], "oer");
                     file_put_contents($tempFileName, $tempFile);
@@ -642,7 +642,7 @@ foreach ($ar as $key => $val) {
                         // OK to link to the image file because it will be accessed by the
                         // mPDF parser and not the browser.
                         $tempDocC = new C_Document;
-                        $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
+                        $fileTemp = $tempDocC->retrieve_action($document_id, $d->get_foreign_id(), false, true, true, true);
                         // tmp file in ../documents/temp since need to be available via webroot
                         $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'].'/documents/temp', "oer");
                         file_put_contents($from_file_tmp_web_name, $fileTemp);
@@ -671,7 +671,7 @@ foreach ($ar as $key => $val) {
                             // below header isn't being used. missed maybe!
                             $pg_header = "<span>" . xlt('Document') . " " . text($fname) ."</span>";
                             $tempDocC = new C_Document;
-                            $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
+                            $pdfTemp = $tempDocC->retrieve_action($document_id, $d->get_foreign_id(), false, true, true, true);
                             // tmp file in temporary_files_dir
                             $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
                             file_put_contents($from_file_tmp_name, $pdfTemp);
@@ -706,14 +706,14 @@ foreach ($ar as $key => $val) {
                     } elseif ($extension == ".txt") {
                         echo "<pre>";
                         $tempDocC = new C_Document;
-                        $textTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
+                        $textTemp = $tempDocC->retrieve_action($document_id, $d->get_foreign_id(), false, true, true, true);
                         echo text($textTemp);
                         echo "</pre>";
                     } else {
                         if ($PDF_OUTPUT) {
                             // OK to link to the image file because it will be accessed by the mPDF parser and not the browser.
                             $tempDocC = new C_Document;
-                            $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, false, true, true);
+                            $fileTemp = $tempDocC->retrieve_action($document_id, $d->get_foreign_id(), false, false, true, true);
                             // tmp file in ../documents/temp since need to be available via webroot
                             $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'].'/documents/temp', "oer");
                             file_put_contents($from_file_tmp_web_name, $fileTemp);

@@ -502,7 +502,7 @@ class C_Document extends Controller
      * @param (boolean) $show_original - enable to show the original image (not thumbnail) in inline status.
      * @param (string) $context - given a special document scenario (e.g.: patient avatar, custom image viewer document, etc), the context can be set so that a switch statement can execute a custom strategy.
      * */
-    function retrieve_action($patient_id = "", $document_id, $as_file = true, $original_file = true, $disable_exit = false, $show_original = false, $context = "normal")
+    function retrieve_action($document_id, $patient_id = "", $as_file = true, $original_file = true, $disable_exit = false, $show_original = false, $context = "normal")
     {
         $encrypted = $_POST['encrypted'];
         $passphrase = $_POST['passphrase'];

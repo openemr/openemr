@@ -885,7 +885,7 @@ foreach ($ar as $key => $val) {
                         // OK to link to the image file because it will be accessed by the
                         // mPDF parser and not the browser.
                         $tempDocC = new C_Document;
-                        $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
+                        $fileTemp = $tempDocC->retrieve_action($document_id, $d->get_foreign_id(), false, true, true, true);
                         // tmp file in ../documents/temp since need to be available via webroot
                         $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'].'/documents/temp', "oer");
                         file_put_contents($from_file_tmp_web_name, $fileTemp);
@@ -912,7 +912,7 @@ foreach ($ar as $key => $val) {
                         $err = '';
                         try {
                             $tempDocC = new C_Document;
-                            $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
+                            $pdfTemp = $tempDocC->retrieve_action($document_id, $d->get_foreign_id(), false, true, true, true);
                             // tmp file in temporary_files_dir
                             $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
                             file_put_contents($from_file_tmp_name, $pdfTemp);
@@ -948,7 +948,7 @@ foreach ($ar as $key => $val) {
                         if ($PDF_OUTPUT) {
                             // OK to link to the image file because it will be accessed by the mPDF parser and not the browser.
                             $tempDocC = new C_Document;
-                            $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, false, true, true);
+                            $fileTemp = $tempDocC->retrieve_action($document_id, $d->get_foreign_id(), false, false, true, true);
                             // tmp file in ../documents/temp since need to be available via webroot
                             $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'].'/documents/temp', "oer");
                             file_put_contents($from_file_tmp_web_name, $fileTemp);

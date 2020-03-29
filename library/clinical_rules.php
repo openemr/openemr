@@ -827,7 +827,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                     }
 
                     // Check if pass target
-                    $passTarget = test_targets($rowPatient['pid'], $rowRule['id'], '', $dateFocus);
+                    $passTarget = test_targets($rowPatient['pid'], $rowRule['id'], $dateFocus, '');
                     if ($passTarget) {
                         // increment pass target counter
                         $pass_target++;
@@ -950,7 +950,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         }
 
                         //Check if pass target
-                        $passTarget = test_targets($rowPatient['pid'], $rowRule['id'], $i, $dateFocus);
+                        $passTarget = test_targets($rowPatient['pid'], $rowRule['id'], $dateFocus, $i);
                         if ($passTarget) {
                             // increment pass target counter
                             $pass_target++;
@@ -1239,7 +1239,7 @@ function returnTargetGroups($rule)
  * @param  string   $dateTarget  target date (format Y-m-d H:i:s).
  * @return boolean               if target passes then true, otherwise false
  */
-function test_targets($patient_id, $rule, $group_id = '', $dateTarget)
+function test_targets($patient_id, $rule, $dateTarget, $group_id = '')
 {
 
   // -------- Interval Target ----

@@ -453,7 +453,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
             <?php
             //get patient photo
             $tempDocC = new C_Document;
-            $fileTemp = $tempDocC->retrieve_action($pid, -1, false, true, true, true, 'patient_picture');
+            $fileTemp = $tempDocC->retrieve_action(-1, $pid, false, true, true, true, 'patient_picture');
             if (!empty($fileTemp)) {
                 if ($PDF_OUTPUT) {
                     // tmp file in ../documents/temp since need to be available via webroot
@@ -2083,7 +2083,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                         //               if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
                         if ($PDF_OUTPUT) {
                             $tempDocC = new C_Document;
-                            $fileTemp = $tempDocC->retrieve_action($pid, $doc['id'], false, true, true);
+                            $fileTemp = $tempDocC->retrieve_action($doc['id'], $pid, false, true, true);
                             // tmp file in ../documents/temp since need to be available via webroot
                             $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'].'/documents/temp', "oer");
                             file_put_contents($from_file_tmp_web_name, $fileTemp);
