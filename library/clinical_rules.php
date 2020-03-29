@@ -1777,7 +1777,7 @@ function procedure_check($patient_id, $filter, $interval = '', $dateTarget = '')
         //   code description
         //     <type(ICD9,CPT4)>:<identifier>||<type(ICD9,CPT4)>:<identifier>||<identifier> etc.
         $temp_df = explode("::", $row['value']);
-        if (exist_procedure_item($patient_id, $temp_df[0], $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $intervalType, $intervalValue, $dateTarget)) {
+        if (exist_procedure_item($patient_id, $temp_df[0], $temp_df[1], $temp_df[2], $temp_df[4], $temp_df[5], $temp_df[3], $intervalType, $intervalValue, $dateTarget)) {
             // Record the match
             $isMatch = true;
         } else {
@@ -1983,9 +1983,9 @@ function exist_database_item($patient_id, $table, $data_comp, $num_items_comp, $
  * @param  string   $proc_title       procedure title
  * @param  string   $proc_code        procedure identifier code (array of <type(ICD9,CPT4)>:<identifier>||<type(ICD9,CPT4)>:<identifier>||<identifier> etc.)
  * @param  string   $results_comp     results comparison (eq,ne,gt,ge,lt,le)
- * @param  string   $result_data      results data (1)
  * @param  string   $num_items_comp   number items comparison (eq,ne,gt,ge,lt,le)
  * @param  integer  $num_items_thres  number of items threshold
+ * @param  string   $result_data      results data (1)
  * @param  string   $intervalType     type of interval (ie. year)
  * @param  integer  $intervalValue    searched for within this many times of the interval type
  * @param  string   $dateTarget       target date(format Y-m-d H:i:s).
@@ -1994,7 +1994,7 @@ function exist_database_item($patient_id, $table, $data_comp, $num_items_comp, $
  * (1) If result_data ends with **, operators ne/eq are replaced by (NOT)LIKE operators
  *
  */
-function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp, $result_data = '', $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget = '')
+function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp, $num_items_comp, $num_items_thres, $result_data = '', $intervalType = '', $intervalValue = '', $dateTarget = '')
 {
 
   // Set date to current if not set
