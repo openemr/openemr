@@ -596,7 +596,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 }
 
                 if ($row['reaction']) {
-                    $reaction_text = CarecoordinationTable::getListTitle($row['reaction'], 'reaction', '');
+                    $reaction_text = CarecoordinationTable::getListTitle('reaction', $row['reaction'], '');
                     $reaction_code = CarecoordinationTable::getCodes($row['reaction'], 'reaction');
                 }
 
@@ -1676,7 +1676,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                                   <extension>".htmlspecialchars(base64_encode('smoking'.$_SESSION['site_id'].$row['id']), ENT_QUOTES)."</extension>
                                   <sha_extension>".htmlspecialchars("9b56c25d-9104-45ee-9fa4-e0f3afaa01c1", ENT_QUOTES)."</sha_extension>
                                   <element>".htmlspecialchars('Smoking', ENT_QUOTES)."</element>
-                                  <description>".htmlspecialchars(CarecoordinationTable::getListTitle($tobacco[3], 'smoking_status'), ENT_QUOTES)."</description>
+                                  <description>".htmlspecialchars(CarecoordinationTable::getListTitle('smoking_status', $tobacco[3]), ENT_QUOTES)."</description>
                                   <status_code>".htmlspecialchars(($status_code ? $status_code : 0), ENT_QUOTES)."</status_code>
                                   <status>".htmlspecialchars(($snomeds_status[$tobacco[1]] ? $snomeds_status[$tobacco[1]] : 'NULL'), ENT_QUOTES)."</status>
                                   <date>".($tobacco[2] ? htmlspecialchars($this->date_format($tobacco[2]), ENT_QUOTES) : 0)."</date>

@@ -168,9 +168,9 @@ function SaveAudit($pid, $amts, $cc)
         $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
         $audit['date'] = $edata['date'];
         if ($edata['id'] > 0) {
-            $appsql->portalAudit('update', $edata['id'], $audit);
+            $appsql->portalAudit($audit, 'update', $edata['id']);
         } else {
-            $appsql->portalAudit('insert', '', $audit);
+            $appsql->portalAudit($audit, 'insert', '');
         }
     } catch (Exception $ex) {
         return $ex;
@@ -201,7 +201,7 @@ function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'no
         $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
         $audit['date'] = $edata['date'];
         if ($edata['id'] > 0) {
-            $appsql->portalAudit('update', $edata['id'], $audit);
+            $appsql->portalAudit($audit, 'update', $edata['id']);
         }
     } catch (Exception $ex) {
         return $ex;

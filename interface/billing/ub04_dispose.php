@@ -93,7 +93,7 @@ function saveTemplate($encounter, $pid, $ub04id, $action = 'form')
     }
 }
 
-function buildTemplate($pid = '', $encounter = '', $htmlin, $action = 'form', &$log)
+function buildTemplate($htmlin, &$log, $pid = '', $encounter = '', $action = 'form')
 {
     $ub04id = get_ub04_array($pid, $encounter, $log);
 

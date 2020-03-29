@@ -378,7 +378,7 @@ class PatientController extends AppBaseController
             $edata = $appsql->getPortalAudit($ja['pid'], 'review');
             $audit['date'] = $edata['date'];
             if ($edata['id'] > 0) {
-                $appsql->portalAudit('update', $edata['id'], $audit);
+                $appsql->portalAudit($audit, 'update', $edata['id']);
             }
         } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);

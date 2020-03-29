@@ -1299,7 +1299,7 @@ class CarecoordinationTable extends AbstractTableGateway
         return $records;
     }
 
-    public function getListTitle($option_id = '', $list_id, $codes = '')
+    public function getListTitle(list_id, $option_id = '', $codes = '')
     {
         $appTable = new ApplicationTable();
         if ($option_id) {
@@ -1628,7 +1628,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 }
 
                                 $severity_option_id = $this->getOptionId('severity_ccda', '', 'SNOMED-CT:' . $data['lists2-severity_al-con'][$i]);
-                                $severity_text = $this->getListTitle($severity_option_id, 'severity_ccda', 'SNOMED-CT:' . $data['lists2-severity_al-con'][$i]);
+                                $severity_text = $this->getListTitle('severity_ccda', $severity_option_id, 'SNOMED-CT:' . $data['lists2-severity_al-con'][$i]);
                                 if ($severity_option_id == '' || $severity_option_id == null) {
                                     $q_max_option_id = "SELECT MAX(CAST(option_id AS SIGNED))+1 AS option_id  
                                                     FROM list_options 
@@ -3258,7 +3258,7 @@ class CarecoordinationTable extends AbstractTableGateway
 
             //unit
             if ($revapprove == 1) {
-                $value['rate_unit'] = $this->getListTitle($value['rate_unit'], 'drug_units', '');
+                $value['rate_unit'] = $this->getListTitle('drug_units', $value['rate_unit'], '');
             }
 
             $unit_option_id = $this->getOptionId('drug_units', $value['rate_unit'], '');
@@ -3483,7 +3483,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $res_q_sel_allergies = $appTable->zQuery($q_sel_allergies, array($value['extension'], $pid));
 
             $severity_option_id = $this->getOptionId('severity_ccda', '', 'SNOMED-CT:' . $value['severity_al']);
-            $severity_text = $this->getListTitle($severity_option_id, 'severity_ccda', 'SNOMED-CT:' . $value['severity_al']);
+            $severity_text = $this->getListTitle('severity_ccda', $severity_option_id, 'SNOMED-CT:' . $value['severity_al']);
             if ($severity_option_id == '' || $severity_option_id == null) {
                 $q_max_option_id = "SELECT MAX(CAST(option_id AS SIGNED))+1 AS option_id  
                                 FROM list_options 

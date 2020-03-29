@@ -320,13 +320,13 @@ class CarecoordinationController extends AbstractActionController
         $state_list = $this->getCarecoordinationTable()->getList('state');
         $tobacco = $this->getCarecoordinationTable()->getList('smoking_status');
 
-        $demographics_old[0]['sex'] = $this->getCarecoordinationTable()->getListTitle($demographics_old[0]['sex'], 'sex', '');
-        $demographics_old[0]['country_code'] = $this->getCarecoordinationTable()->getListTitle($demographics_old[0]['country_code'], 'country', '');
-        $demographics_old[0]['status'] = $this->getCarecoordinationTable()->getListTitle($demographics_old[0]['status'], 'marital', '');
-        $demographics_old[0]['religion'] = $this->getCarecoordinationTable()->getListTitle($demographics_old[0]['religion'], 'religious_affiliation', '');
-        $demographics_old[0]['race'] = $this->getCarecoordinationTable()->getListTitle($demographics_old[0]['race'], 'race', '');
-        $demographics_old[0]['ethnicity'] = $this->getCarecoordinationTable()->getListTitle($demographics_old[0]['ethnicity'], 'ethnicity', '');
-        $demographics_old[0]['state'] = $this->getCarecoordinationTable()->getListTitle($demographics_old[0]['state'], 'state', '');
+        $demographics_old[0]['sex'] = $this->getCarecoordinationTable()->getListTitle('sex', $demographics_old[0]['sex'], '');
+        $demographics_old[0]['country_code'] = $this->getCarecoordinationTable()->getListTitle('country', $demographics_old[0]['country_code'], '');
+        $demographics_old[0]['status'] = $this->getCarecoordinationTable()->getListTitle('marital', $demographics_old[0]['status'], '');
+        $demographics_old[0]['religion'] = $this->getCarecoordinationTable()->getListTitle('religious_affiliation', $demographics_old[0]['religion'], '');
+        $demographics_old[0]['race'] = $this->getCarecoordinationTable()->getListTitle('race', $demographics_old[0]['race'], '');
+        $demographics_old[0]['ethnicity'] = $this->getCarecoordinationTable()->getListTitle('ethnicity', $demographics_old[0]['ethnicity'], '');
+        $demographics_old[0]['state'] = $this->getCarecoordinationTable()->getListTitle('state', $demographics_old[0]['state'], '');
 
         $view = new ViewModel(array(
             'carecoordinationTable' => $this->getCarecoordinationTable(),
@@ -436,7 +436,7 @@ class CarecoordinationController extends AbstractActionController
                                          <tbody>';
                     foreach ($allergies_audit['lists2'] as $key => $val) {
                         $severity_option_id = $this->getCarecoordinationTable()->getOptionId('severity_ccda', '', 'SNOMED-CT:' . $val['severity_al']);
-                        $severity_text = $this->getCarecoordinationTable()->getListTitle($severity_option_id, 'severity_ccda', 'SNOMED-CT:' . $val['severity_al']);
+                        $severity_text = $this->getCarecoordinationTable()->getListTitle('severity_ccda', $severity_option_id, 'SNOMED-CT:' . $val['severity_al']);
                         if ($val['enddate'] != 0 && $val['enddate'] != '') {
                              $status = 'completed';
                         } else {

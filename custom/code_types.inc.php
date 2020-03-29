@@ -438,7 +438,7 @@ function main_code_set_search($form_code_type, $search_term, $limit = null, $cat
     if (!empty($form_code_type)) {
         if (is_array($form_code_type) && (count($form_code_type) > 1)) {
             // run the multiple code set search
-            return multiple_code_set_search($form_code_type, $search_term, $limit, $modes, $count, $active, $start, $number, $filter_elements);
+            return multiple_code_set_search($search_term, $form_code_type, $limit, $modes, $count, $active, $start, $number, $filter_elements);
         }
 
         if (is_array($form_code_type) && (count($form_code_type) == 1)) {
@@ -458,8 +458,8 @@ function main_code_set_search($form_code_type, $search_term, $limit = null, $cat
  * of this page for a listing of the code sets supported. Also note that Products (using PROD as code type)
  * is also supported. (This function is not meant to be called directly)
  *
- * @param  string    $form_code_type  code set key (special keywords are PROD) (Note --ALL-- has been deprecated and should be run through the multiple_code_set_search() function instead)
  * @param  string    $search_term     search term
+ * @param  string    $form_code_type  code set key (special keywords are PROD) (Note --ALL-- has been deprecated and should be run through the multiple_code_set_search() function instead)
  * @param  boolean   $count           if true, then will only return the number of entries
  * @param  boolean   $active          if true, then will only return active entries (not pertinent for PROD code sets)
  * @param  boolean   $return_only_one if true, then will only return one perfect matching item
@@ -781,8 +781,8 @@ function lookup_code_descriptions($codes, $desc_detail = "code_text")
 * (which are separated by each word in the code_set_search() function).
 * (This function is not meant to be called directly)
 *
-* @param string $form_code_type code set key (special keyword is PROD) (Note --ALL-- has been deprecated and should be run through the multiple_code_set_search() function instead)
 * @param string $search_term search term
+* @param string $form_code_type code set key (special keyword is PROD) (Note --ALL-- has been deprecated and should be run through the multiple_code_set_search() function instead)
 * @param integer $limit Number of results to return (NULL means return all)
 * @param array $modes Holds the search modes to process along with the order of processing (default behavior is described in above function comment)
 * @param boolean $count if true, then will only return the number of entries
@@ -832,7 +832,7 @@ function sequential_code_set_search($form_code_type, $search_term, $limit = null
 * @param array $filter_elements Array that contains elements to filter
 * @return recordset/integer
 */
-function multiple_code_set_search($form_code_types = array(), $search_term, $limit = null, $modes = null, $count = false, $active = true, $start = null, $number = null, $filter_elements = array())
+function multiple_code_set_search($search_term, $form_code_types = array(), $limit = null, $modes = null, $count = false, $active = true, $start = null, $number = null, $filter_elements = array())
 {
 
     if (empty($form_code_types)) {

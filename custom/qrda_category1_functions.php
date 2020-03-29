@@ -535,7 +535,7 @@ function getAllPhysicalExams($xml, $patient_id)
 function getAllRiskCatAssessment($xml, $patient_id)
 {
     global $encCheckUniqId, $from_date, $to_date;
-    $procArr = allProcPat("risk_category", $patient_id, $from_date, $to_date);
+    $procArr = allProcPat($patient_id, $from_date, $to_date, "risk_category");
     foreach ($procArr as $procRow) {
         $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ?", array($procRow['procedure_code'],$xml->nqf_code));
         if (!empty($vset['valueset'])) {
@@ -584,7 +584,7 @@ function getAllRiskCatAssessment($xml, $patient_id)
 function getAllProcedures($xml, $patient_id)
 {
     global $encCheckUniqId, $from_date, $to_date;
-    $procArr = allProcPat("Procedure", $patient_id, $from_date, $to_date);
+    $procArr = allProcPat($patient_id, $from_date, $to_date, "Procedure");
     foreach ($procArr as $procRow) {
         $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ? ", array($procRow['procedure_code'],$xml->nqf_code));
         if (!empty($vset['valueset'])) {
@@ -638,7 +638,7 @@ function getAllProcedures($xml, $patient_id)
 function getAllLabTests($xml, $patient_id)
 {
     global $encCheckUniqId, $from_date, $to_date;
-    $procArr = allProcPat("laboratory_test", $patient_id, $from_date, $to_date);
+    $procArr = allProcPat($patient_id, $from_date, $to_date, "laboratory_test");
     foreach ($procArr as $procRow) {
         $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ? ", array($procRow['procedure_code'],$xml->nqf_code));
         if (!empty($vset['valueset'])) {
@@ -684,7 +684,7 @@ function getAllLabTests($xml, $patient_id)
 function getAllInterventionProcedures($xml, $patient_id)
 {
     global $encCheckUniqId, $from_date, $to_date;
-    $procArr = allProcPat("intervention", $patient_id, $from_date, $to_date);
+    $procArr = allProcPat($patient_id, $from_date, $to_date, "intervention");
     foreach ($procArr as $procRow) {
         $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ? ", array($procRow['procedure_code'],$xml->nqf_code));
         if (!empty($vset['valueset'])) {
@@ -1040,7 +1040,7 @@ function getAllPatientEncounters($xml, $patient_id)
         }
     }
 
-    $encArr = allProcPat("enc_checkup_procedure", $patient_id, $from_date, $to_date);
+    $encArr = allProcPat($patient_id, $from_date, $to_date, "enc_checkup_procedure");
     foreach ($encArr as $encRow) {
         $encRow['encounter'];
         $vset = sqlStatement("select * from valueset where code = ? and nqf_code = ?", array($encRow['procedure_code'],$xml->nqf_code));

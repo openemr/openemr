@@ -124,9 +124,9 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
             $audit['checksum'] = "";
             $edata = $appsql->getPortalAudit($pid, 'payment', 'invoice', "waiting transaction", 0);
             if ($edata['id'] > 0) {
-                $appsql->portalAudit('update', $edata['id'], $audit);
+                $appsql->portalAudit($audit, 'update', $edata['id']);
             } else {
-                $appsql->portalAudit('insert', '', $audit);
+                $appsql->portalAudit($audit, 'insert', '');
             }
         } catch (Exception $ex) {
             return $ex;

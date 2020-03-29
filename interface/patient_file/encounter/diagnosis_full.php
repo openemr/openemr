@@ -25,7 +25,7 @@ if (isset($mode)) {
     }
 
     if ($mode == "add") {
-        BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $_SESSION['authUserID']);
+        BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $_SESSION['authUserID'], $userauthorized);
     } elseif ($mode == "delete") {
         BillingUtilities::deleteBilling($id);
     } elseif ($mode == "clear") {

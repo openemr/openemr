@@ -830,7 +830,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
             if ($res_existing_allergies['begdate'] != NULL && $res_existing_allergies['begdate'] != 0) {
                 $beg_date = \Application\Model\ApplicationTable::fixDate($res_existing_allergies['begdate'], $date_format, 'yyyy-mm-dd');
             }
-            $severity = $this->carecoordinationTable->getListTitle($res_existing_allergies['severity_al'], 'severity_ccda', $res_existing_allergies['severity_al']);
+            $severity = $this->carecoordinationTable->getListTitle('severity_ccda', $res_existing_allergies['severity_al'], $res_existing_allergies['severity_al']);
             ?>
             <tr style="border-bottom: 0px">
                 <td><?php echo $this->listenerObject->z_xlt('Title'); ?></td>
@@ -1032,8 +1032,8 @@ $insert = $this->listenerObject->z_xlt('Insert');
         </tr>
         <?php }
         foreach($this->medications as $res_existing_medications) {
-            $units = $this->carecoordinationTable->getListTitle($res_existing_medications['unit'], 'drug_units', '');
-            $route = $this->carecoordinationTable->getListTitle($res_existing_medications['route'], 'drug_route', '');
+            $units = $this->carecoordinationTable->getListTitle('drug_units', $res_existing_medications['unit'], '');
+            $route = $this->carecoordinationTable->getListTitle('drug_route', $res_existing_medications['route'], '');
             if ($res_existing_medications['date_added'] != 0 && $res_existing_medications['date_added'] != '')
                 $date_added = $res_existing_medications['date_added'];  ?>
             <tr style="border-bottom: 0px">
@@ -1076,8 +1076,8 @@ $insert = $this->listenerObject->z_xlt('Insert');
             </tr>
         <?php }
         foreach ($internal_conflicted_medications_Arr as $res_existing_medications) {
-            $units = $this->carecoordinationTable->getListTitle($res_existing_medications['unit'], 'drug_units', '');
-            $route = $this->carecoordinationTable->getListTitle($res_existing_medications['route'], 'drug_route', '');
+            $units = $this->carecoordinationTable->getListTitle('drug_units', $res_existing_medications['unit'], '');
+            $route = $this->carecoordinationTable->getListTitle('drug_route', $res_existing_medications['route'], '');
             if ($res_existing_medications['date_added'] != 0 && $res_existing_medications['date_added'] != '')
                 $date_added = $res_existing_medications['date_added'];
 

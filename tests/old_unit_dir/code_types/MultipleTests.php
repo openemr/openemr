@@ -9,7 +9,7 @@ require_once("custom/code_types.inc.php");
 function mult_search_test($type, $string, $limit = 20, $modes = null, $count = false)
 {
     echo "<ol>";
-    $res=multiple_code_set_search($type, $string, $limit, $modes, $count);
+    $res=multiple_code_set_search($string, $type, $limit, $modes, $count);
     if ($count) {
         echo "<li>" . $res . "</li>";
     } else {

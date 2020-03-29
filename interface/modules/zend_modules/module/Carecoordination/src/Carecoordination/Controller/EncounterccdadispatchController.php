@@ -120,7 +120,7 @@ class EncounterccdadispatchController extends AbstractActionController
                     $arr = explode('_', $row);
                     $this->patient_id   = $arr[0];
                     $this->encounter_id = ($arr[1] > 0 ? $arr[1] : null);
-                    $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send, $this->components);
+                    $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $this->components, $send);
                     $content            = $this->socket_get("$mirth_ip", "6661", $this->data);
 
                     if ($content=='Authetication Failure') {
@@ -166,7 +166,7 @@ class EncounterccdadispatchController extends AbstractActionController
                 die;
             } else {
                 $practice_filename  = "CCDA_{$this->patient_id}.xml";
-                $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send, $this->components);
+                $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $this->components, $send);
                 $content            = $this->socket_get("$mirth_ip", "6661", $this->data);
                 $to_replace = '<?xml version="1.0" encoding="UTF-8"?>
 				<?xml-stylesheet type="text/xsl" href="CDA.xsl"?>
@@ -320,7 +320,7 @@ class EncounterccdadispatchController extends AbstractActionController
                     $this->encounter_id = $this->getEncounterccdadispatchTable()->getLatestEncounter($this->patient_id);
                 }
 
-                $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send, $this->components);
+                $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $this->components, $send);
                 $content            = $this->socket_get("$mirth_ip", "6661", $this->data);
 
                 // TODO: Is this supposed to be mispelled by the mirth server like this??  Seems odd...
@@ -368,7 +368,7 @@ class EncounterccdadispatchController extends AbstractActionController
             }
         } else {
             $practice_filename  = "CCDA_{$this->patient_id}.xml";
-            $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send);
+            $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $this->components, $send);
             $content            = $this->socket_get("$mirth_ip", "6661", $this->data);
             $to_replace = '<?xml version="1.0" encoding="UTF-8"?>
             <?xml-stylesheet type="text/xsl" href="CDA.xsl"?>
@@ -466,7 +466,7 @@ class EncounterccdadispatchController extends AbstractActionController
         return $output;
     }
 
-    public function create_data($pid, $encounter, $sections, $send = 0, $components)
+    public function create_data($pid, $encounter, $sections, $components, $send = 0)
     {
         global $assignedEntity;
         global $representedOrganization;

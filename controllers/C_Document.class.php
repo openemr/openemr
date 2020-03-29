@@ -365,7 +365,7 @@ class C_Document extends Controller
         }
         $this->_state = false;
         $_POST['process'] = "";
-        return $this->view_action($patient_id, $n->get_foreign_id());
+        return $this->view_action($n->get_foreign_id(), $patient_id);
     }
 
     function default_action()
@@ -373,7 +373,7 @@ class C_Document extends Controller
         return $this->list_action();
     }
 
-    function view_action($patient_id = "", $doc_id)
+    function view_action(doc_id, $patient_id = "")
     {
         global $ISSUE_TYPES;
 
@@ -1004,7 +1004,7 @@ class C_Document extends Controller
 
         $this->_state = false;
         $this->assign("messages", $messages);
-        return $this->view_action($patient_id, $document_id);
+        return $this->view_action($document_id, $patient_id);
     }
 
     function validate_action_process($patient_id = "", $document_id)
@@ -1073,7 +1073,7 @@ class C_Document extends Controller
         }
         $this->_state = false;
         $this->assign("messages", $messages);
-        return $this->view_action($patient_id, $document_id);
+        return $this->view_action($document_id, $patient_id);
     }
 
     // Added by Rod for metadata update.
@@ -1140,7 +1140,7 @@ class C_Document extends Controller
 
         $this->_state = false;
         $this->assign("messages", $messages);
-        return $this->view_action($patient_id, $document_id);
+        return $this->view_action($document_id, $patient_id);
     }
 
     function list_action($patient_id = "")
@@ -1439,7 +1439,7 @@ class C_Document extends Controller
         $this->_state = false;
         $this->assign("messages", $messages);
 
-        return $this->view_action($patient_id, $document_id);
+        return $this->view_action($document_id, $patient_id);
     }
 
     function image_procedure_action($patient_id = "", $document_id)
@@ -1464,7 +1464,7 @@ class C_Document extends Controller
 
             $this->image_result_indication($document_id, 0, $img_procedure_id);
         }
-        return $this->view_action($patient_id, $document_id);
+        return $this->view_action($document_id, $patient_id);
     }
 
     function clear_procedure_tag_action($patient_id = "", $document_id)
@@ -1472,7 +1472,7 @@ class C_Document extends Controller
         if (is_numeric($document_id)) {
             sqlStatement("delete from procedure_result where document_id = ?", $document_id);
         }
-        return $this->view_action($patient_id, $document_id);
+        return $this->view_action($document_id, $patient_id);
     }
 
     function get_mapped_procedure($document_id)
@@ -1544,6 +1544,6 @@ class C_Document extends Controller
         if (is_numeric($document_id)) {
             sqlStatement("update documents set encounter_id='0' where foreign_id=? and id = ?", array($patient_id,$document_id));
         }
-        return $this->view_action($patient_id, $document_id);
+        return $this->view_action($document_id, $patient_id);
     }
 }

@@ -356,7 +356,7 @@ function process_form($ar)
                 } elseif (isset($ar['bn_process_ub04_form']) || isset($ar['bn_process_ub04'])) {
                     $claim_count++;
                     $log = "";
-                    $template[] = buildTemplate($patient_id, $encounter, "", "", $log);
+                    $template[] = buildTemplate("", $log, $patient_id, $encounter, "");
                     $hlog .= $log;
                     if ($validatePass) {
                         validate_payer_reset($payer_id_held, $patient_id, $encounter);

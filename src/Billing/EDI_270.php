@@ -853,7 +853,7 @@ MIMEBODY;
         $contentType = $response->header('Content-Type')[0];
         $hContentLength = (int)$response->header('Content-Length')[0];
         $cksum = ($hContentLength - strlen($formBody)) === 0 ? true : false; // validate content size
-        $formData = self::mimeParse($formBody, $contentType);
+        $formData = self::mimeParse($contentType, $formBody);
 
         $errors = '';
         if (!$cksum) {
@@ -875,7 +875,7 @@ MIMEBODY;
         return $x12_271;
     }
 
-    public static function mimeParse($formBody = '', $contentType)
+    public static function mimeParse(contentType, $formBody = '')
     {
         $mimeBody = preg_replace('~\r\n?~', "\r", $formBody);
         list($contentType, $bound, $cs) = explode(";", trim($contentType)); // $contentType & $cs are throwaways

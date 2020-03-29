@@ -38,7 +38,7 @@ function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp)
 }
 
 //This function was copied from BillingUtilities class and altered to support 'justify'
-function addBilling2($encounter, $code_type, $code, $code_text, $modifier = "", $units = "", $fee = "0.00", $justify)
+function addBilling2($encounter, $code_type, $code, $code_text, $justify, $modifier = "", $units = "", $fee = "0.00")
 {
     $justify_string = '';
     if ($justify) {
@@ -173,8 +173,8 @@ function process_commands(&$string_to_process, &$camos_return_data)
                 $fee = sprintf("%01.2f", '0.00');
             }
 
-            //in function call 'addBilling' note last param is the remainder of the array.  we will look for justifications here...
-            addBilling2($encounter, $type, $code, $text, $modifier, $units, $fee, $comm_array);
+            //in function call 'addBilling' note: fifth param is the remainder of the array.  we will look for justifications here...
+            addBilling2($encounter, $type, $code, $text, $comm_array, $modifier, $units, $fee);
         }
 
         if (trim($comm_array[0])== 'appt') {

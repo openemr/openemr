@@ -35,11 +35,11 @@ if (isset($mode)) {
 
     if ($mode == "add") {
         if (strtolower($type) == "copay") {
-            BillingUtilities::addBilling($encounter, $type, sprintf("%01.2f", $code), $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", 0 - $code));
+            BillingUtilities::addBilling($encounter, $type, sprintf("%01.2f", $code), $text, $pid, $_SESSION['authUserID'], $userauthorized, $modifier, $units, sprintf("%01.2f", 0 - $code));
         } elseif (strtolower($type) == "other") {
-            BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", $fee));
+            BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $_SESSION['authUserID'], $userauthorized, $modifier, $units, sprintf("%01.2f", $fee));
         } else {
-            BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, $fee);
+            BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $_SESSION['authUserID'], $userauthorized, $modifier, $units, $fee);
         }
     }
 }

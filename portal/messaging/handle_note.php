@@ -58,13 +58,13 @@ switch ($task) {
         break;
     case "add":
         // each user has their own copy of message
-        sendMail($owner, $note, $title, $header, $noteid, $sid, $sn, $rid, $rn, 'New');
-        sendMail($rid, $note, $title, $header, $noteid, $sid, $sn, $rid, $rn, 'New', $reply_noteid);
+        sendMail($owner, $note, $header, $noteid, $sid, $sn, $rid, $rn, $title, 'New');
+        sendMail($rid, $note, $header, $noteid, $sid, $sn, $rid, $rn, $title, 'New', $reply_noteid);
         echo 'ok';
         break;
     case "reply":
-        sendMail($owner, $note, $title, $header, $noteid, $sid, $sn, $rid, $rn, 'Reply', '');
-        sendMail($rid, $note, $title, $header, $noteid, $sid, $sn, $rid, $rn, 'New', $reply_noteid);
+        sendMail($owner, $note, $header, $noteid, $sid, $sn, $rid, $rn, $title, 'Reply', '');
+        sendMail($rid, $note, $header, $noteid, $sid, $sn, $rid, $rn, $title, 'New', $reply_noteid);
         echo 'ok';
         break;
     case "delete":

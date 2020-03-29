@@ -793,7 +793,7 @@ if ($_REQUEST["mode"] == "new") {
                 $item["fee"] = $res["pr_price"];
             }
             $item["justify"] .= ":";
-            BillingUtilities::addBilling($encounter, $item["codetype"], $item["code"], $item["codedesc"], $pid, '1', $providerID, $item["modifier"], $item["units"], $item["fee"], $ndc_info, $item["justify"], $billed, '');
+            BillingUtilities::addBilling($encounter, $item["codetype"], $item["code"], $item["codedesc"], $pid, $providerID, '1', $item["modifier"], $item["units"], $item["fee"], $ndc_info, $item["justify"], $billed, '');
         }
         echo "OK";
         exit;
