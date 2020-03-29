@@ -14,6 +14,7 @@ namespace OpenEMR\RestControllers;
 
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\FhirResourcesService;
+use OpenEMR\Services\FhirValidationService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 
@@ -27,10 +28,15 @@ class FhirPatientRestController
         $this->patientService = new PatientService();
         $this->patientService->setPid($pid);
         $this->fhirService = new FhirResourcesService();
+        $this->fhirValidate = new FhirValidationService();
     }
 
     public function post($fhirJson)
     {
+        $fhirValidate = $this->fhirValidate->validate($fhirJson);
+        if (!empty($fhirValidate)) {
+            return RestControllerHelper::responseHandler($fhirValidate, null, 404);
+        }
         $data = $this->fhirService->parsePatientResource($fhirJson);
 
         $validationResult = $this->patientService->validate($data);
@@ -45,6 +51,10 @@ class FhirPatientRestController
 
     public function put($pid, $fhirJson)
     {
+        $fhirValidate = $this->fhirValidate->validate($fhirJson);
+        if (!empty($fhirValidate)) {
+            return RestControllerHelper::responseHandler($fhirValidate, null, 404);
+        }
         $data = $this->fhirService->parsePatientResource($fhirJson);
 
         $validationResult = $this->patientService->validate($data);
@@ -66,7 +76,12 @@ class FhirPatientRestController
             $statusCode = 200;
         } else {
             $statusCode = 404;
-            $resource = $this->fhirService->createUnknownResource($pid, false);
+            $resource = $this->fhirValidate->operationOutcomeResourceService(
+                'error',
+                'invalid',
+                false,
+                "Resource Id $pid does not exist"
+            );
         }
 
         return RestControllerHelper::responseHandler($resource, null, $statusCode);

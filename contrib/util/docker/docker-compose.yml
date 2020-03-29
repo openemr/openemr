@@ -382,9 +382,6 @@ services:
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-3-redis/php.ini:/usr/local/etc/php/php.ini:ro
-  redis:
-    restart: always
-    image: redis
   dev-php-fpm-7-4-redis:
     restart: always
     image: openemr/dev-php-fpm:7.4-redis

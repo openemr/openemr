@@ -8,7 +8,6 @@
     "build": "gulp -b",
     "dev-build": "npm run gulp-build",
     "dev": "gulp --dev && gulp watch",
-    "dev-sync": "gulp --dev --sync-only --p 80",
     "gulp-build": "gulp -b --dev",
     "gulp-watch": "gulp watch",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,7 +18,6 @@
   "author": "d3sandoval",
   "license": "GNU GPL",
   "devDependencies": {
-    "browser-sync": "^2.26.7",
     "del": "^5.1.0",
     "glob": "^7.1.6",
     "gulp": "^4.0.2",

@@ -26,6 +26,8 @@
     </properties>
   </rule>
 
+  <exclude-pattern>*/sites/default/sqlconf.php</exclude-pattern>
+  <exclude-pattern>*/sites/default/documents/*</exclude-pattern>
   <exclude-pattern>*/vendor/*</exclude-pattern>
   <exclude-pattern>*/node_modules/*</exclude-pattern>
   <exclude-pattern>*/public/assets/*</exclude-pattern>
