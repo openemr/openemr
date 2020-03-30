@@ -28,29 +28,7 @@ class OrganizationService
     }
     
     public function getAll()
-    {
-        
-        $pharmacySQL = "SELECT pharmacies.id,
-                        name,
-                        email,
-                        city,
-                        state,
-                        zip as postal_code,
-                        country,
-                        line1,
-                        line2
-                    FROM pharmacies left
-                    JOIN addresses ON pharmacies.id = addresses.id; ";
-        
-        $pharmacyResults = sqlStatement($pharmacySQL);
-        $results         = array();
-        while ($row = sqlFetchArray($pharmacyResults)) {
-            $row['id']      = 'pharmacy-' . $row['id'];
-            $row['code']    = 'pharm';
-            $row['display'] = "Pharmacy";
-            array_push($results, $row);
-        }
-        
+    {      
         $facilitySQL     = "SELECT id,
                             name,
                             phone,
@@ -63,20 +41,20 @@ class OrganizationService
                         FROM facility;";
         $facilityResults = sqlStatement($facilitySQL);
         while ($row = sqlFetchArray($facilityResults)) {
-            $row['id']      = 'facility-' . $row['id'];
-            $row['code']    = 'prov';
+            $row['id'] = 'facility-' . $row['id'];
+            $row['code'] = 'prov';
             $row['display'] = "Healthcare Provider";
             array_push($results, $row);
         }
         return $results;
     }
     
-    public function createOrganizationresource($oid = '', $data = '', $encode = true, $code = '', $display = '')
+    public function createOrganizationResource($oid = '', $data = '', $encode = true, $code = '', $display = '')
     {
         $id = new FhirId();
         $id->setValue($oid);
         $nowDate = date("Y-m-d\TH:i:s");
-        $meta    = new FHIRMeta();
+        $meta = new FHIRMeta();
         $meta->setVersionId('1');
         $meta->setLastUpdated($nowDate);
         $initResource = array(
@@ -85,7 +63,7 @@ class OrganizationService
         );
         
         $initResource['active'] = true;
-        $address                = new FHIRAddress();
+        $address = new FHIRAddress();
         $address->addLine($data['line1'] . ' ' . $data['line2']);
         $address->setCity($data['city']);
         $address->setState($data['state']);
@@ -94,18 +72,18 @@ class OrganizationService
         $initResource['address'] = array();
         array_push($initResource['address'], $address->jsonSerialize());
         $initResource['name'] = $data['name'];
-        $coding               = new FHIRCoding();
+        $coding = new FHIRCoding();
         $coding->setSystem("http://terminology.hl7.org/CodeSystem/organization-type");
         $coding->setCode($code);
         $coding->setDisplay($display);
         $initResource['type'] = array();
         array_push($initResource['type'], $coding->jsonSerialize());
         $initResource['telecom'] = array();
-        $email                   = array(
+        $email = array(
             'system' => 'email',
             'value' => $data["email"]
         );
-        $phone                   = array(
+        $phone = array(
             'system' => 'phone',
             'value' => $data['phone']
         );
