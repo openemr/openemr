@@ -60,7 +60,8 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] !
         "mail_zip" => trim(isset($_POST["mail_zip"]) ? $_POST["mail_zip"] : ''),
         "oid" => trim(isset($_POST["oid"]) ? $_POST["oid"] : ''),
         "iban" => trim(isset($_POST["iban"]) ? $_POST["iban"] : ''),
-        "info" => trim(isset($_POST["info"]) ? $_POST["info"] : '')
+        "info" => trim(isset($_POST["info"]) ? $_POST["info"] : ''),
+        "weno_id" => trim(isset($_POST["weno_id"]) ? $_POST["weno_id"] : '')
     );
 
     $insert_id = $facilityService->insert($newFacility);
@@ -177,6 +178,7 @@ $(function () {
                                 <th><?php echo xlt('Billing Address'); ?></th>
                                 <th><?php echo xlt('Mailing Address'); ?></th>
                                 <th><?php echo xlt('Phone'); ?></th>
+                                <th><?php echo xlt('Weno ID'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -227,6 +229,7 @@ $(function () {
                                  <td valign="top" class="text"><?php echo text($varstreet.$varcity.$varstate.$iter3["country_code"]." ".$iter3["postal_code"]); ?>&nbsp;</td>
                                  <td valign="top" class="text"><?php echo text($varmstreet.$varmcity.$varmstate.$iter3['mail_zip']); ?></td>
                                  <td><?php echo text($iter3["phone"]);?>&nbsp;</td>
+                                 <td><?php echo text($iter3["weno_id"]);?>&nbsp;</td>
                             </tr>
                                     <?php
                                 }

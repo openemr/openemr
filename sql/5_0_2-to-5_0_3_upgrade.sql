@@ -89,6 +89,10 @@
 ALTER TABLE `facility` ADD `iban` varchar(50) default NULL;
 #EndIf
 
+#IfMissingColumn facility weno_id
+ALTER TABLE `facility` ADD `weno_id` int(6) default NULL;
+#EndIf
+
 #IfNotRow2D list_options list_id apps option_id oeSignerRemote
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','oeSignerRemote','./../portal/sign/assets/signit.php',30,0,0);
 #EndIf

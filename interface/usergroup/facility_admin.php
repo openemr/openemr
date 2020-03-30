@@ -203,6 +203,14 @@ if (isset($_GET["fid"])) {
                     </div>
                     <div class="form-row my-2">
                         <div class="col-2">
+                            <label for="weno_id" class='col-form-label col-form-label-sm'><?php echo xlt('Weno ID'); ?>:</label>
+                        </div>
+                        <div class="col">
+                            <input type="entry" class="form-controlform-control-sm" size="20" name="weno_id" value="<?php echo attr($facility["weno_id"]); ?>">
+                        </div>
+                    </div>
+                    <div class="form-row my-2">
+                        <div class="col-2">
                             <label for='iban' class='col-form-label col-form-label-sm'><?php echo xlt('IBAN'); ?>: </label>
                         </div>
                         <div class="col">

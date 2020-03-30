@@ -67,7 +67,7 @@ class NewRx
         $to = $mHeader->addChild('To', $pai['ncpdp']);
         $to->addAttribute('Qualifier', 'P');
         $from = $mHeader->addChild('From', $scriptPrescriber[0]['weno_prov_id']);
-        $from->addAttribute('Qualifier', 'C');
+        $from->addAttribute('Qualifier', 'D');
         $mHeader->addChild('MessageID', 'jse'.$messageid);
         $mHeader->addChild('SentTime', gmdate('Y-m-d\TH:i:s.u'));
 
@@ -77,7 +77,7 @@ class NewRx
         $pass = $username->addChild('Password', $partnerID);
         $pass->addAttribute('Type', 'PasswordDigest');
         $sender = $security->addChild('Sender');
-        $sender->addChild('SecondaryIdentification', 'sherwin@openmedpractice.com');
+        $sender->addChild('SecondaryIdentification', $scriptPrescriber[0]['email']);
 
         $software = $mHeader->addChild('SenderSoftware');
         $software->addChild('SenderSoftwareDeveloper', 'Sherwin Gaddis');

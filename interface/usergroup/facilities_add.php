@@ -302,6 +302,10 @@ function displayAlert() {
                         <input class="form-control" type="entry" size="20" name="facility_npi" value="" />
                     </div>
                     <div class="form-group">
+                        <label for="weno_id"><?php echo xlt('Weno ID'); ?>:</label>
+                        <input class="form-control" type="entry" size="20" name="weno_id" value="" />
+                    </div>
+                    <div class="form-group">
                         <label for="facility_taxonomy"><?php echo xlt('Facility Taxonomy'); ?>:</label>
                         <input class="form-control" type="entry" size="20" name="facility_taxonomy" value="" />
                     </div>
