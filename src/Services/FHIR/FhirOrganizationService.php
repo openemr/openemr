@@ -28,8 +28,8 @@ class FhirOrganizationService
     }
     
     public function getAll()
-    {
-        $facilitySQL = "SELECT id,
+    {      
+        $facilitySQL     = "SELECT id,
                             name,
                             phone,
                             street,
