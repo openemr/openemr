@@ -747,7 +747,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                 $reminder_interval_type = "clinical_reminder";
             }
 
-            $target_dates = calculate_reminder_dates($rowRule['id'], $dateTarget, $reminder_interval_type);
+            $target_dates = calculate_reminder_dates($rowRule['id'], $reminder_interval_type, $dateTarget);
         } else { // $mode == "report"
             // Only use the target date in the report
             $target_dates[0] = $dateTarget;
@@ -1699,7 +1699,7 @@ function database_check($patient_id, $filter, $interval = '', $dateTarget = '')
         if ($temp_df[0] == "CUSTOM") {
             // Row description
             //   [0]=>special modes(CUSTOM) [1]=>category [2]=>item [3]=>complete? [4]=>number of hits comparison [5]=>number of hits
-            if (exist_custom_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $intervalType, $intervalValue, $dateTarget)) {
+            if (exist_custom_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $dateTarget, $intervalType, $intervalValue)) {
                 // Record the match
                 $isMatch = true;
             } else {
@@ -2086,7 +2086,7 @@ function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp
  * @param  string   $dateTarget       target date(format Y-m-d H:i:s).
  * @return boolean                    true if check passed, otherwise false
  */
-function exist_custom_item($patient_id, $category, $item, $complete, $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget)
+function exist_custom_item($patient_id, $category, $item, $complete, $num_items_comp, $num_items_thres, $dateTarget, $intervalType = '', $intervalValue = '')
 {
 
   // Set the table
@@ -2442,7 +2442,7 @@ function is_duplicate_action($actions, $action)
  * @param  string  $type        either 'patient_reminder' or 'clinical_reminder'
  * @return array                see above for description of returned array
  */
-function calculate_reminder_dates($rule, $dateTarget = '', $type)
+function calculate_reminder_dates($rule, $type, $dateTarget = '')
 {
 
   // Set date to current if not set
