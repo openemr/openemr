@@ -6,7 +6,9 @@
  * @subpackage COVID19 Forms
  * @link      http://www.open-emr.org
  * @author    Robert Down
- * @copyright Copyright (c) 2020 Robert Down <rboertdown@live.com>
+ * @author    Piyush Jha
+ * @copyright Copyright (c) 2020 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2020 Piyush Jha <piyushjha8164@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
