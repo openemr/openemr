@@ -13,7 +13,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleLink;
 use OpenEMR\FHIR\R4\PHPFHIRResponseParser;
 
-class OrganizationService
+class FhirOrganizationService
 {
     
     private $id;
@@ -39,7 +39,9 @@ class OrganizationService
                             country_code as country,
                             email
                         FROM facility;";
+
         $facilityResults = sqlStatement($facilitySQL);
+		$results = array();
         while ($row = sqlFetchArray($facilityResults)) {
             $row['id'] = 'facility-' . $row['id'];
             $row['code'] = 'prov';
@@ -48,6 +50,17 @@ class OrganizationService
         }
         return $results;
     }
+	
+	public function getOne($oid)
+	{
+        $facilitySQL = "SELECT id, name, phone, street, city, state, postal_code, country_code as country, email FROM facility WHERE id = ?";
+
+        $result = sqlQuery($facilitySQL, $oid);
+		$result['id'] = 'facility-' . $result['id'];
+		$result['code'] = 'prov';
+		$result['display'] = "Healthcare Provider";
+        return $result;		
+	}
     
     public function createOrganizationResource($oid = '', $data = '', $encode = true, $code = '', $display = '')
     {
