@@ -159,7 +159,7 @@ function row_delete($table, $where)
                     }
                 }
                 if ((cPay !== 0) && isNaN(parseFloat(f[pfx + '[pay]'].value))) {
-                    let message = `Payment value for code ${code} is not a number`;
+                    let message = <?php echo xlj('Payment value for code') ?> + " " + code + " " + <?php echo xlj('is not a number') ?>;
                     (async (message, time) => {
                         await asyncAlertMsg(message, time, 'danger', 'lg');
                     })(message, 3000)
@@ -167,7 +167,7 @@ function row_delete($table, $where)
                     return false;
                 }
                 if ((cAdjust !== 0) && isNaN(parseFloat(f[pfx + '[adj]'].value))) {
-                    let message = `Adjustment value for code ${code} is not a number`;
+                    let message = <?php echo xlj('Adjustment value for code') ?> + " " + code  + " " <?php echo xlj('is not a number') ?>;
                     (async (message, time) => {
                         await asyncAlertMsg(message, time, 'danger', 'lg');
                     })(message, 3000)
@@ -175,7 +175,7 @@ function row_delete($table, $where)
                     return false;
                 }
                 if ((cAdjust !== 0) && !f[pfx + '[reason]'].value && !adjDisable) {
-                    let message = `Please select an adjustment reason for code ${code}`;
+                    let message = <?php echo xlj('Please select an adjustment reason for code') ?> + " " + code;
                     (async (message, time) => {
                         await asyncAlertMsg(message, time, 'danger', 'lg');
                     })(message, 3000)
@@ -186,7 +186,7 @@ function row_delete($table, $where)
             }
             // Check if save is clicked with nothing to post.
             if (allempty && delcount === 0) {
-                let message = 'Nothing to Post! Please review entries or use Cancel to exit transaction';
+                let message = <?php echo xlj('Nothing to Post! Please review entries or use Cancel to exit transaction') ?>;
                 (async (message, time) => {
                     await asyncAlertMsg(message, time, 'danger', 'lg');
                 })(message, 3000)
