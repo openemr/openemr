@@ -23,7 +23,7 @@ table td, table th { padding: 9px 10px; text-align: left; vertical-align: middle
 	table.responsive { margin-bottom: 0; }
 	
 	.pinned { position: absolute; left: 0; top: 0; background: #fff; width: 35%; overflow: hidden; overflow-x: scroll; border-right: 1px solid #ccc; border-left: 1px solid #ccc; }
-	.pinned table { border-right: none; border-left: none; width: 100%; }
+	.pinned table { border: none; width: 100%; }
 	.pinned table th, .pinned table td { white-space: nowrap; }
 	.pinned td:last-child { border-bottom: 0; }
 	
