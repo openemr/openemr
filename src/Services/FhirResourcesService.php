@@ -132,7 +132,7 @@ class FhirResourcesService
         }
     }
 
- public function createEncounterResource($eid = '', $data = '', $encode = true)
+    public function createEncounterResource($eid = '', $data = '', $encode = true)
     {
         $pid = $data['pid'];
         //$temp = $data['provider_id'];
