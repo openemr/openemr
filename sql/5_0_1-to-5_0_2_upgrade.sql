@@ -705,10 +705,6 @@ ALTER TABLE `facility` ADD `mail_zip` VARCHAR(10) default NULL;
 ALTER TABLE `facility` ADD `oid` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'HIEs CCDA and FHIR an OID is required/wanted';
 #EndIf
 
-#IfMissingColumn facility weno_id
-ALTER TABLE `facility` ADD `weno_id` int(e) default NULL;
-#EndIf
-
 #IfNotTable keys
 CREATE TABLE `keys` (
   `id` bigint(20) NOT NULL auto_increment,
