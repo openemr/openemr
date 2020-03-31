@@ -1,7 +1,7 @@
-$(document).mouseup(function (e){
-	var container   = $(".se_in_15");
-	var calendar    = $(".ui-datepicker");
-	var buttons     = $(".search_button");
+$(document).mouseup(function (let e){
+	let container   = $(".se_in_15");
+	let calendar    = $(".ui-datepicker");
+	let buttons     = $(".search_button");
 	if(!container.is(e.target) && container.has(e.target).length === 0 && !buttons.is(e.target) && calendar.has(e.target).length === 0 )
 	{
 		$(".se_in_15").css("display","none");
@@ -16,7 +16,7 @@ $(function () {
 	$( ".dateClass_syndrome" ).datepicker("option", "dayNamesMin", ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'] );
 
 	$('.header_wrap_left').on("click","#searchbutton",function(){
-		var pos  = $(this).position();
+		let pos  = $(this).position();
 		$('.se_in_15').fadeToggle().css({
 			"left" : (pos.left+5)+"px",
 			"top"  : (pos.top+35)+"px"
@@ -36,8 +36,8 @@ function validate_search()
 
 function hl7button()
 {
-	var resultTranslated = js_xl("This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?");
-	var status = confirm(resultTranslated.msg);
+	let resultTranslated = js_xl("This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?");
+	let status = confirm(resultTranslated.msg);
 	if (status) {
 		document.getElementById('download_hl7').value = 1;
 		document.theform.submit();
@@ -52,20 +52,21 @@ function clearCount()
 	return true;
 }
 
-function isNumber(evt)
+function isNumber(let evt)
 {
         evt = (evt) ? evt : window.event;
-	var charCode = (evt.which) ? evt.which : evt.keyCode;
+	let charCode = (evt.which) ? evt.which : evt.keyCode;
 	if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode!= 13) {
 	    return false;
 	}
 	return true;
 }
 
-function pagination(action){
+function pagination(let action){
 	if(action == "first") {
 		document.getElementById('form_current_page').value=1
-	}else if (action == "last") {
+	}
+    else if (action == "last") {
 		document.getElementById('form_current_page').value=document.getElementById('form_total_pages').value;
 	}
 	else if (action == "next") {
