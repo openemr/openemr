@@ -23,19 +23,24 @@ if (isset($_SESSION['viewtype'])) {
 $pcuStr = "pc_username=" . attr_url($_SESSION['authUser']);
 if (isset($_SESSION['pc_username'])) {
     $pcuStr = "";
-    if (!empty($_SESSION['pc_username']) && is_array($_SESSION['pc_username']) && count($_SESSION['pc_username']) > 1) {
+    if (!empty($_SESSION['pc_username']) && is_array($_SESSION['pc_username']) && count($_SESSION['pc_username']) > 1)
+      {
         // loop over the array of values in pc_username to build
         // a list of pc_username HTTP vars
         foreach ($_SESSION['pc_username'] as $pcu) {
             $pcuStr .= "&pc_username[]=" . attr_url($pcu);
         }
-    } else {
+    }
+else {
         // two possibilities here
         // 1) pc_username is an array with a single element
         // 2) pc_username is just a string, not an array
-        if (is_string($_SESSION['pc_username'])) {
+        if (is_string($_SESSION['pc_username']))
+        {
             $pcuStr .= "&pc_username[]=" . attr_url($_SESSION['pc_username']);
-        } else {
+        }
+        else 
+        {
             $pcuStr .= "&pc_username[]=" . attr_url($_SESSION['pc_username'][0]);
         }
     }
@@ -44,9 +49,11 @@ if (isset($_SESSION['pc_username'])) {
 // different frame source page depending on session vars
 if ($_SESSION['userauthorized'] && $GLOBALS['docs_see_entire_calendar']) {
     $framesrc = "calendar/index.php?module=PostCalendar&viewtype=" . attr_url($viewtype) . "&func=view";
-} elseif ($_SESSION['userauthorized']) {
+}
+elseif ($_SESSION['userauthorized']) {
     $framesrc = "calendar/index.php?module=PostCalendar&viewtype=" . attr_url($viewtype) . "&func=view&" . $pcuStr;
-} else {
+} 
+else {
     $framesrc = "calendar/index.php?module=PostCalendar&func=view&viewtype=" . attr_url($viewtype);
 }
 
