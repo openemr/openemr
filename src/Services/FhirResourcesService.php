@@ -186,7 +186,7 @@ class FhirResourcesService
             }
         }
         $data["phone_contact"] = $phone["value"];
-        $data["dob"] = $fhirJson["birthDate"];
+        $data["DOB"] = $fhirJson["birthDate"];
         $data["sex"] = $fhirJson["gender"];
         $data["race"] = "";
         $data["ethnicity"] = "";

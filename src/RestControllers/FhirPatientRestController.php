@@ -96,7 +96,7 @@ class FhirPatientRestController
 
         $searchParam = array(
             'name' => $search['name'],
-            'dob' => $search['birthdate'],
+            'DOB' => $search['birthdate'],
             'city' => $search['address-city'],
             'state' => $search['address-state'],
             'postal_code' => $search['address-postalcode'],
