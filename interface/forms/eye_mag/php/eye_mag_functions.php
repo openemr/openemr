@@ -2954,7 +2954,7 @@ function display_QP($zone, $provider_id)
     ?>
       <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_QP_<?php echo attr($zone)."_".attr($provider_id); ?>','QP Editor');"
       title="<?php echo xla('Click here to Edit this Doctor\'s Quick Pick list'); ?>"
-      name="provider_todo" style="color:black;font-weight:600;"><i class="closeButton float-right fa fa-pencil fa-fw"></i> </a>
+      name="provider_todo" style="color:black;font-weight:600;"><i class="closeButton float-right fa fa-pencil-alt fa-fw"></i> </a>
         <?php
         $QP_panel = ob_get_contents();
         ob_end_clean();
@@ -3863,7 +3863,7 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                                 name="provider_todo">
                                 <i class="fa fa-angle-double-up tabHide" title="<?php echo xla('Opens in Top frame'); ?>"></i> &nbsp;
                                 <?php echo xlt("My Default Values"); ?> &nbsp;
-                                <span class="menu_icon"><i class="fa fa-pencil fa-fw"></i> </span></a></li>
+                                <span class="menu_icon"><i class="fa fa-pencil-alt fa-fw"></i> </span></a></li>
                         </ul>
                     </li>
 
@@ -5807,12 +5807,12 @@ function generate_specRx($W)
                           <td name="W_wide" title="<?php echo xla('Lens Material'); ?>" colspan="2">
                             <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_Lens_Material" target="RTop"
                                   title="<?php echo xla('Click here to edit list of available Lens Materials'); ?>"
-                                  name="Lens_mat"><span class="underline"><?php echo xlt('Lens Material'); ?></span> <i class="fa fa-pencil fa-fw"></i> </a>
+                                  name="Lens_mat"><span class="underline"><?php echo xlt('Lens Material'); ?></span> <i class="fa fa-pencil-alt fa-fw"></i> </a>
                           </td>
                           <td name="W_wide2" colspan="4" rowspan="4">
                             <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_Lens_Treatments" target="RTop"
                                   title="<?php echo xla('Click here to edit list of available Lens Treatment Options'); ?>"
-                                  name="Lens_txs"><span class="underline"><?php echo xlt('Lens Treatments'); ?></span> <i class="fa fa-pencil fa-fw"></i> </a>
+                                  name="Lens_txs"><span class="underline"><?php echo xlt('Lens Treatments'); ?></span> <i class="fa fa-pencil-alt fa-fw"></i> </a>
                             <br />
                             <?php  echo generate_lens_treatments($W, $LENS_TREATMENTS); ?>
                           </td>

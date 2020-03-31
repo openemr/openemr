@@ -239,7 +239,7 @@ if ($popup && $_POST['form_save']) {
 
     // edit/add a node
     function handleNode(id, type, add, lab) {
-        var editTitle = '<i class="fa fa-pencil" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?> + ' ';
+        var editTitle = '<i class="fa fa-pencil-alt" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?> + ' ';
         var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Add Mode"); ?>;
         if (type > 0) {
             type = (type === 1 && !add) ? 'fgp' : 'for';

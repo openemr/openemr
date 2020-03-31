@@ -124,7 +124,7 @@ while ($row = sqlFetchArray($res)) {
     echo "<td class=\"col6\">" . text($level + 1) . "</td>";
     echo "<td class=\"col4\">" . text($row['description']) . "</td>";
     echo "<td class=\"col5\">";
-    echo "<span onclick=\"handleNode(" . attr_js($chid) . "," . attr_js($typeIs) . ",false," . attr_js($thislab) . ")\" class=\"text-body haskids fa fa-pencil fa-lg\" title=".xla("Edit")."></span>";
+    echo "<span onclick=\"handleNode(" . attr_js($chid) . "," . attr_js($typeIs) . ",false," . attr_js($thislab) . ")\" class=\"text-body haskids fa fa-pencil-alt fa-lg\" title=".xla("Edit")."></span>";
     echo "</td>";
     echo "<td class=\"col5\">";
     //if ($isOrder != 'for') {//RP_MODIFIED 2018-08-03 to allow for manual lab entry

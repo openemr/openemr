@@ -186,7 +186,7 @@ if ($refresh and $refresh != 'fullscreen') {
       <meta http-equiv="X-UA-Compatible" content="IE=edge" />
       <meta name="description" content="OpenEMR: Eye Exam" />
       <meta name="author" content="OpenEMR: Ophthalmology" />
-      
+
       <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor' ]); ?>
 
       <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
@@ -1353,12 +1353,12 @@ if ($refresh and $refresh != 'fullscreen') {
                           <td name="W_wide" title="<?php echo xla('Lens Material'); ?>" colspan="2">
                             <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_Lens_Material" target="RTop"
                                   title="<?php echo xla('Click here to edit list of available Lens Materials'); ?>"
-                                  name="Lens_mat"><span class="underline"><?php echo xlt('Lens Material'); ?></span> <i class="fa fa-pencil fa-fw"></i> </a>
+                                  name="Lens_mat"><span class="underline"><?php echo xlt('Lens Material'); ?></span> <i class="fa fa-pencil-alt fa-fw"></i> </a>
                           </td>
                           <td name="W_wide2" colspan="4" rowspan="4">
                             <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_Lens_Treatments" target="RTop"
                                   title="<?php echo xla('Click here to edit list of available Lens Treatment Options'); ?>"
-                                  name="Lens_txs"><span class="underline"><?php echo xlt('Lens Treatments'); ?></span> <i class="fa fa-pencil fa-fw"></i> </a>
+                                  name="Lens_txs"><span class="underline"><?php echo xlt('Lens Treatments'); ?></span> <i class="fa fa-pencil-alt fa-fw"></i> </a>
                             <br />
                             <?php  echo generate_lens_treatments('1', $LENS_TREATMENTS_1); ?>
                           </td>
@@ -1566,15 +1566,15 @@ if ($refresh and $refresh != 'fullscreen') {
                                 <td></td>
                                 <td><a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=CTLManufacturer" target="RTop"
                                   title="<?php echo xla('Click here to Edit the Manufacter List'); ?>"
-                                  name="CTL"><?php echo xlt('Manufacturer'); ?> <i class="fa fa-pencil fa-fw"></i> </a>
+                                  name="CTL"><?php echo xlt('Manufacturer'); ?> <i class="fa fa-pencil-alt fa-fw"></i> </a>
                                 </td>
                                 <td><a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=CTLSupplier" target="RTop"
                                   title="<?php echo xla('Click here to Edit the Supplier List'); ?>"
-                                  name="CTL"><?php echo xlt('Supplier'); ?> <i class="fa fa-pencil fa-fw"></i> </a>
+                                  name="CTL"><?php echo xlt('Supplier'); ?> <i class="fa fa-pencil-alt fa-fw"></i> </a>
                                 </td>
                                 <td><a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=CTLBrand" target="RTop"
                                   title="<?php echo xla('Click here to Edit the Contact Lens Brand List'); ?>"
-                                  name="CTL"><?php echo xlt('Brand'); ?> <i class="fa fa-pencil fa-fw"></i> </a>
+                                  name="CTL"><?php echo xlt('Brand'); ?> <i class="fa fa-pencil-alt fa-fw"></i> </a>
                                 </td>
                               </tr>
                               <tr>
@@ -3564,7 +3564,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                   <b><u><?php echo xlt('Tests Performed'); ?>:</u></b>&nbsp;
                                                   <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_todo_done_<?php echo attr($provider_id); ?>" target="RTop"
                                                      title="<?php echo xla('Click here to Edit this Doctor\'s Plan options').". \n". xlt('Only entries with a Code are billable').". "; ?>"
-                                                     name="provider_testing_codes" style="color:black;font-weight:600;"><i class="fa fa-pencil fa-fw"></i> </a>
+                                                     name="provider_testing_codes" style="color:black;font-weight:600;"><i class="fa fa-pencil-alt fa-fw"></i> </a>
                                               </td>
                                           </tr>
                                           <tr>
@@ -3711,7 +3711,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                   <span><?php echo xlt('Next Visit Orders'); ?></span>
                                   <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_todo_done_<?php echo attr($provider_id); ?>" target="RTop"
                                      title="<?php echo xla('Click here to Edit this Doctor\'s Plan options'); ?>"
-                                     name="provider_todo" style="color:black;font-weight:600;"><i class="fa fa-pencil fa-fw"></i> </a>
+                                     name="provider_todo" style="color:black;font-weight:600;"><i class="fa fa-pencil-alt fa-fw"></i> </a>
                               </dt>
                               <dd>
                                   <table>
