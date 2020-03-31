@@ -133,8 +133,12 @@ if (!$isLocalApi) {
     $gbl::authentication_check($resource);
 }
 // dispatch $routes called by ref.
-HttpRestRouteHandler::dispatch($routes, $resource, $_SERVER["REQUEST_METHOD"]);
+$hasRoute = HttpRestRouteHandler::dispatch($routes, $resource, $_SERVER["REQUEST_METHOD"]);
 // Tear down session for security.
 if (!$isLocalApi) {
     $gbl::destroySession();
+}
+// prevent 200 if route doesn't exist
+if (!$hasRoute) {
+    http_response_code(404);
 }
