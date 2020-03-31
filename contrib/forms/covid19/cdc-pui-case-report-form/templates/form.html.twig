@@ -21,8 +21,10 @@
 </div>
 
 <form action="{{ formAction }}" method="post" class="container">
+    <!-----START BASIC INFORMATION -->
     <fieldset class="pl-1">
         <legend>Basic Information</legend>
+        <!-- BASIC INFORMATION ROW 1 -->
         <div class="form-group row">
             <div class="col-4">
                 <div class="form-group row">
@@ -57,19 +59,21 @@
                     <div class="col-8">
                         {% for value, display in race %}
                             <div class="form-check">
-                                <input type="checkbox" class="form-check-input" value="1" id="{{ value }}">
+                                <input type="checkbox" name="{{ value }}" class="form-check-input" value="1" id="{{ value }}">
                                 <label for="{{ value }}" class="form-check-label">{{ display }}</label>
                             </div>
                         {% endfor %}
                     </div>
+                    <label for="race_spec" class="col-6 col-form-label text-right pt-1">Other specified race: </label>
+                    <input type="text" class="text col-6 form-control" name="race_spec" id="race_spec">
                 </div>
                 <div class="form-group row">
                     <label for="res_county" class="col-6 col-form-label text-right pt-2">County of Residence</label>
-                    <input type="text" class="text col-6 form-control" id="res_county">
+                    <input type="text" class="text col-6 form-control" name="res_country" id="res_county">
                 </div>
                 <div class="form-group row">
                     <label for="res_state" class="col-6 col-form-label text-right pt-2">State of Residence</label>
-                    <input type="text" id="res_state" class="col-6 form-control" value="">
+                    <input type="text" id="res_state" name="res_state" class="col-6 form-control" value="">
                 </div>
                 <div class="row">
                     <div class="col-12">
@@ -80,20 +84,817 @@
             <div class="col-4">
                 <div class="form-group row">
                     <label for="pui_cdcreport_dt" class="col-7 col-form-label text-right">Report date of PUI to CDC</label>
-                    <input type="date" id="case_cdcreport_dt" class="col-5 form-control" value="">
+                    <input type="date" id="pui_cdcreport_dt" name="pui_cdcreport_dt" class="col-5 form-control" value="">
                 </div>
                 <div class="form-group row">
                     <label for="case_cdcreport_dt" class="col-7 col-form-label pt-1 text-right">Report date of case to CDC</label>
-                    <input type="date" id="case_cdcreport_dt" class="col-5 form-control" value="">
+                    <input type="date" id="case_cdcreport_dt" name="case_cdcreport_dt" class="col-5 form-control" value="">
+                </div>
+                <div class="form-group row">
+                    <label for="dob" class="col-7 col-form-label text-right">Date of Birth</label>
+                    <input type="date" name="dob" id="dob" class="col-5 form-control" value="">
+                </div>
+                <div class="form-group row">
+                    <label for="age" class="col-7 col-form-label pt-1 text-right">Age</label>
+                    <input type="number" id="age" name="age" class="col-5 form-control" value="">
+                </div>
+                <div class="form-group row">
+                    <label for="ageunit" class="col-7 col-form-label pt-1 text-right">Age Units</label>
+                    <select name="ageunit" id="ageunit" class="col-5 form-control">
+                        <option></option>
+                        {% for value, display in ageunit %}
+                            <option value="{{ value }}">{{ display }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group row">
+                        <label for="pos_spec_dt" class="col-7 col-form-label text-right">Date of first positive specimen
+                            collection: </label>
+                        <input type="date" id="pos_spec_dt" name="pos_spec_dt" class="col-5 form-control" value="">
+                            <div class="form-group row">
+                                    <label for="pos_spec_unk" class="col-7 col-form-label text-right">Date Unknown</label>
+                                    <input type="checkbox" name="pos_spec_unk" id="pos_spec_unk">
+                                    <label for="pos_spec_na" class="col-4 col-form-label text-right">Date not applicable</label>
+                                    <input type="checkbox" name="pos_spec_na" id="pos_spec_na">
+                            </div>
                 </div>
             </div>
-
             <div class="col-4">
-
-
+               
+                <div class="form-group row">
+                        <label for="pna_yn" class="col-7 col-form-label pt-1 text-right">Did the patient develop pneumonia?</label>
+                        <select name="pna_yn" id="pna_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                </div>
+                <div class="form-group row">
+                        <label for="acuterespdistress_yn" class="col-7 col-form-label pt-1 text-right">Did the patient have acute
+                                respiratory distress syndrome?</label>
+                        <select name="acuterespdistress_yn" id="acuterespdistress_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                </div>
+                <div class="form-group row">
+                        <label for="diagother" class="col-7 col-form-label pt-1 text-right">Did the patient have another
+                                diagnosis/etiology for their illness?
+                                </label>
+                        <select name="diagother" id="diagother" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                </div>
+                <div class="form-group row">
+                        <label for="abxchest_yn" class="col-7 col-form-label pt-1 text-right">Did the patient have an abnormal
+                                chest X-ray?</label>
+                        <select name="abxchest_yn" id="abxchest_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                </div>
             </div>
         </div>
+     
+         <!-- BASIC INFORMATION ROW 2 -->
+        <div class="form-group row">
+            <div class="col-4">
+                    <div class="form-group row">
+                            <label for="sympstatus" class="col-7 col-form-label pt-1 text-right">Symptoms present
+                                    during course of illness:</label>
+                            <select name="sympstatus" id="sympstatus" class="col-5 form-control">
+                                <option></option>
+                                {% for value, display in sympstatus %}
+                                    <option value="{{ value }}">{{ display }}</option>
+                                {% endfor %}
+                            </select>
+                    </div>
+                    <div class="form-group row">
+                            <label for="onset_dt" class="col-7 col-form-label text-right">If symptomatic, onset date:</label>
+                            <input type="date" id="onset_dt" name="onset_dt" class="col-5 form-control" value="">
+                                <div class="checkbox">
+                                        <label for="onset_unk" class="col-7 col-form-label text-right">Date Unknown</label>
+                                        <input type="checkbox" name="onset_unk" id="onset_unk">
+                                </div>
+                    </div>
+                    <div class="form-group row">
+                            <label for="symp_res_dt" class="col-7 col-form-label text-right">If symptomatic, date of symptom resolution:</label>
+                            <input type="date" id="symp_res_dt" name="symp_res_dt" class="col-5 form-control" value="">
+                                <div class="form-group row">
+                                        <label for="symp_res_yn" class="col-7 col-form-label text-right"> State of resolution</label>
+                                        <select name="symp_res_yn" id="symp_res_yn" class="col-5 form-control">
+                                                <option></option>
+                                                {% for value, display in symp_res_yn %}
+                                                    <option value="{{ value }}">{{ display }}</option>
+                                                {% endfor %}
+                                            </select>
+                                </div>
+                    </div>
+                </div>   
+                <div class="col-4">
+                        <div class="form-group row">
+                                <label for="hosp_yn" class="col-7 col-form-label text-right">Was the patient hospitalized?</label>
+                                <select name="hosp_yn" id="hosp_yn" class="col-5 form-control">
+                                        <option></option>
+                                        {% for value, display in yn %}
+                                            <option value="{{ value }}">{{ display }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="form-group row">
+                                            <label for="adm1_dt" class="col-7 col-form-label text-right">If yes, admission date 1</label>
+                                            <input type="date" name="adm1_dt" id="adm1_dt" class="col-5 form-control" value="">
+                                    </div>
+                                    <div class="form-group row">
+                                            <label for="dis1_dt" class="col-7 col-form-label text-right">If yes, discharge date 1 </label>
+                                            <input type="date" name="dis1_dt" id="dis1_dt" class="col-5 form-control" value="">
+                                    </div>
+                        </div> 
+                        <div class="form-group row">
+                                <label for="icu_yn" class="col-7 col-form-label pt-1 text-right">Was the patient admitted to an intensive
+                                        care unit (ICU)?</label>
+                                <select name="icu_yn" id="icu_yn" class="col-5 form-control">
+                                    <option></option>
+                                    {% for value, display in yn %}
+                                        <option value="{{ value }}">{{ display }}</option>
+                                    {% endfor %}
+                                </select>
+                        </div>                       
+                </div>
+                <div class="col-4">
+                        <div class="form-group row">
+                                <label for="mechvent_yn" class="col-7 col-form-label pt-1 text-right">Did the patient receive mechanical
+                                        ventilation (MV)/intubation?</label>
+                                <select name="mechvent_yn" id="mechvent_yn" class="col-5 form-control">
+                                    <option></option>
+                                    {% for value, display in yn %}
+                                        <option value="{{ value }}">{{ display }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-group row">
+                                        <label for="mechvent_dur" class="col-7 col-form-label pt-1 text-right">If yes, total days with MV (days)</label>
+                                        <input type="number" id="mechvent_dur" name="mechvent_dur" class="col-5 form-control" value="">
+                                    </div>
+                        </div>
+                        <div class="form-group row">
+                                <label for="ecmo_yn" class="col-7 col-form-label pt-1 text-right">Did the patient receive ECMO?</label>
+                                <select name="ecmo_yn" id="ecmo_yn" class="col-5 form-control">
+                                    <option></option>
+                                    {% for value, display in yn %}
+                                        <option value="{{ value }}">{{ display }}</option>
+                                    {% endfor %}
+                                </select>
+                        </div>
+                        <div class="form-group row">
+                                <label for="death_yn" class="col-7 col-form-label pt-1 text-right">Did the patient die as a result of this illness?</label>
+                                <select name="death_yn" id="death_yn" class="col-5 form-control">
+                                    <option></option>
+                                    {% for value, display in yn %}
+                                        <option value="{{ value }}">{{ display }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-group row">
+                                        <label for="death_dt" class="col-7 col-form-label text-right">Date of Death</label>
+                                        <input type="date" id="death_dt" name="death_dt" class="col-5 form-control" value="">
+                                            <div class="checkbox">
+                                                    <label for="death_unk" class="col-11 col-form-label text-right">Unknown date of death</label>
+                                                    <input type="checkbox" name="death_unk" id="death_unk">
+                                            </div>
+                                </div>
+                        </div>
+                </div>
+        </div>
+
+         <!-- BASIC INFORMATION ROW 3 -->
+         <div class="form-group row">
+               <div class="col-4">
+                   <div class="form-group row">
+                        <label for="hc_work_yn" class="col-7 col-form-label pt-1 text-right">Is the patient a health care worker in the United States?</label>
+                        <select name="hc_work_yn" id="hc_work_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                   <div class="form-group row">
+                        <label for="hc_work_china_yn" class="col-7 col-form-label pt-1 text-right">Does the patient have a history of being in a healthcare facility (as a patient, worker or visitor) in China?</label>
+                        <select name="hc_work_china_yn" id="hc_work_china_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                   <div class="form-group row">
+                        <label for="exp_othcountry_spec" class="col-6 col-form-label text-right pt-1">Travel to other non-US country (<b>If yes, specify</b>)</label>
+                        <input type="text" class="text col-6 form-control" name="exp_othcountry_spec" id="exp_othcountry_spec">
+                   </div>
+                   <div class="form-group row">
+                        <label for="exp_other_spec" class="col-6 col-form-label text-right pt-1">Exposure to a cluster of patients with severe acute lower respiratory distress of unknown etiology (<b>If other, specify</b>)</label>
+                        <input type="text" class="text col-6 form-control" name="exp_other_spec" id="exp_other_spec">
+                   </div>
+               </div>
+               <div class="col-8">
+                   <b>In the 14 days prior to illness onset, did the patient have any of the following exposures (check all that apply):</b>
+                   {% for value, display in exp %}
+                        <div class="form-check">
+                             <input type="checkbox" name="{{ value }}" class="form-check-input" value="1" id="{{ value }}">
+                             <label for="{{ value }}" class="form-check-label">{{ display }}</label>
+                         </div>
+                    {% endfor %}
+                </div>
+        </div>
+
+         <!-- BASIC INFORMATION ROW 4 -->
+         <div class="form-group row">
+             <div class="col-12">
+                <div class="form-group row">
+                    <label for="cont_lab_us" class="col-6 col-form-label text-right pt-1">If the patient had contact with another COVID-19 case, was this person a U.S. case?</label>
+                    <select name="cont_lab_us" id="cont_lab_us" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn_with_na %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-group row">
+                                <label for="cdc_ncov2019_sourceid_2" class="col-6 col-form-label text-right pt-1">(<b>If yes,</b> specify nCoV ID of source case</label>
+                                <input type="text" class="text col-6 form-control" name="cdc_ncov2019_sourceid_2" id="cdc_ncov2019_sourceid_2">
+                           </div>
+                </div>
+               
+                    <b>Under what process was the PUI or case first identified? (check all that apply):</b>
+                  <div class="form-group row">
+                        {% for value, display in process %}
+                    <div class="col-3">
+                    <div class="form-check">
+                         <input type="checkbox" name="{{ value }}" class="form-check-input" value="1" id="{{ value }}">
+                         <label for="{{ value }}" class="form-check-label">{{ display }}</label>
+                     </div>
+                     </div>
+                    {% endfor %}
+                  </div>
+            
+                <div class="form-group row">
+                        <label for="process_dgmqid" class="col-4 col-form-label text-right pt-1">DGMQID: (<b>If you checked</b>, <i>EpiX notification of travelers</i>)</label>
+                        <input type="text" class="text col-4 form-control" name="process_dgmqid" id="process_dgmqid">
+                   </div>
+             </div>
+         </div>
+
     </fieldset>
+    <!-- END BASIC INFORMATION -->
+    
+    <!-- START SYMPTOMS, CLINICAL COURSE, PAST MEDICAL HISTORY AND SOCIAL HISTORY -->
+    
+     <fieldset class="pl-1">
+        <legend>Symptoms, clinical course, past medical history and social history</legend>
+        <!-- START ROW 1 -->
+          <div class="form-group row">
+              <div class="col-12">
+                   <p><b>1). Collected from (check all that apply):</b></p>
+              </div>
+              <div class="col-3">
+                   <div class="form-check">
+                         <input type="checkbox" name="collect_medchart" class="form-check-input" value="1" id="collect_medchart">
+                         <label for="collect_medchart" class="form-check-label">Medical record review</label>
+                     </div>
+              </div>
+               <div class="col-3">
+                   <div class="form-check">
+                          <input type="checkbox" name="collect_ptinterview" class="form-check-input" value="1" id="collect_ptinterview">
+                         <label for="collect_ptinterview" class="form-check-label"> Patient interview </label>
+                     </div>
+              </div>
+        </div>  
+        
+          <!-- START ROW 2 -->
+          <div class="form-group row">
+              <div class="col-12">
+                   <p><b>2). During this illness, did the patient experience any of the following symptoms?</b></p>
+              </div>
+              <div class="col-4">
+                    <div class="form-group row">
+                        <label for="fever_yn" class="col-7 col-form-label pt-1 text-right">Fever >100.4F (38C)c </label>
+                        <select name="fever_yn" id="fever_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="sfever_yn" class="col-7 col-form-label pt-1 text-right">Subjective fever (felt feverish) </label>
+                        <select name="sfever_yn" id="sfever_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="chills_yn" class="col-7 col-form-label pt-1 text-right">Chills</label>
+                        <select name="chills_yn" id="chills_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="myalgia_yn" class="col-7 col-form-label pt-1 text-right">Muscle aches (myalgia) </label>
+                        <select name="myalgia_yn" id="myalgia_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+              </div>
+               <div class="col-4">
+                    <div class="form-group row">
+                        <label for="runnose_yn" class="col-7 col-form-label pt-1 text-right">Runny nose (rhinorrhea) </label>
+                        <select name="runnose_yn" id="runnose_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="sthroat_yn" class="col-7 col-form-label pt-1 text-right">Sore throat</label>
+                        <select name="sthroat_yn" id="sthroat_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="cough_yn" class="col-7 col-form-label pt-1 text-right">Cough (new onset or worsening of chronic cough) </label>
+                        <select name="cough_yn" id="cough_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="sob_yn" class="col-7 col-form-label pt-1 text-right">Shortness of breath (dyspnea) </label>
+                        <select name="sob_yn" id="sob_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+              </div>
+               <div class="col-4">
+                    <div class="form-group row">
+                        <label for="nauseavomit_yn" class="col-7 col-form-label pt-1 text-right">Nausea or vomiting</label>
+                        <select name="nauseavomit_yn" id="nauseavomit_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="headache_yn" class="col-7 col-form-label pt-1 text-right">Headache</label>
+                        <select name="headache_yn" id="headache_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="abdom_yn" class="col-7 col-form-label pt-1 text-right">Abdominal pain</label>
+                        <select name="abdom_yn" id="abdom_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+              </div>
+              
+              <div class="col-4">
+                     <div class="form-check">
+                         <input type="checkbox" name="othsym1_yn" class="form-check-input" value="1" id="othsym1_yn">
+                         <label for="othsym1_yn" class="form-check-label">Other symptoms - 1</label>
+                     </div>
+                       <div class="form-group row">
+                        <label for="othsym1_spec" class="col-4 col-form-label text-right pt-1">Specify: </label>
+                        <input type="text" class="text col-4 form-control" name="othsym1_spec" id="othsym1_spec">
+                   </div>
+              </div>
+              
+              <div class="col-4">
+                     <div class="form-check">
+                         <input type="checkbox" name="othsym2_yn" class="form-check-input" value="1" id="othsym2_yn">
+                         <label for="othsym2_yn" class="form-check-label">Other symptoms - 2</label>
+                     </div>
+                       <div class="form-group row">
+                        <label for="othsym2_spec" class="col-4 col-form-label text-right pt-1">Specify: </label>
+                        <input type="text" class="text col-4 form-control" name="othsym2_spec" id="othsym2_spec">
+                   </div>
+              </div>
+              
+                <div class="col-4">
+                     <div class="form-check">
+                         <input type="checkbox" name="othsym3_yn" class="form-check-input" value="1" id="othsym3_yn">
+                         <label for="othsym3_yn" class="form-check-label">Other symptoms - 3</label>
+                     </div>
+                       <div class="form-group row">
+                        <label for="othsym3_spec" class="col-4 col-form-label text-right pt-1">Specify: </label>
+                        <input type="text" class="text col-4 form-control" name="othsym3_spec" id="othsym3_spec">
+                   </div>
+              </div>
+              
+            
+        </div>  
+        
+        
+        <!-- START ROW 3 -->
+          <div class="form-group row">
+              <div class="col-12">
+                      <label for="medcond_yn" class="col-form-label pt-1 text-right"><b>3). Pre-existing medical conditions?</b></label>
+                    <select name="medcond_yn" id="medcond_yn" class="col-3 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                    <br>
+              </div>
+               <div class="col-4">
+                    <div class="form-group row">
+                        <label for="cld_yn" class="col-7 col-form-label pt-1 text-right">Chronic lung disease (asthma/emphysema/COPD)</label>
+                        <select name="cld_yn" id="cld_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="diabetes_yn" class="col-7 col-form-label pt-1 text-right">Diabetes Mellitus </label>
+                        <select name="diabetes_yn" id="diabetes_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="cvd_yn" class="col-7 col-form-label pt-1 text-right">Cardiovascular disease </label>
+                        <select name="cvd_yn" id="cvd_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+              </div>
+               <div class="col-4">
+                      <div class="form-group row">
+                        <label for="renaldis_yn" class="col-7 col-form-label pt-1 text-right">Chronic Renal disease</label>
+                        <select name="renaldis_yn" id="renaldis_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="liverdis_yn" class="col-7 col-form-label pt-1 text-right">Chronic Liver disease</label>
+                        <select name="liverdis_yn" id="liverdis_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="immsupp_yn" class="col-7 col-form-label pt-1 text-right">Immunocompromised Condition</label>
+                        <select name="immsupp_yn" id="immsupp_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+              </div>
+               <div class="col-4">
+                    <div class="form-group row">
+                        <label for="pregnant_yn" class="col-7 col-form-label pt-1 text-right">If female, currently pregnant</label>
+                        <select name="pregnant_yn" id="pregnant_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="smoke_curr_yn" class="col-7 col-form-label pt-1 text-right">Current smoker</label>
+                        <select name="smoke_curr_yn" id="smoke_curr_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="smoke_former_yn" class="col-7 col-form-label pt-1 text-right">Former smoker</label>
+                        <select name="smoke_former_yn" id="smoke_former_yn" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    
+              </div>
+                
+                
+               <div class="col-12">
+                    <div class="form-group row">
+                        <div class="col-4"> <label for="neuro_yn" class="col-12 col-form-label pt-1 text-right">Neurologic/neurodevelopmental/intellectual disability</label></div>
+                        <div class="col-2"> 
+                            <select name="neuro_yn" id="neuro_yn" class="col-12 form-control">
+                                <option></option>
+                                {% for value, display in yn %}
+                                    <option value="{{ value }}">{{ display }}</option>
+                                {% endfor %}
+                            </select>
+                         </div>
+                         <div class="col-2"><label for="neuro_spec" class="col-12 col-form-label text-right pt-1">If yes, specify: </label></div>
+                         <div class="col-4"><input type="text" class="text col-12 form-control" name="neuro_spec" id="neuro_spec"></div>
+                   </div>
+              </div>   
+              
+              
+               <div class="col-12">
+                    <div class="form-group row">
+                        <div class="col-4"><label for="otherdis_yn" class="col-12 col-form-label pt-1 text-right">Other chronic diseases</label></div>
+                        <div class="col-2"> 
+                           <select name="otherdis_yn" id="otherdis_yn" class="col-12 form-control">
+                            <option></option>
+                            {% for value, display in yn %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                         </div>
+                         <div class="col-2"><label for="otherdis_spec" class="col-12 col-form-label text-right pt-1">If yes, specify: </label></div>
+                         <div class="col-4"><input type="text" class="text col-12 form-control" name="otherdis_spec" id="otherdis_spec"></div>
+                   </div>
+              </div>   
+              
+ 
+        </div>  
+        
+        
+         <!-- START ROW 4 -->
+          <div class="form-group row">
+              <div class="col-12">
+                      <p><b>4). Respiratory Diagnostic Testing:</b></p>
+              </div>
+               <div class="col-4">
+                    <div class="form-group row">
+                        <label for="resp_flua_ag" class="col-7 col-form-label pt-1 text-right">Influenza A Rapid Ag</label>
+                        <select name="resp_flua_ag" id="resp_flua_ag" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in resp %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="resp_flub_ag" class="col-7 col-form-label pt-1 text-right">Influenza B Rapid Ag</label>
+                        <select name="resp_flub_ag" id="resp_flub_ag" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in resp %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="resp_flua_pcr" class="col-7 col-form-label pt-1 text-right">Influenza A PCR</label>
+                        <select name="resp_flua_pcr" id="resp_flua_pcr" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in resp %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="resp_flub_pcr" class="col-7 col-form-label pt-1 text-right">Influenza B PCR</label>
+                        <select name="resp_flub_pcr" id="resp_flub_pcr" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in resp %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+              </div>
+               <div class="col-4">
+                   <div class="form-group row">
+                        <label for="resp_rsv" class="col-7 col-form-label pt-1 text-right">RSV</label>
+                        <select name="resp_rsv" id="resp_rsv" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in resp %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                      <div class="form-group row">
+                        <label for="resp_hm" class="col-7 col-form-label pt-1 text-right">H. metapneumovirus</label>
+                        <select name="resp_hm" id="resp_hm" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in resp %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="resp_pi" class="col-7 col-form-label pt-1 text-right">Parainfluenza (1-4)</label>
+                        <select name="resp_pi" id="resp_pi" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in resp %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="resp_adv" class="col-7 col-form-label pt-1 text-right">Adenovirus</label>
+                        <select name="resp_adv" id="resp_adv" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in resp %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+              </div>
+               <div class="col-4">
+                   <div class="form-group row">
+                        <label for="resp_rhino" class="col-7 col-form-label pt-1 text-right">Rhinovirus/enterovirus</label>
+                        <select name="resp_rhino" id="resp_rhino" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in resp %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="resp_cov" class="col-7 col-form-label pt-1 text-right">Coronavirus (OC43, 229E, HKU1, NL63)</label>
+                        <select name="resp_cov" id="resp_cov" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in resp %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="resp_mp" class="col-7 col-form-label pt-1 text-right">M. pneumoniae</label>
+                        <select name="resp_mp" id="resp_mp" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in resp %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    <div class="form-group row">
+                        <label for="resp_rcp" class="col-7 col-form-label pt-1 text-right">C. pneumoniae</label>
+                        <select name="resp_rcp" id="resp_rcp" class="col-5 form-control">
+                            <option></option>
+                            {% for value, display in resp %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                   </div>
+                    
+              </div>
+                 <div class="col-12">
+                    <div class="form-group row">
+                        <div class="col-4"><label for="othrp" class="col-12 col-form-label pt-1 text-right">Other positive pathogens</label></div>
+                        <div class="col-2"> 
+                           <select name="othrp" id="othrp" class="col-12 form-control">
+                            <option></option>
+                            {% for value, display in resp %}
+                                <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                         </div>
+                         <div class="col-2"><label for="othrp_spec" class="col-12 col-form-label text-right pt-1">If yes, specify: </label></div>
+                         <div class="col-4"><input type="text" class="text col-12 form-control" name="othrp_spec" id="othrp_spec"></div>
+                   </div>
+              </div>     
+ 
+        </div>  
+        
+        
+                 <!-- START ROW 5 -->
+        <div class="form-group row">
+              <div class="col-12">
+                      <p><b>5). Specimens for COVID-19 Testing:</b></p>
+              </div>
+               <div class="col-12">
+                         <table class="table table-responsive table-bordered">
+                         <thead>
+                             <tr><th>Specimen Type</th><th>Specimen ID</th><th>Date Collected</th><th>State Lab Tested</th><th>State Lab Result</th><th>Sent to CDC</th><th>CDC Lab Result</th></tr>
+                         </thead>
+                          <tbody>
+                             <tr><td>NP Swab - 1</td><td><input class="text col-12 form-control" name="spec_npswab1id" type="text"></td><td><input class="date col-12 form-control" name="spec_npswab1_dt" type="date"></td><td><input name="spec_npswab1state" type="checkbox"></td><td><select name="spec_npswab1Stateresult" id="spec_npswab1Stateresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td><td><input type="checkbox" name="spec_npswab1cdc"></td><td><select name="spec_npswab1CDCresult" id="spec_npswab1CDCresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td></tr>
+                             <tr><td>NP Swab - 2</td><td><input class="text col-12 form-control" name="spec_npswab2id" type="text"></td><td><input class="date col-12 form-control" name="spec_npswab2_dt" type="date"></td><td><input name="spec_npswab2state" type="checkbox"></td><td><select name="spec_npswab2Stateresult" id="spec_npswab2Stateresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td><td><input type="checkbox" name="spec_npswab2cdc"></td><td><select name="spec_npswab2CDCresult" id="spec_npswab2CDCresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td></tr>
+                             <tr><td>NP Swab - 3</td><td><input class="text col-12 form-control" name="spec_npswab3id" type="text"></td><td><input class="date col-12 form-control" name="spec_npswab3_dt" type="date"></td><td><input name="spec_npswab3state" type="checkbox"></td><td><select name="spec_npswab3Stateresult" id="spec_npswab3Stateresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td><td><input type="checkbox" name="spec_npswab3cdc"></td><td><select name="spec_npswab3CDCresult" id="spec_npswab3CDCresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td></tr>
+                             <tr><td>OP Swab - 1</td><td><input class="text col-12 form-control" name="spec_opswab1id" type="text"></td><td><input class="date col-12 form-control" name="spec_opswab1_dt" type="date"></td><td><input name="spec_opswab1state" type="checkbox"></td><td><select name="spec_opswab1Stateresult" id="spec_opswab1Stateresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td><td><input type="checkbox" name="spec_opswab1cdc"></td><td><select name="spec_opswab1CDCresult" id="spec_opswab1CDCresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td></tr>
+                             <tr><td>OP Swab - 2</td><td><input class="text col-12 form-control" name="spec_opswab2id" type="text"></td><td><input class="date col-12 form-control" name="spec_opswab2_dt" type="date"></td><td><input name="spec_opswab2state" type="checkbox"></td><td><select name="spec_opswab2Stateresult" id="spec_opswab2Stateresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td><td><input type="checkbox" name="spec_opswab2cdc"></td><td><select name="spec_opswab2CDCresult" id="spec_opswab2CDCresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td></tr>
+                             <tr><td>OP Swab - 3</td><td><input class="text col-12 form-control" name="spec_opswab3id" type="text"></td><td><input class="date col-12 form-control" name="spec_opswab3_dt" type="date"></td><td><input name="spec_opswab3state" type="checkbox"></td><td><select name="spec_opswab3Stateresult" id="spec_opswab3Stateresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td><td><input type="checkbox" name="spec_opswab3cdc"></td><td><select name="spec_opswab3CDCresult" id="spec_opswab3CDCresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td></tr>
+                             <tr><td>Sputum - 1</td><td><input class="text col-12 form-control" name="spec_sputum1id" type="text"></td><td><input class="date col-12 form-control" name="spec_sputum1_dt" type="date"></td><td><input name="spec_sputum1state" type="checkbox"></td><td><select name="spec_sputum1Stateresult" id="spec_sputum1Stateresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td><td><input type="checkbox" name="spec_sputum1cdc"></td><td><select name="spec_sputum1CDCresult" id="spec_sputum1CDCresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td></tr>
+                             <tr><td>Sputum - 2</td><td><input class="text col-12 form-control" name="spec_sputum2id" type="text"></td><td><input class="date col-12 form-control" name="spec_sputum2_dt" type="date"></td><td><input name="spec_sputum2state" type="checkbox"></td><td><select name="spec_sputum2Stateresult" id="spec_sputum2Stateresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td><td><input type="checkbox" name="spec_sputum2cdc"></td><td><select name="spec_sputum2CDCresult" id="spec_sputum2CDCresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td></tr>
+                             <tr><td>Sputum - 3</td><td><input class="text col-12 form-control" name="spec_sputum3id" type="text"></td><td><input class="date col-12 form-control" name="spec_sputum3_dt" type="date"></td><td><input name="spec_sputum3state" type="checkbox"></td><td><select name="spec_sputum3Stateresult" id="spec_sputum3Stateresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td><td><input type="checkbox" name="spec_sputum3cdc"></td><td><select name="spec_sputum3CDCresult" id="spec_sputum3CDCresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td></tr>
+                         </tbody>
+                     </table>
+                    
+              </div>
+              
+              
+               <div class="col-12">
+                   <div class="form-check">
+                         <input type="checkbox" name="spec_otherspecimen1_yn" class="form-check-input" value="1" id="spec_otherspecimen1_yn">
+                         <label for="spec_otherspecimen1_yn" class="form-check-label">Other specimen type - 1?</label>
+                     </div>
+                         <table class="table table-responsive table-bordered">
+                         <thead>
+                             <tr><th>Specimen Type</th><th>Specimen ID</th><th>Date Collected</th><th>State Lab Tested</th><th>State Lab Result</th><th>Sent to CDC</th><th>CDC Lab Result</th></tr>
+                         </thead>
+                          <tbody>
+                             <tr><td><input class="text col-12 form-control" name="spec_otherspecimen1_spe" type="text"></td><td><input class="text col-12 form-control" name="spec_otherspecimen1id" type="text"></td><td><input class="date col-12 form-control" name="spec_otherspecimen1_dt" type="date"></td><td><input name="spec_otherspecimen1state" type="checkbox"></td><td><select name="spec_otherspecimen1Stateresult" id="spec_otherspecimen1Stateresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td><td><input type="checkbox" name="spec_otherspecimen1cdc"></td><td><select name="spec_otherspecimen1CDCresult" id="spec_otherspecimen1CDCresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td></tr>
+                          </tbody>
+                     </table>
+              </div>
+              
+              <div class="col-12">
+                   <div class="form-check">
+                         <input type="checkbox" name="spec_otherspecimen2_yn" class="form-check-input" value="1" id="spec_otherspecimen2_yn">
+                         <label for="spec_otherspecimen2_yn" class="form-check-label">Other specimen type - 2?</label>
+                     </div>
+                         <table class="table table-responsive table-bordered">
+                         <thead>
+                             <tr><th>Specimen Type</th><th>Specimen ID</th><th>Date Collected</th><th>State Lab Tested</th><th>State Lab Result</th><th>Sent to CDC</th><th>CDC Lab Result</th></tr>
+                         </thead>
+                          <tbody>
+                             <tr><td><input class="text col-12 form-control" name="spec_otherspecimen2_spe" type="text"></td><td><input class="text col-12 form-control" name="spec_otherspecimen2id" type="text"></td><td><input class="date col-12 form-control" name="spec_otherspecimen2_dt" type="date"></td><td><input name="spec_otherspecimen2state" type="checkbox"></td><td><select name="spec_otherspecimen2Stateresult" id="spec_otherspecimen2Stateresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td><td><input type="checkbox" name="spec_otherspecimen2cdc"></td><td><select name="spec_otherspecimen2CDCresult" id="spec_otherspecimen2CDCresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td></tr>
+                          </tbody>
+                     </table>
+              </div>
+              
+               <div class="col-12">
+                   <div class="form-check">
+                         <input type="checkbox" name="spec_otherspecimen3_yn" class="form-check-input" value="1" id="spec_otherspecimen3_yn">
+                         <label for="spec_otherspecimen3_yn" class="form-check-label">Other specimen type - 3?</label>
+                     </div>
+                         <table class="table table-responsive table-bordered">
+                         <thead>
+                             <tr><th>Specimen Type</th><th>Specimen ID</th><th>Date Collected</th><th>State Lab Tested</th><th>State Lab Result</th><th>Sent to CDC</th><th>CDC Lab Result</th></tr>
+                         </thead>
+                          <tbody>
+                             <tr><td><input class="text col-12 form-control" name="spec_otherspecimen3_spe" type="text"></td><td><input class="text col-12 form-control" name="spec_otherspecimen3id" type="text"></td><td><input class="date col-12 form-control" name="spec_otherspecimen3_dt" type="date"></td><td><input name="spec_otherspecimen3state" type="checkbox"></td><td><select name="spec_otherspecimen3Stateresult" id="spec_otherspecimen3Stateresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td><td><input type="checkbox" name="spec_otherspecimen3cdc"></td><td><select name="spec_otherspecimen3CDCresult" id="spec_otherspecimen3CDCresult" class="col-12 form-control"><option></option>{% for value, display in spec %}<option value="{{ value }}">{{ display }}</option>{% endfor %}</select></td></tr>
+                          </tbody>
+                     </table>
+              </div>
+              
+              
+               <div class="col-12">
+                     <div class="form-group row">
+                        <label for="lab_local_id1" class="col-4 col-form-label text-right pt-1">Additional State/local Specimen IDs: </label>
+                        <input type="text" class="text col-8 form-control" name="lab_local_id1" id="lab_local_id1">
+                   </div>
+              </div>
+              
+               <div class="col-12">
+                     <div class="form-group row">
+                        <label for="final_notes" class="col-4 col-form-label text-right pt-1">Any additional comments/notes?:</label>
+                    
+                         <textarea class="text col-8 form-control" name="final_notes" id="final_notes" rows="3"></textarea>
+                   </div>
+                    <button type="submit primary text-right">Submit Form</button>
+              </div>
+              
+              
+        </div>      
+        
+    </fieldset>    
+   <!-- END SYMPTOMS, CLINICAL COURSE, PAST MEDICAL HISTORY AND SOCIAL HISTORY -->
+
 </form>
 <script>
 $(document).ready(function(){

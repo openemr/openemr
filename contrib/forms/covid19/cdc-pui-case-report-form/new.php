@@ -52,6 +52,79 @@ $race = [
     'race_other' => 'Other',
 ];
 
+
+$ageunit = [
+    '1' => 'Years',
+    '2' => 'Months',
+    '3' => 'Days',
+];
+
+$yn =  [
+    '1' => 'Yes',
+    '0' => 'No',
+    '9' => 'Unknown',
+];
+
+$yn_with_na =  [
+    '1' => 'Yes',
+    '0' => 'No',
+    '9' => 'Unknown',
+    '5' => 'N/A',
+];
+
+$sympstatus = [
+    '1' => 'Symptomatic',
+    '0' => 'Asymptomatic',
+    '9' => 'Unknown',
+];
+
+$symp_res_yn = [
+    '1' => 'Still symptomatic',
+    '0' => 'Symptoms resolved, unknown date',
+    '9' => 'Unknown',
+];
+
+$resp = [
+    '1' => 'Positive',
+    '2' => 'Negative',
+    '3' => 'Pending',
+    '4' => 'Not Done',
+];
+
+$spec = [
+    '1' => 'Positive',
+    '2' => 'Negative',
+    '3' => 'Pending',
+    '4' => 'Not Done',
+    '5' => 'Indeterminate',
+];
+
+$exp = [
+    'exp_wuhan' => 'Travel to Wuhan',
+    'exp_hubei' => 'Travel to Hubei',
+    'exp_china' => 'Travel to mainland China',
+    'exp_othcountry' => 'Travel to other non-US country',
+    'exp_house' => 'Household contact with another lab-confirmed COVID-19 case-patient',
+    'exp_community' => 'Community contact with another lab-confirmed COVID-19 case-patient',
+    'exp_health' => 'Any healthcare contact with another lab-confirmed COVID-19 case-patient',
+    'exp_health_pt' => 'Healthcare contact with another lab-confirmed COVID-19 case-patient -- patient',
+    'exp_health_vis' => 'Healthcare contact with another lab-confirmed COVID-19 case-patient -- visitor',
+    'exp_health_hcw' => 'Healthcare contact with another lab-confirmed COVID-19 case-patient -- healthcare worker',
+    'exp_animal' => 'Animal exposure',
+    'exp_cluster' => 'Exposure to a cluster of patients with severe acute lower respiratory distress of unknown etiology',
+    'exp_other' => 'Other',
+    'exp_unk' => 'Unknown',
+];
+
+$process = [
+    'process_pui' => 'Clinical evaluation leading to PUI determination',
+    'process_cont' => 'Contact tracing of case patient',
+    'process_surv' => 'Routine surveillance',
+    'process_unk' => 'Unknown',
+    'process_other' => 'Other',
+    'process_epix' => 'EpiX notification of travelers',
+];
+
 $vars = [
     'current_status' => $current_status,
     'ethnicity' => $ethnicity,
@@ -59,6 +132,17 @@ $vars = [
     'patient' => $patient,
     'encounter' => $encounter,
     'race' => $race,
+    'ageunit' => $ageunit,
+    'yn' => $yn,
+    'sympstatus' => $sympstatus,
+    'symp_res_yn' => $symp_res_yn,
+    'resp' => $resp,
+    'spec' => $spec,
+    'exp'  => $exp,
+    'process' => $process,
+    'yn_with_na' => $yn_with_na,
 ];
+
+
 
 echo $GLOBALS['twig']->render("@cdccovid/form.html.twig", $vars);
