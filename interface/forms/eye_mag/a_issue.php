@@ -756,7 +756,7 @@ foreach (explode(',', $given) as $item) {
                             ?>
                         </td>
                         <td class="indent20">
-                            <a class="text-body" href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=occurrence" target="RTop" title="<?php echo xla('Click here to Edit the Course/Occurrence List'); ?>"><i class="fa fa-pencil fa-fw"></i></a>
+                            <a class="text-body" href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=occurrence" target="RTop" title="<?php echo xla('Click here to Edit the Course/Occurrence List'); ?>"><i class="fa fa-pencil-alt fa-fw"></i></a>
                         </td>
                     </tr>
 
