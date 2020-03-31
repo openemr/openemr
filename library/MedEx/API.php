@@ -9,11 +9,11 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-    namespace MedExApi;
+namespace MedExApi;
 
-    use OpenEMR\Services\VersionService;
+use OpenEMR\Services\VersionService;
 
-    error_reporting(0);
+error_reporting(0);
 
 class CurlRequest
 {
@@ -148,7 +148,7 @@ class Practice extends Base
             }
         }
         $runQuery = "SELECT pc_catid, pc_catname, pc_catdesc, pc_catcolor, pc_seq
-                         FROM openemr_postcalendar_categories WHERE pc_active = 1 AND pc_cattype='0' ORDER BY pc_catid";
+                     FROM openemr_postcalendar_categories WHERE pc_active = 1 AND pc_cattype='0' ORDER BY pc_catid";
         $ures = sqlStatement($runQuery);
         while ($urow = sqlFetchArray($ures)) {
             $fields2['categories'][] = $urow;
@@ -164,14 +164,14 @@ class Practice extends Base
             $fields2['checkedOut'][] = $urow;
         }
         $sql = "SELECT * FROM `clinical_rules`,`list_options`,`rule_action`,`rule_action_item`
-                    WHERE
-                    `clinical_rules`.`pid`=0 AND
-                    `clinical_rules`.`patient_reminder_flag` = 1 AND
-                    `clinical_rules`.id = `list_options`.option_id AND
-                    `clinical_rules`.id = `rule_action`.id AND
-                    `list_options`.option_id=`clinical_rules`.id AND
-                    `rule_action`.category =`rule_action_item`.category AND
-                    `rule_action`.item =`rule_action_item`.item ";
+                WHERE
+                `clinical_rules`.`pid`=0 AND
+                `clinical_rules`.`patient_reminder_flag` = 1 AND
+                `clinical_rules`.id = `list_options`.option_id AND
+                `clinical_rules`.id = `rule_action`.id AND
+                `list_options`.option_id=`clinical_rules`.id AND
+                `rule_action`.category =`rule_action_item`.category AND
+                `rule_action`.item =`rule_action_item`.item ";
 
         $ures = sqlStatementCdrEngine($sql);
         while ($urow = sqlFetchArray($ures)) {
@@ -195,8 +195,8 @@ class Practice extends Base
             $result2 = sqlFetchArray($test2);
             //for custom installs, insert custom apptstatus here that mean appt is not happening/changed
             if ($result2['pc_apptstatus'] =='*' ||  //confirmed
-                $result2['pc_apptstatus'] =='%' ||  //cancelled < 24hour
-                $result2['pc_apptstatus'] =='x') { //cancelled
+            $result2['pc_apptstatus'] =='%' ||  //cancelled < 24hour
+            $result2['pc_apptstatus'] =='x') { //cancelled
                 $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply = 'DONE',msg_extra_text=? WHERE msg_uid = ?";
                 sqlQuery($sqlUPDATE, array($result2['pc_apptstatus'],$result2['msg_uid']));
                 $tell_MedEx['DELETE_MSG'][] = $result1['msg_pc_eid'];
@@ -266,11 +266,11 @@ class Campaign extends Base
         $info= array();
         $query = "SELECT * FROM medex_prefs";
         $info = sqlFetchArray(sqlStatement($query));
-        
+
         if (empty($info) ||
-            empty($info['ME_username']) ||
-            empty($info['ME_api_key']) ||
-            empty($info['MedEx_id'])) {
+        empty($info['ME_username']) ||
+        empty($info['ME_api_key']) ||
+        empty($info['MedEx_id'])) {
             return false;
         }
         $results = json_decode($info['status'], true);
@@ -294,7 +294,7 @@ class Events extends Base
         $count_surveys = 0;
         $count_clinical_reminders = 0;
         $count_gogreen = 0;
-        
+
         $sqlQuery = "SELECT * FROM medex_icons";
         $result = sqlStatement($sqlQuery);
         while ($icons = sqlFetchArray($result)) {
@@ -305,7 +305,7 @@ class Events extends Base
         }
         $sql2= "SELECT ME_facilities FROM medex_prefs";
         $pref_facilities = sqlQuery($sql2);
-        
+
         foreach ($events as $event) {
             $escClause=[];
             $escapedArr = [];
@@ -325,7 +325,7 @@ class Events extends Base
                 $build_langs = rtrim($build_langs, "OR ");
                 $target_lang = "(". $build_langs .") AND ";
             }
-            
+
             if ($event['M_group'] == 'REMINDER') {
                 if ($event['time_order'] > '0') {
                     $interval ="+";
@@ -335,7 +335,7 @@ class Events extends Base
                         // OR send anyway - unless appstatus is not cancelled, then it is no longer an appointment to confirm...
                     } elseif ($event['E_instructions'] == "always") {  //send anyway
                         $appt_status = " and pc_apptstatus != '%'
-                                             and pc_apptstatus != 'x' ";
+                                         and pc_apptstatus != 'x' ";
                     } else { //reminders are always or stop, that's it
                         $event['E_instructions'] ='stop';
                         $appt_status = " and pc_apptstatus='-'";//we only look at future appts w/ apptstatus == NONE ='-'
@@ -343,10 +343,10 @@ class Events extends Base
                 } else {
                      $interval ='-';
                      $appt_status = " and pc_apptstatus in (SELECT option_id from list_options where toggle_setting_2='1' and list_id='apptstat')
-                                         and pc_apptstatus != '%'
-                                         and pc_apptstatus != 'x' ";
+                                     and pc_apptstatus != '%'
+                                     and pc_apptstatus != 'x' ";
                 }
-                
+
                 $timing = (int)$event['E_fire_time']-1;
                 $today=date("l");
                 if (($today =="Sunday")||($today =="Saturday")) {
@@ -357,29 +357,29 @@ class Events extends Base
                 } else {
                     $timing2 = ($timing + 1).":1:1";
                 }
-                
+
                 if (!empty($pref_facilities['ME_facilities'])) {
                     $places = str_replace("|", ",", $pref_facilities['ME_facilities']);
                     $query  = "SELECT * FROM openemr_postcalendar_events AS cal
-                                    LEFT JOIN patient_data AS pat ON cal.pc_pid=pat.pid
-                                    WHERE
-                                    ". $target_lang ."
-                                    (
-                                      (
-                                        pc_eventDate > CURDATE() ".$interval." INTERVAL ".$timing." DAY AND
-                                        pc_eventDate < CURDATE() ".$interval." INTERVAL '".$timing2."' DAY_MINUTE
-                                       )
-                                      OR
-                                      (
-                                        pc_eventDate <= CURDATE() ".$interval." INTERVAL '".$timing2."' DAY_MINUTE AND
-                                        pc_endDate >= curdate() ".$interval." INTERVAL ".$timing." DAY AND
-                                        pc_recurrtype >'0'
-                                      )
-                                    )
-                                    ". $appt_status."
-                                     and pat.pid > ''
-                                    AND pc_facility IN (".$places.")
-                                    AND pat.pid=cal.pc_pid  ORDER BY pc_eventDate,pc_startTime";
+                                LEFT JOIN patient_data AS pat ON cal.pc_pid=pat.pid
+                                WHERE
+                                ". $target_lang ."
+                                (
+                                  (
+                                    pc_eventDate > CURDATE() ".$interval." INTERVAL ".$timing." DAY AND
+                                    pc_eventDate < CURDATE() ".$interval." INTERVAL '".$timing2."' DAY_MINUTE
+                                   )
+                                  OR
+                                  (
+                                    pc_eventDate <= CURDATE() ".$interval." INTERVAL '".$timing2."' DAY_MINUTE AND
+                                    pc_endDate >= curdate() ".$interval." INTERVAL ".$timing." DAY AND
+                                    pc_recurrtype >'0'
+                                  )
+                                )
+                                ". $appt_status."
+                                 and pat.pid > ''
+                                AND pc_facility IN (".$places.")
+                                AND pat.pid=cal.pc_pid  ORDER BY pc_eventDate,pc_startTime";
                     $result = sqlStatement($query, $escapedArr);
                     while ($appt= sqlFetchArray($result)) {
                         list($response,$results) = $this->MedEx->checkModality($event, $appt, $icon);
@@ -434,11 +434,11 @@ class Events extends Base
                 $timing = $event['E_fire_time'];
 
                 $query  = "SELECT * FROM medex_recalls AS recall
-                                LEFT JOIN patient_data AS pat ON recall.r_pid=pat.pid
-                                WHERE (recall.r_eventDate < CURDATE() ".$interval." INTERVAL ".$timing." DAY)
-                                ORDER BY recall.r_eventDate";
+                            LEFT JOIN patient_data AS pat ON recall.r_pid=pat.pid
+                            WHERE (recall.r_eventDate < CURDATE() ".$interval." INTERVAL ".$timing." DAY)
+                            ORDER BY recall.r_eventDate";
                 $result = sqlStatement($query);
-                
+
                 while ($recall = sqlFetchArray($result)) {
                     list($response,$results) = $this->MedEx->checkModality($event, $recall, $icon);
                     if ($results==false) {
@@ -452,7 +452,7 @@ class Events extends Base
                     if ($show['status']=="reddish") {
                         continue;
                     }
-                    
+
                     if (strtotime($recall['r_eventDate']) < mktime(0, 0, 0)) {
                         if ($this->recursive_array_search("recall_".$recall['r_pid'], $appt3)) {
                             continue;
@@ -494,7 +494,7 @@ class Events extends Base
                 }
                 $today = strtotime(date('Y-m-d'));
                 $start = strtotime($event['appts_start']);
-                
+
                 if ($today < $start) {
                     continue;
                 }
@@ -503,25 +503,25 @@ class Events extends Base
                         $event['appts_end'] = $event['appts_start'];
                     }
                     $target_dates = "(
-                                      (
-                                        cal.pc_eventDate >= ? AND
-                                        cal.pc_eventDate <= ?
-                                       )
-                                      OR
-                                      (
-                                        cal.pc_eventDate <= ? AND
-                                        cal.pc_endDate >= ? AND
-                                        pc_recurrtype >'0'
-                                      )
-                                    ) ";
+                                  (
+                                    cal.pc_eventDate >= ? AND
+                                    cal.pc_eventDate <= ?
+                                   )
+                                  OR
+                                  (
+                                    cal.pc_eventDate <= ? AND
+                                    cal.pc_endDate >= ? AND
+                                    pc_recurrtype >'0'
+                                  )
+                                ) ";
                     $escapedArr[]=$event['appts_start'];
                     $escapedArr[]=$event['appts_end'];
                     $escapedArr[]=$event['appts_end'];
                     $escapedArr[]=$event['appts_start'];
                 } else {
                     if (empty($event['appts_end'])) {
-                            $target_dates = "pc_eventDate = ?";
-                            $escapedArr[]=$event['appts_start'];
+                        $target_dates = "pc_eventDate = ?";
+                        $escapedArr[]=$event['appts_start'];
                     } else {
                         $target_dates = "(pc_eventDate >= ? and pc_eventDate <= ?)";
                         $escapedArr[]=$event['appts_start'];
@@ -581,13 +581,13 @@ class Events extends Base
                 }
 
                 $sql_ANNOUNCE = "SELECT * FROM openemr_postcalendar_events AS cal
-                                LEFT JOIN patient_data AS pat ON cal.pc_pid=pat.pid
-                                WHERE ".$target_dates."
-                                    ".$appt_status."
-                                    ".$providers."
-                                    ".$places."
-                                    ".$visit_types."
-                                ORDER BY pc_eventDate,pc_startTime";
+                            LEFT JOIN patient_data AS pat ON cal.pc_pid=pat.pid
+                            WHERE ".$target_dates."
+                                ".$appt_status."
+                                ".$providers."
+                                ".$places."
+                                ".$visit_types."
+                            ORDER BY pc_eventDate,pc_startTime";
                 $result = sqlStatement($sql_ANNOUNCE, $escapedArr);
                 while ($appt= sqlFetchArray($result)) {
                     list($response,$results) = $this->MedEx->checkModality($event, $appt, $icon);
@@ -595,9 +595,9 @@ class Events extends Base
                         continue; //not happening - either not allowed or not possible
                     }
                     if ($appt['pc_recurrtype'] !='0') {
-                            $recurrents = $this->addRecurrent($appt, "+", $event['appts_start'], $event['appts_end'], "ANNOUNCE");
-                            $count_recurrents += $recurrents;
-                            continue;
+                        $recurrents = $this->addRecurrent($appt, "+", $event['appts_start'], $event['appts_end'], "ANNOUNCE");
+                        $count_recurrents += $recurrents;
+                        continue;
                     }
                     $count_announcements++;
 
@@ -665,21 +665,21 @@ class Events extends Base
                     }
                     $escapedArr[] = $k;
                     $query  = "SELECT * FROM openemr_postcalendar_events AS cal
-                                        LEFT JOIN patient_data AS pat ON cal.pc_pid=pat.pid
-                                        WHERE (
-                                            cal.pc_eventDate > CURDATE() - INTERVAL ".$event['timing']." DAY AND
-                                            cal.pc_eventDate < CURDATE() - INTERVAL 3 DAY) AND
-                                            pat.pid=cal.pc_pid AND
-                                            pc_apptstatus !='%' AND
-                                            pc_apptstatus != 'x' ".
-                                    $appt_status.
-                                    $facility_clause."
-                                             AND cal.pc_aid IN (?)
-                                             AND email > ''
-                                             AND hipaa_allowemail NOT LIKE 'NO'
-                                            GROUP BY pc_pid
-                                            ORDER BY pc_eventDate,pc_startTime
-                                            LIMIT ".$v;
+                                    LEFT JOIN patient_data AS pat ON cal.pc_pid=pat.pid
+                                    WHERE (
+                                        cal.pc_eventDate > CURDATE() - INTERVAL ".$event['timing']." DAY AND
+                                        cal.pc_eventDate < CURDATE() - INTERVAL 3 DAY) AND
+                                        pat.pid=cal.pc_pid AND
+                                        pc_apptstatus !='%' AND
+                                        pc_apptstatus != 'x' ".
+                                $appt_status.
+                                $facility_clause."
+                                         AND cal.pc_aid IN (?)
+                                         AND email > ''
+                                         AND hipaa_allowemail NOT LIKE 'NO'
+                                        GROUP BY pc_pid
+                                        ORDER BY pc_eventDate,pc_startTime
+                                        LIMIT ".$v;
                     $result = sqlStatement($query, $escapedArr);
                     while ($appt= sqlFetchArray($result)) {
                         list($response,$results) = $this->MedEx->checkModality($event, $appt, $icon);
@@ -724,12 +724,12 @@ class Events extends Base
                 }
             } else if ($event['M_group'] == 'CLINICAL_REMINDER') {
                 $sql = "SELECT * FROM `patient_reminders`,`patient_data`
-                                  WHERE
-                                `patient_reminders`.pid ='".$event['PID']."' AND
-                                `patient_reminders`.active='1' AND
-                                `patient_reminders`.date_sent IS NULL AND
-                                `patient_reminders`.pid=`patient_data`.pid
-                                  ORDER BY `due_status`, `date_created`";
+                              WHERE
+                            `patient_reminders`.pid ='".$event['PID']."' AND
+                            `patient_reminders`.active='1' AND
+                            `patient_reminders`.date_sent IS NULL AND
+                            `patient_reminders`.pid=`patient_data`.pid
+                              ORDER BY `due_status`, `date_created`";
                 $ures = sqlStatementCdrEngine($sql);
                 while ($urow = sqlFetchArray($ures)) {
                     list($response,$results) = $this->MedEx->checkModality($event, $urow, $icon);
@@ -808,33 +808,33 @@ class Events extends Base
                 $frequency ='';
                 if ($event['E_instructions'] == 'once') {
                     $frequency = " AND cal.pc_pid NOT in (
-                            SELECT msg_pid from medex_outgoing where
-                                campaign_uid =?  and msg_date >= curdate() )";
+                        SELECT msg_pid from medex_outgoing where
+                            campaign_uid =?  and msg_date >= curdate() )";
                      $escapedArr[] = (int)$event['C_UID'];
                 } else {
                     if ($event['E_instructions'] == 'yearly') {
                         $frequency = " AND cal.pc_pid NOT in (
-                            SELECT msg_pid from medex_outgoing where
-                                campaign_uid =? and
-                                msg_date > curdate() - interval 1 year )";
+                        SELECT msg_pid from medex_outgoing where
+                            campaign_uid =? and
+                            msg_date > curdate() - interval 1 year )";
                         $escapedArr[] =  (int)$event['C_UID'];
                     }
                 }
                 if ($event['E_instructions'] == 'all') {
                     $frequency = " AND cal.pc_eid NOT in (
-                                    SELECT DISTINCT msg_pc_eid from medex_outgoing where
-                                        campaign_uid=? and
-                                        msg_date > curdate() )
-                                    AND
-                                        cal.pc_time >= NOW() - interval 6 hour ";
+                                SELECT DISTINCT msg_pc_eid from medex_outgoing where
+                                    campaign_uid=? and
+                                    msg_date > curdate() )
+                                AND
+                                    cal.pc_time >= NOW() - interval 6 hour ";
                      $escapedArr[] = $event['C_UID'];
                 } else {
                     $no_dupes = " AND cal.pc_eid NOT IN (
-                                    SELECT DISTINCT msg_pc_eid from medex_outgoing where
-                                    campaign_uid=? and msg_date >= curdate() ) ";
+                                SELECT DISTINCT msg_pc_eid from medex_outgoing where
+                                campaign_uid=? and msg_date >= curdate() ) ";
                     $escapedArr[] = $event['C_UID'];
                 }
-                
+
                 $target_dates ='';
                 if ($event['E_timing'] == '5') {
                     $target_dates = " cal.pc_eventDate > curdate()  ";
@@ -845,32 +845,32 @@ class Events extends Base
                     $timing = (int)$event['E_fire_time'];
                     if (($event['E_timing'] == '1') || ($event['E_timing'] == '2')) {
                         $target_dates = "(
-                                      (
-                                        cal.pc_eventDate = CURDATE() + INTERVAL ".$timing." DAY
-                                      )
-                                      OR
-                                      (
-                                        cal.pc_eventDate <= CURDATE() + INTERVAL ".$timing." DAY  AND
-                                        cal.pc_endDate >= CURDATE() + INTERVAL ".$timing." DAY AND
-                                        cal.pc_recurrtype >'0'
-                                      )
-                                    )
-                            ";
-                        
+                                  (
+                                    cal.pc_eventDate = CURDATE() + INTERVAL ".$timing." DAY
+                                  )
+                                  OR
+                                  (
+                                    cal.pc_eventDate <= CURDATE() + INTERVAL ".$timing." DAY  AND
+                                    cal.pc_endDate >= CURDATE() + INTERVAL ".$timing." DAY AND
+                                    cal.pc_recurrtype >'0'
+                                  )
+                                )
+                        ";
+
                         if ($today == "Friday") {
                             $timing2 = ($timing + 2);
                             $target_dates = "(
-                                      (
-                                        cal.pc_eventDate >= (CURDATE() + INTERVAL ".$timing." DAY)  AND
-                                        cal.pc_eventDate <= (CURDATE() + INTERVAL ".$timing2." DAY)
-                                      )
-                                      OR
-                                      (
-                                        cal.pc_eventDate <= CURDATE() + INTERVAL ".$timing2." DAY  AND
-                                        cal.pc_endDate >= CURDATE() + INTERVAL ".$timing." DAY AND
-                                        cal.pc_recurrtype >'0'
-                                      )
-                                    )";
+                                  (
+                                    cal.pc_eventDate >= (CURDATE() + INTERVAL ".$timing." DAY)  AND
+                                    cal.pc_eventDate <= (CURDATE() + INTERVAL ".$timing2." DAY)
+                                  )
+                                  OR
+                                  (
+                                    cal.pc_eventDate <= CURDATE() + INTERVAL ".$timing2." DAY  AND
+                                    cal.pc_endDate >= CURDATE() + INTERVAL ".$timing." DAY AND
+                                    cal.pc_recurrtype >'0'
+                                  )
+                                )";
                         }
                     } else {
                         if (($event['E_timing'] == '3') || ($event['E_timing'] == '4')) {
@@ -878,23 +878,23 @@ class Events extends Base
                             if ($today == "Monday") {
                                 $timing2 = ($timing + 3);
                                 $target_dates .= " AND cal.pc_eventDate <= curdate() - INTERVAL ".$timing." DAY AND
-                                                  cal.pc_eventDate > (curdate() - INTERVAL '".$timing2."' DAY) ";
+                                              cal.pc_eventDate > (curdate() - INTERVAL '".$timing2."' DAY) ";
                             }
                         }
                     }
                 }
                 $sql_GOGREEN = "SELECT * FROM openemr_postcalendar_events AS cal
-                                    LEFT JOIN patient_data AS pat ON cal.pc_pid=pat.pid
-                                    WHERE
-                                        ".$target_lang."
-                                        ".$target_dates."
-                                        ".$appt_status."
-                                        ".$providers."
-                                        ".$places."
-                                        ".$visit_types."
-                                        ".$frequency."
-                                        ".$no_dupes."
-                                    ORDER BY cal.pc_eventDate,cal.pc_startTime";
+                                LEFT JOIN patient_data AS pat ON cal.pc_pid=pat.pid
+                                WHERE
+                                    ".$target_lang."
+                                    ".$target_dates."
+                                    ".$appt_status."
+                                    ".$providers."
+                                    ".$places."
+                                    ".$visit_types."
+                                    ".$frequency."
+                                    ".$no_dupes."
+                                ORDER BY cal.pc_eventDate,cal.pc_startTime";
                 try {
                     $result = sqlStatement($sql_GOGREEN, $escapedArr);
                 } catch (\Exception $e) {
@@ -904,12 +904,12 @@ class Events extends Base
                 while ($appt = sqlFetchArray($result)) {
                     list($response,$results) = $this->MedEx->checkModality($event, $appt, $icon);
                     if ($results==false) {
-                            continue; //not happening - either not allowed or not possible
+                        continue; //not happening - either not allowed or not possible
                     }
                     if ($no_fu) {
                         $sql_NoFollowUp = "SELECT pc_pid FROM openemr_postcalendar_events WHERE
-                                pc_pid = ? AND
-                                pc_eventDate > ( ? + INTERVAL ". escape_limit($no_interval) ." DAY)";
+                            pc_pid = ? AND
+                            pc_eventDate > ( ? + INTERVAL ". escape_limit($no_interval) ." DAY)";
                         $result = sqlQuery($sql_NoFollowUp, array($appt['pc_pid'], $appt['pc_eventDate']));
                         if (count($result) > '') {
                             continue;
@@ -973,12 +973,12 @@ class Events extends Base
         return $responses;
     }
 
-    /**
-     * This function will check recurring appt entries in calendar.
-     * @param $appt
-     * @param $result
-     * @return array|bool
-     */
+/**
+ * This function will check recurring appt entries in calendar.
+ * @param $appt
+ * @param $result
+ * @return array|bool
+ */
     private function addRecurrent($appt, $interval, $timing, $timing2, $M_group = "REMINDER")
     {
         //get dates in this request
@@ -991,16 +991,16 @@ class Events extends Base
             $start_date = $timing;
             $stop_date = $timing2;
         }
-        
+
         //foreach date between curdate + timing and curdate + timing2 excluding dates excluded in recurring
         $hits = $this->MedEx->events->calculateEvents($appt, $start_date, $stop_date);
-        
+
         //any dates that match need to be spawned from recurrent and made to live on their own.
         $oldRecurrspec = unserialize($appt['pc_recurrspec'], ['allowed_classes' => false]);
 
         foreach ($hits as $selected_date) {
             $exclude = str_replace("-", "", $selected_date);
-            
+
             if ($oldRecurrspec['exdate'] != "") {
                 $oldRecurrspec['exdate'] .= ",".$exclude;
             } else {
@@ -1011,21 +1011,21 @@ class Events extends Base
             // specify some special variables needed for the INSERT
             // no recurr specs, this is used for adding a new non-recurring event
             $noRecurrspec = array("event_repeat_freq" => "",
-                            "event_repeat_freq_type" => "",
-                            "event_repeat_on_num" => "1",
-                            "event_repeat_on_day" => "0",
-                            "event_repeat_on_freq" => "0",
-                            "exdate" => ""
-                        );
+                        "event_repeat_freq_type" => "",
+                        "event_repeat_on_num" => "1",
+                        "event_repeat_on_day" => "0",
+                        "event_repeat_on_freq" => "0",
+                        "exdate" => ""
+                    );
             // Useless garbage that we must save. Anon
             // - ok but why is it useless? RM 2018-11-05
             $locationspecs = array("event_location" => "",
-                                    "event_street1" => "",
-                                    "event_street2" => "",
-                                    "event_city" => "",
-                                    "event_state" => "",
-                                    "event_postal" => ""
-                                );
+                                "event_street1" => "",
+                                "event_street2" => "",
+                                "event_city" => "",
+                                "event_state" => "",
+                                "event_postal" => ""
+                            );
             $locationspec = serialize($locationspecs);
             $args['duration'] = $appt['duration'];
             // this event is forced to NOT REPEAT
@@ -1033,28 +1033,28 @@ class Events extends Base
             $args['recurrspec'] = $noRecurrspec;
             $args['form_enddate'] = "0000-00-00";
             //$args['prefcatid'] = (int)$appt['prefcatid'];
-            
+
             $sql= "INSERT INTO openemr_postcalendar_events ( " .
-                "pc_catid, pc_multiple, pc_aid, pc_pid, pc_gid, pc_title, ".
-                "pc_time, ".
-                "pc_hometext, pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
-                "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
-                "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility,".
-                "pc_billing_location,pc_room " .
-                ") VALUES (?,?,?,?,?,?,NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?,?)";
-            
+            "pc_catid, pc_multiple, pc_aid, pc_pid, pc_gid, pc_title, ".
+            "pc_time, ".
+            "pc_hometext, pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
+            "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
+            "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility,".
+            "pc_billing_location,pc_room " .
+            ") VALUES (?,?,?,?,?,?,NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?,?)";
+
             $pc_eid = sqlInsert($sql, array($appt['pc_catid'], $appt['pc_multiple'], $appt['pc_aid'], $appt['pc_pid'], $appt['pc_gid'], $appt['pc_title'],
-                $appt['pc_hometext'], $appt['pc_informant'], $selected_date, $args['form_enddate'], $appt['pc_duration'], '0',
-                serialize($noRecurrspec), $appt['pc_startTime'], $appt['pc_endTime'], $appt['pc_alldayevent'],
-                $appt['pc_apptstatus'], $appt['pc_prefcatid'], $locationspec, (int)$appt['pc_facility'],
-                (int)$appt['pc_billing_facility'], $appt['pc_room']));
-            
+            $appt['pc_hometext'], $appt['pc_informant'], $selected_date, $args['form_enddate'], $appt['pc_duration'], '0',
+            serialize($noRecurrspec), $appt['pc_startTime'], $appt['pc_endTime'], $appt['pc_alldayevent'],
+            $appt['pc_apptstatus'], $appt['pc_prefcatid'], $locationspec, (int)$appt['pc_facility'],
+            (int)$appt['pc_billing_facility'], $appt['pc_room']));
+
             #Add a new tracker item for this appt.
             $datetime = date("Y-m-d H:i:s");
             sqlInsert(
                 "INSERT INTO `patient_tracker` " .
-                                "(`date`, `apptdate`, `appttime`, `eid`, `pid`, `original_user`, `encounter`, `lastseq`) " .
-                                "VALUES (?,?,?,?,?,'MedEx','0','1')",
+                            "(`date`, `apptdate`, `appttime`, `eid`, `pid`, `original_user`, `encounter`, `lastseq`) " .
+                            "VALUES (?,?,?,?,?,'MedEx','0','1')",
                 array($datetime, $selected_date, $appt['pc_startTime'], $pc_eid, $appt['pc_pid'])
             );
         }
@@ -1072,13 +1072,13 @@ class Events extends Base
         return false;
     }
 
-    /**
-     *  This function deletes Recalls from MedEx when they are completed and no further processing is
-     *   needed. They are in an array = $data.
-     * @param $token
-     * @param $data
-     * @return bool
-     */
+/**
+ *  This function deletes Recalls from MedEx when they are completed and no further processing is
+ *   needed. They are in an array = $data.
+ * @param $token
+ * @param $data
+ * @return bool
+ */
     private function process_deletes($token, $data)
     {
         $this->curl->setUrl($this->MedEx->getUrl('custom/remRecalls&token='.$token));
@@ -1094,12 +1094,12 @@ class Events extends Base
         return false;
     }
 
-    /**
-     *  This function processes appointments/recalls that meet the timimg requirements for a MedEx Campaign Event
-     * @param $token
-     * @param $appts
-     * @return bool
-     */
+/**
+ *  This function processes appointments/recalls that meet the timimg requirements for a MedEx Campaign Event
+ * @param $token
+ * @param $appts
+ * @return bool
+ */
     private function process($token, $appts)
     {
         if (empty($appts)) {
@@ -1109,7 +1109,7 @@ class Events extends Base
         foreach ($appts as $appt) {
             $data['appts'][] = $appt;
             $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply=?, msg_extra_text=?, msg_date=NOW()
-                                    WHERE msg_pc_eid=? AND campaign_uid=? AND msg_type=? AND msg_reply='To Send'";
+                                WHERE msg_pc_eid=? AND campaign_uid=? AND msg_type=? AND msg_reply='To Send'";
             sqlQuery($sqlUPDATE, array($appt['reply'],$appt['extra'],$appt['pc_eid'],$appt['C_UID'], $appt['M_type']));
             if (count($data['appts'])>'100') {
                 $this->curl->setUrl($this->MedEx->getUrl('custom/loadAppts&token='.$token));
@@ -1141,7 +1141,7 @@ class Events extends Base
           // PostCalendar Module modified by epsdky and inserted here,         //
           // and modified some more for MedEx.                                 //
           ///////////////////////////////////////////////////////////////////////
-            $data = array();
+        $data = array();
         switch ($event['pc_recurrtype']) {
             //not recurrent
             case '0':
@@ -1150,13 +1150,13 @@ class Events extends Base
             case '1':
             case '3':
                 $event_recurrspec = @unserialize($event['pc_recurrspec'], ['allowed_classes' => false]);
-    
+
                 $rfreq = $event_recurrspec['event_repeat_freq'];
                 $rtype = $event_recurrspec['event_repeat_freq_type'];
                 $exdate = $event_recurrspec['exdate'];
                 list($ny,$nm,$nd) = explode('-', $event['pc_eventDate']);
                 $occurence = $event['pc_eventDate'];
-       
+
                 // prep work to start cooking...
                 // ignore dates less than start_date
                 while (strtotime($occurence) < strtotime($start_date)) {
@@ -1177,7 +1177,7 @@ class Events extends Base
                             }
                         }
                     }
-    
+
                     if ($excluded == false) {
                         $data[] = $occurence;
                     }
@@ -1185,28 +1185,28 @@ class Events extends Base
                     list($ny,$nm,$nd) = explode('-', $occurence);
                 }
                 break;
-    
+
             case '2':
                 $event_recurrspec = @unserialize($event['pc_recurrspec'], ['allowed_classes' => false]);
-    
+
                 if (checkEvent($event['pc_recurrtype'], $event_recurrspec)) {
                     break; }
-    
+
                 $rfreq = $event_recurrspec['event_repeat_on_freq'];
                 $rnum  = $event_recurrspec['event_repeat_on_num'];
                 $rday  = $event_recurrspec['event_repeat_on_day'];
                 $exdate = $event_recurrspec['exdate'];
-    
+
                 list($ny,$nm,$nd) = explode('-', $event['pc_eventDate']);
-    
+
                 if (isset($event_recurrspec['rt2_pf_flag']) && $event_recurrspec['rt2_pf_flag']) {
                     $nd = 1;
                 }
-    
+
                 $occurenceYm = "$ny-$nm"; // YYYY-mm
                 $from_dateYm = substr($start_date, 0, 7); // YYYY-mm
                 $stop_dateYm = substr($stop_date, 0, 7); // YYYY-mm
-    
+
                 // $nd will sometimes be 29, 30 or 31 and if used in the mktime functions below
                 // a problem with overflow will occur so it is set to 1 to avoid this (for rt2
                 // appointments set prior to fix $nd remains unchanged). This can be done since
@@ -1216,14 +1216,14 @@ class Events extends Base
                     list($ny,$nm,$nd) = explode('-', $occurenceYmX);
                     $occurenceYm = "$ny-$nm";
                 }
-    
+
                 while ($occurenceYm <= $stop_dateYm) {
                     // (YYYY-mm)-dd
                     $dnum = $rnum;
                     do {
                         $occurence = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
                     } while ($occurence === -1);
-    
+
                     if ($occurence >= $from_date && $occurence <= $stop_date) {
                         $excluded = false;
                         if (isset($exdate)) {
@@ -1235,7 +1235,7 @@ class Events extends Base
                                 }
                             }
                         }
-    
+
                         if ($excluded == false) {
                             $event['pc_eventDate'] = $occurence;
                             $event['pc_endDate'] = '0000-00-00';
@@ -1243,7 +1243,7 @@ class Events extends Base
                             $data[] = $event['pc_eventDate'];
                         }
                     }
-    
+
                     $occurenceYmX = date('Y-m-d', mktime(0, 0, 0, $nm+$rfreq, $nd, $ny));
                     list($ny,$nm,$nd) = explode('-', $occurenceYmX);
                     $occurenceYm = "$ny-$nm";
@@ -1252,7 +1252,7 @@ class Events extends Base
         }
         return $data;
     }
-    
+
     private function &__increment($d, $m, $y, $f, $t)
     {
         define('REPEAT_EVERY_DAY', 0);
@@ -1261,14 +1261,14 @@ class Events extends Base
         define('REPEAT_EVERY_YEAR', 3);
         define('REPEAT_EVERY_WORK_DAY', 4);
         define('REPEAT_DAYS_EVERY_WEEK', 6);
-        
+
         if ($t == REPEAT_EVERY_DAY) {
             return date('Y-m-d', mktime(0, 0, 0, $m, ($d+$f), $y));
         } elseif ($t == REPEAT_EVERY_WORK_DAY) {
             // a workday is defined as Mon,Tue,Wed,Thu,Fri
             // repeating on every or Nth work day means to not include
             // weekends (Sat/Sun) in the increment... tricky
-    
+
             // ugh, a day-by-day loop seems necessary here, something where
             // we can check to see if the day is a Sat/Sun and increment
             // the frequency count so as to ignore the weekend. hmmmm....
@@ -1279,7 +1279,7 @@ class Events extends Base
                     $f++;
                 }
             }
-    
+
             // and finally make sure we haven't landed on a end week days
             // adjust as necessary
             $nextWorkDOW = date('w', mktime(0, 0, 0, $m, ($d+$f), $y));
@@ -1311,19 +1311,19 @@ class Events extends Base
         $this->delete_Recall();
         $mysqldate = DateToYYYYMMDD($_REQUEST['form_recall_date']);
         $queryINS = "INSERT INTO medex_recalls (r_pid,r_reason,r_eventDate,r_provider,r_facility)
-                            VALUES (?,?,?,?,?)
-                            ON DUPLICATE KEY
-                            UPDATE r_reason=?, r_eventDate=?, r_provider=?,r_facility=?";
+                        VALUES (?,?,?,?,?)
+                        ON DUPLICATE KEY
+                        UPDATE r_reason=?, r_eventDate=?, r_provider=?,r_facility=?";
         sqlStatement($queryINS, array($_REQUEST['new_pid'],$_REQUEST['new_reason'],$mysqldate,$_REQUEST['new_provider'],$_REQUEST['new_facility'],$_REQUEST['new_reason'],$mysqldate,$_REQUEST['new_provider'],$_REQUEST['new_facility']));
         $query = "UPDATE patient_data
-                        SET phone_home=?,phone_cell=?,email=?,
-                            hipaa_allowemail=?,hipaa_voice=?,hipaa_allowsms=?,
-                            street=?,postal_code=?,city=?,state=?
-                        WHERE pid=?";
+                    SET phone_home=?,phone_cell=?,email=?,
+                        hipaa_allowemail=?,hipaa_voice=?,hipaa_allowsms=?,
+                        street=?,postal_code=?,city=?,state=?
+                    WHERE pid=?";
         $sqlValues = array($_REQUEST['new_phone_home'],$_REQUEST['new_phone_cell'],$_REQUEST['new_email'],
-                            $_REQUEST['new_email_allow'],$_REQUEST['new_voice'],$_REQUEST['new_allowsms'],
-                            $_REQUEST['new_address'],$_REQUEST['new_postal_code'],$_REQUEST['new_city'],$_REQUEST['new_state'],
-                            $_REQUEST['new_pid']);
+                        $_REQUEST['new_email_allow'],$_REQUEST['new_voice'],$_REQUEST['new_allowsms'],
+                        $_REQUEST['new_address'],$_REQUEST['new_postal_code'],$_REQUEST['new_city'],$_REQUEST['new_state'],
+                        $_REQUEST['new_pid']);
         sqlStatement($query, $sqlValues);
         return;
     }
@@ -1371,10 +1371,10 @@ class Events extends Base
     }
 }
 
-    /**
-     *  Process updates and message replies received from MedEx.
-     *  Lets MedEx know if we did anything manually to a queued event.
-     */
+/**
+ *  Process updates and message replies received from MedEx.
+ *  Lets MedEx know if we did anything manually to a queued event.
+ */
 class Callback extends Base
 {
     public function receive($data = '')
@@ -1397,7 +1397,7 @@ class Callback extends Base
         }
         if ($data['patient_id']) {
             $sqlINSERT = "INSERT INTO medex_outgoing (msg_pc_eid, msg_pid, campaign_uid, msg_type, msg_reply, msg_extra_text, msg_date, medex_uid)
-                                VALUES (?,?,?,?,?,?,utc_timestamp(),?)";
+                            VALUES (?,?,?,?,?,?,utc_timestamp(),?)";
             if (!$data['M_type']) {
                 $data['M_type'] ='pending';
             }
@@ -1416,8 +1416,8 @@ class Callback extends Base
                     $datetime = date("Y-m-d H:i:s");
                     sqlInsert(
                         "INSERT INTO `patient_tracker_element` " .
-                                "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `seq`) " .
-                                "VALUES (?,?,?,?,?)",
+                            "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `seq`) " .
+                            "VALUES (?,?,?,?,?)",
                         array($tracker['id'],$datetime,'MedEx',$data['msg_type'],($tracker['lastseq']+1))
                     );
                 }
@@ -1481,157 +1481,157 @@ class Display extends base
         global $setting_bootstrap_submenu;
 
         ?>
-        <script>
-            function toggle_menu() {
-                var x = document.getElementById('hide_nav');
-                if (x.style.display === 'none') {
-                    $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
-                        'setting_bootstrap_submenu' : 'show',
-                        success: function (data) {
-                            x.style.display = 'block';
-                        }
-                        });
-
-                } else {
-                    $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
-                        'setting_bootstrap_submenu' : 'hide',
-                        success: function (data) {
-                            x.style.display = 'none';
-                        }
+    <script>
+        function toggle_menu() {
+            var x = document.getElementById('hide_nav');
+            if (x.style.display === 'none') {
+                $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
+                    'setting_bootstrap_submenu' : 'show',
+                    success: function (data) {
+                        x.style.display = 'block';
+                    }
                     });
-                }
-                $("#patient_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');
-            }
 
-            function SMS_bot_list() {
-                top.restoreSession();
-                var myWindow = window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=new','SMS_bot', 'width=383,height=600,resizable=0');
-                myWindow.focus();
-                return false;
-            }
-            </script>
-            <i class="fa fa-caret-<?php
-            if ($setting_bootstrap_submenu == 'hide') {
-                echo 'down';
             } else {
-                echo 'up';
-            } ?> menu_arrow" style="position: fixed; left: 5px; top: 5px; z-index: 1099;" id="patient_caret" onclick='toggle_menu();' aria-hidden="true"></i>
-            <div id="hide_nav" style="<?php if ($setting_bootstrap_submenu == 'hide') {
-                echo "display:none;"; } ?>">
-                <nav id="navbar_oe" class="bgcolor2 fixed-top navbar-expand-md navbar-custom navbar-bright navbar-inner" name="kiosk_hide" data-role="page banner navigation">
-                    <!-- Brand and toggle get grouped for better mobile display -->
-                        <div class="container-fluid">
-                          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#oer-navbar-collapse-1" aria-controls="oer-navbar-collapse-1" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-                        <div class="navbar-collapse collapse" id="oer-navbar-collapse-1">
-                            <ul class="navbar-nav">
+                $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
+                    'setting_bootstrap_submenu' : 'hide',
+                    success: function (data) {
+                        x.style.display = 'none';
+                    }
+                });
+            }
+            $("#patient_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');
+        }
+
+        function SMS_bot_list() {
+            top.restoreSession();
+            var myWindow = window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=new','SMS_bot', 'width=383,height=600,resizable=0');
+            myWindow.focus();
+            return false;
+        }
+        </script>
+        <i class="fa fa-caret-<?php
+        if ($setting_bootstrap_submenu == 'hide') {
+            echo 'down';
+        } else {
+            echo 'up';
+        } ?> menu_arrow" style="position: fixed; left: 5px; top: 5px; z-index: 1099;" id="patient_caret" onclick='toggle_menu();' aria-hidden="true"></i>
+        <div id="hide_nav" style="<?php if ($setting_bootstrap_submenu == 'hide') {
+            echo "display:none;"; } ?>">
+            <nav id="navbar_oe" class="bgcolor2 fixed-top navbar-expand-md navbar-custom navbar-bright navbar-inner" name="kiosk_hide" data-role="page banner navigation">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="container-fluid">
+                      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#oer-navbar-collapse-1" aria-controls="oer-navbar-collapse-1" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                    <div class="navbar-collapse collapse" id="oer-navbar-collapse-1">
+                        <ul class="navbar-nav">
                                 <?php
                                 if ($GLOBALS['medex_enable'] == '1') {
                                     ?>
-                                    <li class="nav-item dropdown">
-                                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
-                                        <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_file">
-                                            <?php
-                                            if ($logged_in) {
-                                                ?>
-                                                <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class=""><a class="dropdown-item" onclick="tabYourIt('prefs','main/messages/messages.php?go=Preferences');"><?php echo xlt("Preferences"); ?></a></li>
-                                                <li id="icons" name="icons"><a class="dropdown-item" onclick="doRecallclick_edit('icons');"><?php echo xlt('Icon Legend'); ?></a></li>
-                                                <?php
-                                            } else {
-                                                ?>
-                                                <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class="">
-                                                <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=setup&stage=1"><?php echo xlt("Setup MedEx"); ?></a></li>
-                                                <?php
-                                            }
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
+                                    <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_file">
+                                        <?php
+                                        if ($logged_in) {
                                             ?>
-                                         </ul>
-                                    </li>
+                                            <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class=""><a class="dropdown-item" onclick="tabYourIt('prefs','main/messages/messages.php?go=Preferences');"><?php echo xlt("Preferences"); ?></a></li>
+                                            <li id="icons" name="icons"><a class="dropdown-item" onclick="doRecallclick_edit('icons');"><?php echo xlt('Icon Legend'); ?></a></li>
+                                            <?php
+                                        } else {
+                                            ?>
+                                            <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class="">
+                                            <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=setup&stage=1"><?php echo xlt("Setup MedEx"); ?></a></li>
+                                            <?php
+                                        }
+                                        ?>
+                                     </ul>
+                                </li>
                                     <?php
                                 }
                                 ?>
 
-                                <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_msg" role="button" aria-expanded="true"><?php echo xlt("Messages"); ?> </a>
-                                <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_msg">
-                                    <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?showall=no&sortby=users.lname&sortorder=asc&begin=0&task=addnew&form_active=1"> <?php echo xlt("New Message"); ?></a></li>
+                            <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_msg" role="button" aria-expanded="true"><?php echo xlt("Messages"); ?> </a>
+                            <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_msg">
+                                <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?showall=no&sortby=users.lname&sortorder=asc&begin=0&task=addnew&form_active=1"> <?php echo xlt("New Message"); ?></a></li>
 
+                                <li class="dropdown-divider"></li>
+
+                                <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=no&form_active=1"> <?php echo xlt("My Messages"); ?></a></li>
+                                <li id="menu_all_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("All Messages"); ?></a></li>
+
+                                <li class="dropdown-divider"></li>
+
+                                <li id="menu_active_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("Active Messages"); ?></a></li>
+                                <li id="menu_inactive_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?form_inactive=1"> <?php echo xlt("Inactive Messages"); ?></a></li>
+                                <li id="menu_log_msg"> <a class="dropdown-item" onclick="openLogScreen();" > <?php echo xlt("Message Log"); ?></a></li>
+                            </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Appt. Reminders"); ?></a>
+                            <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_recalls">
+                                <?php
+                                if ($GLOBALS['disable_calendar'] != '1') {  ?>
+                                    <li><a class="dropdown-item" id="BUTTON_ApRem_menu" onclick="tabYourIt('cal','main/main_info.php');"> <?php echo xlt("Calendar"); ?></a></li>
                                     <li class="dropdown-divider"></li>
-
-                                    <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=no&form_active=1"> <?php echo xlt("My Messages"); ?></a></li>
-                                    <li id="menu_all_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("All Messages"); ?></a></li>
-
-                                    <li class="dropdown-divider"></li>
-
-                                    <li id="menu_active_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("Active Messages"); ?></a></li>
-                                    <li id="menu_inactive_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?form_inactive=1"> <?php echo xlt("Inactive Messages"); ?></a></li>
-                                    <li id="menu_log_msg"> <a class="dropdown-item" onclick="openLogScreen();" > <?php echo xlt("Message Log"); ?></a></li>
-                                </ul>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Appt. Reminders"); ?></a>
-                                <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_recalls">
                                     <?php
-                                    if ($GLOBALS['disable_calendar'] != '1') {  ?>
-                                        <li><a class="dropdown-item" id="BUTTON_ApRem_menu" onclick="tabYourIt('cal','main/main_info.php');"> <?php echo xlt("Calendar"); ?></a></li>
-                                        <li class="dropdown-divider"></li>
-                                        <?php
-                                    }
-                                    if ($GLOBALS['disable_pat_trkr'] != '1') {
-                                        ?>
-                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> <a class="dropdown-item" id="BUTTON_pend_recalls_menu" onclick="tabYourIt('flb','patient_tracker/patient_tracker.php?skip_timeout_reset=1');"> <?php echo xlt("Flow Board"); ?></a></li>
-                                        <?php }
-                                    if ($logged_in) {
-                                        ?>
-                                        <li class="dropdown-divider"></li>
-                                        <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns&g=rem' target="_medex" class='dropdown-item nowrap text-left' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Reminder Campaigns"); ?></a></li>
-                                            <?php
-                                    }
+                                }
+                                if ($GLOBALS['disable_pat_trkr'] != '1') {
                                     ?>
-                                    </ul>
-                                 </li>
-                                    <?php
-
-                                    if ($GLOBALS['disable_rcb'] != '1') { ?>
-                                        <li class="nav-item dropdown">
-                                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Patient Recalls"); ?> </a>
-                                            <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_recalls">
-                                                <li id="menu_new_recall" name="menu_new_recall"> <a class="dropdown-item" id="BUTTON_new_recall_menu" onclick="tabYourIt('rcb','main/messages/messages.php?go=addRecall');"> <?php echo xlt("New Recall"); ?></a></li>
-                                                <li id="menu_pend_recalls" name="menu_pend_recalls"> <a class="dropdown-item" onclick="goReminderRecall('Recalls');" id="BUTTON_pend_recalls_menu" href="#"> <?php echo xlt("Recall Board"); ?></a></li>
-                                            <?php
-                                            if ($logged_in) {
-                                                ?>
-                                                <li class="dropdown-divider"></li>
-                                                <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns&g=rec' target="_medex" class='dropdown-item nowrap text-left' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Recall Campaigns"); ?></a></li>
-                                                <?php
-                                            }
-                                            ?>
-                                            </ul>
-                                        </li>
+                                    <li id="menu_pend_recalls" name="menu_pend_recalls"> <a class="dropdown-item" id="BUTTON_pend_recalls_menu" onclick="tabYourIt('flb','patient_tracker/patient_tracker.php?skip_timeout_reset=1');"> <?php echo xlt("Flow Board"); ?></a></li>
+                                    <?php }
+                                if ($logged_in) {
+                                    ?>
+                                    <li class="dropdown-divider"></li>
+                                    <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns&g=rem' target="_medex" class='dropdown-item nowrap text-left' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Reminder Campaigns"); ?></a></li>
                                         <?php
-                                    }
+                                }
+                                ?>
+                                </ul>
+                             </li>
+                                <?php
 
-                                    if ($logged_in) {
-                                        if (!empty($logged_in['products']['ordered'])) {
-                                            foreach ($logged_in['products']['ordered'] as $ordered) {
-                                                echo $ordered['menu'];
-                                            }
+                                if ($GLOBALS['disable_rcb'] != '1') { ?>
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Patient Recalls"); ?> </a>
+                                        <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_recalls">
+                                            <li id="menu_new_recall" name="menu_new_recall"> <a class="dropdown-item" id="BUTTON_new_recall_menu" onclick="tabYourIt('rcb','main/messages/messages.php?go=addRecall');"> <?php echo xlt("New Recall"); ?></a></li>
+                                            <li id="menu_pend_recalls" name="menu_pend_recalls"> <a class="dropdown-item" onclick="goReminderRecall('Recalls');" id="BUTTON_pend_recalls_menu" href="#"> <?php echo xlt("Recall Board"); ?></a></li>
+                                        <?php
+                                        if ($logged_in) {
+                                            ?>
+                                            <li class="dropdown-divider"></li>
+                                            <li id="menu_pend_recalls" name="menu_pend_recalls"> <a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns&g=rec' target="_medex" class='dropdown-item nowrap text-left' id="BUTTON_pend_recalls_menu"> <?php echo xlt("Recall Campaigns"); ?></a></li>
+                                            <?php
+                                        }
+                                        ?>
+                                        </ul>
+                                    </li>
+                                    <?php
+                                }
+
+                                if ($logged_in) {
+                                    if (!empty($logged_in['products']['ordered'])) {
+                                        foreach ($logged_in['products']['ordered'] as $ordered) {
+                                            echo $ordered['menu'];
                                         }
                                     }
-                                    ?>
-                            </ul>
-                        </div><!-- //navbar-collapse -->
-                    </div>
-                </nav>
-            </div>
+                                }
+                                ?>
+                        </ul>
+                    </div><!-- //navbar-collapse -->
+                </div>
+            </nav>
+        </div>
             <?php
             if ($GLOBALS['medex_enable'] == '1') {
                 $error=$this->MedEx->getLastError();
                 if (!empty($error['ip'])) {
                     ?>
-                    <div class="alert alert-danger text-center" style="width:50%; margin:30px auto 5px; font-size:0.9rem;">
+                <div class="alert alert-danger text-center" style="width:50%; margin:30px auto 5px; font-size:0.9rem;">
                     <?php
                     echo $error['ip'];
                     ?>
-                    </div>
+                </div>
                     <?php
                 }
             }
@@ -1643,48 +1643,48 @@ class Display extends base
             $prefs = sqlFetchArray(sqlStatement("SELECT * FROM medex_prefs"));
         }
         ?>
-        <div class="row">
-            <div class="col-sm-12 text-center">
-                <div class="showRecalls" id="show_recalls">
-                    <div class="title">MedEx <?php echo xlt('Preferences'); ?></div>
-                    <div name="div_response" id="div_response" class="form-inline"><br />
-                    </div>
-                    <form action="#" name="save_prefs" id="save_prefs">
-                            <div class="row">
-                                <input type="hidden" name="go" id="go" value="Preferences">
-                                <div class="col-sm-5 div-center offset-sm-1" id="daform2">
-                                    <div class="divTable2">
-                                        <div class="divTableBody prefs">
-                                            <div class="divTableRow">
-                                                <div class="divTableCell divTableHeading">MedEx <?php echo xlt('Username'); ?></div>
-                                                <div class="divTableCell indent20">
-                                                    <?php echo $prefs['ME_username']; ?>
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <div class="showRecalls" id="show_recalls">
+                <div class="title">MedEx <?php echo xlt('Preferences'); ?></div>
+                <div name="div_response" id="div_response" class="form-inline"><br />
+                </div>
+                <form action="#" name="save_prefs" id="save_prefs">
+                        <div class="row">
+                            <input type="hidden" name="go" id="go" value="Preferences">
+                            <div class="col-sm-5 div-center offset-sm-1" id="daform2">
+                                <div class="divTable2">
+                                    <div class="divTableBody prefs">
+                                        <div class="divTableRow">
+                                            <div class="divTableCell divTableHeading">MedEx <?php echo xlt('Username'); ?></div>
+                                            <div class="divTableCell indent20">
+                                                <?php echo $prefs['ME_username']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="divTableRow">
+                                            <div class="divTableCell divTableHeading"><?php echo xlt('General'); ?></div>
+                                            <div class="divTableCell indent20">
+                                                <input type="checkbox" class="update" name="ME_hipaa_default_override" id="ME_hipaa_default_override" value="1"
+                                                <?php
+                                                if ($prefs['ME_hipaa_default_override']=='1') {
+                                                    echo 'checked ="checked"';
+                                                }
+                                                ?> >
+                                                <label for="ME_hipaa_default_override" class="input-helper input-helper--checkbox"
+                                                       data-toggle='tooltip'
+                                                       data-placement='auto right'
+                                                       title='<?php echo xla('Default'); ?>: "<?php echo xla('checked'); ?>".
+                                                        <?php echo xla('When checked, messages are processed for patients with Patient Demographic Choice: "Hipaa Notice Received" set to "Unassigned" or "Yes". When unchecked, this choice must = "YES" to process the patient reminder. For patients with Choice ="No", Reminders will need to be processed manually.'); //or no translation... ?>'>
+                                                        <?php echo xlt('Assume patients receive HIPAA policy'); ?>
+                                                 </label><br />
+                                                 <input type="checkbox" class="update" name="MSGS_default_yes" id="MSGS_default_yes" value="1" <?php if ($prefs['MSGS_default_yes']=='1') {
+                                                            echo "checked='checked'";} ?>><label for="MSGS_default_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Default: Checked. When checked, messages are processed for patients with Patient Demographic Choice (Phone/Text/Email) set to \'Unassigned\' or \'Yes\'. If this is unchecked, a given type of message can only be sent if its Demographic Choice = \'Yes\'.'); ?>">
+                                                           <?php echo xlt('Assume patients permit Messaging'); ?></label>
                                                 </div>
                                             </div>
                                             <div class="divTableRow">
-                                                <div class="divTableCell divTableHeading"><?php echo xlt('General'); ?></div>
+                                                <div class="divTableCell divTableHeading"><?php echo xlt('Enable Facility'); ?></div>
                                                 <div class="divTableCell indent20">
-                                                    <input type="checkbox" class="update" name="ME_hipaa_default_override" id="ME_hipaa_default_override" value="1"
-                                                    <?php
-                                                    if ($prefs['ME_hipaa_default_override']=='1') {
-                                                        echo 'checked ="checked"';
-                                                    }
-                                                    ?> >
-                                                    <label for="ME_hipaa_default_override" class="input-helper input-helper--checkbox"
-                                                           data-toggle='tooltip'
-                                                           data-placement='auto right'
-                                                           title='<?php echo xla('Default'); ?>: "<?php echo xla('checked'); ?>".
-                                                            <?php echo xla('When checked, messages are processed for patients with Patient Demographic Choice: "Hipaa Notice Received" set to "Unassigned" or "Yes". When unchecked, this choice must = "YES" to process the patient reminder. For patients with Choice ="No", Reminders will need to be processed manually.'); //or no translation... ?>'>
-                                                            <?php echo xlt('Assume patients receive HIPAA policy'); ?>
-                                                     </label><br />
-                                                     <input type="checkbox" class="update" name="MSGS_default_yes" id="MSGS_default_yes" value="1" <?php if ($prefs['MSGS_default_yes']=='1') {
-                                                                echo "checked='checked'";} ?>><label for="MSGS_default_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Default: Checked. When checked, messages are processed for patients with Patient Demographic Choice (Phone/Text/Email) set to \'Unassigned\' or \'Yes\'. If this is unchecked, a given type of message can only be sent if its Demographic Choice = \'Yes\'.'); ?>">
-                                                           <?php echo xlt('Assume patients permit Messaging'); ?></label>
-                                                    </div>
-                                                </div>
-                                                <div class="divTableRow">
-                                                    <div class="divTableCell divTableHeading"><?php echo xlt('Enable Facility'); ?></div>
-                                                    <div class="divTableCell indent20">
                                                     <?php
                                                     $count="1";
                                                     $query = "SELECT * FROM facility";
@@ -1700,135 +1700,135 @@ class Display extends base
                                                             }
                                                         }
                                                         ?>
-                                                        <input <?php echo $checked; ?> class="update" type="checkbox" name="facilities[]" id="facility_<?php echo attr($fac['id']); ?>" value="<?php echo attr($fac['id']); ?>">
-                                                        <label for="facility_<?php echo attr($fac['id']); ?>"><?php echo text($fac['name']); ?></label><br /><?php
+                                                    <input <?php echo $checked; ?> class="update" type="checkbox" name="facilities[]" id="facility_<?php echo attr($fac['id']); ?>" value="<?php echo attr($fac['id']); ?>">
+                                                    <label for="facility_<?php echo attr($fac['id']); ?>"><?php echo text($fac['name']); ?></label><br /><?php
                                                     }
                                                     ?>
-                                                    </div>
                                                 </div>
-                                                <div class="divTableRow">
-                                                    <div class="divTableCell divTableHeading"><?php echo xlt('Included Providers'); ?></div>
-                                                    <div class="divTableCell indent20">
-                                                    <?php
-                                                    $count="1";
-                                                    $ures = sqlStatement("SELECT * FROM users WHERE authorized != 0 AND active = 1 ORDER BY lname, fname");
-                                                    while ($prov = sqlFetchArray($ures)) {
-                                                        $checked ="";
-                                                        $suffix="";
-                                                        if ($prefs) {
-                                                            $provs = explode('|', $prefs['ME_providers']);
-                                                            foreach ($provs as $doc) {
-                                                                if ($doc == $prov['id']) {
-                                                                    $checked = 'checked ="checked"';
-                                                                }
+                                            </div>
+                                            <div class="divTableRow">
+                                                <div class="divTableCell divTableHeading"><?php echo xlt('Included Providers'); ?></div>
+                                                <div class="divTableCell indent20">
+                                                <?php
+                                                $count="1";
+                                                $ures = sqlStatement("SELECT * FROM users WHERE authorized != 0 AND active = 1 ORDER BY lname, fname");
+                                                while ($prov = sqlFetchArray($ures)) {
+                                                    $checked ="";
+                                                    $suffix="";
+                                                    if ($prefs) {
+                                                        $provs = explode('|', $prefs['ME_providers']);
+                                                        foreach ($provs as $doc) {
+                                                            if ($doc == $prov['id']) {
+                                                                $checked = 'checked ="checked"';
                                                             }
                                                         }
-                                                        if (!empty($prov['suffix'])) {
-                                                            $suffix = ', '.$prov['suffix'];
-                                                        }
-                                                        ?>
-                                                        <input <?php echo $checked; ?> class="update" type="checkbox" name="providers[]" id="provider_<?php echo attr($prov['id']); ?>" value="<?php echo attr($prov['id']); ?>">
-                                                        <label for="provider_<?php echo attr($prov['id']); ?>"><?php echo text($prov['fname'])." ".text($prov['lname']).text($suffix); ?></label><br /><?php
+                                                    }
+                                                    if (!empty($prov['suffix'])) {
+                                                        $suffix = ', '.$prov['suffix'];
                                                     }
                                                     ?>
-                                                    </div>
+                                                    <input <?php echo $checked; ?> class="update" type="checkbox" name="providers[]" id="provider_<?php echo attr($prov['id']); ?>" value="<?php echo attr($prov['id']); ?>">
+                                                    <label for="provider_<?php echo attr($prov['id']); ?>"><?php echo text($prov['fname'])." ".text($prov['lname']).text($suffix); ?></label><br /><?php
+                                                }
+                                                ?>
                                                 </div>
-                                                <div class="divTableRow">
-                                                    <div class="divTableCell divTableHeading"><?php echo xlt('Labels'); ?></div>
-                                                    <div class="divTableCell indent20">
-                                                    <input type="checkbox" class="update" name="LABELS_local" id="LABELS_local" value="1" <?php if ($prefs['LABELS_local']) {
-                                                            echo "checked='checked'";} ?> />
-                                                        <label for="LABELS_local" class="input-helper input-helper--checkbox" data-toggle='tooltip' data-placement='auto'  title='<?php echo xla('Check if you plan to use Avery Labels for Reminders or Recalls'); ?>'>
-                                                        <?php echo xlt('Use Avery Labels'); ?></label>
-                                                        <select class="update form-control ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" id="chart_label_type" name="chart_label_type">
-                                                                        <option value='1' <?php if ($prefs['LABELS_choice'] == '1') {
-                                                                            echo "selected";} ?>>5160</option>
-                                                                        <option value='2' <?php if ($prefs['LABELS_choice'] == '2') {
-                                                                            echo "selected";} ?>>5161</option>
-                                                                        <option value='3' <?php if ($prefs['LABELS_choice'] == '3') {
-                                                                            echo "selected";} ?>>5162</option>
-                                                                        <option value='4' <?php if ($prefs['LABELS_choice'] == '4') {
-                                                                            echo "selected";} ?>>5163</option>
-                                                                        <option value='5' <?php if ($prefs['LABELS_choice'] == '5') {
-                                                                            echo "selected";} ?>>5164</option>
-                                                                        <option value='6' <?php if ($prefs['LABELS_choice'] == '6') {
-                                                                            echo "selected";} ?>>8600</option>
-                                                                        <option value='7' <?php if ($prefs['LABELS_choice'] == '7') {
-                                                                            echo "selected";} ?>>L7163</option>
-                                                                        <option value='8' <?php if ($prefs['LABELS_choice'] == '8') {
-                                                                            echo "selected";} ?>>3422</option>
-                                                                    </select>
-
-                                                    </div>
-                                                </div>
-                                                <div class="divTableRow">
-                                                    <div class="divTableCell divTableHeading"><?php echo xlt('Postcards'); ?></div>
-                                                    <div class="divTableCell indent20">
-                                                    <!--
-                                                        <input type="checkbox" class="update" name="POSTCARDS_local" id="POSTCARDS_local" value="1" <?php if ($prefs['POSTCARDS_local']) {
-                                                            echo "checked='checked'";} ?>" />
-                                                        <label for="POSTCARDS_local" name="POSTCARDS_local" class="input-helper input-helper--checkbox" data-toggle='tooltip' data-placement='auto'  title='<?php echo xla('Check if you plan to print postcards locally'); ?>'><?php echo xlt('Print locally'); ?></label><br />
-                                                        <input type="checkbox" class="update" name="POSTCARDS_remote" id="POSTCARDS_remote" value="1" <?php if ($prefs['POSTCARDS_remote']) {
-                                                            echo "checked='checked'";} ?>" />
-                                                        <label for="POSTCARDS_remote" name="POSTCARDS_remote" class="input-helper input-helper--checkbox" data-toggle='tooltip' data-placement='auto'  title='<?php echo xla('Check if you plan to send postcards via MedEx'); ?>'><?php echo xlt('Print remotely'); ?></label>
-                                                    -->
-                                                        <label for="postcards_top" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Custom text for Flow Board postcards. After changing text, print samples before printing mass quantities!'); ?>"><u><?php echo xlt('Custom Greeting'); ?>:</u></label><br />
-                                                        <textarea rows=3 columns=70 id="postcard_top" name="postcard_top" class="update form-control" style="font-weight:400;"><?php echo nl2br(text($prefs['postcard_top'])); ?></textarea>
-                                                    </div>
-                                                </div>
-                                            <input type="hidden" name="ME_username" id="ME_username" value="<?php echo attr($prefs['ME_username']);?>" />
-                                            <input type="hidden" name="ME_api_key" id="ME_api_key" value="<?php echo attr($prefs['ME_api_key']);?>" />
                                             </div>
+                                            <div class="divTableRow">
+                                                <div class="divTableCell divTableHeading"><?php echo xlt('Labels'); ?></div>
+                                                <div class="divTableCell indent20">
+                                                <input type="checkbox" class="update" name="LABELS_local" id="LABELS_local" value="1" <?php if ($prefs['LABELS_local']) {
+                                                        echo "checked='checked'";} ?> />
+                                                    <label for="LABELS_local" class="input-helper input-helper--checkbox" data-toggle='tooltip' data-placement='auto'  title='<?php echo xla('Check if you plan to use Avery Labels for Reminders or Recalls'); ?>'>
+                                                        <?php echo xlt('Use Avery Labels'); ?></label>
+                                                    <select class="update form-control ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" id="chart_label_type" name="chart_label_type">
+                                                                    <option value='1' <?php if ($prefs['LABELS_choice'] == '1') {
+                                                                        echo "selected";} ?>>5160</option>
+                                                                    <option value='2' <?php if ($prefs['LABELS_choice'] == '2') {
+                                                                        echo "selected";} ?>>5161</option>
+                                                                    <option value='3' <?php if ($prefs['LABELS_choice'] == '3') {
+                                                                        echo "selected";} ?>>5162</option>
+                                                                    <option value='4' <?php if ($prefs['LABELS_choice'] == '4') {
+                                                                        echo "selected";} ?>>5163</option>
+                                                                    <option value='5' <?php if ($prefs['LABELS_choice'] == '5') {
+                                                                        echo "selected";} ?>>5164</option>
+                                                                    <option value='6' <?php if ($prefs['LABELS_choice'] == '6') {
+                                                                        echo "selected";} ?>>8600</option>
+                                                                    <option value='7' <?php if ($prefs['LABELS_choice'] == '7') {
+                                                                        echo "selected";} ?>>L7163</option>
+                                                                    <option value='8' <?php if ($prefs['LABELS_choice'] == '8') {
+                                                                        echo "selected";} ?>>3422</option>
+                                                                </select>
+
+                                                </div>
+                                            </div>
+                                            <div class="divTableRow">
+                                                <div class="divTableCell divTableHeading"><?php echo xlt('Postcards'); ?></div>
+                                                <div class="divTableCell indent20">
+                                                <!--
+                                                    <input type="checkbox" class="update" name="POSTCARDS_local" id="POSTCARDS_local" value="1" <?php if ($prefs['POSTCARDS_local']) {
+                                                        echo "checked='checked'";} ?>" />
+                                                    <label for="POSTCARDS_local" name="POSTCARDS_local" class="input-helper input-helper--checkbox" data-toggle='tooltip' data-placement='auto'  title='<?php echo xla('Check if you plan to print postcards locally'); ?>'><?php echo xlt('Print locally'); ?></label><br />
+                                                    <input type="checkbox" class="update" name="POSTCARDS_remote" id="POSTCARDS_remote" value="1" <?php if ($prefs['POSTCARDS_remote']) {
+                                                        echo "checked='checked'";} ?>" />
+                                                    <label for="POSTCARDS_remote" name="POSTCARDS_remote" class="input-helper input-helper--checkbox" data-toggle='tooltip' data-placement='auto'  title='<?php echo xla('Check if you plan to send postcards via MedEx'); ?>'><?php echo xlt('Print remotely'); ?></label>
+                                                -->
+                                                    <label for="postcards_top" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Custom text for Flow Board postcards. After changing text, print samples before printing mass quantities!'); ?>"><u><?php echo xlt('Custom Greeting'); ?>:</u></label><br />
+                                                    <textarea rows=3 columns=70 id="postcard_top" name="postcard_top" class="update form-control" style="font-weight:400;"><?php echo nl2br(text($prefs['postcard_top'])); ?></textarea>
+                                                </div>
+                                            </div>
+                                        <input type="hidden" name="ME_username" id="ME_username" value="<?php echo attr($prefs['ME_username']);?>" />
+                                        <input type="hidden" name="ME_api_key" id="ME_api_key" value="<?php echo attr($prefs['ME_api_key']);?>" />
                                         </div>
                                     </div>
-                                     <div class="col-sm-5 div-center" id="daform2">
-                                        <div class="divTable2">
-                                            <div class="divTableBody prefs">
+                                </div>
+                                 <div class="col-sm-5 div-center" id="daform2">
+                                    <div class="divTable2">
+                                        <div class="divTableBody prefs">
                                             <?php if (count($logged_in['products']['ordered']) > '0') { ?>
-                                                <div class="divTableRow">
-                                                    <div class="divTableCell divTableHeading"><?php echo xlt('Enabled Services'); ?></div>
-                                                    <div class="divTableCell">
-                                                        <ul>
-                                                            <?php
-                                                            foreach ($logged_in['products']['ordered'] as $service) {
-                                                                ?><li><a href="<?php echo $service['view']; ?>" target="_medex"><?php echo $service['model']; ?> </a></li>
-                                                                <?php echo $service['list'];
-                                                            } ?>
-                                                        </ul>
-                                                    </div>
+                                            <div class="divTableRow">
+                                                <div class="divTableCell divTableHeading"><?php echo xlt('Enabled Services'); ?></div>
+                                                <div class="divTableCell">
+                                                    <ul>
+                                                        <?php
+                                                        foreach ($logged_in['products']['ordered'] as $service) {
+                                                            ?><li><a href="<?php echo $service['view']; ?>" target="_medex"><?php echo $service['model']; ?> </a></li>
+                                                            <?php echo $service['list'];
+                                                        } ?>
+                                                    </ul>
                                                 </div>
-                                                <?php }
+                                            </div>
+                                            <?php }
                                             if (!empty($logged_in['products']['not_ordered'])) {
                                                 ?>
-    <div class="divTableRow">
-    <div class="divTableCell divTableHeading"><?php echo xlt('Available Services'); ?></div>
-        <div class="divTableCell">
-        <ul>
+<div class="divTableRow">
+<div class="divTableCell divTableHeading"><?php echo xlt('Available Services'); ?></div>
+    <div class="divTableCell">
+    <ul>
                                                 <?php
                                                 foreach ($logged_in['products']['not_ordered'] as $service) {
                                                     ?><li><a href="<?php echo $service['view']; ?>" target="_medex"><?php echo $service['model']; ?> </a></li>
                                                     <?php
                                                     if ($service['product_id'] =='54') {
                                                         ?>
-                        <div style="margin-left: 10px;">Appointment Reminders<br />Patient Recalls<br />SMS Bot<br />Go Green Messages</div>
+                    <div style="margin-left: 10px;">Appointment Reminders<br />Patient Recalls<br />SMS Bot<br />Go Green Messages</div>
                                                         <?php
                                                     }
                                                 } ?>
-                                                        </ul>
-                                                    </div>
+                                                    </ul>
                                                 </div>
-                                                <?php } ?>
                                             </div>
+                                                <?php } ?>
                                         </div>
                                     </div>
-                                   <div class="col-sm-1"></div>
                                 </div>
-                                <div class="clearfix text-center" id="msg bottom"><br />
-                                </div>
-                        </form>
-                    </div>
+                               <div class="col-sm-1"></div>
+                            </div>
+                            <div class="clearfix text-center" id="msg bottom"><br />
+                            </div>
+                    </form>
                 </div>
             </div>
+        </div>
             <?php
     }
     public function display_recalls($logged_in)
@@ -1871,101 +1871,108 @@ class Display extends base
         ob_start();
 
         ?>
-        <div class="container-fluid">
-        <div id="rcb_selectors" style="display: <?php echo attr($rcb_selectors); ?>">
-            <div class="showRFlow text-center" id="show_recalls_params" style="margin: 20px auto;">
-                <div class="title"><?php echo xlt('Recall Board'); ?></div>
-                <div id="div_response"><?php echo xlt('Persons needing a recall, no appt scheduled yet.'); ?></div>
-                <?php
-                if ($GLOBALS['medex_enable'] == '0') {
-                    $last_col_width = "nodisplay";
-                }
-                ?>
-                <br />
-                <form name="rcb" id="rcb" method="post">
-                    <input type="hidden" name="go" value="Recalls" />
-                    <div class="text-center row divTable" style="width: 85%; float: unset; margin: 0 auto;">
-                            <div class="col-sm text-center mt-3">
-                                <input placeholder="<?php echo xla('Patient ID'); ?>" class="form-control form-control-sm" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ( $form_patient_id ) ? attr($form_patient_id) : ""; ?>" onKeyUp="show_this();" />
+    <div class="container-fluid">
+    <div class="row" id="rcb_selectors" style="display: <?php echo attr($rcb_selectors); ?>">
+        <div class="col-sm-12">
+        <div class="showRFlow text-center" id="show_recalls_params" style="margin: 20px auto;">
+            <div class="title"><?php echo xlt('Recall Board'); ?></div>
+            <div id="div_response"><?php echo xlt('Persons needing a recall, no appt scheduled yet.'); ?></div>
+            <?php
+            if ($GLOBALS['medex_enable'] == '0') {
+                $last_col_width = "nodisplay";
+            }
+            ?>
 
-                                <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control form-control-sm" id="form_patient_name" name="form_patient_name" value="<?php echo ( $form_patient_name ) ? attr($form_patient_name) : ""; ?>" onKeyUp="show_this();">
-                            </div>
-
-                            <div class="col-sm text-center mt-3">
-                                <select class="form-group ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" id="form_facility" name="form_facility"
-                                    <?php
-                                      $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
-                                    while ($fac = sqlFetchArray($fac_sql)) {
-                                        $true = ($fac['id'] == $rcb_facility) ? "selected=true" : '';
-                                        $select_facs .= "<option value=".attr($fac['id'])." ".$true.">".text($fac['name'])."</option>\n";
-                                        $count_facs++;
-                                    }
-                                    if ($count_facs <'1') {
-                                        echo "disabled";
-                                    }
-                                    ?>  onchange="show_this();">
-                                    <option value=""><?php echo xlt('All Facilities'); ?></option>
-                                        <?php echo $select_facs; ?>
-                                    </select>
+            <form name="rcb" id="rcb" method="post">
+                <input type="hidden" name="go" value="Recalls" />
+                <div class="text-center row align-items-center" style="font-size: 0.9rem; background: var(--light); box-shadow: 2px 3px 9px var(--gray400); border-radius: 8px; padding: 10px; margin: 10px auto; overflow: hidden; width: 85%;">
+                        <div class="col-sm-4 text-center mt-3">
+                            <div class="form-group row justify-content-center mx-sm-1">
+                                <select class="form-control form-control-sm" id="form_facility" name="form_facility"
                                         <?php
-                                                    # Build a drop-down list of providers.
-                                        $query = "SELECT id, lname, fname FROM users WHERE ".
-                                          "authorized = 1  AND active = 1 ORDER BY lname, fname"; #(CHEMED) facility filter
-                                        $ures = sqlStatement($query);
-                                      //a year ago @matrix-amiel Adding filters to flow board and counting of statuses
-                                        $count_provs = count(sqlFetchArray($ures));
-                                        ?>
-                                    <select class="form-group ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" id="form_provider" name="form_provider" <?php if ($count_provs <'2') {
-                                        echo "disabled"; } ?> onchange="show_this();">
+                                          $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
+                                        while ($fac = sqlFetchArray($fac_sql)) {
+                                            $true = ($fac['id'] == $rcb_facility) ? "selected=true" : '';
+                                            $select_facs .= "<option value=".attr($fac['id'])." ".$true.">".text($fac['name'])."</option>\n";
+                                            $count_facs++;
+                                        }
+                                        if ($count_facs <'1') {
+                                            echo "disabled";
+                                        }
+                                        ?>  onchange="show_this();">
+                                        <option value=""><?php echo xlt('All Facilities'); ?></option>
+                                            <?php echo $select_facs; ?>
+                                    </select>
+                            </div>
+                            <div class="form-group row mx-sm-1">
+                                <input placeholder="<?php echo xla('Patient ID'); ?>" class="form-control form-control-sm text-center" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo ( $form_patient_id ) ? attr($form_patient_id) : ""; ?>" onKeyUp="show_this();" />
+                            </div>
+                        </div>
+
+                        <div class="col-sm-4 text-center mt-3">
+                            <div class="form-group row mx-sm-1 justify-content-center">
+                                    <?php
+                                            # Build a drop-down list of providers.
+                                    $query = "SELECT id, lname, fname FROM users WHERE ".
+                                      "authorized = 1  AND active = 1 ORDER BY lname, fname"; #(CHEMED) facility filter
+                                    $ures = sqlStatement($query);
+                                  //a year ago @matrix-amiel Adding filters to flow board and counting of statuses
+                                    $count_provs = count(sqlFetchArray($ures));
+                                    ?>
+                                <select class="form-control form-control-sm" id="form_provider" name="form_provider" <?php if ($count_provs <'2') {
+                                    echo "disabled"; } ?> onchange="show_this();">
                                     <option value="" selected><?php echo xlt('All Providers'); ?></option>
 
-                                        <?php
-                                      // Build a drop-down list of ACTIVE providers.
-                                        $query = "SELECT id, lname, fname FROM users WHERE ".
-                                          "authorized = 1  AND active = 1 ORDER BY lname, fname"; #(CHEMED) facility filter
+                                            <?php
+                                          // Build a drop-down list of ACTIVE providers.
+                                            $query = "SELECT id, lname, fname FROM users WHERE ".
+                                              "authorized = 1  AND active = 1 ORDER BY lname, fname"; #(CHEMED) facility filter
 
-                                        $ures = sqlStatement($query);
-                                      //a year ago @matrix-amiel Adding filters to flow board and counting of statuses
-                                        while ($urow = sqlFetchArray($ures)) {
-                                            $provid = $urow['id'];
-                                            echo "    <option value='" . attr($provid) . "'";
-                                            if (isset($rcb_provider) && $provid == $_POST['form_provider']) {
-                                                echo " selected";
-                                            } elseif (!isset($_POST['form_provider'])&& $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']) {
-                                                echo " selected";
+                                            $ures = sqlStatement($query);
+                                          //a year ago @matrix-amiel Adding filters to flow board and counting of statuses
+                                            while ($urow = sqlFetchArray($ures)) {
+                                                $provid = $urow['id'];
+                                                echo "    <option value='" . attr($provid) . "'";
+                                                if (isset($rcb_provider) && $provid == $_POST['form_provider']) {
+                                                    echo " selected";
+                                                } elseif (!isset($_POST['form_provider'])&& $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']) {
+                                                    echo " selected";
+                                                }
+                                                echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
                                             }
-                                            echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
-                                        }
-                                        ?>
-                                    </select>
+                                            ?>
+                                </select>
+                            </div>
+
+                            <div class="form-group row mx-sm-1">
+                                <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control form-control-sm text-center" id="form_patient_name" name="form_patient_name" value="<?php echo ( $form_patient_name ) ? attr($form_patient_name) : ""; ?>" onKeyUp="show_this();">
+                            </div>
+
+                        </div>
+
+                        <div class="col-sm-4">
+                            <div class="input-append">
+                                <div class="form-group row mt-md-5">
+                                    <label for="flow_from" class="col-lg-2 col-sm-3 col-2 col-form-label text-sm-right mx-sm-0 px-sm-0"><?php echo xlt('From'); ?>:</label>
+                                    <div class="col-xl-3 col-lg-5 col-md-6 col-sm-7 col-4 ml-1 px-0">
+                                        <input id="form_from_date" name="form_from_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($from_date)); ?>" style="max-width: 140px; min-width: 85px;" />
+                                    </div>
                                 </div>
-                                <div class="col-sm text-center">
-                                  <div style="margin: 0 auto;" class="input-append">
-                                    <table class="table-hover table-sm" style="margin: 0 auto;">
-                                      <tr>
-                                          <td class="text-right" style="vertical-align: bottom;">
-                                              <label for="flow_from"><?php echo xlt('From'); ?>:</label></td>
-                                          <td>
-                                              <input id="form_from_date" name="form_from_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($from_date)); ?>" style="max-width: 140px; min-width: 85px;" />
-                                          </td>
-                                      </tr>
-                                      <tr>
-                                          <td class="text-right" style="vertical-align: bottom;">
-                                              <label for="flow_to">&nbsp;&nbsp;<?php echo xlt('To{{Range}}'); ?>:</label></td>
-                                          <td>
-                                              <input id="form_to_date" name="form_to_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($to_date)); ?>" style="max-width:140px;min-width:85px;">
-                                          </td>
-                                      </tr>
-                                      <tr>
-                                          <td class="text-center" colspan="2">
-                                              <button class="btn btn-secondary btn-filter" style="float: none;" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>"><?php echo xlt('Filter'); ?></button>
-                                              <button class="btn btn-secondary btn-add" onclick="goReminderRecall('addRecall');return false;"><?php echo xlt('New Recall'); ?></button>
-                                          </td>
-                                      </tr>
-                                    </table>
-                                  </div>
+
+                                <div class="form-group row">
+                                    <label for="flow_to" class="col-lg-2 col-sm-3 col-2 col-form-label text-sm-right mx-sm-0 px-sm-0">&nbsp;&nbsp;<?php echo xlt('To{{Range}}'); ?>:</label>
+                                    <div class="col-xl-3 col-lg-5 col-md-6 col-sm-7 col-4 ml-1 px-0">
+                                        <input id="form_to_date" name="form_to_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($to_date)); ?>" style="max-width:140px;min-width:85px;">
+                                    </div>
                                 </div>
-                                <div class="col-sm text-center <?php echo $last_col_width; ?>">
+
+                                <div class="form-group row btn-group offset-sm-0 offset-2" role="group">
+                                        <button class="btn btn-secondary btn-filter" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>"><?php echo xlt('Filter'); ?></button>
+                                        <button class="btn btn-secondary btn-add" onclick="goReminderRecall('addRecall');return false;"><?php echo xlt('New Recall'); ?></button>
+                                </div>
+                            </div>
+                        </div>
+                            <div class="col-sm text-center <?php echo $last_col_width; ?>">
                                     <?php
                                     if ($GLOBALS['medex_enable'] == '1') {
                                         if ($logged_in) {
@@ -1990,100 +1997,101 @@ class Display extends base
                                             }
                                         }
                                         ?>
-                                        <a class="fa fw fa-plus-square-o" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Add a New Recall'); ?>" id="BUTTON_new_recall_menu" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=addRecall"></a>
-                                        <span class="font-weight-bold" style="text-decoration: underline;">MedEx <?php echo xlt('Recall Schedule'); ?></span><br />
-                                        <a href="https://medexbank.com/cart/upload/index.php?route=information/campaigns&amp;g=rec" target="_medex">
-                                            <span>
-                                                <?php echo $current_events; ?>
-                                            </span>
-                                        </a>
-                                    </div>
-                                  </div>
-                                    <?php } ?>
+                                    <a class="fa fw fa-plus-square-o" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Add a New Recall'); ?>" id="BUTTON_new_recall_menu" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=addRecall"></a>
+                                    <span class="font-weight-bold" style="text-decoration: underline;">MedEx <?php echo xlt('Recall Schedule'); ?></span><br />
+                                    <a href="https://medexbank.com/cart/upload/index.php?route=information/campaigns&amp;g=rec" target="_medex">
+                                        <span>
+                                            <?php echo $current_events; ?>
+                                        </span>
+                                    </a>
                                 </div>
-                                <div name="message" id="message" class="warning"></div>
-                            </div>
-                        </form>
-                    </div>
                 </div>
-            </div>
+                                    <?php } ?>
 
-            <div class="container text-center">
-                <div class="showRecalls" id="show_recalls" style="margin: 0 auto;">
-                    <div name="message" id="message" class="warning"></div>
-                    <span class="text-right fa-stack fa-lg pull_right small" id="rcb_caret" onclick="toggleRcbSelectors();" data-toggle="tooltip" data-placement="auto" title="Show/Hide the Filters" style="color: <?php echo $color = ($setting_selectors=='none') ? 'var(--danger)' : 'var(--black)'; ?>; position: relative; float: right; right: 0; top: 0;">
-                    <i class="fa fa-square-o fa-stack-2x"></i>
-                    <i id="print_caret" class='fa fa-caret-<?php echo $caret = ($rcb_selectors==='none') ? 'down' : 'up'; ?> fa-stack-1x'></i>
-                </span>
-                    <ul class="nav nav-tabs <?php echo attr($reminder_bar); ?>">
-                        <li class="active whitish"><a onclick="show_this();" data-toggle="tab"><?php echo xlt('All'); ?></a></li>
-                        <li class="whitish"><a onclick="show_this('whitish');" data-toggle="tab"><?php echo xlt('Events Scheduled'); ?></a></li>
-                        <li class="yellowish"><a onclick="show_this('yellowish');" data-toggle="tab"><?php echo xlt('In-process'); ?></a></li>
-                        <li class="reddish"><a onclick="show_this('reddish');" data-toggle="tab"><?php echo xlt('Manual Processing Required'); ?></a></li>
-                        <li class="greenish"><a onclick="show_this('greenish');" data-toggle="tab"><?php echo xlt('Recently Completed'); ?></a></li>
-                    </ul>
+                <div name="message" id="message" class="warning"></div>
 
-                    <div class="tab-content">
-                       <div class="tab-pane active" id="tab-all">
+            </form>
+        </div>
+        </div>
+    </div>
+    </div>
+
+        <div class="container text-center">
+            <div class="showRecalls" id="show_recalls" style="margin: 0 auto;">
+                <div name="message" id="message" class="warning"></div>
+                <span class="text-right fa-stack fa-lg pull_right small" id="rcb_caret" onclick="toggleRcbSelectors();" data-toggle="tooltip" data-placement="auto" title="Show/Hide the Filters" style="color: <?php echo $color = ($setting_selectors=='none') ? 'var(--danger)' : 'var(--black)'; ?>; position: relative; float: right; right: 0; top: 0;">
+                <i class="fa fa-square-o fa-stack-2x"></i>
+                <i id="print_caret" class='fa fa-caret-<?php echo $caret = ($rcb_selectors==='none') ? 'down' : 'up'; ?> fa-stack-1x'></i>
+            </span>
+                <ul class="nav nav-tabs <?php echo attr($reminder_bar); ?>">
+                    <li class="active whitish"><a onclick="show_this();" data-toggle="tab"><?php echo xlt('All'); ?></a></li>
+                    <li class="whitish"><a onclick="show_this('whitish');" data-toggle="tab"><?php echo xlt('Events Scheduled'); ?></a></li>
+                    <li class="yellowish"><a onclick="show_this('yellowish');" data-toggle="tab"><?php echo xlt('In-process'); ?></a></li>
+                    <li class="reddish"><a onclick="show_this('reddish');" data-toggle="tab"><?php echo xlt('Manual Processing Required'); ?></a></li>
+                    <li class="greenish"><a onclick="show_this('greenish');" data-toggle="tab"><?php echo xlt('Recently Completed'); ?></a></li>
+                </ul>
+
+                <div class="tab-content">
+                   <div class="tab-pane active" id="tab-all">
                             <?php
                             $this->recall_board_top();
                             echo $processed['ALL'];
                             $this->recall_board_bot();
                             ?>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
         <?php
         //we need to respect facility and provider requests if submitted.
         // 1.Retrieve everything for a given date range.
         // 2.Refine results by facility and provider using jquery on cached results
         //   ie. further requests to view facility/provider within page can be done fast through javascript, no page reload needed.
         ?>
-        <script>
-            function toggleRcbSelectors() {
-                if ($("#rcb_selectors").css('display') === 'none') {
-                    $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
-                        'rcb_selectors' : 'block',
-                        success: function (data) {
-                            $("#rcb_selectors").slideToggle();
-                            $("#rcb_caret").css('color','var(--black)');
-                        }
-                    });
-                } else {
-                    $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
-                        'rcb_selectors' : 'none',
-                        success: function (data) {
-                            $("#rcb_selectors").slideToggle();
-                            $("#rcb_caret").css('color','var(--danger)');
-                        }
-                    });
-                }
-                $("#print_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');
-            }
-
-            function SMS_bot(pid) {
-                top.restoreSession();
-                pid = pid.replace('recall_','');
-                window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&pid=' + pid,'SMS_bot', 'width=370,height=600,resizable=0');
-                return false;
-            }
-            $(function () {
-                show_this();
-
-                $('.datepicker').datetimepicker({
-                    <?php $datetimepicker_timepicker = false; ?>
-                    <?php $datetimepicker_showseconds = false; ?>
-                    <?php $datetimepicker_formatInput = true; ?>
-                    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-                    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    <script>
+        function toggleRcbSelectors() {
+            if ($("#rcb_selectors").css('display') === 'none') {
+                $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
+                    'rcb_selectors' : 'block',
+                    success: function (data) {
+                        $("#rcb_selectors").slideToggle();
+                        $("#rcb_caret").css('color','var(--black)');
+                    }
                 });
+            } else {
+                $.post( "<?php echo $GLOBALS['webroot']."/interface/main/messages/messages.php"; ?>", {
+                    'rcb_selectors' : 'none',
+                    success: function (data) {
+                        $("#rcb_selectors").slideToggle();
+                        $("#rcb_caret").css('color','var(--danger)');
+                    }
+                });
+            }
+            $("#print_caret").toggleClass('fa-caret-up').toggleClass('fa-caret-down');
+        }
+
+        function SMS_bot(pid) {
+            top.restoreSession();
+            pid = pid.replace('recall_','');
+            window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&pid=' + pid,'SMS_bot', 'width=370,height=600,resizable=0');
+            return false;
+        }
+        $(function () {
+            show_this();
+
+            $('.datepicker').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
-            </script>
-            <?php
-            $content = ob_get_clean();
-            echo $content;
+        });
+        </script>
+        <?php
+        $content = ob_get_clean();
+        echo $content;
     }
     public function get_recalls($from_date = '', $to_date = '')
     {
@@ -2091,11 +2099,11 @@ class Display extends base
         // Thus there is no r_appt_time (NULL) but there is a DATE set.
 
         $query = "SELECT * FROM medex_recalls,patient_data AS pat
-                        WHERE pat.pid=medex_recalls.r_pid AND
-                        r_eventDate >= ? AND
-                        r_eventDate <= ? AND
-                        IFNULL(pat.deceased_date,0) = 0
-                        ORDER BY r_eventDate ASC";
+                    WHERE pat.pid=medex_recalls.r_pid AND
+                    r_eventDate >= ? AND
+                    r_eventDate <= ? AND
+                    IFNULL(pat.deceased_date,0) = 0
+                    ORDER BY r_eventDate ASC";
         $result = sqlStatement($query, array($from_date,$to_date));
         while ($recall= sqlFetchArray($result)) {
             $recalls[]=$recall;
@@ -2132,13 +2140,13 @@ class Display extends base
             }
             ob_start();
             echo '<div class="divTableRow ALL '.attr($show['status']).'"
-                     data-status="'.attr($show['status']).'"
-                     data-plan="'.attr($show['plan']).'"
-                     data-facility="'.attr($recall['r_facility']).'"
-                     data-provider="'.attr($recall['r_provider']).'"
-                     data-pname="'.attr($recall['fname']." ".$recall['lname']).'"
-                     data-pid="'.attr($recall['pid']).'"
-                     id="recall_'.attr($recall['pid']).'" style="display:none;">';
+                 data-status="'.attr($show['status']).'"
+                 data-plan="'.attr($show['plan']).'"
+                 data-facility="'.attr($recall['r_facility']).'"
+                 data-provider="'.attr($recall['r_provider']).'"
+                 data-pname="'.attr($recall['fname']." ".$recall['lname']).'"
+                 data-pid="'.attr($recall['pid']).'"
+                 id="recall_'.attr($recall['pid']).'" style="display:none;">';
 
             $query = "SELECT cal.pc_eventDate,pat.DOB FROM openemr_postcalendar_events AS cal JOIN patient_data AS pat ON cal.pc_pid=pat.pid WHERE cal.pc_pid =? ORDER BY cal.pc_eventDate DESC LIMIT 1";
             $result2 = sqlQuery($query, array( $recall['pid'] ));
@@ -2206,18 +2214,18 @@ class Display extends base
                 echo '<div class="divTableCell text-center labels"><input type="checkbox" name="labels" id="labels[]" value="'.attr($recall['pid']).'"></div>';
             }
             echo '  <div class="divTableCell text-center msg_manual"><span class="fa fa-fw spaced_icon" >
-                            <input type="checkbox" name="msg_phone" id="msg_phone_'.attr($recall['pid']).'" onclick="process_this(\'phone\',\''.attr($recall['pid']).'\',\''.attr($recall['r_ID']).'\')" />
-                    </span>';
+                        <input type="checkbox" name="msg_phone" id="msg_phone_'.attr($recall['pid']).'" onclick="process_this(\'phone\',\''.attr($recall['pid']).'\',\''.attr($recall['r_ID']).'\')" />
+                </span>';
             echo '    <span data-toggle="tooltip" data-placement="auto" title="'.xla('Scheduling').'" class="fa fa-calendar-check-o fa-fw" onclick="newEvt(\''.attr($recall['pid']).'\',\'\');">
-                    </span>';
+                </span>';
             echo '</div>';
 
             echo '  <div class="divTableCell text-left msg_resp">';
-                //    if phone call made show each in progress
+            //    if phone call made show each in progress
             echo '<textarea onblur="process_this(\'notes\',\''.attr($recall['pid']).'\',\''.attr($recall['r_ID']).'\');" name="msg_notes" id="msg_notes_'.attr($recall['pid']).'" style="width:90%;height:30px;">'.nl2br(text($recall['NOTES'])).'</textarea>';
             echo '</div>';
             echo '  <div class="divTableCell text-left msg_resp">
-                <i class="top_right_corner fa fa-times" onclick="delete_Recall(\''.attr($recall['pid']).'\',\''.attr($recall['r_ID']).'\')"></i> ';
+            <i class="top_right_corner fa fa-times" onclick="delete_Recall(\''.attr($recall['pid']).'\',\''.attr($recall['r_ID']).'\')"></i> ';
             echo $show['progression'];
 
             if ($show['appt']) {
@@ -2231,13 +2239,13 @@ class Display extends base
         return $process;
     }
 
-    /**
-     *  This function looks at a single recall and assesses its status.
-     * @param $recall
-     * @param string $events
-     * @return mixed
-     * @internal param string $possibleModalities
-     */
+/**
+ *  This function looks at a single recall and assesses its status.
+ * @param $recall
+ * @param string $events
+ * @return mixed
+ * @internal param string $possibleModalities
+ */
     public function show_progress_recall($recall, $events = '')
     {
         global $logged_in;
@@ -2257,7 +2265,7 @@ class Display extends base
         $show['progression']='';
         $show['DONE']='';
         $query = "SELECT * FROM openemr_postcalendar_events WHERE
-                      pc_eventDate >= CURDATE() AND pc_pid =? AND pc_eventDate > (? - INTERVAL 90 DAY)  AND pc_time >  (CURDATE()- INTERVAL 16 HOUR)";
+                  pc_eventDate >= CURDATE() AND pc_pid =? AND pc_eventDate > (? - INTERVAL 90 DAY)  AND pc_time >  (CURDATE()- INTERVAL 16 HOUR)";
         $count = sqlFetchArray(sqlStatement($query, array($recall['r_pid'],$recall['r_eventDate'])));
 
         if ($count) {
@@ -2272,7 +2280,7 @@ class Display extends base
             // Just cleaning up the Recall Board for you. Move along, nothing to see.
             // If you need to look at the track of action, look in the log?
         }
-        
+
         $sql ="SELECT * FROM medex_outgoing WHERE msg_pc_eid = ?  ORDER BY msg_date ASC";
         $result = sqlStatement($sql, array('recall_'.$recall['pid']));
         $something_happened='';
@@ -2339,7 +2347,7 @@ class Display extends base
             $something_happened=true;
         }
         $show['progression'] .= $show['EMAIL']['text'].$show['SMS']['text'].$show['AVM']['text'];
-        
+
         $camps='0';
         foreach ($events as $event) {
             if ($event['M_group'] != "RECALL") {
@@ -2379,7 +2387,7 @@ class Display extends base
                 $show['campaign'][$event['C_UID']]['executed'] = $execute;
             }
                $show['progression'] .= "<a href='https://medexbank.com/cart/upload/index.php?route=information/campaigns' class='nowrap text-left' target='_MedEx'>".
-                                       $show['campaign'][$event['C_UID']]['icon']." ".text($show['campaign'][$event['C_UID']]['executed'])."</a><br />";
+                                   $show['campaign'][$event['C_UID']]['icon']." ".text($show['campaign'][$event['C_UID']]['executed'])."</a><br />";
         }
 
         $query  = "SELECT * FROM openemr_postcalendar_events WHERE pc_eventDate > CURDATE() AND pc_pid =? AND pc_time >  CURDATE()- INTERVAL 16 HOUR";
@@ -2404,7 +2412,7 @@ class Display extends base
                 $show['status'] = "whitish";
             }
         } elseif (($GLOBALS['medex_enable'] == '1') && ($camps =='0')) {
-                    $show['status'] = "reddish"; //hey, nothing automatic left to do - manual processing required.
+                $show['status'] = "reddish"; //hey, nothing automatic left to do - manual processing required.
         } else {
             $show['status'] = "whitish";
         }
@@ -2479,90 +2487,90 @@ class Display extends base
     private function recall_board_top()
     {
         ?>
-        <div class="divTable text-center w-100" id="rcb_table" style="margin: 0 auto 30px;">
-            <div class="sticky divTableRow divTableHeading">
-                <div class="divTableCell text-center" style="width: 10%;"><?php echo xlt('Name'); ?></div>
-                <div class="divTableCell text-center" style="width: 10%;"><?php echo xlt('Recall'); ?></div>
-                <div class="divTableCell text-center phones" style="width: 10%;"><?php echo xlt('Contacts'); ?></div>
-                <div class="divTableCell text-center msg_resp">
-                    <?php echo xlt('Postcards'); ?><br />
-                    <span onclick="top.restoreSession(); checkAll('postcards',true);" class="fa fa-square-o fa-lg" id="chk_postcards"></span>
-                    &nbsp;
-                    <span onclick="process_this('postcards');" class="fa fa-print fa-lg"></span>
-                </div>
-                <div class="divTableCell text-center msg_resp"><?php echo xlt('Labels'); ?><br />
-                    <span onclick="checkAll('labels',true);" class="fa fa-square-o fa-lg" id="chk_labels"></span>
-                    &nbsp;
-                    <span onclick="process_this('labels');" class="fa fa-print fa-lg"></span>
-                </div>
-                <div class="divTableCell text-center msg_resp"><?php echo xlt('Office').": ".xlt('Phone'); ?></div>
-                <div class="divTableCell text-center msg_notes"><?php echo xlt('Notes'); ?></div>
-                <div class="divTableCell text-center"><?php echo xlt('Progress'); ?>
-                </div>
-
+    <div class="divTable text-center w-100" id="rcb_table" style="margin: 0 auto 30px;">
+        <div class="sticky divTableRow divTableHeading">
+            <div class="divTableCell text-center" style="width: 10%;"><?php echo xlt('Name'); ?></div>
+            <div class="divTableCell text-center" style="width: 10%;"><?php echo xlt('Recall'); ?></div>
+            <div class="divTableCell text-center phones" style="width: 10%;"><?php echo xlt('Contacts'); ?></div>
+            <div class="divTableCell text-center msg_resp">
+                <?php echo xlt('Postcards'); ?><br />
+                <span onclick="top.restoreSession(); checkAll('postcards',true);" class="fa fa-square-o fa-lg" id="chk_postcards"></span>
+                &nbsp;
+                <span onclick="process_this('postcards');" class="fa fa-print fa-lg"></span>
             </div>
-            <div class="divTableBody">
-            <?php
+            <div class="divTableCell text-center msg_resp"><?php echo xlt('Labels'); ?><br />
+                <span onclick="checkAll('labels',true);" class="fa fa-square-o fa-lg" id="chk_labels"></span>
+                &nbsp;
+                <span onclick="process_this('labels');" class="fa fa-print fa-lg"></span>
+            </div>
+            <div class="divTableCell text-center msg_resp"><?php echo xlt('Office').": ".xlt('Phone'); ?></div>
+            <div class="divTableCell text-center msg_notes"><?php echo xlt('Notes'); ?></div>
+            <div class="divTableCell text-center"><?php echo xlt('Progress'); ?>
+            </div>
+
+        </div>
+        <div class="divTableBody">
+        <?php
     }
     private function recall_board_bot()
     {
         ?>      </div>
-            </div>
         </div>
+    </div>
         <?php
     }
     public function display_add_recall($pid = 'new')
     {
         global $result_pat;
         ?>
-        <div class="container-fluid">
-            <div class="row-fluid showReminders clear text-center">
-                <div id="add_recall" class="col-sm-12">
-                    <div class="title"><?php echo xlt('New Recall'); ?></div>
-                    <div name="div_response" id="div_response"><?php echo xlt('Create a reminder to schedule a future visit.'); ?></div>
-                </div>
+    <div class="container-fluid">
+        <div class="row-fluid showReminders clear text-center">
+            <div id="add_recall" class="col-sm-12">
+                <div class="title"><?php echo xlt('New Recall'); ?></div>
+                <div name="div_response" id="div_response"><?php echo xlt('Create a reminder to schedule a future visit.'); ?></div>
             </div>
-            <div class="row-fluid divTable float_center">
-                <form name="addRecall" id="addRecall" class="form-inline" >
-                    <input type="hidden" name="go" id="go" value="addRecall">
-                    <input type="hidden" name="action" id="go" value="addRecall">
-                    <div class="col-sm-6 text-right form-group form-group-sm">
-                        <div class="divTableBody float-right">
-                            <div class="divTableRow">
-                                <div class="divTableCell divTableHeading"><?php echo xlt('Name'); ?></div>
-                                <div class="divTableCell recall_name">
-                                    <input type="text" name="new_recall_name" id="new_recall_name" class="form-control"
-                                        onclick="recall_name_click(this)"
-                                        value="<?php echo attr($result_pat['fname'])." ".attr($result_pat['lname']); ?>" style="width:225px;">
-                                    <input type="hidden" name="new_pid" id="new_pid" value="<?php echo attr($result_pat['id']); ?>">
+        </div>
+        <div class="row-fluid divTable float_center">
+            <form name="addRecall" id="addRecall" class="form-inline" >
+                <input type="hidden" name="go" id="go" value="addRecall">
+                <input type="hidden" name="action" id="go" value="addRecall">
+                <div class="col-sm-6 text-right form-group form-group-sm">
+                    <div class="divTableBody float-right">
+                        <div class="divTableRow">
+                            <div class="divTableCell divTableHeading"><?php echo xlt('Name'); ?></div>
+                            <div class="divTableCell recall_name">
+                                <input type="text" name="new_recall_name" id="new_recall_name" class="form-control"
+                                    onclick="recall_name_click(this)"
+                                    value="<?php echo attr($result_pat['fname'])." ".attr($result_pat['lname']); ?>" style="width:225px;">
+                                <input type="hidden" name="new_pid" id="new_pid" value="<?php echo attr($result_pat['id']); ?>">
+                            </div>
+                        </div>
+                        <div class="divTableRow">
+                            <div class="divTableCell divTableHeading"><?php echo xlt('Recall When'); ?></div>
+                            <div class="divTableCell">
+                                 <span class="font-weight-bold"><?php echo xlt('Last Visit'); ?>: </span>
+                                <input type="text" value="" name="DOLV" id="DOLV" class="form-control" />
+                                <br />
+                                <!-- Feel free to add in any dates you would like to show here...
+                                <input type="radio" name="new_recall_when" id="new_recall_when_6mos" value="180">
+                                <label for="new_recall_when_6mos" class="input-helper input-helper--checkbox">+ 6 <?php echo xlt('months'); ?></label><br />
+                                -->
+                                <label for="new_recall_when_1yr" class="input-helper input-helper--checkbox"><input type="radio" name="new_recall_when" id="new_recall_when_1yr" value="365" /><?php echo xlt('plus 1 year'); ?></label><br />
+                                <label for="new_recall_when_2yr" class="input-helper input-helper--checkbox"><input type="radio" name="new_recall_when" id="new_recall_when_2yr" value="730" /><?php echo xlt('plus 2 years'); ?></label><br />
+                                <label for="new_recall_when_3yr" class="input-helper input-helper--checkbox"><input type="radio" name="new_recall_when" id="new_recall_when_3yr" value="1095" /><?php echo xlt('plus 3 years'); ?></label><br />
+                                    <span class="font-weight-bold"> <?php echo xlt('Date'); ?>:</span> <input class="datepicker form-control form-control-sm text-center" type="text" id="form_recall_date" name="form_recall_date" value="" />
+                            </div>
+                        </div>
+                        <div class="divTableRow">
+                            <div class="divTableCell divTableHeading"><?php echo xlt('Recall Reason'); ?></div>
+                            <div class="divTableCell">
+                                <input class="form-control" type="text"  style="width:225px;" name="new_reason" id="new_reason" value="<?php if ($result_pat['PLAN'] > '') {
+                                    echo attr(rtrim("|", trim($result_pat['PLAN']))); } ?>">
                                 </div>
                             </div>
                             <div class="divTableRow">
-                                <div class="divTableCell divTableHeading"><?php echo xlt('Recall When'); ?></div>
+                                <div class="divTableCell divTableHeading"><?php echo xlt('Provider'); ?></div>
                                 <div class="divTableCell">
-                                     <span class="font-weight-bold"><?php echo xlt('Last Visit'); ?>: </span>
-                                    <input type="text" value="" name="DOLV" id="DOLV" class="form-control" />
-                                    <br />
-                                    <!-- Feel free to add in any dates you would like to show here...
-                                    <input type="radio" name="new_recall_when" id="new_recall_when_6mos" value="180">
-                                    <label for="new_recall_when_6mos" class="input-helper input-helper--checkbox">+ 6 <?php echo xlt('months'); ?></label><br />
-                                    -->
-                                    <label for="new_recall_when_1yr" class="input-helper input-helper--checkbox"><input type="radio" name="new_recall_when" id="new_recall_when_1yr" value="365" /><?php echo xlt('plus 1 year'); ?></label><br />
-                                    <label for="new_recall_when_2yr" class="input-helper input-helper--checkbox"><input type="radio" name="new_recall_when" id="new_recall_when_2yr" value="730" /><?php echo xlt('plus 2 years'); ?></label><br />
-                                    <label for="new_recall_when_3yr" class="input-helper input-helper--checkbox"><input type="radio" name="new_recall_when" id="new_recall_when_3yr" value="1095" /><?php echo xlt('plus 3 years'); ?></label><br />
-                                        <span class="font-weight-bold"> <?php echo xlt('Date'); ?>:</span> <input class="datepicker form-control form-control-sm text-center" type="text" id="form_recall_date" name="form_recall_date" value="" />
-                                </div>
-                            </div>
-                            <div class="divTableRow">
-                                <div class="divTableCell divTableHeading"><?php echo xlt('Recall Reason'); ?></div>
-                                <div class="divTableCell">
-                                    <input class="form-control" type="text"  style="width:225px;" name="new_reason" id="new_reason" value="<?php if ($result_pat['PLAN'] > '') {
-                                        echo attr(rtrim("|", trim($result_pat['PLAN']))); } ?>">
-                                    </div>
-                                </div>
-                                <div class="divTableRow">
-                                    <div class="divTableCell divTableHeading"><?php echo xlt('Provider'); ?></div>
-                                    <div class="divTableCell">
                                         <?php
                                         $ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE authorized != 0 AND active = 1 ORDER BY lname, fname");
                                         //This is an internal practice function so ignore the suffix as extraneous information.  We know who we are.
@@ -2594,218 +2602,218 @@ class Display extends base
                                         }
                                         echo "</select>";
                                         ?>
-                                    </div>
                                 </div>
-                                <div class="divTableRow">
-                                    <div class="divTableCell divTableHeading"><?php echo xlt('Facility'); ?></div>
-                                    <div class="divTableCell">
-                                    <select class="form-control ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" name="new_facility" id="new_facility" style="width: 95%;">
-                                        <?php
-                                            $qsql = sqlStatement("SELECT id, name, primary_business_entity FROM facility WHERE service_location != 0");
-                                        while ($facrow = sqlFetchArray($qsql)) {
-                                            if ($facrow['primary_business_entity'] == '1') {
-                                                $selected = 'selected="selected"';
-                                                echo "<option value='" . attr($facrow['id']) . "' $selected>" . text($facrow['name']) . "</option>";
-                                            } else {
-                                                $selected = '';
-                                                echo "<option value='" . attr($facrow['id']) . "' $selected>" . text($facrow['name']) . "</option>";
-                                            }
-                                        }
-                                        ?>
-                                          </select>
-                                    </div>
-                                </div>
-
                             </div>
-                        </div>
+                            <div class="divTableRow">
+                                <div class="divTableCell divTableHeading"><?php echo xlt('Facility'); ?></div>
+                                <div class="divTableCell">
+                                <select class="form-control ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" name="new_facility" id="new_facility" style="width: 95%;">
+                                    <?php
+                                        $qsql = sqlStatement("SELECT id, name, primary_business_entity FROM facility WHERE service_location != 0");
+                                    while ($facrow = sqlFetchArray($qsql)) {
+                                        if ($facrow['primary_business_entity'] == '1') {
+                                            $selected = 'selected="selected"';
+                                            echo "<option value='" . attr($facrow['id']) . "' $selected>" . text($facrow['name']) . "</option>";
+                                        } else {
+                                            $selected = '';
+                                            echo "<option value='" . attr($facrow['id']) . "' $selected>" . text($facrow['name']) . "</option>";
+                                        }
+                                    }
+                                    ?>
+                                      </select>
+                                </div>
+                            </div>
 
-                        <div class="col-sm-6 text-center form-group form-group-sm">
-                            <div class="divTableBody">
-                                <div class="divTableRow news">
-                                    <div class="divTableCell divTableHeading"><?php echo xlt('DOB'); ?></div>
-                                    <div class="divTableCell">&nbsp;&nbsp;
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 text-center form-group form-group-sm">
+                        <div class="divTableBody">
+                            <div class="divTableRow news">
+                                <div class="divTableCell divTableHeading"><?php echo xlt('DOB'); ?></div>
+                                <div class="divTableCell">&nbsp;&nbsp;
                                     <?php
                                     $DOB = oeFormatShortDate($result_pat['DOB']);
                                     ?>
-                                    <span name="new_DOB" id="new_DOB" style="width: 90px;"><?php echo text($DOB); ?></span> -
-                                     <span id="new_age" name="new_age"><?php echo text($result_pat['age']); ?></span></div>
-                                </div>
-                                <div class="divTableRow news">
-                                    <div class="divTableCell divTableHeading"><?php echo xlt('Address'); ?></div>
-                                    <div class="divTableCell">
-                                    <input type="text" class="form-control" name="new_address" id="new_address" style="width:240px;" value="<?php echo attr($result_pat['street']); ?>"><br />
-                                    <input type="text"  class="form-control" name="new_city" id="new_city" style="width:100px;" value="<?php echo attr($result_pat['city']); ?>">
-                                    <input type="text"  class="form-control" name="new_state" id="new_state" style="width:40px;" value="<?php echo attr($result_pat['state']); ?>">
-                                    <input type="text"  class="form-control" name="new_postal_code" id="new_postal_code" style="width:65px;" value="<?php echo attr($result_pat['postal_code']); ?>"></div>
-                                </div>
-                                <div class="divTableRow news">
-                                    <div class="divTableCell divTableHeading phone_home"><?php echo xlt('Home Phone'); ?></div>
-                                    <div class="divTableCell"><input type="text" name="new_phone_home" id="new_phone_home" class="form-control" value="<?php echo attr($result_pat['phone_home']); ?>"></div>
-                                </div>
-                                <div class="divTableRow news">
-                                    <div class="divTableCell divTableHeading phone_cell"><?php echo xlt('Mobile Phone'); ?></div>
-                                    <div class="divTableCell"><input type="text" name="new_phone_cell" id="new_phone_cell" class="form-control" value="<?php echo attr($result_pat['phone_cell']); ?>"></div>
-                                </div>
-                                <div class="divTableRow news">
-                                    <div class="divTableCell divTableHeading msg_sent" data-placement="auto" title="<?php echo xla('Text Message permission'); ?>"><?php echo xlt('SMS OK'); ?></div>
+                                <span name="new_DOB" id="new_DOB" style="width: 90px;"><?php echo text($DOB); ?></span> -
+                                 <span id="new_age" name="new_age"><?php echo text($result_pat['age']); ?></span></div>
+                            </div>
+                            <div class="divTableRow news">
+                                <div class="divTableCell divTableHeading"><?php echo xlt('Address'); ?></div>
+                                <div class="divTableCell">
+                                <input type="text" class="form-control" name="new_address" id="new_address" style="width:240px;" value="<?php echo attr($result_pat['street']); ?>"><br />
+                                <input type="text"  class="form-control" name="new_city" id="new_city" style="width:100px;" value="<?php echo attr($result_pat['city']); ?>">
+                                <input type="text"  class="form-control" name="new_state" id="new_state" style="width:40px;" value="<?php echo attr($result_pat['state']); ?>">
+                                <input type="text"  class="form-control" name="new_postal_code" id="new_postal_code" style="width:65px;" value="<?php echo attr($result_pat['postal_code']); ?>"></div>
+                            </div>
+                            <div class="divTableRow news">
+                                <div class="divTableCell divTableHeading phone_home"><?php echo xlt('Home Phone'); ?></div>
+                                <div class="divTableCell"><input type="text" name="new_phone_home" id="new_phone_home" class="form-control" value="<?php echo attr($result_pat['phone_home']); ?>"></div>
+                            </div>
+                            <div class="divTableRow news">
+                                <div class="divTableCell divTableHeading phone_cell"><?php echo xlt('Mobile Phone'); ?></div>
+                                <div class="divTableCell"><input type="text" name="new_phone_cell" id="new_phone_cell" class="form-control" value="<?php echo attr($result_pat['phone_cell']); ?>"></div>
+                            </div>
+                            <div class="divTableRow news">
+                                <div class="divTableCell divTableHeading msg_sent" data-placement="auto" title="<?php echo xla('Text Message permission'); ?>"><?php echo xlt('SMS OK'); ?></div>
 
-                                    <div class="divTableCell">
-                                    <div class="form-check">
-                                        <input type="radio" class="form-check-input" name="new_allowsms" id="new_allowsms_yes" value="YES" />
-                                        <label class="form-check-label" for="new_allowsms_yes"><?php echo xlt('YES'); ?></label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="new_allowsms" id="new_allowsms_no" value="NO">
-                                        <label class="form-check-label" for="new_allowsms_no"><?php echo xlt('NO'); ?></label>
-                                    </div>
-                                    </div>
+                                <div class="divTableCell">
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input" name="new_allowsms" id="new_allowsms_yes" value="YES" />
+                                    <label class="form-check-label" for="new_allowsms_yes"><?php echo xlt('YES'); ?></label>
                                 </div>
-                                <div class="divTableRow">
-                                    <div class="divTableCell divTableHeading msg_how" data-placement="auto" title="<?php echo xla('Automated Voice Message permission'); ?>"><?php echo xlt('AVM OK'); ?></div>
-                                    <div class="divTableCell">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="new_voice" id="new_voice_yes" value="YES" />
-                                        <label class="form-check-label" for="new_voice_yes"><?php echo xlt('YES'); ?></label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="new_voice" id="new_voice_no" value="NO" /> <label class="form-check-label" for="new_voice_no"><?php echo xlt('NO'); ?></label>
-                                    </div>
-                                    </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="new_allowsms" id="new_allowsms_no" value="NO">
+                                    <label class="form-check-label" for="new_allowsms_no"><?php echo xlt('NO'); ?></label>
                                 </div>
-                                <div class="divTableRow news">
-                                    <div class="divTableCell divTableHeading phone_cell"><?php echo xlt('E-Mail'); ?></div>
-                                    <div class="divTableCell"><input type="email" name="new_email" id="new_email" class="form-control" style="width:225px;" value="<?php echo attr($result_pat['email']); ?>"></div>
                                 </div>
+                            </div>
+                            <div class="divTableRow">
+                                <div class="divTableCell divTableHeading msg_how" data-placement="auto" title="<?php echo xla('Automated Voice Message permission'); ?>"><?php echo xlt('AVM OK'); ?></div>
+                                <div class="divTableCell">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="new_voice" id="new_voice_yes" value="YES" />
+                                    <label class="form-check-label" for="new_voice_yes"><?php echo xlt('YES'); ?></label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="new_voice" id="new_voice_no" value="NO" /> <label class="form-check-label" for="new_voice_no"><?php echo xlt('NO'); ?></label>
+                                </div>
+                                </div>
+                            </div>
+                            <div class="divTableRow news">
+                                <div class="divTableCell divTableHeading phone_cell"><?php echo xlt('E-Mail'); ?></div>
+                                <div class="divTableCell"><input type="email" name="new_email" id="new_email" class="form-control" style="width:225px;" value="<?php echo attr($result_pat['email']); ?>"></div>
+                            </div>
 
-                                <div class="divTableRow news">
-                                    <div class="divTableCell divTableHeading msg_when"><?php echo xlt('E-mail OK'); ?></div>
-                                    <div class="divTableCell">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="new_email_allow" id="new_email_yes" value="YES" />
-                                        <label class="form-check-label" for="new_email_yes"><?php echo xlt('YES'); ?></label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="new_email_allow" id="new_email_no" value="NO" />
-                                        <label class="form-check-label" for="new_email_no"><?php echo xlt('NO'); ?></label>
-                                    </div>
-                                    </div>
+                            <div class="divTableRow news">
+                                <div class="divTableCell divTableHeading msg_when"><?php echo xlt('E-mail OK'); ?></div>
+                                <div class="divTableCell">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="new_email_allow" id="new_email_yes" value="YES" />
+                                    <label class="form-check-label" for="new_email_yes"><?php echo xlt('YES'); ?></label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="new_email_allow" id="new_email_no" value="NO" />
+                                    <label class="form-check-label" for="new_email_no"><?php echo xlt('NO'); ?></label>
+                                </div>
                                 </div>
                             </div>
                         </div>
-                    </form>
-                </div>
-                <div class="row-fluid text-center">
-                    <button class="btn btn-secondary btn-add" style="float: none;" onclick="add_this_recall();" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new"><?php echo xlt('Add Recall'); ?></button>
-                    <p>
-                        <em class="small text-muted">* <?php echo xlt('N.B.{{Nota bene}}')." ".xlt('Demographic changes made here are recorded system-wide'); ?>.</em>
-                    </p>
-                </div>
-
+                    </div>
+                </form>
             </div>
-            <script>
-                $(function () {
-                    $('.datepicker').datetimepicker({
+            <div class="row-fluid text-center">
+                <button class="btn btn-secondary btn-add" style="float: none;" onclick="add_this_recall();" value="<?php echo xla('Add Recall'); ?>" id="add_new" name="add_new"><?php echo xlt('Add Recall'); ?></button>
+                <p>
+                    <em class="small text-muted">* <?php echo xlt('N.B.{{Nota bene}}')." ".xlt('Demographic changes made here are recorded system-wide'); ?>.</em>
+                </p>
+            </div>
+
+        </div>
+        <script>
+            $(function () {
+                $('.datepicker').datetimepicker({
                         <?php $datetimepicker_timepicker = false; ?>
                         <?php $datetimepicker_showseconds = false; ?>
                         <?php $datetimepicker_formatInput = true; ?>
                         <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-                    });
-                    
                 });
+
+            });
                 <?php
                 if ($_SESSION['pid']>'') {
                     ?>
-                    setpatient('<?php echo text($_SESSION['pid']); ?>');
+                setpatient('<?php echo text($_SESSION['pid']); ?>');
                     <?php
                 }
                 ?>
-                var xljs_NOTE = '<?php echo xl("NOTE"); ?>';
-                var xljs_PthsApSched = '<?php echo xl("This patient already has an appointment scheduled for"); ?>';
-            
-            </script>
+            var xljs_NOTE = '<?php echo xl("NOTE"); ?>';
+            var xljs_PthsApSched = '<?php echo xl("This patient already has an appointment scheduled for"); ?>';
+
+        </script>
             <?php
     }
     public function icon_template()
     {
         ?>
-        <!-- icon rubric -->
-          <div style="position:relative;margin:30px auto;vertical-align:middle;">
-                <?php
-                $sqlQuery = "SELECT * FROM medex_icons ORDER BY msg_type";
-                $result  = sqlStatement($sqlQuery);
-                $icons = array();
-                while ($urow = sqlFetchArray($result)) {
-                    $icons['msg_type']['description'] = $urow['i_description'];
-                    $icons[$urow['msg_type']][$urow['msg_status']]  = $urow['i_html'];
-                } ?>
-                    <div class="divTable" style="margin:30px auto;width:100%;">
-                      <div class="divTableBody">
-                        <div class="divTableRow divTableHeading">
-                      <div class="divTableCell text-center"><?php echo xlt('Message'); ?></div>
-                      <div class="divTableCell text-center"><?php echo xlt('Possible'); ?></div>
-                      <div class="divTableCell text-center"><?php echo xlt('Not Possible'); ?></div>
-                      <div class="divTableCell text-center"><?php echo xlt('Scheduled'); ?></div>
-                      <div class="divTableCell text-center"><?php echo xlt('Sent')."<br />".xlt('In-process'); ?></div>
-                      <div class="divTableCell text-center"><?php echo xlt('Read')."<br />".xlt('Delivered');
-                            ; ?></div>
-                          <div class="divTableCell text-center"><?php echo xlt('Confirmed'); ?></div>
-                          <div class="divTableCell text-center"><?php echo xlt('Callback'); ?></div>
-                          <div class="divTableCell text-center"><?php echo xlt('Failure'); ?></div>
-                          <div class="divTableCell text-center"><?php echo xlt('Replies'); ?></div>
-                          <div class="divTableCell text-center"><?php echo xlt('STOP'); ?></div>
-                        </div>
-                        <div class="divTableRow">
-                          <div class="divTableCell text-center"><?php echo xlt('EMAIL'); ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['EMAIL']['ALLOWED']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['EMAIL']['NotAllowed']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['EMAIL']['SCHEDULED']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['EMAIL']['SENT']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['EMAIL']['READ']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['EMAIL']['CONFIRMED']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['EMAIL']['CALL']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['EMAIL']['FAILED']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['EMAIL']['EXTRA']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['EMAIL']['STOP']; ?></div>
-                        </div>
-                        <div class="divTableRow">
-                          <div class="divTableCell text-center"><?php echo xlt('SMS'); ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['SMS']['ALLOWED']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['SMS']['NotAllowed']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['SMS']['SCHEDULED']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['SMS']['SENT']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['SMS']['READ']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['SMS']['CONFIRMED']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['SMS']['CALL']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['SMS']['FAILED']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['SMS']['EXTRA']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['SMS']['STOP']; ?></div>
-                        </div>
-                        <div class="divTableRow">
-                          <div class="divTableCell text-center"><?php echo xlt('AVM'); ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['AVM']['ALLOWED']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['AVM']['NotAllowed']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['AVM']['SCHEDULED']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['AVM']['SENT']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['AVM']['READ']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['AVM']['CONFIRMED']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['AVM']['CALL']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['AVM']['FAILED']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['AVM']['EXTRA']; ?></div>
-                          <div class="divTableCell text-center"><?php echo $icons['AVM']['STOP']; ?></div>
-                        </div>
+    <!-- icon rubric -->
+      <div style="position:relative;margin:30px auto;vertical-align:middle;">
+            <?php
+            $sqlQuery = "SELECT * FROM medex_icons ORDER BY msg_type";
+            $result  = sqlStatement($sqlQuery);
+            $icons = array();
+            while ($urow = sqlFetchArray($result)) {
+                $icons['msg_type']['description'] = $urow['i_description'];
+                $icons[$urow['msg_type']][$urow['msg_status']]  = $urow['i_html'];
+            } ?>
+                <div class="divTable" style="margin:30px auto;width:100%;">
+                  <div class="divTableBody">
+                    <div class="divTableRow divTableHeading">
+                  <div class="divTableCell text-center"><?php echo xlt('Message'); ?></div>
+                  <div class="divTableCell text-center"><?php echo xlt('Possible'); ?></div>
+                  <div class="divTableCell text-center"><?php echo xlt('Not Possible'); ?></div>
+                  <div class="divTableCell text-center"><?php echo xlt('Scheduled'); ?></div>
+                  <div class="divTableCell text-center"><?php echo xlt('Sent')."<br />".xlt('In-process'); ?></div>
+                  <div class="divTableCell text-center"><?php echo xlt('Read')."<br />".xlt('Delivered');
+                        ; ?></div>
+                      <div class="divTableCell text-center"><?php echo xlt('Confirmed'); ?></div>
+                      <div class="divTableCell text-center"><?php echo xlt('Callback'); ?></div>
+                      <div class="divTableCell text-center"><?php echo xlt('Failure'); ?></div>
+                      <div class="divTableCell text-center"><?php echo xlt('Replies'); ?></div>
+                      <div class="divTableCell text-center"><?php echo xlt('STOP'); ?></div>
                     </div>
-              </div>
+                    <div class="divTableRow">
+                      <div class="divTableCell text-center"><?php echo xlt('EMAIL'); ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['EMAIL']['ALLOWED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['EMAIL']['NotAllowed']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['EMAIL']['SCHEDULED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['EMAIL']['SENT']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['EMAIL']['READ']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['EMAIL']['CONFIRMED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['EMAIL']['CALL']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['EMAIL']['FAILED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['EMAIL']['EXTRA']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['EMAIL']['STOP']; ?></div>
+                    </div>
+                    <div class="divTableRow">
+                      <div class="divTableCell text-center"><?php echo xlt('SMS'); ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['SMS']['ALLOWED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['SMS']['NotAllowed']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['SMS']['SCHEDULED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['SMS']['SENT']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['SMS']['READ']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['SMS']['CONFIRMED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['SMS']['CALL']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['SMS']['FAILED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['SMS']['EXTRA']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['SMS']['STOP']; ?></div>
+                    </div>
+                    <div class="divTableRow">
+                      <div class="divTableCell text-center"><?php echo xlt('AVM'); ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['AVM']['ALLOWED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['AVM']['NotAllowed']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['AVM']['SCHEDULED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['AVM']['SENT']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['AVM']['READ']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['AVM']['CONFIRMED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['AVM']['CALL']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['AVM']['FAILED']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['AVM']['EXTRA']; ?></div>
+                      <div class="divTableCell text-center"><?php echo $icons['AVM']['STOP']; ?></div>
+                    </div>
+                </div>
+          </div>
 
             <?php
     }
 
-    /**
-     *  This function displays a bootstrap responsive pop-up window containing an image of a phone with a record of our messaging activity.
-     * @param $logged_in
-     * @return bool
-     */
-     
+/**
+ *  This function displays a bootstrap responsive pop-up window containing an image of a phone with a record of our messaging activity.
+ * @param $logged_in
+ * @return bool
+ */
+
     public function SMS_bot($logged_in)
     {
         $fields = array();
@@ -2829,13 +2837,13 @@ class Display extends base
         }
         return false;
     }
-    
-    /**
-     * This function synchronizes a patient demographic data with MedEx
-     * @param $pid
-     * @param $logged_in
-     * @return mixed
-     */
+
+/**
+ * This function synchronizes a patient demographic data with MedEx
+ * @param $pid
+ * @param $logged_in
+ * @return mixed
+ */
     public function syncPat($pid, $logged_in)
     {
         if ($pid == 'pat_list') {
@@ -2849,7 +2857,7 @@ class Display extends base
                 $sqlSync = "SELECT * FROM patient_data WHERE fname LIKE ? OR lname LIKE ? LIMIT 20";
                 $datas = sqlStatement($sqlSync, array("%".$values."%","%".$values."%"));
             }
-            
+
             while ($hit = sqlFetchArray($datas)) {
                 $data['list'][] = $hit;
                 $pid_list[] = $hit['pid'];
@@ -2883,315 +2891,315 @@ class Setup extends Base
     {
         if ($stage =='1') {
             ?>
-            <div class="row">
-            <div class="col-sm-10 text-center offset-1">
-                <div id="setup_1">
-                    <div class="title">MedEx</div>
-                    <div class="row showReminders ">
-                        <div class="col-sm-10 text-center offset-1">
-                            <em>
-                                <?php echo xlt('Using technology to improve productivity'); ?>.
-                            </em>
-                        </div>
+        <div class="row">
+        <div class="col-sm-10 text-center offset-1">
+            <div id="setup_1">
+                <div class="title">MedEx</div>
+                <div class="row showReminders ">
+                    <div class="col-sm-10 text-center offset-1">
+                        <em>
+                            <?php echo xlt('Using technology to improve productivity'); ?>.
+                        </em>
                     </div>
-                    <div class="row showReminders ">
-                        <div class="col-sm-5 offset-1 text-center">
-                            <h3 class="title"><?php echo xlt('Targets'); ?>:</h3>
-                            <ul class="text-left" style="margin-left:125px;">
-                                <li> <?php echo xlt('Appointment Reminders'); ?></li>
-                                <li> <?php echo xlt('Patient Recalls'); ?></li>
-                                <li> <?php echo xlt('Office Announcements'); ?></li>
-                                <li> <?php echo xlt('Patient Surveys'); ?></li>
-                            </ul>
-                        </div>
-                        <div class="col-sm-4 offset-1 text-center">
-                            <h3 class="title"><?php echo xlt('Channels'); ?>:</h3>
-                            <ul class="text-left" style="margin-left:75px;">
-                                <li> <?php echo xlt('SMS Messages'); ?></li>
-                                <li> <?php echo xlt('Voice Messages'); ?></li>
-                                <li> <?php echo xlt('E-mail Messaging'); ?></li>
-                                <li> <?php echo xlt('Postcards'); ?></li>
-                                <li> <?php echo xlt('Address Labels'); ?></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="text-center row showReminders">
-                        <input value="<?php echo xla('Sign-up'); ?>" onclick="goReminderRecall('setup&stage=2');" class="btn btn-primary">
-                    </div>
-
                 </div>
+                <div class="row showReminders ">
+                    <div class="col-sm-5 offset-1 text-center">
+                        <h3 class="title"><?php echo xlt('Targets'); ?>:</h3>
+                        <ul class="text-left" style="margin-left:125px;">
+                            <li> <?php echo xlt('Appointment Reminders'); ?></li>
+                            <li> <?php echo xlt('Patient Recalls'); ?></li>
+                            <li> <?php echo xlt('Office Announcements'); ?></li>
+                            <li> <?php echo xlt('Patient Surveys'); ?></li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-4 offset-1 text-center">
+                        <h3 class="title"><?php echo xlt('Channels'); ?>:</h3>
+                        <ul class="text-left" style="margin-left:75px;">
+                            <li> <?php echo xlt('SMS Messages'); ?></li>
+                            <li> <?php echo xlt('Voice Messages'); ?></li>
+                            <li> <?php echo xlt('E-mail Messaging'); ?></li>
+                            <li> <?php echo xlt('Postcards'); ?></li>
+                            <li> <?php echo xlt('Address Labels'); ?></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="text-center row showReminders">
+                    <input value="<?php echo xla('Sign-up'); ?>" onclick="goReminderRecall('setup&stage=2');" class="btn btn-primary">
+                </div>
+
             </div>
-            </div>
+        </div>
+        </div>
 
             <?php
         } else if ($stage =='2') {
             ?>
-            <div class="row">
-            <form name="medex_start" id="medex_start">
-                <div class="col-sm-10 offset-sm-1 text-center">
-                    <div id="setup_1" class="showReminders borderShadow">
-                        <div class="title row fa"><?php echo xlt('Register'); ?>: MedEx Bank</div>
-                        <div class="row showReminders">
-                            <div class="fa col-sm-10 offset-sm-1 text-center">
-                                <div class="divTable4" id="answer" name="answer">
-                                    <div class="divTableBody">
-                                        <div class="divTableRow">
-                                            <div class="divTableCell divTableHeading">
-                                                <?php echo xlt('E-mail'); ?>
-                                            </div>
-                                            <div class="divTableCell">
-                                                <i id="email_check" name="email_check" class="top_right_corner nodisplay red fa fa-check"></i>
-                                                <input type="text" data-rule-email="true" class="form-control" id="new_email" name="new_email" value="<?php echo attr($GLOBALS['user_data']['email']); ?>" placeholder="<?php echo xla('your email address'); ?>" required>
-                                                <div class="signup_help nodisplay" id="email_help" name="email_help"><?php echo xlt('Please provide a valid e-mail address to proceed'); ?>...</div>
+        <div class="row">
+        <form name="medex_start" id="medex_start">
+            <div class="col-sm-10 offset-sm-1 text-center">
+                <div id="setup_1" class="showReminders borderShadow">
+                    <div class="title row fa"><?php echo xlt('Register'); ?>: MedEx Bank</div>
+                    <div class="row showReminders">
+                        <div class="fa col-sm-10 offset-sm-1 text-center">
+                            <div class="divTable4" id="answer" name="answer">
+                                <div class="divTableBody">
+                                    <div class="divTableRow">
+                                        <div class="divTableCell divTableHeading">
+                                            <?php echo xlt('E-mail'); ?>
+                                        </div>
+                                        <div class="divTableCell">
+                                            <i id="email_check" name="email_check" class="top_right_corner nodisplay red fa fa-check"></i>
+                                            <input type="text" data-rule-email="true" class="form-control" id="new_email" name="new_email" value="<?php echo attr($GLOBALS['user_data']['email']); ?>" placeholder="<?php echo xla('your email address'); ?>" required>
+                                            <div class="signup_help nodisplay" id="email_help" name="email_help"><?php echo xlt('Please provide a valid e-mail address to proceed'); ?>...</div>
 
-                                            </div>
                                         </div>
-                                        <div class="divTableRow">
-                                            <div class="divTableCell divTableHeading">
-                                                <?php echo xlt('Password'); ?>
-                                            </div>
-                                            <div class="divTableCell"><i id="pwd_check" name="pwd_check" class="top_right_corner nodisplay red fa fa-check"></i>
-                                                <i class="fa top_right_corner fa-question" id="pwd_ico_help" aria-hidden="true" onclick="$('#pwd_help').toggleClass('nodisplay');"></i>
-                                                <input type="password" placeholder="<?php xla('Password'); ?>" id="new_password" name="new_password" class="form-control" required>
-                                                <div id="pwd_help" class="nodisplay signup_help"><?php echo xlt('Secure Password Required').": ". xlt('8-12 characters long, including at least one upper case letter, one lower case letter, one number, one special character and no common strings'); ?>...</div>
-                                            </div>
+                                    </div>
+                                    <div class="divTableRow">
+                                        <div class="divTableCell divTableHeading">
+                                            <?php echo xlt('Password'); ?>
                                         </div>
-                                        <div class="divTableRow">
-                                            <div class="divTableCell divTableHeading">
-                                                <?php echo xlt('Repeat'); ?>
-                                            </div>
-                                            <div class="divTableCell"><i id="pwd_rcheck" name="pwd_rcheck" class="top_right_corner nodisplay red fa fa-check"></i>
-                                                <input type="password" placeholder="<?php echo xla('Repeat password'); ?>" id="new_rpassword" name="new_rpassword" class="form-control" required>
-                                                <div id="pwd_rhelp" class="nodisplay signup_help" style=""><?php echo xlt('Passwords do not match.'); ?></div>
-                                            </div>
+                                        <div class="divTableCell"><i id="pwd_check" name="pwd_check" class="top_right_corner nodisplay red fa fa-check"></i>
+                                            <i class="fa top_right_corner fa-question" id="pwd_ico_help" aria-hidden="true" onclick="$('#pwd_help').toggleClass('nodisplay');"></i>
+                                            <input type="password" placeholder="<?php xla('Password'); ?>" id="new_password" name="new_password" class="form-control" required>
+                                            <div id="pwd_help" class="nodisplay signup_help"><?php echo xlt('Secure Password Required').": ". xlt('8-12 characters long, including at least one upper case letter, one lower case letter, one number, one special character and no common strings'); ?>...</div>
+                                        </div>
+                                    </div>
+                                    <div class="divTableRow">
+                                        <div class="divTableCell divTableHeading">
+                                            <?php echo xlt('Repeat'); ?>
+                                        </div>
+                                        <div class="divTableCell"><i id="pwd_rcheck" name="pwd_rcheck" class="top_right_corner nodisplay red fa fa-check"></i>
+                                            <input type="password" placeholder="<?php echo xla('Repeat password'); ?>" id="new_rpassword" name="new_rpassword" class="form-control" required>
+                                            <div id="pwd_rhelp" class="nodisplay signup_help" style=""><?php echo xlt('Passwords do not match.'); ?></div>
                                         </div>
                                     </div>
                                 </div>
-                                <div id="ihvread" name="ihvread" class="fa text-left">
-                                    <input type="checkbox" class="updated required" name="TERMS_yes" id="TERMS_yes" required>
-                                    <label for="TERMS_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="Terms and Conditions"><?php echo xlt('I have read and my practice agrees to the'); ?>
-                                        <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=5','TERMS',800, 600);">MedEx <?php echo xlt('Terms and Conditions'); ?></a></label><br />
-                                    <input type="checkbox" class="updated required" name="BusAgree_yes" id="BusAgree_yes" required>
-                                    <label for="BusAgree_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="BAA"><?php echo xlt('I have read and accept the'); ?>
-                                    <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=8','Bus Assoc Agree',800, 600);">MedEx <?php echo xlt('Business Associate Agreement'); ?></a></label>
-                                    <br />
-                                    <div class="align-center row showReminders">
-                                        <input id="Register" class="btn btn-primary" value="<?php echo xla('Register'); ?>" />
-                                    </div>
+                            </div>
+                            <div id="ihvread" name="ihvread" class="fa text-left">
+                                <input type="checkbox" class="updated required" name="TERMS_yes" id="TERMS_yes" required>
+                                <label for="TERMS_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="Terms and Conditions"><?php echo xlt('I have read and my practice agrees to the'); ?>
+                                    <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=5','TERMS',800, 600);">MedEx <?php echo xlt('Terms and Conditions'); ?></a></label><br />
+                                <input type="checkbox" class="updated required" name="BusAgree_yes" id="BusAgree_yes" required>
+                                <label for="BusAgree_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="BAA"><?php echo xlt('I have read and accept the'); ?>
+                                <a href="#" onclick="cascwin('https://medexbank.com/cart/upload/index.php?route=information/information&information_id=8','Bus Assoc Agree',800, 600);">MedEx <?php echo xlt('Business Associate Agreement'); ?></a></label>
+                                <br />
+                                <div class="align-center row showReminders">
+                                    <input id="Register" class="btn btn-primary" value="<?php echo xla('Register'); ?>" />
+                                </div>
 
-                                    <div id="myModal" class="modal fade" role="dialog">
-                                      <div class="modal-dialog">
+                                <div id="myModal" class="modal fade" role="dialog">
+                                  <div class="modal-dialog">
 
-                                        <!-- Modal content-->
-                                        <div class="modal-content">
-                                          <div class="modal-header"  style="background-color: #0d4867;color: #fff;font-weight: 700;">
-                                            <button type="button" class="close" data-dismiss="modal" style="color:#fff;opacity:1;box-shadow:unset !important;">&times;</button>
-                                            <h2 class="modal-title" style="font-weight:600;">Sign-Up Confirmation</h2>
-                                          </div>
-                                          <div class="modal-body" style="padding: 10px 45px;">
-                                            <p>You are opening a secure connection to MedExBank.com.  During this step your EHR will synchronize with the MedEx servers.  <br />
-                                                <br />
-                                                Re-enter your username (e-mail) and password in the MedExBank.com login window to:
-                                                <ul style="text-align: left;width: 90%;margin: 0 auto;">
-                                                    <li> confirm your practice and providers' information</li>
-                                                    <li> choose your service options</li>
-                                                    <li> update and activate your messages </li>
-                                                </ul>
-                                            </p>
-                                          </div>
-                                          <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                            <button type="button" class="btn btn-secondary" onlick="actualSignUp();" id="actualSignUp">Proceed</button>
-                                          </div>
-                                        </div>
-
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+                                      <div class="modal-header"  style="background-color: #0d4867;color: #fff;font-weight: 700;">
+                                        <button type="button" class="close" data-dismiss="modal" style="color:#fff;opacity:1;box-shadow:unset !important;">&times;</button>
+                                        <h2 class="modal-title" style="font-weight:600;">Sign-Up Confirmation</h2>
+                                      </div>
+                                      <div class="modal-body" style="padding: 10px 45px;">
+                                        <p>You are opening a secure connection to MedExBank.com.  During this step your EHR will synchronize with the MedEx servers.  <br />
+                                            <br />
+                                            Re-enter your username (e-mail) and password in the MedExBank.com login window to:
+                                            <ul style="text-align: left;width: 90%;margin: 0 auto;">
+                                                <li> confirm your practice and providers' information</li>
+                                                <li> choose your service options</li>
+                                                <li> update and activate your messages </li>
+                                            </ul>
+                                        </p>
+                                      </div>
+                                      <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                        <button type="button" class="btn btn-secondary" onlick="actualSignUp();" id="actualSignUp">Proceed</button>
                                       </div>
                                     </div>
+
+                                  </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </form>
             </div>
-            <script>
-            function signUp() {
-                var email = $("#new_email").val();
-                if (!validateEmail(email))  return alert('<?php echo xlt('Please provide a valid e-mail address to proceed'); ?>...');
-                var password = $("#new_password").val();
-                var passed = check_Password(password);
-                if (!passed) return alert('<?php echo xlt('Passwords must be 8-12 characters long and include one capital letter, one lower case letter and one special character'); ?> ... ');
-                if ($("#new_rpassword").val() !== password) return alert('<?php echo xlt('Passwords do not match'); ?>!');
-                if (!$("#TERMS_yes").is(':checked')) return alert('<?php echo xlt('You must agree to the Terms & Conditions before signing up');?>... ');
-                if (!$("#BusAgree_yes").is(':checked')) return alert('<?php echo xlt('You must agree to the HIPAA Business Associate Agreement');?>... ');
-                $("#myModal").modal();
-                return false;
-            }
+        </form>
+        </div>
+        <script>
+        function signUp() {
+            var email = $("#new_email").val();
+            if (!validateEmail(email))  return alert('<?php echo xlt('Please provide a valid e-mail address to proceed'); ?>...');
+            var password = $("#new_password").val();
+            var passed = check_Password(password);
+            if (!passed) return alert('<?php echo xlt('Passwords must be 8-12 characters long and include one capital letter, one lower case letter and one special character'); ?> ... ');
+            if ($("#new_rpassword").val() !== password) return alert('<?php echo xlt('Passwords do not match'); ?>!');
+            if (!$("#TERMS_yes").is(':checked')) return alert('<?php echo xlt('You must agree to the Terms & Conditions before signing up');?>... ');
+            if (!$("#BusAgree_yes").is(':checked')) return alert('<?php echo xlt('You must agree to the HIPAA Business Associate Agreement');?>... ');
+            $("#myModal").modal();
+            return false;
+        }
 
-            function validateEmail(email) {
-                var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-                return re.test(email);
-            }
-            function check_Password(password) {
-                var passed = validatePassword(password, {
-                    length:   [8, Infinity],
-                    lower:    1,
-                    upper:    1,
-                    numeric:  1,
-                    special:  1,
-                    badWords: ["password", "qwerty", "12345"],
-                    badSequenceLength: 4
-                });
-                return passed;
-            }
-            function validatePassword (pw, options) {
-                // default options (allows any password)
-                var o = {
-                    lower:    0,
-                    upper:    0,
-                    alpha:    0, /* lower + upper */
-                    numeric:  0,
-                    special:  0,
-                    length:   [0, Infinity],
-                    custom:   [ /* regexes and/or functions */ ],
-                    badWords: [],
-                    badSequenceLength: 0,
-                    noQwertySequences: false,
-                    noSequential:      false
-                };
-
-                for (var property in options)
-                    o[property] = options[property];
-
-                var re = {
-                        lower:   /[a-z]/g,
-                        upper:   /[A-Z]/g,
-                        alpha:   /[A-Z]/gi,
-                        numeric: /[0-9]/g,
-                        special: /[\W_]/g
-                    },
-                    rule, i;
-
-                // enforce min/max length
-                if (pw.length < o.length[0] || pw.length > o.length[1])
-                    return false;
-
-                // enforce lower/upper/alpha/numeric/special rules
-                for (rule in re) {
-                    if ((pw.match(re[rule]) || []).length < o[rule])
-                        return false;
-                }
-
-                // enforce word ban (case insensitive)
-                for (i = 0; i < o.badWords.length; i++) {
-                    if (pw.toLowerCase().indexOf(o.badWords[i].toLowerCase()) > -1)
-                        return false;
-                }
-
-                // enforce the no sequential, identical characters rule
-                if (o.noSequential && /([\S\s])\1/.test(pw))
-                    return false;
-
-                // enforce alphanumeric/qwerty sequence ban rules
-                if (o.badSequenceLength) {
-                    var lower   = "abcdefghijklmnopqrstuvwxyz",
-                        upper   = lower.toUpperCase(),
-                        numbers = "0123456789",
-                        qwerty  = "qwertyuiopasdfghjklzxcvbnm",
-                        start   = o.badSequenceLength - 1,
-                        seq     = "_" + pw.slice(0, start);
-                    for (i = start; i < pw.length; i++) {
-                        seq = seq.slice(1) + pw.charAt(i);
-                        if (
-                            lower.indexOf(seq)   > -1 ||
-                            upper.indexOf(seq)   > -1 ||
-                            numbers.indexOf(seq) > -1 ||
-                            (o.noQwertySequences && qwerty.indexOf(seq) > -1)
-                        ) {
-                            return false;
-                        }
-                    }
-                }
-
-                // enforce custom regex/function rules
-                for (i = 0; i < o.custom.length; i++) {
-                    rule = o.custom[i];
-                    if (rule instanceof RegExp) {
-                        if (!rule.test(pw))
-                            return false;
-                    } else if (rule instanceof Function) {
-                        if (!rule(pw))
-                            return false;
-                    }
-                }
-
-                // great success!
-                return true;
-            }
-            $(function () { 
-                $("#Register").click(function() {
-                     signUp();
-                });
-                $("#actualSignUp").click(function() {
-                    var url = "save.php?MedEx=start";
-                    var email = $("#new_email").val();
-                    $("#actualSignUp").html('<i class="fa fa-spinner fa-pulse fa-fw"></i><span class="sr-only">Loading...</span>');
-                    formData = $("form#medex_start").serialize();
-                    top.restoreSession();
-                    $.ajax({
-                        type   : 'POST',
-                        url    : url,
-                        data   : formData
-                        })
-                    .done(function(result) {
-                        obj = JSON.parse(result);
-                        $("#answer").html(obj.show);
-                        $("#ihvread").addClass('nodisplay');
-                        $('#myModal').modal('toggle');
-                        if (obj.success) {
-                            url="https://www.medexbank.com/login/"+email;
-                            window.open(url, 'clinical', 'resizable=1,scrollbars=1');
-                            refresh_me();
-                        }
-                    });
-                });
-                $("#new_email").blur(function(e) {
-                                    e.preventDefault();
-                                    var email = $("#new_email").val();
-                                    if (validateEmail(email))  {
-                                        $("#email_help").addClass('nodisplay');
-                                        $("#email_check").removeClass('nodisplay');
-                                    } else {
-                                        $("#email_help").removeClass('nodisplay');
-                                        $("#email_check").addClass('nodisplay');
-                                    }
-                                });
-                $("#new_password,#new_rpassword").keyup(function(e) {
-                                    e.preventDefault();
-                                    var pwd = $("#new_password").val();
-                                    if (check_Password(pwd))  {
-                                        $('#pwd_help').addClass('nodisplay');
-                                        $("#pwd_ico_help").addClass('nodisplay');
-                                        $("#pwd_check").removeClass('nodisplay');
-                                    } else {
-                                        $("#pwd_help").removeClass('nodisplay');
-                                        $("#pwd_ico_help").removeClass('nodisplay');
-                                        $("#pwd_check").addClass('nodisplay');
-                                    }
-                                    if (this.id === "new_rpassword") {
-                                        var pwd1 = $("#new_password").val();
-                                        var pwd2 = $("#new_rpassword").val();
-                                        if (pwd1 === pwd2) {
-                                            $('#pwd_rhelp').addClass('nodisplay');
-                                            $("#pwd_rcheck").removeClass('nodisplay');
-                                        } else {
-                                            $("#pwd_rhelp").removeClass('nodisplay');
-                                            $("#pwd_rcheck").addClass('nodisplay');
-                                        }
-                                    }
-                                });
+        function validateEmail(email) {
+            var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            return re.test(email);
+        }
+        function check_Password(password) {
+            var passed = validatePassword(password, {
+                length:   [8, Infinity],
+                lower:    1,
+                upper:    1,
+                numeric:  1,
+                special:  1,
+                badWords: ["password", "qwerty", "12345"],
+                badSequenceLength: 4
             });
-            </script>
+            return passed;
+        }
+        function validatePassword (pw, options) {
+            // default options (allows any password)
+            var o = {
+                lower:    0,
+                upper:    0,
+                alpha:    0, /* lower + upper */
+                numeric:  0,
+                special:  0,
+                length:   [0, Infinity],
+                custom:   [ /* regexes and/or functions */ ],
+                badWords: [],
+                badSequenceLength: 0,
+                noQwertySequences: false,
+                noSequential:      false
+            };
+
+            for (var property in options)
+                o[property] = options[property];
+
+            var re = {
+                    lower:   /[a-z]/g,
+                    upper:   /[A-Z]/g,
+                    alpha:   /[A-Z]/gi,
+                    numeric: /[0-9]/g,
+                    special: /[\W_]/g
+                },
+                rule, i;
+
+            // enforce min/max length
+            if (pw.length < o.length[0] || pw.length > o.length[1])
+                return false;
+
+            // enforce lower/upper/alpha/numeric/special rules
+            for (rule in re) {
+                if ((pw.match(re[rule]) || []).length < o[rule])
+                    return false;
+            }
+
+            // enforce word ban (case insensitive)
+            for (i = 0; i < o.badWords.length; i++) {
+                if (pw.toLowerCase().indexOf(o.badWords[i].toLowerCase()) > -1)
+                    return false;
+            }
+
+            // enforce the no sequential, identical characters rule
+            if (o.noSequential && /([\S\s])\1/.test(pw))
+                return false;
+
+            // enforce alphanumeric/qwerty sequence ban rules
+            if (o.badSequenceLength) {
+                var lower   = "abcdefghijklmnopqrstuvwxyz",
+                    upper   = lower.toUpperCase(),
+                    numbers = "0123456789",
+                    qwerty  = "qwertyuiopasdfghjklzxcvbnm",
+                    start   = o.badSequenceLength - 1,
+                    seq     = "_" + pw.slice(0, start);
+                for (i = start; i < pw.length; i++) {
+                    seq = seq.slice(1) + pw.charAt(i);
+                    if (
+                        lower.indexOf(seq)   > -1 ||
+                        upper.indexOf(seq)   > -1 ||
+                        numbers.indexOf(seq) > -1 ||
+                        (o.noQwertySequences && qwerty.indexOf(seq) > -1)
+                    ) {
+                        return false;
+                    }
+                }
+            }
+
+            // enforce custom regex/function rules
+            for (i = 0; i < o.custom.length; i++) {
+                rule = o.custom[i];
+                if (rule instanceof RegExp) {
+                    if (!rule.test(pw))
+                        return false;
+                } else if (rule instanceof Function) {
+                    if (!rule(pw))
+                        return false;
+                }
+            }
+
+            // great success!
+            return true;
+        }
+        $(function () {
+            $("#Register").click(function() {
+                 signUp();
+            });
+            $("#actualSignUp").click(function() {
+                var url = "save.php?MedEx=start";
+                var email = $("#new_email").val();
+                $("#actualSignUp").html('<i class="fa fa-spinner fa-pulse fa-fw"></i><span class="sr-only">Loading...</span>');
+                formData = $("form#medex_start").serialize();
+                top.restoreSession();
+                $.ajax({
+                    type   : 'POST',
+                    url    : url,
+                    data   : formData
+                    })
+                .done(function(result) {
+                    obj = JSON.parse(result);
+                    $("#answer").html(obj.show);
+                    $("#ihvread").addClass('nodisplay');
+                    $('#myModal').modal('toggle');
+                    if (obj.success) {
+                        url="https://www.medexbank.com/login/"+email;
+                        window.open(url, 'clinical', 'resizable=1,scrollbars=1');
+                        refresh_me();
+                    }
+                });
+            });
+            $("#new_email").blur(function(e) {
+                                e.preventDefault();
+                                var email = $("#new_email").val();
+                                if (validateEmail(email))  {
+                                    $("#email_help").addClass('nodisplay');
+                                    $("#email_check").removeClass('nodisplay');
+                                } else {
+                                    $("#email_help").removeClass('nodisplay');
+                                    $("#email_check").addClass('nodisplay');
+                                }
+                            });
+            $("#new_password,#new_rpassword").keyup(function(e) {
+                                e.preventDefault();
+                                var pwd = $("#new_password").val();
+                                if (check_Password(pwd))  {
+                                    $('#pwd_help').addClass('nodisplay');
+                                    $("#pwd_ico_help").addClass('nodisplay');
+                                    $("#pwd_check").removeClass('nodisplay');
+                                } else {
+                                    $("#pwd_help").removeClass('nodisplay');
+                                    $("#pwd_ico_help").removeClass('nodisplay');
+                                    $("#pwd_check").addClass('nodisplay');
+                                }
+                                if (this.id === "new_rpassword") {
+                                    var pwd1 = $("#new_password").val();
+                                    var pwd2 = $("#new_rpassword").val();
+                                    if (pwd1 === pwd2) {
+                                        $('#pwd_rhelp').addClass('nodisplay');
+                                        $("#pwd_rcheck").removeClass('nodisplay');
+                                    } else {
+                                        $("#pwd_rhelp").removeClass('nodisplay');
+                                        $("#pwd_rcheck").addClass('nodisplay');
+                                    }
+                                }
+                            });
+        });
+        </script>
             <?php
         }
     }
@@ -3252,28 +3260,28 @@ class MedEx
     public function getLastError()
     {
         return $this->lastError; }
-        
-        
+
+
     private function just_login($info)
     {
         if (empty($info)) {
             return;
         }
-        
+
         $versionService = new VersionService();
         $version = $versionService->fetch();
         $this->curl->setUrl($this->getUrl('login'));
         $this->curl->setData(array(
-            'username'  => $info['ME_username'],
-            'key'       => $info['ME_api_key'],
-            'UID'       => $info['MedEx_id'],
-            'MedEx'     => 'OpenEMR',
-            'major'     => attr($version->getMajor()),
-            'minor'     => attr($version->getMinor()),
-            'patch'     => attr($version->getPatch()),
-            'database'  => attr($version->getDatabase()),
-            'acl'       => attr($version->getAcl()),
-            'callback_key' => $info['callback_key']
+        'username'  => $info['ME_username'],
+        'key'       => $info['ME_api_key'],
+        'UID'       => $info['MedEx_id'],
+        'MedEx'     => 'OpenEMR',
+        'major'     => attr($version->getMajor()),
+        'minor'     => attr($version->getMinor()),
+        'patch'     => attr($version->getPatch()),
+        'database'  => attr($version->getDatabase()),
+        'acl'       => attr($version->getAcl()),
+        'callback_key' => $info['callback_key']
         ));
 
         $this->curl->makeRequest();
@@ -3287,22 +3295,22 @@ class MedEx
         sqlQuery($sql, array(json_encode($response)));
         return $response;
     }
-    
+
     public function login($force = '')
     {
         $info= array();
         $query = "SELECT * FROM medex_prefs";
         $info = sqlFetchArray(sqlStatement($query));
-        
+
         if (empty($info) ||
-            empty($info['ME_username']) ||
-            empty($info['ME_api_key']) ||
-            empty($info['MedEx_id']) ||
-            ($GLOBALS['medex_enable'] !=='1')) {
+        empty($info['ME_username']) ||
+        empty($info['ME_api_key']) ||
+        empty($info['MedEx_id']) ||
+        ($GLOBALS['medex_enable'] !=='1')) {
             return false;
         }
         $info['callback_key'] = $_POST['callback_key'];
-        
+
         if (empty($force)) {
             $timer = strtotime($info['MedEx_lastupdated']);
             $utc_now = date('Y-m-d H:m:s');
@@ -3311,13 +3319,13 @@ class MedEx
                 $expired ='1';
             }
         }
-        
+
         if (($expired =='1') || ($force=='1')) {
             $info = $this->just_login($info);
         } else {
             $info['status'] = json_decode($info['status'], true);
         }
-        
+
         if (isset($info['error'])) {
             $this->lastError = $info['error'];
             sqlQuery("UPDATE `background_services` SET `active`='0' WHERE `name`='MedEx'");
