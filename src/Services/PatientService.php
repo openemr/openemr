@@ -42,7 +42,7 @@ class PatientService
         $validator->required('fname')->lengthBetween(2, 255);
         $validator->required('lname')->lengthBetween(2, 255);
         $validator->required('sex')->lengthBetween(4, 30);
-        $validator->required('dob')->datetime('Y-m-d');
+        $validator->required('DOB')->datetime('Y-m-d');
 
 
         return $validator->validate($patient);
@@ -126,7 +126,7 @@ class PatientService
         $sql .= "     state=?,";
         $sql .= "     country_code=?,";
         $sql .= "     phone_contact=?,";
-        $sql .= "     dob=?,";
+        $sql .= "     DOB=?,";
         $sql .= "     sex=?,";
         $sql .= "     race=?,";
         $sql .= "     ethnicity=?";
@@ -145,7 +145,7 @@ class PatientService
                 $data["state"],
                 $data["country_code"],
                 $data["phone_contact"],
-                $data["dob"],
+                $data["DOB"],
                 $data["sex"],
                 $data["race"],
                 $data["ethnicity"]
@@ -172,7 +172,7 @@ class PatientService
         $sql .= "     state=?,";
         $sql .= "     country_code=?,";
         $sql .= "     phone_contact=?,";
-        $sql .= "     dob=?,";
+        $sql .= "     DOB=?,";
         $sql .= "     sex=?,";
         $sql .= "     race=?,";
         $sql .= "     ethnicity=?";
@@ -191,7 +191,7 @@ class PatientService
                 $data["state"],
                 $data["country_code"],
                 $data["phone_contact"],
-                $data["dob"],
+                $data["DOB"],
                 $data["sex"],
                 $data["race"],
                 $data["ethnicity"],
@@ -207,24 +207,24 @@ class PatientService
         $sql = "SELECT id,
                    pid,
                    pubpid,
-                   title, 
+                   title,
                    fname,
                    mname,
                    lname,
-                   street, 
-                   postal_code, 
-                   city, 
-                   state, 
-                   country_code, 
+                   street,
+                   postal_code,
+                   city,
+                   state,
+                   country_code,
                    phone_contact,
                    email
-                   dob,
+                   DOB,
                    sex,
                    race,
                    ethnicity
                 FROM patient_data";
 
-        if ($search['name'] || $search['dob'] || $search['city'] || $search['state'] || $search['postal_code'] || $search['phone_contact'] || $search['address'] || $search['sex'] || $search['country_code']) {
+        if ($search['name'] || $search['DOB'] || $search['city'] || $search['state'] || $search['postal_code'] || $search['phone_contact'] || $search['address'] || $search['sex'] || $search['country_code']) {
             $sql .= " WHERE ";
 
             $whereClauses = array();
@@ -233,10 +233,10 @@ class PatientService
                 array_push($whereClauses, "CONCAT(lname,' ', fname) LIKE ?");
                 array_push($sqlBindArray, $search['name']);
             }
-            if ($search['dob'] || $search['birthdate']) {
-                $search['dob'] = !empty($search['dob']) ? $search['dob'] : $search['birthdate'];
-                array_push($whereClauses, "dob=?");
-                array_push($sqlBindArray, $search['dob']);
+            if ($search['DOB'] || $search['birthdate']) {
+                $search['DOB'] = !empty($search['DOB']) ? $search['DOB'] : $search['birthdate'];
+                array_push($whereClauses, "DOB=?");
+                array_push($sqlBindArray, $search['DOB']);
             }
             if ($search['city']) {
                 array_push($whereClauses, "city=?");
@@ -289,18 +289,18 @@ class PatientService
         $sql = "SELECT id,
                    pid,
                    pubpid,
-                   title, 
+                   title,
                    fname,
                    mname,
                    lname,
-                   street, 
-                   postal_code, 
-                   city, 
-                   state, 
-                   country_code, 
+                   street,
+                   postal_code,
+                   city,
+                   state,
+                   country_code,
                    phone_contact,
                    email,
-                   dob,
+                   DOB,
                    sex,
                    race,
                    ethnicity
