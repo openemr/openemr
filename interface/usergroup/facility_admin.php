@@ -206,7 +206,7 @@ if (isset($_GET["fid"])) {
                             <label for="weno_id" class='col-form-label col-form-label-sm'><?php echo xlt('Weno ID'); ?>:</label>
                         </div>
                         <div class="col">
-                            <input type="entry" class="form-controlform-control-sm" size="20" name="weno_id" value="<?php echo attr($facility["weno_id"]); ?>">
+                            <input type="entry" class="form-control form-control-sm" size="20" name="weno_id" value="<?php echo attr($facility["weno_id"]); ?>">
                         </div>
                     </div>
                     <div class="form-row my-2">
