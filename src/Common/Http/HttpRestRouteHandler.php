@@ -19,6 +19,7 @@ class HttpRestRouteHandler
     public static function dispatch(&$routes, $route, $request_method, $return_method = 'standard')
     {
         // Taken from https://stackoverflow.com/questions/11722711/url-routing-regex-php/11723153#11723153
+        $hasRoute = false;
         foreach ($routes as $routePath => $routeCallback) {
             $routePieces = explode(" ", $routePath);
             $method = $routePieces[0];
@@ -27,6 +28,7 @@ class HttpRestRouteHandler
             $matches = array();
             if ($method == $request_method && preg_match($pattern, $route, $matches)) {
                 array_shift($matches);
+                $hasRoute = true;
                 $result = call_user_func_array($routeCallback, $matches);
                 if ($return_method == 'standard') {
                     header('Content-Type: application/json');
@@ -38,5 +40,6 @@ class HttpRestRouteHandler
                 }
             }
         }
+        return $hasRoute;
     }
 }
