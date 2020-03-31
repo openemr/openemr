@@ -14,9 +14,11 @@ function ta_report_getCheckedBoxes(chkboxName) {
   var checkboxes = document.getElementsByName(chkboxName);
   var checkedValue = [];
   // loop over them all
-  for (var i=0; i<checkboxes.length; i++) {
+  for (let i=0; i<checkboxes.length; i++)
+  {
      // And stick the checked ones onto an array...
-     if (checkboxes[i].checked) {
+     if (checkboxes[i].checked) 
+     {
         checkedValue.push(checkboxes[i].value);
      }
   }
@@ -32,8 +34,8 @@ function ta_report_plot_graph(formid,ofc_name,the_track_name,ofc_date,ofc_value)
         //alert("get graph");
         top.restoreSession();
         var checkedBoxes = JSON.stringify(ta_report_getCheckedBoxes("check_col" + formid));
-        var theitems = JSON.stringify(ofc_name);
-        var thetrack = JSON.stringify(the_track_name + " [Track " + formid + "]");
+        let theitems = JSON.stringify(ofc_name);
+        let thetrack = JSON.stringify(the_track_name + " [Track " + formid + "]");
         var thedates = JSON.stringify(ofc_date);
         var thevalues = JSON.stringify(ofc_value);
 
@@ -47,7 +49,8 @@ function ta_report_plot_graph(formid,ofc_name,the_track_name,ofc_date,ofc_value)
                                      csrf_token_form: csrf_token_js
                                    },
                          dataType: "json",
-                         success: function(returnData){
+                         success: function(returnData)
+                              {
                              g2 = new Dygraph(
                                  document.getElementById("graph" + formid),
                                  returnData.data_final,
@@ -58,8 +61,8 @@ function ta_report_plot_graph(formid,ofc_name,the_track_name,ofc_date,ofc_value)
                                      yRangePad: 20,
                                      xlabel: xlabel_translate
                                  }
-                             );
-                        },
+                                );
+                             },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
                                 alert(XMLHttpRequest.responseText);
                                 //alert("XMLHttpRequest="+XMLHttpRequest.responseText+"\ntextStatus="+textStatus+"\nerrorThrown="+errorThrown);
