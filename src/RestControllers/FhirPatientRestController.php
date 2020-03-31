@@ -12,22 +12,23 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Services\PatientService;
 use OpenEMR\Services\FhirResourcesService;
+use OpenEMR\Services\FhirPatientService;
 use OpenEMR\Services\FhirValidationService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 
 class FhirPatientRestController
 {
-    private $patientService;
+    private $fhirPatientService;
     private $fhirService;
+    private $fhirValidate;
 
     public function __construct($pid)
     {
-        $this->patientService = new PatientService();
-        $this->patientService->setPid($pid);
         $this->fhirService = new FhirResourcesService();
+        $this->fhirPatientService = new FhirPatientService();
+        $this->fhirPatientService->setId($pid);
         $this->fhirValidate = new FhirValidationService();
     }
 
@@ -37,15 +38,15 @@ class FhirPatientRestController
         if (!empty($fhirValidate)) {
             return RestControllerHelper::responseHandler($fhirValidate, null, 404);
         }
-        $data = $this->fhirService->parsePatientResource($fhirJson);
+        $data = $this->fhirPatientService->parsePatientResource($fhirJson);
 
-        $validationResult = $this->patientService->validate($data);
+        $validationResult = $this->fhirPatientService->validate($data);
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
             return $validationHandlerResult;
         }
 
-        $fhirserviceResult = $this->patientService->insert($data);
+        $fhirserviceResult = $this->fhirPatientService->insert($data);
         return RestControllerHelper::responseHandler($fhirserviceResult, array("pid" => $fhirserviceResult), 201);
     }
 
@@ -55,24 +56,24 @@ class FhirPatientRestController
         if (!empty($fhirValidate)) {
             return RestControllerHelper::responseHandler($fhirValidate, null, 404);
         }
-        $data = $this->fhirService->parsePatientResource($fhirJson);
+        $data = $this->fhirPatientService->parsePatientResource($fhirJson);
 
-        $validationResult = $this->patientService->validate($data);
+        $validationResult = $this->fhirPatientService->validate($data);
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
             return $validationHandlerResult;
         }
 
-        $fhirserviceResult = $this->patientService->update($pid, $data);
+        $fhirserviceResult = $this->fhirPatientService->update($pid, $data);
         return RestControllerHelper::responseHandler($fhirserviceResult, array("pid" => $pid), 200);
     }
 
     public function getOne()
     {
-        $oept = $this->patientService->getOne();
-        $pid = $this->patientService->getPid();
+        $oept = $this->fhirPatientService->getOne();
+        $pid = $this->fhirPatientService->getId();
         if ($oept) {
-            $resource = $this->fhirService->createPatientResource($pid, $oept, false);
+            $resource = $this->fhirPatientService->createPatientResource($pid, $oept, false);
             $statusCode = 200;
         } else {
             $statusCode = 404;
@@ -106,14 +107,14 @@ class FhirPatientRestController
             'country_code' => $search['address-country']
         );
 
-        $searchResult = $this->patientService->getAll($searchParam);
+        $searchResult = $this->fhirPatientService->getAll($searchParam);
         if ($searchResult === false) {
             http_response_code(404);
             exit;
         }
         $entries = array();
         foreach ($searchResult as $oept) {
-            $entryResource = $this->fhirService->createPatientResource($oept['pid'], $oept, false);
+            $entryResource = $this->fhirPatientService->createPatientResource($oept['pid'], $oept, false);
             $entry = array(
                 'fullUrl' => $resourceURL . "/" . $oept['pid'],
                 'resource' => $entryResource
