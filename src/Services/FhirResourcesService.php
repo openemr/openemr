@@ -17,6 +17,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
@@ -80,13 +81,12 @@ class FhirResourcesService
         $address->setState($data['state']);
         $address->setPostalCode($data['postal_code']);
         $gender->setValue(strtolower($data['sex']));
-
+        $initResource['name'] = array();
+        array_push($initResource['name'], $name->jsonSerialize());
+        $initResource['address'] = array();
+        array_push($initResource['address'], $address->jsonSerialize());
+        $initResource['sex'] = strtolower($data['sex']);
         $patientResource = new FHIRPatient($initResource);
-        //$patientResource->setId($id);
-        $patientResource->setActive(true);
-        $patientResource->setGender($gender);
-        $patientResource->addName($name);
-        $patientResource->addAddress($address);
 
         if ($encode) {
             return json_encode($patientResource);
@@ -102,7 +102,6 @@ class FhirResourcesService
         }
         $this->providerService = new ProviderService();
         $data = $this->providerService->getById($provider_id);
-        $resource = new FHIRPractitioner();
         $id = new FhirId();
         $name = new FHIRHumanName();
         $address = new FHIRAddress();
@@ -114,30 +113,32 @@ class FhirResourcesService
         $address->setCity($data['city']);
         $address->setState($data['state']);
         $address->setPostalCode($data['zip']);
-        $resource->setId($id);
-        $resource->setActive(true);
         $gender = new FHIRAdministrativeGender();
         $gender->setValue('unknown');
-        $resource->setGender($gender);
-        $resource->addName($name);
-        $resource->addAddress($address);
+        $initResource = array();
+        $initResource['id'] = $id;
+        $initResource['active'] = true;
+        $initResource['gender'] = $gender;
+        $initResource['name'] = array();
+        array_push($initResource['name'], $name->jsonSerialize());
+        $initResource['address'] = array();
+        array_push($initResource['address'], $address->jsonSerialize());
+        $practitionerResource = new FHIRPractitioner($initResource);
 
         if ($encode) {
-            return json_encode($resource);
+            return json_encode($practitionerResource);
         } else {
-            return $resource;
+            return $practitionerResource;
         }
     }
 
-    public function createEncounterResource($eid = '', $data = '', $encode = true)
+ public function createEncounterResource($eid = '', $data = '', $encode = true)
     {
         $pid = $data['pid'];
         //$temp = $data['provider_id'];
         //$r = $this->createPractitionerResource($data['provider_id'], $temp);
-        $resource = new FHIREncounter();
         $id = new FhirId();
         $id->setValue($eid);
-        $resource->setId($id);
         $participant = new FHIREncounterParticipant();
         $prtref = new FHIRReference;
         $temp = 'Practitioner/' . $data['provider_id'];
@@ -145,53 +146,25 @@ class FhirResourcesService
         $participant->setIndividual($prtref);
         $date = date('Y-m-d', strtotime($data['date']));
         $participant->setPeriod(['start' => $date]);
-
-        $resource->addParticipant($participant);
         $reason = new FHIRCodeableConcept();
         $reason->setText($data['reason']);
-        $resource->addReasonCode($reason);
-        $resource->status = 'finished';
-        $resource->setSubject(['reference' => "Patient/$pid"]);
+        $subject = ['reference' => "Patient/$pid"];
+        $initResource = array();
+        $initResource['id'] = $id;
+        $initResource['participant'] = array();
+        array_push($initResource['participant'], $participant->jsonSerialize());
+        $initResource['reasonCode'] = array();
+        array_push($initResource['reasonCode'], $reason->jsonSerialize());
+        $initResource['status'] = 'finished';
+        $initResource['subject'] = $subject;
+        $encounterResource = new FHIREncounter($initResource);
 
         if ($encode) {
-            return json_encode($resource);
+            return json_encode($encounterResource);
         } else {
-            return $resource;
+            return $encounterResource;
         }
     }
-	
-	public function parsePatientResource($fhirJson)
-	{
-		$data["title"] = "";
-		$name = [];
-		foreach($fhirJson["name"] as $sub_name){
-			if($sub_name["use"] == "official"){
-				$name = $sub_name;
-				break;
-			}
-		}
-		$data["lname"] = $name["family"];
-		$data["fname"] = $name["given"][0];
-		$data["mname"] = $name["given"][1];
-		$data["street"] = $fhirJson["address"][0]["line"][0];
-		$data["postal_code"] = $fhirJson["address"][0]["postalCode"];
-		$data["city"] = $fhirJson["address"][0]["city"];
-		$data["state"] = $fhirJson["address"][0]["state"];
-		$data["country_code"] = "" ;
-		$phone = [];
-		foreach($fhirJson["telecom"] as $phone){
-			if($phone["use"] == "mobile"){
-				$name = $phone;
-				break;
-			}
-		}
-		$data["phone_contact"] = $phone["value"]; 
-		$data["dob"] = $fhirJson["birthDate"];
-		$data["sex"] = $fhirJson["gender"];
-		$data["race"] = "";
-		$data["ethnicity"] = "";
-		return $data;
-	}
 
     public function parsePatientResource($fhirJson)
     {
