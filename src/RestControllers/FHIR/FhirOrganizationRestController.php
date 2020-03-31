@@ -38,7 +38,7 @@ class FhirOrganizationRestController
         $result = $this->fhirService->createBundle('Organization', $entries, false);
         return RestControllerHelper::responseHandler($result, null, 200);
     }
-	
+
     public function getOne($oid)
     {
         $result = $this->fhirOrganizationService->getOne($oid);

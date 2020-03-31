@@ -43,25 +43,23 @@ class FhirOrganizationService
         $facilityResults = sqlStatement($facilitySQL);
         $results = array();
         while ($row = sqlFetchArray($facilityResults)) {
-            $row['id'] = 'facility-' . $row['id'];
             $row['code'] = 'prov';
             $row['display'] = "Healthcare Provider";
             array_push($results, $row);
         }
         return $results;
     }
-	
+
     public function getOne($oid)
     {
         $facilitySQL = "SELECT id, name, phone, street, city, state, postal_code, country_code as country, email FROM facility WHERE id = ?";
 
         $result = sqlQuery($facilitySQL, $oid);
-        $result['id'] = 'facility-' . $result['id'];
         $result['code'] = 'prov';
         $result['display'] = "Healthcare Provider";
-        return $result;		
+        return $result;
     }
-    
+
     public function createOrganizationResource($oid = '', $data = '', $encode = true, $code = '', $display = '')
     {
         $id = new FhirId();
