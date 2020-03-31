@@ -18,7 +18,7 @@ class FhirOrganizationRestController
         $this->fhirOrganizationService->setId($pid);
         $this->fhirService = new FhirResourcesService();
     }
-    
+
     public function getAll($search)
     {
         $result = $this->fhirOrganizationService->getAll();
@@ -39,8 +39,8 @@ class FhirOrganizationRestController
         return RestControllerHelper::responseHandler($result, null, 200);
     }
 	
-	public function getOne($oid)
-	{
+    public function getOne($oid)
+    {
         $result = $this->fhirOrganizationService->getOne($oid);
         if ($result) {
             $resource = $this->fhirOrganizationService->createOrganizationResource($result['id'], $result, false, $result['code'], $result['display']);
@@ -56,5 +56,5 @@ class FhirOrganizationRestController
         }
 
         return RestControllerHelper::responseHandler($resource, null, $statusCode);
-	}
+    }
 }

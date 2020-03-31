@@ -51,16 +51,16 @@ class FhirOrganizationService
         return $results;
     }
 	
-	public function getOne($oid)
-	{
+    public function getOne($oid)
+    {
         $facilitySQL = "SELECT id, name, phone, street, city, state, postal_code, country_code as country, email FROM facility WHERE id = ?";
 
         $result = sqlQuery($facilitySQL, $oid);
-		$result['id'] = 'facility-' . $result['id'];
-		$result['code'] = 'prov';
-		$result['display'] = "Healthcare Provider";
+        $result['id'] = 'facility-' . $result['id'];
+        $result['code'] = 'prov';
+        $result['display'] = "Healthcare Provider";
         return $result;		
-	}
+    }
     
     public function createOrganizationResource($oid = '', $data = '', $encode = true, $code = '', $display = '')
     {
