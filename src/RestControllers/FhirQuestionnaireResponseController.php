@@ -15,7 +15,6 @@ use OpenEMR\Services\FhirQuestionnaireResponseService;
 use OpenEMR\Services\FhirResourcesService;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 
-
 class FhirQuestionnaireResponseController
 {
     private $questionnaireResponseService;
@@ -26,5 +25,4 @@ class FhirQuestionnaireResponseController
         $this->questionnaireResponseService = new FhirQuestionnaireResponseService();
         $this->fhirService = new FhirResourcesService();
     }
-
 }
