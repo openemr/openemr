@@ -199,7 +199,7 @@ EOD;
         $i = 0;
         foreach ($this->tabs as $val) {
             ++$i;
-            $activateTab = count($this->tabs) == $i ? active : '';
+            $activateTab = count($this->tabs) == $i ? 'active' : '';
             $s .= "<li class='tabs-tabs' ><a data-toggle='tab' class='tabs-anchor {$activateTab}' href='#{$this->tabsid}-$i'>" . text($val['title']);
             if ($val['closeable']) {
                 $s .= " <span aria-label='close' class='icon-close' role='close'>&times;</span>";
@@ -211,7 +211,7 @@ EOD;
         $i = 0;
         foreach ($this->tabs as $val) {
             ++$i;
-            $activateTab = count($this->tabs) == $i ? active : '';
+            $activateTab = count($this->tabs) == $i ? 'active' : '';
             $s .= "<div class='tab-pane tabs-panel {$activateTab}' id='{$this->tabsid}-$i'>\n";
             $s .= $val['content'];
             $s .= "</div>\n";
