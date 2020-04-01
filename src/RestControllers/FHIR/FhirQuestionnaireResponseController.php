@@ -9,10 +9,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\RestControllers;
+namespace OpenEMR\RestControllers\FHIR;
 
-use OpenEMR\Services\FhirQuestionnaireResponseService;
-use OpenEMR\Services\FhirResourcesService;
+use OpenEMR\Services\FHIR\FhirQuestionnaireResponseService;
+use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 
 class FhirQuestionnaireResponseController

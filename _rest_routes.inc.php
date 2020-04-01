@@ -338,8 +338,8 @@ RestConfig::$ROUTE_MAP = array(
 
 );
 
-use OpenEMR\RestControllers\FhirPatientRestController;
-use OpenEMR\RestControllers\FhirEncounterRestController;
+use OpenEMR\RestControllers\FHIR\FhirPatientRestController;
+use OpenEMR\RestControllers\FHIR\FhirEncounterRestController;
 
 RestConfig::$FHIR_ROUTE_MAP = array(
     "POST /fhir/auth" => function () {
