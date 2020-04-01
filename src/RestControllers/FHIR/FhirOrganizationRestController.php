@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenEMR\RestControllers;
+namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirResourcesService;

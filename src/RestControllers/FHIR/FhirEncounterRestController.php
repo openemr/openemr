@@ -10,7 +10,7 @@
  */
 
 
-namespace OpenEMR\RestControllers;
+namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\Services\FHIR\FhirEncounterService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
