@@ -356,14 +356,14 @@ $(function () {
         <div class="col">
             <select name='form_by' class='form-control' title='Left column of report'>
                 <?php
-                    foreach ($arr_by as $key => $value) {
-                        echo "    <option value='" . attr($key) . "'";
-                        if ($key == $form_by) {
-                            echo " selected";
-                        }
-
-                        echo ">" . text($value) . "</option>\n";
+                foreach ($arr_by as $key => $value) {
+                    echo "    <option value='" . attr($key) . "'";
+                    if ($key == $form_by) {
+                        echo " selected";
                     }
+
+                    echo ">" . text($value) . "</option>\n";
+                }
                 ?>
             </select>
         </div>
@@ -373,14 +373,14 @@ $(function () {
         <div class="col">
             <select class='form-control' name='form_sexes' title='<?php echo xla('To filter by sex'); ?>'>
                 <?php
-                    foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Only')) as $key => $value) {
-                        echo "       <option value='" . attr($key) . "'";
-                        if ($key == $form_sexes) {
-                            echo " selected";
-                        }
-
-                        echo ">" . text($value) . "</option>\n";
+                foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Only')) as $key => $value) {
+                    echo "       <option value='" . attr($key) . "'";
+                    if ($key == $form_sexes) {
+                        echo " selected";
                     }
+
+                    echo ">" . text($value) . "</option>\n";
+                }
                 ?>
             </select>
         </div>
@@ -393,19 +393,19 @@ $(function () {
             <?php echo xlt('Columns'); ?>:
             <select class='form-control' name='form_show[]' size='4' multiple title='<?php echo xla('Hold down Ctrl to select multiple items'); ?>'>
                 <?php
-                    foreach ($arr_show as $key => $value) {
-                        $title = $value['title'];
-                        if (empty($title) || $key == 'title') {
-                            $title = $value['description'];
-                        }
-
-                        echo "    <option value='" . attr($key) . "'";
-                        if (is_array($form_show) && in_array($key, $form_show)) {
-                            echo " selected";
-                        }
-
-                        echo ">" . text($title) . "</option>\n";
+                foreach ($arr_show as $key => $value) {
+                    $title = $value['title'];
+                    if (empty($title) || $key == 'title') {
+                        $title = $value['description'];
                     }
+
+                    echo "    <option value='" . attr($key) . "'";
+                    if (is_array($form_show) && in_array($key, $form_show)) {
+                        echo " selected";
+                    }
+
+                    echo ">" . text($title) . "</option>\n";
+                }
                 ?>
             </select>
         </div>
@@ -418,14 +418,14 @@ $(function () {
             <?php echo xlt('To{{Destination}}'); ?>:
 
             <?php
-                foreach (array(1 => xl('Screen'), 2 => xl('Printer'), 3 => xl('Export File')) as $key => $value) {
-                    echo "   <input type='radio' name='form_output' value='" . attr($key) . "'";
-                    if ($key == $form_output) {
-                        echo ' checked';
-                    }
-
-                    echo " />" . text($value) . " &nbsp;";
+            foreach (array(1 => xl('Screen'), 2 => xl('Printer'), 3 => xl('Export File')) as $key => $value) {
+                echo "   <input type='radio' name='form_output' value='" . attr($key) . "'";
+                if ($key == $form_output) {
+                    echo ' checked';
                 }
+
+                echo " />" . text($value) . " &nbsp;";
+            }
             ?>
         </div>
     </div>
@@ -438,7 +438,7 @@ $(function () {
 </div>
 <br>
    
- <?php
+    <?php
 } // end not export
 
 if ($_POST['form_submit']) {
