@@ -2,8 +2,8 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Services\FhirOrganizationService;
-use OpenEMR\Services\FhirResourcesService;
+use OpenEMR\Services\FHIR\FhirOrganizationService;
+use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 

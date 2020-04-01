@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenEMR\Services;
+namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;

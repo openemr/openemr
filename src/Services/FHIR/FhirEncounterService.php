@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenEMR\Services;
+namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Services\EncounterService;
 

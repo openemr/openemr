@@ -12,8 +12,8 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Services\FhirEncounterService;
-use OpenEMR\Services\FhirResourcesService;
+use OpenEMR\Services\FHIR\FhirEncounterService;
+use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 

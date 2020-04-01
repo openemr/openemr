@@ -1,5 +1,5 @@
 <?php
-namespace OpenEMR\Services;
+namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Services\FhirOperationOutcomeResourceService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationOutcome;

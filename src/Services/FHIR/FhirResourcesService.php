@@ -10,7 +10,7 @@
  */
 
 
-namespace OpenEMR\Services;
+namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleLink;
