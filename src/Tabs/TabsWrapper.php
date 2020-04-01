@@ -132,9 +132,11 @@ function twSetup(tabsid) {
   twObject[tabsid].counter = 100;
   // Close icon: removing the tab on click
   nav.on("click", "span.icon-close", function() {
-    var panelId = $(this).parent().attr("href").substring(1);
-    top.restoreSession();
-    twCloseTab(tabsid, panelId);
+    if (confirm ('Do you want to close the tabs?')) {
+        var panelId = $(this).parent().attr("href").substring(1);
+        top.restoreSession();
+        twCloseTab(tabsid, panelId);
+    }
   });
 }
 
