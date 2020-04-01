@@ -217,7 +217,7 @@ class PatientService
                    state,
                    country_code,
                    phone_contact,
-                   email
+                   email,
                    DOB,
                    sex,
                    race,
