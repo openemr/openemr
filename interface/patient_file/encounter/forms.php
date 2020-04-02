@@ -379,6 +379,10 @@ function refreshVisitDisplay() {
 <!-- Form menu start -->
 <script>
 
+function disable(target) {
+    target.setAttribute('disabled', true);
+}
+
 function openNewForm(sel, label) {
   top.restoreSession();
   var FormNameValueArray = sel.split('formname=');
@@ -567,7 +571,7 @@ if (!empty($reg)) {
                 $DivId++;
             }
 
-            $StringEcho .= "<button class='dropdown-item' onclick=\"openNewForm(" .
+            $StringEcho .= "<button class='dropdown-item' onclick=\"disable(this); openNewForm(" .
             attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($entry['directory'])) .
             ", " . attr_js(xl_form_title($nickname)) . ")\" href='JavaScript:void(0);'>" .
             text(xl_form_title($nickname)) . "</button>\n";
@@ -609,7 +613,7 @@ if ($encounterLocked === false) {
                     continue;
                 }
             }
-            $StringEcho .= "<button class='dropdown-item' onclick=\"openNewForm(" .
+            $StringEcho .= "<button class='dropdown-item' onclick=\"disable(this); openNewForm(" .
             attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($option_id)) .
                 ", " . attr_js(xl_form_title($title)) . ")\" href='JavaScript:void(0);'>" .
             text(xl_form_title($title)) . "</button>\n";
@@ -661,7 +665,7 @@ if ($StringEcho) {
             }
             $jid++;
             $modid = $modulerow['mod_id'];
-            $StringEcho .= "<button class='dropdown-item' onclick=\"openNewForm(" .
+            $StringEcho .= "<button class='dropdown-item' onclick=\"disable(this); openNewForm(" .
             attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($option_id)) .
                 ", " . attr_js($relative_link) . ", " . attr_js(xl_form_title($nickname)) . ")\" href='JavaScript:void(0);'>" .
             text(xl_form_title($nickname)) . "</button>\n";
