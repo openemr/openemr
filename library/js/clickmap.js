@@ -1,4 +1,4 @@
-let clickmap = function( args ) {
+var clickmap = function(args) {
 
 	let f = true;
 	let counter = 0;
@@ -72,8 +72,8 @@ let clickmap = function( args ) {
 	let container = args.container;
     const data = args.data;
     const hideNav = args.hideNav;
-
-    let htmlData = '<label for="label">Label</label>';
+    let optionsTitle = '';
+    let optionsSelect = '';
 
 	container.mousemove(function() {
         f = true;
@@ -86,67 +86,71 @@ let clickmap = function( args ) {
             }
             const x = e.pageX - this.offsetLeft - 5;
             const y = e.pageY - this.offsetTop - 5;
-            const dialog = $( ".dialog-form" ).clone();
-            dialog.find(".label").val( counter + 1 );
             const hasOptions = typeof(options) != "undefined";
 
             if (hasOptions) {
-                dialog.find("label[for='options']").text( typeof(optionsLabel) != "undefined" ? optionsLabel : "Select one"  );
-                let select = dialog.find("select[name='options']");
+                optionsTitle = typeof(optionsLabel) != "undefined" ? optionsLabel : "Select one";
                 for (let attr in options) {
                     if (options.hasOwnProperty(attr)) {
-                        select.append("<option value='" + attr + "'>" + options[attr] + "</option>");
+                        optionsSelect+= "<option value='" + attr + "'>" + options[attr] + "</option>";
                     }
                 }
-            } else {
-                dialog.find("label[for='options']").remove();
-                dialog.find("select[name='options']").remove();
             }
 
             const do_marker = function() {
-                if (dialog.saved) {
-                    const newcounter = dialog.find(".label").val();
-                    const notes = encodeURIComponent(dialog.find(".detail").val());
-                    const selectedOption = encodeURIComponent(dialog.find("select[name='options']").val());
-                    let combinedNotes = "";
-                    if (selectedOption) {
-                        combinedNotes = options[selectedOption];
-                    }
-                    if (selectedOption && notes) {
-                        combinedNotes += "%3A%20";
-                    }
-                    if (notes) {
-                        combinedNotes += notes;
-                    }
-
-                    const marker = fn_buildMarker(x, y, newcounter, combinedNotes);
-                    container.append(marker);
-                    if (fn_isnumber(newcounter)) {
-                        counter++;
-                    }
+                const newcounter = $('#exampleInputEmail1').val();
+                const notes = encodeURIComponent($('#detailTextArea').val());
+                const selectedOption = encodeURIComponent($('#painScaleSelect').val());
+                let combinedNotes = "";
+                if (selectedOption) {
+                    combinedNotes = options[selectedOption];
                 }
-                dialog.remove();
+                if (selectedOption && notes) {
+                    combinedNotes += "%3A%20";
+                }
+                if (notes) {
+                    combinedNotes += notes;
+                }
+
+                const marker = fn_buildMarker(x, y, newcounter, combinedNotes);
+                container.append(marker);
+                if (fn_isnumber(newcounter)) {
+                    counter++;
+                }
             };
 
-            dialog.dialog({
-                title: "Information",
-                autoOpen: false, height: hasOptions? 345 : 300, width: 350, modal:true,
-                open: function() { dialog.find(".detail").focus(); },
-                buttons: {
-                    "Save": function() { dialog.saved = true; $(this).dialog("close"); },
-                    "Cancel": function() { $(this).dialog("close"); }
-                },
-                close: do_marker
+            dlgopen('', '', hasOptions? 345 : 300, 350, false, 'Information', {
+                buttons: [{
+                    text: 'Save',
+                    close: true,
+                    style: 'btn-sm btn-primary',
+                    click: do_marker,
+                }, {
+                    text: 'Cancel',
+                    close: true,
+                    style: 'btn-sm btn-secondary'}],
+                type: 'Alert',
+                html: `
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Label</label>
+                        <input type="text" class="form-control" id="exampleInputEmail1" value="${counter + 1}">
+                    </div>
+                    <div class="form-group">
+                        <label for="painScaleSelect">${optionsTitle}</label>
+                        <select class="form-control" id="painScaleSelect">
+                            ${optionsSelect}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="detailTextArea">Detail</label>
+                        <textarea class="form-control" id="detailTextArea" rows="3"></textarea>
+                    </div>`,
             });
-            dialog.dialog("open");
         });
     }
 
-	const btn_clear = $("#btn_clear");
-	btn_clear.click(fn_clear);
-
-	const btn_save = $("#btn_save");
-	btn_save.click(fn_save);
+	$("#btn_clear").click(fn_clear);
+	$("#btn_save").click(fn_save);
 
 	fn_load(container, data);
 
