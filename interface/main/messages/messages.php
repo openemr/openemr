@@ -549,7 +549,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             <?php } else { ?>
                                                 <!-- This is for displaying a new note. -->
                                                 <button type="button" class="btn btn-primary btn-send-msg" id="newnote" value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
-                                                <button type="button" class="btn btn-cancel btn-danger oe-opt-btn-separate-left" id="cancel" value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
+                                                <button type="button" class="btn btn-cancel btn-secondary oe-opt-btn-separate-left" id="cancel" value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
                                             <?php }
                                             ?>
                                         </div>
