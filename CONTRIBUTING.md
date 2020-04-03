@@ -25,6 +25,10 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cd openemr; npm run build'
     ```
+     - We also have a handy Alias for the above command
+    ```sh
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools build-themes'
+    ```
 6. If you wish to connect to the sql database, this docker environment provides the following 2 options:
     - Navigate to `http://localhost:8310/` where you can login into phpMyAdmin.
     - Or you can directly connect to port 8320 via your favorite sql tool (Mysql Workbench etc.).
@@ -38,29 +42,58 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cd openemr; php -d memory_limit=640M /root/.composer/vendor/squizlabs/php_codesniffer/bin/phpcs -n --extensions=php,inc --standard=ci/phpcs.xml --report=full .'
     ```
+    - We also have a handy Alias for the above command
+    ```sh
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools psr2-report'
+    ```
     - To fix PSR2 code styling issues (this takes several minutes):
     ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cd openemr; php -d memory_limit=640M /root/.composer/vendor/squizlabs/php_codesniffer/bin/phpcbf -n --extensions=php,inc --standard=ci/phpcs.xml .'
+    ```
+    - We also have a handy Alias for the above command
+    ```sh
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools psr2-fix'
     ```
     - To check PHP parsing errors (this takes several minutes):
     ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cd openemr; find . -type f \( -name "*.php" -or -name "*.inc" \) \( -not -path "./vendor/*" -and -not -path "./node_modules/*" -and -not -path "./ccdaservice/node_modules}/*" \) -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"'
     ```
+    - We also have a handy Alias for the above command
+    ```sh
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools php-parserror'
+    ```
     - To run unit testing:
     ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cd openemr; vendor/bin/phpunit --testsuite unit --testdox'
+    ```
+    - We also have a handy Alias for the above command
+    ```sh
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools unit-test'
     ```
     - To run api testing:
     ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cd openemr; vendor/bin/phpunit --testsuite api --testdox'
     ```
+    - We also have a handy Alias for the above command
+    ```sh
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools api-test'
+    ```
     - To run e2e testing:
     ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'export PANTHER_NO_SANDBOX=1; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver; cd openemr; vendor/bin/phpunit --testsuite e2e --testdox'
     ```
-8. When you're done, it's best to clean up after yourself with `docker-compose down -v`
+    - We also have a handy Alias for the above command
+    ```sh
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools e2e-test'
+    ```
+8. To run the entire dev tool suite(PHPCS fix,unit test,API test,e2e test, PHP parse error ) in one command, run
+
+    ```sh
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools clean-sweep'
+    ```
+9. When you're done, it's best to clean up after yourself with `docker-compose down -v`
     - If you don't want to build from scratch every time, just use `docker-compose down` so your next `docker-compose up` will use the cached volumes.
-9. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
+10. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
 
 We look forward to your contribution...
 
