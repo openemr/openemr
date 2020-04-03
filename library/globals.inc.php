@@ -1009,7 +1009,13 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',                              // default false
             xl('Open all expandable forms in expanded state')
-        )
+        ),
+        'insurance_only_one' => array(
+            xl('Allow only one insurance'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Allow only more than one insurance')
+        ),
     ),
     // Report Tab
     //
