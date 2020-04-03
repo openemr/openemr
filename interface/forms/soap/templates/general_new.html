@@ -20,7 +20,7 @@
                             <legend>{xlt t='Subjective'}</legend>
                                 <div class="form-group" >
                                     <div class="col-sm-10 offset-sm-1">
-                                        <textarea name="subjective" class="form-control" cols="60" rows="6">{$data->get_subjective()|text}</textarea>
+                                        <textarea name="subjective" class="form-control" cols="60" rows="6" onkeyup="localStorage.setItem('isSoapEdit', true);">{$data->get_subjective()|text}</textarea>
                                     </div>
                                 </div>
                     </fieldset>
@@ -28,7 +28,7 @@
                             <legend>{xlt t='Objective'}</legend>
                                 <div class="form-group">
                                     <div class="col-sm-10 offset-sm-1">
-                                        <textarea name="objective" class="form-control" cols="60" rows="6">{$data->get_objective()|text}</textarea>
+                                        <textarea name="objective" class="form-control" cols="60" rows="6" onkeyup="localStorage.setItem('isSoapEdit', true);">{$data->get_objective()|text}</textarea>
                                     </div>
                                 </div>
                     </fieldset>
@@ -36,7 +36,7 @@
                             <legend>{xlt t='Assessment'}</legend>
                                 <div class="form-group">
                                     <div class="col-sm-10 offset-sm-1">
-                                        <textarea name="assessment" class="form-control" cols="60" rows="6">{$data->get_assessment()|text}</textarea>
+                                        <textarea name="assessment" class="form-control" cols="60" rows="6" onkeyup="localStorage.setItem('isSoapEdit', true);">{$data->get_assessment()|text}</textarea>
                                     </div>
                                 </div>
                     </fieldset>
@@ -44,7 +44,7 @@
                             <legend>{xlt t='Plan'}</legend>
                                 <div class="form-group">
                                     <div class="col-sm-10 offset-sm-1">
-                                        <textarea name="plan" class="form-control" cols="60" rows="6">{$data->get_plan()|text}</textarea>
+                                        <textarea name="plan" class="form-control" cols="60" rows="6" onkeyup="localStorage.setItem('isSoapEdit', true);">{$data->get_plan()|text}</textarea>
                                     </div>
                                 </div>
                     </fieldset>

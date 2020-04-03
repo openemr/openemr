@@ -115,7 +115,6 @@ EOD;
             define('INCLUDED_TW_ONETIME_JS', true);
             $s .= <<<EOD
 <script>
-
 // We use one object to contain an object of context for each tab set.
 // Most windows will have only one tab set but we cater to a more general case.
 // This avoids excessive pollution of the window's name space.
@@ -137,15 +136,20 @@ function twSetup(tabsid) {
         const panelId = self.parent().attr("href").substring(1);
         top.restoreSession();
         twCloseTab(tabsid, panelId);
+        localStorage.removeItem('isSoapEdit');
     }
-    dlgopen('', '', 450, 125, '', '<div class="text-danger">Warning</div>', {
-        type: 'Alert',
-        html: '<p>Do you want to close the tabs?</p>',
-        buttons: [
-            {text: 'Cancel', close: true, style: 'default btn-sm'},
-            {text: 'Close', close: true, style: 'danger btn-sm', click: closeTab},
-        ],
-    });
+    if (localStorage.getItem('isSoapEdit') === 'true') {
+        dlgopen('', '', 450, 125, '', '<div class="text-danger">Warning</div>', {
+            type: 'Alert',
+            html: '<p>Do you want to close the tabs?</p>',
+            buttons: [
+                {text: 'Cancel', close: true, style: 'default btn-sm'},
+                {text: 'Close', close: true, style: 'danger btn-sm', click: closeTab},
+            ],
+        });
+    } else {
+        closeTab();
+    }
   });
 }
 
