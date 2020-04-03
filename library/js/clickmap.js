@@ -98,9 +98,10 @@ var clickmap = function(args) {
             }
 
             const do_marker = function() {
-                const newcounter = $('#exampleInputEmail1').val();
+                const newcounter = $('#counterInput').val();
                 const notes = encodeURIComponent($('#detailTextArea').val());
                 const selectedOption = encodeURIComponent($('#painScaleSelect').val());
+
                 let combinedNotes = "";
                 if (selectedOption) {
                     combinedNotes = options[selectedOption];
@@ -132,8 +133,8 @@ var clickmap = function(args) {
                 type: 'Alert',
                 html: `
                     <div class="form-group">
-                        <label for="exampleInputEmail1">Label</label>
-                        <input type="text" class="form-control" id="exampleInputEmail1" value="${counter + 1}">
+                        <label for="counterInput">Label</label>
+                        <input type="text" class="form-control" id="counterInput" value="${counter + 1}">
                     </div>
                     <div class="form-group">
                         <label for="painScaleSelect">${optionsTitle}</label>
