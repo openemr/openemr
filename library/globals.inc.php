@@ -342,13 +342,6 @@ $GLOBALS_METADATA = array(
             xl('Navigation area includes encounter forms')
         ),
 
-        'simplified_demographics' => array(
-            xl('Simplified Demographics'),
-            'bool',                           // data type
-            '0',                              // default = false
-            xl('Omit insurance and some other things from the demographics form')
-        ),
-
         'simplified_prescriptions' => array(
             xl('Simplified Prescriptions'),
             'bool',                           // data type
@@ -460,21 +453,6 @@ $GLOBALS_METADATA = array(
             ),
             '0',                              // default
             xl('Special treatment for the Vitals form')
-        ),
-
-        'insurance_information' => array(
-            xl('Show Additional Insurance Information'),               // descriptive name
-            array(
-                '0' => xl('None'),
-                '1' => xl('Address Only'),
-                '2' => xl('Address and Postal Code'),
-                '3' => xl('Address and State'),
-                '4' => xl('Address, State and Postal Code'),
-                '5' => xl('Address, City, State and Postal Code'),
-                '6' => xl('Postal Code and Box Number')
-            ),
-            '5',                              // default
-            xl('Show Insurance Address Information in the Insurance Panel of Demographics.')
         ),
 
         'gb_how_sort_list' => array(
@@ -776,13 +754,6 @@ $GLOBALS_METADATA = array(
             xl('Enable follow-up encounters feature')
         ),
 
-        'disable_eligibility_log' => array(
-            xl('Disable Insurance Eligibility Reports Download'),
-            'bool',
-            '0',
-            xl('Do not allow insurance eligibility report log download')
-        ),
-
         'disable_chart_tracker' => array(
             xl('Disable Chart Tracker'),
             'bool',                           // data type
@@ -1010,12 +981,7 @@ $GLOBALS_METADATA = array(
             '0',                              // default false
             xl('Open all expandable forms in expanded state')
         ),
-        'insurance_only_one' => array(
-            xl('Allow only one insurance'),
-            'bool',                           // data type
-            '0',                              // default = false
-            xl('Allow only more than one insurance')
-        ),
+
     ),
     // Report Tab
     //
@@ -1867,7 +1833,51 @@ $GLOBALS_METADATA = array(
 
 
     ),
+    // Insurance Tab
+    'Insurance' => array(
+        'enable_oa' => array(
+            xl('Enable Office Ally Insurance Eligibility'),
+            'bool',
+            '0',
+            xl('Allow insurance eligibility checks using Office Ally')
+        ),
 
+        'simplified_demographics' => array(
+            xl('Simplified Demographics'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Omit insurance and some other things from the demographics form')
+        ),
+
+        'insurance_information' => array(
+            xl('Show Additional Insurance Information'),               // descriptive name
+            array(
+                '0' => xl('None'),
+                '1' => xl('Address Only'),
+                '2' => xl('Address and Postal Code'),
+                '3' => xl('Address and State'),
+                '4' => xl('Address, State and Postal Code'),
+                '5' => xl('Address, City, State and Postal Code'),
+                '6' => xl('Postal Code and Box Number')
+            ),
+            '5',                              // default
+            xl('Show Insurance Address Information in the Insurance Panel of Demographics.')
+        ),
+
+        'disable_eligibility_log' => array(
+            xl('Disable Insurance Eligibility Reports Download'),
+            'bool',
+            '0',
+            xl('Do not allow insurance eligibility report log download')
+        ),
+
+        'insurance_only_one' => array(
+            xl('Allow only one insurance'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Allow more than one insurance')
+        ),
+    ),
     // Security Tab
     //
     'Security' => array(
@@ -3072,13 +3082,6 @@ $GLOBALS_METADATA = array(
             'bool',
             '0',
             xl('Enable OpenEMR RESTful API. SSL Required')
-        ),
-
-        'enable_oa' => array(
-            xl('Enable Office Ally Insurance Eligibility'),
-            'bool',
-            '0',
-            xl('Allow insurance eligibility checks using Office Ally')
         ),
 
         'payment_gateway' => array(
