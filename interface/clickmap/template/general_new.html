@@ -1,9 +1,9 @@
 {if !$reportMode}
     <html>
     <head>
-	{headerTemplate assets='jquery-ui|jquery-ui-lightness'}
+    {headerTemplate}
 {else}
-    {assetsTemplate assets='jquery-ui|jquery-ui-lightness'}
+    {headerTemplate}
 {/if}
 <script type="text/javascript" src="{php}echo $GLOBALS['webroot'];{/php}/library/js/clickmap.js"></script>
 <link rel="stylesheet" type="text/css" href="{$form->template_dir}/css/clickmap.css" />
@@ -28,7 +28,7 @@
         <div class="col-12">
             <button class="btn btn-primary btn-save" id="btn_save">{xl t="Save"}</button>
             <button class="btn btn-secondary btn-delete" id="btn_clear">{xl t="Clear"}</button>
-            <button class="btn btn-danger btn-cancel" id="cancel">{xl t="Cancel"}</button>
+            <button class="btn btn-secondary btn-cancel" id="cancel">{xl t="Cancel"}</button>
             <p>
                 {xl t="Click a spot on the graphic to add a new annotation, click it again to remove it"} <br/>
                 {xl t="The 'Clear' button will remove all annotations."}

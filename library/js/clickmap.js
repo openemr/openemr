@@ -120,20 +120,20 @@ var clickmap = function(args) {
                 }
             };
 
-            dlgopen('', '', hasOptions? 345 : 300, 350, false, 'Information', {
+            dlgopen('', '', hasOptions? 345 : 300, 350, false, xl('Information'), {
                 buttons: [{
-                    text: 'Save',
+                    text: xl('Save'),
                     close: true,
                     style: 'btn-sm btn-primary',
                     click: do_marker,
                 }, {
-                    text: 'Cancel',
+                    text: xl('Cancel'),
                     close: true,
                     style: 'btn-sm btn-secondary'}],
                 type: 'Alert',
                 html: `
                     <div class="form-group">
-                        <label for="counterInput">Label</label>
+                        <label for="counterInput">${xl('Label')}</label>
                         <input type="text" class="form-control" id="counterInput" value="${counter + 1}">
                     </div>
                     <div class="form-group">
@@ -143,7 +143,7 @@ var clickmap = function(args) {
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="detailTextArea">Detail</label>
+                        <label for="detailTextArea">${xl('Detail')}</label>
                         <textarea class="form-control" id="detailTextArea" rows="3"></textarea>
                     </div>`,
             });
