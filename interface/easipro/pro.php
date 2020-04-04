@@ -87,7 +87,7 @@ use OpenEMR\OeUI\OemrUI;
 
                         // ascq
                         var ascq_me_container = "<div onclick='openCloseList(this)' style='cursor:pointer;'><div class='list-title-close'><b>ASCQ-Me ("+ascq_me_forms.length+")</b></div></div>"
-                        var alist = "<ul class='m-0 p-0 d-none' style='list-style: none;'>"
+                        var alist = "<ul class='m-0 p-0' style='list-style: none; display:none'>"
                         for (var i=0; i < ascq_me_forms.length; i++) {
                             var myform = "<li><input type='checkbox' value='"+ascq_me_forms[i].OID+"' desc='"+ ascq_me_forms[i].Name +"'>"+ascq_me_forms[i].Name+"</input></li>";
                             alist += myform;
@@ -97,7 +97,7 @@ use OpenEMR\OeUI\OemrUI;
                         $('#form-list').append(alist);
                         // neuro_qol
                         var neuro_qol_container = "<div onclick='openCloseList(this)' style='cursor:pointer;'><div class='list-title-close'><b>Neuro-QOL ("+neuro_qol_forms.length+")</b></div></div>"
-                        var blist = "<ul class='m-0 p-0 d-none' style='list-style: none;'>"
+                        var blist = "<ul class='m-0 p-0' style='list-style: none; display:none'>"
                         for (var i=0; i < neuro_qol_forms.length; i++) {
                             var myform = "<li><input type='checkbox' value='"+neuro_qol_forms[i].OID+"' desc='"+ neuro_qol_forms[i].Name +"'>"+neuro_qol_forms[i].Name+"</input></li>";
                             blist += myform;
@@ -107,7 +107,7 @@ use OpenEMR\OeUI\OemrUI;
                         $('#form-list').append(blist);
                         // nih tb
                         var nih_tb_container = "<div onclick='openCloseList(this)' style='cursor:pointer;'><div class='list-title-close'><b>NIH TB ("+nih_tb_forms.length+")</b></div></div>"
-                        var list = "<ul class='m-0 p-0 d-none' style='list-style: none;'>"
+                        var list = "<ul class='m-0 p-0' style='list-style: none; display:none'>"
                         for (var i=0; i < nih_tb_forms.length; i++) {
                             var myform = "<li><input type='checkbox' value='"+nih_tb_forms[i].OID+"' desc='"+ nih_tb_forms[i].Name +"'>"+nih_tb_forms[i].Name+"</input></li>";
                             list += myform;
@@ -117,7 +117,7 @@ use OpenEMR\OeUI\OemrUI;
                         $('#form-list').append(list);
                         //prmois
                         var promis_container = "<div onclick='openCloseList(this)' style='cursor:pointer;'><div class='list-title-close'><b>PROMIS ("+promis_forms.length+")</b></div></div>"
-                        var list = "<ul class='m-0 p-0 d-none' style='list-style: none;'>"
+                        var list = "<ul class='m-0 p-0' style='list-style: none; display:none'>"
                         for (var i=0; i < promis_forms.length; i++) {
                             var myform = "<li><input type='checkbox' value='"+promis_forms[i].OID+"' desc='"+ promis_forms[i].Name +"'>"+promis_forms[i].Name+"</input></li>";
                             list += myform;
@@ -128,7 +128,7 @@ use OpenEMR\OeUI\OemrUI;
 
                         // sci-fi
                         var sci_fi_container = "<div onclick='openCloseList(this)' style='cursor: pointer;'><div class='list-title-close'><b>SCI-FI ("+sci_fi_forms.length+")</b></div></div>"
-                        var list = "<ul class='m-0 p-0 d-none' style='list-style: none;'>"
+                        var list = "<ul class='m-0 p-0' style='list-style: none; display:none'>"
                         for (var i=0; i < sci_fi_forms.length; i++) {
                             var myform = "<li><input type='checkbox' value='"+sci_fi_forms[i].OID+"' desc='"+ sci_fi_forms[i].Name +"'>"+sci_fi_forms[i].Name+"</input></li>";
                             list += myform;
@@ -139,7 +139,7 @@ use OpenEMR\OeUI\OemrUI;
 
                         // sci-qol
                         var sci_qol_container = "<div onclick='openCloseList(this)' style='cursor: pointer;'><div class='list-title-close font-weight-bold'>SCI-QOL ("+sci_qol_forms.length+")</div></div>"
-                        var list = "<ul class='m-0 p-0 d-none' style='list-style: none;'>"
+                        var list = "<ul class='m-0 p-0' style='list-style: none; display:none'>"
                         for (var i=0; i < sci_qol_forms.length; i++) {
                             var myform = "<li><input type='checkbox' value='"+sci_qol_forms[i].OID+"' desc='"+ sci_qol_forms[i].Name +"'>"+sci_qol_forms[i].Name+"</input></li>";
                             list += myform;
@@ -150,7 +150,7 @@ use OpenEMR\OeUI\OemrUI;
                         //
                         // tbi-qol
                         var tbi_qol_container = "<div onclick='openCloseList(this)' style='cursor: pointer;'><div class='list-title-close font-weight-bold'>TBI-QOL ("+tbi_qol_forms.length+")</div></div>"
-                        var list = "<ul class='m-0 p-0 d-none' style='list-style: none;'>"
+                        var list = "<ul class='m-0 p-0' style='list-style: none; display:none'>"
                         for (var i=0; i < tbi_qol_forms.length; i++) {
                             var myform = "<li><input type='checkbox' value='"+tbi_qol_forms[i].OID+"' desc='"+ tbi_qol_forms[i].Name +"'>"+tbi_qol_forms[i].Name+"</input></li>";
                             list += myform;
