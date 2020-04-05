@@ -47,25 +47,6 @@
 #sddm {
     z-index:31;
 }
-a:link {
-    color: black;
-}
-
-/* visited link */
-a:visited {
-    color: #000000;
-}
-
-/* mouse over link */
-a:hover {
-    color: black;
-    text-decoration: underline;
-}
-
-/* selected link */
-a:active {
-    color: black;
-}
 .fa {
     cursor: pointer;
 }
