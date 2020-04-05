@@ -338,8 +338,10 @@ RestConfig::$ROUTE_MAP = array(
 
 );
 
+use OpenEMR\RestControllers\FHIR\FhirAllergyIntoleranceRestController;
 use OpenEMR\RestControllers\FHIR\FhirPatientRestController;
 use OpenEMR\RestControllers\FHIR\FhirEncounterRestController;
+use OpenEMR\RestControllers\FHIR\FhirOrganizationRestController;
 
 RestConfig::$FHIR_ROUTE_MAP = array(
     "POST /fhir/auth" => function () {
@@ -374,5 +376,13 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
     "GET /fhir/Organization" => function () {
         return (new FhirOrganizationRestController(null))->getAll($_GET);
+    },
+    "GET /fhir/AllergyIntolerance" => function () {
+        RestConfig::authorization_check("patients", "med");
+        return (new FhirAllergyIntoleranceRestController(null))->getAll();
+    },
+    "GET /fhir/AllergyIntolerance/:id" => function ($id) {
+        RestConfig::authorization_check("patients", "med");
+        return (new FhirAllergyIntoleranceRestController(null))->getOne($id);
     }
 );
