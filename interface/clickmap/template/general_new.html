@@ -23,17 +23,19 @@
                 </div>
             </div>
         </div>
-        <div class="col-12">
-            <div class="btn-group">
-                <button class="btn btn-primary btn-save" id="btn_save">{xl t="Save"}</button>
-                <button class="btn btn-secondary btn-delete" id="btn_clear">{xl t="Clear"}</button>
-                <button class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); location.href='javascript:parent.closeTab(window.name, false)'">{xl t="Cancel"}</button>
+        {if !$reportMode}
+            <div class="col-12">
+                <div class="btn-group">
+                    <button class="btn btn-primary btn-save" id="btn_save">{xl t="Save"}</button>
+                    <button class="btn btn-secondary btn-delete" id="btn_clear">{xl t="Clear"}</button>
+                    <button class="btn btn-secondary btn-cancel" onclick="top.restoreSession(); location.href='javascript:parent.closeTab(window.name, false)'">{xl t="Cancel"}</button>
+                </div>
+                <p>
+                    {xl t="Click a spot on the graphic to add a new annotation, click it again to remove it"} <br/>
+                    {xl t="The 'Clear' button will remove all annotations."}
+                </p>
             </div>
-            <p>
-                {xl t="Click a spot on the graphic to add a new annotation, click it again to remove it"} <br/>
-                {xl t="The 'Clear' button will remove all annotations."}
-            </p>
-        </div>
+        {/if}
     </div>
 </div>
 
@@ -59,13 +61,13 @@
 {/literal}
 </script>
 
-<form id="submitForm" name="submitForm" method="post" action="{$form->saveAction}" onsubmit="return top.restoreSession()">
-    <input type="hidden" name="id" value="{$form->get_id()}" />
-    <input type="hidden" name="pid" value="{$form->get_pid()}" />
-    <input type="hidden" name="process" value="true" />
-    <input type="hidden" name="data" id="data" value=""/>
-</form>
 {if !$reportMode}
-	</body>
-	</html>
+    <form id="submitForm" name="submitForm" method="post" action="{$form->saveAction}" onsubmit="return top.restoreSession()">
+        <input type="hidden" name="id" value="{$form->get_id()}" />
+        <input type="hidden" name="pid" value="{$form->get_pid()}" />
+        <input type="hidden" name="process" value="true" />
+        <input type="hidden" name="data" id="data" value=""/>
+    </form>
+    </body>
+    </html>
 {/if}
