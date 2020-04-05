@@ -1,25 +1,21 @@
-body {
-	background-color: lightblue;		
-}
-
 .outer-container {
 	margin: 20px;
 }
 
 #container {
 	position: relative;
-	margin: 20px;	
+	margin: 20px;
 	border: 2px dashed;
 }
 
 .marker {
 	position: absolute;
-	border: 1px solid; 
+	border: 1px solid;
 	background-color: red;
-	min-width:12px; 
+	min-width:12px;
 	min-height: 12px;
 	text-align:center;
-}	
+}
 
 .count {
 	font-size: 12px;
