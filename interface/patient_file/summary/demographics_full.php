@@ -61,7 +61,7 @@ if ($GLOBALS['insurance_information'] != '0') {
     $insurancei = getInsuranceProviders();
 }
 //Check to see if only one insurance is allowed
-if($GLOBALS['insurance_only_one']){
+if ($GLOBALS['insurance_only_one']) {
     $insurance_array = array('primary');
 } else {
     $insurance_array = array('primary', 'secondary', 'tertiary');
@@ -561,11 +561,11 @@ $condition_str = '';
 <?php
 if (! $GLOBALS['simplified_demographics']) {
     //Check to see if only one insurance is allowed
-    if($GLOBALS['insurance_only_one']){
+    if ($GLOBALS['insurance_only_one']) {
         $insurance_headings = array(xl("Primary Insurance Provider"));
         $insurance_info = array();
         $insurance_info[1] = getInsuranceData($pid, "primary");
-    }else{
+    } else {
         $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
         $insurance_info = array();
         $insurance_info[1] = getInsuranceData($pid, "primary");
@@ -866,7 +866,7 @@ echo xlt($CapInstype); ?></a></li><?php
                 <td colspan='2'></td>
                 <td></td>
             </tr>
-            <?php if (!$GLOBALS['insurance_only_one']): ?>
+            <?php if (!$GLOBALS['insurance_only_one']) : ?>
                 <tr>
                     <td>
                         <label class='bold'><?php echo xlt('Secondary Medicare Type'); ?></label>
