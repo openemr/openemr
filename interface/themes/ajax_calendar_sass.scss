@@ -62,6 +62,7 @@ div.tiny {
 
 
 #topToolbarRight {
+    position: fixed;
     float: right;
     width: 100%;
     border-bottom: 1px solid $black;
@@ -143,6 +144,7 @@ div.tiny {
     border: none;
     vertical-align: middle;
     width: 100%;
+    margin-top: 45px;
 }
 
 #bigCal td {
