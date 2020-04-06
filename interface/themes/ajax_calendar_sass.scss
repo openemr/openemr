@@ -6,7 +6,6 @@
 @each $breakpoint in map-keys($grid-breakpoints) {
   @include media-breakpoint-up($breakpoint) {
       $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
-      
     }
 }
 
@@ -41,11 +40,16 @@ div.tiny {
 }
 
 .page-content-wrapper {
-    width: 100%;
+    width: 85%;
+    margin-left: 15%;
 }
 
 #wrapper.toggled .sidebar-wrapper {
     margin-left: 0;
+}
+
+#wrapper.toggled .page-content-wrapper {
+    margin-left: 0%;
 }
 
 #functions {
@@ -149,6 +153,8 @@ div.tiny {
 #bottomLeft {
     width: 15%;
     min-width: 8.75rem;
+    position: fixed;
+    top: 45px;
     float: left;
     clear: left;
 }
@@ -513,6 +519,16 @@ div.tiny {
     #nextmonth {
         @include font-size("1.3rem !important");
     }
+
+    .page-content-wrapper {
+        margin-left: 0%;
+        width: 100%;
+    }
+
+    #wrapper.toggled .page-content-wrapper {
+        width: 85%;
+        margin-left: 15%;
+    }
 }
 
 @media (min-width: 768px) {
@@ -522,10 +538,16 @@ div.tiny {
 
     .page-content-wrapper {
         min-width: 0;
-        width: 100%;
+        width: 85%;
+        margin-left: 15%;
     }
 
     #wrapper.toggled .sidebar-wrapper {
         margin-left: -30rem;
+    }
+
+    #wrapper.toggled .page-content-wrapper {
+        width: 100%;
+        margin-left: 0%;
     }
 }
