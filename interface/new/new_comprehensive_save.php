@@ -127,7 +127,7 @@ newInsuranceData(
 );
 
 //Dont save more than one insurance since only one is allowed / save space in DB
-if(!$GLOBALS['insurance_only_one']) {
+if (!$GLOBALS['insurance_only_one']) {
     $i2dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i2subscriber_DOB"));
     $i2date = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date"));
 

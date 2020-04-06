@@ -64,7 +64,7 @@ if ($GLOBALS['enable_cdr']) {
     }
 }
 //Check to see is only one insurance is allowed
-if($GLOBALS['insurance_only_one']){
+if ($GLOBALS['insurance_only_one']) {
     $insurance_array = array('primary');
 } else {
     $insurance_array = array('primary', 'secondary', 'tertiary');
@@ -948,7 +948,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <div class="tabContainer">
                                             <?php
                                             $first = true;
-                                            foreach ($insurance_array  as $instype) {
+                                            foreach ($insurance_array as $instype) {
                                                 $enddate = 'Present';
 
                                                 $query = "SELECT * FROM insurance_data WHERE " .
