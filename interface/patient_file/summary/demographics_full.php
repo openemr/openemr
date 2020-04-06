@@ -60,6 +60,12 @@ if ($GLOBALS['insurance_information'] != '0') {
 } else {
     $insurancei = getInsuranceProviders();
 }
+//Check to see if only one insurance is allowed
+if($GLOBALS['insurance_only_one']){
+    $insurance_array = array('primary');
+} else {
+    $insurance_array = array('primary', 'secondary', 'tertiary');
+}
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'DEM' AND uor > 0 " .
@@ -554,11 +560,19 @@ $condition_str = '';
 
 <?php
 if (! $GLOBALS['simplified_demographics']) {
-    $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
-    $insurance_info = array();
-    $insurance_info[1] = getInsuranceData($pid, "primary");
-    $insurance_info[2] = getInsuranceData($pid, "secondary");
-    $insurance_info[3] = getInsuranceData($pid, "tertiary");
+    //Check to see if only one insurance is allowed
+    if($GLOBALS['insurance_only_one']){
+        $insurance_headings = array(xl("Primary Insurance Provider"));
+        $insurance_info = array();
+        $insurance_info[1] = getInsuranceData($pid, "primary");
+    }else{
+        $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
+        $insurance_info = array();
+        $insurance_info[1] = getInsuranceData($pid, "primary");
+        $insurance_info[2] = getInsuranceData($pid, "secondary");
+        $insurance_info[3] = getInsuranceData($pid, "tertiary");
+    }
+
 
     ?>
     <div class="section-header">
@@ -567,7 +581,7 @@ if (! $GLOBALS['simplified_demographics']) {
     <div id="INSURANCE" >
        <ul class="tabNav">
         <?php
-        foreach (array('primary','secondary','tertiary') as $instype) {
+        foreach ($insurance_array as $instype) {
             ?><li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="#"><?php $CapInstype=ucfirst($instype);
 echo xlt($CapInstype); ?></a></li><?php
         }
@@ -852,26 +866,28 @@ echo xlt($CapInstype); ?></a></li><?php
                 <td colspan='2'></td>
                 <td></td>
             </tr>
-      <tr>
-        <td>
-            <label class='bold'><?php echo xlt('Secondary Medicare Type'); ?></label>
-          </td>
-        <td class='bold'>:</td>
-        <td colspan='6'>
-          <select class='form-control sel2' name='i<?php echo attr($i); ?>policy_type'>
-        <?php
-        foreach ($policy_types as $key => $value) {
-            echo "            <option value ='" . attr($key) . "'";
-            if ($key == $result3['policy_type']) {
-                echo " selected";
-            }
+            <?php if (!$GLOBALS['insurance_only_one']): ?>
+                <tr>
+                    <td>
+                        <label class='bold'><?php echo xlt('Secondary Medicare Type'); ?></label>
+                    </td>
+                    <td class='bold'>:</td>
+                    <td colspan='6'>
+                        <select class='form-control sel2' name='i<?php echo attr($i); ?>policy_type'>
+                            <?php
+                            foreach ($policy_types as $key => $value) {
+                                echo "            <option value ='" . attr($key) . "'";
+                                if ($key == $result3['policy_type']) {
+                                    echo " selected";
+                                }
 
-            echo ">" . text($value) . "</option>\n";
-        }
-        ?>
-        </select>
-      </td>
-    </tr>
+                                echo ">" . text($value) . "</option>\n";
+                            }
+                            ?>
+                        </select>
+                    </td>
+                </tr>
+            <?php endif ?>
       </table>
 
     </div>
