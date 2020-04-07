@@ -30,7 +30,7 @@ $check_res = $formid ? formFetch("form_clinical_instructions", $formid) : array(
 
         <?php Header::setupHeader(); ?>
     </head>
-    <body class="body_top">
+    <body>
         <div class="container">
             <div class="row">
                 <div class="page-header">

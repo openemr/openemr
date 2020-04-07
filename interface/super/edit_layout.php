@@ -1326,7 +1326,7 @@ function myChangeCheck() {
 
 </head>
 
-<body class="body_top admin-layout">
+<body class="admin-layout">
 <div class="container-responsive">
 <form method='post' name='theform' id='theform' action='edit_layout.php'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />

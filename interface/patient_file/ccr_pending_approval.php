@@ -33,7 +33,7 @@ if (isset($_GET['approve']) && $_GET['approve'] == 1) {
         <?php Header::setupHeader(); ?>
         <title><?php echo xlt('CCR Approve');?></title>
         </head>
-        <body class="body_top">
+        <body>
             <center><?php echo xlt('Approved Successfully'); ?></center>
         </body>
 </html>
@@ -47,7 +47,7 @@ if (isset($_GET['approve']) && $_GET['approve'] == 1) {
     <?php Header::setupHeader(); ?>
     <title><?php echo xlt('Pending Approval');?></title>
 </head>
-<body class="body_top">
+<body>
 <div class="container">
 <h2 class="text-center"><?php echo xlt('Pending Approval');?><h2>
 <form class="text-center" method="post" name="approve" "onsubmit='return top.restoreSession()'" >

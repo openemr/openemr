@@ -1005,7 +1005,7 @@ function writeITLine($it_array)
 
 </head>
 
-<body class="body_top">
+<body>
 <form method='post' name='theform' id='theform' action='edit_list.php'>
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <input type="hidden" id="list_from" name="list_from" value="<?php echo attr($list_from);?>"/>

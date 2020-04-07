@@ -59,7 +59,7 @@ $data = new AdminProperties();
 </style>
 </head>
 
-<body class="body_top text-center">
+<body class="text-center">
 <div class="container center-block">
 <?php
 

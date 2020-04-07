@@ -116,7 +116,7 @@ if ($batch_log && !$GLOBALS['disable_eligibility_log']) {
     }
 </script>
 </head>
-<body class="body_top">
+<body>
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
     <?php if (isset($message) && !empty($message)) { ?>
                 <div class="text-danger text-center bg-light w-50" style="margin-left:25%; font-family: 'Arial', sans-serif; font-size:15px; border:1px solid;"><?php echo $message; ?></div>

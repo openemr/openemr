@@ -35,7 +35,7 @@ $returnurl = 'encounter_top.php';
 
 </head>
 
-<body class="body_top">
+<body>
 
 <?php echo date("F d, Y", time()); ?>
 

@@ -76,7 +76,7 @@ $list_id = $_REQUEST['list_id'];
         }
         </script>
     </head>
-    <body class="body_top">
+    <body>
         <form >
             <table>
                 <tr class="text">

@@ -50,7 +50,7 @@ if (isset($_POST['mode'])) {
 
 <?php Header::setupHeader(); ?>
 </head>
-<body class="body_top">
+<body>
 
     <div id="officenotes_edit">
 

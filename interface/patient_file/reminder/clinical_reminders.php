@@ -31,7 +31,7 @@ use OpenEMR\Core\Header;
 $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 ?>
 
-<body class='body_top'>
+<body>
 <div>
   <span class='title'><?php echo xlt('Clinical Reminders'); ?></span>
 </div>

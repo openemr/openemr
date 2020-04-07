@@ -315,7 +315,7 @@ if ($_POST['form_get_hl7']==='true') {
     </style>
 </head>
 
-<body class="body_top">
+<body>
 
     <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Immunization Registry'); ?></span>
 

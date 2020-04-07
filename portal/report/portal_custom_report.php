@@ -533,7 +533,7 @@ input[type="radio"] {
   }
 </script>
 </head>
-<body class="body_top" style="padding-top:95px;">
+<body  style="padding-top:95px;">
 <?php } ?>
 <div id="report_custom" style="width:100%;">  <!-- large outer DIV -->
 
@@ -1160,7 +1160,7 @@ if ($PDF_OUTPUT) {
         $ptdata = getPatientData($pid, 'cmsportal_login');
         $contents = $pdf->Output('', true);
         echo "<html><head>\n";
-        echo "</head><body class='body_top'>\n";
+        echo "</head><body>\n";
         $result = cms_portal_call(array(
             'action' => 'putmessage',
             'user' => $ptdata['cmsportal_login'],

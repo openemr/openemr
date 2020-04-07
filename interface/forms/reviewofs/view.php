@@ -31,7 +31,7 @@ $returnurl = 'encounter_top.php';
 <?php
 $obj = formFetch("form_reviewofs", $_GET["id"]);
 ?>
-<body class="body_top">
+<body>
     <div class="container">
         <div class="row">
             <div class="">

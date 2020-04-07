@@ -49,7 +49,7 @@ $mailOrder = $tData->mailOrderPharmacy();
     </style>
 </head>
 
-<body class="body_top">
+<body>
 
 <h2><?php print xlt("Prescription Transmit Review"); ?></h2>
 <div class="table-responsive text-center" style="margin-left:10%;width:75%;">

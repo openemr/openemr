@@ -71,7 +71,7 @@ use OpenEMR\Core\Header;
     </script>
 </head>
 
-<body class="body_top">
+<body>
     <div class="container">
         <div class="row">
             <div class="col-12">

@@ -117,7 +117,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
     </script>
 
 </head>
-<body class="body_top">
+<body>
     <?php
     // Collect user information
     $user_info = sqlQuery("select * from `users` WHERE `id` = ?", array($_GET["user_id"]));

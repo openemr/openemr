@@ -601,7 +601,7 @@ foreach ($bcodes['Phys']['Physiotherapy Procedures'] as $key => $value) {
 
 </head>
 
-<body class="body_top">
+<body>
 <form method="post" action="<?php echo "$rootdir/forms/$spreadsheet_form_name/new.php?id=" . attr_url($formid) . "&thisenc=" . attr_url($thisenc);
 if ($popup) {
     echo '&popup=1';

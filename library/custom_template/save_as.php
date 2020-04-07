@@ -36,7 +36,7 @@ use OpenEMR\Core\Header;
     <head>
         <?php Header::setupHeader(); ?>
     </head>
-    <body class="body_top">
+    <body>
         <form>
             <table>
                 <tr class="text">

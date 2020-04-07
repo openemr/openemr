@@ -148,7 +148,7 @@ function submitList(offset) {
 </script>
 
 </head>
-<body class="body_top">
+<body>
 
 <form method='post' action='patient_select.php' name='theform' onsubmit='return top.restoreSession()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />

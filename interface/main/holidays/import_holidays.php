@@ -94,7 +94,7 @@ if (!empty($_POST['sync'])) {
 
 </head>
 
-<body class="body_top">
+<body>
 <?php
 if ($saved) {
     echo "<p style='color:green'>" .

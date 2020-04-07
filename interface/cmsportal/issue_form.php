@@ -239,7 +239,7 @@ $(function () {
 </script>
 </head>
 
-<body class="body_top">
+<body>
 <center>
 
 <form method='post' action='issue_form.php' onsubmit='return validate()'>

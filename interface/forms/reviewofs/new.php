@@ -28,7 +28,7 @@ $returnurl = 'encounter_top.php';
 
     <?php Header::setupHeader();?>
 </head>
-<body class="body_top">
+<body>
 <div class="container">
     <div class="row">
         <div class="">

@@ -103,7 +103,7 @@ if ($deIdentificationStatus == 0) {
 }
 </style>
 </head>
-<body class="body_top">
+<body>
 <strong>De Identification</strong>
 <form name="De Identification1" id="De Identification1" method="post"><br />
     <?php

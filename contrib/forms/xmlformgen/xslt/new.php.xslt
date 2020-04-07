@@ -103,7 +103,7 @@ require_once($GLOBALS['srcdir'].'/options_listadd.inc');
 <title><?php echo htmlspecialchars('New '.$form_name); ?></title>
 
 </head>
-<body class="body_top">
+<body">
 
 <div id="title">
 <a href="<?php echo $GLOBALS['form_exit_url']; ?>" onclick="top.restoreSession()">
@@ -175,7 +175,7 @@ $(function () {
     });
 });
 </script>
-</body>
+</body">
 </html>
 ]]></xsl:text>
 </xsl:template>

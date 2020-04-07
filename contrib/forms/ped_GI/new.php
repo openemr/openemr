@@ -30,7 +30,7 @@ formHeader("Pediatric GI Evaluation");
 
 </head>
 
-<body class="body_top">
+<body>
 
 
 

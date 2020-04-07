@@ -101,7 +101,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
     <?php Header::setupHeader(); ?>
     <title><?php echo xlt("SMS Notification"); ?></title>
 </head>
-<body class="body_top container">
+<body class="container">
     <header class="row">
         <?php require_once("batch_navigation.php");?>
         <h1 class="col-md-12">

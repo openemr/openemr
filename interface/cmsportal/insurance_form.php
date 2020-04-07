@@ -292,7 +292,7 @@ $(function () {
 </script>
 </head>
 
-<body class="body_top">
+<body>
 <center>
 
 <form method='post' action='insurance_form.php' onsubmit='return validate()'>

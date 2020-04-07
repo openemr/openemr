@@ -84,7 +84,7 @@ function printAmendment($amendmentID, $lastAmendment)
     <?php Header::setupHeader(); ?>
 </head>
 
-<body class="body_top">
+<body>
     <span class='title'><?php echo xlt("Amendments for") . " " . text($patientName); ?></span>
     <p></p>
 

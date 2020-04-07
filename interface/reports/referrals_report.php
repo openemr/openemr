@@ -89,7 +89,7 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
     </style>
 </head>
 
-<body class="body_top">
+<body>
 
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Referrals'); ?></span>
 

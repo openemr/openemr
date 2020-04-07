@@ -278,7 +278,7 @@ if ($rowed['id']) {
 <?php Header::setupHeader(); ?>
 <title><?php echo xlt('Export Patient Demographics XML'); ?></title>
 </head>
-<body class="body_top">
+<body>
   <div class="container">
      <div class="row">
         <div class="col-12">

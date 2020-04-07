@@ -71,7 +71,7 @@ function show_edit(t) {
 }
 </script>
 </head>
-<body class="body_top">
+<body>
 <form method=post action="<?php echo $rootdir?>/forms/CAMOS/save.php?mode=delete&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <h1> <?php echo xlt('CAMOS'); ?> </h1>

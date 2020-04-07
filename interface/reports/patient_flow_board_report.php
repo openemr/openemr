@@ -140,7 +140,7 @@ if ($form_patient == '') {
     </style>
 </head>
 
-<body class="body_top">
+<body>
 
 <!-- Required for the popup date selectors -->
 <div id="overDiv"

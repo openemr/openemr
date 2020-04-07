@@ -379,14 +379,6 @@ div.menuLabel:hover {
     right: 10px;
 }
 
-/* Main menu bar */
-.body_top {
-    background-color: var(--light);
-    color: var(--dark);
-    padding: 0;
-    margin: 0;
-    z-index: 10;
-}
 
 .body_title {
     color: var(--black);

@@ -107,7 +107,7 @@ function submitList(offset) {
 </script>
 
 </head>
-<body class="body_top">
+<body>
 
 <form method='post' action='new_search_popup.php' name='theform'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />

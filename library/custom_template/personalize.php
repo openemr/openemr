@@ -287,7 +287,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
         }
     </script>
 </head>
-<body class="body_top">
+<body>
 <form name="myform" method="post" onsubmit="top.restoreSession();">
     <fieldset>
         <legend><span class="text"><?php echo htmlspecialchars(xl('Filter'), ENT_QUOTES); ?></span></legend>

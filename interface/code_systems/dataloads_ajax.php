@@ -117,7 +117,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
     }
 </style>
 </head>
-<body class="body_top">
+<body>
 <h4><?php echo xlt("External Database Import Utility"); ?></h4>
 
 <div class="accordion" id="externalDatabaseAccordion">

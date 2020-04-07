@@ -80,7 +80,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>
-<body class="body_top">
+<body>
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
     <?php
     // If current step is reg1 or reg2, display the header

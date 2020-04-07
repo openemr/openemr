@@ -202,7 +202,7 @@ $(function () {
 
 </head>
 
-<body class="body_top">
+<body>
 <form method='post' action='list_requests.php' onsubmit='return myRestoreSession()'>
 
 <?php

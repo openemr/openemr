@@ -565,7 +565,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
     ?>
 </head>
 
-<body class="body_top" onLoad="TestExpandCollapse()">
+<body onLoad="TestExpandCollapse()">
     <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
         <div class="row">
             <div class="col-sm-12">

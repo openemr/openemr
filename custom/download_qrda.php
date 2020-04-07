@@ -133,7 +133,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
 </style>
 </head>
 
-<body class="body_top">
+<body>
 <form id="thisForm" name="thisForm">
 <table>
     <tr>

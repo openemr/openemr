@@ -344,7 +344,7 @@ form {
 
 </head>
 
-<body class="body_top">
+<body>
 <div class="container-fluid">
 <div id="searchCriteria">
 <form class="form-inline" method='post' name='theform' action='find_appt_popup.php?providerid=<?php echo attr_url($providerid) ?>&catid=<?php echo attr_url($input_catid) ?>'>

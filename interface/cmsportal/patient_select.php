@@ -92,7 +92,7 @@ function openPatient(ptid) {
 </script>
 </head>
 
-<body class="body_top">
+<body>
 <center>
 <form method='post' action='patient_select.php' onsubmit='return myRestoreSession()'>
 

@@ -17,7 +17,7 @@ use OpenEMR\Core\Header;
     <link rel="stylesheet" href="<?php css_src('rules.css') ?>" type="text/css">
 </head>
 
-<body class='body_top'>
+<body>
 <?php
 if (file_exists($viewBean->_view_body)) {
     require_once($viewBean->_view_body);

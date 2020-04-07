@@ -184,7 +184,7 @@ function submitform(attr) {
 }
 </script>
 </head>
-<body class="body_top">
+<body>
 <div id="pnotes"> <!-- large outer DIV -->
 <?php
 $title_docname = "";

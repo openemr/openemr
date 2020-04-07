@@ -712,7 +712,7 @@ fieldset {
 </style>
     <?php Header::setupHeader(['datetime-picker', 'common']); ?>
 </head>
-<body class="body_top" onload="OnloadAction()">
+<body onload="OnloadAction()">
     <div class="container">
     <?php
     if ($_REQUEST['ParentPage']=='new_payment') {

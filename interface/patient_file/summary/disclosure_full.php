@@ -61,7 +61,7 @@ if (isset($_GET['deletelid'])) {
 
 </head>
 
-<body class="body_top">
+<body>
 <div>
     <span class="title"><?php echo xlt('Disclosures'); ?></span>
 </div>

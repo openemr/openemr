@@ -47,7 +47,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
 </script>
 
 </head>
-<body class="body_top">
+<body>
 <p><span class="forms-title"><?php echo xlt('AfterCare Planning'); ?></span></p>
 <br />
 <?php

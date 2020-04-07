@@ -157,7 +157,7 @@ if (trim($_POST['contextname'])!='' && $_POST['action']=='add') {
      </script>
 
     </head>
-    <body class="body_top">
+    <body>
      <form name="designation_managment" action="" method="post">
         <table cellpadding='2' cellspacing='0' border="0" align="center">
 

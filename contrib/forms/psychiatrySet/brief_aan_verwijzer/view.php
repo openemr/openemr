@@ -95,7 +95,7 @@ if ($vectAutosave['id'] && $vectAutosave['id'] != "" && $vectAutosave['id'] > 0)
 </style>
     </head>
 
-<body class="body_top">
+<body>
 
 <?php
 

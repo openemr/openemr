@@ -69,7 +69,7 @@ if ($_POST['confirm']) {
 <?php Header::setupHeader(); ?>
 </head>
 
-<body class="body_top">
+<body>
 
 <span class="title"><?php echo xlt('Delete Encounter Form'); ?></span>
 

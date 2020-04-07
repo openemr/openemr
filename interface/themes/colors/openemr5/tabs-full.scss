@@ -1,15 +1,5 @@
 /* OpenEMR tabs-Full Override */
 
-#mainBox > .body_top,
-.body_top_tabs {
-    background-color: $dark !important;
-}
-
-#mainBox_vertical > .body_top,
-.body_top_tabs {
-    background-color: $midpale !important;
-}
-
 .tabSpan,
 .tabSpan_tabs {
     border-top: 5px solid $dark !important;
@@ -170,5 +160,5 @@ img[src *="show_calendar.gif"] {
 
 /* Patient Panel Toggler Override */
 #patient_caret {
-    margin-right: 4px !important; 
+    margin-right: 4px !important;
 }

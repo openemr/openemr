@@ -49,7 +49,7 @@ if (strtotime($current_date) > strtotime($pwd_expires)) {
     <?php Header::setupHeader(); ?>
     <title><?php echo xlt('Password Expiration'); ?></title>
 </head>
-<body class="body_top">
+<body>
 <div class="container">
     <div class="row">
         <div class="col-sm-12">

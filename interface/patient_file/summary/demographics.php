@@ -690,7 +690,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
 
-<body class="body_top patient-demographics">
+<body class="patient-demographics">
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <a href='../reminder/active_reminder_popup.php' id='reminder_popup_link' style='display: none;' onclick='top.restoreSession()'></a>
 

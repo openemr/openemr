@@ -192,7 +192,7 @@ function authorized_clicked() {
   }
 </style>
 </head>
-<body class="body_top">
+<body>
 
 <div class="container">
 

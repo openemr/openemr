@@ -76,7 +76,7 @@ $(function () {
 </head>
 
 
-<body class="body_top">
+<body>
 <?php
 
 // Ensure user is authorized

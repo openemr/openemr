@@ -56,7 +56,7 @@ $accountStatus = $eRxSOAP->getAccountStatus()
 <head>
     <?php Header::setupHeader(); ?>
 </head>
-<body class='body_top'>
+<body>
     <table class='text' align=center width='90%' height='80%' style='padding-top:6%'>
         <tr>
             <th colspan=2><?php echo xlt('eRx Account Status'); ?></th>

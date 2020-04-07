@@ -52,7 +52,7 @@ if ($noteid) {
 <?php Header::setupHeader(); ?>
 </head>
 
-<body class="body_top">
+<body>
 
 <p><?php echo "<b>" .
   generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $title) .

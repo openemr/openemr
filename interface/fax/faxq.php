@@ -176,7 +176,7 @@ function dosdclick(sfname) {
 
 </head>
 
-<body class="body_top">
+<body>
 <table class='w-100 h-100' cellspacing='0' cellpadding='0' style='margin: 0; border: 2px solid var(--black);' id='bigtable'>
  <tr style='height: 20px;'>
   <td width='33%' id='td_tab_faxin'  class='tabhead'

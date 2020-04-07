@@ -505,7 +505,7 @@ function process_form($ar)
         });
     </script>
 </head>
-<body class="body_top">
+<body>
     <br />
     <p>
     <h3><?php echo xlt('Billing queue results'); ?>:</h3><a href="#" id="close-link"><?php echo xlt('Close'); ?></a>

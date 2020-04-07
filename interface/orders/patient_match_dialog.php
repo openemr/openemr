@@ -65,7 +65,7 @@ $form_DOB = $args['DOB'];
 </script>
 </head>
 
-<body class="body_top">
+<body>
 <form method='post' action='patient_select.php' onsubmit='return myRestoreSession()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <?php

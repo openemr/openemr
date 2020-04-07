@@ -26,7 +26,7 @@ $oNoteService = new ONoteService();
 <?php Header::setupHeader(); ?>
 
 </head>
-<body class="body_top">
+<body>
 
 <div id="officenotes_list">
 <a href="office_comments_full.php" onclick='top.restoreSession()'>

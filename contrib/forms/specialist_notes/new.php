@@ -64,9 +64,9 @@ if ($_POST['bn_save']) {
  //
     if ($formid) {
         $query = "UPDATE form_specialist_notes SET
-          notes = ?      
+          notes = ?
           followup_required = ?
-          followup_timing = ?                  
+          followup_timing = ?
           followup_location = ?
           WHERE id = ?";
         sqlStatement($query, array($_POST['form_notes'], cbvalue('fu_required'), $fu_timing, $fu_location, $formid));
@@ -101,7 +101,7 @@ if ($formid) {
 </script>
 </head>
 
-<body class="body_top">
+<body>
 <form method="post" action="<?php echo $rootdir ?>/forms/specialist_notes/new.php?id=<?php echo attr_url($formid); ?>" onsubmit="return top.restoreSession()">
 
 <center>

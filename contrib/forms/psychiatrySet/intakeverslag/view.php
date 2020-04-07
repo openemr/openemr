@@ -103,7 +103,7 @@ if ($tmpDate && $tmpDate != '0000-00-00 00:00:00') {
 </style>
     </head>
 
-<body class="body_top">
+<body>
 <?php
 include_once("$srcdir/api.inc");
 //$obj = formFetch("form_intakeverslag", (int)$_GET["id"]);

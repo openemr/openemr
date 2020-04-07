@@ -64,7 +64,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
 
 </head>
 
-<body class="body_top">
+<body>
 <?php if ($form_id) { ?>
 <form id="group_attendance_form" method=post onclick="top.restoreSession();" action="<?php echo $rootdir;?>/forms/group_attendance/save.php?mode=update&id=<?php echo attr_url($form_id) ;?>" name="my_form">
 <?php } else { ?>

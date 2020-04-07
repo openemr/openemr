@@ -95,7 +95,7 @@ function PrintForm() {
 <title><?php echo htmlspecialchars('View '.$form_name); ?></title>
 
 </head>
-<body class="body_top">
+<body>
 
 <div id="title">
 <a href="<?php echo $returnurl; ?>" onclick="top.restoreSession()">

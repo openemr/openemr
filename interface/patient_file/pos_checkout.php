@@ -217,7 +217,7 @@ function generate_receipt($patient_id, $encounter = 0)
         <title><?php echo xlt('Patient Checkout'); ?></title>
 
     </head>
-    <body class="body_top">
+    <body>
         <div class="container">
             <div class= "row text-center">
                     <?php

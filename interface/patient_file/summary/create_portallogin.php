@@ -214,7 +214,7 @@ function transmit(){
 <?php } ?>
 </script>
 </head>
-<body class="body_top">
+<body>
     <div class="container-fluid">
 
         <?php if (!empty($credMessage)) { ?>

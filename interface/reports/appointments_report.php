@@ -178,7 +178,7 @@ function fetch_reminders($pid, $appt_date)
         </style>
 </head>
 
-<body class="body_top">
+<body>
 
 <!-- Required for the popup date selectors -->
 <div id="overDiv"

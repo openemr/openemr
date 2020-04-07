@@ -398,7 +398,7 @@ function srchDone(pid){
 </script>
 </head>
 
-<body class="body_top">
+<body>
 
 <?php
 /*Get the constraint from the DB-> LBF forms accordinf the form_id*/

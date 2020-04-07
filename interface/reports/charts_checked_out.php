@@ -53,7 +53,7 @@ use OpenEMR\Services\PatientService;
     </style>
 </head>
 
-<body class="body_top">
+<body>
 
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Charts Checked Out'); ?></span>
 

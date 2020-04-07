@@ -24,7 +24,7 @@ formHeader("Form: reviewofs");
 <html><head>
     <?php Header::setupHeader(); ?>
 </head>
-<body class="body_top">
+<body>
 <form method=post action="<?php echo $rootdir;?>/forms/reviewofs/save.php?mode=new" name="my_form">
 <span class="title">Review of Systems Checks</span><br /><br />
 

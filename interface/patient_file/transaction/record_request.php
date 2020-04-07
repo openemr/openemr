@@ -50,7 +50,7 @@ $recordRequest = sqlQuery("SELECT * FROM `amc_misc_data` WHERE `pid`=? AND `amc_
     "ORDER BY `date_created` DESC", array($pid));
 ?>
 
-<body class="body_top">
+<body>
     <div class="container">
         <div class="row">
             <div class="col-12">

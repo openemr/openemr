@@ -167,7 +167,7 @@ function displayAlert() {
 </script>
 
 </head>
-<body class="body_top">
+<body>
     <div class="container">
         <h5 class="title"><?php echo xlt('Add Facility'); ?></h5>
         <div class="py-3">

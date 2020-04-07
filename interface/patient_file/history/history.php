@@ -76,7 +76,7 @@ $arrOeUiSettings = array(
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
-<body class="body_top">
+<body>
 
 <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
     <div class="row">

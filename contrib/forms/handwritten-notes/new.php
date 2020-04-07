@@ -46,7 +46,7 @@ function getDocCats()
     <?php Header::setupHeader(['common']); ?>
     <title><?php echo xlt("Handwritten Notes"); ?></title>
 </head>
-<body class="body_top">
+<body>
     <div class="container-fluid">
         <!-- This method opens the handwritten notes area in a new tab/window so that we can use all of the iPad's screen real estate !-->
         <form class="pt-5 mx-auto" method="post" action="<?php echo $GLOBALS['rootdir']; ?>/forms/handwritten-notes/hw-notes.php" target="_blank">

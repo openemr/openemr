@@ -24,7 +24,7 @@ formHeader("Form: pain");
 <html><head>
 <?php Header::setupHeader(); ?>
 </head>
-<body class="body_top">
+<body>
 <form method=post action="<?php echo $rootdir;?>/forms/pain/save.php?mode=new" name="my_form">
 <span class="title">Pain Evaluation</span><br /><br />
 

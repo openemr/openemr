@@ -149,7 +149,7 @@ if (!empty($_POST['bn_upload'])) {
          }
       </style>
    </head>
-   <body class="body_top">
+   <body>
    <div class="container">
       <form method='post' action='manage_document_templates.php' enctype='multipart/form-data'
          onsubmit='return top.restoreSession()'>

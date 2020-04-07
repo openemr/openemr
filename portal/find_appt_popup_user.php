@@ -283,7 +283,7 @@ function setappt(year,mon,mday,hours,minutes) {
 
 </head>
 
-<body class="body_top">
+<body>
 
 <div id="searchCriteria">
 <form method='post' name='theform' action='./find_appt_popup_user.php?providerid=<?php echo attr_url($providerid); ?>&catid=<?php echo attr_url($input_catid); ?>'>

@@ -87,7 +87,7 @@ $res=sqlStatement("SELECT * FROM customlists as cl left outer join users as u on
         }
         </script>
     </head>
-    <body class="body_top">
+    <body>
     <form name="myform">
         <table align="center">
             <tr class="text reportTableHeadRow">

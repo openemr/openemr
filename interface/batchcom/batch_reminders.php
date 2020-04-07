@@ -45,7 +45,7 @@ if (empty($report_id) && !empty($GLOBALS['pat_rem_clin_nice'])) {
     <?php Header::setupHeader(); ?>
     <title><?php echo xlt('Patient Reminder Batch Job') ?></title>
 </head>
-<body class="body_top container">
+<body class="container">
     <header class="row">
         <?php require_once("batch_navigation.php");?>
         <h1 class="col-md-12">

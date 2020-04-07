@@ -117,7 +117,7 @@ if (isset($_GET["res"])) {
 
 </head>
 
-<body class="body_top">
+<body>
 <div class="container-responsive">
 <div id="searchCriteria" class="bg-light p-2 pt-3">
 <form method='post' name='theform' id="theform" action='find_patient_popup.php?<?php if (isset($_GET['pflag'])) {

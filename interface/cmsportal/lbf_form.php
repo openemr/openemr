@@ -93,7 +93,7 @@ $(function () {
 </script>
 </head>
 
-<body class="body_top">
+<body>
 
 <?php echo "<!-- ";
 print_r($result);

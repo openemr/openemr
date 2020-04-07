@@ -99,7 +99,7 @@ if ($tmpDate && $tmpDate != '0000-00-00 00:00:00') {
 </style>
 </head>
 
-<body class="body_top">
+<body>
 
 <?php
 

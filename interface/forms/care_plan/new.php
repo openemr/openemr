@@ -124,7 +124,7 @@ endforeach;
             });
         </script>
     </head>
-    <body class="body_top">
+    <body>
         <div class="container">
             <div class="row">
                 <div class="page-header">

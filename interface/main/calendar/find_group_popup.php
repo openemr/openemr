@@ -178,7 +178,7 @@ if ($_POST['searchby'] && $_POST['searchparm']) {
 
 </head>
 
-<body class="body_top">
+<body>
 
 <div id="searchCriteria">
     <form method='post' name='theform' id="theform" action='find_group_popup.php'>

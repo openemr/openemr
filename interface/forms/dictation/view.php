@@ -28,7 +28,7 @@ $returnurl = 'encounter_top.php';
 
     <?php Header::setupHeader();?>
 </head>
-<body class="body_top">
+<body>
 <?php
 $obj = formFetch("form_dictation", $_GET["id"]);
 ?>

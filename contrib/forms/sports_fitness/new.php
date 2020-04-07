@@ -61,22 +61,22 @@ if ($_POST['bn_save']) {
  //
     if ($formid) {
         $query = "UPDATE form_sports_fitness SET
-         height_meters = ?,       
-         weight_kg = ?,        
-         skin_folds_9x = ?,     
-         skin_folds_5x = ?,       
-         pct_body_fat = ?,        
-         method_body_fat = ?,  
-         pulse = ?,               
-         bps = ?,            
-         bpd = ?,         
-         beep_level = ?,      
-         beep_shuttles = ?,      
+         height_meters = ?,
+         weight_kg = ?,
+         skin_folds_9x = ?,
+         skin_folds_5x = ?,
+         pct_body_fat = ?,
+         method_body_fat = ?,
+         pulse = ?,
+         bps = ?,
+         bpd = ?,
+         beep_level = ?,
+         beep_shuttles = ?,
          beep_vo2_max = ?,
          vertical_jump_meters = ?,
-         agility_505 = ?,   
+         agility_505 = ?,
          sit_and_reach_cm = ?,
-         other = ?,                
+         other = ?,
          WHERE id = ?";
         sqlStatement($query, array($_POST['form_height_meters'], $_POST['form_weight_kg'], $_POST['form_skin_folds_9x'], $_POST['form_skin_folds_5x'], $_POST['form_pct_body_fat'], rbvalue('form_method_body_fat'),
         $_POST['form_pulse'], $_POST['form_bps'], $_POST['form_bpd'], $_POST['form_beep_level'], $_POST['form_beep_shuttles'], $_POST['form_beep_vo2_max'], $_POST['form_vertical_jump_meters'],
@@ -112,7 +112,7 @@ if ($formid) {
     <?php Header::setupHeader(); ?>
 </head>
 
-<body class="body_top">
+<body>
 <form method="post" action="<?php echo $rootdir ?>/forms/sports_fitness/new.php?id=<?php echo attr_url($formid); ?>"
  onsubmit="return top.restoreSession()">
 

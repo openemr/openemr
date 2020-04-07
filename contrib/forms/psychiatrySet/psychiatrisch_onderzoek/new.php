@@ -170,7 +170,7 @@ if ($tmpDate && $tmpDate != '0000-00-00 00:00:00') {
 
 
 
-<body class="body_top">
+<body>
 
 <?php
 

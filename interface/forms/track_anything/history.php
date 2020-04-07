@@ -133,7 +133,7 @@ function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, track
 // Here starts webpage-output
 //-------------------------------
 
-echo "</head><body class='body_top'>";
+echo "</head><body>";
 
 echo "<div id='track_anything'>";
 // Choose output mode (order ASC vs order DESC)

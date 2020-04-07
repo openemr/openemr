@@ -51,7 +51,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
 <head>
 <?php Header::setupHeader(); ?>
 </head>
-<body class="body_top">
+<body>
 
     <div class="container-fluid">
         <!-- Page header -->

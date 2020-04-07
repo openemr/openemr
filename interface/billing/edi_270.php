@@ -116,7 +116,7 @@ if ($exclude_policy != "") {
         f.name as facility_name,
         c.cms_id as cms_id,
         c.eligibility_id as eligibility_id,
-        c.name as payer_name 
+        c.name as payer_name
         FROM openemr_postcalendar_events AS e
         LEFT JOIN users AS d on (e.pc_aid is not null and e.pc_aid = d.id)
         LEFT JOIN facility AS f on (f.id = e.pc_facility)
@@ -323,7 +323,7 @@ if ($exclude_policy != "") {
         </script>
 
     </head>
-    <body class="body_top">
+    <body>
 
         <!-- Required for the popup date selectors -->
         <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>

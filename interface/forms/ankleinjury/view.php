@@ -25,7 +25,7 @@ use OpenEMR\Core\Header;
 <html><head>
     <?php Header::setupHeader(); ?>
 </head>
-<body class="body_top">
+<body>
 <?php
 require_once("$srcdir/api.inc");
 $obj = formFetch("form_ankleinjury", $_GET["id"]);

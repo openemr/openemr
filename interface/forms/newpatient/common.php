@@ -234,7 +234,7 @@ $arrOeUiSettings = array(
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
-<body class="body_top" <?php echo $body_javascript;?>>
+<body  <?php echo $body_javascript;?>>
     <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
         <div class="row">
             <div class="col-sm-12">

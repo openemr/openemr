@@ -161,7 +161,7 @@ function myRestoreSession() {
 </script>
 </head>
 
-<body class="body_top">
+<body>
 <center>
 
 <form method='post' action='upload_form.php'>

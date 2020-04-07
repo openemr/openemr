@@ -27,7 +27,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     <?php Header::setupHeader(); ?>
     <title><?php echo xlt("Phone Call List"); ?></title>
 </head>
-<body class="body_top container">
+<body class="container">
     <header class="row">
         <?php require_once("batch_navigation.php");?>
         <h1 class="col-md-12">

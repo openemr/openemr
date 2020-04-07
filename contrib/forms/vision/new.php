@@ -24,7 +24,7 @@ formHeader("Form: vision");
 <html><head>
     <?php Header::setupHeader(); ?>
 </head>
-<body class="body_top">
+<body>
 <form method=post action="<?php echo $rootdir;?>/forms/vision/save.php?mode=new" name="my_form">
 <span class="title">Vision</span><br /><br />
 <span class=bold>Keratometry</span><br />

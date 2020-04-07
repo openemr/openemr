@@ -52,7 +52,7 @@ $(function () {
 </script>
 
 <?php
-echo "</head><body class='body_top'>";
+echo "</head><body>";
 echo "<div id='track_anything'>";
 
 // check if this Track is new

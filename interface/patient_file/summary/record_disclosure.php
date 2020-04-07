@@ -78,7 +78,7 @@ $(function () {
 
 </script>
 </head>
-<body class="body_top">
+<body>
 <div id="record-disclosure" style='float: left; margin-right: 10px' >
 <div style='float: left; margin-right: 5px'><?php
 if ($editlid) {

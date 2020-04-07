@@ -155,7 +155,7 @@ $(function () {
 </script>
 </head>
 
-<body class="body_top">
+<body>
 
     <div class="container-fluid">
         <div class="row">

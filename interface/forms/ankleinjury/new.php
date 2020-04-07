@@ -29,7 +29,7 @@ formHeader("Form: ankleinjury");
     <?php Header::setupHeader(); ?>
 </head>
 
-<body class="body_top">
+<body>
 <form method=post action="<?php echo $rootdir;?>/forms/ankleinjury/save.php?mode=new" name="my_form">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 

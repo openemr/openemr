@@ -156,7 +156,7 @@ if ($formid) {
 
 </head>
 
-<body class="body_top">
+<body>
 
 <form method="post" enctype="multipart/form-data"
  action="<?php echo $rootdir ?>/forms/scanned_notes/new.php?id=<?php echo attr_url($formid); ?>"

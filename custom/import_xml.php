@@ -204,7 +204,7 @@ if ($_POST['form_import']) {
     <?php Header::setupHeader(); ?>
     <title><?php echo xlt('Import Patient Demographics XML'); ?></title>
 </head>
-<body class="body_top" onload="javascript:document.forms[0].form_import_data.focus()">
+<body onload="javascript:document.forms[0].form_import_data.focus()">
 <form method='post' action="import_xml.php" onsubmit="return top.restoreSession()">
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <div class="container">

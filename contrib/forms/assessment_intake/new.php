@@ -27,7 +27,7 @@ formHeader("Form: assessment_intake");
     <title><?php echo xlt("Assessment Intake Form"); ?></title>
 </head>
 
-<body class="m-0 body_top">
+<body class="m-0">
     <div class="container">
         <form method="post" action="<?php echo $rootdir;?>/forms/assessment_intake/save.php?mode=new" name="my_form">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
@@ -278,7 +278,7 @@ formHeader("Form: assessment_intake");
             <h5 class="font-weight-bold mt-3" style="text-decoration: underline;">Assessment of Currently Known Risk Factors:</h5>
 
             <p class="font-weight-bold">Suicide:</p>
-            
+
             <div class="custom-control custom-checkbox">
                 <input type="checkbox" class='custom-control-input' name='risk_suicide_na' />
                 <label class="font-weight-bold custom-control-label">Not Assessed</label>

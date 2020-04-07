@@ -100,7 +100,7 @@ use OpenEMR\Services\VersionService;
 $versionService = new VersionService();
 $version = $versionService->fetch();
 ?>
-<body class="body_top">
+<body>
     <div class="container">
         <div class="row">
             <div class="col-12 col-md-4 offset-md-4 text-center">

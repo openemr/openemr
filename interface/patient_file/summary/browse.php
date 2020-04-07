@@ -54,7 +54,7 @@ $browsenum = (is_numeric($_REQUEST['browsenum'])) ? $_REQUEST['browsenum'] : 1;
 
 </head>
 
-<body class="body_top">
+<body>
 
 <a href="javascript:window.close();"><span class="title"><?php echo xlt('Browse for Record'); ?></span><span class="back"><?php echo text($tback);?></span></a>
 

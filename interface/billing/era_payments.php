@@ -218,7 +218,7 @@ if ($_FILES['form_erafile']['size']) {
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>
-<body class="body_top" onload="OnloadAction()">
+<body onload="OnloadAction()">
     <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer());?>">
         <div class="row">
             <div class="col-sm-12">

@@ -24,7 +24,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 
 
 <!-- hidden DIV used for creating new list items -->
-<div id="newlistitem" class="body_top" style="border: 2px outset #666; display:none; position:absolute; padding:5px; ">
+<div id="newlistitem"  style="border: 2px outset #666; display:none; position:absolute; padding:5px; ">
  <input type="hidden" name="newlistitem_listid" id="newlistitem_listid" value="">
  <input type="hidden" name="newlistitem_fieldid" id="newlistitem_fieldid" value="">
  <div id="specificForm">

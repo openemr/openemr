@@ -50,19 +50,19 @@ if (isset($_GET['patients'])) {
             font-weight: bold;
             padding: 7px;
         }
-        
+
         .select-box {
             display: inline-block;
         }
-        
+
         #by-id {
             width: 90px !important;
         }
-        
+
         #by-name {
             width: 120px !important;
         }
-        
+
         .inline-box {
             display: inline-block;
             vertical-align: middle;
@@ -71,7 +71,7 @@ if (isset($_GET['patients'])) {
             color: var(--danger);
             pointer-events: auto;
         }
-        
+
         #searchResultsHeader {
             width: 100%;
             border-collapse: collapse;
@@ -87,7 +87,7 @@ if (isset($_GET['patients'])) {
             cursor: hand;
             cursor: pointer;
         }
-        
+
         #searchResults td {
             border-bottom: 1px solid var(--gray200);
         }
@@ -95,7 +95,7 @@ if (isset($_GET['patients'])) {
 
 </head>
 
-<body class="body_top">
+<body>
 <div class="container-fluid">
     <div id="searchCriteria">
         <form>

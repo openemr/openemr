@@ -142,7 +142,7 @@ $check_res = $formid ? $check_res : array();
             });
         </script>
     </head>
-    <body class="body_top">
+    <body>
         <div class="container">
             <div class="row">
                 <div class="page-header">

@@ -190,7 +190,7 @@ if ($formid) {
 </script>
 </head>
 
-<body class="body_top">
+<body>
 <form method="post" action="<?php echo $rootdir ?>/forms/soccer_injury/new.php?id=<?php echo attr_url($formid); ?>"
  onsubmit="return top.restoreSession()">
 

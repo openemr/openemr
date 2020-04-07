@@ -21,7 +21,7 @@ use OpenEMR\Core\Header;
 <?php Header::setupHeader('opener'); ?>
 </head>
 
-<body class="body_top">
+<body>
 <?php
 
 // Set the session flag to show that notification was last done with this patient

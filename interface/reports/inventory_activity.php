@@ -443,7 +443,7 @@ table.mymaintable td, table.mymaintable th {
 
 </head>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' class='body_top'>
+<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 
 <center>
 

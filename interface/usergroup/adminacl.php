@@ -516,7 +516,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>
-<body id="adminacl" class="body_top">
+<body id="adminacl" >
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <div class="row">
             <div class="col-sm-12">

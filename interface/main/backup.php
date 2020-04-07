@@ -148,7 +148,7 @@ if ($form_step == 104) {
 <title><?php echo xlt('Backup'); ?></title>
 </head>
 
-<body class="body_top">
+<body>
 <center>
 &nbsp;<br />
 <form method='post' action='backup.php' enctype='multipart/form-data' onsubmit='return top.restoreSession()'>

@@ -32,6 +32,6 @@ use OpenEMR\Core\Header;
     </script>
 </head>
 
-<body class="body_top therapy_group">
+<body class="therapy_group">
 
 

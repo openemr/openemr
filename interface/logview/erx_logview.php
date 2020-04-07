@@ -86,7 +86,7 @@ if ($filename) {
         </script>
 
     </head>
-    <body class="body_top">
+    <body>
         <form method="post">
         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 

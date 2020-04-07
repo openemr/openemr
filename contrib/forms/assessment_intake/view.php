@@ -31,7 +31,7 @@ use OpenEMR\Core\Header;
 <html><head>
 <?php Header::setupHeader(); ?>
 </head>
-<body class="body_top m-0">
+<body class="m-0">
 <?php
 require_once("$srcdir/api.inc");
 

@@ -96,7 +96,7 @@ td {
 <?php
     $focus = "document.theform.search_term.select();";
 ?>
-<body class="body_top" OnLoad="<?php echo $focus; ?>">
+<body  OnLoad="<?php echo $focus; ?>">
 
 <?php
 $string_target_element = "";

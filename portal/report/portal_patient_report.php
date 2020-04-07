@@ -232,7 +232,7 @@ function show_date_fun(){
 var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 </script>
 
-<body class="body_top">
+<body>
 <div id="patient_reports"> <!-- large outer DIV -->
 
 <?php if ($GLOBALS['activate_ccr_ccd_report']) { // show CCR/CCD reporting options ?>

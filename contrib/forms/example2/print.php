@@ -58,7 +58,7 @@ if ($record['sig_date'] != "") {
 
 </head>
 
-<body class="body_top">
+<body>
 
 Printed on <?php echo date("F d, Y", time()); ?>
 

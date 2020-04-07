@@ -59,7 +59,7 @@ tr.selected {
 </script>
 </head>
 
-<body class="body_top">
+<body>
 
 <form action="list_amendments.php" name="list_amendments" id="list_amendments" method="post" onsubmit='return top.restoreSession()'>
 

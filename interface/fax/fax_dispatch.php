@@ -613,7 +613,7 @@ div.section {
 
 </head>
 
-<body class="body_top" onunload='imclosing()'>
+<body  onunload='imclosing()'>
 
 <center><h2><?php echo xlt('Dispatch Received Document'); ?></h2></center>
 

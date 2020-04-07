@@ -220,7 +220,7 @@ function popup_close() {
 </script>
 </head>
 
-<body class="body_top">
+<body>
 <?php
  // If the delete is confirmed...
  //

@@ -93,7 +93,7 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
         }
     </style>
 </head>
-<body class="body_top">
+<body>
 <form name="designation_managment" action="" method="post" onsubmit="top.restoreSession();">
     <table cellpadding='2' cellspacing='0' border="0" align="center">
 

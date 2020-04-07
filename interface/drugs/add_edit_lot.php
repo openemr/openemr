@@ -190,7 +190,7 @@ td {
 
 </head>
 
-<body class="body_top">
+<body>
 <?php
 if ($lot_id) {
     $row = sqlQuery("SELECT * FROM drug_inventory WHERE drug_id = ? " .

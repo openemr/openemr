@@ -51,7 +51,7 @@ $code_type = empty($_POST['form_code_type']) ? '' : $_POST['form_code_type'];
 
 </head>
 
-<body class="body_top">
+<body>
 
 <?php
 // Handle uploads.

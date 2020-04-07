@@ -28,7 +28,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     <title><?php echo xlt('Email Notification Report'); ?></title>
     <?php Header::setupHeader(); ?>
 </head>
-<body class="body_top container">
+<body class="container">
 <header class="row">
     <?php require_once("batch_navigation.php");?>
     <h1 class="col-md-12">

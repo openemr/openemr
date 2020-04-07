@@ -157,7 +157,7 @@ $form_facility   = $_POST['form_facility'];
     </script>
 </head>
 
-<body class="body_top">
+<body>
 <div class="container">
     <div class="row">
         <div class="col-sm-12">

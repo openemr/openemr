@@ -59,7 +59,7 @@ function applyCode($layoutid, $codetype, $code, $description)
 
 </head>
 
-<body class="body_top">
+<body>
 
 <?php
 // Handle uploads.

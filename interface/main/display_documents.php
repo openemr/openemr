@@ -153,7 +153,7 @@ $display_collapse_msg = "display:inline;";
 </style>
 </head>
 
-<body class="body_top">
+<body>
 
 <div>
     <span class='title'><?php echo xlt('Lab Documents'); ?></span>

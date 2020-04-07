@@ -273,7 +273,7 @@ function restoreSession() {
 }
 </script>
 </head>
-<body class="body_top">
+<body>
 
 <div class="container-fluid" id="pnotes"> <!-- large outer DIV -->
 

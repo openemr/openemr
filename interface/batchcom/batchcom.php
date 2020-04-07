@@ -175,7 +175,7 @@ if ($_POST['form_action']=='process') {
     <?php Header::setupHeader(['datetime-picker']); ?>
     <title><?php echo xlt('BatchCom'); ?></title>
 </head>
-<body class="body_top container">
+<body class="container">
 <header>
     <?php require_once("batch_navigation.php");?>
     <h1 class="text-center"><?php echo xlt('Batch Communication Tool')?></h1>

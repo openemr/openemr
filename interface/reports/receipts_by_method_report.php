@@ -316,7 +316,7 @@ $form_proc_code = $tmp_code_array[1];
     </script>
 </head>
 
-<body class="body_top">
+<body>
 
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Receipts Summary'); ?></span>
 

@@ -172,7 +172,7 @@ if ($obj_bav['advies_beleid'] != '') {
 </style>
 </head>
 
-<body class="body_top">
+<body>
 
 <?php
 

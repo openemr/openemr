@@ -135,7 +135,7 @@ if (isset($_GET["fid"])) {
     </script>
 
 </head>
-<body class="body_top">
+<body>
     <div class="container-fluid">
         <h5 class="title"><?php echo xlt('Edit Facility'); ?></h5>
         <div class="py-3">

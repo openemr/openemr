@@ -224,7 +224,7 @@ var SelectItem = function(jobj) {
 
 </head>
 
-<body id="codes_search" class="body_top">
+<body id="codes_search" >
 
 <?php
 $string_target_element = empty($target_element) ? '?' : "?target_element=" . attr_url($target_element) . "&";

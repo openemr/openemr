@@ -117,7 +117,7 @@ function check_search_str()
 
 </script>
 </head>
-<body class="body_top">
+<body>
 <form method='post' name='theform' action='find_code_popup.php' onsubmit="return check_search_str();">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <center>

@@ -38,7 +38,7 @@ if (isset($mode)) {
 <?php Header::setupHeader(); ?>
 </head>
 
-<body class="body_top">
+<body>
 
 <a href="encounter_bottom.php" onclick="top.restoreSession()">
 

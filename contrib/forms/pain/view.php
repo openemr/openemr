@@ -24,7 +24,7 @@ use OpenEMR\Core\Header;
 <html><head>
     <?php Header::setupHeader(); ?>
 </head>
-<body class="body_top">
+<body>
 <?php
 include_once("$srcdir/api.inc");
 $obj = formFetch("form_pain", $_GET["id"]);

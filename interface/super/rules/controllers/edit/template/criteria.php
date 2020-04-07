@@ -22,7 +22,7 @@ use OpenEMR\Core\Header;
     <link rel="stylesheet" href="<?php css_src('rules.css') ?>" type="text/css">
 </head>
 
-<body class='body_top'>
+<body>
 <?php $rule = $viewBean->rule ?>
 <?php $criteria = $viewBean->criteria ?>
 

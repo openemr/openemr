@@ -67,7 +67,7 @@ $form_patient_id = trim($_POST['form_patient_id']);
     </script>
 </head>
 
-<body class="body_top">
+<body>
 
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Chart Location Activity'); ?></span>
 

@@ -82,7 +82,7 @@ function PrintForm() {
 <title><?php echo htmlspecialchars('Show '.$form_name); ?></title>
 
 </head>
-<body class="body_top">
+<body>
 
 <div id="title">
 <span class="title"><?php xl($form_name,'e'); ?></span>

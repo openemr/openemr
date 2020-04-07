@@ -26,7 +26,7 @@ use OpenEMR\Common\Utils\RandomGenUtils;
 <?php Header::setupHeader(); ?>
 </head>
 
-<body class="body_top">
+<body>
     <div id="container_div" class="container">
         <div class="row">
             <div class="col-sm-12">

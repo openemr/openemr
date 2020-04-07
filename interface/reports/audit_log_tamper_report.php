@@ -90,7 +90,7 @@ function eventTypeChange(eventname)
 
 </script>
 </head>
-<body class="body_top">
+<body>
 <font class="title"><?php echo xlt('Audit Log Tamper Report'); ?></font>
 <br />
 <?php

@@ -170,7 +170,7 @@ if ($form_patient == '') {
 </script>
 </head>
 
-<body class="body_top">
+<body>
 
 <span class='title'><?php echo xlt('Reports'); ?> - <?php echo xlt('Superbill'); ?></span>
 

@@ -48,7 +48,7 @@ $obj = $formid ? formFetch("form_transfer_summary", $formid) : array();
 
 </head>
 
-<body class="body_top">
+<body>
 <p><span class="forms-title"><?php echo xlt('Transfer Summary'); ?></span></p>
 <br />
 <?php

@@ -70,7 +70,7 @@ if (!isset($_GET["mode"])) {
 <?php Header::setupHeader(); ?>
 
 </head>
-<body class="body_top">
+<body>
 
 <a href="javascript:window.close();" target="Main"><span class="title"><?php echo xlt('Day Sheet Report')?></span></a>
 <br />

@@ -336,7 +336,7 @@ tr.selected {
 
 </head>
 
-<body class="body_top">
+<body>
 
     <span class="title"><?php echo xlt('Immunizations'); ?></span>
 

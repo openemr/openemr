@@ -259,7 +259,7 @@ if ($refresh and $refresh != 'fullscreen') {
             </div>
 
             <!-- start form_container for the main body of the form -->
-            <div class="body_top text-center row" id="form_container" name="form_container">
+            <div class="text-center row" id="form_container" name="form_container">
               <input type="hidden" name="menustate" id="menustate" value="start">
               <input type="hidden" name="form_folder" id="form_folder" value="<?php echo attr($form_folder); ?>">
               <input type="hidden" name="form_id" id="form_id" value="<?php echo attr($form_id); ?>">

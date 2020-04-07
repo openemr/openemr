@@ -234,9 +234,6 @@ if (!$_REQUEST['flb_table']) {
             font-size: 1.0rem;
         }
 
-        body_top {
-            height: 100%;
-        }
         a:hover {
             color: var(--black);
             text-decoration: none;
@@ -245,7 +242,7 @@ if (!$_REQUEST['flb_table']) {
 
 </head>
 
-<body class="body_top">
+<body>
     <?php
     if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
         $logged_in = $MedEx->login();

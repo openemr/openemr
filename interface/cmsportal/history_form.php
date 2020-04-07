@@ -174,7 +174,7 @@ $(function () {
 </script>
 </head>
 
-<body class="body_top">
+<body>
 <center>
 
 <form method='post' action='history_form.php' onsubmit='return validate()'>

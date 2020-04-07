@@ -70,7 +70,7 @@ function invalue($name)
 
 </head>
 
-<body class="body_top">
+<body>
     <div class="container">
         <?php
         // If we are saving, then save and close the window.

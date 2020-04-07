@@ -318,7 +318,7 @@ $(function () {
 
 </head>
 
-<body class="body_top">
+<body>
 <form method='post' action='orders_results.php?batch=<?php echo attr_url($form_batch); ?>&review=<?php echo attr_url($form_review); ?>' onsubmit='return validate(this)'>
 
 <table>

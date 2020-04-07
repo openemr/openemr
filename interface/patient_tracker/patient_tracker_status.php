@@ -97,7 +97,7 @@ $row = sqlQuery("select fname, lname " .
 "from patient_data where pid =? limit 1", array($tkpid));
 ?>
 
-<body class="body_top">
+<body>
     <div class="container">
         <div class="row">
             <div class="col-12">

@@ -51,7 +51,7 @@ use OpenEMR\Core\Header;
 </style>
 </head>
 
-<body class="body_top">
+<body>
 
 <span class='title'><?php echo xlt('Background Services'); ?></span>
 

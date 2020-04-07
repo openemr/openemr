@@ -337,7 +337,7 @@ $loading = "<i class='fa fa-sync fa-2x fa-spin'></i>";
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>
-<body class="body_top">
+<body>
     <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
          <div class="row">
             <div class="col-sm-12">

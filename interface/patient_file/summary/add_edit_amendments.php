@@ -161,7 +161,7 @@ $(function () {
 
 </head>
 
-<body class="body_top">
+<body>
 
 <form action="add_edit_amendments.php" name="add_edit_amendments" id="add_edit_amendments" method="post" onsubmit='return top.restoreSession()'>
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />

@@ -49,7 +49,7 @@ $obj = $formid ? formFetch("form_treatment_plan", $formid) : array();
 </script>
 
 </head>
-<body class="body_top">
+<body>
 <p><span class="forms-title"><?php echo xlt('Treatment Planning'); ?></span></p>
 <br />
 <?php

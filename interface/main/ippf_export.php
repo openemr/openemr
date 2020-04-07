@@ -684,7 +684,7 @@ if ($selmonth < 1) {
 <title><?php echo xlt('Backup'); ?></title>
 </head>
 
-<body class="body_top">
+<body>
 <center>
 &nbsp;<br />
 <form method='post' action='ippf_export.php'>

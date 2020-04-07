@@ -592,7 +592,7 @@ if ($_POST["mode"] == "create_client_certificate") {
     </style>
 
   </head>
-  <body class="body_top">
+  <body>
   <span class='title'><b><?php echo xlt('SSL Certificate Administration'); ?></b></span>
   <br /> <br />
     <?php if ($_SESSION["zip_error"]) { ?>

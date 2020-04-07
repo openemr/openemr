@@ -153,7 +153,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
     <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 </script>
 </head>
-<body class="body_top">
+<body>
 <input type="hidden" name="list_id" id="list_id" value="<?php echo $rowContext['cl_list_id']; ?>" />
 <table class="ml-0 w-100" align='left' cellpadding='0' cellspacing='0'>
     <?php

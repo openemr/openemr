@@ -70,7 +70,7 @@ $content = $_REQUEST['content'];
     }
         </script>
     </head>
-    <body class="body_top" onload="showWhereInTextarea()">
+    <body  onload="showWhereInTextarea()">
         <table>
             <tr class="text">
                 <td>

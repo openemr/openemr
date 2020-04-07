@@ -66,7 +66,7 @@ function doedclick_edit(ppid) {
 
 </head>
 
-<body class="body_top">
+<body>
     <?php
     if ($GLOBALS['enable_help'] == 1) {
         $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray700)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';

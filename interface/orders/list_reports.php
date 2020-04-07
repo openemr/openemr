@@ -166,7 +166,7 @@ $(function () {
 </script>
 </head>
 
-<body class="body_top">
+<body>
 <form class="form-inline" method='post' action='list_reports.php' enctype='multipart/form-data'>
     <!-- This might be set by the results window: -->
     <input type='hidden' name='form_external_refresh' value='' />

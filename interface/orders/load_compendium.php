@@ -84,7 +84,7 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
 <title><?php echo xlt('Load Compendium'); ?></title>
 </head>
 
-<body class="body_top text-center">
+<body class="text-center">
 <div class="container">
     <div class="row">
         <div class="col-12">

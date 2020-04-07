@@ -190,7 +190,7 @@ $(function () {
 
 </head>
 
-<body class="body_top">
+<body>
 <form method='post' action='drug_inventory.php'>
 
 <!-- TODO: Why are we not using the BS4 table class here? !-->

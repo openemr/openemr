@@ -223,7 +223,7 @@ function zip_content($source, $destination, $content = '', $create = true)
     // adjust this if you are printing to letterhead to appropriate height
     ($printable) ? ($style = ''):($style='padding-top:95px;');
     ?>
-    <body class="body_top" style="<?php echo $style; ?>">
+    <body  style="<?php echo $style; ?>">
 <?php } ?>
 <div id="report_custom" style="width: 100%;">  <!-- large outer DIV -->
 
@@ -933,7 +933,7 @@ if ($PDF_OUTPUT) {
         $contents = $pdf->Output('', true);
         echo "<html><head>\n";
         Header::setupHeader();
-        echo "</head><body class='body_top'>\n";
+        echo "</head><body>\n";
         $result = cms_portal_call(array(
             'action' => 'putmessage',
             'user' => $ptdata['cmsportal_login'],

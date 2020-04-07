@@ -228,7 +228,7 @@ if ($_POST['form_refresh']) {
     </script>
 </head>
 
-<body class="body_top">
+<body>
 
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Appointments and Encounters'); ?></span>
 

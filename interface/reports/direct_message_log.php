@@ -66,7 +66,7 @@ if (isset($_POST['lognext']) && $_POST['lognext']) {
 </style>
 </head>
 
-<body class="body_top">
+<body>
 
 <span class='title'><?php echo xlt('Direct Message Log'); ?></span>
 

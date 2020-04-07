@@ -55,7 +55,7 @@ if ($status == 0) {
 }
 </style>
 </head>
-<body class="body_top">
+<body>
 <strong><?php echo xlt('Re Identification');  ?></strong>
 <div id="overDiv"
     style="position: absolute; visibility: hidden; z-index: 1000;"></div>

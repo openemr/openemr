@@ -409,7 +409,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
 
-<body class="body_top m-0" <?php if ($userMode) {
+<body class="m-0" <?php if ($userMode) {
     echo 'style="min-width: 700px;"'; } ?>>
 
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">

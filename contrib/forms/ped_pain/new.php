@@ -30,7 +30,7 @@ formHeader("Pediatric Pain Evaluation");
 
 </head>
 
-<body class="body_top">
+<body>
 
 
 

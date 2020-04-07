@@ -25,7 +25,7 @@ formHeader("Form: obstetrical");
 <html><head>
     <?php Header::setupHeader(); ?>
 </head>
-<body class="body_top">
+<body>
 <form method=post action="<?php echo $rootdir;?>/forms/obstetrical/save.php?mode=new" name="my_form">
 <span class="title">Obstetrical Form</span><br /><br />
 

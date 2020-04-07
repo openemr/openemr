@@ -137,7 +137,7 @@ function sel_related() {
 
 </head>
 
-<body class="body_top">
+<body>
 <?php
 // If we are saving, then save and close the window.
 // First check for duplicates.

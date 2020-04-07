@@ -40,7 +40,7 @@ if ($obj['date_of_signature'] != "") {
 <?php Header::setupHeader(); ?>
 
 </head>
-<body class="body_top">
+<body>
 
 <form method=post action="">
 <span class="title"><?php echo xlt('Work/School Note'); ?></span><br /><br />

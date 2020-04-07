@@ -37,7 +37,7 @@ var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
 </head>
 
-<body class="body_top">
+<body>
 <?php echo text(date("F d, Y", time())); ?>
 
 <form method=post action="<?php echo $rootdir."/forms/".$form_name."/save.php?mode=new";?>" name="my_form" id="my_form">

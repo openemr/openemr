@@ -112,7 +112,7 @@ td {
 
 </head>
 
-<body class="body_top">
+<body>
 <form method='post' name='theform'>
 <center>
 

@@ -100,7 +100,7 @@ $res = sqlStatement($query, $sqlBindArray);
 
 </head>
 
-<body class="body_top">
+<body>
 
 <div class="container-fluid">
     <div class="nav navbar-fixed-top body_title">
@@ -110,7 +110,7 @@ $res = sqlStatement($query, $sqlBindArray);
         <form class='navbar-form' method='post' action='addrbook_list.php' onsubmit='return top.restoreSession()'>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-            
+
                 <div class="form-group">
                 <div class="row">
                     <div class="col-sm-2">

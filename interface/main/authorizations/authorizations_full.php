@@ -33,7 +33,7 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
 <head>
 <?php Header::setupHeader(); ?>
 </head>
-<body class="body_top">
+<body>
 
 <a href="authorizations.php" onclick='top.restoreSession()'>
 <font class=title><?php echo xlt('Authorizations'); ?></font>

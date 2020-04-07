@@ -27,7 +27,7 @@ formHeader("Pediatric Fever Evaluation");
 
 </head>
 
-<body class="body_top">
+<body>
 
 
 

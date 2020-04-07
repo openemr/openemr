@@ -94,7 +94,7 @@ function get_related() {
 
 </head>
 
-<body class="body_top">
+<body>
 
 <?php
 if ($_POST['form_submit'] && !$alertmsg) {
