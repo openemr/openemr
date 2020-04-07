@@ -6,8 +6,10 @@
  * @link      http://www.open-emr.org
  * @author    Victor Kofia <victor.kofia@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017 Victor Kofia <victor.kofia@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,9 +18,8 @@ namespace OpenEMR\Services;
 
 use Particle\Validator\Validator;
 
-class PatientService
+class PatientService extends BaseService
 {
-
     /**
      * In the case where a patient doesn't have a picture uploaded,
      * this value will be returned so that the document controller
@@ -33,8 +34,10 @@ class PatientService
      */
     public function __construct()
     {
+        parent::__construct('patient_data');
     }
 
+    // make this a comprehensive validation
     public function validate($patient)
     {
         $validator = new Validator();
@@ -44,8 +47,35 @@ class PatientService
         $validator->required('sex')->lengthBetween(4, 30);
         $validator->required('DOB')->datetime('Y-m-d');
 
+        return $validator->validate($patient);
+    }
+
+    public function validateUpdate($pid, $patient)
+    {
+        $validator = new Validator();
+
+        $vPid = $this->validatePid($pid);
+        if ($vPid->isNotValid()) {
+            return $vPid;
+        }
+
+        $validator->optional('fname')->lengthBetween(2, 255);
+        $validator->optional('lname')->lengthBetween(2, 255);
+        $validator->optional('sex')->lengthBetween(4, 30);
+        if (key_exists('DOB', $patient)) {
+            $validator->required('DOB')->datetime('Y-m-d');
+        }
 
         return $validator->validate($patient);
+    }
+
+    public function validatePid($pid)
+    {
+        $validator = new Validator();
+        $tmp['pid'] = $this->verifyPid($pid);
+        $validator->required('pid')->numeric();
+
+        return $validator->validate($tmp);
     }
 
     public function setPid($pid)
@@ -113,45 +143,19 @@ class PatientService
     public function insert($data)
     {
         $fresh_pid = $this->getFreshPid();
+        $data['pid'] = $fresh_pid;
+        $data['pubpid'] = $fresh_pid;
+        $data['date'] = date("Y-m-d H:i:s");
+        $data['regdate'] = date("Y-m-d H:i:s");
 
-        $sql = " INSERT INTO patient_data SET";
-        $sql .= "     pid=?,";
-        $sql .= "     title=?,";
-        $sql .= "     fname=?,";
-        $sql .= "     mname=?,";
-        $sql .= "     lname=?,";
-        $sql .= "     street=?,";
-        $sql .= "     postal_code=?,";
-        $sql .= "     city=?,";
-        $sql .= "     state=?,";
-        $sql .= "     country_code=?,";
-        $sql .= "     phone_contact=?,";
-        $sql .= "     DOB=?,";
-        $sql .= "     sex=?,";
-        $sql .= "     race=?,";
-        $sql .= "     ethnicity=?";
+        $query = $this->buildInsertColumns($data);
+        $sql = " INSERT INTO patient_data SET ";
+        $sql .= $query['set'];
 
         $results = sqlInsert(
             $sql,
-            array(
-                $fresh_pid,
-                $data["title"],
-                $data["fname"],
-                $data["mname"],
-                $data["lname"],
-                $data["street"],
-                $data["postal_code"],
-                $data["city"],
-                $data["state"],
-                $data["country_code"],
-                $data["phone_contact"],
-                $data["DOB"],
-                $data["sex"],
-                $data["race"],
-                $data["ethnicity"]
-            )
+            $query['bind']
         );
-
         if ($results) {
             return $fresh_pid;
         }
@@ -161,42 +165,16 @@ class PatientService
 
     public function update($pid, $data)
     {
-        $sql = " UPDATE patient_data SET";
-        $sql .= "     title=?,";
-        $sql .= "     fname=?,";
-        $sql .= "     mname=?,";
-        $sql .= "     lname=?,";
-        $sql .= "     street=?,";
-        $sql .= "     postal_code=?,";
-        $sql .= "     city=?,";
-        $sql .= "     state=?,";
-        $sql .= "     country_code=?,";
-        $sql .= "     phone_contact=?,";
-        $sql .= "     DOB=?,";
-        $sql .= "     sex=?,";
-        $sql .= "     race=?,";
-        $sql .= "     ethnicity=?";
-        $sql .= "     where pid=?";
+        $data['date'] = date("Y-m-d H:i:s");
 
+        $query = $this->buildUpdateColumns($data);
+        $sql = " UPDATE patient_data SET ";
+        $sql .= $query['set'];
+        $sql .= " WHERE pid = ?";
+        array_push($query['bind'], $pid);
         return sqlStatement(
             $sql,
-            array(
-                $data["title"],
-                $data["fname"],
-                $data["mname"],
-                $data["lname"],
-                $data["street"],
-                $data["postal_code"],
-                $data["city"],
-                $data["state"],
-                $data["country_code"],
-                $data["phone_contact"],
-                $data["DOB"],
-                $data["sex"],
-                $data["race"],
-                $data["ethnicity"],
-                $pid
-            )
+            $query['bind']
         );
     }
 
@@ -211,6 +189,7 @@ class PatientService
                    fname,
                    mname,
                    lname,
+                   ss,
                    street,
                    postal_code,
                    city,
@@ -293,6 +272,7 @@ class PatientService
                    fname,
                    mname,
                    lname,
+                   ss,
                    street,
                    postal_code,
                    city,

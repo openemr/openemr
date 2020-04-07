@@ -9,7 +9,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
- * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -30,7 +30,6 @@ use OpenEMR\RestControllers\ONoteRestController;
 use OpenEMR\RestControllers\DocumentRestController;
 use OpenEMR\RestControllers\InsuranceRestController;
 use OpenEMR\RestControllers\MessageRestController;
-
 
 // Note some Http clients may not send auth as json so a function
 // is implemented to determine and parse encoding on auth route's.
@@ -342,6 +341,7 @@ use OpenEMR\RestControllers\FHIR\FhirAllergyIntoleranceRestController;
 use OpenEMR\RestControllers\FHIR\FhirPatientRestController;
 use OpenEMR\RestControllers\FHIR\FhirEncounterRestController;
 use OpenEMR\RestControllers\FHIR\FhirOrganizationRestController;
+use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseController;
 
 RestConfig::$FHIR_ROUTE_MAP = array(
     "POST /fhir/auth" => function () {
@@ -370,6 +370,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return (new FhirPatientRestController(null))->post($data);
     },
     "PUT /fhir/Patient/:pid" => function ($pid) {
+        RestConfig::authorization_check("patients", "demo");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        return (new FhirPatientRestController(null))->put($pid, $data);
+    },
+    "PATCH /fhir/Patient/:pid" => function ($pid) {
         RestConfig::authorization_check("patients", "demo");
         $data = (array)(json_decode(file_get_contents("php://input"), true));
         return (new FhirPatientRestController(null))->put($pid, $data);
