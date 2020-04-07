@@ -52,7 +52,7 @@
                         <div class="col-sm-10 offset-sm-1 position-override">
                             <div class="btn-group oe-opt-btn-group-pinch" role="group">
                                 <button type="submit" class="btn btn-secondary btn-save" name="Submit">{xlt t='Save'}</button>
-                                <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" onclick="top.restoreSession(); location.href='{$DONT_SAVE_LINK}';">{xlt t='Cancel'}</button>
+                                <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" id="btnClose">{xlt t='Cancel'}</button>
                             </div>
                             <input type="hidden" name="id" value="{$data->get_id()|attr}" />
                             <input type="hidden" name="activity" value="{$data->get_activity()|attr}">
@@ -64,5 +64,33 @@
             </div>
         </div>
     </div>
+    {literal}
+    <script>
+        const close = function() {
+            if (top.isSoapEdit === true) {
+                dlgopen('', '', 450, 125, '', '<div class="text-danger">Warning</div>', {
+                    type: 'Alert',
+                    html: '<p>Do you want to close the tabs?</p>',
+                    buttons: [
+                        {text: 'Cancel', close: true, style: 'default btn-sm'},
+                        {text: 'Close', close: true, style: 'danger btn-sm', click: closeSoap},
+                    ],
+                    allowDrag: false,
+                    allowResize: false,
+                });
+            } else {
+                top.restoreSession();
+                location.href = 'javascript:parent.closeTab(window.name, false)';
+            }
+        }
+
+        const closeSoap = function() {
+            top.isSoapEdit = false;
+            top.restoreSession();
+            location.href = 'javascript:parent.closeTab(window.name, false)';
+        }
+        $('#btnClose').click(close);
+    </script>
+    {/literal}
 </body>
 </html>
