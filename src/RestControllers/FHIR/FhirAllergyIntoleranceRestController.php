@@ -12,10 +12,10 @@ class FhirAllergyIntoleranceRestController
     private $fhirAllergyIntoleranceService;
     private $fhirService;
     
-    public function __construct($pid)
+    public function __construct($id)
     {
         $this->fhirAllergyIntoleranceService = new FhirAllergyIntoleranceService();
-        $this->fhirAllergyIntoleranceService->setId($pid);
+        $this->fhirAllergyIntoleranceService->setId($id);
         $this->fhirService = new FhirResourcesService();
     }
     

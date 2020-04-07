@@ -106,8 +106,8 @@ class FhirAllergyIntoleranceService
     {     
         $typeCoding = new FHIRCoding();
         $typeCoding->setSystem("http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical");
-        $typeCoding->setCode("allergy");
-        $typeCoding->setDisplay("Allergy");
+        $typeCoding->setCode($data['type']);
+        $typeCoding->setDisplay(ucwords($data['type']));
         $type = new FHIRAllergyIntoleranceType();
         $type->setValue($typeCoding);
 

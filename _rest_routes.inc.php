@@ -387,5 +387,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     "GET /fhir/AllergyIntolerance/:id" => function ($id) {
         RestConfig::authorization_check("patients", "med");
         return (new FhirAllergyIntoleranceRestController(null))->getOne($id);
+    },
+    "POST /fhir/QuestionnaireResponse" => function () {
+        RestConfig::authorization_check("patients", "demo");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        return (new FhirQuestionnaireResponseController(null))->post($data);
     }
 );
