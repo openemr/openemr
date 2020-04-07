@@ -86,6 +86,9 @@ require_once(dirname(__FILE__) . "/../lists.inc");
  * class Prescription
  *
  */
+
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 class Prescription extends ORDataObject
 {
 
