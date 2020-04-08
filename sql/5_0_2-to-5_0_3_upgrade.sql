@@ -431,3 +431,51 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 #IfNotRow2D list_options list_id Sort_Direction option_id 1
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('Sort_Direction', '1', 'desc', 20, 0, 1);
 #EndIf
+
+
+#IfNotTable panel_category
+create table panel_category (
+    id int(4) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name varchar(250) NOT NULL);
+
+create table panel (
+    id int(4) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name varchar(250) NOT NULL,
+    category_id int(4) NOT NULL,
+    Foreign key(category_id) REFERENCES panel_category(id)
+);
+
+#IfNotTable panel_enrollment
+create table panel_enrollment (
+    id int(4) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    patient_id bigint(20),
+    panel_id int,
+    enrollment_date date, 
+    discharge_date date,
+    status varchar(250),
+    Foreign key(patient_id) REFERENCES patient_data(id),
+    Foreign key(panel_id) REFERENCES panel(id)
+);
+
+#IfNotRow2D panel_category name
+insert into panel_category (name) values ('Chronic Disease');
+insert into panel_category (name) values ('Social Worok');
+insert into panel_category (name) values ('Immunization');
+insert into panel_category (name) values ('Womens Health');
+
+#IfNotRow2D panel name category_id
+insert into panel (name,category_id) values ('Diabetes',1);
+insert into panel (name,category_id) values ('Hypertension',1);
+insert into panel (name,category_id) values ('Case Management',2);
+insert into panel (name,category_id) values ('Counseling',2);
+insert into panel (name,category_id) values ('Care Navigation',2);
+insert into panel (name,category_id) values ('Social Determinants of Health',2);
+insert into panel (name,category_id) values ('Contraception',4);
+insert into panel (name,category_id) values ('Pap Smear',4);
+insert into panel (name,category_id) values ('Mammogram',4);
+insert into panel (name,category_id) values ('Lab',4);
+insert into panel (name,category_id) values ('Diabetes',4);
+insert into panel (name,category_id) values ('HTN',4);
+insert into panel (name,category_id) values ('Pelvic Pain',4);
+insert into panel (name,category_id) values ('Obesity',4);
+insert into panel (name,category_id) values ('Classes',4);
