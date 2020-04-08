@@ -134,31 +134,33 @@ $orderby = $ORDERHASH[$form_orderby];
 <title><?php echo xlt('Drug Inventory'); ?></title>
 
 <style>
-a, a:visited, a:hover { color:#0000cc; }
+a, a:visited, a:hover {
+  color: var(--primary);
+}
 #mymaintable thead .sorting::before,
 #mymaintable thead .sorting_asc::before,
 #mymaintable thead .sorting_asc::after,
 #mymaintable thead .sorting_desc::before,
 #mymaintable thead .sorting_desc::after,
 #mymaintable thead .sorting::after {
-display: none;
+  display: none;
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button {
-padding:0!important;
-margin:0!important;
-border:0!important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
 }
 
-.paginate_button:hover{
-  background: transparent!important;
+.paginate_button:hover {
+  background: transparent !important;
 }
 
 </style>
 
 <?php Header::setupHeader(['datatables', 'datatables-dt', 'datatables-bs', 'report-helper']); ?>
 
-<script language="JavaScript">
+<script>
 
 // callback from add_edit_drug.php or add_edit_drug_inventory.php:
 function refreshme() {
@@ -188,9 +190,10 @@ $(function () {
 
 </head>
 
-<body class="body_top col-sm-12">
+<body class="body_top">
 <form method='post' action='drug_inventory.php'>
 
+<!-- TODO: Why are we not using the BS4 table class here? !-->
 <table id='mymaintable' class="display table-striped">
  <thead>
  <tr class='head'>
@@ -250,9 +253,7 @@ mapToTable($prevRow);
  </tbody>
 </table>
 
-<center><p>
- <input class="btn btn-primary" type='button' value='<?php echo xla('Add Drug'); ?>' onclick='dodclick(0)' />
-</p></center>
+<input class="btn btn-primary btn-block w-25 mx-auto" type='button' value='<?php echo xla('Add Drug'); ?>' onclick='dodclick(0)' />
 
 <input type="hidden" name="form_orderby" value="<?php echo attr($form_orderby) ?>" />
 

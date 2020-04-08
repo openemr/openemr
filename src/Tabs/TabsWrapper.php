@@ -83,22 +83,22 @@ EOD;
   cursor: pointer;
 }
 #{$this->tabsid} li .icon-close:hover {
-  color: red!important;
+  color: var(--danger) !important;
 }
 .tabs-anchor {
   margin-right: 3px;
-  color: white;
+  color: var(--white);
   display: block;
-  background: grey;
+  background: var(--gray);
   text-decoration: none !important;
 }
 .tabs-anchor:hover {
-  color: white;
+  color: var(--white);
   text-decoration: none !important;
 }
 a.active {
-  color: white ;
-  background: #007FFF;
+  color: var(--white);
+  background: var(--primary);
 }
 </style>
 EOD;
@@ -153,7 +153,7 @@ function nextPanelId(tabsid){
 function twAddTab(tabsid, label, content) {
   var oldcount = twObject[tabsid].nav.find(".nav-tabs li").length;
   var panelId = nextPanelId(tabsid);
-  var li = "<li class='tabs-tabs'><a data-toggle='tab' class='tabs-anchor' href='#" + panelId + "'>" + label + "<span aria-label='close' class='icon-close' role='close'>X</span></a> </li>";
+  var li = "<li class='tabs-tabs'><a data-toggle='tab' class='tabs-anchor' href='#" + panelId + "'>" + label + "<span aria-label='close' class='icon-close' role='close'>&times;</span></a> </li>";
   twObject[tabsid].nav.append(li);
   top.restoreSession();
   twObject[tabsid].content.append("<div class='tab-pane tabs-panel' id='" + panelId + "'>" + content + "</div>");
@@ -169,7 +169,7 @@ function twAddFrameTab(tabsid, label, url) {
   twAddTab(
     tabsid,
     label,
-    "<iframe name='" + panelId + "' frameborder='0' style='height:94.5%;width:100%;' src='" + url + "'>Oops</iframe>"
+    "<iframe name='" + panelId + "' frameborder='0' class='w-100' style='height:94.5%' src='" + url + "'>Oops</iframe>"
   );
   return panelId;
 }
@@ -199,9 +199,10 @@ EOD;
         $i = 0;
         foreach ($this->tabs as $val) {
             ++$i;
-            $s .= "<li class='tabs-tabs' ><a data-toggle='tab' class='tabs-anchor active' href='#{$this->tabsid}-$i'>" . text($val['title']);
+            $activateTab = count($this->tabs) == $i ? 'active' : '';
+            $s .= "<li class='tabs-tabs' ><a data-toggle='tab' class='tabs-anchor {$activateTab}' href='#{$this->tabsid}-$i'>" . text($val['title']);
             if ($val['closeable']) {
-                $s .= " <span aria-label='close' class='icon-close' role='close'>X</span>";
+                $s .= " <span aria-label='close' class='icon-close' role='close'>&times;</span>";
             }
             $s .= "</a> </li>\n";
         }
@@ -210,7 +211,8 @@ EOD;
         $i = 0;
         foreach ($this->tabs as $val) {
             ++$i;
-            $s .= "<div class='tab-pane tabs-panel active' id='{$this->tabsid}-$i'>\n";
+            $activateTab = count($this->tabs) == $i ? 'active' : '';
+            $s .= "<div class='tab-pane tabs-panel {$activateTab}' id='{$this->tabsid}-$i'>\n";
             $s .= $val['content'];
             $s .= "</div>\n";
         }

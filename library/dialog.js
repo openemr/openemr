@@ -518,7 +518,7 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
         ('<iframe id="modalframe" class="w-100 h-100 modalIframe" name="%winname%" %url% frameborder=0></iframe>')
         .replace('%winname%', winname).replace('%url%', fullURL ? 'src=' + fullURL : '');
 
-    var bodyStyles = (' style="overflow-y:auto;height:%initHeight%;max-height:92vh;"')
+    var bodyStyles = (' style="height:%initHeight%;max-height:92vh;"')
         .replace('%initHeight%', opts.sizeHeight !== 'full' ? mHeight : '80vh');
 
     var altClose = '<div class="closeDlgIframe" data-dismiss="modal" ></div>';

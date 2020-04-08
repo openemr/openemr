@@ -58,7 +58,7 @@ function doedclick_add() {
 // Process click to pop up the edit window.
 function doedclick_edit(ppid) {
  top.restoreSession();
- var editTitle = '<i class="fa fa-pencil" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?> + ' ';
+ var editTitle = '<i class="fa fa-pencil-alt" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?> + ' ';
  dlgopen('procedure_provider_edit.php?ppid=' + ppid, '_blank', 800, 750, false, editTitle);
 }
 
@@ -111,10 +111,10 @@ function doedclick_edit(ppid) {
                                 echo "  <td>" . text($row['protocol']) . "</td>\n";
                                 if (AclMain::aclCheckCore('admin', 'practice')) {
                                         $trTitle = xl('Edit') . ' ' . $row['name'];
-                                        echo "  <td class=\"text-center text-body\"><span style=\"cursor: pointer;\"  onclick='doedclick_edit(" . attr_js($row['ppid']) . ")' class=\"haskids fa fa-pencil\" title='" . attr($trTitle) . "'></span></td>\n";
+                                        echo "  <td class=\"text-center text-body\"><span style=\"cursor: pointer;\"  onclick='doedclick_edit(" . attr_js($row['ppid']) . ")' class=\"haskids fa fa-pencil-alt\" title='" . attr($trTitle) . "'></span></td>\n";
                                 } else {
                                         $trTitle = xl("Not Allowed to Edit") . ' ' . $row['name'];
-                                        echo "  <td class=\"text-center\"><span style=\"color: var(--gray400); cursor: no-drop;\"  class=\"haskids fa fa-pencil\" title='" . attr($trTitle) . "'></span></td>\n";
+                                        echo "  <td class=\"text-center\"><span style=\"color: var(--gray400); cursor: no-drop;\"  class=\"haskids fa fa-pencil-alt\" title='" . attr($trTitle) . "'></span></td>\n";
                                 }
                                 echo " </tr>\n";
                             }

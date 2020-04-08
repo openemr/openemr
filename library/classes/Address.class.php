@@ -12,6 +12,9 @@ The original location of this file is /home/duhlman/uml-generated-code/prescript
  * class Address
  *
  */
+
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 class Address extends ORDataObject
 {
     var $id;

@@ -89,7 +89,7 @@ if (!empty($_GET['attachid'])) {
 }
 ?>
 
-<script type="text/javascript">
+<script>
 $(function () {
     var formConfig = <?php echo $esignApi->formConfigToJson(); ?>;
     $(".esign-button-form").esign(
@@ -368,6 +368,11 @@ function refreshVisitDisplay() {
         display: inline;
         margin-top: 10px;
     }
+    #sddm {
+        margin: 0;
+        padding: 0;
+        z-index: 30;
+    }
 </style>
 
 <!-- *************** -->
@@ -391,14 +396,6 @@ function toggleFrame1(fnum) {
   top.window.parent.left_nav.toggleFrame(fnum);
 }
 </script>
-<style type="text/css">
-#sddm
-{   margin: 0;
-    padding: 0;
-    z-index: 30;
-}
-
-</style>
 <script>
 
 var timeout = 500;
@@ -681,7 +678,7 @@ if ($StringEcho) {
 ?>
 <table cellspacing="0" cellpadding="0" align="center">
   <tr>
-    <td valign="top"><?php echo $StringEcho; ?></td>
+    <td class="align-top"><?php echo $StringEcho; ?></td>
   </tr>
 </table>
 </dl>
@@ -757,16 +754,16 @@ if ($esign->isButtonViewable()) {
     echo $esign->buttonHtml();
 }
 ?>
+<div class='btn-group' role="group">
 <?php if (AclMain::aclCheckCore('admin', 'super')) { ?>
-    <a href='#' class='btn btn-danger' onclick='return deleteme()'><?php echo xlt('Delete') ?></a>
+    <a href='#' class='btn btn-danger btn-sm' onclick='return deleteme()'><?php echo xlt('Delete') ?></a>
 <?php } ?>
 
 <?php if ($GLOBALS['enable_follow_up_encounters']) { ?>
-    <a href='#' class='btn btn-primary' onclick='return createFollowUpEncounter()'><?php echo xlt('Create follow-up encounter') ?></a>
+    <a href='#' class='btn btn-primary btn-sm' onclick='return createFollowUpEncounter()'><?php echo xlt('Create follow-up encounter') ?></a>
 <?php } ?>
-<div class='btn-group' role="group">
-<button  type="button" onClick="$('.collapse').collapse('hide');" class="btn btn-primary btn-sm ml-3" ><?php echo xlt('Collapse All'); ?></button>
-<button  type="button" onClick="$('.collapse').collapse('show');" class="btn btn-primary btn-sm" ><?php echo xlt('Expand All'); ?></button>
+<button type="button" onClick="$('.collapse').collapse('hide');" class="btn btn-primary btn-sm"><?php echo xlt('Collapse All'); ?></button>
+<button type="button" onClick="$('.collapse').collapse('show');" class="btn btn-primary btn-sm"><?php echo xlt('Expand All'); ?></button>
 </div>
 </div>
 </div>
@@ -779,19 +776,19 @@ if ($esign->isButtonViewable()) {
 
 <div class='encounter-summary-column'>
 <?php if ($GLOBALS['enable_amc_prompting']) { ?>
-    <div style='float: right; margin-right: 25px; border-style: solid; border-width: 1px;'>
-        <div style='float: left; margin: 5px;'>
-            <table>
+    <div class="float-right border border-dark" style='margin-right: 25px;'>
+        <div class="float-left" style='margin: 5px;'>
+          <table>
             <tr>
-            <td>
-            <?php // Display the education resource checkbox (AMC prompting)
-                $itemAMC = amcCollect("patient_edu_amc", $pid, 'form_encounter', $encounter);
-            ?>
-            <?php if (!(empty($itemAMC))) { ?>
-                <input type="checkbox" id="prov_edu_res" checked />
-            <?php } else { ?>
-                <input type="checkbox" id="prov_edu_res" />
-            <?php } ?>
+              <td>
+              <?php // Display the education resource checkbox (AMC prompting)
+                  $itemAMC = amcCollect("patient_edu_amc", $pid, 'form_encounter', $encounter);
+                ?>
+              <?php if (!(empty($itemAMC))) { ?>
+                  <input type="checkbox" id="prov_edu_res" checked />
+              <?php } else { ?>
+                  <input type="checkbox" id="prov_edu_res" />
+              <?php } ?>
             </td>
             <td>
                 <span class="text"><?php echo xlt('Provided Education Resource(s)?') ?></span>
@@ -898,7 +895,7 @@ if ($attendant_type == 'pid') {
 if (!empty($docs_list) && count($docs_list) > 0) {
     ?>
 <div class='enc_docs'>
-<span class="bold"><?php echo xlt("Document(s)"); ?>:</span>
+<span class="font-weight-bold"><?php echo xlt("Document(s)"); ?>:</span>
     <?php
     $doc = new C_Document();
     foreach ($docs_list as $doc_iter) {

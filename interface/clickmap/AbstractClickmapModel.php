@@ -1,5 +1,7 @@
 <?php
 
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 /*
  * Copyright Medical Information Integration,LLC info@mi-squared.com
  * This program is free software; you can redistribute it and/or

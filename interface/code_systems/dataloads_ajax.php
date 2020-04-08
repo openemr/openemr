@@ -40,59 +40,59 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
 
 <style>
     .hdr {
-        font-size: 1.1em;
+        font-size: 1.1rem;
         font-weight: bold;
     }
     .overview {
-        font-size: 1.1em;
+        font-size: 1.1rem;
         font-weight: normal;
         width: 700px;
         color: var(--primary);
     }
     .atr {
-        font-size: .8em;
+        font-size: 0.8rem;
         font-weight: normal;
         clear: both;
         width: 300px;
     }
     .left_wrpr {
         padding: 20px;
-        background-color: #E4E7EA;
+        background-color: var(--gray200);
     }
     .wrpr {
         padding: 20px;
-        background-color: #E4E7EA;
+        background-color: var(--gray200);
     }
     .inst_dets {
-        font-size: .8em;
+        font-size: 0.8rem;
         font-weight: normal;
         border-style: solid;
         border-width: 2px;
         padding: 25px;
         margin: 20px;
-        outline-color:#E4E7EA;
+        outline-color: var(--gray200);
         outline-style: solid;
         outline-width: 20px;
     }
     .stg_dets {
         padding-left: 20px;
-        font-size: .8em;
+        font-size: 0.8rem;
         font-weight: normal;
         border-style: solid;
         border-width: 2px;
         padding: 25px;
         margin: 20px;
-        outline: 20px solid #E4E7EA;
-        background-color: #E4E7EA;
+        outline: 20px solid var(--gray200);
+        background-color: var(--gray200);
     }
     .stg {
-        font-size: .8em;
+        font-size: 0.8rem;
         font-weight: normal;
         font-style: italic;
         margin: 10px;
     }
     .status {
-        font-size: .8em;
+        font-size: 0.8rem;
         font-weight: normal;
         width: 350px;
     }
@@ -106,7 +106,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
         background-color: #89A4CC;
         line-height: 16px;
         color: var(--white);
-        font-size: 13px;
+        font-size: 0.8125rem;
         font-weight: bold;
         border-radius: 8px;
         text-align: center;

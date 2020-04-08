@@ -18,6 +18,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// TODO: Replace tables with BS4 grid classes for GSoC
+
 
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');
@@ -177,8 +179,8 @@ $form_facility   = $_POST['form_facility'];
 
                 <table>
                 <tr>
-                <td width='660px'>
-                    <div style='float:left'>
+                <td style='width: 660px'>
+                    <div class='float-left'>
 
                     <table class='text'>
                         <tr>
@@ -268,7 +270,7 @@ $form_facility   = $_POST['form_facility'];
                                 title='<?php echo xla('Enter a diagnosis code to exclude all invoices not containing it'); ?>'
                                 <?php
                                 if ($GLOBALS['simplified_demographics']) {
-                                    echo "style='display:none'";
+                                    echo "style='display: none'";
                                 } ?>>
                             </td>
 
@@ -288,9 +290,9 @@ $form_facility   = $_POST['form_facility'];
 
                 </td>
 
-                <td class='h-100' align='left' valign='middle'>
+                <td class='h-100 align-middle' align='left'>
 
-                    <table class='w-100 h-100' style='border-left:1px solid;'>
+                    <table class='w-100 h-100 border-left'>
                         <tr>
                             <td>
                                 <div class="text-center">
@@ -616,7 +618,7 @@ $form_facility   = $_POST['form_facility'];
                                 if ($docid) {
                                     // Print doc totals.
                                     ?>
-
+                    <!-- TODO: Replace bgcolor with BS4 !-->
                     <tr bgcolor="#ddddff">
                         <td class="detail" colspan="<?php echo ($form_proc_codefull ? 4 : 2) + ($form_procedures ? 2 : 0); ?>">
                                     <?php echo xlt('Totals for ') . text($docname) ?>
@@ -697,7 +699,7 @@ $form_facility   = $_POST['form_facility'];
                             $grandtotal2 += $amount2;
                         }
                         ?>
-
+                <!-- TODO: Replace bgcolor with BS4 !-->
                 <tr bgcolor="#ddddff">
                 <td class="detail" colspan="<?php echo ($form_proc_codefull ? 4 : 2) + ($form_procedures ? 2 : 0); ?>">
                         <?php echo xlt('Totals for ') . text($docname) ?>
@@ -712,6 +714,7 @@ $form_facility   = $_POST['form_facility'];
                 <?php } ?>
                 </tr>
 
+                <!-- TODO: Replace bgcolor with BS4 !-->
                 <tr bgcolor="#ffdddd">
                 <td class="detail" colspan="<?php echo ($form_proc_codefull ? 4 : 2) + ($form_procedures ? 2 : 0); ?>">
                         <?php echo xlt('Grand Totals') ?>
@@ -728,7 +731,7 @@ $form_facility   = $_POST['form_facility'];
                         <?php $report_from_date = oeFormatShortDate($form_from_date)  ;
                         $report_to_date = oeFormatShortDate($form_to_date)  ;
                         ?>
-                <div align='right'><span class='title' ><?php echo xlt('Report Date'). ' '; ?><?php echo text($report_from_date);?> - <?php echo text($report_to_date);?></span></div>
+                <div align='right'><span class='title'><?php echo xlt('Report Date'). ' '; ?><?php echo text($report_from_date);?> - <?php echo text($report_to_date);?></span></div>
 
                         <?php
                     }

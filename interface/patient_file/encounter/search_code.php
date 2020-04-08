@@ -33,22 +33,23 @@ $code_type = $_GET['type'];
 <body class="body_bottom">
 <div id="patient_search_code">
 
-<table border=0 cellspacing=0 cellpadding=0 height=100%>
+<table class="table-borderless h-100" cellspacing='0' cellpadding='0'>
 <tr>
 
-<td valign=top>
+<td class="align-top">
 
 <form name="search_form" id="search_form" method="post" action="search_code.php?type=<?php echo attr_url($code_type); ?>">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<input type="hidden" name="mode" value="search">
+<input type="hidden" name="mode" value="search" />
 
 <span class="title"><?php echo text($code_type); ?> <?php echo xlt('Codes'); ?></span><br />
 
-<input type="textbox" id="text" name="text" size=15>
+<input type="textbox" id="text" name="text" size="15" />
 
-<input type='submit' id="submitbtn" name="submitbtn" value='<?php echo xla('Search'); ?>'>
-<div id="searchspinner" style="display: inline; visibility:hidden;"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif"></div>
+<input type='submit' id="submitbtn" name="submitbtn" value='<?php echo xla('Search'); ?>' />
+<!-- TODO: Use BS4 classes here !-->
+<div id="searchspinner" style="display: inline; visibility: hidden;"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif"></div>
 
 </form>
 
@@ -58,7 +59,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] == "")
         CsrfUtils::csrfNotVerified();
     }
 
-    echo "<div id='resultsummary' style='background-color:lightgreen;'>";
+    echo "<div id='resultsummary bg-success'>";
     echo "Enter search criteria above</div>";
 }
 
@@ -89,7 +90,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
             $result[$iter] = $row;
         }
 
-        echo "<div id='resultsummary' style='background-color:lightgreen;'>";
+        echo "<div id='resultsummary bg-success'>";
         if (count($result) > $M) {
             echo "Showing the first " . text($M) . " results";
         } else if (count($result) == 0) {
@@ -101,7 +102,9 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
         echo "</div>";
         ?>
 <div id="results">
-<table><tr class='text'><td valign='top'>
+<table>
+  <tr class='text'>
+    <td class='align-top'>
         <?php
         $count = 0;
         $total = 0;
@@ -109,11 +112,11 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
         if ($result) {
             foreach ($result as $iter) {
                 if ($count == $N) {
-                    echo "</td><td valign='top'>\n";
+                    echo "</td><td class='align-top'>\n";
                     $count = 0;
                 }
 
-                echo "<div class='oneresult' style='padding: 3px 0px 3px 0px;'>";
+                echo "<div class='oneresult' style='padding: 3px 0 3px 0;'>";
                 echo "<a target='" . xla('Diagnosis') . "' href='diagnosis.php?mode=add" .
                     "&type="     . attr_url($code_type) .
                     "&code="     . attr_url($iter["code"]) .
@@ -153,7 +156,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
 </div> <!-- end large outer patient_search_code DIV -->
 </body>
 
-<script language="javascript">
+<script>
 
 // jQuery stuff to make the page a little easier to use
 

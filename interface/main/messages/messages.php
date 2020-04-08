@@ -487,8 +487,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             );
                                             if (sqlNumRows($tmp)) {
                                                 echo " <tr>\n";
-                                                echo "  <td class='text'><strong>";
-                                                echo xlt('Linked document') . ":</strong>\n";
+                                                echo "  <td class='text'><span class='font-weight-bold'>" . xlt('Linked document') . ":</span>\n";
                                                 while ($gprow = sqlFetchArray($tmp)) {
                                                     $d = new Document($gprow['id1']);
                                                     $enc_list = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
@@ -511,8 +510,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             );
                                             if (sqlNumRows($tmp)) {
                                                 echo " <tr>\n";
-                                                echo "  <td class='text'><strong>";
-                                                echo xlt('Linked procedure order') . ":</strong>\n";
+                                                echo "  <td class='text'><span class='font-weight-bold'>" . xlt('Linked procedure order') . ":</span>\n";
                                                 while ($gprow = sqlFetchArray($tmp)) {
                                                     echo "   <a href='";
                                                     echo $GLOBALS['webroot'] . "/interface/orders/single_order_results.php?orderid=";
@@ -551,7 +549,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             <?php } else { ?>
                                                 <!-- This is for displaying a new note. -->
                                                 <button type="button" class="btn btn-primary btn-send-msg" id="newnote" value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
-                                                <button type="button" class="btn btn-cancel text-danger oe-opt-btn-separate-left" id="cancel" value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
+                                                <button type="button" class="btn btn-cancel btn-secondary oe-opt-btn-separate-left" id="cancel" value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
                                             <?php }
                                             ?>
                                         </div>
@@ -605,13 +603,13 @@ if (!empty($_REQUEST['go'])) { ?>
                             if ($prev >= 0) {
                                 $prevlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($prev) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><i class=\"fa " . $chevron_icon_left . " chevron_color\" aria-hidden=\"true\"></i></a>";
                             } else {
-                                $prevlink = "<i class=\"fa ". $chevron_icon_left ." \" style=\"color:var(--gray)\" aria-hidden=\"true\" title=\"". xla("On first page") . "\"></i>";
+                                $prevlink = "<i class=\"fa " . $chevron_icon_left . " text-muted\" aria-hidden=\"true\" title=\"". xla("On first page") . "\"></i>";
                             }
 
                             if ($next < $total) {
                                 $nextlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($next) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><i class=\"fa . $chevron_icon_right . chevron_color\" aria-hidden=\"true\"></i></a>";
                             } else {
-                                $nextlink = "<i class=\"fa . $chevron_icon_right .\" style=\"color:var(--gray)\" aria-hidden=\"true\" title=\"". xla("On first page") . "\"></i>";
+                                $nextlink = "<i class=\"fa " . $chevron_icon_right . " text-muted\" aria-hidden=\"true\" title=\"". xla("On first page") . "\"></i>";
                             }
                             // Display the Messages table header.
                             echo "
@@ -622,14 +620,15 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 <table class='table table-sm w-100'>
                                                     <input type='hidden' name='task' value='delete' />
                                                     <thead class='table-primary'>
-                                                    <tr height='24'>
-                                                        <th align='center' width='25'><input type='checkbox' id='checkAll' onclick='selectAll()'></th>
-                                                        <th width='20%' class='font-weight-bold'>&nbsp;<strong>" .
-                                                        xlt('From') . "</strong> $sortlink[0]</th><th width='20%'  class='font-weightbold'>&nbsp;<strong>" .
-                                                        xlt('Patient') . "</strong> $sortlink[1]</th><th class='font-weight-bold'>&nbsp;<strong>" .
-                                                        xlt('Type') . "</strong> $sortlink[2]</th><th width='15%' class='font-weight-bold'>&nbsp;<strong>" . xlt($GLOBALS['messages_due_date'] ? 'Due date' : 'Date') . "</strong> $sortlink[3]</th><th width=\"15%\" class='font-weight-bold'>&nbsp;<strong>" .
-                                                        xlt('Status') . "</strong> $sortlink[4]</th>
-                                                    </tr></thead>";
+                                                      <tr height='24'>
+                                                          <th align='center' width='25'><input type='checkbox' id='checkAll' onclick='selectAll()'></th>
+                                                          <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('From') . " $sortlink[0]</th>
+                                                          <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('Patient') . " $sortlink[1]</th>
+                                                          <th class='font-weight-bold'>&nbsp;" . xlt('Type') . " $sortlink[2]</th>
+                                                          <th width='15%' class='font-weight-bold'>&nbsp;" . xlt($GLOBALS['messages_due_date'] ? 'Due date' : 'Date') . " $sortlink[3]</th>
+                                                          <th width='15%' class='font-weight-bold'>&nbsp;" . xlt('Status') . " $sortlink[4]</th>
+                                                      </tr>
+                                                    </thead>";
                             // Display the Messages table body.
                             $count = 0;
                             $result = getPnotesByUser($active, $show_all, $_SESSION['authUser'], false, $sortby, $sortorder, $begin, $listnumber);
@@ -679,8 +678,8 @@ if (!empty($_REQUEST['go'])) { ?>
                                             </form>
                                             <div class='row oe-margin-t-10'>
 
-                                                <div class=\"col-12 col-md-12 col-lg-12\"><a href=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&task=addnew&$activity_string_html\" class=\"btn btn-secondary btn-add\" onclick=\"top.restoreSession()\">" .
-                                                xlt('Add New{{Message}}') . "</a> &nbsp; <a href=\"javascript:confirmDeleteSelected()\" class=\"btn btn-secondary btn-delete\" onclick=\"top.restoreSession()\">" .
+                                                <div class=\"col-12 col-md-12 col-lg-12\"><a href=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&task=addnew&$activity_string_html\" class=\"btn btn-primary btn-add\" onclick=\"top.restoreSession()\">" .
+                                                xlt('Add New{{Message}}') . "</a> &nbsp; <a href=\"javascript:confirmDeleteSelected()\" class=\"btn btn-danger btn-delete\" onclick=\"top.restoreSession()\">" .
                                                 xlt('Delete') . "</a>
                                                 <div  class=\"text-right\">$prevlink &nbsp; " . text($end) . " " . xlt('of') . " " . text($total) . " &nbsp; $nextlink</div>
                                                 </div>
@@ -717,23 +716,23 @@ if (!empty($_REQUEST['go'])) { ?>
                                     if (document.getElementById("checkAll").checked === true) {
                                         document.getElementById("checkAll").checked = true;<?php
                                         for ($i = 1; $i <= $count; $i++) {
-                                            echo "document.getElementById(\"check$i\").checked=true; document.getElementById(\"row$i\").style.background='#E7E7E7';  ";
+                                            echo "document.getElementById(\"check$i\").checked=true; document.getElementById(\"row$i\").style.background='var(--gray200)';  ";
                                         } ?>
                                     } else {
                                         document.getElementById("checkAll").checked = false;<?php
                                         for ($i = 1; $i <= $count; $i++) {
-                                            echo "document.getElementById(\"check$i\").checked=false; document.getElementById(\"row$i\").style.background='#F7F7F7';  ";
+                                            echo "document.getElementById(\"check$i\").checked=false; document.getElementById(\"row$i\").style.background='var(--light)';  ";
                                         } ?>
                                     }
                                 }
 
                                 // The two functions below are for managing row styles in Messages table.
                                 function selectRow(row) {
-                                    document.getElementById(row).style.background = "#E7E7E7";
+                                    document.getElementById(row).style.background = "var(--gray200)";
                                 }
 
                                 function deselectRow(row) {
-                                    document.getElementById(row).style.background = "#F7F7F7";
+                                    document.getElementById(row).style.background = "var(--light)";
                                 }
                             </script>
                             <?php
@@ -787,7 +786,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         <br/><br/>
                         <form id="smsForm" class="input-group">
                             <select id="SMS_patient" type="text" class="form-control m-0 w-100" placeholder="<?php echo xla("Patient Name"); ?>" > </select>
-                            <span class="input-group-addon" onclick="SMS_direct();"><i class="glyphicon glyphicon-phone"></i></span>
+                            <span class="input-group-addon" onclick="SMS_direct();"><i class="fas fa-phone"></i></span>
                             <input type="hidden" id="sms_pid" />
                             <input type="hidden" id="sms_mobile" value="" />
                             <input type="hidden" id="sms_allow" value="" />

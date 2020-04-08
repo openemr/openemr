@@ -6,8 +6,10 @@
  * @link      http://www.open-emr.org
  * @author    Victor Kofia <victor.kofia@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017 Victor Kofia <victor.kofia@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,9 +18,8 @@ namespace OpenEMR\Services;
 
 use Particle\Validator\Validator;
 
-class PatientService
+class PatientService extends BaseService
 {
-
     /**
      * In the case where a patient doesn't have a picture uploaded,
      * this value will be returned so that the document controller
@@ -33,8 +34,10 @@ class PatientService
      */
     public function __construct()
     {
+        parent::__construct('patient_data');
     }
 
+    // make this a comprehensive validation
     public function validate($patient)
     {
         $validator = new Validator();
@@ -42,10 +45,37 @@ class PatientService
         $validator->required('fname')->lengthBetween(2, 255);
         $validator->required('lname')->lengthBetween(2, 255);
         $validator->required('sex')->lengthBetween(4, 30);
-        $validator->required('dob')->datetime('Y-m-d');
-
+        $validator->required('DOB')->datetime('Y-m-d');
 
         return $validator->validate($patient);
+    }
+
+    public function validateUpdate($pid, $patient)
+    {
+        $validator = new Validator();
+
+        $vPid = $this->validatePid($pid);
+        if ($vPid->isNotValid()) {
+            return $vPid;
+        }
+
+        $validator->optional('fname')->lengthBetween(2, 255);
+        $validator->optional('lname')->lengthBetween(2, 255);
+        $validator->optional('sex')->lengthBetween(4, 30);
+        if (key_exists('DOB', $patient)) {
+            $validator->required('DOB')->datetime('Y-m-d');
+        }
+
+        return $validator->validate($patient);
+    }
+
+    public function validatePid($pid)
+    {
+        $validator = new Validator();
+        $tmp['pid'] = $this->verifyPid($pid);
+        $validator->required('pid')->numeric();
+
+        return $validator->validate($tmp);
     }
 
     public function setPid($pid)
@@ -113,45 +143,19 @@ class PatientService
     public function insert($data)
     {
         $fresh_pid = $this->getFreshPid();
+        $data['pid'] = $fresh_pid;
+        $data['pubpid'] = $fresh_pid;
+        $data['date'] = date("Y-m-d H:i:s");
+        $data['regdate'] = date("Y-m-d H:i:s");
 
-        $sql = " INSERT INTO patient_data SET";
-        $sql .= "     pid=?,";
-        $sql .= "     title=?,";
-        $sql .= "     fname=?,";
-        $sql .= "     mname=?,";
-        $sql .= "     lname=?,";
-        $sql .= "     street=?,";
-        $sql .= "     postal_code=?,";
-        $sql .= "     city=?,";
-        $sql .= "     state=?,";
-        $sql .= "     country_code=?,";
-        $sql .= "     phone_contact=?,";
-        $sql .= "     dob=?,";
-        $sql .= "     sex=?,";
-        $sql .= "     race=?,";
-        $sql .= "     ethnicity=?";
+        $query = $this->buildInsertColumns($data);
+        $sql = " INSERT INTO patient_data SET ";
+        $sql .= $query['set'];
 
         $results = sqlInsert(
             $sql,
-            array(
-                $fresh_pid,
-                $data["title"],
-                $data["fname"],
-                $data["mname"],
-                $data["lname"],
-                $data["street"],
-                $data["postal_code"],
-                $data["city"],
-                $data["state"],
-                $data["country_code"],
-                $data["phone_contact"],
-                $data["dob"],
-                $data["sex"],
-                $data["race"],
-                $data["ethnicity"]
-            )
+            $query['bind']
         );
-
         if ($results) {
             return $fresh_pid;
         }
@@ -161,42 +165,16 @@ class PatientService
 
     public function update($pid, $data)
     {
-        $sql = " UPDATE patient_data SET";
-        $sql .= "     title=?,";
-        $sql .= "     fname=?,";
-        $sql .= "     mname=?,";
-        $sql .= "     lname=?,";
-        $sql .= "     street=?,";
-        $sql .= "     postal_code=?,";
-        $sql .= "     city=?,";
-        $sql .= "     state=?,";
-        $sql .= "     country_code=?,";
-        $sql .= "     phone_contact=?,";
-        $sql .= "     dob=?,";
-        $sql .= "     sex=?,";
-        $sql .= "     race=?,";
-        $sql .= "     ethnicity=?";
-        $sql .= "     where pid=?";
+        $data['date'] = date("Y-m-d H:i:s");
 
+        $query = $this->buildUpdateColumns($data);
+        $sql = " UPDATE patient_data SET ";
+        $sql .= $query['set'];
+        $sql .= " WHERE pid = ?";
+        array_push($query['bind'], $pid);
         return sqlStatement(
             $sql,
-            array(
-                $data["title"],
-                $data["fname"],
-                $data["mname"],
-                $data["lname"],
-                $data["street"],
-                $data["postal_code"],
-                $data["city"],
-                $data["state"],
-                $data["country_code"],
-                $data["phone_contact"],
-                $data["dob"],
-                $data["sex"],
-                $data["race"],
-                $data["ethnicity"],
-                $pid
-            )
+            $query['bind']
         );
     }
 
@@ -207,24 +185,25 @@ class PatientService
         $sql = "SELECT id,
                    pid,
                    pubpid,
-                   title, 
+                   title,
                    fname,
                    mname,
                    lname,
-                   street, 
-                   postal_code, 
-                   city, 
-                   state, 
-                   country_code, 
+                   ss,
+                   street,
+                   postal_code,
+                   city,
+                   state,
+                   country_code,
                    phone_contact,
-                   email
-                   dob,
+                   email,
+                   DOB,
                    sex,
                    race,
                    ethnicity
                 FROM patient_data";
 
-        if ($search['name'] || $search['fname'] || $search['lname'] || $search['dob']) {
+        if ($search['name'] || $search['DOB'] || $search['city'] || $search['state'] || $search['postal_code'] || $search['phone_contact'] || $search['address'] || $search['sex'] || $search['country_code']) {
             $sql .= " WHERE ";
 
             $whereClauses = array();
@@ -233,18 +212,42 @@ class PatientService
                 array_push($whereClauses, "CONCAT(lname,' ', fname) LIKE ?");
                 array_push($sqlBindArray, $search['name']);
             }
-            if ($search['fname']) {
-                array_push($whereClauses, "fname=?");
-                array_push($sqlBindArray, $search['fname']);
+            if ($search['DOB'] || $search['birthdate']) {
+                $search['DOB'] = !empty($search['DOB']) ? $search['DOB'] : $search['birthdate'];
+                array_push($whereClauses, "DOB=?");
+                array_push($sqlBindArray, $search['DOB']);
             }
-            if ($search['lname']) {
-                array_push($whereClauses, "lname=?");
-                array_push($sqlBindArray, $search['lname']);
+            if ($search['city']) {
+                array_push($whereClauses, "city=?");
+                array_push($sqlBindArray, $search['city']);
             }
-            if ($search['dob'] || $search['birthdate']) {
-                $search['dob'] = !empty($search['dob']) ? $search['dob'] : $search['birthdate'];
-                array_push($whereClauses, "dob=?");
-                array_push($sqlBindArray, $search['dob']);
+            if ($search['state']) {
+                array_push($whereClauses, "state=?");
+                array_push($sqlBindArray, $search['state']);
+            }
+            if ($search['postal_code']) {
+                array_push($whereClauses, "postal_code=?");
+                array_push($sqlBindArray, $search['postal_code']);
+            }
+            if ($search['phone_contact']) {
+                array_push($whereClauses, "phone_contact=?");
+                array_push($sqlBindArray, $search['phone_contact']);
+            }
+            if ($search['address']) {
+                $search['address'] = '%' . $search['address'] . '%';
+                array_push($whereClauses, "city LIKE ? OR street LIKE ? OR state LIKE ? OR postal_code LIKE ?");
+                array_push($sqlBindArray, $search['address']);
+                array_push($sqlBindArray, $search['address']);
+                array_push($sqlBindArray, $search['address']);
+                array_push($sqlBindArray, $search['address']);
+            }
+            if ($search['sex']) {
+                array_push($whereClauses, "sex=?");
+                array_push($sqlBindArray, $search['sex']);
+            }
+            if ($search['country_code']) {
+                array_push($whereClauses, "country_code=?");
+                array_push($sqlBindArray, $search['country_code']);
             }
 
             $sql .= implode(" AND ", $whereClauses);
@@ -265,18 +268,19 @@ class PatientService
         $sql = "SELECT id,
                    pid,
                    pubpid,
-                   title, 
+                   title,
                    fname,
                    mname,
                    lname,
-                   street, 
-                   postal_code, 
-                   city, 
-                   state, 
-                   country_code, 
+                   ss,
+                   street,
+                   postal_code,
+                   city,
+                   state,
+                   country_code,
                    phone_contact,
                    email,
-                   dob,
+                   DOB,
                    sex,
                    race,
                    ethnicity

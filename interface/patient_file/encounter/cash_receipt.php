@@ -10,6 +10,8 @@
  */
 
 
+// TODO: Code cleanup
+
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/pnotes.inc");
@@ -33,7 +35,7 @@ $first_issue = 1;
 <?php Header::setupHeader(); ?>
 </head>
 
-<body bgcolor="var(--white)" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+<body class="bg-white ml-1">
 <p>
 <?php
 $titleres = getPatientData($pid, "fname,lname,providerID");
@@ -55,12 +57,12 @@ if (file_exists($practice_logo)) {
 ?>
 <h2><?php echo text($facility['name']); ?></h2>
 <?php echo text($facility['street']); ?><br />
-<?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><br clear='all'>
+<?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><div class="clearfix"></div>
 <?php echo text($facility['phone']); ?><br />
 
 </p>
 
-<a href="javascript:window.close();"><font class=title><?php print text($titleres["fname"]) . " " . text($titleres["lname"]); ?></font></a><br /><br />
+<a href="javascript:window.close();"><span class='title'><?php print text($titleres["fname"]) . " " . text($titleres["lname"]); ?></span></a><br /><br />
 
 <table>
 <tr><td><?php echo xlt('Generated on'); ?>:</td><td> <?php print text(oeFormatShortDate(date("Y-m-d")));?></td></tr>
@@ -88,7 +90,7 @@ while ($result = sqlFetchArray($inclookupres)) {
 //borrowed from diagnosis.php
 
 ?>
-<table border="1" cellpadding=5>
+<table class="table-bordered" cellpadding="5">
 <?php
 if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
     $billing_html = array();

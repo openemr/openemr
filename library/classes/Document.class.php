@@ -4,6 +4,7 @@ require_once(dirname(__FILE__) . "/../pnotes.inc");
 require_once(dirname(__FILE__) . "/../gprelations.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\ORDataObject\ORDataObject;
 
 /**
  * class Document

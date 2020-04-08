@@ -2,6 +2,16 @@ language: php
 addons:
   chrome: stable
 .steps:
+  - &composer_github_auth |
+      githubTokenRateLimitRequest=`curl -H "Authorization: token 310659f0a8658693af9ccb9da8969584b598910a" https://api.github.com/rate_limit`
+      githubTokenRateLimit=`echo $githubTokenRateLimitRequest | jq '.rate.remaining'`
+      echo "Number of github api requests remaining is $githubTokenRateLimit"
+      if [ "$githubTokenRateLimit" -gt 500 ]; then
+        echo "Using composer github api token"
+        composer config --global --auth github-oauth.github.com 310659f0a8658693af9ccb9da8969584b598910a
+      else
+        echo "Not using composer github api token"
+      fi
   - &lint_style |
       failTest=false
       echo "--------------------------------------"
@@ -128,25 +138,6 @@ addons:
       jobTests+="${jobTest}\n"
       echo "${jobTest}"
       echo "-------------------------------------------------------------------------------------------------------"
-  - &dev_test_build |
-      failTest=false
-      echo "------------------"
-      echo "Dev Test OpenEMR Build"
-      echo "------------------"
-      composer require "phpunit/phpunit=8.*" || failTest=true
-      composer require "symfony/panther=^0.6" || failTest=true
-      composer dump-autoload -o || failTest=true
-      if $failTest; then
-        failJob=true
-        mes="FAILED"
-      else
-        mes="PASSED"
-      fi
-      echo "-------------------------------"
-      jobTest="${mes} - Dev Test OpenEMR Build"
-      jobTests+="${jobTest}\n"
-      echo "${jobTest}"
-      echo "-------------------------------"
   - &build_test_unit |
       failTest=false
       echo "---------------"
@@ -220,6 +211,7 @@ jobs:
       php: '7.4'
       script:
         - failJob=false
+        - *composer_github_auth
         - *lint_style
         - *job_summary_prep
         - echo -e "${jobSummary}"
@@ -264,10 +256,10 @@ jobs:
       script:
         - failJob=false
         - *dockers_env_start
+        - *composer_github_auth
         - *main_build
         - *ccda_build
         - *install_configure
-        - *dev_test_build
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
@@ -282,10 +274,10 @@ jobs:
       script:
         - failJob=false
         - *dockers_env_start
+        - *composer_github_auth
         - *main_build
         - *ccda_build
         - *install_configure
-        - *dev_test_build
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
@@ -300,10 +292,10 @@ jobs:
       script:
         - failJob=false
         - *dockers_env_start
+        - *composer_github_auth
         - *main_build
         - *ccda_build
         - *install_configure
-        - *dev_test_build
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
@@ -318,10 +310,10 @@ jobs:
       script:
         - failJob=false
         - *dockers_env_start
+        - *composer_github_auth
         - *main_build
         - *ccda_build
         - *install_configure
-        - *dev_test_build
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
@@ -336,10 +328,10 @@ jobs:
       script:
         - failJob=false
         - *dockers_env_start
+        - *composer_github_auth
         - *main_build
         - *ccda_build
         - *install_configure
-        - *dev_test_build
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
@@ -354,10 +346,10 @@ jobs:
       script:
         - failJob=false
         - *dockers_env_start
+        - *composer_github_auth
         - *main_build
         - *ccda_build
         - *install_configure
-        - *dev_test_build
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
@@ -372,10 +364,10 @@ jobs:
       script:
         - failJob=false
         - *dockers_env_start
+        - *composer_github_auth
         - *main_build
         - *ccda_build
         - *install_configure
-        - *dev_test_build
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
@@ -390,10 +382,10 @@ jobs:
       script:
         - failJob=false
         - *dockers_env_start
+        - *composer_github_auth
         - *main_build
         - *ccda_build
         - *install_configure
-        - *dev_test_build
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
@@ -408,10 +400,10 @@ jobs:
       script:
         - failJob=false
         - *dockers_env_start
+        - *composer_github_auth
         - *main_build
         - *ccda_build
         - *install_configure
-        - *dev_test_build
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
@@ -426,10 +418,10 @@ jobs:
       script:
         - failJob=false
         - *dockers_env_start
+        - *composer_github_auth
         - *main_build
         - *ccda_build
         - *install_configure
-        - *dev_test_build
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
@@ -444,10 +436,10 @@ jobs:
       script:
         - failJob=false
         - *dockers_env_start
+        - *composer_github_auth
         - *main_build
         - *ccda_build
         - *install_configure
-        - *dev_test_build
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
@@ -462,10 +454,10 @@ jobs:
       script:
         - failJob=false
         - *dockers_env_start
+        - *composer_github_auth
         - *main_build
         - *ccda_build
         - *install_configure
-        - *dev_test_build
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api

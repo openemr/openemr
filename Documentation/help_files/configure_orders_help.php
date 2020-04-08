@@ -114,11 +114,11 @@ require_once("../../interface/globals.php");
 
                     <p><?php echo xlt("The Description column displays the short description that was entered, Serum chemistry tests");?>.</p>
 
-                    <p><?php echo xlt("This is followed by the Edit and Add columns containing a pencil icon and a + icon");?>. &nbsp; <i class="fa fa-pencil"  aria-hidden="true"></i> &nbsp; <i class="fa fa-plus"  aria-hidden="true"></i></p>
+                    <p><?php echo xlt("This is followed by the Edit and Add columns containing a pencil icon and a + icon");?>. &nbsp; <i class="fa fa-pencil-alt"  aria-hidden="true"></i> &nbsp; <i class="fa fa-plus"  aria-hidden="true"></i></p>
 
                     <p><i class="fa fa-exclamation-circle oe-text-orange"  aria-hidden="true"></i> <strong><?php echo xlt("It is important to understand the function of these two icons as all subsequent steps needed to properly set up the hierarchy will depend on the correct use of these two icons");?>.</strong></p>
 
-                    <p><?php echo xlt("Clicking on the pencil icon will enter the Edit mode and will display the Enter Details pop-up window that was used to create the entry displayed on this line");?>. &nbsp; <i class="fa fa-pencil"  aria-hidden="true"></i></p>
+                    <p><?php echo xlt("Clicking on the pencil icon will enter the Edit mode and will display the Enter Details pop-up window that was used to create the entry displayed on this line");?>. &nbsp; <i class="fa fa-pencil-alt"  aria-hidden="true"></i></p>
 
                     <p><?php echo xlt("Any changes that you need to make to this particular line item should be made here and saved");?>.</p>
 
@@ -175,7 +175,7 @@ require_once("../../interface/globals.php");
                     <p><?php echo xlt("You can download the Loinc Universal LabOrders ValueSet.csv file from here");?>.
                         <a href="https://lhncbc.nlm.nih.gov/project/top-loinc-codes-%E2%80%93-orders-and-observations" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                     </p>
-                    
+
                     <p><?php echo xlt("Alternatively a CPT code can be used. It is 84550 for Serum Uric Acid");?>.</p>
 
                     <p><?php echo xlt("It is not necessary for local lab, instead you can use any arbitrary unique number");?>.</p>

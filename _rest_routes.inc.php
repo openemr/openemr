@@ -9,7 +9,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
- * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -30,7 +30,6 @@ use OpenEMR\RestControllers\ONoteRestController;
 use OpenEMR\RestControllers\DocumentRestController;
 use OpenEMR\RestControllers\InsuranceRestController;
 use OpenEMR\RestControllers\MessageRestController;
-
 
 // Note some Http clients may not send auth as json so a function
 // is implemented to determine and parse encoding on auth route's.
@@ -88,6 +87,16 @@ RestConfig::$ROUTE_MAP = array(
     "GET /api/patient/:pid/encounter" => function ($pid) {
         RestConfig::authorization_check("encounters", "auth_a");
         return (new EncounterRestController())->getAll($pid);
+    },
+    "POST /api/patient/:pid/encounter" => function ($pid) {
+        RestConfig::authorization_check("encounters", "auth_a");
+        $data = (array)(json_decode(file_get_contents("php://input")));
+        return (new EncounterRestController())->post($pid, $data);
+    },
+    "PUT /api/patient/:pid/encounter/:eid" => function ($pid, $eid) {
+        RestConfig::authorization_check("encounters", "auth_a");
+        $data = (array)(json_decode(file_get_contents("php://input")));
+        return (new EncounterRestController())->put($pid, $eid, $data);
     },
     "GET /api/patient/:pid/encounter/:eid" => function ($pid, $eid) {
         RestConfig::authorization_check("encounters", "auth_a");
@@ -328,8 +337,11 @@ RestConfig::$ROUTE_MAP = array(
 
 );
 
-use OpenEMR\RestControllers\FhirPatientRestController;
-use OpenEMR\RestControllers\FhirEncounterRestController;
+use OpenEMR\RestControllers\FHIR\FhirAllergyIntoleranceRestController;
+use OpenEMR\RestControllers\FHIR\FhirPatientRestController;
+use OpenEMR\RestControllers\FHIR\FhirEncounterRestController;
+use OpenEMR\RestControllers\FHIR\FhirOrganizationRestController;
+use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseController;
 
 RestConfig::$FHIR_ROUTE_MAP = array(
     "POST /fhir/auth" => function () {
@@ -352,4 +364,38 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::authorization_check("encounters", "auth_a");
         return (new FhirEncounterRestController())->getOne($eid);
     },
+    "POST /fhir/Patient" => function () {
+        RestConfig::authorization_check("patients", "demo");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        return (new FhirPatientRestController(null))->post($data);
+    },
+    "PUT /fhir/Patient/:pid" => function ($pid) {
+        RestConfig::authorization_check("patients", "demo");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        return (new FhirPatientRestController(null))->put($pid, $data);
+    },
+    "PATCH /fhir/Patient/:pid" => function ($pid) {
+        RestConfig::authorization_check("patients", "demo");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        return (new FhirPatientRestController(null))->put($pid, $data);
+    },
+    "GET /fhir/Organization" => function () {
+        return (new FhirOrganizationRestController(null))->getAll($_GET);
+    },
+    "GET /fhir/Organization/:oid" => function ($oid) {
+        return (new FhirOrganizationRestController(null))->getOne($oid);
+    },
+    "GET /fhir/AllergyIntolerance" => function () {
+        RestConfig::authorization_check("patients", "med");
+        return (new FhirAllergyIntoleranceRestController(null))->getAll($_GET);
+    },
+    "GET /fhir/AllergyIntolerance/:id" => function ($id) {
+        RestConfig::authorization_check("patients", "med");
+        return (new FhirAllergyIntoleranceRestController(null))->getOne($id);
+    },
+    "POST /fhir/QuestionnaireResponse" => function () {
+        RestConfig::authorization_check("patients", "demo");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        return (new FhirQuestionnaireResponseController(null))->post($data);
+    }
 );

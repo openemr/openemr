@@ -31,7 +31,8 @@ class PatientRestController
 
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult;
+        }
 
         $serviceResult = $this->patientService->insert($data);
         return RestControllerHelper::responseHandler($serviceResult, array("pid" => $serviceResult), 201);
@@ -43,7 +44,8 @@ class PatientRestController
 
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult;
+        }
 
         $serviceResult = $this->patientService->update($pid, $data);
         return RestControllerHelper::responseHandler($serviceResult, array("pid" => $pid), 200);
@@ -60,7 +62,7 @@ class PatientRestController
         $serviceResult = $this->patientService->getAll(array(
             'fname' => $search['fname'],
             'lname' => $search['lname'],
-            'dob' => $search['dob']
+            'DOB' => $search['DOB']
         ));
 
         return RestControllerHelper::responseHandler($serviceResult, null, 200);

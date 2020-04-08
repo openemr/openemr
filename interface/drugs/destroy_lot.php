@@ -109,45 +109,45 @@ if ($_POST['form_save']) {
 
 <center>
 
-<table class='border-0 w-100'>
+<table class='table-borderless w-100'>
 
  <tr>
-  <td valign='top' width='1%' nowrap><strong><?php echo xlt('Lot Number'); ?>:</strong></td>
+  <td class="text-nowrap align-top font-weight-bold" width='1%'><?php echo xlt('Lot Number'); ?>:</td>
   <td>
     <?php echo text($row['lot_number']) ?>
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('Manufacturer'); ?>:</strong></td>
+  <td class="text-nowrap align-top font-weight-bold"><?php echo xlt('Manufacturer'); ?>:</td>
   <td>
     <?php echo text($row['manufacturer']) ?>
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('Quantity On Hand'); ?>:</strong></td>
+  <td class="text-nowrap align-top font-weight-bold"><?php echo xlt('Quantity On Hand'); ?>:</td>
   <td>
     <?php echo text($row['on_hand']) ?>
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('Expiration Date'); ?>:</strong></td>
+  <td class="text-nowrap align-top font-weight-bold"><?php echo xlt('Expiration Date'); ?>:</td>
   <td>
     <?php echo text($row['expiration']) ?>
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('Date Destroyed'); ?>:</strong></td>
+  <td class="text-nowrap align-top font-weight-bold"><?php echo xlt('Date Destroyed'); ?>:</td>
   <td>
    <input type='text' size='10' class='datepicker' name='form_date' id='form_date' value='<?php echo $row['destroy_date'] ? attr($row['destroy_date']) : date("Y-m-d"); ?>' title='<?php echo xla('yyyy-mm-dd date destroyed'); ?>' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('Method of Destruction'); ?>:</strong></td>
+  <td class="text-nowrap align-top font-weight-bold"><?php echo xlt('Method of Destruction'); ?>:</td>
   <td>
    <input type='text' class='w-100' size='40' name='form_method' maxlength='250'
     value='<?php echo attr($row['destroy_method']) ?>' />
@@ -155,7 +155,7 @@ if ($_POST['form_save']) {
  </tr>
 
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('Witness'); ?>:</strong></td>
+  <td class="text-nowrap align-top font-weight-bold"><?php echo xlt('Witness'); ?>:</td>
   <td>
    <input type='text' class='w-100' size='40' name='form_witness' maxlength='250'
     value='<?php echo attr($row['destroy_witness']) ?>' />
@@ -163,7 +163,7 @@ if ($_POST['form_save']) {
  </tr>
 
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('Notes'); ?>:</strong></td>
+  <td class="text-nowrap align-top font-weight-bold"><?php echo xlt('Notes'); ?>:</td>
   <td>
    <input type='text' class='w-100' size='40' name='form_notes' maxlength='250'
     value='<?php echo attr($row['destroy_notes']) ?>' />

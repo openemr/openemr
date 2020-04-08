@@ -101,6 +101,7 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
+      FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
   openemr-7-3-311:
     restart: always
@@ -111,8 +112,9 @@ services:
     volumes:
     - ../../..:/var/www/localhost/htdocs/openemr
     environment:
-      FORCE_NO_BUILD_MODE: "yes"
       EMPTY: "yes"
+      DEVELOPER_TOOLS: "yes"
+      GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
   openemr-edge:
     restart: always
     image: openemr/openemr:flex-edge
@@ -380,9 +382,6 @@ services:
     volumes:
     - ../../..:/usr/share/nginx/html/openemr
     - ./dockers/dev-php-fpm-7-3-redis/php.ini:/usr/local/etc/php/php.ini:ro
-  redis:
-    restart: always
-    image: redis
   dev-php-fpm-7-4-redis:
     restart: always
     image: openemr/dev-php-fpm:7.4-redis

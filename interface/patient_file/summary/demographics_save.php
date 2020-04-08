@@ -105,75 +105,77 @@ newInsuranceData(
     filter_input(INPUT_POST, 'i1policy_type')
 );
 
-$i2dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i2subscriber_DOB"));
-$i2date = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date"));
+//Dont save more than one insurance since only one is allowed / save space in DB
+if (!$GLOBALS['insurance_only_one']) {
+    $i2dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i2subscriber_DOB"));
+    $i2date = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date"));
 
 
-newInsuranceData(
-    $pid,
-    "secondary",
-    filter_input(INPUT_POST, "i2provider"),
-    filter_input(INPUT_POST, "i2policy_number"),
-    filter_input(INPUT_POST, "i2group_number"),
-    filter_input(INPUT_POST, "i2plan_name"),
-    filter_input(INPUT_POST, "i2subscriber_lname"),
-    filter_input(INPUT_POST, "i2subscriber_mname"),
-    filter_input(INPUT_POST, "i2subscriber_fname"),
-    filter_input(INPUT_POST, "form_i2subscriber_relationship"),
-    filter_input(INPUT_POST, "i2subscriber_ss"),
-    $i2dob,
-    filter_input(INPUT_POST, "i2subscriber_street"),
-    filter_input(INPUT_POST, "i2subscriber_postal_code"),
-    filter_input(INPUT_POST, "i2subscriber_city"),
-    filter_input(INPUT_POST, "form_i2subscriber_state"),
-    filter_input(INPUT_POST, "form_i2subscriber_country"),
-    filter_input(INPUT_POST, "i2subscriber_phone"),
-    filter_input(INPUT_POST, "i2subscriber_employer"),
-    filter_input(INPUT_POST, "i2subscriber_employer_street"),
-    filter_input(INPUT_POST, "i2subscriber_employer_city"),
-    filter_input(INPUT_POST, "i2subscriber_employer_postal_code"),
-    filter_input(INPUT_POST, "form_i2subscriber_employer_state"),
-    filter_input(INPUT_POST, "form_i2subscriber_employer_country"),
-    filter_input(INPUT_POST, 'i2copay'),
-    filter_input(INPUT_POST, 'form_i2subscriber_sex'),
-    $i2date,
-    filter_input(INPUT_POST, 'i2accept_assignment'),
-    filter_input(INPUT_POST, 'i2policy_type')
-);
+    newInsuranceData(
+        $pid,
+        "secondary",
+        filter_input(INPUT_POST, "i2provider"),
+        filter_input(INPUT_POST, "i2policy_number"),
+        filter_input(INPUT_POST, "i2group_number"),
+        filter_input(INPUT_POST, "i2plan_name"),
+        filter_input(INPUT_POST, "i2subscriber_lname"),
+        filter_input(INPUT_POST, "i2subscriber_mname"),
+        filter_input(INPUT_POST, "i2subscriber_fname"),
+        filter_input(INPUT_POST, "form_i2subscriber_relationship"),
+        filter_input(INPUT_POST, "i2subscriber_ss"),
+        $i2dob,
+        filter_input(INPUT_POST, "i2subscriber_street"),
+        filter_input(INPUT_POST, "i2subscriber_postal_code"),
+        filter_input(INPUT_POST, "i2subscriber_city"),
+        filter_input(INPUT_POST, "form_i2subscriber_state"),
+        filter_input(INPUT_POST, "form_i2subscriber_country"),
+        filter_input(INPUT_POST, "i2subscriber_phone"),
+        filter_input(INPUT_POST, "i2subscriber_employer"),
+        filter_input(INPUT_POST, "i2subscriber_employer_street"),
+        filter_input(INPUT_POST, "i2subscriber_employer_city"),
+        filter_input(INPUT_POST, "i2subscriber_employer_postal_code"),
+        filter_input(INPUT_POST, "form_i2subscriber_employer_state"),
+        filter_input(INPUT_POST, "form_i2subscriber_employer_country"),
+        filter_input(INPUT_POST, 'i2copay'),
+        filter_input(INPUT_POST, 'form_i2subscriber_sex'),
+        $i2date,
+        filter_input(INPUT_POST, 'i2accept_assignment'),
+        filter_input(INPUT_POST, 'i2policy_type')
+    );
 
-$i3dob  = DateToYYYYMMDD(filter_input(INPUT_POST, "i3subscriber_DOB"));
-$i3date = DateToYYYYMMDD(filter_input(INPUT_POST, "i3effective_date"));
+    $i3dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i3subscriber_DOB"));
+    $i3date = DateToYYYYMMDD(filter_input(INPUT_POST, "i3effective_date"));
 
-newInsuranceData(
-    $pid,
-    "tertiary",
-    filter_input(INPUT_POST, "i3provider"),
-    filter_input(INPUT_POST, "i3policy_number"),
-    filter_input(INPUT_POST, "i3group_number"),
-    filter_input(INPUT_POST, "i3plan_name"),
-    filter_input(INPUT_POST, "i3subscriber_lname"),
-    filter_input(INPUT_POST, "i3subscriber_mname"),
-    filter_input(INPUT_POST, "i3subscriber_fname"),
-    filter_input(INPUT_POST, "form_i3subscriber_relationship"),
-    filter_input(INPUT_POST, "i3subscriber_ss"),
-    $i3dob,
-    filter_input(INPUT_POST, "i3subscriber_street"),
-    filter_input(INPUT_POST, "i3subscriber_postal_code"),
-    filter_input(INPUT_POST, "i3subscriber_city"),
-    filter_input(INPUT_POST, "form_i3subscriber_state"),
-    filter_input(INPUT_POST, "form_i3subscriber_country"),
-    filter_input(INPUT_POST, "i3subscriber_phone"),
-    filter_input(INPUT_POST, "i3subscriber_employer"),
-    filter_input(INPUT_POST, "i3subscriber_employer_street"),
-    filter_input(INPUT_POST, "i3subscriber_employer_city"),
-    filter_input(INPUT_POST, "i3subscriber_employer_postal_code"),
-    filter_input(INPUT_POST, "form_i3subscriber_employer_state"),
-    filter_input(INPUT_POST, "form_i3subscriber_employer_country"),
-    filter_input(INPUT_POST, 'i3copay'),
-    filter_input(INPUT_POST, 'form_i3subscriber_sex'),
-    $i3date,
-    filter_input(INPUT_POST, 'i3accept_assignment'),
-    filter_input(INPUT_POST, 'i3policy_type')
-);
-
+    newInsuranceData(
+        $pid,
+        "tertiary",
+        filter_input(INPUT_POST, "i3provider"),
+        filter_input(INPUT_POST, "i3policy_number"),
+        filter_input(INPUT_POST, "i3group_number"),
+        filter_input(INPUT_POST, "i3plan_name"),
+        filter_input(INPUT_POST, "i3subscriber_lname"),
+        filter_input(INPUT_POST, "i3subscriber_mname"),
+        filter_input(INPUT_POST, "i3subscriber_fname"),
+        filter_input(INPUT_POST, "form_i3subscriber_relationship"),
+        filter_input(INPUT_POST, "i3subscriber_ss"),
+        $i3dob,
+        filter_input(INPUT_POST, "i3subscriber_street"),
+        filter_input(INPUT_POST, "i3subscriber_postal_code"),
+        filter_input(INPUT_POST, "i3subscriber_city"),
+        filter_input(INPUT_POST, "form_i3subscriber_state"),
+        filter_input(INPUT_POST, "form_i3subscriber_country"),
+        filter_input(INPUT_POST, "i3subscriber_phone"),
+        filter_input(INPUT_POST, "i3subscriber_employer"),
+        filter_input(INPUT_POST, "i3subscriber_employer_street"),
+        filter_input(INPUT_POST, "i3subscriber_employer_city"),
+        filter_input(INPUT_POST, "i3subscriber_employer_postal_code"),
+        filter_input(INPUT_POST, "form_i3subscriber_employer_state"),
+        filter_input(INPUT_POST, "form_i3subscriber_employer_country"),
+        filter_input(INPUT_POST, 'i3copay'),
+        filter_input(INPUT_POST, 'form_i3subscriber_sex'),
+        $i3date,
+        filter_input(INPUT_POST, 'i3accept_assignment'),
+        filter_input(INPUT_POST, 'i3policy_type')
+    );
+}
  include_once("demographics.php");

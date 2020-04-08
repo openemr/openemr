@@ -70,14 +70,23 @@ $hyrow = getHistoryData($ptid, "*");
 <?php Header::setupHeader('datetime-picker'); ?>
 
 <style>
+tr.head {
+  font-size: 0.8125rem;
+  background-color: var(--gray400);
+  text-align: center;
+}
 
-tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
-tr.detail { font-size:10pt; background-color:#ddddff; }
-td input  { background-color:transparent; }
+tr.detail {
+  font-size: 0.8125rem;
+  background-color: var(--gray300);
+}
 
+td input {
+  background-color: transparent;
+}
 </style>
 
-<script language="JavaScript">
+<script>
 
 function myRestoreSession() {
  if (top.restoreSession) top.restoreSession(); else opener.top.restoreSession();
@@ -170,10 +179,10 @@ $(function () {
 
 <form method='post' action='history_form.php' onsubmit='return validate()'>
 
-<input type='hidden' name='ptid'   value='<?php echo attr($ptid);   ?>' />
+<input type='hidden' name='ptid' value='<?php echo attr($ptid);   ?>' />
 <input type='hidden' name='postid' value='<?php echo attr($postid); ?>' />
 
-<table width='100%' cellpadding='1' cellspacing='2'>
+<table class='w-100' cellpadding='1' cellspacing='2'>
  <tr class='head'>
   <th align='left'><?php echo xlt('Field'); ?></th>
   <th align='left'><?php echo xlt('Current Value'); ?></th>
@@ -222,7 +231,7 @@ while ($lorow = sqlFetchArray($lores)) {
         $newvalue = cms_field_to_lbf($data_type, $reskey, $result['fields']);
 
         echo " <tr class='detail'>\n";
-        echo "  <td class='bold'>" . text($field_title) . "</td>\n";
+        echo "  <td class='font-weight-bold'>" . text($field_title) . "</td>\n";
         echo "  <td>" . generate_display_field($lorow, $currvalue) . "</td>\n";
         echo "  <td>";
         generate_form_field($lorow, $newvalue);
@@ -234,16 +243,14 @@ while ($lorow = sqlFetchArray($lores)) {
 echo "</table>\n";
 ?>
 
-<p>
-<input type='submit' name='bn_save' value='<?php echo xla('Save and Delete Request'); ?>' />
-&nbsp;
-<input type='button' value='<?php echo xla('Back'); ?>'
- onclick="myRestoreSession();location='list_requests.php'" />
-</p>
+<div class="btn-group">
+<input type='submit' class='btn btn-primary' name='bn_save' value='<?php echo xla('Save and Delete Request'); ?>' />
+<input type='button' class='btn btn-secondary' value='<?php echo xla('Back'); ?>' onclick="myRestoreSession();location='list_requests.php'" />
+</div>
 
 </form>
 
-<script language="JavaScript">
+<script>
 
 randompass();
 
@@ -258,4 +265,3 @@ randompass();
 </center>
 </body>
 </html>
-
