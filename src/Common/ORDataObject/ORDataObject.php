@@ -18,7 +18,7 @@ class ORDataObject
         $this->_db = $GLOBALS['adodb']['db'];
     }
 
-    protected function persist()
+    public function persist()
     {
         $sql = "REPLACE INTO " . $this->_prefix . $this->_table . " SET ";
         //echo "<br /><br />";
@@ -60,7 +60,7 @@ class ORDataObject
         return true;
     }
 
-    protected function populate()
+    public function populate()
     {
         $sql = "SELECT * from " . escape_table_name($this->_prefix.$this->_table) . " WHERE id = ?";
         $results = sqlQuery($sql, [strval($this->id)]);
@@ -140,7 +140,7 @@ class ORDataObject
         }
     }
 
-    protected function _utility_array($obj_ar, $reverse = false, $blank = true, $name_func = "get_name", $value_func = "get_id")
+    public function _utility_array($obj_ar, $reverse = false, $blank = true, $name_func = "get_name", $value_func = "get_id")
     {
         $ar = array();
         if ($blank) {
