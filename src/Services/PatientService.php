@@ -29,6 +29,7 @@ class PatientService extends BaseService
     private $patient_picture_fallback_id = -1;
 
     private $pid;
+    private $validator;
 
     /**
      * Default constructor.
@@ -41,7 +42,7 @@ class PatientService extends BaseService
     // make this a comprehensive validation
     public function validate($patient, $context, $id = null)
     {
-        $validator = new Validator();
+        $this->validator = new Validator;
         if ($id) {
             $vPid = $this->validatePid($id);
             if ($vPid->isNotValid()) {
@@ -49,7 +50,7 @@ class PatientService extends BaseService
             }
         }
         
-        $validator->context('insert', function (Validator $context) {
+        $this->validator->context('insert', function (Validator $context) {
             $context->required('first_name')->lengthBetween(2, 30);
             $context->required('fname')->lengthBetween(2, 255);
             $context->required('lname')->lengthBetween(2, 255);
@@ -57,20 +58,20 @@ class PatientService extends BaseService
             $context->required('DOB')->datetime('Y-m-d');
         });
         
-        $validator->context('update', function (Validator $context) {
-            $context->optional('fname')->lengthBetween(2, 255);
-            $context->optional('lname')->lengthBetween(2, 255);
-            $context->optional('sex')->lengthBetween(4, 30);
-            $context->optional('DOB', 'DOB', false)->datetime('Y-m-d');
+        $this->validator->context('update', function (Validator $context) {
+            $context->copyContext('insert', function ($rules) {
+                foreach ($rules as $key => $chain) {
+                    $this->validator->optional($key);
+                }
+            });
         });
         
-        return $validator->validate($patient, $context);
+        return $this->validator->validate($patient, $context);
     }
 
     public function validatePid($pid)
     {
-        $validator = new Validator();
-        $validator->required('pid')->callback(function ($value) {
+        $this->validator->required('pid')->callback(function ($value) {
             if (!$this->verifyPid($value)) {
                 throw new InvalidValueException(
                     'Unable to find the user with id ' . $value,
@@ -79,8 +80,8 @@ class PatientService extends BaseService
             }
             return true;
         });
-        $validator->required('pid')->numeric();
-        return $validator->validate(['pid' => $pid]);
+        $this->validator->required('pid')->numeric();
+        return $this->validator->validate(['pid' => $pid]);
     }
 
     public function setPid($pid)
