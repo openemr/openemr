@@ -89,8 +89,9 @@ class FhirPatientService
                 $data["country"] = $fhirJson["address"][0]["country"];
             }
         }
-        if (isset($fhirJson["telecom"]['system'])) {
+        if (isset($fhirJson["telecom"])) {
             foreach ($fhirJson["telecom"] as $telecom) {
+
                 switch ($telecom['system']) {
                     case 'phone':
                         switch ($telecom['use']) {
