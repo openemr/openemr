@@ -114,7 +114,7 @@ EOD;
         if (!defined('INCLUDED_TW_ONETIME_JS')) {
             define('INCLUDED_TW_ONETIME_JS', true);
             $modalTitle = xla("Warning");
-            $modalContent = xla("Do you want to close the tabs");
+            $modalContent = xla("Do you want to close the tabs?");
             $modalCancel = xla("Cancel");
             $modalClose = xla("Close");
 
@@ -151,7 +151,7 @@ function twSetup(tabsid) {
     if (self[0].id === 'SOAP' && top.isSoapEdit === true) {
         dlgopen('', '', 450, 125, '', '<div class="text-danger">$modalTitle</div>', {
             type: 'Alert',
-            html: '<p>$modalContent ?</p>',
+            html: '<p>$modalContent</p>',
             buttons: [
                 {text: '$modalCancel', close: true, style: 'default btn-sm'},
                 {text: '$modalClose', close: true, style: 'danger btn-sm', click: closeSoap},
