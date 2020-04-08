@@ -1,11 +1,11 @@
 <?php
 /**
- * transfer summary form.
+ * TeleHealth Visit Form
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    Naina Mohamed <naina@capminds.com>
- * @copyright Copyright (c) 2012-2013 Naina Mohamed <naina@capminds.com> CapMinds Technologies
+ * @author    Ray Magauran <magauran@medexbank.com>
+ * @copyright Copyright (c) 2020 Ray Magauran <magauran@medexbank.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -27,11 +27,11 @@ $MedEx = new MedExApi\MedEx('MedExBank.com');
 $form_name   = "telemed";
 $form_folder = "telemed";
 $Form_Name   = "TeleHealth Visit";
-$action      = $_REQUEST['action'];
-$id          = $_REQUEST['id'];
-$display     = $_REQUEST['display'];
+$action      = $_POST['action'];
+$id          = $_GET['id'];
+$display     = $_POST['display'];
 $pid         = $_SESSION['pid'];
-$refresh     = $_REQUEST['refresh'];
+$refresh     = $_POST['refresh'];
 
 
 formHeader("TeleHealth Visit");
@@ -77,7 +77,7 @@ $id = $form_id;
     <link rel="stylesheet"  href="<?php echo $GLOBALS['web_root']; ?>/library/css/bootstrap_navbar.css?v=<?php echo $v_js_includes; ?>" type="text/css">
 
     <?php Header::setupHeader(''); ?>
-    <?php $GLOBALS['medex_enable']='';
+    <?php
         if (($GLOBALS['medex_enable'] == '1')) {
             $logged_in = $MedEx->login('1');
             if (empty($_REQUEST['nomenu'])) {
@@ -111,11 +111,10 @@ $id = $form_id;
             $TM['label_url_provider'] = 'Open Jitsi-Meet'; //xlt below
         }
         
-        $visit_header = "TeleVisit";
         if ($logged_in) {
-            $visit_header = "TeleMedEx Visit: secure session";
+            $visit_header = xlt("TeleMedEx Visit: secure session");
         } else {
-            $visit_header = "TeleHealth Visit: Jitsi.org server";
+            $visit_header = xlt("TeleHealth Visit: Jitsi.org server");
         }
         $arrOeUiSettings = array(
             'heading_title' => xl($visit_header),
@@ -167,7 +166,7 @@ $id = $form_id;
                                 &nbsp;
                                      <div class="text-center">
                                         <button class="btn btn-primary" onclick="timer();" id="startT"><?php echo xlt('Start Timer'); ?></button>
-                                        <button class="btn btn-primary" onclick="window.open('<?php echo $TM['url_provider']; ?>', '_blank', 'height=400,width=750');">
+                                        <button class="btn btn-primary" onclick="window.open('<?php echo $TM['url_provider']; ?>', '_blank', 'height=400,width=840');">
                                             <i class=" fa fa-user-md"></i>
                                             <?php echo $TM['label_url_provider']; ?></button>
                                     </div>
@@ -205,7 +204,7 @@ $id = $form_id;
                     <ol start="3">
                         <li> <?php echo xlt('Once the patient has joined, lock the Exam Room'); ?>:</li>
                             <ul>
-                                <li> <?php echo xlt('Click the')." <i class=\"glyphicon glyphicon-glyphicon-info-sign\" data-unicode=\"e086\"></i> ". xlt('icon (bottom right in the telemedicine window)'); ?></li>
+                                <li> <?php echo xlt('Click the icon'); ?> <i class="fa fa-info-circle" aria-hidden="true"></i> (<?php echo xlt('bottom right in the telemedicine window'); ?>)</li>
                                 <li> <?php echo xlt('Click on')."  <span class='bold'>".xlt('Add Password'); ?></span></li>
                                 <li> <?php echo xlt('Type in the password and press Enter to lock the room'); ?></li>
                                 <li> <?php echo xlt('No one can re-enter without this password'); ?></li>
@@ -215,8 +214,9 @@ $id = $form_id;
                 </div>
                 <div class="row">
                     <ol start="4">
-                        <li> <?php echo xlt('The room is destroyed when you end the session'); ?>. </li>
-                        <li> Return to this form to document and save the encounter as a TeleHealth Visit</li>
+                        <li> <?php echo xlt('End the session by clicking the red "hangup icon"'); ?>! </li>
+                        <li> <?php echo xlt('This destroys the Room and allows you to recreate it for the next patient'); ?>. </li>
+                        <li> <?php echo xlt('Return here to document and save the exam as a TeleHealth Visit'); ?>.</li>
                     </ol>
                 </div>
             </div>
@@ -351,10 +351,6 @@ $id = $form_id;
         t = setTimeout(add, 1000);
     }
     
-
-    /* Start button */
-    //$("#startT").onclick = timer();
-
     /* Stop button */
     stop.onclick = function() {
         clearTimeout(t);

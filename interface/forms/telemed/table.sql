@@ -13,4 +13,4 @@ CREATE TABLE IF NOT EXISTS `form_telemed` (
   `tm_imp` text,
   `tm_plan` text,
   `provider_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB;

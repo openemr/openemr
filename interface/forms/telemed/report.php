@@ -21,20 +21,19 @@ require_once(dirname(__FILE__) ."/../../../library/patient.inc");
 require_once(dirname(__FILE__) ."/../../../controllers/C_Document.class.php");
 
 
-//telemed_report('1', '35640','1','54');
 function telemed_report($pid, $encounter, $cols, $id)
 {
     
-    $data = formFetch("form_telemed", '54');
+    $data = formFetch("form_telemed", $id);
     echo "<div class='container'><div class='row'><div class='col-sm-5 offset-2'>";
-    echo "<h4>Subjective:</h4>";
-    echo "<span>".$data['tm_subj']."</span>";
-    echo "<h4>Objective:</h4>";
-    echo "<span>".$data['tm_obj']."</span>";
-    echo "<h4>Impression:</h4>";
-    echo "<h4>".$data['tm_imp']."</h4>";
-    echo "<h4>Plan:</h4>";
-    echo "<h4>".$data['tm_plan']."</h4>";
+    echo "<h4>".xlt('Subjective').":</h4>";
+    echo "<span>".text($data['tm_subj'])."</span>";
+    echo "<h4>".xlt('Objective').":</h4>";
+    echo "<span>".text($data['tm_obj'])."</span>";
+    echo "<h4>".xlt('Impression').":</h4>";
+    echo "<span>".text($data['tm_imp'])."</span>";
+    echo "<h4>".xlt('Plan').":</h4>";
+    echo "<span>".text($data['tm_plan'])."</span>";
     echo "</div></div></div>";
 }
 
