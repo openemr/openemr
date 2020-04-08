@@ -1252,7 +1252,7 @@ CREATE TABLE `form_eye_mag_prefs` (
   `selection` varchar(255) DEFAULT NULL,
   `ZONE_ORDER` int(11) DEFAULT NULL,
   `GOVALUE` varchar(10) DEFAULT '0',
-  `ordering` tinyint(4) DEFAULT NULL,
+  `ordering` smallint(6) DEFAULT NULL,
   `FILL_ACTION` varchar(10) NOT NULL DEFAULT 'ADD',
   `GORIGHT` varchar(50) NOT NULL,
   `GOLEFT` varchar(50) NOT NULL,
