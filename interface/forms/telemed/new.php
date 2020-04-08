@@ -11,9 +11,9 @@
      */
     
     
-    include_once("../../globals.php");
-    include_once("$srcdir/api.inc");
-    include_once("$srcdir/forms.inc");
+    require_once("../../globals.php");
+    require_once("$srcdir/api.inc");
+    require_once("$srcdir/forms.inc");
     
     $form_name = "TeleHealth Visit";
     $table_name = "form_telemed";
@@ -55,14 +55,13 @@
  
     if ($erow['form_id'] > '0') {
         formHeader("Redirecting....");
-        formJump('./view_form.php?formname=telemed&id='.attr($erow['form_id']).'&pid='.attr($pid));
+        formJump('./view_form.php?formname=telemed&id='.urlencode($erow['form_id']).'&pid='.urlencode($pid));
         formFooter();
         exit;
     }
     $id = '1';
     $provider_id = $encounter_data['provider_id'];
     if ($provider_id < '1') {
-        //find the default provider_id from the calendar
         $query = "select * from openemr_postcalendar_events where pc_pid=? and pc_eventDate=?";
         $appt = sqlQuery($query, array($pid, $encounter_date));
         $new_provider_id = $appt['pc_aid'];
@@ -77,7 +76,6 @@
     $newid = formSubmit($table_name, $values, $id, $provider_id);
     addForm($encounter, "TeleHealth Visit", $newid, "telemed", $pid, $userauthorized);
     
-     // echo "formJump('./view_form.php?formname=$form_folder&id='.attr($newid).'&pid='.attr($pid));";die();
     formHeader("Redirecting....");
     formJump('./view_form.php?formname='.$form_folder.'&id='.attr($newid).'&pid='.attr($pid));
     formFooter();
