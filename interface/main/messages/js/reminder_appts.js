@@ -394,5 +394,25 @@ $(function () {
             }, 2000);
         });
     });
+    var bs_interval = $("#execute_interval").val();
+    if (bs_interval < '1') {
+        $("#active_sync").hide();
+        $("#paused").show();
+    }  else {
+        $("#paused").hide();
+        $("#active_sync").show();
+    }
+    $("#execute_interval").change(function() {
+        var bs_interval = $("#execute_interval").val();
+        if (bs_interval <'1') {
+            $("#active_sync").hide();
+            $("#paused").show();
+        }  else {
+            $("#display_interval").text(bs_interval);
+            $("#paused").hide();
+            $("#active_sync").show();
+        }
+    });
+    
 });
 

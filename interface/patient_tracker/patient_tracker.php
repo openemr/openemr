@@ -132,29 +132,10 @@ if ($GLOBALS['medex_enable'] == '1') {
     $prefs = sqlFetchArray($preferences);
     $results = json_decode($prefs['status'], true);
     $logged_in=$results;
-    if (!empty($prefs)) {
-        foreach ($results['campaigns']['events'] as $event) {
-            if ($event['M_group'] != 'REMINDER') {
-                continue;
-            }
-            $icon = $icons[$event['M_type']]['SCHEDULED']['html'];
-            if ($event['E_timing'] == '1') {
-                $action = xl("before");
-            }
-            if ($event['E_timing'] == '2') {
-                $action = xl("before (PM)");
-            }
-            if ($event['E_timing'] == '3') {
-                $action = xl("after");
-            }
-            if ($event['E_timing'] == '4') {
-                $action = xl("after (PM)");
-            }
-            $days = ($event['E_fire_time'] == '1') ? xl("day") : xl("days");
-            $current_events .= $icon . " &nbsp; " . (int)$event['E_fire_time'] . " " . text($days) . " " . text($action) . "<br />";
-        }
+    if (!empty($logged_in['token'])) {
+        $current_events = xlt("On-line");
     } else {
-        $current_events = $icons['SMS']['FAILED']['html'] . " " . xlt("Currently off-line");
+        $current_events = xlt("Off-line");
     }
 }
 
@@ -409,8 +390,8 @@ if (!$_REQUEST['flb_table']) {
                                 ?>
 
                                 <div class="text-center" style="margin: 0 auto;">
-                                    <span class="bold" style="text-decoration:underline;font-size:1.2em;">MedEx <?php echo xlt('Reminders'); ?></span><br/>
-                                    <div class="text-left blockquote" style="width: 65%;margin: 5px auto;">
+                                    <span class="bold" style="text-decoration:underline;font-size:1.2em;">MedEx <?php echo xlt('Status'); ?></span><br/>
+                                    <div class="text-center blockquote" style="width: 65%;margin: 5px auto;">
                                         <a href="https://medexbank.com/cart/upload/index.php?route=information/campaigns&amp;g=rem"
                                            target="_medex">
                                             <?php echo $current_events; ?>
