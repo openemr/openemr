@@ -17,6 +17,7 @@
 namespace OpenEMR\Services;
 
 use Particle\Validator\Validator;
+use Particle\Validator\Exception\InvalidValueException;
 
 class PatientService extends BaseService
 {
@@ -38,44 +39,48 @@ class PatientService extends BaseService
     }
 
     // make this a comprehensive validation
-    public function validate($patient)
+    public function validate($patient, $context, $id = null)
     {
         $validator = new Validator();
-
-        $validator->required('fname')->lengthBetween(2, 255);
-        $validator->required('lname')->lengthBetween(2, 255);
-        $validator->required('sex')->lengthBetween(4, 30);
-        $validator->required('DOB')->datetime('Y-m-d');
-
-        return $validator->validate($patient);
-    }
-
-    public function validateUpdate($pid, $patient)
-    {
-        $validator = new Validator();
-
-        $vPid = $this->validatePid($pid);
-        if ($vPid->isNotValid()) {
-            return $vPid;
+        if ($id) {
+            $vPid = $this->validatePid($id);
+            if ($vPid->isNotValid()) {
+                return $vPid;
+            }
         }
-
-        $validator->optional('fname')->lengthBetween(2, 255);
-        $validator->optional('lname')->lengthBetween(2, 255);
-        $validator->optional('sex')->lengthBetween(4, 30);
-        if (key_exists('DOB', $patient)) {
-            $validator->required('DOB')->datetime('Y-m-d');
-        }
-
-        return $validator->validate($patient);
+        
+        $validator->context('insert', function (Validator $context) {
+            $context->required('first_name')->lengthBetween(2, 30);
+            $context->required('fname')->lengthBetween(2, 255);
+            $context->required('lname')->lengthBetween(2, 255);
+            $context->required('sex')->lengthBetween(4, 30);
+            $context->required('DOB')->datetime('Y-m-d');
+        });
+        
+        $validator->context('update', function (Validator $context) {
+            $context->optional('fname')->lengthBetween(2, 255);
+            $context->optional('lname')->lengthBetween(2, 255);
+            $context->optional('sex')->lengthBetween(4, 30);
+            $context->optional('DOB', 'DOB', false)->datetime('Y-m-d');
+        });
+        
+        return $validator->validate($patient, $context);
     }
 
     public function validatePid($pid)
     {
         $validator = new Validator();
-        $tmp['pid'] = $this->verifyPid($pid);
+        $validator->required('pid')->callback(function ($value) {
+            if (!$this->verifyPid($value)) {
+                throw new InvalidValueException(
+                    'Unable to find the user with id ' . $value,
+                    'error'
+                );
+            }
+            return true;
+        });
         $validator->required('pid')->numeric();
-
-        return $validator->validate($tmp);
+        return $validator->validate(['pid' => $pid]);
     }
 
     public function setPid($pid)
@@ -142,6 +147,10 @@ class PatientService extends BaseService
 
     public function insert($data)
     {
+        $validationResult = $this->validate($data, 'insert');
+        if ($validationResult->isNotValid()) {
+            return $validationResult;
+        }
         $fresh_pid = $this->getFreshPid();
         $data['pid'] = $fresh_pid;
         $data['pubpid'] = $fresh_pid;
@@ -165,6 +174,10 @@ class PatientService extends BaseService
 
     public function update($pid, $data)
     {
+        $validationResult = $this->validate($data, 'update', $pid);
+        if ($validationResult->isNotValid()) {
+            return $validationResult;
+        }
         $data['date'] = date("Y-m-d H:i:s");
 
         $query = $this->buildUpdateColumns($data);

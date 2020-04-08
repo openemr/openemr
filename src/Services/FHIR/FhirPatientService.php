@@ -133,12 +133,12 @@ class FhirPatientService
 
     public function validate($data)
     {
-        return $this->patientService->validate($data);
+        return $this->patientService->validate($data, 'insert');
     }
 
     public function validateUpdate($pid, $data)
     {
-        return $this->patientService->validateUpdate($pid, $data);
+        return $this->patientService->validate($data, 'update', $pid);
     }
 
     public function insert($data)
