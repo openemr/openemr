@@ -43,14 +43,8 @@ class NewRx
          */
         $scriptPrescriber = $scriptData->getPrescriberData();
 
-        //determine which credentials to use if in test or live mode
-        if ($GLOBALS['weno_rx_testing'] == 1) {
-            $wenoid = 157;
-            $partnerID = 'DA51A758AC5EBF04A095D0B7A356C50490A828C4';
-        } else {
-            $wenoid = 137;
-            $partnerID = '7C84773D5063B20BC9E41636A091C6F17E9C1E34';
-        }
+        $wenoid = 157;
+        $partnerID = 'DA51A758AC5EBF04A095D0B7A356C50490A828C4';
 
         /**
          * The generation of the prescription XML

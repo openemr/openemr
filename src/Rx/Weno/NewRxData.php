@@ -47,8 +47,8 @@ class NewRxData
     public function getPrescriberData()
     {
         $this->prescriber = $_SESSION['authUserID'];
-        $sql = "SELECT a.fname, a.lname, a.npi, a.federaldrugid, a.weno_prov_id, a.email, b.name, b.phone, b.fax, b.street, b.city, b.state,
-				b.postal_code, b.weno_id FROM `users` AS a, facility AS b WHERE a.id = ? AND
+        $sql = "SELECT a.fname, a.lname, a.npi, a.federaldrugid, a.weno_prov_id, a.email, b.name, b.phone, b.fax,
+				b.street, b.city, b.state, b.postal_code, b.weno_id FROM `users` AS a, facility AS b WHERE a.id = ? AND
 				a.facility_id = b.id ";
 
         $pFinfo = sqlQuery($sql, [$this->prescriber]);

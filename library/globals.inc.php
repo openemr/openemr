@@ -3269,14 +3269,6 @@ $GLOBALS_METADATA = array(
             '0',
             xl('Enable Weno eRx Service. Contact Open Med Practice, www.openmedpractice.com for subscribing to the Weno Free eRx service.')
         ),
-
-        'weno_rx_testing' => array(
-            xl('Disable Weno eRx Test Mode'),
-            'bool',
-            '1',
-            xl('Disable Weno eRx Test Mode. By default the system will be in test mode until you are ready to go live')
-        ),
-
         'ccda_alt_service_enable' => array(
             xl('Enable C-CDA Alternate Service'),
             array(
