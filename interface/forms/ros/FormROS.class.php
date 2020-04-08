@@ -14,6 +14,9 @@
  * class
  *
  */
+
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 class FormROS extends ORDataObject
 {
 
