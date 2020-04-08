@@ -5,18 +5,20 @@
  *
  */
 
+namespace OpenEMR\Common\ORDataObject;
+
 class ORDataObject
 {
-    var $_prefix;
-    var $_table;
-    var $_db;
+    protected $_prefix;
+    protected $_table;
+    protected $_db;
 
-    function __construct()
+    public function __construct()
     {
         $this->_db = $GLOBALS['adodb']['db'];
     }
 
-    function persist()
+    public function persist()
     {
         $sql = "REPLACE INTO " . $this->_prefix . $this->_table . " SET ";
         //echo "<br /><br />";
@@ -58,7 +60,7 @@ class ORDataObject
         return true;
     }
 
-    function populate()
+    public function populate()
     {
         $sql = "SELECT * from " . escape_table_name($this->_prefix.$this->_table) . " WHERE id = ?";
         $results = sqlQuery($sql, [strval($this->id)]);
@@ -76,7 +78,7 @@ class ORDataObject
         }
     }
 
-    function populate_array($results)
+    protected function populate_array($results)
     {
         if (is_array($results)) {
             foreach ($results as $field_name => $field) {
@@ -100,7 +102,7 @@ class ORDataObject
      * @param boolean $blank optional value to include a empty element at position 0, default is true
      * @return array array of values as name to index pairs found in the db enumeration of this field
      */
-    function _load_enum($field_name, $blank = true)
+    protected function _load_enum($field_name, $blank = true)
     {
         if (!empty($GLOBALS['static']['enums'][$this->_table][$field_name])
             && is_array($GLOBALS['static']['enums'][$this->_table][$field_name])
@@ -138,7 +140,7 @@ class ORDataObject
         }
     }
 
-    function _utility_array($obj_ar, $reverse = false, $blank = true, $name_func = "get_name", $value_func = "get_id")
+    public function _utility_array($obj_ar, $reverse = false, $blank = true, $name_func = "get_name", $value_func = "get_id")
     {
         $ar = array();
         if ($blank) {

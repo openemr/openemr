@@ -5,6 +5,8 @@
  *
  */
 
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 class X12Partner extends ORDataObject
 {
 

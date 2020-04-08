@@ -35,6 +35,7 @@ define("INS_TYPE_VETERANS_ADMINISTRATION_PLAN", 24);
 define("INS_TYPE_WORKERS_COMPENSATION_HEALTH_PLAN", 25);
 define("INS_TYPE_MUTUALLY_DEFINED", 26);
 
+use OpenEMR\Common\ORDataObject\ORDataObject;
 
 /**
  * class Insurance Company

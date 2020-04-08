@@ -11,6 +11,9 @@ define("EVENT_OTHER", 4);
  * class FormHpTjePrimary
  *
  */
+
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 class FormVitals extends ORDataObject
 {
 

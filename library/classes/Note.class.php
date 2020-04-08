@@ -7,6 +7,8 @@
  * It is not intended that once a note is save it can be editied or changed.
  */
 
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 class Note extends ORDataObject
 {
 
