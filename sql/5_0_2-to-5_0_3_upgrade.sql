@@ -431,3 +431,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 #IfNotRow2D list_options list_id Sort_Direction option_id 1
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('Sort_Direction', '1', 'desc', 20, 0, 1);
 #EndIf
+
+#IfNotColumnType form_eye_mag_prefs ordering smallint(6)
+ALTER TABLE `form_eye_mag_prefs` MODIFY `ordering` smallint(6) DEFAULT NULL;
+#EndIf
