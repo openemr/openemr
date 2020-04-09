@@ -50,7 +50,6 @@ class PatientService extends BaseService
         }
         
         $this->validator->context('insert', function (Validator $context) {
-            $context->required('first_name')->lengthBetween(2, 30);
             $context->required('fname', "First Name")->lengthBetween(2, 255);
             $context->required('lname', 'Last Name')->lengthBetween(2, 255);
             $context->required('sex', 'Gender')->lengthBetween(4, 30);
