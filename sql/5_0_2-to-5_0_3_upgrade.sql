@@ -432,6 +432,6 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('Sort_Direction', '1', 'desc', 20, 0, 1);
 #EndIf
 
-#IfNotColumnType form_eye_mag_prefs ordering smallint(6) NULL
-ALTER TABLE `form_eye_mag_prefs` MODIFY `ordering` smallint(6) NULL;
+#IfNotColumnType form_eye_mag_prefs ordering smallint(6)
+ALTER TABLE `form_eye_mag_prefs` MODIFY `ordering` smallint(6) DEFAULT NULL;
 #EndIf
