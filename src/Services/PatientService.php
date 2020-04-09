@@ -17,7 +17,6 @@
 namespace OpenEMR\Services;
 
 use Particle\Validator\Validator;
-use Particle\Validator\Exception\InvalidValueException;
 
 class PatientService extends BaseService
 {
@@ -52,16 +51,16 @@ class PatientService extends BaseService
         
         $this->validator->context('insert', function (Validator $context) {
             $context->required('first_name')->lengthBetween(2, 30);
-            $context->required('fname')->lengthBetween(2, 255);
-            $context->required('lname')->lengthBetween(2, 255);
-            $context->required('sex')->lengthBetween(4, 30);
-            $context->required('DOB')->datetime('Y-m-d');
+            $context->required('fname', "First Name")->lengthBetween(2, 255);
+            $context->required('lname', 'Last Name')->lengthBetween(2, 255);
+            $context->required('sex', 'Gender')->lengthBetween(4, 30);
+            $context->required('DOB', 'Date of Birth')->datetime('Y-m-d');
         });
         
         $this->validator->context('update', function (Validator $context) {
             $context->copyContext('insert', function ($rules) {
                 foreach ($rules as $key => $chain) {
-                    $this->validator->optional($key);
+                    $chain->required(false);
                 }
             });
         });
@@ -72,15 +71,8 @@ class PatientService extends BaseService
     public function validatePid($pid)
     {
         $this->validator->required('pid')->callback(function ($value) {
-            if (!$this->verifyPid($value)) {
-                throw new InvalidValueException(
-                    'Unable to find the user with id ' . $value,
-                    'error'
-                );
-            }
-            return true;
-        });
-        $this->validator->required('pid')->numeric();
+            return $this->verifyPid($value);
+        })->numeric();
         return $this->validator->validate(['pid' => $pid]);
     }
 
