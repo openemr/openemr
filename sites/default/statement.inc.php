@@ -478,7 +478,7 @@ function create_HTML_statement($stmt)
       </tr></table>';
 
     $out .= "      </div></div>";
-    $out .= "<formfeed />";
+    $out .= "\014";
     echo $out;
     $output = ob_get_clean();
     return $output;

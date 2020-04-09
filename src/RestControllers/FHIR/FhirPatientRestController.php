@@ -58,7 +58,7 @@ class FhirPatientRestController
         }
         $data = $this->fhirPatientService->parsePatientResource($fhirJson);
 
-        $validationResult = $this->fhirPatientService->validate($data);
+        $validationResult = $this->fhirPatientService->validateUpdate($pid, $data);
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
             return $validationHandlerResult;

@@ -5,6 +5,8 @@
  *
  */
 
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 class InsuranceNumbers extends ORDataObject
 {
 

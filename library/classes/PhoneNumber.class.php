@@ -19,6 +19,9 @@ define("TYPE_FAX", 5);
  * class Address
  *
  */
+
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 class PhoneNumber extends ORDataObject
 {
     var $id;

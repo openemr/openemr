@@ -10,6 +10,8 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 define("EVENT_VEHICLE", 1);
 define("EVENT_WORK_RELATED", 2);
 define("EVENT_SLIP_FALL", 3);

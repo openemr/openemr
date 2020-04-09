@@ -54,7 +54,7 @@ class FhirPatientService
 
     public function parsePatientResource($fhirJson)
     {
-        $data["title"] = "";
+        $data["date"] = $fhirJson['lastUpdated'];
         $name = [];
         foreach ($fhirJson["name"] as $sub_name) {
             if ($sub_name["use"] == "official") {
@@ -69,19 +69,17 @@ class FhirPatientService
         $data["postal_code"] = $fhirJson["address"][0]["postalCode"];
         $data["city"] = $fhirJson["address"][0]["city"];
         $data["state"] = $fhirJson["address"][0]["state"];
-        $data["country_code"] = "" ;
+        $data["country_code"] = null;
         $phone = [];
         foreach ($fhirJson["telecom"] as $phone) {
             if ($phone["use"] == "mobile") {
-                $name = $phone;
                 break;
             }
         }
         $data["phone_contact"] = $phone["value"];
         $data["DOB"] = $fhirJson["birthDate"];
-        $data["sex"] = $fhirJson["gender"];
-        $data["race"] = "";
-        $data["ethnicity"] = "";
+        $data["sex"] = ucwords($fhirJson["gender"]);
+
         return $data;
     }
 
@@ -93,6 +91,11 @@ class FhirPatientService
     public function validate($data)
     {
         return $this->patientService->validate($data);
+    }
+
+    public function validateUpdate($pid, $data)
+    {
+        return $this->patientService->validateUpdate($pid, $data);
     }
 
     public function insert($data)
