@@ -437,13 +437,16 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 create table panel_category (
     id int(4) NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name varchar(250) NOT NULL);
+#EndIf
 
+#IfNotTable panel
 create table panel (
     id int(4) NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name varchar(250) NOT NULL,
     category_id int(4) NOT NULL,
     Foreign key(category_id) REFERENCES panel_category(id)
 );
+#EndIf
 
 #IfNotTable panel_enrollment
 create table panel_enrollment (
@@ -456,12 +459,14 @@ create table panel_enrollment (
     Foreign key(patient_id) REFERENCES patient_data(id),
     Foreign key(panel_id) REFERENCES panel(id)
 );
+#EndIf
 
 #IfNotRow2D panel_category name
 insert into panel_category (name) values ('Chronic Disease');
 insert into panel_category (name) values ('Social Worok');
 insert into panel_category (name) values ('Immunization');
 insert into panel_category (name) values ('Womens Health');
+#EndIf
 
 #IfNotRow2D panel name category_id
 insert into panel (name,category_id) values ('Diabetes',1);
@@ -479,3 +484,4 @@ insert into panel (name,category_id) values ('HTN',4);
 insert into panel (name,category_id) values ('Pelvic Pain',4);
 insert into panel (name,category_id) values ('Obesity',4);
 insert into panel (name,category_id) values ('Classes',4);
+#EndIf
