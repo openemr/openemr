@@ -22,6 +22,8 @@
  * @link    http://www.open-emr.org
  */
 
+/* TODO: Fully redesign the navbar to be better supported with BS4 */
+
 html {
     margin: 0;
     padding: 0;
@@ -126,7 +128,7 @@ body {
 }
 
 .tabSpan {
-    font-size: 0.9em;
+    font-size: 0.9rem;
     margin: 0;
     padding: 8px 8px;
     border-top: 4px solid var(--primary);
@@ -267,6 +269,7 @@ body {
     white-space: nowrap;
 }
 
+.appMenu > span:hover,
 .appMenu .appMenu > span:hover {
     color: var(--white);
     text-decoration: none;
@@ -286,7 +289,7 @@ body {
 }
 
 .appMenu_small .menuLabel {
-    padding: 10px 10px;
+    padding: 0.625rem 0.625rem;
 }
 
 .appMenu .oe-show {
@@ -338,7 +341,7 @@ body {
  * --Robert Down */
 .menuLabel {
     color: var(--dark);
-    padding: 15px 10px;
+    padding: 0.9375rem 0.625rem;
     font-weight: 700;
     transition: background-color 0.1s ease;
     width: 100%;
@@ -441,7 +444,7 @@ div.menuLabel:hover {
 }
 
 #patient_caret {
-    font-size: 2em;
+    font-size: 2rem;
     margin-top: -5px;
 }
 
