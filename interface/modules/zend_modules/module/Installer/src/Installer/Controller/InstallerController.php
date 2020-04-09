@@ -7,6 +7,8 @@
  * @author    Jacob T.Paul <jacob@zhservices.com>
  * @author    Vipin Kumar <vipink@zhservices.com>
  * @author    Remesh Babu S <remesh@zhservices.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -60,17 +62,17 @@ class InstallerController extends AbstractActionController
         $allModules = array();
         foreach ($result as $dataArray) {
             $mod = new InstModule();
-            $mod -> exchangeArray($dataArray);
+            $mod->exchangeArray($dataArray);
             $mod = $this->makeButtonForSqlAction($mod);
             $mod = $this->makeButtonForAClAction($mod);
             array_push($allModules, $mod);
         }
 
         return new ViewModel(array(
-        'InstallersExisting'    => $allModules,
-        'InstallersAll'         => $allModules,
-        'listenerObject'        => $this->listenerObject,
-        'dependencyObject'      => $this->getInstallerTable(),
+            'InstallersExisting' => $allModules,
+            'InstallersAll' => $allModules,
+            'listenerObject' => $this->listenerObject,
+            'dependencyObject' => $this->getInstallerTable(),
         ));
     }
 
@@ -84,26 +86,26 @@ class InstallerController extends AbstractActionController
 
     public function registerAction()
     {
-        $status   = false;
-        $request  = $this->getRequest();
+        $status = false;
+        $request = $this->getRequest();
         if ($request->isPost()) {
             if ($request->getPost('mtype') == 'zend') {
                 // TODO: We want to be able to load the modules
                 // from the database.. however, this can be fairly slow so we might want to do some kind of APC caching of the module
                 // list that is loaded using the OpenEMR db connector and not the zend db connector, cache the modules, and then
                 // we can filter / update that list.  We'll have to inject the unloaded module list into the installer but that is fine.
-                $rel_path = "public/".$request->getPost('mod_name')."/";
+                $rel_path = "public/" . $request->getPost('mod_name') . "/";
 
                 // registering the table inserts the module record into the database.
                 // it's always loaded regardless, but it inserts it in the database as not activated
-                if ($this -> getInstallerTable() -> register($request->getPost('mod_name'), $rel_path, 0, $GLOBALS['zendModDir'])) {
+                if ($this->getInstallerTable()->register($request->getPost('mod_name'), $rel_path, 0, $GLOBALS['zendModDir'])) {
                     $status = true;
                 }
             } else {
                 // TODO: there doesn't appear to be any methodology in how to load these custom registered modules... which seems pretty odd.
                 // there aren't any in the system... but why have this then?
-                $rel_path = $request->getPost('mod_name')."/index.php";
-                if ($this -> getInstallerTable() -> register($request->getPost('mod_name'), $rel_path)) {
+                $rel_path = $request->getPost('mod_name') . "/index.php";
+                if ($this->getInstallerTable()->register($request->getPost('mod_name'), $rel_path)) {
                     $status = true;
                 }
             }
@@ -116,17 +118,17 @@ class InstallerController extends AbstractActionController
     {
         $outputToBrowser = '';
         $request = $this->getRequest();
-        $status  = $this->listenerObject->z_xlt("Failure");
+        $status = $this->listenerObject->z_xlt("Failure");
         if ($request->isPost()) {
             if ($request->getPost('modAction') == "enable") {
-                $resp = $this -> getInstallerTable() -> updateRegistered($request->getPost('modId'), "mod_active=0");
+                $resp = $this->getInstallerTable()->updateRegistered($request->getPost('modId'), "mod_active=0");
                 if ($resp['status'] == 'failure' && $resp['code'] == '200') {
                     $status = $resp['value'];
                 } else {
                     $status = $this->listenerObject->z_xlt("Success");
                 }
             } elseif ($request->getPost('modAction') == "disable") {
-                $resp = $this -> getInstallerTable() -> updateRegistered($request->getPost('modId'), "mod_active=1");
+                $resp = $this->getInstallerTable()->updateRegistered($request->getPost('modId'), "mod_active=1");
                 if ($resp['status'] == 'failure' && $resp['code'] == '200') {
                     $plural = "Module";
                     if (count($resp['value']) > 1) {
@@ -143,24 +145,24 @@ class InstallerController extends AbstractActionController
                 $dirModule = $this->getInstallerTable()->getRegistryEntry($request->getPost('modId'), "mod_directory");
                 $mod_enc_menu = $request->getPost('mod_enc_menu');
                 $mod_nick_name = $request->getPost('mod_nick_name');
-                if ($this->getInstallerTable()->installSQL($GLOBALS['srcdir']."/../".$GLOBALS['baseModDir'].$GLOBALS['customModDir']."/".$dirModule -> modDirectory)) {
+                if ($this->getInstallerTable()->installSQL($GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . $GLOBALS['customModDir'] . "/" . $dirModule->modDirectory)) {
                     $values = array($mod_nick_name, $mod_enc_menu);
                     //Run custom sql's in folder sql of module
-                    if ($this -> getInstallerTable() -> installSQL($GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$dirModule -> modDirectory."/sql")) {
+                    if ($this->getInstallerTable()->installSQL($GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule->modDirectory . "/sql")) {
                         $values[2] = $this->getModuleVersionFromFile($request->getPost('modId'));
-                        $this -> getInstallerTable() -> updateRegistered($request->getPost('modId'), '', $values);
+                        $this->getInstallerTable()->updateRegistered($request->getPost('modId'), '', $values);
                         $status = $this->listenerObject->z_xlt("Success");
                     } else {
                         $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not run sql query");
                     }
                 } else {
-                    $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not open table") . '.' . $this->listenerObject->z_xlt("sql").', ' . $this->listenerObject->z_xlt("broken form") . "?";
+                    $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not open table") . '.' . $this->listenerObject->z_xlt("sql") . ', ' . $this->listenerObject->z_xlt("broken form") . "?";
                 }
             } elseif ($request->getPost('modAction') == 'install_sql') {
                 if ($this->InstallModuleSQL($request->getPost('modId'))) {
                     $status = $this->listenerObject->z_xlt("Success");
                 } else {
-                    $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not open table") . '.' . $this->listenerObject->z_xlt("sql").', ' . $this->listenerObject->z_xlt("broken form") . "?";
+                    $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not open table") . '.' . $this->listenerObject->z_xlt("sql") . ', ' . $this->listenerObject->z_xlt("broken form") . "?";
                 }
             } elseif ($request->getPost('modAction') == 'upgrade_sql') {
                 $div = $this->UpgradeModuleSQL($request->getPost('modId'));
@@ -177,10 +179,17 @@ class InstallerController extends AbstractActionController
                 } else {
                     $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not install ACL ");
                 }
+            } elseif ($request->getPost('modAction') == "unregister") {
+                $resp = $this->getInstallerTable()->unRegister($request->getPost('modId'));
+                if ($resp == 'failure') {
+                    $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("Failed to unregister module.");
+                } else {
+                    $status = $this->listenerObject->z_xlt("Success");
+                }
             }
         }
 
-        echo json_encode(["status"=>$status, "output" => implode("<br />\n", $div)]);
+        echo json_encode(["status" => $status, "output" => implode("<br />\n", $div)]);
         exit(0);
     }
 
@@ -200,23 +209,25 @@ class InstallerController extends AbstractActionController
     }
 
     /**
-    * Function to install ACL for the installed modules
-    * @param     string  $dir Location of the php file which calling functions to add sections,aco etc.
-    * @return boolean
-    */
+     * Function to install ACL for the installed modules
+     *
+     * @param string $dir Location of the php file which calling functions to add sections,aco etc.
+     * @return boolean
+     */
     private function installACL($dir)
     {
-        $aclfile = $dir."/moduleACL.php";
+        $aclfile = $dir . "/moduleACL.php";
         if (file_exists($aclfile)) {
             include_once($aclfile);
         }
     }
 
     /**
-    * Used to recreate the application config file
-    * @param unknown_type $data
-    * @return string
-    */
+     * Used to recreate the application config file
+     *
+     * @param unknown_type $data
+     * @return string
+     */
     private function getContent($data)
     {
         $string = "";
@@ -224,7 +235,7 @@ class InstallerController extends AbstractActionController
             $string .= " '$key' => ";
             if (is_array($value)) {
                 $string .= " array(";
-                $string .=        $this ->getContent($value);
+                $string .= $this->getContent($value);
                 $string .= " )";
             } else {
                 $string .= "'$value'";
@@ -239,7 +250,7 @@ class InstallerController extends AbstractActionController
     public function SaveHooksAction()
     {
         $request = $this->getRequest();
-        $postArr  = $request->getPost();
+        $postArr = $request->getPost();
         //DELETE OLD HOOKS OF A MODULE
         $this->getInstallerTable()->deleteModuleHooks($postArr['mod_id']);
         if (!empty($postArr['hook_hanger']) && count($postArr['hook_hanger']) > 0) {
@@ -249,9 +260,9 @@ class InstallerController extends AbstractActionController
                 }
             }
 
-            $return[0]  = array('return' => 1,'msg' => $this->listenerObject->z_xlt("Saved Successfully"));
+            $return[0] = array('return' => 1, 'msg' => $this->listenerObject->z_xlt("Saved Successfully"));
         } else {
-            $return[0]  = array('return' => 1,'msg' => $this->listenerObject->z_xlt("No Hooks enabled for this Module"));
+            $return[0] = array('return' => 1, 'msg' => $this->listenerObject->z_xlt("No Hooks enabled for this Module"));
         }
 
         $arr = new JsonModel($return);
@@ -260,18 +271,18 @@ class InstallerController extends AbstractActionController
 
     public function configureAction()
     {
-        $request  = $this->getRequest();
-        $modId        = $request->getPost('mod_id');
+        $request = $this->getRequest();
+        $modId = $request->getPost('mod_id');
 
         /** Configuration Details */
         $result = $this->getInstallerTable()->getConfigSettings($modId);
-        $configuration    = array();
+        $configuration = array();
         foreach ($result as $tmp) {
             $configuration[$tmp['field_name']] = $tmp;
         }
 
         //INSERT MODULE HOOKS IF NOT EXISTS
-        $moduleDirectory  = $this->getInstallerTable()->getModuleDirectory($modId);
+        $moduleDirectory = $this->getInstallerTable()->getModuleDirectory($modId);
         //GET MODULE HOOKS FROM A FUNCTION IN CONFIGURATION MODEL CLASS
         $hooksArr = $this->getInstallerTable()->getModuleHooks($moduleDirectory);
 
@@ -292,7 +303,7 @@ class InstallerController extends AbstractActionController
 
         //GET MODULE ACL SECTION FROM A FUNCTION IN CONFIGURATION MODEL CLASS
         $aclArray = $this->getInstallerTable()->getModuleAclSections($moduleDirectory);
-        if (sizeof($aclArray)>0) {
+        if (sizeof($aclArray) > 0) {
             $this->getInstallerTable()->insertAclSections($aclArray, $moduleDirectory, $modId);
         } else {
             $this->getInstallerTable()->deleteACLSections($modId);
@@ -311,41 +322,41 @@ class InstallerController extends AbstractActionController
         $setup = $this->getInstallerTable()->getSetupObject($moduleDirectory);
 
         return new ViewModel(array(
-          'mod_id'                  => $modId,
-          'TabSettings'             => $this->getInstallerTable()->getTabSettings($modId),
-          'ACL'                     => $this->getInstallerTable()->getSettings('ACL', $modId),
-          'OemrUserGroup'           => $this->getInstallerTable()->getOemrUserGroup(),
-          'OemrUserGroupAroMap'     => $this->getInstallerTable()->getOemrUserGroupAroMap(),
-          'ListActiveUsers'         => $this->getInstallerTable()->getActiveUsers(),
-          'ListActiveACL'           => $this->getInstallerTable()->getActiveACL($modId),
-          'ListActiveHooks'         => $this->getInstallerTable()->getActiveHooks($modId),
-          'helperObject'            => $this->helperObject,
-          'configuration'           => $configuration,
-          'hangers'                 => $this->getInstallerTable()->getHangers(),
-          'Hooks'                   => $hooksArr,
-          'hookObject'              => $this->getInstallerTable(),
-          'settings'                => $configForm,
-          'listenerObject'          => $this->listenerObject,
-          'setup'                   => $setup,
+            'mod_id' => $modId,
+            'TabSettings' => $this->getInstallerTable()->getTabSettings($modId),
+            'ACL' => $this->getInstallerTable()->getSettings('ACL', $modId),
+            'OemrUserGroup' => $this->getInstallerTable()->getOemrUserGroup(),
+            'OemrUserGroupAroMap' => $this->getInstallerTable()->getOemrUserGroupAroMap(),
+            'ListActiveUsers' => $this->getInstallerTable()->getActiveUsers(),
+            'ListActiveACL' => $this->getInstallerTable()->getActiveACL($modId),
+            'ListActiveHooks' => $this->getInstallerTable()->getActiveHooks($modId),
+            'helperObject' => $this->helperObject,
+            'configuration' => $configuration,
+            'hangers' => $this->getInstallerTable()->getHangers(),
+            'Hooks' => $hooksArr,
+            'hookObject' => $this->getInstallerTable(),
+            'settings' => $configForm,
+            'listenerObject' => $this->listenerObject,
+            'setup' => $setup,
         ));
     }
 
     public function saveConfigAction()
     {
-        $request    = $this->getRequest();
-        $moduleId   = $request->getPost()->module_id;
+        $request = $this->getRequest();
+        $moduleId = $request->getPost()->module_id;
 
         foreach ($request->getPost() as $key => $value) {
-            $fieldName  = $key;
+            $fieldName = $key;
             $fieldValue = $value;
             if ($fieldName != 'module_id') {
                 $result = $this->getInstallerTable()->saveSettings($fieldName, $fieldValue, $moduleId);
             }
         }
 
-        $data         = array();
-        $returnArr    = array('modeId' => $moduleId);
-        $return   = new JsonModel($returnArr);
+        $data = array();
+        $returnArr = array('modeId' => $moduleId);
+        $return = new JsonModel($returnArr);
         return $return;
     }
 
@@ -353,8 +364,8 @@ class InstallerController extends AbstractActionController
     {
         $request = $this->getRequest();
         $this->getInstallerTable()->DeleteAcl($request->getPost());
-        $return[0]  = array('return' => 1,'msg' => $this->listenerObject->z_xlt("Deleted Successfully"));
-        $arr        = new JsonModel($return);
+        $return[0] = array('return' => 1, 'msg' => $this->listenerObject->z_xlt("Deleted Successfully"));
+        $arr = new JsonModel($return);
         return $arr;
     }
 
@@ -362,15 +373,15 @@ class InstallerController extends AbstractActionController
     {
         $request = $this->getRequest();
         $this->getInstallerTable()->DeleteHooks($request->getPost());
-        $return[0]  = array('return' => 1,'msg' => $this->listenerObject->z_xlt("Deleted Successfully"));
-        $arr        = new JsonModel($return);
+        $return[0] = array('return' => 1, 'msg' => $this->listenerObject->z_xlt("Deleted Successfully"));
+        $arr = new JsonModel($return);
         return $arr;
     }
 
     public function nickNameAction()
     {
-        $request    = $this->getRequest();
-        $nickname   = $request->getPost()->nickname;
+        $request = $this->getRequest();
+        $nickname = $request->getPost()->nickname;
         echo $this->getInstallerTable()->validateNickName(trim($nickname));
         exit(0);
     }
@@ -379,15 +390,15 @@ class InstallerController extends AbstractActionController
     {
         //SQL version of Module
         $dirModule = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
-        $ModulePath = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$dirModule -> modDirectory;
+        $ModulePath = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule->modDirectory;
 
-        $version_of_module = $ModulePath."/version.php";
-        $table_sql = $ModulePath."/table.sql";
-        $install_sql = $ModulePath."/sql/install.sql";
-        $install_acl = $ModulePath."/acl/acl_setup.php";
+        $version_of_module = $ModulePath . "/version.php";
+        $table_sql = $ModulePath . "/table.sql";
+        $install_sql = $ModulePath . "/sql/install.sql";
+        $install_acl = $ModulePath . "/acl/acl_setup.php";
         if (file_exists($version_of_module) && (file_exists($table_sql) || file_exists($install_sql) || file_exists($install_acl))) {
             include_once($version_of_module);
-            $version = $v_major.".".$v_minor.".".$v_patch;
+            $version = $v_major . "." . $v_minor . "." . $v_patch;
             return $version;
         }
         return false;
@@ -395,8 +406,8 @@ class InstallerController extends AbstractActionController
 
     public function getFilesForUpgrade($modDirectory)
     {
-        $ModulePath = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$modDirectory;
-        $sqldir = $ModulePath."/sql";
+        $ModulePath = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $modDirectory;
+        $sqldir = $ModulePath . "/sql";
         $versions = [];
         $dh = opendir($sqldir);
         if (!$dh) {
@@ -425,11 +436,11 @@ class InstallerController extends AbstractActionController
     public function makeButtonForSqlAction(InstModule $mod)
     {
         $dirModule = $this->getInstallerTable()->getRegistryEntry($mod->modId, "mod_directory");
-        $ModulePath = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$dirModule -> modDirectory;
-        $sqldir = $ModulePath."/sql";
+        $ModulePath = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule->modDirectory;
+        $sqldir = $ModulePath . "/sql";
         $mod->sql_action = "";
 
-        if (file_exists($sqldir."/install.sql") && file_exists($ModulePath."/version.php") && empty($mod->sql_version)) {
+        if (file_exists($sqldir . "/install.sql") && file_exists($ModulePath . "/version.php") && empty($mod->sql_version)) {
             $mod->sql_action = "install";
         }
 
@@ -451,19 +462,19 @@ class InstallerController extends AbstractActionController
     public function makeButtonForACLAction(InstModule $mod)
     {
         $dirModule = $this->getInstallerTable()->getRegistryEntry($mod->modId, "mod_directory");
-        $ModulePath = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$dirModule -> modDirectory;
-        $sqldir = $ModulePath."/acl";
+        $ModulePath = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule->modDirectory;
+        $sqldir = $ModulePath . "/acl";
         $mod->acl_action = "";
 
-        if (file_exists($sqldir."/acl_setup.php") && file_exists($ModulePath."/version.php") && empty($mod->acl_version)) {
+        if (file_exists($sqldir . "/acl_setup.php") && file_exists($ModulePath . "/version.php") && empty($mod->acl_version)) {
             $mod->acl_action = "install";
         }
-        if (file_exists($sqldir."/acl_upgrade.php") && file_exists($ModulePath."/version.php") && !empty($mod->acl_version)) {
+        if (file_exists($sqldir . "/acl_upgrade.php") && file_exists($ModulePath . "/version.php") && !empty($mod->acl_version)) {
             global $ACL_UPGRADE;
             $unique_id = RandomGenUtils::createUniqueToken();
             $_SESSION['acl_setup_unique_id'] = $unique_id;
 
-            include_once($sqldir."/acl_upgrade.php");
+            include_once($sqldir . "/acl_upgrade.php");
 
             foreach ($ACL_UPGRADE as $toVersion => $function) {
                 if (version_compare($mod->acl_version, $toVersion) >= 0) {
@@ -499,10 +510,10 @@ class InstallerController extends AbstractActionController
     public function InstallModuleSQL($modId = '')
     {
         $dirModule = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
-        if ($this->getInstallerTable()->installSQL($GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$dirModule -> modDirectory."/sql")) {
+        if ($this->getInstallerTable()->installSQL($GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule->modDirectory . "/sql")) {
             $values[2] = $this->getModuleVersionFromFile($modId);
             $values[3] = $dirModule->acl_version;
-            $this -> getInstallerTable() -> updateRegistered($modId, '', $values);
+            $this->getInstallerTable()->updateRegistered($modId, '', $values);
             return true;
         } else {
             return false;
@@ -516,7 +527,7 @@ class InstallerController extends AbstractActionController
     public function UpgradeModuleSQL($modId = '')
     {
         $Module = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
-        $modDir = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$Module -> modDirectory;
+        $modDir = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $Module->modDirectory;
         $versions = $this->getFilesForUpgrade($Module->modDirectory);
         $values = [];
         $div = [];
@@ -552,20 +563,20 @@ class InstallerController extends AbstractActionController
                     $curr_html_tag = true;
                 }
                 if (!$prev_html_tag && $curr_html_tag) {
-                    $div[] = "<div class='show_hide_log'>".xlt("show/hide executed query log")."</div><div class='spoiler' style='margin-left: 10px' >".$string;
+                    $div[] = "<div class='show_hide_log'>" . xlt("show/hide executed query log") . "</div><div class='spoiler' style='margin-left: 10px' >" . $string;
                     $curr_html_tag = false;
                 } elseif (!$prev_html_tag && !$curr_html_tag) {
                     $div[] = $string;
                     $add_query_string++;
                 }
-                if (count($matches[1]) == (count($div) - $add_ended_divs) && (!$prev_html_tag && !$curr_html_tag )) {
+                if (count($matches[1]) == (count($div) - $add_ended_divs) && (!$prev_html_tag && !$curr_html_tag)) {
                     $div[] = "</div>";
                 }
                 $k++;
             }
         }
         $values[3] = $Module->acl_version;
-        $this -> getInstallerTable() -> updateRegistered($modId, '', $values);
+        $this->getInstallerTable()->updateRegistered($modId, '', $values);
         return $div;
     }
 
@@ -576,20 +587,20 @@ class InstallerController extends AbstractActionController
     public function InstallModuleACL($modId = '')
     {
         $Module = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
-        $modDir = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$Module -> modDirectory;
+        $modDir = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $Module->modDirectory;
         $div = [];
-        if (file_exists($modDir."/acl/acl_setup.php") && empty($modDir->acl_version)) {
+        if (file_exists($modDir . "/acl/acl_setup.php") && empty($modDir->acl_version)) {
             // Pass a unique variable, so below scripts can not be run on their own
             $unique_id = RandomGenUtils::createUniqueToken();
             $_SESSION['acl_setup_unique_id'] = $unique_id;
 
             ob_start();
-            include_once($modDir."/acl/acl_setup.php");
+            include_once($modDir . "/acl/acl_setup.php");
             $div[] = ob_get_contents();
             ob_end_clean();
             $values[2] = $Module->sql_version;
             $values[3] = $this->getModuleVersionFromFile($modId);
-            $this -> getInstallerTable() -> updateRegistered($modId, '', $values);
+            $this->getInstallerTable()->updateRegistered($modId, '', $values);
             return $div;
         }
         return false;
@@ -602,15 +613,15 @@ class InstallerController extends AbstractActionController
     public function UpgradeModuleACL($modId = '')
     {
         $Module = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
-        $modDir = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir']."zend_modules/module/".$Module -> modDirectory;
+        $modDir = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $Module->modDirectory;
         $div = [];
-        if (file_exists($modDir."/acl/acl_upgrade.php") && !empty($Module->acl_version)) {
+        if (file_exists($modDir . "/acl/acl_upgrade.php") && !empty($Module->acl_version)) {
             // Pass a unique variable, so below scripts can not be run on their own
             $unique_id = RandomGenUtils::createUniqueToken();
             $_SESSION['acl_setup_unique_id'] = $unique_id;
 
             ob_start();
-            $ACL_UPGRADE = include_once($modDir."/acl/acl_upgrade.php");
+            $ACL_UPGRADE = include_once($modDir . "/acl/acl_upgrade.php");
             $version = $this->upgradeAclFromVersion($ACL_UPGRADE, $Module->acl_version);
             $div[] = ob_get_contents();
             ob_end_clean();
@@ -618,7 +629,7 @@ class InstallerController extends AbstractActionController
             if (strlen($version) > 0) {
                 $values[2] = $Module->sql_version;
                 $values[3] = $version;
-                $this -> getInstallerTable() -> updateRegistered($modId, '', $values);
+                $this->getInstallerTable()->updateRegistered($modId, '', $values);
             }
             return $div;
         }
@@ -631,17 +642,17 @@ class InstallerController extends AbstractActionController
     public function commandInstallModuleAction()
     {
         $request = $this->getRequest();
-        if (! $request instanceof ConsoleRequest) {
+        if (!$request instanceof ConsoleRequest) {
             throw new RuntimeException('You can only use this action from a console!');
         }
 
-        $moduleAction   = $request->getParam('modaction');
-        $moduleName     = $request->getParam('modname');
+        $moduleAction = $request->getParam('modaction');
+        $moduleName = $request->getParam('modname');
 
-        $moduleId       = null;
-        $div            = [];
+        $moduleId = null;
+        $div = [];
 
-        echo PHP_EOL . '--- Run command ['.$moduleAction.'] in module:  '.$moduleName.'---' . PHP_EOL;
+        echo PHP_EOL . '--- Run command [' . $moduleAction . '] in module:  ' . $moduleName . '---' . PHP_EOL;
         echo 'start process - ' . date('Y-m-d H:i:s') . PHP_EOL;
 
 
@@ -650,7 +661,7 @@ class InstallerController extends AbstractActionController
         }
 
         if ($moduleId !== null) {
-            echo 'module ['.$moduleName.'] was find'. PHP_EOL;
+            echo 'module [' . $moduleName . '] was find' . PHP_EOL;
 
             if ($moduleAction === "install_sql") {
                 $this->InstallModuleSQL($moduleId);
@@ -668,7 +679,7 @@ class InstallerController extends AbstractActionController
                 $div = $this->UpgradeModuleACL($moduleId);
             }
         }
-        echo implode("<br />\n", $div).PHP_EOL;
+        echo implode("<br />\n", $div) . PHP_EOL;
         exit('command completed successfully' . PHP_EOL);
     }
 }
