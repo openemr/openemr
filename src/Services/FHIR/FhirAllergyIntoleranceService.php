@@ -35,7 +35,7 @@ class FhirAllergyIntoleranceService
     }
     
     public function getAll($search)
-    {      
+    {
         $SQL = "SELECT id,
                         date as recorded_date,
                         type,
@@ -54,8 +54,9 @@ class FhirAllergyIntoleranceService
                         FROM lists
                         WHERE type = 'allergy'";
 
-        if (isset($search['patient']))
+        if (isset($search['patient'])) {
             $SQL .= " AND pid = ?;";
+        }
 
         $allergyIntolerenceresults = sqlStatement($SQL, $search['patient']);
         $results = array();
@@ -99,11 +100,11 @@ class FhirAllergyIntoleranceService
 
         $code = sqlQuery($codeSQL, array($result['reaction']));
         $result['code'] = $code['dx_code'];
-        return $result;        
+        return $result;
     }
 
     public function createAllergyIntoleranceResource($id = '', $data = '', $encode = true)
-    {     
+    {
         $typeCoding = new FHIRCoding();
         $typeCoding->setSystem("http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical");
         $typeCoding->setCode($data['type']);
@@ -118,12 +119,13 @@ class FhirAllergyIntoleranceService
         $recordedDate->setValue($data['recorded_date']);
         
         $clinicalStatus = '';
-        if ($data['outcome'] == '1' && isset($data['enddate']))
+        if ($data['outcome'] == '1' && isset($data['enddate'])) {
             $clinicalStatus = "resolved";
-        else if (!isset($data['enddate'])) 
+        } else if (!isset($data['enddate'])) {
             $clinicalStatus = "active";
-        else
+        } else {
             $clinicalStatus = "inactive";
+        }
         $clinicalStatusCoding = new FHIRCoding();
         $clinicalStatusCoding->setSystem("http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical");
         $clinicalStatusCoding->setCode($clinicalStatus);
@@ -151,13 +153,12 @@ class FhirAllergyIntoleranceService
                 );
             $criticalityCoding->setSystem("http://hl7.org/fhir/allergy-intolerance-criticality");
             $criticalityCoding->setCode($severityToCriticalityCode[strtolower($data['severity_al'])]);
-            $criticalityCoding->setDisplay($severityToCriticalityDisplay[strtolower($data['severity_al'])]);        
+            $criticalityCoding->setDisplay($severityToCriticalityDisplay[strtolower($data['severity_al'])]);
             $criticality->setValue($criticalityCoding);
-        }
-        else {
+        } else {
             $criticalityCoding->setSystem("http://terminology.hl7.org/CodeSystem/data-absent-reason");
             $criticalityCoding->setCode("unknown");
-            $criticalityCoding->setDisplay("Unknown");        
+            $criticalityCoding->setDisplay("Unknown");
             $criticality->setValue($criticalityCoding);
         }
 
@@ -191,13 +192,12 @@ class FhirAllergyIntoleranceService
         if (isset($data['severity_al'])) {
             $severityCoding->setSystem("http://hl7.org/fhir/reaction-event-severity");
             $severityCoding->setCode($data['severity_al']);
-            $severityCoding->setDisplay(ucwords($data['severity_al']));        
+            $severityCoding->setDisplay(ucwords($data['severity_al']));
             $reaction->setSeverity($severityCoding);
-        }
-        else {
+        } else {
             $severityCoding->setSystem("http://terminology.hl7.org/CodeSystem/data-absent-reason");
             $severityCoding->setCode("unknown");
-            $severityCoding->setDisplay("Unknown");        
+            $severityCoding->setDisplay("Unknown");
             $reaction->setSeverity($severityCoding);
         }
         
