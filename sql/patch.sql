@@ -286,3 +286,11 @@ ALTER TABLE `api_token` ADD `token_auth` varchar(255);
 #IfNotIndex openemr_postcalendar_events index_pcid
 ALTER TABLE `openemr`.`openemr_postcalendar_events` ADD INDEX `index_pcid` (`pc_pid`);
 #EndIf
+
+#IfNotIndex medex_recalls i_eventDate
+ALTER TABLE `openemr`.`medex_recalls` ADD INDEX `i_eventDate` (`r_eventDate`);
+#EndIf
+
+#IfNotIndex medex_outgoing i_msg_date
+ALTER TABLE `openemr`.`medex_outgoing` ADD INDEX `i_msg_date` (`msg_date`);
+#EndIf

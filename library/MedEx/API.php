@@ -432,7 +432,7 @@ class Events extends Base
                                     ". $target_lang ."
                                     (
                                         pc_eventDate > CURDATE() ".$interval." INTERVAL ".$timing." DAY AND
-                                        pc_eventDate < CURDATE() ".$interval." INTERVAL '".$timing2."' DAY_MINUTE AND
+                                        pc_eventDate < CURDATE() ".$interval." INTERVAL ".$timing2." DAY_MINUTE AND
                                         pc_recurrtype ='0'
                                     )
                                     ". $appt_status."
@@ -950,7 +950,7 @@ class Events extends Base
                             if ($today == "Monday") {
                                 $timing2 = ($timing + 3);
                                 $target_dates .= " AND cal.pc_eventDate <= curdate() - INTERVAL ".$timing." DAY AND
-                                                  cal.pc_eventDate > (curdate() - INTERVAL '".$timing2."' DAY) ";
+                                                  cal.pc_eventDate > (curdate() - INTERVAL ".$timing2." DAY) ";
                             }
                         }
                     }
