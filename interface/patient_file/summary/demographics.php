@@ -19,6 +19,7 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
+require_once("$srcdir/panel.inc");
 require_once("$srcdir/options.inc.php");
 require_once("../history/history.inc.php");
 require_once("$srcdir/clinical_rules.php");
@@ -1552,35 +1553,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                          #sqlQueryNoLogIgnoreError ignore error and return the 1st row
                          #sqlStatement return all the results
 
-                         #print the panels for the selected patient
-                         $test_query = "SELECT * FROM panel_category ";
-                         if (!sqlQueryNoLogIgnoreError($test_query)) {
-                           #if the panels is not activated print bellow line
-                           echo("Panels feature is not activated");
-                         }else {
-                           #print the patient Panels
-                           $query = "SELECT * FROM panel_enrollment WHERE patient_id = " . $pid;
-                           $resultSet = sqlStatement($query);
-                           if (mysqli_num_rows($resultSet) === 0) {
-                             echo ("This patien is not inrolled in any panel");
-                           }
-                           echo "<b>patient panels: </b><br/>";
-                           while ($row = sqlFetchArray($resultSet)) {
-                             //get the panel name and category id
-                             $panel_id = $row['panel_id'];
-                             $sql = "SELECT name, category_id FROM panel WHERE id=" . $panel_id;
-                             $panel_result = sqlQuery($sql);
+                         $resultSet = getPatientPanelsInfo($pid);
+                         if ($resultSet === -1) {
+                            echo ("This patien is not inrolled in any panel");
+                          }
+                          while ($row = sqlFetchArray($resultSet)) {
+                            //print the category and the sub category
+                            echo "<b>" . attr($row['category']) . ": </b>";
+                            echo attr($row['panel']) . " <br/>";
+                            echo "<b>Enrollment Date: </b>" . attr($row['enrollment_date']) . " <br/><br/>";
+                          }
 
-                             $category_id = $panel_result['category_id'];
-                             // get  the category name
-                             $sql = "SELECT name FROM panel_category WHERE id=" . $category_id;
-                             $category_result = sqlQuery($sql);
-
-                             //print the category and the sub category
-                             echo attr($category_result['name']) . ": ";
-                             echo attr($panel_result['name']) . " <br/>";
-                           }
-                         }
                         echo "<br/>";
                         echo "</div>";
                     } // end panel
