@@ -11,6 +11,8 @@
 
 namespace OpenEMR\Services;
 
+use Particle\Validator\Exception\InvalidValueException;
+
 class BaseService
 {
     /**
@@ -118,8 +120,10 @@ class BaseService
             "Select pid From patient_data Where pid = ?",
             array($pid)
         )['pid'];
-
-        return $rtn;
+        if(!$rtn){
+            $this->throwException('Unable to find the user with id ' . $pid, 'error');
+        }
+        return true;
     }
 
     /**
@@ -190,5 +194,16 @@ class BaseService
         }
 
         return sqlQuery($sql);
+    }
+
+    /**
+     * Build and Throw Invalid Value Exception 
+     *
+     * @param $message              - The error message which will be displayed
+     * @param $type                 - Type of Exception
+     * @throws InvalidValueException
+     */
+    public static function throwException($message, $type = "Error") {
+        throw new InvalidValueException($message, $type);
     }
 }
