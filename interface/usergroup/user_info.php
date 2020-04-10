@@ -80,7 +80,7 @@ $arrOeUiSettings = array(
 $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 </head>
-<body  onload="document.forms[0].curPass.focus()">
+<body onload="document.forms[0].curPass.focus()">
 
 <?php
 

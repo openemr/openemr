@@ -52,7 +52,7 @@ $form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] :
     </script>
 </head>
 
-<body  onload="document.forms[0].form_diagnosis.focus()">
+<body onload="document.forms[0].form_diagnosis.focus()">
     <div class="container">
         <div class="row">
             <div class="col-12">

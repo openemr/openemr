@@ -461,7 +461,7 @@ if ($fend > $count) {
     </script>
 
 </head>
-<body  >
+<body>
 
 <form method='post' action='superbill_custom_full.php' name='theform'>
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />

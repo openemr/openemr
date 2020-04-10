@@ -98,7 +98,7 @@ $(function () {
 
 </head>
 
-<body  onload="javascript:document.new_patient.fname.focus();">
+<body onload="javascript:document.new_patient.fname.focus();">
 
 <form name='new_patient' method='post' action="new_patient_save.php"
  onsubmit='return validate()'>

@@ -475,7 +475,7 @@ function insertAtCursor(myField, myValue) {
 
 </head>
 
-<body  onunload='imclosing()'>
+<body onunload='imclosing()'>
 
 <form method='post' action='letter.php' id="theform" name="theform" onsubmit="return top.restoreSession()">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />

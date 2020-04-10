@@ -1097,7 +1097,7 @@ function processEnter(e,message) {
 
 </script>
 </head>
-<body  onload="init()">
+<body onload="init()">
 <div name="form_container" onKeyPress="gotoOne(event)">
 <form method='post' action="<?php echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="CAMOS">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />

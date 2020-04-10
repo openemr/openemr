@@ -637,7 +637,7 @@ $('div').hide();
 
 </head>
 
-<body  style="padding-right:0.5em">
+<body style="padding-right:0.5em">
 <div class="container">
 <ul class="tabNav">
  <li class='current'><a href='#'><?php echo xlt('Issue'); ?></a></li>

@@ -42,7 +42,7 @@ if ($_POST["setval"] == 'approve') {
             <title><?php echo xlt('CCR Review and Approve');?></title>
             <?php Header::setupHeader(); ?>
         </head>
-        <body  >
+        <body>
             <center><?php echo xlt('Approved Successfully'); ?></center>
         </body>
     </html>
@@ -61,7 +61,7 @@ if ($_POST["setval"] == 'approve') {
             <title><?php echo xlt('CCR Review and Approve');?></title>
             <?php Header::setupHeader(); ?>
         </head>
-        <body  >
+        <body>
             <center><?php echo xlt('Discarded'); ?></center>
         </body>
     </html>

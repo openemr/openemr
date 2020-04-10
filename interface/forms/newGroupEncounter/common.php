@@ -158,7 +158,7 @@ $help_icon = '';
 ?>
 </head>
 
-<body  <?php echo $body_javascript;?>>
+<body <?php echo $body_javascript;?>>
 <div class="container">
     <div class="row">
         <div class="col-12">

@@ -533,7 +533,7 @@ input[type="radio"] {
   }
 </script>
 </head>
-<body  style="padding-top:95px;">
+<body style="padding-top:95px;">
 <?php } ?>
 <div id="report_custom" style="width:100%;">  <!-- large outer DIV -->
 

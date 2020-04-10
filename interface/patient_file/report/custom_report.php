@@ -223,7 +223,7 @@ function zip_content($source, $destination, $content = '', $create = true)
     // adjust this if you are printing to letterhead to appropriate height
     ($printable) ? ($style = ''):($style='padding-top:95px;');
     ?>
-    <body  style="<?php echo $style; ?>">
+    <body style="<?php echo $style; ?>">
 <?php } ?>
 <div id="report_custom" style="width: 100%;">  <!-- large outer DIV -->
 

@@ -365,7 +365,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 ?>
 
 </head>
-<body  onload="<?php echo $body_onload_code; ?>" >
+<body onload="<?php echo $body_onload_code; ?>" >
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo attr_url($transid); ?>' onsubmit='return validate(this)'>
         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
