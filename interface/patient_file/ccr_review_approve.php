@@ -116,7 +116,7 @@ function submit_form(val){
 
 </script>
 </head>
-<body  >
+<body>
 <center>
 <p><b><?php echo xlt('CCR Patient Review');?></b></p>
 </center>

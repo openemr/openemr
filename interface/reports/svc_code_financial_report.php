@@ -108,7 +108,7 @@ if ($_POST['form_csvexport']) {
     </script>
 </head>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' >
+<body class='m-0'>
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Financial Summary by Service Code'); ?></span>
 <form method='post' action='svc_code_financial_report.php' id='theform' onsubmit='return top.restoreSession()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />

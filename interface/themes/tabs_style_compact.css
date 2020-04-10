@@ -368,6 +368,17 @@ body {
     right: 10px;
 }
 
+.body_top {
+    background-color: var(--light);
+    padding: 0;
+    z-index: 10;
+}
+
+#mainBox_vertical > .body_top {
+    background-color: var(--light);
+    margin: 0 !important;
+}
+
 .body_title {
     color: var(--black);
     background-color: var(--light);

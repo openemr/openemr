@@ -63,7 +63,7 @@ $returnurl = 'encounter_top.php';
 <title><?php echo htmlspecialchars('Print '.$form_name); ?></title>
 
 </head>
-<body">
+<body>
 
 <div class="print_date"><?php xl('Printed on ','e'); echo date('F d, Y', time()); ?></div>
 
@@ -86,7 +86,7 @@ $returnurl = 'encounter_top.php';
 window.print();
 window.close();
 </script>
-</body">
+</body>
 </html>
 ]]></xsl:text>
 </xsl:template>

@@ -776,7 +776,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 </head>
 
 <body <?php if ($from_issue_form) {
-    echo " style='background-color:var(--white)'";
+    echo "class='bg-white';
                       } ?>>
 <div class='container'>
     <?php

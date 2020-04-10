@@ -33,6 +33,12 @@
     }
 }
 
+.body_top {
+    background: url(../../images/background.png);
+    background-repeat: no-repeat;
+    background-color: #6692d1;
+}
+
 input {
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;

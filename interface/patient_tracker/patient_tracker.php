@@ -234,6 +234,10 @@ if (!$_REQUEST['flb_table']) {
             font-size: 1.0rem;
         }
 
+        body {
+            height: 100%;
+        }
+
         a:hover {
             color: var(--black);
             text-decoration: none;

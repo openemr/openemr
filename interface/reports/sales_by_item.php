@@ -348,7 +348,7 @@ if ($_POST['form_csvexport']) {
 
 <title><?php echo xlt('Sales by Item') ?></title>
 
-<body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0' >
+<body class="m-0">
 
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Sales by Item'); ?></span>
 
