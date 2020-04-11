@@ -661,12 +661,13 @@ if ($_REQUEST["mode"] == "new") {
                  *  Check the PMSFH array first by title.
                  *  If not present in PMSFH, check the DB to be sure.
                  */
-                foreach ($PMSFH[$form_type] as $item) {
-                    if ($item['title'] == $_REQUEST['form_title']) {
-                        $issue = $item['issue'];
+                if (is_array($PMSFH[$form_type])) {
+                    foreach ($PMSFH[$form_type] as $item) {
+                        if ($item['title'] == $_REQUEST['form_title']) {
+                            $issue = $item['issue'];
+                        }
                     }
                 }
-
                 if (!$issue) {
                     if ($subtype == '') {
                         $query = "SELECT id,pid from lists where title=? and type=? and pid=?";
