@@ -38,6 +38,10 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cat /var/log/apache2/error.log'
     ```
+    - We also have a handy Alias for the above command
+    ```sh
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools php-log'
+    ```
     - To create a report of PSR2 code styling issues (this takes several minutes):
     ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cd openemr; php -d memory_limit=640M /root/.composer/vendor/squizlabs/php_codesniffer/bin/phpcs -n --extensions=php,inc --standard=ci/phpcs.xml --report=full .'
