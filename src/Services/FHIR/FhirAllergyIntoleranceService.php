@@ -22,18 +22,18 @@ use OpenEMR\Services\ListService;
 
 class FhirAllergyIntoleranceService
 {
-    
+
     private $id;
-    
+
     public function __construct()
     {
     }
-    
+
     public function setId($id)
     {
         $this->id = $id;
     }
-    
+
     public function getAll($search)
     {
         $SQL = "SELECT id,
@@ -61,7 +61,7 @@ class FhirAllergyIntoleranceService
         $allergyIntolerenceresults = sqlStatement($SQL, $search['patient']);
         $results = array();
         while ($row = sqlFetchArray($allergyIntolerenceresults)) {
-            $codeSQL = "SELECT dx_code 
+            $codeSQL = "SELECT dx_code
                             FROM icd10_dx_order_code
                             WHERE short_desc = ?;";
             $code = sqlQuery($codeSQL, array($row['reaction']));
@@ -106,7 +106,7 @@ class FhirAllergyIntoleranceService
     public function createAllergyIntoleranceResource($id = '', $data = '', $encode = true)
     {
         $typeCoding = new FHIRCoding();
-        $typeCoding->setSystem("https://terminology.hl7.org/CodeSystem/allergyintolerance-clinical");
+        $typeCoding->setSystem("https://hl7.org/fhir/allergyintolerance.html");
         $typeCoding->setCode($data['type']);
         $typeCoding->setDisplay(ucwords($data['type']));
         $type = new FHIRAllergyIntoleranceType();
@@ -117,7 +117,7 @@ class FhirAllergyIntoleranceService
 
         $recordedDate = new FHIRDateTime();
         $recordedDate->setValue($data['recorded_date']);
-        
+
         $clinicalStatus = '';
         if ($data['outcome'] == '1' && isset($data['enddate'])) {
             $clinicalStatus = "resolved";
@@ -127,7 +127,7 @@ class FhirAllergyIntoleranceService
             $clinicalStatus = "inactive";
         }
         $clinicalStatusCoding = new FHIRCoding();
-        $clinicalStatusCoding->setSystem("http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical");
+        $clinicalStatusCoding->setSystem("https://hl7.org/fhir/allergyintolerance.html");
         $clinicalStatusCoding->setCode($clinicalStatus);
         $clinicalStatusCoding->setDisplay($clinicalStatus);
 
@@ -156,7 +156,7 @@ class FhirAllergyIntoleranceService
             $criticalityCoding->setDisplay($severityToCriticalityDisplay[strtolower($data['severity_al'])]);
             $criticality->setValue($criticalityCoding);
         } else {
-            $criticalityCoding->setSystem("https://terminology.hl7.org/CodeSystem/data-absent-reason");
+            $criticalityCoding->setSystem("https://hl7.org/fhir/codesystem-data-absent-reason.html");
             $criticalityCoding->setCode("unknown");
             $criticalityCoding->setDisplay("Unknown");
             $criticality->setValue($criticalityCoding);
@@ -178,7 +178,7 @@ class FhirAllergyIntoleranceService
         $lastOccurrence->setValue($data['returndate']);
 
         $manifestation = new FHIRCoding();
-        $manifestation->setSystem("https://hl7.org/fhir/sid/icd-10-cm");
+        $manifestation->setSystem("https://hl7.org/fhir/sid/icd-10/");
         $manifestation->setCode($data['code']);
         $manifestation->setDisplay($data['reaction']);
 
@@ -195,12 +195,12 @@ class FhirAllergyIntoleranceService
             $severityCoding->setDisplay(ucwords($data['severity_al']));
             $reaction->setSeverity($severityCoding);
         } else {
-            $severityCoding->setSystem("https://terminology.hl7.org/CodeSystem/data-absent-reason");
+            $severityCoding->setSystem("https://hl7.org/fhir/codesystem-data-absent-reason.html");
             $severityCoding->setCode("unknown");
             $severityCoding->setDisplay("Unknown");
             $reaction->setSeverity($severityCoding);
         }
-        
+
         $resource = new FHIRAllergyIntolerance();
         $resource->setClinicalStatus($clinicalStatusCoding);
         $resource->setType($type);
