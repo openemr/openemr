@@ -603,8 +603,8 @@ class Prescription extends ORDataObject
         $this->drug = $drug;
 
         if ($GLOBALS['weno_rx_enable']) {
-            $sql = "SELECT rxcui_drug_coded FROM erx_weno_drugs WHERE full_name LIKE ? ";
-            $val = array('%'.$drug.'%');
+            $sql = "SELECT rxcui_drug_coded FROM erx_weno_drugs WHERE full_name = ? ";
+            $val = array($drug);
             $ndc = sqlQuery($sql, $val);
             $drug_id = $ndc['rxcui_drug_coded'];
             //Save this drug id
@@ -615,8 +615,8 @@ class Prescription extends ORDataObject
     {
         if ($GLOBALS['weno_rx_enable']) {
             $drug = trim($this->drug);
-            $sql = "SELECT rxcui_drug_coded FROM erx_weno_drugs WHERE full_name  LIKE ? ";
-            $val = array('%'.$drug.'%');
+            $sql = "SELECT rxcui_drug_coded FROM erx_weno_drugs WHERE full_name = ? ";
+            $val = array($drug);
             $ndc = sqlQuery($sql, $val);
             $drug_id = $ndc['rxcui_drug_coded'];
             //Save this drug id
@@ -624,6 +624,7 @@ class Prescription extends ORDataObject
         }
         return $this->drug;
     }
+
     function set_ntx($ntx)
     {
         $this->ntx = $ntx;
