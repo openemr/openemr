@@ -9577,8 +9577,8 @@ INSERT INTO `form_eye_mag_prefs` (`PEZONE`, `LOCATION`, `LOCATION_text`, `id`, `
 ('PREFS', 'VAX', 'Visual Acuities', 2048, 'VAX', 65, '0', 15, 'ADD', '', '', ''),
 ('PREFS', 'TOOLTIPS', 'Toggle Tooltips', 2048, 'TOOLTIPS', 66, 'on', NULL, 'ADD', '', '', ''),
 ('PREFS', 'W', 'Current Rx', 2048, 'W', 52, '1', 2, 'ADD', '', '', ''),
-('PREFS', 'W_width', 'Detailed Rx', 2048, 'W_width', 80, '100', '', '', '', '', ''),
-('PREFS', 'MR_width','Detailed MR', 2048, 'MR_width', 81, '110', '', '', '', '', '');
+('PREFS', 'W_width', 'Detailed Rx', 2048, 'W_width', 80, '100', NULL, '', '', '', ''),
+('PREFS', 'MR_width', 'Detailed MR', 2048, 'MR_width', 81, '110', NULL, '', '', '', '');
 
 -----------------------------------------------------------
 
