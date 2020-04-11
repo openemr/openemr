@@ -1,5 +1,6 @@
 <?php
 
+use OpenEMR\Common\ORDataObject\ORDataObject;
 
 define("EVENT_VEHICLE", 1);
 define("EVENT_WORK_RELATED", 2);

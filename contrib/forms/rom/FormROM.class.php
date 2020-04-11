@@ -5,6 +5,7 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 
+use OpenEMR\Common\ORDataObject\ORDataObject;
 
 define("EVENT_VEHICLE", 1);
 define("EVENT_WORK_RELATED", 2);

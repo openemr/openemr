@@ -17,6 +17,9 @@ define("TRANSMIT_FAX", 3);
  * class Pharmacy
  *
  */
+
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 class Pharmacy extends ORDataObject
 {
     var $id;

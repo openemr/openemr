@@ -9529,7 +9529,7 @@ CREATE TABLE `form_eye_mag_prefs` (
   `selection` varchar(255) DEFAULT NULL,
   `ZONE_ORDER` int(11) DEFAULT NULL,
   `GOVALUE` varchar(10) DEFAULT '0',
-  `ordering` tinyint(4) DEFAULT NULL,
+  `ordering` smallint(6) DEFAULT NULL,
   `FILL_ACTION` varchar(10) NOT NULL DEFAULT 'ADD',
   `GORIGHT` varchar(50) NOT NULL,
   `GOLEFT` varchar(50) NOT NULL,
@@ -9577,8 +9577,8 @@ INSERT INTO `form_eye_mag_prefs` (`PEZONE`, `LOCATION`, `LOCATION_text`, `id`, `
 ('PREFS', 'VAX', 'Visual Acuities', 2048, 'VAX', 65, '0', 15, 'ADD', '', '', ''),
 ('PREFS', 'TOOLTIPS', 'Toggle Tooltips', 2048, 'TOOLTIPS', 66, 'on', NULL, 'ADD', '', '', ''),
 ('PREFS', 'W', 'Current Rx', 2048, 'W', 52, '1', 2, 'ADD', '', '', ''),
-('PREFS', 'W_width', 'Detailed Rx', 2048, 'W_width', 80, '100', '', '', '', '', ''),
-('PREFS', 'MR_width','Detailed MR', 2048, 'MR_width', 81, '110', '', '', '', '', '');
+('PREFS', 'W_width', 'Detailed Rx', 2048, 'W_width', 80, '100', NULL, '', '', '', ''),
+('PREFS', 'MR_width', 'Detailed MR', 2048, 'MR_width', 81, '110', NULL, '', '', '', '');
 
 -----------------------------------------------------------
 
