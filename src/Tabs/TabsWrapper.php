@@ -207,6 +207,14 @@ function twAddFrameTab(tabsid, label, url) {
       alert("Fee sheet tab is already opened");
       return false;
     }
+  } else {
+    twAddTab(
+      tabsid,
+      label,
+      "<iframe name='" + panelId + "' frameborder='0' class='w-100' style='height:94.5%' src='" + url + "'>Oops</iframe>"
+    );
+    execute = true;
+    return panelId;
   }
   
   
