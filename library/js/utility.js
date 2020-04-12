@@ -110,14 +110,18 @@ function initDragResize(dragContext, resizeContext = document) {
 /* function to init all page drag/resize elements.*/
 function initInteractors(dragContext = document, resizeContext = '') {
     resizeContext = resizeContext ? resizeContext : dragContext;
+
     /* Draggable */
+    // reset
+    interact(".drag-action", {context: dragContext}).unset();
+    // init
     interact(".drag-action", {context: dragContext}).draggable({
         enabled: true,
         inertia: true,
         modifiers: [
             interact.modifiers.snap({
                 targets: [
-                    interact.createSnapGrid({x: 20, y: 20})
+                    interact.createSnapGrid({x: 30, y: 30})
                 ],
                 range: Infinity,
                 relativePoints: [{x: 0, y: 0}]
@@ -135,6 +139,8 @@ function initInteractors(dragContext = document, resizeContext = '') {
     }).on('dragmove', dragMoveListener);
 
     /* Resizable */
+    interact(".resize-action", {context: resizeContext}).unset();
+
     interact(".resize-action", {context: resizeContext}).resizable({
         enabled: true,
         preserveAspectRatio: false,
