@@ -34,6 +34,23 @@ class BaseService
     }
 
     /**
+     * get
+     * Build SQL Query for Selecting Fields
+     *
+     * @param array $map
+     * @return array
+     */
+    public function get($map = null, $data = null){
+        if($data == null || $data == "*" || $data == "all"){
+            $value = "*";
+        }else{
+            $value = implode(", ", $data);
+        }
+        $sql = "SELECT $value from $this->table";
+        return $this->selectHelper($sql,$map);
+    }
+
+    /**
      * buildInsertColumns
      * Build an insert set and bindings
      *
