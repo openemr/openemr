@@ -190,6 +190,7 @@ function twAddTab(tabsid, label, content) {
 }
 
 var execute = false;
+var temp;
 // Add a new tab using an iframe loading a specified URL.
 function twAddFrameTab(tabsid, label, url) {
   var panelId = nextPanelId(tabsid);
@@ -202,6 +203,7 @@ function twAddFrameTab(tabsid, label, url) {
         "<iframe name='" + panelId + "' frameborder='0' class='w-100' style='height:94.5%' src='" + url + "'>Oops</iframe>"
       );
       execute = true;
+      temp = panelId;
       return panelId;
     } else {
       alert("Fee sheet tab is already opened");
@@ -226,7 +228,10 @@ function twCloseTab(tabsid, panelId) {
   twObject[tabsid].content.find("#" + panelId).remove();
   top.restoreSession();
   activateTab(lastTabId);
-  execute = false;
+
+  if(panelId === temp){
+    execute = false;
+  }
 }
 
 </script>
