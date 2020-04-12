@@ -26,7 +26,7 @@
     <ul class="form-style-1">
         <li>
             <label><?php echo $translate->z_xlt('Namespace')?> <span class="required">*</span></label>
-            <input id="namespace" type="text" value="<?php echo $this->escapeHtml($db->namespace)?>" name="db[namespace]" required class="field-divided" placeholder="<?php echo $translate->z_xlt('Namespace')?>" />
+            <input id="namespace" type="text" value="<?php echo $this->escapeHtml($db->namespace); ?>" name="db[namespace]" required class="field-divided" placeholder="<?php echo $translate->z_xlt('Namespace')?>" />
 
         </li>
         <li>
@@ -51,8 +51,8 @@
             <input type="text" value="<?php echo ($db->port) ? $this->escapeHtml($db->port) : '3306' ?>" name="db[port]" required class="field-divided" placeholder="<?php echo $translate->z_xlt('Port')?>" onkeypress="return onlynumber(event,this);" />
         </li>
         <li>
-            <input type="button" name="back" value="<?php echo $translate->z_xlt('Back')?>" onclick=" window.location.href = window.history.back(1);" />
-            <input type="submit" value="<?php echo $translate->z_xlt('Save')?>" />
+            <input type="button" class="btn btn-secondary" name="back" value="<?php echo $translate->z_xlt('Back')?>" onclick=" window.location.href = window.history.back(1);" />
+            <input type="submit" class="btn btn-primary" value="<?php echo $translate->z_xlt('Save')?>" />
         </li>
     </ul>
 </form>

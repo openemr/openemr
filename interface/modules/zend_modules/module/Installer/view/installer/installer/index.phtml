@@ -39,12 +39,11 @@ $depObj = $this->dependencyObject;
     </li>
 </ul>
 <div class="installer">
-    <div id='err' class='bold '></div>
+    <div id='err' class='font-weight-bold'></div>
     <div class="installer_code notranslate registered">
         <?php //REGISTERED SECTION ?>
-        <div class="imagetable">
-            <div class="imagetable_code notranslate">
-                <table id="table-6" class="imagetable" align="center">
+            <div class="table-responsive">
+                <table class="table" id="table-6">
                     <thead>
                     <tr>
                         <th colspan='10' class="groupReg">
@@ -97,7 +96,7 @@ $depObj = $this->dependencyObject;
                                     <?php
                                     if ($moduleResult->sqlRun == 0) {
                                         ?>
-                                        <input type="text" onchange="validateNickName('<?php echo $this->escapeHtml($moduleResult->modId); ?>');" name="mod_nick_name_<?php echo $this->escapeHtml($moduleResult->modId); ?>" id="mod_nick_name_<?php echo $this->escapeHtml($moduleResult->modId); ?>" value="">
+                                        <input type="text" onchange="validateNickName('<?php echo $this->escapeHtml($moduleResult->modId); ?>');" name="mod_nick_name_<?php echo $this->escapeHtml($moduleResult->modId); ?>" id="mod_nick_name_<?php echo $this->escapeHtml($moduleResult->modId); ?>" value="" />
                                         <div class="mod_nick_name_message" id="mod_nick_name_message_<?php echo $this->escapeHtml($moduleResult->modId); ?>"></div>
                                         <?php
                                     } else {
@@ -119,32 +118,32 @@ $depObj = $this->dependencyObject;
 
                                     if ($moduleResult->sqlRun == 0) {
                                         ?>
-                                        <a href="javascript:void(0)" class="link_submit install" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','install');" title="<?php echo $listener->z_xla('Click Here to Install This module'); ?>"><input type='button' class='activate' value="<?php echo $listener->z_xla('Install'); ?>" /></a>
+                                        <a href="javascript:void(0)" class="install" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId); ?>','install');" title="<?php echo $listener->z_xla('Click Here to Install This module'); ?>"><input type='button' class="btn btn-primary btn-sm" value="<?php echo $listener->z_xla('Install'); ?>" /></a>
                                         <?php
                                     } elseif ($moduleResult->modActive == 1) { ?>
-                                        <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','enable');" title="<?php echo $listener->z_xla('Click Here to Disable This module'); ?>"><input type='button' class='deactivate' value="<?php echo $listener->z_xla('Disable'); ?>" /></a>
+                                        <a href="javascript:void(0)" class="active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId); ?>','enable');" title="<?php echo $listener->z_xla('Click Here to Disable This module'); ?>"><input type='button' class="btn btn-danger btn-sm" value="<?php echo $listener->z_xla('Disable'); ?>" /></a>
                                     <?php } elseif ($moduleResult->modName != 'Acl') {
                                         ?>
-                                        <a href="javascript:void(0)" class="link_submit inactive" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','disable');" title="<?php echo $listener->z_xla('Click Here to Enable This module'); ?>"><input type='button' class='activate' value="<?php echo $listener->z_xla('Enable'); ?>" /></a>
+                                        <a href="javascript:void(0)" class="inactive" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId); ?>','disable');" title="<?php echo $listener->z_xla('Click Here to Enable This module'); ?>"><input type='button' class="btn btn-primary btn-sm" value="<?php echo $listener->z_xla('Enable'); ?>" /></a>
                                         <?php
                                     } ?>
                                     <?php
                                     if ($moduleResult->sql_action == "install") {
                                         ?>
-                                        <a href="javascript:void(0)" class="link_submit install_sql" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','install_sql');" title="<?php echo $listener->z_xla('Click Here to Install SQL for module'); ?>"><input type='button' value="<?php echo $listener->z_xla('Install SQL'); ?>" /></a>
+                                        <a href="javascript:void(0)" class="install_sql" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','install_sql');" title="<?php echo $listener->z_xla('Click Here to Install SQL for module'); ?>"><input type='button' class="btn btn-primary btn-sm" value="<?php echo $listener->z_xla('Install SQL'); ?>" /></a>
                                     <?php } elseif ($moduleResult->sql_action == "upgrade") {
                                         ?>
-                                        <a href="javascript:void(0)" class="link_submit upgrade_sql" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','upgrade_sql');" title="<?php echo $listener->z_xla('Click Here to Upgrade SQL for module'); ?>"><input type='button' onclick="blockInput(this);" value="<?php echo $listener->z_xla('Upgrade SQL'); ?>" /></a>
+                                        <a href="javascript:void(0)" class="upgrade_sql" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','upgrade_sql');" title="<?php echo $listener->z_xla('Click Here to Upgrade SQL for module'); ?>"><input type='button' class="btn btn-primary btn-sm" onclick="blockInput(this);" value="<?php echo $listener->z_xla('Upgrade SQL'); ?>" /></a>
                                         <?php
                                     }
                                     ?>
                                     <?php
                                     if ($moduleResult->acl_action == "install") {
                                         ?>
-                                        <a href="javascript:void(0)" class="link_submit install_acl" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','install_acl');" title="<?php echo $listener->z_xla('Click Here to Install ACL for module'); ?>"><input type='button' onclick="blockInput(this);" value="<?php echo $listener->z_xla('Install ACL'); ?>" /></a>
+                                        <a href="javascript:void(0)" class="install_acl" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','install_acl');" title="<?php echo $listener->z_xla('Click Here to Install ACL for module'); ?>"><input type='button' class="btn btn-primary btn-sm" onclick="blockInput(this);" value="<?php echo $listener->z_xla('Install ACL'); ?>" /></a>
                                     <?php } elseif ($moduleResult->acl_action == "upgrade") {
                                         ?>
-                                        <a href="javascript:void(0)" class="link_submit upgrade_acl" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','upgrade_acl');" title="<?php echo $listener->z_xla('Click Here to Upgrade ACL for module'); ?>"><input type='button' onclick="blockInput(this);" value="<?php echo $listener->z_xla('Upgrade ACL'); ?>" /></a>
+                                        <a href="javascript:void(0)" class="upgrade_acl" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','upgrade_acl');" title="<?php echo $listener->z_xla('Click Here to Upgrade ACL for module'); ?>"><input type='button' class="btn btn-primary btn-sm" onclick="blockInput(this);" value="<?php echo $listener->z_xla('Upgrade ACL'); ?>" /></a>
                                         <?php
                                     }
                                     ?>
@@ -158,9 +157,9 @@ $depObj = $this->dependencyObject;
                                         <?php
                                     } elseif ($moduleResult->modActive == 1) {
                                         ?>
-                                        <a href="javascript:void(0)" class="link_submit active" onclick="configure('<?php echo $this->escapeHtml($moduleResult->modId) ?>','<?php echo $this->basePath() ?>');" title="<?php echo $listener->z_xla('Click Here to Configure This module'); ?>"><img src="<?php echo $this->basePath() ?>/images/config.png" border=0></a>
+                                        <a href="javascript:void(0)" class="btn btn-primary btn-sm active" onclick="configure('<?php echo $this->escapeHtml($moduleResult->modId); ?>','<?php echo $this->basePath(); ?>');" title="<?php echo $listener->z_xla('Click Here to Configure This module'); ?>"><i class="fas fa-cogs"></i></a>
                                     <?php } elseif ($moduleResult->modActive == 0 && $moduleResult->type == 0) { ?>
-                                        <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><img src="<?php echo $this->basePath() ?>/images/delete.png" border=0></a>
+                                        <a href="javascript:void(0)" class="btn btn-primary btn-sm active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fas fa-trash-alt"></i></a>
                                     <?php } else {
                                         ?>
                                         --
@@ -178,8 +177,6 @@ $depObj = $this->dependencyObject;
                     ?>
                 </table>
             </div>
-        </div>
-
     </div>
 
     <style>
@@ -190,7 +187,7 @@ $depObj = $this->dependencyObject;
             text-align: center;
             cursor: pointer;
             margin: 5px 5px 0px 0px;
-            color: gray;
+            color: var(--gray);
             width: 97%;
         }
 
@@ -212,16 +209,14 @@ $depObj = $this->dependencyObject;
             height: 100%;
             width: 100%;
             background: rgba( 255, 255, 255, .8 )
-            url('/interface/modules/zend_modules/public/images/ajax-loader.gif')
-            50% 50%
-            no-repeat;
+            url('/interface/modules/zend_modules/public/images/ajax-loader.gif') 50% 50% no-repeat;
         }
     </style>
     <div class="modal"></div>
-    <div id="install_upgrade_log" style="overflow-y: auto; height: 500px; display: none;"></div>
+    <div id="install_upgrade_log" style="overflow-y: auto; height: 31.25rem; display: none;"></div>
 
-    <div class="installer_code notranslate unregistered" style="display:none">
-        <table class="imagetable" id="unregistered">
+    <div class="installer_code notranslate unregistered table-responsive" style="display:none">
+        <table class="table imagetable" id="unregistered">
             <tr>
                 <th colspan='4' class="groupRegUn">
                     <?php echo $listener->z_xlt('Unregistered Modules'); ?>
@@ -268,7 +263,7 @@ $depObj = $this->dependencyObject;
                         <?php echo $listener->z_xlt('Normal'); ?>
                     </td>
                     <td>
-                        <a href="javascript:void(0)" onclick="register(1,'<?php echo $this->escapeHtml($form_title); ?>','<?php echo $this->escapeHtml($fname) ?>','register','');"><input type='button' class='activate' value="<?php echo $listener->z_xla('Register'); ?>" /></a>
+                        <a href="javascript:void(0)" onclick="register(1,'<?php echo $this->escapeHtml($form_title); ?>','<?php echo $this->escapeHtml($fname) ?>','register','');"><input type='button' class='btn btn-primary btn-sm activate' value="<?php echo $listener->z_xla('Register'); ?>" /></a>
                     </td>
                 </tr>
                 <?php
@@ -308,7 +303,7 @@ $depObj = $this->dependencyObject;
                         <?php echo $listener->z_xlt('Laminas Module'); ?>
                     </td>
                     <td>
-                        <a href="javascript:void(0)" onclick="register(1,'<?php echo $this->escapeHtml($form_title); ?>','<?php echo $this->escapeHtml($fname) ?>','register','zend');"><input type='button' class='activate' value="<?php echo $listener->z_xla('Register'); ?>" /></a>
+                        <a href="javascript:void(0)" onclick="register(1,'<?php echo $this->escapeHtml($form_title); ?>','<?php echo $this->escapeHtml($fname) ?>','register','zend');"><input type='button' class='btn btn-primary btn-sm' value="<?php echo $listener->z_xla('Register'); ?>" /></a>
                     </td>
                 </tr>
                 <?php

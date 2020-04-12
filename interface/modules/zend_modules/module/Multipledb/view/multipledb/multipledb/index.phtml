@@ -28,9 +28,10 @@
 </script>
 
 <title><?php echo xlt("Multiple DataBase"); ?></title>
-<a href="<?php echo $this->basePath() ?>/multipledb/edit"><input type="submit" value="<?php echo  $translate->z_xlt('Add new database') ?>"></a>
-<a href="<?php echo $this->basePath() ?>/multipledb/generatesafekey"><input type="submit" value="<?php echo  $translate->z_xlt('Generate safe key') ?>"></a>
-<table class="responstable">
+<a href="<?php echo $this->basePath() ?>/multipledb/edit"><input type="submit" class="btn btn-primary" value="<?php echo  $translate->z_xlt('Add new database') ?>"></a>
+<a href="<?php echo $this->basePath() ?>/multipledb/generatesafekey"><input type="submit" class="btn btn-primary" value="<?php echo  $translate->z_xlt('Generate safe key') ?>"></a>
+<div class="table-responsive">
+<table class="table responstable">
     <?php
     $html = null;
     foreach ($getmultipledb as $value) {
@@ -78,11 +79,11 @@ html;
     <?php echo $html ?>
 
 </table>
-
-<script>
+</div>
+<script type="text/javascript">
     function save(box,table){
         var href = box.prop('href');
-        event.preventDefault()
+        event.preventDefault();
 
         var answer = confirm('<?php echo  $translate->z_xlt('Are you sure you want to remove namespace') ?>' + ' ' + table + '?');
         if (answer) {
@@ -91,4 +92,3 @@ html;
     }
 
 </script>
-

@@ -23,14 +23,14 @@ $ACL_DATA			= $this->acl_data;
 $listener			= $this->listenerObject;
 ?>
 
-<div style="text-align: left;margin-top: 5px;color: #466837;">&nbsp;<span id="messages_div"></span></div>
+<div class="text-left" style="margin-top: 5px; color: #466837;">&nbsp;<span id="messages_div"></span></div>
 <center>
-		<div class="scrollable default-skin" style="width: 800px;height: 600px;">
+		<div class="scrollable default-skin" style="width: 800px; height: 600px;">
 				<table id="table_acl" align="center">
 						<tr class="tr_head">
 								<td><?php echo $listener->z_xlt('Components'); ?></td>
 								<?php foreach($USER_GROUPS as $KEY => $VAL) : ?>
-								<td class="align_center"><?php echo $listener->z_xlt($VAL);?></td>
+								<td class="text-center"><?php echo $listener->z_xlt($VAL);?></td>
 								<?php endforeach ?>
 						</tr>
 						<tr class="tr_module">
@@ -40,7 +40,7 @@ $listener			= $this->listenerObject;
 							$selected = "";
 							if(is_array($ACL_DATA[$MODULE_DATA['module_name']['id']]) && in_array($KEY,$ACL_DATA[$MODULE_DATA['module_name']['id']])) $selected = "checked";
 								?>
-								<td class="align_center"><input <?php echo $selected; ?> class="module_check" type="checkbox" name="<?php echo $this->escapeHtml($MODULE_DATA['module_name']['id']).'_'.$this->escapeHtml($KEY); ?>" id="<?php echo $this->escapeHtml($MODULE_DATA['module_name']['id']).'_'.$this->escapeHtml($KEY); ?>" ></td>
+								<td class="text-center"><input <?php echo $selected; ?> class="module_check" type="checkbox" name="<?php echo $this->escapeHtml($MODULE_DATA['module_name']['id']).'_'.$this->escapeHtml($KEY); ?>" id="<?php echo $this->escapeHtml($MODULE_DATA['module_name']['id']).'_'.$this->escapeHtml($KEY); ?>" ></td>
 								<?php endforeach ?>
 						</tr>
 
@@ -57,7 +57,7 @@ $listener			= $this->listenerObject;
 								$selected = "";
 								if (!empty($ACL_DATA[$KEY]) && in_array($KEY_GROUP,$ACL_DATA[$KEY])) $selected = "checked";
 									?>
-									<td class="align_center"><input <?php echo $selected; ?> class="component_check group_<?php echo $this->escapeHtml($KEY_GROUP); ?>" type="checkbox" name="<?php echo $this->escapeHtml($KEY).'_'.$this->escapeHtml($KEY_GROUP); ?>" id="<?php echo $this->escapeHtml($KEY).'_'.$this->escapeHtml($KEY_GROUP); ?>" ></td>
+									<td class="text-center"><input <?php echo $selected; ?> class="component_check group_<?php echo $this->escapeHtml($KEY_GROUP); ?>" type="checkbox" name="<?php echo $this->escapeHtml($KEY).'_'.$this->escapeHtml($KEY_GROUP); ?>" id="<?php echo $this->escapeHtml($KEY).'_'.$this->escapeHtml($KEY_GROUP); ?>" ></td>
 							<?php endforeach ?>
 								</tr>
 						<?php endforeach ?>

@@ -1,92 +1,82 @@
+/*
+*
+*	Laminas Modules Custom CSS
+*	TODO: Consolidate with core themes in GSoC
+*
+*/
+
+body {
+    font-size: 0.875rem;
+    color: var(--gray500) !important;
+    background-color: var(--white) !important;
+    margin: 0;
+    background-repeat: repeat-x;
+}
+
 table.imagetable {
     font-family: "Bookman Old Style", Verdana, Arial, sans-serif;
-    font-size: 13px;
-    color: #000000;
+    font-size: 0.8125rem;
+    color: var(--black);
     border-spacing: 1px;
     width: 100%;
 }
 
-a,
-a:hover,
-a:visited {
-    color: #4E84C4 !important;
-}
-
 table.imagetable th {
     padding: 3px;
-    border-bottom: 2px solid #DDDDDD;
-    color: dimGray;
+    border-bottom: 2px solid var(--gray300);
+    color: var(--gray600);
     border-bottom: 1px dotted black;
     margin-bottom: 1px;
     text-align: left;
 }
 
 table.imagetable td {
-    background: #EFEFFF;
+    background: var(--gray200);
     padding: 3px;
-    color: dimGray;
-    border-bottom: 1px solid #DDDDDD;
+    color: var(--gray600);
+    border-bottom: 1px solid var(--gray300);
     margin-bottom: 1px;
 }
 
 table.imagetable td a,
 table.imagetable td a:visited {
-    color: maroon;
+    color: #800000;
 }
 
 div.installer {
-    color: #000000;
-    background-color: #f0f0f0;
-    background-repeat: repeat-x;
-    margin: 0px;
-    padding: 8px;
-    width: 98%;
-    float: left;
-    min-height: 300px;
-    border-top: 1px solid #DDD;
+    color: var(--black);
+    background-color: var(--light);
+    border-top: 1px solid var(--gray300);
 }
 
 div.installer_code {
-    background-color: #ffffff;
-    width: 100%;
-    float: left;
-    margin-right: 10px;
+    background-color: var(--white);
     font-size: 110%;
-    font-family: "courier new";
 }
 
 div.installer_result {
-    background-color: #ffffff;
+    background-color: var(--white);
     padding: 4px;
-    border: 1px solid #d4d4d4;
+    border: 1px solid var(--gray300);
     width: 606px;
-}
-
-body {
-    font-size: 14px;
-    color: #A9A59C !important;
-    background-color: #ffffff !important;
-    margin: 0px;
-    background-repeat: repeat-x;
-    font-family: Arial, Helvetica, sans-serif !important;
 }
 
 h1 {
     font-size: 120%;
-    margin-top: 0px;
-    font-weight: bold
+    margin-top: 0;
+    font-weight: bold;
 }
 
 h2 {
     font-size: 120%;
     margin-top: 10px;
     margin-bottom: 10px;
-    font-weight: normal
+    font-weight: normal;
 }
 
 h3 {
     font-size: 110%;
-    font-weight: normal
+    font-weight: normal;
 }
 
 h4 {
@@ -108,7 +98,7 @@ h4,
 h5,
 h6 {
     background-color: transparent;
-    color: #4E84C4;
+    color: var(--primary);
 }
 
 div {
@@ -138,15 +128,15 @@ img {
 }
 
 .groupReg {
-    background: #DDDDDD !important;
-    color: green;
+    background: var(--gray300) !important;
+    color: var(--success);
     padding-left: 10px !important;
     text-align: left !important;
 }
 
 .groupRegUn {
-    background: #DDDDDD !important;
-    color: maroon;
+    background: var(--gray300) !important;
+    color: #800000;
     padding-left: 10px !important;
     text-align: left !important;
 }
@@ -160,28 +150,27 @@ img {
 }
 
 .err {
-    color: red;
+    color: var(--danger);
 }
 
-/* changing the default theme*/
+/* changing the default theme */
 ul.tabNav li.current a {
-    background: #4E84C4 !important;
+    background: var(--primary) !important;
     padding: 8px;
 }
 
 ul.tabNav a {
-    background: #A7A7A7;
-    border: 1px solid dimGray !important;
-    border-bottom: 0px !important;
+    background: var(--gray500);
+    border: 1px solid var(--gray600) !important;
+    border-bottom: 0 !important;
     border-width: 1px 1px 0;
-    color: #ffffff !important;
+    color: var(--white) !important;
     display: block;
     padding: 4px 4px 5px 4px;
     text-decoration: none;
 }
 
 .activate {
-    background: #4E84C4;
     border: none;
     -webkit-border-radius: 2px;
     -moz-border-radius: 2px;
@@ -191,13 +180,11 @@ ul.tabNav a {
     vertical-align: middle;
     cursor: pointer;
     margin: 0;
-    color: white;
-    font-size: 12px;
+    font-size: 0.75rem;
     font-weight: normal;
 }
 
 .deactivate {
-    background: #B32317;
     border: none;
     -webkit-border-radius: 2px;
     -moz-border-radius: 2px;
@@ -207,8 +194,6 @@ ul.tabNav a {
     vertical-align: middle;
     cursor: pointer;
     margin: 0;
-    color: white;
-    font-size: 12px;
+    font-size: 0.75rem;
     font-weight: normal;
-
 }

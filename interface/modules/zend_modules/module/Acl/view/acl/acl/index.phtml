@@ -22,7 +22,7 @@ $listener = $this->listenerObject;
 	<?php } ?>
     });
 </script>
-<div id="add_new_components" class="popup_items" >
+<div id="add_new_components" class="popup_items">
     <center>
 				<div class="head"><?php echo $listener->z_xlt('Add New Components'); ?></div>
 		</center>
@@ -56,23 +56,23 @@ $listener = $this->listenerObject;
 						<td><input id="add_component_section_name" type="text"></td>
 				</tr>
 				<tr>
-						<td colspan="2" style="text-align: right;"><a href="#" onclick="addSectionSave();" class="btn btn-primary" title="<?php echo $listener->z_xla('Add New Component'); ?>"><?php echo $listener->z_xlt('Add'); ?></a></td>
+						<td colspan="2" class="text-right"><a href="#" onclick="addSectionSave();" class="btn btn-primary" title="<?php echo $listener->z_xla('Add New Component'); ?>"><?php echo $listener->z_xlt('Add'); ?></a></td>
 				</tr>
 				<tr>
-						<td colspan="2" style="text-align: right;"><span id="add_component_section_message" style="color: #3AA845;"></span></td>
+						<td colspan="2" class="text-right"><span id="add_component_section_message" style="color: #3AA845;"></span></td>
 				</tr>
 		</table>
 </div>
 
-<div style="display: none;"><div id="control_div"><a href="#" ><?php echo $listener->z_xlt('Collapse All'); ?></a>|<a href="#" id="expand_tree"><?php echo $listener->z_xlt('Expand All'); ?></a></div></div>
+<div style="display: none;"><div id="control_div"><a href="#"><?php echo $listener->z_xlt('Collapse All'); ?></a>|<a href="#" id="expand_tree"><?php echo $listener->z_xlt('Expand All'); ?></a></div></div>
 
 <center>
 		<div class="scrollable default-skin" style="width: 750px; height: 600px;">
-				<table id="outer_table" align="center" >
+				<table id="outer_table" align="center">
                     <tr>
                         <td>
                         <span id="messages"></span>
-                        <table style="width:100%;" cellspacing='5'>
+                        <table class="w-100" cellspacing='5'>
                                 <tr>
                                         <td colspan="4" class="delete_droppable"></td>
                                 </tr>
@@ -80,15 +80,15 @@ $listener = $this->listenerObject;
                                 <tr style="height: 30px;">
                                     <td style="border: solid 1px #305A99" class="container head"><?php echo $listener->z_xlt('Components'); ?> &nbsp;<?php if(!$this->module_id) {?><a href="#" onclick="addNewItem('components');" class="btn btn-primary" title="<?php echo $listener->z_xla('Add New Component'); ?>"><?php echo $listener->z_xlt('Add'); ?></a><?php } ?></td>
                                     <td style="border: solid 1px #305A99" class="container head"><?php echo $listener->z_xlt('Group') . '/' . $listener->z_xlt('Users'); ?></td>
-                                    <td style="border: solid 1px #2A6614;background-color:#E4F7CD;" class="container head"><?php echo $listener->z_xlt('Allowed'); ?></td>
-                                    <td style="border: solid 1px #B32317;background-color:#F9C7C7;" class="container head"><?php echo $listener->z_xlt('Denied'); ?></td>
+                                    <td style="border: solid 1px #2A6614; background-color:#E4F7CD;" class="container head"><?php echo $listener->z_xlt('Allowed'); ?></td>
+                                    <td style="border: solid 1px #B32317; background-color:#F9C7C7;" class="container head"><?php echo $listener->z_xlt('Denied'); ?></td>
                                 </tr>
 
                                 <tr style="height: 50px;">
                                     <td class="container_div" id="td_componets" style="background-color:#E0ECFF;border: solid 1px #305A99"><?php echo $this->sections; ?></td>
                                     <td class="container_div" id="td_users" style="background-color:#E0ECFF;border: solid 1px #305A99;"><?php echo $this->user_group_main; ?></td>
-                                    <td style="border: solid 1px #2A6614;background-color:#E4F7CD;" class="container_div droppableAllowed" id="td_allowed_users"><?php echo $this->user_group_allowed; ?></td>
-                                    <td style="border: solid 1px #B32317;background-color:#F9C7C7;" class="container_div droppableDenied" id="td_denied_users"><?php echo $this->user_group_denied; ?></td>
+                                    <td style="border: solid 1px #2A6614; background-color:#E4F7CD;" class="container_div droppableAllowed" id="td_allowed_users"><?php echo $this->user_group_allowed; ?></td>
+                                    <td style="border: solid 1px #B32317; background-color:#F9C7C7;" class="container_div droppableDenied" id="td_denied_users"><?php echo $this->user_group_denied; ?></td>
                                 </tr>
 
                                 <tr>

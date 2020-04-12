@@ -91,7 +91,7 @@ $provider   = $this->provider;
                 </table>
             </div>
         </div>
-        <div class="header_wrap_right" style="">
+        <div class="header_wrap_right">
             <div class="se_in_4">
                 <?php
                 if(count($this->result) > 0){
@@ -128,7 +128,8 @@ $provider   = $this->provider;
         <?php
         if(count($this->result) > 0){
         ?>
-        <table class="responsive">
+        <div class="table-responsive">
+        <table class="table">
             <tr class="se_in_9">
                 <th width="2%"><?php echo '#';?></th>
                 <th width="10%" nowrap><?php echo $this->listenerObject->z_xlt('Patient Name'); ?></th>
@@ -156,11 +157,12 @@ $provider   = $this->provider;
             }
             ?>
         </table>
+      </div>
         <?php
         }
         else{
         ?>
-            <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($this->result) > 0){ ?>display: none; <?php } ?>">
+            <div class="ml-auto mr-auto font-weight-bold" style="width: 60%; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 0.9375rem; background: #f7f7f7;<?php if(count($this->result) > 0){ ?>display: none; <?php } ?>">
                 <?php echo $this->listenerObject->z_xlt('Nothing to display');?>
             </div>
         <?php

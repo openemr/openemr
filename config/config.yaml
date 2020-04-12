@@ -105,6 +105,10 @@ assets:
         basePath: '%assets_static_relative%/gritter/'
         link: css/jquery.gritter.css
         script: js/jquery.gritter.min.js
+    jquery-easyui:
+      basePath: '%assets_static_relative%/easyui/'
+      link: bootstrap/easyui.css
+      script: jquery.easyui.min.js
     datatables:
         basePath: '%assets_static_relative%/datatables.net/js/'
         script: jquery.dataTables.js

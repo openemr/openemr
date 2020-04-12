@@ -30,7 +30,8 @@
     }
 
 </style>
-<table id="example" class="display">
+<div class="table-responsive">
+<table id="example" class="table display">
     <thead>
     <th><?php echo $translate->z_xlt("ID");?></th>
     <th><?php echo $translate->z_xlt("First name");?></th>
@@ -60,15 +61,13 @@
 
 
 </table>
-
+</div>
 
 <center>
-
-        <input type='button' value='<?php echo $translate->z_xla('Cancel'); ?>'
-               onclick='window.close();' />
+        <input type='button' class="btn btn-secondary" value='<?php echo $translate->z_xla('Cancel'); ?>' onclick='window.close();' />
         <?php
         if ($status == 'ok') { ?>
-        <input type='button' value='<?php echo $translate->z_xla('Confirm Create New Patient'); ?>'
+        <input type='button' class="btn btn-primary" value='<?php echo $translate->z_xla('Confirm Create New Patient'); ?>'
                onclick='opener.top.restoreSession();opener.document.forms[0].submit();window.close();' />
         <?php } ?>
 </center>

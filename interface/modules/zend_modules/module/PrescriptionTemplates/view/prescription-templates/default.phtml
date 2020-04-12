@@ -35,7 +35,8 @@
     <h2><?php echo xlt('Medical prescription');?></h2>
     <div dir="<?php echo text($langDir); ?>"  class="section">
         <span class="title"><?php echo xlt('Patient details');?></span>
-        <table width="100%" style="font-size: 15px">
+        <div class="table-responsive">
+        <table class="table" style="font-size: 15px">
             <tr>
                 <td colspan="2" width="60%"><span class="p-label"><?php echo xlt('Name') . ': ' ?></span><?php echo text($patient->get_name_display())?></td>
             </tr>
@@ -44,11 +45,13 @@
                 <td width="42%"><span class="p-label"><?php echo xlt('Pubpid') . ': '  ?></span><?php echo text($patient->get_pubpid)?></td>
             </tr>
         </table>
+      </div>
     </div>
 
-    <div dir="<?php echo text($langDir); ?>"  class="section">
+    <div dir="<?php echo text($langDir); ?>" class="section">
         <span class="title"><?php echo xlt('Prescriptions');?></span>
-        <table width="100%" style="font-size: 16px">
+        <div class="table-responsive">
+        <table class="table" style="font-size: 16px">
             <?php foreach ($provider as $k => $p):?>
             <tr>
                 <td width="40%"><span class="p-label"><?php echo xlt('Drug name') . ': ' ?></span><?php echo text($p->get_drug())?></td>
@@ -68,9 +71,10 @@
             <?php endif;?>
             <?php endforeach; ?>
         </table>
+      </div>
     </div>
-    <div>
-        <table dir="<?php echo text($langDir); ?>">
+    <div class="table-responsive">
+        <table class="table" dir="<?php echo text($langDir); ?>">
             <tr>
                 <td><span class="p-label"><?php echo xlt('Date') . ': </span>' . oeFormatShortDate();?></td>
             </tr>
