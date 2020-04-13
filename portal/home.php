@@ -18,7 +18,7 @@ require_once("verify_session.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 require_once("lib/portal_mail.inc");
-require_once(dirname(__FILE__)."/../library/appointments.inc.php");
+require_once(dirname(__FILE__) . "/../library/appointments.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -123,7 +123,8 @@ foreach ($msgs as $i) {
             <?php } ?>
 
             <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) { ?>
-                $("#pro").load("./get_pro.php", {}, function () {});
+            $("#pro").load("./get_pro.php", {}, function () {
+            });
             <?php } ?>
 
             $(".generateDoc_download").click(function () {
@@ -131,7 +132,7 @@ foreach ($msgs as $i) {
             });
 
             function showProfileModal() {
-                var title = <?php echo xlj('Demographics Legend Red: Charted Values. Blue: Patient Edits'); ?> +' ';
+                var title = <?php echo xlj('Profile Edits Red = Charted Values Blue = Patient Edits'); ?> +' ';
 
                 var params = {
                     buttons: [
@@ -142,10 +143,13 @@ foreach ($msgs as $i) {
                     ],
                     allowDrag: false,
                     onClosed: 'reload',
+                    resolvePromiseOn: 'init',
                     type: 'GET',
                     url: webRoot + '/portal/patient/patientdata?pid=' + encodeURIComponent(cpid) + '&user=' + encodeURIComponent(cuser)
                 };
-                dlgopen('', '', 'modal-xl', 500, '', title, params);
+                dlgopen('', '', 'modal-xl', 500, '', title, params).then(function (dialog) {
+                    $('div.modal-body', dialog).addClass('overflow-auto');
+                });
             }
 
             function saveProfile() {
@@ -199,27 +203,36 @@ foreach ($msgs as $i) {
             if (mode === 'add') {
                 title = <?php echo xlj('Request New Appointment'); ?>;
                 mdata = {pid: deid};
-            } else if (mode === 'recurring'){
+            } else if (mode === 'recurring') {
                 let msg = <?php echo xlj("A Recurring Appointment. Please contact your appointment desk for any changes."); ?>;
-                signerAlertMsg(msg, 10000);
+                signerAlertMsg(msg, 8000);
                 return false;
             } else {
                 title = <?php echo xlj('Edit Appointment'); ?>;
                 mdata = {eid: deid};
             }
-            let params = {
+            var params = {
                 dialogId: 'editpop',
                 buttons: [
-                    {text: <?php echo xlj('Cancel'); ?>, close: true, style: 'default'}
+                    {text: 'Cancel', close: true, style: 'btn-sm btn-secondary'},
                 ],
                 allowDrag: false,
-                type: 'GET',
-                dataType: 'text',
+                sizeHeight: 550,
+                size: 750,
+                title: title,
+                type: "GET",
                 url: './add_edit_event_user.php',
                 data: mdata
             };
-
-            dlgopen('', 'apptModal', 750, 400, '', title, params);
+            /*
+            * A couple notes on dialog.ajax .alert etc.
+            * opener is not required. library will handle for you.
+            * these run in the same scope as calling script.
+            * so same styles, dependencies are in scope.
+            * a promise is returned for doing other neat stuff.
+            *
+            * */
+            dialog.ajax(params);
         }
 
         function changeCredentials(e) {
@@ -228,107 +241,107 @@ foreach ($msgs as $i) {
         }
 
         <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) { ?>
-            function writeResult(score, stdErr, assessmentOID){
-                $.ajax({
-                    url: '../library/ajax/easipro_util.php',
-                    data: {
-                        'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
-                        'function': 'record_result',
-                        'score': score,
-                        'stdErr':stdErr,
-                        'assessmentOID': assessmentOID
-                    },
-                    type: 'POST',
-                    dataType: 'script'
-                });
-            }
+        function writeResult(score, stdErr, assessmentOID) {
+            $.ajax({
+                url: '../library/ajax/easipro_util.php',
+                data: {
+                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                    'function': 'record_result',
+                    'score': score,
+                    'stdErr': stdErr,
+                    'assessmentOID': assessmentOID
+                },
+                type: 'POST',
+                dataType: 'script'
+            });
+        }
 
-            function selectResponse(obj, assessmentOID){
-                $.ajax({
-                    url: '../library/ajax/easipro_util.php',
-                    type: "POST",
-                    data: {
-                        'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
-                        'function': 'select_response',
-                        'assessmentOID': assessmentOID,
-                        'ItemResponseOID': obj.name,
-                        'Response': + obj.id
-                    },
-                    dataType: "json",
-                    success: function(data) {
-                        if (data.DateFinished !='') {
-                            document.getElementById("Content").innerHTML = "<?php xla('You have finished the assessment.'); ?>" + "<br /> " + "<?php echo xla('Thank you'); ?>";
-                            document.getElementById("asst_"+assessmentOID).innerHTML = "<i class='fa fa-check-circle'></i>";
-                            document.getElementById("asst_status_"+assessmentOID).innerHTML = "completed";
-                            $.ajax({
-                                url: '../library/ajax/easipro_util.php',
-                                type: "POST",
-                                data: {
-                                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
-                                    'function': 'collect_results',
-                                    'assessmentOID': assessmentOID
-                                },
-                                dataType: "json",
-                                success: function(data){
-                                    writeResult(data.Items[0].Theta, data.Items[0].StdError, assessmentOID);
-                                }
-                            });
-                            return
-                        }
-                        var screen ="";
-                        for (var j=0; j < data.Items[0].Elements.length; j++) {
-                            if (typeof(data.Items[0].Elements[j].Map) == 'undefined') {
-                                screen = screen +"<div style=\'height: 30px\' >" +  data.Items[0].Elements[j].Description + "</div>"
-                            } else {
-                                for (var k=0; k < data.Items[0].Elements[j].Map.length; k++) {
-                                    screen = screen + "<div style=\'height: 50px\' ><input type=\'button\' class='btn-submit' id=\'" + data.Items[0].Elements[j].Map[k].Value + "\' name=\'" + data.Items[0].Elements[j].Map[k].ItemResponseOID + "\' value=\'" + data.Items[0].Elements[j].Map[k].Description +  "\' onclick=selectResponse(this,'"+assessmentOID+"') />"    + "</div>";
-                                }
+        function selectResponse(obj, assessmentOID) {
+            $.ajax({
+                url: '../library/ajax/easipro_util.php',
+                type: "POST",
+                data: {
+                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                    'function': 'select_response',
+                    'assessmentOID': assessmentOID,
+                    'ItemResponseOID': obj.name,
+                    'Response': +obj.id
+                },
+                dataType: "json",
+                success: function (data) {
+                    if (data.DateFinished != '') {
+                        document.getElementById("Content").innerHTML = "<?php xla('You have finished the assessment.'); ?>" + "<br /> " + "<?php echo xla('Thank you'); ?>";
+                        document.getElementById("asst_" + assessmentOID).innerHTML = "<i class='fa fa-check-circle'></i>";
+                        document.getElementById("asst_status_" + assessmentOID).innerHTML = "completed";
+                        $.ajax({
+                            url: '../library/ajax/easipro_util.php',
+                            type: "POST",
+                            data: {
+                                'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                                'function': 'collect_results',
+                                'assessmentOID': assessmentOID
+                            },
+                            dataType: "json",
+                            success: function (data) {
+                                writeResult(data.Items[0].Theta, data.Items[0].StdError, assessmentOID);
+                            }
+                        });
+                        return
+                    }
+                    var screen = "";
+                    for (var j = 0; j < data.Items[0].Elements.length; j++) {
+                        if (typeof (data.Items[0].Elements[j].Map) == 'undefined') {
+                            screen = screen + "<div style=\'height: 30px\' >" + data.Items[0].Elements[j].Description + "</div>"
+                        } else {
+                            for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
+                                screen = screen + "<div style=\'height: 50px\' ><input type=\'button\' class='btn-submit' id=\'" + data.Items[0].Elements[j].Map[k].Value + "\' name=\'" + data.Items[0].Elements[j].Map[k].ItemResponseOID + "\' value=\'" + data.Items[0].Elements[j].Map[k].Description + "\' onclick=selectResponse(this,'" + assessmentOID + "') />" + "</div>";
                             }
                         }
-                        document.getElementById("Content").innerHTML = screen;
-                    },
-                    error: function(jqXHR, textStatus, errorThrown){
-                        //document.write(jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
-                        alert("An error occurred");
                     }
-                })
-            }
+                    document.getElementById("Content").innerHTML = screen;
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    //document.write(jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
+                    alert("An error occurred");
+                }
+            })
+        }
 
-            function startAssessment (param, assessmentOID) {
-                param.innerHTML = "<i class='fa fa-circle-o-notch fa-spin'></i> <?php echo xla('Loading'); ?>";
+        function startAssessment(param, assessmentOID) {
+            param.innerHTML = "<i class='fa fa-circle-o-notch fa-spin'></i> <?php echo xla('Loading'); ?>";
 
-                $.ajax({
-                    url: '../library/ajax/easipro_util.php',
-                    type: "POST",
-                    data: {
-                        'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
-                        'function': 'start_assessment',
-                        'assessmentOID': assessmentOID
-                    },
-                    dataType: "json",
-                    success: function(data) {
-                        var screen ="";
-                        for (var j=0; j < data.Items[0].Elements.length; j++) {
-                            if (typeof(data.Items[0].Elements[j].Map) == 'undefined') {
-                                screen = screen + "<div style=\'height: 30px\' >" + data.Items[0].Elements[j].Description + "</div>"
-                            } else {
-                                for (var k=0; k < data.Items[0].Elements[j].Map.length; k++) {
-                                    screen = screen + "<div style=\'height: 50px\' ><input type=\'button\' class='btn-submit' id=\'" + data.Items[0].Elements[j].Map[k].Value + "\' name=\'" + data.Items[0].Elements[j].Map[k].ItemResponseOID + "\' value=\'" + data.Items[0].Elements[j].Map[k].Description +  "\' onclick=selectResponse(this,'"+assessmentOID+"') />"    + "</div>";
-                                }
+            $.ajax({
+                url: '../library/ajax/easipro_util.php',
+                type: "POST",
+                data: {
+                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                    'function': 'start_assessment',
+                    'assessmentOID': assessmentOID
+                },
+                dataType: "json",
+                success: function (data) {
+                    var screen = "";
+                    for (var j = 0; j < data.Items[0].Elements.length; j++) {
+                        if (typeof (data.Items[0].Elements[j].Map) == 'undefined') {
+                            screen = screen + "<div style=\'height: 30px\' >" + data.Items[0].Elements[j].Description + "</div>"
+                        } else {
+                            for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
+                                screen = screen + "<div style=\'height: 50px\' ><input type=\'button\' class='btn-submit' id=\'" + data.Items[0].Elements[j].Map[k].Value + "\' name=\'" + data.Items[0].Elements[j].Map[k].ItemResponseOID + "\' value=\'" + data.Items[0].Elements[j].Map[k].Description + "\' onclick=selectResponse(this,'" + assessmentOID + "') />" + "</div>";
                             }
                         }
-                        document.getElementById("Content").innerHTML = screen;
-
-                        param.innerHTML = "<?php echo xla('Start Assessment') ?>";
-                    },
-                    error: function(jqXHR, textStatus, errorThrown){
-                        param.innerHTML = "<?php echo xla('Start Assessment') ?>";
-
-                        //document.write(jqXHR.responseText);
-                        alert("An error occurred");
                     }
-                })
-            }
+                    document.getElementById("Content").innerHTML = screen;
+
+                    param.innerHTML = "<?php echo xla('Start Assessment') ?>";
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    param.innerHTML = "<?php echo xla('Start Assessment') ?>";
+
+                    //document.write(jqXHR.responseText);
+                    alert("An error occurred");
+                }
+            })
+        }
         <?php } // end if $GLOBALS['easipro_enable'] ?>
     </script>
 </head>
@@ -345,7 +358,8 @@ foreach ($msgs as $i) {
                 <!-- Sidebar toggle button-->
                 <ul class="nav navbar-nav flex-row">
                     <li class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" id="newmsgs" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="true"> <i class="fa fa-envelope"></i> <span class="badge badge-pill badge-success"><?php echo text($newcnt); ?></span></a>
+                        <a href="#" class="nav-link dropdown-toggle" id="newmsgs" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="true"> <i class="fa fa-envelope"></i>
+                            <span class="badge badge-pill badge-success"><?php echo text($newcnt); ?></span></a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="newmsgs">
                             <h6 class="dropdown-header"><?php echo xlt('You have '); ?><?php echo text($newcnt); ?><?php echo xlt(' new messages'); ?></h6>
                             <!-- inner menu: contains the actual data -->
@@ -362,7 +376,8 @@ foreach ($msgs as $i) {
                         </div>
                     </li>
                     <li class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" id="profiletab" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-user"></i> <span><?php echo text($result['fname'] . " " . $result['lname']); ?> <i class="caret"></i></span></a>
+                        <a href="#" class="nav-link dropdown-toggle" id="profiletab" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-user"></i>
+                            <span><?php echo text($result['fname'] . " " . $result['lname']); ?> <i class="caret"></i></span></a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="profiletab">
                             <div class="dropdown-header text-center"><?php echo xlt('Account'); ?></div>
                             <div><a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"> <i class="fa fa-envelope-o fa-fw"></i> <?php echo xlt('Messages'); ?>
@@ -514,7 +529,7 @@ foreach ($msgs as $i) {
                                     echo '<div class="card p-2">';
                                     $mode = (int)$row['pc_recurrtype'] > 0 ? text("recurring") : $row['pc_recurrtype'];
                                     $appt_type_icon = (int)$row['pc_recurrtype'] > 0 ? "<i class='float-right fa fa-edit text-danger bg-light'></i>" : "<i class='float-right fa fa-edit text-success bg-light'></i>";
-                                    echo "<div class='card-header clearfix'><a href='#' onclick='editAppointment(" . attr_js($mode) . "," . attr_js($row ['pc_eid']) . ")'"  . "title='" . attr($etitle) . "'>" . $appt_type_icon . "</a></div>";
+                                    echo "<div class='card-header clearfix'><a href='#' onclick='editAppointment(" . attr_js($mode) . "," . attr_js($row ['pc_eid']) . ")'" . "title='" . attr($etitle) . "'>" . $appt_type_icon . "</a></div>";
                                     echo "<div class='body font-weight-bold'><p>" . text($dayname . ", " . $row ['pc_eventDate']) . "&nbsp;";
                                     echo text($disphour . ":" . $dispmin . " " . $dispampm) . "<br />";
                                     echo xlt("Type") . ": " . text($row ['pc_catname']) . "<br />";

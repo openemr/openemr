@@ -5,6 +5,8 @@
  * @link      https://www.open-emr.org
  * @author    Jacob T.Paul <jacob@zhservices.com>
  * @author    Vipin Kumar <vipink@zhservices.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @author    Remesh Babu S <remesh@zhservices.com>
  * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -25,6 +27,11 @@ function register(status,title,name,method,type){
 }
 
 function manage(id,action){
+    if (action == 'unregister') {
+        if (!confirm("Please Confirm with OK to Unregister this Module.")) {
+            return false;
+        }
+    }
     install_upgrade_log = $("#install_upgrade_log");
     install_upgrade_log.empty();
 

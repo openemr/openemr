@@ -13,6 +13,8 @@ The original location of this file is /home/duhlman/uml-generated-code/prescript
  *
  */
 
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 class Patient extends ORDataObject
 {
     var $id;

@@ -113,9 +113,13 @@ EOD;
         $s = '';
         if (!defined('INCLUDED_TW_ONETIME_JS')) {
             define('INCLUDED_TW_ONETIME_JS', true);
+            $modalTitle = xla("Warning");
+            $modalContent = xla("Do you want to close the tabs?");
+            $modalCancel = xla("Cancel");
+            $modalClose = xla("Close");
+
             $s .= <<<EOD
 <script>
-
 // We use one object to contain an object of context for each tab set.
 // Most windows will have only one tab set but we cater to a more general case.
 // This avoids excessive pollution of the window's name space.
@@ -132,9 +136,32 @@ function twSetup(tabsid) {
   twObject[tabsid].counter = 100;
   // Close icon: removing the tab on click
   nav.on("click", "span.icon-close", function() {
-    var panelId = $(this).parent().attr("href").substring(1);
-    top.restoreSession();
-    twCloseTab(tabsid, panelId);
+    const self = $(this);
+    const closeTab = function() {
+        const panelId = self.parent().attr("href").substring(1);
+        top.restoreSession();
+        twCloseTab(tabsid, panelId);
+    }
+
+    const closeSoap = function() {
+        top.isSoapEdit = false;
+        closeTab();
+    }
+
+    if (self[0].id === 'SOAP' && top.isSoapEdit === true) {
+        dlgopen('', '', 450, 125, '', '<div class="text-danger">$modalTitle</div>', {
+            type: 'Alert',
+            html: '<p>$modalContent</p>',
+            buttons: [
+                {text: '$modalCancel', close: true, style: 'default btn-sm'},
+                {text: '$modalClose', close: true, style: 'danger btn-sm', click: closeSoap},
+            ],
+            allowDrag: false,
+            allowResize: false,
+        });
+    } else {
+        closeTab();
+    }
   });
 }
 
@@ -153,7 +180,7 @@ function nextPanelId(tabsid){
 function twAddTab(tabsid, label, content) {
   var oldcount = twObject[tabsid].nav.find(".nav-tabs li").length;
   var panelId = nextPanelId(tabsid);
-  var li = "<li class='tabs-tabs'><a data-toggle='tab' class='tabs-anchor' href='#" + panelId + "'>" + label + "<span aria-label='close' class='icon-close' role='close'>&times;</span></a> </li>";
+  var li = "<li class='tabs-tabs'><a data-toggle='tab' class='tabs-anchor' href='#" + panelId + "'>" + label + "<span aria-label='close' class='icon-close' id='" + label + "' role='close'>&times;</span></a> </li>";
   twObject[tabsid].nav.append(li);
   top.restoreSession();
   twObject[tabsid].content.append("<div class='tab-pane tabs-panel' id='" + panelId + "'>" + content + "</div>");
