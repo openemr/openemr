@@ -5,9 +5,10 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\Services\BaseService;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
-use OpenEMR\FHIR\R4\FHIRElement\FhirId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 
 class FhirObservationService extends BaseService
@@ -22,6 +23,7 @@ class FhirObservationService extends BaseService
 
     public function createObservationResource($id = '', $data = '', $encode = true)
     {
+        // Check Profile type and add its Category | Status | Note
         switch ($data['formdir']) {
             case 'vitals':
                 $coding['coding']['system'] = "http://terminology.hl7.org/CodeSystem/observation-category";
@@ -29,6 +31,8 @@ class FhirObservationService extends BaseService
                 $coding['coding']['display'] = "Vital Signs";
                 $coding['text'] = "Vital Signs";
                 $this->FHIRData['category'] = ['category' => new FHIRCodeableConcept($coding)];
+                $data['text'] ? $this->FHIRData['note']['note'] = new FHIRAnnotation(['text' => $data['text']]) : null;
+                $this->FHIRData['status'] = 'final';
                 break;
             default:
                 #TODO: Return CapabilityStatement or Outcome Resource
@@ -48,7 +52,7 @@ class FhirObservationService extends BaseService
         $this->FHIRData['performer']['performer'] = new FHIRReference(['reference' => "Practitioner/" . $data['provider_id'], "type" => "Practitioner"]);
         $this->FHIRData['effectiveDateTime'] = new FHIRDateTime($data['date']);
         $resource = new FHIRObservation($this->FHIRData);
-        $id = new FhirId($id);
+        $resource->setId($id);
         if ($encode) {
             return json_encode($resource);
         } else {
@@ -79,58 +83,57 @@ class FhirObservationService extends BaseService
         foreach ($members as $key => $value) {
             if ($key == 'temperature') {
                 array_push($this->FHIRData['hasMember'], array(
-                    "reference" => "Observation/body_temperature-" . $data['form_id'],
+                    "reference" => "Observation/temperature-" . $data['form_id'],
                     "display" => "Body Temperature"
                 ));
-            } else if ($key == 'bps') {
+            } elseif ($key == 'bps') {
                 array_push($this->FHIRData['hasMember'], array(
                     "reference" => "Observation/bps-" . $data['form_id'],
                     "display" => "Systolic blood pressure"
                 ));
-            } else if ($key == 'bpd') {
+            } elseif ($key == 'bpd') {
                 array_push($this->FHIRData['hasMember'], array(
                     "reference" => "Observation/bpd-" . $data['form_id'],
                     "display" => "Diastolic blood pressure"
                 ));
-            } else if ($key == 'pulse') {
+            } elseif ($key == 'pulse') {
                 array_push($this->FHIRData['hasMember'], array(
-                    "reference" => "Observation/heart_rate-" . $data['form_id'],
+                    "reference" => "Observation/pulse-" . $data['form_id'],
                     "display" => "Heart Rate"
                 ));
-            } else if ($key == 'respiration') {
+            } elseif ($key == 'respiration') {
                 array_push($this->FHIRData['hasMember'], array(
                     "reference" => "Observation/respiration-" . $data['form_id'],
                     "display" => "Respiratory Rate"
                 ));
-            } else if ($key == 'weight') {
+            } elseif ($key == 'weight') {
                 array_push($this->FHIRData['hasMember'], array(
-                    "reference" => "Observation/body_weight-" . $data['form_id'],
+                    "reference" => "Observation/weight-" . $data['form_id'],
                     "display" => "Body weight"
                 ));
-            } else if ($key == 'height') {
+            } elseif ($key == 'height') {
                 array_push($this->FHIRData['hasMember'], array(
-                    "reference" => "Observation/body_height-" . $data['form_id'],
+                    "reference" => "Observation/height-" . $data['form_id'],
                     "display" => "Body height"
                 ));
-            } else if ($key == 'BMI') {
+            } elseif ($key == 'BMI') {
                 array_push($this->FHIRData['hasMember'], array(
-                    "reference" => "Observation/bmi-" . $data['form_id'],
+                    "reference" => "Observation/BMI-" . $data['form_id'],
                     "display" => "Body mass index (BMI) [Ratio]"
                 ));
-            } else if ($key == 'head_circ') {
+            } elseif ($key == 'head_circ') {
                 array_push($this->FHIRData['hasMember'], array(
-                    "reference" => "Observation/head_cir-" . $data['form_id'],
+                    "reference" => "Observation/head_circ-" . $data['form_id'],
                     "display" => "Head Occipital-frontal circumference"
                 ));
-            } else if ($key == 'oxygen_saturation') {
+            } elseif ($key == 'oxygen_saturation') {
                 array_push($this->FHIRData['hasMember'], array(
-                    "reference" => "Observation/heart_rate-" . $data['form_id'],
+                    "reference" => "Observation/oxygen_saturation-" . $data['form_id'],
                     "display" => "Oxygen saturation in Arterial blood"
                 ));
             }
         }
     }
-}
 
     private function setValues($data)
     {

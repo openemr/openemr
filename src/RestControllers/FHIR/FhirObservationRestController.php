@@ -4,6 +4,7 @@ namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\Services\FHIR\FhirObservationService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\FHIR\FhirValidationService;
 
 class FhirObservationRestController
 {
@@ -12,6 +13,7 @@ class FhirObservationRestController
     public function __construct()
     {
         $this->fhirObservationService = new FhirObservationService();
+        $this->fhirValidate = new FhirValidationService();
     }
 
     public function getOne($id)
