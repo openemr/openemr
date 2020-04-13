@@ -432,7 +432,7 @@ class Events extends Base
                                     ". $target_lang ."
                                     (
                                         pc_eventDate > CURDATE() ".$interval." INTERVAL ".$timing." DAY AND
-                                        pc_eventDate < CURDATE() ".$interval." INTERVAL ".$timing2." DAY_MINUTE AND
+                                        pc_eventDate < CURDATE() ".$interval." INTERVAL '".$timing2."' DAY_MINUTE AND
                                         pc_recurrtype ='0'
                                     )
                                     ". $appt_status."
@@ -1277,7 +1277,7 @@ class Logging extends base
             $dumper = print_r($data, true);
             fputs($std_log, $dumper);
             foreach ($data as $key => $value) {
-                fputs($stdlog, $key.": ".$value."\n");
+                fputs($std_log, $key.": ".$value."\n");
             }
         } else {
             fputs($std_log, "\nDATA= ".$data. "\n");
