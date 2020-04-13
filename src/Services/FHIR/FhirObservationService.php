@@ -36,7 +36,7 @@ class FhirObservationService extends BaseService
                 break;
         }
         $this->FHIRData['subject'] = new FHIRReference(['reference' => "Patient/" . $data['pid'], "type" => "Patient"]);
-        $this->FHIRData['encounter'] = new FHIRReference(['reference' => "Encouter/" . $data['encounter'], "type" => "Encouter"]);
+        $this->FHIRData['encounter'] = new FHIRReference(['reference' => "Encounter/" . $data['encounter'], "type" => "Encounter"]);
         $this->FHIRData['performer']['performer'] = new FHIRReference(['reference' => "Practitioner/" . $data['provider_id'], "type" => "Practitioner"]);
         $this->FHIRData['effectiveDateTime'] = new FHIRDateTime($data['date']);
         $resource = new FHIRObservation($this->FHIRData);
