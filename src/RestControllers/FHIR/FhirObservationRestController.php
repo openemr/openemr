@@ -19,21 +19,19 @@ class FhirObservationRestController
         $split_id = explode("-", $id);
         $profile = $split_id[0];
         $observation_id = $split_id[1];
-        switch ($profile) {
-            case 'vitals':
-                $profile_data = $this->fhirObservationService->getvital($observation_id);
-                $resource = $this->fhirObservationService->createObservationResource($id, $profile_data, false);
-                $statusCode = 200;
-                break;
-            default:
-                $statusCode = 404;
-                $resource = $this->fhirValidate->operationOutcomeResourceService(
-                    'error',
-                    'invalid',
-                    false,
-                    "Resource Id $id does not exist"
-                );
-                break;
+        $profile_data = $this->fhirObservationService->getVital($observation_id);
+        if ($profile_data) {
+            $profile_data['profile'] = $profile;
+            $resource = $this->fhirObservationService->createObservationResource($id, $profile_data, false);
+            $statusCode = 200;
+        } else {
+            $statusCode = 404;
+            $resource = $this->fhirValidate->operationOutcomeResourceService(
+                'error',
+                'invalid',
+                false,
+                "Resource Id $id does not exist"
+            );
         }
         
         return RestControllerHelper::responseHandler($resource, null, $statusCode);

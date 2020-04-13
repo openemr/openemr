@@ -29,12 +29,20 @@ class FhirObservationService extends BaseService
                 $coding['coding']['display'] = "Vital Signs";
                 $coding['text'] = "Vital Signs";
                 $this->FHIRData['category'] = ['category' => new FHIRCodeableConcept($coding)];
-                $this->addMembers($data);
                 break;
             default:
                 #TODO: Return CapabilityStatement or Outcome Resource
                 break;
         }
+
+        // Check Profile or Member and add/set appropriately
+        if ($data['profile'] == 'vitals') {
+            $this->addMembers($data);
+        } else {
+            $this->setValues($data);
+        }
+
+        //  TODO: Yash Please Refactor this to as usual as its hard to read.
         $this->FHIRData['subject'] = new FHIRReference(['reference' => "Patient/" . $data['pid'], "type" => "Patient"]);
         $this->FHIRData['encounter'] = new FHIRReference(['reference' => "Encounter/" . $data['encounter'], "type" => "Encounter"]);
         $this->FHIRData['performer']['performer'] = new FHIRReference(['reference' => "Practitioner/" . $data['provider_id'], "type" => "Practitioner"]);
@@ -120,6 +128,92 @@ class FhirObservationService extends BaseService
                     "display" => "Oxygen saturation in Arterial blood"
                 ));
             }
+        }
+    }
+}
+
+    private function setValues($data)
+    {
+        $quantity = new FHIRQuantity();
+        $quantity->setSystem("http://unitsofmeasure.org");
+        switch ($data['profile']) {
+            case 'weight':
+                $quantity->setValue($data['weight']);
+                $quantity->setUnit('lbs');
+                $quantity->setCode("[lb_av]");
+                $this->FHIRData['valueQuantity'] = $quantity;
+                break;
+            case 'height':
+                $quantity->setValue($data['height']);
+                $quantity->setUnit('in');
+                $quantity->setCode("[in_i]");
+                $this->FHIRData['valueQuantity'] = $quantity;
+                break;
+            case 'bps':
+                $quantity->setValue($data['bps']);
+                $quantity->setUnit('mmHg');
+                $quantity->setCode("[mm[Hg]]");
+                $this->FHIRData['valueQuantity'] = $quantity;
+                break;
+            case 'bpd':
+                $quantity->setValue($data['bpd']);
+                $quantity->setUnit('mmHg');
+                $quantity->setCode("[mm[Hg]]");
+                $this->FHIRData['valueQuantity'] = $quantity;
+                break;
+            case 'temperature':
+                $quantity->setValue($data['temperature']);
+                $quantity->setUnit('F');
+                $quantity->setCode("[degF]");
+                $coding['coding']['system'] = "http://snomed.info/sct";
+                $coding['coding']['code'] = "vital-signs";
+                $coding['coding']['display'] = $data['temp_method'];
+                $coding['text'] = "Vital Signs";
+                $this->FHIRData['category'] = ['category' => new FHIRCodeableConcept($coding)];
+                $bodySite = new FHIRCodeableConcept();
+
+                $this->FHIRData['valueQuantity'] = $quantity;
+                break;
+            case 'pulse':
+                $quantity->setValue($data['pulse']);
+                $quantity->setUnit('beats/minute');
+                $quantity->setCode("/min");
+                $this->FHIRData['valueQuantity'] = $quantity;
+                break;
+            case 'respiration':
+                $quantity->setValue($data['respiration']);
+                $quantity->setUnit('breaths/minute');
+                $quantity->setCode("/min");
+                $this->FHIRData['valueQuantity'] = $quantity;
+                break;
+            case 'BMI':
+                $quantity->setValue($data['BMI']);
+                $quantity->setUnit('kg/m2');
+                $quantity->setCode("kg/m2");
+                $height_ref = new FHIRReference();
+                $height_ref->setReference("Observation/height-" . $data['id']);
+                $height_ref->setDisplay("Body Height");
+                $weight_ref = new FHIRReference();
+                $weight_ref->setReference("Observation/weight-" . $data['id']);
+                $weight_ref->setDisplay("Body Weight");
+                $this->FHIRData['derivedFrom'] = array($height_ref, $weight_ref);
+                $this->FHIRData['valueQuantity'] = $quantity;
+                break;
+            case 'head_circ':
+                $quantity->setValue($data['head_circ']);
+                $quantity->setUnit('in');
+                $quantity->setCode("[in_i]");
+                $this->FHIRData['valueQuantity'] = $quantity;
+                break;
+            case 'oxygen_saturation':
+                $quantity->setValue($data['oxygen_saturation']);
+                $quantity->setUnit('%');
+                $quantity->setCode("%");
+                $this->FHIRData['valueQuantity'] = $quantity;
+                break;
+
+            default:
+                break;
         }
     }
 }
