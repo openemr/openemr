@@ -383,16 +383,36 @@ $(function () {
         var url = "save.php";
         top.restoreSession();
         $.ajax({
-            type: 'POST',
-            url: url,
-            data: formData,
-            action: 'save_prefs'
-        }).done(function (result) {
+                   type: 'POST',
+                   url: url,
+                   data: formData,
+                   action: 'save_prefs'
+               }).done(function (result) {
             $("#div_response").html('<span style="color:red;">' + xljs1 + '.</span>');
             setTimeout(function () {
                 $("#div_response").html('<br />');
             }, 2000);
         });
     });
+    var bs_interval = $("#execute_interval").val();
+    if (bs_interval < '1') {
+        $("#active_sync").hide();
+        $("#paused").show();
+    }  else {
+        $("#paused").hide();
+        $("#active_sync").show();
+    }
+    $("#execute_interval").change(function() {
+        var bs_interval = $("#execute_interval").val();
+        if (bs_interval <'1') {
+            $("#active_sync").hide();
+            $("#paused").show();
+        }  else {
+            $("#display_interval").text(bs_interval);
+            $("#paused").hide();
+            $("#active_sync").show();
+        }
+    });
+    
 });
 

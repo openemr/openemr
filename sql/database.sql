@@ -5304,7 +5304,8 @@ CREATE TABLE `openemr_postcalendar_events` (
   `pc_room` varchar(20) NOT NULL DEFAULT '',
   PRIMARY KEY  (`pc_eid`),
   KEY `basic_event` (`pc_catid`,`pc_aid`,`pc_eventDate`,`pc_endDate`,`pc_eventstatus`,`pc_sharing`,`pc_topic`),
-  KEY `pc_eventDate` (`pc_eventDate`)
+  KEY `pc_eventDate` (`pc_eventDate`),
+  KEY `index_pcid` (`pc_pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 ;
 
 -----------------------------------------------------------

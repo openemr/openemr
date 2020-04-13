@@ -316,6 +316,8 @@ input[type="radio"] {
 .scheduled {
     background-color: white;
     color: black;
+    border-color: #333 !important;
+    padding: 5px !important;
 }
 
 .no_bot_border {
