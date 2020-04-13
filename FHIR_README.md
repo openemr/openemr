@@ -44,7 +44,7 @@ Response:
     }
 }
 ```
-For ssh calls each call must include the token:
+For ssh calls, each call must include the token:
 
 
 ```sh
@@ -62,9 +62,9 @@ curl -X GET 'http://localhost:8300/apis/fhir/Patient'
 
 ### Dev Notes
 
-- For business logic, make or use the services [here](https://github.com/openemr/openemr/tree/master/services)
-- For controller logic, make or use the classes [here](https://github.com/openemr/openemr/tree/master/rest_controllers)
-- For routing declarations, use the class [here](https://github.com/openemr/openemr/blob/master/_rest_routes.inc.php).
+- For business logic, make or use the services [here](src/Services/FHIR)
+- For controller logic, make or use the classes [here](src/RestControllers/FHIR)
+- For routing declarations, use the class [here](_rest_routes.inc.php).
 
 
 ### Project Management
@@ -72,6 +72,3 @@ curl -X GET 'http://localhost:8300/apis/fhir/Patient'
 #### FHIR
 - TODO(?): ?
 
-### License
-
-[GNU GPL](../LICENSE)
