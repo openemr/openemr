@@ -101,20 +101,22 @@ class FhirImmunizationService
     {     
         $status = new FHIRImmunizationStatusCodes();
         $statusCoding = new FHIRCoding();
-        if (isset($data['completion_status'])) {
-            $statusCoding = new FHIRCoding();
-            $statusCoding->setSystem('http://hl7.org/fhir/event-status');
-            $statusCoding->setCode($data['completion_status']);
-            $statusCoding->setDisplay($data['completion_status']);
-            $status->setValue($statusCoding);
+        $statusCoding->setSystem('http://hl7.org/fhir/event-status');
+
+        if ($data['added_erroneously'] != "0") {
+            $statusCoding->setCode("entered-in-error");
+            $statusCoding->setDisplay("Entered in Error");
+        }
+        else if (isset($data['administered_date'])) {
+            $statusCoding->setCode("completed");
+            $statusCoding->setDisplay("Completed");
         }
         else {
-            $statusCoding->setSystem("http://terminology.hl7.org/CodeSystem/data-absent-reason");
-            $statusCoding->setCode("unknown");
-            $statusCoding->setDisplay("Unknown");        
-            $status->setValue($statusCoding);
+            $statusCoding->setCode("not-done");
+            $statusCoding->setDisplay("Not Done");
         }
-        
+        $status->setValue($statusCoding);
+
         $statusReason = new FHIRCodeableConcept();
         $statusReasonCoding = new FHIRCoding();
         $statusReasonCoding->setSystem("http://terminology.hl7.org/CodeSystem/v3-ActReason");
@@ -127,39 +129,45 @@ class FhirImmunizationService
         $statusReasonCoding->setCode($statusToDisplayMapping[strtolower($data['refusal_reason'])]);
         $statusReasonCoding->setDisplay($data['refusal_reason']);
         $statusReason->addCoding($statusReasonCoding);
-        
+
         $vaccineCode = new FHIRCodeableConcept();
         $vaccineCodeCoding = new FHIRCoding();
         $vaccineCodeCoding->setSystem("http://hl7.org/fhir/sid/cvx");
         $vaccineCodeCoding->setCode($data['cvx_code']);
         $vaccineCodeCoding->setDisplay($data['cvx_code']);
         $vaccineCode->addCoding($vaccineCodeCoding);
-        
+
         $patient = new FHIRReference();
         $patient->setReference('Patient/'.$data['patient_id']);
-        
+
         $occurenceDateTime = new FHIRDateTime();
         $occurenceDateTime->setValue($data['administered_date']);
-        
+
         $recorded = new FHIRDateTime();
         $recorded->setValue($data['create_date']);
-        
+
         $manufacturer = new FHIRReference();
         $manufacturer->setReference('Organization/'.$data['manufacturer']);
-        
+
         $lotNumber = new FHIRString();
         $lotNumber->setValue($data['lot_number']);
-        
+
         $expirationDate = new FHIRDate();
         $expirationDate->setValue($data['expiration_date']);
-        
+
         $site = new FHIRCodeableConcept();
         $siteCoding = new FHIRCoding();
         $siteCoding->setSystem("http://terminology.hl7.org/CodeSystem/v3-ActSite");
-        $siteCoding->setCode($data['administration_site']);
-        $siteCoding->setDisplay($data['administration_site']);
+        if (strtolower($data['administration_site']) == "left arm") {
+            $siteCoding->setCode("LA");
+            $siteCoding->setDisplay("Left arm");
+        }
+        else if (strtolower($data['administration_site']) == "right arm") {
+            $siteCoding->setCode("RA");
+            $siteCoding->setDisplay("Right Arm");
+        }
         $site->addCoding($siteCoding);
-        
+
         $route = new FHIRCodeableConcept();
         $routeCoding = new FHIRCoding();
         $routeCoding->setSystem("http://terminology.hl7.org/CodeSystem/v3-RouteOfAdministration");
@@ -171,26 +179,26 @@ class FhirImmunizationService
         $doseQuantity->setValue($data['amount_administered']);
         $doseQuantity->setSystem($data['http://unitsofmeasure.org']);
         $doseQuantity->setCode($data['amount_administered_unit']);
-        
+
         $actor = new FHIRReference();
         $actor->setReference($data['administered_by'].'/'.$data['administered_by_id']);
         $function = new FHIRCodeableConcept();
         $functionCoding = new FHIRCoding();
-        $functionCoding->setSystem("http://terminology.hl7.org/CodeSystem/v3-RouteOfAdministration");
+        $functionCoding->setSystem("http://terminology.hl7.org/CodeSystem/v2-0443");
         $functionCoding->setCode("OP");
         $functionCoding->setDisplay("Ordering Provider");
         $performer = new FHIRImmunizationPerformer();
         $performer->setActor($actor);
         $performer->setFunction($functionCoding);
-        
+
         $note = new FHIRAnnotation();
         $note->setText($data['note']);
-        
+
         $education = new FHIRImmunizationEducation();
         $educationDateTime = new FHIRDateTime();
         $educationDateTime->setValue($data['education_date']);
         $education->setPresentationDate($educationDateTime);
-        
+
         $resource = new FHIRImmunization();
         $resource->setStatus($status);
         $resource->setStatusReason($statusReason);
