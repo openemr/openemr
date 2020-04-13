@@ -77,6 +77,6 @@
     addForm($encounter, "TeleHealth Visit", $newid, "telemed", $pid, $userauthorized);
     
     formHeader("Redirecting....");
-    formJump('./view_form.php?formname='.$form_folder.'&id='.attr($newid).'&pid='.attr($pid));
+    formJump('./view_form.php?formname='.urlencode($form_folder).'&id='.urlencode($newid).'&pid='.urlencode($pid));
     formFooter();
     exit;
