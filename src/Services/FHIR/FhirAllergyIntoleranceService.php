@@ -22,18 +22,18 @@ use OpenEMR\Services\ListService;
 
 class FhirAllergyIntoleranceService
 {
-    
+
     private $id;
-    
+
     public function __construct()
     {
     }
-    
+
     public function setId($id)
     {
         $this->id = $id;
     }
-    
+
     public function getAll($search)
     {
         $SQL = "SELECT id,
