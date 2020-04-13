@@ -164,7 +164,7 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text)
 }
 
 ?>
-<html style='overflow-y: hidden;'>
+<html>
 <head>
 <!-- Main style sheet comes after the page-specific stylesheet to facilitate overrides. -->
 <link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/css/encounters.css" type="text/css">
