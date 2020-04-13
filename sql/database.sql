@@ -1028,7 +1028,7 @@ DROP TABLE IF EXISTS `codes`;
 CREATE TABLE `codes` (
   `id` int(11) NOT NULL auto_increment,
   `code_text` varchar(255) NOT NULL default '',
-  `code_text_short` varchar(24) NOT NULL default '',
+  `code_text_short` varchar(50) NOT NULL default '',
   `code` varchar(25) NOT NULL default '',
   `code_type` smallint(6) default NULL,
   `modifier` varchar(12) NOT NULL default '',
