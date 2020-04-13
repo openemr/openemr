@@ -829,8 +829,3 @@ curl -X DELETE 'http://localhost:8300/apis/api/patient/1/message/1'
 ### What is that dog drawing?
 
 That is Peppy, an old OpenEMR mascot. Long live Peppy!
-
-
-### License
-
-[GNU GPL](../LICENSE)
