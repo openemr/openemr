@@ -63,7 +63,7 @@ class FhirObservationService extends BaseService
     private function addMembers($data)
     {
         $members = array_filter($data, function ($k) {
-            if ($k != 0 && $k != 0.0 && $k != 0.0 && $k != null && $k != '') {
+            if ($k != 0 && $k != 0.0 && $k != 0.00 && $k != null && $k != '') {
                 return $k;
             }
         });
