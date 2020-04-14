@@ -4,9 +4,11 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady@sparmy.com>
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Tony McCormick <tony@mi-squared.com>
+ * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -586,75 +588,13 @@ if ($printable) {
 <br /><br />
 
     <?php
-} else { // not printable
-    ?>
-
-    <!-- old href was here
-    <br /><br /> -->
-
+} else { // not printable ?>
     <a href="./report/portal_custom_report.php?printable=1&<?php echo postToGet($ar); ?>" class='link_submit' target='new'>
-<button><?php echo xlt('Printable Version'); ?></button>
-</a><br />
-<!--<div class="report_search_bar" style="width:100%;" id="search_options">
-  <table style="width:100%;">
-    <tr>
-  <td>
-    <input type="text" onKeyUp="clear_last_visit();remove_mark_all();find_all();" name="search_element" id="search_element" style="width:180px;"/>
-  </td>
-  <td>
-     <a class="btn btn-primary" onClick="clear_last_visit();remove_mark_all();find_all();" ><span><?php //echo xlt('Find'); ?></span></a>
-  </td>
-  <td>
-     <a class="btn btn-primary" onClick="next_prev('prev');" ><span><?php //echo xlt('Prev'); ?></span></a>
-  </td>
-  <td>
-     <a class="btn btn-primary" onClick="next_prev('next');" ><span><?php //echo xlt('Next'); ?></span></a>
-  </td>
-  <td>
-    <input type="checkbox" onClick="clear_last_visit();remove_mark_all();find_all();" name="search_case" id="search_case" />
-  </td>
-  <td>
-    <span><?php //echo xlt('Match case'); ?></span>
-  </td>
-  <td style="padding-left:10px;">
-    <span class="text"><b><?php //echo xlt('Search In'); ?>:</b></span>
-    <br />
-    <?php
-    /*         $form_id_arr = array();
-    $form_dir_arr = array();
-    $last_key ='';
-    //ksort($ar);
-    foreach ($ar as $key_search => $val_search) {
-        if ($key_search == 'pdf' || $key_search == '' ) continue;
-        if (($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) {
-                    preg_match('/^(.*)_(\d+)$/', $key_search, $res_search);
-                    $form_id_arr[] = add_escape_custom($res_search[2]);
-                     $form_dir_arr[] = add_escape_custom($res_search[1]);
-        }
-    }
-    //echo json_encode(json_encode($array_key_id));
-    if(sizeof($form_id_arr)>0){
-      $query = "SELECT DISTINCT(form_name),formdir FROM forms WHERE form_id IN ( '".implode("','",$form_id_arr)."') AND formdir IN ( '".implode("','",$form_dir_arr)."')";
-      $arr = sqlStatement($query);
-      echo "<select multiple size='4' style='width:300px;' id='forms_to_search' onchange='clear_last_visit();remove_mark_all();find_all();' >";
-      while($res_forms_ids = sqlFetchArray($arr)){
-        echo "<option value='".attr($res_forms_ids['formdir'])."' selected>".text($res_forms_ids['form_name'])."</option>";
-      }
-      echo "</select>";
-    } */
-    ?>
-      </td>
-      <td style="padding-left:10px;;width:30%;">
-    <span id ='alert_msg' style='color:red;'></span>
-      </td>
-    </tr>
-  </table>
-    </div>-->
-    <?php
-} // end not printable ?>
+        <button><?php echo xlt('Printable Version'); ?></button>
+    </a><br />
+<?php } // end not printable ?>
 
 <?php
-
 // include ALL form's report.php files
 $inclookupres = sqlStatement("select distinct formdir from forms where pid = ? AND deleted=0", [$pid]);
 while ($result = sqlFetchArray($inclookupres)) {
@@ -1155,34 +1095,12 @@ if ($PDF_OUTPUT) {
         } catch (Exception $exception) {
             die(text($exception));
         }
-    } else {
-        // This is the case of writing the PDF as a message to the CMS portal.
-        $ptdata = getPatientData($pid, 'cmsportal_login');
-        $contents = $pdf->Output('', true);
-        echo "<html><head>\n";
-        echo "</head><body class='body_top'>\n";
-        $result = cms_portal_call(array(
-            'action' => 'putmessage',
-            'user' => $ptdata['cmsportal_login'],
-            'title' => xl('Your Clinical Report'),
-            'message' => xl('Please see the attached PDF.'),
-            'filename' => 'report.pdf',
-            'mimetype' => 'application/pdf',
-            'contents' => base64_encode($contents),
-        ));
-        if ($result['errmsg']) {
-            die(text($result['errmsg']));
-        }
-
-        echo "<p>" . xlt('Report has been sent to the patient.') . "</p>\n";
-        echo "</body></html>\n";
     }
     foreach ($tmp_files_remove as $tmp_file) {
         // Remove the tmp files that were created
         unlink($tmp_file);
     }
-} else {
-    ?>
+} else { ?>
 </body>
 </html>
 <?php } ?>

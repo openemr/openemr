@@ -27,6 +27,21 @@ try {
         $error = 'Unauthorized';
         throw new Exception($error);
     }
+    if (isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite_two']))) {
+        // Need to bootstrap all requests to only allow the pid in $_SESSION['pid']
+        //  and to only allow access to api calls applicable to that pid (or patientId).
+        $GLOBALS['bootstrap_pid'] = $_SESSION['pid'];
+        if ((!empty($_POST['pid']) && ($_POST['pid'] != $GLOBALS['bootstrap_pid'])) ||
+            (!empty($_GET['pid']) && ($_GET['pid'] != $GLOBALS['bootstrap_pid'])) ||
+            (!empty($_REQUEST['pid']) && ($_REQUEST['pid'] != $GLOBALS['bootstrap_pid'])) ||
+            (!empty($_POST['patientId']) && ($_POST['patientId'] != $GLOBALS['bootstrap_pid'])) ||
+            (!empty($_GET['patientId']) && ($_GET['patientId'] != $GLOBALS['bootstrap_pid'])) ||
+            (!empty($_REQUEST['patientId']) && ($_REQUEST['patientId'] != $GLOBALS['bootstrap_pid']))) {
+            // Unauthorized use
+            $error = 'Unauthorized';
+            throw new Exception($error);
+        }
+    }
     Dispatcher::Dispatch(
         $gc->GetPhreezer(),
         $gc->GetRenderEngine(),
