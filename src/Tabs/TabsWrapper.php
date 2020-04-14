@@ -206,7 +206,7 @@ function twAddFrameTab(tabsid, label, url) {
       temp = panelId;
       return panelId;
     } else {
-      asyncAlertMsg('Fee Sheet tab is already opened', 5000, type = 'danger', size = '') ;
+      asyncAlertMsg('Fee Sheet tab is already opened', 3000, type = 'warning', size = '') ;
       return false;
     }
   } else {
