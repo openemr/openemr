@@ -400,9 +400,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return (new FhirQuestionnaireResponseController(null))->post($data);
     },
     "GET /fhir/Immunization" => function () {
+        RestConfig::authorization_check("patients", "med");
         return (new FhirImmunizationRestController(null))->getAll($_GET);
     },
     "GET /fhir/Immunization/:id" => function ($id) {
+        RestConfig::authorization_check("patients", "med");
         return (new FhirImmunizationRestController(null))->getOne($id);
     },
     "GET /fhir/Condition" => function () {
