@@ -117,7 +117,7 @@ EOD;
             $modalContent = xla("Do you want to close the tabs?");
             $modalCancel = xla("Cancel");
             $modalClose = xla("Close");
-
+            $message = xlj("Fee sheet tab is already opened");
             $s .= <<<EOD
 <script>
 // We use one object to contain an object of context for each tab set.
@@ -206,7 +206,7 @@ function twAddFrameTab(tabsid, label, url) {
       temp = panelId;
       return panelId;
     } else {
-      asyncAlertMsg('Fee Sheet tab is already opened', 3000, type = 'warning', size = '') ;
+      asyncAlertMsg($message, 3000, 'warning','') ;
       return false;
     }
   } else {
