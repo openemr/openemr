@@ -206,7 +206,7 @@ function twAddFrameTab(tabsid, label, url) {
       temp = panelId;
       return panelId;
     } else {
-      alert("Fee sheet tab is already opened");
+      setTimeout('alert("Fee sheet tab is already opened")', 5);
       return false;
     }
   } else {
