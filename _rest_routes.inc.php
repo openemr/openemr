@@ -398,6 +398,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::authorization_check("patients", "med");
         return (new FhirObservationRestController(null))->getOne($id);
     },
+    "GET /fhir/Observation" => function () {
+        RestConfig::authorization_check("patients", "med");
+        return (new FhirObservationRestController(null))->getAll($_GET);
+    },
     "POST /fhir/QuestionnaireResponse" => function () {
         RestConfig::authorization_check("patients", "demo");
         $data = (array)(json_decode(file_get_contents("php://input"), true));

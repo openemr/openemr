@@ -12,7 +12,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 
 class FhirObservationService extends BaseService
 {
-    private $FHIRData;
 
     public function __construct()
     {
@@ -71,14 +70,28 @@ class FhirObservationService extends BaseService
         }
     }
 
-    public function getVital($id)
+    public function getOne($id)
     {
-        return $this->get(
+        $split_id = explode("-", $id);
+        $profile = $split_id[0];
+        $id = $split_id[1];
+        $profile_data = $this->get(
             array(
                 "where" => "WHERE form_vitals.id = ?",
                 "data" => array($id),
                 "join" => "JOIN forms fo on form_vitals.id = fo.form_id",
                 "limit" => 1
+            )
+        );
+        $profile_data['profile'] = $profile;
+        return $profile_data;
+    }
+
+    public function getAll()
+    {
+        return $this->get(
+            array(
+                "join" => "JOIN forms fo on form_vitals.id = fo.form_id"
             )
         );
     }
