@@ -34,7 +34,7 @@ class BaseService
     }
 
     /**
-     * get
+     * queryFields
      * Build SQL Query for Selecting Fields
      *
      * @param array $map

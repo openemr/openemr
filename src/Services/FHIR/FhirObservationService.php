@@ -43,6 +43,16 @@ class FhirObservationService extends BaseService
 
         // Check Profile or Member and add/set appropriately
         if ($data['profile'] == 'vitals') {
+            $vital_coding = new FHIRCoding();
+            $vital_coding->setCode(85353 - 1);
+            $vital_coding->setSystem("http://loinc.org");
+            $vital_coding->setDisplay(
+                "Vital signs, weight, height, head circumference, oxygen saturation and BMI panel"
+            );
+            $vital_code = new FHIRCodeableConcept();
+            $vital_code->addCoding($vital_coding);
+            $vital_code->setText("Vital signs Panel");
+            $resource->setCode($vital_code);
             $this->addMembers($data, $resource);
         } else {
             $this->setValues($data, $resource);
@@ -163,54 +173,93 @@ class FhirObservationService extends BaseService
     {
         $quantity = new FHIRQuantity();
         $quantity->setSystem("http://unitsofmeasure.org");
+        $coding = new FHIRCoding();
+        $coding->setSystem("http://loinc.org");
         switch ($data['profile']) {
             case 'weight':
                 $quantity->setValue($data['weight']);
                 $quantity->setUnit('lbs');
                 $quantity->setCode("[lb_av]");
                 $resource->setValueQuantity($quantity);
+                $coding->setCode(29463 - 7);
+                $coding->setDisplay("Body weight");
+                $code = new FHIRCodeableConcept();
+                $code->addCoding($coding);
+                $resource->setCode($code);
                 break;
             case 'height':
                 $quantity->setValue($data['height']);
                 $quantity->setUnit('in');
                 $quantity->setCode("[in_i]");
                 $resource->setValueQuantity($quantity);
+                $coding->setCode(8302 - 2);
+                $coding->setDisplay("Body height");
+                $code = new FHIRCodeableConcept();
+                $code->addCoding($coding);
+                $resource->setCode($code);
                 break;
             case 'bps':
                 $quantity->setValue($data['bps']);
                 $quantity->setUnit('mmHg');
                 $quantity->setCode("[mm[Hg]]");
                 $resource->setValueQuantity($quantity);
+                $coding->setCode(8480 - 6);
+                $coding->setDisplay("Systolic blood pressure");
+                $code = new FHIRCodeableConcept();
+                $code->addCoding($coding);
+                $resource->setCode($code);
                 break;
             case 'bpd':
                 $quantity->setValue($data['bpd']);
                 $quantity->setUnit('mmHg');
                 $quantity->setCode("[mm[Hg]]");
                 $resource->setValueQuantity($quantity);
+                $coding->setCode(8462 - 4);
+                $coding->setDisplay("Diastolic blood pressure");
+                $code = new FHIRCodeableConcept();
+                $code->addCoding($coding);
+                $resource->setCode($code);
                 break;
             case 'temperature':
                 $quantity->setValue($data['temperature']);
                 $quantity->setUnit('F');
                 $quantity->setCode("[degF]");
-                $coding['coding']['system'] = "http://snomed.info/sct";
-                $coding['coding']['code'] = "vital-signs";
-                $coding['coding']['display'] = $data['temp_method'];
-                $coding['text'] = "Vital Signs";
-                $this->FHIRData['category'] = ['category' => new FHIRCodeableConcept($coding)];
-                $bodySite = new FHIRCodeableConcept();
                 $resource->setValueQuantity($quantity);
+                $cat_coding = new FHIRCoding();
+                $cat_coding->setSystem("http://snomed.info/sct");
+                $cat_coding->setCode("vital-signs");
+                $cat_coding->setDisplay($data['temp_method']);
+                $code = new FHIRCodeableConcept();
+                $code->addCoding($cat_coding);
+                $code->setText("Vital Signs");
+                $resource->addCategory($code);
+                $coding->setCode(8310 - 5);
+                $coding->setDisplay("Body temperature");
+                $code = new FHIRCodeableConcept();
+                $code->addCoding($coding);
+                $resource->setCode($code);
                 break;
             case 'pulse':
                 $quantity->setValue($data['pulse']);
                 $quantity->setUnit('beats/minute');
                 $quantity->setCode("/min");
                 $resource->setValueQuantity($quantity);
+                $coding->setCode(8867 - 4);
+                $coding->setDisplay("Heart rate");
+                $code = new FHIRCodeableConcept();
+                $code->addCoding($coding);
+                $resource->setCode($code);
                 break;
             case 'respiration':
                 $quantity->setValue($data['respiration']);
                 $quantity->setUnit('breaths/minute');
                 $quantity->setCode("/min");
                 $resource->setValueQuantity($quantity);
+                $coding->setCode(9279 - 1);
+                $coding->setDisplay("Respiratory rate");
+                $code = new FHIRCodeableConcept();
+                $code->addCoding($coding);
+                $resource->setCode($code);
                 break;
             case 'BMI':
                 $quantity->setValue($data['BMI']);
@@ -225,18 +274,33 @@ class FhirObservationService extends BaseService
                 $resource->addDerivedFrom($height_ref);
                 $resource->addDerivedFrom($height_ref);
                 $resource->setValueQuantity($quantity);
+                $coding->setCode(39156 - 5);
+                $coding->setDisplay("Body mass index (BMI) [Ratio]");
+                $code = new FHIRCodeableConcept();
+                $code->addCoding($coding);
+                $resource->setCode($code);
                 break;
             case 'head_circ':
                 $quantity->setValue($data['head_circ']);
                 $quantity->setUnit('in');
                 $quantity->setCode("[in_i]");
                 $resource->setValueQuantity($quantity);
+                $coding->setCode(9843 - 4);
+                $coding->setDisplay("Head Occipital-frontal circumference");
+                $code = new FHIRCodeableConcept();
+                $code->addCoding($coding);
+                $resource->setCode($code);
                 break;
             case 'oxygen_saturation':
                 $quantity->setValue($data['oxygen_saturation']);
                 $quantity->setUnit('%');
                 $quantity->setCode("%");
                 $resource->setValueQuantity($quantity);
+                $coding->setCode(2708 - 6);
+                $coding->setDisplay("Oxygen saturation in Arterial blood");
+                $code = new FHIRCodeableConcept();
+                $code->addCoding($coding);
+                $resource->setCode($code);
                 break;
 
             default:

@@ -63,7 +63,7 @@ class FhirObservationRestController
 
     public function getOne($id)
     {
-        $profile_data = $this->fhirObservationService->getOne($$id);
+        $profile_data = $this->fhirObservationService->getOne($id);
         if ($profile_data) {
             $resource = $this->fhirObservationService->createObservationResource($id, $profile_data, false);
             $statusCode = 200;
