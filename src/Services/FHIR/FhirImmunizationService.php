@@ -36,7 +36,7 @@ class FhirImmunizationService
     }
     
     public function getAll($search)
-    {      
+    {
         $SQL = "SELECT id,
                     patient_id,
                     administered_date,
@@ -57,8 +57,9 @@ class FhirImmunizationService
                     refusal_reason 
                     FROM Immunizations";
 
-        if (isset($search['patient']))
+        if (isset($search['patient'])) {
             $SQL .= " WHERE patient_id = ?;";
+        }
 
         $immunizationResults = sqlStatement($SQL, $search['patient']);
         $results = array();
@@ -94,11 +95,11 @@ class FhirImmunizationService
         $sqlResult = sqlStatement($SQL, $id);
         $result = sqlFetchArray($sqlResult);
 
-        return $result;        
+        return $result;
     }
 
     public function createImmunizationResource($id = '', $data = '', $encode = true)
-    {     
+    {
         $status = new FHIRImmunizationStatusCodes();
         $statusCoding = new FHIRCoding();
         $statusCoding->setSystem('http://hl7.org/fhir/event-status');
@@ -106,12 +107,10 @@ class FhirImmunizationService
         if ($data['added_erroneously'] != "0") {
             $statusCoding->setCode("entered-in-error");
             $statusCoding->setDisplay("Entered in Error");
-        }
-        else if (isset($data['administered_date'])) {
+        } else if (isset($data['administered_date'])) {
             $statusCoding->setCode("completed");
             $statusCoding->setDisplay("Completed");
-        }
-        else {
+        } else {
             $statusCoding->setCode("not-done");
             $statusCoding->setDisplay("Not Done");
         }
@@ -161,8 +160,7 @@ class FhirImmunizationService
         if (strtolower($data['administration_site']) == "left arm") {
             $siteCoding->setCode("LA");
             $siteCoding->setDisplay("Left arm");
-        }
-        else if (strtolower($data['administration_site']) == "right arm") {
+        } else if (strtolower($data['administration_site']) == "right arm") {
             $siteCoding->setCode("RA");
             $siteCoding->setDisplay("Right Arm");
         }
