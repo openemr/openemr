@@ -4,18 +4,24 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @author    Wejdan Bagais <w.bagais@gmail.com>
+ * @copyright Copyright (c) 2020 Wejdan Bagais <w.bagais@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
 require_once("../../globals.php");
+require_once("$srcdir/panel.inc");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
+
+if (isset($_GET['set_pid'])) {
+    include_once("$srcdir/pid.inc");
+    setpid($_GET['set_pid']);
+}
 ?>
 <html>
 <head>
@@ -40,7 +46,23 @@ tr.selected {
 
 <body class="body_top">
 
-    <span class="title"><?php echo xlt('Panels'); ?></span>
+    <?php
+        if (isset($pid)) {
+        $resultSet = getPatientPanelsInfo($pid);
+        if ($resultSet === -1) {
+           echo ("This patien is not inrolled in any panel");
+         }
+         while ($row = sqlFetchArray($resultSet)) {
+           //print the category and the sub category
+           echo "<b>" . attr($row['category']) . ": </b>";
+           echo attr($row['panel']) . " <br/>";
+           echo "<b>Enrollment Date: </b>" . attr($row['enrollment_date']) . " <br/><br/>";
+         }
+
+       echo "<br/>";
+       echo "</div>";
+      }
+     ?>
 
 </body>
 

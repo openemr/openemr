@@ -9,10 +9,12 @@
  * @author    Sharon Cohen <sharonco@matrix.co.il>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Wejdan Bagais <w.bagais@gmail.com>
  * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Sharon Cohen <sharonco@matrix.co.il>
  * @copyright Copyright (c) 2018-2020 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
+ * @copyright Copyright (c) 2020 Wejdan Bagais <w.bagais@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -1531,7 +1533,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         echo "</div>";
                     } // end if crw
                     //////////////////////////////////////////////////////////////////
-
                     // Show Panels  for selected user.
                     echo "<div>";
                     if (isset($pid)) {
@@ -1567,8 +1568,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         echo "<br/>";
                         echo "</div>";
                     } // end panel
-
-
                     //////////////////////////////////////////////////////////////////
                       // Show current and upcoming appointments.
                       //
