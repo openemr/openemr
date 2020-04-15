@@ -40,7 +40,7 @@ class BaseService
      * @param array $map
      * @return array
      */
-    public function get($map = null, $data = null){
+    public function queryFields($map = null, $data = null){
         if($data == null || $data == "*" || $data == "all"){
             $value = "*";
         }else{

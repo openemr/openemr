@@ -75,7 +75,7 @@ class FhirObservationService extends BaseService
         $split_id = explode("-", $id);
         $profile = $split_id[0];
         $id = $split_id[1];
-        $profile_data = $this->get(
+        $profile_data = $this->queryFields(
             array(
                 "where" => "WHERE form_vitals.id = ?",
                 "data" => array($id),
@@ -89,7 +89,7 @@ class FhirObservationService extends BaseService
 
     public function getAll()
     {
-        return $this->get(
+        return $this->queryFields(
             array(
                 "join" => "JOIN forms fo on form_vitals.id = fo.form_id"
             )
