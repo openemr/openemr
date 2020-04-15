@@ -24,7 +24,17 @@ class FhirObservationRestController
     public function getAll($search)
     {
         $resourceURL = \RestConfig::$REST_FULL_URL;
-        $searchResult = $this->fhirObservationService->getAll();
+        if (strpos($resourceURL, '?') > 0) {
+            $resourceURL = strstr($resourceURL, '?', true);
+        }
+
+        $searchParam = array(
+            'pid' => $search['patient'],
+            'category' => $search['category'],
+            'date' => $search['date']
+        );
+
+        $searchResult = $this->fhirObservationService->getAll($searchParam);
         if ($searchResult !== false) {
             $entries = array();
             foreach ($searchResult as $profile) {
@@ -50,12 +60,12 @@ class FhirObservationRestController
             $searchResult = $this->fhirService->createBundle('Observation', $entries, false);
             $statusCode = 200;
         } else {
-            $statusCode = 404;
+            $statusCode = 400;
             $searchResult = $this->fhirValidate->operationOutcomeResourceService(
                 'error',
                 'invalid',
                 false,
-                "Something went wrong"
+                "Invalid Parameter"
             );
         }
         return RestControllerHelper::responseHandler($searchResult, null, $statusCode);

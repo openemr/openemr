@@ -97,13 +97,44 @@ class FhirObservationService extends BaseService
         return $profile_data;
     }
 
-    public function getAll()
+    public function getAll($search)
     {
-        return $this->queryFields(
-            array(
+        if ($search['category']) {
+            if ($search['category'] == 'vitals-sign') {
+                $searchQuery = array(
+                    "join" => "JOIN forms fo on form_vitals.id = fo.form_id"
+                );
+            } else {
+                return false;
+            }
+        } else {
+            $searchQuery = array(
                 "join" => "JOIN forms fo on form_vitals.id = fo.form_id"
-            )
-        );
+            );
+        }
+
+        if ($search['pid'] || $search['date']) {
+            $searchQuery["where"] = "WHERE ";
+            $searchQuery["data"] = array();
+            $whereClauses = array();
+        }
+        if ($search['pid']) {
+            array_push($whereClauses, "form_vitals.pid = ?");
+            array_push($searchQuery["data"], $search['pid']);
+        }
+        if ($search['date']) {
+            if ($this->isValidDate($search['date'])) {
+                $date = date_create($search['date']);
+                $search['date'] = date_format($date, "Y/m/d H:i:s");
+                array_push($whereClauses, "form_vitals.date between ? and NOW()");
+                array_push($searchQuery["data"], $search['date']);
+            } else {
+                return false;
+            }
+        }
+
+        $searchQuery["where"] .= implode(" AND ", $whereClauses);
+        return $this->queryFields($searchQuery);
     }
 
     private function addMembers($data, $resource)
