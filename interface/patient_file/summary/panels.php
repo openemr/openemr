@@ -93,9 +93,10 @@ tr.selected {
     // check if the patien inrolled in any panels
         if (isset($pid)) {
         $resultSet = getPatientPanelsInfo($pid,"all");
-        if ($resultSet === -1) {
-           echo ("This patien is not inrolled in any panel");
-         }
+        if ($resultSet === -1 or sqlNumRows($resultSet)<1) {
+           echo ("This patien is not inrolled in any panel</br></br>");
+         }else {  //if the patient inrolled into a panel then print the table
+           //print the table start
      ?>
      <table id="customers">
       <tr>
@@ -124,6 +125,7 @@ tr.selected {
 </br></br>
 <?php } // end the if isset pid
   //End of display panels information
+}//end of print the table
 ////////////////////////////////////////////////////////////////
   ?>
 
