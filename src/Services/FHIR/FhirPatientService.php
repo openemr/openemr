@@ -54,32 +54,75 @@ class FhirPatientService
 
     public function parsePatientResource($fhirJson)
     {
-        $data["date"] = $fhirJson['lastUpdated'];
-        $name = [];
-        foreach ($fhirJson["name"] as $sub_name) {
-            if ($sub_name["use"] == "official") {
-                $name = $sub_name;
-                break;
+        if (isset($fhirJson['name'])) {
+            $name = [];
+            foreach ($fhirJson["name"] as $sub_name) {
+                if ($sub_name["use"] == "official") {
+                    $name = $sub_name;
+                    break;
+                }
+            }
+            if (isset($name["family"])) {
+                $data["lname"] = $name["family"];
+            }
+            if ($name["given"][0]) {
+                $data["fname"] = $name["given"][0];
+            }
+            if (isset($name["given"][1])) {
+                $data["mname"] = $name["given"][1];
             }
         }
-        $data["lname"] = $name["family"];
-        $data["fname"] = $name["given"][0];
-        $data["mname"] = $name["given"][1];
-        $data["street"] = $fhirJson["address"][0]["line"][0];
-        $data["postal_code"] = $fhirJson["address"][0]["postalCode"];
-        $data["city"] = $fhirJson["address"][0]["city"];
-        $data["state"] = $fhirJson["address"][0]["state"];
-        $data["country_code"] = null;
-        $phone = [];
-        foreach ($fhirJson["telecom"] as $phone) {
-            if ($phone["use"] == "mobile") {
-                break;
+        if (isset($fhirJson["address"])) {
+            if (isset($fhirJson["address"][0]["line"][0])) {
+                $data["street"] = $fhirJson["address"][0]["line"][0];
+            }
+            if (isset($fhirJson["address"][0]["postalCode"][0])) {
+                $data["postal_code"] = $fhirJson["address"][0]["postalCode"];
+            }
+            if (isset($fhirJson["address"][0]["city"][0])) {
+                $data["city"] = $fhirJson["address"][0]["city"];
+            }
+            if (isset($fhirJson["address"][0]["state"][0])) {
+                $data["state"] = $fhirJson["address"][0]["state"];
+            }
+            if (isset($fhirJson["address"][0]["country"][0])) {
+                $data["country"] = $fhirJson["address"][0]["country"];
             }
         }
-        $data["phone_contact"] = $phone["value"];
-        $data["DOB"] = $fhirJson["birthDate"];
-        $data["sex"] = ucwords($fhirJson["gender"]);
-
+        if (isset($fhirJson["telecom"])) {
+            foreach ($fhirJson["telecom"] as $telecom) {
+                switch ($telecom['system']) {
+                    case 'phone':
+                        switch ($telecom['use']) {
+                            case 'mobile':
+                                $data["phone_contact"] = $telecom["value"];
+                                break;
+                            case 'home':
+                                $data["phone_home"] = $telecom["value"];
+                                break;
+                            case 'work':
+                                $data["phone_biz"] = $telecom["value"];
+                                break;
+                            default:
+                                $data["phone_contact"] = $telecom["value"];
+                                break;
+                        }
+                        break;
+                    case 'email':
+                        $data["email"] = $telecom["value"];
+                        break;
+                    default:
+                    //Should give Error for incapability
+                        break;
+                }
+            }
+        }
+        if (isset($fhirJson["birthDate"])) {
+            $data["DOB"] = $fhirJson["birthDate"];
+        }
+        if (isset($fhirJson["gender"])) {
+            $data["sex"] = $fhirJson["gender"];
+        }
         return $data;
     }
 
@@ -90,12 +133,12 @@ class FhirPatientService
 
     public function validate($data)
     {
-        return $this->patientService->validate($data);
+        return $this->patientService->validate($data, 'insert');
     }
 
     public function validateUpdate($pid, $data)
     {
-        return $this->patientService->validateUpdate($pid, $data);
+        return $this->patientService->validate($data, 'update', $pid);
     }
 
     public function insert($data)

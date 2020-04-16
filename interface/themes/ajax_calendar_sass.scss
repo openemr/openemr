@@ -6,7 +6,6 @@
 @each $breakpoint in map-keys($grid-breakpoints) {
   @include media-breakpoint-up($breakpoint) {
       $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
-      
     }
 }
 
@@ -40,12 +39,13 @@ div.tiny {
     transition: margin .25s ease-out;
 }
 
-.page-content-wrapper {
-    width: 100%;
-}
-
 #wrapper.toggled .sidebar-wrapper {
     margin-left: 0;
+    top: 68px;
+}
+
+#wrapper.toggled .page-content-wrapper {
+    margin-left: 8.75rem;
 }
 
 #functions {
@@ -58,10 +58,12 @@ div.tiny {
 
 
 #topToolbarRight {
+    position: fixed;
     float: right;
     width: 100%;
     border-bottom: 1px solid $black;
     padding: 0.3125rem 0 0.1875rem 0;
+    z-index: 3;
 }
 
 #dateNAV {
@@ -139,6 +141,7 @@ div.tiny {
     border: none;
     vertical-align: middle;
     width: 100%;
+    margin-top: 45px;
 }
 
 #bigCal td {
@@ -148,7 +151,9 @@ div.tiny {
 
 #bottomLeft {
     width: 15%;
-    min-width: 8.75rem;
+    min-width: 130px;
+    position: fixed;
+    top: 45px;
     float: left;
     clear: left;
 }
@@ -513,19 +518,41 @@ div.tiny {
     #nextmonth {
         @include font-size("1.3rem !important");
     }
+
+    .page-content-wrapper {
+        margin-left: 0%;
+        width: 100%;
+    }
+
+    #wrapper.toggled .page-content-wrapper {
+        width: calc(100% - 150px);
+        margin-left: 130px;
+    }
 }
 
-@media (min-width: 768px) {
+@media(max-width: 665px) {
+    #bigCal > table {
+        margin-top: 68px;
+    }
+}
+
+@media (min-width: 860px) {
     .sidebar-wrapper {
         margin-left: 0;
     }
 
     .page-content-wrapper {
         min-width: 0;
-        width: 100%;
+        width: 85%;
+        margin-left: 15%;
     }
 
     #wrapper.toggled .sidebar-wrapper {
         margin-left: -30rem;
+    }
+
+    #wrapper.toggled .page-content-wrapper {
+        width: 100%;
+        margin-left: 0%;
     }
 }

@@ -31,7 +31,7 @@ class RestControllerHelper
 
     public static function validationHandler($validationResult)
     {
-        if (!$validationResult->isValid()) {
+        if (property_exists($validationResult, 'isValid') && !$validationResult->isValid()) {
             http_response_code(400);
             return $validationResult->getMessages();
         }

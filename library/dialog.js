@@ -1,5 +1,5 @@
 // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
-// Copyright (C) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
+// Copyright (C) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,16 +19,18 @@
         function ajax(data) {
             let opts = {
                 buttons: data.buttons,
-                sizeHeight: data.sizeHeight || '',
+                allowDrag: data.allowDrag,
+                allowResize: data.allowResize,
+                sizeHeight: data.sizeHeight,
                 type: data.type,
                 data: data.data,
                 url: data.url,
-                dataType: data.dataType || '' // xml/json/text etc.
+                dataType: data.dataType // xml/json/text etc.
             };
 
             let title = data.title;
 
-            return dlgopen('', '', data.size, 250, '', title, opts);
+            return dlgopen('', '', data.size, 300, '', title, opts);
         }
 
         function alert(data, title) {
@@ -49,11 +51,9 @@
     });
 
     if (typeof window.xl !== 'function') {
-        let utilfn = top.webroot_url + '/library/js/utility.js';
-        let load = async () => {
-            await includeScript(utilfn, false, 'script');
-        };
-        load().then(rtn => {
+        (async (utilfn) => {
+            await includeScript(utilfn, 'script');
+        })(top.webroot_url + '/library/js/utility.js').then(() => {
             console.log('Utilities Unavailable! loading:[ ' + utilfn + ' ] For: [ ' + location + ' ]');
         });
     }
@@ -162,56 +162,6 @@ function dialogID() {
     }
 
     return s4() + s4() + s4() + s4() + s4() + +s4() + s4() + s4();
-}
-
-/*
-* function includeScript(url, async)
-*
-* @summary Dynamically include JS Scripts or Css.
-*
-* @param {string} url file location.
-* @param {boolean} async true/false load asynchronous/synchronous.
-* @param {string} 'script' | 'link'.
-*
-* */
-function includeScript(url, async, type) {
-    try {
-        let rqit = new XMLHttpRequest();
-        if (type === "link") {
-            let headElement = document.getElementsByTagName("head")[0];
-            let newScriptElement = document.createElement("link")
-            newScriptElement.type = "text/css";
-            newScriptElement.rel = "stylesheet";
-            newScriptElement.href = url;
-            headElement.appendChild(newScriptElement);
-            console.log('Needed to load:[ ' + url + ' ] For: [ ' + location + ' ]');
-            return false;
-        }
-
-        if (async === false) {
-            console.log("The url of " + url + " is deprecated due to synchronous requests. Let's find a way to remediate this soon!");
-        }
-        rqit.open("GET", url, async); // false = synchronous.
-        rqit.send(null);
-
-        if (rqit.status === 200) {
-            if (type === "script") {
-                let headElement = document.getElementsByTagName("head")[0];
-                let newScriptElement = document.createElement("script");
-                newScriptElement.type = "text/javascript";
-                newScriptElement.text = rqit.responseText;
-                headElement.appendChild(newScriptElement);
-                console.log('Needed to load:[ ' + url + ' ] For: [ ' + location + ' ]');
-                return false; // in case req comes from a submit form.
-            }
-        }
-
-        new Error("Failed to get URL:" + url);
-
-    } catch (e) {
-        throw e;
-    }
-
 }
 
 // test for and/or remove dependency.
@@ -386,7 +336,7 @@ if (typeof dlgclose !== "function") {
 * @param {Object} opts Dialogs options.
 * @returns {Object} dialog object reference.
 * */
-const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
+function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     // First things first...
     top.restoreSession();
     // A matter of Legacy
@@ -401,7 +351,9 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
     //
     let jqurl = top.webroot_url + '/public/assets/jquery/dist/jquery.min.js';
     if (typeof jQuery === 'undefined') {
-        includeScript(jqurl, false, 'script'); // true is async
+        (async (utilfn) => {
+            await includeScript(utilfn, 'script');
+        })(jqurl);
     }
     jQuery(function () {
         // Check for dependencies we will need.
@@ -413,18 +365,28 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
         let version = jQuery.fn.jquery.split(' ')[0].split('.');
         if ((version[0] < 2 && version[1] < 9) || (version[0] === 1 && version[1] === 9 && version[2] < 1)) {
             inDom('jquery-min', 'script', true);
-            includeScript(jqurl, false, 'script');
-            console.log('Replacing jQuery version:[ ' + version + ' ]');
+            (async (utilfn) => {
+                await includeScript(utilfn, 'script');
+            })(jqurl).then(() => {
+                console.log('Replacing jQuery version:[ ' + version + ' ]');
+            });
         }
         if (!isBootstrapCss()) {
-            includeScript(bscss, false, 'link');
-            if (top.jsLanguageDirection === 'rtl') {
-                includeScript(bscssRtl, false, 'link');
+            (async (utilfn) => {
+                await includeScript(utilfn, 'link');
+            })(bscss);
+            if (top.jsLanguageDirection == 'rtl') {
+                (async (utilfn) => {
+                    await includeScript(utilfn, 'link');
+                })(bscssRtl);
             }
         }
         if (typeof jQuery.fn.modal === 'undefined') {
-            if (!inDom('bootstrap.bundle.min.js', 'script', false))
-                includeScript(bsurl, false, 'script');
+            if (!inDom('bootstrap.bundle.min.js', 'script', false)) {
+                (async (utilfn) => {
+                    await includeScript(utilfn, 'script');
+                })(bsurl);
+            }
         }
     });
 
@@ -439,7 +401,8 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
         sizeHeight: 'auto', // 'full' will use as much height as allowed
         // use is onClosed: fnName ... args not supported however, onClosed: 'reload' is auto defined and requires no function to be created.
         onClosed: false,
-        callBack: false // use {call: 'functionName, args: args, args} if known or use dlgclose.
+        callBack: false, // use {call: 'functionName, args: args, args} if known or use dlgclose.
+        resolvePromiseOn: 'init' // this may be useful values are init, shown, show and closed which coincide with dialog events.
     };
 
     if (!opts) {
@@ -511,15 +474,17 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
         '</div>';
 
     var headerhtml =
-        ('<div class=modal-header>%title%<button type=button class="close" data-dismiss=modal>' +
-            '&times;</button></div>').replace('%title%', mTitle);
+        ('<div class="modal-header">%title%<button type="button" class="close" data-dismiss="modal">' +
+            '&times;</button></div>')
+        .replace('%title%', mTitle);
 
     var frameHtml =
         ('<iframe id="modalframe" class="w-100 h-100 modalIframe" name="%winname%" %url% frameborder=0></iframe>')
-        .replace('%winname%', winname).replace('%url%', fullURL ? 'src=' + fullURL : '');
+        .replace('%winname%', winname)
+        .replace('%url%', fullURL ? 'src=' + fullURL : '');
 
     var bodyStyles = (' style="height:%initHeight%;max-height:92vh;"')
-        .replace('%initHeight%', opts.sizeHeight !== 'full' ? mHeight : '80vh');
+    .replace('%initHeight%', opts.sizeHeight !== 'full' ? mHeight : '80vh');
 
     var altClose = '<div class="closeDlgIframe" data-dismiss="modal" ></div>';
 
@@ -601,12 +566,20 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
                 if (opts.allowResize || opts.allowDrag) {
                     initDragResize(where.document, where.document);
                 }
+
+                if (opts.resolvePromiseOn == 'show') {
+                    resolve(dlgContainer);
+                }
             }).on('shown.bs.modal', function () {
                 // Remove waitHtml spinner/loader etc.
                 jQuery(this).parent().find('div.loadProgress').fadeOut(function () {
                     jQuery(this).remove();
                 });
                 dlgContainer.modal('handleUpdate'); // allow for scroll bar
+
+                if (opts.resolvePromiseOn == 'shown') {
+                    resolve(dlgContainer);
+                }
             }).on('hidden.bs.modal', function (e) {
                 // remove our dialog
                 jQuery(this).remove();
@@ -627,13 +600,11 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
                         window[opts.callBack.call](opts.callBack.args);
                     }
                 }
-                // We resolve on modal closing so we can run after action items.
-                // Todo: Move our closed and callback functions to new library function.
-                // then() continue promise chain back to calling script.
-                //
-                resolve(true);
 
-            }).modal({backdrop: 'static', keyboard: true}, 'show');// Show Modal
+                if (opts.resolvePromiseOn == 'close') {
+                    resolve(dlgContainer);
+                }
+            });
 
             // define local dialog close() function. openers scope
             window.dlgCloseAjax = function (calling, args) {
@@ -659,14 +630,17 @@ const dlgopen = (url, winname, width, height, forceNewWindow, title, opts) => {
             where.getOpener = function () {
                 return where;
             };
-
-            // Return the dialog ref. looking towards deferring...
-            return dlgContainer;
-
+            // dialog is completely built and events set
+            // this is default returning our dialog container reference.
+            if (opts.resolvePromiseOn == 'init') {
+                resolve(dlgContainer);
+            }
+            // Finally Show Dialog after DOM settles
+            dlgContainer.modal({backdrop: 'static', keyboard: true}, 'show');
         }); // end events
-    }); /* promise */
+    }); /* Returning Promise */
 
-    // Ajax call with promise
+    // Ajax call with promise via dialog
     function dialogAjax(data, $dialog, opts) {
         var params = {
             async: data.async,

@@ -28,6 +28,7 @@ class PatientService extends BaseService
     private $patient_picture_fallback_id = -1;
 
     private $pid;
+    private $validator;
 
     /**
      * Default constructor.
@@ -38,44 +39,40 @@ class PatientService extends BaseService
     }
 
     // make this a comprehensive validation
-    public function validate($patient)
+    public function validate($patient, $context, $id = null)
     {
-        $validator = new Validator();
-
-        $validator->required('fname')->lengthBetween(2, 255);
-        $validator->required('lname')->lengthBetween(2, 255);
-        $validator->required('sex')->lengthBetween(4, 30);
-        $validator->required('DOB')->datetime('Y-m-d');
-
-        return $validator->validate($patient);
-    }
-
-    public function validateUpdate($pid, $patient)
-    {
-        $validator = new Validator();
-
-        $vPid = $this->validatePid($pid);
-        if ($vPid->isNotValid()) {
-            return $vPid;
+        $this->validator = new Validator;
+        if ($id) {
+            $vPid = $this->validatePid($id);
+            if ($vPid->isNotValid()) {
+                return $vPid;
+            }
         }
-
-        $validator->optional('fname')->lengthBetween(2, 255);
-        $validator->optional('lname')->lengthBetween(2, 255);
-        $validator->optional('sex')->lengthBetween(4, 30);
-        if (key_exists('DOB', $patient)) {
-            $validator->required('DOB')->datetime('Y-m-d');
-        }
-
-        return $validator->validate($patient);
+        
+        $this->validator->context('insert', function (Validator $context) {
+            $context->required('fname', "First Name")->lengthBetween(2, 255);
+            $context->required('lname', 'Last Name')->lengthBetween(2, 255);
+            $context->required('sex', 'Gender')->lengthBetween(4, 30);
+            $context->required('DOB', 'Date of Birth')->datetime('Y-m-d');
+        });
+        
+        $this->validator->context('update', function (Validator $context) {
+            $context->copyContext('insert', function ($rules) {
+                foreach ($rules as $key => $chain) {
+                    $chain->required(false);
+                }
+            });
+        });
+        
+        return $this->validator->validate($patient, $context);
     }
 
     public function validatePid($pid)
     {
-        $validator = new Validator();
-        $tmp['pid'] = $this->verifyPid($pid);
-        $validator->required('pid')->numeric();
-
-        return $validator->validate($tmp);
+        $this->validator->required('pid')->callback(function ($value) {
+            return $this->verifyPid($value);
+        })->numeric();
+        return $this->validator->validate(['pid' => $pid]);
     }
 
     public function setPid($pid)
@@ -142,6 +139,10 @@ class PatientService extends BaseService
 
     public function insert($data)
     {
+        $validationResult = $this->validate($data, 'insert');
+        if ($validationResult->isNotValid()) {
+            return $validationResult;
+        }
         $fresh_pid = $this->getFreshPid();
         $data['pid'] = $fresh_pid;
         $data['pubpid'] = $fresh_pid;
@@ -165,6 +166,10 @@ class PatientService extends BaseService
 
     public function update($pid, $data)
     {
+        $validationResult = $this->validate($data, 'update', $pid);
+        if ($validationResult->isNotValid()) {
+            return $validationResult;
+        }
         $data['date'] = date("Y-m-d H:i:s");
 
         $query = $this->buildUpdateColumns($data);

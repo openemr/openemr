@@ -27,27 +27,21 @@ class PatientRestController
 
     public function post($data)
     {
-        $validationResult = $this->patientService->validate($data);
-
-        $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
+        $serviceResult = $this->patientService->insert($data);
+        $validationHandlerResult = RestControllerHelper::validationHandler($serviceResult);
         if (is_array($validationHandlerResult)) {
             return $validationHandlerResult;
         }
-
-        $serviceResult = $this->patientService->insert($data);
         return RestControllerHelper::responseHandler($serviceResult, array("pid" => $serviceResult), 201);
     }
 
     public function put($pid, $data)
     {
-        $validationResult = $this->patientService->validate($data);
-
-        $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
+        $serviceResult = $this->patientService->update($pid, $data);
+        $validationHandlerResult = RestControllerHelper::validationHandler($serviceResult);
         if (is_array($validationHandlerResult)) {
             return $validationHandlerResult;
         }
-
-        $serviceResult = $this->patientService->update($pid, $data);
         return RestControllerHelper::responseHandler($serviceResult, array("pid" => $pid), 200);
     }
 

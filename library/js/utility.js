@@ -6,7 +6,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 /* We should really try to keep this library jQuery free ie javaScript only! */
@@ -23,46 +23,52 @@ function xl(string) {
     }
 }
 
+// another useful function
+async function syncFetchFile(fileUrl, type = 'text') {
+    let content = '';
+    let response = await fetch(fileUrl);
+    if (type == 'text') {
+        content = await response.text();
+    }
+    if (type == 'json') {
+        content = await response.json();
+    }
+
+    return content;
+}
+
 /*
-* function includeDependency(url, async)
+* function includeScript(srcUrl, type)
 *
 * @summary Dynamically include JS Scripts or Css.
 *
 * @param {string} url file location.
-* @param {boolean} async true/false load asynchronous/synchronous.
 * @param {string} 'script' | 'link'.
 *
 * */
-function includeDependency(url, async, type) {
-    try {
-        let request = new XMLHttpRequest();
+function includeScript(srcUrl, type) {
+    return new Promise(function (resolve, reject) {
+        if (type == 'script') {
+            let newScriptElement = document.createElement('script');
+            newScriptElement.src = srcUrl;
+            newScriptElement.onload = () => resolve(newScriptElement);
+            newScriptElement.onerror = () => reject(new Error(`Script load error for ${srcUrl}`));
+
+            document.head.append(newScriptElement);
+            console.log('Needed to load:[' + srcUrl + '] For: [' + location + ']');
+        }
         if (type === "link") {
-            let headElement = document.getElementsByTagName("head")[0];
             let newScriptElement = document.createElement("link")
             newScriptElement.type = "text/css";
             newScriptElement.rel = "stylesheet";
-            newScriptElement.href = url;
-            headElement.appendChild(newScriptElement);
-            console.log('Needed to load:[ ' + url + ' ] For: [ ' + location + ' ]');
-            return false;
+            newScriptElement.href = srcUrl;
+            newScriptElement.onload = () => resolve(newScriptElement);
+            newScriptElement.onerror = () => reject(new Error(`Link load error for ${srcUrl}`));
+
+            document.head.append(newScriptElement);
+            console.log('Needed to load:[' + srcUrl + '] For: [' + location + ']');
         }
-        request.open("GET", url, async); // false = synchronous.
-        request.send(null);
-        if (request.status === 200) {
-            if (type === "script") {
-                let headElement = document.getElementsByTagName("head")[0];
-                let newScriptElement = document.createElement("script");
-                newScriptElement.type = "text/javascript";
-                newScriptElement.text = request.responseText;
-                headElement.appendChild(newScriptElement);
-                console.log('Needed to load:[ ' + url + ' ] For: [ ' + location + ' ]');
-                return false; // in case req comes from a submit form.
-            }
-        }
-        new Error("Failed to get URL:" + url);
-    } catch (e) {
-        throw e;
-    }
+    });
 }
 
 /*
@@ -90,11 +96,10 @@ document.addEventListener('DOMContentLoaded', function () {
 function initDragResize(dragContext, resizeContext = document) {
     let isLoaded = typeof window.interact;
     if (isLoaded !== 'function') {
-        let load = async () => {
-            let interactfn = top.webroot_url + '/public/assets/interactjs/dist/interact.js';
-            await includeScript(interactfn, false, 'script');
-        };
-        load().then(rtn => {
+        (async (utilfn) => {
+            await includeScript(utilfn, 'script');
+        })(top.webroot_url + '/public/assets/interactjs/dist/interact.js')
+        .then(() => {
             initInteractors(dragContext, resizeContext);
         });
     } else {
@@ -105,14 +110,18 @@ function initDragResize(dragContext, resizeContext = document) {
 /* function to init all page drag/resize elements.*/
 function initInteractors(dragContext = document, resizeContext = '') {
     resizeContext = resizeContext ? resizeContext : dragContext;
+
     /* Draggable */
+    // reset
+    interact(".drag-action", {context: dragContext}).unset();
+    // init
     interact(".drag-action", {context: dragContext}).draggable({
         enabled: true,
         inertia: true,
         modifiers: [
             interact.modifiers.snap({
                 targets: [
-                    interact.createSnapGrid({x: 20, y: 20})
+                    interact.createSnapGrid({x: 30, y: 30})
                 ],
                 range: Infinity,
                 relativePoints: [{x: 0, y: 0}]
@@ -130,6 +139,8 @@ function initInteractors(dragContext = document, resizeContext = '') {
     }).on('dragmove', dragMoveListener);
 
     /* Resizable */
+    interact(".resize-action", {context: resizeContext}).unset();
+
     interact(".resize-action", {context: resizeContext}).resizable({
         enabled: true,
         preserveAspectRatio: false,

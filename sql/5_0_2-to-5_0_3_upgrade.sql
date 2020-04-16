@@ -432,6 +432,13 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('Sort_Direction', '1', 'desc', 20, 0, 1);
 #EndIf
 
+#IfNotColumnType form_eye_mag_prefs ordering smallint(6)
+ALTER TABLE `form_eye_mag_prefs` MODIFY `ordering` smallint(6) DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType codes code_text_short varchar(255)
+ALTER TABLE `codes` MODIFY `code_text_short` varchar(255) NOT NULL default '';
+#EndIf
 
 #IfNotTable panel_category
 create table panel_category (
@@ -453,7 +460,7 @@ create table panel_enrollment (
     id int(4) NOT NULL AUTO_INCREMENT PRIMARY KEY,
     patient_id bigint(20),
     panel_id int,
-    enrollment_date date, 
+    enrollment_date date,
     discharge_date date,
     status varchar(250),
     Foreign key(patient_id) REFERENCES patient_data(id),
@@ -484,4 +491,3 @@ insert into panel (name,category_id) values ('HTN',4);
 insert into panel (name,category_id) values ('Pelvic Pain',4);
 insert into panel (name,category_id) values ('Obesity',4);
 insert into panel (name,category_id) values ('Classes',4);
-#EndIf

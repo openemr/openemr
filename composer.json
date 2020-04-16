@@ -69,7 +69,7 @@
     },
     "require-dev": {
         "phpunit/phpunit": "8.*",
-        "symfony/panther": "^0.6"
+        "symfony/panther": "^0.7"
     },
     "repositories": [
         {
