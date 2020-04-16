@@ -117,7 +117,7 @@ EOD;
             $modalContent = xla("Do you want to close the tabs?");
             $modalCancel = xla("Cancel");
             $modalClose = xla("Close");
-
+            $message = xlj("Fee sheet tab is already opened");
             $s .= <<<EOD
 <script>
 // We use one object to contain an object of context for each tab set.
@@ -189,16 +189,36 @@ function twAddTab(tabsid, label, content) {
   return panelId;
 }
 
+var execute = false;
+var temp;
 // Add a new tab using an iframe loading a specified URL.
 function twAddFrameTab(tabsid, label, url) {
   var panelId = nextPanelId(tabsid);
   top.restoreSession();
-  twAddTab(
-    tabsid,
-    label,
-    "<iframe name='" + panelId + "' frameborder='0' class='w-100' style='height:94.5%' src='" + url + "'>Oops</iframe>"
-  );
-  return panelId;
+  if (label === "Fee Sheet") {
+    if (!execute) {
+      twAddTab(
+        tabsid,
+        label,
+        "<iframe name='" + panelId + "' frameborder='0' class='w-100' style='height:94.5%' src='" + url + "'>Oops</iframe>"
+      );
+      execute = true;
+      temp = panelId;
+      return panelId;
+    } else {
+      asyncAlertMsg($message, 3000, 'warning','') ;
+      return false;
+    }
+  } else {
+    twAddTab(
+      tabsid,
+      label,
+      "<iframe name='" + panelId + "' frameborder='0' class='w-100' style='height:94.5%' src='" + url + "'>Oops</iframe>"
+    );
+    return panelId;
+  }
+  
+  
 }
 
 // Remove the specified tab from the specified tab set.
@@ -208,6 +228,10 @@ function twCloseTab(tabsid, panelId) {
   twObject[tabsid].content.find("#" + panelId).remove();
   top.restoreSession();
   activateTab(lastTabId);
+
+  if(panelId === temp){
+    execute = false;
+  }
 }
 
 </script>

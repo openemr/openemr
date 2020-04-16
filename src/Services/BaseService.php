@@ -215,7 +215,7 @@ class BaseService
     }
 
     /**
-     * Build and Throw Invalid Value Exception 
+     * Build and Throw Invalid Value Exception
      *
      * @param $message              - The error message which will be displayed
      * @param $type                 - Type of Exception

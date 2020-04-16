@@ -6,7 +6,7 @@
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady@sparmy.com>
- * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -665,12 +665,9 @@ initReport = function(){
 
     function showCustom(){
         var formval = $( "#report_form" ).serializeArray();
-        var title = 'Custom Reports';
+        var title = <?php echo xlj("Custom Report") ?>;
         var params = {
-            buttons: [
-               { text: 'Close', close: true, style: 'danger' },
-            ],
-            sizeHeight: 'full', // @todo fix this lazy bones in dialog to allow any height!
+            sizeHeight: 'full',
             size: 'modal-lg',
             title: title,
             type: "POST",
@@ -678,9 +675,12 @@ initReport = function(){
             data: formval
         };
 
-        // returns a promise after dialog closes. Just an empty fulfill for an example.
+        // returns a promise after dialog inits. Just an empty fulfill for an example.
         // Could do an alert or confirm etc.
-        return dialog.ajax(params).then(function () {});
+        return dialog.ajax(params)
+        .then(function (dialog) {
+            $('div.modal-body', dialog).addClass('overflow-auto');
+        });
     }
     $(".generateCCR").click(
         function() {

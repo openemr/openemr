@@ -435,3 +435,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 #IfNotColumnType form_eye_mag_prefs ordering smallint(6)
 ALTER TABLE `form_eye_mag_prefs` MODIFY `ordering` smallint(6) DEFAULT NULL;
 #EndIf
+
+#IfNotColumnType codes code_text_short varchar(255)
+ALTER TABLE `codes` MODIFY `code_text_short` varchar(255) NOT NULL default '';
+#EndIf
