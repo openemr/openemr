@@ -95,29 +95,23 @@ class FhirConditionService
             if (isset($data['enddate']) && $data['outcome'] == "1") {
                 $clinicalStatusCoding->setCode("resolved");
                 $clinicalStatusCoding->setDisplay("Resolved");
-            }
-            else if (!isset($data['enddate'])) {
+            } else if (!isset($data['enddate'])) {
                 $clinicalStatusCoding->setCode("active");
                 $clinicalStatusCoding->setDisplay("Active");
             }
-        } 
-        else if (isset($data['enddate']) && $data['outcome'] == "0") {
+        } else if (isset($data['enddate']) && $data['outcome'] == "0") {
             $clinicalStatusCoding->setCode("inactive");
             $clinicalStatusCoding->setDisplay("Inactive");
-        } 
-        else if ($data['occurrence'] == 2 && !isset($data['enddate']) && $data['outcome'] == "0") {
+        } else if ($data['occurrence'] == 2 && !isset($data['enddate']) && $data['outcome'] == "0") {
             $clinicalStatusCoding->setCode("recurrence");
             $clinicalStatusCoding->setDisplay("Recurrence");
-        } 
-        else if ($data['occurrence'] > 2 && isset($data['enddate']) && $data['outcome'] == "1") {
+        } else if ($data['occurrence'] > 2 && isset($data['enddate']) && $data['outcome'] == "1") {
             $clinicalStatusCoding->setCode("remission");
             $clinicalStatusCoding->setDisplay("Remission");
-        } 
-        else if ($data['occurrence'] > 2 && !isset($data['enddate']) && $data['outcome'] == "0") {
+        } else if ($data['occurrence'] > 2 && !isset($data['enddate']) && $data['outcome'] == "0") {
             $clinicalStatusCoding->setCode("relapse");
             $clinicalStatusCoding->setDisplay("Relapse");
-        } 
-        else {
+        } else {
             $clinicalStatusCoding->setSystem("http://terminology.hl7.org/CodeSystem/data-absent-reason");
             $clinicalStatusCoding->setCode("unknown");
             $clinicalStatusCoding->setDisplay("Unknown");
