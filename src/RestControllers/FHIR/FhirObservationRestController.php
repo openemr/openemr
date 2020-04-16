@@ -31,8 +31,26 @@ class FhirObservationRestController
         $searchParam = array(
             'pid' => $search['patient'],
             'category' => $search['category'],
-            'date' => $search['date']
+            'date' => $search['date'],
+            'code' => $search['code'] ? explode(',', $search['code']) : null
         );
+        $code = array();
+
+        if ($searchParam['code']) {
+            $code = array(
+                "85353 - 1" => 'vitals',
+                "29463 - 7" => 'weight',
+                "8302 - 2" => 'height',
+                "8480 - 6" => 'bps',
+                "8462 - 4" => 'bpd',
+                "8310 - 5"  => 'temperature',
+                "8867 - 4"  => 'pulse',
+                "9279 - 1"  => 'respiration',
+                "39156 - 5"  => 'BMI',
+                "9843 - 4"  => 'head_circ',
+                "2708 - 6"  => 'oxygen_saturation',
+            );
+        }
 
         $searchResult = $this->fhirObservationService->getAll($searchParam);
         if ($searchResult !== false) {
@@ -41,20 +59,28 @@ class FhirObservationRestController
                 $id = 'vitals-' . $profile['form_id'];
                 $profile_data = $this->fhirObservationService->getOne($id);
                 $entryResource = $this->fhirObservationService->createObservationResource($id, $profile_data, false);
-                $entry = array(
-                    'fullUrl' => $resourceURL . "/" . $id,
-                    'resource' => $entryResource
-                );
-                $entries[] = new FHIRBundleEntry($entry);
-                foreach ($entryResource->hasMember as $profiles) {
-                    $ref = explode("/", $profiles->reference);
-                    $profile_data = $this->fhirObservationService->getOne($ref[1]);
-                    $resource = $this->fhirObservationService->createObservationResource($ref[1], $profile_data, false);
+                if (empty($code) || $this->checkCode($code, $searchParam['code'], $id)) {
                     $entry = array(
-                        'fullUrl' => $resourceURL . "/" . $ref[1],
-                        'resource' => $resource
+                        'fullUrl' => $resourceURL . "/" . $id,
+                        'resource' => $entryResource
                     );
                     $entries[] = new FHIRBundleEntry($entry);
+                }
+                foreach ($entryResource->hasMember as $profiles) {
+                    $ref = explode("/", $profiles->reference);
+                    if (empty($code) || $this->checkCode($code, $searchParam['code'], $ref[1])) {
+                        $profile_data = $this->fhirObservationService->getOne($ref[1]);
+                        $resource = $this->fhirObservationService->createObservationResource(
+                            $ref[1],
+                            $profile_data,
+                            false
+                        );
+                        $entry = array(
+                            'fullUrl' => $resourceURL . "/" . $ref[1],
+                            'resource' => $resource
+                        );
+                        $entries[] = new FHIRBundleEntry($entry);
+                    }
                 };
             }
             $searchResult = $this->fhirService->createBundle('Observation', $entries, false);
@@ -88,5 +114,18 @@ class FhirObservationRestController
         }
 
         return RestControllerHelper::responseHandler($resource, null, $statusCode);
+    }
+
+    private function checkCode($code, $searchParam, $param)
+    {
+        $param = explode("-", $param);
+        if (is_array($searchParam)) {
+            foreach ($searchParam as $search) {
+                if ($code[$search] == $param[0]) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
