@@ -9,29 +9,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-/**
- * Get a patient's data.
- *
- * @param int    $pid   The PID of the patient
- */
-// it needs to be escaped via whitelisting prior to using this function.
-
-
-################END DRAFT#####################
-function isPanelDB()
-{
-  /**
+ /**
   * Purpose:
   * To check if the panels tables are created
-  * Parameters:
-  * IN = Nothing
-  * OUT = true or false based on the status of the panels tables existence
-  * Returns:
-  * true: if the tables exist
-  * False: if the tables are NOT exist
+  * @return boolean true or false based on the status of the panels tables existence
+  * @return boolean true: if the tables exist
+  * @return boolean False: if the tables are NOT exist
   */
-
+function isPanelDB()
+{
   # test query
   $sql = "SELECT * FROM panel_category ";
   if (sqlQueryNoLogIgnoreError($sql))
@@ -42,18 +28,17 @@ function isPanelDB()
   }
 }
 
-function getEnrollments($pid)
-{
-  /**
+/**
   * Purpose:
   * request the patient panle enrolment based on patient id
-  * Parameters:
-   * IN = patient id
-  * OUT = the enrolmments list {id, patient_id, enrolment_date, discharge_date, status}
-  * Returns:
-  * if the tables exist return the enrolments data
-  * if the tables  are not exist return -1
+  * @param integer patient id
+  * if the tables exist:
+  * @return array the enrolmments list {id, patient_id, enrolment_date, discharge_date, status}
+  * if the tables  do not exist:
+  *@return integer return -1
   */
+function getEnrollments($pid)
+{
   if (isPanelDB())
   {
     $sql = "SELECT * FROM panel_enrollment WHERE patient_id = " . $pid;
@@ -61,18 +46,35 @@ function getEnrollments($pid)
   } else { return -1; }
 }
 
-function getPanel($panel_id)
+/**
+  * Purpose:
+  * request the panels information
+  * if the tables exist
+  * @return array the panel {id, name, category_id}
+  * if the tables  do not exist
+  * @return integer return -1
+  */
+function getAllPanels()
 {
-  /**
+  if (isPanelDB())
+  {
+
+  $sql = "SELECT * FROM panel ";
+  return sqlStatement($sql);
+  } else { return -1; }
+}
+
+/**
   * Purpose:
   * request the panels information based on panel id
-  * Parameters:
-   * IN = panel_id
-  * OUT = the panel {id, name, category_id}
-  * Returns:
-  * if the tables exist return the panel data
-  * if the tables  are not exist return -1
+  * @param  integer panel_id
+  * if the tables exist
+  * @return array the panel {id, name, category_id}
+  * if the tables  do not exist
+  *@return integer return -1
   */
+function getPanel($panel_id)
+{
   if (isPanelDB())
   {
 
@@ -81,19 +83,18 @@ function getPanel($panel_id)
   } else { return -1; }
 }
 
-
-function getPanelCategory($category_id)
-{
-  /**
+/**
   * Purpose:
   * request the panel category information based on $category_id
   * Parameters:
-   * IN = $category_id
-  * OUT = the panel {id, name}
-  * Returns:
-  * if the tables exist return the category data
-  * if the tables  are not exist return -1
+  * @param integer $category_id panal category id
+  * if the tables exist:
+  * @return array the panel category {id, name}
+  * if the tables  are not exist
+  *@return integer -1
   */
+function getPanelCategory($category_id)
+{
   if (isPanelDB())
   {
   // get  the category name
@@ -103,23 +104,24 @@ function getPanelCategory($category_id)
 }
 
 
-function getPatientPanelsInfo($pid, $status = "active")
-{
-  /**
+/**
   * Purpose:
   * request the patient enrolment data with the category name and panel name
   * by joining the panel_enrollment, panel, and panel_category tables
-  * Parameters:
-   * IN = $pid, $status (by defulat the status is active)
-  * OUT = {id, patient_id, panel_id, enrolment_date, discharge_date, status, panel, category}
-  * Returns:
-  * if the tables exist return the patient panels data
-  * return -1 if the tables are not exist or if the patient is not enrolled in any panels yet
+  * @param integer $pid  patient id
+  * @param string $status (by defulat the status is active)
+  * if the tables exist:
+  * @return array  patient panels data {id, patient_id, panel_id, enrolment_date, discharge_date, status, panel, category}
+  * if the tables are not exist or if the patient is not enrolled in any panels yet:
+  * @return integer return -1
   */
+function getPatientPanelsInfo($pid, $status = "active")
+{
   if (!isPanelDB()) {
     #if the panels is not activated print bellow line
     return -1;
-  }else {
+  }
+  else {
     #print the patient Panels
     if (mysqli_num_rows($resultSet) === 0) {
       return -1;
@@ -129,9 +131,60 @@ function getPatientPanelsInfo($pid, $status = "active")
     $sql .= "FROM panel_enrollment AS  e ";
     $sql .= "JOIN panel AS p ON e.panel_id = p.id ";
     $sql .= "JOIN panel_category AS c ON p.category_id = c.id ";
-    $sql .= "WHERE p.id = " . $pid . " ";
-    $sql .= "AND e.status = \"" . $status . "\"";
-
+    $sql .= "WHERE e.patient_id = " . $pid . " ";
+    if ($status != "all"){
+      $sql .= "AND e.status = \"" . $status . "\"";
+    }
     return sqlStatement($sql);
+  }
 }
+/**
+  * Purpose:
+  * insert the patient into a new panel
+  * @param  array  $enrollment      aray of panel_enrollment info
+  * (patient_id, panel_id)
+  * @return integer  Last id generated from the sql insert command
+  */
+function insertEnrolment($enrollment)
+{
+  if (!isPanelDB()) {
+    #if the panels is not activated print bellow line
+    return -1;
+  }else {
+    #print the patient Panels
+    if (mysqli_num_rows($resultSet) === 0) {
+      return -1;
+    }
+
+    $sql  = "INSERT INTO panel_enrollment ";
+    $sql .= "(patient_id, panel_id, enrollment_date, status) ";
+    $sql .= " VALUES ( ";
+    $sql .= "'" .$enrollment['patient_id'] . "', ";
+    $sql .= "'" .$enrollment['panel_id'] . "', ";
+    $sql .= "'" . date('Y-m-d H:i:s') . "', ";
+    $sql .=  "'" ."Active". "' ";
+    $sql .= ")" ;
+    $result = sqlInsert($sql);
+
+    return $result;
+  }
+}
+/**
+  * Purpose:
+  * insert the patient into a new panel
+  * @param  array  $updates      aray of updated info
+  * (patient_id, panel_id)
+  * @return integer  Last id generated from the sql insert command
+  */
+function updateEnrolment($updates){
+  $sql = "UPDATE panel_enrollment SET ";
+  $sql .= "status ='". "Discharge". "', ";
+  $sql .= "descharge_Date='". date('Y-m-d H:i:s') . "' ";
+  $sql .= "WHERE patient_id = '" . $updates['patient_id'] . "' ";
+  $sql .= "AND panel_id = " .  $updates['panel_id'] . "' ";
+  $sql .= "LIMIT 1";
+
+  return sqlQuery($sql);
+
+
 }
