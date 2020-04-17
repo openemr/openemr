@@ -85,7 +85,7 @@ foreach ($msgs as $i) {
     <?php if ($GLOBALS['payment_gateway'] == 'Stripe') {
         ?>
         <script type="text/javascript" src="https://js.stripe.com/v3/"></script>
-        <?php
+    <?php
     } ?>
     <?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') {
         // Must be loaded from their server
@@ -94,7 +94,7 @@ foreach ($msgs as $i) {
             $script = "https://js.authorize.net/v1/Accept.js"; // Production script
         } ?>
         <script type="text/javascript" src="<?php echo $script; ?>" charset="utf-8"></script>
-        <?php
+    <?php
     } ?>
 
     <script>
@@ -106,8 +106,7 @@ foreach ($msgs as $i) {
             });
             // Must be switched here
             $('main').removeClass('ml-sm-auto').addClass('mr-sm-auto');
-            $('.nav-pills').addClass('text-right').addClass('justify-content-between');
-
+            $('.sidebar').addClass('text-right').addClass('float-right');
           }
 
             $("#profilereport").load("get_profile.php", {}, function () {
@@ -134,18 +133,18 @@ foreach ($msgs as $i) {
             });
 
             <?php if ($GLOBALS['portal_two_payments']) {
-                ?>
+        ?>
             $("#payment").load("./portal_payment.php", {}, function () {
             });
-                <?php
-            } ?>
+            <?php
+    } ?>
 
             <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
-                ?>
+        ?>
             $("#pro").load("./get_pro.php", {}, function () {
             });
-                <?php
-            } ?>
+            <?php
+    } ?>
 
             $(".generateDoc_download").click(function () {
                 $("#doc_form").submit();
@@ -199,14 +198,7 @@ foreach ($msgs as $i) {
                 $('#popwait').hide();
                 $('#callccda').click(function () {
                     $('#popwait').show();
-                });
-
-                $('#pillCollapse').on('show.bs.collapse', function () {
-                  $('.sidebar').removeClass('d-none').addClass('position-relative');
-                });
-                $('#pillCollapse').on('hide.bs.collapse', function () {
-                  $('.sidebar').addClass('d-none').removeClass('position-relative');
-                });
+                })
             });
         function editAppointment(mode, deid) {
             let mdata = {};
@@ -252,7 +244,7 @@ foreach ($msgs as $i) {
         }
 
         <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
-            ?>
+        ?>
         function writeResult(score, stdErr, assessmentOID) {
             $.ajax({
                 url: '../library/ajax/easipro_util.php',
@@ -354,8 +346,8 @@ foreach ($msgs as $i) {
                 }
             })
         }
-            <?php
-        } // end if $GLOBALS['easipro_enable']?>
+        <?php
+    } // end if $GLOBALS['easipro_enable']?>
     </script>
 </head>
 
@@ -366,7 +358,7 @@ foreach ($msgs as $i) {
                 <a href="home.php" class="navbar-brand d-none d-sm-block">
                     <img class="img-fluid" width="140" src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png' />
                 </a>
-                <button class="navbar-toggler" id="toggleSidebarNav" type="button" data-toggle="collapse" data-target="#pillCollapse" aria-controls="pillCollapse" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#pillCollapse" aria-controls="pillCollapse" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span>
                 </button>
                 <!-- Sidebar toggle button-->
                 <ul class="nav navbar-nav flex-row">
@@ -398,10 +390,10 @@ foreach ($msgs as $i) {
                             <div class="dropdown-divider"></div>
                             <?php if ($GLOBALS['allow_portal_chat']) {
                                 ?>
-                                <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/secure_chat.php?fullscreen=true"> <i class="fa fa-user fa-fw"></i><?php echo xlt('Chat'); ?></a>
-                                <?php
+                                <div><a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/secure_chat.php?fullscreen=true"> <i class="fa fa-user fa-fw"></i><?php echo xlt('Chat'); ?></a></div>
+                            <?php
                             } ?>
-                            <a class="dropdown-item" href="javascript:changeCredentials(event)"> <i class="fa fa-cog fa-fw"></i> <?php echo xlt('Change Credentials'); ?></a>
+                            <div><a class="dropdown-item" href="javascript:changeCredentials(event)"> <i class="fa fa-cog fa-fw"></i> <?php echo xlt('Change Credentials'); ?></a></div>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="logout.php"><i class="fa fa-ban fa-fw"></i> <?php echo xlt('Logout'); ?></a>
                         </div>
@@ -413,7 +405,7 @@ foreach ($msgs as $i) {
     <div class="container-fluid">
       <div class="row">
         <!-- Left side column. contains the logo and sidebar -->
-        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+        <nav class="col-md-2 d-block bg-light sidebar">
             <section class="sidebar-sticky collapse collapse-md" id="pillCollapse">
                 <!-- Sidebar user panel -->
                 <div class="user-panel">
@@ -427,56 +419,69 @@ foreach ($msgs as $i) {
                 </div>
                 <ul class="nav nav-pills flex-column text-dark">
                     <!-- css class was sidebar-menu -->
-                    <li class="nav-item active" data-toggle='pill'><a class="nav-link" href="#profilecard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fas fa-id-card feather"></i> <?php echo xlt('Profile'); ?>
+                    <li class="nav-item" data-toggle='pill'><a class="nav-link" href="#profilecard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-calendar-o feather"></i> <?php echo xlt('Profile'); ?>
                         </a></li>
                     <li class="nav-item" data-toggle='pill'><a class="nav-link" href="#lists" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-list feather"></i><?php echo xlt('Lists'); ?></a></li>
-                    <li class="nav-item"><a class="nav-link" href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr_url($pid); ?>"> <i class="fa fa-gavel feather"></i><?php echo xlt('Patient Documents'); ?></a></li>
-                    <?php if ($GLOBALS['allow_portal_appointments']) { ?>
-                        <li class="nav-item" data-toggle='pill'><a class="nav-link" href="#appointmentcard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fas fa-calendar-day feather"></i> <?php echo xlt("Appointment"); ?>
+                    <li class="nav-item" data-toggle='pill'><a class="nav-link" href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr_url($pid); ?>"> <i class="fa fa-gavel feather"></i><?php echo xlt('Patient Documents'); ?></a></li>
+                    <?php if ($GLOBALS['allow_portal_appointments']) {
+                                ?>
+                        <li class="nav-item" data-toggle='pill'><a class="nav-link" href="#appointmentcard" data-toggle="collapse"
+                                data-parent="#cardgroup"> <i class="fa fa-calendar-o feather"></i> <?php echo xlt("Appointment"); ?>
                             </a></li>
-                    <?php } ?>
-                    <?php if ($GLOBALS['portal_two_ledger'] || $GLOBALS['portal_two_payments']) { ?>
+                    <?php
+                            } ?>
+                    <?php if ($GLOBALS['portal_two_ledger'] || $GLOBALS['portal_two_payments']) {
+                                ?>
                         <li class="nav-item dropdown accounting-menu" data-toggle='pill'><a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-book feather"></i> <?php echo xlt('Accountings'); ?></a>
-                            <div class="dropdown-menu dropdown-menu-md-right">
-                                <?php if ($GLOBALS['portal_two_ledger']) { ?>
+                            <div class="dropdown-menu">
+                                <?php if ($GLOBALS['portal_two_ledger']) {
+                                    ?>
                                     <a class="dropdown-item" href="#ledgercard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-folder-open feather"></i> <?php echo xlt('Ledger'); ?></a>
-                                    <?php } ?>
-                                <?php if ($GLOBALS['portal_two_payments']) { ?>
+                                <?php
+                                } ?>
+                                <?php if ($GLOBALS['portal_two_payments']) {
+                                    ?>
                                     <a class="dropdown-item" href="#paymentcard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-credit-card feather"></i> <?php echo xlt('Make Payment'); ?></a>
-                                    <?php } ?>
+                                <?php
+                                } ?>
                             </div>
                         </li>
-                        <?php } ?>
-                    <li class="nav-item dropdown reporting-menu" data-toggle='pill'><a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"> <i class="fas fa-folder-open feather"></i> <?php echo xlt('Reports'); ?></a>
-                        <div class="dropdown-menu dropdown-menu-md-right">
-                            <?php if ($GLOBALS['ccda_alt_service_enable'] > 1) { ?>
+                    <?php
+                            } ?>
+                    <li class="nav-item dropdown reporting-menu" data-toggle='pill'><a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-calendar feather"></i> <?php echo xlt('Reports'); ?></a>
+                        <div class="dropdown-menu">
+                            <?php if ($GLOBALS['ccda_alt_service_enable'] > 1) {
+                                ?>
                                 <a class="dropdown-item" id="callccda" href="<?php echo $GLOBALS['web_root']; ?>/ccdaservice/ccda_gateway.php?action=startandrun">
                                     <i class="fa fa-envelope feather" aria-hidden="true"></i><?php echo xlt('View CCD'); ?></a>
-                                <?php } ?>
-                            <?php if (!empty($GLOBALS['portal_onsite_document_download'])) { ?>
+                            <?php
+                            } ?>
+                            <?php if (!empty($GLOBALS['portal_onsite_document_download'])) {
+                                ?>
                                 <a class="dropdown-item" href="#reportcard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-folder-open feather"></i> <?php echo xlt('Report Content'); ?></a>
 
                                 <a class="dropdown-item" href="#downloadcard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-download feather"></i> <?php echo xlt('Download Lab Documents'); ?></a>
-                                <?php } ?>
+                            <?php
+                            } ?>
                         </div>
                     </li>
-                    <li class="nav-item"><a class="nav-link" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"><i class="fa fa-envelope feather" aria-hidden="true"></i>
+                    <li class="nav-item" data-toggle='pill'><a class="nav-link" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"><i class="fa fa-envelope feather" aria-hidden="true"></i>
                             <?php echo xlt('Secure Messaging'); ?>
                         </a></li>
                     <?php if ($GLOBALS['allow_portal_chat']) {
-                        ?>
+                                ?>
                         <li class="nav-item" data-toggle='pill'><a class="nav-link" href="#messagescard" data-toggle="collapse"
-                                data-parent="#cardgroup"> <i class="fas fa-comments feather"></i> <?php echo xlt("Secure Chat"); ?>
+                                data-parent="#cardgroup"> <i class="fa fa-envelope feather"></i> <?php echo xlt("Secure Chat"); ?>
                             </a></li>
-                        <?php
-                    } ?>
+                    <?php
+                            } ?>
                     <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
-                        ?>
+                                ?>
                         <li class="nav-item" data-toggle='pill'><a class="nav-link" href="#procard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-edit feather"></i> <?php echo xlt("Patient Reported Outcomes"); ?></a></li>
-                        <?php
-                    } ?>
+                    <?php
+                            } ?>
                     <li class="nav-item" data-toggle='pill'><a class="nav-link" href="#openSignModal" data-toggle="modal" data-type="patient-signature">
-                            <i class="fas fa-file-signature feather"></i><?php echo xlt('Signature on File'); ?>
+                            <i class="fa fa-sign-in feather"></i><?php echo xlt('Signature on File'); ?>
                         </a></li>
                     <li class="nav-item" data-toggle='pill'><a class="nav-link" href="logout.php"><i class="fa fa-ban fa-fw feather"></i> <?php echo xlt('Logout'); ?></a></li>
                 </ul>
@@ -484,7 +489,7 @@ foreach ($msgs as $i) {
             <!-- /.sidebar -->
         </nav>
         <!-- Right side column. Contains content of the page -->
-        <main class="col-md-10 ml-sm-auto mt-5 d-flex">
+        <main class="col-md-10 ml-sm-auto mt-5">
             <!-- Main content -->
             <section class="container-fluid" id="cardgroup">
                 <div id="popwait" class="alert alert-warning"><strong><?php echo xlt('Working!'); ?></strong> <?php echo xlt('Please wait...'); ?></div>
@@ -511,7 +516,7 @@ foreach ($msgs as $i) {
                     </div>
                 </div><!-- /.lists -->
                 <?php if ($GLOBALS['allow_portal_appointments']) {
-                    ?>
+                                ?>
                 <div class="collapse w-100 mt-2" id="appointmentcard">
                     <div class="jumbotron jumbotron-fluid m-5 p-3">
                         <div class="container-fluid">
@@ -520,66 +525,66 @@ foreach ($msgs as $i) {
                             $current_date2 = date('Y-m-d');
                                 $apptLimit = 30;
                                 $appts = fetchNextXAppts($current_date2, $pid, $apptLimit);
-                            if ($appts) {
-                                $stringCM = "(" . xl("Comments field entry present") . ")";
-                                $stringR = "(" . xl("Recurring appointment") . ")";
-                                $count = 0;
-                                foreach ($appts as $row) {
-                                    $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
-                                    $count++;
-                                    $dayname = xl(date("l", strtotime($row ['pc_eventDate'])));
-                                    $dispampm = "am";
-                                    $disphour = substr($row ['pc_startTime'], 0, 2) + 0;
-                                    $dispmin = substr($row ['pc_startTime'], 3, 2);
-                                    if ($disphour >= 12) {
-                                        $dispampm = "pm";
-                                        if ($disphour > 12) {
-                                            $disphour -= 12;
+                                if ($appts) {
+                                    $stringCM = "(" . xl("Comments field entry present") . ")";
+                                    $stringR = "(" . xl("Recurring appointment") . ")";
+                                    $count = 0;
+                                    foreach ($appts as $row) {
+                                        $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
+                                        $count++;
+                                        $dayname = xl(date("l", strtotime($row ['pc_eventDate'])));
+                                        $dispampm = "am";
+                                        $disphour = substr($row ['pc_startTime'], 0, 2) + 0;
+                                        $dispmin = substr($row ['pc_startTime'], 3, 2);
+                                        if ($disphour >= 12) {
+                                            $dispampm = "pm";
+                                            if ($disphour > 12) {
+                                                $disphour -= 12;
+                                            }
                                         }
-                                    }
 
-                                    if ($row ['pc_hometext'] != "") {
-                                        $etitle = xlt('Comments') . ": " . $row ['pc_hometext'] . "\r\n";
-                                    } else {
-                                        $etitle = "";
-                                    }
+                                        if ($row ['pc_hometext'] != "") {
+                                            $etitle = xlt('Comments') . ": " . $row ['pc_hometext'] . "\r\n";
+                                        } else {
+                                            $etitle = "";
+                                        }
 
-                                    echo '<div class="card p-2">';
-                                    $mode = (int)$row['pc_recurrtype'] > 0 ? text("recurring") : $row['pc_recurrtype'];
-                                    $appt_type_icon = (int)$row['pc_recurrtype'] > 0 ? "<i class='float-right fa fa-edit text-danger bg-light'></i>" : "<i class='float-right fa fa-edit text-success bg-light'></i>";
-                                    echo "<div class='card-header clearfix'><a href='#' onclick='editAppointment(" . attr_js($mode) . "," . attr_js($row ['pc_eid']) . ")'" . "title='" . attr($etitle) . "'>" . $appt_type_icon . "</a></div>";
-                                    echo "<div class='body font-weight-bold'><p>" . text($dayname . ", " . $row ['pc_eventDate']) . "&nbsp;";
-                                    echo text($disphour . ":" . $dispmin . " " . $dispampm) . "<br />";
-                                    echo xlt("Type") . ": " . text($row ['pc_catname']) . "<br />";
-                                    echo xlt("Provider") . ": " . text($row ['ufname'] . " " . $row ['ulname']) . "<br />";
-                                    echo xlt("Status") . ": " . text($status_title);
-                                    echo "</p></div></div>";
+                                        echo '<div class="card p-2">';
+                                        $mode = (int)$row['pc_recurrtype'] > 0 ? text("recurring") : $row['pc_recurrtype'];
+                                        $appt_type_icon = (int)$row['pc_recurrtype'] > 0 ? "<i class='float-right fa fa-edit text-danger bg-light'></i>" : "<i class='float-right fa fa-edit text-success bg-light'></i>";
+                                        echo "<div class='card-header clearfix'><a href='#' onclick='editAppointment(" . attr_js($mode) . "," . attr_js($row ['pc_eid']) . ")'" . "title='" . attr($etitle) . "'>" . $appt_type_icon . "</a></div>";
+                                        echo "<div class='body font-weight-bold'><p>" . text($dayname . ", " . $row ['pc_eventDate']) . "&nbsp;";
+                                        echo text($disphour . ":" . $dispmin . " " . $dispampm) . "<br />";
+                                        echo xlt("Type") . ": " . text($row ['pc_catname']) . "<br />";
+                                        echo xlt("Provider") . ": " . text($row ['ufname'] . " " . $row ['ulname']) . "<br />";
+                                        echo xlt("Status") . ": " . text($status_title);
+                                        echo "</p></div></div>";
+                                    }
+                                    if ($count == $apptLimit) {
+                                        echo "<p>" . xlt("Display limit reached") . "<br>" . xlt("More appointments may exist") . "</p>";
+                                    }
+                                } else { // if no appts
+                                    echo "<h3 class='text-center'>" . xlt('No Appointments') . "</h3>";
                                 }
-                                if ($count == $apptLimit) {
-                                    echo "<p>" . xlt("Display limit reached") . "<br>" . xlt("More appointments may exist") . "</p>";
-                                }
-                            } else { // if no appts
-                                echo "<h3 class='text-center'>" . xlt('No Appointments') . "</h3>";
-                            }
                                 echo '</div>'; ?>
                             <span><a class='btn btn-primary btn-block' href='#' onclick="editAppointment('add',<?php echo attr_js($pid); ?>)"><?php echo xlt('Schedule A New Appointment'); ?></a>
                             </span>
                         </div>
                     </div><!-- /.row -->
                     <?php
-                } ?>
+                            } ?>
                     <?php if ($GLOBALS['portal_two_payments']) {
-                        ?>
+                                ?>
                         <div class="row collapse" id="paymentcard">
                             <div class="card w-100">
                                 <header class="card-header bg-primary text-light"> <?php echo xlt('Payments'); ?> </header>
                                 <div id="payment" class="card-body bg-light"></div>
                             </div>
                         </div>
-                        <?php
-                    } ?>
+                    <?php
+                            } ?>
                     <?php if ($GLOBALS['allow_portal_chat']) {
-                        ?>
+                                ?>
                         <div class="collapse w-100" id="messagescard">
                             <div class="card pt-0 pb-0">
                                 <header class="card-header bg-primary text-light"><?php echo xlt('Secure Chat'); ?>  </header>
@@ -588,15 +593,15 @@ foreach ($msgs as $i) {
                                 </div>
                             </div>
                         </div>
-                        <?php
-                    } ?>
+                    <?php
+                            } ?>
                     <div class="row">
                         <div class="card collapse w-100" id="reportcard">
                             <header class="card-header bg-primary text-light"><?php echo xlt('Reports'); ?></header>
                             <div id="reports" class="card-body"></div>
                         </div>
                         <?php if (!empty($GLOBALS['portal_onsite_document_download'])) {
-                            ?>
+                                ?>
                             <div class="card collapse w-100" id="downloadcard">
                                 <header class="card-header bg-primary text-light"> <?php echo xlt('Download Documents'); ?> </header>
                                 <div id="docsdownload" class="card-body">
@@ -608,11 +613,11 @@ foreach ($msgs as $i) {
                                     </div>
                                 </div><!-- /.card-body -->
                             </div>
-                            <?php
-                        } ?>
+                        <?php
+                            } ?>
                     </div>
                     <?php if ($GLOBALS['portal_two_ledger']) {
-                        ?>
+                                ?>
                         <div class="row collapse" id="ledgercard">
                             <div class="card w-100">
                                 <header class="card-header bg-primary text-light"><?php echo xlt('Ledger'); ?></header>
@@ -621,16 +626,16 @@ foreach ($msgs as $i) {
                                 </div>
                             </div>
                         </div>
-                        <?php
-                    } ?>
+                    <?php
+                            } ?>
                     <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
-                        ?>
+                                ?>
                         <div class="row card collapse" id="procard">
                             <header class="card-header bg-primary text-light"> <?php echo xlt('Patient Reported Outcomes'); ?> </header>
                             <div id="pro" class="card-body bg-light"></div>
                         </div>
-                        <?php
-                    } ?>
+                    <?php
+                            } ?>
                     <div class="row card collapse" id="profilecard">
                         <header class="card-header bg-primary text-light"><?php echo xlt('Profile'); ?></header>
                         <div id="profilereport" class="card-body bg-light"></div>

@@ -94,7 +94,6 @@ $close-text-shadow: 0 1 0 $black;
 $enable-responsive-font-sizes: true;
 
 @import "../../public/assets/bootstrap/scss/bootstrap";
-@import "oe-common/oe-sidebar";
 
 .btn-secondary {
   background-color: rgba($black, 0.05) !important;
@@ -323,11 +322,12 @@ table.text-center th {
 -------------------------------------------------
 */
 body > .header {
-  max-height: 100px;
-  position: relative;
-  z-index: 1030;
+    position: relative;
+    max-height: 100px;
+    z-index: 1030;
+}
 
-  .navbar .nav > li.user > a {
+body > .header .navbar .nav > li.user > a {
     font-weight: bold;
 
     > .fa,
@@ -390,25 +390,6 @@ body > .header {
   }
 }
 
-.breadcrumb {
-  background-color: $white;
-
-  a {
-    color: $body-color;
-  }
-}
-
-@media screen and (max-width: 767px) {
-  .right-side > .content-header > .breadcrumb {
-    background: #efefef;
-    float: none;
-    margin-top: 5px;
-    position: relative;
-    right: 0;
-    top: 0;
-  }
-}
-
 @media screen and (max-width: 560px) {
   body > .header {
     position: relative;
@@ -419,15 +400,6 @@ body > .header {
       position: relative !important;
       width: 100%;
     }
-
-    .navbar {
-      margin: 0;
-    }
-  }
-
-  body.fixed > .header {
-    position: fixed;
-  }
 }
 
 .user-panel {
@@ -481,22 +453,22 @@ body > .header {
  *  Gives us the push menu effect
  */
 @media screen and (max-width: 992px) {
-  .relative {
-    position: relative;
-  }
+    .relative {
+        position: relative;
+    }
 
-  .row-offcanvas-right.active {
-    right: 220px;
-  }
+    .row-offcanvas-right.active {
+        right: 220px;
+    }
 
-  .row-offcanvas-left.active {
-    left: 220px;
-  }
+    .row-offcanvas-left.active {
+        left: 220px;
+    }
 
-  body.fixed .row-offcanvas-left.active .navbar {
-    left: 220px !important;
-    right: 0;
-  }
+    body.fixed .row-offcanvas-left.active .navbar {
+        left: 220px !important;
+        right: 0;
+    }
 }
 
 /*
@@ -1122,8 +1094,8 @@ body > .header {
 }
 
 .small-box:hover {
-  color: darken($light, 10%);
-  text-decoration: none;
+    text-decoration: none;
+    color: darken($light, 10%);
 }
 
 @media screen and (max-width: 480px) {
@@ -1759,28 +1731,8 @@ body > .header {
   .navbar {
     background-color: #d3e7f0;
 
-    .nav {
-      a {
-        color: rgba($black, 0.8);
-      }
-
-      > li > a:hover,
-      > li > a:active,
-      > li > a:focus,
-      .open > a,
-      .open > a:hover,
-      .open > a:focus {
-        background: rgba($black, 0.1);
-        color: darken($light, 10%);
-      }
-    }
-
-    .navbar-right > .nav {
-      margin-right: 10px;
-    }
-  }
-
-  .logo {
+/* skin-blue logo */
+.skin-blue .logo {
     background-color: #367fa9;
     color: darken($light, 10%);
 
@@ -1797,18 +1749,16 @@ body > .header {
   .right-side > .content-header {
     background: darken($light, 15%);
     box-shadow: 1px 1px 2px rgba($black, 0.1);
-  }
-  // Skin-blue user panel
-  .user-panel {
-    > .image > img {
-      border: 1px solid #dfdfdf;
-    }
+}
 
-    > .info,
-    > .info > a {
-      color: $gray-700;
-    }
-  }
+/* Skin-blue user panel */
+.skin-blue .user-panel > .image > img {
+    border: 1px solid #dfdfdf;
+}
+
+.skin-blue .user-panel > .info,
+.skin-blue .user-panel > .info > a {
+    color: $gray-700;
 }
 
 /*general page*/
@@ -1980,4 +1930,62 @@ li.dropdown-header {
   .collapse-md {
     display: inherit !important;
   }
+}
+
+/**
+*	Brand new Sidebar
+*	Grabbed from Bootstrap 4 Documentation Examples
+*/
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  padding: 48px 0 0;
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+.sidebar-sticky {
+  position: relative;
+  top: 0;
+  height: calc(100vh - 48px);
+  padding-top: .5rem;
+  overflow-x: hidden;
+  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+}
+
+@supports ((position: -webkit-sticky) or (position: sticky)) {
+  .sidebar-sticky {
+    position: -webkit-sticky;
+    position: sticky;
+  }
+}
+
+.sidebar .nav-link {
+	font-weight: 500;
+	color: $gray-800;
+}
+
+.feather {
+  width: 16px;
+  height: 16px;
+  vertical-align: text-bottom;
+}
+
+.sidebar .nav-link .feather {
+  margin-right: 4px;
+  color: $gray-600;
+}
+
+.sidebar .nav-link:hover .feather,
+.sidebar .nav-link.active .feather {
+  color: inherit;
+}
+
+@media (min-width: 768px) {
+	.collapse-md {
+		display: inherit !important;
+	}
 }
