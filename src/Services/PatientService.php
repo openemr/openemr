@@ -48,29 +48,37 @@ class PatientService extends BaseService
             }
         }
         
-        $this->validator->context('insert', function (Validator $context) {
-            $context->required('fname', "First Name")->lengthBetween(2, 255);
-            $context->required('lname', 'Last Name')->lengthBetween(2, 255);
-            $context->required('sex', 'Gender')->lengthBetween(4, 30);
-            $context->required('DOB', 'Date of Birth')->datetime('Y-m-d');
-        });
+        $this->validator->context(
+            'insert', function (Validator $context) {
+                $context->required('fname', "First Name")->lengthBetween(2, 255);
+                $context->required('lname', 'Last Name')->lengthBetween(2, 255);
+                $context->required('sex', 'Gender')->lengthBetween(4, 30);
+                $context->required('DOB', 'Date of Birth')->datetime('Y-m-d');
+            }
+        );
         
-        $this->validator->context('update', function (Validator $context) {
-            $context->copyContext('insert', function ($rules) {
-                foreach ($rules as $key => $chain) {
-                    $chain->required(false);
-                }
-            });
-        });
+        $this->validator->context(
+            'update', function (Validator $context) {
+                $context->copyContext(
+                    'insert', function ($rules) {
+                        foreach ($rules as $key => $chain) {
+                            $chain->required(false);
+                        }
+                    }
+                );
+            }
+        );
         
         return $this->validator->validate($patient, $context);
     }
 
     public function validatePid($pid)
     {
-        $this->validator->required('pid')->callback(function ($value) {
-            return $this->verifyPid($value);
-        })->numeric();
+        $this->validator->required('pid')->callback(
+            function ($value) {
+                return $this->verifyPid($value);
+            }
+        )->numeric();
         return $this->validator->validate(['pid' => $pid]);
     }
 
@@ -86,7 +94,8 @@ class PatientService extends BaseService
 
     /**
      * TODO: This should go in the ChartTrackerService and doesn't have to be static.
-     * @param $pid unique patient id
+     *
+     * @param  $pid unique patient id
      * @return recordset
      */
     public static function getChartTrackerInformationActivity($pid)
@@ -107,6 +116,7 @@ class PatientService extends BaseService
 
     /**
      * TODO: This should go in the ChartTrackerService and doesn't have to be static.
+     *
      * @return recordset
      */
     public static function getChartTrackerInformation()
@@ -187,7 +197,7 @@ class PatientService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      * 
-     * @param $search search array parameters
+     * @param  $search search array parameters
      * @return patient records matching criteria.
      */
     public function getAll($search = array())
@@ -222,24 +232,24 @@ class PatientService extends BaseService
                         status
                 FROM patient_data';
 
-            if (!empty($search)) {
-                $sql .= ' WHERE ';
-                $whereClauses = array();
+        if (!empty($search)) {
+            $sql .= ' WHERE ';
+            $whereClauses = array();
 
-                foreach ($search as $fieldName => $fieldValue) {
+            foreach ($search as $fieldName => $fieldValue) {
 
-                    // support wildcard match on specific fields
-                    if (in_array($fieldName, array('fname', 'lname', 'street'))) {
-                        array_push($whereClauses, $fieldName . ' LIKE ?');
-                        array_push($sqlBindArray, '%' . $fieldValue . '%');                        
-                    } else {
-                        // equality match
-                        array_push($whereClauses, $fieldName . ' = ?');
-                        array_push($sqlBindArray, $fieldValue);                        
-                    }
+                // support wildcard match on specific fields
+                if (in_array($fieldName, array('fname', 'lname', 'street'))) {
+                    array_push($whereClauses, $fieldName . ' LIKE ?');
+                    array_push($sqlBindArray, '%' . $fieldValue . '%');                        
+                } else {
+                    // equality match
+                    array_push($whereClauses, $fieldName . ' = ?');
+                    array_push($sqlBindArray, $fieldValue);                        
                 }
-                $sql .= implode(" AND ", $whereClauses);
             }
+            $sql .= implode(" AND ", $whereClauses);
+        }
 
         $statementResults = sqlStatement($sql, $sqlBindArray);
 
