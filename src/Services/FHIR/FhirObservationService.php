@@ -44,7 +44,7 @@ class FhirObservationService extends BaseService
         // Check Profile or Member and add/set appropriately
         if ($data['profile'] == 'vitals') {
             $vital_coding = new FHIRCoding();
-            $vital_coding->setCode(85353 - 1);
+            $vital_coding->setCode("85353 - 1");
             $vital_coding->setSystem("http://loinc.org");
             $vital_coding->setDisplay(
                 "Vital signs, weight, height, head circumference, oxygen saturation and BMI panel"
@@ -70,6 +70,7 @@ class FhirObservationService extends BaseService
         $performer->setReference("Practitioner/" . $data['provider_id']);
         $performer->setType("Practitioner");
         $resource->addPerformer($performer);
+        $data['date'] = date("Y-m-d\TH:i:s", strtotime($data['date']));
         $resource->setEffectiveDateTime($data['date']);
         $resource->setId($id);
 
@@ -124,8 +125,7 @@ class FhirObservationService extends BaseService
         }
         if ($search['date']) {
             if ($this->isValidDate($search['date'])) {
-                $date = date_create($search['date']);
-                $search['date'] = date_format($date, "Y/m/d H:i:s");
+                $search['date'] = date("Y/m/d H:i:s", strtotime($search['date']));
                 array_push($whereClauses, "form_vitals.date between ? and NOW()");
                 array_push($searchQuery["data"], $search['date']);
             } else {
