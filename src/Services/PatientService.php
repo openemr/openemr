@@ -13,7 +13,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 namespace OpenEMR\Services;
 
 use Particle\Validator\Validator;
@@ -47,7 +46,7 @@ class PatientService extends BaseService
                 return $vPid;
             }
         }
-        
+
         $this->validator->context(
             'insert', function (Validator $context) {
                 $context->required('fname', "First Name")->lengthBetween(2, 255);
@@ -56,7 +55,7 @@ class PatientService extends BaseService
                 $context->required('DOB', 'Date of Birth')->datetime('Y-m-d');
             }
         );
-        
+
         $this->validator->context(
             'update', function (Validator $context) {
                 $context->copyContext(
@@ -68,7 +67,7 @@ class PatientService extends BaseService
                 );
             }
         );
-        
+
         return $this->validator->validate($patient, $context);
     }
 
@@ -196,7 +195,7 @@ class PatientService extends BaseService
      * Returns a list of patients matching optional search criteria.
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
-     * 
+     *
      * @param  $search search array parameters
      * @return patient records matching criteria.
      */
@@ -241,11 +240,11 @@ class PatientService extends BaseService
                 // support wildcard match on specific fields
                 if (in_array($fieldName, array('fname', 'lname', 'street'))) {
                     array_push($whereClauses, $fieldName . ' LIKE ?');
-                    array_push($sqlBindArray, '%' . $fieldValue . '%');                        
+                    array_push($sqlBindArray, '%' . $fieldValue . '%');
                 } else {
                     // equality match
                     array_push($whereClauses, $fieldName . ' = ?');
-                    array_push($sqlBindArray, $fieldValue);                        
+                    array_push($sqlBindArray, $fieldValue);
                 }
             }
             $sql .= implode(" AND ", $whereClauses);

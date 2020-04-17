@@ -9,11 +9,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Services\PatientService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\PatientService;
 
 class PatientRestController
 {
@@ -34,16 +33,16 @@ class PatientRestController
         "phone_biz",
         "phone_cell",
         "email",
-        "DOB"
+        "DOB",
     );
 
-    public function __construct($pid)
+    function __construct($pid)
     {
         $this->patientService = new PatientService();
         $this->patientService->setPid($pid);
     }
 
-    public function post($data)
+    function post($data)
     {
         $serviceResult = $this->patientService->insert($data);
         $validationHandlerResult = RestControllerHelper::validationHandler($serviceResult);
@@ -53,7 +52,7 @@ class PatientRestController
         return RestControllerHelper::responseHandler($serviceResult, array("pid" => $serviceResult), 201);
     }
 
-    public function put($pid, $data)
+    function put($pid, $data)
     {
         $serviceResult = $this->patientService->update($pid, $data);
         $validationHandlerResult = RestControllerHelper::validationHandler($serviceResult);
@@ -66,16 +65,16 @@ class PatientRestController
     /**
      * Fetches a single patient resource by id.
      */
-    public function getOne()
+    function getOne()
     {
-        $serviceResult = $this->patientService->getOne(); 
+        $serviceResult = $this->patientService->getOne();
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
     /**
      * Returns patient resources which match an optional search criteria.
      */
-    public function getAll($search = array())
+    function getAll($search = array())
     {
         $validSearchFields = array_filter(
             $search, function ($key) {
@@ -84,8 +83,8 @@ class PatientRestController
             ARRAY_FILTER_USE_KEY
         );
 
-        $serviceResult = $this->patientService->getAll($validSearchFields);             
-        
+        $serviceResult = $this->patientService->getAll($validSearchFields);
+
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 }
