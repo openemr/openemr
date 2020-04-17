@@ -1,8 +1,19 @@
-![img](./public/images/openemr-rest-api.png)
+# OpenEMR REST API Documentation
 
-### Overview
+## Overview
 
-Easy-to-use JSON-based REST API for OpenEMR. All code is done in classes and separate from the view to help with codebase modernization efforts. FHIR is also supported.
+Easy-to-use JSON-based REST API for OpenEMR. All code is done in classes and separate from the view to help with codebase modernization efforts. FHIR is also supported, see FHIR API documentation [here](FHIR_README.md)
+
+### Sections
+* [facility API](API_README.md#post-apifacility)
+* [provider API](API_README.md#get-apiprovider)
+* [patient API](API_README.md#post-apipatient)
+* [insurance API](API_README.md#get-apipatientpidinsurance)
+* [appointment API](API_README.md#get-apiappointment)
+* [document API](API_README.md#get-apipatientpiddocument)
+* [message API](API_README.md#post-apipatientpidmessage)
+* [dev notes](API_README.md#dev-notes)
+* [todos](API_README.md#project-management)
 
 ### Prerequisite
 Enable this API service in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR REST API"
@@ -12,15 +23,13 @@ There are several ways to make API calls from an authorized session and maintain
 * See the script at tests/api/InternalApiTest.php for examples of internal API use cases.
 
 ### Endpoints
-Note: FHIR endpoints follow normal FHIR REST endpoints. Use `http://localhost:8300/apis/fhir as base URI.`
+OpenEMR standard endpoints Use `http://localhost:8300/apis/ as base URI.`
 
-_Example:_ `http://localhost:8300/apis/fhir/Patient` returns a Patients bundle resource and etc..
+_Example:_ `http://localhost:8300/apis/api/patient` returns a resource of all Patients.
+#### POST /apis/auth
 
-#### POST /api/auth
-
-Obtain an API token with your login (returns an API token). For FHIR replace Uri component 'api' with 'fhir':
-Scope must match a site that has been setup in OpenEMR in the /sites/ directory.  If you haven't created additional sites
-then 'default' should be the scope.
+The OpenEMR API utilizes the OAuth2 password credential flow for authentication. To obtain an API token, submit your login credentials and requested scope. The scope must match a site that has been setup in OpenEMR, in the /sites/ directory.  If additional sites have not been created, set the scope
+to 'default'.
 
 ```sh
 curl -X POST -H 'Content-Type: application/json' 'http://localhost:8300/apis/api/auth' \
@@ -42,7 +51,7 @@ Response:
     }
 }
 ```
-Each call must include the token:
+The Bearer token is required for each OpenEMR API request, and is conveyed using an Authorization header.
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem' \
@@ -806,9 +815,9 @@ curl -X DELETE 'http://localhost:8300/apis/api/patient/1/message/1'
 
 ### Dev Notes
 
-- For business logic, make or use the services [here](https://github.com/openemr/openemr/tree/master/services)
-- For controller logic, make or use the classes [here](https://github.com/openemr/openemr/tree/master/rest_controllers)
-- For routing declarations, use the class [here](https://github.com/openemr/openemr/blob/master/_rest_routes.inc.php).
+- For business logic, make or use the services [here](src/Services)
+- For controller logic, make or use the classes [here](src/RestControllers)
+- For routing declarations, use the class [here](_rest_routes.inc.php).
 
 
 ### Project Management
@@ -823,14 +832,4 @@ curl -X DELETE 'http://localhost:8300/apis/api/patient/1/message/1'
 - TODO(?): Drug search API
 - TODO(?): API for onotes
 
-#### FHIR
-- TODO(?): ?
 
-### What is that dog drawing?
-
-That is Peppy, an old OpenEMR mascot. Long live Peppy!
-
-
-### License
-
-[GNU GPL](../LICENSE)

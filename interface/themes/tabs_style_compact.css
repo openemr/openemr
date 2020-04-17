@@ -20,6 +20,8 @@
  * @link    http://www.open-emr.org
  */
 
+/* TODO: Fully redesign the navbar to be better supported with BS4 */
+
 html {
     margin: 0;
     padding: 0;
@@ -70,14 +72,14 @@ body {
 }
 
 #mainBox .logo {
-    float: left;
-    margin-top: 5px !important;
-    margin-left: 12px !important;
-    margin-right: 5px !important;
     width: 20px;
     height: 20px;
     z-index: 10000;
-    padding: 0 !important;
+    padding: 0;
+    margin-top: 0.1875rem;
+    margin-bottom: auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #mainBox_vertical .logo {
@@ -124,7 +126,7 @@ body {
 
 .tabSpan {
     margin: 0;
-    padding: 1px 7px;
+    padding: 0.3125rem 0.4375rem;
     border: 1px solid var(--black);
     border-bottom: 0;
     border-radius: 6px 6px 0 0;
@@ -158,7 +160,7 @@ body {
 }
 
 #attendantData {
-    min-height: 4em;
+    min-height: 4rem;
 }
 
 .patientCurrentEncounter {
@@ -215,7 +217,7 @@ body {
     font-size: x-small;
     padding: 2px;
     border: 1px solid var(--black);
-    background-color: lightgray;
+    background-color: var(--gray300);
     border-radius: 5px;
 }
 
@@ -233,7 +235,7 @@ body {
     margin: 1px;
     padding: 3px;
     border: 1px solid var(--black);
-    background-color: lightgray;
+    background-color: var(--gray300);
     border-radius: 5px;
     cursor: pointer;
 }
@@ -267,7 +269,8 @@ body {
     white-space: nowrap;
 }
 
-.appMenu > span:hover {
+.appMenu > span:hover,
+.appMenu .appMenu > span:hover {
     color: var(--white);
     text-decoration: none;
     background-color: var(--primary);
@@ -309,7 +312,6 @@ body {
 }
 
 .menuSection > .menuEntries {
-    background-color: var(--light);
     display: none;
     position: absolute;
     top: 19px;
@@ -317,7 +319,7 @@ body {
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
     min-width: 175px;
     border: 0.5px solid var(--gray);
-    border-radius: 0 5px 5px 5px;
+    border-radius: 0 5px 5px 5px !important;
     color: var(--black);
     margin-top: 4px;
     padding-top: 3px;
@@ -339,13 +341,19 @@ body {
     display: block;
 }
 
+/* Needed for things that require it */
+.menu-shadow-ovr {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176) !important;
+}
+
 .menuLabel {
     color: var(--dark);
-    cursor: pointer;
-    padding: 5px 12px 5px;
+    padding-top: 0.3125rem;
+    padding-bottom: 0.3125rem;
+    padding-left: 0.625rem;
+    padding-right: 0.625rem;
     transition: background-color 0.1s ease;
     width: 100%;
-    float: none;
 }
 
 .menuLabel:hover {
@@ -397,11 +405,13 @@ body {
 .logo {
     border-radius: 50%;
     -webkit-transition: -webkit-transform .8s ease-in-out;
+    -moz-transition: -moz-transform .8s ease-in-out;
     transition: transform .8s ease-in-out;
 }
 
 .logo:hover {
     -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
     transform: rotate(360deg);
 }
 
@@ -418,10 +428,11 @@ body {
     display: inline-block;
     float: right;
     position: relative;
-    top: 6px;
+    top: 8px;
     right: 5px;
 }
 
+/* TODO: Marked this class for removal */
 .float-element {
     float: left;
 }
@@ -442,7 +453,7 @@ body {
 }
 
 #patient_caret {
-    font-size: 2em;
+    font-size: 2rem;
     margin-top: -5px;
 }
 
