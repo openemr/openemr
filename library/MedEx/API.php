@@ -212,7 +212,7 @@ class Practice extends Base
             //for custom installs, insert custom apptstatus here that mean appt is not happening/changed
             if ($result2['pc_apptstatus'] =='*' ||  //confirmed
                 $result2['pc_apptstatus'] =='%' ||  //cancelled < 24hour
-                $result2['pc_apptstatus'] =='x' ) { //cancelled
+                $result2['pc_apptstatus'] =='x') { //cancelled
                 $sqlUPDATE = "UPDATE medex_outgoing SET msg_reply = 'DONE',msg_extra_text=? WHERE msg_uid = ?";
                 sqlQuery($sqlUPDATE, array($result2['pc_apptstatus'],$result2['msg_uid']));
                 //we need to update MedEx regarding actions to try to cancel
@@ -1192,12 +1192,12 @@ class Callback extends Base
           //  throw new InvalidDataException("There must be a Campaign to update...");
             $response['success'] = "No campaigns to process.";
         }
-        if (!$data['patient_id']) {  
+        if (!$data['patient_id']) {
             if ($data['e_pid']) {
                 $data['patient_id'] = $data['e_pid'];
-            } else if ($data['pc_eid']) {  
-                $query = "SELECT * FROM openemr_postcalendar_events WHERE pc_eid=?"; 
-                $patient = sqlFetchArray(sqlStatement($query, array($data['pc_eid'])));  
+            } else if ($data['pc_eid']) {
+                $query = "SELECT * FROM openemr_postcalendar_events WHERE pc_eid=?";
+                $patient = sqlFetchArray(sqlStatement($query, array($data['pc_eid'])));
                 $data['patient_id'] = $patient['pid'];
             }
         }
@@ -1212,7 +1212,7 @@ class Callback extends Base
                 $sqlUPDATE = "UPDATE openemr_postcalendar_events SET pc_apptstatus = ? WHERE pc_eid=?";
                 sqlStatement($sqlUPDATE, array($data['msg_type'],$data['pc_eid']));
                 $query = "SELECT * FROM patient_tracker WHERE eid=?";
-                $tracker = sqlFetchArray(sqlStatement($query, array($data['pc_eid'])));  
+                $tracker = sqlFetchArray(sqlStatement($query, array($data['pc_eid'])));
                 if (!empty($tracker['id'])) {
                     sqlStatement(
                         "UPDATE `patient_tracker` SET  `lastseq` = ? WHERE eid=?",
@@ -1487,7 +1487,7 @@ class Display extends base
                                             <div class="divTableCell divTableHeading"><?php echo xlt('General'); ?></div>
                                             <div class="divTableCell indent20">
                                                 <input type="checkbox" class="update" name="ME_hipaa_default_override" id="ME_hipaa_default_override" value="1"
-                                                <?php 
+                                                <?php
                                                 if ($prefs['ME_hipaa_default_override']=='1') {
                                                     echo 'checked ="checked"';
                                                 }
@@ -1529,11 +1529,11 @@ class Display extends base
                                                     ?>
                                                     <input <?php echo $checked; ?> class="update" type="checkbox" name="providers[]" id="provider_<?php echo attr($prov['id']); ?>" value="<?php echo attr($prov['id']); ?>">
                                                     <label for="provider_<?php echo attr($prov['id']); ?>"><?php echo text($prov['fname'])." ".text($prov['lname']).text($suffix); ?></label><br /><?php
-                                                ?>
+                                                    ?>
                                                 </div>
                                             </div>
                                             <?php }
-                                            ?>
+                                                ?>
                                         </div>
                                             
                                         <div class="divTableRow">
@@ -1542,7 +1542,7 @@ class Display extends base
                                             <?php
                                             $count="1";
                                             $query = "SELECT * FROM facility";
-                                            $result = sqlStatement($query); 
+                                            $result = sqlStatement($query);
                                             while ($fac = sqlFetchArray($result)) {
                                                 $checked ="";
                                                 if ($prefs) {
@@ -1625,14 +1625,14 @@ class Display extends base
                                                     //var_dump($logged_in['products']);
                                                     foreach ($logged_in['products']['ordered'] as $service) {
                                                         ?><li><a href="<?php echo $service['view']; ?>" target="_medex"><?php echo $service['model']; ?> </a></li>
-                                                        <?php 
+                                                        <?php
                                                         
                                                             echo $service['list'];
                                                     } ?>
                                                 </ul>
                                             </div>
                                         </div>
-                                        <?php 
+                                        <?php
                                     }
                                     if (!empty($logged_in['products']['not_ordered'])) {
                                         ?>
@@ -1653,7 +1653,7 @@ class Display extends base
                                                 </ul>
                                             </div>
                                         </div>
-                                        <?php 
+                                        <?php
                                     } ?>
                         
                                    <div class="col-sm-1"></div>
@@ -3236,7 +3236,8 @@ class MedEx
         }
         return false;
     }
-    public function getPreferences() {
+    public function getPreferences()
+    {
         $query = "SELECT * FROM medex_prefs";
         $info = sqlFetchArray(sqlStatement($query));
         $sql = "SELECT * from background_services where name='MedEx'";
