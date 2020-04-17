@@ -135,6 +135,7 @@ function getPatientPanelsInfo($pid, $status = "active")
     if ($status != "all"){
       $sql .= "AND e.status = \"" . $status . "\"";
     }
+    $sql .= "ORDER BY e.status, category ";
     return sqlStatement($sql);
   }
 }
@@ -147,26 +148,29 @@ function getPatientPanelsInfo($pid, $status = "active")
   */
 function insertEnrolment($enrollment)
 {
+  #Check if the patient already enrolled and active
+  $sql  = "SELECT id, status FROM panel_enrollment ";
+  $sql .= "WHERE patient_id ='" .$enrollment['patient_id'] . "' ";
+  $sql .= "AND panel_id ='" .$enrollment['panel_id'] . "' ";
+  $sql .= 'AND status = "Active"';
+  $resultSet = sqlQuery($sql);
+
   if (!isPanelDB()) {
     #if the panels is not activated print bellow line
     return -1;
-  }else {
-    #print the patient Panels
-    if (mysqli_num_rows($resultSet) === 0) {
-      return -1;
-    }
-
-    $sql  = "INSERT INTO panel_enrollment ";
-    $sql .= "(patient_id, panel_id, enrollment_date, status) ";
-    $sql .= " VALUES ( ";
-    $sql .= "'" .$enrollment['patient_id'] . "', ";
-    $sql .= "'" .$enrollment['panel_id'] . "', ";
-    $sql .= "'" . date('Y-m-d H:i:s') . "', ";
-    $sql .=  "'" ."Active". "' ";
-    $sql .= ")" ;
-    $result = sqlInsert($sql);
-
-    return $result;
+    # less than 2 because the result is one even if the patient is not enrolled 
+  } elseif(count($resultSet)<2){
+      #insert the patient Panels
+      $sql  = "INSERT INTO panel_enrollment ";
+      $sql .= "(patient_id, panel_id, enrollment_date, status) ";
+      $sql .= " VALUES ( ";
+      $sql .= "'" .$enrollment['patient_id'] . "', ";
+      $sql .= "'" .$enrollment['panel_id'] . "', ";
+      $sql .= "'" . date('Y-m-d H:i:s') . "', ";
+      $sql .=  "'" ."Active". "' ";
+      $sql .= ")" ;
+      $result = sqlInsert($sql);
+      return $result;
   }
 }
 /**
