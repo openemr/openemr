@@ -100,7 +100,7 @@ class FhirObservationService extends BaseService
     public function getAll($search)
     {
         if ($search['category']) {
-            if ($search['category'] == 'vital-sign') {
+            if ($search['category'] == 'vital-signs') {
                 $searchQuery = array(
                     "join" => "JOIN forms fo on form_vitals.id = fo.form_id"
                 );
