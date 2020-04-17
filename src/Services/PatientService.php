@@ -48,7 +48,8 @@ class PatientService extends BaseService
         }
 
         $this->validator->context(
-            'insert', function (Validator $context) {
+            'insert',
+            function (Validator $context) {
                 $context->required('fname', "First Name")->lengthBetween(2, 255);
                 $context->required('lname', 'Last Name')->lengthBetween(2, 255);
                 $context->required('sex', 'Gender')->lengthBetween(4, 30);
@@ -57,9 +58,11 @@ class PatientService extends BaseService
         );
 
         $this->validator->context(
-            'update', function (Validator $context) {
+            'update',
+            function (Validator $context) {
                 $context->copyContext(
-                    'insert', function ($rules) {
+                    'insert',
+                    function ($rules) {
                         foreach ($rules as $key => $chain) {
                             $chain->required(false);
                         }
@@ -236,7 +239,6 @@ class PatientService extends BaseService
             $whereClauses = array();
 
             foreach ($search as $fieldName => $fieldValue) {
-
                 // support wildcard match on specific fields
                 if (in_array($fieldName, array('fname', 'lname', 'street'))) {
                     array_push($whereClauses, $fieldName . ' LIKE ?');

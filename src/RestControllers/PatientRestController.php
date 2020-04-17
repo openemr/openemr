@@ -77,7 +77,8 @@ class PatientRestController
     function getAll($search = array())
     {
         $validSearchFields = array_filter(
-            $search, function ($key) {
+            $search,
+            function ($key) {
                 return in_array($key, self::SUPPORTED_SEARCH_FIELDS);
             },
             ARRAY_FILTER_USE_KEY
