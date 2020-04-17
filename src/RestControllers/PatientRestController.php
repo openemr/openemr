@@ -19,6 +19,24 @@ class PatientRestController
 {
     private $patientService;
 
+    /**
+     * White list of patient search fields
+     */
+    private const SUPPORTED_SEARCH_FIELDS = array(
+        "fname",
+        "lname",
+        "ss",
+        "street",
+        "postal_code",
+        "city",
+        "state",
+        "phone_home",
+        "phone_biz",
+        "phone_cell",
+        "email",
+        "DOB"
+    );
+
     public function __construct($pid)
     {
         $this->patientService = new PatientService();
@@ -45,20 +63,27 @@ class PatientRestController
         return RestControllerHelper::responseHandler($serviceResult, array("pid" => $pid), 200);
     }
 
+    /**
+     * Fetches a single patient resource by id.
+     */
     public function getOne()
     {
-        $serviceResult = $this->patientService->getOne();
+        $serviceResult = $this->patientService->getOne(); 
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
-    public function getAll($search)
+    /**
+     * Returns patient resources which match an optional search criteria.
+     */
+    public function getAll($search = array())
     {
-        $serviceResult = $this->patientService->getAll(array(
-            'fname' => $search['fname'],
-            'lname' => $search['lname'],
-            'DOB' => $search['DOB']
-        ));
+        $validSearchFields = array_filter($search, function($key){
+                return in_array($key, self::SUPPORTED_SEARCH_FIELDS);
+            },
+            ARRAY_FILTER_USE_KEY);
 
+        $serviceResult = $this->patientService->getAll($validSearchFields);             
+        
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 }

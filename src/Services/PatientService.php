@@ -27,7 +27,6 @@ class PatientService extends BaseService
      */
     private $patient_picture_fallback_id = -1;
 
-    private $pid;
     private $validator;
 
     /**
@@ -183,80 +182,64 @@ class PatientService extends BaseService
         );
     }
 
-    public function getAll($search)
+    /**
+     * Returns a list of patients matching optional search criteria.
+     * Search criteria is conveyed by array where key = field/column name, value = field value.
+     * If no search criteria is provided, all records are returned.
+     * 
+     * @param $search search array parameters
+     * @return patient records matching criteria.
+     */
+    public function getAll($search = array())
     {
         $sqlBindArray = array();
 
-        $sql = "SELECT id,
-                   pid,
-                   pubpid,
-                   title,
-                   fname,
-                   mname,
-                   lname,
-                   ss,
-                   street,
-                   postal_code,
-                   city,
-                   state,
-                   country_code,
-                   phone_contact,
-                   email,
-                   DOB,
-                   sex,
-                   race,
-                   ethnicity
-                FROM patient_data";
+        $sql = 'SELECT  id,
+                        pid,
+                        pubpid,
+                        title,
+                        fname,
+                        mname,
+                        lname,
+                        ss,
+                        street,
+                        postal_code,
+                        city,
+                        state,
+                        county,
+                        country_code,
+                        drivers_license,
+                        contact_relationship,
+                        phone_contact,
+                        phone_home,
+                        phone_biz,
+                        phone_cell,
+                        email,
+                        DOB,
+                        sex,
+                        race,
+                        ethnicity,
+                        status
+                FROM patient_data';
 
-        if ($search['name'] || $search['DOB'] || $search['city'] || $search['state'] || $search['postal_code'] || $search['phone_contact'] || $search['address'] || $search['sex'] || $search['country_code']) {
-            $sql .= " WHERE ";
+            if (!empty($search)) {
+                $sql .= ' WHERE ';
+                $whereClauses = array();
 
-            $whereClauses = array();
-            if ($search['name']) {
-                $search['name'] = '%' . $search['name'] . '%';
-                array_push($whereClauses, "CONCAT(lname,' ', fname) LIKE ?");
-                array_push($sqlBindArray, $search['name']);
-            }
-            if ($search['DOB'] || $search['birthdate']) {
-                $search['DOB'] = !empty($search['DOB']) ? $search['DOB'] : $search['birthdate'];
-                array_push($whereClauses, "DOB=?");
-                array_push($sqlBindArray, $search['DOB']);
-            }
-            if ($search['city']) {
-                array_push($whereClauses, "city=?");
-                array_push($sqlBindArray, $search['city']);
-            }
-            if ($search['state']) {
-                array_push($whereClauses, "state=?");
-                array_push($sqlBindArray, $search['state']);
-            }
-            if ($search['postal_code']) {
-                array_push($whereClauses, "postal_code=?");
-                array_push($sqlBindArray, $search['postal_code']);
-            }
-            if ($search['phone_contact']) {
-                array_push($whereClauses, "phone_contact=?");
-                array_push($sqlBindArray, $search['phone_contact']);
-            }
-            if ($search['address']) {
-                $search['address'] = '%' . $search['address'] . '%';
-                array_push($whereClauses, "city LIKE ? OR street LIKE ? OR state LIKE ? OR postal_code LIKE ?");
-                array_push($sqlBindArray, $search['address']);
-                array_push($sqlBindArray, $search['address']);
-                array_push($sqlBindArray, $search['address']);
-                array_push($sqlBindArray, $search['address']);
-            }
-            if ($search['sex']) {
-                array_push($whereClauses, "sex=?");
-                array_push($sqlBindArray, $search['sex']);
-            }
-            if ($search['country_code']) {
-                array_push($whereClauses, "country_code=?");
-                array_push($sqlBindArray, $search['country_code']);
-            }
+                foreach ($search as $fieldName => $fieldValue) {
 
-            $sql .= implode(" AND ", $whereClauses);
-        }
+                    // support wildcard match on specific fields
+                    if (in_array($fieldName, array('fname', 'lname', 'street'))) {
+                        array_push($whereClauses, $fieldName . ' LIKE ?');
+                        array_push($sqlBindArray, '%' . $fieldValue . '%');                        
+                    } else {
+                        // equality match
+                        array_push($whereClauses, $fieldName . ' = ?');
+                        array_push($sqlBindArray, $fieldValue);                        
+                    }
+                }
+                $sql .= implode(" AND ", $whereClauses);
+            }
 
         $statementResults = sqlStatement($sql, $sqlBindArray);
 
@@ -268,27 +251,37 @@ class PatientService extends BaseService
         return $results;
     }
 
+    /**
+     * Returns a single patient record by patient id.
+     */
     public function getOne()
     {
-        $sql = "SELECT id,
-                   pid,
-                   pubpid,
-                   title,
-                   fname,
-                   mname,
-                   lname,
-                   ss,
-                   street,
-                   postal_code,
-                   city,
-                   state,
-                   country_code,
-                   phone_contact,
-                   email,
-                   DOB,
-                   sex,
-                   race,
-                   ethnicity
+        $sql = "SELECT  id,
+                        pid,
+                        pubpid,
+                        title,
+                        fname,
+                        mname,
+                        lname,
+                        ss,
+                        street,
+                        postal_code,
+                        city,
+                        state,
+                        county,
+                        country_code,
+                        drivers_license,
+                        contact_relationship,
+                        phone_contact,
+                        phone_home,
+                        phone_biz,
+                        phone_cell,
+                        email,
+                        DOB,
+                        sex,
+                        race,
+                        ethnicity,
+                        status
                 FROM patient_data
                 WHERE pid = ?";
 
