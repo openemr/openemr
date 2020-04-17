@@ -22,6 +22,8 @@
  * @link    http://www.open-emr.org
  */
 
+/* TODO: Fully redesign the navbar to be better supported with BS4 */
+
 html {
     margin: 0;
     padding: 0;
@@ -72,14 +74,14 @@ body {
 }
 
 #mainBox .logo {
-    float: left;
-    margin-top: 14px !important;
-    margin-left: 10px !important;
-    margin-right: 4px !important;
     width: 20px;
     height: 20px;
     z-index: 10000;
-    padding: 0 !important;
+    padding: 0;
+    margin-top: 0.1875rem;
+    margin-bottom: auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #mainBox_vertical .logo {
@@ -126,7 +128,7 @@ body {
 }
 
 .tabSpan {
-    font-size: 0.9em;
+    font-size: 0.9rem;
     margin: 0;
     padding: 8px 8px;
     border-top: 4px solid var(--primary);
@@ -251,6 +253,7 @@ body {
     padding: 1px 1px 1px 10px;
 }
 
+/* TODO: Marked this class for removal */
 .top {
     vertical-align: top;
 }
@@ -266,6 +269,7 @@ body {
     white-space: nowrap;
 }
 
+.appMenu > span:hover,
 .appMenu .appMenu > span:hover {
     color: var(--white);
     text-decoration: none;
@@ -285,7 +289,7 @@ body {
 }
 
 .appMenu_small .menuLabel {
-    padding: 10px 10px;
+    padding: 0.625rem 0.625rem;
 }
 
 .appMenu .oe-show {
@@ -305,7 +309,6 @@ body {
 }
 
 .menuSection > .menuEntries {
-    background: var(--white);
     display: none;
     position: absolute;
     top: 40px;
@@ -327,12 +330,18 @@ body {
     display: block;
 }
 
+/* Needed for things that require it */
+.menu-shadow-ovr {
+    box-shadow: 0 5px 5px var(--gray) !important;
+}
+
+
 /* Need separate styling for top level vs submenu items
  * This currently controls ALL links in menu, no bueno
  * --Robert Down */
 .menuLabel {
     color: var(--dark);
-    padding: 15px 10px;
+    padding: 0.9375rem 0.625rem;
     font-weight: 700;
     transition: background-color 0.1s ease;
     width: 100%;
@@ -416,7 +425,7 @@ div.menuLabel:hover {
     display: inline-block;
     float: right;
     position: relative;
-    top: 6px;
+    top: 14px;
     right: 5px;
 }
 
@@ -435,7 +444,7 @@ div.menuLabel:hover {
 }
 
 #patient_caret {
-    font-size: 2em;
+    font-size: 2rem;
     margin-top: -5px;
 }
 
