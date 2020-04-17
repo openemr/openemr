@@ -1,5 +1,5 @@
 /**
- * style.css
+ * patientportal-style.css
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -325,40 +325,6 @@ body > .header {
   z-index: 1030;
 }
 
-body > .header .navbar {
-  /*height: 50px;
-    margin-bottom: 0;
-    margin-left: 220px;*/
-}
-
-body > .header .navbar .sidebar-toggle {
-  background-color: transparent;
-  background-image: none;
-  border: 1px solid transparent;
-  border-radius: 0 !important;
-  float: left;
-  margin-bottom: 8px;
-  margin-left: 5px;
-  margin-right: 0;
-  margin-top: 8px;
-  padding: 9px 5px;
-}
-
-body > .header .navbar .sidebar-toggle:hover .icon-bar {
-  background: darken($light, 10%);
-}
-
-body > .header .navbar .sidebar-toggle .icon-bar {
-  border-radius: 4px;
-  display: block;
-  height: 2px;
-  width: 22px;
-}
-
-body > .header .navbar .sidebar-toggle .icon-bar + .icon-bar {
-  margin-top: 4px;
-}
-
 body > .header .navbar .nav > li.user > a {
   font-weight: bold;
 }
@@ -436,27 +402,6 @@ body > .header .navbar .nav > li > a:hover > .label {
   }
 }
 
-@media (max-width: 767px) {
-  .navbar .navbar-nav > li {
-    float: left;
-  }
-
-  .navbar-nav {
-    float: left;
-    margin: 0;
-  }
-
-  .navbar-nav > li > a {
-    line-height: 20px;
-    padding-bottom: 15px;
-    padding-top: 15px;
-  }
-
-  .navbar .navbar-right {
-    float: right;
-  }
-}
-
 @media screen and (max-width: 560px) {
   body > .header {
     position: relative;
@@ -476,70 +421,6 @@ body > .header .navbar .nav > li > a:hover > .label {
   body.fixed > .header {
     position: fixed;
   }
-
-  body.fixed > .wrapper,
-  body.fixed .sidebar-offcanvas {
-    /*margin-top: 100px!important;*/
-  }
-}
-
-/*
-    Component: Sidebar
---------------------------
-*/
-.sidebar {
-  margin-bottom: 5px;
-}
-
-.sidebar .sidebar-form input:focus {
-  border-color: transparent !important;
-  box-shadow: none;
-}
-
-.sidebar .sidebar-menu {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.sidebar .sidebar-menu > li {
-  margin: 0;
-  padding: 0;
-}
-
-.sidebar .sidebar-menu > li > a {
-  display: block;
-  padding: 12px 5px 12px 15px;
-}
-
-.sidebar .sidebar-menu > li > a > .fa,
-.sidebar .sidebar-menu > li > a > .glyphicon,
-.sidebar .sidebar-menu > li > a > .icon {
-  width: 20px;
-}
-
-.sidebar .sidebar-menu .treeview-menu {
-  display: none;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.sidebar .sidebar-menu .treeview-menu > li {
-  margin: 0;
-}
-
-.sidebar .sidebar-menu .treeview-menu > li > a {
-  @include font-size("14px");
-  display: block;
-  margin: 0;
-  padding: 8px 5px 8px 15px;
-}
-
-.sidebar .sidebar-menu .treeview-menu > li > a > .fa,
-.sidebar .sidebar-menu .treeview-menu > li > a > .glyphicon,
-.sidebar .sidebar-menu .treeview-menu > li > a > .icon {
-  width: 20px;
 }
 
 .user-panel {
@@ -596,14 +477,6 @@ body > .header .navbar .nav > li > a:hover > .label {
     position: relative;
   }
 
-  .row-offcanvas-right .sidebar-offcanvas {
-    right: -220px;
-  }
-
-  .row-offcanvas-left .sidebar-offcanvas {
-    left: -220px;
-  }
-
   .row-offcanvas-right.active {
     right: 220px;
   }
@@ -612,22 +485,9 @@ body > .header .navbar .nav > li > a:hover > .label {
     left: 220px;
   }
 
-  .sidebar-offcanvas {
-    left: 0;
-  }
-
-  body.fixed .sidebar-offcanvas {
-    left: -220px;
-    margin-top: 50px;
-  }
-
   body.fixed .row-offcanvas-left.active .navbar {
     left: 220px !important;
     right: 0;
-  }
-
-  body.fixed .row-offcanvas-left.active .sidebar-offcanvas {
-    left: 0;
   }
 }
 
@@ -1896,14 +1756,6 @@ body > .header .navbar .nav > li > a:hover > .label {
   margin-right: 10px;
 }
 
-.skin-blue .navbar .sidebar-toggle .icon-bar {
-  background: rgba($white, 0.8);
-}
-
-.skin-blue .navbar .sidebar-toggle:hover .icon-bar {
-  background: darken($light, 10%) !important;
-}
-
 /* skin-blue logo */
 .skin-blue .logo {
   background-color: #367fa9;
@@ -1933,104 +1785,6 @@ body > .header .navbar .nav > li > a:hover > .label {
 .skin-blue .user-panel > .info,
 .skin-blue .user-panel > .info > a {
   color: $gray-700;
-}
-
-/* skin-blue sidebar */
-.skin-blue .sidebar {
-  background: #d3e7f0;
-  border-bottom: 1px solid $white;
-}
-
-.skin-blue .sidebar > .sidebar-menu > li {
-  border-bottom: 1px solid #dbdbdb;
-  border-top: 1px solid $white;
-}
-
-.skin-blue .sidebar > .sidebar-menu > li:first-of-type {
-  border-top: 1px solid #dbdbdb;
-}
-
-.skin-blue .sidebar > .sidebar-menu > li:first-of-type > a {
-  border-top: 1px solid $white;
-}
-
-.skin-blue .sidebar > .sidebar-menu > li > a {
-  margin-right: 1px;
-}
-
-.skin-blue .sidebar > .sidebar-menu > li > a:hover,
-.skin-blue .sidebar > .sidebar-menu > li.active > a {
-  background: darken($light, 10%);
-  color: $gray-900;
-}
-
-.skin-blue .sidebar > .sidebar-menu > li > .treeview-menu {
-  background: darken($light, 10%);
-  margin: 0 1px;
-}
-
-.skin-blue .left-side {
-  background: #d3e7f0;
-  box-shadow: inset -3px 0 8px -4px rgba($black, 0.07);
-  /* #f4f4f4; */
-  min-height: 100%;
-}
-
-.skin-blue .sidebar a {
-  color: $gray-700;
-}
-
-.skin-blue .sidebar a:hover {
-  text-decoration: none;
-}
-
-.skin-blue .treeview-menu > li > a {
-  color: $gray-700;
-}
-
-.skin-blue .treeview-menu > li.active > a,
-.skin-blue .treeview-menu > li > a:hover {
-  color: $dark;
-}
-
-.skin-blue .sidebar-form {
-  border: 1px solid #dbdbdb;
-  border-radius: 2px;
-  margin: 10px;
-}
-
-.skin-blue .sidebar-form input[type="text"],
-.skin-blue .sidebar-form .btn {
-  background-color: darken($light, 15%);
-  border: 1px solid darken($light, 15%);
-  box-shadow: none;
-  height: 35px;
-}
-
-.skin-blue .sidebar-form input[type="text"] {
-  border-bottom-left-radius: 2px !important;
-  border-bottom-right-radius: 0 !important;
-  border-top-left-radius: 2px !important;
-  border-top-right-radius: 0 !important;
-  color: $gray-700;
-}
-
-.skin-blue .sidebar-form input[type="text"]:focus,
-.skin-blue .sidebar-form input[type="text"]:focus + .input-group-btn .btn {
-  background-color: $white;
-  color: $gray-700;
-}
-
-.skin-blue .sidebar-form input[type="text"]:focus + .input-group-btn .btn {
-  border-left-color: $white;
-}
-
-.skin-blue .sidebar-form .btn {
-  border-bottom-left-radius: 0 !important;
-  border-bottom-right-radius: 2px !important;
-  border-top-left-radius: 0 !important;
-  border-top-right-radius: 2px !important;
-  color: $gray-500;
 }
 
 /*general page*/
@@ -2143,4 +1897,62 @@ li.dropdown-header {
 
 .horizontal .dropdown-menu > li > a:hover {
   background-color: $gray-200;
+}
+
+/**
+*	Brand new Sidebar
+*	Grabbed from Bootstrap 4 Documentation Examples
+*/
+
+.sidebar {
+  bottom: 0;
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+  left: 0;
+  padding: 48px 0 0;
+  position: fixed;
+  top: 0;
+  z-index: 100;
+}
+
+.sidebar-sticky {
+  height: calc(100vh - 48px);
+  overflow-x: hidden;
+  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+  padding-top: 0.5rem;
+  position: relative;
+  top: 0;
+}
+
+@supports ((position: -webkit-sticky) or (position: sticky)) {
+  .sidebar-sticky {
+    position: -webkit-sticky;
+    position: sticky;
+  }
+}
+
+.sidebar .nav-link {
+  color: $gray-800;
+  font-weight: 500;
+}
+
+.feather {
+  height: 16px;
+  vertical-align: text-bottom;
+  width: 16px;
+}
+
+.sidebar .nav-link .feather {
+  color: $gray-600;
+  margin-right: 4px;
+}
+
+.sidebar .nav-link:hover .feather,
+.sidebar .nav-link.active .feather {
+  color: inherit;
+}
+
+@media (min-width: 768px) {
+  .collapse-md {
+    display: inherit !important;
+  }
 }
