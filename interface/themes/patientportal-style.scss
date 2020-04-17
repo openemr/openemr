@@ -1977,3 +1977,61 @@ li.dropdown-header {
     display: inherit !important;
   }
 }
+
+/**
+*	Brand new Sidebar
+*	Grabbed from Bootstrap 4 Documentation Examples
+*/
+
+.sidebar {
+  bottom: 0;
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+  left: 0;
+  padding: 48px 0 0;
+  position: fixed;
+  top: 0;
+  z-index: 100;
+}
+
+.sidebar-sticky {
+  height: calc(100vh - 48px);
+  overflow-x: hidden;
+  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+  padding-top: 0.5rem;
+  position: relative;
+  top: 0;
+}
+
+@supports ((position: -webkit-sticky) or (position: sticky)) {
+  .sidebar-sticky {
+    position: -webkit-sticky;
+    position: sticky;
+  }
+}
+
+.sidebar .nav-link {
+  color: $gray-800;
+  font-weight: 500;
+}
+
+.feather {
+  height: 16px;
+  vertical-align: text-bottom;
+  width: 16px;
+}
+
+.sidebar .nav-link .feather {
+  color: $gray-600;
+  margin-right: 4px;
+}
+
+.sidebar .nav-link:hover .feather,
+.sidebar .nav-link.active .feather {
+  color: inherit;
+}
+
+@media (min-width: 768px) {
+  .collapse-md {
+    display: inherit !important;
+  }
+}
