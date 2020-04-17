@@ -294,29 +294,11 @@ body > .header {
   max-height: 100px;
   position: relative;
   z-index: 1030;
+}
 
-  .navbar .nav > li.user > a {
-    font-weight: bold;
-
-    > .fa,
-    > .ion {
-      margin-#{$right}: 5px;
-    }
-  }
-
-  .navbar .nav > li > a > .label {
-    @include font-size("10px");
-    border-radius: 50%;
-    font-weight: normal;
-    height: 15px;
-    line-height: 1em;
-    padding: 2px;
-    position: absolute;
-    text-align: center;
-    top: 7px;
-    width: 15px;
-    #{$right}: 2px;
-  }
+body > .header .navbar .nav > li.user > a {
+  font-weight: bold;
+}
 
   .navbar .nav > li > a:hover > .label {
     top: 3px;
@@ -370,7 +352,6 @@ body > .header {
     margin-top: 5px;
     position: relative;
     top: 0;
-    #{$right}: 0;
   }
 }
 
@@ -395,6 +376,14 @@ body > .header {
     float: none;
     position: relative !important;
     width: 100%;
+  }
+
+  body > .header .navbar {
+    margin: 0;
+  }
+
+  body.fixed > .header {
+    position: fixed;
   }
 }
 
@@ -449,21 +438,21 @@ body > .header {
  *  Gives us the push menu effect
  */
 @media screen and (max-width: 992px) {
-    .relative {
-        position: relative;
-    }
+  .relative {
+    position: relative;
+  }
 
   .row-offcanvas-right.active {
     #{$right}: 220px;
   }
 
   .row-offcanvas-left.active {
-    #{$left}: 220px;
+    left: 220px;
   }
 
   body.fixed .row-offcanvas-left.active .navbar {
-    #{$left}: 220px !important;
-    #{$right}: 0;
+    left: 220px !important;
+    right: 0;
   }
 }
 
@@ -1724,60 +1713,59 @@ body > .header {
     ---------
 */
 /* skin-blue navbar */
-.skin-blue {
-  .navbar {
-    background-color: #d3e7f0;
+.skin-blue .navbar {
+  background-color: #d3e7f0;
+  /* #3c8dbc; */
+}
 
-    .nav {
-      a {
-        color: rgba($black, 0.8);
-      }
+.skin-blue .navbar .nav a {
+  color: rgba($black, 0.8);
+  /* rgba($white, 0.8); */
+}
 
-      > li > a:hover,
-      > li > a:active,
-      > li > a:focus,
-      .open > a,
-      .open > a:hover,
-      .open > a:focus {
-        background: rgba($black, 0.1);
-        color: darken($light, 10%);
-      }
-    }
+.skin-blue .navbar .nav > li > a:hover,
+.skin-blue .navbar .nav > li > a:active,
+.skin-blue .navbar .nav > li > a:focus,
+.skin-blue .navbar .nav .open > a,
+.skin-blue .navbar .nav .open > a:hover,
+.skin-blue .navbar .nav .open > a:focus {
+  background: rgba($black, 0.1);
+  color: darken($light, 10%);
+}
 
-    .navbar-right > .nav {
-      margin-#{$right}: 10px;
-    }
-  }
+.skin-blue .navbar .navbar-right > .nav {
+  margin-right: 10px;
+}
 
-  .logo {
-    background-color: #367fa9;
-    color: darken($light, 10%);
+/* skin-blue logo */
+.skin-blue .logo {
+  background-color: #367fa9;
+  color: darken($light, 10%);
+}
 
-    > a {
-      color: darken($light, 10%);
-    }
+.skin-blue .logo > a {
+  color: darken($light, 10%);
+}
 
-    &:hover {
-      background: $white;
-      color: $white;
-    }
-  }
-  // skin-blue content header
-  .right-side > .content-header {
-    background: darken($light, 15%);
-    box-shadow: 1px 1px 2px rgba($black, 0.1);
-  }
-  // Skin-blue user panel
-  .user-panel {
-    > .image > img {
-      border: 1px solid #dfdfdf;
-    }
+.skin-blue .logo:hover {
+  background: $white;
+  color: $white;
+}
 
-    > .info,
-    > .info > a {
-      color: $gray-700;
-    }
-  }
+/* skin-blue content header */
+.skin-blue .right-side > .content-header {
+  background: darken($light, 15%);
+  box-shadow: 1px 1px 2px rgba($black, 0.1);
+}
+
+/* Skin-blue user panel */
+.skin-blue .user-panel > .image > img {
+  border: 1px solid #dfdfdf;
+}
+
+.skin-blue .user-panel > .info,
+.skin-blue .user-panel > .info > a {
+  color: $gray-700;
 }
 
 /*general page*/
@@ -1890,19 +1878,60 @@ li.dropdown-header {
   background-color: $gray-200;
 }
 
+/**
+*	Brand new Sidebar
+*	Grabbed from Bootstrap 4 Documentation Examples
+*/
+
+.sidebar {
+  bottom: 0;
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+  left: 0;
+  padding: 48px 0 0;
+  position: fixed;
+  top: 0;
+  z-index: 100;
+}
+
+.sidebar-sticky {
+  height: calc(100vh - 48px);
+  overflow-x: hidden;
+  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+  padding-top: 0.5rem;
+  position: relative;
+  top: 0;
+}
+
+@supports ((position: -webkit-sticky) or (position: sticky)) {
+  .sidebar-sticky {
+    position: -webkit-sticky;
+    position: sticky;
+  }
+}
+
+.sidebar .nav-link {
+  color: $gray-800;
+  font-weight: 500;
+}
+
 .feather {
   height: 16px;
   vertical-align: text-bottom;
   width: 16px;
 }
 
+.sidebar .nav-link .feather {
+  color: $gray-600;
+  margin-right: 4px;
+}
+
+.sidebar .nav-link:hover .feather,
+.sidebar .nav-link.active .feather {
+  color: inherit;
+}
+
 @media (min-width: 768px) {
   .collapse-md {
     display: inherit !important;
   }
-}
-
-// Set cursor pointer
-.cursor-pointer {
-  cursor: pointer !important;
 }
