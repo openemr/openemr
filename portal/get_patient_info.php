@@ -174,14 +174,14 @@ if ($userData = sqlQuery($sql, array(
     if (empty($userData)) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':not active patient'), '', '0');
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        header('Location: ' . $landingpage . '&w');
+        header('Location: ' . $landingpage . '&w=inactive');
         exit();
     }
 
     if ($userData['email'] != $_POST['passaddon'] && $GLOBALS['enforce_signin_email']) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid email'), '', '0');
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        header('Location: ' . $landingpage . '&w');
+        header('Location: ' . $landingpage . '&w=bademail');
         exit();
     }
 
@@ -189,7 +189,7 @@ if ($userData = sqlQuery($sql, array(
         // Patient has not authorized portal, so escape
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':allow portal turned off'), '', '0');
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        header('Location: ' . $landingpage . '&w');
+        header('Location: ' . $landingpage . '&w=noportal');
         exit();
     }
 
@@ -265,7 +265,7 @@ if ($userData = sqlQuery($sql, array(
     } else {
         $logit->portalLog('login', '', ($_POST['uname'] . ':not authorized'), '', '0');
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        header('Location: ' . $landingpage . '&w');
+        header('Location: ' . $landingpage . '&w=unauth');
         exit();
     }
 } else { // problem with query

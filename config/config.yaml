@@ -55,9 +55,15 @@ assets:
     patientportal-base:
         basePath: '%webroot%/public/themes/'
         link: patientportal-base.css
+        rtl:
+            basePath: '%webroot%/public/themes/'
+            link: rtl_patientportal-base.css
     patientportal-register:
         basePath: '%webroot%/public/themes/'
         link: patientportal-register.css
+        rtl:
+            basePath: '%webroot%/public/themes/'
+            link: rtl_patientportal-register.css
     patientportal-style:
         basePath: '%webroot%/public/themes/'
         link: patientportal-style.css

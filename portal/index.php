@@ -436,15 +436,47 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                 return false;
             });
             <?php } ?>
-            <?php if (isset($_GET['w'])) { ?>
+            <?php if ((isset($_GET['w'])) && $_GET['w'] == "unauth") { ?>
             var unique_id = $.gritter.add({
-                title: '<span class="red">' + <?php echo xlj('Oops!');?> +'</span>',
-                text: <?php echo xlj('Something went wrong. Please try again.'); ?>,
+                title: '<span class="text-danger">' + <?php echo xlj('Oops!');?> +'</span>',
+                text: <?php echo xlj('Incorrect username or password. Please try again.'); ?>,
                 sticky: false,
                 time: '5000',
                 class_name: 'my-nonsticky-class'
             });
-            <?php } ?>
+            <?php } elseif ((isset($_GET['w'])) && $_GET['w'] == "bademail") { ?>
+              var unique_id = $.gritter.add({
+                  title: '<span class="text-danger">' + <?php echo xlj('Oops!');?> +'</span>',
+                  text: <?php echo xlj('Invalid email. Please try again.'); ?>,
+                  sticky: false,
+                  time: '5000',
+                  class_name: 'my-nonsticky-class'
+              });
+            <?php } elseif ((isset($_GET['w'])) && $_GET['w'] == "inactive") { ?>
+              var unique_id = $.gritter.add({
+                  title: '<span class="text-danger">' + <?php echo xlj('Oops!');?> +'</span>',
+                  text: <?php echo xlj('Inactive user. Please contact your healthcare provider.'); ?>,
+                  sticky: false,
+                  time: '5000',
+                  class_name: 'my-nonsticky-class'
+              });
+            <?php } elseif ((isset($_GET['w'])) && $_GET['w'] == "noportal") { ?>
+              var unique_id = $.gritter.add({
+                  title: '<span class="text-danger">' + <?php echo xlj('Oops!');?> +'</span>',
+                  text: <?php echo xlj('Portal access turned off. Please contact your healthcare provider.'); ?>,
+                  sticky: false,
+                  time: '5000',
+                  class_name: 'my-nonsticky-class'
+              });
+              <?php } elseif (isset($_GET['w'])) { ?>
+              var unique_id = $.gritter.add({
+                  title: '<span class="text-danger">' + <?php echo xlj('Oops!');?> +'</span>',
+                  text: <?php echo xlj('Something went wrong. Please try again.'); ?>,
+                  sticky: false,
+                  time: '5000',
+                  class_name: 'my-nonsticky-class'
+              });
+              <?php } ?>
             <?php // if successfully logged out
             if (isset($_GET['logout'])) { ?>
             var unique_id = $.gritter.add({

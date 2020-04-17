@@ -31,7 +31,7 @@ let config = {
     // Source file locations
     src: {
         styles: {
-            style_portal: 'interface/themes/patientportal-style.scss',
+            style_portal: 'interface/themes/patientportal-*.scss',
             style_uni: 'interface/themes/oe-styles/style_*.scss',
             style_color: 'interface/themes/colors/*.scss',
             directional: 'interface/themes/directional.scss'
@@ -105,7 +105,7 @@ function styles_style_color() {
 function rtl_style_portal() {
     return gulp.src(config.src.styles.style_portal)
         .pipe(gap.prependText('$dir: rtl;\n@import "rtl";\n@import "directional";\n')) // watch out for this relative path!
-        .pipe(gap.appendText('@include if-rtl { @include rtl_style; }\n'))
+        .pipe(gap.appendText('@include if-rtl { @include rtl_style; @include portal_style; }\n'))
         .pipe(sourcemaps.init())
         .pipe(sass().on('error', sass.logError))
         .pipe(prefix('last 1 version'))

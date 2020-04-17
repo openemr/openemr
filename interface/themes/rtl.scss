@@ -19,7 +19,7 @@
     .text-center {
         text-align: center !important;
     }
-    
+
     #navigation-slide,
     #navigation-slide * {
         padding-right: 0px;
@@ -142,7 +142,7 @@
     .cancel-float {
         float: none !important;
     }
-    
+
     /* /templates/documents/general_view.html */
     #documents_actions form[name^=document] > div > div,
     #documents_actions form[name=notes] > div > div {
@@ -285,6 +285,18 @@
     #create_patient_btn {
         float: left;
     }
+}
+
+
+@mixin portal_style {
+	.right-side {
+		margin-right: 220px !important;
+		margin-left: 0 !important;
+	}
+	.sidebar {
+		left: auto !important;
+		right: 0 !important;
+	}
 }
 
 /*expandable search rtl in main.php*/
