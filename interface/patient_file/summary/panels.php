@@ -28,14 +28,20 @@ if (isset($_GET['set_pid'])) {
 }
 ////////////////////////////////////////////////////////////////
 //post request section
-//handle the post request from adding enrolled into a new panel form
+//handle the post request for enroll or discharge a panel
 $is_post_request = $_SERVER["REQUEST_METHOD"] == "POST";
 
 if($is_post_request){
   $panel['panel_id'] = $_POST['panel'] ?? '';
-  $panel['patient_id'] =  $pid;
+  $panel['patient_id'] =  $pid ?? '';
 
-  insertEnrolment($panel);
+  $request = $_POST['request'] ?? '';
+
+  if($request == "enroll"){
+    insertEnrolment($panel);
+  } else if ($request == "discharge"){
+    dischargePatient($panel);
+  }
 }
 
 
@@ -46,7 +52,6 @@ if($is_post_request){
 <html>
 <head>
 <?php
-// TODO add code to allow  remove a patient from a panel
 ?>
 
 <?php Header::setupHeader(['datetime-picker', 'select2']); ?>
@@ -79,8 +84,29 @@ tr.selected {
   background-color: white;
   color: black;
 }
+input[type=submit] {
+  background-color: #1E90FF;
+  padding: 5px 10px;
+  border: none;
+  color: white;
+  text-decoration: none;
+  margin: 4px 2px;
+  cursor: pointer;
+}
 </style>
 <title><?php echo xlt("Panels"); ?></title>
+
+<!--This scrept for discharge a pation from a panels
+It is called in the table discharge a tage-->
+<script>
+function testFunction(panel) {
+if (confirm("Do you want to discharge from "+panel+"?")) {
+  return true ;
+} else {
+  return false ;
+}
+}
+</script>
 
 </head>
 
@@ -118,7 +144,13 @@ tr.selected {
        <td><?php echo attr($row['status']); ?></td>
        <td><?php echo attr($row['enrollment_date']); ?></td>
        <td><?php echo attr($row['discharge_date']); ?></td>
-       <td><a class="action" href="#">Edit</a></td>
+       <td>
+         <form action="#" method="post">
+           <input type="hidden" name="request" value="discharge" />
+           <input type="hidden" name="panel" value="<?php echo attr($row['panel_id']); ?>" />
+          <input type="submit" value="Discharge" onClick="return testFunction('<?php echo $row['category'] . ": " . $row['panel']; ?>')" />
+          </form>
+       </td>
      </tr>
    <?php } // end the while loop?>
    </table>
@@ -148,7 +180,8 @@ tr.selected {
     }
   ?>
   </select>
-    <input type="submit" value="Enroll Patient" />
+  <input type="hidden" name="request" value="enroll" />
+  <input type="submit" value="Enroll Patient" />
 </form>
 </div>
 <?php //end of the adding panels section ?>

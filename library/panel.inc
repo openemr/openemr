@@ -176,15 +176,13 @@ function insertEnrolment($enrollment)
   * (patient_id, panel_id)
   * @return integer  Last id generated from the sql insert command
   */
-function updateEnrolment($updates){
+function dischargePatient($updates){
   $sql = "UPDATE panel_enrollment SET ";
-  $sql .= "status ='". "Discharge". "', ";
-  $sql .= "descharge_Date='". date('Y-m-d H:i:s') . "' ";
+  $sql .= "status = '" . "Discharged". "', ";
+  $sql .= "discharge_date='". date('Y-m-d H:i:s') . "' ";
   $sql .= "WHERE patient_id = '" . $updates['patient_id'] . "' ";
-  $sql .= "AND panel_id = " .  $updates['panel_id'] . "' ";
+  $sql .= "AND panel_id = '" . $updates['panel_id'] . "' ";
   $sql .= "LIMIT 1";
 
   return sqlQuery($sql);
-
-
 }
