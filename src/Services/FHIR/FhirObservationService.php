@@ -9,6 +9,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRObservation\FHIRObservationComponent;
 
 class FhirObservationService extends BaseService
 {
@@ -95,7 +96,10 @@ class FhirObservationService extends BaseService
             )
         );
         $profile_data = $this->filterProfiles($profile_data);
-        if ($profile_data[$profile] || $profile == 'vitals') {
+        if (
+            $profile_data[$profile] || $profile == 'vitals' ||
+            ($profile_data['bps'] && $profile_data["bpd"] && $profile == "bp")
+        ) {
             $profile_data['profile'] = $profile;
         } else {
             return false;
@@ -197,6 +201,12 @@ class FhirObservationService extends BaseService
                 $resource->addHasMember($oxygen_refrence);
             }
         }
+        if ($data['bps'] && $data['bpd']) {
+            $bp_refrence = new FHIRReference();
+            $bp_refrence->setReference("Observation/bp-" . $data['form_id']);
+            $bp_refrence->setDisplay("Blood pressure panel with all children optional");
+            $resource->addHasMember($bp_refrence);
+        }
     }
 
     private function setValues($data, $resource)
@@ -227,6 +237,20 @@ class FhirObservationService extends BaseService
                 $code = new FHIRCodeableConcept();
                 $code->addCoding($coding);
                 $resource->setCode($code);
+                break;
+            case 'bp':
+                $coding->setCode("85354-9");
+                $coding->setDisplay("Blood pressure panel with all children optional");
+                $code = new FHIRCodeableConcept();
+                $code->addCoding($coding);
+                $code->setText("Blood pressure systolic & diastolic");
+                $resource->setCode($code);
+                $component = new FHIRObservationComponent();
+                $this->setValues(['profile' => "bps", "bps" => $data['bps']], $component);
+                $resource->addComponent($component);
+                $component = new FHIRObservationComponent();
+                $this->setValues(['profile' => "bpd", "bpd" => $data['bpd']], $component);
+                $resource->addComponent($component);
                 break;
             case 'bps':
                 $quantity->setValue($data['bps']);
