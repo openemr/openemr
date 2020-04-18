@@ -61,7 +61,7 @@
     "i18next-browser-languagedetector": "4.0.1",
     "i18next-xhr-backend": "3.2.2",
     "interactjs": "1.8.4",
-    "jquery": "3.4.1",
+    "jquery": "3.5.0",
     "jquery-datetimepicker": "2.5.21",
     "jquery-validation": "1.19.1",
     "jscolor": "EastDesire/jscolor",
