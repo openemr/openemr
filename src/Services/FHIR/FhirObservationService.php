@@ -94,7 +94,12 @@ class FhirObservationService extends BaseService
                 "limit" => 1
             )
         );
-        $profile_data['profile'] = $profile;
+        $profile_data = $this->filterProfiles($profile_data);
+        if ($profile_data[$profile] || $profile == 'vitals') {
+            $profile_data['profile'] = $profile;
+        } else {
+            return false;
+        }
         return $profile_data;
     }
 
@@ -139,13 +144,7 @@ class FhirObservationService extends BaseService
 
     private function addMembers($data, $resource)
     {
-        $members = array_filter($data, function ($k) {
-            if ($k != 0 && $k != 0.0 && $k != 0.00 && $k != null && $k != '') {
-                return $k;
-            }
-        });
-
-        foreach ($members as $key => $value) {
+        foreach ($data as $key => $value) {
             if ($key == 'temperature') {
                 $temp_refrence = new FHIRReference();
                 $temp_refrence->setReference("Observation/temperature-" . $data['form_id']);
@@ -337,5 +336,14 @@ class FhirObservationService extends BaseService
             default:
                 break;
         }
+    }
+
+    private function filterProfiles($data)
+    {
+        return array_filter($data, function ($k) {
+            if ($k != "0" && $k != "0.0" && $k != "0.00" && $k != null && $k != '') {
+                return $k;
+            }
+        });
     }
 }
