@@ -19,9 +19,9 @@
 </script>
 <script type="text/html" id="menu-header">
     <i data-bind="css: icon" class="fa closeButton"></i>
-    <div class="menuSection">
-        <div class='menuLabel' data-bind="text:label"></div>
-        <ul class="menuEntries" name="menuEntries" data-bind="foreach: children">
+    <div class="menuSection dropdown">
+        <div class='menuLabel dropdown-toggle oe-dropdown-toggle' data-bind="text:label" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></div>
+        <ul class="menuEntries dropdown-menu rounded-0 border-0" name="menuEntries" data-bind="foreach: children">
             <li data-bind="template: {name:header ? 'menu-header' : 'menu-action', data: $data }"></li>
         </ul>
     </div>
@@ -30,5 +30,4 @@
     <div class='appMenu navbar-nav mr-auto' data-bind="foreach: menu">
         <div data-bind="template: {name:header ? 'menu-header' : 'menu-action', data: $data }"></div>
     </div>
-    <span id="userData" data-bind="template: {name: 'user-data-template', data: $data} "></span>
 </script>

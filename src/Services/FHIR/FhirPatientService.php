@@ -91,7 +91,6 @@ class FhirPatientService
         }
         if (isset($fhirJson["telecom"])) {
             foreach ($fhirJson["telecom"] as $telecom) {
-
                 switch ($telecom['system']) {
                     case 'phone':
                         switch ($telecom['use']) {

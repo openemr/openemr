@@ -17,11 +17,9 @@ There are several ways to make API calls from an authorized session and maintain
 
 _Example:_ `http://localhost:8300/apis/fhir/Patient` returns a Patient's bundle resource, etc
 
-#### POST /api/auth
+#### POST /fhir/auth
 
-Obtain an FHIR token with your login (returns an FHIR token). 
-Scope must match a site that has been setup in OpenEMR in the /sites/ directory.  If you haven't created additional sites
-then 'default' should be the scope.
+The OpenEMR FHIR API utilizes the OAuth2 password credential flow for authentication. To obtain an API token, submit your login credentials and requested scope. The scope must match a site that has been setup in OpenEMR, in the /sites/ directory.  If additional sites have not been created, set the scope to 'default'.
 
 ```sh
 curl -X POST -H 'Content-Type: application/json' 'http://localhost:8300/apis/fhir/auth' \
@@ -44,21 +42,173 @@ Response:
     }
 }
 ```
-For ssh calls, each call must include the token:
+The Bearer token is required for each OpenEMR API request, and is conveyed using an Authorization header.
 
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/fhir/Patient' \
   -H 'Authorization: Bearer eyJ0b2tlbiI6IjAwNnZ3eGJZYmFrOXlxUjF4U290Y1g4QVVDd3JOcG5yYXZEaFlqaHFjWXJXRGNDQUtFZmJONkh2cElTVkJiaWFobHBqOTBYZmlNRXpiY2FtU01pSHk1UzFlMmgxNmVqZEhcL1ZENlNtaVpTRFRLMmtsWDIyOFRKZzNhQmxMdUloZmNJM3FpMGFKZ003OXdtOGhYT3dpVkx5b3BFRXQ1TlNYNTE3UW5TZ0dsUVdQbG56WjVxOVYwc21tdDlSQ3RvcDV3TEkiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6ImZoaXIifQ=='
 ```
-While using an API client you can include the token as part of authorization 
 
-#### GET /fhir/patient
+#### GET /fhir/Patient
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/fhir/Patient'
 ```
 
+#### GET /fhir/Patient/:pid
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Patient/1'
+```
+
+#### POST /fhir/Patient
+
+```sh
+curl -X POST -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/fhir/Patient' -d \ 
+'{
+  "resourceType": "Patient",
+  "identifier": [ { "system": "urn:oid:1.2.36.146.595.217.0.1", "value": "12345" } ],
+  "name": [ {
+      "family": "Chalmers",
+      "given": [ "Peter", "James" ]
+  } ],
+  "gender": "male",
+  "birthDate": "1974-12-25"
+}'
+```
+
+#### PUT /fhir/Patient/:pid
+
+```sh
+curl -X PUT -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/fhir/Patient/1' -d \ 
+'{
+  "resourceType": "Patient",
+  "id": "1",
+  "identifier": [ { "system": "urn:oid:1.2.36.146.595.217.0.1", "value": "12345" } ],
+  "name": [ {
+      "family": "Chalmers",
+      "given": [ "Peter", "James" ]
+  } ],
+  "gender": "male",
+  "birthDate": "1974-01-13",
+  "address": [ {
+      "line": [ "534 Erewhon St" ],
+      "city": "PleasantVille",
+      "state": "Vic",
+      "postalCode": "3999"
+  } ]
+}'
+```
+
+#### PATCH /fhir/Patient/:pid
+
+```sh
+curl -X PATCH -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/fhir/Patient/1' -d \ 
+'[
+ { 
+   "op": "replace", 
+   "path": "/address/0/postalCode", 
+   "value": "M5C 2X8" 
+ },
+ { 
+   "op": "replace", 
+   "path": "/birthDate", 
+   "value": "1974-02-13" 
+ }
+]'
+```
+
+#### GET /fhir/Encounter
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Encounter'
+```
+
+#### GET /fhir/Encounter/:eid
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Encounter/1'
+```
+
+#### GET /fhir/Organization
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Organization'
+```
+
+#### GET /fhir/Organization/:oid
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Organization/1'
+```
+
+#### GET /fhir/AllergyIntolerance
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance'
+```
+
+#### GET /fhir/AllergyIntolerance/:id
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance/1'
+```
+
+#### POST /fhir/QuestionnaireResponse
+
+```sh
+curl -X POST -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/fhir/QuestionnaireResponse' -d \ 
+'{
+  "resourceType": "QuestionnaireResponse",
+  "id": "697485",
+  "meta": {
+    "versionId": "1",
+    "lastUpdated": "2020-03-22T09:11:45.181+00:00",
+    "source": "#L0otRLyoImuOVD2S"
+  },
+  "status": "completed",
+  "item": [ {
+    "linkId": "1",
+    "text": "Do you have allergies?"
+  }, {
+    "linkId": "2",
+    "text": "General questions",
+    "item": [ {
+      "linkId": "2.1",
+      "text": "What is your gender?"
+    }, {
+      "linkId": "2.2",
+      "text": "What is your date of birth?"
+    }]
+  }]
+  } ]
+}'
+```
+
+#### GET /fhir/Immunization
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Immunization'
+```
+
+#### GET /fhir/Immunization/:id
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Immunization/1'
+```
+
+#### GET /fhir/Condition
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Condition'
+```
+
+#### GET /fhir/Condition/:id
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Condition/1'
+```
 
 ### Dev Notes
 
@@ -71,4 +221,3 @@ curl -X GET 'http://localhost:8300/apis/fhir/Patient'
 
 #### FHIR
 - TODO(?): ?
-
