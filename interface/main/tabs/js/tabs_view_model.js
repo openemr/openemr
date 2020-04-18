@@ -332,7 +332,7 @@ function menuActionClick(data,evt)
             matches[1] + '&formdesc=' + encodeURIComponent(data.label());
         }
         
-        if(!openExistingTab(dataurl)){
+        if(!openExistingTab(data)){
         navigateTab(webroot_url + dataurl, data.target, function () {
             activateTabByName(data.target,true);
         },xl("Loading") + " " + dataLabel);
@@ -413,42 +413,43 @@ function clearTherapyGroup()
     });
 }
 
-function openExistingTab(url)
-{
+function openExistingTab(data) {
     let exist = false;
-    for(let tabIdx=0;tabIdx<app_view_model.application_data.tabs.tabsList().length;tabIdx++)
-    {
-        let currTab=app_view_model.application_data.tabs.tabsList()[tabIdx];
+    for (let tabIdx = 0; tabIdx < app_view_model.application_data.tabs.tabsList().length; tabIdx++) {
+        let currTab = app_view_model.application_data.tabs.tabsList()[tabIdx];
         let currTabUrl = currTab.url();
+        let currTabName = currTab.name();
         //Check if URL is from $GLOBAL['default_tab']
-        switch(currTabUrl){
+        switch (currTabUrl) {
             case '../main_info.php':
-              currTabUrl = webroot_url+'/interface/main/main_info.php';
-              break;
+                currTabUrl = webroot_url + '/interface/main/main_info.php';
+                break;
             case '../../new/new.php':
-              currTabUrl = webroot_url+'/interface/new/new.php'
-              break;
+                currTabUrl = webroot_url + '/interface/new/new.php'
+                break;
             case '../../../interface/main/finder/dynamic_finder.php':
-              currTabUrl = webroot_url+'/interface/main/finder/dynamic_finder.php'
-              break;
+                currTabUrl = webroot_url + '/interface/main/finder/dynamic_finder.php'
+                break;
             case '../../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1':
-              currTabUrl = webroot_url+'/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1'
-              break;
+                currTabUrl = webroot_url + '/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1'
+                break;
             case '../../../interface/main/messages/messages.php?form_active=1':
-              currTabUrl = webroot_url+'/interface/main/messages/messages.php?form_active=1'
-              break;
+                currTabUrl = webroot_url + '/interface/main/messages/messages.php?form_active=1'
+                break;
         }
-        if(webroot_url+url!==currTabUrl)
-        {
-            if(!currTab.locked())
-            {
-                currTab.visible(false);
-            }
-        }
-        else
-        {
+        let url = webroot_url + data.url();
+        if (url === currTabUrl) {
             currTab.visible(true);
             exist = true;
+        }
+        else if (url !== currTabUrl && currTabName == data.target) {
+            currTab.visible(true);
+            currTab.url(url);
+        }
+        else {
+            if (!currTab.locked()) {
+                currTab.visible(false);
+            }
         }
     }
     return exist;
