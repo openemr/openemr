@@ -38,16 +38,16 @@ class FhirObservationRestController
 
         if ($searchParam['code']) {
             $code = array(
-                "85353 - 1" => 'vitals',
-                "29463 - 7" => 'weight',
-                "8302 - 2" => 'height',
+                "85353-1" => 'vitals',
+                "29463-7" => 'weight',
+                "8302-2" => 'height',
                 "85354-9" => 'bp',
-                "8310 - 5"  => 'temperature',
-                "8867 - 4"  => 'pulse',
-                "9279 - 1"  => 'respiration',
-                "39156 - 5"  => 'BMI',
-                "9843 - 4"  => 'head_circ',
-                "2708 - 6"  => 'oxygen_saturation',
+                "8310-5"  => 'temperature',
+                "8867-4"  => 'pulse',
+                "9279-1"  => 'respiration',
+                "39156-5"  => 'BMI',
+                "9843-4"  => 'head_circ',
+                "2708-6"  => 'oxygen_saturation',
             );
         }
 

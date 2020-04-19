@@ -45,7 +45,7 @@ class FhirObservationService extends BaseService
         // Check Profile or Member and add/set appropriately
         if ($data['profile'] == 'vitals') {
             $vital_coding = new FHIRCoding();
-            $vital_coding->setCode("85353 - 1");
+            $vital_coding->setCode("85353-1");
             $vital_coding->setSystem("http://loinc.org");
             $vital_coding->setDisplay(
                 "Vital signs, weight, height, head circumference, oxygen saturation and BMI panel"
@@ -207,7 +207,7 @@ class FhirObservationService extends BaseService
                 $quantity->setUnit('lbs');
                 $quantity->setCode("[lb_av]");
                 $resource->setValueQuantity($quantity);
-                $coding->setCode("29463 - 7");
+                $coding->setCode("29463-7");
                 $coding->setDisplay("Body weight");
                 $code = new FHIRCodeableConcept();
                 $code->addCoding($coding);
@@ -218,7 +218,7 @@ class FhirObservationService extends BaseService
                 $quantity->setUnit('in');
                 $quantity->setCode("[in_i]");
                 $resource->setValueQuantity($quantity);
-                $coding->setCode("8302 - 2");
+                $coding->setCode("8302-2");
                 $coding->setDisplay("Body height");
                 $code = new FHIRCodeableConcept();
                 $code->addCoding($coding);
@@ -250,7 +250,7 @@ class FhirObservationService extends BaseService
                     $bps_component->setDataAbsentReason($error_code);
                 }
                 $bps_coding = clone $coding;
-                $bps_coding->setCode("8480 - 6");
+                $bps_coding->setCode("8480-6");
                 $bps_coding->setDisplay("Systolic blood pressure");
                 $bps_code = new FHIRCodeableConcept();
                 $bps_code->addCoding($bps_coding);
@@ -269,7 +269,7 @@ class FhirObservationService extends BaseService
                     $bpd_component->setDataAbsentReason($error_code);
                 }
                 $bps_coding = clone $coding;
-                $bps_coding->setCode("8462 - 4");
+                $bps_coding->setCode("8462-4");
                 $bps_coding->setDisplay("Diastolic blood pressure");
                 $bps_code = new FHIRCodeableConcept();
                 $bps_code->addCoding($bps_coding);
@@ -289,7 +289,7 @@ class FhirObservationService extends BaseService
                 $code->addCoding($cat_coding);
                 $code->setText("Vital Signs");
                 $resource->addCategory($code);
-                $coding->setCode("8310 - 5");
+                $coding->setCode("8310-5");
                 $coding->setDisplay("Body temperature");
                 $code = new FHIRCodeableConcept();
                 $code->addCoding($coding);
@@ -300,7 +300,7 @@ class FhirObservationService extends BaseService
                 $quantity->setUnit('beats/minute');
                 $quantity->setCode("/min");
                 $resource->setValueQuantity($quantity);
-                $coding->setCode("8867 - 4");
+                $coding->setCode("8867-4");
                 $coding->setDisplay("Heart rate");
                 $code = new FHIRCodeableConcept();
                 $code->addCoding($coding);
@@ -311,7 +311,7 @@ class FhirObservationService extends BaseService
                 $quantity->setUnit('breaths/minute');
                 $quantity->setCode("/min");
                 $resource->setValueQuantity($quantity);
-                $coding->setCode("9279 - 1");
+                $coding->setCode("9279-1");
                 $coding->setDisplay("Respiratory rate");
                 $code = new FHIRCodeableConcept();
                 $code->addCoding($coding);
@@ -330,7 +330,7 @@ class FhirObservationService extends BaseService
                 $resource->addDerivedFrom($height_ref);
                 $resource->addDerivedFrom($height_ref);
                 $resource->setValueQuantity($quantity);
-                $coding->setCode("39156 - 5");
+                $coding->setCode("39156-5");
                 $coding->setDisplay("Body mass index (BMI) [Ratio]");
                 $code = new FHIRCodeableConcept();
                 $code->addCoding($coding);
@@ -341,7 +341,7 @@ class FhirObservationService extends BaseService
                 $quantity->setUnit('in');
                 $quantity->setCode("[in_i]");
                 $resource->setValueQuantity($quantity);
-                $coding->setCode("9843 - 4");
+                $coding->setCode("9843-4");
                 $coding->setDisplay("Head Occipital-frontal circumference");
                 $code = new FHIRCodeableConcept();
                 $code->addCoding($coding);
@@ -352,7 +352,7 @@ class FhirObservationService extends BaseService
                 $quantity->setUnit('%');
                 $quantity->setCode("%");
                 $resource->setValueQuantity($quantity);
-                $coding->setCode("2708 - 6");
+                $coding->setCode("2708-6");
                 $coding->setDisplay("Oxygen saturation in Arterial blood");
                 $code = new FHIRCodeableConcept();
                 $code->addCoding($coding);
