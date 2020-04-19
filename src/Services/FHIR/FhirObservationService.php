@@ -67,10 +67,6 @@ class FhirObservationService extends BaseService
         $encounter->setReference("Encounter/" . $data['encounter']);
         $encounter->setType("Encounter");
         $resource->setEncounter($encounter);
-        $performer = new FHIRReference();
-        $performer->setReference("Practitioner/" . $data['provider_id']);
-        $performer->setType("Practitioner");
-        $resource->addPerformer($performer);
         $data['date'] = date("Y-m-d\TH:i:s", strtotime($data['date']));
         $resource->setEffectiveDateTime($data['date']);
         $resource->setId($id);
@@ -98,7 +94,7 @@ class FhirObservationService extends BaseService
         $profile_data = $this->filterProfiles($profile_data);
         if (
             $profile_data[$profile] || $profile == 'vitals' ||
-            ($profile_data['bps'] && $profile_data["bpd"] && $profile == "bp")
+            ($profile_data['bps'] || $profile_data["bpd"]) && $profile == "bp"
         ) {
             $profile_data['profile'] = $profile;
         } else {
@@ -154,16 +150,6 @@ class FhirObservationService extends BaseService
                 $temp_refrence->setReference("Observation/temperature-" . $data['form_id']);
                 $temp_refrence->setDisplay("Body Temperature");
                 $resource->addHasMember($temp_refrence);
-            } elseif ($key == 'bps') {
-                $bps_refrence = new FHIRReference();
-                $bps_refrence->setReference("Observation/bps-" . $data['form_id']);
-                $bps_refrence->setDisplay("Systolic blood pressure");
-                $resource->addHasMember($bps_refrence);
-            } elseif ($key == 'bpd') {
-                $bpd_refrence = new FHIRReference();
-                $bpd_refrence->setReference("Observation/bpd-" . $data['form_id']);
-                $bpd_refrence->setDisplay("Diastolic blood pressure");
-                $resource->addHasMember($bpd_refrence);
             } elseif ($key == 'pulse') {
                 $pulse_refrence = new FHIRReference();
                 $pulse_refrence->setDisplay("Heart Rate");
@@ -201,7 +187,7 @@ class FhirObservationService extends BaseService
                 $resource->addHasMember($oxygen_refrence);
             }
         }
-        if ($data['bps'] && $data['bpd']) {
+        if ($data['bps'] || $data['bpd']) {
             $bp_refrence = new FHIRReference();
             $bp_refrence->setReference("Observation/bp-" . $data['form_id']);
             $bp_refrence->setDisplay("Blood pressure panel with all children optional");
@@ -245,34 +231,50 @@ class FhirObservationService extends BaseService
                 $code->addCoding($coding);
                 $code->setText("Blood pressure systolic & diastolic");
                 $resource->setCode($code);
-                $component = new FHIRObservationComponent();
-                $this->setValues(['profile' => "bps", "bps" => $data['bps']], $component);
-                $resource->addComponent($component);
-                $component = new FHIRObservationComponent();
-                $this->setValues(['profile' => "bpd", "bpd" => $data['bpd']], $component);
-                $resource->addComponent($component);
-                break;
-            case 'bps':
-                $quantity->setValue($data['bps']);
-                $quantity->setUnit('mmHg');
-                $quantity->setCode("[mm[Hg]]");
-                $resource->setValueQuantity($quantity);
-                $coding->setCode("8480 - 6");
-                $coding->setDisplay("Systolic blood pressure");
-                $code = new FHIRCodeableConcept();
-                $code->addCoding($coding);
-                $resource->setCode($code);
-                break;
-            case 'bpd':
-                $quantity->setValue($data['bpd']);
-                $quantity->setUnit('mmHg');
-                $quantity->setCode("[mm[Hg]]");
-                $resource->setValueQuantity($quantity);
-                $coding->setCode("8462 - 4");
-                $coding->setDisplay("Diastolic blood pressure");
-                $code = new FHIRCodeableConcept();
-                $code->addCoding($coding);
-                $resource->setCode($code);
+                $error_coding = clone $coding;
+                $error_coding->setCode("unknown");
+                $error_coding->setSystem("http://terminology.hl7.org/CodeSystem/data-absent-reason");
+                $error_coding->setDisplay("Unknown");
+                $error_code = new FHIRCodeableConcept();
+                $error_code->addCoding($error_coding);
+
+                // Component - Systolic blood pressure
+                $bps_component = new FHIRObservationComponent();
+                if ($data['bps']) {
+                    $bps_quantity = clone $quantity;
+                    $bps_quantity->setValue($data['bps']);
+                    $bps_quantity->setUnit('mmHg');
+                    $bps_quantity->setCode("[mm[Hg]]");
+                    $bps_component->setValueQuantity($bps_quantity);
+                } else {
+                    $bps_component->setDataAbsentReason($error_code);
+                }
+                $bps_coding = clone $coding;
+                $bps_coding->setCode("8480 - 6");
+                $bps_coding->setDisplay("Systolic blood pressure");
+                $bps_code = new FHIRCodeableConcept();
+                $bps_code->addCoding($bps_coding);
+                $bps_component->setCode($bps_code);
+                $resource->addComponent($bps_component);
+
+                // Component - Diastolic blood pressure
+                $bpd_component = new FHIRObservationComponent();
+                if ($data['bpd']) {
+                    $bpd_quantity = clone $quantity;
+                    $bpd_quantity->setValue($data['bpd']);
+                    $bpd_quantity->setUnit('mmHg');
+                    $bpd_quantity->setCode("[mm[Hg]]");
+                    $bpd_component->setValueQuantity($bpd_quantity);
+                } else {
+                    $bpd_component->setDataAbsentReason($error_code);
+                }
+                $bps_coding = clone $coding;
+                $bps_coding->setCode("8462 - 4");
+                $bps_coding->setDisplay("Diastolic blood pressure");
+                $bps_code = new FHIRCodeableConcept();
+                $bps_code->addCoding($bps_coding);
+                $bpd_component->setCode($bps_code);
+                $resource->addComponent($bpd_component);
                 break;
             case 'temperature':
                 $quantity->setValue($data['temperature']);
@@ -365,7 +367,7 @@ class FhirObservationService extends BaseService
     private function filterProfiles($data)
     {
         return array_filter($data, function ($k) {
-            if ($k != "0" && $k != "0.0" && $k != "0.00" && $k != null && $k != '') {
+            if ($k !== "0.0" && $k !== "0.00" && $k !== null && $k !== '') {
                 return $k;
             }
         });
