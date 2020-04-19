@@ -443,3 +443,7 @@ ALTER TABLE `form_eye_mag_prefs` MODIFY `ordering` smallint(6) DEFAULT NULL;
 #IfNotColumnType codes code_text_short varchar(255)
 ALTER TABLE `codes` MODIFY `code_text_short` varchar(255) NOT NULL default '';
 #EndIf
+
+#IfNotColumnType amendments created_time timestamp
+ALTER TABLE `amendments` MODIFY `created_time` timestamp NULL COMMENT 'created time';
+#EndIf
