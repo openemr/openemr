@@ -294,3 +294,11 @@ ALTER TABLE `medex_recalls` ADD INDEX `i_eventDate` (`r_eventDate`);
 #IfNotIndex medex_outgoing i_msg_date
 ALTER TABLE `medex_outgoing` ADD INDEX `i_msg_date` (`msg_date`);
 #EndIf
+
+#IfNotRow2D icd10dx_order_code dx_code U071 active 1
+INSERT INTO `icd10_dx_order_code` (`dx_code`, `formatted_dx_code`, `valid_for_coding`, `short_desc`, `long_desc`, `active`, `revision`) VALUES ('U071', 'U07.1', '1', 'COVID-19', 'COVID-19', '1', `1`)
+#EndIf
+
+#IfRow2D icd10dx_order_code dx_code U071 active 1
+UPDATE `icd10_dx_order_code` SET `revision` = (SELECT MAX(`revision`) from icd10_dx_order_code WHERE `dx_code` = 'A000') WHERE `dx_code` = 'U071'
+#EndIf
