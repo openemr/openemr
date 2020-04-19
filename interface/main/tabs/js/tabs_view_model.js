@@ -332,7 +332,7 @@ function menuActionClick(data,evt)
             matches[1] + '&formdesc=' + encodeURIComponent(data.label());
         }
         
-        if(!openExistingTab(data)){
+        if (!openExistingTab(data)) {
         navigateTab(webroot_url + dataurl, data.target, function () {
             activateTabByName(data.target,true);
         },xl("Loading") + " " + dataLabel);
@@ -425,16 +425,16 @@ function openExistingTab(data) {
                 currTabUrl = webroot_url + '/interface/main/main_info.php';
                 break;
             case '../../new/new.php':
-                currTabUrl = webroot_url + '/interface/new/new.php'
+                currTabUrl = webroot_url + '/interface/new/new.php';
                 break;
             case '../../../interface/main/finder/dynamic_finder.php':
-                currTabUrl = webroot_url + '/interface/main/finder/dynamic_finder.php'
+                currTabUrl = webroot_url + '/interface/main/finder/dynamic_finder.php';
                 break;
             case '../../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1':
-                currTabUrl = webroot_url + '/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1'
+                currTabUrl = webroot_url + '/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1';
                 break;
             case '../../../interface/main/messages/messages.php?form_active=1':
-                currTabUrl = webroot_url + '/interface/main/messages/messages.php?form_active=1'
+                currTabUrl = webroot_url + '/interface/main/messages/messages.php?form_active=1';
                 break;
         }
         let url = webroot_url + data.url();
