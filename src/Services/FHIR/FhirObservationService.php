@@ -92,8 +92,7 @@ class FhirObservationService extends BaseService
             )
         );
         $profile_data = $this->filterProfiles($profile_data);
-        if (
-            $profile_data[$profile] || $profile == 'vitals' ||
+        if ($profile_data[$profile] || $profile == 'vitals' ||
             ($profile_data['bps'] || $profile_data["bpd"]) && $profile == "bp"
         ) {
             $profile_data['profile'] = $profile;

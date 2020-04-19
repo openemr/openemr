@@ -58,7 +58,11 @@ class FhirObservationRestController
                     }
                     $id = $value . '-' . $profile['form_id'];
                     $profile_data = $this->fhirObservationService->getOne($id);
-                    $entryResource = $this->fhirObservationService->createObservationResource($id, $profile_data, false);
+                    $entryResource = $this->fhirObservationService->createObservationResource(
+                        $id,
+                        $profile_data,
+                        false
+                    );
                     if ((empty($search['code']) || $this->checkCode($code, $searchParam['code'], $id))
                         && $profile_data['profile'] == $value
                     ) {
