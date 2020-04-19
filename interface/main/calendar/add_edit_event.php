@@ -45,6 +45,7 @@ require_once($GLOBALS['srcdir'].'/forms.inc');
 require_once($GLOBALS['srcdir'].'/calendar.inc');
 require_once($GLOBALS['srcdir'].'/options.inc.php');
 require_once($GLOBALS['srcdir'].'/encounter_events.inc.php');
+require_once($GLOBALS['srcdir'].'/video_consultation.inc');
 require_once($GLOBALS['srcdir'].'/patient_tracker.inc.php');
 require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
 require_once($GLOBALS['srcdir'].'/group.inc');
@@ -662,7 +663,8 @@ if ($_POST['form_action'] == "save") {
                 $args['starttime'] = $starttime;
                 $args['endtime'] = $endtime;
                 $args['locationspec'] = $locationspec;
-                InsertEvent($args);
+                $args['parent_id'] = $eid;
+                $recurr_new_eid=InsertEvent($args);
             } else if ($_POST['recurr_affect'] == 'future') {
                 // mod original event to stop recurring on this date-1
                 $selected_date = date("Ymd", (strtotime($_POST['selected_date'])-24*60*60));
@@ -731,10 +733,26 @@ if ($_POST['form_action'] == "save") {
 
         $eid = InsertEventFull();
     }
+      if($eid && $_POST['form_category']=="16"){
+        $md=BBB_createMeeting($eid);
+      }
 
         // done with EVENT insert/update statements
 
         DOBandEncounter(isset($eid) ? $eid : null);
+        if($_POST['form_apptstatus']=='SV' && $_POST['form_category']=="16"){// this is set, Start Video Consultation .
+          if($recurr_new_eid){
+          $md=BBB_createMeeting($recurr_new_eid);
+           }
+        $tmpId=($recurr_new_eid) ? $recurr_new_eid : $eid;
+        $url=BBB_startMeeting($tmpId);
+        echo "<html>\n<body>\n<script language='JavaScript'>\n";
+        echo " window.open('".$url."', '_blank');\n";
+        echo " dlgclose();\n";
+        echo "</script>\n";
+        echo "</body>\n</html>\n";
+      }
+
 } else if ($_POST['form_action'] == "delete") { //    DELETE EVENT(s)
     // =======================================
     //  multi providers event

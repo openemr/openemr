@@ -47,6 +47,10 @@ $chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-cir
     [-/php-]
    ,'_blank', 780, 675);
  }
+  function apntDet(eventid) {
+  dlgopen('appointment_details.php?eid=' + eventid,'_blank', 775, 500);
+ }
+
 
  function oldEvt(eventdate, eventid, pccattype) {
   dlgopen('add_edit_event.php?date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 780, 675);
@@ -754,7 +758,9 @@ foreach ($providers as $provider) {
                 $content .= "<span class='appointment" . attr($apptToggle) . "'>";
                 $content .= create_event_time_anchor($dispstarth . ':' . $startm);
                 if ($event['recurrtype'] > 0) $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/repeating8.png' class='border-0' style='margin:0 2px 0 2px;' title='Repeating event' alt='Repeating event' />";
-                $content .= text($event['apptstatus']);
+                //$content .= text($event['apptstatus']);
+                $title=xlt("click to get appointment details");
+                $content .= '&nbsp;' ."<a class='event_time' onclick='apntDet($eventid)' title='" . attr($title) . "'>" . text($event['apptstatus']) . "</a>";
                 if ($patientid) {
                     // include patient name and link to their details
                     $link_title = $fname . " " . $lname . " \n";

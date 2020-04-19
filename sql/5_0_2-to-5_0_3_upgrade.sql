@@ -439,3 +439,49 @@ ALTER TABLE `form_eye_mag_prefs` MODIFY `ordering` smallint(6) DEFAULT NULL;
 #IfNotColumnType codes code_text_short varchar(255)
 ALTER TABLE `codes` MODIFY `code_text_short` varchar(255) NOT NULL default '';
 #EndIf
+
+#IfRow2D list_options list_id amendment_status option_id SV
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`)
+ VALUES ('amendment_status','SV','Start Video Consultation',100,0,0,'','','',0,0,1,'',1,'');
+#Endif
+
+#IfRow2D list_options list_id apptstat option_id SV
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`)
+VALUES ('apptstat','SV','Start Video Consultation',100,0,0,'','1D0BFF|','',1,0,1,'',1,'');
+#Endif
+
+#IfMissingColumn openemr_postcalendar_events pc_video_meeting_id
+ALTER TABLE `openemr_postcalendar_events` ADD COLUMN `pc_video_meeting_id` VARCHAR(20) NOT NULL DEFAULT '';
+#Endif
+
+#IfMissingColumn openemr_postcalendar_events pc_video_table_id
+ALTER TABLE `openemr_postcalendar_events` ADD COLUMN `pc_video_table_id` INTEGER UNSIGNED NOT NULL DEFAULT 0;
+#Endif
+
+#IfMissingColumn openemr_postcalendar_events pc_parent_eid
+ALTER TABLE `openemr_postcalendar_events` ADD COLUMN `pc_parent_eid` INTEGER UNSIGNED NOT NULL DEFAULT 0 COMMENT 'original recurring meeting ID';
+#Endif
+ 
+#IfNotTable video
+CREATE TABLE  `video` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `vendor_id` varchar(15) NOT NULL DEFAULT '',
+  `provider_id` int(10) unsigned NOT NULL DEFAULT 0,
+  `patient_id` int(10) unsigned NOT NULL DEFAULT 0,
+  `meeting_conducted_date` date DEFAULT NULL,
+  `meeting_conducted_time` time DEFAULT NULL,
+  `meeting_id` bigint(20) unsigned NOT NULL DEFAULT 0,
+  `meeting_status` varchar(45) NOT NULL DEFAULT '',
+  `scheduled_meeting_duration` smallint(5) unsigned NOT NULL DEFAULT 0,
+  `actual_meeting_duration` smallint(5) unsigned NOT NULL DEFAULT 0,
+  `recording_url` varchar(200) NOT NULL DEFAULT '',
+  `provider_url` varchar(200) NOT NULL DEFAULT '',
+  `patient_url` varchar(200) NOT NULL DEFAULT '',
+  `is_recurring` smallint(5) unsigned NOT NULL DEFAULT 0,
+  `meeting_info` text DEFAULT NULL,
+  `moderator_pwd` varchar(20) NOT NULL DEFAULT '',
+  `attendee_pwd` varchar(20) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+#Endif
+

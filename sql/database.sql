@@ -5269,7 +5269,7 @@ INSERT INTO `openemr_postcalendar_categories` VALUES (12,'health_and_behavioral_
 INSERT INTO `openemr_postcalendar_categories` VALUES (13,'preventive_care_services', 'Preventive Care Services', '#CCCCFF', 'Preventive Care Services', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,13,'encounters|notes');
 INSERT INTO `openemr_postcalendar_categories` VALUES (14,'ophthalmological_services', 'Ophthalmological Services', '#F89219', 'Ophthalmological Services', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 900, 0, 0, 0, 0, 0,0,1,14,'encounters|notes');
 INSERT INTO `openemr_postcalendar_categories` VALUES (15,'group_therapy', 'Group Therapy' , '#BFBFBF' , 'Group Therapy', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 3600, 0, 0, 0, 0, 0, 3, 1, 15,'encounters|notes');
-
+INSERT INTO `openemr_postcalendar_categories` VALUES ('','Video Consultation','video_consultation','Video Consultation','#ffffff','0','a:5:{s:17:\"event_repeat_freq\";s:1:\"0\";s:22:\"event_repeat_freq_type\";s:1:\"0\";s:19:\"event_repeat_on_num\";s:1:\"1\";s:19:\"event_repeat_on_day\";s:1:\"0\";s:20:\"event_repeat_on_freq\";s:1:\"0\";}','','900','','0','0','0','0','0','1','14','encounters|notes')
 -----------------------------------------------------------
 
 --
@@ -5316,6 +5316,9 @@ CREATE TABLE `openemr_postcalendar_events` (
   `pc_sendalertemail` VARCHAR( 3 ) NOT NULL DEFAULT 'NO',
   `pc_billing_location` SMALLINT (6) NOT NULL DEFAULT '0',
   `pc_room` varchar(20) NOT NULL DEFAULT '',
+  `pc_video_meeting_id` VARCHAR(20) NOT NULL DEFAULT '',
+  `pc_video_table_id` INTEGER UNSIGNED NOT NULL DEFAULT 0,
+  `pc_parent_eid` INTEGER UNSIGNED NOT NULL DEFAULT 0 COMMENT 'original recurring meeting ID',
   PRIMARY KEY  (`pc_eid`),
   KEY `basic_event` (`pc_catid`,`pc_aid`,`pc_eventDate`,`pc_endDate`,`pc_eventstatus`,`pc_sharing`,`pc_topic`),
   KEY `pc_eventDate` (`pc_eventDate`)
@@ -10617,4 +10620,26 @@ CREATE TABLE `benefit_eligibility` (
     `response_status` enum('A','D') DEFAULT 'A',
     `response_create_date` date DEFAULT NULL,
     `response_modify_date` date DEFAULT NULL
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `video`;
+CREATE TABLE  `video` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `vendor_id` varchar(15) NOT NULL DEFAULT '',
+  `provider_id` int(10) unsigned NOT NULL DEFAULT 0,
+  `patient_id` int(10) unsigned NOT NULL DEFAULT 0,
+  `meeting_conducted_date` date DEFAULT NULL,
+  `meeting_conducted_time` time DEFAULT NULL,
+  `meeting_id` bigint(20) unsigned NOT NULL DEFAULT 0,
+  `meeting_status` varchar(45) NOT NULL DEFAULT '',
+  `scheduled_meeting_duration` smallint(5) unsigned NOT NULL DEFAULT 0,
+  `actual_meeting_duration` smallint(5) unsigned NOT NULL DEFAULT 0,
+  `recording_url` varchar(200) NOT NULL DEFAULT '',
+  `provider_url` varchar(200) NOT NULL DEFAULT '',
+  `patient_url` varchar(200) NOT NULL DEFAULT '',
+  `is_recurring` smallint(5) unsigned NOT NULL DEFAULT 0,
+  `meeting_info` text DEFAULT NULL,
+  `moderator_pwd` varchar(20) NOT NULL DEFAULT '',
+  `attendee_pwd` varchar(20) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;

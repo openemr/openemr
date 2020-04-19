@@ -44,6 +44,9 @@ $timeslotHeightUnit="px";
     [-/php-]
    ,'_blank', 780, 675);
  }
+ function apntDet(eventid) {
+  dlgopen('appointment_details.php?eid=' + eventid,'_blank', 775, 500);
+ }
 
  function oldEvt(eventdate, eventid, pccattype) {
   dlgopen('add_edit_event.php?date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 780, 650);
@@ -731,7 +734,9 @@ foreach ($providers as $provider) {
                 $content .= "<span class='appointment'>";
                 $content .= create_event_time_anchor($dispstarth.":".$startm);
                 if ($event['recurrtype'] > 0) $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='" . xla("Repeating event") . "' alt='" . xla("Repeating event") . "'>";
-                $content .= '&nbsp;' . text($event['apptstatus']);
+                //$content .= '&nbsp;' . text($event['apptstatus']);
+                 $title=xlt("click to get appointment details");
+                 $content .= '&nbsp;' ."<a class='event_time' onclick='apntDet($eventid)' title='" . attr($title) . "'>" . text($event['apptstatus']) . "</a>";
                 if ($patientid) {
                     $link_title = $fname . " " . $lname . " \n";
                     $link_title .= xl('Age') . ": " . $patient_age . "\n" . xl('DOB') . ": " . $patient_dob . $comment . "\n";

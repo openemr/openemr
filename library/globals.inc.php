@@ -3891,6 +3891,21 @@ $GLOBALS_METADATA = array(
         ),
 
     ),
+         'Video Consultation' => array(
+            'bbb_video_url' => array(
+            xl('BigBlueButton Url'),
+            'text',                           // data type
+            '',
+            xl('BigblueButton URL.')
+        ),
+
+        'bbb_video_secret' => array(
+            xl('BigBlueButton Secret'),
+            'text',                           // data type
+            '',
+            xl('Credential for BigBlueButton Server')
+        ),
+        ),
 );
 
 if (!$skipGlobalEvent) {
