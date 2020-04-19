@@ -1,3 +1,4 @@
+
 # OpenEMR FHIR API Documentation
 
 ### Overview
@@ -208,6 +209,18 @@ curl -X GET 'http://localhost:8300/apis/fhir/Condition'
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/fhir/Condition/1'
+```
+
+#### GET /fhir/Procedure
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Procedure'
+```
+
+#### GET /fhir/Procedure/:id
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Procedure/1'
 ```
 
 ### Dev Notes
