@@ -59,7 +59,7 @@ class FhirObservationRestController
                 $id = 'vitals-' . $profile['form_id'];
                 $profile_data = $this->fhirObservationService->getOne($id);
                 $entryResource = $this->fhirObservationService->createObservationResource($id, $profile_data, false);
-                if (empty($code) || $this->checkCode($code, $searchParam['code'], $id)) {
+                if ($this->checkCode($code, $searchParam['code'], $id)) {
                     $entry = array(
                         'fullUrl' => $resourceURL . "/" . $id,
                         'resource' => $entryResource
