@@ -347,6 +347,17 @@ class FhirObservationService extends BaseService
                 $code->addCoding($coding);
                 $resource->setCode($code);
                 break;
+            case 'waist_circ':
+                $quantity->setValue($data['waist_circ']);
+                $quantity->setUnit('in');
+                $quantity->setCode("[in_i]");
+                $resource->setValueQuantity($quantity);
+                $coding->setCode("8280-0");
+                $coding->setDisplay("Waist Circumference at umbilicus by Tape measure");
+                $code = new FHIRCodeableConcept();
+                $code->addCoding($coding);
+                $resource->setCode($code);
+                break;
             case 'oxygen_saturation':
                 $quantity->setValue($data['oxygen_saturation']);
                 $quantity->setUnit('%');
