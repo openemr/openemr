@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/patient_file/barcode_label.php Displaying a PDF file of Labels for printing.
  *
@@ -16,7 +17,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
 
 //Get the data to place on labels
@@ -30,7 +30,7 @@ $patdata = sqlQuery("SELECT " .
 
 
 $today = date('m/d/Y');
-$dob   = substr($patdata['DOB'], 5, 2) ."/". Substr($patdata['DOB'], 8, 2) ."/". Substr($patdata['DOB'], 0, 4);
+$dob   = substr($patdata['DOB'], 5, 2) . "/" . Substr($patdata['DOB'], 8, 2) . "/" . Substr($patdata['DOB'], 0, 4);
 
 
 
@@ -112,7 +112,7 @@ $pdf->AddPage();
 //                      BARCODE
 // -------------------------------------------------- //
 
-$data = Barcode::fpdf($pdf, $black, $x, $y, $angle, $type, array('code'=>$code), $width, $height);
+$data = Barcode::fpdf($pdf, $black, $x, $y, $angle, $type, array('code' => $code), $width, $height);
 $pdf->SetFont('Arial', 'B', $fontSize);
 $pdf->SetTextColor(0, 0, 0);
 $len = $pdf->GetStringWidth($data['hri']);

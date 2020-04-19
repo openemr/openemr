@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Encounter form for entering clinical data as a scanned document.
  *
@@ -12,7 +13,6 @@
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
@@ -61,7 +61,7 @@ if ($_POST['bn_save']) {
                 die("mkdir returned " . text($tmp2) . ": " . text($tmp0));
             }
 
-            exec("touch " . escapeshellarg($imagedir.'/index.html'));
+            exec("touch " . escapeshellarg($imagedir . '/index.html'));
         }
 
         // Remove any previous image files for this encounter and form ID.

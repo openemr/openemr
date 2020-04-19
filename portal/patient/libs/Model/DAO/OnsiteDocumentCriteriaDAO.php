@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OnsiteDocumentCriteriaDAO.php
  *

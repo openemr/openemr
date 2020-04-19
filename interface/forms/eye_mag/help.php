@@ -1,4 +1,5 @@
 <?php
+
 /**
  * forms/eye_mag/help.php
  *
@@ -21,12 +22,12 @@ use OpenEMR\Core\Header;
 
 $form_folder = "eye_mag";
 $showit    = $_REQUEST['zone'];
-if ($showit=='') {
-    $showit="general";
+if ($showit == '') {
+    $showit = "general";
 }
 
-if ($showit=='ext') {
-    $showit="external";
+if ($showit == 'ext') {
+    $showit = "external";
 }
 ?>
 <html>

@@ -1,4 +1,5 @@
 <?php
+
 /************************************************************************
             aptient.php - Copyright duhlman
 
@@ -44,7 +45,7 @@ class Patient extends ORDataObject
     {
         if (!empty($this->id)) {
             $res = sqlQuery("SELECT providerID , fname , lname , mname, " .
-                "DATE_FORMAT(DOB,'%m/%d/%Y') as date_of_birth, ".
+                "DATE_FORMAT(DOB,'%m/%d/%Y') as date_of_birth, " .
                 "pubpid " .
                 "FROM " . escape_table_name($this->_table) . " " .
                 "WHERE pid = ?", [$this->id]);

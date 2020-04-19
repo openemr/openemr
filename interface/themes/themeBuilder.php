@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Build custom CSS elements defined in the Admin pages.
  *
@@ -15,7 +16,7 @@
 
 // need to skip auth to allow use of this script from the login script
 // this script is safe to ignore auth (takes no user input)
-$ignoreAuth=true;
+$ignoreAuth = true;
 
 require_once __DIR__ . '/../../interface/globals.php';
 

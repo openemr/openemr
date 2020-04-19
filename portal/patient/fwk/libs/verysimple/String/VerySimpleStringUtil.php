@@ -1,4 +1,5 @@
 <?php
+
 /** @package    verysimple::String */
 
 /**
@@ -359,7 +360,7 @@ class VerySimpleStringUtil
     {
         $utf8 = $string;
         $result = '';
-        for ($i = 0; $i < strlen($utf8); $i ++) {
+        for ($i = 0; $i < strlen($utf8); $i++) {
             $char = $utf8 [$i];
             $ascii = ord($char);
             if ($ascii < 128) {
@@ -378,7 +379,7 @@ class VerySimpleStringUtil
                 }
 
                 $result .= $encoded;
-                $i ++;
+                $i++;
             } else if ($ascii < 240) {
                 // three-byte character
                 $ascii1 = ord($utf8 [$i + 1]);
@@ -412,7 +413,7 @@ class VerySimpleStringUtil
         $contents = self::unicode_string_to_array($content);
         $swap = "";
         $iCount = count($contents);
-        for ($o = 0; $o < $iCount; $o ++) {
+        for ($o = 0; $o < $iCount; $o++) {
             $contents [$o] = self::unicode_entity_replace($contents [$o]);
             $swap .= $contents [$o];
         }

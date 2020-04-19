@@ -1,4 +1,5 @@
 <?php
+
 /** @package    verysimple::Phreeze */
 
 /**
@@ -556,7 +557,7 @@ abstract class Controller
         if (count($feedItems)) {
             $count = 0;
             foreach ($feedItems as $item) {
-                $count ++;
+                $count++;
                 
                 if ($item instanceof IRSSFeedItem) {
                     $rssWriter->addItem(
@@ -668,7 +669,7 @@ abstract class Controller
         $counter = 0;
         $props = array ();
         foreach (get_class_vars($this->ModelName) as $var => $val) {
-            $props [$counter ++] = $var;
+            $props [$counter++] = $var;
         }
 
         return $props;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * library/parse_patient_xml.php Functions related to patient CCR/CCD/CCDA parsing.
  *
@@ -28,7 +29,7 @@
 function parseXmlStream($content, $field_mapping)
 {
     $res = array();
-    $xml = new DOMDocument;
+    $xml = new DOMDocument();
     $xml->loadXML($content);
     $xpath = new DOMXpath($xml);
     $rootNamespace = $xml->lookupNamespaceUri($xml->namespaceURI);
@@ -89,7 +90,7 @@ function insert_ccr_into_audit_data($var)
     }
 
     $detail_query = substr($detail_query, 0, -1);
-    $detail_query = $detail_query.';';
+    $detail_query = $detail_query . ';';
     sqlStatement($detail_query, $detail_query_array);
 }
 
@@ -132,40 +133,40 @@ function insert_patient($audit_master_id)
         if ($table == 'patient_data') {
             updatePatientData($pid, $newdata['patient_data'], true);
         } elseif ($table == 'lists1') {
-            sqlStatement("INSERT INTO lists(".
-                "pid,diagnosis,activity".
-                ") VALUES (".
-                "'".add_escape_custom($pid)."',".
-                "'".add_escape_custom($newdata['lists1']['diagnosis'])."',".
-                "'".add_escape_custom($newdata['lists1']['activity'])."')");
+            sqlStatement("INSERT INTO lists(" .
+                "pid,diagnosis,activity" .
+                ") VALUES (" .
+                "'" . add_escape_custom($pid) . "'," .
+                "'" . add_escape_custom($newdata['lists1']['diagnosis']) . "'," .
+                "'" . add_escape_custom($newdata['lists1']['activity']) . "')");
         } elseif ($table == 'lists2') {
-            sqlStatement("INSERT INTO lists(".
-                "pid,date,type,title,diagnosis,reaction".
-                ") VALUES (".
-                "'".add_escape_custom($pid)."',".
-                "'".add_escape_custom($newdata['lists2']['date'])."',".
-                "'".add_escape_custom($newdata['lists2']['type'])."',".
-                "'".add_escape_custom($newdata['lists2']['title'])."',".
-            "'".add_escape_custom($newdata['lists2']['diagnosis'])."',".
-                "'".add_escape_custom($newdata['lists2']['reaction'])."')");
+            sqlStatement("INSERT INTO lists(" .
+                "pid,date,type,title,diagnosis,reaction" .
+                ") VALUES (" .
+                "'" . add_escape_custom($pid) . "'," .
+                "'" . add_escape_custom($newdata['lists2']['date']) . "'," .
+                "'" . add_escape_custom($newdata['lists2']['type']) . "'," .
+                "'" . add_escape_custom($newdata['lists2']['title']) . "'," .
+            "'" . add_escape_custom($newdata['lists2']['diagnosis']) . "'," .
+                "'" . add_escape_custom($newdata['lists2']['reaction']) . "')");
         } elseif ($table == 'prescriptions') {
-            sqlStatement("INSERT INTO prescriptions(".
-                "patient_id,date_added,active,drug,size,form,quantity".
-                ") VALUES (".
-                "'".add_escape_custom($pid)."',".
-                "'".add_escape_custom($newdata['prescriptions']['date_added'])."',".
-                "'".add_escape_custom($newdata['prescriptions']['active'])."',".
-                "'".add_escape_custom($newdata['prescriptions']['drug'])."',".
-                "'".add_escape_custom($newdata['prescriptions']['size'])."',".
-                "'".add_escape_custom($newdata['prescriptions']['form'])."',".
-                "'".add_escape_custom($newdata['prescriptions']['quantity'])."')");
+            sqlStatement("INSERT INTO prescriptions(" .
+                "patient_id,date_added,active,drug,size,form,quantity" .
+                ") VALUES (" .
+                "'" . add_escape_custom($pid) . "'," .
+                "'" . add_escape_custom($newdata['prescriptions']['date_added']) . "'," .
+                "'" . add_escape_custom($newdata['prescriptions']['active']) . "'," .
+                "'" . add_escape_custom($newdata['prescriptions']['drug']) . "'," .
+                "'" . add_escape_custom($newdata['prescriptions']['size']) . "'," .
+                "'" . add_escape_custom($newdata['prescriptions']['form']) . "'," .
+                "'" . add_escape_custom($newdata['prescriptions']['quantity']) . "')");
         } elseif ($table == 'immunizations') {
-            sqlStatement("INSERT INTO immunizations(".
-                "patient_id,administered_date,note".
-                ") VALUES (".
-                "'".add_escape_custom($pid)."',".
-                "'".add_escape_custom($newdata['immunizations']['administered_date'])."',".
-                "'".add_escape_custom($newdata['immunizations']['note'])."')");
+            sqlStatement("INSERT INTO immunizations(" .
+                "patient_id,administered_date,note" .
+                ") VALUES (" .
+                "'" . add_escape_custom($pid) . "'," .
+                "'" . add_escape_custom($newdata['immunizations']['administered_date']) . "'," .
+                "'" . add_escape_custom($newdata['immunizations']['note']) . "')");
         } elseif ($table == 'procedure_result') {
             /*sqlStatement("INSERT INTO procedure_result(".
                 "date,result,abnormal".
@@ -181,16 +182,16 @@ function insert_patient($audit_master_id)
                 "'".add_escape_custom($newdata['procedure_type']['name'])."')"
             );*/
         } elseif ($table == 'misc_address_book') {
-            sqlStatement("INSERT INTO misc_address_book(".
-                "lname,fname,street,city,state,zip,phone".
-                ") VALUES (".
-                "'".add_escape_custom($newdata['misc_address_book']['lname'])."',".
-                "'".add_escape_custom($newdata['misc_address_book']['fname'])."',".
-                "'".add_escape_custom($newdata['misc_address_book']['street'])."',".
-                "'".add_escape_custom($newdata['misc_address_book']['city'])."',".
-                "'".add_escape_custom($newdata['misc_address_book']['state'])."',".
-                "'".add_escape_custom($newdata['misc_address_book']['zip'])."',".
-                "'".add_escape_custom($newdata['misc_address_book']['phone'])."')");
+            sqlStatement("INSERT INTO misc_address_book(" .
+                "lname,fname,street,city,state,zip,phone" .
+                ") VALUES (" .
+                "'" . add_escape_custom($newdata['misc_address_book']['lname']) . "'," .
+                "'" . add_escape_custom($newdata['misc_address_book']['fname']) . "'," .
+                "'" . add_escape_custom($newdata['misc_address_book']['street']) . "'," .
+                "'" . add_escape_custom($newdata['misc_address_book']['city']) . "'," .
+                "'" . add_escape_custom($newdata['misc_address_book']['state']) . "'," .
+                "'" . add_escape_custom($newdata['misc_address_book']['zip']) . "'," .
+                "'" . add_escape_custom($newdata['misc_address_book']['phone']) . "')");
         } elseif ($table == 'documents') {
             sqlQuery("UPDATE documents SET foreign_id = ? WHERE id =? ", array($pid,$newdata['documents']['id']));
         }
@@ -205,7 +206,7 @@ function createAuditArray($am_id, $table_name)
         $tables = explode(',', $table_name);
         $arr = array($am_id);
         $table_qry = "";
-        for ($i=0; $i<count($tables); $i++) {
+        for ($i = 0; $i < count($tables); $i++) {
             $table_qry .= "?,";
             array_unshift($arr, $tables[$i]);
         }
@@ -233,7 +234,7 @@ function insertApprovedData($data)
     foreach ($data as $key => $val) {
         if (substr($key, -4) == '-sel') {
             if (is_array($val)) {
-                for ($i=0; $i<count($val); $i++) {
+                for ($i = 0; $i < count($val); $i++) {
                     if ($val[$i] == 'insert') {
                         if (substr($key, 0, -4) == 'lists1') {
                             if ($_REQUEST['lists1-activity'][$i] == 'Active') {
@@ -283,7 +284,7 @@ function insertApprovedData($data)
                     if ($val == 'update') {
                         $var_name = substr($key, 0, -4);
                         $field_name = substr($var_name, 13);
-                        $patient_data_fields .= $field_name.'=?,';
+                        $patient_data_fields .= $field_name . '=?,';
                         array_push($patient_data_values, $_REQUEST[$var_name]);
                     }
                 }

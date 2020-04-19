@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Upload designated service codes as "services=" attributes for designated layouts.
  * This supports specifying related codes to determine the service codes to be used.
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once('../globals.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');

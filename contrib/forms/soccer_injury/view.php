@@ -65,7 +65,7 @@ function rbcell($name, $value, $desc, $colname)
 function cbinput($name, $colname)
 {
     global $row;
-    $ret  = "<input type='checkbox' name='" .attr($name) . "' value='1'";
+    $ret  = "<input type='checkbox' name='" . attr($name) . "' value='1'";
     if ($row[$colname]) {
         $ret .= " checked";
     }

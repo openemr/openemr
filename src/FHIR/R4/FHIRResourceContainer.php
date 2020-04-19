@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4;
+<?php
+
+namespace OpenEMR\FHIR\R4;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -3449,7 +3451,7 @@ class FHIRResourceContainer implements \JsonSerializable
                 $this->{"set{$k}"}($data);
             }
         } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be object or array, saw '.gettype($data));
+            throw new \InvalidArgumentException('$data expected to be object or array, saw ' . gettype($data));
         }
     }
 

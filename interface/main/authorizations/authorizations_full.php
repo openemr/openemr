@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Authorizations full script.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
@@ -121,16 +121,16 @@ if ($authorize) {
     foreach ($authorize as $ppid => $patient) {
         $name = getPatientData($ppid);
 
-        echo "<tr><td valign=top><span class=bold>". text($name["fname"] . " " . $name["lname"]) .
+        echo "<tr><td valign=top><span class=bold>" . text($name["fname"] . " " . $name["lname"]) .
              "</span><br /><a class=link_submit href='authorizations_full.php?mode=authorize&pid=" .
              attr_url($ppid) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt('Authorize') . "</a></td>\n";
-        echo "<td valign=top><span class=bold>".xlt('Billing').
+        echo "<td valign=top><span class=bold>" . xlt('Billing') .
              ":</span><span class=text><br />" . $patient["billing"] . "</td>\n";
-        echo "<td valign=top><span class=bold>".xlt('Transactions').
+        echo "<td valign=top><span class=bold>" . xlt('Transactions') .
              ":</span><span class=text><br />" . $patient["transaction"] . "</td>\n";
-        echo "<td valign=top><span class=bold>".xlt('Patient Notes').
+        echo "<td valign=top><span class=bold>" . xlt('Patient Notes') .
              ":</span><span class=text><br />" . $patient["pnotes"] . "</td>\n";
-        echo "<td valign=top><span class=bold>".xlt('Encounter Forms').
+        echo "<td valign=top><span class=bold>" . xlt('Encounter Forms') .
              ":</span><span class=text><br />" . $patient["forms"] . "</td>\n";
         echo "</tr>\n";
     }

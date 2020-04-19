@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Inc file for the 270 / 271 creation and uploading
  *
@@ -18,6 +19,7 @@
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace OpenEMR\Billing;
 
 require_once(dirname(__FILE__) . "/../../library/edihistory/codes/edih_271_code_class.php");

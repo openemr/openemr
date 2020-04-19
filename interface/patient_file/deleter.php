@@ -1,4 +1,5 @@
 <?php
+
 /**
  * delete tool, for logging and removing patient data.
  *
@@ -14,7 +15,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once('../globals.php');
 
@@ -298,8 +298,8 @@ if ($_POST['form_submit']) {
             die("Not authorized!");
         }
 
-        row_delete("issue_encounter", "list_id = '" . add_escape_custom($issue) ."'");
-        row_delete("lists", "id = '" . add_escape_custom($issue) ."'");
+        row_delete("issue_encounter", "list_id = '" . add_escape_custom($issue) . "'");
+        row_delete("lists", "id = '" . add_escape_custom($issue) . "'");
     } else if ($document) {
         if (!AclMain::aclCheckCore('patients', 'docs_rm')) {
             die("Not authorized!");
@@ -363,7 +363,7 @@ if ($_POST['form_submit']) {
                 if ($ref_id) {
                         row_delete(
                             "ar_session",
-                            "patient_id = '" . add_escape_custom($patient_id) ."' AND " .
+                            "patient_id = '" . add_escape_custom($patient_id) . "' AND " .
                             "session_id = '" . add_escape_custom($ref_id) . "'"
                         );
                 }
@@ -458,11 +458,11 @@ if ($patient) {
 } else if ($formid) {
     echo xlt('form') . " " . text($formid);
 } else if ($issue) {
-    echo xlt('issue') . " " .text($issue);
+    echo xlt('issue') . " " . text($issue);
 } else if ($document) {
     echo xlt('document') . " " . text($document);
 } else if ($payment) {
-    echo xlt('payment') . " " .text($payment);
+    echo xlt('payment') . " " . text($payment);
 } else if ($billing) {
     echo xlt('invoice') . " " . text($billing);
 } else if ($transaction) {

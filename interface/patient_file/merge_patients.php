@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This script merges two patient charts into a single patient chart.
  * It is to correct the error of creating a duplicate patient.
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 set_time_limit(0);
 

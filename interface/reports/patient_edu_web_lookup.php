@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Open websearch for patient education materials
  *

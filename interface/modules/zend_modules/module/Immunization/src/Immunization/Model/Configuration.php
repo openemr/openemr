@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Immunization/src/Immunization/Model/Configuration.php
  *

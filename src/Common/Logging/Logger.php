@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Application logger. Puts daily logs in the server's temporary directory. Log level is set in
  * globals as $GLOBALS["log_level"] (this is customizable in the globals file).
@@ -190,7 +191,7 @@ class Logger
         if ($this->isLogLevelInDesiredHierarchy($type) && !empty($this->logFile)) {
             $logEntry = date("Y-m-d H:i:s") . " [" . $type . "] " . $this->classContext . " - " . $message;
 
-            file_put_contents($this->logFile, $logEntry.PHP_EOL, FILE_APPEND | LOCK_EX);
+            file_put_contents($this->logFile, $logEntry . PHP_EOL, FILE_APPEND | LOCK_EX);
 
             if ($type === "ERROR") {
                 error_log(errorLogEscape($message));

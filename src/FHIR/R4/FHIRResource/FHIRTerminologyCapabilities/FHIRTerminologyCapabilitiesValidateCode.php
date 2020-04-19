@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRTerminologyCapabilities;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRTerminologyCapabilities;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -116,7 +118,7 @@ class FHIRTerminologyCapabilitiesValidateCode extends FHIRBackboneElement implem
                 $this->setTranslations($data['translations']);
             }
         } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

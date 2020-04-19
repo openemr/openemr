@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This contains the tab set for encounter forms.
  *
@@ -11,8 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-require_once(dirname(__FILE__).'/../../globals.php');
+require_once(dirname(__FILE__) . '/../../globals.php');
 require_once("$srcdir/pid.inc");
 require_once("$srcdir/encounter.inc");
 require_once("$srcdir/forms.inc");
@@ -23,11 +23,11 @@ use OpenEMR\Core\Header;
 if (isset($_GET["set_encounter"])) {
     // The billing page might also be setting a new pid.
     if (isset($_GET["set_pid"])) {
-        $set_pid=$_GET["set_pid"];
+        $set_pid = $_GET["set_pid"];
     } else if (isset($_GET["pid"])) {
-        $set_pid=$_GET["pid"];
+        $set_pid = $_GET["pid"];
     } else {
-        $set_pid=false;
+        $set_pid = false;
     }
 
     if ($set_pid && $set_pid != $_SESSION["pid"]) {

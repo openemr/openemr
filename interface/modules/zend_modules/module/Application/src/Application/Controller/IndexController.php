@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Application/src/Application/Controller/IndexController.php
  *
@@ -23,7 +24,7 @@ class IndexController extends AbstractActionController
 
     public function __construct(\Application\Model\ApplicationTable $applicationTable)
     {
-        $this->listenerObject = new Listener;
+        $this->listenerObject = new Listener();
         $this->applicationTable = $applicationTable;
     }
 
@@ -100,7 +101,7 @@ class IndexController extends AbstractActionController
                                         'searchMode'    => $searchMode,
                                         'limit'         => $limit,
                                         'CommonPlugin'  => $this->CommonPlugin(),
-                                        'listenerObject'=>$this->listenerObject,
+                                        'listenerObject' => $this->listenerObject,
                                     ));
         return $index;
     }

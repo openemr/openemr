@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Log Viewer.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 
@@ -90,7 +90,7 @@ if (!empty($_GET)) {
             <div class="jumbotron jumbotron-fluid py-3">
                 <div class="col-sm-12 col-md-12 col-lg-12">
                     <?php
-                    $err_message=0;
+                    $err_message = 0;
 
                     $start_date = (!empty($_GET["start_date"])) ? DateTimeToYYYYMMDDHHMMSS($_GET["start_date"]) : date("Y-m-d") . " 00:00";
                     $end_date = (!empty($_GET["end_date"])) ? DateTimeToYYYYMMDDHHMMSS($_GET["end_date"]) : date("Y-m-d") . " 23:59";
@@ -101,7 +101,7 @@ if (!empty($_GET)) {
                         echo "<table><tr class='alert'><td colspan='7'>";
                         echo xlt('Start Date should not be greater than End Date');
                         echo "</td></tr></table>";
-                        $err_message=1;
+                        $err_message = 1;
                     }
 
                     if ($_GET["form_patient"]) {
@@ -118,7 +118,7 @@ if (!empty($_GET)) {
                     }
 
                     $res = sqlStatement("select distinct LEFT(date,10) as date from log order by date desc limit 30");
-                    for ($iter=0; $row=sqlFetchArray($res); $iter++) {
+                    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                         $ret[$iter] = $row;
                     }
 
@@ -184,8 +184,8 @@ if (!empty($_GET)) {
                                 <?php
                                 $eventname = isset($_GET['eventname']) ? $_GET['eventname'] : '';
                                 $res = sqlStatement("select distinct event from log order by event ASC");
-                                $ename_list=array();
-                                $j=0;
+                                $ename_list = array();
+                                $j = 0;
                                 while ($erow = sqlFetchArray($res)) {
                                     if (!trim($erow['event'])) {
                                         continue;
@@ -193,13 +193,13 @@ if (!empty($_GET)) {
 
                                     $data = explode('-', $erow['event']);
                                     $data_c = count($data);
-                                    $ename=$data[0];
-                                    for ($i=1; $i<($data_c-1); $i++) {
-                                        $ename.="-".$data[$i];
+                                    $ename = $data[0];
+                                    for ($i = 1; $i < ($data_c - 1); $i++) {
+                                        $ename .= "-" . $data[$i];
                                     }
 
-                                    $ename_list[$j]=$ename;
-                                    $j=$j+1;
+                                    $ename_list[$j] = $ename;
+                                    $j = $j + 1;
                                 }
                                 $res1 = sqlStatement("select distinct event from extended_log order by event ASC");
                                 // $j=0; // This can't be right!  -- Rod 2013-08-23
@@ -210,29 +210,29 @@ if (!empty($_GET)) {
 
                                         $new_event = explode('-', $row['event']);
                                         $no = count($new_event);
-                                        $events=$new_event[0];
-                                    for ($i=1; $i<($no-1); $i++) {
-                                        $events.="-".$new_event[$i];
+                                        $events = $new_event[0];
+                                    for ($i = 1; $i < ($no - 1); $i++) {
+                                        $events .= "-" . $new_event[$i];
                                     }
 
-                                    if ($events=="disclosure") {
-                                        $ename_list[$j]=$events;
+                                    if ($events == "disclosure") {
+                                        $ename_list[$j] = $events;
                                     }
 
-                                        $j=$j+1;
+                                        $j = $j + 1;
                                 }
-                                $ename_list=array_unique($ename_list);
-                                $ename_list=array_merge($ename_list);
-                                $ecount=count($ename_list);
+                                $ename_list = array_unique($ename_list);
+                                $ename_list = array_merge($ename_list);
+                                $ecount = count($ename_list);
                                 ?>
                                 <label class="col-sm-1 col-form-label" for="form_user"><?php echo xlt('Name of Events'); ?>:</label>
                                 <div class="col-sm-3">
                                     <select name='eventname' id='eventname' class='form-control' onchange='eventTypeChange(this.options[this.selectedIndex].value);'>
                                     <?php
                                     echo " <option value=''>" . xlt('All') . "</option>\n";
-                                    for ($k=0; $k<$ecount; $k++) {
+                                    for ($k = 0; $k < $ecount; $k++) {
                                         echo " <option value='" . attr($ename_list[$k]) . "'";
-                                        if ($ename_list[$k] == $eventname && $ename_list[$k]!= "") {
+                                        if ($ename_list[$k] == $eventname && $ename_list[$k] != "") {
                                             echo " selected";
                                         }
 
@@ -257,9 +257,9 @@ if (!empty($_GET)) {
                                     }
 
                                     echo " <option value=''>" . xlt('All') . "</option>\n";
-                                    for ($k=0; $k<$lcount; $k++) {
-                                        echo " <option value='" .attr($event_types[$k]). "'";
-                                        if ($event_types[$k] == $type_event && $event_types[$k]!= "") {
+                                    for ($k = 0; $k < $lcount; $k++) {
+                                        echo " <option value='" . attr($event_types[$k]) . "'";
+                                        if ($event_types[$k] == $type_event && $event_types[$k] != "") {
                                             echo " selected";
                                         }
 
@@ -310,23 +310,23 @@ if (!empty($_GET)) {
                     <input type="hidden" name="event" value="<?php echo attr($eventname) . "-" . attr($type_event) ?>" />
                         <?php
 
-                        $tevent="";
-                        $gev="";
+                        $tevent = "";
+                        $gev = "";
                         if ($eventname != "" && $type_event != "") {
-                            $getevent=$eventname."-".$type_event;
+                            $getevent = $eventname . "-" . $type_event;
                         }
 
                         if (($eventname == "") && ($type_event != "")) {
-                            $tevent=$type_event;
-                        } else if ($type_event =="" && $eventname != "") {
-                            $gev=$eventname;
+                            $tevent = $type_event;
+                        } else if ($type_event == "" && $eventname != "") {
+                            $gev = $eventname;
                         } else if ($eventname == "") {
                             $gev = "";
                         } else {
                             $gev = $getevent;
                         }
 
-                        if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent,'direction' => $_GET['direction']))) {
+                        if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' => $gev, 'tevent' => $tevent,'direction' => $_GET['direction']))) {
                             // Set up crypto object (object will increase performance since caches used keys)
                             $cryptoGen = new CryptoGen();
 
@@ -408,11 +408,11 @@ if (!empty($_GET)) {
                             }
                         }
 
-                        if (($eventname=="disclosure") || ($gev == "")) {
-                            $eventname="disclosure";
-                            if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' =>$eventname))) {
+                        if (($eventname == "disclosure") || ($gev == "")) {
+                            $eventname = "disclosure";
+                            if ($ret = EventAuditLogger::instance()->getEvents(array('sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' => $eventname))) {
                                 foreach ($ret as $iter) {
-                                    $comments=xl('Recipient Name').":".$iter["recipient"].";".xl('Disclosure Info').":".$iter["description"];
+                                    $comments = xl('Recipient Name') . ":" . $iter["recipient"] . ";" . xl('Disclosure Info') . ":" . $iter["description"];
                                     ?>
                                 <tr>
                                 <td><?php echo text(oeFormatDateTime($iter["date"])); ?></td>

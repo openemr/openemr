@@ -163,13 +163,13 @@ class FhirAllergyIntoleranceService
         }
 
         $patient = new FHIRReference();
-        $patient->setReference('Patient/'.$data['pid']);
+        $patient->setReference('Patient/' . $data['pid']);
 
         $recorder = new FHIRReference();
-        $recorder->setReference('Practitioner/'.$data['referredby']);
+        $recorder->setReference('Practitioner/' . $data['referredby']);
 
         $asserter = new FHIRReference();
-        $asserter->setReference('Patient/'.$data['pid']);
+        $asserter->setReference('Patient/' . $data['pid']);
 
         $note = new FHIRAnnotation();
         $note->setText($data['extrainfo']);

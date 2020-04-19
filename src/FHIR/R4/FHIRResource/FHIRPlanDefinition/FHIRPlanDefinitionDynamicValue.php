@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRPlanDefinition;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRPlanDefinition;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -145,7 +147,7 @@ class FHIRPlanDefinitionDynamicValue extends FHIRBackboneElement implements \Jso
                 $this->setExpression($data['expression']);
             }
         } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

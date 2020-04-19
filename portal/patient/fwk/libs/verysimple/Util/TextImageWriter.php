@@ -1,4 +1,5 @@
 <?php
+
 /** @package    verysimple::Util */
 
 /**
@@ -96,7 +97,7 @@ class TextImageWriter
         $count = 0;
         foreach ($lines as $line) {
             imagestring($im, $fontId, 2, 2 + ($count * 12), $line, $fontColor);
-            $count ++;
+            $count++;
         }
 
         return $im;

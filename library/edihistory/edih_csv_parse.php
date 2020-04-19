@@ -1,4 +1,5 @@
 <?php
+
 /*
  * edih_csv_parse.php
  *
@@ -51,7 +52,7 @@ function edih_parse_date($strdate)
         $dt1 = $strdate;
     } else {
         // bad argument
-        csv_edihist_log('edih_parse_date: invalid argument '.$strdate);
+        csv_edihist_log('edih_parse_date: invalid argument ' . $strdate);
         return false;
     }
 
@@ -148,7 +149,7 @@ function edih_835_csv_data($obj835)
             $payer = '';
             $denied = 0;
             //
-            $n1pr = $obj835->edih_get_segment('N1', 'N1'.$de.'PR'.$de, $stsegs);
+            $n1pr = $obj835->edih_get_segment('N1', 'N1' . $de . 'PR' . $de, $stsegs);
             $payer = '';
             if ($n1pr) {
                 foreach ($n1pr as $n1) {
@@ -162,11 +163,11 @@ function edih_835_csv_data($obj835)
             } // end if ($n1pr)
             //
             //
-            for ($i=0; $i<$clmct; $i++) {
+            for ($i = 0; $i < $clmct; $i++) {
                 $clpsegs = $obj835->edih_x12_transaction($stacct[$i], $st['stn']);
                 if (!is_array($clpsegs) || !count($clpsegs)) {
                     //
-                    csv_edihist_log('edih_835_csv_data: no segments for account '.$st['acct'][$i]);
+                    csv_edihist_log('edih_835_csv_data: no segments for account ' . $st['acct'][$i]);
                     continue;
                 }
 
@@ -176,7 +177,7 @@ function edih_835_csv_data($obj835)
                     $cdx = count($ret_ar[$icn]['claim']);
                     foreach ($trans as $seg) {
                         //
-                        if (strncmp($seg, 'CLP'.$de, 4) === 0) {
+                        if (strncmp($seg, 'CLP' . $de, 4) === 0) {
                             $sar = explode($de, $seg);
                             //
                             $ret_ar[$icn]['claim'][$cdx]['CLM01'] = (isset($sar[1])) ? $sar[1] : '';
@@ -190,7 +191,7 @@ function edih_835_csv_data($obj835)
                             $ret_ar[$icn]['claim'][$cdx]['PtName'] = '';
                             $ret_ar[$icn]['claim'][$cdx]['SvcDate'] = '';
                             //
-                            if ($sar[2]=='4' || $sar[2]=='22' || $sar[2]=='23') {
+                            if ($sar[2] == '4' || $sar[2] == '22' || $sar[2] == '23') {
                                 $denied++;
                             }
 
@@ -199,20 +200,20 @@ function edih_835_csv_data($obj835)
                         }
 
                         //
-                        if (strncmp($seg, 'NM1'.$de.'QC'.$de, 7) === 0) {
+                        if (strncmp($seg, 'NM1' . $de . 'QC' . $de, 7) === 0) {
                             $sar = explode($de, $seg);
-                            $midn = ( isset($sar[5]) && strlen($sar[5]) ) ? ', '.$sar[5]: "";
-                            $ret_ar[$icn]['claim'][$cdx]['PtName'] = $sar[3].', '.$sar[4].$midn;
+                            $midn = ( isset($sar[5]) && strlen($sar[5]) ) ? ', ' . $sar[5] : "";
+                            $ret_ar[$icn]['claim'][$cdx]['PtName'] = $sar[3] . ', ' . $sar[4] . $midn;
                             continue;
                         }
 
-                        if (strncmp($seg, 'DTM'.$de.'232'.$de, 8) === 0) {
+                        if (strncmp($seg, 'DTM' . $de . '232' . $de, 8) === 0) {
                             $sar = explode($de, $seg);
                             $ret_ar[$icn]['claim'][$cdx]['SvcDate'] = $sar[2];
                             continue;
                         }
 
-                        if (strncmp($seg, 'DTM'.$de.'472'.$de, 8) === 0) {
+                        if (strncmp($seg, 'DTM' . $de . '472' . $de, 8) === 0) {
                             $sar = explode($de, $seg);
                             $ret_ar[$icn]['claim'][$cdx]['SvcDate'] = $sar[2];
                             continue;
@@ -296,11 +297,11 @@ function edih_837_csv_data($obj837)
             // $st['icn'] is the ISA control number for the ISA envelope containing the ST--SE
             $date = $env_ar['ISA'][$st['icn']]['date'];
             $stn = $st['stn'];
-            for ($i=0; $i<$clmct; $i++) {
+            for ($i = 0; $i < $clmct; $i++) {
                 //echo '=== ACCT '.$stacct[$i].' '.$st['stn'].'<br />'.PHP_EOL;
                 $asegs = $obj837->edih_x12_transaction($stacct[$i], $st['stn']);
                 if (!is_array($asegs) || !count($asegs)) {
-                    csv_edihist_log('edih_837_csv_data: no segments for account '.$st['acct'][$i]);
+                    csv_edihist_log('edih_837_csv_data: no segments for account ' . $st['acct'][$i]);
                     continue;
                 }
 
@@ -310,7 +311,7 @@ function edih_837_csv_data($obj837)
 
                     //'f837': $hdr = array('PtName', 'SvcDate', 'CLM01', 'InsLevel', 'Control', 'FileName', 'Fee', 'PtPaid', 'Provider' )
                     foreach ($trans as $seg) {
-                        if (strncmp($seg, 'BHT'.$de, 4) === 0) {
+                        if (strncmp($seg, 'BHT' . $de, 4) === 0) {
                             $cdx = count($ret_ar[$icn]['claim']);
                             $sar = explode($de, $seg);
                             $bht03 = $sar[3];
@@ -330,14 +331,14 @@ function edih_837_csv_data($obj837)
                             $ret_ar[$icn]['claim'][$cdx]['Provider'] = '';
                         }
 
-                        if (strncmp($seg, 'HL'.$de, 3) === 0) {
+                        if (strncmp($seg, 'HL' . $de, 3) === 0) {
                             $sar = explode($de, $seg);
                             $hl = $sar[3];
                             continue;
                         }
 
                         if (intval($hl) == 20) {
-                            if (strncmp($seg, 'NM1'.$de, 4) === 0) {
+                            if (strncmp($seg, 'NM1' . $de, 4) === 0) {
                                 $sar = explode($de, $seg);
                                 if ($sar[2] == '82' || $sar[2] == '85') {
                                     $ret_ar[$icn]['claim'][$cdx]['Provider'] = $sar[9];
@@ -348,29 +349,29 @@ function edih_837_csv_data($obj837)
                         } // end if $hl == '20'
 
                         if (intval($hl) >= 22) {
-                            if (strncmp($seg, 'SBR'.$de, 4) === 0) {
+                            if (strncmp($seg, 'SBR' . $de, 4) === 0) {
                                 $sar = explode($de, $seg);
                                 $ret_ar[$icn]['claim'][$cdx]['InsLevel'] = $sar[1];
                             }
 
-                            if (strncmp($seg, 'CLM'.$de, 4) === 0) {
+                            if (strncmp($seg, 'CLM' . $de, 4) === 0) {
                                 $sar = explode($de, $seg);
                                 $ret_ar[$icn]['claim'][$cdx]['CLM01'] = $sar[1];
                                 $ret_ar[$icn]['claim'][$cdx]['Fee'] = $sar[2];
                                 continue;
                             }
 
-                            if (strncmp($seg, 'AMT'.$de.'F5'.$de, 7) === 0) {
+                            if (strncmp($seg, 'AMT' . $de . 'F5' . $de, 7) === 0) {
                                 $sar = explode($de, $seg);
                                 $ret_ar[$icn]['claim'][$cdx]['PtPaid'] = $sar[2];
                                 continue;
                             }
 
-                            if (strncmp($seg, 'NM1'.$de, 4) === 0) {
+                            if (strncmp($seg, 'NM1' . $de, 4) === 0) {
                                 $sar = explode($de, $seg);
                                 if (strpos('|IL|QC', $sar[1])) {
-                                    $midn = ( isset($sar[5]) && strlen($sar[5]) ) ? ', '.$sar[5]: '';
-                                    $ret_ar[$icn]['claim'][$cdx]['PtName'] = $sar[3].', '.$sar[4].$midn;
+                                    $midn = ( isset($sar[5]) && strlen($sar[5]) ) ? ', ' . $sar[5] : '';
+                                    $ret_ar[$icn]['claim'][$cdx]['PtName'] = $sar[3] . ', ' . $sar[4] . $midn;
                                     continue;
                                 }
 
@@ -380,7 +381,7 @@ function edih_837_csv_data($obj837)
                                 }
                             }
 
-                            if (strncmp($seg, 'DTP'.$de.'472'.$de, 8) === 0) {
+                            if (strncmp($seg, 'DTP' . $de . '472' . $de, 8) === 0) {
                                 $sar = explode($de, $seg);
                                 $ret_ar[$icn]['claim'][$cdx]['SvcDate'] = $sar[3];
                                 continue;
@@ -485,7 +486,7 @@ function edih_277_csv_data($obj277)
 
             //
             //for($i=0; $i<$clmct; $i++) {
-            for ($i=0; $i<count($stacct); $i++) {
+            for ($i = 0; $i < count($stacct); $i++) {
                 //
                 $asegs = $obj277->edih_x12_transaction($stacct[$i]);
                 //
@@ -493,12 +494,12 @@ function edih_277_csv_data($obj277)
                     //
                     foreach ($trans as $seg) {
                         //
-                        if (strncmp($seg, 'BHT'.$de, 4) === 0) {
+                        if (strncmp($seg, 'BHT' . $de, 4) === 0) {
                             $cdx = count($ret_ar[$icn]['claim']);
                             //
                             $sar = explode($de, $seg);
                             if ($sar[2] != '08') {
-                                csv_edihist_log('Claim Status BHT purpose code: '.$sar[2].' in ST '.$st['stn'].' in file '.$fn);
+                                csv_edihist_log('Claim Status BHT purpose code: ' . $sar[2] . ' in ST ' . $st['stn'] . ' in file ' . $fn);
                             }
 
                             $trns_tp = (isset($sar[6]) && $sar[6]) ? $sar[6] : '';
@@ -536,7 +537,7 @@ function edih_277_csv_data($obj277)
                         }
 
                         //
-                        if (strncmp($seg, 'HL'.$de, 3) === 0) {
+                        if (strncmp($seg, 'HL' . $de, 3) === 0) {
                             $sar = explode($de, $seg);
                             $hl = (string)$sar[3];
                         }
@@ -544,9 +545,9 @@ function edih_277_csv_data($obj277)
                         //
                         if ($hl == '20') {
                             // information source
-                            if (strncmp($seg, 'NM1'.$de, 4) === 0) {
+                            if (strncmp($seg, 'NM1' . $de, 4) === 0) {
                                 $sar = explode($de, $seg);
-                                $ret_ar[$icn]['claim'][$cdx]['Payer'] = ($sar[1]=='PR' || $sar[1]=='AY') ? $sar[3] : '';
+                                $ret_ar[$icn]['claim'][$cdx]['Payer'] = ($sar[1] == 'PR' || $sar[1] == 'AY') ? $sar[3] : '';
                                 continue;
                             }
                         }
@@ -560,12 +561,12 @@ function edih_277_csv_data($obj277)
                                 //$sar = explode($de, $seg);
                                 //$ret_ar[$icn]['claim'][$cdx]['Trace'] = $sar[2];
                             //}
-                            if (strncmp($seg, 'STC'.$de, 4) === 0) {
+                            if (strncmp($seg, 'STC' . $de, 4) === 0) {
                                 $sar = explode($de, $seg);
                                 $ret_ar[$icn]['claim'][$cdx]['Status'] = $sar[1];
                             }
 
-                            if (strncmp($seg, 'QTY'.$de, 4) === 0) {
+                            if (strncmp($seg, 'QTY' . $de, 4) === 0) {
                                 $sar = explode($de, $seg);
                                 if ($sar[1] == '90') {
                                     $ret_ar[$icn]['file'][$fdx]['Accept'] += $sar[2];
@@ -576,7 +577,7 @@ function edih_277_csv_data($obj277)
                                 }
                             }
 
-                            if (strncmp($seg, 'AMT'.$de, 4) === 0) {
+                            if (strncmp($seg, 'AMT' . $de, 4) === 0) {
                                 $sar = explode($de, $seg);
                                 if ($sar[1] == 'YU') {
                                     $ret_ar[$icn]['file'][$fdx]['AccAmt'] += $sar[2];
@@ -599,7 +600,7 @@ function edih_277_csv_data($obj277)
                                 //$sar = explode($de, $seg);
                                 //$ret_ar[$icn]['claim'][$cdx]['Trace'] = $sar[2];
                             //}
-                            if (strncmp($seg, 'STC'.$de, 4) === 0) {
+                            if (strncmp($seg, 'STC' . $de, 4) === 0) {
                                 $sar = explode($de, $seg);
                                 $ret_ar[$icn]['claim'][$cdx]['Status'] = $sar[1];
                             }
@@ -610,11 +611,11 @@ function edih_277_csv_data($obj277)
                         //
                         if ($hl == '22' || $hl == '23') {
                             // subscriber or dependent
-                            if (strncmp($seg, 'NM1'.$de, 4) === 0) {
+                            if (strncmp($seg, 'NM1' . $de, 4) === 0) {
                                 $sar = explode($de, $seg);
                                 if ($sar[1] == 'IL' || $sar[1] == 'QC') {
-                                    $midn = ( isset($sar[5]) && strlen($sar[5]) ) ? ', '.$sar[5]: "";
-                                    $ret_ar[$icn]['claim'][$cdx]['PtName'] = $sar[3].', '.$sar[4].$midn;
+                                    $midn = ( isset($sar[5]) && strlen($sar[5]) ) ? ', ' . $sar[5] : "";
+                                    $ret_ar[$icn]['claim'][$cdx]['PtName'] = $sar[3] . ', ' . $sar[4] . $midn;
                                     //if (isset($sar[8]) && $sar[8] == 'MI') {
                                         //$ret_ar[$icn]['claim'][$cdx]['Ins_ID'] = (isset($sar[9])) ? $sar[9] : '';
                                     //}
@@ -624,7 +625,7 @@ function edih_277_csv_data($obj277)
                             }
 
                             // in response to 276, this is the reference given in TRN02
-                            if (strncmp($seg, 'TRN'.$de.'2'.$de, 4) === 0) {
+                            if (strncmp($seg, 'TRN' . $de . '2' . $de, 4) === 0) {
                                 $sar = explode($de, $seg);
                                 $ret_ar[$icn]['claim'][$cdx]['Trace'] = $sar[2];
                                 continue;
@@ -632,13 +633,13 @@ function edih_277_csv_data($obj277)
 
                             // REF*EJ* will give the payer assigned claim number
                             //  not used much in 277CA files
-                            if (strncmp($seg, 'REF'.$de.'EJ'.$de, 7) === 0) {
+                            if (strncmp($seg, 'REF' . $de . 'EJ' . $de, 7) === 0) {
                                 $sar = explode($de, $seg);
                                 $ret_ar[$icn]['claim'][$cdx]['CLM01'] = $sar[2];
                                 continue;
                             }
 
-                            if (strncmp($seg, 'REF'.$de.'1K'.$de, 7) === 0) {
+                            if (strncmp($seg, 'REF' . $de . '1K' . $de, 7) === 0) {
                                 // hopefully OpenEMR will include the claim number in 276
                                 if ($tp == 'HR') {
                                     $sar = explode($de, $seg);
@@ -650,7 +651,7 @@ function edih_277_csv_data($obj277)
 
                             // REF*D9*(Claim number)~
 
-                            if (strncmp($seg, 'STC'.$de, 4) === 0) {
+                            if (strncmp($seg, 'STC' . $de, 4) === 0) {
                                 // STC is only present in 277
                                 $sar = explode($de, $seg);
                                 $ret_ar[$icn]['claim'][$cdx]['Status'] = $sar[1];
@@ -662,24 +663,24 @@ function edih_277_csv_data($obj277)
 
                         if ($hl == 'PT') {
                             //  277CA
-                            if (strncmp($seg, 'NM1'.$de, 4) === 0) {
+                            if (strncmp($seg, 'NM1' . $de, 4) === 0) {
                                 $sar = explode($de, $seg);
                                 if ($sar[1] == 'IL' || $sar[1] == 'QC') {
-                                    $midn = ( isset($sar[5]) && strlen($sar[5]) ) ? ', '.$sar[5]: "";
-                                    $ret_ar[$icn]['claim'][$cdx]['PtName'] = $sar[3].', '.$sar[4].$midn;
+                                    $midn = ( isset($sar[5]) && strlen($sar[5]) ) ? ', ' . $sar[5] : "";
+                                    $ret_ar[$icn]['claim'][$cdx]['PtName'] = $sar[3] . ', ' . $sar[4] . $midn;
                                     //$ret_ar[$icn]['claim'][$cdx]['Ins_ID'] = (isset($sar[9])) ? $sar[9] : '';
                                 }
 
                                 continue;
                             }
 
-                            if (strncmp($seg, 'TRN'.$de.'2'.$de, 6) === 0) {
+                            if (strncmp($seg, 'TRN' . $de . '2' . $de, 6) === 0) {
                                 $sar = explode($de, $seg);
                                 $ret_ar[$icn]['claim'][$cdx]['CLM01'] = $sar[2];
                                 continue;
                             }
 
-                            if (strncmp($seg, 'STC'.$de, 4) === 0) {
+                            if (strncmp($seg, 'STC' . $de, 4) === 0) {
                                 $sar = explode($de, $seg);
                                 $ret_ar[$icn]['claim'][$cdx]['Status'] = $sar[1];
                                 continue;
@@ -690,7 +691,7 @@ function edih_277_csv_data($obj277)
                                 //$ret_ar[$icn]['claim'][$cdx]['ClaimID'] = $sar[2];
                                 //continue;
                             //}
-                            if (strncmp($seg, 'DTP'.$de.'472'.$de, 8) === 0) {
+                            if (strncmp($seg, 'DTP' . $de . '472' . $de, 8) === 0) {
                                 $sar = explode($de, $seg);
                                 // D8-CCYYMMDD  RD8-CCYYMMDD-CCYYMMDD  only take initial date
                                 $ret_ar[$icn]['claim'][$cdx]['SvcDate'] = substr($sar[3], 0, 8);
@@ -729,13 +730,13 @@ function edih_278_csv_data($obj278)
     //
     // $ft: 'HI'=>'278'
     if (!isset($env_ar['ST'])) {
-        csv_edihist_log('edih_278_csv_data: envelope error '.$fn);
+        csv_edihist_log('edih_278_csv_data: envelope error ' . $fn);
         return false;
     }
 
     //
     if (!isset($env_ar['GS'])) {
-        csv_edihist_log('edih_278_csv_data: envelope error '.$fn);
+        csv_edihist_log('edih_278_csv_data: envelope error ' . $fn);
         return $ret_ar;
     }
 
@@ -773,7 +774,7 @@ function edih_278_csv_data($obj278)
             //
             foreach ($stsegs as $seg) {
                 //
-                if (strncmp($seg, 'BHT'.$de, 4) === 0) {
+                if (strncmp($seg, 'BHT' . $de, 4) === 0) {
                     // new transaction
                     // bht01 0007  --> Src, Rcv, Sbr, Dep, Event, Services
                     $rqst = '';
@@ -814,7 +815,7 @@ function edih_278_csv_data($obj278)
                 }
 
                 //
-                if (strncmp($seg, 'HL'.$de, 3) === 0) {
+                if (strncmp($seg, 'HL' . $de, 3) === 0) {
                     $sar = explode($de, $seg);
                     $hl = $sar[1];
                     $hlpc = $sar[2];                            // parent code
@@ -834,19 +835,19 @@ function edih_278_csv_data($obj278)
                         $loopid = '2000F';                      // service
                     } else {
                         //debug
-                        csv_edihist_log('HL has no level '.$seg.' in '.$fn);
+                        csv_edihist_log('HL has no level ' . $seg . ' in ' . $fn);
                     }
 
                     continue;
                 }
 
                 //
-                if (strncmp($seg, 'NM1'.$de, 4) === 0) {
+                if (strncmp($seg, 'NM1' . $de, 4) === 0) {
                     $sar = explode($de, $seg);
                     $nm101 = $sar[1];
                     $nm103 = $sar[3];
-                    $nm103 = ($sar[4]) ? $nm103.', '.$sar[4] : $nm103;
-                    $nm103 = ($sar[5]) ? $nm103.' '.$sar[5] : $nm103;
+                    $nm103 = ($sar[4]) ? $nm103 . ', ' . $sar[4] : $nm103;
+                    $nm103 = ($sar[5]) ? $nm103 . ' ' . $sar[5] : $nm103;
                     if ($loopid == '2000A') {
                         $ret_ar[$icn]['claim'][$cdx]['Payer'] = $nm103;  //
                         $payer_name = $nm103;
@@ -870,30 +871,30 @@ function edih_278_csv_data($obj278)
                 }
 
                 // for 278 eligibility response (invalid data in 278 request)
-                if (strncmp($seg, 'AAA'.$de, 4) === 0) {
+                if (strncmp($seg, 'AAA' . $de, 4) === 0) {
                     $sar = explode($de, $seg);
                     $status = 'R';
                     $rej_ct++;
                     $aaa_code = $sar[3];
                     $rsp_code = $sar[4];
                     if ($loopid == '2000A') {
-                        $status .= ' Src '.$aaa_code;
+                        $status .= ' Src ' . $aaa_code;
                     } elseif ($loopid == '2000B') {
-                        $status .= ' Rcv '.$aaa_code;
+                        $status .= ' Rcv ' . $aaa_code;
                     } elseif ($loopid == '2000C') {
-                        $status .= ' Sbr '.$aaa_code;
+                        $status .= ' Sbr ' . $aaa_code;
                     } elseif ($loopid == '2000D') {
-                        $status .= ' Dep '.$aaa_code;
+                        $status .= ' Dep ' . $aaa_code;
                     } elseif ($loopid == '2000E') {
-                        $status .= ' Pt '.$aaa_code;
+                        $status .= ' Pt ' . $aaa_code;
                     } elseif ($loopid == '2000F') {
-                        $status .= ' Svc '.$aaa_code;
+                        $status .= ' Svc ' . $aaa_code;
                     } elseif ($loopid == '2010FA') {
-                        $status .= ' Prv '.$aaa_code;
+                        $status .= ' Prv ' . $aaa_code;
                     } elseif ($loopid == '2010EA') {
-                        $status .= ' Svc '.$aaa_code;
+                        $status .= ' Svc ' . $aaa_code;
                     } elseif ($loopid == '2010EC') {
-                        $status .= ' Tpt '.$aaa_code;
+                        $status .= ' Tpt ' . $aaa_code;
                     }
 
                     //
@@ -905,7 +906,7 @@ function edih_278_csv_data($obj278)
                 //
                 // for 278 tracking
                 // this assumes OpenEMR will include a TRN segment in requests
-                if (strncmp($seg, 'TRN'.$de, 4) === 0) {
+                if (strncmp($seg, 'TRN' . $de, 4) === 0) {
                     $sar = explode($de, $seg);
                     if ($rqst == 'Req') {
                         if (isset($sar[1]) && $sar[1] == '1') {
@@ -963,7 +964,7 @@ function edih_rsp_st_match($rsp_trace, $file_type)
         $btsrch = $rsp_trace;
     } else {
         // debug
-        csv_edihist_log('edih_rsp_st_match() invalid trace argument '.$rsp_trace);
+        csv_edihist_log('edih_rsp_st_match() invalid trace argument ' . $rsp_trace);
         return $info_ar;
     }
 
@@ -972,12 +973,12 @@ function edih_rsp_st_match($rsp_trace, $file_type)
     //
     if (strpos('|f837|f276|f270|f278', $ft) === false) {
         // debug
-        csv_edihist_log('edih_rsp_st_match: file type '.$ft.' not in |f837|f276|f270|278');
+        csv_edihist_log('edih_rsp_st_match: file type ' . $ft . ' not in |f837|f276|f270|278');
         return $info_ar;
     }
 
     //
-    $batch_srch = csv_search_record($ft, 'claim', array('s_val'=>$rsp_trace, 's_col'=>4, 'r_cols'=>'All'), '1');
+    $batch_srch = csv_search_record($ft, 'claim', array('s_val' => $rsp_trace, 's_col' => 4, 'r_cols' => 'All'), '1');
     if (is_array($batch_srch) && count($batch_srch[0])) {
         $info_ar['pt_name'] = $batch_srch[0][0]; // $batch_srch['PtName'];
         $info_ar['clm01'] = ($rtp == 'f837') ? $batch_srch[0][2] : $batch_srch[0][4]; // $batch_srch['CLM01'] : $batch_srch['BHT03'];
@@ -1045,7 +1046,7 @@ function edih_997_csv_data($obj997)
         //
         $rej_ct = 0;
         // CTX segment identifiers
-        $trans_id = array('837'=>'CLM01', '270'=>'TRN02', '276'=>'TRN02');
+        $trans_id = array('837' => 'CLM01', '270' => 'TRN02', '276' => 'TRN02');
         //
         //['f997']['claim'] =  array('PtName', 'RspDate', 'CLM01', 'Status', 'ak_num', 'File_997', 'Control', 'err_seg');
         foreach ($env_ar['ST'] as $st) {
@@ -1065,13 +1066,13 @@ function edih_997_csv_data($obj997)
             $bticn = ($st['trace']) ? $st['trace'] : '';
             if (!$st['trace']) {
                 //
-                csv_edihist_log('edih_997_csv_data: no trace to submitted file! '.$fn);
+                csv_edihist_log('edih_997_csv_data: no trace to submitted file! ' . $fn);
             }
 
             //RspType
             foreach ($stsegs as $seg) {
                 //
-                if (strncmp($seg, 'AK1'.$de, 4) === 0) {
+                if (strncmp($seg, 'AK1' . $de, 4) === 0) {
                     $sar = explode($de, $seg);
                     
                     $loopid = '2000';
@@ -1082,7 +1083,7 @@ function edih_997_csv_data($obj997)
                     continue;
                 }
 
-                if (strncmp($seg, 'AK2'.$de, 4) === 0) {
+                if (strncmp($seg, 'AK2' . $de, 4) === 0) {
                     $sar = explode($de, $seg);
                     $rspsttype = csv_file_type($sar[1]);
                     $rspstn = (string)$sar[2];
@@ -1095,16 +1096,16 @@ function edih_997_csv_data($obj997)
                     continue;
                 }
 
-                if (strncmp($seg, 'IK3'.$de, 4) === 0 || strncmp($seg, 'AK3'.$de, 4) === 0) {
+                if (strncmp($seg, 'IK3' . $de, 4) === 0 || strncmp($seg, 'AK3' . $de, 4) === 0) {
                     // >> try err_seg = str_replace($de, '*', $seg)
                     $sar = explode($de, $seg);
                     $iserr = true;
                     $loopid = '2100';
                     $ctx_ct = 0;
                     //
-                    $err_seg .= ($err_seg) ? '' : $bht03syn.'*IK3*';    // ISA13+ST02 * invalid segment ID
-                    $err_seg .= (isset($sar[1])) ? '*'.$sar[1] : '*';
-                    $err_seg .= (isset($sar[2])) ? '*'.$sar[2] : '*';   // segment position
+                    $err_seg .= ($err_seg) ? '' : $bht03syn . '*IK3*';    // ISA13+ST02 * invalid segment ID
+                    $err_seg .= (isset($sar[1])) ? '*' . $sar[1] : '*';
+                    $err_seg .= (isset($sar[2])) ? '*' . $sar[2] : '*';   // segment position
                     //$err_seg .= (isset($sar[3])) ? '*'.$sar[3] : '*';   // loop, first 4 characters
                     //$err_seg .= (isset($sar[4])) ? '*'.$sar[4] : '*';   // error code
                     //$err_seg .= '*'.;
@@ -1179,7 +1180,7 @@ function edih_997_csv_data($obj997)
                     //continue;
                 //}
                 //
-                if (strncmp($seg, 'AK5'.$de, 4) === 0 || strncmp($seg, 'IK5'.$de, 4) === 0) {
+                if (strncmp($seg, 'AK5' . $de, 4) === 0 || strncmp($seg, 'IK5' . $de, 4) === 0) {
                     // only store claims entries if there is an error
                     $sar = explode($de, $seg);
                     if ($sar[1] == 'A') {
@@ -1240,7 +1241,7 @@ function edih_271_csv_data($obj270)
     //
     // $rsptype = array('HS'=>'270', 'HB'=>'271', 'HC'=>'837', 'HR'=>'276', 'HI'=>'278');
     if (!isset($env_ar['ST'])) {
-        csv_edihist_log('edih_271_csv_data: envelope error '.$fn);
+        csv_edihist_log('edih_271_csv_data: envelope error ' . $fn);
         return $ret_ar;
     }
 
@@ -1287,7 +1288,7 @@ function edih_271_csv_data($obj270)
             //
             foreach ($stsegs as $seg) {
                 //
-                if (strncmp($seg, 'BHT'.$de, 4) === 0) {
+                if (strncmp($seg, 'BHT' . $de, 4) === 0) {
                     // new transaction
                     $cdx = (isset($ret_ar[$icn]['claim']) ) ? count($ret_ar[$icn]['claim']) : 0;
                     //
@@ -1319,7 +1320,7 @@ function edih_271_csv_data($obj270)
                 }
 
                 //
-                if (strncmp($seg, 'HL'.$de, 3) === 0) {
+                if (strncmp($seg, 'HL' . $de, 3) === 0) {
                     $sar = explode($de, $seg);
                     $hl = $sar[1];
                     $hlpc = $sar[2];                            // parent code
@@ -1335,18 +1336,18 @@ function edih_271_csv_data($obj270)
                         $loopid = '2000D';                      // dependent
                     } else {
                         //debug
-                        csv_edihist_log('HL has no level '.$seg.' in '.$fn);
+                        csv_edihist_log('HL has no level ' . $seg . ' in ' . $fn);
                     }
 
                     continue;
                 }
 
                 //
-                if (strncmp($seg, 'NM1'.$de, 4) === 0) {
+                if (strncmp($seg, 'NM1' . $de, 4) === 0) {
                     $sar = explode($de, $seg);
                     $nm1 = $sar[3];
-                    $nm1 = ($sar[4]) ? $nm1.', '.$sar[4] : $nm1;
-                    $nm1 = ($sar[5]) ? $nm1.' '.$sar[5] : $nm1;
+                    $nm1 = ($sar[4]) ? $nm1 . ', ' . $sar[4] : $nm1;
+                    $nm1 = ($sar[5]) ? $nm1 . ' ' . $sar[5] : $nm1;
                     if ($loopid == '2000A') {
                         $ret_ar[$icn]['claim'][$cdx]['Payer'] = $nm1;  //
                         $payer_name = $nm1;
@@ -1358,20 +1359,20 @@ function edih_271_csv_data($obj270)
                 }
 
                 // for 271 eligibility response (invalid data in 270 request)
-                if (strncmp($seg, 'AAA'.$de, 4) === 0) {
+                if (strncmp($seg, 'AAA' . $de, 4) === 0) {
                     $sar = explode($de, $seg);
                     $status = 'R';
                     $rej_ct++;
                     $aaa_code = $sar[3];
                     $rsp_code = $sar[4];
                     if ($loopid == '2000A') {
-                        $status = $status.' Src '.$aaa_code;
+                        $status = $status . ' Src ' . $aaa_code;
                     } elseif ($loopid == '2000B') {
-                        $status = $status.' Rcv '.$aaa_code;
+                        $status = $status . ' Rcv ' . $aaa_code;
                     } elseif ($loopid == '2000C') {
-                        $status = $status.' Sbr '.$aaa_code;
+                        $status = $status . ' Sbr ' . $aaa_code;
                     } elseif ($loopid == '2000D') {
-                        $status = $status.' Dep '.$aaa_code;
+                        $status = $status . ' Dep ' . $aaa_code;
                     }
 
                     //
@@ -1382,13 +1383,13 @@ function edih_271_csv_data($obj270)
 
                 //
                 // for 270 eligibility request
-                if (strncmp($seg, 'EQ'.$de, 3) === 0) {
+                if (strncmp($seg, 'EQ' . $de, 3) === 0) {
                     if (strlen((string)$sar[1])) {
-                        $bnfteq .= ($bnfteq) ? '|'.$sar[1] : $sar[1];
+                        $bnfteq .= ($bnfteq) ? '|' . $sar[1] : $sar[1];
                     } elseif (strlen((string)$sar[2])) {
-                        $bnfteq .= ($bnfteq) ?  '|'.$sar[2] : $sar[2];
+                        $bnfteq .= ($bnfteq) ?  '|' . $sar[2] : $sar[2];
                     } else {
-                        csv_edihist_log('Invalid EQ segment, missing benefit type in '.$fn);
+                        csv_edihist_log('Invalid EQ segment, missing benefit type in ' . $fn);
                         continue;
                     }
 
@@ -1397,7 +1398,7 @@ function edih_271_csv_data($obj270)
                 }
 
                 //  overridden by REF*EJ*  (not)
-                if (strncmp($seg, 'TRN'.$de, 4) === 0) {
+                if (strncmp($seg, 'TRN' . $de, 4) === 0) {
                     if ($loopid = '2000C' || $loopid == '2000D') {
                         $sar = explode($de, $seg);
                         $ret_ar[$icn]['claim'][$cdx]['Trace'] = $sar[2];    //$ptacct = $sar[2];
@@ -1408,7 +1409,7 @@ function edih_271_csv_data($obj270)
                 }
 
                 // for 271 eligibility response
-                if (strncmp($seg, 'EB'.$de, 3) === 0) {
+                if (strncmp($seg, 'EB' . $de, 3) === 0) {
                     $status = ( isset($status) ) ? $status : '';
                     //
                     if (strpos($ret_ar[$icn]['claim'][$cdx]['Status'], 'tive')) {
@@ -1453,7 +1454,7 @@ function edih_271_csv_data($obj270)
                 }
 
                 //
-                if (strncmp($seg, 'DTP'.$de, 4) === 0) {
+                if (strncmp($seg, 'DTP' . $de, 4) === 0) {
                     $sar = explode($de, $seg);
                     $dtp03 = (isset($sar[2]) && $sar[2] == 'D8') ? $sar[3] : substr($sar[3], 0, 8);
                     if ($isrsp) {
@@ -1557,7 +1558,7 @@ function edih_parse_select($file_path)
         $csvdata = edih_278_csv_data($x12_obj);
     } else {
         // debug
-        csv_edihist_log('edih_parse_select(): unsupported file type '.$ft.' name: '.basename($file_path));
+        csv_edihist_log('edih_parse_select(): unsupported file type ' . $ft . ' name: ' . basename($file_path));
     }
 
     //

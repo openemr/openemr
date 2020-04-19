@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Document Template Management Module.
  *
@@ -12,7 +13,6 @@
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once('../globals.php');
 

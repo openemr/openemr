@@ -1,4 +1,5 @@
 <?php
+
  /**
   * Dash Board Header.
   *
@@ -17,7 +18,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 $url_webroot = $GLOBALS['webroot'];
-$portal_login_href = $url_webroot ."/interface/patient_file/summary/create_portallogin.php";
+$portal_login_href = $url_webroot . "/interface/patient_file/summary/create_portallogin.php";
 ?>
 
 <div class="page-header clearfix">
@@ -37,9 +38,9 @@ if ($days_deceased) { ?>
         } elseif ($deceased_days > 1 && $deceased_days < 90) {
              $num_of_days =  $deceased_days . " " . xl("days ago");
         } elseif ($deceased_days >= 90 && $deceased_days < 731) {
-            $num_of_days =  "~". round($deceased_days/30) . " " . xl("months ago");  // function intdiv available only in php7
+            $num_of_days =  "~" . round($deceased_days / 30) . " " . xl("months ago");  // function intdiv available only in php7
         } elseif ($deceased_days >= 731) {
-             $num_of_days =  xl("More than") . " " . round($deceased_days/365) . " " . xl("years ago");
+             $num_of_days =  xl("More than") . " " . round($deceased_days / 365) . " " . xl("years ago");
         }
 
         if (strlen($days_deceased['date_deceased']) > 10 && $GLOBALS['date_display_format'] < 1) {
@@ -83,7 +84,7 @@ if ($days_deceased) { ?>
             $portalUserSetting = true; //flag to see if patient has authorized access to portal
             if ($GLOBALS['portal_onsite_two_enable'] && $GLOBALS['portal_onsite_two_address']) {
                 $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?", array($pid));
-                if ($portalStatus['allow_patient_portal']=='YES') {
+                if ($portalStatus['allow_patient_portal'] == 'YES') {
                     $portalLogin = sqlQuery("SELECT pid FROM `patient_access_onsite` WHERE `pid`=?", array($pid));?>
                     <?php $display_class = (empty($portalLogin)) ? "btn-save" : "btn-undo"; ?>
                     <a class='small_modal btn btn-secondary btn-sm <?php echo attr($display_class); ?>'
@@ -100,7 +101,7 @@ if ($days_deceased) { ?>
             } // Onsite Patient Portal
             if ($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address']) {
                 $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?", array($pid));
-                if ($portalStatus['allow_patient_portal']=='YES') {
+                if ($portalStatus['allow_patient_portal'] == 'YES') {
                     $portalLogin = sqlQuery("SELECT pid FROM `patient_access_offsite` WHERE `pid`=?", array($pid));
                     ?>
                     <?php $display_class = (empty($portalLogin)) ? "btn-save" : "btn-undo"; ?>

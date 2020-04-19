@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  $Id$
  *
@@ -41,13 +42,13 @@ function smarty_function_pc_popup($args)
         $trigger = "onMouseOver";
     }
 
-    echo $trigger.'="return overlib(\''.pc_clean($text).'\'';
+    echo $trigger . '="return overlib(\'' . pc_clean($text) . '\'';
     if ($sticky) {
         echo ",STICKY";
     }
 
     if (!empty($caption)) {
-        echo ",CAPTION,'".pc_clean($caption)."'";
+        echo ",CAPTION,'" . pc_clean($caption) . "'";
     }
 
     if (!empty($fgcolor)) {
@@ -143,7 +144,7 @@ function smarty_function_pc_popup($args)
     }
 
     if (!empty($closetext)) {
-        echo ",CLOSETEXT,'".pc_clean($closetext)."'";
+        echo ",CLOSETEXT,'" . pc_clean($closetext) . "'";
     }
 
     if (!empty($noclose)) {
@@ -151,7 +152,7 @@ function smarty_function_pc_popup($args)
     }
 
     if (!empty($status)) {
-        echo ",STATUS,'".pc_clean($status)."'";
+        echo ",STATUS,'" . pc_clean($status) . "'";
     }
 
     if (!empty($autostatus)) {

@@ -1,4 +1,5 @@
 <?php
+
 namespace ESign;
 
 /**
@@ -23,7 +24,7 @@ namespace ESign;
 * @link    http://www.open-emr.org
 **/
 
-require_once $GLOBALS['srcdir'].'/ESign/VerificationIF.php';
+require_once $GLOBALS['srcdir'] . '/ESign/VerificationIF.php';
 
 class Utils_Verification implements VerificationIF
 {

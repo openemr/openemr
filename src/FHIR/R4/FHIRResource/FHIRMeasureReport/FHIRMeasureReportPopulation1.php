@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMeasureReport;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMeasureReport;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -174,7 +176,7 @@ class FHIRMeasureReportPopulation1 extends FHIRBackboneElement implements \JsonS
                 $this->setSubjectResults($data['subjectResults']);
             }
         } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

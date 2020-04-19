@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Imports patient demographics from our custom XML format.
  *

@@ -1,4 +1,5 @@
 <?php
+
 /* X12_5010_837P Class
  *
  * This program creates an X12 5010 837P file.
@@ -602,8 +603,10 @@ class X12_5010_837P
             "*" . "D8" .
             "*" . $claim->onsetDate() .
             "~\n";
-        } else if ($claim->miscOnsetDate() && ($claim->miscOnsetDate() !== $claim->serviceDate())
-            && ($claim->box14Qualifier()) && ($claim->miscOnsetDateValid())) {
+        } else if (
+            $claim->miscOnsetDate() && ($claim->miscOnsetDate() !== $claim->serviceDate())
+            && ($claim->box14Qualifier()) && ($claim->miscOnsetDateValid())
+        ) {
             ++$edicount;
             $out .= "DTP" .
             "*" . $claim->box14Qualifier() .

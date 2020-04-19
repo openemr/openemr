@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Report tracking, storing and viewing functions using the report_results sql table.
  *
@@ -144,14 +145,16 @@ function beginReportDatabase($type, $fields, $report_id = null)
     if (!empty($fields)) {
         foreach ($fields as $key => $value) {
             // skip the special tokens
-            if (($key == "type") ||
-             ($key == "data") ||
-             ($key == "progress") ||
-             ($key == "progress_items") ||
-             ($key == "total_items") ||
-             ($key == "date_report") ||
-             ($key == "date_report_complete") ||
-             ($key == "bookmark")) {
+            if (
+                ($key == "type") ||
+                ($key == "data") ||
+                ($key == "progress") ||
+                ($key == "progress_items") ||
+                ($key == "total_items") ||
+                ($key == "date_report") ||
+                ($key == "date_report_complete") ||
+                ($key == "bookmark")
+            ) {
                 continue;
             }
 
@@ -226,7 +229,7 @@ function collectReportDatabase($report_id)
   // Convert data into an array
     $final_array = array();
     while ($row = sqlFetchArray($res)) {
-        $final_array = array_merge($final_array, array($row['field_id']=>$row['field_value']));
+        $final_array = array_merge($final_array, array($row['field_id'] => $row['field_value']));
     }
 
     return $final_array;
@@ -252,7 +255,7 @@ function getStatusReportDatabase($report_id)
   // Place into an array for quick processing
     $final_array = array();
     while ($row = sqlFetchArray($res)) {
-        $final_array = array_merge($final_array, array($row['field_id']=>$row['field_value']));
+        $final_array = array_merge($final_array, array($row['field_id'] => $row['field_value']));
     }
 
     if ($final_array['progress'] == "complete") {
@@ -297,7 +300,7 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
         if (isset($row['is_main']) || isset($row['is_sub'])) {
             if (isset($row['is_main'])) {
                 // Store this
-                $dispTitle = generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $row['id']);
+                $dispTitle = generate_display_field(array('data_type' => '1','list_id' => 'clinical_rules'), $row['id']);
             }
 
             if (($row['itemized_test_id'] == $itemized_test_id) && ($row['numerator_label'] == $numerator_label)) {
@@ -332,26 +335,26 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
 
                     if ($type_report == "amc_2014_stage1") {
                         if (!empty($row['amc_code_2014'])) {
-                            $tempCqmAmcString .= " " . xlt('AMC-2014 Stage I'). ":" . text($row['amc_code_2014']) . " ";
+                            $tempCqmAmcString .= " " . xlt('AMC-2014 Stage I') . ":" . text($row['amc_code_2014']) . " ";
                         }
                     }
 
                     if ($type_report == "amc_2014_stage2") {
                         if (!empty($row['amc_code_2014'])) {
-                            $tempCqmAmcString .= " " . xlt('AMC-2014 Stage II'). ":" . text($row['amc_code_2014']) . " ";
+                            $tempCqmAmcString .= " " . xlt('AMC-2014 Stage II') . ":" . text($row['amc_code_2014']) . " ";
                         }
                     }
 
                     if (!empty($tempCqmAmcString)) {
-                        $dispTitle .=  "(".$tempCqmAmcString.")";
+                        $dispTitle .=  "(" . $tempCqmAmcString . ")";
                     }
 
                     if (!(empty($row['concatenated_label']))) {
                         $dispTitle .= ", " . xlt($row['concatenated_label']) . " ";
                     }
                 } else { // isset($row['is_sub']
-                    $dispTitle .= " - " .  generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $row['action_category']);
-                    $dispTitle .= ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $row['action_item']);
+                    $dispTitle .= " - " .  generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $row['action_category']);
+                    $dispTitle .= ": " . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $row['action_item']);
                 }
 
                 return $dispTitle;
@@ -387,19 +390,19 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
   // set $pass_sql
     switch ($pass) {
         case "fail":
-            $pass_sql=0;
+            $pass_sql = 0;
             break;
         case "pass":
-            $pass_sql=1;
+            $pass_sql = 1;
             break;
         case "exclude":
-            $pass_sql=2;
+            $pass_sql = 2;
             break;
         case "init_patients":
-            $pass_sql=3;
+            $pass_sql = 3;
             break;
         case "exception":
-            $pass_sql=4;
+            $pass_sql = 4;
             break;
     }
 
@@ -427,7 +430,7 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
         array_push($sqlParameters, $pass_sql);
     }
 
-    $sql_query = "SELECT " . $given . " FROM `patient_data` JOIN `report_itemized` ON `patient_data`.`pid` = `report_itemized`.`pid` " . $sql_where. " ORDER BY " . $orderby;
+    $sql_query = "SELECT " . $given . " FROM `patient_data` JOIN `report_itemized` ON `patient_data`.`pid` = `report_itemized`.`pid` " . $sql_where . " ORDER BY " . $orderby;
 
     if ($sqllimit != "all") {
         $sql_query .= " limit " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
@@ -440,8 +443,8 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
         $rez = sqlStatementCdrEngine($sql_query, $sqlParameters);
         // create array of listing for return
         $returnval = array();
-        for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
-            $returnval[$iter]=$row;
+        for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+            $returnval[$iter] = $row;
         }
 
         return $returnval;

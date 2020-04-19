@@ -1,4 +1,5 @@
 <?php
+
 /** @package    verysimple::Phreeze */
 
 /**
@@ -398,18 +399,18 @@ abstract class Phreezable implements Serializable
                 if ($fm->FieldType == FM_TYPE_DECIMAL && is_numeric($fm->FieldSize)) {
                     // decimal validation needs to be treated differently than whole numbers
                     
-                    $values = explode('.', ( string ) $this->$prop, 2);
-                    $right = count($values) > 1 ? strlen(( string ) $values [1]) : 0;
-                    $left = strlen(( string ) $values [0]);
+                    $values = explode('.', (string) $this->$prop, 2);
+                    $right = count($values) > 1 ? strlen((string) $values [1]) : 0;
+                    $left = strlen((string) $values [0]);
                     
-                    $limits = explode('.', ( string ) $fm->FieldSize, 2);
-                    $limitRight = count($limits) > 1 ? ( int ) $limits [1] : 0;
-                    $limitLeft = ( int ) $limits [0] - $limitRight;
+                    $limits = explode('.', (string) $fm->FieldSize, 2);
+                    $limitRight = count($limits) > 1 ? (int) $limits [1] : 0;
+                    $limitLeft = (int) $limits [0] - $limitRight;
                     
                     if ($left > $limitLeft || $right > $limitRight) {
                         $this->AddValidationError($prop, "$prop exceeds the maximum length of " . $fm->FieldSize . "");
                     }
-                } elseif (is_numeric($fm->FieldSize) && ($lenfunction($this->$prop)-1 > $fm->FieldSize)) {
+                } elseif (is_numeric($fm->FieldSize) && ($lenfunction($this->$prop) - 1 > $fm->FieldSize)) {
                     $this->AddValidationError($prop, "$prop exceeds the maximum length of " . $fm->FieldSize . "");
                 }
                 

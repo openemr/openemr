@@ -1,4 +1,5 @@
 <?php
+
 /**
 * interface/patient_file/addr_label.php Displaying a PDF file of Labels for printing.
 *
@@ -12,7 +13,6 @@
 * @copyright Copyright (c) 2017 Daniel Pflieger <growlingflea@gmail.com>
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
-
 
 require_once("../globals.php");
 
@@ -45,7 +45,7 @@ $black    = '000000'; // color in hexa
 
 //Format of the address
 //This number increases the spacing between the line printed on the envelope
-$xt       = .2*$font_size;
+$xt       = .2 * $font_size;
 
 //ymargin of printed text. The smaller the number, the further from the left edge edge the address is printed
 $yt       = 0;
@@ -60,8 +60,8 @@ $pdf->SetFont('Arial', '', $font_size);
 $pdf->TextWithRotation($x, $y + $yt, $text1, $angle);
 $xt += $xt;
 $pdf->TextWithRotation($x + $xt, $y + $yt, $text2, $angle);
-$xt +=$xt;
+$xt += $xt;
 $pdf->TextWithRotation($x + $xt, $y + $yt, $text3, $angle);
-$xt +=$xt;
+$xt += $xt;
 
 $pdf->Output();

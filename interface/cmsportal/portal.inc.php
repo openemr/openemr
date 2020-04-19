@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Remote access to a WordPress Patient Portal.
  *

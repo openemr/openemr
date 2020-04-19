@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRDeviceDefinition;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRDeviceDefinition;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -174,7 +176,7 @@ class FHIRDeviceDefinitionUdiDeviceIdentifier extends FHIRBackboneElement implem
                 $this->setJurisdiction($data['jurisdiction']);
             }
         } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

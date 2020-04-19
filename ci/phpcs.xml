@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <ruleset name="OpenEMR Standard">
-  <description>PSR2 (permissive)</description>
+  <description>PSR12 (permissive)</description>
   <arg name="tab-width" value="4" />
-  <rule ref="PSR2">
+  <rule ref="PSR12">
     <exclude name="PSR1.Classes.ClassDeclaration"/>
     <exclude name="Squiz.Classes.ValidClassName"/>
     <exclude name="PSR1.Methods.CamelCapsMethodName"/>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Software version identification.
  *
@@ -38,7 +39,7 @@ $v_database = 315;
 $v_acl = 9;
 
 //Offsite Portal SOAP functions version, which are at myportal directory.
-$v_offsite_portal='1.47';
+$v_offsite_portal = '1.47';
 
 // Version for JavaScript and stylesheet includes. Increment whenever a .js or .css file changes.
 // Also whenever you change a .js or .css file, make sure that all URLs referencing it

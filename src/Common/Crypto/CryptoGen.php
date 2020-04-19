@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CryptoGen class.
  *
@@ -24,7 +25,6 @@
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 namespace OpenEMR\Common\Crypto;
 
@@ -182,7 +182,7 @@ class CryptoGen
             $iv
         );
 
-        $hmacHash = hash_hmac('sha384', $iv.$processedValue, $sSecretKeyHmac, true);
+        $hmacHash = hash_hmac('sha384', $iv . $processedValue, $sSecretKeyHmac, true);
 
         if ($sValue != "" && ($processedValue == "" || $hmacHash == "")) {
             error_log("OpenEMR Error : Encryption is not working.");
@@ -250,9 +250,9 @@ class CryptoGen
         $ivLength = openssl_cipher_iv_length('aes-256-cbc');
         $hmacHash = mb_substr($raw, 0, 48, '8bit');
         $iv = mb_substr($raw, 48, $ivLength, '8bit');
-        $encrypted_data = mb_substr($raw, ($ivLength+48), null, '8bit');
+        $encrypted_data = mb_substr($raw, ($ivLength + 48), null, '8bit');
 
-        $calculatedHmacHash = hash_hmac('sha384', $iv.$encrypted_data, $sSecretKeyHmac, true);
+        $calculatedHmacHash = hash_hmac('sha384', $iv . $encrypted_data, $sSecretKeyHmac, true);
 
         if (hash_equals($hmacHash, $calculatedHmacHash)) {
             return openssl_decrypt(
@@ -308,9 +308,9 @@ class CryptoGen
         $ivLength = openssl_cipher_iv_length('aes-256-cbc');
         $hmacHash = mb_substr($raw, 0, 32, '8bit');
         $iv = mb_substr($raw, 32, $ivLength, '8bit');
-        $encrypted_data = mb_substr($raw, ($ivLength+32), null, '8bit');
+        $encrypted_data = mb_substr($raw, ($ivLength + 32), null, '8bit');
 
-        $calculatedHmacHash = hash_hmac('sha256', $iv.$encrypted_data, $sSecretKeyHmac, true);
+        $calculatedHmacHash = hash_hmac('sha256', $iv . $encrypted_data, $sSecretKeyHmac, true);
 
         if (hash_equals($hmacHash, $calculatedHmacHash)) {
             return openssl_decrypt(
@@ -411,13 +411,13 @@ class CryptoGen
     private function collectCryptoKey($version = "one", $sub = "", $keySource = 'drive')
     {
         // Check if key is in the cache first (and return it if it is)
-        $cacheLabel = $version.$sub.$keySource;
+        $cacheLabel = $version . $sub . $keySource;
         if (!empty($this->{$cacheLabel})) {
             return $this->{$cacheLabel};
         }
 
         // Build the main label
-        $label = $version.$sub;
+        $label = $version . $sub;
 
         // If the key does not exist, then create it
         if ($keySource == 'database') {

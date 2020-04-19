@@ -1,4 +1,5 @@
 <?php
+
 /**
  * create_portallogin.php
  *
@@ -14,7 +15,6 @@
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 
@@ -107,15 +107,15 @@ function emailLogin($patient_id, $message)
     $message .= xlt("Thank you for allowing us to serve you.") . ":<br />";
 
     $mail = new MyMailer();
-    $pt_name=$patientData['fname'].' '.$patientData['lname'];
-    $pt_email=$patientData['email'];
-    $email_subject=xl('Access Your Patient Portal');
-    $email_sender=$GLOBALS['patient_reminder_sender_email'];
+    $pt_name = $patientData['fname'] . ' ' . $patientData['lname'];
+    $pt_email = $patientData['email'];
+    $email_subject = xl('Access Your Patient Portal');
+    $email_sender = $GLOBALS['patient_reminder_sender_email'];
     $mail->AddReplyTo($email_sender, $email_sender);
     $mail->SetFrom($email_sender, $email_sender);
     $mail->AddAddress($pt_email, $pt_name);
     $mail->Subject = $email_subject;
-    $mail->MsgHTML("<html><body><div class='wrapper'>".$message."</div></body></html>");
+    $mail->MsgHTML("<html><body><div class='wrapper'>" . $message . "</div></body></html>");
     $mail->IsHTML(true);
     $mail->AltBody = $message;
 
@@ -141,16 +141,16 @@ function displayLogin($patient_id, $message, $emailFlag)
     return $message;
 }
 
-if (isset($_POST['form_save']) && $_POST['form_save']=='submit') {
+if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $clear_pass=$_POST['pwd'];
+    $clear_pass = $_POST['pwd'];
 
     $res = sqlStatement("SELECT * FROM patient_access_" . escape_identifier($portalsite, array("on","off"), true) . "site WHERE pid=?", array($pid));
-    $query_parameters=array($_POST['uname'],$_POST['login_uname']);
-    if ($portalsite=='on') {
+    $query_parameters = array($_POST['uname'],$_POST['login_uname']);
+    if ($portalsite == 'on') {
         // For onsite portal create a modern hash
         $hash = (new AuthHash('auth'))->passwordHash($clear_pass);
         if (empty($hash)) {
@@ -226,23 +226,23 @@ function transmit(){
         <form name="portallogin" action="" method="post">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-            <p class="text-center font-weight-bold"><?php echo text(xl("Generate Username And Password For")." ".$row['fname']);?></p>
+            <p class="text-center font-weight-bold"><?php echo text(xl("Generate Username And Password For") . " " . $row['fname']);?></p>
 
             <div class="row">
                 <?php if ($portalsite == 'off') { ?>
-                <div class="col"><?php echo text(xl('Provider Id').':');?></div>
+                <div class="col"><?php echo text(xl('Provider Id') . ':');?></div>
                 <div class="col"><?php echo text($GLOBALS['portal_offsite_providerid']);?></div>
                 <?php } ?>
             </div>
             <div class="form-group">
-                <label class="font-weight-bold" for="uname"><?php echo text(xl('Account Name').':');?></label>
-                <input type="text" class="form-control" name="uname" id="uname" value="<?php echo ($row['portal_username']) ? attr($row['portal_username']) : attr($row['fname'].$row['id']); ?>" size="10" readonly />
+                <label class="font-weight-bold" for="uname"><?php echo text(xl('Account Name') . ':');?></label>
+                <input type="text" class="form-control" name="uname" id="uname" value="<?php echo ($row['portal_username']) ? attr($row['portal_username']) : attr($row['fname'] . $row['id']); ?>" size="10" readonly />
             </div>
             <div class="form-group">
-                <label class="font-weight-bold" for="login_uname"><?php echo text(xl('Login User Name').':');?></label>
+                <label class="font-weight-bold" for="login_uname"><?php echo text(xl('Login User Name') . ':');?></label>
                 <input type="text" class="form-control" name="login_uname" id="login_uname" value="<?php echo (!empty($trustedUserName) ? text($trustedUserName) : attr($row['portal_username'])); ?>" readonly />
             </div>
-            <label class="font-weight-bold" for="pwd"><?php echo text(xl('Password').':');?></label>
+            <label class="font-weight-bold" for="pwd"><?php echo text(xl('Password') . ':');?></label>
             <div class="input-group">
                 <?php $pwd = RandomGenUtils::generatePortalPassword(); ?>
                 <input type="text" class="form-control" name="pwd" id="pwd" value="<?php echo attr($pwd); ?>" size="14" />

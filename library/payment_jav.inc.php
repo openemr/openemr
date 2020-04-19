@@ -308,7 +308,7 @@ function FillAmount()
  {//Called when there is change in the amount by typing.
  //Readjusts the various values.
     <?php
-    if ($screen=='new_payment') {
+    if ($screen == 'new_payment') {
         ?>
     UnpostedAmt=document.getElementById('HidUnpostedAmount').value*1;
         <?php
@@ -409,7 +409,7 @@ function FormValidations()
     document.getElementById('post_to_date').focus();
     return false;
    }
-  else if(DateCheckGreater(document.getElementById('post_to_date').value,'<?php echo $GLOBALS['post_to_date_benchmark']=='' ? date('Y-m-d', time() - (10 * 24 * 60 * 60)) : htmlspecialchars(oeFormatShortDate($GLOBALS['post_to_date_benchmark']));?>',
+  else if(DateCheckGreater(document.getElementById('post_to_date').value,'<?php echo $GLOBALS['post_to_date_benchmark'] == '' ? date('Y-m-d', time() - (10 * 24 * 60 * 60)) : htmlspecialchars(oeFormatShortDate($GLOBALS['post_to_date_benchmark']));?>',
   '<?php echo DateFormatRead();?>'))
    {
     alert("<?php echo htmlspecialchars(xl('Post To Date Must be greater than the Financial Close Date.'), ENT_QUOTES) ?>");
@@ -425,7 +425,7 @@ function FormValidations()
     return false;
    }
     <?php
-    if ($screen=='edit_payment') {
+    if ($screen == 'edit_payment') {
         ?>
        if(document.getElementById('check_number').value!='' &&
        document.getElementById('payment_method').options[document.getElementById('payment_method').selectedIndex].value=='')
@@ -450,7 +450,7 @@ function FormValidations()
     return false;
    }
     <?php
-    if ($screen=='edit_payment') {
+    if ($screen == 'edit_payment') {
         ?>
       if(document.getElementById('adjustment_code').options[document.getElementById('adjustment_code').selectedIndex].value=='')
        {

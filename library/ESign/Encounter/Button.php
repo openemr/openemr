@@ -24,8 +24,8 @@ namespace ESign;
  * @link    http://www.open-emr.org
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/ButtonIF.php';
-require_once $GLOBALS['srcdir'].'/ESign/ViewableIF.php';
+require_once $GLOBALS['srcdir'] . '/ESign/ButtonIF.php';
+require_once $GLOBALS['srcdir'] . '/ESign/ViewableIF.php';
 
 class Encounter_Button implements ButtonIF
 {
@@ -45,7 +45,7 @@ class Encounter_Button implements ButtonIF
     
     public function getViewScript()
     {
-        return $GLOBALS['srcdir'].'/ESign/views/encounter/esign_button.php';
+        return $GLOBALS['srcdir'] . '/ESign/views/encounter/esign_button.php';
     }
     
     public function render(SignableIF $signable = null)

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationAdministration;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationAdministration;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -290,7 +292,7 @@ The dosage instructions should reflect the dosage of the medication that was adm
                 $this->setRateQuantity($data['rateQuantity']);
             }
         } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

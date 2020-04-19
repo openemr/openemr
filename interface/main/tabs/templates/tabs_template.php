@@ -1,4 +1,5 @@
 <?php
+
 /**
  * tabs_template.php
  *
@@ -8,6 +9,7 @@
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 
 <script type="text/html" id="tabs-controls">

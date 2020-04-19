@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -13,7 +14,7 @@ class RsHelper
         $formattedResults = array();
         foreach ($results as $result) {
             if ($result instanceof RsResultIF) {
-                $formattedResults []= $result->format();
+                $formattedResults [] = $result->format();
             } else {
                 throw new Exception("Result must be an instance of RsResultIF");
             }

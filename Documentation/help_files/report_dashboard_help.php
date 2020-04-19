@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Report Dashboard Help.
  *

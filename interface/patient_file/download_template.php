@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Document Template Download Module.
  *
@@ -13,7 +14,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
@@ -201,7 +201,7 @@ function doSubs($s)
 
             $s = keyReplace($s, dataFixup($tmp, xl('Referer')));
         } else if (keySearch($s, '{Allergies}')) {
-            $tmp = generate_plaintext_field(array('data_type'=>'24','list_id'=>''), '');
+            $tmp = generate_plaintext_field(array('data_type' => '24','list_id' => ''), '');
             $s = keyReplace($s, dataFixup($tmp, xl('Allergies')));
         } else if (keySearch($s, '{Medications}')) {
             $s = keyReplace($s, dataFixup(getIssues('medication'), xl('Medications')));
@@ -371,10 +371,10 @@ if ($cryptoGen->cryptCheckStandard($fileData)) {
 $dname = tempnam($GLOBALS['temporary_files_dir'], 'OED');
 file_put_contents($dname, $fileData);
 
-$zipin = new ZipArchive;
+$zipin = new ZipArchive();
 if ($zipin->open($dname) === true) {
     // Must be a zip archive.
-    $zipout = new ZipArchive;
+    $zipout = new ZipArchive();
     $zipout->open($fname, ZipArchive::OVERWRITE);
     for ($i = 0; $i < $zipin->numFiles; ++$i) {
         $ename = $zipin->getNameIndex($i);
@@ -409,7 +409,7 @@ header("Cache-control: private");
 header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 header("Content-Type: $mimetype; charset=utf-8");
 header("Content-Length: " . filesize($fname));
-header('Content-Disposition: attachment; filename="'. $dlname .'"');
+header('Content-Disposition: attachment; filename="' . $dlname . '"');
 
 ob_end_clean();
 @readfile($fname) or error_log("Template temp file not found: " . $fname);

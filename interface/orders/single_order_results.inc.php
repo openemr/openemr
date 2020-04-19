@@ -1,4 +1,5 @@
 <?php
+
 /**
 * Script to display results for a given procedure order.
 *
@@ -618,10 +619,12 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                         // result for a given result code is its *array* of result rows from *one* of the reports.
                         foreach ($rrowsets as $key => $rrowset) {
                             // When two reports have the same date, use the result date to decide which is "latest".
-                            if (isset($finals[$key]) &&
+                            if (
+                                isset($finals[$key]) &&
                                 $row['date_report'] == $finals[$key][0]['date_report'] &&
                                 !empty($rrow['date']) && !empty($finals[$key][1]['date']) &&
-                                $rrow['date'] < $finals[$key][1]['date']) {
+                                $rrow['date'] < $finals[$key][1]['date']
+                            ) {
                                 $finals[$key][2] = true; // see comment below
                                 continue;
                             }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * spreadsheet.inc.php
  *
@@ -151,7 +152,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
             }
 
             sqlStatement(
-                "INSERT INTO " . escape_table_name('form_' .$spreadsheet_form_name) . " ( " .
+                "INSERT INTO " . escape_table_name('form_' . $spreadsheet_form_name) . " ( " .
                 "id, rownbr, colnbr, datatype, value " .
                 ") VALUES ( ?, -1, -1, 0, ? )",
                 array(
@@ -624,8 +625,10 @@ if ($popup) {
 <?php
 while ($trow = sqlFetchArray($tres)) {
     echo "    <option value='" . attr($trow['id']) . "'";
-    if ($tempid && $tempid == $trow['id'] ||
-    $formid && $template_name == $trow['value']) {
+    if (
+        $tempid && $tempid == $trow['id'] ||
+        $formid && $template_name == $trow['value']
+    ) {
         echo " selected";
     }
 

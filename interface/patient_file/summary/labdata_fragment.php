@@ -1,4 +1,5 @@
 <?php
+
 /**
  * labdata_fragment.php
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 
@@ -33,7 +33,7 @@ $spell = "SELECT procedure_report.date_collected AS thedate, " .
             "JOIN procedure_order_code ON procedure_order.procedure_order_id = procedure_order_code.procedure_order_id " .
             "WHERE procedure_order.patient_id = ? " .
             "ORDER BY procedure_report.date_collected DESC ";
-$result=sqlQuery($spell, array($pid));
+$result = sqlQuery($spell, array($pid));
 
 if (!$result) { //If there are no lab data recorded
     ?>

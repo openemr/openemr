@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRBiologicallyDerivedProduct;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRBiologicallyDerivedProduct;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -169,7 +171,7 @@ class FHIRBiologicallyDerivedProductManipulation extends FHIRBackboneElement imp
                 $this->setTimePeriod($data['timePeriod']);
             }
         } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Report columns:
  * Product Name (blank where repeated)
@@ -18,7 +19,6 @@
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -207,10 +207,14 @@ function thisLineItem(
     }
 
     // If first column is changing, time for its totals.
-    if (($product_first && $product_id != $last_product_id) ||
-      (!$product_first && $warehouse_id != $last_warehouse_id)) {
-        if (($product_first && $last_product_id) ||
-        (!$product_first && $last_warehouse_id != '~')) {
+    if (
+        ($product_first && $product_id != $last_product_id) ||
+        (!$product_first && $warehouse_id != $last_warehouse_id)
+    ) {
+        if (
+            ($product_first && $last_product_id) ||
+            (!$product_first && $last_warehouse_id != '~')
+        ) {
             $priei = $product_first ? getEndInventory($last_product_id) :
               getEndInventory(0, $last_warehouse_id);
             // Print first column total.
@@ -644,8 +648,10 @@ if ($form_action) { // if submit or export
         // generate a pseudo-adjustment for that.
         if ($row['inventory_id'] != $last_inventory_id) {
             $last_inventory_id = $row['inventory_id'];
-            if (!empty($row['destroy_date']) && $row['on_hand'] != 0
-            && $row['destroy_date'] <= $form_to_date) {
+            if (
+                !empty($row['destroy_date']) && $row['on_hand'] != 0
+                && $row['destroy_date'] <= $form_to_date
+            ) {
                 thisLineItem(
                     $row['drug_id'],
                     $row['warehouse_id'],

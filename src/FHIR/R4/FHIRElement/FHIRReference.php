@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRElement;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRElement;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -210,7 +212,7 @@ The type is the Canonical URL of Resource Definition that is the type this refer
                 $this->setDisplay($data['display']);
             }
         } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

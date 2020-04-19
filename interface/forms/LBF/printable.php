@@ -1,4 +1,5 @@
 <?php
+
 /**
  * LBF form.
  *
@@ -12,7 +13,6 @@
  * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -108,12 +108,12 @@ if ($PDF_OUTPUT) {
     $pdf = new mPDF($config_mpdf);
     $pdf->SetHTMLHeader('
 		<div style="text-align: right; font-weight: bold;">
-			'.$patientname.' DOB: '.oeFormatShortDate($patientdob["DOB"]).' DOS: '. oeFormatShortDate($dateofservice) .'
+			' . $patientname . ' DOB: ' . oeFormatShortDate($patientdob["DOB"]) . ' DOS: ' . oeFormatShortDate($dateofservice) . '
 		</div>');
     $pdf->SetHTMLFooter('
-			<div style="float: right; width:33% text-align: left;">'.oeFormatDateTime(date("Y-m-d H:i:s")).'</div>
+			<div style="float: right; width:33% text-align: left;">' . oeFormatDateTime(date("Y-m-d H:i:s")) . '</div>
 			<div style="float: right; width:33%; text-align: center; ">{PAGENO}/{nbpg}</div>
-			<div style="float: right; width:33%; text-align: right; ">'.$patientname.'</div>
+			<div style="float: right; width:33%; text-align: right; ">' . $patientname . '</div>
 			');
     $pdf->SetDisplayMode('real');
     if ($_SESSION['language_direction'] == 'rtl') {
@@ -334,8 +334,10 @@ function getContent()
         if ($i === false) {
             break;
         }
-        if (substr($content, $i+6, $wrlen) === $web_root &&
-            substr($content, $i+6, $wsrlen) !== $webserver_root) {
+        if (
+            substr($content, $i + 6, $wrlen) === $web_root &&
+            substr($content, $i + 6, $wsrlen) !== $webserver_root
+        ) {
             $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
         }
     }

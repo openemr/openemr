@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Report - Cash receipts by Provider
  *
@@ -22,9 +23,9 @@
 
 
 require_once('../globals.php');
-require_once($GLOBALS['srcdir'].'/patient.inc');
-require_once($GLOBALS['srcdir'].'/options.inc.php');
-require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
+require_once($GLOBALS['srcdir'] . '/patient.inc');
+require_once($GLOBALS['srcdir'] . '/options.inc.php');
+require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 // This determines if a particular procedure code corresponds to receipts
 // for the "Clinic" column as opposed to receipts for the practitioner.  Each
 // practice will have its own policies in this regard, so you'll probably
@@ -205,7 +206,7 @@ $form_facility   = $_POST['form_facility'];
                                     echo "    <option value=''>-- " . xlt('All Providers') . " --\n";
                                     while ($row = sqlFetchArray($res)) {
                                         $provid = $row['id'];
-                                        echo "    <option value='". attr($provid) ."'";
+                                        echo "    <option value='" . attr($provid) . "'";
                                         if ($provid == $_POST['form_doctor']) {
                                             echo " selected";
                                         }
@@ -731,7 +732,7 @@ $form_facility   = $_POST['form_facility'];
                         <?php $report_from_date = oeFormatShortDate($form_from_date)  ;
                         $report_to_date = oeFormatShortDate($form_to_date)  ;
                         ?>
-                <div align='right'><span class='title'><?php echo xlt('Report Date'). ' '; ?><?php echo text($report_from_date);?> - <?php echo text($report_to_date);?></span></div>
+                <div align='right'><span class='title'><?php echo xlt('Report Date') . ' '; ?><?php echo text($report_from_date);?> - <?php echo text($report_to_date);?></span></div>
 
                         <?php
                     }

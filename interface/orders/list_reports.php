@@ -1,4 +1,5 @@
 <?php
+
 /**
  * List procedure orders and reports, and fetch new reports and their results.
  *
@@ -12,7 +13,6 @@
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -329,13 +329,15 @@ $(function () {
         </div>
         <select class="col-sm form-control" name='form_reviewed'>
             <?php
-            foreach (array(
+            foreach (
+                array(
                          '1' => xl('All'),
                          '2' => xl('Reviewed'),
                          '3' => xl('Received, unreviewed'),
                          '4' => xl('Sent, not received'),
                          '5' => xl('Not sent'),
-                     ) as $key => $value) {
+                     ) as $key => $value
+            ) {
                 echo "<option value='" . attr($key) . "'";
                 if ($key == $form_reviewed) {
                     echo " selected";

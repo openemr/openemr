@@ -1,4 +1,5 @@
 <?php
+
 /**
  * search_code.php
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
@@ -81,12 +81,12 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
     "WHERE (code_text LIKE ? OR " .
     "code LIKE ?) AND " .
     "code_type = ? " .
-    "ORDER BY code ".
+    "ORDER BY code " .
     " LIMIT " . escape_limit(($M + 1)) .
     "";
 
-    if ($res = sqlStatement($sql, array($pid, "%".$_POST["text"]."%", "%".$_POST["text"]."%", $code_types[$code_type]['id']))) {
-        for ($iter=0; $row=sqlFetchArray($res); $iter++) {
+    if ($res = sqlStatement($sql, array($pid, "%" . $_POST["text"] . "%", "%" . $_POST["text"] . "%", $code_types[$code_type]['id']))) {
+        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result[$iter] = $row;
         }
 

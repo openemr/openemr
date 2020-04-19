@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient custom report.
  *
@@ -12,7 +13,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 // Will start the (patient) portal OpenEMR session/cookie.
 require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
@@ -28,7 +28,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $user = $_SESSION['sessionUser'];
 } else {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-    header('Location: '.$landingpage.'&w');
+    header('Location: ' . $landingpage . '&w');
     exit;
 }
 
@@ -45,7 +45,7 @@ require_once("$srcdir/report.inc");
 require_once("$srcdir/classes/Document.class.php");
 require_once("$srcdir/classes/Note.class.php");
 require_once(dirname(__file__) . "/../../custom/code_types.inc.php");
-require_once $GLOBALS['srcdir'].'/ESign/Api.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 if ($GLOBALS['gbl_portal_cms_enable']) {
     require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
@@ -127,8 +127,10 @@ function getContent()
             break;
         }
 
-        if (substr($content, $i+6, $wrlen) === $web_root &&
-        substr($content, $i+6, $wsrlen) !== $webserver_root) {
+        if (
+            substr($content, $i + 6, $wrlen) === $web_root &&
+            substr($content, $i + 6, $wsrlen) !== $webserver_root
+        ) {
             $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
         }
     }
@@ -138,7 +140,7 @@ function getContent()
 
 function postToGet($arin)
 {
-    $getstring="";
+    $getstring = "";
     foreach ($arin as $key => $val) {
         if (is_array($val)) {
             foreach ($val as $k => $v) {
@@ -160,7 +162,7 @@ function report_basename($pid)
     $esc = str_replace(array('.', ',', ' '), '', $esc);
     $fn = basename_international(strtolower($esc . '_' . $pid . '_' . xl('report')));
 
-    return array('base'=>$fn, 'fname'=>$ptd['fname'], 'lname'=>$ptd['lname']);
+    return array('base' => $fn, 'fname' => $ptd['fname'], 'lname' => $ptd['lname']);
 }
 
 function zip_content($source, $destination, $content = '', $create = true)
@@ -624,7 +626,7 @@ foreach ($ar as $key => $val) {
         if ($val == "demographics") {
             echo "<hr />";
             echo "<div class='text demographics' id='DEM'>\n";
-            print "<h1>".xlt('Patient Data').":</h1>";
+            print "<h1>" . xlt('Patient Data') . ":</h1>";
             // printRecDataOne($patient_data_array, getRecPatientData ($pid), $N);
             $result1 = getPatientData($pid);
             $result2 = getEmployerData($pid);
@@ -636,7 +638,7 @@ foreach ($ar as $key => $val) {
             echo "<hr />";
             echo "<div class='text history' id='HIS'>\n";
             //if (AclMain::aclCheckCore('patients', 'med')) {
-                print "<h1>".xlt('History Data').":</h1>";
+                print "<h1>" . xlt('History Data') . ":</h1>";
                 // printRecDataOne($history_data_array, getRecHistoryData ($pid), $N);
                 $result1 = getHistoryData($pid);
                 echo "   <table>\n";
@@ -651,22 +653,22 @@ foreach ($ar as $key => $val) {
         } elseif ($val == "insurance") {
             echo "<hr />";
             echo "<div class='text insurance'>";
-            echo "<h1>".xlt('Insurance Data').":</h1>";
-            print "<br /><span class='font-weight-bold'>".xlt('Primary Insurance Data').":</span><br />";
+            echo "<h1>" . xlt('Insurance Data') . ":</h1>";
+            print "<br /><span class='font-weight-bold'>" . xlt('Primary Insurance Data') . ":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
-            print "<span class='font-weight-bold'>".xlt('Secondary Insurance Data').":</span><br />";
+            print "<span class='font-weight-bold'>" . xlt('Secondary Insurance Data') . ":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
-            print "<span class='font-weight-bold'>".xlt('Tertiary Insurance Data').":</span><br />";
+            print "<span class='font-weight-bold'>" . xlt('Tertiary Insurance Data') . ":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
             echo "</div>";
         } elseif ($val == "billing") {
             echo "<hr />";
             echo "<div class='text billing'>";
-            print "<h1>".xlt('Billing Information').":</h1>";
+            print "<h1>" . xlt('Billing Information') . ":</h1>";
             if ((!empty($ar['newpatient'])) && (count($ar['newpatient']) > 0)) {
                 $billings = array();
                 echo "<table>";
-                echo "<tr><td width='400' class='font-weight-bold'>" . xlt('Code') . "</td><td class='font-weight-bold'>".xlt('Fee')."</td></tr>\n";
+                echo "<tr><td width='400' class='font-weight-bold'>" . xlt('Code') . "</td><td class='font-weight-bold'>" . xlt('Fee') . "</td></tr>\n";
                 $total = 0.00;
                 $copays = 0.00;
                 foreach ($ar['newpatient'] as $be) {
@@ -676,7 +678,7 @@ foreach ($ar as $key => $val) {
                     foreach ($billing as $b) {
                         echo "<tr>\n";
                         echo "<td class='text'>";
-                        echo text($b['code_type']) . ":\t" . text($b['code']) . "&nbsp;". text($b['modifier']) . "&nbsp;&nbsp;&nbsp;" . text($b['code_text']) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                        echo text($b['code_type']) . ":\t" . text($b['code']) . "&nbsp;" . text($b['modifier']) . "&nbsp;&nbsp;&nbsp;" . text($b['code_text']) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
                         echo "</td>\n";
                         echo "<td class='text'>";
                         echo text(oeFormatMoney($b['fee']));
@@ -690,9 +692,9 @@ foreach ($ar as $key => $val) {
                 }
 
                 echo "<tr><td>&nbsp;</td></tr>";
-                echo "<tr><td class='font-weight-bold'>".xlt('Sub-Total')."</td><td class='text'>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
-                echo "<tr><td class='font-weight-bold'>".xlt('Paid')."</td><td class='text'>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
-                echo "<tr><td class='font-weight-bold'>".xlt('Total')."</td><td class='text'>" . text(oeFormatMoney($total)) . "</td></tr>";
+                echo "<tr><td class='font-weight-bold'>" . xlt('Sub-Total') . "</td><td class='text'>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
+                echo "<tr><td class='font-weight-bold'>" . xlt('Paid') . "</td><td class='text'>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
+                echo "<tr><td class='font-weight-bold'>" . xlt('Total') . "</td><td class='text'>" . text(oeFormatMoney($total)) . "</td></tr>";
                 echo "</table>";
                 echo "<pre>";
                 //print_r($billings);
@@ -725,23 +727,23 @@ foreach ($ar as $key => $val) {
             //if (AclMain::aclCheckCore('patients', 'med')) {
                 echo "<hr />";
                 echo "<div class='text immunizations'>\n";
-                print "<h1>".xlt('Patient Immunization').":</h1>";
-                $sql = "select i1.immunization_id, i1.administered_date, substring(i1.note,1,20) as immunization_note, c.code_text_short ".
-                   " from immunizations i1 ".
-                   " left join code_types ct on ct.ct_key = 'CVX' ".
-                   " left join codes c on c.code_type = ct.ct_id AND i1.cvx_code = c.code ".
-                   " where i1.patient_id = ? and i1.added_erroneously = 0 ".
+                print "<h1>" . xlt('Patient Immunization') . ":</h1>";
+                $sql = "select i1.immunization_id, i1.administered_date, substring(i1.note,1,20) as immunization_note, c.code_text_short " .
+                   " from immunizations i1 " .
+                   " left join code_types ct on ct.ct_key = 'CVX' " .
+                   " left join codes c on c.code_type = ct.ct_id AND i1.cvx_code = c.code " .
+                   " where i1.patient_id = ? and i1.added_erroneously = 0 " .
                    " order by administered_date desc";
                 $result = sqlStatement($sql, [$pid]);
-            while ($row=sqlFetchArray($result)) {
+            while ($row = sqlFetchArray($result)) {
               // Figure out which name to use (ie. from cvx list or from the custom list)
                 if ($GLOBALS['use_custom_immun_list']) {
-                     $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
+                     $vaccine_display = generate_display_field(array('data_type' => '1','list_id' => 'immunizations'), $row['immunization_id']);
                 } else {
                     if (!empty($row['code_text_short'])) {
                         $vaccine_display = xlt($row['code_text_short']);
                     } else {
-                         $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
+                         $vaccine_display = generate_display_field(array('data_type' => '1','list_id' => 'immunizations'), $row['immunization_id']);
                     }
                 }
 
@@ -760,25 +762,25 @@ foreach ($ar as $key => $val) {
         } elseif ($val == "batchcom") {
             echo "<hr />";
             echo "<div class='text transactions'>\n";
-            print "<h1>".xlt('Patient Communication sent').":</h1>";
-            $sql="SELECT concat( 'Messsage Type: ', batchcom.msg_type, ', Message Subject: ', batchcom.msg_subject, ', Sent on:', batchcom.msg_date_sent ) AS batchcom_data, batchcom.msg_text, concat( users.fname, users.lname ) AS user_name FROM `batchcom` JOIN `users` ON users.id = batchcom.sent_by WHERE batchcom.patient_id=?";
+            print "<h1>" . xlt('Patient Communication sent') . ":</h1>";
+            $sql = "SELECT concat( 'Messsage Type: ', batchcom.msg_type, ', Message Subject: ', batchcom.msg_subject, ', Sent on:', batchcom.msg_date_sent ) AS batchcom_data, batchcom.msg_text, concat( users.fname, users.lname ) AS user_name FROM `batchcom` JOIN `users` ON users.id = batchcom.sent_by WHERE batchcom.patient_id=?";
             // echo $sql;
             $result = sqlStatement($sql, [$pid]);
-            while ($row=sqlFetchArray($result)) {
-                echo text($row['batchcom_data']).", " . xlt('By') . ": ".text($row['user_name'])."<br />" . xlt('Text') . ":<br /> ".text($row['msg_txt'])."<br />\n";
+            while ($row = sqlFetchArray($result)) {
+                echo text($row['batchcom_data']) . ", " . xlt('By') . ": " . text($row['user_name']) . "<br />" . xlt('Text') . ":<br /> " . text($row['msg_txt']) . "<br />\n";
             }
 
             echo "</div>\n";
         } elseif ($val == "notes") {
             echo "<hr />";
             echo "<div class='text notes'>\n";
-            print "<h1>".xlt('Patient Notes').":</h1>";
+            print "<h1>" . xlt('Patient Notes') . ":</h1>";
             printPatientNotes($pid);
             echo "</div>";
         } elseif ($val == "transactions") {
             echo "<hr />";
             echo "<div class='text transactions'>\n";
-            print "<h1>".xlt('Patient Transactions').":</h1>";
+            print "<h1>" . xlt('Patient Transactions') . ":</h1>";
             printPatientTransactions($pid);
             echo "</div>";
         }
@@ -797,7 +799,7 @@ foreach ($ar as $key => $val) {
                 $d = new Document($document_id);
                 $fname = basename($d->get_url());
                 $extension = substr($fname, strrpos($fname, "."));
-                echo "<h1>" . xlt('Document') . " '" . text($fname) ."'</h1>";
+                echo "<h1>" . xlt('Document') . " '" . text($fname) . "'</h1>";
 
                 $notes = $d->get_notes();
                 if (!empty($notes)) {
@@ -824,10 +826,10 @@ foreach ($ar as $key => $val) {
                     if ($PDF_OUTPUT) {
                         // OK to link to the image file because it will be accessed by the
                         // mPDF parser and not the browser.
-                        $tempDocC = new C_Document;
+                        $tempDocC = new C_Document();
                         $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                         // tmp file in ../documents/temp since need to be available via webroot
-                        $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'].'/documents/temp', "oer");
+                        $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
                         file_put_contents($from_file_tmp_web_name, $fileTemp);
                         echo "<img src='$from_file_tmp_web_name'";
                         // Flag images with excessive width for possible stylesheet action.
@@ -851,7 +853,7 @@ foreach ($ar as $key => $val) {
                         $pdf->writeHTML($content); // catch up with buffer.
                         $err = '';
                         try {
-                            $tempDocC = new C_Document;
+                            $tempDocC = new C_Document();
                             $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                             // tmp file in temporary_files_dir
                             $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
@@ -870,9 +872,9 @@ foreach ($ar as $key => $val) {
                             unlink($from_file_tmp_name);
                             $archive_name = ($GLOBALS['temporary_files_dir'] . '/' . report_basename($pid)['base'] . ".zip");
                             $rtn = zip_content(basename($d->url), $archive_name, $pdfTemp);
-                            $err = "<span>" . xlt('PDF Document Parse Error and not included. Check if included in archive.') . " : " . text($fname) ."</span>";
+                            $err = "<span>" . xlt('PDF Document Parse Error and not included. Check if included in archive.') . " : " . text($fname) . "</span>";
                             $pdf->writeHTML($err);
-                            $staged_docs[] = array('path'=>$d->url, 'fname'=>$fname);
+                            $staged_docs[] = array('path' => $d->url, 'fname' => $fname);
                         } finally {
                             unlink($from_file_tmp_name);
                             // Make sure whatever follows is on a new page. Maybe!
@@ -887,10 +889,10 @@ foreach ($ar as $key => $val) {
                     } else {
                         if ($PDF_OUTPUT) {
                             // OK to link to the image file because it will be accessed by the mPDF parser and not the browser.
-                            $tempDocC = new C_Document;
+                            $tempDocC = new C_Document();
                             $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, false, true, true);
                             // tmp file in ../documents/temp since need to be available via webroot
-                            $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'].'/documents/temp', "oer");
+                            $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
                             file_put_contents($from_file_tmp_web_name, $fileTemp);
                             echo "<img src='$from_file_tmp_web_name'><br /><br />";
                             $tmp_files_remove[] = $from_file_tmp_web_name;
@@ -923,7 +925,7 @@ foreach ($ar as $key => $val) {
                 $prevIssueType = 'asdf1234!@#$'; // random junk so as to not match anything
                 $first_issue = 0;
                 echo "<hr />";
-                echo "<h1>".xlt("Issues")."</h1>";
+                echo "<h1>" . xlt("Issues") . "</h1>";
             }
 
             preg_match('/^(.*)_(\d+)$/', $key, $res);
@@ -944,11 +946,11 @@ foreach ($ar as $key => $val) {
             // Show issue's chief diagnosis and its description:
             if ($diagnosis) {
                 echo "<div class='text issue_diag'>";
-                echo "<span class='bold'>[".xlt('Diagnosis')."]</span><br />";
+                echo "<span class='bold'>[" . xlt('Diagnosis') . "]</span><br />";
                 $dcodes = explode(";", $diagnosis);
                 foreach ($dcodes as $dcode) {
-                    echo "<span class='italic'>".text($dcode)."</span>: ";
-                    echo lookup_code_descriptions($dcode)."<br />\n";
+                    echo "<span class='italic'>" . text($dcode) . "</span>: ";
+                    echo lookup_code_descriptions($dcode) . "<br />\n";
                 }
 
                 //echo $diagnosis." -- ".lookup_code_descriptions($diagnosis)."\n";
@@ -994,7 +996,7 @@ foreach ($ar as $key => $val) {
                 echo "(" . text(oeFormatSDFT(strtotime($dateres["date"]))) . ") ";
                 if ($res[1] == 'newpatient') {
                     // display the provider info
-                    echo ' '. xlt('Provider') . ': ' . text(getProviderName(getProviderIdOfEncounter($form_encounter)));
+                    echo ' ' . xlt('Provider') . ': ' . text(getProviderName(getProviderIdOfEncounter($form_encounter)));
                 }
 
                 echo "<br />\n";
@@ -1031,8 +1033,8 @@ foreach ($ar as $key => $val) {
                         "ORDER BY b.date",
                         array($pid, $form_encounter)
                     );
-                    while ($brow=sqlFetchArray($bres)) {
-                        echo "<span class='bold'>&nbsp;".xlt('Procedure').": </span><span class='text'>" .
+                    while ($brow = sqlFetchArray($bres)) {
+                        echo "<span class='bold'>&nbsp;" . xlt('Procedure') . ": </span><span class='text'>" .
                             text($brow['code']) . " " . text($brow['code_text']) . "</span><br />\n";
                     }
                 }

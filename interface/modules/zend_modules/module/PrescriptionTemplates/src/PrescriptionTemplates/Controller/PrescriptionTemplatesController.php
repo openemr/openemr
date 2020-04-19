@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright (C) 2018 Amiel Elboim <amielel@matrix.co.il>
  *
@@ -17,7 +18,6 @@
  * @author  Amiel Elboim <amielel@matrix.co.il>
  * @link    http://www.open-emr.org
  */
-
 
 namespace PrescriptionTemplates\Controller;
 

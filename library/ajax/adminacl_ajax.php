@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file contains functions that service ajax requests for
  * ACL(php-gacl) administration within OpenEMR. All returns are

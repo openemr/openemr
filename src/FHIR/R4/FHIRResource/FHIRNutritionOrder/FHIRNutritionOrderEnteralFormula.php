@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRNutritionOrder;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRNutritionOrder;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -344,7 +346,7 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
                         $this->addAdministration($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"administration" must be array of objects or null, '.gettype($data['administration']).' seen.');
+                    throw new \InvalidArgumentException('"administration" must be array of objects or null, ' . gettype($data['administration']) . ' seen.');
                 }
             }
             if (isset($data['maxVolumeToDeliver'])) {
@@ -354,7 +356,7 @@ class FHIRNutritionOrderEnteralFormula extends FHIRBackboneElement implements \J
                 $this->setAdministrationInstruction($data['administrationInstruction']);
             }
         } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

@@ -25,9 +25,9 @@ namespace ESign;
  * @link    http://www.open-emr.org
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/DbRow/Signable.php';
-require_once $GLOBALS['srcdir'].'/ESign/SignableIF.php';
-require_once $GLOBALS['srcdir'].'/ESign/Form/Factory.php';
+require_once $GLOBALS['srcdir'] . '/ESign/DbRow/Signable.php';
+require_once $GLOBALS['srcdir'] . '/ESign/SignableIF.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Form/Factory.php';
 
 class Encounter_Signable extends DbRow_Signable implements SignableIF
 {
@@ -56,7 +56,7 @@ class Encounter_Signable extends DbRow_Signable implements SignableIF
         while ($encRow = sqlFetchArray($res)) {
             $formFactory = new Form_Factory($encRow['id'], $encRow['formdir'], $this->_encounterId);
             $signable = $formFactory->createSignable();
-            $data[]= $signable->getData();
+            $data[] = $signable->getData();
         }
 
         return $data;

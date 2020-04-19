@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCareTeam;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCareTeam;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -196,7 +198,7 @@ class FHIRCareTeamParticipant extends FHIRBackboneElement implements \JsonSerial
                         $this->addRole($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"role" must be array of objects or null, '.gettype($data['role']).' seen.');
+                    throw new \InvalidArgumentException('"role" must be array of objects or null, ' . gettype($data['role']) . ' seen.');
                 }
             }
             if (isset($data['member'])) {
@@ -209,7 +211,7 @@ class FHIRCareTeamParticipant extends FHIRBackboneElement implements \JsonSerial
                 $this->setPeriod($data['period']);
             }
         } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

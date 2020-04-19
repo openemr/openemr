@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRObservation;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRObservation;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -257,7 +259,7 @@ class FHIRObservationReferenceRange extends FHIRBackboneElement implements \Json
                         $this->addAppliesTo($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"appliesTo" must be array of objects or null, '.gettype($data['appliesTo']).' seen.');
+                    throw new \InvalidArgumentException('"appliesTo" must be array of objects or null, ' . gettype($data['appliesTo']) . ' seen.');
                 }
             }
             if (isset($data['age'])) {
@@ -267,7 +269,7 @@ class FHIRObservationReferenceRange extends FHIRBackboneElement implements \Json
                 $this->setText($data['text']);
             }
         } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

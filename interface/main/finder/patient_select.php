@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient selector screen.
  *
@@ -8,7 +9,6 @@
  * @link http://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
@@ -197,7 +197,7 @@ if ($popup) {
                 array_push($sqlBindArray, DateToYYYYMMDD($value));
             } else {
                 $where .= " AND " . escape_sql_column_name($field_id, array('patient_data')) . " LIKE ?";
-                array_push($sqlBindArray, $value."%");
+                array_push($sqlBindArray, $value . "%");
             }
 
             echo "<input type='hidden' name='" . attr($field_id) .
@@ -253,7 +253,7 @@ if ($popup) {
     echo "<input type='hidden' name='numerator_label' value='" . attr($numerator_label) . "' />\n";
     $pass_id = isset($_REQUEST['pass_id']) ? $_REQUEST['pass_id'] : "all";
     echo "<input type='hidden' name='pass_id' value='" . attr($pass_id) . "' />\n";
-    $print_patients = isset($_REQUEST['print_patients'])? $_REQUEST['print_patients'] : 0;
+    $print_patients = isset($_REQUEST['print_patients']) ? $_REQUEST['print_patients'] : 0;
     echo "<input type='hidden' name='print_patients' value='" . attr($print_patients) . "' />\n";
 
   // Collect patient listing from cdr report
@@ -279,11 +279,11 @@ if ($popup) {
     if ($findBy == "Last") {
         $result = getPatientLnames($patient, $given, $orderby, $sqllimit, $fstart);
     } else if ($findBy == "ID") {
-        $result = getPatientId($patient, $given, "id ASC, ".$orderby, $sqllimit, $fstart);
+        $result = getPatientId($patient, $given, "id ASC, " . $orderby, $sqllimit, $fstart);
     } else if ($findBy == "DOB") {
-        $result = getPatientDOB(DateToYYYYMMDD($patient), $given, "DOB ASC, ".$orderby, $sqllimit, $fstart);
+        $result = getPatientDOB(DateToYYYYMMDD($patient), $given, "DOB ASC, " . $orderby, $sqllimit, $fstart);
     } else if ($findBy == "SSN") {
-        $result = getPatientSSN($patient, $given, "ss ASC, ".$orderby, $sqllimit, $fstart);
+        $result = getPatientSSN($patient, $given, "ss ASC, " . $orderby, $sqllimit, $fstart);
     } elseif ($findBy == "Phone") {                  //(CHEMED) Search by phone number
         $result = getPatientPhone($patient, $given, $orderby, $sqllimit, $fstart);
     } else if ($findBy == "Any") {
@@ -439,20 +439,20 @@ if ($result) {
         //other phone number display setup for tooltip
         $phone_biz = '';
         if ($iter["phone_biz"] != "") {
-            $phone_biz = " [business phone ".$iter["phone_biz"]."] ";
+            $phone_biz = " [business phone " . $iter["phone_biz"] . "] ";
         }
 
         $phone_contact = '';
         if ($iter["phone_contact"] != "") {
-            $phone_contact = " [contact phone ".$iter["phone_contact"]."] ";
+            $phone_contact = " [contact phone " . $iter["phone_contact"] . "] ";
         }
 
         $phone_cell = '';
         if ($iter["phone_cell"] != "") {
-            $phone_cell = " [cell phone ".$iter["phone_cell"]."] ";
+            $phone_cell = " [cell phone " . $iter["phone_cell"] . "] ";
         }
 
-        $all_other_phones = $phone_biz.$phone_contact.$phone_cell;
+        $all_other_phones = $phone_biz . $phone_contact . $phone_cell;
         if ($all_other_phones == '') {
             $all_other_phones = xl('No other phone numbers listed');
         }
@@ -477,7 +477,7 @@ if ($result) {
             $encounter_count = 0;
             $day_diff = '';
             $last_date_seen = '';
-            $next_appt_date= '';
+            $next_appt_date = '';
             $pid = '';
 
           // calculate date differences based on date of last encounter with billing entries
@@ -490,13 +490,13 @@ if ($result) {
                   " day) as next_appt_day from form_encounter " .
                   "join billing on billing.encounter = form_encounter.encounter and " .
                   "billing.pid = form_encounter.pid and billing.activity = 1 and " .
-                  "billing.code_type not like 'COPAY' where ".
+                  "billing.code_type not like 'COPAY' where " .
                   "form_encounter.pid = ?";
-            $statement= sqlStatement($query, array($iter["pid"]));
+            $statement = sqlStatement($query, array($iter["pid"]));
             if ($results = sqlFetchArray($statement)) {
                 $last_date_seen = $results['mydate'];
                 $day_diff = $results['day_diff'];
-                $next_appt_date= xl($results['next_appt_day']).', '.oeFormatShortDate($results['next_appt']);
+                $next_appt_date = xl($results['next_appt_day']) . ', ' . oeFormatShortDate($results['next_appt']);
             }
 
           // calculate date differences based on date of last encounter regardless of billing
@@ -508,29 +508,29 @@ if ($result) {
                   escape_limit($add_days) .
                   " day) as next_appt_day from form_encounter " .
                   " where form_encounter.pid = ?";
-            $statement= sqlStatement($query, array($iter["pid"]));
+            $statement = sqlStatement($query, array($iter["pid"]));
             if ($results = sqlFetchArray($statement)) {
                 $last_date_seen = $results['mydate'];
                 $day_diff = $results['day_diff'];
-                $next_appt_date= xl($results['next_appt_day']).', '.oeFormatShortDate($results['next_appt']);
+                $next_appt_date = xl($results['next_appt_day']) . ', ' . oeFormatShortDate($results['next_appt']);
             }
 
           //calculate count of encounters by distinct billing dates with cpt4
           //entries
             $query = "select count(distinct date) as encounter_count " .
-                   " from billing ".
+                   " from billing " .
                    " where code_type not like 'COPAY' and activity = 1 " .
                    " and pid = ?";
-            $statement= sqlStatement($query, array($iter["pid"]));
+            $statement = sqlStatement($query, array($iter["pid"]));
             if ($results = sqlFetchArray($statement)) {
                 $encounter_count_billed = $results['encounter_count'];
             }
 
           // calculate count of encounters, regardless of billing
-            $query = "select count(date) as encounter_count ".
-                      " from form_encounter where ".
+            $query = "select count(date) as encounter_count " .
+                      " from form_encounter where " .
                       " pid = ?";
-            $statement= sqlStatement($query, array($iter["pid"]));
+            $statement = sqlStatement($query, array($iter["pid"]));
             if ($results = sqlFetchArray($statement)) {
                 $encounter_count = $results['encounter_count'];
             }

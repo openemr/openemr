@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This script Assign acl 'Emergency login'.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/auth.inc");
@@ -60,8 +60,8 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 $alertmsg = '';
 $bg_msg = '';
-$set_active_msg=0;
-$show_message=0;
+$set_active_msg = 0;
+$show_message = 0;
 
 /* Sending a mail to the admin when the breakglass user is activated only if $GLOBALS['Emergency_Login_email'] is set to 1 */
 if (is_array($_POST['access_group'])) {
@@ -88,7 +88,7 @@ if (is_array($_POST['access_group'])) {
 }
 
 /* To refresh and save variables in mail frame */
-if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
+if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
     if ($_POST["mode"] == "update") {
         if (isset($_POST["username"])) {
             $user_data = sqlFetchArray(sqlStatement("select * from users where id= ? ", array($_POST["id"])));
@@ -185,17 +185,17 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
         "calendar = ?, see_auth = ? WHERE " .
         "id = ? ", array($tqvar, $actvar, $calvar, $_POST['see_auth'], $_POST["id"]));
       //Display message when Emergency Login user was activated
-        $bg_count=count($_POST['access_group']);
-        for ($i=0; $i<$bg_count; $i++) {
+        $bg_count = count($_POST['access_group']);
+        for ($i = 0; $i < $bg_count; $i++) {
             if (($_POST['access_group'][$i] == "Emergency Login") && ($_POST['pre_active'] == 0) && ($actvar == 1)) {
                 $show_message = 1;
             }
         }
 
         if (($_POST['access_group'])) {
-            for ($i=0; $i<$bg_count; $i++) {
+            for ($i = 0; $i < $bg_count; $i++) {
                 if (($_POST['access_group'][$i] == "Emergency Login") && ($_POST['user_type']) == "" && ($_POST['check_acl'] == 1) && ($_POST['active']) != "") {
-                    $set_active_msg=1;
+                    $set_active_msg = 1;
                 }
             }
         }
@@ -255,7 +255,7 @@ if (isset($_POST["mode"])) {
         }
 
         if ($doit == true) {
-            $insertUserSQL=
+            $insertUserSQL =
             "insert into users set " .
             "username = '"         . add_escape_custom(trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))) .
             "', password = '"      . 'NoLongerUsed'                  .
@@ -294,7 +294,7 @@ if (isset($_POST["mode"])) {
                 trim((isset($_POST['rumple']) ? $_POST['rumple'] : ''))
             );
             error_log(errorLogEscape($authUtilsNewPassword->getErrorMessage()));
-            $alertmsg .=$authUtilsNewPassword->getErrorMessage();
+            $alertmsg .= $authUtilsNewPassword->getErrorMessage();
             if ($success) {
                 //set the facility name from the selected facility_id
                 sqlStatement(
@@ -325,14 +325,14 @@ if (isset($_POST["mode"])) {
                 }
             }
         } else {
-            $alertmsg .= xl('User'). ' ' . trim((isset($_POST['rumple']) ? $_POST['rumple'] : '')) . ' ' . xl('already exists.');
+            $alertmsg .= xl('User') . ' ' . trim((isset($_POST['rumple']) ? $_POST['rumple'] : '')) . ' ' . xl('already exists.');
         }
 
         if ($_POST['access_group']) {
-            $bg_count=count($_POST['access_group']);
-            for ($i=0; $i<$bg_count; $i++) {
+            $bg_count = count($_POST['access_group']);
+            for ($i = 0; $i < $bg_count; $i++) {
                 if ($_POST['access_group'][$i] == "Emergency Login") {
-                      $set_active_msg=1;
+                      $set_active_msg = 1;
                 }
             }
         }
@@ -479,12 +479,12 @@ function authorized_clicked() {
         <div class="col-12">
             <?php
             if ($set_active_msg == 1) {
-                echo "<div class='alert alert-danger'>".xlt('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation.')."</div><br />";
+                echo "<div class='alert alert-danger'>" . xlt('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation.') . "</div><br />";
             }
 
             if ($show_message == 1) {
-                echo "<div class='alert alert-danger'>".xlt('The following Emergency Login User is activated:')." "."<b>".text($_GET['fname'])."</b>"."</div><br />";
-                echo "<div class='alert alert-danger'>".xlt('Emergency Login activation email will be circulated only if following settings in the interface/globals.php file are configured:')." \$GLOBALS['Emergency_Login_email'], \$GLOBALS['Emergency_Login_email_id']</div>";
+                echo "<div class='alert alert-danger'>" . xlt('The following Emergency Login User is activated:') . " " . "<b>" . text($_GET['fname']) . "</b>" . "</div><br />";
+                echo "<div class='alert alert-danger'>" . xlt('Emergency Login activation email will be circulated only if following settings in the interface/globals.php file are configured:') . " \$GLOBALS['Emergency_Login_email'], \$GLOBALS['Emergency_Login_email_id']</div>";
             }
 
             ?>
@@ -540,16 +540,16 @@ function authorized_clicked() {
                                 $current_date = date("Y-m-d");
                                 $userSecure = privQuery("SELECT `last_update_password` FROM `users_secure` WHERE `id` = ?", [$iter['id']]);
                                 $pwd_expires = date("Y-m-d", strtotime($userSecure['last_update_password'] . "+" . $GLOBALS['password_expiration_days'] . " days"));
-                                $grace_time = date("Y-m-d", strtotime($pwd_expires . "+".$GLOBALS['password_grace_time'] ." days"));
+                                $grace_time = date("Y-m-d", strtotime($pwd_expires . "+" . $GLOBALS['password_grace_time'] . " days"));
                             }
 
                             print "<tr>
                                 <td><b><a href='user_admin.php?id=" . attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) .
-                                "' class='medium_modal' onclick='top.restoreSession()'>" . text($iter["username"]) . "</a></b>" ."&nbsp;</td>
-                                <td>" . text($iter["fname"]) . ' ' . text($iter["lname"]) ."&nbsp;</td>
+                                "' class='medium_modal' onclick='top.restoreSession()'>" . text($iter["username"]) . "</a></b>" . "&nbsp;</td>
+                                <td>" . text($iter["fname"]) . ' ' . text($iter["lname"]) . "&nbsp;</td>
                                 <td>" . text($iter["info"]) . "&nbsp;</td>
-                                <td align='left'><span>" .text($iter["authorized"]) . "</td>
-                                <td align='left'><span>" .text($isMfa) . "</td>";
+                                <td align='left'><span>" . text($iter["authorized"]) . "</td>
+                                <td align='left'><span>" . text($isMfa) . "</td>";
                             if ($checkPassExp) {
                                 echo '<td>';
                                 if (AuthUtils::useActiveDirectory($iter["username"])) {
@@ -580,12 +580,12 @@ function authorized_clicked() {
                 foreach ($result5 as $iter) {
                     $grouplist[$iter["name"]] .= text($iter["user"]) .
                         "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
-                        attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) ."' onclick='top.restoreSession()'>" . xlt('Remove') . "</a>), ";
+                        attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt('Remove') . "</a>), ";
                 }
 
                 foreach ($grouplist as $groupname => $list) {
                     print "<span class='bold'>" . text($groupname) . "</span><br />\n<span>" .
-                        substr($list, 0, strlen($list)-2) . "</span><br />\n";
+                        substr($list, 0, strlen($list) - 2) . "</span><br />\n";
                 }
             }
             ?>

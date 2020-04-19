@@ -1,4 +1,5 @@
 <?php
+
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
@@ -15,7 +16,7 @@ if (!empty($_GET['site'])) {
 }
 
 if (empty($site_id) || preg_match('/[^A-Za-z0-9\\-.]/', $site_id)) {
-    die("Site ID '".htmlspecialchars($site_id, ENT_NOQUOTES)."' contains invalid characters.");
+    die("Site ID '" . htmlspecialchars($site_id, ENT_NOQUOTES) . "' contains invalid characters.");
 }
 
 require_once "sites/$site_id/sqlconf.php";

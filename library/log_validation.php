@@ -1,4 +1,5 @@
 <?php
+
 /**
  * library/log_validation.php to validate audit logs tamper resistance.
  *
@@ -19,7 +20,6 @@
  * @author  Visolve <services@visolve.com>
  * @link    https://www.open-emr.org
  */
-
 
 require_once("../interface/globals.php");
 

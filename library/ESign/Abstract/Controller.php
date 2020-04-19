@@ -25,8 +25,8 @@ namespace ESign;
  * @link    https://www.open-emr.org
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/Viewer.php';
-require_once $GLOBALS['srcdir'].'/ESign/ViewableIF.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Viewer.php';
+require_once $GLOBALS['srcdir'] . '/ESign/ViewableIF.php';
 
 abstract class Abstract_Controller implements ViewableIF
 {
@@ -44,7 +44,7 @@ abstract class Abstract_Controller implements ViewableIF
     {
         $this->_request = $request;
         $this->_method = $this->_request->getParam('method');
-        $this->_viewDir = $GLOBALS['srcdir']."/ESign/views";
+        $this->_viewDir = $GLOBALS['srcdir'] . "/ESign/views";
         $this->_viewScript = 'esign_error.php';
         $this->_view = new Viewer();
     }
@@ -79,7 +79,7 @@ abstract class Abstract_Controller implements ViewableIF
     
     public function getViewScript()
     {
-        return $this->_viewDir.DIRECTORY_SEPARATOR.$this->_viewScript;
+        return $this->_viewDir . DIRECTORY_SEPARATOR . $this->_viewScript;
     }
     
     public function run()
@@ -87,7 +87,7 @@ abstract class Abstract_Controller implements ViewableIF
         if (method_exists($this, $this->_method)) {
             $this->{$this->_method}();
         } else {
-            throw new \Exception("The method ".$this->_method." does not exist and cannot be executed");
+            throw new \Exception("The method " . $this->_method . " does not exist and cannot be executed");
         }
     }
     

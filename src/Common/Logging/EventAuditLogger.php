@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class to log audited events - must be high performance
  *
@@ -13,7 +14,7 @@
 
 namespace OpenEMR\Common\Logging;
 
-use \DateTime;
+use DateTime;
 use OpenEMR\Common\Crypto\CryptoGen;
 use Waryway\PhpTraitsLibrary\Singleton;
 
@@ -152,7 +153,7 @@ MSG;
         }
 
         $adodb = $GLOBALS['adodb']['db'];
-        $crt_user=isset($_SERVER['SSL_CLIENT_S_DN_CN']) ?  $_SERVER['SSL_CLIENT_S_DN_CN'] : null;
+        $crt_user = isset($_SERVER['SSL_CLIENT_S_DN_CN']) ?  $_SERVER['SSL_CLIENT_S_DN_CN'] : null;
 
         $category = $event;
         // Special case delete for lists table
@@ -173,7 +174,7 @@ MSG;
             $sqlMenuItems = "SELECT * FROM patient_portal_menu";
 
             $resMenuItems = sqlStatement($sqlMenuItems);
-            for ($iter=0; $rowMenuItem=sqlFetchArray($resMenuItems); $iter++) {
+            for ($iter = 0; $rowMenuItem = sqlFetchArray($resMenuItems); $iter++) {
                 $menuItems[$rowMenuItem['patient_portal_menu_id']] = $rowMenuItem['menu_name'];
             }
 
@@ -184,25 +185,25 @@ MSG;
         } else {
             /* More details added to the log */
             $sql = "insert into log ( date, event,category, user, groupname, success, comments, crt_user, patient_id) " .
-                "values ( NOW(), " . $adodb->qstr($event) . ",". $adodb->qstr($category) . "," . $adodb->qstr($user) .
+                "values ( NOW(), " . $adodb->qstr($event) . "," . $adodb->qstr($category) . "," . $adodb->qstr($user) .
                 "," . $adodb->qstr($groupname) . "," . $adodb->qstr($success) . "," .
-                $adodb->qstr($comments) ."," .
-                $adodb->qstr($crt_user) ."," . $adodb->qstr($patient_id). ")";
+                $adodb->qstr($comments) . "," .
+                $adodb->qstr($crt_user) . "," . $adodb->qstr($patient_id) . ")";
 
             $ret = sqlInsertClean_audit($sql);
         }
 
         // Send item to log_comment_encrypt for comment encyption tracking
         $last_log_id = $GLOBALS['adodb']['db']->Insert_ID();
-        $encryptLogQry = "INSERT INTO log_comment_encrypt (log_id, encrypt, checksum, `version`) ".
-            " VALUES ( ".
+        $encryptLogQry = "INSERT INTO log_comment_encrypt (log_id, encrypt, checksum, `version`) " .
+            " VALUES ( " .
             $adodb->qstr($last_log_id) . "," .
             $adodb->qstr($encrypt_comment) . "," .
             "'', '3')";
         sqlInsertClean_audit($encryptLogQry);
 
-        if (($patient_id=="NULL") || ($patient_id==null)) {
-            $patient_id=0;
+        if (($patient_id == "NULL") || ($patient_id == null)) {
+            $patient_id = 0;
         }
 
         $this->sendAtnaAuditMsg($user, $groupname, $event, $patient_id, $success, $comments);
@@ -228,23 +229,23 @@ MSG;
 
         $date1 = date("Y-m-d H:i:s", time());
         if (isset($params['sdate']) && $params['sdate'] != "") {
-            $date1= $params['sdate'];
+            $date1 = $params['sdate'];
         }
 
         $date2 = date("Y-m-d H:i:s", time());
         if (isset($params['edate']) && $params['edate'] != "") {
-            $date2= $params['edate'];
+            $date2 = $params['edate'];
         }
 
         $user = "";
         if (isset($params['user']) && $params['user'] != "") {
-            $user= $params['user'];
+            $user = $params['user'];
         }
 
         //VicarePlus :: For Generating log with patient id.
         $patient = "";
         if (isset($params['patient']) && $params['patient'] != "") {
-            $patient= $params['patient'];
+            $patient = $params['patient'];
         }
 
         $sortby = "";
@@ -272,7 +273,7 @@ MSG;
             $event = $params['event'];
         }
 
-        if ($event!="") {
+        if ($event != "") {
             if ($sortby == "comments") {
                 $sortby = "description";
             }
@@ -345,14 +346,14 @@ MSG;
             }
 
             if ($sortby != "") {
-                $sql .= " ORDER BY " . escape_sql_column_name($sortby, array('log')) . "  ".escape_sort_order($direction); // descending order
+                $sql .= " ORDER BY " . escape_sql_column_name($sortby, array('log')) . "  " . escape_sort_order($direction); // descending order
             }
 
             $sql .= " LIMIT 5000";
         }
 
         $res = sqlStatement($sql, $sqlBindArray);
-        for ($iter=0; $row=sqlFetchArray($res); $iter++) {
+        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $all[$iter] = $row;
         }
 
@@ -384,37 +385,37 @@ MSG;
 
         $tokens = preg_split("/[\s,(\'\"]+/", $statement);
         /* Identifying the id for insert/replace statements for calculating the checksum */
-        if ((strcasecmp($tokens[0], "INSERT")==0) || (strcasecmp($tokens[0], "REPLACE")==0)) {
+        if ((strcasecmp($tokens[0], "INSERT") == 0) || (strcasecmp($tokens[0], "REPLACE") == 0)) {
             $table = $tokens[2];
             $rid = generic_sql_insert_id();
             /* For handling the table that doesn't have auto-increment column */
             if ($rid === 0 || $rid === false) {
                 if ($table == "gacl_aco_map" || $table == "gacl_aro_groups_map" || $table == "gacl_aro_map" || $table == "gacl_axo_groups_map" || $table == "gacl_axo_map") {
-                    $id="acl_id";
+                    $id = "acl_id";
                 } else if ($table == "gacl_groups_aro_map" || $table == "gacl_groups_axo_map") {
-                    $id="group_id";
+                    $id = "group_id";
                 } else {
-                    $id="id";
+                    $id = "id";
                 }
 
                 /* To handle insert statements */
                 if ($tokens[3] == $id) {
-                    for ($i=4; $i<count($tokens); $i++) {
-                        if (strcasecmp($tokens[$i], "VALUES")==0) {
-                            $rid=$tokens[$i+1];
+                    for ($i = 4; $i < count($tokens); $i++) {
+                        if (strcasecmp($tokens[$i], "VALUES") == 0) {
+                            $rid = $tokens[$i + 1];
                             break;
                         } // if close
                     } //for close
-                } else if (strcasecmp($tokens[3], "SET")==0) { //if close
+                } else if (strcasecmp($tokens[3], "SET") == 0) { //if close
                     /* To handle replace statements */
-                    if ((strcasecmp($tokens[4], "ID")==0) || (strcasecmp($tokens[4], "`ID`")==0)) {
-                        $rid=$tokens[6];
+                    if ((strcasecmp($tokens[4], "ID") == 0) || (strcasecmp($tokens[4], "`ID`") == 0)) {
+                        $rid = $tokens[6];
                     } // if close
                 } else {
                     return "";
                 }
             }
-        } else if (strcasecmp($tokens[0], "UPDATE")==0) { // Identifying the id for update statements for
+        } else if (strcasecmp($tokens[0], "UPDATE") == 0) { // Identifying the id for update statements for
             // calculating the checksum.
             $table = $tokens[1];
 
@@ -435,9 +436,9 @@ MSG;
             } else if ($table == "openemr_postcalendar_limits") {
                 $id = "pc_limitid";
             } else if ($table == "gacl_aco_map" || $table == "gacl_aro_groups_map" || $table == "gacl_aro_map" || $table == "gacl_axo_groups_map" || $table == "gacl_axo_map") {
-                $id="acl_id";
+                $id = "acl_id";
             } else if ($table == "gacl_groups_aro_map" || $table == "gacl_groups_axo_map") {
-                $id="group_id";
+                $id = "group_id";
             } else {
                 $id = "id";
             }
@@ -453,23 +454,23 @@ MSG;
                 $rid = "";
                 /*id=', '123'*/
                 if (($tokens[$offset] == "$id=") && ($offset + 1 < $total)) {
-                    $rid = $tokens[$offset+1];
+                    $rid = $tokens[$offset + 1];
                     break;
-                } else if ($tokens[$offset] == "$id" && $tokens[$offset+1] == "=" && ($offset+2 < $total)) {
+                } else if ($tokens[$offset] == "$id" && $tokens[$offset + 1] == "=" && ($offset + 2 < $total)) {
                     /* 'id', '=', '123' */
-                    $rid = $tokens[$offset+2];
+                    $rid = $tokens[$offset + 2];
                     break;
                 } else if (strpos($tokens[$offset], "$id=") === 0) { /*id=123*/
-                    $tid = substr($tokens[$offset], strlen($id)+1);
+                    $tid = substr($tokens[$offset], strlen($id) + 1);
                     if (is_numeric($tid)) {
-                        $rid=$tid;
+                        $rid = $tid;
                     }
 
                     break;
                 } else if ($tokens[$offset] == "$id") { /*'id', '=123' */
-                    $tid = substr($tokens[$offset+1], 1);
+                    $tid = substr($tokens[$offset + 1], 1);
                     if (is_numeric($tid)) {
-                        $rid=$tid;
+                        $rid = $tid;
                     }
 
                     break;
@@ -730,7 +731,8 @@ MSG;
 
         $statement = trim($statement);
 
-        if ((stripos($statement, "insert into log") !== false)  // avoid infinite loop
+        if (
+            (stripos($statement, "insert into log") !== false)  // avoid infinite loop
             || (stripos($statement, "FROM log ") !== false)     // avoid infinite loop
             || (strpos($statement, "sequences") !== false)      // Don't log sequences - to avoid the affect due to GenID calls
             || (stripos($statement, "SELECT count(") === 0)     // Skip SELECT count() statements.
@@ -858,8 +860,8 @@ MSG;
         $current_datetime = date("Y-m-d H:i:s");
         $SSL_CLIENT_S_DN_CN = $_SERVER['SSL_CLIENT_S_DN_CN'] ?? '';
         $sql = "insert into log (date, event,category, user, groupname, comments, patient_id, success, checksum,crt_user) " .
-            "values ( ".
-            $adodb->qstr($current_datetime). ", ".
+            "values ( " .
+            $adodb->qstr($current_datetime) . ", " .
             $adodb->qstr($event) . ", " .
             $adodb->qstr($category) . ", " .
             $adodb->qstr($user) . "," .
@@ -868,22 +870,22 @@ MSG;
             $adodb->qstr($pid) . "," .
             $adodb->qstr($success) . "," .
             $adodb->qstr($checksum) . "," .
-            $adodb->qstr($SSL_CLIENT_S_DN_CN) .")";
+            $adodb->qstr($SSL_CLIENT_S_DN_CN) . ")";
         sqlInsertClean_audit($sql);
 
         $last_log_id = $GLOBALS['adodb']['db']->Insert_ID();
         $checksumGenerate = '';
         //July 1, 2014: Ensoftek: Record the encryption checksum in a secondary table(log_comment_encrypt)
         if ($querytype == 'update') {
-            $concatLogColumns = $current_datetime.$event.$user.$group.$comments.$pid.$success.$checksum.$SSL_CLIENT_S_DN_CN;
+            $concatLogColumns = $current_datetime . $event . $user . $group . $comments . $pid . $success . $checksum . $SSL_CLIENT_S_DN_CN;
             $checksumGenerate = sha1($concatLogColumns);
         }
 
-        $encryptLogQry = "INSERT INTO log_comment_encrypt (log_id, encrypt, checksum, `version`) ".
-            " VALUES ( ".
+        $encryptLogQry = "INSERT INTO log_comment_encrypt (log_id, encrypt, checksum, `version`) " .
+            " VALUES ( " .
             $adodb->qstr($last_log_id) . "," .
             $adodb->qstr($encrypt_comment) . "," .
-            $adodb->qstr($checksumGenerate) .", '3')";
+            $adodb->qstr($checksumGenerate) . ", '3')";
         sqlInsertClean_audit($encryptLogQry);
 
         $this->sendAtnaAuditMsg($user, $group, $event, $pid, $success, $comments);
@@ -921,7 +923,7 @@ MSG;
             $comments .= " Disabled.";
         }
 
-        $SSL_CLIENT_S_DN_CN=isset($_SERVER['SSL_CLIENT_S_DN_CN']) ? $_SERVER['SSL_CLIENT_S_DN_CN'] : '';
+        $SSL_CLIENT_S_DN_CN = isset($_SERVER['SSL_CLIENT_S_DN_CN']) ? $_SERVER['SSL_CLIENT_S_DN_CN'] : '';
         $sql = "insert into log (date, event, user, groupname, comments, patient_id, success, checksum,crt_user) " .
             "values ( NOW(), " .
             $adodb->qstr($event) . ", " .
@@ -931,7 +933,7 @@ MSG;
             $adodb->qstr($pid) . "," .
             $adodb->qstr($success) . "," .
             $adodb->qstr($checksum) . "," .
-            $adodb->qstr($SSL_CLIENT_S_DN_CN) .")";
+            $adodb->qstr($SSL_CLIENT_S_DN_CN) . ")";
 
         sqlInsertClean_audit($sql);
         $this->sendAtnaAuditMsg($user, $group, $event, $pid, $success, $comments);
@@ -949,14 +951,14 @@ MSG;
     public function recordDisclosure($dates, $event, $pid, $recipient, $description, $user)
     {
         $adodb = $GLOBALS['adodb']['db'];
-        $crt_user= $_SERVER['SSL_CLIENT_S_DN_CN'];
-        $groupname=$_SESSION['authProvider'];
-        $success=1;
+        $crt_user = $_SERVER['SSL_CLIENT_S_DN_CN'];
+        $groupname = $_SESSION['authProvider'];
+        $success = 1;
         $sql = "insert into extended_log ( date, event, user, recipient, patient_id, description) " .
             "values (" . $adodb->qstr($dates) . "," . $adodb->qstr($event) . "," . $adodb->qstr($user) .
-            "," . $adodb->qstr($recipient) . ",".
-            $adodb->qstr($pid) ."," .
-            $adodb->qstr($description) .")";
+            "," . $adodb->qstr($recipient) . "," .
+            $adodb->qstr($pid) . "," .
+            $adodb->qstr($description) . ")";
         $ret = sqlInsertClean_audit($sql);
     }
 
@@ -971,7 +973,7 @@ MSG;
     public function updateRecordedDisclosure($dates, $event, $recipient, $description, $disclosure_id)
     {
         $adodb = $GLOBALS['adodb']['db'];
-        $sql="update extended_log set
+        $sql = "update extended_log set
                 event=" . $adodb->qstr($event) . ",
                 date=" .  $adodb->qstr($dates) . ",
                 recipient=" . $adodb->qstr($recipient) . ",

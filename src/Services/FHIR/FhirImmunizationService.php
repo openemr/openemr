@@ -137,7 +137,7 @@ class FhirImmunizationService
         $vaccineCode->addCoding($vaccineCodeCoding);
 
         $patient = new FHIRReference();
-        $patient->setReference('Patient/'.$data['patient_id']);
+        $patient->setReference('Patient/' . $data['patient_id']);
 
         $occurenceDateTime = new FHIRDateTime();
         $occurenceDateTime->setValue($data['administered_date']);
@@ -146,7 +146,7 @@ class FhirImmunizationService
         $recorded->setValue($data['create_date']);
 
         $manufacturer = new FHIRReference();
-        $manufacturer->setReference('Organization/'.$data['manufacturer']);
+        $manufacturer->setReference('Organization/' . $data['manufacturer']);
 
         $lotNumber = new FHIRString();
         $lotNumber->setValue($data['lot_number']);
@@ -179,7 +179,7 @@ class FhirImmunizationService
         $doseQuantity->setCode($data['amount_administered_unit']);
 
         $actor = new FHIRReference();
-        $actor->setReference($data['administered_by'].'/'.$data['administered_by_id']);
+        $actor->setReference($data['administered_by'] . '/' . $data['administered_by_id']);
         $function = new FHIRCodeableConcept();
         $functionCoding = new FHIRCoding();
         $functionCoding->setSystem("http://terminology.hl7.org/CodeSystem/v2-0443");

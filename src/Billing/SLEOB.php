@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This class has various billing functions for posting charges and payments.
  *

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This module creates statistical reports related to lab tests and
  * other procedure orders.
@@ -13,7 +14,6 @@
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
@@ -452,9 +452,11 @@ if ($_POST['form_submit']) {
             continue;
         }
 
-        if ($askey == 'regdate' || $askey == 'sex' || $askey == 'DOB' ||
-        $askey == 'lname' || $askey == 'fname' || $askey == 'mname' ||
-        $askey == 'contrastart' || $askey == 'referral_source') {
+        if (
+            $askey == 'regdate' || $askey == 'sex' || $askey == 'DOB' ||
+            $askey == 'lname' || $askey == 'fname' || $askey == 'mname' ||
+            $askey == 'contrastart' || $askey == 'referral_source'
+        ) {
             continue;
         }
 

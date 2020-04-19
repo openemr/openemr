@@ -1,4 +1,5 @@
 <?php
+
 /**
  * facilities_add.php
  *
@@ -235,10 +236,10 @@ function displayAlert() {
                     <div class="form-row custom-control custom-switch my-2">
                         <div class="col">
                         <?php
-                        $disabled='';
+                        $disabled = '';
                         $resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => $my_fid));
-                        if (!empty($resPBE) && sizeof($resPBE)>0) {
-                            $disabled='disabled';
+                        if (!empty($resPBE) && sizeof($resPBE) > 0) {
+                            $disabled = 'disabled';
                         }
                         ?>
                         <input type='checkbox' class='custom-control-input' name='primary_business_entity' id='primary_business_entity' value='1' <?php echo ($facility['primary_business_entity'] == 1) ? 'checked' : ''; ?>
@@ -262,7 +263,7 @@ function displayAlert() {
 
                         foreach ($pc->get_pos_ref() as $pos) {
                             echo "<option value=\"" . attr($pos["code"]) . "\" ";
-                            echo ">" . text($pos['code'])  . ": ". text($pos['title']);
+                            echo ">" . text($pos['code'])  . ": " . text($pos['title']);
                             echo "</option>\n";
                         }
 

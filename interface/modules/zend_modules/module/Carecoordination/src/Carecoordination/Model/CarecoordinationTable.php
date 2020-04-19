@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php
  *
@@ -10,19 +11,17 @@
  * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace Carecoordination\Model;
 
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use Application\Model\ApplicationTable;
 use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Laminas\XmlRpc\Generator;
-
 use DOMDocument;
 use DOMXpath;
-
 use Document;
 use CouchDB;
-
 use Documents\Model\DocumentsTable;
 
 class CarecoordinationTable extends AbstractTableGateway
@@ -241,19 +240,19 @@ class CarecoordinationTable extends AbstractTableGateway
         //documentationOf
         $doc_of_str = '';
         if (!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['prefix'])) {
-            $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['prefix']." ";
+            $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['prefix'] . " ";
         }
 
         if (!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['given'])) {
-            $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['given']." ";
+            $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['given'] . " ";
         }
 
         if (!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['family'])) {
-            $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['family']." ";
+            $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['family'] . " ";
         }
 
         if (!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['representedOrganization']['name'])) {
-            $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['representedOrganization']['name']." ";
+            $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['representedOrganization']['name'] . " ";
         }
 
         $this->ccda_data_array['field_name_value_array']['documentationOf'][1]['assignedPerson'] = $doc_of_str;
@@ -296,8 +295,10 @@ class CarecoordinationTable extends AbstractTableGateway
 
     public function fetch_allergy_value($allergy_array)
     {
-        if ($allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['code'] != ''
-            && $allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['code'] != 0) {
+        if (
+            $allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['code'] != ''
+            && $allergy_array['act']['entryRelationship']['observation']['participant']['participantRole']['playingEntity']['code']['code'] != 0
+        ) {
             $i = 1;
             // if there are already items here we want to add to them.
             if (!empty($this->ccda_data_array['field_name_value_array']['lists2'])) {
@@ -910,13 +911,13 @@ class CarecoordinationTable extends AbstractTableGateway
         }
         $this->ccda_data_array['field_name_value_array']['discharge_summary'][$i]['root'] = $discharge_summary_data['templateId']['root'];
                 $text =  preg_replace("/\s+/", " ", $discharge_summary_data['text']['content']);
-        for ($j=0; $j<count($discharge_summary_data['text']['list']['item']); $j++) {
+        for ($j = 0; $j < count($discharge_summary_data['text']['list']['item']); $j++) {
             if (is_array($discharge_summary_data['text']['list']['item'][$j])) {
-                for ($k=0; $k<count($discharge_summary_data['text']['list']['item'][$j]['list']['item']); $k++) {
-                    $text .= "#$%". preg_replace("/\s+/", " ", $discharge_summary_data['text']['list']['item'][$j]['list']['item'][$k]);
+                for ($k = 0; $k < count($discharge_summary_data['text']['list']['item'][$j]['list']['item']); $k++) {
+                    $text .= "#$%" . preg_replace("/\s+/", " ", $discharge_summary_data['text']['list']['item'][$j]['list']['item'][$k]);
                 }
             } else {
-                $text .= "#$%". preg_replace("/\s+/", " ", $discharge_summary_data['text']['list']['item'][$j]);
+                $text .= "#$%" . preg_replace("/\s+/", " ", $discharge_summary_data['text']['list']['item'][$j]);
             }
         }
 
@@ -1457,7 +1458,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_vitals['vitals'][$q]['weight'] = $data['vital_sign-weight'][$i];
                                 $q++;
                             } else if (substr($key, 0, -4) == 'social_history') {
-                                $tobacco = $data['social_history-tobacco_note'][$i]."|".
+                                $tobacco = $data['social_history-tobacco_note'][$i] . "|" .
                                                         $data['social_history-tobacco_status'][$i] . "|" .
                                                         \Application\Model\ApplicationTable::fixDate($data['social_history-tobacco_date'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy') . "|" . $data['social_history-tobacco_snomed'][$i];
                                                 $alcohol = $data['social_history-alcohol_note'][$i] . "|" .
@@ -1619,7 +1620,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                     $appTable->zQuery($query4, array((null),$data['pid'], $data['lists1_exist-list_id'][$i]));
                                 }
                             } elseif (substr($key, 0, -4) == 'lists2-con') {
-                                if ($data['lists2-begdate-con'][$i] !=0) {
+                                if ($data['lists2-begdate-con'][$i] != 0) {
                                     $allergy_begdate_value = \Application\Model\ApplicationTable::fixDate($data['lists2-begdate-con'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy');
                                 } elseif ($data['lists2-begdate-con'][$i] == 0) {
                                     $allergy_begdate = $data['lists2-begdate-con'][$i];
@@ -2200,7 +2201,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_prescriptions['lists3'][$b]['provider_state'] = $newdata['lists3']['provider_state'];
                 $arr_prescriptions['lists3'][$b]['provider_root'] = $newdata['lists3']['provider_root'];
                 $b++;
-            } elseif ($table == 'lists1' && $newdata['lists1']['list_code'] !=0) {
+            } elseif ($table == 'lists1' && $newdata['lists1']['list_code'] != 0) {
                 $arr_med_pblm['lists1'][$d]['extension'] = $newdata['lists1']['extension'];
                 $arr_med_pblm['lists1'][$d]['root'] = $newdata['lists1']['root'];
                 $arr_med_pblm['lists1'][$d]['begdate'] = $newdata['lists1']['begdate'];
@@ -2211,7 +2212,7 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_med_pblm['lists1'][$d]['observation_text'] = $newdata['lists1']['observation_text'];
                 $arr_med_pblm['lists1'][$d]['observation_code'] = $newdata['lists1']['observation'];
                 $d++;
-            } elseif ($table == 'lists2' && $newdata['lists2']['list_code'] !=0) {
+            } elseif ($table == 'lists2' && $newdata['lists2']['list_code'] != 0) {
                 $arr_allergies['lists2'][$c]['extension'] = $newdata['lists2']['extension'];
                 $arr_allergies['lists2'][$c]['begdate'] = $newdata['lists2']['begdate'];
                 $arr_allergies['lists2'][$c]['enddate'] = $newdata['lists2']['enddate'];
@@ -2553,7 +2554,7 @@ class CarecoordinationTable extends AbstractTableGateway
             if ($value['date'] != 0 && $revapprove == 0) {
                 $encounter_date = $this->formatDate($value['date'], 1);
                 $encounter_date_value = fixDate($encounter_date);
-            } elseif ($value['date'] != 0 && $revapprove==1) {
+            } elseif ($value['date'] != 0 && $revapprove == 1) {
                 $encounter_date_value = \Application\Model\ApplicationTable::fixDate($value['date'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             } elseif ($value['date'] == 0) {
                 $encounter_date = $value['date'];
@@ -2658,7 +2659,7 @@ class CarecoordinationTable extends AbstractTableGateway
             if ($value['date'] != 0 && $revapprove == 0) {
                 $vitals_date = $this->formatDate($value['date'], 1);
                 $vitals_date_value = fixDate($vitals_date);
-            } elseif ($value['date'] !=0 && $revapprove == 1) {
+            } elseif ($value['date'] != 0 && $revapprove == 1) {
                 $vitals_date_value = \Application\Model\ApplicationTable::fixDate($value['date'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             } elseif ($value['date'] == 0) {
                 $vitals_date = $value['date'];
@@ -3448,7 +3449,7 @@ class CarecoordinationTable extends AbstractTableGateway
             if ($value['begdate'] != 0 && $revapprove == 0) {
                 $allergy_begdate = $this->formatDate($value['begdate'], 1);
                 $allergy_begdate_value = fixDate($allergy_begdate);
-            } elseif ($value['begdate'] !=0 && $revapprove == 1) {
+            } elseif ($value['begdate'] != 0 && $revapprove == 1) {
                 $allergy_begdate_value = \Application\Model\ApplicationTable::fixDate($value['begdate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             } elseif ($value['begdate'] == 0) {
                 $allergy_begdate = $value['begdate'];
@@ -3459,7 +3460,7 @@ class CarecoordinationTable extends AbstractTableGateway
             if ($value['enddate'] != 0 && $revapprove == 0) {
                 $allergy_enddate = $this->formatDate($value['enddate'], 1);
                 $allergy_enddate_value = fixDate($allergy_enddate);
-            } elseif ($value['enddate'] !=0 && $revapprove == 1) {
+            } elseif ($value['enddate'] != 0 && $revapprove == 1) {
                 $allergy_enddate_value = \Application\Model\ApplicationTable::fixDate($value['enddate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             } elseif ($value['enddate'] == 0 || $value['enddate'] == '') {
                 $allergy_enddate = $value['enddate'];
@@ -3615,7 +3616,7 @@ class CarecoordinationTable extends AbstractTableGateway
             if ($value['begdate'] != 0 && $revapprove == 0) {
                 $med_pblm_begdate = $this->formatDate($value['begdate'], 1);
                 $med_pblm_begdate_value = fixDate($med_pblm_begdate);
-            } elseif ($value['begdate'] !=0 && $revapprove == 1) {
+            } elseif ($value['begdate'] != 0 && $revapprove == 1) {
                 $med_pblm_begdate_value = \Application\Model\ApplicationTable::fixDate($value['begdate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             } elseif ($value['begdate'] == 0) {
                 $med_pblm_begdate = $value['begdate'];
@@ -3626,7 +3627,7 @@ class CarecoordinationTable extends AbstractTableGateway
             if ($value['enddate'] != 0 && $revapprove == 0) {
                 $med_pblm_enddate = $this->formatDate($value['enddate'], 1);
                 $med_pblm_enddate_value = fixDate($med_pblm_enddate);
-            } elseif ($value['enddate'] !=0 && $revapprove == 1) {
+            } elseif ($value['enddate'] != 0 && $revapprove == 1) {
                 $med_pblm_enddate_value = \Application\Model\ApplicationTable::fixDate($value['enddate'], 'yyyy-mm-dd', 'dd/mm/yyyy');
             } elseif ($value['enddate'] == 0 || $value['enddate'] == '') {
                 $med_pblm_enddate = $value['enddate'];

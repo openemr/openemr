@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Collections report
  *
@@ -535,7 +536,7 @@ if ($_POST['form_csvexport']) {
                         <td>
                            <select name='form_ageby' class='form-control'>
                         <?php
-                        foreach (array( 'Service Date'=>xl('Service Date'), 'Last Activity Date'=>xl('Last Activity Date')) as $key => $value) {
+                        foreach (array( 'Service Date' => xl('Service Date'), 'Last Activity Date' => xl('Last Activity Date')) as $key => $value) {
                             echo "    <option value='" . attr($key) . "'";
                             if ($_POST['form_ageby'] == $value) {
                                 echo " selected";
@@ -554,7 +555,7 @@ if ($_POST['form_csvexport']) {
                         <?php  # Build a drop-down list of providers.
                                # Added (TLH)
 
-                               $query = "SELECT id, lname, fname FROM users WHERE ".
+                               $query = "SELECT id, lname, fname FROM users WHERE " .
                                "authorized = 1  ORDER BY lname, fname"; #(CHEMED) facility filter
 
                                $ures = sqlStatement($query);
@@ -648,7 +649,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
              $newkey = $key_newval['pid'];
              $newencounter =  $key_newval['encounter'];
              # added this condition to handle the downloading of individual invoices (TLH)
-            if ($_POST['form_individual'] ==1) {
+            if ($_POST['form_individual'] == 1) {
                 $where .= " OR f.encounter = ? ";
                 array_push($sqlArray, $newencounter);
             } else {
@@ -667,10 +668,10 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
 
         if ($form_to_date) {
             $where .= "f.date >= ? AND f.date <= ? ";
-            array_push($sqlArray, $form_date.' 00:00:00', $form_to_date.' 23:59:59');
+            array_push($sqlArray, $form_date . ' 00:00:00', $form_to_date . ' 23:59:59');
         } else {
             $where .= "f.date >= ? AND f.date <= ? ";
-            array_push($sqlArray, $form_date.' 00:00:00', $form_date.' 23:59:59');
+            array_push($sqlArray, $form_date . ' 00:00:00', $form_date . ' 23:59:59');
         }
     }
 
@@ -734,7 +735,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
         $pt_balance = 0 + sprintf("%.2f", $pt_balance); // yes this seems to be necessary
         $svcdate = substr($erow['date'], 0, 10);
 
-        if ($form_cb_with_debt && $pt_balance<=0) {
+        if ($form_cb_with_debt && $pt_balance <= 0) {
             unset($erow);
             continue;
         }
@@ -1122,10 +1123,10 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
             <?php
             if ($ptrow['count'] == 1) {
                 if ($is_due_ins) {
-                    echo "  <td class='detail'>&nbsp;" . text($insname) ."</td>\n";
+                    echo "  <td class='detail'>&nbsp;" . text($insname) . "</td>\n";
                 }
 
-                echo "  <td class='detail'>&nbsp;" . text($ptname) ."</td>\n";
+                echo "  <td class='detail'>&nbsp;" . text($ptname) . "</td>\n";
                 if ($form_cb_ssn) {
                     echo "  <td class='detail'>&nbsp;" . text($row['ss']) . "</td>\n";
                 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Lookup past and current dx codes (favorites)
  * (Temporary rest test interface until add a model)

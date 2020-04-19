@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Encounter form report function.
  *
@@ -13,8 +14,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-require_once(dirname(__file__)."/../../globals.php");
+require_once(dirname(__file__) . "/../../globals.php");
 require_once("$srcdir/group.inc");
 
 use OpenEMR\Common\Acl\AclMain;
@@ -27,7 +27,7 @@ function newGroupEncounter_report($group_id, $encounter, $cols, $id)
         print "<span class=bold>" . xlt('Facility') . ": </span><span class=text>" . text($result["facility"]) . "</span><br />\n";
         if (AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) {
             print "<span class=bold>" . xlt('Reason') . ": </span><span class=text>" . nl2br(text($result["reason"])) . "</span><br />\n";
-            $counselors ='';
+            $counselors = '';
             foreach (explode(',', $result["counselors"]) as $userId) {
                 $counselors .= getUserNameById($userId) . ', ';
             }

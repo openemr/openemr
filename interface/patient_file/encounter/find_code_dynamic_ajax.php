@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Interactive code finder AJAX support.
  * For DataTables documentation see: http://legacy.datatables.net/
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -122,8 +122,10 @@ function feSearchSort($search = '', $column = 0, $reverse = false)
     global $form_encounter_layout;
     $arr = array();
     foreach ($form_encounter_layout as $feitem) {
-        if ($search && stripos($feitem['field_id'], $search) === false &&
-        stripos($feitem['title'], $search) === false) {
+        if (
+            $search && stripos($feitem['field_id'], $search) === false &&
+            stripos($feitem['title'], $search) === false
+        ) {
             continue;
         }
         $feitem['fld_length' ] = 20;

@@ -1,4 +1,5 @@
 <?php
+
 class parseCSV
 {
 
@@ -366,7 +367,7 @@ class parseCSV
         $to_end = true;
 
         // walk specific depth finding posssible delimiter characters
-        for ($i = 0; $i < $strlen; $i ++) {
+        for ($i = 0; $i < $strlen; $i++) {
             $ch = $data [$i];
             $nch = (isset($data [$i + 1])) ? $data [$i + 1] : false;
             $pch = (isset($data [$i - 1])) ? $data [$i - 1] : false;
@@ -376,7 +377,7 @@ class parseCSV
                 if (! $enclosed || $nch != $enclosure) {
                     $enclosed = ($enclosed) ? false : true;
                 } elseif ($enclosed) {
-                    $i ++;
+                    $i++;
                 }
 
                 // end of row
@@ -385,7 +386,7 @@ class parseCSV
                     $strlen = 0;
                     $to_end = false;
                 } else {
-                    $n ++;
+                    $n++;
                 }
 
                 // count character
@@ -475,7 +476,7 @@ class parseCSV
         $strlen = strlen($data);
 
         // walk through each character
-        for ($i = 0; $i < $strlen; $i ++) {
+        for ($i = 0; $i < $strlen; $i++) {
             $ch = $data [$i];
             $nch = (isset($data [$i + 1])) ? $data [$i + 1] : false;
             $pch = (isset($data [$i - 1])) ? $data [$i - 1] : false;
@@ -504,9 +505,9 @@ class parseCSV
                     }
                 } elseif ($nch == $this->enclosure) {
                     $current .= $ch;
-                    $i ++;
+                    $i++;
                 } elseif ($nch != $this->delimiter && $nch != "\r" && $nch != "\n") {
-                    for ($x = ($i + 1); isset($data [$x]) && ltrim($data [$x], $white_spaces) == ''; $x ++) {
+                    for ($x = ($i + 1); isset($data [$x]) && ltrim($data [$x], $white_spaces) == ''; $x++) {
                     }
 
                     if ($data [$x] == $this->delimiter) {
@@ -542,7 +543,7 @@ class parseCSV
                 $row [$key] = ($was_enclosed) ? $current : trim($current);
                 $current = '';
                 $was_enclosed = false;
-                $col ++;
+                $col++;
 
                 // end of row
                 if ($ch == "\n" || $ch == "\r") {
@@ -554,7 +555,7 @@ class parseCSV
                                 if (isset($rows [$row [$this->sort_by]])) {
                                     $rows [$row [$this->sort_by] . '_0'] = &$rows [$row [$this->sort_by]];
                                     unset($rows [$row [$this->sort_by]]);
-                                    for ($sn = 1; isset($rows [$row [$this->sort_by] . '_' . $sn]); $sn ++) {
+                                    for ($sn = 1; isset($rows [$row [$this->sort_by] . '_' . $sn]); $sn++) {
                                     }
 
                                     $rows [$row [$this->sort_by] . '_' . $sn] = $row;
@@ -569,13 +570,13 @@ class parseCSV
 
                     $row = array ();
                     $col = 0;
-                    $row_count ++;
+                    $row_count++;
                     if ($this->sort_by === null && $this->limit !== null && count($rows) == $this->limit) {
                         $i = $strlen;
                     }
 
                     if ($ch == "\r" && $nch == "\n") {
-                        $i ++;
+                        $i++;
                     }
                 }
 

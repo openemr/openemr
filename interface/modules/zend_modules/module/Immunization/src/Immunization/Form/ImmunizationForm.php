@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Immunization/src/Immunization/Form/ImmunizationForm.php
  *
@@ -45,7 +46,7 @@ class ImmunizationForm extends Form
                             'attributes' => array(
                                             'id'          => 'from_date',
                                             'placeholder' => 'From Date',
-                                            'value'       => date('Y-m-d', strtotime(date('Ymd')) - (86400*7)),
+                                            'value'       => date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7)),
                                             'class'       => 'date_field',
                                             'style'       => 'width: 42%;cursor:not-allowed;',
                             ),
@@ -87,7 +88,7 @@ class ImmunizationForm extends Form
                         'attributes' => array(
                                         'value' => \Application\Listener\Listener::z_xlt('GET HL7'),
                                         'id'    => 'hl7button',
-                                        'onclick'=> 'getHl7(this.value);',
+                                        'onclick' => 'getHl7(this.value);',
                                         // the button is hidden as we apparently use it to submit the form when the
                                         // shared sendTo will trigger this button to click...
                                         // @see sendTo.js and immunization.js and search for #hl7button

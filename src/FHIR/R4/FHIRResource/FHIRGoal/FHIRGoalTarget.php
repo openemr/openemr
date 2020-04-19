@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRGoal;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRGoal;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -350,7 +352,7 @@ class FHIRGoalTarget extends FHIRBackboneElement implements \JsonSerializable
                 $this->setDueDuration($data['dueDuration']);
             }
         } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

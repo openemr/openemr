@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The Chart Tracker feature facilitates the old traditional paper charts updates.
  * This feature requires a new list:
@@ -15,7 +16,6 @@
  * @Copyright (C) 2011-2018 Brady Miller <brady.g.miller@gmail.com>
  * @Copyright (C) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
  */
-
 
 require_once("../interface/globals.php");
 require_once("$srcdir/options.inc.php");
@@ -129,7 +129,7 @@ if (!empty($row)) {
         $user = $userService->getUser($ct_userid);
         $current_location = text($user->getLname() . ", " . $user->getFname() . " " . $user->getMname() . " " . oeFormatDateTime($row['ct_when'], "global", true));
     } else if ($ct_location) {
-        $current_location = generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'), $ct_location);
+        $current_location = generate_display_field(array('data_type' => '1','list_id' => 'chartloc'), $ct_location);
     }
     ?>
 
@@ -170,7 +170,7 @@ if (!empty($row)) {
             <div class="form-row">
                 <label for="form_curr_loc" class='col-form-label col-sm-3'><?php echo xlt('Check In To') . ":"; ?></label>
                 <div class='col-sm-9'>
-                    <?php generate_form_field(array('data_type'=>1,'field_id'=>'newloc','list_id'=>'chartloc','empty_title'=>''), ''); ?>
+                    <?php generate_form_field(array('data_type' => 1,'field_id' => 'newloc','list_id' => 'chartloc','empty_title' => ''), ''); ?>
                 </div>
             </div>
             <div class="form-row">

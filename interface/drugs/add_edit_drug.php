@@ -496,7 +496,7 @@ foreach ($pwarr as $pwrow) {
   <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Form'); ?>:</td>
   <td>
 <?php
- generate_form_field(array('data_type'=>1,'field_id'=>'form','list_id'=>'drug_form','empty_title'=>'SKIP'), $row['form']);
+ generate_form_field(array('data_type' => 1,'field_id' => 'form','list_id' => 'drug_form','empty_title' => 'SKIP'), $row['form']);
 ?>
   </td>
  </tr>
@@ -512,7 +512,7 @@ foreach ($pwarr as $pwrow) {
   <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Units'); ?>:</td>
   <td>
 <?php
- generate_form_field(array('data_type'=>1,'field_id'=>'unit','list_id'=>'drug_units','empty_title'=>'SKIP'), $row['unit']);
+ generate_form_field(array('data_type' => 1,'field_id' => 'unit','list_id' => 'drug_units','empty_title' => 'SKIP'), $row['unit']);
 ?>
   </td>
  </tr>
@@ -521,7 +521,7 @@ foreach ($pwarr as $pwrow) {
   <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Route'); ?>:</td>
   <td>
 <?php
- generate_form_field(array('data_type'=>1,'field_id'=>'route','list_id'=>'drug_route','empty_title'=>'SKIP'), $row['route']);
+ generate_form_field(array('data_type' => 1,'field_id' => 'route','list_id' => 'drug_route','empty_title' => 'SKIP'), $row['route']);
 ?>
   </td>
  </tr>
@@ -559,7 +559,7 @@ $pres = sqlStatement("SELECT option_id, title FROM list_options " .
 while ($prow = sqlFetchArray($pres)) {
     $emptyPrices[$prow['option_id']] = '';
     echo "     <td class='font-weight-bold'>" .
-    generate_display_field(array('data_type'=>'1','list_id'=>'pricelevel'), $prow['option_id']) .
+    generate_display_field(array('data_type' => '1','list_id' => 'pricelevel'), $prow['option_id']) .
     "</td>\n";
 }
 
@@ -568,7 +568,7 @@ $pres = sqlStatement("SELECT option_id, title FROM list_options " .
     "WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq");
 while ($prow = sqlFetchArray($pres)) {
     echo "     <td class='font-weight-bold'>" .
-        generate_display_field(array('data_type'=>'1','list_id'=>'taxrate'), $prow['option_id']) .
+        generate_display_field(array('data_type' => '1','list_id' => 'taxrate'), $prow['option_id']) .
         "</td>\n";
 }
 ?>

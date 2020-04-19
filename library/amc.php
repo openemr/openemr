@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Brady Miller <brady.g.miller@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -25,15 +26,15 @@ function processAmcCall($amc_id, $complete, $mode, $patient_id, $object_category
 
   // Ensure empty variables are set correctly
     if (empty($object_category)) {
-        $object_category='';
+        $object_category = '';
     }
 
     if (empty($date_created)) {
-        $date_created='';
+        $date_created = '';
     }
 
     if (empty($object_id)) {
-        $object_id='0';
+        $object_id = '0';
     }
 
   // Ensure $complete is a boolean
@@ -154,7 +155,7 @@ function amcComplete($amc_id, $patient_id, $object_category = '', $object_id = '
 //   $date_created - date created.
 function amcCompleteSafe($amc_id, $patient_id, $object_category = '', $object_id = '0', $date_created = '')
 {
-    sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NOW() WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? AND".
+    sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NOW() WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? AND" .
         dateEmptySql('date_completed', true) .
         "AND `date_created`=?", array($amc_id,$patient_id,$object_category,$object_id,$date_created));
 }
@@ -204,15 +205,15 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
     if (empty($provider)) {
         // Look at entire practice
         $rez = sqlStatement("SELECT `pid`, `fname`, `lname` FROM `patient_data`");
-        for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
-            $patients[$iter]=$row;
+        for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+            $patients[$iter] = $row;
         }
     } else {
         // Look at one provider
         $rez = sqlStatement("SELECT `pid`, `fname`, `lname` FROM `patient_data` " .
         "WHERE providerID=?", array($provider));
-        for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
-             $patients[$iter]=$row;
+        for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+             $patients[$iter] = $row;
         }
     }
 
@@ -238,7 +239,7 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
                 $amcCheck = amcCollect("send_sum_amc", $patient['pid'], "transactions", $res['id']);
                 if (empty($amcCheck)) {
                     // Records have not been sent, so send this back
-                    array_push($tempResults, array("pid"=>$patient['pid'], "fname"=>$patient['fname'], "lname"=>$patient['lname'], "date"=>$res['date'], "id"=>$res['id']));
+                    array_push($tempResults, array("pid" => $patient['pid'], "fname" => $patient['fname'], "lname" => $patient['lname'], "date" => $res['date'], "id" => $res['id']));
                 }
             }
         } else if ($amc_id == "provide_rec_pat_amc") {
@@ -259,7 +260,7 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
             "$where ORDER BY `date_created` DESC", $sqlBindArray);
             while ($res = sqlFetchArray($rez)) {
                 // Records have not been sent, so send this back
-                array_push($tempResults, array("pid"=>$patient['pid'], "fname"=>$patient['fname'], "lname"=>$patient['lname'], "date"=>$res['date_created']));
+                array_push($tempResults, array("pid" => $patient['pid'], "fname" => $patient['fname'], "lname" => $patient['lname'], "date" => $res['date_created']));
             }
         } else if ($amc_id == "provide_sum_pat_amc") {
             $sqlBindArray = array();
@@ -279,7 +280,7 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
                 $amcCheck = amcCollect("provide_sum_pat_amc", $patient['pid'], "form_encounter", $res['encounter']);
                 if (empty($amcCheck)) {
                     // Records have not been given, so send this back
-                    array_push($tempResults, array("pid"=>$patient['pid'], "fname"=>$patient['fname'], "lname"=>$patient['lname'], "date"=>$res['date'], "id"=>$res['encounter']));
+                    array_push($tempResults, array("pid" => $patient['pid'], "fname" => $patient['fname'], "lname" => $patient['lname'], "date" => $res['date'], "id" => $res['encounter']));
                 }
             }
         } else {
@@ -351,7 +352,7 @@ function businessDaysDifference($startDate, $endDate, $holidays = array())
 
   //We subtract the holidays
     foreach ($holidays as $holiday) {
-        $time_stamp=strtotime($holiday);
+        $time_stamp = strtotime($holiday);
         //If the holiday doesn't fall in weekend
         if (strtotime($startDate) <= $time_stamp && $time_stamp <= strtotime($endDate) && date("N", $time_stamp) != 6 && date("N", $time_stamp) != 7) {
             $workingDays--;

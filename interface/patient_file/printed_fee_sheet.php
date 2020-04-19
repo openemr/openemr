@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2012 - Refactored extensively to allow for creating multiple feesheets on demand
  * uses a session array of PIDS by Medical Information Integration, LLC - mi-squared.com
@@ -15,7 +16,6 @@
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/appointments.inc.php");
@@ -475,7 +475,7 @@ foreach ($pid_list as $pid) {
 <td colspan='4' valign='top' class='fshead' style='height:${lheight}pt'>";
 
             if (empty($GLOBALS['ippf_specific'])) {
-                $html .= xlt('Insurance').":";
+                $html .= xlt('Insurance') . ":";
                 if ($form_fill) {
                     foreach (array('primary', 'secondary', 'tertiary') as $instype) {
                         $query = "SELECT * FROM insurance_data WHERE " .
@@ -605,7 +605,7 @@ if ($form_fill != 2) {   //use native browser 'print' for multipage
 <input type='button' class='btn btn-secondary btn-print mt-3' value='";
 
     $html .= xla('Print');
-    $html .="' id='printbutton' />
+    $html .= "' id='printbutton' />
 </div>";
 }
 

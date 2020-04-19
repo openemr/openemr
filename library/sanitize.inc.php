@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Function to check and/or sanitize things for security such as
  * directories names, file names, etc.
@@ -48,7 +49,7 @@ function check_file_dir_name($label)
 {
     if (empty($label) || preg_match('/[^A-Za-z0-9_.-]/', $label)) {
         error_log("ERROR: The following variable contains invalid characters:" . errorLogEscape($label));
-        die(xlt("ERROR: The following variable contains invalid characters").": ". attr($label));
+        die(xlt("ERROR: The following variable contains invalid characters") . ": " . attr($label));
     } else {
         return $label;
     }
@@ -114,7 +115,7 @@ function isWhiteFile($file)
     } else {
         $splitMimeType = explode('/', $mimetype);
         $categoryType = $splitMimeType[0];
-        if (in_array($categoryType. '/*', $white_list)) {
+        if (in_array($categoryType . '/*', $white_list)) {
             return true;
         }
     }
@@ -125,9 +126,9 @@ function isWhiteFile($file)
 // Sanitize a value to ensure it is a number.
 function sanitizeNumber($number)
 {
-    $clean_number = $number +0 ;
+    $clean_number = $number + 0 ;
 
-    if ($clean_number==$number) {
+    if ($clean_number == $number) {
         return $clean_number;
     } else {
         error_log('Custom validation error: Parameter contains non-numeric value (A numeric value expected)');

@@ -1,4 +1,5 @@
 <?php
+
 /** @package    verysimple::Authentication */
 
 /**
@@ -148,7 +149,7 @@ class Bcrypt
         $output = '';
         $i = 0;
         do {
-            $c1 = ord($input [$i ++]);
+            $c1 = ord($input [$i++]);
             $output .= $itoa64 [$c1 >> 2];
             $c1 = ($c1 & 0x03) << 4;
             if ($i >= 16) {
@@ -156,12 +157,12 @@ class Bcrypt
                 break;
             }
             
-            $c2 = ord($input [$i ++]);
+            $c2 = ord($input [$i++]);
             $c1 |= $c2 >> 4;
             $output .= $itoa64 [$c1];
             $c1 = ($c2 & 0x0f) << 2;
             
-            $c2 = ord($input [$i ++]);
+            $c2 = ord($input [$i++]);
             $c1 |= $c2 >> 6;
             $output .= $itoa64 [$c1];
             $output .= $itoa64 [$c2 & 0x3f];

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This will print a blank form, and if "patientid" is specified then
  * any existing data for the specified patient is included.
@@ -12,13 +13,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 
 // Option to substitute a custom version of this script.
-if (!empty($GLOBALS['gbl_rapid_workflow']) &&
+if (
+    !empty($GLOBALS['gbl_rapid_workflow']) &&
     $GLOBALS['gbl_rapid_workflow'] == 'LBFmsivd' &&
-    file_exists('../../../custom/demographics_print.php')) {
+    file_exists('../../../custom/demographics_print.php')
+) {
     include('../../../custom/demographics_print.php');
     exit();
 }
@@ -259,8 +261,10 @@ function getContent()
         if ($i === false) {
             break;
         }
-        if (substr($content, $i+6, $wrlen) === $web_root &&
-        substr($content, $i+6, $wsrlen) !== $webserver_root) {
+        if (
+            substr($content, $i + 6, $wrlen) === $web_root &&
+            substr($content, $i + 6, $wsrlen) !== $webserver_root
+        ) {
             $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
         }
     }

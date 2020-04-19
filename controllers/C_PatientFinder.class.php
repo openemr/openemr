@@ -1,6 +1,5 @@
 <?php
 
-
 class C_PatientFinder extends Controller
 {
 
@@ -12,11 +11,11 @@ class C_PatientFinder extends Controller
         parent::__construct();
         $this->_db = $GLOBALS['adodb']['db'];
         $this->template_mod = $template_mod;
-        $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         ///////////////////////////////////
         //// What should this be?????
         //////////////////////////////////
-        $this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings&patient_finder&");
+        $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&patient_finder&");
         /////////////////////////////////
         $this->assign("STYLE", $GLOBALS['style']);
     }

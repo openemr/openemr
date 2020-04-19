@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Functions to support questions at order entry that are specific to order type.
  *

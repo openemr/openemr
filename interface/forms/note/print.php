@@ -25,7 +25,7 @@ $form_name = "note";
 
 // get the record from the database
 if ($_GET['id'] != "") {
-    $obj = formFetch("form_".$form_name, $_GET["id"]);
+    $obj = formFetch("form_" . $form_name, $_GET["id"]);
 }
 
 /* remove the time-of-day from the date fields */
@@ -47,10 +47,10 @@ if ($obj['date_of_signature'] != "") {
 <?php echo xlt('Printed'); ?> <?php echo text(dateformat()); ?>
 <br /><br />
 <select name="note_type">
-<option value="WORK NOTE" <?php if ($obj['note_type']=="WORK NOTE") {
+<option value="WORK NOTE" <?php if ($obj['note_type'] == "WORK NOTE") {
     echo " SELECTED";
                           } ?>><?php echo xlt('WORK NOTE'); ?></option>
-<option value="SCHOOL NOTE" <?php if ($obj['note_type']=="SCHOOL NOTE") {
+<option value="SCHOOL NOTE" <?php if ($obj['note_type'] == "SCHOOL NOTE") {
     echo " SELECTED";
                             } ?>><?php echo xlt('SCHOOL NOTE'); ?></option>
 </select>

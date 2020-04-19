@@ -44,7 +44,7 @@ class MultipledbController extends BaseController
     {
         parent::__construct();
         $this->MultipledbTable = $MultipledbTable;
-        $this->listenerObject = new Listener;
+        $this->listenerObject = new Listener();
         //todo add permission of admin
     }
 
@@ -169,11 +169,11 @@ class MultipledbController extends BaseController
     {
         if ($mode == 'view' or $mode == 'write') {
             if (!AclMain::aclCheckCore('admin', 'multipledb', false, $mode)) {
-                $this->redirect()->toRoute("multipledb", array("action"=>"error"));
+                $this->redirect()->toRoute("multipledb", array("action" => "error"));
             }
         } else {
             if (!AclMain::aclCheckCore('admin', 'multipledb')) {
-                $this->redirect()->toRoute("multipledb", array("action"=>"error"));
+                $this->redirect()->toRoute("multipledb", array("action" => "error"));
             }
         }
     }

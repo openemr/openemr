@@ -25,7 +25,7 @@ namespace ESign;
 * @link    http://www.open-emr.org
 **/
 
-require_once $GLOBALS['srcdir'].'/ESign/Abstract/Controller.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Abstract/Controller.php';
 
 class Router
 {
@@ -34,8 +34,8 @@ class Router
         $request = new Request();
         $moduleParam = $request->getParam('module');
         $Module = ucfirst($moduleParam);
-        require_once $GLOBALS['srcdir'].'/ESign/'.$Module.'/Controller.php';
-        $controllerClass = "\\ESign\\".$Module."_Controller";
+        require_once $GLOBALS['srcdir'] . '/ESign/' . $Module . '/Controller.php';
+        $controllerClass = "\\ESign\\" . $Module . "_Controller";
         $controller = new $controllerClass($request);
         if ($controller instanceof Abstract_Controller) {
             $controller->run();

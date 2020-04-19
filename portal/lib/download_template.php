@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Document Template Download Module.
  *
@@ -89,7 +90,7 @@ function dataFixup($data, $title = '')
                 $data = $itemSeparator . $data;
             }
 
-            ++ $groupCount;
+            ++$groupCount;
         }
     }
 
@@ -162,13 +163,13 @@ function doSubs($s)
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } else if (keySearch($s, '{CheckMark}')) {
-            $ckcnt ++;
+            $ckcnt++;
             $sigfld = '<span class="checkMark" data-id="check' . $ckcnt . '">';
             $sigfld .= '<input type="checkbox"  id="check' . $ckcnt . '" data-value="" onclick="templateCheckMark(this);">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } else if (keySearch($s, '{ynRadioGroup}')) {
-            $grcnt ++;
+            $grcnt++;
             $sigfld = '<span class="ynuGroup" data-value="N/A" data-id="' . $grcnt . '" id="rgrp' . $grcnt . '">';
             $sigfld .= '<label><input onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" data-id="' . $grcnt . '" value="Yes">' . xlt("Yes") . '</label>';
             $sigfld .= '<label><input onclick="templateRadio(this)" type="radio" name="ynradio' . $grcnt . '" data-id="' . $grcnt . '" value="No">' . xlt("No") . '</label>';
@@ -274,12 +275,12 @@ function doSubs($s)
         } else if (keySearch($s, '{GRP}')) { // This tag indicates the fields from here until {/GRP} are a group of fields
             // separated by semicolons. Fields with no data are omitted, and fields with
             // data are prepended with their field label from the form layout.
-            ++ $groupLevel;
+            ++$groupLevel;
             $groupCount = 0;
             $s = keyReplace($s, '');
         } else if (keySearch($s, '{/GRP}')) {
             if ($groupLevel > 0) {
-                -- $groupLevel;
+                --$groupLevel;
             }
 
             $s = keyReplace($s, '');

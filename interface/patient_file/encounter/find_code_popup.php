@@ -1,4 +1,5 @@
 <?php
+
 /**
  * find_code_popup.php
  *
@@ -11,11 +12,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'].'/patient.inc');
-require_once($GLOBALS['srcdir'].'/csv_like_join.php');
-require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
+require_once($GLOBALS['srcdir'] . '/patient.inc');
+require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
+require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -214,7 +214,7 @@ if ($_REQUEST['bn_search'] || $_REQUEST['search_term']) {
             $anchor = "<a href='' " .
             "onclick='return selcode(\"PROD\", " . attr_js($drug_id) . ", " . attr_js($selector) . ", " . attr_js($desc) . ")'>";
             echo " <tr>";
-            echo "  <td>$anchor" . text($drug_id.":".$selector) . "</a></td>\n";
+            echo "  <td>$anchor" . text($drug_id . ":" . $selector) . "</a></td>\n";
             echo "  <td>$anchor" . text($desc) . "</a></td>\n";
             echo " </tr>";
         }

@@ -1,6 +1,5 @@
 <?php
 
-
 define("EVENT_VEHICLE", 1);
 define("EVENT_WORK_RELATED", 2);
 define("EVENT_SLIP_FALL", 3);
@@ -81,7 +80,7 @@ class FormVitals extends ORDataObject
     function toString($html = false)
     {
         $string .= "\n"
-            ."ID: " . $this->id . "\n";
+            . "ID: " . $this->id . "\n";
 
         if ($html) {
             return nl2br($string);
@@ -197,10 +196,10 @@ class FormVitals extends ORDataObject
     }
     function display_weight($pounds)
     {
-        if ($pounds!=0) {
-            if ($GLOBALS['us_weight_format']==2) {
-                $pounds_int=floor($pounds);
-                return $pounds_int." ".xl('lb') ." " .round(($pounds-$pounds_int)*16)." ".xl('oz');
+        if ($pounds != 0) {
+            if ($GLOBALS['us_weight_format'] == 2) {
+                $pounds_int = floor($pounds);
+                return $pounds_int . " " . xl('lb') . " " . round(($pounds - $pounds_int) * 16) . " " . xl('oz');
             } else {
                 return $pounds;
             }

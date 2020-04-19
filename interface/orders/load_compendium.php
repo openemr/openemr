@@ -1,4 +1,5 @@
 <?php
+
 /**
 * Administrative loader for lab compendium data.
 *

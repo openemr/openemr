@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/eRxXMLBuilder.php Functions for building NewCrop XML.
  *
@@ -99,13 +100,13 @@ class eRxXMLBuilder
 
         curl_setopt($curlHandler, CURLOPT_URL, $this->getGlobals()->getPath());
         curl_setopt($curlHandler, CURLOPT_POST, 1);
-        curl_setopt($curlHandler, CURLOPT_POSTFIELDS, 'RxInput='.$xml);
+        curl_setopt($curlHandler, CURLOPT_POSTFIELDS, 'RxInput=' . $xml);
         curl_setopt($curlHandler, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($curlHandler, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($curlHandler, CURLOPT_COOKIESESSION, true);
-        curl_setopt($curlHandler, CURLOPT_COOKIEFILE, $sitePath.'/newcrop-cookiefile');
-        curl_setopt($curlHandler, CURLOPT_COOKIEJAR, $sitePath.'/newcrop-cookiefile');
-        curl_setopt($curlHandler, CURLOPT_COOKIE, session_name().'='.session_id());
+        curl_setopt($curlHandler, CURLOPT_COOKIEFILE, $sitePath . '/newcrop-cookiefile');
+        curl_setopt($curlHandler, CURLOPT_COOKIEJAR, $sitePath . '/newcrop-cookiefile');
+        curl_setopt($curlHandler, CURLOPT_COOKIE, session_name() . '=' . session_id());
         curl_setopt($curlHandler, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)');
         curl_setopt($curlHandler, CURLOPT_RETURNTRANSFER, true);
 
@@ -490,11 +491,11 @@ class eRxXMLBuilder
     public function getLicensedPrescriberName($user, $prescriberType, $prefix = false)
     {
         $element = $this->getDocument()->createElement('LicensedPrescriberName');
-        $element->appendChild($this->createElementTextFieldEmpty('last', $this->stripSpecialCharacter($user['lname']), $prescriberType.' '.xl('Licensed Prescriber Last Name')));
-        $element->appendChild($this->createElementTextFieldEmpty('first', $this->stripSpecialCharacter($user['fname']), $prescriberType.' '.xl('Licensed Prescriber First Name')));
+        $element->appendChild($this->createElementTextFieldEmpty('last', $this->stripSpecialCharacter($user['lname']), $prescriberType . ' ' . xl('Licensed Prescriber Last Name')));
+        $element->appendChild($this->createElementTextFieldEmpty('first', $this->stripSpecialCharacter($user['fname']), $prescriberType . ' ' . xl('Licensed Prescriber First Name')));
         $element->appendChild($this->createElementText('middle', $this->stripSpecialCharacter($user['mname'])));
         if ($prefix && $user['title']) {
-            $element->appendChild($this->createElementTextFieldEmpty('prefix', $user['title'], $prescriberType.' '.xl('Licensed Prescriber Title (Prefix)')));
+            $element->appendChild($this->createElementTextFieldEmpty('prefix', $user['title'], $prescriberType . ' ' . xl('Licensed Prescriber Title (Prefix)')));
         }
 
         return $element;
@@ -638,16 +639,20 @@ class eRxXMLBuilder
         $vitals = $this->getStore()->getPatientVitalsByPatientId($patient['pid']);
         $age = getPatientAgeYMD($patient['date_of_birth']);
 
-        if ($vitals['height'] &&
-            $vitals['height_units']) {
+        if (
+            $vitals['height'] &&
+            $vitals['height_units']
+        ) {
             $element->appendChild($this->createElementText('height', $vitals['height']));
             $element->appendChild($this->createElementText('heightUnits', $vitals['height_units']));
         } else if ($age['age'] < 19) {
             $this->warningMessage('', xl('Patient Height Vital is required under age 19'));
         }
 
-        if ($vitals['weight'] &&
-            $vitals['weight_units']) {
+        if (
+            $vitals['weight'] &&
+            $vitals['weight_units']
+        ) {
             $element->appendChild($this->createElementText('weight', $vitals['weight']));
             $element->appendChild($this->createElementText('weightUnits', $vitals['weight_units']));
         } else if ($age['age'] < 19) {
@@ -689,7 +694,7 @@ class eRxXMLBuilder
                 $element->appendChild($this->createElementText('allergyName', $this->trimData($this->stripSpecialCharacter($allergy['title1']), 70)));
             }
 
-            if ($allergy['title2']=='Mild' || $allergy['title2']=='Moderate' || $allergy['title2']=='Severe') {
+            if ($allergy['title2'] == 'Mild' || $allergy['title2'] == 'Moderate' || $allergy['title2'] == 'Severe') {
                 $element->appendChild($this->createElementText('allergySeverityTypeID', $allergy['title2']));
             }
 
@@ -752,7 +757,7 @@ class eRxXMLBuilder
                     'doctorName'        => $prescription['docname'],
                     'drug'              => $this->trimData($this->stripSpecialCharacter($prescription['drug']), 80),
                     'dispenseNumber'    => intval($prescription['quantity']),
-                    'sig'               => $this->trimData($this->stripSpecialCharacter($prescription['quantity'][1].$prescription['size'].' '.$prescription['title4'].' '.$prescription['dosage'].' In '.$prescription['title1'].' '.$prescription['title2'].' '.$prescription['title3']), 140),
+                    'sig'               => $this->trimData($this->stripSpecialCharacter($prescription['quantity'][1] . $prescription['size'] . ' ' . $prescription['title4'] . ' ' . $prescription['dosage'] . ' In ' . $prescription['title1'] . ' ' . $prescription['title2'] . ' ' . $prescription['title3']), 140),
                     'refillCount'       => intval($prescription['per_refill']),
                     'prescriptionType'  => 'reconcile'
                 ));

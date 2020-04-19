@@ -1,4 +1,5 @@
 <?php
+
 /**
  * pnotes_full_add.php
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/pnotes.inc");
@@ -134,7 +134,7 @@ if (isset($mode)) {
     } elseif ($mode == "delete") {
         if ($noteid) {
             deletePnote($noteid);
-            EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], "pnotes: id ".$noteid);
+            EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], "pnotes: id " . $noteid);
         }
 
         $noteid = '';
@@ -231,7 +231,7 @@ $urlparms = "docid=" . attr_url($docid) . "&orderid= " . attr_url($orderid);
     if ($noteid) {
        // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
         echo xlt('Amend Existing Message') .
-        "<b> &quot;" . generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $title) . "&quot;</b>\n";
+        "<b> &quot;" . generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $title) . "&quot;</b>\n";
     } else {
         echo xlt('Add New Message') . "\n";
     }
@@ -245,7 +245,7 @@ $urlparms = "docid=" . attr_url($docid) . "&orderid= " . attr_url($orderid);
    <label for='note_type' class='font-weight-bold'><?php echo xlt('Type'); ?>:</label>
     <?php
    // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
-    generate_form_field(array('data_type'=>1,'field_id'=>'note_type','list_id'=>'note_type','empty_title'=>'SKIP'), $title);
+    generate_form_field(array('data_type' => 1,'field_id' => 'note_type','list_id' => 'note_type','empty_title' => 'SKIP'), $title);
     ?>
     </div>
     <div class="form-group">
@@ -260,7 +260,7 @@ while ($urow = sqlFetchArray($ures)) {
 
     echo ">" . text($urow['lname']);
     if ($urow['fname']) {
-        echo text(", ".$urow['fname']);
+        echo text(", " . $urow['fname']);
     }
 
     echo "</option>\n";
@@ -292,7 +292,7 @@ if ($noteid) {
     $body = $prow['body'];
     $body = preg_replace(array('/(\sto\s)-patient-(\))/', '/(:\d{2}\s\()' . $patient_id . '(\sto\s)/'), '${1}' . $patientname . '${2}', $body);
     $body = nl2br(text(oeFormatPatientNote($body)));
-    echo "<div class='text'>".$body."</div>";
+    echo "<div class='text'>" . $body . "</div>";
 }
 ?>
     </td>
@@ -335,13 +335,13 @@ if ($noteid) {
  <tr>
   <td>
 <?php
-if ($offset > ($N-1)) {
+if ($offset > ($N - 1)) {
     echo "   <a class='link' href='pnotes_full.php" .
     "?$urlparms" .
     "&form_active=" . attr_url($form_active) .
     "&form_inactive=" . attr_url($form_inactive) .
     "&form_doc_only=" . attr_url($form_doc_only) .
-    "&offset=" . attr_url($offset-$N) . "' onclick='top.restoreSession()'>[" .
+    "&offset=" . attr_url($offset - $N) . "' onclick='top.restoreSession()'>[" .
     xlt('Previous') . "]</a>\n";
 }
 ?>
@@ -354,7 +354,7 @@ if ($result_count == $N) {
     "&form_active=" . attr_url($form_active) .
     "&form_inactive=" . attr_url($form_inactive) .
     "&form_doc_only=" . attr_url($form_doc_only) .
-    "&offset=" . attr_url($offset+$N) . "' onclick='top.restoreSession()'>[" .
+    "&offset=" . attr_url($offset + $N) . "' onclick='top.restoreSession()'>[" .
     xlt('Next') . "]</a>\n";
 }
 ?>
@@ -370,7 +370,7 @@ if ($result_count == $N) {
 if ($_GET['set_pid']) {
     $ndata = getPatientData($patient_id, "fname, lname, pubpid");
     ?>
- parent.left_nav.setPatient(<?php echo js_escape($ndata['fname']." ".$ndata['lname']) . "," . js_escape($patient_id) . "," . js_escape($ndata['pubpid']) . ",window.name"; ?>);
+ parent.left_nav.setPatient(<?php echo js_escape($ndata['fname'] . " " . $ndata['lname']) . "," . js_escape($patient_id) . "," . js_escape($ndata['pubpid']) . ",window.name"; ?>);
     <?php
 }
 

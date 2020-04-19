@@ -1,9 +1,11 @@
 <?php
+
 /**
  * This is a compatibility file for password_hash and password_verify for
  * php systems prior to 5.5 that do not have password hashing built-in.
  * This will export these two functions to the global namespace
  */
+
 defined('PASSWORD_BCRYPT') or define('PASSWORD_BCRYPT', 1);
 
 defined('PASSWORD_DEFAULT') or define('PASSWORD_DEFAULT', PASSWORD_BCRYPT);
@@ -65,11 +67,11 @@ if (! function_exists('password_hash')) {
                 case 'integer':
                 case 'double':
                 case 'string':
-                    $salt = ( string ) $options ['salt'];
+                    $salt = (string) $options ['salt'];
                     break;
                 case 'object':
                     if (method_exists($options ['salt'], '__tostring')) {
-                        $salt = ( string ) $options ['salt'];
+                        $salt = (string) $options ['salt'];
                         break;
                     }
 
@@ -201,7 +203,7 @@ if (! function_exists('password_verify')) {
         }
         
         $status = 0;
-        for ($i = 0; $i < strlen($ret); $i ++) {
+        for ($i = 0; $i < strlen($ret); $i++) {
             $status |= (ord($ret [$i]) ^ ord($hash [$i]));
         }
         
@@ -225,7 +227,7 @@ function __password_make_salt($length)
     }
 
     $buffer = '';
-    $raw_length = ( int ) ($length * 3 / 4 + 1);
+    $raw_length = (int) ($length * 3 / 4 + 1);
     $buffer_valid = false;
     if (function_exists('mcrypt_create_iv')) {
         $buffer = mcrypt_create_iv($raw_length, MCRYPT_DEV_URANDOM);
@@ -258,7 +260,7 @@ function __password_make_salt($length)
     }
 
     if (! $buffer_valid) {
-        for ($i = 0; $i < $raw_length; $i ++) {
+        for ($i = 0; $i < $raw_length; $i++) {
             $buffer .= chr(mt_rand(0, 255));
         }
     }

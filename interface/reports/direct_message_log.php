@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Report to view the Direct Message log.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2013-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 
@@ -140,7 +140,7 @@ if (!$logtop) {
 } else {
     $res = sqlStatement(
         "SELECT * FROM `direct_message_log` WHERE `id` BETWEEN ? AND ? ORDER BY `id` DESC",
-        array($logtop-99,$logtop)
+        array($logtop - 99,$logtop)
     );
 }
 

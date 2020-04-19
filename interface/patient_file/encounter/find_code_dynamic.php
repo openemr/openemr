@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Interactive code finder.
  * For DataTables documentation see: http://legacy.datatables.net/

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Authorizations script.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
@@ -94,10 +94,12 @@ if ($imauthorized && $see_auth > 1) {
 //  transactions
 
 //fetch billing information:
-    if ($res = sqlStatement("select *, concat(u.fname,' ', u.lname) as user " .
-    "from billing LEFT JOIN users as u on billing.user = u.id where " .
-    "billing.authorized = 0 and billing.activity = 1 and " .
-    "groupname = ?", array($groupname))) {
+    if (
+        $res = sqlStatement("select *, concat(u.fname,' ', u.lname) as user " .
+        "from billing LEFT JOIN users as u on billing.user = u.id where " .
+        "billing.authorized = 0 and billing.activity = 1 and " .
+        "groupname = ?", array($groupname))
+    ) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result1[$iter] = $row;
         }
@@ -112,8 +114,10 @@ if ($imauthorized && $see_auth > 1) {
     }
 
 //fetch transaction information:
-    if ($res = sqlStatement("select * from transactions where " .
-    "authorized = 0 and groupname = ?", array($groupname))) {
+    if (
+        $res = sqlStatement("select * from transactions where " .
+        "authorized = 0 and groupname = ?", array($groupname))
+    ) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result2[$iter] = $row;
         }
@@ -129,8 +133,10 @@ if ($imauthorized && $see_auth > 1) {
 
     if (empty($GLOBALS['ignore_pnotes_authorization'])) {
           //fetch pnotes information:
-        if ($res = sqlStatement("select * from pnotes where authorized = 0 and " .
-        "groupname = ?", array($groupname))) {
+        if (
+            $res = sqlStatement("select * from pnotes where authorized = 0 and " .
+            "groupname = ?", array($groupname))
+        ) {
             for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                 $result3[$iter] = $row;
             }
@@ -146,8 +152,10 @@ if ($imauthorized && $see_auth > 1) {
     }
 
 //fetch forms information:
-    if ($res = sqlStatement("select * from forms where authorized = 0 and " .
-    "groupname = ?", array($groupname))) {
+    if (
+        $res = sqlStatement("select * from forms where authorized = 0 and " .
+        "groupname = ?", array($groupname))
+    ) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result4[$iter] = $row;
         }
@@ -213,15 +221,15 @@ if ($imauthorized && $see_auth > 1) {
                 array($name['providerID'])
             ));
 
-            echo "<td valign='top'><span class='font-weight-bold'>".xlt('Provider').":</span><span class='text'><br />" .
+            echo "<td valign='top'><span class='font-weight-bold'>" . xlt('Provider') . ":</span><span class='text'><br />" .
               text($providerName["lname"]) . "</td>\n";
-            echo "<td valign='top'><span class='font-weight-bold'>".xlt('Billing').":</span><span class='text'><br />" .
+            echo "<td valign='top'><span class='font-weight-bold'>" . xlt('Billing') . ":</span><span class='text'><br />" .
               $patient["billing"] . "</td>\n";
-            echo "<td valign='top'><span class='font-weight-bold'>".xlt('Transactions').":</span><span class='text'><br />" .
+            echo "<td valign='top'><span class='font-weight-bold'>" . xlt('Transactions') . ":</span><span class='text'><br />" .
               $patient["transaction"] . "</td>\n";
-            echo "<td valign='top'><span class='font-weight-bold'>".xlt('Patient Notes').":</span><span class='text'><br />" .
+            echo "<td valign='top'><span class='font-weight-bold'>" . xlt('Patient Notes') . ":</span><span class='text'><br />" .
               $patient["pnotes"] . "</td>\n";
-            echo "<td valign='top'><span class='font-weight-bold'>".xlt('Encounter Forms').":</span><span class='text'><br />" .
+            echo "<td valign='top'><span class='font-weight-bold'>" . xlt('Encounter Forms') . ":</span><span class='text'><br />" .
               $patient["forms"] . "</td>\n";
             echo "</tr>\n";
 

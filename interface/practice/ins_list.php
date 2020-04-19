@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The purpose of this module is to show a list of insurance
  * companies that match the passed-in search strings, and to allow
@@ -12,7 +13,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 
@@ -53,29 +53,35 @@ $where = addwhere($where, 'a.zip', $_GET['form_zip']);
 $phone_parts = array();
 
 // Search by area code if there is one.
-if (preg_match(
-    "/(\d\d\d)/",
-    $_GET['form_phone'],
-    $phone_parts
-)) {
+if (
+    preg_match(
+        "/(\d\d\d)/",
+        $_GET['form_phone'],
+        $phone_parts
+    )
+) {
     $where = addwhere($where, 'p.area_code', $phone_parts[1]);
 }
 
 // If there is also an exchange, search for that too.
-if (preg_match(
-    "/\d\d\d\D*(\d\d\d)/",
-    $_GET['form_phone'],
-    $phone_parts
-)) {
+if (
+    preg_match(
+        "/\d\d\d\D*(\d\d\d)/",
+        $_GET['form_phone'],
+        $phone_parts
+    )
+) {
     $where = addwhere($where, 'p.prefix', $phone_parts[1]);
 }
 
 // If the last 4 phone number digits are given, search for that too.
-if (preg_match(
-    "/\d\d\d\D*\d\d\d\D*(\d\d\d\d)/",
-    $_GET['form_phone'],
-    $phone_parts
-)) {
+if (
+    preg_match(
+        "/\d\d\d\D*\d\d\d\D*(\d\d\d\d)/",
+        $_GET['form_phone'],
+        $phone_parts
+    )
+) {
     $where = addwhere($where, 'p.number', $phone_parts[1]);
 }
 

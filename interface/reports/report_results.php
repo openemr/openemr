@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Generic script to list stored reports. Part of the module to allow the tracking,
  * storing, and viewing of reports.
@@ -9,7 +10,6 @@
  * @copyright Copyright (c) 2012-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
@@ -174,95 +174,95 @@ while ($row = sqlFetchArray($res)) {
         }
 
         $type_title = xl('Clinical Quality Measures (CQM)');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } else if ($row['type'] == "cqm_2011") {
         if (!$GLOBALS['enable_cqm']) {
             continue;
         }
 
         $type_title = xl('2011 Clinical Quality Measures (CQM)');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } else if ($row['type'] == "cqm_2014") {
         if (!$GLOBALS['enable_cqm']) {
             continue;
         }
 
         $type_title = xl('2014 Clinical Quality Measures (CQM)');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } else if ($row['type'] == "amc") {
         if (!$GLOBALS['enable_amc']) {
             continue;
         }
 
         $type_title = xl('Automated Measure Calculations (AMC)');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } else if ($row['type'] == "amc_2011") {
         if (!$GLOBALS['enable_amc']) {
             continue;
         }
 
         $type_title = xl('2011 Automated Measure Calculations (AMC)');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } else if ($row['type'] == "amc_2014") {
         if (!$GLOBALS['enable_amc']) {
             continue;
         }
 
         $type_title = xl('2014 Automated Measure Calculations (AMC)');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } else if ($row['type'] == "amc_2014_stage1") {
         if (!$GLOBALS['enable_amc']) {
             continue;
         }
 
         $type_title = xl('2014 Automated Measure Calculations (AMC) - Stage I');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } else if ($row['type'] == "amc_2014_stage2") {
         if (!$GLOBALS['enable_amc']) {
             continue;
         }
 
         $type_title = xl('2014 Automated Measure Calculations (AMC) - Stage II');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } else if ($row['type'] == "process_reminders") {
         if (!$GLOBALS['enable_cdr']) {
             continue;
         }
 
         $type_title = xl('Processing Patient Reminders');
-        $link="../batchcom/batch_reminders.php?report_id=" . attr_url($row["report_id"]);
+        $link = "../batchcom/batch_reminders.php?report_id=" . attr_url($row["report_id"]);
     } else if ($row['type'] == "process_send_reminders") {
         if (!$GLOBALS['enable_cdr']) {
             continue;
         }
 
         $type_title = xl('Processing and Sending Patient Reminders');
-        $link="../batchcom/batch_reminders.php?report_id=" . attr_url($row["report_id"]);
+        $link = "../batchcom/batch_reminders.php?report_id=" . attr_url($row["report_id"]);
     } else if ($row['type'] == "passive_alert") {
         if (!$GLOBALS['enable_cdr']) {
             continue;
         }
 
         $type_title = xl('Standard Measures (Passive Alerts)');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } else if ($row['type'] == "active_alert") {
         if (!$GLOBALS['enable_cdr']) {
             continue;
         }
 
         $type_title = xl('Standard Measures (Active Alerts)');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } else if ($row['type'] == "patient_reminder") {
         if (!$GLOBALS['enable_cdr']) {
             continue;
         }
 
         $type_title = xl('Standard Measures (Patient Reminders)');
-        $link="cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
+        $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } else {
         // Not identified, so give an unknown title
         $type_title = xl('Unknown') . "-" . $row['type'];
-        $link="";
+        $link = "";
     }
     ?>
 <tr>

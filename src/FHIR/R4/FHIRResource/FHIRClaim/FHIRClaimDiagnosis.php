@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRClaim;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRClaim;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -251,7 +253,7 @@ class FHIRClaimDiagnosis extends FHIRBackboneElement implements \JsonSerializabl
                         $this->addType($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"type" must be array of objects or null, '.gettype($data['type']).' seen.');
+                    throw new \InvalidArgumentException('"type" must be array of objects or null, ' . gettype($data['type']) . ' seen.');
                 }
             }
             if (isset($data['onAdmission'])) {
@@ -261,7 +263,7 @@ class FHIRClaimDiagnosis extends FHIRBackboneElement implements \JsonSerializabl
                 $this->setPackageCode($data['packageCode']);
             }
         } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

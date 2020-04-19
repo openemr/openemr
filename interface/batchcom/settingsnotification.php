@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Notification Settings Script
  *
@@ -10,6 +11,7 @@
  * @copyright Copyright (c) 2017 Jason 'Toolbox' Oettinger <jason@oettinger.email>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 require_once("../globals.php");
 require_once("$srcdir/registry.inc");
 require_once("batchcom.inc.php");
@@ -28,24 +30,24 @@ if (!AclMain::aclCheckCore('admin', 'notification')) {
 
  $type = 'SMS/Email Settings';
 // process form
-if ($_POST['form_action']=='save') {
+if ($_POST['form_action'] == 'save') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 
-    if ($_POST['Send_SMS_Before_Hours']=="") {
+    if ($_POST['Send_SMS_Before_Hours'] == "") {
         $form_err .= xl('Empty value in "SMS Hours"') . '<br />';
     }
 
-    if ($_POST['Send_Email_Before_Hours']=="") {
+    if ($_POST['Send_Email_Before_Hours'] == "") {
         $form_err .= xl('Empty value in "Email Hours"') . '<br />';
     }
 
-    if ($_POST['SMS_gateway_username']=="") {
+    if ($_POST['SMS_gateway_username'] == "") {
         $form_err .= xl('Empty value in "Username"') . '<br />';
     }
 
-    if ($_POST['SMS_gateway_password']=="") {
+    if ($_POST['SMS_gateway_password'] == "") {
         $form_err .= xl('Empty value in "Password"') . '<br />';
     }
 
@@ -67,7 +69,7 @@ if ($_POST['form_action']=='save') {
 }
 
 // fetch data from table
-$sql="select * from notification_settings where type='SMS/Email Settings'";
+$sql = "select * from notification_settings where type='SMS/Email Settings'";
 $result = sqlQuery($sql);
 if ($result) {
     $SettingsId = $result['SettingsId'];

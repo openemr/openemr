@@ -1,4 +1,5 @@
 <?php
+
 /**
  * class FormEvaluation
  *
@@ -85,7 +86,7 @@ class FormEvaluation extends ORDataObject
      */
     function toString($html = false)
     {
-        $string = "\n" ."ID: " . $this->id . "\n";
+        $string = "\n" . "ID: " . $this->id . "\n";
 
         if ($html) {
             return nl2br($string);

@@ -145,7 +145,7 @@ class FhirConditionService
         $bodySite->addCoding($bodySiteCoding);
 
         $subject = new FHIRReference();
-        $subject->setReference('Patient/'.$data['pid']);
+        $subject->setReference('Patient/' . $data['pid']);
         
         $onSetDateTime = new FHIRDateTime();
         $onSetDateTime->setValue($data['begdate']);
@@ -157,10 +157,10 @@ class FhirConditionService
         $recordedDateTime->setValue($data['recorded_date']);
         
         $recorder = new FHIRReference();
-        $recorder->setReference('Practitioner/'.$data['referredby']);
+        $recorder->setReference('Practitioner/' . $data['referredby']);
         
         $asserter = new FHIRReference();
-        $asserter->setReference('Patient/'.$data['pid']);
+        $asserter->setReference('Patient/' . $data['pid']);
         
         $note = new FHIRAnnotation();
         $note->setText($data['extrainfo']);

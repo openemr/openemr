@@ -1,4 +1,5 @@
 <?php
+
 /**
  * library/FeeSheetHtml.class.php
  *
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(dirname(__FILE__) . "/FeeSheet.class.php");
 require_once(dirname(__FILE__) . "/api.inc");
@@ -115,9 +115,11 @@ class FeeSheetHtml extends FeeSheet
                     }
                 } else {
                     $has_inventory = sellDrug($drug_id, 1, 0, 0, 0, 0, '', '', $lrow['option_id'], true);
-                    if (((strlen($default) == 0 && $lrow['is_default']) ||
-                       (strlen($default)  > 0 && $lrow['option_id'] == $default)) &&
-                      ($is_sold || $has_inventory)) {
+                    if (
+                        ((strlen($default) == 0 && $lrow['is_default']) ||
+                        (strlen($default)  > 0 && $lrow['option_id'] == $default)) &&
+                        ($is_sold || $has_inventory)
+                    ) {
                         $s .= " selected";
                     } else {
                         // Disable this warehouse option if not selected and has no inventory.
@@ -184,8 +186,9 @@ class FeeSheetHtml extends FeeSheet
 
             $s .= "<option value='" . attr($lrow['option_id']) . "'";
             $s .= " id='prc_$price'";
-            if ((strlen($default) == 0 && $lrow['is_default'] && !$disabled) ||
-              (strlen($default)  > 0 && $lrow['option_id'] == $default)
+            if (
+                (strlen($default) == 0 && $lrow['is_default'] && !$disabled) ||
+                (strlen($default)  > 0 && $lrow['option_id'] == $default)
             ) {
                 $s .= " selected";
             }

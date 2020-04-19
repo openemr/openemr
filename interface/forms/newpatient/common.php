@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Common script for the encounter form (new and view) scripts.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lists.inc");
@@ -32,7 +32,7 @@ $months = array("01","02","03","04","05","06","07","08","09","10","11","12");
 $days = array("01","02","03","04","05","06","07","08","09","10","11","12","13","14",
   "15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31");
 $thisyear = date("Y");
-$years = array($thisyear-1, $thisyear, $thisyear+1, $thisyear+2);
+$years = array($thisyear - 1, $thisyear, $thisyear + 1, $thisyear + 2);
 
 $mode = (!empty($_GET['mode'])) ? $_GET['mode'] : null;
 
@@ -54,7 +54,7 @@ if ($viewmode) {
 
     if ($mode === "followup") {
         $result['reason'] = '';
-        $result['date']=date('Y-m-d H:i:s');
+        $result['date'] = date('Y-m-d H:i:s');
         $encounterId = $result['id'];
     }
 
@@ -198,7 +198,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
     #visit-details [class*="col-"],
     #visit-issues [class*="col-"] {
     width: 100%;
-    text-align: <?php echo ($_SESSION['language_direction'] == 'rtl') ? 'right ': 'left '?> !Important;
+    text-align: <?php echo ($_SESSION['language_direction'] == 'rtl') ? 'right ' : 'left '?> !Important;
 }
 </style>
 <?php
@@ -353,7 +353,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             echo " selected";
                                         }
 
-                                        echo ">" . xlt('None{{Sensitivity}}'). "</option>\n";
+                                        echo ">" . xlt('None{{Sensitivity}}') . "</option>\n";
                                         ?>
                                     </select>
                                     <?php
@@ -374,7 +374,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <span <?php if ($GLOBALS['ippf_specific']) {
                                 echo " style='visibility:hidden;'"; } ?>>
                                 <label for='form_onset_date' class="oe-text-to-right"><?php echo xlt('Onset/hosp. date:'); ?> &nbsp;<i id='onset-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
-                                <input type='text' class='form-control datepicker' name='form_onset_date' id='form_onset_date' value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr($result['onset_date'], 0, 10))) : ''; ?>' title='<?php echo xla('Date of onset or hospitalization'); ?>' />
+                                <input type='text' class='form-control datepicker' name='form_onset_date' id='form_onset_date' value='<?php echo $viewmode && $result['onset_date'] != '0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr($result['onset_date'], 0, 10))) : ''; ?>' title='<?php echo xla('Date of onset or hospitalization'); ?>' />
                             </span>
                         </div>
                         <div class="form-group mx-auto mt-2"
@@ -458,7 +458,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     if (($pos["code"] == $result['pos_code'] && $viewmode) || ($pos["code"] == $posCode && !$viewmode)) {
                                         echo "selected";
                                     }
-                                    echo ">" . text($pos['code'])  . ": ". xlt($pos['title']);
+                                    echo ">" . text($pos['code'])  . ": " . xlt($pos['title']);
                                     echo "</option>\n";
                                 }
                                 ?>

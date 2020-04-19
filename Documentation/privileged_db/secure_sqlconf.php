@@ -1,4 +1,5 @@
 <?php
+
 /**
  *   This is an example secure_sqlconf.php provided for reference.
  *   After configuring the MySQL user 'secure' with password 'securepassword'

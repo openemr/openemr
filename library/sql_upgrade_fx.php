@@ -1,4 +1,5 @@
 <?php
+
 /**
 * Upgrading and patching functions of database.
 *
@@ -200,8 +201,8 @@ function listExists($option_id)
 function clickOptionsMigrate()
 {
   // If the clickoptions.txt file exist, then import it.
-    if (file_exists(dirname(__FILE__)."/../sites/".$_SESSION['site_id']."/clickoptions.txt")) {
-        $file_handle = fopen(dirname(__FILE__)."/../sites/".$_SESSION['site_id']."/clickoptions.txt", "rb");
+    if (file_exists(dirname(__FILE__) . "/../sites/" . $_SESSION['site_id'] . "/clickoptions.txt")) {
+        $file_handle = fopen(dirname(__FILE__) . "/../sites/" . $_SESSION['site_id'] . "/clickoptions.txt", "rb");
         $seq  = 10;
         $prev = '';
         echo "Importing clickoption setting<br />";
@@ -220,12 +221,12 @@ function clickOptionsMigrate()
             $parts[1] = trim(str_replace("\r\n", "", $parts[1]));
             if ($parts[0] != $prev) {
                 $sql1 = "INSERT INTO list_options (`list_id`,`option_id`,`title`) VALUES (?,?,?)";
-                SqlStatement($sql1, array('lists',$parts[0].'_issue_list',ucwords(str_replace("_", " ", $parts[0])).' Issue List'));
+                SqlStatement($sql1, array('lists',$parts[0] . '_issue_list',ucwords(str_replace("_", " ", $parts[0])) . ' Issue List'));
                 $seq = 10;
             }
 
             $sql2 = "INSERT INTO list_options (`list_id`,`option_id`,`title`,`seq`) VALUES (?,?,?,?)";
-            SqlStatement($sql2, array($parts[0].'_issue_list', $parts[1], $parts[1], $seq));
+            SqlStatement($sql2, array($parts[0] . '_issue_list', $parts[1], $parts[1], $seq));
             $seq = $seq + 10;
             $prev = $parts[0];
         }
@@ -245,10 +246,10 @@ function CreateOccupationList()
     }
 
     sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES('lists', 'Occupation', 'Occupation')");
-    if (count($records)>0) {
+    if (count($records) > 0) {
         $seq = 0;
         foreach ($records as $key => $value) {
-            sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Occupation', ?, ?, ?)", array($value, $value, ($seq+10)));
+            sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Occupation', ?, ?, ?)", array($value, $value, ($seq + 10)));
             $seq = $seq + 10;
         }
     }
@@ -265,10 +266,10 @@ function CreateReactionList()
     }
 
     sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES('lists', 'reaction', 'Reaction')");
-    if (count($records)>0) {
+    if (count($records) > 0) {
         $seq = 0;
         foreach ($records as $key => $value) {
-            sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('reaction', ?, ?, ?)", array($value, $value, ($seq+10)));
+            sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('reaction', ?, ?, ?)", array($value, $value, ($seq + 10)));
             $seq = $seq + 10;
         }
     }
@@ -286,10 +287,10 @@ function CreateImmunizationManufacturerList()
     }
 
     sqlStatement("INSERT INTO list_options (list_id, option_id, title) VALUES ('lists','Immunization_Manufacturer','Immunization Manufacturer')");
-    if (count($records)>0) {
+    if (count($records) > 0) {
         $seq = 0;
         foreach ($records as $key => $value) {
-            sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Immunization_Manufacturer', ?, ?, ?)", array($value, $value, ($seq+10)));
+            sqlStatement("INSERT INTO list_options ( list_id, option_id, title, seq) VALUES ('Immunization_Manufacturer', ?, ?, ?)", array($value, $value, ($seq + 10)));
             $seq = $seq + 10;
         }
     }
@@ -361,7 +362,7 @@ function getTablesList($arg = array())
  */
 function MigrateTableEngine($table, $engine)
 {
-    $r = sqlStatement('ALTER TABLE `'.$table.'` ENGINE=?', $engine);
+    $r = sqlStatement('ALTER TABLE `' . $table . '` ENGINE=?', $engine);
     return true;
 }
 
@@ -604,7 +605,7 @@ function upgradeFromSqlFile($filename, $path = '')
     flush();
     echo "<font color='green'>Processing $filename ...</font><br />\n";
 
-    $fullname = ( (!empty($path) && is_dir($path)) ? $path : $webserver_root)."/sql/$filename";
+    $fullname = ( (!empty($path) && is_dir($path)) ? $path : $webserver_root) . "/sql/$filename";
 
     $fd = fopen($fullname, 'r');
     if ($fd == false) {
@@ -882,8 +883,8 @@ function upgradeFromSqlFile($filename, $path = '')
             //tables that need to skip InnoDB migration (stay at MyISAM for now)
             $tables_skip_migration = array('form_eye_mag');
 
-            $tables_list = getTablesList(array('engine'=>'MyISAM'));
-            if (count($tables_list)==0) {
+            $tables_list = getTablesList(array('engine' => 'MyISAM'));
+            if (count($tables_list) == 0) {
                 $skipping = true;
             } else {
                 $skipping = false;

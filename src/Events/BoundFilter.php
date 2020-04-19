@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OpenEMR.
  *
@@ -68,6 +69,6 @@ class BoundFilter
      */
     public function addBoundValue($boundValue)
     {
-        $this->boundValues[]= $boundValue;
+        $this->boundValues[] = $boundValue;
     }
 }

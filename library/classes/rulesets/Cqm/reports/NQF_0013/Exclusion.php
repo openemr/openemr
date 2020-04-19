@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * CQM NQF 0013 Exclusion
@@ -37,10 +38,10 @@ class NQF_0013_Exclusion implements CqmFilterIF
         
         $procedure_code = implode(',', Codes::lookup(Procedure::DIALYSIS_SERVICE, 'SNOMED'));
         //Dialysis procedure exists exclude the patient
-        $sql = "SELECT count(*) as cnt FROM procedure_order pr ".
-               "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
-               "WHERE pr.patient_id = ? ".
-               "AND prc.procedure_code IN ($procedure_code) ".
+        $sql = "SELECT count(*) as cnt FROM procedure_order pr " .
+               "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id " .
+               "WHERE pr.patient_id = ? " .
+               "AND prc.procedure_code IN ($procedure_code) " .
                "AND (pr.date_ordered BETWEEN ? AND ?)";
         //echo $sql;
         $check = sqlQuery($sql, array($patient->id, $beginDate, $endDate));

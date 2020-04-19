@@ -1,4 +1,5 @@
 <?php
+
 /**
 * Functions to support HL7 order generation.
 *

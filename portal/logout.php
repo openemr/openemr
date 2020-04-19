@@ -1,4 +1,5 @@
 <?php
+
 /**
  * portal/logout.php
  *
@@ -15,10 +16,10 @@
 
 require_once("verify_session.php");
 
-require_once(dirname(__FILE__)."/lib/appsql.class.php");
+require_once(dirname(__FILE__) . "/lib/appsql.class.php");
 
 $logit = new ApplicationTable();
-$logit->portalLog('logout', $_SESSION['pid'], ($_SESSION['portal_username'].': '.$_SESSION['ptName'].':success'));
+$logit->portalLog('logout', $_SESSION['pid'], ($_SESSION['portal_username'] . ': ' . $_SESSION['ptName'] . ':success'));
 
 //log out by killing the session
 require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
@@ -26,5 +27,5 @@ OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
 
 //redirect to pretty login/logout page
 // $landingpage is defined in above verify_session.php script
-header('Location: '.$landingpage.'&logout');
+header('Location: ' . $landingpage . '&logout');
 //

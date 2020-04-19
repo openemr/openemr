@@ -1,4 +1,5 @@
 <?php
+
 /* HCFA_1500 Class
  *
  * This program creates the HCFA 1500 claim form.
@@ -86,29 +87,29 @@ class HCFA_1500
      */
     private function process_diagnoses_02_12($claim, &$log)
     {
-        $hcfa_entries=array();
+        $hcfa_entries = array();
         $diags = $claim->diagArray(false);
-        if ($claim->diagtype=='ICD10') {
-            $icd_indicator='0';
+        if ($claim->diagtype == 'ICD10') {
+            $icd_indicator = '0';
         } else {
-            $icd_indicator='9';
+            $icd_indicator = '9';
         }
 
-        $hcfa_entries[]=new HCFA_Info(37, 42, 1, $icd_indicator);
+        $hcfa_entries[] = new HCFA_Info(37, 42, 1, $icd_indicator);
 
         // Box 22. Medicaid Resubmission Code and Original Ref. No.
-        $hcfa_entries[]=new HCFA_Info(38, 50, 10, $claim->medicaidResubmissionCode());
-        $hcfa_entries[]=new HCFA_Info(38, 62, 15, $claim->medicaidOriginalReference());
+        $hcfa_entries[] = new HCFA_Info(38, 50, 10, $claim->medicaidResubmissionCode());
+        $hcfa_entries[] = new HCFA_Info(38, 62, 15, $claim->medicaidOriginalReference());
 
         // Box 23. Prior Authorization Number
-        $hcfa_entries[]=new HCFA_Info(40, 50, 28, $claim->priorAuth());
+        $hcfa_entries[] = new HCFA_Info(40, 50, 28, $claim->priorAuth());
 
-        $diag_count=0;
+        $diag_count = 0;
         foreach ($diags as $diag) {
-            if ($diag_count<12) {
+            if ($diag_count < 12) {
                 $this->add_diagnosis($hcfa_entries, $diag_count, $diag);
             } else {
-                $log.= "***Too many diagnoses ".($diag_count+1).":".$diag;
+                $log .= "***Too many diagnoses " . ($diag_count + 1) . ":" . $diag;
             }
 
             $diag_count++;
@@ -136,17 +137,17 @@ class HCFA_1500
          *  E F G H
          *  I J K L
          */
-        $column_num = ($number%4);
+        $column_num = ($number % 4);
         $row_num = (int)($number / 4);
 
         // First column is at location 3, each column is 13 wide
-        $col_pos=3+13*$column_num;
+        $col_pos = 3 + 13 * $column_num;
 
         // First diagnosis row is 38
-        $strip='/[.#]/';
+        $strip = '/[.#]/';
         $diag = preg_replace($strip, '', strtoupper($diag));
-        $row_pos=38+$row_num;
-        $hcfa_entries[]=new HCFA_Info($row_pos, $col_pos, 8, $diag);
+        $row_pos = 38 + $row_num;
+        $hcfa_entries[] = new HCFA_Info($row_pos, $col_pos, 8, $diag);
     }
 
     public function gen_hcfa_1500($pid, $encounter, &$log)
@@ -449,8 +450,10 @@ class HCFA_1500
         // Referring provider stuff.  Reports are that for primary care providers,
         // Medicare forbids an entry here and other payers require one.
         // There is still confusion over this.
-        if ($claim->referrerLastName() || $claim->billingProviderLastName() &&
-            (empty($GLOBALS['MedicareReferrerIsRenderer']) || $claim->claimType() != 'MB')) {
+        if (
+            $claim->referrerLastName() || $claim->billingProviderLastName() &&
+            (empty($GLOBALS['MedicareReferrerIsRenderer']) || $claim->claimType() != 'MB')
+        ) {
             // Box 17a. Referring Provider Alternate Identifier
             // Commented this out because UPINs are obsolete, leaving the code as an
             // example in case some other identifier needs to be supported.

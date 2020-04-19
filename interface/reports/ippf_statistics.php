@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This module creates statistical reports related to family planning
  * and sexual and reproductive health.
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
@@ -548,8 +548,10 @@ function loadColumnData($key, $row, $quantity = 1)
         }
 
         // Check contraceptive start date.
-        if (!$row['contrastart'] || $row['contrastart'] < $from_date ||
-        $row['contrastart'] > $to_date) {
+        if (
+            !$row['contrastart'] || $row['contrastart'] < $from_date ||
+            $row['contrastart'] > $to_date
+        ) {
             return;
         }
     }
@@ -562,8 +564,10 @@ function loadColumnData($key, $row, $quantity = 1)
         }
 
         // Check registration date.
-        if (!$row['regdate'] || $row['regdate'] < $from_date ||
-        $row['regdate'] > $to_date) {
+        if (
+            !$row['regdate'] || $row['regdate'] < $from_date ||
+            $row['regdate'] > $to_date
+        ) {
             return;
         }
     }
@@ -1141,7 +1145,7 @@ $(function () {
             echo " selected";
         }
 
-        echo ">" . text($value) ."</option>\n";
+        echo ">" . text($value) . "</option>\n";
     }
     ?>
  </select>
@@ -1270,9 +1274,11 @@ if ($_POST['form_submit']) {
             continue;
         }
 
-        if ($askey == 'regdate' || $askey == 'sex' || $askey == 'DOB' ||
-        $askey == 'lname' || $askey == 'fname' || $askey == 'mname' ||
-        $askey == 'contrastart' || $askey == 'referral_source') {
+        if (
+            $askey == 'regdate' || $askey == 'sex' || $askey == 'DOB' ||
+            $askey == 'lname' || $askey == 'fname' || $askey == 'mname' ||
+            $askey == 'contrastart' || $askey == 'referral_source'
+        ) {
             continue;
         }
 
@@ -1476,7 +1482,7 @@ if ($_POST['form_submit']) {
         "lo.list_id = 'superbill' AND lo.option_id = c.superbill " .
         "WHERE fe.date >= ? AND " .
         "fe.date <= ? ";
-        array_push($sqlBindArray, $from_date.' 00:00:00', $to_date.' 23:59:59');
+        array_push($sqlBindArray, $from_date . ' 00:00:00', $to_date . ' 23:59:59');
 
         if ($form_facility) {
             $query .= "AND fe.facility_id = '$form_facility' ";

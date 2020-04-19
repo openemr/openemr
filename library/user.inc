@@ -1,4 +1,5 @@
 <?php
+
 /**
  * user.inc
  *
@@ -120,7 +121,7 @@ function getUserIDInfo($id)
 function prevSetting($uspfx, $postvar, $label, $initval)
 {
 
-    $setting_key = $uspfx.$label;
+    $setting_key = $uspfx . $label;
 
     if (isset($_POST[$postvar])) {
         // If script provides current value, store it for future use.

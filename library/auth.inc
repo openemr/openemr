@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Authorization functions.
  *
@@ -18,8 +19,10 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 
 $incoming_site_id = '';
 
-if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser']) &&
-    isset($_POST['clearPass']) && isset($_POST['new_login_session_management'])) {
+if (
+    isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser']) &&
+    isset($_POST['clearPass']) && isset($_POST['new_login_session_management'])
+) {
     // Attempt login
 
     // set the language

@@ -1,4 +1,5 @@
 <?php
+
 /** @package    verysimple::Payment */
 
 /**
@@ -85,7 +86,7 @@ class SkipJack extends PaymentProcessor
         $vals = explode("\",\"", $lines [1]);
         
         // convert these two lines into a hash so we can get individual values
-        for ($i = 0; $i < count($fields); $i ++) {
+        for ($i = 0; $i < count($fields); $i++) {
             $resp->ParsedResponse [$fields [$i]] = $vals [$i];
         }
         

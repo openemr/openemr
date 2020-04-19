@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This is a report of sales by item description.
  *
@@ -12,7 +13,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -400,7 +400,7 @@ if ($_POST['form_csvexport']) {
             echo "    <option value=''>-- " . xlt('All Providers') . " --\n";
             while ($row = sqlFetchArray($res)) {
                 $provid = $row['id'];
-                echo "    <option value='". attr($provid) ."'";
+                echo "    <option value='" . attr($provid) . "'";
                 if ($provid == $_REQUEST['form_provider']) {
                     echo " selected";
                 }
@@ -701,7 +701,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         <?php $report_from_date = oeFormatShortDate($form_from_date)  ;
         $report_to_date = oeFormatShortDate($form_to_date)  ;
         ?>
-<div align='right'><span class='title' ><?php echo xlt('Report Date'). ' '; ?><?php echo text($report_from_date);?> - <?php echo text($report_to_date);?></span></div>
+<div align='right'><span class='title' ><?php echo xlt('Report Date') . ' '; ?><?php echo text($report_from_date);?> - <?php echo text($report_to_date);?></span></div>
         <?php
     } // End not csv export
 }

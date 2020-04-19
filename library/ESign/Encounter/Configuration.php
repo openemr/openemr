@@ -24,7 +24,7 @@ namespace ESign;
  * @link    http://www.open-emr.org
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/Abstract/Configuration.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Abstract/Configuration.php';
 
 class Encounter_Configuration extends Abstract_Configuration implements ConfigurationIF
 {

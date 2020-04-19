@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This is an inventory transactions list.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -265,14 +265,16 @@ if ($form_action == 'export') {
      <td nowrap>
       <select name='form_trans_type' onchange='trans_type_changed()'>
     <?php
-    foreach (array(
-    '0' => xl('All'),
-    '2' => xl('Purchase/Return'),
-    '1' => xl('Sale'),
-    '6' => xl('Distribution'),
-    '4' => xl('Transfer'),
-    '5' => xl('Adjustment'),
-    ) as $key => $value) {
+    foreach (
+        array(
+        '0' => xl('All'),
+        '2' => xl('Purchase/Return'),
+        '1' => xl('Sale'),
+        '6' => xl('Distribution'),
+        '4' => xl('Transfer'),
+        '5' => xl('Adjustment'),
+        ) as $key => $value
+    ) {
         echo "       <option value='" . attr($key) . "'";
         if ($key == $form_trans_type) {
             echo " selected";

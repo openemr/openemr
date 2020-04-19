@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Work/School Note Form report.php
  *
@@ -13,8 +14,8 @@
 
 
 
-require_once(dirname(__FILE__).'/../../globals.php');
-require_once($GLOBALS["srcdir"]."/api.inc");
+require_once(dirname(__FILE__) . '/../../globals.php');
+require_once($GLOBALS["srcdir"] . "/api.inc");
 
 function note_report($pid, $encounter, $cols, $id)
 {
@@ -23,7 +24,8 @@ function note_report($pid, $encounter, $cols, $id)
     if ($data) {
         print "<table><tr>";
         foreach ($data as $key => $value) {
-            if ($key == "id" ||
+            if (
+                $key == "id" ||
                 $key == "pid" ||
                 $key == "user" ||
                 $key == "groupname" ||
@@ -31,7 +33,8 @@ function note_report($pid, $encounter, $cols, $id)
                 $key == "activity" ||
                 $key == "date" ||
                 $value == "" ||
-                $value == "0000-00-00 00:00:00") {
+                $value == "0000-00-00 00:00:00"
+            ) {
                 continue;
             }
 
@@ -39,7 +42,7 @@ function note_report($pid, $encounter, $cols, $id)
                 $value = "yes";
             }
 
-            $key=ucwords(str_replace("_", " ", $key));
+            $key = ucwords(str_replace("_", " ", $key));
             print("<tr>\n");
             print("<tr>\n");
             if ($key == "Note Type") {

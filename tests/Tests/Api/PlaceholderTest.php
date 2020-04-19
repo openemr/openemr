@@ -1,5 +1,7 @@
 <?php
+
 declare(strict_types=1);
+
 namespace OpenEMR\Tests\Api;
 
 use Symfony\Component\Panther\PantherTestCase;

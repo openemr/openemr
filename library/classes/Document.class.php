@@ -247,8 +247,8 @@ class Document extends ORDataObject
     function toString($html = false)
     {
         $string .= "\n"
-        . "ID: " . $this->id."\n"
-        . "FID: " . $this->foreign_id."\n"
+        . "ID: " . $this->id . "\n"
+        . "FID: " . $this->foreign_id . "\n"
         . "type: " . $this->type . "\n"
         . "type_array: " . print_r($this->type_array, true) . "\n"
         . "size: " . $this->size . "\n"
@@ -365,7 +365,7 @@ class Document extends ORDataObject
     */
     function get_url_path()
     {
-        return dirname(preg_replace("|^(.*)://|", "", $this->url)) ."/";
+        return dirname(preg_replace("|^(.*)://|", "", $this->url)) . "/";
     }
     function get_path_depth()
     {

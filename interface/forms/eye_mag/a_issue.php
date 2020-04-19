@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file presents the PMSFH control panel.
  * It uses ajax/javascript to add, delete or edit an issue.
@@ -53,10 +54,12 @@ if ($issue && !AclMain::aclCheckCore('patients', 'med', '', 'write')) {
     die(xlt("Edit is not authorized!"));
 }
 
-if (!AclMain::aclCheckCore('patients', 'med', '', array(
+if (
+    !AclMain::aclCheckCore('patients', 'med', '', array(
     'write',
     'addonly'
-))) {
+    ))
+) {
     die(xlt("Add is not authorized!"));
 }
 

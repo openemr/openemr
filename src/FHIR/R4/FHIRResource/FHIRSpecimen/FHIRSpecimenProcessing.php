@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimen;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimen;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -222,7 +224,7 @@ class FHIRSpecimenProcessing extends FHIRBackboneElement implements \JsonSeriali
                         $this->addAdditive($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"additive" must be array of objects or null, '.gettype($data['additive']).' seen.');
+                    throw new \InvalidArgumentException('"additive" must be array of objects or null, ' . gettype($data['additive']) . ' seen.');
                 }
             }
             if (isset($data['timeDateTime'])) {
@@ -232,7 +234,7 @@ class FHIRSpecimenProcessing extends FHIRBackboneElement implements \JsonSeriali
                 $this->setTimePeriod($data['timePeriod']);
             }
         } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

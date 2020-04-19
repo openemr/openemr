@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -271,7 +273,7 @@ class FHIRImplementationGuideResource extends FHIRBackboneElement implements \Js
                         $this->addFhirVersion($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"fhirVersion" must be array of objects or null, '.gettype($data['fhirVersion']).' seen.');
+                    throw new \InvalidArgumentException('"fhirVersion" must be array of objects or null, ' . gettype($data['fhirVersion']) . ' seen.');
                 }
             }
             if (isset($data['name'])) {
@@ -290,7 +292,7 @@ class FHIRImplementationGuideResource extends FHIRBackboneElement implements \Js
                 $this->setGroupingId($data['groupingId']);
             }
         } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

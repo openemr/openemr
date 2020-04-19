@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Returns a count of due messages for current user.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../interface/globals.php");
 require_once("$srcdir/dated_reminder_functions.php");
@@ -35,4 +35,4 @@ $dueReminders = GetDueReminderCount(5, strtotime(date('Y/m/d')));
 $activeMessages = getPnotesByUser("1", "no", $_SESSION['authUser'], true);
 
 $totalNumber = $dueReminders + $activeMessages;
-echo ($totalNumber > 0 ? '('.text(intval($totalNumber)).')' : '');
+echo ($totalNumber > 0 ? '(' . text(intval($totalNumber)) . ')' : '');

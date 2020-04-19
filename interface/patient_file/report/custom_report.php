@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient custom report.
  *
@@ -13,7 +14,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/pnotes.inc");
@@ -22,7 +22,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lists.inc");
 require_once("$srcdir/report.inc");
 require_once(dirname(__file__) . "/../../../custom/code_types.inc.php");
-require_once $GLOBALS['srcdir'].'/ESign/Api.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 if ($GLOBALS['gbl_portal_cms_enable']) {
     require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
@@ -113,8 +113,10 @@ function getContent()
             break;
         }
 
-        if (substr($content, $i+6, $wrlen) === $web_root &&
-        substr($content, $i+6, $wsrlen) !== $webserver_root) {
+        if (
+            substr($content, $i + 6, $wrlen) === $web_root &&
+            substr($content, $i + 6, $wsrlen) !== $webserver_root
+        ) {
             $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
         }
     }
@@ -124,7 +126,7 @@ function getContent()
 
 function postToGet($arin)
 {
-    $getstring="";
+    $getstring = "";
     foreach ($arin as $key => $val) {
         if (is_array($val)) {
             foreach ($val as $k => $v) {
@@ -146,7 +148,7 @@ function report_basename($pid)
     $esc = str_replace(array('.', ',', ' '), '', $esc);
     $fn = basename_international(strtolower($esc . '_' . $pid . '_' . xl('report')));
 
-    return array('base'=>$fn, 'fname'=>$ptd['fname'], 'lname'=>$ptd['lname']);
+    return array('base' => $fn, 'fname' => $ptd['fname'], 'lname' => $ptd['lname']);
 }
 
 function zip_content($source, $destination, $content = '', $create = true)
@@ -221,7 +223,7 @@ function zip_content($source, $destination, $content = '', $create = true)
     <?php
     // remove blank header for printable version to conserve space
     // adjust this if you are printing to letterhead to appropriate height
-    ($printable) ? ($style = ''):($style='padding-top:95px;');
+    ($printable) ? ($style = '') : ($style = 'padding-top:95px;');
     ?>
     <body class="body_top" style="<?php echo $style; ?>">
 <?php } ?>
@@ -265,7 +267,7 @@ if ($printable) {
 
     echo "<div><table width='795'><tbody><tr><td>";
     if (file_exists($practice_logo)) {
-        $logo_path = $GLOBALS['OE_SITE_WEBROOT'] . "/images/". basename($practice_logo);
+        $logo_path = $GLOBALS['OE_SITE_WEBROOT'] . "/images/" . basename($practice_logo);
         echo "<img style='max-width:250px;height:auto;' src='$logo_path' align='left'>"; // keep size within reason
         echo "</td><td>";
     }
@@ -317,7 +319,7 @@ if ($printable) {
     <?php
     $form_id_arr = array();
     $form_dir_arr = array();
-    $last_key ='';
+    $last_key = '';
     //ksort($ar);
     foreach ($ar as $key_search => $val_search) {
         if ($key_search == 'pdf' || $key_search == '') {
@@ -332,12 +334,12 @@ if ($printable) {
     }
 
     //echo json_encode(json_encode($array_key_id));
-    if (sizeof($form_id_arr)>0) {
-        $query = "SELECT DISTINCT(form_name),formdir FROM forms WHERE form_id IN ( '".implode("','", $form_id_arr)."') AND formdir IN ( '".implode("','", $form_dir_arr)."')";
+    if (sizeof($form_id_arr) > 0) {
+        $query = "SELECT DISTINCT(form_name),formdir FROM forms WHERE form_id IN ( '" . implode("','", $form_id_arr) . "') AND formdir IN ( '" . implode("','", $form_dir_arr) . "')";
         $arr = sqlStatement($query);
         echo "<select multiple size='4' style='width:300px;' id='forms_to_search' onchange='clear_last_visit();remove_mark_all();find_all();' >";
         while ($res_forms_ids = sqlFetchArray($arr)) {
-            echo "<option value='".attr($res_forms_ids['formdir'])."' selected>".text($res_forms_ids['form_name'])."</option>";
+            echo "<option value='" . attr($res_forms_ids['formdir']) . "' selected>" . text($res_forms_ids['form_name']) . "</option>";
         }
 
         echo "</select>";
@@ -385,7 +387,7 @@ foreach ($ar as $key => $val) {
             /// label/header for recurring days
             echo "<hr />";
             echo "<div class='text' id='appointments'>\n";
-            print "<h1>".xlt('Recurrent Appointments').":</h1>";
+            print "<h1>" . xlt('Recurrent Appointments') . ":</h1>";
 
             //fetch the data of the recurring days
             $recurrences = fetchRecurrences($pid);
@@ -406,7 +408,7 @@ foreach ($ar as $key => $val) {
                     echo "<div class='text' >";
                     echo "<span>" . xlt('Appointment Category') . ': ' . xlt($row['pc_catname']) . "</span>";
                     echo "<br />";
-                    echo "<span>" . xlt('Recurrence') . ': ' .text($row['pc_recurrspec']) . "</span>";
+                    echo "<span>" . xlt('Recurrence') . ': ' . text($row['pc_recurrspec']) . "</span>";
                     echo "<br />";
                     $red_text = ""; //if ends in a week, make font red
                     if (ends_in_a_week($row['pc_endDate'])) {
@@ -423,7 +425,7 @@ foreach ($ar as $key => $val) {
         } elseif ($val == "demographics") {
             echo "<hr />";
             echo "<div class='text demographics' id='DEM'>\n";
-            print "<h1>".xlt('Patient Data').":</h1>";
+            print "<h1>" . xlt('Patient Data') . ":</h1>";
             // printRecDataOne($patient_data_array, getRecPatientData ($pid), $N);
             $result1 = getPatientData($pid);
             $result2 = getEmployerData($pid);
@@ -435,7 +437,7 @@ foreach ($ar as $key => $val) {
             echo "<hr />";
             echo "<div class='text history' id='HIS'>\n";
             if (AclMain::aclCheckCore('patients', 'med')) {
-                print "<h1>".xlt('History Data').":</h1>";
+                print "<h1>" . xlt('History Data') . ":</h1>";
                 // printRecDataOne($history_data_array, getRecHistoryData ($pid), $N);
                 $result1 = getHistoryData($pid);
                 echo "   <table>\n";
@@ -451,22 +453,22 @@ foreach ($ar as $key => $val) {
         } elseif ($val == "insurance") {
             echo "<hr />";
             echo "<div class='text insurance'>";
-            echo "<h1>".xlt('Insurance Data').":</h1>";
-            print "<br /><span class=bold>".xlt('Primary Insurance Data').":</span><br />";
+            echo "<h1>" . xlt('Insurance Data') . ":</h1>";
+            print "<br /><span class=bold>" . xlt('Primary Insurance Data') . ":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
-            print "<span class=bold>".xlt('Secondary Insurance Data').":</span><br />";
+            print "<span class=bold>" . xlt('Secondary Insurance Data') . ":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
-            print "<span class=bold>".xlt('Tertiary Insurance Data').":</span><br />";
+            print "<span class=bold>" . xlt('Tertiary Insurance Data') . ":</span><br />";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
             echo "</div>";
         } elseif ($val == "billing") {
             echo "<hr />";
             echo "<div class='text billing'>";
-            print "<h1>".xlt('Billing Information').":</h1>";
+            print "<h1>" . xlt('Billing Information') . ":</h1>";
             if (!empty($ar['newpatient']) && count($ar['newpatient']) > 0) {
                 $billings = array();
                 echo "<table>";
-                echo "<tr><td width='400' class='bold'>".xlt('Code')."</td><td class='bold'>".xlt('Fee')."</td></tr>\n";
+                echo "<tr><td width='400' class='bold'>" . xlt('Code') . "</td><td class='bold'>" . xlt('Fee') . "</td></tr>\n";
                 $total = 0.00;
                 $copays = 0.00;
                 foreach ($ar['newpatient'] as $be) {
@@ -476,7 +478,7 @@ foreach ($ar as $key => $val) {
                     foreach ($billing as $b) {
                         echo "<tr>\n";
                         echo "<td class=text>";
-                        echo text($b['code_type']) . ":\t" . text($b['code']) . "&nbsp;". text($b['modifier']) . "&nbsp;&nbsp;&nbsp;" . text($b['code_text']) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                        echo text($b['code_type']) . ":\t" . text($b['code']) . "&nbsp;" . text($b['modifier']) . "&nbsp;&nbsp;&nbsp;" . text($b['code_text']) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
                         echo "</td>\n";
                         echo "<td class=text>";
                         echo text(oeFormatMoney($b['fee']));
@@ -490,9 +492,9 @@ foreach ($ar as $key => $val) {
                 }
 
                 echo "<tr><td>&nbsp;</td></tr>";
-                echo "<tr><td class=bold>".xlt('Sub-Total')."</td><td class=text>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
-                echo "<tr><td class=bold>".xlt('Paid')."</td><td class=text>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
-                echo "<tr><td class=bold>".xlt('Total')."</td><td class=text>" . text(oeFormatMoney($total)) . "</td></tr>";
+                echo "<tr><td class=bold>" . xlt('Sub-Total') . "</td><td class=text>" . text(oeFormatMoney($total + abs($copays))) . "</td></tr>";
+                echo "<tr><td class=bold>" . xlt('Paid') . "</td><td class=text>" . text(oeFormatMoney(abs($copays))) . "</td></tr>";
+                echo "<tr><td class=bold>" . xlt('Total') . "</td><td class=text>" . text(oeFormatMoney($total)) . "</td></tr>";
                 echo "</table>";
                 echo "<pre>";
                 //print_r($billings);
@@ -526,22 +528,22 @@ foreach ($ar as $key => $val) {
                 echo "<hr />";
                 echo "<div class='text immunizations'>\n";
                 print "<h1>" . xlt('Patient Immunization') . ":</h1>";
-                $sql = "select i1.immunization_id, i1.administered_date, substring(i1.note,1,20) as immunization_note, c.code_text_short ".
-                   " from immunizations i1 ".
-                   " left join code_types ct on ct.ct_key = 'CVX' ".
-                   " left join codes c on c.code_type = ct.ct_id AND i1.cvx_code = c.code ".
-                   " where i1.patient_id = ? and i1.added_erroneously = 0 ".
+                $sql = "select i1.immunization_id, i1.administered_date, substring(i1.note,1,20) as immunization_note, c.code_text_short " .
+                   " from immunizations i1 " .
+                   " left join code_types ct on ct.ct_key = 'CVX' " .
+                   " left join codes c on c.code_type = ct.ct_id AND i1.cvx_code = c.code " .
+                   " where i1.patient_id = ? and i1.added_erroneously = 0 " .
                    " order by administered_date desc";
                 $result = sqlStatement($sql, array($pid));
-                while ($row=sqlFetchArray($result)) {
+                while ($row = sqlFetchArray($result)) {
                   // Figure out which name to use (ie. from cvx list or from the custom list)
                     if ($GLOBALS['use_custom_immun_list']) {
-                         $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
+                         $vaccine_display = generate_display_field(array('data_type' => '1','list_id' => 'immunizations'), $row['immunization_id']);
                     } else {
                         if (!empty($row['code_text_short'])) {
                             $vaccine_display = xlt($row['code_text_short']);
                         } else {
-                            $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
+                            $vaccine_display = generate_display_field(array('data_type' => '1','list_id' => 'immunizations'), $row['immunization_id']);
                         }
                     }
 
@@ -561,10 +563,10 @@ foreach ($ar as $key => $val) {
             echo "<hr />";
             echo "<div class='text transactions'>\n";
             print "<h1>" . xlt('Patient Communication sent') . ":</h1>";
-            $sql="SELECT concat( 'Messsage Type: ', batchcom.msg_type, ', Message Subject: ', batchcom.msg_subject, ', Sent on:', batchcom.msg_date_sent ) AS batchcom_data, batchcom.msg_text, concat( users.fname, users.lname ) AS user_name FROM `batchcom` JOIN `users` ON users.id = batchcom.sent_by WHERE batchcom.patient_id=?";
+            $sql = "SELECT concat( 'Messsage Type: ', batchcom.msg_type, ', Message Subject: ', batchcom.msg_subject, ', Sent on:', batchcom.msg_date_sent ) AS batchcom_data, batchcom.msg_text, concat( users.fname, users.lname ) AS user_name FROM `batchcom` JOIN `users` ON users.id = batchcom.sent_by WHERE batchcom.patient_id=?";
             // echo $sql;
             $result = sqlStatement($sql, array($pid));
-            while ($row=sqlFetchArray($result)) {
+            while ($row = sqlFetchArray($result)) {
                 echo text($row['batchcom_data']) . ", By: " . text($row['user_name']) . "<br />Text:<br /> " . text($row['msg_txt']) . "<br />\n";
             }
 
@@ -601,7 +603,7 @@ foreach ($ar as $key => $val) {
                 //  the image_type_to_extension() is not working to identify pdf.
                 $extension = strtolower(substr($fname, strrpos($fname, ".")));
                 if ($extension != '.pdf') { // Will print pdf header within pdf import
-                    echo "<h3>" . xlt('Document') . " '" . text($fname) ."'</h3>";
+                    echo "<h3>" . xlt('Document') . " '" . text($fname) . "'</h3>";
                 }
 
                 $notes = $d->get_notes();
@@ -627,7 +629,7 @@ foreach ($ar as $key => $val) {
 
                 // adding support for .txt MDM-TXA interface/orders/receive_hl7_results.inc.php
                 if ($extension != (".pdf" || ".txt")) {
-                    $tempCDoc = new C_Document;
+                    $tempCDoc = new C_Document();
                     $tempFile = $tempCDoc->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                     // tmp file in temporary_files_dir
                     $tempFileName = tempnam($GLOBALS['temporary_files_dir'], "oer");
@@ -641,10 +643,10 @@ foreach ($ar as $key => $val) {
                     if ($PDF_OUTPUT) {
                         // OK to link to the image file because it will be accessed by the
                         // mPDF parser and not the browser.
-                        $tempDocC = new C_Document;
+                        $tempDocC = new C_Document();
                         $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                         // tmp file in ../documents/temp since need to be available via webroot
-                        $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'].'/documents/temp', "oer");
+                        $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
                         file_put_contents($from_file_tmp_web_name, $fileTemp);
                         echo "<img src='$from_file_tmp_web_name'";
                         // Flag images with excessive width for possible stylesheet action.
@@ -669,8 +671,8 @@ foreach ($ar as $key => $val) {
                         $err = '';
                         try {
                             // below header isn't being used. missed maybe!
-                            $pg_header = "<span>" . xlt('Document') . " " . text($fname) ."</span>";
-                            $tempDocC = new C_Document;
+                            $pg_header = "<span>" . xlt('Document') . " " . text($fname) . "</span>";
+                            $tempDocC = new C_Document();
                             $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                             // tmp file in temporary_files_dir
                             $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
@@ -689,9 +691,9 @@ foreach ($ar as $key => $val) {
                             unlink($from_file_tmp_name);
                             $archive_name = ($GLOBALS['temporary_files_dir'] . '/' . report_basename($pid)['base'] . ".zip");
                             $rtn = zip_content(basename($d->url), $archive_name, $pdfTemp);
-                            $err = "<span>" . xlt('PDF Document Parse Error and not included. Check if included in archive.') . " : " . text($fname) ."</span>";
+                            $err = "<span>" . xlt('PDF Document Parse Error and not included. Check if included in archive.') . " : " . text($fname) . "</span>";
                             $pdf->writeHTML($err);
-                            $staged_docs[] = array('path'=>$d->url, 'fname'=>$fname);
+                            $staged_docs[] = array('path' => $d->url, 'fname' => $fname);
                         } finally {
                             unlink($from_file_tmp_name);
                             // Make sure whatever follows is on a new page. Maybe!
@@ -705,17 +707,17 @@ foreach ($ar as $key => $val) {
                         }
                     } elseif ($extension == ".txt") {
                         echo "<pre>";
-                        $tempDocC = new C_Document;
+                        $tempDocC = new C_Document();
                         $textTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                         echo text($textTemp);
                         echo "</pre>";
                     } else {
                         if ($PDF_OUTPUT) {
                             // OK to link to the image file because it will be accessed by the mPDF parser and not the browser.
-                            $tempDocC = new C_Document;
+                            $tempDocC = new C_Document();
                             $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, false, true, true);
                             // tmp file in ../documents/temp since need to be available via webroot
-                            $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'].'/documents/temp', "oer");
+                            $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
                             file_put_contents($from_file_tmp_web_name, $fileTemp);
                             echo "<img src='$from_file_tmp_web_name'><br /><br />";
                             $tmp_files_remove[] = $from_file_tmp_web_name;
@@ -818,7 +820,7 @@ foreach ($ar as $key => $val) {
                 echo "(" . text(oeFormatSDFT(strtotime($dateres["date"]))) . ") ";
                 if ($res[1] == 'newpatient') {
                     // display the provider info
-                    echo ' '. xlt('Provider') . ': ' . text(getProviderName(getProviderIdOfEncounter($form_encounter)));
+                    echo ' ' . xlt('Provider') . ': ' . text(getProviderName(getProviderIdOfEncounter($form_encounter)));
                 }
 
                 echo "<br />\n";
@@ -855,7 +857,7 @@ foreach ($ar as $key => $val) {
                         "ORDER BY b.date",
                         array($pid, $form_encounter)
                     );
-                    while ($brow=sqlFetchArray($bres)) {
+                    while ($brow = sqlFetchArray($bres)) {
                         echo "<div class='bold' style='display: inline-block'>&nbsp;" . xlt('Procedure') . ": </div><div class='text' style='display: inline-block'>" .
                             text($brow['code']) . " " . text($brow['code_text']) . "</div><br />\n";
                     }
@@ -914,7 +916,7 @@ if ($PDF_OUTPUT) {
                     header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
                     header("Content-Type: application/zip; charset=utf-8");
                     header("Content-Length: " . filesize($archive_name));
-                    header('Content-Disposition: attachment; filename="'. basename($archive_name) .'"');
+                    header('Content-Disposition: attachment; filename="' . basename($archive_name) . '"');
 
                     ob_end_clean();
                     @readfile($archive_name) or error_log("Archive temp file not found: " . $archive_name);
@@ -959,8 +961,8 @@ if ($PDF_OUTPUT) {
     <?php if (!$printable) { // Set up translated strings for use by interactive search ?>
 <script type="text/javascript">
 var xl_string = <?php echo json_encode(array(
-    'spcl_chars' => xla('Special characters are not allowed').'.',
-    'not_found'  => xla('No results found').'.',
+    'spcl_chars' => xla('Special characters are not allowed') . '.',
+    'not_found'  => xla('No results found') . '.',
     'results'    => xla('Showing result'),
     'literal_of' => xla('of'),
 ));

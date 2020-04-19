@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * QRDA Functions
@@ -33,12 +34,12 @@ function getQRDAStratumInfo($patArr, $begin_date)
     $startumArr = array();
     if (count($patArr) > 0) {
         //Age Between 3 and 11
-        $stratumOneQry = "SELECT FLOOR( DATEDIFF( '".add_escape_custom($begin_date)."' , DOB ) /365 ) as pt_age FROM patient_data WHERE pid IN (".add_escape_custom(implode(",", $patArr)).") HAVING  (pt_age BETWEEN 1 AND 10) ";
+        $stratumOneQry = "SELECT FLOOR( DATEDIFF( '" . add_escape_custom($begin_date) . "' , DOB ) /365 ) as pt_age FROM patient_data WHERE pid IN (" . add_escape_custom(implode(",", $patArr)) . ") HAVING  (pt_age BETWEEN 1 AND 10) ";
         $stratumOneRes = sqlStatement($stratumOneQry);
         $stratumOneRows = sqlNumRows($stratumOneRes);
 
         //Age Between 12 and 17
-        $stratumTwoQry = "SELECT FLOOR( DATEDIFF( '".add_escape_custom($begin_date)."' , DOB ) /365 ) as pt_age FROM patient_data WHERE pid IN (".add_escape_custom(implode(",", $patArr)).") HAVING  (pt_age BETWEEN 11 AND 16) ";
+        $stratumTwoQry = "SELECT FLOOR( DATEDIFF( '" . add_escape_custom($begin_date) . "' , DOB ) /365 ) as pt_age FROM patient_data WHERE pid IN (" . add_escape_custom(implode(",", $patArr)) . ") HAVING  (pt_age BETWEEN 11 AND 16) ";
         $stratumTwoRes = sqlStatement($stratumTwoQry);
         $stratumTwoRows = sqlNumRows($stratumTwoRes);
         $startumArr[1] = $stratumOneRows;
@@ -60,9 +61,9 @@ function getQRDAPayerInfo($patArr)
     $payerCheckArr['Private Health Insurance'] = 0;
     $payerCheckArr['Other'] = 0;
     if (count($patArr) > 0) {
-        $insQry = "SELECT insd.*, ic.ins_type_code FROM (SELECT pid, provider FROM insurance_data WHERE type = 'primary' ORDER BY id DESC) insd ".
-                  "INNER JOIN  insurance_companies ic ON insd.provider = ic.id ".
-                  "WHERE insd.pid IN (".add_escape_custom(implode(",", $patArr)).")";
+        $insQry = "SELECT insd.*, ic.ins_type_code FROM (SELECT pid, provider FROM insurance_data WHERE type = 'primary' ORDER BY id DESC) insd " .
+                  "INNER JOIN  insurance_companies ic ON insd.provider = ic.id " .
+                  "WHERE insd.pid IN (" . add_escape_custom(implode(",", $patArr)) . ")";
         $insRes = sqlStatement($insQry);
         while ($insRow = sqlFetchArray($insRes)) {
             if ($insRow['ins_type_code'] == 8) {//Self Pay (Private Insurance)
@@ -104,7 +105,7 @@ function getQRDAPatientNeedInfo($patArr)
 
     $mainArr = array();
     if (count($patArr) > 0) {
-        $patRes = sqlStatement("SELECT pid, sex, race, ethnicity FROM patient_data WHERE pid IN (".add_escape_custom(implode(",", $patArr)).")");
+        $patRes = sqlStatement("SELECT pid, sex, race, ethnicity FROM patient_data WHERE pid IN (" . add_escape_custom(implode(",", $patArr)) . ")");
         while ($patRow = sqlFetchArray($patRes)) {
             //Gender Collection
             if ($patRow['sex'] == "Male") {
@@ -156,8 +157,8 @@ function getQRDAPatientNeedInfo($patArr)
 function payerPatient($patient_id)
 {
     $payer = 'Other';
-    $insQry = "SELECT insd.*, ic.ins_type_code FROM (SELECT pid, provider FROM insurance_data WHERE type = 'primary' ORDER BY id DESC) insd ".
-              "INNER JOIN  insurance_companies ic ON insd.provider = ic.id ".
+    $insQry = "SELECT insd.*, ic.ins_type_code FROM (SELECT pid, provider FROM insurance_data WHERE type = 'primary' ORDER BY id DESC) insd " .
+              "INNER JOIN  insurance_companies ic ON insd.provider = ic.id " .
               "WHERE insd.pid = ?";
     $insRes = sqlStatement($insQry, array($patient_id));
     while ($insRow = sqlFetchArray($insRes)) {
@@ -226,11 +227,11 @@ function allActiveMedsPat($patient_id, $from_date, $to_date)
 function allProcPat($proc_type = "Procedure", $patient_id, $from_date, $to_date)
 {
     $procArr = array();
-    $procQry = "SELECT poc.procedure_code, poc.procedure_name, po.date_ordered, fe.encounter,fe.date FROM form_encounter fe ".
-            "INNER JOIN forms f ON f.encounter = fe.encounter AND f.deleted != 1 AND f.formdir = 'procedure_order' ".
-            "INNER JOIN procedure_order po ON po.encounter_id = f.encounter ".
-            "INNER JOIN procedure_order_code poc ON poc.procedure_order_id = po.procedure_order_id ".
-            "WHERE poc.procedure_order_title = ? AND po.patient_id = ? ".
+    $procQry = "SELECT poc.procedure_code, poc.procedure_name, po.date_ordered, fe.encounter,fe.date FROM form_encounter fe " .
+            "INNER JOIN forms f ON f.encounter = fe.encounter AND f.deleted != 1 AND f.formdir = 'procedure_order' " .
+            "INNER JOIN procedure_order po ON po.encounter_id = f.encounter " .
+            "INNER JOIN procedure_order_code poc ON poc.procedure_order_id = po.procedure_order_id " .
+            "WHERE poc.procedure_order_title = ? AND po.patient_id = ? " .
             "AND (po.date_ordered BETWEEN ? AND ?)";
     $procRes = sqlStatement($procQry, array($proc_type, $patient_id, $from_date, $to_date));
     while ($procRow = sqlFetchArray($procRes)) {
@@ -243,10 +244,10 @@ function allProcPat($proc_type = "Procedure", $patient_id, $from_date, $to_date)
 function allVitalsPat($patient_id, $from_date, $to_date)
 {
     $vitArr = array();
-    $vitQry = "SELECT fe.encounter, v.bps, v.date,v.bpd,v.BMI as bmi FROM form_encounter fe ".
-            "INNER JOIN forms f ON f.encounter = fe.encounter AND f.deleted != 1 AND f.formdir = 'vitals' ".
-            "INNER JOIN form_vitals v ON v.id = f.form_id ".
-            "WHERE v.pid = ? ".
+    $vitQry = "SELECT fe.encounter, v.bps, v.date,v.bpd,v.BMI as bmi FROM form_encounter fe " .
+            "INNER JOIN forms f ON f.encounter = fe.encounter AND f.deleted != 1 AND f.formdir = 'vitals' " .
+            "INNER JOIN form_vitals v ON v.id = f.form_id " .
+            "WHERE v.pid = ? " .
             "AND (v.date BETWEEN ? AND ?)";
     $vitRes = sqlStatement($vitQry, array($patient_id, $from_date, $to_date));
     while ($vitRow = sqlFetchArray($vitRes)) {
@@ -259,8 +260,8 @@ function allVitalsPat($patient_id, $from_date, $to_date)
 function allImmuPat($patient_id, $from_date, $to_date)
 {
     $immArr = array();
-    $immQry =   "SELECT * FROM immunizations ".
-            "WHERE patient_id = ? ".
+    $immQry =   "SELECT * FROM immunizations " .
+            "WHERE patient_id = ? " .
             "AND (administered_date BETWEEN ? AND ?)";
     $immRes = sqlStatement($immQry, array($patient_id, $from_date, $to_date));
     while ($immRow = sqlFetchArray($immRes)) {

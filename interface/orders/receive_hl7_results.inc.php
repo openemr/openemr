@@ -1,4 +1,5 @@
 <?php
+
 /**
 * Functions to support parsing and saving hl7 results.
 *
@@ -283,7 +284,7 @@ function rhl7DecodeData($enctype, &$src)
     if ($enctype == 'Hex') {
         $data = '';
         for ($i = 0; $i < strlen($src) - 1; $i += 2) {
-            $data .= chr(hexdec($src[$i] . $src[$i+1]));
+            $data .= chr(hexdec($src[$i] . $src[$i + 1]));
         }
 
         return $data;
@@ -987,7 +988,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $amain[$i]['res'] = array();
         } else if ($a[0] == 'NTE' && $context == 'OBR') {
             // Append this note to those for the most recent report.
-            $amain[count($amain)-1]['rep']['report_notes'] .= rhl7Text($a[3], true) . "\n";
+            $amain[count($amain) - 1]['rep']['report_notes'] .= rhl7Text($a[3], true) . "\n";
         } else if ('OBX' == $a[0] && 'ORU' == $msgtype) {
             $tmp = explode($d2, $a[3]);
             $result_code = rhl7Text($tmp[0]);
@@ -996,13 +997,14 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             // for its value, then treat it as an extension of that result's value.
             $i = count($amain) - 1;
             $j = count($amain[$i]['res']) - 1;
-            if ($j >= 0 && $context == 'OBX' && $a[2] == 'TX'
-            && $amain[$i]['res'][$j]['result_data_type'] == 'L'
-            && $amain[$i]['res'][$j]['result_code'     ] == $result_code
-            && $amain[$i]['res'][$j]['date'            ] == rhl7DateTime($a[14])
-            && $amain[$i]['res'][$j]['facility'        ] == rhl7Text($a[15])
-            && $amain[$i]['res'][$j]['abnormal'        ] == rhl7Abnormal($a[8])
-            && $amain[$i]['res'][$j]['result_status'   ] == rhl7ReportStatus($a[11])
+            if (
+                $j >= 0 && $context == 'OBX' && $a[2] == 'TX'
+                && $amain[$i]['res'][$j]['result_data_type'] == 'L'
+                && $amain[$i]['res'][$j]['result_code'     ] == $result_code
+                && $amain[$i]['res'][$j]['date'            ] == rhl7DateTime($a[14])
+                && $amain[$i]['res'][$j]['facility'        ] == rhl7Text($a[15])
+                && $amain[$i]['res'][$j]['abnormal'        ] == rhl7Abnormal($a[8])
+                && $amain[$i]['res'][$j]['result_status'   ] == rhl7ReportStatus($a[11])
             ) {
                 $amain[$i]['res'][$j]['comments'] =
                 substr($amain[$i]['res'][$j]['comments'], 0, strlen($amain[$i]['res'][$j]['comments']) - 1) .
@@ -1083,7 +1085,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
 
             // Append this result to those for the most recent report.
             // Note the 'procedure_report_id' item is not yet present.
-            $amain[count($amain)-1]['res'][] = $ares;
+            $amain[count($amain) - 1]['res'][] = $ares;
         } else if ('OBX' == $a[0] && 'MDM' == $msgtype) {
             $context = $a[0];
             if ($a[2] == 'TX') {
@@ -1128,7 +1130,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $ares['date'] = $arep['date_report']; // $arep is left over from the OBR logic.
             // Append this result to those for the most recent report.
             // Note the 'procedure_report_id' item is not yet present.
-            $amain[count($amain)-1]['res'][] = $ares;
+            $amain[count($amain) - 1]['res'][] = $ares;
         } else if ('NTE' == $a[0] && 'OBX' == $context && 'ORU' == $msgtype) {
             // Append this note to the most recent result item's comments.
             $alast = count($amain) - 1;

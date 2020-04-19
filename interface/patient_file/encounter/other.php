@@ -1,4 +1,5 @@
 <?php
+
 /**
  * other.php
  *
@@ -15,7 +16,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 //the number of rows to display before resetting and starting a new column:
-$N=10
+$N = 10
 ?>
 
 <html>

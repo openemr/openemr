@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CCR Script.
  *
@@ -20,10 +21,9 @@
  * @link    http://www.open-emr.org
  */
 
-
     $result = getProblemData();
     $row = sqlFetchArray($result);
-    $pCount =0;
+    $pCount = 0;
     //while ($row = sqlFetchArray($result)) {
 
 do {
@@ -32,7 +32,7 @@ do {
     $e_Problem = $ccr->createElement('Problem');
     $e_Problems->appendChild($e_Problem);
 
-    $e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', 'PROB'.$pCount);
+    $e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', 'PROB' . $pCount);
     $e_Problem->appendChild($e_CCRDataObjectID);
 
     $e_DateTime = $ccr->createElement('DateTime');
@@ -105,7 +105,7 @@ do {
     $e_Episode = $ccr->createElement('Episode');
     $e_Episodes->appendChild($e_Episode);
     
-    $e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', 'EP'.$pCount);
+    $e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', 'EP' . $pCount);
     $e_Episode->appendChild($e_CCRDataObjectID);
 
     $e_Episode->appendChild(sourceType($ccr, $sourceID));

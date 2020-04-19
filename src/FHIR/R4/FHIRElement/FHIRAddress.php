@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRElement;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRElement;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -362,7 +364,7 @@ class FHIRAddress extends FHIRElement implements \JsonSerializable
                         $this->addLine($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"line" must be array of objects or null, '.gettype($data['line']).' seen.');
+                    throw new \InvalidArgumentException('"line" must be array of objects or null, ' . gettype($data['line']) . ' seen.');
                 }
             }
             if (isset($data['city'])) {
@@ -384,7 +386,7 @@ class FHIRAddress extends FHIRElement implements \JsonSerializable
                 $this->setPeriod($data['period']);
             }
         } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }
