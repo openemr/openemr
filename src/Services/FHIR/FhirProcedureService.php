@@ -148,7 +148,7 @@ class FhirProcedureService
         $reasonCodeCoding = new FHIRCoding();
         $reasonCodeCoding->setSystem("http://snomed.info/sct");
         $reasonCodeCoding->setCode($data['order_diagnosis']);
-        $reasonCodeCoding->setDisplay($data['order_diagnosis']);  
+        $reasonCodeCoding->setDisplay($data['order_diagnosis']);
         $reasonCode->addCoding($reasonCodeCoding);
 
         $outcome = new FHIRCodeableConcept();
