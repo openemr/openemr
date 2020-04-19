@@ -30,7 +30,7 @@ class FhirProcedureService
         $this->id = $id;
     }
 
-    public function get() 
+    public function get()
     {
         return "SELECT ptype.procedure_code,
                         pcode.procedure_name,
@@ -148,7 +148,7 @@ class FhirProcedureService
         $reasonCodeCoding = new FHIRCoding();
         $reasonCodeCoding->setSystem("http://snomed.info/sct");
         $reasonCodeCoding->setCode($data['order_diagnosis']);
-        $reasonCodeCoding->setDisplay($data['order_diagnosis']);    
+        $reasonCodeCoding->setDisplay($data['order_diagnosis']);  
         $reasonCode->addCoding($reasonCodeCoding);
 
         $outcome = new FHIRCodeableConcept();
@@ -163,10 +163,10 @@ class FhirProcedureService
         } else {
             $outcomeCoding->setCode("385671000");
             $outcomeCoding->setDisplay("Unsuccessful");
-        }            
+        }
         $outcomeCoding->setCode($data['body_site']);
         $outcomeCoding->setDisplay($data['body_site']);
-        $outcome->addCoding($bodySiteCoding);        
+        $outcome->addCoding($bodySiteCoding);
 
         $bodySite = new FHIRCodeableConcept();
         $bodySiteCoding = new FHIRCoding();
