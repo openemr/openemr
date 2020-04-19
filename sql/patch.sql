@@ -282,3 +282,15 @@ ALTER TABLE `api_token` ADD `token_auth_salt` varchar(255);
 #IfMissingColumn api_token token_auth
 ALTER TABLE `api_token` ADD `token_auth` varchar(255);
 #EndIf
+
+#IfNotIndex openemr_postcalendar_events index_pcid
+ALTER TABLE `openemr_postcalendar_events` ADD INDEX `index_pcid` (`pc_pid`);
+#EndIf
+
+#IfNotIndex medex_recalls i_eventDate
+ALTER TABLE `medex_recalls` ADD INDEX `i_eventDate` (`r_eventDate`);
+#EndIf
+
+#IfNotIndex medex_outgoing i_msg_date
+ALTER TABLE `medex_outgoing` ADD INDEX `i_msg_date` (`msg_date`);
+#EndIf

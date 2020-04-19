@@ -54,15 +54,21 @@ if ($_REQUEST['go'] == 'Preferences') {
         $country_code = ($_REQUEST['PHONE_country_code'] ? $_REQUEST['PHONE_country_code'] : '1');
 
         $myValues = array($facilities, $providers, $HIPAA, $country_code, $MSGS, $_REQUEST['POSTCARDS_local'], $_REQUEST['POSTCARDS_remote'], $_REQUEST['LABELS_local'], $_REQUEST['chart_label_type'], $_REQUEST['combine_time'], $_REQUEST['postcard_top']);
-
-        $_GLOBALS['chart_label_type'] = $_REQUEST['chart_label_type'];
-        sqlStatement('UPDATE `globals` SET gl_value = ? WHERE gl_name LIKE "chart_label_type" ', array($_REQUEST['chart_label_type']));
-
+        
         $result['output'] = sqlQuery($sql, $myValues);
         if ($result['output'] == false) {
             $result['success'] = "medex_prefs updated";
         }
-        $result = $MedEx->login('1');
+    
+        $_GLOBALS['chart_label_type'] = $_REQUEST['chart_label_type'];
+        sqlStatement('UPDATE `globals` SET gl_value = ? WHERE gl_name LIKE "chart_label_type" ', array($_REQUEST['chart_label_type']));
+    
+        if (!$_POST['execute_interval']) {
+            $_POST['execute_interval'] ="0"; }
+        $sql_Background = "UPDATE `background_services` set `active`='1',running='0',execute_interval=?,next_run=NOW() + interval 1 minute WHERE `name`='MedEx'";
+        sqlStatement($sql_Background, array($_POST['execute_interval']));
+    
+        $result['success'] = "medex_prefs updated";
         echo json_encode($result);
     }
     exit;

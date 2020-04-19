@@ -5304,7 +5304,8 @@ CREATE TABLE `openemr_postcalendar_events` (
   `pc_room` varchar(20) NOT NULL DEFAULT '',
   PRIMARY KEY  (`pc_eid`),
   KEY `basic_event` (`pc_catid`,`pc_aid`,`pc_eventDate`,`pc_endDate`,`pc_eventstatus`,`pc_sharing`,`pc_topic`),
-  KEY `pc_eventDate` (`pc_eventDate`)
+  KEY `pc_eventDate` (`pc_eventDate`),
+  KEY `index_pcid` (`pc_pid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 ;
 
 -----------------------------------------------------------
@@ -9939,7 +9940,8 @@ CREATE TABLE `medex_outgoing` (
   `msg_extra_text` text,
   `medex_uid` int(11),
   PRIMARY KEY (`msg_uid`),
-  UNIQUE KEY `msg_eid` (`msg_uid`,`msg_pc_eid`,`medex_uid`)
+  UNIQUE KEY `msg_eid` (`msg_uid`,`msg_pc_eid`,`medex_uid`),
+  KEY `i_msg_date` (`msg_date`)
 ) ENGINE=InnoDB;
 
 --
@@ -9989,7 +9991,8 @@ CREATE TABLE `medex_recalls` (
   `r_reason` varchar(255) DEFAULT NULL,
   `r_created` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`r_ID`),
-  UNIQUE KEY `r_PRACTID` (`r_PRACTID`,`r_pid`)
+  UNIQUE KEY `r_PRACTID` (`r_PRACTID`,`r_pid`),
+  KEY `i_event_date` (`r_event_data`)
 ) ENGINE=InnoDB;
 
 
