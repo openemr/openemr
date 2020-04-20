@@ -113,7 +113,7 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
 
 <body class="body_top">
   <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
-    <h1>Patient's Panels</h1>
+    <h2>Patient's Panels</h2>
     <?php
     ////////////////////////////////////////////////////////////////
     //display panels information
@@ -135,6 +135,7 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
         <th>Discharge Date</th>
         <th>Next Follow Up Date</th>
         <th>&nbsp;</th>
+        <th>&nbsp;</th>
       </tr>
 
    <?php
@@ -149,11 +150,22 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
        <td><?php echo attr($row['enrollment_date']); ?></td>
        <td><?php echo attr($row['discharge_date']); ?></td>
        <td><?php
-              if($row['status'] == "Active"){
-                echo attr(getPanelAppointment($row['panel'], $pid)['pc_eventDate'])
-                . " " . attr(getPanelAppointment($row['panel'], $pid)['pc_startTime']) ;
-              }
+            $pc_startTime = sqlFetchArray(getPanelAppointment($row['panel'], $pid))['pc_startTime'];
+            $pc_eventDate = sqlFetchArray(getPanelAppointment($row['panel'], $pid))['pc_eventDate'];
+            if($row['status'] == "Active" and count($pc_startTime) > 0){
+              echo attr($pc_eventDate) . ", "
+                 . attr(date('h:i A', strtotime($pc_startTime))) . " ("
+                 . date('D', strtotime($pc_eventDate)) . ") "
+                 . " <br/>";
+             }
           ?></td>
+      <td>
+        <form action="panel_history.php" method="post">
+          <input type="hidden" name="panel" value="<?php echo attr($row['panel']); ?>" />
+          <input type="hidden" name="enrollment_id" value="<?php echo attr($row['id']); ?>" />
+         <input type="submit" value="History"/>
+       </form>
+      </td>
        <td>
          <form action="#" method="post">
            <input type="hidden" name="request" value="discharge" />
@@ -162,6 +174,7 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
           onClick="return testFunction('<?php echo attr($row['category']) . ": " . attr($row['panel']); ?>')" />
           </form>
        </td>
+
      </tr>
    <?php } // end the while loop?>
    </table>

@@ -122,11 +122,7 @@ function getPatientPanelsInfo($pid, $status = "active")
     return -1;
   }
   else {
-    #print the patient Panels
-    #TODO delete below 2 lines
-    if (mysqli_num_rows($resultSet) === 0) {
-      return -1;
-    }
+
 
     $sql = "SELECT e.*, p.name AS panel, c.name AS  category  ";
     $sql .= "FROM panel_enrollment AS  e ";
@@ -191,15 +187,26 @@ function dischargePatient($enrollment_id){
 
   return sqlQuery($sql);
 }
-
-function getPanelAppointment($panel_name, $pid){
-  $sql  = "SELECT e.pc_eventDate, e.pc_startTime, c.pc_catname, e.pc_apptstatus ";
+/**
+  * Purpose:
+  * return the list of the appointment for the selected panel and patient
+  * @param  string  $panel_name panel name
+  * @param  string $pid patient id number
+  * @param  string $eventDates
+  * if it next, it will return the next follow up appointment
+  * if it all, it will return all the appointments
+  * @return array   appointments list
+  */
+function getPanelAppointment($panel_name, $pid, $eventDates = 'next'){
+  $sql  = "SELECT e.pc_eventDate, e.pc_startTime, e.pc_endTime, c.pc_catname, e.pc_apptstatus ";
   $sql .= "FROM openemr_postcalendar_events AS e, openemr_postcalendar_categories AS c ";
   $sql .= "WHERE  e.pc_catid = c.pc_catid ";
   $sql .= "AND LOWER(c.pc_catname) LIKE '%" . add_escape_custom($panel_name) . " %'  ";
   $sql .= "AND e.pc_pid = '" . add_escape_custom($pid) . "' ";
-  $sql .= "AND e.pc_eventDate > CURRENT_DATE ";
+  if($eventDates == 'next'){
+    $sql .= "AND e.pc_eventDate >= CURRENT_DATE ";
+  }
   $sql .= "ORDER BY e.pc_eventDate ASC , e.pc_startTime ASC ";
 
-  return sqlQuery($sql);
+  return sqlStatement($sql);
 }

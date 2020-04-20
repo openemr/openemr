@@ -1559,12 +1559,21 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             echo ("This patien is not inrolled in any panel");
                           }
                           while ($row = sqlFetchArray($resultSet)) {
+                            $pc_startTime = sqlFetchArray(getPanelAppointment($row['panel'], $pid))['pc_startTime'];
+                            $pc_eventDate = sqlFetchArray(getPanelAppointment($row['panel'], $pid))['pc_eventDate'];
+
                             //print the category and the sub category
                             echo "<b>" . attr($row['category']) . ": </b>";
                             echo attr($row['panel']) . " <br/>";
                             echo "<b>Enrollment Date: </b>" . attr($row['enrollment_date']) . " <br/>";
-                            echo "<b>Follow Up Date: </b>" .attr(getPanelAppointment($row['panel'], $pid)['pc_eventDate'])
-                            . " " . attr(getPanelAppointment($row['panel'], $pid)['pc_startTime']) . " <br/><br/>";
+                            if (count($pc_startTime) > 0){
+                              echo "<b>Follow Up Date: </b>"
+                                  . attr($pc_eventDate) . ", "
+                                  . attr(date('h:i A', strtotime($pc_startTime))) . " ("
+                                  . date('D', strtotime($pc_eventDate)) . ") "
+                                  . " <br/>";
+                            }
+                            echo "<br/>"; // to keep empty line between the panels
                           }
 
                         echo "<br/>";
