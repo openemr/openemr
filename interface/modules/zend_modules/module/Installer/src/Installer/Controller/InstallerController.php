@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php
  *
@@ -41,7 +42,7 @@ class InstallerController extends AbstractActionController
 
     public function __construct(InstModuleTable $installerTable)
     {
-        $this->listenerObject = new Listener;
+        $this->listenerObject = new Listener();
         $this->InstallerTable = $installerTable;
         $this->dbAdapter = $adapter;
     }

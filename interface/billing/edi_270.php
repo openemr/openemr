@@ -1,4 +1,5 @@
 <?php
+
 /**
  * main file for the 270 batch creation.
  * This report is the batch report required for batch eligibility verification.
@@ -18,7 +19,6 @@
  * @copyright Copyright (c) 2019-2020 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/forms.inc");
@@ -331,7 +331,7 @@ if ($exclude_policy != "") {
         <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Eligibility 270 Inquiry Batch'); ?></span>
 
         <div id="report_parameters_daterange">
-            <?php echo text(oeFormatShortDate($form_from_date)) . " &nbsp; " . xlt('to{{Range}}') . "&nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
+            <?php echo text(oeFormatShortDate($form_from_date)) . " &nbsp; " . xlt('to{{Range}}') . "&nbsp; " . text(oeFormatShortDate($form_to_date)); ?>
         </div>
 
         <form method='post' name='theform' id='theform' action='edi_270.php' onsubmit="return top.restoreSession()">
@@ -375,7 +375,7 @@ if ($exclude_policy != "") {
                                                 <?php foreach ($providers as $user) : ?>
                                                     <option value='<?php echo attr($user['id']); ?>'
                                                         <?php echo $form_provider == $user['id'] ? " selected " : null; ?>
-                                                    ><?php echo text($user['fname']." ".$user['lname']); ?></option>
+                                                    ><?php echo text($user['fname'] . " " . $user['lname']); ?></option>
                                                 <?php endforeach; ?>
                                             </select>
                                         </td>

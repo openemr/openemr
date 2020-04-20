@@ -24,8 +24,8 @@ namespace ESign;
  * @link    http://www.open-emr.org
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/ViewableIF.php';
-require_once $GLOBALS['srcdir'].'/ESign/SignableIF.php';
+require_once $GLOBALS['srcdir'] . '/ESign/ViewableIF.php';
+require_once $GLOBALS['srcdir'] . '/ESign/SignableIF.php';
 
 interface LogIF extends ViewableIF
 {

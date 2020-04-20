@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Functions to help search for codes on the fee sheet
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("$srcdir/../custom/code_types.inc.php");
 
@@ -23,9 +23,9 @@ require_once("$srcdir/../custom/code_types.inc.php");
  */
 function diagnosis_search($search_type_id, $search_type, $search_query)
 {
-    $retval=array();
-    $search=main_code_set_search($search_type, $search_query, 20);
-    while ($code=sqlFetchArray($search)) {
+    $retval = array();
+    $search = main_code_set_search($search_type, $search_query, 20);
+    while ($code = sqlFetchArray($search)) {
         array_push($retval, new code_info($code['code'], $search_type, $code['code_text']));
     }
 

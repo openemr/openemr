@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Generated DocBlock
  *
@@ -12,6 +13,7 @@
  * @copyright Copyright (c) 2006 sunsetsystems <sunsetsystems>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 <?php
 require_once("../../globals.php");

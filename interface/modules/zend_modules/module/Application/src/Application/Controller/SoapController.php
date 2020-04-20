@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Application/src/Application/Controller/SoapController.php
  *
@@ -14,7 +15,6 @@ namespace Application\Controller;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use Application\Listener\Listener;
-
 use Carecoordination\Controller\EncounterccdadispatchController;
 use Laminas\Soap\Server;
 
@@ -28,7 +28,7 @@ class SoapController extends AbstractActionController
     // should only be one call per http request lifecycle, but needs to be double checked.
     public function __construct(EncounterccdadispatchController $encounterCCDADispatchController)
     {
-        $this->listenerObject   = new Listener;
+        $this->listenerObject   = new Listener();
         $this->encounterCCDADispatchController = $encounterCCDADispatchController;
     }
 

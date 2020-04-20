@@ -1,5 +1,7 @@
 <?php
+
 /** @package    verysimple::Phreeze */
+
 require_once("IRenderEngine.php");
 require_once('savant/Savant3.php');
 

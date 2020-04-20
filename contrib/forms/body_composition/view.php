@@ -1,4 +1,5 @@
 <?php
+
 /**
  * body_composition view.php
  *
@@ -41,7 +42,7 @@ function rbvalue($rbname)
 function rbinput($name, $value, $desc, $colname)
 {
     global $row;
-    $ret  = "<input type='radio' name='" . attr($name) . "' value='" . attr($value) ."'";
+    $ret  = "<input type='radio' name='" . attr($name) . "' value='" . attr($value) . "'";
     if ($row[$colname] == $value) {
         $ret .= " checked";
     }

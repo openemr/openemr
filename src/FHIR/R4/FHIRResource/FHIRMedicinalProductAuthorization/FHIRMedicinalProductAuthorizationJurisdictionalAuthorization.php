@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductAuthorization;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductAuthorization;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -222,7 +224,7 @@ class FHIRMedicinalProductAuthorizationJurisdictionalAuthorization extends FHIRB
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['country'])) {
@@ -234,7 +236,7 @@ class FHIRMedicinalProductAuthorizationJurisdictionalAuthorization extends FHIRB
                         $this->addJurisdiction($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"jurisdiction" must be array of objects or null, '.gettype($data['jurisdiction']).' seen.');
+                    throw new \InvalidArgumentException('"jurisdiction" must be array of objects or null, ' . gettype($data['jurisdiction']) . ' seen.');
                 }
             }
             if (isset($data['legalStatusOfSupply'])) {
@@ -243,8 +245,8 @@ class FHIRMedicinalProductAuthorizationJurisdictionalAuthorization extends FHIRB
             if (isset($data['validityPeriod'])) {
                 $this->setValidityPeriod($data['validityPeriod']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

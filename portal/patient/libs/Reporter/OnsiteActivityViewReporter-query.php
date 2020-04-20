@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OnsiteActivityViewReporter-query.php
  *

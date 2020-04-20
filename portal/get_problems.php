@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
@@ -28,7 +29,7 @@
 
     $res = sqlStatement($sql, array($pid));
 
-if (sqlNumRows($res)>0) {
+if (sqlNumRows($res) > 0) {
     ?>
           <table class="table table-striped">
         <tr class="header">
@@ -38,13 +39,13 @@ if (sqlNumRows($res)>0) {
       <th><?php echo xlt('End Date');?></th>
         </tr>
     <?php
-    $even=false;
+    $even = false;
     while ($row = sqlFetchArray($res)) {
-          echo "<tr class='".text($class)."'>";
-          echo "<td>".text($row['title'])."</td>";
-          echo "<td>".text($row['date'])."</td>";
-          echo "<td>".text($row['begdate'])."</td>";
-          echo "<td>".text($row['enddate'])."</td>";
+          echo "<tr class='" . text($class) . "'>";
+          echo "<td>" . text($row['title']) . "</td>";
+          echo "<td>" . text($row['date']) . "</td>";
+          echo "<td>" . text($row['begdate']) . "</td>";
+          echo "<td>" . text($row['enddate']) . "</td>";
           echo "</tr>";
     }
 

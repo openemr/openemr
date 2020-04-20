@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * CQM NQF 0028(2014) Numerator
@@ -52,12 +53,14 @@ class NQF_0028_2014_Numerator implements CqmFilterIF
                                            "AND `pid`=? AND `date`>=? AND `date`<=?", array($patient->id,$beginMinus24Months,$date));
                     // this is basically a check to see if the patient's action has occurred in the two years previous to encounter.
                     // TODO: how to check for the smoking cessation medication types (can also just be a smoking cessation order, ie. prescription)
-                    if (!(empty($smoke_cess)) ||
+                    if (
+                        !(empty($smoke_cess)) ||
                          Helper::checkMed(Medication::SMOKING_CESSATION, $patient, $beginMinus24Months, $date) ||
-                         Helper::checkMed(Medication::SMOKING_CESSATION_ORDER, $patient, $beginMinus24Months, $date)) {
+                         Helper::checkMed(Medication::SMOKING_CESSATION_ORDER, $patient, $beginMinus24Months, $date)
+                    ) {
                         return true;
                     }
-                } else if (Helper::check(ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_NON_USER, $patient, $beginMinus24Months, $date)) {
+                } elseif (Helper::check(ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_NON_USER, $patient, $beginMinus24Months, $date)) {
                     return false;
                 } else {
                     // nothing reported during this date period, so move on to next encounter

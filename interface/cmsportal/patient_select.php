@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient matching and selection for the WordPress Patient Portal.
  *
@@ -16,9 +17,6 @@
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
  */
-
-
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");

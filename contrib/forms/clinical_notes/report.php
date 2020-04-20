@@ -1,4 +1,5 @@
 <?php
+
 /**
  * clinical_notes report.php
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2005 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc");
@@ -23,9 +23,11 @@ function clinical_notes_report($pid, $encounter, $cols, $id)
     if ($data) {
         print "<table cellpadding='0' cellspacing='0'>\n<tr>\n";
         foreach ($data as $key => $value) {
-            if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" ||
-             $key == "authorized" || $key == "activity" || $key == "date" ||
-             $value == "" || $value == "0" || $value == "0.00") {
+            if (
+                $key == "id" || $key == "pid" || $key == "user" || $key == "groupname" ||
+                $key == "authorized" || $key == "activity" || $key == "date" ||
+                $value == "" || $value == "0" || $value == "0.00"
+            ) {
                 continue;
             }
 
@@ -40,8 +42,8 @@ function clinical_notes_report($pid, $encounter, $cols, $id)
                 }
             }
 
-            $key=ucwords(str_replace("_", " ", $key));
-            print "<td valign='top'><span class='bold'>" .text($key). ": </span><span class='text'>" .text($value). "&nbsp;</span></td>\n";
+            $key = ucwords(str_replace("_", " ", $key));
+            print "<td valign='top'><span class='bold'>" . text($key) . ": </span><span class='text'>" . text($value) . "&nbsp;</span></td>\n";
             $count++;
             if ($count == $cols) {
                 $count = 0;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This report lists patients that were seen within a given date
  * range, or all patients if no date range is entered.
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -114,7 +114,7 @@ $(function () {
 
 <div id="report_parameters_daterange">
     <?php if (!(empty($to_date) && empty($from_date))) { ?>
-        <?php echo text(oeFormatShortDate($from_date)) ." &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatShortDate($to_date)); ?>
+        <?php echo text(oeFormatShortDate($from_date)) . " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatShortDate($to_date)); ?>
 <?php } ?>
 </div>
 
@@ -237,7 +237,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         "e.pid = p.pid AND " .
         "e.date >= ? AND " .
         "e.date <= ? ";
-        array_push($sqlArrayBind, $from_date .' 00:00:00', $to_date . ' 23:59:59');
+        array_push($sqlArrayBind, $from_date . ' 00:00:00', $to_date . ' 23:59:59');
         if ($form_provider) {
             $query .= "AND e.provider_id = ? ";
             array_push($sqlArrayBind, $form_provider);
@@ -277,14 +277,14 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         if ($row['DOB']) {
             $dob = $row['DOB'];
             $tdy = $row['edate'] ? $row['edate'] : date('Y-m-d');
-            $ageInMonths = (substr($tdy, 0, 4)*12) + substr($tdy, 5, 2) -
-                   (substr($dob, 0, 4)*12) - substr($dob, 5, 2);
+            $ageInMonths = (substr($tdy, 0, 4) * 12) + substr($tdy, 5, 2) -
+                   (substr($dob, 0, 4) * 12) - substr($dob, 5, 2);
             $dayDiff = substr($tdy, 8, 2) - substr($dob, 8, 2);
             if ($dayDiff < 0) {
                 --$ageInMonths;
             }
 
-            $age = intval($ageInMonths/12);
+            $age = intval($ageInMonths / 12);
         }
 
         if ($_POST['form_csvexport']) {

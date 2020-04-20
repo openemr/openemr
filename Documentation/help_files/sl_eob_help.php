@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Access Control List Help.
  *
@@ -9,6 +10,7 @@
  * @copyright Copyright (c) 2017 Ranganath Pathak <pathak01@hotmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 use OpenEMR\Core\Header;
 
 require_once("../../interface/globals.php");

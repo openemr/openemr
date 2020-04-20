@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRVerificationResult;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRVerificationResult;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -318,8 +320,8 @@ class FHIRVerificationResultAttestation extends FHIRBackboneElement implements \
             if (isset($data['sourceSignature'])) {
                 $this->setSourceSignature($data['sourceSignature']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

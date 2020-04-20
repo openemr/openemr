@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This is the place to put JavaScript functions that are needed to support
  * options.inc.php. Include this in the <head> section of relevant modules.
@@ -12,6 +13,7 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 <script type="text/javascript">
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  $Id$
  *
@@ -35,9 +36,9 @@ function smarty_function_pc_form_nav_open($args = array())
         $target = '';
     }
     
-    $fstart = '<form action="'.pnModURL(__POSTCALENDAR__, 'user', 'view').'"'
+    $fstart = '<form action="' . pnModURL(__POSTCALENDAR__, 'user', 'view') . '"'
             . ' method="post"'
-            . ' enctype="application/x-www-form-urlencoded" '.$target.'>';
+            . ' enctype="application/x-www-form-urlencoded" ' . $target . '>';
             
     echo $fstart;
 }

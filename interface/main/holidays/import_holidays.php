@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/main/holidays/import_holidays.php holidays/clinic handle import/download holidays files
  *
@@ -28,12 +29,12 @@ $holidays_controller = new Holidays_Controller();
 $csv_file_data = $holidays_controller->get_file_csv_data();
 
 //this part download the CSV file after the click on the href link
-if ($_GET['download_file']==1) {
+if ($_GET['download_file'] == 1) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $target_file=$holidays_controller->get_target_file();
+    $target_file = $holidays_controller->get_target_file();
     if (! file_exists($target_file)) {
         echo xlt('file missing');
     } else {
@@ -100,10 +101,11 @@ if ($saved) {
     echo "<p style='color:green'>" .
         xlt('Successfully Completed');
         "</p>\n";
-} elseif (!empty($_POST['bn_upload'])             &&
+} elseif (
+    !empty($_POST['bn_upload'])             &&
         !empty($_POST['import_holidays'])       &&
         !empty($_POST['sync'])
-        ) {
+) {
     echo "<p style='color:red'>" .
         xlt('Operation Failed');
     "</p>\n";
@@ -138,9 +140,9 @@ if ($saved) {
                 <td class='detail' nowrap>
                     <?php
                     if (!empty($csv_file_data)) {?>
-                        <?php $path=explode("/", $holidays_controller->get_target_file());?>
-                        <?php $filename=$path[count($path)-1];?>
-                        <?php unset($path[count($path)-1]);?>
+                        <?php $path = explode("/", $holidays_controller->get_target_file());?>
+                        <?php $filename = $path[count($path) - 1];?>
+                        <?php unset($path[count($path) - 1]);?>
 
                         <a href="#" onclick='window.open("import_holidays.php?download_file=1&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>")'><?php echo text($csv_file_data['date']);?></a>
                         <?php

@@ -1,6 +1,5 @@
 <?php
 
-
 class C_Hl7 extends Controller
 {
 

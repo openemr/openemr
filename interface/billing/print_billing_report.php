@@ -25,7 +25,7 @@ $COLS = 6;
 //global variables:
 if (!isset($_GET["mode"])) {
     if (!isset($_GET["from_date"])) {
-        $from_date=date("Y-m-d");
+        $from_date = date("Y-m-d");
     } else {
         $from_date = $_GET["from_date"];
     }
@@ -37,7 +37,7 @@ if (!isset($_GET["mode"])) {
     }
 
     if (!isset($_GET["code_type"])) {
-        $code_type="all";
+        $code_type = "all";
     } else {
         $code_type = $_GET["code_type"];
     }
@@ -95,7 +95,7 @@ $list = BillingReport::getBillsListBetween($code_type);
 
 if (!isset($_GET["mode"])) {
     if (!isset($_GET["from_date"])) {
-        $from_date=date("Y-m-d");
+        $from_date = date("Y-m-d");
     } else {
         $from_date = $_GET["from_date"];
     }
@@ -107,7 +107,7 @@ if (!isset($_GET["mode"])) {
     }
 
     if (!isset($_GET["code_type"])) {
-        $code_type="all";
+        $code_type = "all";
     } else {
         $code_type = $_GET["code_type"];
     }
@@ -170,7 +170,7 @@ if ($ret = BillingReport::getBillsBetweenReport($code_type)) {
                 print "<table border='0'><tr>\n";   // small table
             } else {
                 print "<table border='0'><tr>\n";     // small table
-                $first_time=0;
+                $first_time = 0;
             }
 
             print "<tr><td colspan='5'><hr /><span class='font-weight-bold'>" . text($name["fname"]) . " " . text($name["lname"]) . "</span><br /><br />\n";

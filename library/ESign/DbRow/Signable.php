@@ -25,9 +25,9 @@ namespace ESign;
  * @link    http://www.open-emr.org
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/SignableIF.php';
-require_once $GLOBALS['srcdir'].'/ESign/Signature.php';
-require_once $GLOBALS['srcdir'].'/ESign/Utils/Verification.php';
+require_once $GLOBALS['srcdir'] . '/ESign/SignableIF.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Signature.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Utils/Verification.php';
 
 abstract class DbRow_Signable implements SignableIF
 {
@@ -67,7 +67,7 @@ abstract class DbRow_Signable implements SignableIF
                 $row['amendment'],
                 $row['signature_hash']
             );
-            $this->_signatures[]= $signature;
+            $this->_signatures[] = $signature;
         }
         
         return $this->_signatures;
@@ -143,7 +143,7 @@ abstract class DbRow_Signable implements SignableIF
         $signatureHash = $this->_verification->hash($signature);
         
         // Append the hash of the signature data to the insert array before we insert
-        $signature[]= $signatureHash;
+        $signature[] = $signatureHash;
         $id = sqlInsert($statement, $signature);
         
         if ($id === false) {

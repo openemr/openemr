@@ -1,4 +1,5 @@
 <?php
+
 /**
 * Administrative loader for lab compendium data.
 *
@@ -252,7 +253,7 @@ if ($form_step == 1) {
                         } // end if
                     } // end while
                     // end SFTP
-                } else if ($form_action == 2) { // load questions
+                } elseif ($form_action == 2) { // load questions
                     // Delete the vendor's current questions.
                     sqlStatement(
                         "DELETE FROM procedure_questions WHERE lab_id = ?",
@@ -297,11 +298,11 @@ if ($form_step == 1) {
                         // Figure out field type.
                         if ($acsv[6] == 'DD') {
                             $fldtype = 'S';
-                        } else if (stristr($acsv[3], 'mm/dd/yy') !== false) {
+                        } elseif (stristr($acsv[3], 'mm/dd/yy') !== false) {
                             $fldtype = 'D';
-                        } else if (stristr($acsv[3], 'wks_days') !== false) {
+                        } elseif (stristr($acsv[3], 'wks_days') !== false) {
                             $fldtype = 'G';
-                        } else if ($acsv[6] == 'FT') {
+                        } elseif ($acsv[6] == 'FT') {
                             $fldtype = 'T';
                         } else {
                             $fldtype = 'N';
@@ -335,7 +336,7 @@ if ($form_step == 1) {
                         }
                     } // end while
                     // end load questions
-                } else if ($form_action == 3) { // load question options
+                } elseif ($form_action == 3) { // load question options
                     // What should be uploaded is the "AOE Options" spreadsheet provided
                     // by YPMG, saved in "Text CSV" format from OpenOffice, using its
                     // default settings.  Values for each row are:
@@ -430,7 +431,7 @@ if ($form_step == 1) {
                                                 );
                         }
                     }
-                } else if ($form_action == 2) { // load questions
+                } elseif ($form_action == 2) { // load questions
                     // Mark the vendor's current questions inactive.
                     sqlStatement(
                         "DELETE FROM procedure_questions WHERE lab_id = ?",
@@ -476,7 +477,7 @@ if ($form_step == 1) {
                         $fldtype = 'T';
                         if (strpos($acsv[4], 'Drop') !== false) {
                             $fldtype = 'S';
-                        } else if (strpos($acsv[4], 'Multiselect') !== false) {
+                        } elseif (strpos($acsv[4], 'Multiselect') !== false) {
                             $fldtype = 'S';
                         }
 

@@ -25,8 +25,8 @@ namespace ESign;
  * @link    http://www.open-emr.org
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/LogIF.php';
-require_once $GLOBALS['srcdir'].'/ESign/Viewer.php';
+require_once $GLOBALS['srcdir'] . '/ESign/LogIF.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Viewer.php';
 
 class Encounter_Log implements LogIF
 {
@@ -45,7 +45,7 @@ class Encounter_Log implements LogIF
     {
         $this->_viewer = new Viewer();
         $this->_viewer->encounterId = $encounterId;
-        $this->_viewer->logId = "encounter-".$encounterId;
+        $this->_viewer->logId = "encounter-" . $encounterId;
     }
     
     public function render(SignableIF $signable)
@@ -64,7 +64,7 @@ class Encounter_Log implements LogIF
     
     public function getViewScript()
     {
-        return $GLOBALS['srcdir'].'/ESign/views/default/esign_signature_log.php';
+        return $GLOBALS['srcdir'] . '/ESign/views/default/esign_signature_log.php';
     }
 
     /**

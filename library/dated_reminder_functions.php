@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Contains functions used in the dated reminders.
  *
@@ -301,7 +302,8 @@ function getReminderById($mID, $userID = false)
 // ------------------------------------------------
 function sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority)
 {
-    if (// ------- Should run data checks before running this function for more accurate error reporting
+    if (
+// ------- Should run data checks before running this function for more accurate error reporting
 // ------- check sendTo is not empty
         !empty($sendTo) and
 // ------- check dueDate, only allow valid dates, todo -> enhance date checker

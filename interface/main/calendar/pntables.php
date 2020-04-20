@@ -1,4 +1,5 @@
 <?php
+
 // File: $Id$ $Name$
 // ----------------------------------------------------------------------
 // POST-NUKE Content Management System

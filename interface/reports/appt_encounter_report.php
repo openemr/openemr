@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This report cross-references appointments with encounters.
  * For a given date, show a line for each appointment with the
@@ -26,7 +27,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -163,11 +163,11 @@ if ($_POST['form_refresh']) {
     if ($form_to_date) {
         // $query .= "LEFT(fe.date, 10) >= '$form_from_date' AND LEFT(fe.date, 10) <= '$form_to_date' ";
         $query .= "fe.date >= ? AND fe.date <= ? ";
-        array_push($sqlBindArray, $form_from_date.' 00:00:00', $form_to_date.' 23:59:59');
+        array_push($sqlBindArray, $form_from_date . ' 00:00:00', $form_to_date . ' 23:59:59');
     } else {
        // $query .= "LEFT(fe.date, 10) = '$form_from_date' ";
         $query .= "fe.date >= ? AND fe.date <= ? ";
-        array_push($sqlBindArray, $form_from_date.' 00:00:00', $form_from_date.' 23:59:59');
+        array_push($sqlBindArray, $form_from_date . ' 00:00:00', $form_from_date . ' 23:59:59');
     }
 
     if ($form_facility !== '') {
@@ -233,7 +233,7 @@ if ($_POST['form_refresh']) {
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Appointments and Encounters'); ?></span>
 
 <div id="report_parameters_daterange">
-    <?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt('to{{Range}}') . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
+    <?php echo text(oeFormatShortDate($form_from_date)) . " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatShortDate($form_to_date)); ?>
 </div>
 
 <form method='post' id='theform' action='appt_encounter_report.php' onsubmit='return top.restoreSession()'>

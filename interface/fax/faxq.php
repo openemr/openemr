@@ -301,7 +301,7 @@ foreach ($slines as $sline) {
      "$sfname</a></td>\n";
     echo "     <td onclick='dosdclick(\"" . attr(addslashes($sfname)) . "\")'>";
     echo "<a href='fax_dispatch.php?scan=" . attr_url($sfname) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='return false'>" . xlt('Dispatch') . "</a></td>\n";
-    echo "     <td>". text($sfdate) . "</td>\n";
+    echo "     <td>" . text($sfdate) . "</td>\n";
     echo "     <td align='right'>" . text($sline[7]) . "</td>\n";
     echo "    </tr>\n";
 }

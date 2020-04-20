@@ -1,4 +1,5 @@
 <?php
+
     // $Id$
     // $Author$
     // HL7 Parser
@@ -45,12 +46,12 @@ class Parser_HL7v2
                 case 'EVN':
                     $this->message_type = trim($type);
                     call_user_func_array(
-                        array(&$this, '_'.$type),
+                        array(&$this, '_' . $type),
                         array(
                         // All but type
                         substr(
                             $segment,
-                            -(strlen($segment)-3)
+                            -(strlen($segment) - 3)
                         )
                         )
                     );
@@ -70,8 +71,8 @@ class Parser_HL7v2
         // Depending on message type, handle differently
         switch ($this->message_type) {
             default:
-                return ('Message type '.$this->message_type.' is '.
-                'currently unhandled'."<br/>\n");
+                return ('Message type ' . $this->message_type . ' is ' .
+                'currently unhandled' . "<br/>\n");
             break;
         } // end switch
     } // end constructor Parser_HL7v2
@@ -82,13 +83,13 @@ class Parser_HL7v2
         $type = str_replace('^', '_', $this->MSH['message_type']);
 
         // Check for an appropriate handler
-        $handler = CreateObject('_FreeMED.Handler_HL7v2_'.$type, $this);
+        $handler = CreateObject('_FreeMED.Handler_HL7v2_' . $type, $this);
 
         // Error out if the handler doesn't exist
         if (!is_object($handler)) {
             if ($this->options['debug']) {
-                print "<b>Could not load class ".
-                    "_FreeMED.Handler_HL7v2_".$type.
+                print "<b>Could not load class " .
+                    "_FreeMED.Handler_HL7v2_" . $type .
                     "</b><br/>\n";
             }
 
@@ -107,7 +108,7 @@ class Parser_HL7v2
         if ($this->options['debug']) {
             print "<b>EVN segment</b><br/>\n";
             foreach ($composites as $k => $v) {
-                print "composite[$k] = ".prepare($v)."<br/>\n";
+                print "composite[$k] = " . prepare($v) . "<br/>\n";
             }
         }
 
@@ -128,7 +129,7 @@ class Parser_HL7v2
         if ($this->options['debug']) {
             print "<b>MSH segment</b><br/>\n";
             foreach ($composites as $k => $v) {
-                print "composite[$k] = ".prepare($v)."<br/>\n";
+                print "composite[$k] = " . prepare($v) . "<br/>\n";
             }
         }
 
@@ -168,9 +169,9 @@ class Parser_HL7v2
 
         // Debug
         if ($this->options['debug']) {
-            print "<b>".$type." segment</b><br/>\n";
+            print "<b>" . $type . " segment</b><br/>\n";
             foreach ($composites as $k => $v) {
-                print "composite[$k] = ".prepare($v)."<br/>\n";
+                print "composite[$k] = " . prepare($v) . "<br/>\n";
             }
         }
 

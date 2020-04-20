@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Sports Physical Form
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
@@ -27,7 +27,7 @@ $form_name = "My Example Form";
 /** CHANGE THIS to match the folder you created for this form **/
 $form_folder = "example";
 
-formHeader("Form: ".$form_name);
+formHeader("Form: " . $form_name);
 $returnurl = 'encounter_top.php';
 
 /* load the saved record */

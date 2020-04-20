@@ -1,4 +1,5 @@
 <?php
+
 /**
  * main.php
  *
@@ -23,9 +24,11 @@ use OpenEMR\Core\Header;
 
 // Ensure token_main matches so this script can not be run by itself
 //  If do not match, then destroy the session and go back to login screen
-if ((empty($_SESSION['token_main_php'])) ||
+if (
+    (empty($_SESSION['token_main_php'])) ||
     (empty($_GET['token_main'])) ||
-    ($_GET['token_main'] != $_SESSION['token_main_php'])) {
+    ($_GET['token_main'] != $_SESSION['token_main_php'])
+) {
     // Below functions are from auth.inc, which is included in globals.php
     authCloseSession();
     authLoginScreen(false);

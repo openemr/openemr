@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/therapy_groups/therapy_groups_models/therapy_groups_encounters_model.php contains the model for therapy group encounters.
  *

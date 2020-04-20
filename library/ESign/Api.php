@@ -24,14 +24,14 @@ namespace ESign;
  * @link    http://www.open-emr.org
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/ESign.php';
-require_once $GLOBALS['srcdir'].'/ESign/FactoryIF.php';
-require_once $GLOBALS['srcdir'].'/ESign/ConfigurationIF.php';
-require_once $GLOBALS['srcdir'].'/ESign/SignableIF.php';
-require_once $GLOBALS['srcdir'].'/ESign/Form/Factory.php';
-require_once $GLOBALS['srcdir'].'/ESign/Form/Configuration.php';
-require_once $GLOBALS['srcdir'].'/ESign/Encounter/Factory.php';
-require_once $GLOBALS['srcdir'].'/ESign/Encounter/Configuration.php';
+require_once $GLOBALS['srcdir'] . '/ESign/ESign.php';
+require_once $GLOBALS['srcdir'] . '/ESign/FactoryIF.php';
+require_once $GLOBALS['srcdir'] . '/ESign/ConfigurationIF.php';
+require_once $GLOBALS['srcdir'] . '/ESign/SignableIF.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Form/Factory.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Form/Configuration.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Encounter/Factory.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Encounter/Configuration.php';
 
 class Api
 {

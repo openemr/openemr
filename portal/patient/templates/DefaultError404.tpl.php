@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DefaultError404.tpl.php
  *

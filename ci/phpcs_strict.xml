@@ -1,10 +1,9 @@
 <?xml version="1.0"?>
 <ruleset name="OpenEMR Standard">
-  <description>PSR2</description>
+  <description>PSR-12</description>
   <arg name="tab-width" value="4" />
   <!-- PHP code MUST use only UTF-8 without BOM. -->
-  <rule ref="PSR2" />
-
+  <rule ref="PSR12" />
   <exclude-pattern>*/vendor/*</exclude-pattern>
   <exclude-pattern>*/bower_components/*</exclude-pattern>
   <exclude-pattern>*/node_modules/*</exclude-pattern>

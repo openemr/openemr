@@ -1,4 +1,5 @@
 <?php
+
 /**
  * forms/eye_mag/SpectacleRx.php
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
@@ -92,7 +92,8 @@ if ($_REQUEST['mode'] == "update") {  //store any changed fields in dispense tab
     if (sqlNumRows($dispense_fields) > 0) {
         while ($row = sqlFetchArray($dispense_fields)) {
             //exclude critical columns/fields, define below as needed
-            if ($row['Field'] == 'id' ||
+            if (
+                $row['Field'] == 'id' ||
                 $row['Field'] == 'pid' ||
                 $row['Field'] == 'user' ||
                 $row['Field'] == 'groupname' ||
@@ -112,12 +113,12 @@ if ($_REQUEST['mode'] == "update") {  //store any changed fields in dispense tab
     }
 
     exit;
-} else if ($_REQUEST['mode'] == "remove") {
+} elseif ($_REQUEST['mode'] == "remove") {
     $query = "DELETE FROM form_eye_mag_dispense where id=?";
     sqlStatement($query, array($_REQUEST['delete_id']));
     echo xlt('Prescription successfully removed.');
     exit;
-} else if ($_REQUEST['RXTYPE']) {  //store any changed fields
+} elseif ($_REQUEST['RXTYPE']) {  //store any changed fields
     $query = "UPDATE form_eye_mag_dispense set RXTYPE=? where id=?";
     sqlStatement($query, array($_REQUEST['RXTYPE'], $_REQUEST['id']));
     exit;
@@ -149,7 +150,7 @@ if ($_REQUEST['REFTYPE']) {
 
 
 
-    if ($REFTYPE =="W") {
+    if ($REFTYPE == "W") {
         //we have rx_number 1-5 to process...
         $query = "select * from form_eye_mag_wearing where ENCOUNTER=? and FORM_ID=? and PID=? and RX_NUMBER=?";
         $wear = sqlStatement($query, array($encounter,$_REQUEST['form_id'],$_REQUEST['pid'],$_REQUEST['rx_number']));
@@ -166,18 +167,18 @@ if ($_REQUEST['REFTYPE']) {
         $OSMIDADD = $wearing['OSMIDADD'];
         $OSADD2 = $wearing['OSADD'];
         @extract($wearing);
-        if ($wearing['RX_TYPE']=='0') {
-            $Single="checked='checked'";
-            $RXTYPE="Single";
-        } elseif ($wearing['RX_TYPE']=='1') {
-            $Bifocal ="checked='checked'";
-            $RXTYPE="Bifocal";
-        } elseif ($wearing['RX_TYPE']=='2') {
-            $Trifocal ="checked='checked'";
-            $RXTYPE="Trifocal";
-        } elseif ($wearing['RX_TYPE']=='3') {
-            $Progressive ="checked='checked'";
-            $RXTYPE="Progressive";
+        if ($wearing['RX_TYPE'] == '0') {
+            $Single = "checked='checked'";
+            $RXTYPE = "Single";
+        } elseif ($wearing['RX_TYPE'] == '1') {
+            $Bifocal = "checked='checked'";
+            $RXTYPE = "Bifocal";
+        } elseif ($wearing['RX_TYPE'] == '2') {
+            $Trifocal = "checked='checked'";
+            $RXTYPE = "Trifocal";
+        } elseif ($wearing['RX_TYPE'] == '3') {
+            $Progressive = "checked='checked'";
+            $RXTYPE = "Progressive";
         }
 
         //do LT and Lens materials
@@ -257,7 +258,8 @@ if ($_REQUEST['REFTYPE']) {
     if (sqlNumRows($dispense_fields) > 0) {
         while ($row = sqlFetchArray($dispense_fields)) {
             //exclude critical columns/fields, define below as needed
-            if ($row['Field'] == 'id' ||
+            if (
+                $row['Field'] == 'id' ||
                 $row['Field'] == 'pid' ||
                 $row['Field'] == 'user' ||
                 $row['Field'] == 'groupname' ||
@@ -469,13 +471,13 @@ if ($_REQUEST['dispensed']) {
                                 <td>&nbsp;&nbsp;<?php
                                 if ($row['REFTYPE'] == "W") {
                                     echo xlt('Duplicate Rx -- unchanged from current Rx{{The refraction did not change, New Rx=old Rx}}');
-                                } else if ($row['REFTYPE'] == "CR") {
+                                } elseif ($row['REFTYPE'] == "CR") {
                                     echo xlt('Cycloplegic (Wet) Refraction');
-                                } else if ($row['REFTYPE'] == "MR") {
+                                } elseif ($row['REFTYPE'] == "MR") {
                                     echo xlt('Manifest (Dry) Refraction');
-                                } else if ($row['REFTYPE'] == "AR") {
+                                } elseif ($row['REFTYPE'] == "AR") {
                                     echo xlt('Auto-Refraction');
-                                } else if ($row['REFTYPE'] == "CTL") {
+                                } elseif ($row['REFTYPE'] == "CTL") {
                                     echo xlt('Contact Lens');
                                 } else {
                                     echo $row['REFTYPE'];
@@ -549,9 +551,9 @@ if ($_REQUEST['dispensed']) {
                                             <?php
                                 } else {
                                     if (!empty($row['ODADD']) || !empty($row['OSADD'])) {
-                                        $adds =1;
+                                        $adds = 1;
                                     } else {
-                                        $adds ='';
+                                        $adds = '';
                                     }
                                     ?>
                                             <table id="CTLRx" name="CTLRx" class="refraction">
@@ -597,7 +599,7 @@ if ($_REQUEST['dispensed']) {
                                                         <?php echo text($row['CTLBRANDOD']); ?>
                                                         <?php
                                                         if (!empty($row['CTLMANUFACTUREROD'])) {
-                                                            echo "(".text($row['CTLMANUFACTUREROD']).")";
+                                                            echo "(" . text($row['CTLMANUFACTUREROD']) . ")";
                                                         } ?>
                                                         <br />
                                                         <?php echo text($row['CTLODQUANTITY']); ?><br />
@@ -651,7 +653,7 @@ if ($_REQUEST['dispensed']) {
                                                     <td colspan="5" class="left" style="padding-left:10px;vertical-align:top;"><?php echo text($row['CTLBRANDOS']); ?>
                                                         <?php
                                                         if (!empty($row['CTLMANUFACTUREROS'])) {
-                                                            echo "(".text($row['CTLMANUFACTUREROS']).")";
+                                                            echo "(" . text($row['CTLMANUFACTUREROS']) . ")";
                                                         } ?>
                                                         <br />
                                                         <?php echo text($row['CTLOSQUANTITY']); ?><br />
@@ -1009,10 +1011,12 @@ if ($REFTYPE == "CTL") {
                                 <tr class="header closeButton">
                                     <td colspan="9" class="right">
                                                 <span><?php
-                                                if ($ODHPD || $ODHBASE || $ODVPD || $ODVBASE || $ODSLABOFF || $ODVERTEXDIST ||
+                                                if (
+                                                    $ODHPD || $ODHBASE || $ODVPD || $ODVBASE || $ODSLABOFF || $ODVERTEXDIST ||
                                                         $OSHPD || $OSHBASE || $OSVPD || $OSVBASE || $OSSLABOFF || $OSVERTEXDIST ||
                                                         $ODMPDD || $ODMPDN || $OSMPDD || $OSMPDN || $BPDD || $BPDN ||
-                                                        $LENS_MATERIAL || $LENS_TREATMENTS) {
+                                                        $LENS_MATERIAL || $LENS_TREATMENTS
+                                                ) {
                                                     $detailed = '1';
                                                     ?><i class="fa fa-minus-square-o"></i><?php
                                                 } else {
@@ -1138,9 +1142,9 @@ if ($REFTYPE == "CTL") {
                             <?php
                     } else {
                         if (!empty($ODADD) || !empty($OSADD)) {
-                            $adds =1;
+                            $adds = 1;
                         } else {
-                            $adds ='';
+                            $adds = '';
                         }
                         ?>
                             <table id="CTLRx" name="CTLRx" class="refraction bordershadow">
@@ -1150,7 +1154,7 @@ if ($REFTYPE == "CTL") {
                                 <tr>
                                     <td colspan="2" class="right bold text-uppercase"><?php echo xlt('Brand'); ?>:</td>
                                     <td colspan="4" class="left"><?php echo text($CTLBRANDOD); ?> <?php if ($CTLMANUFACTUREROD) {
-                                        echo "(".text($CTLMANUFACTUREROD).")";} ?></td>
+                                        echo "(" . text($CTLMANUFACTUREROD) . ")";} ?></td>
                                 </tr>
                                 <tr class="bold">
                                     <td><?php echo xlt('SPH{{Sphere}}'); ?></td>
@@ -1197,7 +1201,7 @@ if ($REFTYPE == "CTL") {
                                 <tr>
                                     <td colspan="2" class="right bold text-uppercase"><?php echo xlt('Brand'); ?>:</td>
                                     <td colspan="4" class="left"><?php echo text($CTLBRANDOS); ?> <?php if ($CTLMANUFACTUREROS) {
-                                        echo "(".text($CTLMANUFACTUREROS).")";} ?></td>
+                                        echo "(" . text($CTLMANUFACTUREROS) . ")";} ?></td>
                                 </tr>
                                 <tr class="bold" style="line-height:0.3em;font-size:0.6em;">
                                     <td><?php echo xlt('SPH{{Sphere}}'); ?></td>

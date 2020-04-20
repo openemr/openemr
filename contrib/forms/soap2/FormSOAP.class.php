@@ -79,7 +79,7 @@ class FormSOAP extends ORDataObject
     function toString($html = false)
     {
         $string .= "\n"
-            ."ID: " . $this->id . "\n";
+            . "ID: " . $this->id . "\n";
 
         if ($html) {
             return nl2br($string);

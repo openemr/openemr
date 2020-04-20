@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Edit demographics.
  *
@@ -37,8 +38,10 @@ if ($pid) {
     $updateEvent = new UpdateEvent($pid);
     $updateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(UpdateEvent::EVENT_HANDLE, $updateEvent, 10);
 
-    if (!$updateEvent->authorized() ||
-        !AclMain::aclCheckCore('patients', 'demo', '', 'write')) {
+    if (
+        !$updateEvent->authorized() ||
+        !AclMain::aclCheckCore('patients', 'demo', '', 'write')
+    ) {
         die(xlt('Updating demographics is not authorized.'));
     }
 
@@ -207,7 +210,7 @@ function upperFirst(string,text) {
  return replace(string,text,text.charAt(0).toUpperCase() + text.substring(1,text.length));
 }
 
-<?php for ($i=1; $i<=3; $i++) { ?>
+<?php for ($i = 1; $i <= 3; $i++) { ?>
 function auto_populate_employer_address<?php echo attr($i); ?>(){
  var f = document.demographics_form;
  if (f.form_i<?php echo attr($i); ?>subscriber_relationship.options[f.form_i<?php echo attr($i); ?>subscriber_relationship.selectedIndex].value == "self")
@@ -406,7 +409,7 @@ if(dateVal > currentDate)
      return false;
    }
    if (!samess && ss_valid) {
-    if(!confirm(<?php echo js_escape(xl('Subscriber relationship is self but SS number is different!')." ".xl("Is this really OK?")); ?>))
+    if(!confirm(<?php echo js_escape(xl('Subscriber relationship is self but SS number is different!') . " " . xl("Is this really OK?")); ?>))
     return false;
    }
   } // end self
@@ -416,7 +419,7 @@ if(dateVal > currentDate)
      return false;
    }
    if (samess && ss_valid)  {
-    if(!confirm(<?php echo js_escape(xl('Subscriber relationship is not self but SS number is the same!')." ".xl("Is this really OK?")); ?>))
+    if(!confirm(<?php echo js_escape(xl('Subscriber relationship is not self but SS number is the same!') . " " . xl("Is this really OK?")); ?>))
     return false;
    }
   } // end not self
@@ -452,7 +455,7 @@ function policykeyup(e) {
 // Added 06/2009 by BM to make compatible with list_options table and functions - using jquery
 $(function () {
 
-    <?php for ($i=1; $i<=3; $i++) { ?>
+    <?php for ($i = 1; $i <= 3; $i++) { ?>
   $("#form_i<?php echo attr($i); ?>subscriber_relationship").change(function() { auto_populate_employer_address<?php echo attr($i); ?>(); });
     <?php } ?>
 
@@ -534,7 +537,7 @@ $cell_count = 0;
 $item_count = 0;
 $display_style = 'block';
 
-$group_seq=0; // this gives the DIV blocks unique IDs
+$group_seq = 0; // this gives the DIV blocks unique IDs
 
 $condition_str = '';
 ?>
@@ -582,7 +585,7 @@ if (! $GLOBALS['simplified_demographics']) {
        <ul class="tabNav">
         <?php
         foreach ($insurance_array as $instype) {
-            ?><li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="#"><?php $CapInstype=ucfirst($instype);
+            ?><li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="#"><?php $CapInstype = ucfirst($instype);
 echo xlt($CapInstype); ?></a></li><?php
         }
         ?>
@@ -591,17 +594,17 @@ echo xlt($CapInstype); ?></a></li><?php
     <div class="tabContainer">
 
     <?php
-    for ($i=1; $i<=3; $i++) {
+    for ($i = 1; $i <= 3; $i++) {
         $result3 = $insurance_info[$i];
         ?>
 
-     <div class="tab <?php echo $i == 1 ? 'current': '' ?> h-auto w-auto">
+     <div class="tab <?php echo $i == 1 ? 'current' : '' ?> h-auto w-auto">
       <div class="row">
         <div class="col-md-6">
          <table border="0">
            <tr>
             <td valign='top'>
-            <label class='required'><?php echo text($insurance_headings[$i -1])."&nbsp;"?></label>
+            <label class='required'><?php echo text($insurance_headings[$i - 1]) . "&nbsp;"?></label>
             </td>
             <td class='required'>:</td>
             <td class="form-row align-items-center">
@@ -687,7 +690,7 @@ echo xlt($CapInstype); ?></a></li><?php
             <td>
                 <?php
                  // Modified 7/2009 by BM to incorporate data types
-                generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'field_id'=>('i'.$i.'subscriber_employer_state'),'list_id'=>$GLOBALS['state_list'],'fld_length'=>'15','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_employer_state']);
+                generate_form_field(array('data_type' => $GLOBALS['state_data_type'],'field_id' => ('i' . $i . 'subscriber_employer_state'),'list_id' => $GLOBALS['state_list'],'fld_length' => '15','max_length' => '63','edit_options' => 'C'), $result3['subscriber_employer_state']);
                 ?>
                 </td>
                </tr>
@@ -704,7 +707,7 @@ echo xlt($CapInstype); ?></a></li><?php
                    <td>
                        <?php
                   // Modified 7/2009 by BM to incorporate data types
-                        generate_form_field(array('data_type'=>$GLOBALS['country_data_type'],'field_id'=>('i'.$i.'subscriber_employer_country'),'list_id'=>$GLOBALS['country_list'],'fld_length'=>'10','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_employer_country']);
+                        generate_form_field(array('data_type' => $GLOBALS['country_data_type'],'field_id' => ('i' . $i . 'subscriber_employer_country'),'list_id' => $GLOBALS['country_list'],'fld_length' => '10','max_length' => '63','edit_options' => 'C'), $result3['subscriber_employer_country']);
                         ?>
                    </td>
                </tr>
@@ -725,7 +728,7 @@ echo xlt($CapInstype); ?></a></li><?php
                 <td colspan='3'>
                 <?php
                  // Modified 6/2009 by BM to use list_options and function
-                 generate_form_field(array('data_type'=>1,'field_id'=>('i'.$i.'subscriber_relationship'),'list_id'=>'sub_relation','empty_title'=>' '), $result3['subscriber_relationship']);
+                 generate_form_field(array('data_type' => 1,'field_id' => ('i' . $i . 'subscriber_relationship'),'list_id' => 'sub_relation','empty_title' => ' '), $result3['subscriber_relationship']);
                 ?>
 
                 <a href="javascript:popUp('browse.php?browsenum=<?php echo attr_url($i); ?>')" class='text'>(<?php echo xlt('Browse'); ?>)</a>
@@ -764,7 +767,7 @@ echo xlt($CapInstype); ?></a></li><?php
                 <td>
                     <?php
                      // Modified 6/2009 by BM to use list_options and function
-                     generate_form_field(array('data_type'=>1,'field_id'=>('i'.$i.'subscriber_sex'),'list_id'=>'sex'), $result3['subscriber_sex']);
+                     generate_form_field(array('data_type' => 1,'field_id' => ('i' . $i . 'subscriber_sex'),'list_id' => 'sex'), $result3['subscriber_sex']);
                     ?>
                 </td>
                 <td></td>
@@ -797,7 +800,7 @@ echo xlt($CapInstype); ?></a></li><?php
                 <td>
                     <?php
                     // Modified 7/2009 by BM to incorporate data types
-                    generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'field_id'=>('i'.$i.'subscriber_state'),'list_id'=>$GLOBALS['state_list'],'fld_length'=>'15','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_state']);
+                    generate_form_field(array('data_type' => $GLOBALS['state_data_type'],'field_id' => ('i' . $i . 'subscriber_state'),'list_id' => $GLOBALS['state_list'],'fld_length' => '15','max_length' => '63','edit_options' => 'C'), $result3['subscriber_state']);
                     ?>
                 </td>
             </tr>
@@ -816,7 +819,7 @@ echo xlt($CapInstype); ?></a></li><?php
                 <td>
                     <?php
                     // Modified 7/2009 by BM to incorporate data types
-                    generate_form_field(array('data_type'=>$GLOBALS['country_data_type'],'field_id'=>('i'.$i.'subscriber_country'),'list_id'=>$GLOBALS['country_list'],'fld_length'=>'10','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_country']);
+                    generate_form_field(array('data_type' => $GLOBALS['country_data_type'],'field_id' => ('i' . $i . 'subscriber_country'),'list_id' => $GLOBALS['country_list'],'fld_length' => '10','max_length' => '63','edit_options' => 'C'), $result3['subscriber_country']);
                     ?>
                 </td>
             </tr>
@@ -939,12 +942,12 @@ var skipArray = [
 </script>
 
 <!-- include support for the list-add selectbox feature -->
-<?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
+<?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
 
 <?php /*Include the validation script and rules for this form*/
-$form_id="DEM";
+$form_id = "DEM";
 //LBF forms use the new validation depending on the global value
-$use_validate_js=$GLOBALS['new_validate'];
+$use_validate_js = $GLOBALS['new_validate'];
 
 ?>
 <?php  include_once("$srcdir/validation/validation_script.js.php");?>
@@ -963,7 +966,7 @@ $use_validate_js=$GLOBALS['new_validate'];
 
         // Use hook to open the controller and get the new patient validation .
         // when no params are sent this window will be closed from the zend controller.
-        var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation";?>';
+        var url ='<?php echo  $GLOBALS['web_root'] . "/interface/modules/zend_modules/public/patientvalidation";?>';
         $("#submit_btn").attr("name","btnSubmit");
         $("#submit_btn").attr("id","btnSubmit");
         $("#btnSubmit").click(function( event ) {

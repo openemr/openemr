@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ADODB custom wrapper class to support ssl option in main.
  *
@@ -23,15 +24,15 @@ class ADODB_mysqli_log extends ADODB_mysqli
      */
     function Execute($sql, $inputarr = false, $insertNeedReturn = false)
     {
-        $retval= parent::Execute($sql, $inputarr);
+        $retval = parent::Execute($sql, $inputarr);
         if ($retval === false) {
             $outcome = false;
             // Stash the error into last_mysql_error so it doesn't get clobbered when
             // we insert into the audit log.
-            $GLOBALS['last_mysql_error']=$this->ErrorMsg();
+            $GLOBALS['last_mysql_error'] = $this->ErrorMsg();
 
             // Last error no
-            $GLOBALS['last_mysql_error_no']=$this->ErrorNo();
+            $GLOBALS['last_mysql_error_no'] = $this->ErrorNo();
         } else {
             $outcome = true;
         }
@@ -92,7 +93,7 @@ class ADODB_mysqli_log extends ADODB_mysqli
             $this->ExecuteNoLog(sprintf($this->_genSeqSQL, $seqname));
             $cnt = $this->GetOne(sprintf($this->_genSeqCountSQL, $seqname));
             if (!$cnt) {
-                $this->ExecuteNoLog(sprintf($this->_genSeq2SQL, $seqname, $startID-1));
+                $this->ExecuteNoLog(sprintf($this->_genSeq2SQL, $seqname, $startID - 1));
             }
 
             $rs = $this->ExecuteNoLog($getnext);
@@ -144,15 +145,17 @@ class ADODB_mysqli_log extends ADODB_mysqli
 
         //http ://php.net/manual/en/mysqli.persistconns.php
         if ($persist && PHP_VERSION > 5.2 && strncmp($argHostname, 'p:', 2) != 0) {
-            $argHostname = 'p:'.$argHostname;
+            $argHostname = 'p:' . $argHostname;
         }
 
         //Below was added by OpenEMR to support mysql ssl
         // Note there is really weird behavior where the paths to certificates do not work if within a variable.
         //  (super odd which is why have 2 different mysqli_ssl_set commands as a work around)
         if (defined('MYSQLI_CLIENT_SSL') && $this->clientFlags == MYSQLI_CLIENT_SSL) {
-            if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
-                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")) {
+            if (
+                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
+                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
+            ) {
                 // with client side certificate/key
                 mysqli_ssl_set(
                     $this->_connectionID,

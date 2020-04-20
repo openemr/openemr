@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * This is to allow internationalization by OpenEMR of the select2 asset.
@@ -19,6 +20,7 @@
  * @copyright Copyright (c) 2018 Amiel Elboim <amielel@matrix.co.il>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 "dir":<?php echo js_escape($_SESSION['language_direction']); ?>,
 "language": {

@@ -1,4 +1,5 @@
 <?php
+
 /* FormHPI class
  *
  * @package OpenEMR

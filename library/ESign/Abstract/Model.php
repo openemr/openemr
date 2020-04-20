@@ -43,8 +43,8 @@ abstract class Abstract_Model
             } else {
                 if (property_exists($this, $key)) {
                     $this->{$key} = $value;
-                } else if (property_exists($this, "_".$key)) {
-                    $this->{"_".$key} = $value;
+                } elseif (property_exists($this, "_" . $key)) {
+                    $this->{"_" . $key} = $value;
                 }
             }
         }

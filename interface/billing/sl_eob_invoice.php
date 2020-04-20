@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This provides for manual posting of EOBs.  It is invoked from
  * sl_eob_search.php.  For automated (X12 835) remittance posting
@@ -17,7 +18,6 @@
  * @copyright Copyright (c) 2019-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -394,9 +394,11 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
 
 // Be sure to record adjustment reasons, even for zero adjustments if
 // they happen to be comments.
-            if ((0.0 + $thisadj) ||
+            if (
+                (0.0 + $thisadj) ||
                 ($reason && $reason_type == 5) ||
-                ($reason && ($reason_type > 1 && $reason_type < 6))) {
+                ($reason && ($reason_type > 1 && $reason_type < 6))
+            ) {
 // "To copay" and "To ded'ble" need to become a comment in a zero
 // adjustment, formatted just like sl_eob_process.php.
                 if ($reason_type == '2') {

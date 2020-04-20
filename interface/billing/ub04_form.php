@@ -1,4 +1,5 @@
 <?php
+
 /**
  * UB04 Claims Form
  *
@@ -10,6 +11,7 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 /* $isAuthorized tells us if the form is for user UI or claim processing and provides another security check */
 if ($isAuthorized !== true) {
     require_once("./ub04_dispose.php");

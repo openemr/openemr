@@ -1,4 +1,5 @@
 <?php
+
 /**
  * /template_menu.php
  *
@@ -14,7 +15,7 @@ foreach (glob($GLOBALS['OE_SITE_DIR'] . "/documents/onsite_portal_documents/temp
     $btnname = str_replace('_', ' ', $basefile);
     $btnfile = $basefile . '.tpl';
 
-    echo '<li class="nav-item px-1 py-1 py-md-0"><a class="nav-link text-success btn btn-outline-success" id="' . $basefile . '"' . 'href="#" onclick="page.newDocument(' . "<%= cpid %>,'<%= cuser %>','$btnfile')".'; fixspacing()"'.">$btnname</a></li>";
+    echo '<li class="nav-item px-1 py-1 py-md-0"><a class="nav-link text-success btn btn-outline-success" id="' . $basefile . '"' . 'href="#" onclick="page.newDocument(' . "<%= cpid %>,'<%= cuser %>','$btnfile')" . '; fixspacing()"' . ">$btnname</a></li>";
 }
 
 foreach (glob($GLOBALS['OE_SITE_DIR'] . "/documents/onsite_portal_documents/templates/" . $pid . "/*.tpl") as $filename) {
@@ -22,5 +23,5 @@ foreach (glob($GLOBALS['OE_SITE_DIR'] . "/documents/onsite_portal_documents/temp
     $btnname = str_replace('_', ' ', $basefile);
     $btnfile = $basefile . '.tpl';
 
-    echo '<li class="nav-item px-1 py-1 py-md-0"><a class="nav-link text-success btn btn-outline-success" id="' . $basefile . '"' . 'href="#" onclick="page.newDocument(' . "<%= cpid %>,'<%= cuser %>','$btnfile')".'"; fixspacing()'.">$btnname</a></li>";
+    echo '<li class="nav-item px-1 py-1 py-md-0"><a class="nav-link text-success btn btn-outline-success" id="' . $basefile . '"' . 'href="#" onclick="page.newDocument(' . "<%= cpid %>,'<%= cuser %>','$btnfile')" . '"; fixspacing()' . ">$btnname</a></li>";
 }

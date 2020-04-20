@@ -1,4 +1,5 @@
 <?php
+
 ////////////////////////////////////////////////////////////////////
 // Class:   TM4B SMS Api
 // Usage:
@@ -34,18 +35,18 @@ class sms
     {
         /* Prepare the server request */
         $request = "";
-        $request .= "username=".urlencode($this->username);
-        $request .= "&password=".urlencode($this->password);
+        $request .= "username=" . urlencode($this->username);
+        $request .= "&password=" . urlencode($this->password);
         $request .= "&revision=2.0";
         $request .= "&type=broadcast";
-        $request .= "&msg=".urlencode($message);
-        $request .= "&to=".urlencode($phoneNo);
+        $request .= "&msg=" . urlencode($message);
+        $request .= "&to=" . urlencode($phoneNo);
 
             // larry :: default if not defined - TODO  replace
         if (!$sender) {
               $request .= "&from=BosmanGGZ";
         } else {
-            $request .= "&from=".urlencode($sender);
+            $request .= "&from=" . urlencode($sender);
         }
 
         $request .= "&route=GD02";
@@ -94,7 +95,7 @@ class sms
              * call the method that sends the sms using file_get_contents
              */
 
-             $response = file_get_contents("https://www.tm4b.com/client/api/http.php?".$request);
+             $response = file_get_contents("https://www.tm4b.com/client/api/http.php?" . $request);
         }
 
         /* Return the server response */
@@ -141,9 +142,9 @@ class sms
         $http_header .= "Host: tm4b.com\r\n";
         $http_header .= "User-Agent: HTTP/1.1\r\n";
         $http_header .= "Content-Type: application/x-www-form-urlencoded\r\n";
-        $http_header .= "Content-Length: ".strlen($request)."\r\n";
+        $http_header .= "Content-Length: " . strlen($request) . "\r\n";
         $http_header .= "Connection: close\r\n\r\n";
-        $http_header .= $request."\r\n";
+        $http_header .= $request . "\r\n";
 
         /* Set the host that we are connecting to and the port number */
         $host = "ssl://tm4b.com";

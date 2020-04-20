@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Administration Lists Module.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/lists.inc");
@@ -167,7 +167,8 @@ if ($_POST['formaction'] == 'save' && $list_id) {
                 //     of zero here is extremely important; never remove this conditional
                 //     or you risk corrupting your current immunizations database entries)
                 //   $ok_map_cvx_codes is equal to 1
-                if ($list_id == 'immunizations' &&
+                if (
+                    $list_id == 'immunizations' &&
                     is_int($value) &&
                     $value > 0 &&
                     isset($id) &&
@@ -200,7 +201,7 @@ if ($_POST['formaction'] == 'save' && $list_id) {
 
                 // Delete the list item
                 sqlStatement("DELETE FROM list_options WHERE list_id = ? AND option_id = ?", array($list_id, $real_id));
-                if (strlen($id) <= 0 && strlen(trim($iter['title'])) <=0 && empty($id) && empty($iter['title'])) {
+                if (strlen($id) <= 0 && strlen(trim($iter['title'])) <= 0 && empty($id) && empty($iter['title'])) {
                     continue;
                 }
                 // Insert the list item
@@ -340,10 +341,12 @@ function writeOptionLine(
     if (preg_match('/Eye_QP_/', $list_id)) {
         echo "  <td>";
         echo "<select name='opt[" . attr($opt_line_no) . "][activity]' class='optin'>";
-        foreach (array(
+        foreach (
+            array(
                      1 => xl('Replace'),
                      2 => xl('Append')
-                 ) as $key => $desc) {
+                 ) as $key => $desc
+        ) {
             echo "<option value='" . attr($key) . "'";
             if ($key == $active) {
                 echo " selected";
@@ -370,13 +373,15 @@ function writeOptionLine(
         // are used as comments.
         echo "  <td>";
         echo "<select name='opt[" . attr($opt_line_no) . "][value]' class='optin'>";
-        foreach (array(
+        foreach (
+            array(
                      1 => xl('Charge adjustment'),
                      2 => xl('Coinsurance'),
                      3 => xl('Deductible'),
                      4 => xl('Other pt resp'),
                      5 => xl('Comment'),
-                 ) as $key => $desc) {
+                 ) as $key => $desc
+        ) {
             echo "<option value='" . attr($key) . "'";
             if ($key == $value) {
                 echo " selected";
@@ -389,11 +394,13 @@ function writeOptionLine(
         // person-centric vs company-centric vs indifferent.
         echo "  <td>";
         echo "<select name='opt[" . attr($opt_line_no) . "][value]' class='optin'>";
-        foreach (array(
+        foreach (
+            array(
                      1 => xl('Unassigned'),
                      2 => xl('Person'),
                      3 => xl('Company'),
-                 ) as $key => $desc) {
+                 ) as $key => $desc
+        ) {
             echo "<option value='" . attr($key) . "'";
             if ($key == $value) {
                 echo " selected";
@@ -441,11 +448,11 @@ function writeOptionLine(
     }
     if ($list_id == 'apptstat' || $list_id == 'groupstat') {
         echo "  <td>";
-        echo "<input type='checkbox' name='opt[" . attr($opt_line_no) ."][toggle_setting_1]' value='1' " .
+        echo "<input type='checkbox' name='opt[" . attr($opt_line_no) . "][toggle_setting_1]' value='1' " .
             "onclick='defClicked(" . attr($opt_line_no) . ")' class='optin'$checked_tog1 />";
         echo "</td>\n";
         echo "  <td>";
-        echo "<input type='checkbox' name='opt[" . attr($opt_line_no) ."][toggle_setting_2]' value='1' " .
+        echo "<input type='checkbox' name='opt[" . attr($opt_line_no) . "][toggle_setting_2]' value='1' " .
             "onclick='defClicked(" . attr($opt_line_no) . ")' class='optin'$checked_tog2 />";
         echo "</td>\n";
     }
@@ -1037,7 +1044,8 @@ function writeITLine($it_array)
                         // List order depends on language translation options.
                         $lang_id = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
 
-                        if (($lang_id == '1' && !empty($GLOBALS['skip_english_translation'])) ||
+                        if (
+                            ($lang_id == '1' && !empty($GLOBALS['skip_english_translation'])) ||
                             !$GLOBALS['translate_lists']
                         ) {
                             $res = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
@@ -1203,7 +1211,7 @@ function writeITLine($it_array)
                 <th class="font-weight-bold"><?php echo xlt('Type'); ?></th>
             <?php } elseif ($list_id == 'immunizations') { ?>
                 <th class="font-weight-bold">&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('CVX Code Mapping'); ?></th>
-            <?php } else if ($list_id == 'ptlistcols') { ?>
+            <?php } elseif ($list_id == 'ptlistcols') { ?>
                 <th class="font-weight-bold">&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Default Sort Direction'); ?></th>
             <?php }
             if ($GLOBALS['ippf_specific']) { ?>
@@ -1255,7 +1263,7 @@ function writeITLine($it_array)
     <?php
     // Get the selected list's elements.
     if ($list_id) {
-        $sql_limits = 'ASC LIMIT 0, '.escape_limit($records_per_page);
+        $sql_limits = 'ASC LIMIT 0, ' . escape_limit($records_per_page);
         $total_rows = 0;
         if ($list_from > 0) {
             $list_from--;
@@ -1269,7 +1277,7 @@ function writeITLine($it_array)
             $total_rows = sqlFetchArray($res)["total_rows"];
 
             $res = sqlStatement("SELECT * FROM fee_sheet_options " .
-                "ORDER BY fs_category, fs_option ".$sql_limits);
+                "ORDER BY fs_category, fs_option " . $sql_limits);
             while ($row = sqlFetchArray($res)) {
                 writeFSLine($row['fs_category'], $row['fs_option'], $row['fs_codes']);
             }
@@ -1281,7 +1289,7 @@ function writeITLine($it_array)
             $total_rows = sqlFetchArray($res)["total_rows"];
 
             $res = sqlStatement("SELECT * FROM code_types " .
-                "ORDER BY ct_seq, ct_key ".$sql_limits);
+                "ORDER BY ct_seq, ct_key " . $sql_limits);
             while ($row = sqlFetchArray($res)) {
                 writeCTLine($row);
             }
@@ -1293,7 +1301,7 @@ function writeITLine($it_array)
             $total_rows = sqlFetchArray($res)["total_rows"];
 
             $res = sqlStatement("SELECT * FROM issue_types " .
-                "ORDER BY category, ordering ".$sql_limits);
+                "ORDER BY category, ordering " . $sql_limits);
             while ($row = sqlFetchArray($res)) {
                 writeITLine($row);
             }
@@ -1312,7 +1320,7 @@ function writeITLine($it_array)
                          FROM list_options AS lo
                          RIGHT JOIN list_options as lo2 on lo2.option_id = lo.list_id AND lo2.list_id = 'lists' AND lo2.edit_options = 1
                          WHERE lo.list_id = ? AND lo.edit_options = 1
-                         ORDER BY seq,title ".$sql_limits, array($list_id));
+                         ORDER BY seq,title " . $sql_limits, array($list_id));
 
             while ($row = sqlFetchArray($res)) {
                 writeOptionLine(
@@ -1403,7 +1411,7 @@ function writeITLine($it_array)
         var totalRecords = '<?php echo attr($res->_numOfRows);?>';
         var totalRecordDiv = $('#total-record');
         if( totalRecordDiv ){
-            totalRecordDiv.text("<?php echo xlt("Showing items"); ?>: <?php echo ( $list_to > 0 ? attr($list_from+1). " - ".attr($list_to) : attr($res->_numOfRows) );?> of <?php echo attr($total_rows);?>");
+            totalRecordDiv.text("<?php echo xlt("Showing items"); ?>: <?php echo ( $list_to > 0 ? attr($list_from + 1) . " - " . attr($list_to) : attr($res->_numOfRows) );?> of <?php echo attr($total_rows);?>");
         }
 
         var queryParams = getQueryStringAsObject();

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCodeSystem;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCodeSystem;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -297,8 +299,8 @@ class FHIRCodeSystemProperty1 extends FHIRBackboneElement implements \JsonSerial
             if (isset($data['valueDecimal'])) {
                 $this->setValueDecimal($data['valueDecimal']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

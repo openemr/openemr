@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRAuditEvent;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRAuditEvent;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -338,7 +340,7 @@ class FHIRAuditEventEntity extends FHIRBackboneElement implements \JsonSerializa
                         $this->addSecurityLabel($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"securityLabel" must be array of objects or null, '.gettype($data['securityLabel']).' seen.');
+                    throw new \InvalidArgumentException('"securityLabel" must be array of objects or null, ' . gettype($data['securityLabel']) . ' seen.');
                 }
             }
             if (isset($data['name'])) {
@@ -356,11 +358,11 @@ class FHIRAuditEventEntity extends FHIRBackboneElement implements \JsonSerializa
                         $this->addDetail($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"detail" must be array of objects or null, '.gettype($data['detail']).' seen.');
+                    throw new \InvalidArgumentException('"detail" must be array of objects or null, ' . gettype($data['detail']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

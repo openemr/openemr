@@ -1,4 +1,5 @@
 <?php
+
 /**
  * history_save.php
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
@@ -52,7 +52,7 @@ while ($frow = sqlFetchArray($fres)) {
     if (isset($_POST["form_$field_id"])) {
         $newdata[$field_id] = get_layout_form_value($frow);
     // php fix for risk factor checkboxes unchecked after one was checked
-    } else if ($field_id == 'usertext11') {
+    } elseif ($field_id == 'usertext11') {
         $newdata[$field_id] = get_layout_form_value($frow);
     }
 }

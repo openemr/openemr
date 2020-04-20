@@ -12,7 +12,7 @@ function hand_report($pid, $encounter, $cols, $id)
     $count = 0;
     $cols = 2;
     $data = formFetch("form_hand", $id);
-    $width = 100/$cols;
+    $width = 100 / $cols;
     if ($data) {
         ?>
 
@@ -25,15 +25,15 @@ function hand_report($pid, $encounter, $cols, $id)
         </tr>
         <tr>
             <td>(L) Hand</td>
-            <td><?php echo $data['left_1'] ? text($data['left_1'])." fp" : "-"; ?></td>
-            <td><?php echo $data['left_2'] ? text($data['left_2'])." fp" : "-"; ?></td>
-            <td><?php echo $data['left_3'] ? text($data['left_3'])." fp" : "-"; ?></td>
+            <td><?php echo $data['left_1'] ? text($data['left_1']) . " fp" : "-"; ?></td>
+            <td><?php echo $data['left_2'] ? text($data['left_2']) . " fp" : "-"; ?></td>
+            <td><?php echo $data['left_3'] ? text($data['left_3']) . " fp" : "-"; ?></td>
         </tr>
         <tr>
             <td>(R) Hand</td>
-            <td><?php echo $data['right_1'] ? text($data['right_1'])." fp" : "-"; ?></td>
-            <td><?php echo $data['right_2'] ? text($data['right_2'])." fp" : "-"; ?></td>
-            <td><?php echo $data['right_3'] ? text($data['right_3'])." fp" : "-"; ?></td>
+            <td><?php echo $data['right_1'] ? text($data['right_1']) . " fp" : "-"; ?></td>
+            <td><?php echo $data['right_2'] ? text($data['right_2']) . " fp" : "-"; ?></td>
+            <td><?php echo $data['right_3'] ? text($data['right_3']) . " fp" : "-"; ?></td>
         </tr>
         <tr>
             <td>Handedness:</td>

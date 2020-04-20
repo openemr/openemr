@@ -1,4 +1,5 @@
 <?php
+
 /**
  * portal/verify_session.php
  *
@@ -33,11 +34,11 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
 } else {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-    header('Location: '.$landingpage.'&w');
+    header('Location: ' . $landingpage . '&w');
     exit;
 }
 
 //
 
-$ignoreAuth=true; // ignore the standard authentication for a regular OpenEMR user
+$ignoreAuth = true; // ignore the standard authentication for a regular OpenEMR user
 require_once(dirname(__file__) . './../interface/globals.php');

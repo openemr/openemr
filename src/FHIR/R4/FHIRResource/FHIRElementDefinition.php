@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -4645,7 +4647,7 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
                         $this->addRepresentation($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"representation" must be array of objects or null, '.gettype($data['representation']).' seen.');
+                    throw new \InvalidArgumentException('"representation" must be array of objects or null, ' . gettype($data['representation']) . ' seen.');
                 }
             }
             if (isset($data['sliceName'])) {
@@ -4663,7 +4665,7 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
                         $this->addCode($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"code" must be array of objects or null, '.gettype($data['code']).' seen.');
+                    throw new \InvalidArgumentException('"code" must be array of objects or null, ' . gettype($data['code']) . ' seen.');
                 }
             }
             if (isset($data['slicing'])) {
@@ -4687,7 +4689,7 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
                         $this->addAlias($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"alias" must be array of objects or null, '.gettype($data['alias']).' seen.');
+                    throw new \InvalidArgumentException('"alias" must be array of objects or null, ' . gettype($data['alias']) . ' seen.');
                 }
             }
             if (isset($data['min'])) {
@@ -4708,7 +4710,7 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
                         $this->addType($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"type" must be array of objects or null, '.gettype($data['type']).' seen.');
+                    throw new \InvalidArgumentException('"type" must be array of objects or null, ' . gettype($data['type']) . ' seen.');
                 }
             }
             if (isset($data['defaultValueBase64Binary'])) {
@@ -5164,7 +5166,7 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
                         $this->addExample($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"example" must be array of objects or null, '.gettype($data['example']).' seen.');
+                    throw new \InvalidArgumentException('"example" must be array of objects or null, ' . gettype($data['example']) . ' seen.');
                 }
             }
             if (isset($data['minValueDate'])) {
@@ -5230,7 +5232,7 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
                         $this->addCondition($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"condition" must be array of objects or null, '.gettype($data['condition']).' seen.');
+                    throw new \InvalidArgumentException('"condition" must be array of objects or null, ' . gettype($data['condition']) . ' seen.');
                 }
             }
             if (isset($data['constraint'])) {
@@ -5239,7 +5241,7 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
                         $this->addConstraint($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"constraint" must be array of objects or null, '.gettype($data['constraint']).' seen.');
+                    throw new \InvalidArgumentException('"constraint" must be array of objects or null, ' . gettype($data['constraint']) . ' seen.');
                 }
             }
             if (isset($data['mustSupport'])) {
@@ -5263,11 +5265,11 @@ class FHIRElementDefinition extends FHIRBackboneElement implements \JsonSerializ
                         $this->addMapping($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"mapping" must be array of objects or null, '.gettype($data['mapping']).' seen.');
+                    throw new \InvalidArgumentException('"mapping" must be array of objects or null, ' . gettype($data['mapping']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

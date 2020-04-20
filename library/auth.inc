@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Authorization functions.
  *
@@ -18,8 +19,10 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 
 $incoming_site_id = '';
 
-if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser']) &&
-    isset($_POST['clearPass']) && isset($_POST['new_login_session_management'])) {
+if (
+    isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser']) &&
+    isset($_POST['clearPass']) && isset($_POST['new_login_session_management'])
+) {
     // Attempt login
 
     // set the language
@@ -44,7 +47,7 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
 
     // store the very first initial timestamp for timeout errors
     $_SESSION["last_update"] = time();
-} else if ((isset($_GET['auth'])) && ($_GET['auth'] == "logout")) {
+} elseif ((isset($_GET['auth'])) && ($_GET['auth'] == "logout")) {
     // Logout
     // If session has timed out / been destroyed, logout record for null user/provider will be invalid.
     if (!empty($_SESSION['authUser']) && !empty($_SESSION['authProvider'])) {

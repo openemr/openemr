@@ -1,4 +1,5 @@
 <?php
+
 namespace ESign;
 
 /**
@@ -24,8 +25,8 @@ namespace ESign;
  * @link    http://www.open-emr.org
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/Abstract/Model.php';
-require_once $GLOBALS['srcdir'].'/ESign/ViewableIF.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Abstract/Model.php';
+require_once $GLOBALS['srcdir'] . '/ESign/ViewableIF.php';
 
 class Viewer extends Abstract_Model
 {

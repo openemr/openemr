@@ -1,4 +1,5 @@
 <?php
+
 /**
  * HttpResponseHelper
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 namespace OpenEMR\Common\Http;
 
@@ -33,7 +33,7 @@ class HttpRestRouteHandler
                 if ($return_method == 'standard') {
                     header('Content-Type: application/json');
                     echo json_encode($result);
-                } else if ($return_method == 'direct-json') {
+                } elseif ($return_method == 'direct-json') {
                     return json_encode($result);
                 } else { // $return_method == 'direct'
                     return $result;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/patient_file/ccr_pending_approval.php Approval screen for uploaded CCR XML.
  *
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(dirname(__FILE__) . "/../globals.php");
 require_once(dirname(__FILE__) . "/../../library/options.inc.php");
@@ -97,7 +97,7 @@ if (isset($_GET['approve']) && $_GET['approve'] == 1) {
                 ?>
                 <tr>
                     <td colspan="3">
-                        <?php echo xlt('Nothing Pending for Approval')."."; ?>
+                        <?php echo xlt('Nothing Pending for Approval') . "."; ?>
                     </td>
                 </tr>
                 <?php

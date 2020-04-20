@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This the first of two pages to support posting of EOBs.
  * The second is sl_eob_invoice.php.
@@ -307,8 +308,10 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
                 break;
             }
 
-            if (substr($content, $i + 6, $wrlen) === $web_root &&
-                substr($content, $i + 6, $wsrlen) !== $webserver_root) {
+            if (
+                substr($content, $i + 6, $wrlen) === $web_root &&
+                substr($content, $i + 6, $wsrlen) !== $webserver_root
+            ) {
                 $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
             }
         }

@@ -42,7 +42,7 @@ $desiredVersion->setMinor($v_minor);
 $desiredVersion->setMajor($v_major);
 
 // Force logging off
-$GLOBALS["enable_auditlog"]=0;
+$GLOBALS["enable_auditlog"] = 0;
 
 $versions = array();
 $sqldir = "$webserver_root/sql";

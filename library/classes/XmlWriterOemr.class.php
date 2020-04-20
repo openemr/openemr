@@ -1,4 +1,5 @@
 <?php
+
  // Copyright (C) 2011 Ensoftek
  //
  // This program is free software; you can redistribute it and/or
@@ -16,7 +17,7 @@ class XmlWriterOemr
     function __construct($indent = '  ')
     {
         $this->indent = $indent;
-        $this->xml = '<?xml version="1.0" encoding="utf-8"?>'."\n";
+        $this->xml = '<?xml version="1.0" encoding="utf-8"?>' . "\n";
     }
     function _indent()
     {
@@ -27,9 +28,9 @@ class XmlWriterOemr
     function push($element, $attributes = array())
     {
         $this->_indent();
-        $this->xml .= '<'.$element;
+        $this->xml .= '<' . $element;
         foreach ($attributes as $key => $value) {
-            $this->xml .= ' '.htmlspecialchars($key).'="'.htmlspecialchars($value).'"';
+            $this->xml .= ' ' . htmlspecialchars($key) . '="' . htmlspecialchars($value) . '"';
         }
 
         $this->xml .= ">\n";
@@ -38,19 +39,19 @@ class XmlWriterOemr
     function element($element, $content, $attributes = array())
     {
         $this->_indent();
-        $this->xml .= '<'.$element;
+        $this->xml .= '<' . $element;
         foreach ($attributes as $key => $value) {
-            $this->xml .= ' '.htmlspecialchars($key).'="'.htmlspecialchars($value).'"';
+            $this->xml .= ' ' . htmlspecialchars($key) . '="' . htmlspecialchars($value) . '"';
         }
 
-        $this->xml .= '>'.htmlspecialchars($content).'</'.htmlspecialchars($element).'>'."\n";
+        $this->xml .= '>' . htmlspecialchars($content) . '</' . htmlspecialchars($element) . '>' . "\n";
     }
     function emptyelement($element, $attributes = array())
     {
         $this->_indent();
-        $this->xml .= '<'.htmlspecialchars($element);
+        $this->xml .= '<' . htmlspecialchars($element);
         foreach ($attributes as $key => $value) {
-            $this->xml .= ' '.htmlspecialchars($key).'="'.htmlspecialchars($value).'"';
+            $this->xml .= ' ' . htmlspecialchars($key) . '="' . htmlspecialchars($value) . '"';
         }
 
         $this->xml .= " />\n";
@@ -59,7 +60,7 @@ class XmlWriterOemr
     {
         $element = array_pop($this->stack);
         $this->_indent();
-        $this->xml .= "</".htmlspecialchars($element).">"."\n";
+        $this->xml .= "</" . htmlspecialchars($element) . ">" . "\n";
     }
     function getXml()
     {

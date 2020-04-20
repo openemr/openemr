@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Easipro utility class
  *
@@ -27,7 +28,7 @@ class Easipro
     // Package authentication
     private static function packageAuth()
     {
-        return base64_encode($GLOBALS['easipro_name'].":".(new CryptoGen)->decryptStandard($GLOBALS['easipro_pass']));
+        return base64_encode($GLOBALS['easipro_name'] . ":" . (new CryptoGen())->decryptStandard($GLOBALS['easipro_pass']));
     }
 
     // Collect list of forms (returns json)
@@ -76,8 +77,8 @@ class Easipro
     public static function assessmentsForPatient($patient_id)
     {
         $res = sqlStatement("SELECT * FROM `pro_assessments` WHERE `patient_id`=?", [$patient_id]);
-        for ($iter=0; $row=sqlFetchArray($res); $iter++) {
-            $returnval[$iter]=$row;
+        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+            $returnval[$iter] = $row;
         }
         return $returnval;
     }
@@ -93,7 +94,7 @@ class Easipro
 
         // email request
         $patientData = sqlQuery("SELECT `fname`, `lname`, `email` FROM `patient_data` WHERE `pid`=?", [$patient_id]);
-        $pt_name = $patientData['fname'].' '.$patientData['lname'];
+        $pt_name = $patientData['fname'] . ' ' . $patientData['lname'];
         $pt_email = $patientData['email'];
         $email_subject = 'New assessment request';
         $email_sender = $GLOBALS['patient_reminder_sender_email'];
@@ -133,7 +134,7 @@ class Easipro
     public static function recordResult($patient_id, $score, $assessment_oid, $std_err)
     {
         // process score
-        $score = ((float) $score)*10+50;
+        $score = ((float) $score) * 10 + 50;
 
         // store result
         sqlStatement(
@@ -145,8 +146,8 @@ class Easipro
         $assessmentData = sqlQuery("SELECT `user_id`, `patient_id` FROM `pro_assessments` WHERE `assessment_oid`=?", [$assessment_oid]);
         $patientData = sqlQuery("SELECT `fname`, `lname` FROM `patient_data` WHERE `pid`=?", [$assessmentData['patient_id']]);
         $userData = sqlQuery("SELECT `fname`, `lname`, `email` FROM `users` WHERE `id`=?", [$assessmentData['user_id']]);
-        $pt_name = $patientData['fname'].' '.$patientData['lname'];
-        $user_name = $userData['fname'].' '.$userData['lname'];
+        $pt_name = $patientData['fname'] . ' ' . $patientData['lname'];
+        $user_name = $userData['fname'] . ' ' . $userData['lname'];
         $user_email = $userData['email'];
         $email_subject = 'Patient completed a measurement';
         $email_sender = $GLOBALS['patient_reminder_sender_email'];

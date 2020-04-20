@@ -1,4 +1,5 @@
 <?php
+
 /**
 * Functions to support HL7 order generation.
 *
@@ -111,11 +112,11 @@ function hl7Relation($s)
     $tmp = strtolower($s);
     if ($tmp == 'self' || $tmp == '') {
         return 'self';
-    } else if ($tmp == 'spouse') {
+    } elseif ($tmp == 'spouse') {
         return 'spouse';
-    } else if ($tmp == 'child') {
+    } elseif ($tmp == 'child') {
         return 'child';
-    } else if ($tmp == 'other') {
+    } elseif ($tmp == 'other') {
         return 'other';
     }
 
@@ -438,9 +439,9 @@ function gen_hl7_order($orderid, &$out)
               $datatype = 'ST';
             if ($fldtype == 'N') {
                 $datatype = "NM";
-            } else if ($fldtype == 'D') {
+            } elseif ($fldtype == 'D') {
                   $answer = hl7Date($answer);
-            } else if ($fldtype == 'G') {
+            } elseif ($fldtype == 'G') {
                   $weeks = intval($answer / 7);
                   $days = $answer % 7;
                   $answer = $weeks . 'wks ' . $days . 'days';
@@ -497,7 +498,7 @@ function send_hl7_order($ppid, $out)
         header("Content-Description: File Transfer");
         echo $out;
         exit;
-    } else if ($protocol == 'SFTP') {
+    } elseif ($protocol == 'SFTP') {
         // Compute the target path/file name.
         $filename = $msgid . '.txt';
         if ($pprow['orders_path']) {
@@ -513,7 +514,7 @@ function send_hl7_order($ppid, $out)
         if (!$sftp->put($filename, $out)) {
             return xl('Creating this file on remote host failed') . ": '$filename'";
         }
-    } else if ($protocol == 'FS') {
+    } elseif ($protocol == 'FS') {
         // Compute the target path/file name.
         $filename = $msgid . '.txt';
         if ($pprow['orders_path']) {

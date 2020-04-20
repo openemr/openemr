@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OnsiteDocumentController.php
  *
@@ -46,7 +47,7 @@ class OnsiteDocumentController extends AppBaseController
         $docid = $new_filename = "";
 
         if (isset($_GET['pid'])) {
-            $pid = ( int ) $_GET['pid'];
+            $pid = (int) $_GET['pid'];
         }
 
         // only allow patient to see themself
@@ -63,11 +64,11 @@ class OnsiteDocumentController extends AppBaseController
         }
 
         if (isset($_GET['enc'])) {
-            $encounter = ( int ) $_GET['enc'];
+            $encounter = (int) $_GET['enc'];
         }
 
         if (isset($_GET['recid'])) {
-            $recid = ( int ) $_GET['recid'];
+            $recid = (int) $_GET['recid'];
         }
 
         if (isset($_GET['is_module'])) {
@@ -116,14 +117,14 @@ class OnsiteDocumentController extends AppBaseController
             if ($filter) {
                 $criteria->AddFilter(
                     new CriteriaFilter('Id,Pid,Facility,Provider,Encounter,CreateDate,DocType,PatientSignedStatus,PatientSignedTime,AuthorizeSignedTime,
-						AcceptSignedStatus,AuthorizingSignator,ReviewDate,DenialReason,AuthorizedSignature,PatientSignature,FullDocument,FileName,FilePath', '%'.$filter.'%')
+						AcceptSignedStatus,AuthorizingSignator,ReviewDate,DenialReason,AuthorizedSignature,PatientSignature,FullDocument,FileName,FilePath', '%' . $filter . '%')
                 );
             }
 
             // TODO: this is generic query filtering based only on criteria properties
             foreach (array_keys($_REQUEST) as $prop) {
                 $prop_normal = ucfirst($prop);
-                $prop_equals = $prop_normal.'_Equals';
+                $prop_equals = $prop_normal . '_Equals';
 
                 if (property_exists($criteria, $prop_normal)) {
                     $criteria->$prop_normal = RequestUtil::Get($prop);
@@ -174,11 +175,11 @@ class OnsiteDocumentController extends AppBaseController
     {
         $rid = $pid = $user = $encounter = 0;
         if (isset($_GET['id'])) {
-            $rid = ( int ) $_GET['id'];
+            $rid = (int) $_GET['id'];
         }
 
         if (isset($_GET['pid'])) {
-            $pid = ( int ) $_GET['pid'];
+            $pid = (int) $_GET['pid'];
         }
 
         // only allow patient to see themself

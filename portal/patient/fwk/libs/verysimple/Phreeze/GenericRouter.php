@@ -1,4 +1,5 @@
 <?php
+
 /** @package    verysimple::Phreeze */
 
 /**
@@ -126,8 +127,10 @@ class GenericRouter implements IRouter
                 if (!empty($GLOBALS['bootstrap_pid'])) {
                     // p_acl check
                     $p_acl = $this->routeMap[$unalteredKey]["p_acl"];
-                    if (($p_acl == 'p_none') ||
-                        (($p_acl == 'p_limited') && ($GLOBALS['bootstrap_pid'] != $match[1]))) {
+                    if (
+                        ($p_acl == 'p_none') ||
+                        (($p_acl == 'p_limited') && ($GLOBALS['bootstrap_pid'] != $match[1]))
+                    ) {
                         // failed p_acl check
                         $error = 'Unauthorized';
                         throw new Exception($error);

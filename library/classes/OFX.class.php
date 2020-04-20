@@ -129,7 +129,7 @@ class OFX
         $string = "</BANKTRANLIST>\n";
         $string .= "<LEDGERBAL>\n";
         $string .= "<BALAMT>" . sprintf("%0.2f", $sum) . "\n";
-        $string .= "<DTASOF>" . date("YmdHis"). "\n";
+        $string .= "<DTASOF>" . date("YmdHis") . "\n";
         $string .= "</LEDGERBAL>\n";
         $string .= "</STMTRS>\n";
         $string .= "</STMTTRNRS>\n";

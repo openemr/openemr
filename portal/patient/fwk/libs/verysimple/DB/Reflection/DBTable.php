@@ -1,4 +1,5 @@
 <?php
+
 /** @package    verysimple::DB::Reflection */
 
 /**
@@ -240,7 +241,7 @@ class DBTable
         if ($row = $this->Schema->Server->Connection->Next($rs)) {
             if (isset($row ["Create Table"])) {
                 $create_table = $row ["Create Table"];
-            } else if (isset($row ["Create View"])) {
+            } elseif (isset($row ["Create View"])) {
                 $this->IsView = true;
                 $create_table = $row ["Create View"];
                 

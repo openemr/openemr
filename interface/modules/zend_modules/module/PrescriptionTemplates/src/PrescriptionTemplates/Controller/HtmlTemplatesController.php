@@ -19,7 +19,6 @@
  * @link    http://www.open-emr.org
  */
 
-
 namespace PrescriptionTemplates\Controller;
 
 use Interop\Container\ContainerInterface;

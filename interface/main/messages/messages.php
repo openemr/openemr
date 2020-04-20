@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Message and Reminder Center UI
  *
@@ -57,8 +58,10 @@ $rcb_selectors = prevSetting($uspfx, 'rcb_selectors', 'rcb_selectors', 'block');
 $rcb_facility = prevSetting($uspfx, 'form_facility', 'form_facility', '');
 $rcb_provider = prevSetting($uspfx, 'form_provider', 'form_provider', $_SESSION['authUserID']);
 
-if (($_POST['setting_bootstrap_submenu']) ||
-    ($_POST['rcb_selectors'])) {
+if (
+    ($_POST['setting_bootstrap_submenu']) ||
+    ($_POST['rcb_selectors'])
+) {
     // These are not form elements. We only ever change them via ajax, so exit now.
     exit();
 }
@@ -409,7 +412,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                             "FROM patient_data WHERE pid = ?", array($reply_to));
                                                         $patientname = $prow['lname'] . ", " . $prow['fname'];
                                                     }
-                                                    if ($task == "addnew" || $result['pid']==0) {
+                                                    if ($task == "addnew" || $result['pid'] == 0) {
                                                         $cursor = "oe-cursor-add";
                                                         $background = "oe-patient-background";
                                                     } elseif ($task == "edit") {
@@ -417,14 +420,14 @@ if (!empty($_REQUEST['go'])) { ?>
                                                         $background = '';
                                                     }
                                                     ?>
-                                                    <input type='text' id='form_patient' name='form_patient' class='form-control <?php echo $cursor . " " .$background;?>' onclick="multi_sel_patient()" placeholder='<?php echo xla("Click to add patient"); ?>' value='<?php echo attr($patientname); ?>' readonly />
+                                                    <input type='text' id='form_patient' name='form_patient' class='form-control <?php echo $cursor . " " . $background;?>' onclick="multi_sel_patient()" placeholder='<?php echo xla("Click to add patient"); ?>' value='<?php echo attr($patientname); ?>' readonly />
                                                     <input type='hidden' class="form-control" name='reply_to' id='reply_to' value='<?php echo attr($reply_to); ?>'/>
                                                 </div>
                                                 <div class="col-2 d-flex flex-wrap">
                                                     <?php
-                                                    if ($task=="addnew" || $result['pid']==0) {
+                                                    if ($task == "addnew" || $result['pid'] == 0) {
                                                         echo "<label class='oe-empty-label' for='clear_patients'></label>";
-                                                        echo '<button type="button" id="clear_patients"  class="btn btn-secondary btn-undo float-left flip" value="' . xla('Clear') .'">' . xlt("Clear") . '</button>';
+                                                        echo '<button type="button" id="clear_patients"  class="btn btn-secondary btn-undo float-left flip" value="' . xla('Clear') . '">' . xlt("Clear") . '</button>';
                                                     } ?>
                                                 </div>
                                             </div>
@@ -533,7 +536,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             if ($noteid) {
                                                 $body = preg_replace('/(:\d{2}\s\()' . $result['pid'] . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
                                                 $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
-                                                $body =nl2br(text(oeFormatPatientNote($body)));
+                                                $body = nl2br(text(oeFormatPatientNote($body)));
                                                 echo "<div class='text oe-margin-t-3 p-2' style='border: 1px solid var(--gray);'>" . $body . "</div>";
                                             }
 
@@ -566,16 +569,16 @@ if (!empty($_REQUEST['go'])) { ?>
                             $begin = isset($_REQUEST['begin']) ? $_REQUEST['begin'] : 0;
 
                             for ($i = 0; $i < count($sort); $i++) {
-                                $sortlink[$i] = "<a  class='arrowhead' href=\"messages.php?show_all=".attr($showall)."&sortby=".attr($sort[$i])."&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\" alt=\"" . xla('Sort Up') . "\"><i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
+                                $sortlink[$i] = "<a  class='arrowhead' href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sort[$i]) . "&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\" alt=\"" . xla('Sort Up') . "\"><i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
                             }
                             for ($i = 0; $i < count($sort); $i++) {
                                 if ($sortby == $sort[$i]) {
                                     switch ($sortorder) {
                                         case "asc":
-                                            $sortlink[$i] = "<a class='arrowhead' href=\"messages.php?show_all=".attr($showall)."&sortby=".attr($sortby)."&sortorder=desc&$activity_string_html\" onclick=\"top.restoreSession()\" alt=\"" . xla('Sort Up') . "\"><i class='fa fa-sort-asc fa-lg' aria-hidden='true'></i></a>";
+                                            $sortlink[$i] = "<a class='arrowhead' href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=desc&$activity_string_html\" onclick=\"top.restoreSession()\" alt=\"" . xla('Sort Up') . "\"><i class='fa fa-sort-asc fa-lg' aria-hidden='true'></i></a>";
                                             break;
                                         case "desc":
-                                            $sortlink[$i] = "<a class='arrowhead' href=\"messages.php?show_all=".attr($showall)."&sortby=".attr($sortby)."&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\"  alt=\"" . xla('Sort Down') . "\"><i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
+                                            $sortlink[$i] = "<a class='arrowhead' href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\"  alt=\"" . xla('Sort Down') . "\"><i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
                                             break;
                                     } break;
                                 }
@@ -603,13 +606,13 @@ if (!empty($_REQUEST['go'])) { ?>
                             if ($prev >= 0) {
                                 $prevlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($prev) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><i class=\"fa " . $chevron_icon_left . " chevron_color\" aria-hidden=\"true\"></i></a>";
                             } else {
-                                $prevlink = "<i class=\"fa " . $chevron_icon_left . " text-muted\" aria-hidden=\"true\" title=\"". xla("On first page") . "\"></i>";
+                                $prevlink = "<i class=\"fa " . $chevron_icon_left . " text-muted\" aria-hidden=\"true\" title=\"" . xla("On first page") . "\"></i>";
                             }
 
                             if ($next < $total) {
                                 $nextlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($next) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><i class=\"fa . $chevron_icon_right . chevron_color\" aria-hidden=\"true\"></i></a>";
                             } else {
-                                $nextlink = "<i class=\"fa " . $chevron_icon_right . " text-muted\" aria-hidden=\"true\" title=\"". xla("On first page") . "\"></i>";
+                                $nextlink = "<i class=\"fa " . $chevron_icon_right . " text-muted\" aria-hidden=\"true\" title=\"" . xla("On first page") . "\"></i>";
                             }
                             // Display the Messages table header.
                             echo "

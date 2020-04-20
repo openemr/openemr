@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Dicom viewer wrapper script for documents
  *

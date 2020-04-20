@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SecureApp.tpl.php
  *

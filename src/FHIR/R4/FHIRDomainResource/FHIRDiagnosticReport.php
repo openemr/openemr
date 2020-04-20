@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -581,7 +583,7 @@ class FHIRDiagnosticReport extends FHIRDomainResource implements \JsonSerializab
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['basedOn'])) {
@@ -590,7 +592,7 @@ class FHIRDiagnosticReport extends FHIRDomainResource implements \JsonSerializab
                         $this->addBasedOn($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"basedOn" must be array of objects or null, '.gettype($data['basedOn']).' seen.');
+                    throw new \InvalidArgumentException('"basedOn" must be array of objects or null, ' . gettype($data['basedOn']) . ' seen.');
                 }
             }
             if (isset($data['status'])) {
@@ -602,7 +604,7 @@ class FHIRDiagnosticReport extends FHIRDomainResource implements \JsonSerializab
                         $this->addCategory($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"category" must be array of objects or null, '.gettype($data['category']).' seen.');
+                    throw new \InvalidArgumentException('"category" must be array of objects or null, ' . gettype($data['category']) . ' seen.');
                 }
             }
             if (isset($data['code'])) {
@@ -629,7 +631,7 @@ class FHIRDiagnosticReport extends FHIRDomainResource implements \JsonSerializab
                         $this->addPerformer($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"performer" must be array of objects or null, '.gettype($data['performer']).' seen.');
+                    throw new \InvalidArgumentException('"performer" must be array of objects or null, ' . gettype($data['performer']) . ' seen.');
                 }
             }
             if (isset($data['resultsInterpreter'])) {
@@ -638,7 +640,7 @@ class FHIRDiagnosticReport extends FHIRDomainResource implements \JsonSerializab
                         $this->addResultsInterpreter($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"resultsInterpreter" must be array of objects or null, '.gettype($data['resultsInterpreter']).' seen.');
+                    throw new \InvalidArgumentException('"resultsInterpreter" must be array of objects or null, ' . gettype($data['resultsInterpreter']) . ' seen.');
                 }
             }
             if (isset($data['specimen'])) {
@@ -647,7 +649,7 @@ class FHIRDiagnosticReport extends FHIRDomainResource implements \JsonSerializab
                         $this->addSpecimen($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"specimen" must be array of objects or null, '.gettype($data['specimen']).' seen.');
+                    throw new \InvalidArgumentException('"specimen" must be array of objects or null, ' . gettype($data['specimen']) . ' seen.');
                 }
             }
             if (isset($data['result'])) {
@@ -656,7 +658,7 @@ class FHIRDiagnosticReport extends FHIRDomainResource implements \JsonSerializab
                         $this->addResult($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"result" must be array of objects or null, '.gettype($data['result']).' seen.');
+                    throw new \InvalidArgumentException('"result" must be array of objects or null, ' . gettype($data['result']) . ' seen.');
                 }
             }
             if (isset($data['imagingStudy'])) {
@@ -665,7 +667,7 @@ class FHIRDiagnosticReport extends FHIRDomainResource implements \JsonSerializab
                         $this->addImagingStudy($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"imagingStudy" must be array of objects or null, '.gettype($data['imagingStudy']).' seen.');
+                    throw new \InvalidArgumentException('"imagingStudy" must be array of objects or null, ' . gettype($data['imagingStudy']) . ' seen.');
                 }
             }
             if (isset($data['media'])) {
@@ -674,7 +676,7 @@ class FHIRDiagnosticReport extends FHIRDomainResource implements \JsonSerializab
                         $this->addMedia($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"media" must be array of objects or null, '.gettype($data['media']).' seen.');
+                    throw new \InvalidArgumentException('"media" must be array of objects or null, ' . gettype($data['media']) . ' seen.');
                 }
             }
             if (isset($data['conclusion'])) {
@@ -686,7 +688,7 @@ class FHIRDiagnosticReport extends FHIRDomainResource implements \JsonSerializab
                         $this->addConclusionCode($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"conclusionCode" must be array of objects or null, '.gettype($data['conclusionCode']).' seen.');
+                    throw new \InvalidArgumentException('"conclusionCode" must be array of objects or null, ' . gettype($data['conclusionCode']) . ' seen.');
                 }
             }
             if (isset($data['presentedForm'])) {
@@ -695,11 +697,11 @@ class FHIRDiagnosticReport extends FHIRDomainResource implements \JsonSerializab
                         $this->addPresentedForm($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"presentedForm" must be array of objects or null, '.gettype($data['presentedForm']).' seen.');
+                    throw new \InvalidArgumentException('"presentedForm" must be array of objects or null, ' . gettype($data['presentedForm']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

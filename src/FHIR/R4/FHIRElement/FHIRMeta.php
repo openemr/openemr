@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRElement;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRElement;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -258,7 +260,7 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
                         $this->addProfile($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"profile" must be array of objects or null, '.gettype($data['profile']).' seen.');
+                    throw new \InvalidArgumentException('"profile" must be array of objects or null, ' . gettype($data['profile']) . ' seen.');
                 }
             }
             if (isset($data['security'])) {
@@ -267,7 +269,7 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
                         $this->addSecurity($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"security" must be array of objects or null, '.gettype($data['security']).' seen.');
+                    throw new \InvalidArgumentException('"security" must be array of objects or null, ' . gettype($data['security']) . ' seen.');
                 }
             }
             if (isset($data['tag'])) {
@@ -276,11 +278,11 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
                         $this->addTag($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"tag" must be array of objects or null, '.gettype($data['tag']).' seen.');
+                    throw new \InvalidArgumentException('"tag" must be array of objects or null, ' . gettype($data['tag']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

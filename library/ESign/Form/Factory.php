@@ -25,12 +25,12 @@ namespace ESign;
  * @link    http://www.open-emr.org
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/FactoryIF.php';
-require_once $GLOBALS['srcdir'].'/ESign/Form/Configuration.php';
-require_once $GLOBALS['srcdir'].'/ESign/Form/Signable.php';
-require_once $GLOBALS['srcdir'].'/ESign/Form/LBF/Signable.php';
-require_once $GLOBALS['srcdir'].'/ESign/Form/Button.php';
-require_once $GLOBALS['srcdir'].'/ESign/Form/Log.php';
+require_once $GLOBALS['srcdir'] . '/ESign/FactoryIF.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Form/Configuration.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Form/Signable.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Form/LBF/Signable.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Form/Button.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Form/Log.php';
 
 class Form_Factory implements FactoryIF
 {

@@ -1,4 +1,5 @@
 <?php
+
 /* HCFA_1500 Class
  *
  * This program creates the HCFA 1500 claim form.
@@ -86,29 +87,29 @@ class HCFA_1500
      */
     private function process_diagnoses_02_12($claim, &$log)
     {
-        $hcfa_entries=array();
+        $hcfa_entries = array();
         $diags = $claim->diagArray(false);
-        if ($claim->diagtype=='ICD10') {
-            $icd_indicator='0';
+        if ($claim->diagtype == 'ICD10') {
+            $icd_indicator = '0';
         } else {
-            $icd_indicator='9';
+            $icd_indicator = '9';
         }
 
-        $hcfa_entries[]=new HCFA_Info(37, 42, 1, $icd_indicator);
+        $hcfa_entries[] = new HCFA_Info(37, 42, 1, $icd_indicator);
 
         // Box 22. Medicaid Resubmission Code and Original Ref. No.
-        $hcfa_entries[]=new HCFA_Info(38, 50, 10, $claim->medicaidResubmissionCode());
-        $hcfa_entries[]=new HCFA_Info(38, 62, 15, $claim->medicaidOriginalReference());
+        $hcfa_entries[] = new HCFA_Info(38, 50, 10, $claim->medicaidResubmissionCode());
+        $hcfa_entries[] = new HCFA_Info(38, 62, 15, $claim->medicaidOriginalReference());
 
         // Box 23. Prior Authorization Number
-        $hcfa_entries[]=new HCFA_Info(40, 50, 28, $claim->priorAuth());
+        $hcfa_entries[] = new HCFA_Info(40, 50, 28, $claim->priorAuth());
 
-        $diag_count=0;
+        $diag_count = 0;
         foreach ($diags as $diag) {
-            if ($diag_count<12) {
+            if ($diag_count < 12) {
                 $this->add_diagnosis($hcfa_entries, $diag_count, $diag);
             } else {
-                $log.= "***Too many diagnoses ".($diag_count+1).":".$diag;
+                $log .= "***Too many diagnoses " . ($diag_count + 1) . ":" . $diag;
             }
 
             $diag_count++;
@@ -136,17 +137,17 @@ class HCFA_1500
          *  E F G H
          *  I J K L
          */
-        $column_num = ($number%4);
+        $column_num = ($number % 4);
         $row_num = (int)($number / 4);
 
         // First column is at location 3, each column is 13 wide
-        $col_pos=3+13*$column_num;
+        $col_pos = 3 + 13 * $column_num;
 
         // First diagnosis row is 38
-        $strip='/[.#]/';
+        $strip = '/[.#]/';
         $diag = preg_replace($strip, '', strtoupper($diag));
-        $row_pos=38+$row_num;
-        $hcfa_entries[]=new HCFA_Info($row_pos, $col_pos, 8, $diag);
+        $row_pos = 38 + $row_num;
+        $hcfa_entries[] = new HCFA_Info($row_pos, $col_pos, 8, $diag);
     }
 
     public function gen_hcfa_1500($pid, $encounter, &$log)
@@ -207,15 +208,15 @@ class HCFA_1500
         $tmpcol = 45;                    // Other
         if ($ct == 2) {
             $tmpcol = 1; // Medicare
-        } else if ($ct == 3) {
+        } elseif ($ct == 3) {
             $tmpcol = 8; // Medicaid
-        } else if ($ct == 5) {
+        } elseif ($ct == 5) {
             $tmpcol = 15; // TriCare (formerly CHAMPUS)
-        } else if ($ct == 4) {
+        } elseif ($ct == 4) {
             $tmpcol = 24; // Champus VA
-        } else if ($ct == 6) {
+        } elseif ($ct == 6) {
             $tmpcol = 31; // Group Health Plan (only BCBS?)
-        } else if ($ct == 7) {
+        } elseif ($ct == 7) {
             $tmpcol = 39; // FECA
         }
 
@@ -255,9 +256,9 @@ class HCFA_1500
         $tmpcol = 47;                         // Other
         if ($tmp === '18') {
             $tmpcol = 33; // self
-        } else if ($tmp === '01') {
+        } elseif ($tmp === '01') {
             $tmpcol = 38; // spouse
-        } else if ($tmp === '19') {
+        } elseif ($tmp === '19') {
             $tmpcol = 42; // child
         }
 
@@ -449,8 +450,10 @@ class HCFA_1500
         // Referring provider stuff.  Reports are that for primary care providers,
         // Medicare forbids an entry here and other payers require one.
         // There is still confusion over this.
-        if ($claim->referrerLastName() || $claim->billingProviderLastName() &&
-            (empty($GLOBALS['MedicareReferrerIsRenderer']) || $claim->claimType() != 'MB')) {
+        if (
+            $claim->referrerLastName() || $claim->billingProviderLastName() &&
+            (empty($GLOBALS['MedicareReferrerIsRenderer']) || $claim->claimType() != 'MB')
+        ) {
             // Box 17a. Referring Provider Alternate Identifier
             // Commented this out because UPINs are obsolete, leaving the code as an
             // example in case some other identifier needs to be supported.
@@ -562,7 +565,7 @@ class HCFA_1500
             if ($ndc) {
                 if (preg_match('/^(\d\d\d\d\d)-(\d\d\d\d)-(\d\d)$/', $ndc, $tmp)) {
                     $ndc = $tmp[1] . $tmp[2] . $tmp[3];
-                } else if (preg_match('/^\d{11}$/', $ndc)) {
+                } elseif (preg_match('/^\d{11}$/', $ndc)) {
                 } else {
                     $log .= "*** NDC code '$ndc' has invalid format!\n";
                 }
@@ -583,10 +586,10 @@ class HCFA_1500
                 // BCBS of TN indicated they want it this way.  YMMV.  -- Rod
                 $this->put_hcfa($lino, 65, 2, $claim->supervisorNumberType());
                 $this->put_hcfa($lino, 68, 10, $claim->supervisorNumber());
-            } else if ($claim->providerNumber($this->hcfa_proc_index)) {
+            } elseif ($claim->providerNumber($this->hcfa_proc_index)) {
                 $this->put_hcfa($lino, 65, 2, $claim->providerNumberType($this->hcfa_proc_index));
                 $this->put_hcfa($lino, 68, 10, $claim->providerNumber($this->hcfa_proc_index));
-            } else if ($claim->claimType() == 'MC') {
+            } elseif ($claim->claimType() == 'MC') {
                 $this->put_hcfa($lino, 65, 2, 'ZZ');
                 $this->put_hcfa($lino, 68, 14, $claim->providerTaxonomy());
             }
@@ -700,7 +703,7 @@ class HCFA_1500
 
         if ($GLOBALS['cms_1500_box_31_format'] == 0) {
             $this->put_hcfa(60, 1, 20, 'Signature on File');
-        } else if ($GLOBALS['cms_1500_box_31_format'] == 1) {
+        } elseif ($GLOBALS['cms_1500_box_31_format'] == 1) {
             $this->put_hcfa(60, 1, 22, $claim->providerFirstName() . " " . $claim->providerLastName());
         }
 
@@ -719,7 +722,7 @@ class HCFA_1500
             if ($GLOBALS['cms_1500_box_31_date'] == 1) {
                 $date_of_service = $claim->serviceDate();
                 $MDY = substr($date_of_service, 4, 2) . " " . substr($date_of_service, 6, 2) . " " . substr($date_of_service, 2, 2);
-            } else if ($GLOBALS['cms_1500_box_31_date'] == 2) {
+            } elseif ($GLOBALS['cms_1500_box_31_date'] == 2) {
                 $MDY = date("m/d/y");
             }
 

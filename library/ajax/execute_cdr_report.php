@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Run a CDR engine report.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2012-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 require_once(dirname(__FILE__) . "/../clinical_rules.php");
@@ -56,7 +56,7 @@ if (!empty($_POST['execute_report_id'])) {
         //   need to send a manual data entry option (number of labs)
         $array_date['dateBegin'] = $_POST['date_begin'];
         $array_date['dateTarget'] = $target_date;
-        $options = array('labs_manual'=>$_POST['labs']);
+        $options = array('labs_manual' => $_POST['labs']);
     } else {
         // For others, use the unmodified target date array and send an empty options array
         $array_date = $target_date;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * lab.inc
  *
@@ -93,7 +94,7 @@ function getNPI($prov_id)
  */
 function getProcedureProvider($prov_id)
 {
-    $sql = "SELECT i.organization, i.street, i.city, i.state, i.zip, i.fax, i.phone, pi.lab_director ".
+    $sql = "SELECT i.organization, i.street, i.city, i.state, i.zip, i.fax, i.phone, pi.lab_director " .
            "FROM users AS i, procedure_providers AS pi WHERE pi.ppid = ? AND pi.lab_director = i.id ";
 
     $res = sqlStatement($sql, array($prov_id));

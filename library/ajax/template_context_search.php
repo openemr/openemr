@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Ajax interface for custom template context.
  *

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationRequest;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationRequest;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -144,8 +146,8 @@ class FHIRMedicationRequestInitialFill extends FHIRBackboneElement implements \J
             if (isset($data['duration'])) {
                 $this->setDuration($data['duration']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

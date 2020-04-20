@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * Multi Site Administration script.
@@ -11,6 +12,7 @@
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 // Checks if the server's PHP version is compatible with OpenEMR:
 require_once(dirname(__FILE__) . "/src/Common/Compatibility/Checker.php");
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
@@ -174,7 +176,7 @@ function sqlQuery($statement, $link)
                             $row = sqlQuery("SELECT * FROM version LIMIT 1", $dbh);
                             $database_patch_txt = "";
                             if (!(empty($row['v_realpatch'])) && $row['v_realpatch'] != 0) {
-                                $database_patch_txt = " (" . $row['v_realpatch'] .")";
+                                $database_patch_txt = " (" . $row['v_realpatch'] . ")";
                             }
 
                             $openemr_version = $row['v_major'] . "." . $row['v_minor'] . "." .

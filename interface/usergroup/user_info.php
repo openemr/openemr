@@ -1,4 +1,5 @@
 <?php
+
 /**
  * User password change tool
  *
@@ -86,7 +87,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
 $res = sqlStatement("select fname,lname,username from users where id=?", array($_SESSION['authUserID']));
 $row = sqlFetchArray($res);
-      $iter=$row;
+      $iter = $row;
 ?>
 <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
     <div class="row">

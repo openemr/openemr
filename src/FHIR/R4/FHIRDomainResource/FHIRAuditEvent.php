@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -382,7 +384,7 @@ class FHIRAuditEvent extends FHIRDomainResource implements \JsonSerializable
                         $this->addSubtype($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"subtype" must be array of objects or null, '.gettype($data['subtype']).' seen.');
+                    throw new \InvalidArgumentException('"subtype" must be array of objects or null, ' . gettype($data['subtype']) . ' seen.');
                 }
             }
             if (isset($data['action'])) {
@@ -406,7 +408,7 @@ class FHIRAuditEvent extends FHIRDomainResource implements \JsonSerializable
                         $this->addPurposeOfEvent($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"purposeOfEvent" must be array of objects or null, '.gettype($data['purposeOfEvent']).' seen.');
+                    throw new \InvalidArgumentException('"purposeOfEvent" must be array of objects or null, ' . gettype($data['purposeOfEvent']) . ' seen.');
                 }
             }
             if (isset($data['agent'])) {
@@ -415,7 +417,7 @@ class FHIRAuditEvent extends FHIRDomainResource implements \JsonSerializable
                         $this->addAgent($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"agent" must be array of objects or null, '.gettype($data['agent']).' seen.');
+                    throw new \InvalidArgumentException('"agent" must be array of objects or null, ' . gettype($data['agent']) . ' seen.');
                 }
             }
             if (isset($data['source'])) {
@@ -427,11 +429,11 @@ class FHIRAuditEvent extends FHIRDomainResource implements \JsonSerializable
                         $this->addEntity($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"entity" must be array of objects or null, '.gettype($data['entity']).' seen.');
+                    throw new \InvalidArgumentException('"entity" must be array of objects or null, ' . gettype($data['entity']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

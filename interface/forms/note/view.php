@@ -28,7 +28,7 @@ $form_name = "note";
 
 // get the record from the database
 if ($_GET['id'] != "") {
-    $obj = formFetch("form_".$form_name, $_GET["id"]);
+    $obj = formFetch("form_" . $form_name, $_GET["id"]);
 }
 
 /* remove the time-of-day from the date fields */
@@ -46,7 +46,7 @@ if ($obj['date_of_signature'] != "") {
 var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
 function PrintForm() {
-    newwin = window.open(<?php echo js_escape($rootdir."/forms/".$form_name."/print.php?id=".urlencode($_GET["id"])); ?>,"mywin");
+    newwin = window.open(<?php echo js_escape($rootdir . "/forms/" . $form_name . "/print.php?id=" . urlencode($_GET["id"])); ?>,"mywin");
 }
 
 </script>
@@ -54,7 +54,7 @@ function PrintForm() {
 </head>
 <body class="body_top">
 
-<form method=post action="<?php echo $rootdir."/forms/".$form_name."/save.php?mode=update&id=".attr_url($_GET["id"]);?>" name="my_form" id="my_form">
+<form method=post action="<?php echo $rootdir . "/forms/" . $form_name . "/save.php?mode=update&id=" . attr_url($_GET["id"]);?>" name="my_form" id="my_form">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <span class="title"><?php echo xlt('Work/School Note'); ?></span><br /><br />
@@ -66,10 +66,10 @@ function PrintForm() {
 </div>
 
 <select name="note_type">
-<option value="WORK NOTE" <?php if ($obj['note_type']=="WORK NOTE") {
+<option value="WORK NOTE" <?php if ($obj['note_type'] == "WORK NOTE") {
     echo " SELECTED";
                           } ?>><?php echo xlt('WORK NOTE'); ?></option>
-<option value="SCHOOL NOTE" <?php if ($obj['note_type']=="SCHOOL NOTE") {
+<option value="SCHOOL NOTE" <?php if ($obj['note_type'] == "SCHOOL NOTE") {
     echo " SELECTED";
                             } ?>><?php echo xlt('SCHOOL NOTE'); ?></option>
 </select>

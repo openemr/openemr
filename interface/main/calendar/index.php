@@ -1,4 +1,5 @@
 <?php
+
 /**
  * POST-NUKE Content Management System
  * Based on:
@@ -14,7 +15,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/calendar.inc");
@@ -110,12 +110,14 @@ if ($type == "admin") {
         // exit if do not have access
         exit;
     }
-    if (($func != "modifyconfig") &&
+    if (
+        ($func != "modifyconfig") &&
         ($func != "clearCache") &&
         ($func != "testSystem") &&
         ($func != "categories") &&
         ($func != "categoriesConfirm") &&
-        ($func != "categoriesUpdate")) {
+        ($func != "categoriesUpdate")
+    ) {
         // only support certain functions in admin use
         exit;
     }
@@ -126,8 +128,10 @@ if (empty($type)) {
 }
 
 if ($type == "user") {
-    if (($func != "view") &&
-        ($func != "search")) {
+    if (
+        ($func != "view") &&
+        ($func != "search")
+    ) {
         // only support view and search functions in for non-admin use
         exit;
     }
@@ -162,7 +166,7 @@ if ((empty($return)) || ($return == false)) {
     // Failed to load the module
     $output = new pnHTML();
     $output->StartPage();
-    $output->Text('Failed to load module ' . text($module) .' ( At function: "' . text($func) . '" )');
+    $output->Text('Failed to load module ' . text($module) . ' ( At function: "' . text($func) . '" )');
     $output->EndPage();
     $output->PrintPage();
     exit;

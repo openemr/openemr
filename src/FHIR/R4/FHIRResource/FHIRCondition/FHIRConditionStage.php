@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCondition;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCondition;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -173,14 +175,14 @@ class FHIRConditionStage extends FHIRBackboneElement implements \JsonSerializabl
                         $this->addAssessment($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"assessment" must be array of objects or null, '.gettype($data['assessment']).' seen.');
+                    throw new \InvalidArgumentException('"assessment" must be array of objects or null, ' . gettype($data['assessment']) . ' seen.');
                 }
             }
             if (isset($data['type'])) {
                 $this->setType($data['type']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

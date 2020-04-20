@@ -1,4 +1,5 @@
 <?php
+
 /**
  * QueryUtils. This class contains static convenience functions for generating
  * SQL and executing it. It is up to the caller to ensure the SQL is properly

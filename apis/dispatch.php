@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Rest Dispatch
  *
@@ -12,7 +13,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("./../_rest_config.php");
 
@@ -41,7 +41,7 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     $isLocalApi = true;
     $gbl::setLocalCall();
     $ignoreAuth = false;
-} else if ($gbl::is_authentication($resource)) {
+} elseif ($gbl::is_authentication($resource)) {
     // Get a site id from initial login authentication.
     $isLocalApi = false;
     $data = (array) $gbl::getPostData((file_get_contents("php://input")));
@@ -58,12 +58,14 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
         $tokenParts = '';
     }
     // token needs to have be an array and have something, api needs to be 4 characters, site id needs to be something.
-    if ((is_array($tokenParts)) &&
+    if (
+        (is_array($tokenParts)) &&
         (!empty($tokenParts)) &&
         (!empty($tokenParts['token'])) &&
         (!empty($tokenParts['api'])) &&
         (strlen($tokenParts['api']) == 4) &&
-        (!empty($tokenParts['site_id']))) {
+        (!empty($tokenParts['site_id']))
+    ) {
         $gbl::verify_api_request($resource, $tokenParts['api']);
         $_SERVER["HTTP_X_API_TOKEN"] = $tokenParts['token']; // set token to further the adventure.
         $_GET['site'] = $tokenParts['site_id']; // site id

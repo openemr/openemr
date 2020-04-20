@@ -25,7 +25,7 @@ namespace ESign;
  * @link    http://www.open-emr.org
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/VerifiableIF.php';
+require_once $GLOBALS['srcdir'] . '/ESign/VerifiableIF.php';
 
 interface SignableIF extends VerifiableIF
 {

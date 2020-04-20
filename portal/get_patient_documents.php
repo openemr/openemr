@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Download documents from OpenEMR to the patient portal in a zip file(get_patient_documents.php)
  *
@@ -43,14 +44,14 @@ while ($file = sqlFetchArray($fres)) {
     // create the tree of the categories
     $path = "";
     while ($parent = sqlFetchArray($pathres)) {
-        $path .= convert_safe_file_dir_name($parent['name'])."/";
+        $path .= convert_safe_file_dir_name($parent['name']) . "/";
     }
 
-    $path .= convert_safe_file_dir_name($cat['name'])."/";
+    $path .= convert_safe_file_dir_name($cat['name']) . "/";
     // create the folder structure at the temporary dir
-    if (!is_dir($tmp."/".$pid."/".$path)) {
-        if (!mkdir($tmp."/".$pid."/".$path, 0777, true)) {
-            echo xlt("Error creating directory!")."<br />";
+    if (!is_dir($tmp . "/" . $pid . "/" . $path)) {
+        if (!mkdir($tmp . "/" . $pid . "/" . $path, 0777, true)) {
+            echo xlt("Error creating directory!") . "<br />";
         }
     }
 
@@ -62,35 +63,35 @@ while ($file = sqlFetchArray($fres)) {
         $pos = strpos(substr($file['url'], -5), '.');
         // check if has an extension or find it from the mimetype
         if ($pos === false) {
-            $file['url'] = $file['url'].get_extension($file['mimetype']);
+            $file['url'] = $file['url'] . get_extension($file['mimetype']);
         }
 
-        $dest = $tmp."/".$pid."/".$path."/".convert_safe_file_dir_name(basename($file['url']));
+        $dest = $tmp . "/" . $pid . "/" . $path . "/" . convert_safe_file_dir_name(basename($file['url']));
         if (file_exists($dest)) {
             $x = 1;
             do {
-                $dest = $tmp."/".$pid."/".$path."/". $x ."_".convert_safe_file_dir_name(basename($file['url']));
+                $dest = $tmp . "/" . $pid . "/" . $path . "/" . $x . "_" . convert_safe_file_dir_name(basename($file['url']));
                 $x++;
             } while (file_exists($dest));
         }
 
         file_put_contents($dest, $document);
     } else {
-        echo xlt("Can't find file!")."<br />";
+        echo xlt("Can't find file!") . "<br />";
     }
 }
 
     // zip the folder
-    Zip($tmp."/".$pid."/", $tmp."/".$pid.'.zip');
+    Zip($tmp . "/" . $pid . "/", $tmp . "/" . $pid . '.zip');
 
     // serve it to the patient
     header('Content-type: application/zip');
     header('Content-Disposition: attachment; filename="patient_documents.zip"');
-    readfile($tmp."/".$pid.'.zip');
+    readfile($tmp . "/" . $pid . '.zip');
 
     // remove the temporary folders and files
-    recursive_remove_directory($tmp."/".$pid);
-    unlink($tmp."/".$pid.'.zip');
+    recursive_remove_directory($tmp . "/" . $pid);
+    unlink($tmp . "/" . $pid . '.zip');
 
 function recursive_remove_directory($directory, $empty = false)
 {
@@ -104,7 +105,7 @@ function recursive_remove_directory($directory, $empty = false)
         $handle = opendir($directory);
         while (false !== ($item = readdir($handle))) {
             if ($item != '.' && $item != '..') {
-                $path = $directory.'/'.$item;
+                $path = $directory . '/' . $item;
                 if (is_dir($path)) {
                     recursive_remove_directory($path);
                 } else {
@@ -140,18 +141,18 @@ function Zip($source, $destination)
     if (is_dir($source) === true) {
         $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source), RecursiveIteratorIterator::SELF_FIRST);
         foreach ($files as $file) {
-            if ($file == $source."/..") {
+            if ($file == $source . "/..") {
                 continue;
             }
 
             $file = str_replace('\\', '/', realpath($file));
             if (is_dir($file) === true) {
                 $zip->addEmptyDir(str_replace($source . '/', '', $file . '/'));
-            } else if (is_file($file) === true) {
+            } elseif (is_file($file) === true) {
                 $zip->addFromString(str_replace($source . '/', '', $file), file_get_contents($file));
             }
         }
-    } else if (is_file($source) === true) {
+    } elseif (is_file($source) === true) {
         $zip->addFromString(basename($source), file_get_contents($source));
     }
 

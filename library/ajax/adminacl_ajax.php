@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file contains functions that service ajax requests for
  * ACL(php-gacl) administration within OpenEMR. All returns are
@@ -120,10 +121,10 @@ if ($_POST["control"] == "acl") {
         if (empty($_POST["title"])) {
             $form_error = true;
             array_push($error, ("title_" . xl('Need to enter title') . "!"));
-        } else if (!ctype_alpha(str_replace(' ', '', $_POST["title"]))) {
+        } elseif (!ctype_alpha(str_replace(' ', '', $_POST["title"]))) {
             $form_error = true;
             array_push($error, ("title_" . xl('Please only use alphabetic characters') . "!"));
-        } else if (AclExtended::aclExist($_POST["title"], false, $_POST["return_value"])) {
+        } elseif (AclExtended::aclExist($_POST["title"], false, $_POST["return_value"])) {
             $form_error = true;
             array_push($error, ("title_" . xl('Already used, choose another title') . "!"));
         }
@@ -131,10 +132,10 @@ if ($_POST["control"] == "acl") {
         if (empty($_POST["identifier"])) {
             $form_error = true;
             array_push($error, ("identifier_" . xl('Need to enter identifier') . "!"));
-        } else if (!ctype_alpha($_POST["identifier"])) {
+        } elseif (!ctype_alpha($_POST["identifier"])) {
             $form_error = true;
             array_push($error, ("identifier_" . xl('Please only use alphabetic characters with no spaces') . "!"));
-        } else if (AclExtended::aclExist(false, $_POST["identifier"], $_POST["return_value"])) {
+        } elseif (AclExtended::aclExist(false, $_POST["identifier"], $_POST["return_value"])) {
             $form_error = true;
             array_push($error, ("identifier_" . xl('Already used, choose another identifier') . "!"));
         }
@@ -147,7 +148,7 @@ if ($_POST["control"] == "acl") {
         if (empty($_POST["description"])) {
             $form_error = true;
             array_push($error, ("description_" . xl('Need to enter a description') . "!"));
-        } else if (!ctype_alpha(str_replace(' ', '', $_POST["description"]))) {
+        } elseif (!ctype_alpha(str_replace(' ', '', $_POST["description"]))) {
             $form_error = true;
             array_push($error, ("description_" . xl('Please only use alphabetic characters') . "!"));
         }

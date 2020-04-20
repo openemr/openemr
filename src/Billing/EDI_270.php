@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Inc file for the 270 / 271 creation and uploading
  *
@@ -18,6 +19,7 @@
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace OpenEMR\Billing;
 
 require_once(dirname(__FILE__) . "/../../library/edihistory/codes/edih_271_code_class.php");
@@ -127,7 +129,7 @@ class EDI_270
             $HL[2] = "";
             $HL[3] = 20;            // Description: Identifies the payor, maintainer, or source of the information.
             $HL[4] = 1;                 // 1 Additional Subordinate HL Data Segment in This Hierarchical Structure.
-        } else if ($nHlCounter == 2) {
+        } elseif ($nHlCounter == 2) {
             $HL[2] = 1;                 // Hierarchical Parent ID Number
             $HL[3] = 21;            // Hierarchical Level Code. '21' Information Receiver
             $HL[4] = 1;                 // 1 Additional Subordinate HL Data Segment in This Hierarchical Structure.
@@ -161,7 +163,7 @@ class EDI_270
                 $payerId = $row['cms_id'];
             }
             $NM1[9] = $payerId; // Application Sender's ID
-        } else if ($nm1Cast == 'FA') {
+        } elseif ($nm1Cast == 'FA') {
             $NM1[1] = "FA";                     // Entity ID Code - Facility [FA Facility]
             $NM1[2] = "2";                      // Entity Type - Non-Person
             $NM1[3] = $row['facility_name'];            // Organizational Name
@@ -171,7 +173,7 @@ class EDI_270
             $NM1[7] = "";                       // Data Element not required.
             $NM1[8] = "FI";
             $NM1[9] = $row['facility_npi'];
-        } else if ($nm1Cast == '1P') {
+        } elseif ($nm1Cast == '1P') {
             $NM1[1] = "1P";                     // Entity ID Code - Provider
             $NM1[2] = "2";                      // Entity Type - Non-Person
             $NM1[3] = $row['facility_name'];   // Organizational Name
@@ -181,7 +183,7 @@ class EDI_270
             $NM1[7] = "";                       // Data Element not required.
             $NM1[8] = "XX";
             $NM1[9] = $row['provider_npi'];
-        } else if ($nm1Cast == 'IL') {
+        } elseif ($nm1Cast == 'IL') {
             $NM1[1] = "IL";                         // Insured or Subscriber
             $NM1[2] = "1";                      // Entity Type - Person
             $NM1[3] = $row['lname'];                // last Name

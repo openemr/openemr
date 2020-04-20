@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/patient_file/addr_appt_label.php
  * Displaying a PDF file of Appointment Labels for printing.
@@ -16,7 +17,6 @@
  * @copyright 2016 Terry Hill <terry@lillysystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 

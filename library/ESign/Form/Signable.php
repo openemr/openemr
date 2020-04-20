@@ -25,8 +25,8 @@ namespace ESign;
  * @link    http://www.open-emr.org
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/DbRow/Signable.php';
-require_once $GLOBALS['srcdir'].'/ESign/SignableIF.php';
+require_once $GLOBALS['srcdir'] . '/ESign/DbRow/Signable.php';
+require_once $GLOBALS['srcdir'] . '/ESign/SignableIF.php';
 
 class Form_Signable extends DbRow_Signable implements SignableIF
 {
@@ -114,10 +114,10 @@ class Form_Signable extends DbRow_Signable implements SignableIF
             array('formdir_keys', $this->_formDir)
         );
         if (isset($row['title'])) {
-            $excp = json_decode("{".$row['title']."}");
+            $excp = json_decode("{" . $row['title'] . "}");
         }
 
-        $tbl = (isset($excp->tbl) ? $excp->tbl : "form_".$this->_formDir);
+        $tbl = (isset($excp->tbl) ? $excp->tbl : "form_" . $this->_formDir);
         $id = (isset($excp->id) ? $excp->id : 'id');
         $limit = (isset($excp->limit) ? $excp->limit : 1);
       
@@ -130,7 +130,7 @@ class Form_Signable extends DbRow_Signable implements SignableIF
             escape_sql_column_name($id, array($tbl))
         );
         if ($limit <> '*') {
-            $sql .= ' LIMIT '.escape_limit($limit);
+            $sql .= ' LIMIT ' . escape_limit($limit);
         }
 
         $rs = sqlStatement($sql, array( $this->_formId ));

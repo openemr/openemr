@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/library/RuleManager.php
  *
@@ -234,7 +235,7 @@ class RuleManager
             }
 
             if ($addGroup == true) {
-                $groups[$groupId]= $group;
+                $groups[$groupId] = $group;
             }
         }
 
@@ -274,7 +275,7 @@ class RuleManager
     {
         $stmt = sqlStatement(self::SQL_RULE_ACTIONS, array( $rule->id ));
         $ruleActionGroups = array();
-        for ($iter=0; $row=sqlFetchArray($stmt); $iter++) {
+        for ($iter = 0; $row = sqlFetchArray($stmt); $iter++) {
             $action = new RuleAction();
             $action->category = $row['category'];
             $action->item = $row['item'];
@@ -384,7 +385,7 @@ class RuleManager
     private function gatherCriteria($rule, $stmt, $factory)
     {
         $criterion = array();
-        for ($iter=0; $row=sqlFetchArray($stmt); $iter++) {
+        for ($iter = 0; $row = sqlFetchArray($stmt); $iter++) {
             $guid = $row['guid'];
             $method = $row['method'];
             $methodDetail = $row['method_detail'];
@@ -430,7 +431,7 @@ class RuleManager
         $stmt = sqlStatement(self::SQL_RULE_REMINDER_INTERVAL, array( $rule->id ));
         $reminderInterval = new ReminderIntervals();
 
-        for ($iter=0; $row=sqlFetchArray($stmt); $iter++) {
+        for ($iter = 0; $row = sqlFetchArray($stmt); $iter++) {
             $amount = $row['value'];
             $unit = TimeUnit::from($row['method_detail']);
             $methodParts = explode('_', $row['method']);

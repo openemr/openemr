@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCoverageEligibilityResponse;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCoverageEligibilityResponse;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -462,7 +464,7 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
                         $this->addModifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"modifier" must be array of objects or null, '.gettype($data['modifier']).' seen.');
+                    throw new \InvalidArgumentException('"modifier" must be array of objects or null, ' . gettype($data['modifier']) . ' seen.');
                 }
             }
             if (isset($data['provider'])) {
@@ -492,7 +494,7 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
                         $this->addBenefit($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"benefit" must be array of objects or null, '.gettype($data['benefit']).' seen.');
+                    throw new \InvalidArgumentException('"benefit" must be array of objects or null, ' . gettype($data['benefit']) . ' seen.');
                 }
             }
             if (isset($data['authorizationRequired'])) {
@@ -504,14 +506,14 @@ class FHIRCoverageEligibilityResponseItem extends FHIRBackboneElement implements
                         $this->addAuthorizationSupporting($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"authorizationSupporting" must be array of objects or null, '.gettype($data['authorizationSupporting']).' seen.');
+                    throw new \InvalidArgumentException('"authorizationSupporting" must be array of objects or null, ' . gettype($data['authorizationSupporting']) . ' seen.');
                 }
             }
             if (isset($data['authorizationUrl'])) {
                 $this->setAuthorizationUrl($data['authorizationUrl']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }
