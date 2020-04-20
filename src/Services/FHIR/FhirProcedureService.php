@@ -33,14 +33,14 @@ class FhirProcedureService
     public function get()
     {
         return "SELECT ptype.procedure_code,
+                        ptype.body_site,
+                        ptype.notes,
                         pcode.procedure_name,
+                        porder.procedure_order_id,
                         porder.patient_id,
                         porder.encounter_id,
                         porder.date_collected,
                         porder.provider_id,
-                        ptype.body_site,
-                        ptype.related_code,
-                        ptype.notes,
                         porder.order_diagnosis,
                         porder.order_status,
                         presult.result_status
@@ -62,13 +62,29 @@ class FhirProcedureService
             $SQL .= " WHERE porder.patient_id = ?;";
         }
 
+        $SQLFollowUpNotes = "SELECT p.body,
+                                p.update_date
+                                FROM pnotes AS p
+                                LEFT JOIN gprelations AS r
+                                ON p.id = r.id2
+                                AND r.type1 = 2
+                                AND r.id1 = ?
+                                AND r.type2 = 6
+                                AND p.pid != p.`user`;";
+
+        $SQLProvider = "SELECT specialty, organization FROM users WHERE id = ?;";
+
         $procedureResults = sqlStatement($SQL, $search['patient']);
         $results = array();
         while ($row = sqlFetchArray($procedureResults)) {
-            $SQLProvider = "SELECT specialty, organization FROM users WHERE id = ?";
+
             $provider = sqlQuery($SQLProvider, array($row['provider_id']));
             $row['function'] = $provider['specialty'];
             $row['organization'] = $provider['organization'];
+
+            $followUpNotes = sqlQuery($SQLFollowUpNotes, array($row['procedure_order_id']));
+            $row['followUp'] = $followUpNotes['body'] . " " . $followUpNotes['update_date'];
+
             array_push($results, $row);
         }
 
@@ -87,7 +103,20 @@ class FhirProcedureService
         $provider = sqlQuery($SQLProvider, array($result['provider_id']));
         $result['function'] = $provider['specialty'];
         $result['organization'] = $provider['organization'];
-        
+
+        $SQLFollowUpNotes = "SELECT p.body,
+                                p.update_date
+                                FROM pnotes AS p
+                                LEFT JOIN gprelations AS r
+                                ON p.id = r.id2
+                                AND r.type1 = 2
+                                AND r.id1 = ?
+                                AND r.type2 = 6
+                                AND p.pid != p.`user`;";
+
+        $followUpNotes = sqlQuery($SQLFollowUpNotes, array($result['procedure_order_id']));
+        $result['followUp'] = $followUpNotes['body'] . " " . $followUpNotes['update_date'];
+
         return $result;
     }
 
@@ -96,9 +125,9 @@ class FhirProcedureService
         $status = new FHIREventStatus();
         if ($data['order_status'] == "completed") {
             $status->setValue("completed");
-        } else if ($data['order_status'] == "pending") {
+        } elseif ($data['order_status'] == "pending") {
             $status->setValue("in-progress");
-        } else if ($data['order_status'] == "cancelled") {
+        } elseif ($data['order_status'] == "cancelled") {
             $status->setValue("stopped");
         } else {
             $status->setvalue("Unknown");
@@ -106,7 +135,7 @@ class FhirProcedureService
 
         $procedureCode = new FHIRCodeableConcept();
         $procedureCodeCoding = new FHIRCoding();
-        $procedureCodeCoding->setSystem("http://snomed.info/sct");
+        $procedureCodeCoding->setSystem("http://www.ama-assn.org/go/cpt");
         $procedureCodeCoding->setCode($data['procedure_code']);
         $procedureCodeCoding->setDisplay($data['procedure_name']);
         $procedureCode->addCoding($procedureCodeCoding);
@@ -146,7 +175,7 @@ class FhirProcedureService
 
         $reasonCode = new FHIRCodeableConcept();
         $reasonCodeCoding = new FHIRCoding();
-        $reasonCodeCoding->setSystem("http://snomed.info/sct");
+        $reasonCodeCoding->setSystem("http://hl7.org/fhir/sid/icd-10-cm");
         $reasonCodeCoding->setCode($data['order_diagnosis']);
         $reasonCodeCoding->setDisplay($data['order_diagnosis']);
         $reasonCode->addCoding($reasonCodeCoding);
@@ -157,7 +186,7 @@ class FhirProcedureService
         if (strtolower($data['result_status']) == "corrected" || strtolower($data['result_status']) == "final") {
             $outcomeCoding->setCode("385669000");
             $outcomeCoding->setDisplay("Successful");
-        } else if (strtolower($data['result_status']) == "incomplete" || strtolower($data['result_status']) == "preliminary") {
+        } elseif (strtolower($data['result_status']) == "incomplete" || strtolower($data['result_status']) == "preliminary") {
             $outcomeCoding->setCode("385670004");
             $outcomeCoding->setDisplay("Partially successful");
         } else {
@@ -176,11 +205,7 @@ class FhirProcedureService
         $bodySite->addCoding($bodySiteCoding);
 
         $followUp = new FHIRCodeableConcept();
-        $followUpCoding = new FHIRCoding();
-        $followUpCoding->setSystem("http://snomed.info/sct");
-        $followUpCoding->setCode($data['related_code']);
-        $followUpCoding->setDisplay($data['related_code']);
-        $followUp->addCoding($followUpCoding);
+        $followUp->setText($data['followUp']);
 
         $note = new FHIRAnnotation();
         $note->setText($data['notes']);
