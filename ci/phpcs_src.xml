@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ruleset name="OpenEMR Standard">
+<ruleset name="OpenEMR Standard for PSR-4 src directory">
     <description>PSR-12 only for PSR-4 compliant src directory</description>
     <arg name="tab-width" value="4" />
     <rule ref="PSR12">

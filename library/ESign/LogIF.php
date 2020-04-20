@@ -1,7 +1,5 @@
 <?php
 
-namespace ESign;
-
 /**
  * Interface for the ESign log
  *
@@ -23,6 +21,8 @@ namespace ESign;
  * @author  Medical Information Integration, LLC
  * @link    http://www.open-emr.org
  **/
+
+namespace ESign;
 
 require_once $GLOBALS['srcdir'] . '/ESign/ViewableIF.php';
 require_once $GLOBALS['srcdir'] . '/ESign/SignableIF.php';

@@ -1,7 +1,5 @@
 <?php
 
-namespace ESign;
-
 /**
  * LBF Form implementation of SignableIF interface, which represents an
  * object that can be signed, locked and/or amended.
@@ -24,6 +22,8 @@ namespace ESign;
  * @author  Medical Information Integration, LLC
  * @link    http://www.open-emr.org
  **/
+
+namespace ESign;
 
 require_once $GLOBALS['srcdir'] . '/ESign/Form/Signable.php';
 require_once $GLOBALS['srcdir'] . '/ESign/SignableIF.php';
@@ -50,7 +50,7 @@ class Form_LBF_Signable extends Form_Signable implements SignableIF
                 $data[$frow['field_id']] = $frow['field_value'];
             }
         }
-        
+
         return $data;
     }
 }

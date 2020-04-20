@@ -4397,8 +4397,7 @@ function start_your_engines($FIELDS)
                             if (
                                 ( (stripos($FIELDS[$location1], $NVD) !== false) ||
                                 (stripos($FIELDS[$location2], $NVE) !== false) ||
-                                (stripos($FIELDS[$location3], $NVE) !== false) )
-                                &&
+                                (stripos($FIELDS[$location3], $NVE) !== false) ) &&
                                 ( (stripos($FIELDS[$location1], "no " . $NVD) !== true) ||
                                 (stripos($FIELDS[$location2], "no " . $NVE) !== true) ||
                                 (stripos($FIELDS[$location3], "no " . $NVE) !== true) )

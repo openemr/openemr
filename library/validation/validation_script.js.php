@@ -1,4 +1,3 @@
-<?php require_once($GLOBALS['srcdir'] . "/validation/LBF_Validation.php");?>
 <?php
 
 /**
@@ -24,6 +23,8 @@
  * @author  Amiel Elboim <amielel@matrix.co.il>
  * @link    http://www.open-emr.org
  */
+
+require_once($GLOBALS['srcdir'] . "/validation/LBF_Validation.php");
 
 /*LBF form take the valude from the global $GLOBALS['new_validate'];*/
 /*Other pages depend if the page in the lists options (page validation)is active and exists)*/

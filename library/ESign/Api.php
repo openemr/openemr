@@ -1,7 +1,5 @@
 <?php
 
-namespace ESign;
-
 /**
  * Top-level API and helper functions for the ESign module
  *
@@ -23,6 +21,8 @@ namespace ESign;
  * @author  Medical Information Integration, LLC
  * @link    http://www.open-emr.org
  **/
+
+namespace ESign;
 
 require_once $GLOBALS['srcdir'] . '/ESign/ESign.php';
 require_once $GLOBALS['srcdir'] . '/ESign/FactoryIF.php';

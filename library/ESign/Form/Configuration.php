@@ -1,7 +1,5 @@
 <?php
 
-namespace ESign;
-
 /**
  * Implementation of form configuration
  *
@@ -23,6 +21,8 @@ namespace ESign;
  * @author  Medical Information Integration, LLC
  * @link    http://www.open-emr.org
  **/
+
+namespace ESign;
 
 require_once $GLOBALS['srcdir'] . '/ESign/Abstract/Configuration.php';
 

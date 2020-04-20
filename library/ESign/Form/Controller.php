@@ -1,7 +1,5 @@
 <?php
 
-namespace ESign;
-
 /**
  * Form controller implementation
  *
@@ -15,6 +13,8 @@ namespace ESign;
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  **/
+
+namespace ESign;
 
 require_once $GLOBALS['srcdir'] . '/ESign/Abstract/Controller.php';
 require_once $GLOBALS['srcdir'] . '/ESign/Form/Configuration.php';

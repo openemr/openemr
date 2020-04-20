@@ -1,7 +1,5 @@
 <?php
 
-namespace ESign;
-
 /**
  * ButtonIF interface, which is used to display a button that
  * triggers esign behavior.
@@ -24,6 +22,8 @@ namespace ESign;
  * @author  Medical Information Integration, LLC
  * @link    http://www.open-emr.org
  **/
+
+namespace ESign;
 
 require_once $GLOBALS['srcdir'] . '/ESign/ViewableIF.php';
 require_once $GLOBALS['srcdir'] . '/ESign/SignableIF.php';

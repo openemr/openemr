@@ -1,7 +1,5 @@
 <?php
 
-namespace ESign;
-
 /**
  * SignableIF Interface represents an object that can be signed, locked
  * and verified
@@ -24,6 +22,8 @@ namespace ESign;
  * @author  Medical Information Integration, LLC
  * @link    http://www.open-emr.org
  **/
+
+namespace ESign;
 
 require_once $GLOBALS['srcdir'] . '/ESign/VerifiableIF.php';
 
