@@ -1562,7 +1562,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             //print the category and the sub category
                             echo "<b>" . attr($row['category']) . ": </b>";
                             echo attr($row['panel']) . " <br/>";
-                            echo "<b>Enrollment Date: </b>" . attr($row['enrollment_date']) . " <br/><br/>";
+                            echo "<b>Enrollment Date: </b>" . attr($row['enrollment_date']) . " <br/>";
+                            echo "<b>Follow Up Date: </b>" .attr(getPanelAppointment($row['panel'], $pid)['pc_eventDate'])
+                            . " " . attr(getPanelAppointment($row['panel'], $pid)['pc_startTime']) . " <br/><br/>";
                           }
 
                         echo "<br/>";

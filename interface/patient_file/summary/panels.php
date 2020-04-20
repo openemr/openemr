@@ -129,6 +129,7 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
         <th>Status</th>
         <th>Enrollment Date</th>
         <th>Discharge Date</th>
+        <th>Next Follow Up Date</th>
         <th>&nbsp;</th>
       </tr>
 
@@ -142,6 +143,12 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
        <td><?php echo attr($row['status']); ?></td>
        <td><?php echo attr($row['enrollment_date']); ?></td>
        <td><?php echo attr($row['discharge_date']); ?></td>
+       <td><?php
+              if($row['status'] == "Active"){
+                echo attr(getPanelAppointment($row['panel'], $pid)['pc_eventDate'])
+                . " " . attr(getPanelAppointment($row['panel'], $pid)['pc_startTime']) ;
+              }
+          ?></td>
        <td>
          <form action="#" method="post">
            <input type="hidden" name="request" value="discharge" />
@@ -172,10 +179,10 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
   <select name="panel">
   <?php
     while ($row = sqlFetchArray($panels)) {
-      echo "<option value=\"attr({$row['id'])}\"";
+      echo "<option value=\"" . attr($row['id']) . "\"";
       echo ">";
       echo attr(getPanelCategory($row['category_id'])["name"]);
-      echo ": {attr($row['name'])}</option>";
+      echo ": " . attr($row['name']) . "</option>";
     }
   ?>
   </select>
