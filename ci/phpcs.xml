@@ -11,6 +11,8 @@
     <exclude name="PSR2.Classes.PropertyDeclaration"/>
     <exclude name="Generic.NamingConventions.UpperCaseConstantName"/>
     <exclude name="Squiz.WhiteSpace.ScopeClosingBrace"/> <!-- ~100 files need fixing from this -->
+    <exclude name="PSR12.Classes.ClosingBrace"/> <!-- similar to above comment -->
+    <exclude name="PSR2.Methods.MethodDeclaration.Underscore"/> <!-- added until ~94 methods are cleaned -->
   </rule>
 
   <!-- Checks that the opening PHP tag is the first content in a file. -->
