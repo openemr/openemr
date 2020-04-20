@@ -28,9 +28,8 @@ OpenEMR standard endpoints Use `http://localhost:8300/apis/ as base URI.`
 _Example:_ `http://localhost:8300/apis/api/patient` returns a resource of all Patients.
 #### POST /apis/auth
 
-Obtain an API token with your login (returns an API token). 
-Scope must match a site that has been setup in OpenEMR in the /sites/ directory.  If you haven't created additional sites
-then 'default' should be the scope.
+The OpenEMR API utilizes the OAuth2 password credential flow for authentication. To obtain an API token, submit your login credentials and requested scope. The scope must match a site that has been setup in OpenEMR, in the /sites/ directory.  If additional sites have not been created, set the scope
+to 'default'.
 
 ```sh
 curl -X POST -H 'Content-Type: application/json' 'http://localhost:8300/apis/api/auth' \
@@ -52,14 +51,12 @@ Response:
     }
 }
 ```
-For ssh calls, each call must include the token:
+The Bearer token is required for each OpenEMR API request, and is conveyed using an Authorization header.
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/api/patient/1/medical_problem' \
   -H 'Authorization: Bearer eyJ0b2tlbiI6IjAwNmZ4TWpsNWhsZmNPelZicXBEdEZVUlNPQUY5KzdzR1Jjejc4WGZyeGFjUjY2QlhaaEs4eThkU3cxbTd5VXFBeTVyeEZpck9mVzBQNWc5dUlidERLZ0trUElCME5wRDVtTVk5bE9WaE5DTHF5RnRnT0Q0OHVuaHRvbXZ6OTEyNmZGUmVPUllSYVJORGoyZTkzTDA5OWZSb0ZRVGViTUtWUFd4ZW5cL1piSzhIWFpJZUxsV3VNcUdjQXR5dmlLQXRXNDAiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6Im9lbXIifQ=='
 ```
-
-While using an API client you can include the token as part of authorization 
 
 #### POST /api/facility
 
