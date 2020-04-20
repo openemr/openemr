@@ -36,16 +36,14 @@ if($is_post_request){
   $panel['patient_id'] =  $pid ?? '';
 
   $request = $_POST['request'] ?? '';
+  $enrollment_id = $_POST['enrollment_id'] ?? '';
 
   if($request == "enroll"){
     insertEnrolment($panel);
   } else if ($request == "discharge"){
-    dischargePatient($panel);
+    dischargePatient($enrollment_id);
   }
 }
-
-
-
 //end of post request section
 ////////////////////////////////////////////////////////////////
 ?>
@@ -147,8 +145,9 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
        <td>
          <form action="#" method="post">
            <input type="hidden" name="request" value="discharge" />
-           <input type="hidden" name="panel" value="<?php echo attr($row['panel_id']); ?>" />
-          <input type="submit" value="Discharge" onClick="return testFunction('<?php echo $row['category'] . ": " . $row['panel']; ?>')" />
+           <input type="hidden" name="enrollment_id" value="<?php echo attr($row['id']); ?>" />
+          <input type="submit" value="Discharge"
+          onClick="return testFunction('<?php echo attr($row['category']) . ": " . attr($row['panel']); ?>')" />
           </form>
        </td>
      </tr>
@@ -173,10 +172,10 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
   <select name="panel">
   <?php
     while ($row = sqlFetchArray($panels)) {
-      echo "<option value=\"{$row['id']}\"";
+      echo "<option value=\"attr({$row['id'])}\"";
       echo ">";
-      echo getPanelCategory($row['category_id'])["name"];
-      echo ": {$row['name']}</option>";
+      echo attr(getPanelCategory($row['category_id'])["name"]);
+      echo ": {attr($row['name'])}</option>";
     }
   ?>
   </select>

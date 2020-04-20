@@ -20,7 +20,7 @@ function isPanelDB()
 {
   # test query
   $sql = "SELECT * FROM panel_category ";
-  if (sqlQueryNoLogIgnoreError($sql))
+  if (sqlQueryNoLogIgnoreError(add_escape_custom($sql)))
   {
     return TRUE; // if the result is array
   } else {
@@ -41,7 +41,7 @@ function getEnrollments($pid)
 {
   if (isPanelDB())
   {
-    $sql = "SELECT * FROM panel_enrollment WHERE patient_id = " . $pid;
+    $sql = "SELECT * FROM panel_enrollment WHERE patient_id = " . add_escape_custom($pid);
     return sqlStatement($sql);
   } else { return -1; }
 }
@@ -78,7 +78,7 @@ function getPanel($panel_id)
   if (isPanelDB())
   {
 
-  $sql = "SELECT * FROM panel WHERE id=" . $panel_id;
+  $sql = "SELECT * FROM panel WHERE id=" . add_escape_custom($panel_id);
   return sqlQuery($sql);
   } else { return -1; }
 }
@@ -98,7 +98,7 @@ function getPanelCategory($category_id)
   if (isPanelDB())
   {
   // get  the category name
-  $sql = "SELECT * FROM panel_category WHERE id=" . $category_id;
+  $sql = "SELECT * FROM panel_category WHERE id=" . add_escape_custom($category_id);
   return sqlQuery($sql);
   } else { return -1; }
 }
@@ -123,6 +123,7 @@ function getPatientPanelsInfo($pid, $status = "active")
   }
   else {
     #print the patient Panels
+    #TODO delete below 2 lines
     if (mysqli_num_rows($resultSet) === 0) {
       return -1;
     }
@@ -131,9 +132,9 @@ function getPatientPanelsInfo($pid, $status = "active")
     $sql .= "FROM panel_enrollment AS  e ";
     $sql .= "JOIN panel AS p ON e.panel_id = p.id ";
     $sql .= "JOIN panel_category AS c ON p.category_id = c.id ";
-    $sql .= "WHERE e.patient_id = " . $pid . " ";
+    $sql .= "WHERE e.patient_id = " . add_escape_custom($pid) . " ";
     if ($status != "all"){
-      $sql .= "AND e.status = \"" . $status . "\"";
+      $sql .= "AND e.status = \"" . add_escape_custom($status) . "\"";
     }
     $sql .= "ORDER BY e.status, category ";
     return sqlStatement($sql);
@@ -150,22 +151,22 @@ function insertEnrolment($enrollment)
 {
   #Check if the patient already enrolled and active
   $sql  = "SELECT id, status FROM panel_enrollment ";
-  $sql .= "WHERE patient_id ='" .$enrollment['patient_id'] . "' ";
-  $sql .= "AND panel_id ='" .$enrollment['panel_id'] . "' ";
+  $sql .= "WHERE patient_id ='" .add_escape_custom($enrollment['patient_id']) . "' ";
+  $sql .= "AND panel_id ='" . add_escape_custom($enrollment['panel_id']) . "' ";
   $sql .= 'AND status = "Active"';
   $resultSet = sqlQuery($sql);
 
   if (!isPanelDB()) {
     #if the panels is not activated print bellow line
     return -1;
-    # less than 2 because the result is one even if the patient is not enrolled 
+    # less than 2 because the result is one even if the patient is not enrolled
   } elseif(count($resultSet)<2){
       #insert the patient Panels
       $sql  = "INSERT INTO panel_enrollment ";
       $sql .= "(patient_id, panel_id, enrollment_date, status) ";
       $sql .= " VALUES ( ";
-      $sql .= "'" .$enrollment['patient_id'] . "', ";
-      $sql .= "'" .$enrollment['panel_id'] . "', ";
+      $sql .= "'" . add_escape_custom($enrollment['patient_id']) . "', ";
+      $sql .= "'" .add_escape_custom($enrollment['panel_id']) . "', ";
       $sql .= "'" . date('Y-m-d H:i:s') . "', ";
       $sql .=  "'" ."Active". "' ";
       $sql .= ")" ;
@@ -180,12 +181,11 @@ function insertEnrolment($enrollment)
   * (patient_id, panel_id)
   * @return integer  Last id generated from the sql insert command
   */
-function dischargePatient($updates){
+function dischargePatient($enrollment_id){
   $sql = "UPDATE panel_enrollment SET ";
   $sql .= "status = '" . "Discharged". "', ";
   $sql .= "discharge_date='". date('Y-m-d H:i:s') . "' ";
-  $sql .= "WHERE patient_id = '" . $updates['patient_id'] . "' ";
-  $sql .= "AND panel_id = '" . $updates['panel_id'] . "' ";
+  $sql .= "WHERE id = '" . add_escape_custom($enrollment_id) . "' ";
   $sql .= "LIMIT 1";
 
   return sqlQuery($sql);
