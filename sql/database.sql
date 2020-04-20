@@ -9992,7 +9992,7 @@ CREATE TABLE `medex_recalls` (
   `r_created` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`r_ID`),
   UNIQUE KEY `r_PRACTID` (`r_PRACTID`,`r_pid`),
-  KEY `i_event_date` (`r_event_data`)
+  KEY `i_event_date` (`r_eventDate`)
 ) ENGINE=InnoDB;
 
 
