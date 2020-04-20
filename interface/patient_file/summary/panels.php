@@ -32,15 +32,18 @@ if (isset($_GET['set_pid'])) {
 $is_post_request = $_SERVER["REQUEST_METHOD"] == "POST";
 
 if($is_post_request){
-  $panel['panel_id'] = $_POST['panel'] ?? '';
-  $panel['patient_id'] =  $pid ?? '';
-
   $request = $_POST['request'] ?? '';
-  $enrollment_id = $_POST['enrollment_id'] ?? '';
 
   if($request == "enroll"){
+    $panel['risk_stratification'] = $_POST['risk_stratification'] ?? '';
+    $panel['panel_id'] = $_POST['panel'] ?? '';
+    $panel['patient_id'] =  $pid ?? '';
+
     insertEnrolment($panel);
+
   } else if ($request == "discharge"){
+    $enrollment_id = $_POST['enrollment_id'] ?? '';
+
     dischargePatient($enrollment_id);
   }
 }
@@ -127,6 +130,7 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
         <th>Panel Catgegory</th>
         <th>Panel</th>
         <th>Status</th>
+        <th>Risk Stratification</th>
         <th>Enrollment Date</th>
         <th>Discharge Date</th>
         <th>Next Follow Up Date</th>
@@ -141,6 +145,7 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
        <td><?php echo attr($row['category']); ?></td>
        <td><?php echo attr($row['panel']); ?></td>
        <td><?php echo attr($row['status']); ?></td>
+       <td><?php echo attr($row['risk_stratification']); ?></td>
        <td><?php echo attr($row['enrollment_date']); ?></td>
        <td><?php echo attr($row['discharge_date']); ?></td>
        <td><?php
@@ -176,6 +181,7 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
   <?php
    $panels = getAllPanels();
   ?>
+  <p>Select the panel:
   <select name="panel">
   <?php
     while ($row = sqlFetchArray($panels)) {
@@ -185,7 +191,13 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
       echo ": " . attr($row['name']) . "</option>";
     }
   ?>
-  </select>
+  </select></p>
+  <p>Select the risk stratification:
+  <select name="risk_stratification">
+    <option value="High">High</option>
+    <option value="Moderate" selected>Moderate</option>
+    <option value="Low">Low</option>
+  </select></p>
   <input type="hidden" name="request" value="enroll" />
   <input type="submit" value="Enroll Patient" />
 </form>

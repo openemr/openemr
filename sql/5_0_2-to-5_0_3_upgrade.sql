@@ -463,6 +463,7 @@ create table panel_enrollment (
     enrollment_date date,
     discharge_date date,
     status varchar(250),
+    risk_stratification varchar(250),
     Foreign key(patient_id) REFERENCES patient_data(id),
     Foreign key(panel_id) REFERENCES panel(id)
 );

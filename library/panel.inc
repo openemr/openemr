@@ -163,12 +163,13 @@ function insertEnrolment($enrollment)
   } elseif(count($resultSet)<2){
       #insert the patient Panels
       $sql  = "INSERT INTO panel_enrollment ";
-      $sql .= "(patient_id, panel_id, enrollment_date, status) ";
+      $sql .= "(patient_id, panel_id, enrollment_date, status, risk_stratification) ";
       $sql .= " VALUES ( ";
       $sql .= "'" . add_escape_custom($enrollment['patient_id']) . "', ";
       $sql .= "'" .add_escape_custom($enrollment['panel_id']) . "', ";
       $sql .= "'" . date('Y-m-d H:i:s') . "', ";
-      $sql .=  "'" ."Active". "' ";
+      $sql .=  "'" ."Active". "', ";
+      $sql .= "'" .add_escape_custom($enrollment['risk_stratification']) . "' ";
       $sql .= ")" ;
       $result = sqlInsert($sql);
       return $result;
