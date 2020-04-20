@@ -126,7 +126,6 @@ function navigateTab(url,name,afterLoadFunction,loading_label='')
 {
 
     top.restoreSession();
-    var curTab;
     if($("iframe[name='"+name+"']").length>0)
     {
         if(typeof afterLoadFunction !== 'function'){
@@ -136,11 +135,11 @@ function navigateTab(url,name,afterLoadFunction,loading_label='')
                 afterLoadFunction();
             });
         }
-       $("iframe[name='"+name+"']").get(0).contentWindow.location=url;
+        openExistingTab(url,name);
     }
     else
     {
-        curTab=new tabStatus(xl("Loading") + "...",url,name,loading_label,true,false,false);
+        let curTab=new tabStatus(xl("Loading") + "...",url,name,loading_label,true,false,false);
         app_view_model.application_data.tabs.tabsList.push(curTab);
         if(typeof afterLoadFunction === 'function'){
             afterLoadFunction();
@@ -332,11 +331,9 @@ function menuActionClick(data,evt)
             matches[1] + '&formdesc=' + encodeURIComponent(data.label());
         }
         
-        if (!openExistingTab(data)) {
         navigateTab(webroot_url + dataurl, data.target, function () {
             activateTabByName(data.target,true);
         },xl("Loading") + " " + dataLabel);
-    }
 
         var par = $(evt.currentTarget).closest("ul.menuEntries");
         par.wrap("<ul class='timedReplace' style='display:none;'></ul>");
@@ -413,8 +410,7 @@ function clearTherapyGroup()
     });
 }
 
-function openExistingTab(data) {
-    let exist = false;
+function openExistingTab(url, name) {
     for (let tabIdx = 0; tabIdx < app_view_model.application_data.tabs.tabsList().length; tabIdx++) {
         let currTab = app_view_model.application_data.tabs.tabsList()[tabIdx];
         let currTabUrl = currTab.url();
@@ -437,12 +433,11 @@ function openExistingTab(data) {
                 currTabUrl = webroot_url + '/interface/main/messages/messages.php?form_active=1';
                 break;
         }
-        let url = webroot_url + data.url();
         if (url === currTabUrl) {
             currTab.visible(true);
             exist = true;
         }
-        else if (url !== currTabUrl && currTabName == data.target) {
+        else if (url !== currTabUrl && currTabName == name) {
             currTab.visible(true);
             currTab.url(url);
         }
@@ -452,5 +447,4 @@ function openExistingTab(data) {
             }
         }
     }
-    return exist;
 }
