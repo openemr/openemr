@@ -373,6 +373,12 @@ function refreshVisitDisplay() {
         padding: 0;
         z-index: 30;
     }
+    button:focus {
+        outline: none;
+    }
+    button::-moz-focus-inner {
+        border: 0;
+    }
 </style>
 
 <!-- *************** -->
@@ -567,7 +573,7 @@ if (!empty($reg)) {
                 $DivId++;
             }
 
-            $StringEcho .= "<button class='dropdown-item' onclick=\"openNewForm(" .
+            $StringEcho .= "<button class='dropdown-item' style='outline: none;' onclick=\"openNewForm(" .
             attr_js($rootdir."/patient_file/encounter/load_form.php?formname=".urlencode($entry['directory'])) .
             ", " . attr_js(xl_form_title($nickname)) . ")\" href='JavaScript:void(0);'>" .
             text(xl_form_title($nickname)) . "</button>\n";
