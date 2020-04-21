@@ -77,7 +77,6 @@ class FhirProcedureService
         $procedureResults = sqlStatement($SQL, $search['patient']);
         $results = array();
         while ($row = sqlFetchArray($procedureResults)) {
-
             $provider = sqlQuery($SQLProvider, array($row['provider_id']));
             $row['function'] = $provider['specialty'];
             $row['organization'] = $provider['organization'];
