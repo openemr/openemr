@@ -368,10 +368,19 @@ function refreshVisitDisplay() {
         display: inline;
         margin-top: 10px;
     }
+
     #sddm {
         margin: 0;
         padding: 0;
         z-index: 30;
+    }
+
+    button:focus {
+        outline: none;
+    }
+    
+    button::-moz-focus-inner {
+        border: 0;
     }
 </style>
 
