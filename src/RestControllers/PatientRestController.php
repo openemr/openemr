@@ -37,13 +37,13 @@ class PatientRestController
         "DOB",
     );
 
-    function __construct($pid)
+    public function __construct($pid)
     {
         $this->patientService = new PatientService();
         $this->patientService->setPid($pid);
     }
 
-    function post($data)
+    public function post($data)
     {
         $serviceResult = $this->patientService->insert($data);
         $validationHandlerResult = RestControllerHelper::validationHandler($serviceResult);
@@ -53,7 +53,7 @@ class PatientRestController
         return RestControllerHelper::responseHandler($serviceResult, array("pid" => $serviceResult), 201);
     }
 
-    function put($pid, $data)
+    public function put($pid, $data)
     {
         $serviceResult = $this->patientService->update($pid, $data);
         $validationHandlerResult = RestControllerHelper::validationHandler($serviceResult);
@@ -66,7 +66,7 @@ class PatientRestController
     /**
      * Fetches a single patient resource by id.
      */
-    function getOne()
+    public function getOne()
     {
         $serviceResult = $this->patientService->getOne();
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
@@ -75,7 +75,7 @@ class PatientRestController
     /**
      * Returns patient resources which match an optional search criteria.
      */
-    function getAll($search = array())
+    public function getAll($search = array())
     {
         $validSearchFields = array_filter(
             $search,
