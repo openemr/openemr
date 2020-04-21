@@ -34,6 +34,24 @@ class BaseService
     }
 
     /**
+     * queryFields
+     * Build SQL Query for Selecting Fields
+     *
+     * @param array $map
+     * @return array
+     */
+    public function queryFields($map = null, $data = null)
+    {
+        if ($data == null || $data == "*" || $data == "all") {
+            $value = "*";
+        } else {
+            $value = implode(", ", $data);
+        }
+        $sql = "SELECT $value from $this->table";
+        return $this->selectHelper($sql, $map);
+    }
+
+    /**
      * buildInsertColumns
      * Build an insert set and bindings
      *
@@ -206,5 +224,17 @@ class BaseService
     public static function throwException($message, $type = "Error")
     {
         throw new InvalidValueException($message, $type);
+    }
+
+    // Taken from -> https://stackoverflow.com/a/24401462
+    /**
+     * Validate Date and Time
+     *
+     * @param $dateString              - The Date string which is to be verified
+     * @return bool
+     */
+    public static function isValidDate($dateString)
+    {
+        return (bool) strtotime($dateString);
     }
 }
