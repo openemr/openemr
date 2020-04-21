@@ -1,4 +1,5 @@
 <?php
+
 namespace Syndromicsurveillance;
 
 use Interop\Container\ContainerInterface;

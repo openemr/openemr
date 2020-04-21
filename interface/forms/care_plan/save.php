@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Care plan form save.php
  *
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
@@ -54,7 +54,7 @@ $count = array_filter($count);
 if (!empty($count)) {
     foreach ($count as $key => $codeval) :
         $code_val = $code[$key] ? $code[$key] : 0;
-        $codetext_val = $code_text[$key] ? $code_text[$key] :'NULL';
+        $codetext_val = $code_text[$key] ? $code_text[$key] : 'NULL';
         $description_val = $code_des[$key] ? $code_des[$key] : 'NULL';
         $care_plan_type_val = $care_plan_type[$key] ? $care_plan_type[$key] : 'NULL';
         $sets = "id = ?,

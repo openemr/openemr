@@ -23,7 +23,7 @@ namespace Patientvalidation\Model;
 use Laminas\Db\Sql\Expression;
 use Laminas\Db\TableGateway\TableGateway;
 use Laminas\Db\Sql\Predicate;
-use \Application\Model\ApplicationTable;
+use Application\Model\ApplicationTable;
 use Laminas\Db\Adapter\Adapter;
 
 class PatientDataTable
@@ -62,9 +62,9 @@ class PatientDataTable
         //$sql="SELECT * FROM patient_data WHERE fname like ".$parameters['fname']." OR lname like ".$parameters['lname'] ." OR DOB like ".$parameters['DOB'];
 
 
-        $obj    = new ApplicationTable;
+        $obj    = new ApplicationTable();
         $sql    = " SELECT * FROM patient_data WHERE fname like  ? OR lname like ? OR DOB like ?  OR pubpid = ?";
-        $params = array($parameters['fname'],$parameters['lname'],$parameters['DOB'],isset($parameters['pubpid'])?$parameters['pubpid']:'');
+        $params = array($parameters['fname'],$parameters['lname'],$parameters['DOB'],isset($parameters['pubpid']) ? $parameters['pubpid'] : '');
         $rowset = $obj->zQuery($sql, $params);
 
 

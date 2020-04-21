@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Add new user.
  *
@@ -9,7 +10,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -245,7 +245,7 @@ for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
 }
 
 foreach ($result2 as $iter) {
-    print "<option value='" . attr($iter["name"]). "'>" . text($iter["name"]) . "</option>\n";
+    print "<option value='" . attr($iter["name"]) . "'>" . text($iter["name"]) . "</option>\n";
 }
 ?>
 </select></td>
@@ -341,7 +341,7 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
 <td><input type="text" name="state_license_number" style="width:120px;" class="form-control"></td>
 <td class='text'><?php echo xlt('NewCrop eRX Role'); ?>:</td>
 <td>
-    <?php echo generate_select_list("erxrole", "newcrop_erx_role", '', '', '--Select Role--', '', '', '', array('style'=>'width:120px')); ?>
+    <?php echo generate_select_list("erxrole", "newcrop_erx_role", '', '', '--Select Role--', '', '', '', array('style' => 'width:120px')); ?>
 </td>
 </tr>
 <tr>
@@ -504,7 +504,7 @@ if (empty($GLOBALS['disable_non_default_groups'])) {
 
     foreach ($grouplist as $groupname => $list) {
         print "<span class='font-weight-bold'>" . text($groupname) . "</span><br />\n<span class='text'>" .
-        text(substr($list, 0, strlen($list)-2)) . "</span><br />\n";
+        text(substr($list, 0, strlen($list) - 2)) . "</span><br />\n";
     }
 }
 ?>

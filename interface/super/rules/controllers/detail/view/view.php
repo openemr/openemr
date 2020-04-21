@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/controllers/detail/view/view.php
  *
@@ -10,11 +11,12 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 $rule = $viewBean->rule ?>
 
 <script language="javascript" src="<?php js_src('detail.js') ?>"></script>
 <script type="text/javascript">
-    var detail = new rule_detail( {editable: <?php echo $rule->isEditable() ? "true":"false"; ?>});
+    var detail = new rule_detail( {editable: <?php echo $rule->isEditable() ? "true" : "false"; ?>});
     detail.init();
 </script>
 

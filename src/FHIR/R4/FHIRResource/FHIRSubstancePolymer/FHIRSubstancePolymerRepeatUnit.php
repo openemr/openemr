@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRSubstancePolymer;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRSubstancePolymer;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -231,7 +233,7 @@ class FHIRSubstancePolymerRepeatUnit extends FHIRBackboneElement implements \Jso
                         $this->addDegreeOfPolymerisation($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"degreeOfPolymerisation" must be array of objects or null, '.gettype($data['degreeOfPolymerisation']).' seen.');
+                    throw new \InvalidArgumentException('"degreeOfPolymerisation" must be array of objects or null, ' . gettype($data['degreeOfPolymerisation']) . ' seen.');
                 }
             }
             if (isset($data['structuralRepresentation'])) {
@@ -240,11 +242,11 @@ class FHIRSubstancePolymerRepeatUnit extends FHIRBackboneElement implements \Jso
                         $this->addStructuralRepresentation($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"structuralRepresentation" must be array of objects or null, '.gettype($data['structuralRepresentation']).' seen.');
+                    throw new \InvalidArgumentException('"structuralRepresentation" must be array of objects or null, ' . gettype($data['structuralRepresentation']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

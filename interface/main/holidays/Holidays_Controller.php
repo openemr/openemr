@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/main/holidays/Holidays_Controller.php implementation of holidays logic.
  *
@@ -31,7 +32,7 @@ class Holidays_Controller
 
     public function set_target_file()
     {
-            $this->target_file = $GLOBALS['OE_SITE_DIR']."/". self::UPLOAD_DIR."/".self::FILE_NAME;
+            $this->target_file = $GLOBALS['OE_SITE_DIR'] . "/" . self::UPLOAD_DIR . "/" . self::FILE_NAME;
     }
     public function get_target_file()
     {
@@ -45,8 +46,8 @@ class Holidays_Controller
      */
     public function upload_csv($files)
     {
-        if (!file_exists($GLOBALS['OE_SITE_DIR']."/". self::UPLOAD_DIR)) {
-            if (!mkdir($GLOBALS['OE_SITE_DIR']."/". self::UPLOAD_DIR."/", 0700)) {
+        if (!file_exists($GLOBALS['OE_SITE_DIR'] . "/" . self::UPLOAD_DIR)) {
+            if (!mkdir($GLOBALS['OE_SITE_DIR'] . "/" . self::UPLOAD_DIR . "/", 0700)) {
                 return false;
             }
         }
@@ -69,7 +70,7 @@ class Holidays_Controller
      */
     public function import_holidays_from_csv()
     {
-        $file=$this->get_file_csv_data();
+        $file = $this->get_file_csv_data();
         if (empty($file)) {
             return false;
         }
@@ -84,9 +85,9 @@ class Holidays_Controller
      */
     public function get_file_csv_data()
     {
-        $file=array();
+        $file = array();
         if (file_exists($this->target_file)) {
-            $file['date']= date("d/m/Y H:i:s", filemtime($this->target_file));
+            $file['date'] = date("d/m/Y H:i:s", filemtime($this->target_file));
         }
 
         return $file;

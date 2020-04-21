@@ -1,4 +1,5 @@
 <?php
+
 /**
  * import_template_ui.php
  *
@@ -215,9 +216,9 @@ function getTemplateList($dir)
                 $t = $file['pathname'];
                 echo "<tr><td>";
                 echo '<button id="tedit' . attr($t) .
-                    '" class="btn btn-sm btn-outline-primary" onclick="tedit('. attr_js($t) .')" type="button">' . text($file['name']) . '</button>' .
+                    '" class="btn btn-sm btn-outline-primary" onclick="tedit(' . attr_js($t) . ')" type="button">' . text($file['name']) . '</button>' .
                     '<button id="tdelete' . attr($t) .
-                    '" class="btn btn-sm btn-outline-danger" onclick="tdelete('. attr_js($t) .')" type="button">' . xlt("Delete") . '</button>';
+                    '" class="btn btn-sm btn-outline-danger" onclick="tdelete(' . attr_js($t) . ')" type="button">' . xlt("Delete") . '</button>';
                 echo "</td><td>" . text($file['size']) . "</td>";
                 echo "<td>" . text(date('r', $file['lastmod'])) . "</td>";
                 echo "</tr>";

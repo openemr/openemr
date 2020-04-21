@@ -1,4 +1,5 @@
 <?php
+
 /**
  * TwigExtension class.
  *
@@ -11,7 +12,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 namespace OpenEMR\Core;
 
 use OpenEMR\Core\Header;
@@ -23,7 +23,7 @@ class TwigExtension extends \Twig\Extension\AbstractExtension implements \Twig\E
         return [
             'assets_dir' => $GLOBALS['assets_static_relative'],
             'srcdir' => $GLOBALS['srcdir'],
-            'rootdir'=> $GLOBALS['rootdir']
+            'rootdir' => $GLOBALS['rootdir']
         ];
     }
 

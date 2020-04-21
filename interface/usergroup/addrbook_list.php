@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The address book entry editor.
  * Available from Administration->Addr Book in the concurrent layout.
@@ -13,7 +14,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -48,22 +48,22 @@ $query = "SELECT u.*, lo.option_id AS ab_name, lo.option_value as ab_option FROM
   "WHERE u.active = 1 AND ( u.authorized = 1 OR u.username = '' ) ";
 if ($form_organization) {
     $query .= "AND u.organization LIKE ? ";
-    array_push($sqlBindArray, $form_organization."%");
+    array_push($sqlBindArray, $form_organization . "%");
 }
 
 if ($form_lname) {
     $query .= "AND u.lname LIKE ? ";
-    array_push($sqlBindArray, $form_lname."%");
+    array_push($sqlBindArray, $form_lname . "%");
 }
 
 if ($form_fname) {
     $query .= "AND u.fname LIKE ? ";
-    array_push($sqlBindArray, $form_fname."%");
+    array_push($sqlBindArray, $form_fname . "%");
 }
 
 if ($form_specialty) {
     $query .= "AND u.specialty LIKE ? ";
-    array_push($sqlBindArray, "%".$form_specialty."%");
+    array_push($sqlBindArray, "%" . $form_specialty . "%");
 }
 
 if ($form_abook_type) {
@@ -77,7 +77,7 @@ if ($form_external) {
 
 if ($form_lname) {
     $query .= "ORDER BY u.lname, u.fname, u.mname";
-} else if ($form_organization) {
+} elseif ($form_organization) {
     $query .= "ORDER BY u.organization";
 } else {
     $query .= "ORDER BY u.organization, u.lname, u.fname";
@@ -131,7 +131,7 @@ $res = sqlStatement($query, $sqlBindArray);
                     </div>
                     <div class="col-sm-2">
                     <?php
-                    echo '<label>'.xlt('Type').": ".'</label>';
+                    echo '<label>' . xlt('Type') . ": " . '</label>';
                     // Generates a select list named form_abook_type:
                     echo generate_select_list("form_abook_type", "abook_type", $_REQUEST['form_abook_type'], '', 'All');
                     ?>
@@ -172,25 +172,25 @@ while ($row = sqlFetchArray($res)) {
     }
 
     $displayName = $row['fname'] . ' ' . $row['mname'] . ' ' . $row['lname']; // Person Name
-    if ($row['suffix'] >'') {
-        $displayName .=", ".$row['suffix'];
+    if ($row['suffix'] > '') {
+        $displayName .= ", " . $row['suffix'];
     }
 
     if (AclMain::aclCheckCore('admin', 'practice') || (empty($username) && empty($row['ab_name']))) {
        // Allow edit, since have access or (no item type and not a local user)
-        $trTitle = xl('Edit'). ' ' . $displayName;
+        $trTitle = xl('Edit') . ' ' . $displayName;
         echo " <tr class='address_names detail' style='cursor:pointer' " .
-        "onclick='doedclick_edit(" . attr_js($row['id']) . ")' title='".attr($trTitle)."'>\n";
+        "onclick='doedclick_edit(" . attr_js($row['id']) . ")' title='" . attr($trTitle) . "'>\n";
     } else {
        // Do not allow edit, since no access and (item is a type or is a local user)
         $trTitle = $displayName . " (" . xl("Not Allowed to Edit") . ")";
-        echo " <tr class='address_names detail' title='".attr($trTitle)."'>\n";
+        echo " <tr class='address_names detail' title='" . attr($trTitle) . "'>\n";
     }
 
     echo "  <td>" . text($row['organization']) . "</td>\n";
     echo "  <td>" . text($displayName) . "</td>\n";
     echo "  <td>" . ($username ? '*' : '') . "</td>\n";
-    echo "  <td>" . generate_display_field(array('data_type'=>'1','list_id'=>'abook_type'), $row['ab_name']) . "</td>\n";
+    echo "  <td>" . generate_display_field(array('data_type' => '1','list_id' => 'abook_type'), $row['ab_name']) . "</td>\n";
     echo "  <td>" . text($row['specialty']) . "</td>\n";
     echo "  <td>" . text($row['phonew1'])   . "</td>\n";
     echo "  <td>" . text($row['phonecell']) . "</td>\n";

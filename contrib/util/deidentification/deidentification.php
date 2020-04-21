@@ -166,8 +166,8 @@ function deIdPatientData($con, $lnames, $male, $female, $DEBUG = false)
     $removeLname = ("Select lname, pid, id, ss, street, sex from patient_data ");
     $query = mysqli_query($con, $removeLname);
     while ($result = mysqli_fetch_array($query)) {
-        if ($DEBUG===true) {
-            if ($i ===10) {
+        if ($DEBUG === true) {
+            if ($i === 10) {
                 break;
             }
         }
@@ -182,13 +182,13 @@ function deIdPatientData($con, $lnames, $male, $female, $DEBUG = false)
         $first_name_female = $female[rand(0, 74)];
 
         //Change the street address patient_Data.street
-        $street = rand(1, 9999)." ".rand(0, 200)." Avenue ";
+        $street = rand(1, 9999) . " " . rand(0, 200) . " Avenue ";
 
         //remove the drivers license
-        $drivers_license = rand(2, 999).rand(0, 999).rand(0, 99);
+        $drivers_license = rand(2, 999) . rand(0, 999) . rand(0, 99);
 
         //change the patient_data.phone_home
-        $phone_home = rand(200, 999)."-".rand(200, 999)."-".rand(1000, 9999);
+        $phone_home = rand(200, 999) . "-" . rand(200, 999) . "-" . rand(1000, 9999);
 
         $string = "update patient_data set lname = '$last_name', ";
 
@@ -212,7 +212,7 @@ function deIdPatientData($con, $lnames, $male, $female, $DEBUG = false)
 
         $string .= " street = '$street' ";
 
-        $string .= "where pid = "."'".$result['pid']."' ; " ;
+        $string .= "where pid = " . "'" . $result['pid'] . "' ; " ;
 
 
         mysqli_query($con, $string) or die("Failed Patient Replacement");
@@ -335,10 +335,10 @@ function deIdUsersTable($con)
     while ($row = mysqli_fetch_array($result)) {
         $string = "update users set ";
 
-        if (strpos($row['newcrop_user_role'], 'doctor') !==false) {
+        if (strpos($row['newcrop_user_role'], 'doctor') !== false) {
             $string .= "fname = 'Doctor.{$row['id']}', 
                        lname = 'Doctor.{$row['id']}' ";
-        } else if (strpos($row['newcrop_user_role'], 'nurse') !==false) {
+        } elseif (strpos($row['newcrop_user_role'], 'nurse') !== false) {
             $string .= "fname = 'Nurse.{$row['id']}', 
                        lname = 'Nurse.{$row['id']}' ";
         } else {

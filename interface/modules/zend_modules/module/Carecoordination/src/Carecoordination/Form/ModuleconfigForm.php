@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Form/ModuleconfigForm.php
  *
@@ -13,7 +14,7 @@ namespace Carecoordination\Form;
 
 use Laminas\Form\Form;
 use Laminas\Db\Adapter\AdapterInterface;
-use \Application\Model\ApplicationTable;
+use Application\Model\ApplicationTable;
 use Application\Listener\Listener;
 
 class ModuleconfigForm extends Form
@@ -22,8 +23,8 @@ class ModuleconfigForm extends Form
 
     public function __construct(AdapterInterface $dbAdapter)
     {
-        $this->application  = new ApplicationTable;
-        $this->zListener = new Listener;
+        $this->application  = new ApplicationTable();
+        $this->zListener = new Listener();
         parent::__construct('configuration');
         $this->setAttribute('method', 'post');
 
@@ -63,7 +64,7 @@ class ModuleconfigForm extends Form
         $this->add(array(
                 'name'  => 'hie_author_id',
                 'type'      => 'Laminas\Form\Element\Select',
-                'attributes'=> array(
+                'attributes' => array(
                     'class'     => '',
                     'data-options'  => 'required:true',
                     'editable'  => 'false',
@@ -82,7 +83,7 @@ class ModuleconfigForm extends Form
         $this->add(array(
                 'name'      => 'hie_data_enterer_id',
                 'type'      => 'Laminas\Form\Element\Select',
-                'attributes'=> array(
+                'attributes' => array(
                     'class'     => '',
                     'data-options'  => 'required:true',
                     'editable'  => 'false',
@@ -101,7 +102,7 @@ class ModuleconfigForm extends Form
         $this->add(array(
                 'name'  => 'hie_informant_id',
                 'type'      => 'Laminas\Form\Element\Select',
-                'attributes'=> array(
+                'attributes' => array(
                     'class'     => '',
                     'data-options'  => 'required:true',
                     'editable'  => 'false',
@@ -119,7 +120,7 @@ class ModuleconfigForm extends Form
         */
         $this->add(array(
                 'name'  => 'hie_personal_informant_id',
-                'attributes'=> array(
+                'attributes' => array(
                         'type'  => 'text',
                         'id'    => 'hie_personal_informant_id'
                     ),
@@ -134,7 +135,7 @@ class ModuleconfigForm extends Form
         $this->add(array(
                 'name'  => 'hie_custodian_id',
                 'type'      => 'Laminas\Form\Element\Select',
-                'attributes'=> array(
+                'attributes' => array(
                     'class'     => '',
                     'data-options'  => 'required:true',
                     'editable'  => 'false',
@@ -153,7 +154,7 @@ class ModuleconfigForm extends Form
         $this->add(array(
                 'name'  => 'hie_legal_authenticator_id',
                 'type'      => 'Laminas\Form\Element\Select',
-                'attributes'=> array(
+                'attributes' => array(
                     'class'     => '',
                     'data-options'  => 'required:true',
                     'editable'  => 'false',
@@ -172,7 +173,7 @@ class ModuleconfigForm extends Form
         $this->add(array(
                 'name'  => 'hie_authenticator_id',
                 'type'      => 'Laminas\Form\Element\Select',
-                'attributes'=> array(
+                'attributes' => array(
                     'class'     => '',
                     'data-options'  => 'required:true',
                     'editable'  => 'false',
@@ -191,7 +192,7 @@ class ModuleconfigForm extends Form
         $this->add(array(
                 'name'  => 'hie_primary_care_provider_id',
                 'type'      => 'Laminas\Form\Element\Select',
-                'attributes'=> array(
+                'attributes' => array(
                     'class'     => '',
                     'data-options'  => 'required:true',
                     'editable'  => 'false',
@@ -209,7 +210,7 @@ class ModuleconfigForm extends Form
         */
         $this->add(array(
                 'name'  => 'hie_mirth_ip',
-                'attributes'=> array(
+                'attributes' => array(
                         'type'  => 'text',
                         'id'    => 'hie_mirth_ip'
                     ),
@@ -223,7 +224,7 @@ class ModuleconfigForm extends Form
         */
         $this->add(array(
                 'name'  => 'hie_mirth_clientid',
-                'attributes'=> array(
+                'attributes' => array(
                         'type'  => 'text',
                         'id'    => 'hie_mirth_clientid'
                     ),
@@ -237,7 +238,7 @@ class ModuleconfigForm extends Form
         */
         $this->add(array(
                 'name'  => 'hie_mirth_username',
-                'attributes'=> array(
+                'attributes' => array(
                         'type'  => 'text',
                         'id'    => 'hie_mirth_username'
                     ),
@@ -251,7 +252,7 @@ class ModuleconfigForm extends Form
         */
         $this->add(array(
                 'name'  => 'hie_mirth_password',
-                'attributes'=> array(
+                'attributes' => array(
                         'type'  => 'password',
                         'id'    => 'hie_mirth_password'
                     ),
@@ -272,7 +273,7 @@ class ModuleconfigForm extends Form
         $users = array('0' => '');
         $res = $this->application->zQuery(("SELECT id, fname, lname, street, city, state, zip  FROM users WHERE abook_type='ccda'"));
         foreach ($res as $row) {
-            $users[$row['id']] = $row['fname']." ".$row['lname'];
+            $users[$row['id']] = $row['fname'] . " " . $row['lname'];
         }
 
         return $users;
@@ -294,7 +295,7 @@ class ModuleconfigForm extends Form
         $users = array('0' => '');
         $res = $this->application->zQuery(("SELECT id, fname, lname FROM users WHERE authorized=1 AND active ='1'"));
         foreach ($res as $row) {
-            $users[$row['id']] = $row['fname']." ".$row['lname'];
+            $users[$row['id']] = $row['fname'] . " " . $row['lname'];
         }
 
         return $users;
@@ -305,7 +306,7 @@ class ModuleconfigForm extends Form
         $users = array('0' => '');
         $res = $this->application->zQuery(("SELECT id, fname, lname FROM users WHERE active ='1' AND `username` IS NOT NULL AND `password` IS NOT NULL"));
         foreach ($res as $row) {
-            $users[$row['id']] = $row['fname']." ".$row['lname'];
+            $users[$row['id']] = $row['fname'] . " " . $row['lname'];
         }
 
         return $users;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Functions for CCR.
  *
@@ -20,14 +21,13 @@
  * @link    http://www.open-emr.org
  */
 
-
 if ($_POST['ccrAction'] == 'generate') {
     if (isset($_POST['show_date'])) {
         $set = "on";
         $start = $_POST['Start'];
-        $start = $start." 00:00:00";
+        $start = $start . " 00:00:00";
         $end = $_POST['End'];
-        $end = $end." 23:59:59";
+        $end = $end . " 23:59:59";
     }
 }
 
@@ -527,7 +527,7 @@ function getReportFilename()
     where pid=?";
 
     $result = sqlQuery($sql, array($pid));
-    $result_filename = $result['lname']."-".$result['fname']."-".$result['pid']."-".date("mdY", time());
+    $result_filename = $result['lname'] . "-" . $result['fname'] . "-" . $result['pid'] . "-" . date("mdY", time());
 
     return $result_filename;
 }

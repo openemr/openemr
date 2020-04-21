@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRVerificationResult;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRVerificationResult;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -277,7 +279,7 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
                         $this->addType($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"type" must be array of objects or null, '.gettype($data['type']).' seen.');
+                    throw new \InvalidArgumentException('"type" must be array of objects or null, ' . gettype($data['type']) . ' seen.');
                 }
             }
             if (isset($data['communicationMethod'])) {
@@ -286,7 +288,7 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
                         $this->addCommunicationMethod($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"communicationMethod" must be array of objects or null, '.gettype($data['communicationMethod']).' seen.');
+                    throw new \InvalidArgumentException('"communicationMethod" must be array of objects or null, ' . gettype($data['communicationMethod']) . ' seen.');
                 }
             }
             if (isset($data['validationStatus'])) {
@@ -304,11 +306,11 @@ class FHIRVerificationResultPrimarySource extends FHIRBackboneElement implements
                         $this->addPushTypeAvailable($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"pushTypeAvailable" must be array of objects or null, '.gettype($data['pushTypeAvailable']).' seen.');
+                    throw new \InvalidArgumentException('"pushTypeAvailable" must be array of objects or null, ' . gettype($data['pushTypeAvailable']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

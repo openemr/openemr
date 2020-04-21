@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/therapy_groups/therapy_groups_models/therapy_groups_counselors_model.php contains the model for therapy group counselors.
  *
@@ -73,7 +74,7 @@ class Therapy_Groups_Counselors
 
         if (!is_null($userId)) {
             $sql .= ' AND user_id = ?';
-            $condition[]= $userId;
+            $condition[] = $userId;
         }
 
         sqlStatement($sql, $condition);

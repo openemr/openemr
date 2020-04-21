@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CCR Script.
  *
@@ -19,7 +20,6 @@
  * @author  Garden State Health Systems <http://www.gshsys.com/>
  * @link    http://www.open-emr.org
  */
-
 
     $result = getMedicationData();
     $value = sqlFetchArray($result);

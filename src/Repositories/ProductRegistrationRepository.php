@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Product registration repository.
 

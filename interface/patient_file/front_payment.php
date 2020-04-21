@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Front payment gui.
  *
@@ -59,7 +60,7 @@ function rawbucks($amount)
 
 // Display a row of data for an encounter.
 //
-$var_index=0;
+$var_index = 0;
 function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0)
 {
     global $var_index;
@@ -202,7 +203,7 @@ if ($_POST['form_save']) {
                 //----------------------------------------------------------------------------------------------------
                   //Fetching the existing code and modifier
                   $ResultSearchNew = sqlStatement(
-                      "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key ".
+                      "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key " .
                       "WHERE code_types.ct_fee=1 AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier",
                       array($form_pid, $enc)
                   );
@@ -227,8 +228,8 @@ if ($_POST['form_save']) {
 
                     sqlBeginTrans();
                     $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM       ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $enc));
-                    $insrt_id=sqlInsert(
-                        "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)".
+                    $insrt_id = sqlInsert(
+                        "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" .
                         " VALUES (?,?,?,?,?,?,0,now(),?,?,?,'PCP')",
                         array($form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, $_SESSION['authUserID'], $session_id, $amount)
                     );
@@ -345,7 +346,7 @@ if ($_POST['form_save']) {
                               sqlCommitTrans();
                         }//if
                     }//while
-                    if ($amount!=0) {//if any excess is there.
+                    if ($amount != 0) {//if any excess is there.
                               sqlBeginTrans();
                                 $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $enc));
                                 sqlStatement(
@@ -508,7 +509,7 @@ function toencounter(enc, datestr, topframe) {
         <tr>
             <td>
             <?php
-            if ($_REQUEST['radio_type_of_payment']=='pre_payment') {
+            if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
                 echo xlt('Pre-payment Amount');
             } else {
                 echo xlt('Amount for Past Balance');
@@ -953,7 +954,7 @@ function make_insurance() {
         </div>
         <div class="row">
             <div class="col-sm-12">
-                <form method='post' action='front_payment.php<?php echo ($payid) ? "?payid=".attr_url($payid) : ""; ?>' onsubmit='return validate();'>
+                <form method='post' action='front_payment.php<?php echo ($payid) ? "?payid=" . attr_url($payid) : ""; ?>' onsubmit='return validate();'>
                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                    <input name='form_pid' type='hidden' value='<?php echo attr($pid) ?>'>
                     <fieldset>
@@ -968,10 +969,10 @@ function make_insurance() {
                                     $query1112 = "SELECT * FROM list_options where list_id=?  ORDER BY seq, title ";
                                     $bres1112 = sqlStatement($query1112, array('payment_method'));
                                     while ($brow1112 = sqlFetchArray($bres1112)) {
-                                        if ($brow1112['option_id']=='electronic' || $brow1112['option_id']=='bank_draft') {
+                                        if ($brow1112['option_id'] == 'electronic' || $brow1112['option_id'] == 'bank_draft') {
                                             continue;
                                         }
-                                        echo "<option value='".attr($brow1112['option_id'])."'>".text(xl_list_label($brow1112['title']))."</option>";
+                                        echo "<option value='" . attr($brow1112['option_id']) . "'>" . text(xl_list_label($brow1112['title'])) . "</option>";
                                     }
                                     ?>
                                 </select>
@@ -1063,7 +1064,7 @@ function make_insurance() {
                                 $query = "SELECT fe.encounter, b.code_type, b.code, b.modifier, b.fee, " .
                                 "LEFT(fe.date, 10) AS encdate ,fe.last_level_closed " .
                                 "FROM  form_encounter AS fe left join billing AS b  on " .
-                                "b.pid = ? AND b.activity = 1  AND " .//AND b.billed = 0
+                                "b.pid = ? AND b.activity = 1  AND " . //AND b.billed = 0
                                 "b.code_type != 'TAX' AND b.fee != 0 " .
                                 "AND fe.pid = b.pid AND fe.encounter = b.encounter " .
                                 "where fe.pid = ? " .
@@ -1109,7 +1110,7 @@ function make_insurance() {
                                 $query = "SELECT fe.encounter, s.drug_id, s.fee, " .
                                 "LEFT(fe.date, 10) AS encdate,fe.last_level_closed " .
                                 "FROM form_encounter AS fe left join drug_sales AS s " .
-                                "on s.pid = ? AND s.fee != 0 " .//AND s.billed = 0
+                                "on s.pid = ? AND s.fee != 0 " . //AND s.billed = 0
                                 "AND fe.pid = s.pid AND fe.encounter = s.encounter " .
                                 "where fe.pid = ? " .
                                 "ORDER BY s.encounter";

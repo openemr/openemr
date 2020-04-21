@@ -30,7 +30,7 @@
         eleName = eleName.replace('form_', '');
         var m = '';
         if (eleVal.length > len)
-            m += '<?php echo xl("Invalid length for")." "; ?>' + eleName.toUpperCase() + '.<?php echo " ".xl("The length should not exceed the following number of characters")." : "; ?>' + len + "\n";
+            m += '<?php echo xl("Invalid length for") . " "; ?>' + eleName.toUpperCase() + '.<?php echo " " . xl("The length should not exceed the following number of characters") . " : "; ?>' + len + "\n";
         return m;
     }
 
@@ -39,7 +39,7 @@
         var m = '';
         eleName = eleName.replace('form_', '');
         if (regE.test(eleVal) == true)
-            m += '<?php echo xl("Invalid character in")." "?>' + eleName.toUpperCase() + "\n";
+            m += '<?php echo xl("Invalid character in") . " "?>' + eleName.toUpperCase() + "\n";
         return m;
     }
 
@@ -48,7 +48,7 @@
         var m = '';
         eleName = eleName.replace('form_', '');
         if (regE.test(eleVal) == true)
-            m += '<?php echo xl("Invalid character in")." "?>' + eleName.toUpperCase() + "\n";
+            m += '<?php echo xl("Invalid character in") . " "?>' + eleName.toUpperCase() + "\n";
         return m;
     }
 
@@ -60,11 +60,11 @@
         eleName = eleName.replace('form_', '');
         eleName = eleName.replace('_', ' ');
         if (regE.test(eleVal) == true)
-            m += '<?php echo xl("Invalid non-numeric character in")." "?>' + eleName.toUpperCase() + "\n";
+            m += '<?php echo xl("Invalid non-numeric character in") . " "?>' + eleName.toUpperCase() + "\n";
         else if (eleVal_temp.length > 10)
-            m += eleName.toUpperCase() + '<?php echo " ".xl("should contain only 10 digits") ?>' + "\n";
+            m += eleName.toUpperCase() + '<?php echo " " . xl("should contain only 10 digits") ?>' + "\n";
         else if (eleVal_temp.length < 10)
-            m += eleName.toUpperCase() + '<?php echo " ".xl("should contain 10 digits") ?>' + "\n";
+            m += eleName.toUpperCase() + '<?php echo " " . xl("should contain 10 digits") ?>' + "\n";
         return m;
     }
 
@@ -73,7 +73,7 @@
         var m = '';
         eleName = eleName.replace('_', ' ');
         if (regE.test(eleVal) == true)
-            m += '<?php echo xl("Invalid character in")." " ?>' + eleName.toUpperCase() + "\n";
+            m += '<?php echo xl("Invalid character in") . " " ?>' + eleName.toUpperCase() + "\n";
         return m;
     }
 
@@ -82,7 +82,7 @@
         var m = '';
         eleName = eleName.replace('_', ' ');
         if (regE.test(eleVal) == true)
-            m += '<?php echo xl("Invalid character in")." " ?>' + eleName.toUpperCase() + "\n";
+            m += '<?php echo xl("Invalid character in") . " " ?>' + eleName.toUpperCase() + "\n";
         return m;
     }
 
@@ -91,7 +91,7 @@
         var m = '';
         eleName = eleName.replace('_', ' ');
         if (regE.test(eleVal) == true)
-            m += '<?php echo xl("Invalid character in")." " ?>' + eleName.toUpperCase() + "\n";
+            m += '<?php echo xl("Invalid character in") . " " ?>' + eleName.toUpperCase() + "\n";
         return m;
     }
 
@@ -100,7 +100,7 @@
         var m = '';
         eleName = eleName.replace('form_', '');
         if (regE.test(eleVal) == true)
-            m += '<?php echo xl("Invalid character in")." " ?>' + eleName.toUpperCase() + "\n";
+            m += '<?php echo xl("Invalid character in") . " " ?>' + eleName.toUpperCase() + "\n";
         return m;
     }
 
@@ -110,7 +110,7 @@
         eleName = eleName.replace('form_', '');
         eleName = eleName.replace('_', ' ');
         if (regE.test(eleVal) == true)
-            m += '<?php echo xl("Invalid character in")." " ?>' + eleName.toUpperCase() + "\n";
+            m += '<?php echo xl("Invalid character in") . " " ?>' + eleName.toUpperCase() + "\n";
         return m;
     }
 
@@ -120,7 +120,7 @@
         eleName = eleName.replace('form_', '');
         eleName = eleName.replace('_', ' ');
         if (regE.test(eleVal) == true)
-            m += '<?php echo xl("Invalid character in")." " ?>' + eleName.toUpperCase() + "\n";
+            m += '<?php echo xl("Invalid character in") . " " ?>' + eleName.toUpperCase() + "\n";
         return m;
     }
 

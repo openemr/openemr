@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/include/ui.php
  *
@@ -16,7 +17,7 @@ require_once($GLOBALS['fileroot'] . "/library/options.inc.php");
 function getLabel($value, $list_id)
 {
     // get from list_options
-    $result = generate_display_field(array('data_type'=>'1','list_id'=>$list_id), $value);
+    $result = generate_display_field(array('data_type' => '1','list_id' => $list_id), $value);
     if ($result != '') {
         return $result;
     }
@@ -48,7 +49,7 @@ function getListOptions($list_id)
         "SELECT option_id, title from list_options WHERE list_id = ? AND activity = 1",
         array($list_id)
     );
-    for ($iter=0; $row=sqlFetchArray($sql); $iter++) {
+    for ($iter = 0; $row = sqlFetchArray($sql); $iter++) {
         $options[] = new Option(
             $row['option_id'],            // id
             xl_list_label($row['title'])  // label

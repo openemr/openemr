@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  Encounters report.
  *
@@ -15,7 +16,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/forms.inc");
@@ -203,7 +203,7 @@ $res = sqlStatement($query, $sqlBindArray);
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Encounters'); ?></span>
 
 <div id="report_parameters_daterange">
-<?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt('to{{Range}}') . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
+<?php echo text(oeFormatShortDate($form_from_date)) . " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatShortDate($form_to_date)); ?>
 </div>
 
 <form method='post' name='theform' id='theform' action='encounters_report.php' onsubmit='return top.restoreSession()'>
@@ -232,7 +232,7 @@ $res = sqlStatement($query, $sqlBindArray);
                  // Build a drop-down list of providers.
                  //
 
-                 $query = "SELECT id, lname, fname FROM users WHERE ".
+                 $query = "SELECT id, lname, fname FROM users WHERE " .
                   "authorized = 1 $provider_facility_filter ORDER BY lname, fname"; //(CHEMED) facility filter
 
                  $ures = sqlStatement($query);
@@ -396,7 +396,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
                     $row['encounter'],
                     "formdir, user, form_name, form_id"
                 );
-                if ($encarr!='') {
+                if ($encarr != '') {
                     foreach ($encarr as $enc) {
                         if ($enc['formdir'] == 'newpatient') {
                             continue;
@@ -414,11 +414,13 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
                 $coded = "";
                 $billed_count = 0;
                 $unbilled_count = 0;
-                if ($billres = BillingUtilities::getBillingByEncounter(
-                    $row['pid'],
-                    $row['encounter'],
-                    "code_type, code, code_text, billed"
-                )) {
+                if (
+                    $billres = BillingUtilities::getBillingByEncounter(
+                        $row['pid'],
+                        $row['encounter'],
+                        "code_type, code, code_text, billed"
+                    )
+                ) {
                     foreach ($billres as $billrow) {
                         // $title = addslashes($billrow['code_text']);
                         if ($billrow['code_type'] != 'COPAY' && $billrow['code_type'] != 'TAX') {
@@ -448,9 +450,9 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
                 // Compute billing status.
                 if ($billed_count && $unbilled_count) {
                     $status = xl('Mixed');
-                } else if ($billed_count) {
+                } elseif ($billed_count) {
                     $status = xl('Closed');
-                } else if ($unbilled_count) {
+                } elseif ($unbilled_count) {
                     $status = xl('Open');
                 } else {
                     $status = xl('Empty');

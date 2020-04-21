@@ -1,4 +1,5 @@
 <?php
+
  // Copyright (C) 2011 Ensoftek
  //
  // This program is free software; you can redistribute it and/or
@@ -20,8 +21,8 @@ class PQRIXml extends XmlWriterOemr
     function open_submission()
     {
 
-        $this->push('submission', array('type'=>'PQRI-REGISTRY', 'option'=>'payment',
-           'xmlns:xsi'=>'http://www.w3.org/2001/XMLSchema-instance', 'xsi:noNamespaceSchemaLocation'=>'Registry_Payment.xsd'));
+        $this->push('submission', array('type' => 'PQRI-REGISTRY', 'option' => 'payment',
+           'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance', 'xsi:noNamespaceSchemaLocation' => 'Registry_Payment.xsd'));
     }
 
     function close_submission()
@@ -39,7 +40,7 @@ class PQRIXml extends XmlWriterOemr
         $this->push('file_audit_data');
         $this->element('create-date', date("m-d-Y"));
         $this->element('create-time', date("H:i"));
-        $this->element('create-by', $res["fname"].' '.$res["lname"]);
+        $this->element('create-by', $res["fname"] . ' ' . $res["lname"]);
         $this->element('version', '1.0');
         $this->element('file-number', '1');
         $this->element('number-of-files', '1');
@@ -95,7 +96,7 @@ class PQRIXml extends XmlWriterOemr
 
     function open_measure_group($id)
     {
-        $this->push('measure-group', array('ID'=>$id));
+        $this->push('measure-group', array('ID' => $id));
     }
 
     function close_measure_group()

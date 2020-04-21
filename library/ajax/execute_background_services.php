@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Manage background operations that should be executed at intervals.
  *
@@ -55,11 +56,11 @@ if (!$isAjaxCall && (php_sapi_name() === 'cli')) {
     $ignoreAuth = 1;
     //process optional arguments when called from cron
     $_GET['site'] = (isset($argv[1])) ? $argv[1] : 'default';
-    if (isset($argv[2]) && $argv[2]!='all') {
+    if (isset($argv[2]) && $argv[2] != 'all') {
         $_GET['background_service'] = $argv[2];
     }
 
-    if (isset($argv[3]) && $argv[3]=='1') {
+    if (isset($argv[3]) && $argv[3] == '1') {
         $_GET['background_force'] = 1;
     }
 
@@ -109,10 +110,10 @@ function execute_background_service_calls()
     $force = (isset($_REQUEST['background_force']) && $_REQUEST['background_force']);
 
     $sql = 'SELECT * FROM background_services WHERE ' . ($force ? '1' : 'execute_interval > 0');
-    if ($single_service!="") {
-        $services = sqlStatementNoLog($sql.' AND name=?', array($single_service));
+    if ($single_service != "") {
+        $services = sqlStatementNoLog($sql . ' AND name=?', array($single_service));
     } else {
-        $services = sqlStatementNoLog($sql.' ORDER BY sort_order');
+        $services = sqlStatementNoLog($sql . ' ORDER BY sort_order');
     }
 
     while ($service = sqlFetchArray($services)) {
@@ -121,18 +122,18 @@ function execute_background_service_calls()
             continue;
         }
 
-        $interval=(int)$service['execute_interval'];
+        $interval = (int)$service['execute_interval'];
 
         //leverage locking built-in to UPDATE to prevent race conditions
         //will need to assess performance in high concurrency setting at some point
-        $sql='UPDATE background_services SET running = 1, next_run = NOW()+ INTERVAL ?'
+        $sql = 'UPDATE background_services SET running = 1, next_run = NOW()+ INTERVAL ?'
         . ' MINUTE WHERE running < 1 ' . ($force ? '' : 'AND NOW() > next_run ') . 'AND name = ?';
-        if (sqlStatementNoLog($sql, array($interval,$service_name))===false) {
+        if (sqlStatementNoLog($sql, array($interval,$service_name)) === false) {
             continue;
         }
 
         $acquiredLock =  generic_sql_affected_rows();
-        if ($acquiredLock<1) {
+        if ($acquiredLock < 1) {
             continue; //service is already running or not due yet
         }
 

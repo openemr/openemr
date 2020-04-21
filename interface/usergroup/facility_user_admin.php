@@ -1,4 +1,5 @@
 <?php
+
 /**
  * edit per-facility user information.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -130,8 +130,8 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                           "WHERE form_id = 'FACUSR' AND uor > 0 AND field_id != '' " .
                           "ORDER BY group_id, seq");
     $l_arr = array();
-    for ($i=0; $row=sqlFetchArray($l_res); $i++) {
-        $l_arr[$i]=$row;
+    for ($i = 0; $row = sqlFetchArray($l_res); $i++) {
+        $l_arr[$i] = $row;
     }
     ?>
 

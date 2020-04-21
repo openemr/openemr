@@ -1,4 +1,5 @@
 <?php
+
 namespace ESign;
 
 /**
@@ -68,7 +69,7 @@ class ESign
             $viewable = true;
         } else {
             // If in report mode then hide the log if $_GLOBALS['esign_report_hide_empty_sig'] is true and there are no signatures
-            if (($mode=="report") && ($GLOBALS['esign_report_hide_empty_sig'])) {
+            if (($mode == "report") && ($GLOBALS['esign_report_hide_empty_sig'])) {
                 $viewable = false;
             } else {
                 // defer if viewable to the log object

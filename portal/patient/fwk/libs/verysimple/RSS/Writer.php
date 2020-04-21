@@ -1,5 +1,7 @@
 <?php
+
 /** @package    verysimple::RSS */
+
 require_once("verysimple/XML/XMLUtil.php");
 
 /**

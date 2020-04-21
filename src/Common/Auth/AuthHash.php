@@ -1,4 +1,5 @@
 <?php
+
 /**
  * AuthHash class.
  *
@@ -31,7 +32,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 namespace OpenEMR\Common\Auth;
 
 class AuthHash
@@ -49,13 +49,13 @@ class AuthHash
         // Set the mode and collect the pertinent algorithm setting from globals
         if ($mode == 'auth') {
             $this->mode = 'auth';
-        } else if ($mode == 'token') {
+        } elseif ($mode == 'token') {
             $this->mode = 'token';
         } else {
             // if no mode or other mode is given, then will default to 'auth' mode
             $this->mode = 'auth';
         }
-        $this->algo = $GLOBALS['gbl_'.$this->mode.'_hash_algo'];
+        $this->algo = $GLOBALS['gbl_' . $this->mode . '_hash_algo'];
 
         // If set to php default algorithm, then figure out what it is.
         //  This basically resolves what PHP is using as PASSWORD_DEFAULT,
@@ -66,9 +66,9 @@ class AuthHash
         if ($this->algo == "DEFAULT") {
             if (PASSWORD_DEFAULT == PASSWORD_BCRYPT) {
                 $this->algo = "BCRYPT";
-            } else if (PASSWORD_DEFAULT == PASSWORD_ARGON2I) {
+            } elseif (PASSWORD_DEFAULT == PASSWORD_ARGON2I) {
                 $this->algo = "ARGON2I";
-            } else if (PASSWORD_DEFAULT == PASSWORD_ARGON2ID) {
+            } elseif (PASSWORD_DEFAULT == PASSWORD_ARGON2ID) {
                 $this->algo = "ARGON2ID";
             } else {
                 // $this->algo will stay "DEFAULT", which should never happen.
@@ -102,23 +102,23 @@ class AuthHash
             }
             // Set up Argon2 options
             $temp_array = [];
-            if (($GLOBALS['gbl_'.$this->mode.'_argon_hash_memory_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_'.$this->mode.'_argon_hash_memory_cost']))) {
-                $temp_array['memory_cost'] = $GLOBALS['gbl_'.$this->mode.'_argon_hash_memory_cost'];
+            if (($GLOBALS['gbl_' . $this->mode . '_argon_hash_memory_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_' . $this->mode . '_argon_hash_memory_cost']))) {
+                $temp_array['memory_cost'] = $GLOBALS['gbl_' . $this->mode . '_argon_hash_memory_cost'];
             }
-            if (($GLOBALS['gbl_'.$this->mode.'_argon_hash_time_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_'.$this->mode.'_argon_hash_time_cost']))) {
-                $temp_array['time_cost'] = $GLOBALS['gbl_'.$this->mode.'_argon_hash_time_cost'];
+            if (($GLOBALS['gbl_' . $this->mode . '_argon_hash_time_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_' . $this->mode . '_argon_hash_time_cost']))) {
+                $temp_array['time_cost'] = $GLOBALS['gbl_' . $this->mode . '_argon_hash_time_cost'];
             }
-            if (($GLOBALS['gbl_'.$this->mode.'_argon_hash_thread_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_'.$this->mode.'_argon_hash_thread_cost']))) {
-                $temp_array['threads'] = $GLOBALS['gbl_'.$this->mode.'_argon_hash_thread_cost'];
+            if (($GLOBALS['gbl_' . $this->mode . '_argon_hash_thread_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_' . $this->mode . '_argon_hash_thread_cost']))) {
+                $temp_array['threads'] = $GLOBALS['gbl_' . $this->mode . '_argon_hash_thread_cost'];
             }
             if (!empty($temp_array)) {
                 $this->options = $temp_array;
             }
-        } else if ($this->algo == "BCRYPT") {
+        } elseif ($this->algo == "BCRYPT") {
             // Bcrypt - Using bcrypt and set up bcrypt options
             $this->algo_constant = PASSWORD_BCRYPT;
-            if (($GLOBALS['gbl_'.$this->mode.'_bcrypt_hash_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_'.$this->mode.'_bcrypt_hash_cost']))) {
-                $this->options = ['cost'=>$GLOBALS['gbl_'.$this->mode.'_bcrypt_hash_cost']];
+            if (($GLOBALS['gbl_' . $this->mode . '_bcrypt_hash_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_' . $this->mode . '_bcrypt_hash_cost']))) {
+                $this->options = ['cost' => $GLOBALS['gbl_' . $this->mode . '_bcrypt_hash_cost']];
             }
         } else {
             // This should never happen.

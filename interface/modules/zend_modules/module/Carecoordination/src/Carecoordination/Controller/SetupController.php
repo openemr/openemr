@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/SetupController.php
  *
@@ -8,6 +9,7 @@
  * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace Carecoordination\Controller;
 
 use Laminas\Mvc\Controller\AbstractActionController;
@@ -26,7 +28,7 @@ class SetupController extends AbstractActionController
     public function __construct(\Carecoordination\Model\SetupTable $setupTable)
     {
         $this->setupTable = $setupTable;
-        $this->listenerObject   = new Listener;
+        $this->listenerObject   = new Listener();
     }
 
     public function indexAction()
@@ -119,7 +121,7 @@ class SetupController extends AbstractActionController
         $this->getSetupTable()->updateExistingMappedFields(array($existing_id,1));
         // Only reference I found for the framework for this is here
         // @see https://framework.zend.com/apidoc/2.3/classes/Laminas.Mvc.Controller.Plugin.Redirect.html
-        return $this->redirect()->toRoute('setup', array('action'=>'index'));
+        return $this->redirect()->toRoute('setup', array('action' => 'index'));
     }
 
     /**

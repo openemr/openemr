@@ -1,4 +1,5 @@
 <?php
+
 /**
  * dynamic_finder.php
  *
@@ -14,7 +15,6 @@
  * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(dirname(__FILE__) . "/../../globals.php");
 require_once "$srcdir/user.inc";
@@ -45,12 +45,12 @@ while ($row = sqlFetchArray($res)) {
     $colname = $row['option_id'];
     $colorder = $sort_dir_map[$row['toggle_setting_1']]; // Get the title 'asc' or 'desc' using the value
     $title = xl_list_label($row['title']);
-    $title1 = ($title == xl('Full Name'))? xl('Name'): $title;
+    $title1 = ($title == xl('Full Name')) ? xl('Name') : $title;
     $header .= "   <th>";
     $header .= text($title);
     $header .= "</th>\n";
     $header0 .= "   <td ><input type='text' size='20' ";
-    $header0 .= "value='' class='search_init' placeholder='".xla("Search by"). " " . $title1 ."'/></td>\n";
+    $header0 .= "value='' class='search_init' placeholder='" . xla("Search by") . " " . $title1 . "'/></td>\n";
     if ($coljson) {
         $coljson .= ", ";
     }

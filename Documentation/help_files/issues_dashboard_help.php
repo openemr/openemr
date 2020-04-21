@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Issues Dashboard Help.
  *

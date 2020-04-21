@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OpenEMR.
  *
@@ -74,8 +75,10 @@ class GlobalsService
     public function createSection($section, $beforeSection = false)
     {
         if (!isset($this->globalsMetadata[$section])) {
-            if ($beforeSection !== false &&
-                isset($this->globalsMetadata[$beforeSection])) {
+            if (
+                $beforeSection !== false &&
+                isset($this->globalsMetadata[$beforeSection])
+            ) {
                 $beforeSectionIndex = array_search($beforeSection, array_keys($this->globalsMetadata));
                 $this->globalsMetadata = array_slice($this->globalsMetadata, 0, $beforeSectionIndex, true) +
                     array($section => []) +
@@ -99,7 +102,7 @@ class GlobalsService
     {
         $this->globalsMetadata[$section][$key] = $global->format();
         if ($global->isUserSetting()) {
-            $this->userSpecificGlobals[]= $key;
+            $this->userSpecificGlobals[] = $key;
         }
     }
 

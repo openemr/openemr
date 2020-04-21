@@ -1,4 +1,5 @@
 <?php
+
 /**
  * superbill_codes.php
  *
@@ -9,7 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
 
@@ -18,7 +18,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 //the number of rows to display before resetting and starting a new column:
-$N=10;
+$N = 10;
 
 $mode     = $_GET['mode'];
 $type     = $_GET['type'];
@@ -90,7 +90,7 @@ for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
     }
 }
 
-$index=0;
+$index = 0;
 
 $numlines = 0;
 foreach ($codes as $value) {

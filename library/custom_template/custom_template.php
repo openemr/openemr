@@ -37,8 +37,8 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 function listitemCode($strDisp, $strInsert)
 {
     if ($strInsert) {
-        echo '<li><span><a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('.
-             "'" . htmlspecialchars($strInsert, ENT_QUOTES) . "'" .');">'. htmlspecialchars($strDisp, ENT_QUOTES) . '</a></span></li>';
+        echo '<li><span><a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText(' .
+             "'" . htmlspecialchars($strInsert, ENT_QUOTES) . "'" . ');">' . htmlspecialchars($strDisp, ENT_QUOTES) . '</a></span></li>';
     }
 }
 $allowTemplateWarning = checkUserSetting('disable_template_warning', '1') === true ? 0 : 1;

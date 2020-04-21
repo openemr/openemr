@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRElement;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRElement;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -307,14 +309,14 @@ class FHIRTriggerDefinition extends FHIRElement implements \JsonSerializable
                         $this->addData($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"data" must be array of objects or null, '.gettype($data['data']).' seen.');
+                    throw new \InvalidArgumentException('"data" must be array of objects or null, ' . gettype($data['data']) . ' seen.');
                 }
             }
             if (isset($data['condition'])) {
                 $this->setCondition($data['condition']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

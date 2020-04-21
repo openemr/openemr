@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -509,7 +511,7 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['status'])) {
@@ -536,7 +538,7 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
                         $this->addParticipant($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"participant" must be array of objects or null, '.gettype($data['participant']).' seen.');
+                    throw new \InvalidArgumentException('"participant" must be array of objects or null, ' . gettype($data['participant']) . ' seen.');
                 }
             }
             if (isset($data['issuer'])) {
@@ -551,7 +553,7 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
                         $this->addLineItem($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"lineItem" must be array of objects or null, '.gettype($data['lineItem']).' seen.');
+                    throw new \InvalidArgumentException('"lineItem" must be array of objects or null, ' . gettype($data['lineItem']) . ' seen.');
                 }
             }
             if (isset($data['totalPriceComponent'])) {
@@ -560,7 +562,7 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
                         $this->addTotalPriceComponent($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"totalPriceComponent" must be array of objects or null, '.gettype($data['totalPriceComponent']).' seen.');
+                    throw new \InvalidArgumentException('"totalPriceComponent" must be array of objects or null, ' . gettype($data['totalPriceComponent']) . ' seen.');
                 }
             }
             if (isset($data['totalNet'])) {
@@ -578,11 +580,11 @@ class FHIRInvoice extends FHIRDomainResource implements \JsonSerializable
                         $this->addNote($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"note" must be array of objects or null, '.gettype($data['note']).' seen.');
+                    throw new \InvalidArgumentException('"note" must be array of objects or null, ' . gettype($data['note']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

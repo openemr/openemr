@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PatientMenuRole class.
  *
@@ -29,7 +30,7 @@ class PatientMenuRole extends MenuRole
         //   constructor. Adding to this array will link special menu items
         //   to functions in this class.
         parent::__construct();
-        $this->menu_update_map["Modules"]="updateModulesDemographicsMenu";
+        $this->menu_update_map["Modules"] = "updateModulesDemographicsMenu";
     }
 
     /**
@@ -69,7 +70,7 @@ class PatientMenuRole extends MenuRole
         }
         $menu_parsed = json_decode(json_encode($menu_parsed));
         $this->menuUpdateEntries($menu_parsed);
-        $menu_restrictions=array();
+        $menu_restrictions = array();
         $this->menuApplyRestrictions($menu_parsed, $menu_restrictions);
         return $menu_restrictions;
     }
@@ -180,18 +181,18 @@ class PatientMenuRole extends MenuRole
                 <div class="collapse navbar-collapse" id="myNavbar">
                     <ul class="navbar-nav">
 EOT;
-        echo $str_top. "\r\n";
+        echo $str_top . "\r\n";
         foreach ($menu_restrictions as $key => $value) {
             if (!empty($value->children)) {
                 // create dropdown if there are children (bootstrap3 horizontal nav bar with dropdown)
                 $class = isset($value->class) ? $value->class : '';
                 $list = '<li class="dropdown"><a href="#"  id="' . attr($value->menu_id) . '" class="nav-link dropdown-toggle font-weight-bold text-body ' . attr($class) . '" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">' . text($value->label) . ' <span class="caret"></span></a>';
-                $list .='<ul class="dropdown-menu">';
+                $list .= '<ul class="dropdown-menu">';
                 foreach ($value->children as $children_key => $children_value) {
                     $link = ($children_value->pid != "true") ? $children_value->url : $children_value->url . attr($pid);
                     $class = isset($children_value->class) ? $children_value->class : '';
                     $list .= '<li class="nav-item ' . attr($class) . '" id="' . attr($children_value->menu_id) . '">';
-                    $list .= '<a class="nav-link font-weight-bold text-body"  href="' . attr($link) . '" onclick="' . $children_value->on_click .'"> ' . text($children_value->label) . ' </a>';
+                    $list .= '<a class="nav-link font-weight-bold text-body"  href="' . attr($link) . '" onclick="' . $children_value->on_click . '"> ' . text($children_value->label) . ' </a>';
                     $list .= '</li>';
                 }
                 $list .= '</ul>';
@@ -199,10 +200,10 @@ EOT;
                 $link = ($value->pid != "true") ? $value->url : $value->url . attr($pid);
                 $class = isset($value->class) ? $value->class : '';
                 $list = '<li class="nav-item ' . attr($class) . '" id="' . attr($value->menu_id) . '">';
-                $list .= '<a class="nav-link font-weight-bold text-body" href="' . attr($link) . '" onclick="' . $value->on_click .'"> ' . text($value->label) . ' </a>';
+                $list .= '<a class="nav-link font-weight-bold text-body" href="' . attr($link) . '" onclick="' . $value->on_click . '"> ' . text($value->label) . ' </a>';
                 $list .= '</li>';
             }
-            echo $list. "\r\n";
+            echo $list . "\r\n";
             $li_id++;
         }
         $str_bot = <<<EOB
@@ -210,7 +211,7 @@ EOT;
             </div>
         </nav>
 EOB;
-        echo $str_bot. "\r\n";
+        echo $str_bot . "\r\n";
         return;
     }
 

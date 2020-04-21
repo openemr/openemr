@@ -1,4 +1,5 @@
 <?php
+
 /** @package    Secure::App */
 
 /** import supporting libraries */
@@ -41,8 +42,8 @@ class SecureApp implements IAuthenticatable
     {
         if (!self::$USERS) {
             self::$USERS = array(
-                "demo"=>password_hash("pass", PASSWORD_BCRYPT),
-                "admin"=>password_hash("pass", PASSWORD_BCRYPT)
+                "demo" => password_hash("pass", PASSWORD_BCRYPT),
+                "admin" => password_hash("pass", PASSWORD_BCRYPT)
             );
         }
     }

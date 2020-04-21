@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -671,7 +673,7 @@ The duration (usually in minutes) could also be provided to indicate the length 
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['status'])) {
@@ -686,7 +688,7 @@ The duration (usually in minutes) could also be provided to indicate the length 
                         $this->addServiceCategory($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"serviceCategory" must be array of objects or null, '.gettype($data['serviceCategory']).' seen.');
+                    throw new \InvalidArgumentException('"serviceCategory" must be array of objects or null, ' . gettype($data['serviceCategory']) . ' seen.');
                 }
             }
             if (isset($data['serviceType'])) {
@@ -695,7 +697,7 @@ The duration (usually in minutes) could also be provided to indicate the length 
                         $this->addServiceType($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"serviceType" must be array of objects or null, '.gettype($data['serviceType']).' seen.');
+                    throw new \InvalidArgumentException('"serviceType" must be array of objects or null, ' . gettype($data['serviceType']) . ' seen.');
                 }
             }
             if (isset($data['specialty'])) {
@@ -704,7 +706,7 @@ The duration (usually in minutes) could also be provided to indicate the length 
                         $this->addSpecialty($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"specialty" must be array of objects or null, '.gettype($data['specialty']).' seen.');
+                    throw new \InvalidArgumentException('"specialty" must be array of objects or null, ' . gettype($data['specialty']) . ' seen.');
                 }
             }
             if (isset($data['appointmentType'])) {
@@ -716,7 +718,7 @@ The duration (usually in minutes) could also be provided to indicate the length 
                         $this->addReasonCode($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"reasonCode" must be array of objects or null, '.gettype($data['reasonCode']).' seen.');
+                    throw new \InvalidArgumentException('"reasonCode" must be array of objects or null, ' . gettype($data['reasonCode']) . ' seen.');
                 }
             }
             if (isset($data['reasonReference'])) {
@@ -725,7 +727,7 @@ The duration (usually in minutes) could also be provided to indicate the length 
                         $this->addReasonReference($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"reasonReference" must be array of objects or null, '.gettype($data['reasonReference']).' seen.');
+                    throw new \InvalidArgumentException('"reasonReference" must be array of objects or null, ' . gettype($data['reasonReference']) . ' seen.');
                 }
             }
             if (isset($data['priority'])) {
@@ -740,7 +742,7 @@ The duration (usually in minutes) could also be provided to indicate the length 
                         $this->addSupportingInformation($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"supportingInformation" must be array of objects or null, '.gettype($data['supportingInformation']).' seen.');
+                    throw new \InvalidArgumentException('"supportingInformation" must be array of objects or null, ' . gettype($data['supportingInformation']) . ' seen.');
                 }
             }
             if (isset($data['start'])) {
@@ -758,7 +760,7 @@ The duration (usually in minutes) could also be provided to indicate the length 
                         $this->addSlot($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"slot" must be array of objects or null, '.gettype($data['slot']).' seen.');
+                    throw new \InvalidArgumentException('"slot" must be array of objects or null, ' . gettype($data['slot']) . ' seen.');
                 }
             }
             if (isset($data['created'])) {
@@ -776,7 +778,7 @@ The duration (usually in minutes) could also be provided to indicate the length 
                         $this->addBasedOn($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"basedOn" must be array of objects or null, '.gettype($data['basedOn']).' seen.');
+                    throw new \InvalidArgumentException('"basedOn" must be array of objects or null, ' . gettype($data['basedOn']) . ' seen.');
                 }
             }
             if (isset($data['participant'])) {
@@ -785,7 +787,7 @@ The duration (usually in minutes) could also be provided to indicate the length 
                         $this->addParticipant($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"participant" must be array of objects or null, '.gettype($data['participant']).' seen.');
+                    throw new \InvalidArgumentException('"participant" must be array of objects or null, ' . gettype($data['participant']) . ' seen.');
                 }
             }
             if (isset($data['requestedPeriod'])) {
@@ -794,11 +796,11 @@ The duration (usually in minutes) could also be provided to indicate the length 
                         $this->addRequestedPeriod($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"requestedPeriod" must be array of objects or null, '.gettype($data['requestedPeriod']).' seen.');
+                    throw new \InvalidArgumentException('"requestedPeriod" must be array of objects or null, ' . gettype($data['requestedPeriod']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

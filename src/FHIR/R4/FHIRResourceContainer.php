@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4;
+<?php
+
+namespace OpenEMR\FHIR\R4;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -3441,15 +3443,15 @@ class FHIRResourceContainer implements \JsonSerializable
         if (is_object($data)) {
             $n = substr(strrchr(get_class($data), 'FHIR'), 4);
             $this->{"set{$n}"}($data);
-        } else if (is_array($data)) {
+        } elseif (is_array($data)) {
             if (($cnt = count($data)) > 1) {
                 throw new \InvalidArgumentException("ResourceContainers may only contain 1 object, \"{$cnt}\" values provided");
             } else {
                 $k = key($data);
                 $this->{"set{$k}"}($data);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be object or array, saw '.gettype($data));
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be object or array, saw ' . gettype($data));
         }
     }
 
@@ -3919,295 +3921,295 @@ class FHIRResourceContainer implements \JsonSerializable
         }
         if (isset($this->Account)) {
             $this->Account->xmlSerialize(true, $sxe->addChild('Account'));
-        } else if (isset($this->ActivityDefinition)) {
+        } elseif (isset($this->ActivityDefinition)) {
             $this->ActivityDefinition->xmlSerialize(true, $sxe->addChild('ActivityDefinition'));
-        } else if (isset($this->AdverseEvent)) {
+        } elseif (isset($this->AdverseEvent)) {
             $this->AdverseEvent->xmlSerialize(true, $sxe->addChild('AdverseEvent'));
-        } else if (isset($this->AllergyIntolerance)) {
+        } elseif (isset($this->AllergyIntolerance)) {
             $this->AllergyIntolerance->xmlSerialize(true, $sxe->addChild('AllergyIntolerance'));
-        } else if (isset($this->Appointment)) {
+        } elseif (isset($this->Appointment)) {
             $this->Appointment->xmlSerialize(true, $sxe->addChild('Appointment'));
-        } else if (isset($this->AppointmentResponse)) {
+        } elseif (isset($this->AppointmentResponse)) {
             $this->AppointmentResponse->xmlSerialize(true, $sxe->addChild('AppointmentResponse'));
-        } else if (isset($this->AuditEvent)) {
+        } elseif (isset($this->AuditEvent)) {
             $this->AuditEvent->xmlSerialize(true, $sxe->addChild('AuditEvent'));
-        } else if (isset($this->Basic)) {
+        } elseif (isset($this->Basic)) {
             $this->Basic->xmlSerialize(true, $sxe->addChild('Basic'));
-        } else if (isset($this->Binary)) {
+        } elseif (isset($this->Binary)) {
             $this->Binary->xmlSerialize(true, $sxe->addChild('Binary'));
-        } else if (isset($this->BiologicallyDerivedProduct)) {
+        } elseif (isset($this->BiologicallyDerivedProduct)) {
             $this->BiologicallyDerivedProduct->xmlSerialize(true, $sxe->addChild('BiologicallyDerivedProduct'));
-        } else if (isset($this->BodyStructure)) {
+        } elseif (isset($this->BodyStructure)) {
             $this->BodyStructure->xmlSerialize(true, $sxe->addChild('BodyStructure'));
-        } else if (isset($this->Bundle)) {
+        } elseif (isset($this->Bundle)) {
             $this->Bundle->xmlSerialize(true, $sxe->addChild('Bundle'));
-        } else if (isset($this->CapabilityStatement)) {
+        } elseif (isset($this->CapabilityStatement)) {
             $this->CapabilityStatement->xmlSerialize(true, $sxe->addChild('CapabilityStatement'));
-        } else if (isset($this->CarePlan)) {
+        } elseif (isset($this->CarePlan)) {
             $this->CarePlan->xmlSerialize(true, $sxe->addChild('CarePlan'));
-        } else if (isset($this->CareTeam)) {
+        } elseif (isset($this->CareTeam)) {
             $this->CareTeam->xmlSerialize(true, $sxe->addChild('CareTeam'));
-        } else if (isset($this->CatalogEntry)) {
+        } elseif (isset($this->CatalogEntry)) {
             $this->CatalogEntry->xmlSerialize(true, $sxe->addChild('CatalogEntry'));
-        } else if (isset($this->ChargeItem)) {
+        } elseif (isset($this->ChargeItem)) {
             $this->ChargeItem->xmlSerialize(true, $sxe->addChild('ChargeItem'));
-        } else if (isset($this->ChargeItemDefinition)) {
+        } elseif (isset($this->ChargeItemDefinition)) {
             $this->ChargeItemDefinition->xmlSerialize(true, $sxe->addChild('ChargeItemDefinition'));
-        } else if (isset($this->Claim)) {
+        } elseif (isset($this->Claim)) {
             $this->Claim->xmlSerialize(true, $sxe->addChild('Claim'));
-        } else if (isset($this->ClaimResponse)) {
+        } elseif (isset($this->ClaimResponse)) {
             $this->ClaimResponse->xmlSerialize(true, $sxe->addChild('ClaimResponse'));
-        } else if (isset($this->ClinicalImpression)) {
+        } elseif (isset($this->ClinicalImpression)) {
             $this->ClinicalImpression->xmlSerialize(true, $sxe->addChild('ClinicalImpression'));
-        } else if (isset($this->CodeSystem)) {
+        } elseif (isset($this->CodeSystem)) {
             $this->CodeSystem->xmlSerialize(true, $sxe->addChild('CodeSystem'));
-        } else if (isset($this->Communication)) {
+        } elseif (isset($this->Communication)) {
             $this->Communication->xmlSerialize(true, $sxe->addChild('Communication'));
-        } else if (isset($this->CommunicationRequest)) {
+        } elseif (isset($this->CommunicationRequest)) {
             $this->CommunicationRequest->xmlSerialize(true, $sxe->addChild('CommunicationRequest'));
-        } else if (isset($this->CompartmentDefinition)) {
+        } elseif (isset($this->CompartmentDefinition)) {
             $this->CompartmentDefinition->xmlSerialize(true, $sxe->addChild('CompartmentDefinition'));
-        } else if (isset($this->Composition)) {
+        } elseif (isset($this->Composition)) {
             $this->Composition->xmlSerialize(true, $sxe->addChild('Composition'));
-        } else if (isset($this->ConceptMap)) {
+        } elseif (isset($this->ConceptMap)) {
             $this->ConceptMap->xmlSerialize(true, $sxe->addChild('ConceptMap'));
-        } else if (isset($this->Condition)) {
+        } elseif (isset($this->Condition)) {
             $this->Condition->xmlSerialize(true, $sxe->addChild('Condition'));
-        } else if (isset($this->Consent)) {
+        } elseif (isset($this->Consent)) {
             $this->Consent->xmlSerialize(true, $sxe->addChild('Consent'));
-        } else if (isset($this->Contract)) {
+        } elseif (isset($this->Contract)) {
             $this->Contract->xmlSerialize(true, $sxe->addChild('Contract'));
-        } else if (isset($this->Coverage)) {
+        } elseif (isset($this->Coverage)) {
             $this->Coverage->xmlSerialize(true, $sxe->addChild('Coverage'));
-        } else if (isset($this->CoverageEligibilityRequest)) {
+        } elseif (isset($this->CoverageEligibilityRequest)) {
             $this->CoverageEligibilityRequest->xmlSerialize(true, $sxe->addChild('CoverageEligibilityRequest'));
-        } else if (isset($this->CoverageEligibilityResponse)) {
+        } elseif (isset($this->CoverageEligibilityResponse)) {
             $this->CoverageEligibilityResponse->xmlSerialize(true, $sxe->addChild('CoverageEligibilityResponse'));
-        } else if (isset($this->DetectedIssue)) {
+        } elseif (isset($this->DetectedIssue)) {
             $this->DetectedIssue->xmlSerialize(true, $sxe->addChild('DetectedIssue'));
-        } else if (isset($this->Device)) {
+        } elseif (isset($this->Device)) {
             $this->Device->xmlSerialize(true, $sxe->addChild('Device'));
-        } else if (isset($this->DeviceDefinition)) {
+        } elseif (isset($this->DeviceDefinition)) {
             $this->DeviceDefinition->xmlSerialize(true, $sxe->addChild('DeviceDefinition'));
-        } else if (isset($this->DeviceMetric)) {
+        } elseif (isset($this->DeviceMetric)) {
             $this->DeviceMetric->xmlSerialize(true, $sxe->addChild('DeviceMetric'));
-        } else if (isset($this->DeviceRequest)) {
+        } elseif (isset($this->DeviceRequest)) {
             $this->DeviceRequest->xmlSerialize(true, $sxe->addChild('DeviceRequest'));
-        } else if (isset($this->DeviceUseStatement)) {
+        } elseif (isset($this->DeviceUseStatement)) {
             $this->DeviceUseStatement->xmlSerialize(true, $sxe->addChild('DeviceUseStatement'));
-        } else if (isset($this->DiagnosticReport)) {
+        } elseif (isset($this->DiagnosticReport)) {
             $this->DiagnosticReport->xmlSerialize(true, $sxe->addChild('DiagnosticReport'));
-        } else if (isset($this->DocumentManifest)) {
+        } elseif (isset($this->DocumentManifest)) {
             $this->DocumentManifest->xmlSerialize(true, $sxe->addChild('DocumentManifest'));
-        } else if (isset($this->DocumentReference)) {
+        } elseif (isset($this->DocumentReference)) {
             $this->DocumentReference->xmlSerialize(true, $sxe->addChild('DocumentReference'));
-        } else if (isset($this->EffectEvidenceSynthesis)) {
+        } elseif (isset($this->EffectEvidenceSynthesis)) {
             $this->EffectEvidenceSynthesis->xmlSerialize(true, $sxe->addChild('EffectEvidenceSynthesis'));
-        } else if (isset($this->Encounter)) {
+        } elseif (isset($this->Encounter)) {
             $this->Encounter->xmlSerialize(true, $sxe->addChild('Encounter'));
-        } else if (isset($this->Endpoint)) {
+        } elseif (isset($this->Endpoint)) {
             $this->Endpoint->xmlSerialize(true, $sxe->addChild('Endpoint'));
-        } else if (isset($this->EnrollmentRequest)) {
+        } elseif (isset($this->EnrollmentRequest)) {
             $this->EnrollmentRequest->xmlSerialize(true, $sxe->addChild('EnrollmentRequest'));
-        } else if (isset($this->EnrollmentResponse)) {
+        } elseif (isset($this->EnrollmentResponse)) {
             $this->EnrollmentResponse->xmlSerialize(true, $sxe->addChild('EnrollmentResponse'));
-        } else if (isset($this->EpisodeOfCare)) {
+        } elseif (isset($this->EpisodeOfCare)) {
             $this->EpisodeOfCare->xmlSerialize(true, $sxe->addChild('EpisodeOfCare'));
-        } else if (isset($this->EventDefinition)) {
+        } elseif (isset($this->EventDefinition)) {
             $this->EventDefinition->xmlSerialize(true, $sxe->addChild('EventDefinition'));
-        } else if (isset($this->Evidence)) {
+        } elseif (isset($this->Evidence)) {
             $this->Evidence->xmlSerialize(true, $sxe->addChild('Evidence'));
-        } else if (isset($this->EvidenceVariable)) {
+        } elseif (isset($this->EvidenceVariable)) {
             $this->EvidenceVariable->xmlSerialize(true, $sxe->addChild('EvidenceVariable'));
-        } else if (isset($this->ExampleScenario)) {
+        } elseif (isset($this->ExampleScenario)) {
             $this->ExampleScenario->xmlSerialize(true, $sxe->addChild('ExampleScenario'));
-        } else if (isset($this->ExplanationOfBenefit)) {
+        } elseif (isset($this->ExplanationOfBenefit)) {
             $this->ExplanationOfBenefit->xmlSerialize(true, $sxe->addChild('ExplanationOfBenefit'));
-        } else if (isset($this->FamilyMemberHistory)) {
+        } elseif (isset($this->FamilyMemberHistory)) {
             $this->FamilyMemberHistory->xmlSerialize(true, $sxe->addChild('FamilyMemberHistory'));
-        } else if (isset($this->Flag)) {
+        } elseif (isset($this->Flag)) {
             $this->Flag->xmlSerialize(true, $sxe->addChild('Flag'));
-        } else if (isset($this->Goal)) {
+        } elseif (isset($this->Goal)) {
             $this->Goal->xmlSerialize(true, $sxe->addChild('Goal'));
-        } else if (isset($this->GraphDefinition)) {
+        } elseif (isset($this->GraphDefinition)) {
             $this->GraphDefinition->xmlSerialize(true, $sxe->addChild('GraphDefinition'));
-        } else if (isset($this->Group)) {
+        } elseif (isset($this->Group)) {
             $this->Group->xmlSerialize(true, $sxe->addChild('Group'));
-        } else if (isset($this->GuidanceResponse)) {
+        } elseif (isset($this->GuidanceResponse)) {
             $this->GuidanceResponse->xmlSerialize(true, $sxe->addChild('GuidanceResponse'));
-        } else if (isset($this->HealthcareService)) {
+        } elseif (isset($this->HealthcareService)) {
             $this->HealthcareService->xmlSerialize(true, $sxe->addChild('HealthcareService'));
-        } else if (isset($this->ImagingStudy)) {
+        } elseif (isset($this->ImagingStudy)) {
             $this->ImagingStudy->xmlSerialize(true, $sxe->addChild('ImagingStudy'));
-        } else if (isset($this->Immunization)) {
+        } elseif (isset($this->Immunization)) {
             $this->Immunization->xmlSerialize(true, $sxe->addChild('Immunization'));
-        } else if (isset($this->ImmunizationEvaluation)) {
+        } elseif (isset($this->ImmunizationEvaluation)) {
             $this->ImmunizationEvaluation->xmlSerialize(true, $sxe->addChild('ImmunizationEvaluation'));
-        } else if (isset($this->ImmunizationRecommendation)) {
+        } elseif (isset($this->ImmunizationRecommendation)) {
             $this->ImmunizationRecommendation->xmlSerialize(true, $sxe->addChild('ImmunizationRecommendation'));
-        } else if (isset($this->ImplementationGuide)) {
+        } elseif (isset($this->ImplementationGuide)) {
             $this->ImplementationGuide->xmlSerialize(true, $sxe->addChild('ImplementationGuide'));
-        } else if (isset($this->InsurancePlan)) {
+        } elseif (isset($this->InsurancePlan)) {
             $this->InsurancePlan->xmlSerialize(true, $sxe->addChild('InsurancePlan'));
-        } else if (isset($this->Invoice)) {
+        } elseif (isset($this->Invoice)) {
             $this->Invoice->xmlSerialize(true, $sxe->addChild('Invoice'));
-        } else if (isset($this->Library)) {
+        } elseif (isset($this->Library)) {
             $this->Library->xmlSerialize(true, $sxe->addChild('Library'));
-        } else if (isset($this->Linkage)) {
+        } elseif (isset($this->Linkage)) {
             $this->Linkage->xmlSerialize(true, $sxe->addChild('Linkage'));
-        } else if (isset($this->List)) {
+        } elseif (isset($this->List)) {
             $this->List->xmlSerialize(true, $sxe->addChild('List'));
-        } else if (isset($this->Location)) {
+        } elseif (isset($this->Location)) {
             $this->Location->xmlSerialize(true, $sxe->addChild('Location'));
-        } else if (isset($this->Measure)) {
+        } elseif (isset($this->Measure)) {
             $this->Measure->xmlSerialize(true, $sxe->addChild('Measure'));
-        } else if (isset($this->MeasureReport)) {
+        } elseif (isset($this->MeasureReport)) {
             $this->MeasureReport->xmlSerialize(true, $sxe->addChild('MeasureReport'));
-        } else if (isset($this->Media)) {
+        } elseif (isset($this->Media)) {
             $this->Media->xmlSerialize(true, $sxe->addChild('Media'));
-        } else if (isset($this->Medication)) {
+        } elseif (isset($this->Medication)) {
             $this->Medication->xmlSerialize(true, $sxe->addChild('Medication'));
-        } else if (isset($this->MedicationAdministration)) {
+        } elseif (isset($this->MedicationAdministration)) {
             $this->MedicationAdministration->xmlSerialize(true, $sxe->addChild('MedicationAdministration'));
-        } else if (isset($this->MedicationDispense)) {
+        } elseif (isset($this->MedicationDispense)) {
             $this->MedicationDispense->xmlSerialize(true, $sxe->addChild('MedicationDispense'));
-        } else if (isset($this->MedicationKnowledge)) {
+        } elseif (isset($this->MedicationKnowledge)) {
             $this->MedicationKnowledge->xmlSerialize(true, $sxe->addChild('MedicationKnowledge'));
-        } else if (isset($this->MedicationRequest)) {
+        } elseif (isset($this->MedicationRequest)) {
             $this->MedicationRequest->xmlSerialize(true, $sxe->addChild('MedicationRequest'));
-        } else if (isset($this->MedicationStatement)) {
+        } elseif (isset($this->MedicationStatement)) {
             $this->MedicationStatement->xmlSerialize(true, $sxe->addChild('MedicationStatement'));
-        } else if (isset($this->MedicinalProduct)) {
+        } elseif (isset($this->MedicinalProduct)) {
             $this->MedicinalProduct->xmlSerialize(true, $sxe->addChild('MedicinalProduct'));
-        } else if (isset($this->MedicinalProductAuthorization)) {
+        } elseif (isset($this->MedicinalProductAuthorization)) {
             $this->MedicinalProductAuthorization->xmlSerialize(true, $sxe->addChild('MedicinalProductAuthorization'));
-        } else if (isset($this->MedicinalProductContraindication)) {
+        } elseif (isset($this->MedicinalProductContraindication)) {
             $this->MedicinalProductContraindication->xmlSerialize(true, $sxe->addChild('MedicinalProductContraindication'));
-        } else if (isset($this->MedicinalProductIndication)) {
+        } elseif (isset($this->MedicinalProductIndication)) {
             $this->MedicinalProductIndication->xmlSerialize(true, $sxe->addChild('MedicinalProductIndication'));
-        } else if (isset($this->MedicinalProductIngredient)) {
+        } elseif (isset($this->MedicinalProductIngredient)) {
             $this->MedicinalProductIngredient->xmlSerialize(true, $sxe->addChild('MedicinalProductIngredient'));
-        } else if (isset($this->MedicinalProductInteraction)) {
+        } elseif (isset($this->MedicinalProductInteraction)) {
             $this->MedicinalProductInteraction->xmlSerialize(true, $sxe->addChild('MedicinalProductInteraction'));
-        } else if (isset($this->MedicinalProductManufactured)) {
+        } elseif (isset($this->MedicinalProductManufactured)) {
             $this->MedicinalProductManufactured->xmlSerialize(true, $sxe->addChild('MedicinalProductManufactured'));
-        } else if (isset($this->MedicinalProductPackaged)) {
+        } elseif (isset($this->MedicinalProductPackaged)) {
             $this->MedicinalProductPackaged->xmlSerialize(true, $sxe->addChild('MedicinalProductPackaged'));
-        } else if (isset($this->MedicinalProductPharmaceutical)) {
+        } elseif (isset($this->MedicinalProductPharmaceutical)) {
             $this->MedicinalProductPharmaceutical->xmlSerialize(true, $sxe->addChild('MedicinalProductPharmaceutical'));
-        } else if (isset($this->MedicinalProductUndesirableEffect)) {
+        } elseif (isset($this->MedicinalProductUndesirableEffect)) {
             $this->MedicinalProductUndesirableEffect->xmlSerialize(true, $sxe->addChild('MedicinalProductUndesirableEffect'));
-        } else if (isset($this->MessageDefinition)) {
+        } elseif (isset($this->MessageDefinition)) {
             $this->MessageDefinition->xmlSerialize(true, $sxe->addChild('MessageDefinition'));
-        } else if (isset($this->MessageHeader)) {
+        } elseif (isset($this->MessageHeader)) {
             $this->MessageHeader->xmlSerialize(true, $sxe->addChild('MessageHeader'));
-        } else if (isset($this->MolecularSequence)) {
+        } elseif (isset($this->MolecularSequence)) {
             $this->MolecularSequence->xmlSerialize(true, $sxe->addChild('MolecularSequence'));
-        } else if (isset($this->NamingSystem)) {
+        } elseif (isset($this->NamingSystem)) {
             $this->NamingSystem->xmlSerialize(true, $sxe->addChild('NamingSystem'));
-        } else if (isset($this->NutritionOrder)) {
+        } elseif (isset($this->NutritionOrder)) {
             $this->NutritionOrder->xmlSerialize(true, $sxe->addChild('NutritionOrder'));
-        } else if (isset($this->Observation)) {
+        } elseif (isset($this->Observation)) {
             $this->Observation->xmlSerialize(true, $sxe->addChild('Observation'));
-        } else if (isset($this->ObservationDefinition)) {
+        } elseif (isset($this->ObservationDefinition)) {
             $this->ObservationDefinition->xmlSerialize(true, $sxe->addChild('ObservationDefinition'));
-        } else if (isset($this->OperationDefinition)) {
+        } elseif (isset($this->OperationDefinition)) {
             $this->OperationDefinition->xmlSerialize(true, $sxe->addChild('OperationDefinition'));
-        } else if (isset($this->OperationOutcome)) {
+        } elseif (isset($this->OperationOutcome)) {
             $this->OperationOutcome->xmlSerialize(true, $sxe->addChild('OperationOutcome'));
-        } else if (isset($this->Organization)) {
+        } elseif (isset($this->Organization)) {
             $this->Organization->xmlSerialize(true, $sxe->addChild('Organization'));
-        } else if (isset($this->OrganizationAffiliation)) {
+        } elseif (isset($this->OrganizationAffiliation)) {
             $this->OrganizationAffiliation->xmlSerialize(true, $sxe->addChild('OrganizationAffiliation'));
-        } else if (isset($this->Patient)) {
+        } elseif (isset($this->Patient)) {
             $this->Patient->xmlSerialize(true, $sxe->addChild('Patient'));
-        } else if (isset($this->PaymentNotice)) {
+        } elseif (isset($this->PaymentNotice)) {
             $this->PaymentNotice->xmlSerialize(true, $sxe->addChild('PaymentNotice'));
-        } else if (isset($this->PaymentReconciliation)) {
+        } elseif (isset($this->PaymentReconciliation)) {
             $this->PaymentReconciliation->xmlSerialize(true, $sxe->addChild('PaymentReconciliation'));
-        } else if (isset($this->Person)) {
+        } elseif (isset($this->Person)) {
             $this->Person->xmlSerialize(true, $sxe->addChild('Person'));
-        } else if (isset($this->PlanDefinition)) {
+        } elseif (isset($this->PlanDefinition)) {
             $this->PlanDefinition->xmlSerialize(true, $sxe->addChild('PlanDefinition'));
-        } else if (isset($this->Practitioner)) {
+        } elseif (isset($this->Practitioner)) {
             $this->Practitioner->xmlSerialize(true, $sxe->addChild('Practitioner'));
-        } else if (isset($this->PractitionerRole)) {
+        } elseif (isset($this->PractitionerRole)) {
             $this->PractitionerRole->xmlSerialize(true, $sxe->addChild('PractitionerRole'));
-        } else if (isset($this->Procedure)) {
+        } elseif (isset($this->Procedure)) {
             $this->Procedure->xmlSerialize(true, $sxe->addChild('Procedure'));
-        } else if (isset($this->Provenance)) {
+        } elseif (isset($this->Provenance)) {
             $this->Provenance->xmlSerialize(true, $sxe->addChild('Provenance'));
-        } else if (isset($this->Questionnaire)) {
+        } elseif (isset($this->Questionnaire)) {
             $this->Questionnaire->xmlSerialize(true, $sxe->addChild('Questionnaire'));
-        } else if (isset($this->QuestionnaireResponse)) {
+        } elseif (isset($this->QuestionnaireResponse)) {
             $this->QuestionnaireResponse->xmlSerialize(true, $sxe->addChild('QuestionnaireResponse'));
-        } else if (isset($this->RelatedPerson)) {
+        } elseif (isset($this->RelatedPerson)) {
             $this->RelatedPerson->xmlSerialize(true, $sxe->addChild('RelatedPerson'));
-        } else if (isset($this->RequestGroup)) {
+        } elseif (isset($this->RequestGroup)) {
             $this->RequestGroup->xmlSerialize(true, $sxe->addChild('RequestGroup'));
-        } else if (isset($this->ResearchDefinition)) {
+        } elseif (isset($this->ResearchDefinition)) {
             $this->ResearchDefinition->xmlSerialize(true, $sxe->addChild('ResearchDefinition'));
-        } else if (isset($this->ResearchElementDefinition)) {
+        } elseif (isset($this->ResearchElementDefinition)) {
             $this->ResearchElementDefinition->xmlSerialize(true, $sxe->addChild('ResearchElementDefinition'));
-        } else if (isset($this->ResearchStudy)) {
+        } elseif (isset($this->ResearchStudy)) {
             $this->ResearchStudy->xmlSerialize(true, $sxe->addChild('ResearchStudy'));
-        } else if (isset($this->ResearchSubject)) {
+        } elseif (isset($this->ResearchSubject)) {
             $this->ResearchSubject->xmlSerialize(true, $sxe->addChild('ResearchSubject'));
-        } else if (isset($this->RiskAssessment)) {
+        } elseif (isset($this->RiskAssessment)) {
             $this->RiskAssessment->xmlSerialize(true, $sxe->addChild('RiskAssessment'));
-        } else if (isset($this->RiskEvidenceSynthesis)) {
+        } elseif (isset($this->RiskEvidenceSynthesis)) {
             $this->RiskEvidenceSynthesis->xmlSerialize(true, $sxe->addChild('RiskEvidenceSynthesis'));
-        } else if (isset($this->Schedule)) {
+        } elseif (isset($this->Schedule)) {
             $this->Schedule->xmlSerialize(true, $sxe->addChild('Schedule'));
-        } else if (isset($this->SearchParameter)) {
+        } elseif (isset($this->SearchParameter)) {
             $this->SearchParameter->xmlSerialize(true, $sxe->addChild('SearchParameter'));
-        } else if (isset($this->ServiceRequest)) {
+        } elseif (isset($this->ServiceRequest)) {
             $this->ServiceRequest->xmlSerialize(true, $sxe->addChild('ServiceRequest'));
-        } else if (isset($this->Slot)) {
+        } elseif (isset($this->Slot)) {
             $this->Slot->xmlSerialize(true, $sxe->addChild('Slot'));
-        } else if (isset($this->Specimen)) {
+        } elseif (isset($this->Specimen)) {
             $this->Specimen->xmlSerialize(true, $sxe->addChild('Specimen'));
-        } else if (isset($this->SpecimenDefinition)) {
+        } elseif (isset($this->SpecimenDefinition)) {
             $this->SpecimenDefinition->xmlSerialize(true, $sxe->addChild('SpecimenDefinition'));
-        } else if (isset($this->StructureDefinition)) {
+        } elseif (isset($this->StructureDefinition)) {
             $this->StructureDefinition->xmlSerialize(true, $sxe->addChild('StructureDefinition'));
-        } else if (isset($this->StructureMap)) {
+        } elseif (isset($this->StructureMap)) {
             $this->StructureMap->xmlSerialize(true, $sxe->addChild('StructureMap'));
-        } else if (isset($this->Subscription)) {
+        } elseif (isset($this->Subscription)) {
             $this->Subscription->xmlSerialize(true, $sxe->addChild('Subscription'));
-        } else if (isset($this->Substance)) {
+        } elseif (isset($this->Substance)) {
             $this->Substance->xmlSerialize(true, $sxe->addChild('Substance'));
-        } else if (isset($this->SubstanceNucleicAcid)) {
+        } elseif (isset($this->SubstanceNucleicAcid)) {
             $this->SubstanceNucleicAcid->xmlSerialize(true, $sxe->addChild('SubstanceNucleicAcid'));
-        } else if (isset($this->SubstancePolymer)) {
+        } elseif (isset($this->SubstancePolymer)) {
             $this->SubstancePolymer->xmlSerialize(true, $sxe->addChild('SubstancePolymer'));
-        } else if (isset($this->SubstanceProtein)) {
+        } elseif (isset($this->SubstanceProtein)) {
             $this->SubstanceProtein->xmlSerialize(true, $sxe->addChild('SubstanceProtein'));
-        } else if (isset($this->SubstanceReferenceInformation)) {
+        } elseif (isset($this->SubstanceReferenceInformation)) {
             $this->SubstanceReferenceInformation->xmlSerialize(true, $sxe->addChild('SubstanceReferenceInformation'));
-        } else if (isset($this->SubstanceSourceMaterial)) {
+        } elseif (isset($this->SubstanceSourceMaterial)) {
             $this->SubstanceSourceMaterial->xmlSerialize(true, $sxe->addChild('SubstanceSourceMaterial'));
-        } else if (isset($this->SubstanceSpecification)) {
+        } elseif (isset($this->SubstanceSpecification)) {
             $this->SubstanceSpecification->xmlSerialize(true, $sxe->addChild('SubstanceSpecification'));
-        } else if (isset($this->SupplyDelivery)) {
+        } elseif (isset($this->SupplyDelivery)) {
             $this->SupplyDelivery->xmlSerialize(true, $sxe->addChild('SupplyDelivery'));
-        } else if (isset($this->SupplyRequest)) {
+        } elseif (isset($this->SupplyRequest)) {
             $this->SupplyRequest->xmlSerialize(true, $sxe->addChild('SupplyRequest'));
-        } else if (isset($this->Task)) {
+        } elseif (isset($this->Task)) {
             $this->Task->xmlSerialize(true, $sxe->addChild('Task'));
-        } else if (isset($this->TerminologyCapabilities)) {
+        } elseif (isset($this->TerminologyCapabilities)) {
             $this->TerminologyCapabilities->xmlSerialize(true, $sxe->addChild('TerminologyCapabilities'));
-        } else if (isset($this->TestReport)) {
+        } elseif (isset($this->TestReport)) {
             $this->TestReport->xmlSerialize(true, $sxe->addChild('TestReport'));
-        } else if (isset($this->TestScript)) {
+        } elseif (isset($this->TestScript)) {
             $this->TestScript->xmlSerialize(true, $sxe->addChild('TestScript'));
-        } else if (isset($this->ValueSet)) {
+        } elseif (isset($this->ValueSet)) {
             $this->ValueSet->xmlSerialize(true, $sxe->addChild('ValueSet'));
-        } else if (isset($this->VerificationResult)) {
+        } elseif (isset($this->VerificationResult)) {
             $this->VerificationResult->xmlSerialize(true, $sxe->addChild('VerificationResult'));
-        } else if (isset($this->VisionPrescription)) {
+        } elseif (isset($this->VisionPrescription)) {
             $this->VisionPrescription->xmlSerialize(true, $sxe->addChild('VisionPrescription'));
-        } else if (isset($this->Parameters)) {
+        } elseif (isset($this->Parameters)) {
             $this->Parameters->xmlSerialize(true, $sxe->addChild('Parameters'));
         }
         if ($returnSXE) {

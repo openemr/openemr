@@ -1,4 +1,5 @@
 <?php
+
 /**
  * secure_chat.php
  *
@@ -31,7 +32,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
     if (!isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
-        header('Location: '.$landingpage);
+        header('Location: ' . $landingpage);
         exit;
     }
     $admin = sqlQueryNoLog(

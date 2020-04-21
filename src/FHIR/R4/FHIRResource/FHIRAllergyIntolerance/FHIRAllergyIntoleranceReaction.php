@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRAllergyIntolerance;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRAllergyIntolerance;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -277,7 +279,7 @@ class FHIRAllergyIntoleranceReaction extends FHIRBackboneElement implements \Jso
                         $this->addManifestation($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"manifestation" must be array of objects or null, '.gettype($data['manifestation']).' seen.');
+                    throw new \InvalidArgumentException('"manifestation" must be array of objects or null, ' . gettype($data['manifestation']) . ' seen.');
                 }
             }
             if (isset($data['description'])) {
@@ -298,11 +300,11 @@ class FHIRAllergyIntoleranceReaction extends FHIRBackboneElement implements \Jso
                         $this->addNote($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"note" must be array of objects or null, '.gettype($data['note']).' seen.');
+                    throw new \InvalidArgumentException('"note" must be array of objects or null, ' . gettype($data['note']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

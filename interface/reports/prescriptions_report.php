@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This report lists prescriptions and their dispensations according
  * to various input selection criteria.
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -101,7 +101,7 @@ $form_facility   = isset($_POST['form_facility']) ? $_POST['form_facility'] : ''
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Prescriptions and Dispensations'); ?></span>
 
 <div id="report_parameters_daterange">
-    <?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatShortDate($form_to_date)); ?>
+    <?php echo text(oeFormatShortDate($form_from_date)) . " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatShortDate($form_to_date)); ?>
 </div>
 
 <form name='theform' id='theform' method='post' action='prescriptions_report.php' onsubmit='return top.restoreSession()'>
@@ -236,7 +236,7 @@ if ($_POST['form_refresh']) {
         "d.name, d.ndc_number, d.form, d.size, d.unit, d.reactions, " .
         "s.sale_id, s.sale_date, s.quantity, " .
         "i.manufacturer, i.lot_number, i.expiration, " .
-        "p.pubpid, ".
+        "p.pubpid, " .
         "p.fname, p.lname, p.mname, u.facility_id " .
         "FROM prescriptions AS r " .
         "LEFT OUTER JOIN drugs AS d ON d.drug_id = r.drug_id " .
@@ -271,13 +271,13 @@ if ($_POST['form_refresh']) {
             $drug_name       = empty($row['name']) ? $row['drug'] : $row['name'];
             $ndc_number      = $row['ndc_number'];
             $drug_units      = text($row['size']) . ' ' .
-                   generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']);
+                   generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row['unit']);
             $refills         = $row['refills'];
             $reactions       = $row['reactions'];
             $instructed      = text($row['dosage']) . ' ' .
-                   generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
+                   generate_display_field(array('data_type' => '1','list_id' => 'drug_form'), $row['form']) .
                    ' ' .
-                       generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), $row['interval']);
+                       generate_display_field(array('data_type' => '1','list_id' => 'drug_interval'), $row['interval']);
             //if ($row['patient_id'] == $last_patient_id) {
             if (strcmp($row['pubpid'], $last_patient_id) == 0) {
                 $patient_name = '&nbsp;';

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRGraphDefinition;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRGraphDefinition;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -231,7 +233,7 @@ class FHIRGraphDefinitionTarget extends FHIRBackboneElement implements \JsonSeri
                         $this->addCompartment($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"compartment" must be array of objects or null, '.gettype($data['compartment']).' seen.');
+                    throw new \InvalidArgumentException('"compartment" must be array of objects or null, ' . gettype($data['compartment']) . ' seen.');
                 }
             }
             if (isset($data['link'])) {
@@ -240,11 +242,11 @@ class FHIRGraphDefinitionTarget extends FHIRBackboneElement implements \JsonSeri
                         $this->addLink($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"link" must be array of objects or null, '.gettype($data['link']).' seen.');
+                    throw new \InvalidArgumentException('"link" must be array of objects or null, ' . gettype($data['link']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

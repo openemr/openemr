@@ -3,7 +3,6 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Services\BaseService;
-
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
@@ -92,7 +91,8 @@ class FhirObservationService extends BaseService
             )
         );
         $profile_data = $this->filterProfiles($profile_data);
-        if ($profile_data[$profile] || $profile == 'vitals' ||
+        if (
+            $profile_data[$profile] || $profile == 'vitals' ||
             ($profile_data['bps'] || $profile_data["bpd"]) && $profile == "bp"
         ) {
             $profile_data['profile'] = $profile;

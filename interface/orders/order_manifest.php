@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Script to display a summary of a given procedure order before it has been processed.
  *
@@ -12,7 +13,6 @@
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -293,7 +293,7 @@ function generate_order_summary($orderid)
             array($lab_id, $procedure_code, $orderid, $order_seq)
         );
 
-        $notes='';
+        $notes = '';
         while ($qrow = sqlFetchArray($qres)) {
             // Formatting of these answer values may be lab-specific and we'll figure
             // out how to deal with that as more labs are supported.

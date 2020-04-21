@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient Service
  *
@@ -39,7 +40,7 @@ class PatientService extends BaseService
     // make this a comprehensive validation
     public function validate($patient, $context, $id = null)
     {
-        $this->validator = new Validator;
+        $this->validator = new Validator();
         if ($id) {
             $vPid = $this->validatePid($id);
             if ($vPid->isNotValid()) {

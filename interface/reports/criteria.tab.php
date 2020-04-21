@@ -96,21 +96,21 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
                             "Date Criteria",
                             "",
                             "form-control",
-                            'calendar_function(this.value,' . attr_js('master_from_date_'.$DateNamePart) . ',' . attr_js('master_to_date_'.$DateNamePart) . ');
+                            'calendar_function(this.value,' . attr_js('master_from_date_' . $DateNamePart) . ',' . attr_js('master_to_date_' . $DateNamePart) . ');
                                 appendOptionDateCriteria(' . attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]) . ',' .
                                 attr_js($TPSCriteriaKey[$TPSCriteriaIndex]) . ',this.options[this.selectedIndex].text,' .
-                                'this.options[this.selectedIndex].value," = ",' . attr_js('master_from_date_'.$DateNamePart) . ',' . attr_js('master_to_date_'.$DateNamePart) . ',
+                                'this.options[this.selectedIndex].value," = ",' . attr_js('master_from_date_' . $DateNamePart) . ',' . attr_js('master_to_date_' . $DateNamePart) . ',
                                 ' . attr_js($TPSCriteriaDataType[$TPSCriteriaIndex]) . ')'
                         );
                         ?>
                     </div>
                     <div class="">
                         <label class="control-label" for="master_from_date_<?php echo attr($DateNamePart); ?>'"><?php echo xlt('From'); ?>:</label>
-                        <input type='text' name='master_from_date_<?php echo attr($DateNamePart); ?>' id='master_from_date_<?php echo attr($DateNamePart); ?>' class="text form-control datepicker" value="<?php echo attr($_REQUEST["master_from_date_$DateNamePart"]) ?>" onChange="SetDateCriteriaCustom(<?php echo attr_js('date_master_criteria_'.$DateNamePart); ?>); appendOptionDateCriteria(<?php echo attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]);?>, <?php echo attr_js($TPSCriteriaKey[$TPSCriteriaIndex]);?>, <?php echo attr(xlj('Custom')); ?>, <?php echo attr(xlj('Custom')); ?>, ' = ', <?php echo attr_js('master_from_date_'.$DateNamePart); ?>, <?php echo attr_js('master_to_date_'.$DateNamePart); ?>, <?php echo attr_js($TPSCriteriaDataType[$TPSCriteriaIndex]); ?>)" />
+                        <input type='text' name='master_from_date_<?php echo attr($DateNamePart); ?>' id='master_from_date_<?php echo attr($DateNamePart); ?>' class="text form-control datepicker" value="<?php echo attr($_REQUEST["master_from_date_$DateNamePart"]) ?>" onChange="SetDateCriteriaCustom(<?php echo attr_js('date_master_criteria_' . $DateNamePart); ?>); appendOptionDateCriteria(<?php echo attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]);?>, <?php echo attr_js($TPSCriteriaKey[$TPSCriteriaIndex]);?>, <?php echo attr(xlj('Custom')); ?>, <?php echo attr(xlj('Custom')); ?>, ' = ', <?php echo attr_js('master_from_date_' . $DateNamePart); ?>, <?php echo attr_js('master_to_date_' . $DateNamePart); ?>, <?php echo attr_js($TPSCriteriaDataType[$TPSCriteriaIndex]); ?>)" />
                     </div>
                     <div class="">
                         <label class="control-label" for="check_date"><?php echo xlt('To{{Range}}'); ?>:</label>
-                        <input type='text' name='master_to_date_<?php echo attr($DateNamePart); ?>' id='master_to_date_<?php echo attr($DateNamePart); ?>' class="text form-control datepicker" value="<?php echo attr($_REQUEST["master_to_date_$DateNamePart"]) ?>" onChange="SetDateCriteriaCustom(<?php echo attr_js('date_master_criteria_'.$DateNamePart); ?>); appendOptionDateCriteria(<?php echo attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]);?>, <?php echo attr_js($TPSCriteriaKey[$TPSCriteriaIndex]); ?>, <?php echo attr(xlj('Custom')); ?>, <?php echo attr(xlj('Custom')); ?>, ' = ', <?php echo attr_js('master_from_date_'.$DateNamePart); ?>, <?php echo attr_js('master_to_date_'.$DateNamePart); ?>, <?php echo attr_js($TPSCriteriaDataType[$TPSCriteriaIndex]); ?>)" />
+                        <input type='text' name='master_to_date_<?php echo attr($DateNamePart); ?>' id='master_to_date_<?php echo attr($DateNamePart); ?>' class="text form-control datepicker" value="<?php echo attr($_REQUEST["master_to_date_$DateNamePart"]) ?>" onChange="SetDateCriteriaCustom(<?php echo attr_js('date_master_criteria_' . $DateNamePart); ?>); appendOptionDateCriteria(<?php echo attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]);?>, <?php echo attr_js($TPSCriteriaKey[$TPSCriteriaIndex]); ?>, <?php echo attr(xlj('Custom')); ?>, <?php echo attr(xlj('Custom')); ?>, ' = ', <?php echo attr_js('master_from_date_' . $DateNamePart); ?>, <?php echo attr_js('master_to_date_' . $DateNamePart); ?>, <?php echo attr_js($TPSCriteriaDataType[$TPSCriteriaIndex]); ?>)" />
                     </div>
                 </div>
                 <?php
@@ -128,7 +128,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
                             <option value="<?php echo attr($TPSCriteriaQueryDropDownDefaultKey[$TPSCriteriaIndex]) ?>" ><?php echo text($TPSCriteriaQueryDropDownDefault[$TPSCriteriaIndex]) ?></option>
                             <?php
                             foreach ($array_query_drop_down as $array_query_drop_down_key => $array_query_drop_down_value) {
-                                if ($_REQUEST["query_drop_down_master_".$QueryDropDownNamePart]==$array_query_drop_down_key) {
+                                if ($_REQUEST["query_drop_down_master_" . $QueryDropDownNamePart] == $array_query_drop_down_key) {
                                     $Selected = ' selected ';
                                 } else {
                                     $Selected = '';
@@ -145,8 +145,8 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
             } //end of if
             ?>
             <?php
-            if ($TPSCriteriaDataType[$TPSCriteriaIndex]=='include') {
-                $IncludeNamePart=str_replace('.', '_', $TPSCriteriaKey[$TPSCriteriaIndex]);
+            if ($TPSCriteriaDataType[$TPSCriteriaIndex] == 'include') {
+                $IncludeNamePart = str_replace('.', '_', $TPSCriteriaKey[$TPSCriteriaIndex]);
                 ?>
                 <div class="form-group px-2" id="table_<?php echo attr($TPSCriteriaKey[$TPSCriteriaIndex]) ?>" style="display: none">
                     <div class="">
@@ -194,14 +194,14 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
                         }
                         for ($TPSCriteriaRadioIndex = 0; $TPSCriteriaRadioIndex < sizeof($TPSCriteriaDisplayRadio[$TPSCriteriaIndex]); $TPSCriteriaRadioIndex++) {
                             $RadioNamePart = str_replace('.', '_', $TPSCriteriaKey[$TPSCriteriaIndex]);
-                            if ($_REQUEST["radio_".$RadioNamePart] == $TPSCriteriaRadioKey[$TPSCriteriaIndex][$TPSCriteriaRadioIndex]) {
+                            if ($_REQUEST["radio_" . $RadioNamePart] == $TPSCriteriaRadioKey[$TPSCriteriaIndex][$TPSCriteriaRadioIndex]) {
                                 $Checked = ' checked ';
                             } else {
                                 $Checked = '';
                             }
                             ?>
                         <div class="radio">
-                            <input type="radio" name="radio_<?php echo attr($RadioNamePart) ?>" id="radio_<?php echo attr($RadioNamePart.$TPSCriteriaRadioIndex) ?>" value="<?php echo attr($TPSCriteriaRadioKey[$TPSCriteriaIndex][$TPSCriteriaRadioIndex]) ?>" <?php echo $Checked;?> onClick="appendOptionRadioCriteria(<?php echo attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]); ?>, <?php echo attr_js($TPSCriteriaKey[$TPSCriteriaIndex]); ?>, <?php echo attr_js($TPSCriteriaDisplayRadio[$TPSCriteriaIndex][$TPSCriteriaRadioIndex]); ?>, <?php echo attr_js($TPSCriteriaRadioKey[$TPSCriteriaIndex][$TPSCriteriaRadioIndex]); ?>, <?php echo attr_js($RadioSeperator); ?>, <?php echo attr_js($TPSCriteriaDataType[$TPSCriteriaIndex]); ?>)" />
+                            <input type="radio" name="radio_<?php echo attr($RadioNamePart) ?>" id="radio_<?php echo attr($RadioNamePart . $TPSCriteriaRadioIndex) ?>" value="<?php echo attr($TPSCriteriaRadioKey[$TPSCriteriaIndex][$TPSCriteriaRadioIndex]) ?>" <?php echo $Checked;?> onClick="appendOptionRadioCriteria(<?php echo attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]); ?>, <?php echo attr_js($TPSCriteriaKey[$TPSCriteriaIndex]); ?>, <?php echo attr_js($TPSCriteriaDisplayRadio[$TPSCriteriaIndex][$TPSCriteriaRadioIndex]); ?>, <?php echo attr_js($TPSCriteriaRadioKey[$TPSCriteriaIndex][$TPSCriteriaRadioIndex]); ?>, <?php echo attr_js($RadioSeperator); ?>, <?php echo attr_js($TPSCriteriaDataType[$TPSCriteriaIndex]); ?>)" />
                             <?php echo text($TPSCriteriaDisplayRadio[$TPSCriteriaIndex][$TPSCriteriaRadioIndex]);
                             echo "</div>";
                         } // end of for

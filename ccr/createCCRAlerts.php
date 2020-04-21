@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CCR Script.
  *
@@ -19,7 +20,6 @@
  * @author  Garden State Health Systems <http://www.gshsys.com/>
  * @link    http://www.open-emr.org
  */
-
 
 $result = getAlertData();
 $row = sqlFetchArray($result);
@@ -52,7 +52,7 @@ do {
     $e_Type = $ccr->createElement('Type');
     $e_Alert->appendChild($e_Type);
 
-    $e_Text = $ccr->createElement('Text', $row['type'].'-'.$row['alert_title']);
+    $e_Text = $ccr->createElement('Text', $row['type'] . '-' . $row['alert_title']);
     $e_Type->appendChild($e_Text);
 
     $e_Description = $ccr->createElement('Description');

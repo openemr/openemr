@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2009 Aron Racho <aron@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -14,9 +15,11 @@ function nursing_notes_report($pid, $encounter, $cols, $id)
     if ($data) {
         print "<table><tr>";
         foreach ($data as $key => $value) {
-            if ($key == "id" || $key == "pid" || $key == "user" ||
-            $key == "groupname" || $key == "authorized" || $key == "activity" ||
-            $key == "date" || $value == "" || $value == "0000-00-00 00:00:00") {
+            if (
+                $key == "id" || $key == "pid" || $key == "user" ||
+                $key == "groupname" || $key == "authorized" || $key == "activity" ||
+                $key == "date" || $value == "" || $value == "0000-00-00 00:00:00"
+            ) {
                 continue;
             }
 
@@ -24,7 +27,7 @@ function nursing_notes_report($pid, $encounter, $cols, $id)
                 $value = "yes";
             }
 
-            $key=ucwords(str_replace("_", " ", $key));
+            $key = ucwords(str_replace("_", " ", $key));
             print "<td><span class=bold>" . text($key) . ": </span><span class=text>" . text($value) . "</span></td>";
             $count++;
             if ($count == $cols) {

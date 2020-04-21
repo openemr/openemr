@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIREncounter;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIREncounter;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -170,7 +172,7 @@ class FHIREncounterParticipant extends FHIRBackboneElement implements \JsonSeria
                         $this->addType($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"type" must be array of objects or null, '.gettype($data['type']).' seen.');
+                    throw new \InvalidArgumentException('"type" must be array of objects or null, ' . gettype($data['type']) . ' seen.');
                 }
             }
             if (isset($data['period'])) {
@@ -179,8 +181,8 @@ class FHIREncounterParticipant extends FHIRBackboneElement implements \JsonSeria
             if (isset($data['individual'])) {
                 $this->setIndividual($data['individual']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

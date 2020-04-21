@@ -1,4 +1,5 @@
 <?php
+
 @define('__POSTCALENDAR__', 'PostCalendar');
 /**
  *  $Id$

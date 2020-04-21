@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRDiagnosticReport;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRDiagnosticReport;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -144,8 +146,8 @@ class FHIRDiagnosticReportMedia extends FHIRBackboneElement implements \JsonSeri
             if (isset($data['link'])) {
                 $this->setLink($data['link']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

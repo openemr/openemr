@@ -1,7 +1,5 @@
 <?php
 
-namespace ESign;
-
 /**
  * Interface for the ESign log
  *
@@ -24,8 +22,10 @@ namespace ESign;
  * @link    http://www.open-emr.org
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/ViewableIF.php';
-require_once $GLOBALS['srcdir'].'/ESign/SignableIF.php';
+namespace ESign;
+
+require_once $GLOBALS['srcdir'] . '/ESign/ViewableIF.php';
+require_once $GLOBALS['srcdir'] . '/ESign/SignableIF.php';
 
 interface LogIF extends ViewableIF
 {

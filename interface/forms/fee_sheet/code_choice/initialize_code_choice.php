@@ -1,4 +1,5 @@
 <?php
+
 /**
  * initialize_code_choice.php
  *

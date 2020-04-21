@@ -1,4 +1,5 @@
 <?php
+
 /**
  * diagnosis_full.php
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 
@@ -62,7 +62,7 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
         } elseif ($iter["code_type"] == "COPAY") {
             $billing_html[$iter["code_type"]] .= "<tr><td></td>" .
                 "<td><a class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
-                text($iter["code"])."</b> " . text(ucwords(strtolower($iter["code_text"]))) .
+                text($iter["code"]) . "</b> " . text(ucwords(strtolower($iter["code_text"]))) .
                 "</a></td>\n";
         } else {
             $billing_html[$iter["code_type"]] .= "<tr><td></td>" .

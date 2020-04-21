@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Controller to handle user password change requests.
  *
@@ -20,7 +21,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
 
-
 require_once("../globals.php");
 
 use OpenEMR\Common\Auth\AuthUtils;
@@ -32,11 +32,11 @@ if (!empty($_POST)) {
     }
 }
 
-$curPass=$_REQUEST['curPass'];
-$newPass=$_REQUEST['newPass'];
-$newPass2=$_REQUEST['newPass2'];
+$curPass = $_REQUEST['curPass'];
+$newPass = $_REQUEST['newPass'];
+$newPass2 = $_REQUEST['newPass2'];
 
-if ($newPass!=$newPass2) {
+if ($newPass != $newPass2) {
     echo "<div class='alert alert-danger'>" . xlt("Passwords Don't match!") . "</div>";
     exit;
 }

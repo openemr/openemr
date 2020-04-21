@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRElement;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRElement;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -232,8 +234,8 @@ class FHIRQuantity extends FHIRElement implements \JsonSerializable
             if (isset($data['code'])) {
                 $this->setCode($data['code']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

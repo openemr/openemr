@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file presents the PMSFH control panel.
  * It uses ajax/javascript to add, delete or edit an issue.
@@ -53,10 +54,12 @@ if ($issue && !AclMain::aclCheckCore('patients', 'med', '', 'write')) {
     die(xlt("Edit is not authorized!"));
 }
 
-if (!AclMain::aclCheckCore('patients', 'med', '', array(
+if (
+    !AclMain::aclCheckCore('patients', 'med', '', array(
     'write',
     'addonly'
-))) {
+    ))
+) {
     die(xlt("Add is not authorized!"));
 }
 
@@ -72,7 +75,7 @@ if ($issue) {
     $irow = sqlQuery("SELECT * FROM lists WHERE id = ?", array(
         $issue
     ));
-} else if ($thistype) {
+} elseif ($thistype) {
     $irow['type'] = $thistype;
     $irow['subtype'] = $subtype;
 }
@@ -842,12 +845,12 @@ foreach (explode(',', $given) as $item) {
                             $dateStart,
                             $dateEnd
                         ));
-                    } else if ($dateStart && !$dateEnd) {
+                    } elseif ($dateStart && !$dateEnd) {
                         $result1 = sqlQuery("select $given from history_data where pid = ? and date >= ? order by date DESC limit 0,1", array(
                             $pid,
                             $dateStart
                         ));
-                    } else if (!$dateStart && $dateEnd) {
+                    } elseif (!$dateStart && $dateEnd) {
                         $result1 = sqlQuery("select $given from history_data where pid = ? and date <= ? order by date DESC limit 0,1", array(
                             $pid,
                             $dateEnd
@@ -902,7 +905,7 @@ foreach (explode(',', $given) as $item) {
                             $fldlength = htmlspecialchars($fldlength, ENT_QUOTES);
                             $result2[$field_id]['resnote'] = htmlspecialchars($result2[$field_id]['resnote'], ENT_QUOTES);
                             $result2[$field_id]['resdate'] = htmlspecialchars($result2[$field_id]['resdate'], ENT_QUOTES);
-                        } else if ($data_type == 2) {
+                        } elseif ($data_type == 2) {
                             $result2[$field_id]['resnote'] = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
                         }
                     }

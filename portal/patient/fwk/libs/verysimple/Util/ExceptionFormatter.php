@@ -1,4 +1,5 @@
 <?php
+
 /** @package    verysimple::Util */
 
 /**
@@ -62,7 +63,7 @@ class ExceptionFormatter
             $depth = $levels;
         }
         
-        for ($x = $levels; $x > 0; $x --) {
+        for ($x = $levels; $x > 0; $x--) {
             $stack = $tb [$x - 1];
             $s_file = isset($stack ['file']) ? basename($stack ['file']) : "[?]";
             $s_line = isset($stack ['line']) ? $stack ['line'] : "[?]";

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRPractitionerRole;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRPractitionerRole;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -144,8 +146,8 @@ class FHIRPractitionerRoleNotAvailable extends FHIRBackboneElement implements \J
             if (isset($data['during'])) {
                 $this->setDuring($data['during']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

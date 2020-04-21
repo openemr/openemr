@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -35,8 +36,8 @@ class Diagnosis extends ClinicalType
     const POLYCYSTIC_OVARIES = 'diag_polycystic_ovaries';
     const GESTATIONAL_DIABETES = 'diag_gestational_diabetes';
     const STEROID_INDUCED_DIABETES = 'diag_steroid_induced_diabetes';
-    const END_STAGE_RENAL_DISEASE='diag_end_stage_renal_disease';
-    const CHRONIC_KIDNEY_DISEASE='diag_chrnoic_kidney_disease';
+    const END_STAGE_RENAL_DISEASE = 'diag_end_stage_renal_disease';
+    const CHRONIC_KIDNEY_DISEASE = 'diag_chrnoic_kidney_disease';
     const ACUTE_PHARYNGITIS = 'diag_acute_pharyngitis';
     const ACUTE_TONSILLITIS = 'diag_acute_tonsillitis';
     const LIMITED_LIFE = 'diag_limited_life_expectancy';
@@ -71,7 +72,7 @@ class Diagnosis extends ClinicalType
         $type = $this->getListType();
         foreach ($data as $codeType => $codes) {
             foreach ($codes as $code) {
-                if (exist_lists_item($patient->id, $type, $codeType.'::'.$code, $endDate)) {
+                if (exist_lists_item($patient->id, $type, $codeType . '::' . $code, $endDate)) {
                     return true;
                 }
             }

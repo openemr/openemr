@@ -34,7 +34,7 @@ class ORDataObject
 
                 if (in_array($field, $pkeys)  && empty($val)) {
                     $last_id = generate_id();
-                    call_user_func(array(&$this,"set_".$field), $last_id);
+                    call_user_func(array(&$this,"set_" . $field), $last_id);
                     $val = $last_id;
                 }
 
@@ -43,7 +43,7 @@ class ORDataObject
 
                                         //modified 01-2010 by BGM to centralize to formdata.inc.php
                             // have place several debug statements to allow standardized testing over next several months
-                    $sql .= " `" . $field . "` = '" . add_escape_custom(strval($val)) ."',";
+                    $sql .= " `" . $field . "` = '" . add_escape_custom(strval($val)) . "',";
                         //DEBUG LINE - error_log("ORDataObject persist after escape: ".add_escape_custom(strval($val)), 0);
                         //DEBUG LINE - error_log("ORDataObject persist after escape and then stripslashes test: ".stripslashes(add_escape_custom(strval($val))), 0);
                         //DEBUG LINE - error_log("ORDataObject original before the escape and then stripslashes test: ".strval($val), 0);
@@ -51,8 +51,8 @@ class ORDataObject
             }
         }
 
-        if (strrpos($sql, ",") == (strlen($sql) -1)) {
-                $sql = substr($sql, 0, (strlen($sql) -1));
+        if (strrpos($sql, ",") == (strlen($sql) - 1)) {
+                $sql = substr($sql, 0, (strlen($sql) - 1));
         }
 
         //echo "<br />sql is: " . $sql . "<br /><br />";
@@ -62,7 +62,7 @@ class ORDataObject
 
     public function populate()
     {
-        $sql = "SELECT * from " . escape_table_name($this->_prefix.$this->_table) . " WHERE id = ?";
+        $sql = "SELECT * from " . escape_table_name($this->_prefix . $this->_table) . " WHERE id = ?";
         $results = sqlQuery($sql, [strval($this->id)]);
         if (is_array($results)) {
             foreach ($results as $field_name => $field) {
@@ -104,9 +104,11 @@ class ORDataObject
      */
     protected function _load_enum($field_name, $blank = true)
     {
-        if (!empty($GLOBALS['static']['enums'][$this->_table][$field_name])
+        if (
+            !empty($GLOBALS['static']['enums'][$this->_table][$field_name])
             && is_array($GLOBALS['static']['enums'][$this->_table][$field_name])
-            && !empty($this->_table)) {
+            && !empty($this->_table)
+        ) {
             return $GLOBALS['static']['enums'][$this->_table][$field_name];
         } else {
             $cols = $this->_db->MetaColumns($this->_table);
@@ -115,8 +117,8 @@ class ORDataObject
                 //for an object rather than 1x1 manually as it is now
                 foreach ($cols as $col) {
                     if ($col->name == $field_name && $col->type == "enum") {
-                        for ($idx=0; $idx<count($col->enums); $idx++) {
-                            $col->enums[$idx]=str_replace("'", "", $col->enums[$idx]);
+                        for ($idx = 0; $idx < count($col->enums); $idx++) {
+                            $col->enums[$idx] = str_replace("'", "", $col->enums[$idx]);
                         }
 
                         $enum = $col->enums;

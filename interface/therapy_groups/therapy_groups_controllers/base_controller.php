@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/therapy_groups/therapy_groups_controllers/base_controller.php contains the base controller for therapy groups.
  *
@@ -38,7 +39,7 @@ class BaseController
     protected function loadView($template, $data = array())
     {
 
-        $template = dirname(__FILE__) .'/../' . self::VIEW_FOLDER .'/'. $template .'.php';
+        $template = dirname(__FILE__) . '/../' . self::VIEW_FOLDER . '/' . $template . '.php';
 
         extract($data);
 
@@ -52,8 +53,8 @@ class BaseController
     protected function loadModel($name)
     {
         if (!isset($this->$name)) {
-            require(dirname(__FILE__) .'/../' . self::MODEL_FOLDER .'/'. strtolower($name) .'_model.php');
-            $this->$name = new $name;
+            require(dirname(__FILE__) . '/../' . self::MODEL_FOLDER . '/' . strtolower($name) . '_model.php');
+            $this->$name = new $name();
         }
 
         return $this->$name;

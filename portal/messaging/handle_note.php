@@ -1,4 +1,5 @@
 <?php
+
 /**
  * handle_note.php
  *

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * re_identification_input_screen.php
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/lists.inc");
@@ -140,7 +140,7 @@ function download_file()
         </tr>
         </table>
                 <?php
-        } else if ($reIdentificationStatus == 0) {
+        } elseif ($reIdentificationStatus == 0) {
            //0 - There is no Re Identification in progress. (start new Re Identification process)
             ?>
         <center><br />
@@ -151,7 +151,7 @@ function download_file()
         <br />
            <Input type="Submit" Name="Submit" Value=<?php echo xla("submit");?>></center>
             <?php
-        } else if ($reIdentificationStatus == 2) {
+        } elseif ($reIdentificationStatus == 2) {
             //2 - The Re Identification process completed and xls file is ready to download
              $query = "SELECT count(*) as count FROM re_identified_data ";
              $res = sqlStatement($query);

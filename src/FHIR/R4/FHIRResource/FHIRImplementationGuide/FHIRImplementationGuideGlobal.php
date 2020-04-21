@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRImplementationGuide;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -144,8 +146,8 @@ class FHIRImplementationGuideGlobal extends FHIRBackboneElement implements \Json
             if (isset($data['profile'])) {
                 $this->setProfile($data['profile']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

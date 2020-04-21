@@ -107,7 +107,7 @@ class FhirImmunizationService
         if ($data['added_erroneously'] != "0") {
             $statusCoding->setCode("entered-in-error");
             $statusCoding->setDisplay("Entered in Error");
-        } else if (isset($data['administered_date'])) {
+        } elseif (isset($data['administered_date'])) {
             $statusCoding->setCode("completed");
             $statusCoding->setDisplay("Completed");
         } else {
@@ -137,7 +137,7 @@ class FhirImmunizationService
         $vaccineCode->addCoding($vaccineCodeCoding);
 
         $patient = new FHIRReference();
-        $patient->setReference('Patient/'.$data['patient_id']);
+        $patient->setReference('Patient/' . $data['patient_id']);
 
         $occurenceDateTime = new FHIRDateTime();
         $occurenceDateTime->setValue($data['administered_date']);
@@ -146,7 +146,7 @@ class FhirImmunizationService
         $recorded->setValue($data['create_date']);
 
         $manufacturer = new FHIRReference();
-        $manufacturer->setReference('Organization/'.$data['manufacturer']);
+        $manufacturer->setReference('Organization/' . $data['manufacturer']);
 
         $lotNumber = new FHIRString();
         $lotNumber->setValue($data['lot_number']);
@@ -160,7 +160,7 @@ class FhirImmunizationService
         if (strtolower($data['administration_site']) == "left arm") {
             $siteCoding->setCode("LA");
             $siteCoding->setDisplay("Left arm");
-        } else if (strtolower($data['administration_site']) == "right arm") {
+        } elseif (strtolower($data['administration_site']) == "right arm") {
             $siteCoding->setCode("RA");
             $siteCoding->setDisplay("Right Arm");
         }
@@ -179,7 +179,7 @@ class FhirImmunizationService
         $doseQuantity->setCode($data['amount_administered_unit']);
 
         $actor = new FHIRReference();
-        $actor->setReference($data['administered_by'].'/'.$data['administered_by_id']);
+        $actor->setReference($data['administered_by'] . '/' . $data['administered_by_id']);
         $function = new FHIRCodeableConcept();
         $functionCoding = new FHIRCoding();
         $functionCoding->setSystem("http://terminology.hl7.org/CodeSystem/v2-0443");

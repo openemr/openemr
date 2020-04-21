@@ -1,5 +1,7 @@
 <?php
+
 declare(strict_types=1);
+
 namespace OpenEMR\Tests\E2e\TestOpenemrPage;
 
 use Symfony\Component\Panther\PantherTestCase;

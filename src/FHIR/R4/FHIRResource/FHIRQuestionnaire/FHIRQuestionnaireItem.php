@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRQuestionnaire;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRQuestionnaire;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -538,7 +540,7 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
                         $this->addCode($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"code" must be array of objects or null, '.gettype($data['code']).' seen.');
+                    throw new \InvalidArgumentException('"code" must be array of objects or null, ' . gettype($data['code']) . ' seen.');
                 }
             }
             if (isset($data['prefix'])) {
@@ -556,7 +558,7 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
                         $this->addEnableWhen($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"enableWhen" must be array of objects or null, '.gettype($data['enableWhen']).' seen.');
+                    throw new \InvalidArgumentException('"enableWhen" must be array of objects or null, ' . gettype($data['enableWhen']) . ' seen.');
                 }
             }
             if (isset($data['enableBehavior'])) {
@@ -583,7 +585,7 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
                         $this->addAnswerOption($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"answerOption" must be array of objects or null, '.gettype($data['answerOption']).' seen.');
+                    throw new \InvalidArgumentException('"answerOption" must be array of objects or null, ' . gettype($data['answerOption']) . ' seen.');
                 }
             }
             if (isset($data['initial'])) {
@@ -592,7 +594,7 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
                         $this->addInitial($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"initial" must be array of objects or null, '.gettype($data['initial']).' seen.');
+                    throw new \InvalidArgumentException('"initial" must be array of objects or null, ' . gettype($data['initial']) . ' seen.');
                 }
             }
             if (isset($data['item'])) {
@@ -601,11 +603,11 @@ class FHIRQuestionnaireItem extends FHIRBackboneElement implements \JsonSerializ
                         $this->addItem($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"item" must be array of objects or null, '.gettype($data['item']).' seen.');
+                    throw new \InvalidArgumentException('"item" must be array of objects or null, ' . gettype($data['item']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

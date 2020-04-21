@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationDispense;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationDispense;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -202,7 +204,7 @@ class FHIRMedicationDispenseSubstitution extends FHIRBackboneElement implements 
                         $this->addReason($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"reason" must be array of objects or null, '.gettype($data['reason']).' seen.');
+                    throw new \InvalidArgumentException('"reason" must be array of objects or null, ' . gettype($data['reason']) . ' seen.');
                 }
             }
             if (isset($data['responsibleParty'])) {
@@ -211,11 +213,11 @@ class FHIRMedicationDispenseSubstitution extends FHIRBackboneElement implements 
                         $this->addResponsibleParty($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"responsibleParty" must be array of objects or null, '.gettype($data['responsibleParty']).' seen.');
+                    throw new \InvalidArgumentException('"responsibleParty" must be array of objects or null, ' . gettype($data['responsibleParty']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DocumentRestController
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 namespace OpenEMR\RestControllers;
 

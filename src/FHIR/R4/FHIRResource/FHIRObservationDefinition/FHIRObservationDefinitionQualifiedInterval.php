@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRObservationDefinition;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRObservationDefinition;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -309,7 +311,7 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
                         $this->addAppliesTo($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"appliesTo" must be array of objects or null, '.gettype($data['appliesTo']).' seen.');
+                    throw new \InvalidArgumentException('"appliesTo" must be array of objects or null, ' . gettype($data['appliesTo']) . ' seen.');
                 }
             }
             if (isset($data['gender'])) {
@@ -324,8 +326,8 @@ class FHIRObservationDefinitionQualifiedInterval extends FHIRBackboneElement imp
             if (isset($data['condition'])) {
                 $this->setCondition($data['condition']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

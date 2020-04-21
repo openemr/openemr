@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -390,11 +392,11 @@ class FHIRSubstanceSpecificationRelationship extends FHIRBackboneElement impleme
                         $this->addSource($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"source" must be array of objects or null, '.gettype($data['source']).' seen.');
+                    throw new \InvalidArgumentException('"source" must be array of objects or null, ' . gettype($data['source']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

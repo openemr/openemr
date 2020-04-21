@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRResearchElementDefinition;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRResearchElementDefinition;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -614,7 +616,7 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
                         $this->addUsageContext($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"usageContext" must be array of objects or null, '.gettype($data['usageContext']).' seen.');
+                    throw new \InvalidArgumentException('"usageContext" must be array of objects or null, ' . gettype($data['usageContext']) . ' seen.');
                 }
             }
             if (isset($data['exclude'])) {
@@ -665,8 +667,8 @@ class FHIRResearchElementDefinitionCharacteristic extends FHIRBackboneElement im
             if (isset($data['participantEffectiveGroupMeasure'])) {
                 $this->setParticipantEffectiveGroupMeasure($data['participantEffectiveGroupMeasure']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

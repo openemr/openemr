@@ -1,4 +1,5 @@
 <?php
+
 /**
  * AuthUtils class.
  *
@@ -29,7 +30,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 namespace OpenEMR\Common\Auth;
 
 use OpenEMR\Common\Acl\AclExtended;
@@ -58,7 +58,7 @@ class AuthUtils
         // Set mode
         if ($mode == 'login') {
             $this->loginAuth = true;
-        } else if ($mode == 'api') {
+        } elseif ($mode == 'api') {
             $this->apiAuth = true;
         } else {
             $this->otherAuth = true;
@@ -78,7 +78,7 @@ class AuthUtils
             // Create and store a new dummy hash globals entry
             $this->dummyHash = $this->authHashAuth->passwordHash($dummyPassword);
             privStatement("INSERT INTO `globals` (`gl_name`, `gl_value`) VALUES ('hidden_auth_dummy_hash', ?)", [$this->dummyHash]);
-        } else if (empty($timing['gl_value'])) {
+        } elseif (empty($timing['gl_value'])) {
             // Create and store a dummy rehash in existing globals entry
             $this->dummyHash = $this->authHashAuth->passwordHash($dummyPassword);
             privStatement("UPDATE `globals` SET `gl_value` = ? WHERE `gl_name` = 'hidden_auth_dummy_hash'", [$this->dummyHash]);
@@ -106,7 +106,7 @@ class AuthUtils
         if ($this->loginAuth) {
             $event = 'login';
             $beginLog = 'failure';
-        } else if ($this->apiAuth) {
+        } elseif ($this->apiAuth) {
             $event = 'api';
             $beginLog = 'API failure';
         } else { // $this->otherAuth
@@ -133,7 +133,7 @@ class AuthUtils
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
-        } else if ($userInfo['active'] != 1) {
+        } elseif ($userInfo['active'] != 1) {
             EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". user not active");
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
@@ -161,7 +161,7 @@ class AuthUtils
         $getUserSecureSQL = " SELECT `id`, `password`" .
             " FROM `users_secure`" .
             " WHERE BINARY `username` = ?";
-        $userSecure=privQuery($getUserSecureSQL, [$username]);
+        $userSecure = privQuery($getUserSecureSQL, [$username]);
         if (empty($userSecure) || empty($userSecure['id']) || empty($userSecure['password'])) {
             EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user credentials not found");
             $this->clearFromMemory($password);
@@ -261,7 +261,7 @@ class AuthUtils
                 $_SESSION['userauthorized'] = '1';
             }
             EventAuditLogger::instance()->newEvent('login', $username, $authGroup['name'], 1, "success: " . $ip['ip_string']);
-        } else if ($this->apiAuth) {
+        } elseif ($this->apiAuth) {
             // Set up class variables that the api will need to collect (log for API is done outside)
             $this->userId = $userInfo['id'];
             $this->userGroup = $authGroup['name'];
@@ -301,7 +301,7 @@ class AuthUtils
         $userInfo = privQuery($userSQL, [$targetUser]);
 
         // Verify the active user's password
-        $changingOwnPassword = $activeUser==$targetUser;
+        $changingOwnPassword = $activeUser == $targetUser;
         // True if this is the current user changing their own password
         if ($changingOwnPassword) {
             if ($create) {
@@ -350,7 +350,7 @@ class AuthUtils
                 $adminSQL = "SELECT `password`" .
                     " FROM `users_secure`" .
                     " WHERE `id` = ?";
-                $adminInfo=privQuery($adminSQL, [$activeUser]);
+                $adminInfo = privQuery($adminSQL, [$activeUser]);
                 if (empty($adminInfo) || empty($adminInfo['password'])) {
                     $this->errorMessage = xl("Password update error!");
                     $this->clearFromMemory($currentPwd);
@@ -374,7 +374,7 @@ class AuthUtils
         //  and used only for session confirmations; the primary authentication for the new user will be done via
         //  LDAP)
         $ldapDummyPassword = false;
-        if ($create && ($userInfo===false) && (!empty($new_username)) && (self::useActiveDirectory($new_username))) {
+        if ($create && ($userInfo === false) && (!empty($new_username)) && (self::useActiveDirectory($new_username))) {
             $ldapDummyPassword = true;
             $newPwd = RandomGenUtils::produceRandomString(32, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
             if (empty($newPwd)) {
@@ -404,7 +404,7 @@ class AuthUtils
             return false;
         }
 
-        if ($userInfo===false) {
+        if ($userInfo === false) {
             // No userInfo means a new user
             // In these cases don't worry about password history
             if ($create) {
@@ -437,7 +437,7 @@ class AuthUtils
                     " VALUES (?,?,?,NOW()) ";
                 privStatement($passwordSQL, [$user_id['id'], $new_username, $hash]);
             } else {
-                $this->errorMessage = xl("Missing user credentials:".$targetUser);
+                $this->errorMessage = xl("Missing user credentials:" . $targetUser);
                 $this->clearFromMemory($newPwd);
                 return false;
             }
@@ -488,19 +488,19 @@ class AuthUtils
                 die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
             }
 
-            $updateParams=array();
+            $updateParams = array();
             $updateSQL = "UPDATE `users_secure`";
             $updateSQL .= " SET `last_update_password` = NOW()";
             $updateSQL .= ", `password` = ?";
             array_push($updateParams, $newHash);
             if ($GLOBALS['password_history'] != 0) {
-                $updateSQL.=", `password_history1` = ?";
+                $updateSQL .= ", `password_history1` = ?";
                 array_push($updateParams, $userInfo['password']);
-                $updateSQL.=", `password_history2` = ?";
+                $updateSQL .= ", `password_history2` = ?";
                 array_push($updateParams, $userInfo['password_history1']);
-                $updateSQL.=", `password_history3` = ?";
+                $updateSQL .= ", `password_history3` = ?";
                 array_push($updateParams, $userInfo['password_history2']);
-                $updateSQL.=", `password_history4` = ?";
+                $updateSQL .= ", `password_history4` = ?";
                 array_push($updateParams, $userInfo['password_history3']);
             }
 
@@ -543,15 +543,17 @@ class AuthUtils
         if ((!empty($_SESSION['authUserID'])) && (!empty($_SESSION['authUser'])) && (!empty($_SESSION['authPass']))) {
             $authDB = privQuery("SELECT `users`.`username`, `users_secure`.`password`" .
                 " FROM `users`, `users_secure`" .
-                " WHERE `users`.`id` = ? ".
-                " AND `users`.`id` = `users_secure`.`id` ".
+                " WHERE `users`.`id` = ? " .
+                " AND `users`.`id` = `users_secure`.`id` " .
                 " AND BINARY `users`.`username` = `users_secure`.`username`" .
                 " AND `users`.`active` = 1", [$_SESSION['authUserID']]);
-            if ((!empty($authDB)) &&
+            if (
+                (!empty($authDB)) &&
                 (!empty($authDB['username'])) &&
                 (!empty($authDB['password'])) &&
                 ($_SESSION['authUser'] == $authDB['username']) &&
-                (hash_equals($_SESSION['authPass'], $authDB['password']))) {
+                (hash_equals($_SESSION['authPass'], $authDB['password']))
+            ) {
                 return true;
             } else {
                 return false;
@@ -671,8 +673,8 @@ class AuthUtils
     private function testPasswordStrength(&$pwd)
     {
         if ($GLOBALS['secure_password']) {
-            $features=0;
-            $reg_security=array("/[a-z]+/","/[A-Z]+/","/\d+/","/[\W_]+/");
+            $features = 0;
+            $reg_security = array("/[a-z]+/","/[A-Z]+/","/\d+/","/[\W_]+/");
             foreach ($reg_security as $expr) {
                 if (preg_match($expr, $pwd)) {
                     $features++;

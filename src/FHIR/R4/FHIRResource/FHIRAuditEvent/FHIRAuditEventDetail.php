@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRAuditEvent;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRAuditEvent;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -167,8 +169,8 @@ class FHIRAuditEventDetail extends FHIRBackboneElement implements \JsonSerializa
             if (isset($data['valueBase64Binary'])) {
                 $this->setValueBase64Binary($data['valueBase64Binary']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

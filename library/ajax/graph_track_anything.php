@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Trending script for graphing objects in track anything module.
  *

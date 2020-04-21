@@ -1,4 +1,5 @@
 <?php
+
 /**
  * vitals C_FormVitals.class.php
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once($GLOBALS['fileroot'] . "/library/patient.inc");
@@ -77,7 +77,7 @@ class C_FormVitals extends Controller
 
         // get the patient's current age
         $patient_data = getPatientData($GLOBALS['pid']);
-        $patient_dob=$patient_data['DOB'];
+        $patient_dob = $patient_data['DOB'];
         $patient_age = getPatientAge($patient_dob);
         $this->assign("patient_age", $patient_age);
         $this->assign("patient_dob", $patient_dob);
@@ -121,7 +121,7 @@ class C_FormVitals extends Controller
         $weight = $_POST["weight"];
         $height = $_POST["height"];
         if ($weight > 0 && $height > 0) {
-            $_POST["BMI"] = ($weight/$height/$height)*703;
+            $_POST["BMI"] = ($weight / $height / $height) * 703;
         }
 
         if ($_POST["BMI"] > 42) {

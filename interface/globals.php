@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Default values for optional variables that are allowed to be set by callers.
  *
@@ -76,7 +77,7 @@ if (IS_WINDOWS) {
 $web_root = substr($webserver_root, strspn($webserver_root ^ $server_document_root, "\0"));
 // Ensure web_root starts with a path separator
 if (preg_match("/^[^\/]/", $web_root)) {
-    $web_root = "/".$web_root;
+    $web_root = "/" . $web_root;
 }
 
 // The webserver_root and web_root are now automatically collected in
@@ -127,7 +128,7 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
     // of text() as our helper functions are loaded in later on in this file.
     if (empty($tmp) || preg_match('/[^A-Za-z0-9\\-.]/', $tmp)) {
         echo "Invalid URL";
-        error_log("Request with site id '". htmlspecialchars($tmp, ENT_QUOTES) . "' contains invalid characters.");
+        error_log("Request with site id '" . htmlspecialchars($tmp, ENT_QUOTES) . "' contains invalid characters.");
         die();
     }
 
@@ -229,7 +230,7 @@ if (! is_dir($GLOBALS['MPDF_WRITE_DIR'])) {
 //  library/date_functions.php - Includes functions for date internationalization
 //  library/validation/validate_core.php - Includes functions for page validation
 //  library/translation.inc.php - Includes translation functions
-require_once $GLOBALS['vendor_dir'] ."/autoload.php";
+require_once $GLOBALS['vendor_dir'] . "/autoload.php";
 
 /**
  * @var Dotenv Allow a `.env` file to be read in and applied as $_SERVER variables.
@@ -259,7 +260,7 @@ require_once(dirname(__FILE__) . "/../version.php");
 $GLOBALS["log_level"] = "OFF";
 
 // Load twig support
-$twigLoader = new Twig\Loader\FilesystemLoader($webserver_root.'/templates');
+$twigLoader = new Twig\Loader\FilesystemLoader($webserver_root . '/templates');
 $twigEnv = new Twig\Environment($twigLoader, ['autoescape' => false]);
 $twigEnv->addExtension(new OpenEMR\Core\TwigExtension());
 $GLOBALS['twig'] = $twigEnv;
@@ -313,10 +314,10 @@ if (!empty($glrow)) {
             "AND `setting_label` LIKE 'global:%'",
             array($temp_authuserid)
         );
-        for ($iter=0; $row=sqlFetchArray($glres_user); $iter++) {
+        for ($iter = 0; $row = sqlFetchArray($glres_user); $iter++) {
           //remove global_ prefix from label
             $row['setting_label'] = substr($row['setting_label'], 7);
-            $gl_user[$iter]=$row;
+            $gl_user[$iter] = $row;
         }
     }
 
@@ -344,7 +345,7 @@ if (!empty($glrow)) {
             $GLOBALS['language_menu_show'][] = $gl_value;
         } elseif ($gl_name == 'css_header') {
             //Escape css file name using 'attr' for security (prevent XSS).
-            $GLOBALS[$gl_name] = $web_root.'/public/themes/'.attr($gl_value).'?v='.$v_js_includes;
+            $GLOBALS[$gl_name] = $web_root . '/public/themes/' . attr($gl_value) . '?v=' . $v_js_includes;
             $css_header = $GLOBALS[$gl_name];
             $temp_css_theme_name = $gl_value;
         } elseif ($gl_name == 'weekend_days') {
@@ -394,16 +395,20 @@ if (!empty($glrow)) {
 // For RTL languages we substitute the theme name with the name of RTL-adapted CSS file.
     $rtl_override = false;
     if (isset($_SESSION['language_direction'])) {
-        if ($_SESSION['language_direction'] == 'rtl' &&
-        !strpos($GLOBALS['css_header'], 'rtl')) {
+        if (
+            $_SESSION['language_direction'] == 'rtl' &&
+            !strpos($GLOBALS['css_header'], 'rtl')
+        ) {
             // the $css_header_value is set above
             $rtl_override = true;
         }
     } elseif (isset($_SESSION['language_choice'])) {
         //this will support the onsite patient portal which will have a language choice but not yet a set language direction
         $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']);
-        if ($_SESSION['language_direction'] == 'rtl' &&
-        !strpos($GLOBALS['css_header'], 'rtl')) {
+        if (
+            $_SESSION['language_direction'] == 'rtl' &&
+            !strpos($GLOBALS['css_header'], 'rtl')
+        ) {
             // the $css_header_value is set above
             $rtl_override = true;
         }
@@ -424,9 +429,9 @@ if (!empty($glrow)) {
         $new_theme = 'rtl_' . $temp_css_theme_name;
 
         // Check file existance
-        if (file_exists($webserver_root.'/public/themes/'.$new_theme)) {
+        if (file_exists($webserver_root . '/public/themes/' . $new_theme)) {
             //Escape css file name using 'attr' for security (prevent XSS).
-            $GLOBALS['css_header'] = $web_root.'/public/themes/'.attr($new_theme).'?v='.$v_js_includes;
+            $GLOBALS['css_header'] = $web_root . '/public/themes/' . attr($new_theme) . '?v=' . $v_js_includes;
             $css_header = $GLOBALS['css_header'];
         } else {
             // throw a warning if rtl'ed file does not exist.
@@ -505,7 +510,7 @@ if (!empty($version)) {
     // function calls within empty() in php versions < 5.5 .
     $version_getrealpatch = $version->getRealPatch();
     if (($version->getRealPatch() != '0') && (!(empty($version_getrealpatch)))) {
-        $patch_appending = " (".$version->getRealPatch().")";
+        $patch_appending = " (" . $version->getRealPatch() . ")";
     }
 
     $openemr_version = $version->getMajor() . "." . $version->getMinor() . "." . $version->getPatch();
@@ -526,7 +531,7 @@ $GLOBALS['Emergency_Login_email'] = empty($GLOBALS['Emergency_Login_email_id']) 
 //Run de_identification_upgrade.php script to upgrade OpenEMR database to include procedures,
 //functions, tables for de-identification(Mysql root user and password is required for successful
 //execution of the de-identification upgrade script)
-$GLOBALS['include_de_identification']=0;
+$GLOBALS['include_de_identification'] = 0;
 // Include the authentication module code here, but the rule is
 // if the file has the word "login" in the source code file name,
 // don't include the authentication module - we do this to avoid
@@ -592,8 +597,8 @@ $therapy_group = (empty($pid) && isset($_SESSION['therapy_group'])) ? $_SESSION[
 // global interface function to format text length using ellipses
 function strterm($string, $length)
 {
-    if (strlen($string) >= ($length-3)) {
-        return substr($string, 0, $length-3) . "...";
+    if (strlen($string) >= ($length - 3)) {
+        return substr($string, 0, $length - 3) . "...";
     } else {
         return $string;
     }

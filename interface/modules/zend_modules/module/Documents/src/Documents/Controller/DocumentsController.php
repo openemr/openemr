@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Documents/src/Documents/Controller/DocumentsController.php
  *
@@ -28,7 +29,7 @@ class DocumentsController extends AbstractActionController
 
     public function __construct(DocumentsTable $table)
     {
-        $this->listenerObject = new Listener;
+        $this->listenerObject = new Listener();
         $this->documentsTable = $table;
     }
 
@@ -138,7 +139,7 @@ class DocumentsController extends AbstractActionController
         $categoryIds = $this->getDocumentsTable()->getCategoryIDs(array('CCD', 'CCR', 'CCDA'));
         if (in_array($result['category_id'], $categoryIds) && $contentType == 'text/xml' && !$doEncryption) {
             $xml = simplexml_load_string($document);
-            $xsl = new \DomDocument;
+            $xsl = new \DomDocument();
 
             switch ($result['category_id']) {
                 case $categoryIds['CCD']:
@@ -153,7 +154,7 @@ class DocumentsController extends AbstractActionController
             };
 
             $xsl->load(__DIR__ . '/../../../../../public/xsl/' . $style);
-            $proc = new \XSLTProcessor;
+            $proc = new \XSLTProcessor();
             $proc->importStyleSheet($xsl);
             $document = $proc->transformToXML($xml);
         }

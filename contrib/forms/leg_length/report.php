@@ -11,7 +11,7 @@ function leg_length_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
     $data = formFetch("form_leg_length", $id);
-    $width = 100/$cols;
+    $width = 100 / $cols;
     if ($data) {
         ?>
 

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRConsent;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRConsent;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -384,7 +386,7 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
                         $this->addActor($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"actor" must be array of objects or null, '.gettype($data['actor']).' seen.');
+                    throw new \InvalidArgumentException('"actor" must be array of objects or null, ' . gettype($data['actor']) . ' seen.');
                 }
             }
             if (isset($data['action'])) {
@@ -393,7 +395,7 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
                         $this->addAction($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"action" must be array of objects or null, '.gettype($data['action']).' seen.');
+                    throw new \InvalidArgumentException('"action" must be array of objects or null, ' . gettype($data['action']) . ' seen.');
                 }
             }
             if (isset($data['securityLabel'])) {
@@ -402,7 +404,7 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
                         $this->addSecurityLabel($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"securityLabel" must be array of objects or null, '.gettype($data['securityLabel']).' seen.');
+                    throw new \InvalidArgumentException('"securityLabel" must be array of objects or null, ' . gettype($data['securityLabel']) . ' seen.');
                 }
             }
             if (isset($data['purpose'])) {
@@ -411,7 +413,7 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
                         $this->addPurpose($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"purpose" must be array of objects or null, '.gettype($data['purpose']).' seen.');
+                    throw new \InvalidArgumentException('"purpose" must be array of objects or null, ' . gettype($data['purpose']) . ' seen.');
                 }
             }
             if (isset($data['class'])) {
@@ -420,7 +422,7 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
                         $this->addClass($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"class" must be array of objects or null, '.gettype($data['class']).' seen.');
+                    throw new \InvalidArgumentException('"class" must be array of objects or null, ' . gettype($data['class']) . ' seen.');
                 }
             }
             if (isset($data['code'])) {
@@ -429,7 +431,7 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
                         $this->addCode($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"code" must be array of objects or null, '.gettype($data['code']).' seen.');
+                    throw new \InvalidArgumentException('"code" must be array of objects or null, ' . gettype($data['code']) . ' seen.');
                 }
             }
             if (isset($data['dataPeriod'])) {
@@ -441,7 +443,7 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
                         $this->addData($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"data" must be array of objects or null, '.gettype($data['data']).' seen.');
+                    throw new \InvalidArgumentException('"data" must be array of objects or null, ' . gettype($data['data']) . ' seen.');
                 }
             }
             if (isset($data['provision'])) {
@@ -450,11 +452,11 @@ class FHIRConsentProvision extends FHIRBackboneElement implements \JsonSerializa
                         $this->addProvision($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"provision" must be array of objects or null, '.gettype($data['provision']).' seen.');
+                    throw new \InvalidArgumentException('"provision" must be array of objects or null, ' . gettype($data['provision']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

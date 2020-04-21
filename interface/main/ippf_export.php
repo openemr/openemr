@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This script creates an export file and sends it to the users's
  * browser for download.
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -113,7 +113,7 @@ function xmlTime($str, $default = '9999-12-31T23:59:59')
 
     if (strlen($str) < 10 || substr($str, 0, 4) == '0000') {
         $str = $default;
-    } else if (strlen($str) > 10) {
+    } elseif (strlen($str) > 10) {
         $str = substr($str, 0, 10) . 'T' . substr($str, 11);
     } else {
         $str .= 'T00:00:00';
@@ -345,8 +345,10 @@ function endClient($pid, &$encarray)
                 continue;
             }
 
-            if ($key == 'id' || $key == 'type' || $key == 'begdate' ||
-            $key == 'enddate' || $key == 'title' || $key == 'diagnosis') {
+            if (
+                $key == 'id' || $key == 'type' || $key == 'begdate' ||
+                $key == 'enddate' || $key == 'title' || $key == 'diagnosis'
+            ) {
                 continue;
             }
 

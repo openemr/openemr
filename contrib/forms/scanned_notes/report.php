@@ -1,4 +1,5 @@
 <?php
+
 /**
  * scanned_notes report.php
  *

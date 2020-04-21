@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Batch Communication Tool for selecting/communicating with subsets of patients
  *
@@ -31,10 +32,10 @@ if (!AclMain::aclCheckCore('admin', 'batchcom')) {
 $process_choices = array(xl('Download CSV File'), xl('Send Emails'), xl('Phone call list'));
 $gender_choices = array(xl('Any{{Gender}}'), xl('Male'), xl('Female'));
 $hipaa_choices = array(xl('No'), xl('Yes'));
-$sort_by_choices = array(xl('Zip Code')=>'patient_data.postal_code', xl('Last Name')=>'patient_data.lname', xl('Appointment Date')=>'last_appt');
+$sort_by_choices = array(xl('Zip Code') => 'patient_data.postal_code', xl('Last Name') => 'patient_data.lname', xl('Appointment Date') => 'last_appt');
 
 // process form
-if ($_POST['form_action']=='process') {
+if ($_POST['form_action'] == 'process') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -80,7 +81,7 @@ if ($_POST['form_action']=='process') {
     }
 
     if (!check_select($_POST['sort_by'], $sort_by_choices)) {
-        $form_err.=xl('Error in "Sort By" selection');
+        $form_err .= xl('Error in "Sort By" selection');
     }
 
     //process sql
@@ -96,40 +97,40 @@ if ($_POST['form_action']=='process') {
         $params = array();
 
         //appointment dates
-        if ($_POST['app_s']!=0 and $_POST['app_s']!='') {
+        if ($_POST['app_s'] != 0 and $_POST['app_s'] != '') {
             $sql .= " and cal_events.pc_eventDate >= ?";
             array_push($params, $_POST['app_s']);
         }
 
-        if ($_POST['app_e']!=0 and $_POST['app_e']!='') {
+        if ($_POST['app_e'] != 0 and $_POST['app_e'] != '') {
             $sql .= " and cal_events.pc_endDate <= ?";
             array_push($params, $_POST['app_e']);
         }
 
         // encounter dates
-        if ($_POST['seen_since']!=0 and $_POST['seen_since']!='') {
+        if ($_POST['seen_since'] != 0 and $_POST['seen_since'] != '') {
             $sql .= " and forms.date >= ?" ;
             array_push($params, $_POST['seen_since']);
         }
 
-        if ($_POST['seen_before']!=0 and $_POST['seen_before']!='') {
+        if ($_POST['seen_before'] != 0 and $_POST['seen_before'] != '') {
             $sql .= " and forms.date <= ?" ;
             array_push($params, $_POST['seen_before']);
         }
 
         // age
-        if ($_POST['age_from']!=0 and $_POST['age_from']!='') {
+        if ($_POST['age_from'] != 0 and $_POST['age_from'] != '') {
             $sql .= " and DATEDIFF( CURDATE( ), patient_data.DOB )/ 365.25 >= ?";
             array_push($params, $_POST['age_from']);
         }
 
-        if ($_POST['age_upto']!=0 and $_POST['age_upto']!='') {
+        if ($_POST['age_upto'] != 0 and $_POST['age_upto'] != '') {
             $sql .= " and DATEDIFF( CURDATE( ), patient_data.DOB )/ 365.25 <= ?";
             array_push($params, $_POST['age_upto']);
         }
 
         // gender
-        if ($_POST['gender']!='Any') {
+        if ($_POST['gender'] != 'Any') {
             $sql .= " and patient_data.sex=?";
             array_push($params, $_POST['gender']);
         }
@@ -141,7 +142,7 @@ if ($_POST['form_action']=='process') {
 
         switch ($_POST['process_type']) :
             case $choices[1]: // Email
-                $sql.=" and patient_data.email IS NOT NULL ";
+                $sql .= " and patient_data.email IS NOT NULL ";
                 break;
         endswitch;
 

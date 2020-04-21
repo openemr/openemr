@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Collect status of a report in report_results sql table.
  *
