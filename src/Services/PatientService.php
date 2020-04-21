@@ -244,6 +244,16 @@ class PatientService extends BaseService
                 if (in_array($fieldName, array('fname', 'lname', 'street'))) {
                     array_push($whereClauses, $fieldName . ' LIKE ?');
                     array_push($sqlBindArray, '%' . $fieldValue . '%');
+                } elseif ($fieldName === "name") {
+                    array_push($whereClauses, "CONCAT(lname,' ', fname) LIKE ?");
+                    array_push($sqlBindArray, '%' . $fieldValue . '%');
+                } elseif ($fieldName === "address") {
+                    $fieldValue = '%' . $fieldValue . '%';
+                    array_push($whereClauses, "city LIKE ? OR street LIKE ? OR state LIKE ? OR postal_code LIKE ?");
+                    array_push($sqlBindArray, $fieldValue);
+                    array_push($sqlBindArray, $fieldValue);
+                    array_push($sqlBindArray, $fieldValue);
+                    array_push($sqlBindArray, $fieldValue);
                 } else {
                     // equality match
                     array_push($whereClauses, $fieldName . ' = ?');
