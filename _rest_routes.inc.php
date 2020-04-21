@@ -344,6 +344,7 @@ use OpenEMR\RestControllers\FHIR\FhirObservationRestController;
 use OpenEMR\RestControllers\FHIR\FhirImmunizationRestController;
 use OpenEMR\RestControllers\FHIR\FhirOrganizationRestController;
 use OpenEMR\RestControllers\FHIR\FhirPatientRestController;
+use OpenEMR\RestControllers\FHIR\FhirProcedureRestController;
 use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseController;
 
 RestConfig::$FHIR_ROUTE_MAP = array(
@@ -424,5 +425,13 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     "GET /fhir/Condition/:id" => function ($id) {
         RestConfig::authorization_check("patients", "med");
         return (new FhirConditionRestController(null))->getOne($id);
+    },
+    "GET /fhir/Procedure" => function () {
+        RestConfig::authorization_check("patients", "med");
+        return (new FhirProcedureRestController(null))->getAll($_GET);
+    },
+    "GET /fhir/Procedure/:id" => function ($id) {
+        RestConfig::authorization_check("patients", "med");
+        return (new FhirProcedureRestController(null))->getOne($id);
     }
 );
