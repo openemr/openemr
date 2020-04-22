@@ -49,7 +49,7 @@
 --    all blocks are terminated with and #EndIf statement.
 
 #IfNotRow2D list_options list_id apps option_id oeSignerRemote
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','oeSignerRemote','./../portal/sign/assets/signit.php',30,0,0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES (''apps'',''oeSignerRemote'',''./../portal/sign/assets/signit.php'',30,0,0);
 #EndIf
 
 #IfNotColumnType form_eye_neuro ACT5CCDIST text
@@ -262,17 +262,17 @@ ALTER TABLE `form_eye_neuro` MODIFY `OSCOINS` text;
 
 #IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2019-10-01 load_filename 2020-ICD-10-CM-Codes.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
-('ICD10', 'CMS', '2019-10-01', '2020-ICD-10-CM-Codes.zip', '745546b3c94af3401e84003e1b143b9b');
+(''ICD10'', ''CMS'', ''2019-10-01'', ''2020-ICD-10-CM-Codes.zip'', ''745546b3c94af3401e84003e1b143b9b'');
 #EndIf
 
 #IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2019-10-01 load_filename 2020-ICD-10-PCS-Order.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
-('ICD10', 'CMS', '2019-10-01', '2020-ICD-10-PCS-Order.zip', '8dc136d780ec60916e9e1fc999837bc8');
+(''ICD10'', ''CMS'', ''2019-10-01'', ''2020-ICD-10-PCS-Order.zip'', ''8dc136d780ec60916e9e1fc999837bc8'');
 #EndIf
 
 #IfMissingColumn patient_access_onsite portal_login_username
-ALTER TABLE `patient_access_onsite` ADD `portal_login_username` VARCHAR(100) DEFAULT NULL COMMENT 'User entered username', ADD `portal_onetime` VARCHAR(255) DEFAULT NULL;
-UPDATE `patient_access_onsite` SET `portal_pwd_status` = '0', `portal_login_username` = `portal_username`;
+ALTER TABLE `patient_access_onsite` ADD `portal_login_username` VARCHAR(100) DEFAULT NULL COMMENT ''User entered username'', ADD `portal_onetime` VARCHAR(255) DEFAULT NULL;
+UPDATE `patient_access_onsite` SET `portal_pwd_status` = ''0'', `portal_login_username` = `portal_username`;
 #EndIf
 
 #IfMissingColumn api_token token_auth_salt
@@ -296,9 +296,23 @@ ALTER TABLE `medex_outgoing` ADD INDEX `i_msg_date` (`msg_date`);
 #EndIf
 
 #IfNotRow2D icd10dx_order_code dx_code U071 active 1
-INSERT INTO `icd10_dx_order_code` (`dx_code`, `formatted_dx_code`, `valid_for_coding`, `short_desc`, `long_desc`, `active`, `revision`) VALUES ('U071', 'U07.1', '1', 'COVID-19', 'COVID-19', '1', `1`)
+INSERT INTO `icd10_dx_order_code`
+(`dx_code`, `formatted_dx_code`, `valid_for_coding`, `short_desc`, `long_desc`, `active`, `revision`)
+VALUES (''U071'', ''U07.1'', ''1'', ''COVID-19, virus identified'', ''COVID-19, virus identified'', ''1'', ''1'')
 #EndIf
 
 #IfRow2D icd10dx_order_code dx_code U071 active 1
-UPDATE `icd10_dx_order_code` SET `revision` = (SELECT MAX(`revision`) from icd10_dx_order_code WHERE `dx_code` = 'A000') WHERE `dx_code` = 'U071'
+UPDATE `icd10_dx_order_code`
+SET `revision` = (SELECT MAX(`revision`) from icd10_dx_order_code WHERE `dx_code` = ''A000'') WHERE `dx_code` = ''U071''
+#EndIf
+
+#IfNotRow2D icd10dx_order_code dx_code U072 active 1
+INSERT INTO `icd10_dx_order_code`
+(`dx_code`, `formatted_dx_code`, `valid_for_coding`, `short_desc`, `long_desc`, `active`, `revision`)
+VALUES (''U072'', ''U07.2'', ''1'', ''COVID-19, virus not identified'', ''COVID-19, virus not identified'', ''1'', ''1'')
+#EndIf
+
+#IfRow2D icd10dx_order_code dx_code U072 active 1
+UPDATE `icd10_dx_order_code`
+SET `revision` = (SELECT MAX(`revision`) from icd10_dx_order_code WHERE `dx_code` = ''A000'') WHERE `dx_code` = ''U072''
 #EndIf
