@@ -682,9 +682,6 @@ function upgradeFromSqlFile($filename, $path = '')
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-<<<<<<< HEAD
-        } else if (preg_match('/^#IfNotColumnType\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
-=======
         } elseif (preg_match('/^#IfNotColumnTypeDefault\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
                 $skipping = columnHasDefault($matches[1], $matches[2]);
@@ -697,7 +694,6 @@ function upgradeFromSqlFile($filename, $path = '')
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
         } elseif (preg_match('/^#IfNotColumnType\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
->>>>>>> 55b95553d... [build]: added a new sql upgrade block
             if (tableExists($matches[1])) {
                 $skipping = columnHasType($matches[1], $matches[2], $matches[3]);
             } else {
