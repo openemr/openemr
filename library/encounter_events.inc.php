@@ -1,4 +1,5 @@
 <?php
+
 // +-----------------------------------------------------------------------------+
 // Copyright (C) 2010 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
@@ -40,7 +41,7 @@ define('REPEAT_EVERY_YEAR', 3);
 define('REPEAT_EVERY_WORK_DAY', 4);
 define('REPEAT_DAYS_EVERY_WEEK', 6);
 //===============================================================================
-$today=date('Y-m-d');
+$today = date('Y-m-d');
 //===============================================================================
 // If unique current date appointment found update status to arrived and create
 // encounter
@@ -263,14 +264,14 @@ function todaysEncounter($patient_id, $reason = '')
 function update_event($eid)
 {
     $origEventRes = sqlStatement("SELECT * FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
-    $origEvent=sqlFetchArray($origEventRes);
+    $origEvent = sqlFetchArray($origEventRes);
     $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
-    $duration=$origEvent['pc_duration'];
-    $starttime=$origEvent['pc_startTime'];
-    $endtime=$origEvent['pc_endTime'];
+    $duration = $origEvent['pc_duration'];
+    $starttime = $origEvent['pc_startTime'];
+    $endtime = $origEvent['pc_endTime'];
     $selected_date = date("Ymd");
     if ($oldRecurrspec['exdate'] != "") {
-        $oldRecurrspec['exdate'] .= ",".$selected_date;
+        $oldRecurrspec['exdate'] .= "," . $selected_date;
     } else {
         $oldRecurrspec['exdate'] .= $selected_date;
     }
@@ -304,16 +305,16 @@ function update_event($eid)
         $args['starttime'] = $starttime;
         $args['endtime'] = $endtime;
         $args['locationspec'] = $locationspec;
-        $args['form_category']=$origEvent['pc_catid'];
-        $args['new_multiple_value']=$origEvent['pc_multiple'];
-        $args['form_provider']=$origEvent['pc_aid'];
-        $args['form_pid']=$origEvent['pc_pid'];
-        $args['form_title']=$origEvent['pc_title'];
-        $args['form_allday']=$origEvent['pc_alldayevent'];
-        $args['form_apptstatus']='@';
-        $args['form_prefcat']=$origEvent['pc_prefcatid'];
-        $args['facility']=$origEvent['pc_facility'];
-        $args['billing_facility']=$origEvent['pc_billing_location'];
+        $args['form_category'] = $origEvent['pc_catid'];
+        $args['new_multiple_value'] = $origEvent['pc_multiple'];
+        $args['form_provider'] = $origEvent['pc_aid'];
+        $args['form_pid'] = $origEvent['pc_pid'];
+        $args['form_title'] = $origEvent['pc_title'];
+        $args['form_allday'] = $origEvent['pc_alldayevent'];
+        $args['form_apptstatus'] = '@';
+        $args['form_prefcat'] = $origEvent['pc_prefcatid'];
+        $args['facility'] = $origEvent['pc_facility'];
+        $args['billing_facility'] = $origEvent['pc_billing_location'];
         InsertEvent($args, 'payment');
 }
 //===============================================================================
@@ -321,23 +322,23 @@ function update_event($eid)
 function check_event_exist($eid)
 {
     $origEventRes = sqlStatement("SELECT * FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
-    $origEvent=sqlFetchArray($origEventRes);
-    $pc_catid=$origEvent['pc_catid'];
-    $pc_aid=$origEvent['pc_aid'];
-    $pc_pid=$origEvent['pc_pid'];
-    $pc_eventDate=date('Y-m-d');
-    $pc_startTime=$origEvent['pc_startTime'];
-    $pc_endTime=$origEvent['pc_endTime'];
-    $pc_facility=$origEvent['pc_facility'];
-    $pc_billing_location=$origEvent['pc_billing_location'];
+    $origEvent = sqlFetchArray($origEventRes);
+    $pc_catid = $origEvent['pc_catid'];
+    $pc_aid = $origEvent['pc_aid'];
+    $pc_pid = $origEvent['pc_pid'];
+    $pc_eventDate = date('Y-m-d');
+    $pc_startTime = $origEvent['pc_startTime'];
+    $pc_endTime = $origEvent['pc_endTime'];
+    $pc_facility = $origEvent['pc_facility'];
+    $pc_billing_location = $origEvent['pc_billing_location'];
     $pc_recurrspec_array = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
     $origEvent = sqlStatement(
-        "SELECT * FROM openemr_postcalendar_events WHERE pc_eid != ? and pc_catid=? and pc_aid=? ".
+        "SELECT * FROM openemr_postcalendar_events WHERE pc_eid != ? and pc_catid=? and pc_aid=? " .
         "and pc_pid=? and pc_eventDate=? and pc_startTime=? and pc_endTime=? and pc_facility=? and pc_billing_location=?",
         array($eid,$pc_catid,$pc_aid,$pc_pid,$pc_eventDate,$pc_startTime,$pc_endTime,$pc_facility,$pc_billing_location)
     );
-    if (sqlNumRows($origEvent)>0) {
-        $origEventRow=sqlFetchArray($origEvent);
+    if (sqlNumRows($origEvent) > 0) {
+        $origEventRow = sqlFetchArray($origEvent);
         return $origEventRow['pc_eid'];
     } else {
         if (strpos($pc_recurrspec_array['exdate'], date('Ymd')) === false) {//;'20110228'
@@ -423,7 +424,7 @@ function &__increment($d, $m, $y, $f, $t)
     }
 
     if ($t == REPEAT_EVERY_DAY) {
-        $d = $d+$f;
+        $d = $d + $f;
     } elseif ($t == REPEAT_EVERY_WORK_DAY) {
         // a workday is defined as Mon,Tue,Wed,Thu,Fri
         // repeating on every or Nth work day means to not include
@@ -433,8 +434,8 @@ function &__increment($d, $m, $y, $f, $t)
         // we can check to see if the day is a Sat/Sun and increment
         // the frequency count so as to ignore the weekend. hmmmm....
         $orig_freq = $f;
-        for ($daycount=1; $daycount<=$orig_freq; $daycount++) {
-            $nextWorkDOW = date('w', mktime(0, 0, 0, $m, ($d+$daycount), $y));
+        for ($daycount = 1; $daycount <= $orig_freq; $daycount++) {
+            $nextWorkDOW = date('w', mktime(0, 0, 0, $m, ($d + $daycount), $y));
             if (is_weekend_day($nextWorkDOW)) {
                 $f++;
             }
@@ -442,10 +443,10 @@ function &__increment($d, $m, $y, $f, $t)
 
         // and finally make sure we haven't landed on a end week days
         // adjust as necessary
-        $nextWorkDOW = date('w', mktime(0, 0, 0, $m, ($d+$f), $y));
+        $nextWorkDOW = date('w', mktime(0, 0, 0, $m, ($d + $f), $y));
         if (count($GLOBALS['weekend_days']) === 2) {
             if ($nextWorkDOW == $GLOBALS['weekend_days'][0]) {
-                $f+=2;
+                $f += 2;
             } elseif ($nextWorkDOW == $GLOBALS['weekend_days'][1]) {
                 $f++;
             }
@@ -453,13 +454,13 @@ function &__increment($d, $m, $y, $f, $t)
             $f++;
         }
 
-        $d = $d+$f;
+        $d = $d + $f;
     } elseif ($t == REPEAT_EVERY_WEEK) {
-        $d = $d+(7*$f);
+        $d = $d + (7 * $f);
     } elseif ($t == REPEAT_EVERY_MONTH) {
-        $m = $m+$f;
+        $m = $m + $f;
     } elseif ($t == REPEAT_EVERY_YEAR) {
-        $y = $y+$f;
+        $y = $y + $f;
     }
 
     $dtYMD = date('Y-m-d', mktime(0, 0, 0, $m, $d, $y));

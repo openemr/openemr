@@ -1,5 +1,7 @@
 <?php
+
 /** @package    verysimple::String */
+
 require_once("util/html2text.php");
 
 /**
@@ -77,7 +79,7 @@ class SimpleTemplate
                 "li"
         );
         
-        for ($x = 0; $x < count($wipebr); $x ++) {
+        for ($x = 0; $x < count($wipebr); $x++) {
             $tag = $wipebr [$x];
             $html = str_ireplace("<$tag><br />", "<$tag>", $html);
             $html = str_ireplace("</$tag><br />", "</$tag>", $html);

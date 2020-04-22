@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/therapy_groups/therapy_groups_models/therapy_groups_model.php contains the model for the therapy groups.
  *
@@ -74,7 +75,7 @@ class Therapy_Groups
         $sql .= ' WHERE group_id = ?';
         array_push($groupData, $groupData['group_id']);
         $result = sqlStatement($sql, $groupData);
-        return !$result ? false :true;
+        return !$result ? false : true;
     }
 
     public function existGroup($name, $startDate, $groupId = null)
@@ -122,7 +123,7 @@ class Therapy_Groups
             $sql .= ' AND group_status = 10 ';
         }
 
-        $sql .='ORDER BY group_start_date DESC;';
+        $sql .= 'ORDER BY group_start_date DESC;';
         $search_params = '%' . $search_params . '%';
         $result = sqlStatement($sql, array($search_params));
         $final_result = array();

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Edit layouts gui
  *
@@ -94,7 +95,7 @@ function nextGroupOrder($order)
 {
     if ($order == '9') {
         $order = 'A';
-    } else if ($order == 'Z') {
+    } elseif ($order == 'Z') {
         $order = 'a';
     } else {
         $order = chr(ord($order) + 1);
@@ -404,7 +405,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
                 "WHERE form_id = '" . add_escape_custom($layout_id) . "' AND field_id = '" . add_escape_custom($field_id_original) . "'");
         }
     }
-} else if ($_POST['formaction'] == "addfield" && $layout_id) {
+} elseif ($_POST['formaction'] == "addfield" && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -438,38 +439,38 @@ if ($_POST['formaction'] == "save" && $layout_id) {
       ",'" . add_escape_custom(trim($_POST['newbackuplistid'])) . "'" .
       " )");
     addOrDeleteColumn($layout_id, trim($_POST['newid']), true);
-} else if ($_POST['formaction'] == "movefields" && $layout_id) {
+} elseif ($_POST['formaction'] == "movefields" && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 
     // Move field(s) to a new group in the layout
-    $sqlstmt = "UPDATE layout_options SET ".
+    $sqlstmt = "UPDATE layout_options SET " .
                 " group_id = '" . add_escape_custom($_POST['targetgroup']) . "' " .
-                " WHERE ".
-                " form_id = '" . add_escape_custom($_POST['layout_id']) . "' ".
+                " WHERE " .
+                " form_id = '" . add_escape_custom($_POST['layout_id']) . "' " .
                 " AND field_id IN (";
     $comma = "";
     foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
-        $sqlstmt .= $comma."'" . add_escape_custom($onefield) . "'";
+        $sqlstmt .= $comma . "'" . add_escape_custom($onefield) . "'";
         $comma = ", ";
     }
 
     $sqlstmt .= ")";
     //echo $sqlstmt;
     sqlStatement($sqlstmt);
-} else if ($_POST['formaction'] == "deletefields" && $layout_id) {
+} elseif ($_POST['formaction'] == "deletefields" && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 
     // Delete a field from a specific group
-    $sqlstmt = "DELETE FROM layout_options WHERE ".
-                " form_id = '" . add_escape_custom($_POST['layout_id']) . "' ".
+    $sqlstmt = "DELETE FROM layout_options WHERE " .
+                " form_id = '" . add_escape_custom($_POST['layout_id']) . "' " .
                 " AND field_id IN (";
     $comma = "";
     foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
-        $sqlstmt .= $comma."'" . add_escape_custom($onefield) . "'";
+        $sqlstmt .= $comma . "'" . add_escape_custom($onefield) . "'";
         $comma = ", ";
     }
 
@@ -478,7 +479,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
     foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
         addOrDeleteColumn($layout_id, $onefield, false);
     }
-} else if ($_POST['formaction'] == "addgroup" && $layout_id) {
+} elseif ($_POST['formaction'] == "addgroup" && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -545,7 +546,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
     );
     }
      **********************************************************************/
-} else if ($_POST['formaction'] == "movegroup" && $layout_id) {
+} elseif ($_POST['formaction'] == "movegroup" && $layout_id) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -573,7 +574,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
         }
         $id1 = $id2;
     }
-} else if ($_POST['formaction'] == "renamegroup" && $layout_id) { // Renaming a group. This might include moving to a
+} elseif ($_POST['formaction'] == "renamegroup" && $layout_id) { // Renaming a group. This might include moving to a
     // different parent group.
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
@@ -640,7 +641,7 @@ function writeFieldLine($linedata)
     $checked = $linedata['default_value'] ? " checked" : "";
 
     //echo " <tr bgcolor='$bgcolor'>\n";
-    echo " <tr id='fld[" . attr($fld_line_no) . "]' class='".($fld_line_no % 2 ? 'even' : 'odd')."'>\n";
+    echo " <tr id='fld[" . attr($fld_line_no) . "]' class='" . ($fld_line_no % 2 ? 'even' : 'odd') . "'>\n";
 
     echo "  <td class='optcell' nowrap>";
     // tuck the group_name INPUT in here
@@ -650,7 +651,7 @@ function writeFieldLine($linedata)
     echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][originalid]' value='" .
          attr($linedata['field_id']) . "' />";
 
-    echo "<input type='checkbox' class='selectfield' ".
+    echo "<input type='checkbox' class='selectfield' " .
             "name='"  . attr($linedata['group_id']) . "~" . attr($linedata['field_id']) . "' " .
             "id='"    . attr($linedata['group_id']) . "~" . attr($linedata['field_id']) . "' " .
             "title='" . xla('Select field') . "' />";
@@ -692,7 +693,7 @@ function writeFieldLine($linedata)
 
     echo "  <td align='center' class='optcell'>";
     echo "<select class='form-control' name='fld[" . attr($fld_line_no) . "][uor]' class='optin'>";
-    foreach (array(0 =>xl('Unused'), 1 =>xl('Optional'), 2 =>xl('Required')) as $key => $value) {
+    foreach (array(0 => xl('Unused'), 1 => xl('Optional'), 2 => xl('Required')) as $key => $value) {
         echo "<option value='" . attr($key) . "'";
         if ($key == $linedata['uor']) {
             echo " selected";
@@ -720,12 +721,13 @@ function writeFieldLine($linedata)
     echo "  </td>";
 
     echo "  <td align='center' class='optcell'>";
-    if ($linedata['data_type'] == 2 || $linedata['data_type'] == 3 ||
-      $linedata['data_type'] == 21 || $linedata['data_type'] == 22 ||
-      $linedata['data_type'] == 23 || $linedata['data_type'] == 25 ||
-      $linedata['data_type'] == 27 || $linedata['data_type'] == 28 ||
-      $linedata['data_type'] == 32 || $linedata['data_type'] == 15 ||
-      $linedata['data_type'] == 40
+    if (
+        $linedata['data_type'] == 2 || $linedata['data_type'] == 3 ||
+        $linedata['data_type'] == 21 || $linedata['data_type'] == 22 ||
+        $linedata['data_type'] == 23 || $linedata['data_type'] == 25 ||
+        $linedata['data_type'] == 27 || $linedata['data_type'] == 28 ||
+        $linedata['data_type'] == 32 || $linedata['data_type'] == 15 ||
+        $linedata['data_type'] == 40
     ) {
       // Show the width field
         echo "<input type='text' name='fld[" . attr($fld_line_no) . "][lengthWidth]' value='" .
@@ -756,12 +758,14 @@ function writeFieldLine($linedata)
     echo "</td>\n";
 
     echo "  <td align='center' class='optcell'>";
-    if ($linedata['data_type'] ==  1 || $linedata['data_type'] == 21 ||
-      $linedata['data_type'] == 22 || $linedata['data_type'] == 23 ||
-      $linedata['data_type'] == 25 || $linedata['data_type'] == 26 ||
-      $linedata['data_type'] == 27 || $linedata['data_type'] == 32 ||
-      $linedata['data_type'] == 33 || $linedata['data_type'] == 34 ||
-      $linedata['data_type'] == 36) {
+    if (
+        $linedata['data_type'] ==  1 || $linedata['data_type'] == 21 ||
+        $linedata['data_type'] == 22 || $linedata['data_type'] == 23 ||
+        $linedata['data_type'] == 25 || $linedata['data_type'] == 26 ||
+        $linedata['data_type'] == 27 || $linedata['data_type'] == 32 ||
+        $linedata['data_type'] == 33 || $linedata['data_type'] == 34 ||
+        $linedata['data_type'] == 36
+    ) {
         $type = "";
         $disp = "style='display:none'";
         if ($linedata['data_type'] == 34) {
@@ -771,10 +775,10 @@ function writeFieldLine($linedata)
 
         echo "<input type='text' name='fld[" . attr($fld_line_no) . "][list_id]'  id='fld[" . attr($fld_line_no) . "][list_id]' value='" .
         attr($linedata['list_id']) . "' " . $type .
-        " size='6' maxlength='100' class='optin listid' style='width:100%;cursor:pointer'".
-        "title='". xla('Choose list') . "' />";
+        " size='6' maxlength='100' class='optin listid' style='width:100%;cursor:pointer'" .
+        "title='" . xla('Choose list') . "' />";
 
-        echo "<select class='form-control' name='fld[" . attr($fld_line_no) . "][contextName]' id='fld[" . attr($fld_line_no) . "][contextName]' ".$disp.">";
+        echo "<select class='form-control' name='fld[" . attr($fld_line_no) . "][contextName]' id='fld[" . attr($fld_line_no) . "][contextName]' " . $disp . ">";
         $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
         while ($row = sqlFetchArray($res)) {
             $sel = '';
@@ -782,7 +786,7 @@ function writeFieldLine($linedata)
                 $sel = 'selected';
             }
 
-            echo "<option value='" . attr($row['cl_list_item_long']) . "' ".$sel.">" . text($row['cl_list_item_long']) . "</option>";
+            echo "<option value='" . attr($row['cl_list_item_long']) . "' " . $sel . ">" . text($row['cl_list_item_long']) . "</option>";
         }
 
         echo "</select>";
@@ -795,8 +799,10 @@ function writeFieldLine($linedata)
 
     //Backup List Begin
     echo "  <td align='center' class='optcell'>";
-    if ($linedata['data_type'] ==  1 || $linedata['data_type'] == 26 ||
-        $linedata['data_type'] == 33 || $linedata['data_type'] == 36) {
+    if (
+        $linedata['data_type'] ==  1 || $linedata['data_type'] == 26 ||
+        $linedata['data_type'] == 33 || $linedata['data_type'] == 36
+    ) {
         echo "<input type='text' name='fld[" . attr($fld_line_no) . "][list_backup_id]' value='" .
             attr($linedata['list_backup_id']) .
             "' size='3' maxlength='100' class='optin listid' style='cursor:pointer; width:100%' />";
@@ -914,12 +920,14 @@ function writeFieldLine($linedata)
         "  </td>\n" .
         "  <td align='left'>\n" .
         "   <select name='fld[" . attr($fld_line_no) . "][condition_operator][" . attr($i) . "]'>\n";
-        foreach (array(
-        'eq' => xl('Equals'),
-        'ne' => xl('Does not equal'),
-        'se' => xl('Is selected'),
-        'ns' => xl('Is not selected'),
-        ) as $key => $value) {
+        foreach (
+            array(
+            'eq' => xl('Equals'),
+            'ne' => xl('Does not equal'),
+            'se' => xl('Is selected'),
+            'ns' => xl('Is not selected'),
+            ) as $key => $value
+        ) {
             $extra_html .= "    <option value='" . attr($key) . "'";
             if ($key == $condition['operator']) {
                 $extra_html .= " selected";
@@ -944,10 +952,12 @@ function writeFieldLine($linedata)
             $extra_html .=
             "  <td align='right'>\n" .
             "   <select name='fld[" . attr($fld_line_no) . "][condition_andor][" . attr($i) . "]'>\n";
-            foreach (array(
-            'and' => xl('And'),
-            'or'  => xl('Or'),
-            ) as $key => $value) {
+            foreach (
+                array(
+                'and' => xl('And'),
+                'or'  => xl('Or'),
+                ) as $key => $value
+            ) {
                 $extra_html .= "    <option value='" . attr($key) . "'";
                 if ($key == $condition['andor']) {
                     $extra_html .= " selected";
@@ -975,7 +985,7 @@ function writeFieldLine($linedata)
     " </tr>\n" .
     " <tr>\n" .
     "  <td align='left' class='font-weight-bold'>" . xlt('Validation rule') . "  </td>\n" .
-    " </tr>\n".
+    " </tr>\n" .
     " <tr>\n" .
     "  <td align='left' title='" . xla('Select a validation rule') . "'>\n" .
 
@@ -996,7 +1006,7 @@ function writeFieldLine($linedata)
         $extra_html .= ">" . text($value) . "</option>\n";
     }
 
-    $extra_html .="</select>\n" .
+    $extra_html .= "</select>\n" .
         "  </td>\n";
 
      $extra_html .=
@@ -1477,7 +1487,7 @@ while ($row = sqlFetchArray($res)) {
     <th style='width:10%'><?php echo xlt('Label'); ?>&nbsp;<span class="help" title='<?php echo xla('The label that appears to the user on the form'); ?>' >(?)</span></th>
         <?php // if not english and showing layout label translations, then show translation header for title
         if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-            echo "<th>" . xlt('Translation')."<span class='help' title='" . xla('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";
+            echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";
         } ?>
       <th style='width:6%'><?php echo xlt('UOR'); ?></th>
       <th style='width:10%'><?php echo xlt('Data Type'); ?></th>
@@ -1491,7 +1501,7 @@ while ($row = sqlFetchArray($res)) {
       <th style='width:20%'><?php echo xlt('Description'); ?></th>
         <?php // if not english and showing layout label translations, then show translation header for description
         if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-            echo "<th>" . xlt('Translation')."<span class='help' title='" . xla('The translation of description in current language')."'>&nbsp;(?)</span></th>";
+            echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translation of description in current language') . "'>&nbsp;(?)</span></th>";
         } ?>
       <th style='width:1%'><?php echo xlt('?'); ?></th>
    </tr>

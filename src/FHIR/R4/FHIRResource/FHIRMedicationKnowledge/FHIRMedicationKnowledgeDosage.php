@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -147,11 +149,11 @@ class FHIRMedicationKnowledgeDosage extends FHIRBackboneElement implements \Json
                         $this->addDosage($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"dosage" must be array of objects or null, '.gettype($data['dosage']).' seen.');
+                    throw new \InvalidArgumentException('"dosage" must be array of objects or null, ' . gettype($data['dosage']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

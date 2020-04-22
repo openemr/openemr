@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OpenEMR Installation Help.
  *
@@ -8,6 +9,7 @@
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 <!DOCTYPE HTML>
 <html>

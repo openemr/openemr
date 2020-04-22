@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRRequestGroup;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRRequestGroup;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -713,7 +715,7 @@ class FHIRRequestGroupAction extends FHIRBackboneElement implements \JsonSeriali
                         $this->addCode($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"code" must be array of objects or null, '.gettype($data['code']).' seen.');
+                    throw new \InvalidArgumentException('"code" must be array of objects or null, ' . gettype($data['code']) . ' seen.');
                 }
             }
             if (isset($data['documentation'])) {
@@ -722,7 +724,7 @@ class FHIRRequestGroupAction extends FHIRBackboneElement implements \JsonSeriali
                         $this->addDocumentation($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"documentation" must be array of objects or null, '.gettype($data['documentation']).' seen.');
+                    throw new \InvalidArgumentException('"documentation" must be array of objects or null, ' . gettype($data['documentation']) . ' seen.');
                 }
             }
             if (isset($data['condition'])) {
@@ -731,7 +733,7 @@ class FHIRRequestGroupAction extends FHIRBackboneElement implements \JsonSeriali
                         $this->addCondition($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"condition" must be array of objects or null, '.gettype($data['condition']).' seen.');
+                    throw new \InvalidArgumentException('"condition" must be array of objects or null, ' . gettype($data['condition']) . ' seen.');
                 }
             }
             if (isset($data['relatedAction'])) {
@@ -740,7 +742,7 @@ class FHIRRequestGroupAction extends FHIRBackboneElement implements \JsonSeriali
                         $this->addRelatedAction($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"relatedAction" must be array of objects or null, '.gettype($data['relatedAction']).' seen.');
+                    throw new \InvalidArgumentException('"relatedAction" must be array of objects or null, ' . gettype($data['relatedAction']) . ' seen.');
                 }
             }
             if (isset($data['timingDateTime'])) {
@@ -767,7 +769,7 @@ class FHIRRequestGroupAction extends FHIRBackboneElement implements \JsonSeriali
                         $this->addParticipant($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"participant" must be array of objects or null, '.gettype($data['participant']).' seen.');
+                    throw new \InvalidArgumentException('"participant" must be array of objects or null, ' . gettype($data['participant']) . ' seen.');
                 }
             }
             if (isset($data['type'])) {
@@ -797,11 +799,11 @@ class FHIRRequestGroupAction extends FHIRBackboneElement implements \JsonSeriali
                         $this->addAction($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"action" must be array of objects or null, '.gettype($data['action']).' seen.');
+                    throw new \InvalidArgumentException('"action" must be array of objects or null, ' . gettype($data['action']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

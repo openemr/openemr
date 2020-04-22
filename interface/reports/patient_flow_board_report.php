@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient Flow Board (Patient Tracker) (Report Based on the appointment report)
  *
@@ -13,7 +14,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
@@ -152,7 +152,7 @@ if ($form_patient == '') {
 <?php } ?>
 
 
-<div id="report_parameters_daterange"><?php echo text(oeFormatShortDate($from_date)) ." &nbsp; " . xlt('to{{Range}}') . " &nbsp; ". text(oeFormatShortDate($to_date)); #sets date range for calendars ?>
+<div id="report_parameters_daterange"><?php echo text(oeFormatShortDate($from_date)) . " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatShortDate($to_date)); #sets date range for calendars ?>
 </div>
 
 <form method='post' name='theform' id='theform' action='patient_flow_board_report.php' onsubmit='return top.restoreSession()'>
@@ -176,7 +176,7 @@ if ($form_patient == '') {
                 # Build a drop-down list of providers.
                 #
 
-                $query = "SELECT id, lname, fname FROM users WHERE ".
+                $query = "SELECT id, lname, fname FROM users WHERE " .
                   "authorized = 1  ORDER BY lname, fname"; #(CHEMED) facility filter
 
                 $ures = sqlStatement($query);
@@ -211,20 +211,20 @@ if ($form_patient == '') {
 
             <tr>
                 <td class='col-form-label'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
-                <td><?php generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'All'), $_POST['form_apptstatus']);?></td>
+                <td><?php generate_form_field(array('data_type' => 1,'field_id' => 'apptstatus','list_id' => 'apptstat','empty_title' => 'All'), $_POST['form_apptstatus']);?></td>
                 <td><?php echo xlt('Category') #category drop down creation ?>:</td>
                 <td>
                                     <select id="form_apptcat" name="form_apptcat" class="form-control">
                                         <?php
-                                            $categories=fetchAppointmentCategories();
-                                            echo "<option value='ALL'>".xlt("All")."</option>";
-                                        while ($cat=sqlFetchArray($categories)) {
-                                            echo "<option value='".attr($cat['id'])."'";
-                                            if ($cat['id']==$_POST['form_apptcat']) {
+                                            $categories = fetchAppointmentCategories();
+                                            echo "<option value='ALL'>" . xlt("All") . "</option>";
+                                        while ($cat = sqlFetchArray($categories)) {
+                                            echo "<option value='" . attr($cat['id']) . "'";
+                                            if ($cat['id'] == $_POST['form_apptcat']) {
                                                 echo " selected='true' ";
                                             }
 
-                                            echo    ">".text(xl_appt_category($cat['category']))."</option>";
+                                            echo    ">" . text(xl_appt_category($cat['category'])) . "</option>";
                                         }
                                         ?>
                                     </select>
@@ -401,10 +401,10 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
     $lastdocname = "";
     #Appointment Status Checking
     $form_apptstatus = $_POST['form_apptstatus'];
-    $form_apptcat=null;
+    $form_apptcat = null;
     if (isset($_POST['form_apptcat'])) {
-        if ($form_apptcat!="ALL") {
-            $form_apptcat=intval($_POST['form_apptcat']);
+        if ($form_apptcat != "ALL") {
+            $form_apptcat = intval($_POST['form_apptcat']);
         }
     }
 
@@ -417,7 +417,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
     # sort the appointments by the appointment time
     $appointments = sortAppointments($appointments, $form_orderby);
     # $j is used to count the number of patients that match the selected criteria.
-    $j=0;
+    $j = 0;
     //print_r2($appointments);
     foreach ($appointments as $appointment) {
         $patient_id = $appointment['pid'];
@@ -430,14 +430,14 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
         }
 
         # only get the drug screens that are set to yes.
-        if ($chk_show_drug_screens ==1) {
+        if ($chk_show_drug_screens == 1) {
             if ($appointment['random_drug_test'] != '1') {
                 continue;
             }
         }
 
         #if a patient id is entered just get that patient.
-        if (strlen($form_pid) !=0) {
+        if (strlen($form_pid) != 0) {
             if ($appointment['pid'] != $form_pid) {
                 continue;
             }
@@ -464,7 +464,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
         # Get the tracker elements.
         $tracker_elements = collect_Tracker_Elements($tracker_id);
         # $j is incremented for a patient that made it for display.
-        $j=$j+1;
+        $j = $j + 1;
         ?>
 
     <tr bgcolor='<?php echo attr($bgcolor); ?>'>
@@ -553,7 +553,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
                         <?php # figure out the next time of the status
                     }
 
-                    $k = $i+1;
+                    $k = $i + 1;
                     if ($k < $last_seq) {
                     # get the start time of the next status to determine the total time in this status
                         $start_tracker_time = $tracker_elements[$i][start_datetime];

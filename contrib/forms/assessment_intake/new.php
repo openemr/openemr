@@ -1,4 +1,5 @@
 <?php
+
 /**
  * assessment_intake new.php.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
@@ -60,7 +60,7 @@ formHeader("Form: assessment_intake");
                 <input type="text" class="form-control" name="location" id="location" />
             </div>
 
-            <p><label class="font-weight-bold">Address:</label>&nbsp; <?php echo text($result['street']) . ',&nbsp' . text($result['city']). ',&nbsp' . text($result['state']) . '&nbsp;' . text($result['postal_code']);?></p>
+            <p><label class="font-weight-bold">Address:</label>&nbsp; <?php echo text($result['street']) . ',&nbsp' . text($result['city']) . ',&nbsp' . text($result['state']) . '&nbsp;' . text($result['postal_code']);?></p>
 
             <p><label class="font-weight-bold">Telephone Number:</label>&nbsp; <?php echo text($result['phone_home']);?></p>
 

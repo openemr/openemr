@@ -1,4 +1,5 @@
 <?php
+
 /**
  * emailnotification script.
  *
@@ -10,6 +11,7 @@
  * @copyright Copyright (c) 2017 Jason 'Toolbox' Oettinger <jason@oettinger.email>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 require_once("../globals.php");
 require_once("$srcdir/registry.inc");
 require_once("batchcom.inc.php");
@@ -28,25 +30,25 @@ if (!AclMain::aclCheckCore('admin', 'notification')) {
 
  // default value
 $next_app_date = date("Y-m-d");
-$hour="12";
-$min="15";
-$provider_name="EMR Group";
-$message="Welcome to EMR Group";
+$hour = "12";
+$min = "15";
+$provider_name = "EMR Group";
+$message = "Welcome to EMR Group";
 $type = "Email";
 $email_sender = "EMR Group";
 $email_subject = "Welcome to EMR Group";
 // process form
-if ($_POST['form_action']=='save') {
+if ($_POST['form_action'] == 'save') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 
     //validation uses the functions in notification.inc.php
-    if ($_POST['email_sender']=="") {
+    if ($_POST['email_sender'] == "") {
         $form_err .= xl('Empty value in "Email Sender"') . '<br />';
     }
 
-    if ($_POST['email_subject']=="") {
+    if ($_POST['email_subject'] == "") {
         $form_err .= xl('Empty value in "Email Subject"') . '<br />';
     }
 
@@ -56,17 +58,17 @@ if ($_POST['form_action']=='save') {
     }
 
     // validates and or
-    if ($_POST['provider_name']=="") {
+    if ($_POST['provider_name'] == "") {
         $form_err .= xl('Empty value in "Name of Provider"') . '<br />';
     }
 
-    if ($_POST['message']=="") {
+    if ($_POST['message'] == "") {
         $form_err .= xl('Empty value in "Email Text"') . '<br />';
     }
 
     //process sql
     if (!$form_err) {
-        $next_app_time = $_POST['hour'].":".$_POST['min'];
+        $next_app_time = $_POST['hour'] . ":" . $_POST['min'];
         $sql_text = " ( `notification_id` , `sms_gateway_type` , `next_app_date` , `next_app_time` , `provider_name` , `message` , `email_sender` , `email_subject` , `type` ) ";
         $sql_value = " (?, ?, ?, ?, ?, ?, ?, ?, ?) ";
         $values = array($_POST['notification_id'], $_POST['sms_gateway_type'], $_POST['next_app_date'], $next_app_time,
@@ -83,7 +85,7 @@ if ($_POST['form_action']=='save') {
 }
 
 // fetch data from table
-$sql="select * from automatic_notification where type='Email'";
+$sql = "select * from automatic_notification where type='Email'";
 $result = sqlQuery($sql);
 if ($result) {
     $notification_id = $result['notification_id'];
@@ -99,7 +101,7 @@ if ($result) {
 //my_print_r($result);
 
 // menu arrays (done this way so it's easier to validate input on validate selections)
-$hour_array =array('00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','21','21','22','23');
+$hour_array = array('00','01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','21','21','22','23');
 $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
 
 //START OUT OUR PAGE....

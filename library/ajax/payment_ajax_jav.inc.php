@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This section handles ajax functions for insurance,patient and for encounters.
  *
@@ -13,6 +14,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+
 ?>
 <script type="text/javascript">
 $(function () {

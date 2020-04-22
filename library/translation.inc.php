@@ -36,7 +36,7 @@ if (!(function_exists('xl'))) {
              $constant = preg_replace($patterns, $replace, $constant);
 
              // second, attempt translation
-             $sql="SELECT * FROM lang_definitions JOIN lang_constants ON " .
+             $sql = "SELECT * FROM lang_definitions JOIN lang_constants ON " .
             "lang_definitions.cons_id = lang_constants.cons_id WHERE " .
             "lang_id=? AND constant_name = ? LIMIT 1";
              $res = sqlStatementNoLog($sql, array($lang_id,$constant));
@@ -60,7 +60,7 @@ if (!(function_exists('xl'))) {
         }
 
         $string = "$prepend" . "$string" . "$append";
-        if ($mode=='e') {
+        if ($mode == 'e') {
              echo $string;
         } else {
              return $string;
@@ -95,9 +95,9 @@ function xl_list_label($constant, $mode = 'r', $prepend = '', $append = '')
     } else {
         // DO NOT TRANSLATE
         if ($mode == "e") {
-            echo $prepend.$constant.$append;
+            echo $prepend . $constant . $append;
         } else {
-            return $prepend.$constant.$append;
+            return $prepend . $constant . $append;
         }
     }
 }
@@ -115,9 +115,9 @@ function xl_layout_label($constant, $mode = 'r', $prepend = '', $append = '')
     } else {
         // DO NOT TRANSLATE
         if ($mode == "e") {
-            echo $prepend.$constant.$append;
+            echo $prepend . $constant . $append;
         } else {
-            return $prepend.$constant.$append;
+            return $prepend . $constant . $append;
         }
     }
 }
@@ -136,9 +136,9 @@ function xl_gacl_group($constant, $mode = 'r', $prepend = '', $append = '')
     } else {
         // DO NOT TRANSLATE
         if ($mode == "e") {
-            echo $prepend.$constant.$append;
+            echo $prepend . $constant . $append;
         } else {
-            return $prepend.$constant.$append;
+            return $prepend . $constant . $append;
         }
     }
 }
@@ -157,9 +157,9 @@ function xl_form_title($constant, $mode = 'r', $prepend = '', $append = '')
     } else {
         // DO NOT TRANSLATE
         if ($mode == "e") {
-            echo $prepend.$constant.$append;
+            echo $prepend . $constant . $append;
         } else {
-            return $prepend.$constant.$append;
+            return $prepend . $constant . $append;
         }
     }
 }
@@ -179,9 +179,9 @@ function xl_document_category($constant, $mode = 'r', $prepend = '', $append = '
     } else {
         // DO NOT TRANSLATE
         if ($mode == "e") {
-            echo $prepend.$constant.$append;
+            echo $prepend . $constant . $append;
         } else {
-            return $prepend.$constant.$append;
+            return $prepend . $constant . $append;
         }
     }
 }
@@ -201,9 +201,9 @@ function xl_appt_category($constant, $mode = 'r', $prepend = '', $append = '')
     } else {
         // DO NOT TRANSLATE
         if ($mode == "e") {
-            echo $prepend.$constant.$append;
+            echo $prepend . $constant . $append;
         } else {
-            return $prepend.$constant.$append;
+            return $prepend . $constant . $append;
         }
     }
 }

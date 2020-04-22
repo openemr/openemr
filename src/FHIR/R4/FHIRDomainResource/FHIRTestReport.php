@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -429,7 +431,7 @@ class FHIRTestReport extends FHIRDomainResource implements \JsonSerializable
                         $this->addParticipant($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"participant" must be array of objects or null, '.gettype($data['participant']).' seen.');
+                    throw new \InvalidArgumentException('"participant" must be array of objects or null, ' . gettype($data['participant']) . ' seen.');
                 }
             }
             if (isset($data['setup'])) {
@@ -441,14 +443,14 @@ class FHIRTestReport extends FHIRDomainResource implements \JsonSerializable
                         $this->addTest($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"test" must be array of objects or null, '.gettype($data['test']).' seen.');
+                    throw new \InvalidArgumentException('"test" must be array of objects or null, ' . gettype($data['test']) . ' seen.');
                 }
             }
             if (isset($data['teardown'])) {
                 $this->setTeardown($data['teardown']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

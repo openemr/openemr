@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -20,7 +21,7 @@ class RsPopulation implements Countable, Iterator, ArrayAccess
     public function __construct(array $patientIdArray)
     {
         foreach ($patientIdArray as $patientId) {
-            $this->_patients[]= new RsPatient($patientId);
+            $this->_patients[] = new RsPatient($patientId);
         }
     }
 

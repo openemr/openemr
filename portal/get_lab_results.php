@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * portal/get_lab_results.php
@@ -40,7 +41,7 @@ $res = sqlStatement("SELECT $selects " .
     "WHERE po.patient_id = ? AND $where " .
     "ORDER BY $orderby", array($pid));
 
-if (sqlNumRows($res)>0) {
+if (sqlNumRows($res) > 0) {
     ?>
     <table class="table table-striped table-sm table-bordered">
         <tr class="header">
@@ -55,7 +56,7 @@ if (sqlNumRows($res)>0) {
         <th><?php echo xlt('Report Status'); ?></th>
         </tr>
     <?php
-    $even=false;
+    $even = false;
 
     while ($row = sqlFetchArray($res)) {
         $order_type_id  = empty($row['order_type_id'      ]) ? 0 : ($row['order_type_id' ] + 0);

@@ -1,5 +1,6 @@
 <?php
-$GLOBALS['OE_SITE_DIR']="/var/www/openemr/sites/default";
+
+$GLOBALS['OE_SITE_DIR'] = "/var/www/openemr/sites/default";
 set_include_path(get_include_path() . PATH_SEPARATOR . "/var/www/openemr");
 require_once("library/sql.inc");
 require_once("library/htmlspecialchars.inc.php");
@@ -9,12 +10,12 @@ require_once("custom/code_types.inc.php");
 function main_search_test($type, $string, $limit = 20, $modes = null, $count = false, $category = null)
 {
     echo "<ol>";
-    $res=main_code_set_search($type, $string, $limit, $category, true, $modes, $count);
+    $res = main_code_set_search($type, $string, $limit, $category, true, $modes, $count);
     if ($count) {
         echo "<li>" . $res . "</li>";
     } else {
         while ($code = sqlFetchArray($res)) {
-            echo "<li>". $code['code_type_name'].":".$code['code'].":".$code['code_text'].":".$code['code_text_short']."</li>";
+            echo "<li>" . $code['code_type_name'] . ":" . $code['code'] . ":" . $code['code_text'] . ":" . $code['code_text_short'] . "</li>";
         }
     }
     echo "</ol>";
@@ -23,9 +24,9 @@ function main_search_test($type, $string, $limit = 20, $modes = null, $count = f
 function return_code_info_test($type, $string, $limit = 20, $modes = null, $count = false)
 {
     echo "<ol>";
-    $res=return_code_information($type, $string);
+    $res = return_code_information($type, $string);
     while ($code = sqlFetchArray($res)) {
-        echo "<li>". $code['code_type_name'].":".$code['code'].":".$code['code_text'].":".$code['code_text_short']."</li>";
+        echo "<li>" . $code['code_type_name'] . ":" . $code['code'] . ":" . $code['code_text'] . ":" . $code['code_text_short'] . "</li>";
     }
     echo "</ol>";
 }

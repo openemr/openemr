@@ -1,4 +1,5 @@
 <?php
+
 /**
  * library/RulesPlanMappingEventHandlers.php database interaction for admin-gui rules plan mappings.
  *
@@ -42,7 +43,7 @@ switch ($action) {
 
         $rules_list = array();
         foreach ($rules as $key => $value) {
-            $rule_info = array('rule_id'=>$key, 'rule_title'=>$value);
+            $rule_info = array('rule_id' => $key, 'rule_title' => $value);
             array_push($rules_list, $rule_info);
         }
 
@@ -55,7 +56,7 @@ switch ($action) {
 
         $rules_list = array();
         foreach ($rules as $key => $value) {
-            $rule_info = array('rule_id'=>$key, 'rule_title'=>$value);
+            $rule_info = array('rule_id' => $key, 'rule_title' => $value);
             array_push($rules_list, $rule_info);
         }
 
@@ -68,13 +69,13 @@ switch ($action) {
 
         $rules_list = array();
         foreach ($rules as $key => $value) {
-            $rule_info = array('rule_id'=>$key, 'rule_title'=>$value, 'selected'=>'true');
+            $rule_info = array('rule_id' => $key, 'rule_title' => $value, 'selected' => 'true');
             array_push($rules_list, $rule_info);
         }
 
         $rules = getRulesNotInPlan($_GET["plan_id"]);
         foreach ($rules as $key => $value) {
-            $rule_info = array('rule_id'=>$key, 'rule_title'=>$value, 'selected'=>'false');
+            $rule_info = array('rule_id' => $key, 'rule_title' => $value, 'selected' => 'false');
             array_push($rules_list, $rule_info);
         }
 
@@ -101,22 +102,22 @@ switch ($action) {
                     //Plan Name Taken
                     $status_code = '002';
                     $status_mssg = xl('Plan Name Already Exists');
-                } else if ($e->getMessage() == "003") {
+                } elseif ($e->getMessage() == "003") {
                     //Already in list options
                     $status_code = '003';
                     $status_mssg = xl('Plan Already in list_options');
                 }
 
-                $status = array('status_code'=>$status_code, 'status_message'=>$status_mssg, 'plan_id'=>$plan_id, 'plan_title'=>$plan_name);
+                $status = array('status_code' => $status_code, 'status_message' => $status_mssg, 'plan_id' => $plan_id, 'plan_title' => $plan_name);
                 echo text(json_encode($status));
 
                 break;
             }
-        } else if (strlen($plan_id) > 0) {
+        } elseif (strlen($plan_id) > 0) {
             submitChanges($plan_id, $added_rules, $removed_rules);
         }
 
-        $status = array('status_code'=>'000', 'status_message'=>'Success', 'plan_id'=>$plan_id, 'plan_title'=>$plan_name);
+        $status = array('status_code' => '000', 'status_message' => 'Success', 'plan_id' => $plan_id, 'plan_title' => $plan_name);
         echo text(json_encode($status));
 
         break;
@@ -161,7 +162,7 @@ switch ($action) {
 
         $isPlanActive = ($isPlanActive) ? 1 : 0 ;
 
-        $plan_status = array('plan_id'=>attr($plan_id), 'is_plan_active'=>$isPlanActive);
+        $plan_status = array('plan_id' => attr($plan_id), 'is_plan_active' => $isPlanActive);
         echo json_encode($plan_status);
 
         break;

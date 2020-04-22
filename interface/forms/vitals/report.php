@@ -1,4 +1,5 @@
 <?php
+
 /**
  * vitals report.php
  *
@@ -9,19 +10,18 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once(__DIR__ . "/../../globals.php");
-require_once($GLOBALS["srcdir"]."/api.inc");
-require_once($GLOBALS['fileroot']."/library/patient.inc");
+require_once($GLOBALS["srcdir"] . "/api.inc");
+require_once($GLOBALS['fileroot'] . "/library/patient.inc");
 
 function US_weight($pounds, $mode = 1)
 {
 
-    if ($mode==1) {
+    if ($mode == 1) {
         return $pounds . " " . xl('lb') ;
     } else {
-        $pounds_int=floor($pounds);
-        $ounces=round(($pounds-$pounds_int)*16);
+        $pounds_int = floor($pounds);
+        $ounces = round(($pounds - $pounds_int) * 16);
         return $pounds_int . " " . xl('lb') . " " . $ounces . " " . xl('oz');
     }
 }
@@ -33,16 +33,18 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
     $patient_data = getPatientData($GLOBALS['pid']);
     $patient_age = getPatientAge($patient_data['DOB']);
 
-    $vitals="";
+    $vitals = "";
     if ($data) {
         $vitals .= "<table><tr>";
 
         foreach ($data as $key => $value) {
-            if ($key == "id" || $key == "pid" ||
-              $key == "user" || $key == "groupname" ||
-              $key == "authorized" || $key == "activity" ||
-              $key == "date" || $value == "" ||
-              $value == "0000-00-00 00:00:00" || $value == "0.0") {
+            if (
+                $key == "id" || $key == "pid" ||
+                $key == "user" || $key == "groupname" ||
+                $key == "authorized" || $key == "activity" ||
+                $key == "date" || $value == "" ||
+                $value == "0000-00-00 00:00:00" || $value == "0.0"
+            ) {
                 // skip certain data
                 continue;
             }
@@ -65,22 +67,22 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
             } elseif ($key == "Bps") {
                 $bps = $value;
                 if ($bpd) {
-                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt('Blood Pressure') . ": </div><div class='text' style='display:inline-block'>" . text($bps) . "/". text($bpd)  . "</div></td>";
+                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt('Blood Pressure') . ": </div><div class='text' style='display:inline-block'>" . text($bps) . "/" . text($bpd)  . "</div></td>";
                 } else {
                     continue;
                 }
             } elseif ($key == "Bpd") {
                 $bpd = $value;
                 if ($bps) {
-                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt('Blood Pressure') . ": </div><div class='text' style='display:inline-block'>" . text($bps) . "/". text($bpd)  . "</div></td>";
+                    $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt('Blood Pressure') . ": </div><div class='text' style='display:inline-block'>" . text($bps) . "/" . text($bpd)  . "</div></td>";
                 } else {
                     continue;
                 }
             } elseif ($key == "Weight") {
-                $convValue = number_format($value*0.45359237, 2);
-                $vitals.="<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div><div class='text' style='display:inline-block'>";
+                $convValue = number_format($value * 0.45359237, 2);
+                $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div><div class='text' style='display:inline-block'>";
                 // show appropriate units
-                $mode=$GLOBALS['us_weight_format'];
+                $mode = $GLOBALS['us_weight_format'];
                 if ($GLOBALS['units_of_measurement'] == 2) {
                     $vitals .=  text($convValue) . " " . xlt('kg') . " (" . text(US_weight($value, $mode)) . ")";
                 } elseif ($GLOBALS['units_of_measurement'] == 3) {
@@ -91,9 +93,9 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                     $vitals .= text(US_weight($value, $mode)) . " (" . text($convValue) . " " . xlt('kg')  . ")";
                 }
 
-                $vitals.= "</div></td>";
+                $vitals .= "</div></td>";
             } elseif ($key == "Height" || $key == "Waist Circ"  || $key == "Head Circ") {
-                $convValue = round(number_format($value*2.54, 2), 1);
+                $convValue = round(number_format($value * 2.54, 2), 1);
                 // show appropriate units
                 if ($GLOBALS['units_of_measurement'] == 2) {
                     $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div><div class='text' style='display:inline-block'>" . text($convValue) . " " . xlt('cm') . " (" . text($value) . " " . xlt('in')  . ")</div></td>";
@@ -105,7 +107,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                     $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div><div class='text' style='display:inline-block'>" . text($value) . " " . xlt('in') . " (" . text($convValue) . " " . xlt('cm')  . ")</div></td>";
                 }
             } elseif ($key == "Temperature") {
-                $convValue = number_format((($value-32)*0.5556), 2);
+                $convValue = number_format((($value - 32) * 0.5556), 2);
                 // show appropriate units
                 if ($GLOBALS['units_of_measurement'] == 2) {
                     $vitals .= "<td><div class='font-weight-bold d-inline-block'>" . xlt($key) . ": </div><div class='text' style='display:inline-block'>" . text($convValue) . " " . xlt('C') . " (" . text($value) . " " . xlt('F')  . ")</div></td>";

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRDeviceRequest;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRDeviceRequest;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -219,8 +221,8 @@ class FHIRDeviceRequestParameter extends FHIRBackboneElement implements \JsonSer
             if (isset($data['valueBoolean'])) {
                 $this->setValueBoolean($data['valueBoolean']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

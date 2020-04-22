@@ -1,4 +1,5 @@
 <?php
+
 /**
  * weno admin.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once('../globals.php');
 require_once("$srcdir/options.inc.php");
@@ -72,13 +72,13 @@ if ($GLOBALS['weno_rx_enable'] != 1) {
     print xlt("You must activate Weno first! Go to Administration, Globals, Connectors");
     exit;
 } else {
-    print xlt("Weno Service is Enabled")."<br /><br />";
+    print xlt("Weno Service is Enabled") . "<br /><br />";
 }
 
 if ($tableHasData['count'] > 1) {
-    print xlt("Formularies are inserted into table")."<br />";
+    print xlt("Formularies are inserted into table") . "<br />";
 } else {
-    echo "<a href='drugDataInsert.php?csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='btn btn-secondary'>".xlt("Import Formularies")."</a> <br />".xlt("Be patient, this can take a while.");
+    echo "<a href='drugDataInsert.php?csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='btn btn-secondary'>" . xlt("Import Formularies") . "</a> <br />" . xlt("Be patient, this can take a while.");
 }
 
 ?>

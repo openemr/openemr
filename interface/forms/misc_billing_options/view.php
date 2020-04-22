@@ -1,4 +1,5 @@
 <?php
+
 /*
  * view.php for the viewing of information from the misc_billing_form
  *

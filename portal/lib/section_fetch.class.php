@@ -1,4 +1,5 @@
 <?php
+
 /**
  * section_fetch.class.php
  *
@@ -8,12 +9,13 @@
  * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 //namespace OnsitePortal;
 
 require_once(dirname(__file__) . "/../../custom/code_types.inc.php");
 
 
-require_once(dirname(__file__) .'/appsql.class.php');
+require_once(dirname(__file__) . '/appsql.class.php');
 class FetchSection
 {
 

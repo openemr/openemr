@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ProductRegistrationController
  *
@@ -18,9 +19,7 @@
  * @link    http://www.open-emr.org
  */
 
-
-
-$ignoreAuth=true;
+$ignoreAuth = true;
 require_once("../globals.php");
 require_once($GLOBALS['fileroot'] . "/interface/main/exceptions/invalid_email_exception.php");
 require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/generic_product_registration_exception.php");

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package Patient
  *
@@ -14,6 +15,7 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  *
  */
+
 /* */
 
 // Will start the (patient) portal OpenEMR session/cookie.

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -260,7 +262,7 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
                         $this->addVersion($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"version" must be array of objects or null, '.gettype($data['version']).' seen.');
+                    throw new \InvalidArgumentException('"version" must be array of objects or null, ' . gettype($data['version']) . ' seen.');
                 }
             }
             if (isset($data['containedInstance'])) {
@@ -269,11 +271,11 @@ class FHIRExampleScenarioInstance extends FHIRBackboneElement implements \JsonSe
                         $this->addContainedInstance($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"containedInstance" must be array of objects or null, '.gettype($data['containedInstance']).' seen.');
+                    throw new \InvalidArgumentException('"containedInstance" must be array of objects or null, ' . gettype($data['containedInstance']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

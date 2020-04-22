@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient history form.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
@@ -50,7 +50,7 @@ if (!AclMain::aclCheckCore('patients', 'med', '', array('write','addonly'))) {
     $smoke_codes = getSmokeCodes();
 
     foreach ($smoke_codes as $val => $code) {
-            echo "code_options_js"."[" . js_escape($val) . "]=" . js_escape($code) . ";\n";
+            echo "code_options_js" . "[" . js_escape($val) . "]=" . js_escape($code) . ";\n";
     }
     ?>
 
@@ -277,7 +277,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             </form>
 
             <!-- include support for the list-add selectbox feature -->
-            <?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
+            <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
         </div>
     </div>
 </div><!--end of container div-->
@@ -310,9 +310,9 @@ var skipArray = [
 </script>
 
 <?php /*Include the validation script and rules for this form*/
-$form_id="HIS";
+$form_id = "HIS";
 //LBF forms use the new validation depending on the global value
-$use_validate_js=$GLOBALS['new_validate'];
+$use_validate_js = $GLOBALS['new_validate'];
 
 ?><?php include_once("$srcdir/validation/validation_script.js.php");?>
 

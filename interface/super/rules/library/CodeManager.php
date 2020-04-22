@@ -1,4 +1,5 @@
 <?php
+
  // Copyright (C) 2010-2011 Aron Racho <aron@mi-squred.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -44,7 +45,7 @@ class CodeManager
 
         $codes = array();
 
-        for ($iter=0; $row=sqlFetchArray($stmt); $iter++) {
+        for ($iter = 0; $row = sqlFetchArray($stmt); $iter++) {
             $code = new Code($row['id'], $row['code'], $row['code_text'], $row['code_type']);
             array_push($codes, $code);
         }

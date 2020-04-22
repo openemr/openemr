@@ -1,7 +1,5 @@
 <?php
 
-namespace ESign;
-
 /**
  * Form implementation of ButtonIF interface, which is used to
  * display a button that triggers esign behavior.
@@ -25,9 +23,11 @@ namespace ESign;
  * @link    http://www.open-emr.org
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/ButtonIF.php';
-require_once $GLOBALS['srcdir'].'/ESign/Viewer.php';
-        
+namespace ESign;
+
+require_once $GLOBALS['srcdir'] . '/ESign/ButtonIF.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Viewer.php';
+
 class Form_Button implements ButtonIF
 {
     private $_viewer = null;
@@ -41,22 +41,22 @@ class Form_Button implements ButtonIF
         $this->_viewer->encounterId = $encounterId;
         $this->_viewer->target = "_parent";
     }
-    
+
     public function isViewable()
     {
         return $GLOBALS['esign_individual'];
     }
-    
+
     public function getViewScript()
     {
-        return $GLOBALS['srcdir'].'/ESign/views/form/esign_button.php';
+        return $GLOBALS['srcdir'] . '/ESign/views/form/esign_button.php';
     }
-    
+
     public function render(SignableIF $signable = null)
     {
         return $this->_viewer->render($this);
     }
-    
+
     public function getHtml(SignableIF $signable = null)
     {
         return $this->_viewer->getHtml($this);

@@ -94,7 +94,7 @@ if ($_POST['bn_save']) {
     $simech_other = '';
     if ($_POST['activity'] == '7') {
         $simech_other = $_POST['activity_other'];
-    } else if ($_POST['activity'] == '23') {
+    } elseif ($_POST['activity'] == '23') {
         $simech_other = $_POST['activity_nc_other'];
     }
 

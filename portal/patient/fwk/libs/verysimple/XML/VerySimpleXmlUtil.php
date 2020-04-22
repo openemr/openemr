@@ -1,4 +1,5 @@
 <?php
+
 /** @package    verysimple::XML */
 
 /**
@@ -212,16 +213,16 @@ class VerySimpleXmlUtil
         foreach ($children as $elementName => $node) {
             $nextIdx = count($arr);
             $arr [$nextIdx] = array ();
-            $arr [$nextIdx] ['@name'] = strtolower(( string ) $elementName);
+            $arr [$nextIdx] ['@name'] = strtolower((string) $elementName);
             $arr [$nextIdx] ['@attributes'] = array ();
             $attributes = $node->attributes();
             foreach ($attributes as $attributeName => $attributeValue) {
-                $attribName = strtolower(trim(( string ) $attributeName));
-                $attribVal = trim(( string ) $attributeValue);
+                $attribName = strtolower(trim((string) $attributeName));
+                $attribVal = trim((string) $attributeValue);
                 $arr [$nextIdx] ['@attributes'] [$attribName] = $attribVal;
             }
 
-            $text = ( string ) $node;
+            $text = (string) $node;
             $text = trim($text);
             if (strlen($text) > 0) {
                 $arr [$nextIdx] ['@text'] = $text;

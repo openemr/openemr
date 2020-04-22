@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -353,7 +355,7 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['name'])) {
@@ -362,7 +364,7 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
                         $this->addName($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"name" must be array of objects or null, '.gettype($data['name']).' seen.');
+                    throw new \InvalidArgumentException('"name" must be array of objects or null, ' . gettype($data['name']) . ' seen.');
                 }
             }
             if (isset($data['telecom'])) {
@@ -371,7 +373,7 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
                         $this->addTelecom($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"telecom" must be array of objects or null, '.gettype($data['telecom']).' seen.');
+                    throw new \InvalidArgumentException('"telecom" must be array of objects or null, ' . gettype($data['telecom']) . ' seen.');
                 }
             }
             if (isset($data['gender'])) {
@@ -386,7 +388,7 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
                         $this->addAddress($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"address" must be array of objects or null, '.gettype($data['address']).' seen.');
+                    throw new \InvalidArgumentException('"address" must be array of objects or null, ' . gettype($data['address']) . ' seen.');
                 }
             }
             if (isset($data['photo'])) {
@@ -404,11 +406,11 @@ class FHIRPerson extends FHIRDomainResource implements \JsonSerializable
                         $this->addLink($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"link" must be array of objects or null, '.gettype($data['link']).' seen.');
+                    throw new \InvalidArgumentException('"link" must be array of objects or null, ' . gettype($data['link']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

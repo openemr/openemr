@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Generates a Universally Unique IDentifier, version 4.
  *

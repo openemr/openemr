@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -258,7 +260,7 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
                         $this->addManufacturer($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"manufacturer" must be array of objects or null, '.gettype($data['manufacturer']).' seen.');
+                    throw new \InvalidArgumentException('"manufacturer" must be array of objects or null, ' . gettype($data['manufacturer']) . ' seen.');
                 }
             }
             if (isset($data['specifiedSubstance'])) {
@@ -267,14 +269,14 @@ class FHIRMedicinalProductIngredient extends FHIRDomainResource implements \Json
                         $this->addSpecifiedSubstance($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"specifiedSubstance" must be array of objects or null, '.gettype($data['specifiedSubstance']).' seen.');
+                    throw new \InvalidArgumentException('"specifiedSubstance" must be array of objects or null, ' . gettype($data['specifiedSubstance']) . ' seen.');
                 }
             }
             if (isset($data['substance'])) {
                 $this->setSubstance($data['substance']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

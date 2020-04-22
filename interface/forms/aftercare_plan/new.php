@@ -1,4 +1,5 @@
 <?php
+
 /**
  * aftercare_plan new.php
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
@@ -52,7 +52,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
 <br />
 <?php
 echo "<form method='post' name='my_form' " .
-  "action='$rootdir/forms/aftercare_plan/save.php?id=" . attr_url($formid) ."'>\n";
+  "action='$rootdir/forms/aftercare_plan/save.php?id=" . attr_url($formid) . "'>\n";
 ?>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
@@ -62,10 +62,10 @@ echo "<form method='post' name='my_form' " .
         <td class="forms">
             <label class="forms-data"> <?php if (is_numeric($pid)) {
                 $result = getPatientData($pid, "fname,lname,squad");
-                echo text($result['fname'])." ".text($result['lname']);
+                echo text($result['fname']) . " " . text($result['lname']);
                                        }
 
-                                       $patient_name=($result['fname'])." ".($result['lname']);
+                                       $patient_name = ($result['fname']) . " " . ($result['lname']);
                                         ?>
    </label>
    <input type="hidden" name="client_name" value="<?php echo attr($patient_name);?>">
@@ -77,7 +77,7 @@ echo "<form method='post' name='my_form' " .
             echo text($result['DOB']);
                                    }
 
-                                   $dob=($result['DOB']);
+                                   $dob = ($result['DOB']);
                                     ?>
    </label>
      <input type="hidden" name="DOB" value="<?php echo attr($dob);?>">

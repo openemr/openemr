@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Facilities.
  *
@@ -190,49 +191,49 @@ $(function () {
                                 }
 
                                 foreach ($result2 as $iter3) {
-                                    $varstreet="";//these are assigned conditionally below,blank assignment is done so that old values doesn't get propagated to next level.
-                                    $varcity="";
-                                    $varstate="";
-                                    $varmstreet="";
-                                    $varmcity="";
-                                    $varmstate="";
-                                    $varstreet=$iter3["street"];
-                                    if ($iter3["street"]!="") {
-                                        $varstreet=$iter3["street"].",";
+                                    $varstreet = "";//these are assigned conditionally below,blank assignment is done so that old values doesn't get propagated to next level.
+                                    $varcity = "";
+                                    $varstate = "";
+                                    $varmstreet = "";
+                                    $varmcity = "";
+                                    $varmstate = "";
+                                    $varstreet = $iter3["street"];
+                                    if ($iter3["street"] != "") {
+                                        $varstreet = $iter3["street"] . ",";
                                     }
 
-                                    if ($iter3["city"]!="") {
-                                        $varcity=$iter3["city"].",";
+                                    if ($iter3["city"] != "") {
+                                        $varcity = $iter3["city"] . ",";
                                     }
 
-                                    if ($iter3["state"]!="") {
-                                        $varstate=$iter3["state"].",";
+                                    if ($iter3["state"] != "") {
+                                        $varstate = $iter3["state"] . ",";
                                     }
 
-                                    $varmstreet=$iter3["mail_street"];
-                                    if ($iter3["mail_street"] !="") {
-                                        $varmstreet=$iter3["mail_street"].",";
+                                    $varmstreet = $iter3["mail_street"];
+                                    if ($iter3["mail_street"] != "") {
+                                        $varmstreet = $iter3["mail_street"] . ",";
                                     }
 
-                                    if ($iter3["mail_city"]!="") {
-                                        $varmcity=$iter3["mail_city"].",";
+                                    if ($iter3["mail_city"] != "") {
+                                        $varmcity = $iter3["mail_city"] . ",";
                                     }
 
-                                    if ($iter3["mail_state"]!="") {
-                                        $varmstate=$iter3["mail_state"].",";
+                                    if ($iter3["mail_state"] != "") {
+                                        $varmstate = $iter3["mail_state"] . ",";
                                     }
                                     ?>
                             <tr height="22">
                                  <td valign="top" class="text"><strong><a href="facility_admin.php?fid=<?php echo attr_url($iter3["id"]); ?>" class="medium_modal"><span><?php echo xlt($iter3["name"]);?></span></a></strong>&nbsp;</td>
-                                 <td valign="top" class="text"><?php echo text($varstreet.$varcity.$varstate.$iter3["country_code"]." ".$iter3["postal_code"]); ?>&nbsp;</td>
-                                 <td valign="top" class="text"><?php echo text($varmstreet.$varmcity.$varmstate.$iter3['mail_zip']); ?></td>
+                                 <td valign="top" class="text"><?php echo text($varstreet . $varcity . $varstate . $iter3["country_code"] . " " . $iter3["postal_code"]); ?>&nbsp;</td>
+                                 <td valign="top" class="text"><?php echo text($varmstreet . $varmcity . $varmstate . $iter3['mail_zip']); ?></td>
                                  <td><?php echo text($iter3["phone"]);?>&nbsp;</td>
                             </tr>
                                     <?php
                                 }
                             }
 
-                            if (count($result2)<=0) {?>
+                            if (count($result2) <= 0) {?>
                             <tr height="25">
                                 <td colspan="3" class="text-center font-weight-bold"> <?php echo xlt("Currently there are no facilities."); ?></td>
                             </tr>

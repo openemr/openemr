@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Collections report
  *
@@ -206,7 +207,7 @@ function endPatient($ptrow)
 
         $export_patient_count += 1;
         $export_dollars += $pt_balance;
-    } else if ($_POST['form_csvexport']) {
+    } elseif ($_POST['form_csvexport']) {
         $export_patient_count += 1;
         $export_dollars += $pt_balance;
     } else {
@@ -535,7 +536,7 @@ if ($_POST['form_csvexport']) {
                         <td>
                            <select name='form_ageby' class='form-control'>
                         <?php
-                        foreach (array( 'Service Date'=>xl('Service Date'), 'Last Activity Date'=>xl('Last Activity Date')) as $key => $value) {
+                        foreach (array( 'Service Date' => xl('Service Date'), 'Last Activity Date' => xl('Last Activity Date')) as $key => $value) {
                             echo "    <option value='" . attr($key) . "'";
                             if ($_POST['form_ageby'] == $value) {
                                 echo " selected";
@@ -554,7 +555,7 @@ if ($_POST['form_csvexport']) {
                         <?php  # Build a drop-down list of providers.
                                # Added (TLH)
 
-                               $query = "SELECT id, lname, fname FROM users WHERE ".
+                               $query = "SELECT id, lname, fname FROM users WHERE " .
                                "authorized = 1  ORDER BY lname, fname"; #(CHEMED) facility filter
 
                                $ures = sqlStatement($query);
@@ -648,7 +649,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
              $newkey = $key_newval['pid'];
              $newencounter =  $key_newval['encounter'];
              # added this condition to handle the downloading of individual invoices (TLH)
-            if ($_POST['form_individual'] ==1) {
+            if ($_POST['form_individual'] == 1) {
                 $where .= " OR f.encounter = ? ";
                 array_push($sqlArray, $newencounter);
             } else {
@@ -667,10 +668,10 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
 
         if ($form_to_date) {
             $where .= "f.date >= ? AND f.date <= ? ";
-            array_push($sqlArray, $form_date.' 00:00:00', $form_to_date.' 23:59:59');
+            array_push($sqlArray, $form_date . ' 00:00:00', $form_to_date . ' 23:59:59');
         } else {
             $where .= "f.date >= ? AND f.date <= ? ";
-            array_push($sqlArray, $form_date.' 00:00:00', $form_date.' 23:59:59');
+            array_push($sqlArray, $form_date . ' 00:00:00', $form_date . ' 23:59:59');
         }
     }
 
@@ -734,7 +735,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
         $pt_balance = 0 + sprintf("%.2f", $pt_balance); // yes this seems to be necessary
         $svcdate = substr($erow['date'], 0, 10);
 
-        if ($form_cb_with_debt && $pt_balance<=0) {
+        if ($form_cb_with_debt && $pt_balance <= 0) {
             unset($erow);
             continue;
         }
@@ -877,7 +878,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
         $row['billing_errmsg'] = '';
         if ($is_due_ins && $last_level_closed < 1 && $ins_seems_done) {
             $row['billing_errmsg'] = 'Ins1 seems done';
-        } else if ($last_level_closed >= 1 && !$ins_seems_done) {
+        } elseif ($last_level_closed >= 1 && !$ins_seems_done) {
             $row['billing_errmsg'] = 'Ins1 seems not done';
         }
 
@@ -929,7 +930,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
 
     if ($_POST['form_export']) {
         echo "<textarea rows='35' cols='100' readonly>";
-    } else if ($_POST['form_csvexport']) {
+    } elseif ($_POST['form_csvexport']) {
         # CSV headers added conditions if they are checked to display then export them (TLH)
         if (true) {
             echo csvEscape(xl('Insurance')) . ',';
@@ -1079,7 +1080,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
             }
 
             $ptrow['agedbal'] = array();
-        } else if (!$is_ins_summary && ($insname != $ptrow['insname'] || $pid != $ptrow['pid'])) {
+        } elseif (!$is_ins_summary && ($insname != $ptrow['insname'] || $pid != $ptrow['pid'])) {
             // For the report, this will write the patient totals.  For the
             // collections export this writes everything for the patient:
             endPatient($ptrow);
@@ -1122,10 +1123,10 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
             <?php
             if ($ptrow['count'] == 1) {
                 if ($is_due_ins) {
-                    echo "  <td class='detail'>&nbsp;" . text($insname) ."</td>\n";
+                    echo "  <td class='detail'>&nbsp;" . text($insname) . "</td>\n";
                 }
 
-                echo "  <td class='detail'>&nbsp;" . text($ptname) ."</td>\n";
+                echo "  <td class='detail'>&nbsp;" . text($ptname) . "</td>\n";
                 if ($form_cb_ssn) {
                     echo "  <td class='detail'>&nbsp;" . text($row['ss']) . "</td>\n";
                 }
@@ -1229,7 +1230,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
             ?>
  </tr>
             <?php
-        } else if ($_POST['form_csvexport']) { // end not export and not insurance summary
+        } elseif ($_POST['form_csvexport']) { // end not export and not insurance summary
           // The CSV detail line is written here added conditions for checked items (TLH).
           // Added zero balances for a complete spreadsheet view
             $balance = $row['charges'] + $row['adjustments'] - $row['paid'];
@@ -1294,7 +1295,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
         } else {
             $alertmsg .= "AND flagged as in collections.";
         }
-    } else if ($_POST['form_csvexport']) {
+    } elseif ($_POST['form_csvexport']) {
         // echo "</textarea>\n";
         // $alertmsg .= "$export_patient_count patients representing $" .
         //   sprintf("%.2f", $export_dollars) . " have been exported.";

@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * QRDA Category1 File
@@ -21,13 +22,12 @@
  * @link    http://www.open-emr.org
  */
 
-
     //Initialization of QRDA Elements
     //QRDA Needed Race
-    $mainQrdaRaceCodeArr =  array('amer_ind_or_alaska_native'=>'1002-5', 'Asian'=>'2028-9', 'black_or_afri_amer'=>'2054-5', 'native_hawai_or_pac_island'=>'2076-8', 'white'=>'2106-3', 'Asian_Pacific_Island'=>'2131-1', 'Black_not_of_Hispan'=>'2131-1', 'Hispanic'=>'2131-1', 'White_not_of_Hispan'=>'2131-1');
+    $mainQrdaRaceCodeArr =  array('amer_ind_or_alaska_native' => '1002-5', 'Asian' => '2028-9', 'black_or_afri_amer' => '2054-5', 'native_hawai_or_pac_island' => '2076-8', 'white' => '2106-3', 'Asian_Pacific_Island' => '2131-1', 'Black_not_of_Hispan' => '2131-1', 'Hispanic' => '2131-1', 'White_not_of_Hispan' => '2131-1');
     
     //QRDA Needed Ethnicity
-    $mainEthiCodeArr =  array('not_hisp_or_latin'=>'2186-5', 'hisp_or_latin'=>'2135-2');
+    $mainEthiCodeArr =  array('not_hisp_or_latin' => '2186-5', 'hisp_or_latin' => '2135-2');
     
     //QRDA Needed Payer Info
     $mainQrdaPayerCodeSendArr = array();

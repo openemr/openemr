@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -199,7 +201,7 @@ class FHIRMedicationKnowledgeRegulatory extends FHIRBackboneElement implements \
                         $this->addSubstitution($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"substitution" must be array of objects or null, '.gettype($data['substitution']).' seen.');
+                    throw new \InvalidArgumentException('"substitution" must be array of objects or null, ' . gettype($data['substitution']) . ' seen.');
                 }
             }
             if (isset($data['schedule'])) {
@@ -208,14 +210,14 @@ class FHIRMedicationKnowledgeRegulatory extends FHIRBackboneElement implements \
                         $this->addSchedule($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"schedule" must be array of objects or null, '.gettype($data['schedule']).' seen.');
+                    throw new \InvalidArgumentException('"schedule" must be array of objects or null, ' . gettype($data['schedule']) . ' seen.');
                 }
             }
             if (isset($data['maxDispense'])) {
                 $this->setMaxDispense($data['maxDispense']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

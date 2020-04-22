@@ -17,7 +17,7 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 
 /* for $GLOBALS['srcdir','pid'] */
 /* remember that include paths are calculated relative to the including script, not this file. */
-require_once(dirname(__FILE__).'/../globals.php');
+require_once(dirname(__FILE__) . '/../globals.php');
 
 /**
  * @class AbstractClickmapModel

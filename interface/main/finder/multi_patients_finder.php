@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Multi select patient.
  *
@@ -29,7 +30,7 @@ if (isset($_GET['patients'])) {
     $patients = explode(';', $patients);
     $results = array();
     foreach ($patients as $patient) {
-        $result=getPatientData($patient, 'id, pid, lname, fname, mname, pubpid, ss, DOB, phone_home');
+        $result = getPatientData($patient, 'id, pid, lname, fname, mname, pubpid, ss, DOB, phone_home');
         $results[] = $result;
     }
 }
@@ -102,7 +103,7 @@ if (isset($_GET['patients'])) {
             <div class="row align-items-center">
                 <div class="col-4">
                     <div class="select-box form-inline">
-                        <label for="by-name"><?php echo xlt('Patient name') .':'; ?></label>
+                        <label for="by-name"><?php echo xlt('Patient name') . ':'; ?></label>
                         <select id="by-name" name="by-name" class="input-sm">
                             <option value=""><?php echo xlt('Enter name'); ?></option>
                         </select>

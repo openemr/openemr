@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file contains a function to keep track of which issues
  * types get modified.
@@ -9,7 +10,6 @@
  * @copyright Copyright (c) 2011-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 require_once(dirname(__FILE__) . "/../lists.inc");

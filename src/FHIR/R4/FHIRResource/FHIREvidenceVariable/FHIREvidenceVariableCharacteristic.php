@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIREvidenceVariable;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIREvidenceVariable;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -473,7 +475,7 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
                         $this->addUsageContext($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"usageContext" must be array of objects or null, '.gettype($data['usageContext']).' seen.');
+                    throw new \InvalidArgumentException('"usageContext" must be array of objects or null, ' . gettype($data['usageContext']) . ' seen.');
                 }
             }
             if (isset($data['exclude'])) {
@@ -497,8 +499,8 @@ class FHIREvidenceVariableCharacteristic extends FHIRBackboneElement implements 
             if (isset($data['groupMeasure'])) {
                 $this->setGroupMeasure($data['groupMeasure']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

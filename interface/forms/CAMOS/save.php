@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CAMOS save.php
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("../../../library/api.inc");
@@ -25,10 +25,10 @@ if ($_GET["mode"] == "delete") {
     }
 
     foreach ($_POST as $key => $val) {
-        if (substr($key, 0, 3) == 'ch_' and $val='on') {
+        if (substr($key, 0, 3) == 'ch_' and $val = 'on') {
             $id = substr($key, 3);
             if ($_POST['delete']) {
-                sqlStatement("delete from ".mitigateSqlTableUpperCase("form_CAMOS")." where id=?", array($id));
+                sqlStatement("delete from " . mitigateSqlTableUpperCase("form_CAMOS") . " where id=?", array($id));
                 sqlStatement("delete from forms where form_name like 'CAMOS%' and form_id=?", array($id));
             }
 
@@ -38,9 +38,9 @@ if ($_GET["mode"] == "delete") {
                 //   before being submitted to the database. Will also continue to support placeholder conversion on report
                 //   views to support notes within database that still contain placeholders (ie. notes that were created previous to
                 //   version 4.0).
-                $content = $_POST['textarea_'.${id}];
+                $content = $_POST['textarea_' . ${id}];
                 $content = replace($pid, $encounter, $content);
-                sqlStatement("update ".mitigateSqlTableUpperCase("form_CAMOS")." set content=? where id=?", array($content, $id));
+                sqlStatement("update " . mitigateSqlTableUpperCase("form_CAMOS") . " set content=? where id=?", array($content, $id));
             }
         }
     }

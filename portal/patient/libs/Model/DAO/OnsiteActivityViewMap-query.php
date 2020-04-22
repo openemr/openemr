@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OnsiteActivityViewMap-query.php
  *

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -309,7 +311,7 @@ class FHIRCapabilityStatementRest extends FHIRBackboneElement implements \JsonSe
                         $this->addResource($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"resource" must be array of objects or null, '.gettype($data['resource']).' seen.');
+                    throw new \InvalidArgumentException('"resource" must be array of objects or null, ' . gettype($data['resource']) . ' seen.');
                 }
             }
             if (isset($data['interaction'])) {
@@ -318,7 +320,7 @@ class FHIRCapabilityStatementRest extends FHIRBackboneElement implements \JsonSe
                         $this->addInteraction($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"interaction" must be array of objects or null, '.gettype($data['interaction']).' seen.');
+                    throw new \InvalidArgumentException('"interaction" must be array of objects or null, ' . gettype($data['interaction']) . ' seen.');
                 }
             }
             if (isset($data['searchParam'])) {
@@ -327,7 +329,7 @@ class FHIRCapabilityStatementRest extends FHIRBackboneElement implements \JsonSe
                         $this->addSearchParam($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"searchParam" must be array of objects or null, '.gettype($data['searchParam']).' seen.');
+                    throw new \InvalidArgumentException('"searchParam" must be array of objects or null, ' . gettype($data['searchParam']) . ' seen.');
                 }
             }
             if (isset($data['operation'])) {
@@ -336,7 +338,7 @@ class FHIRCapabilityStatementRest extends FHIRBackboneElement implements \JsonSe
                         $this->addOperation($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"operation" must be array of objects or null, '.gettype($data['operation']).' seen.');
+                    throw new \InvalidArgumentException('"operation" must be array of objects or null, ' . gettype($data['operation']) . ' seen.');
                 }
             }
             if (isset($data['compartment'])) {
@@ -345,11 +347,11 @@ class FHIRCapabilityStatementRest extends FHIRBackboneElement implements \JsonSe
                         $this->addCompartment($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"compartment" must be array of objects or null, '.gettype($data['compartment']).' seen.');
+                    throw new \InvalidArgumentException('"compartment" must be array of objects or null, ' . gettype($data['compartment']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CAMOS view.php
  *
@@ -20,7 +21,6 @@
  * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("../../../library/api.inc");
@@ -92,13 +92,13 @@ echo "<a href='{$GLOBALS['form_exit_url']}'>[" . xlt('do nothing') . "]</a>";
 $pid = $GLOBALS['pid'];
 $encounter = $GLOBALS['encounter'];
 
-$query = "select t1.id, t1.content from ".mitigateSqlTableUpperCase("form_CAMOS")." as t1 join forms as t2 " .
+$query = "select t1.id, t1.content from " . mitigateSqlTableUpperCase("form_CAMOS") . " as t1 join forms as t2 " .
   "on (t1.id = t2.form_id) where t2.form_name like 'CAMOS%' " .
   "and t2.encounter like ? and t2.pid = ?";
 
 $statement = sqlStatement($query, array($encounter, $pid));
 while ($result = sqlFetchArray($statement)) {
-    print "<input type=button value='" . xla('Edit') . "' onClick='show_edit(" . attr_js('id_textarea_'.$result['id']) . ")'>";
+    print "<input type=button value='" . xla('Edit') . "' onClick='show_edit(" . attr_js('id_textarea_' . $result['id']) . ")'>";
     print "<input type=checkbox name='ch_" . attr($result['id']) . "'> " . text($result['content']) . "<br/>";
     print "<div id=id_textarea_" . attr($result['id']) . " style='display:none'>";
     print "<textarea name=textarea_" . attr($result['id']) . " cols=" . attr($textarea_cols) . " rows=" . attr($textarea_rows) . " onFocus='content_focus()' onBlur='content_blur()' >" . text($result['content']) . "</textarea><br/>";

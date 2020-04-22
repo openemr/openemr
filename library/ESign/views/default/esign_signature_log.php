@@ -1,4 +1,5 @@
 <?php
+
 /**
  * default signature log view script
  *
@@ -20,6 +21,7 @@
  * @author  Medical Information Integration, LLC
  * @link    http://www.open-emr.org
  **/
+
 ?>
 <div id='esign-signature-log-<?php echo attr($this->logId); ?>' class='esign-signature-log-container'>
     <div class="esign-signature-log-table">

@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -18,7 +19,7 @@ class Codes
             if (isset(self::$_codes[$clinicalType][$codeType])) {
                 return self::$_codes[$clinicalType][$codeType];
             }
-        } else if (isset(self::$_codes[$clinicalType])) {
+        } elseif (isset(self::$_codes[$clinicalType])) {
             return self::$_codes[$clinicalType];
         }
          

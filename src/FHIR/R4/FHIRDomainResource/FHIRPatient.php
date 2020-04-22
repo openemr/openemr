@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -564,7 +566,7 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['active'])) {
@@ -576,7 +578,7 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
                         $this->addName($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"name" must be array of objects or null, '.gettype($data['name']).' seen.');
+                    throw new \InvalidArgumentException('"name" must be array of objects or null, ' . gettype($data['name']) . ' seen.');
                 }
             }
             if (isset($data['telecom'])) {
@@ -585,7 +587,7 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
                         $this->addTelecom($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"telecom" must be array of objects or null, '.gettype($data['telecom']).' seen.');
+                    throw new \InvalidArgumentException('"telecom" must be array of objects or null, ' . gettype($data['telecom']) . ' seen.');
                 }
             }
             if (isset($data['gender'])) {
@@ -606,7 +608,7 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
                         $this->addAddress($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"address" must be array of objects or null, '.gettype($data['address']).' seen.');
+                    throw new \InvalidArgumentException('"address" must be array of objects or null, ' . gettype($data['address']) . ' seen.');
                 }
             }
             if (isset($data['maritalStatus'])) {
@@ -624,7 +626,7 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
                         $this->addPhoto($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"photo" must be array of objects or null, '.gettype($data['photo']).' seen.');
+                    throw new \InvalidArgumentException('"photo" must be array of objects or null, ' . gettype($data['photo']) . ' seen.');
                 }
             }
             if (isset($data['contact'])) {
@@ -633,7 +635,7 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
                         $this->addContact($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"contact" must be array of objects or null, '.gettype($data['contact']).' seen.');
+                    throw new \InvalidArgumentException('"contact" must be array of objects or null, ' . gettype($data['contact']) . ' seen.');
                 }
             }
             if (isset($data['communication'])) {
@@ -642,7 +644,7 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
                         $this->addCommunication($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"communication" must be array of objects or null, '.gettype($data['communication']).' seen.');
+                    throw new \InvalidArgumentException('"communication" must be array of objects or null, ' . gettype($data['communication']) . ' seen.');
                 }
             }
             if (isset($data['generalPractitioner'])) {
@@ -651,7 +653,7 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
                         $this->addGeneralPractitioner($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"generalPractitioner" must be array of objects or null, '.gettype($data['generalPractitioner']).' seen.');
+                    throw new \InvalidArgumentException('"generalPractitioner" must be array of objects or null, ' . gettype($data['generalPractitioner']) . ' seen.');
                 }
             }
             if (isset($data['managingOrganization'])) {
@@ -663,11 +665,11 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
                         $this->addLink($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"link" must be array of objects or null, '.gettype($data['link']).' seen.');
+                    throw new \InvalidArgumentException('"link" must be array of objects or null, ' . gettype($data['link']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

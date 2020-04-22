@@ -1,4 +1,5 @@
 <?php
+
 namespace Ccr;
 
 use Ccr\Model\Ccr;

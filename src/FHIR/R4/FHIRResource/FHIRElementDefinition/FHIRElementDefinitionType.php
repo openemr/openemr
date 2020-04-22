@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRElementDefinition;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRElementDefinition;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -226,7 +228,7 @@ class FHIRElementDefinitionType extends FHIRBackboneElement implements \JsonSeri
                         $this->addProfile($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"profile" must be array of objects or null, '.gettype($data['profile']).' seen.');
+                    throw new \InvalidArgumentException('"profile" must be array of objects or null, ' . gettype($data['profile']) . ' seen.');
                 }
             }
             if (isset($data['targetProfile'])) {
@@ -235,7 +237,7 @@ class FHIRElementDefinitionType extends FHIRBackboneElement implements \JsonSeri
                         $this->addTargetProfile($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"targetProfile" must be array of objects or null, '.gettype($data['targetProfile']).' seen.');
+                    throw new \InvalidArgumentException('"targetProfile" must be array of objects or null, ' . gettype($data['targetProfile']) . ' seen.');
                 }
             }
             if (isset($data['aggregation'])) {
@@ -244,14 +246,14 @@ class FHIRElementDefinitionType extends FHIRBackboneElement implements \JsonSeri
                         $this->addAggregation($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"aggregation" must be array of objects or null, '.gettype($data['aggregation']).' seen.');
+                    throw new \InvalidArgumentException('"aggregation" must be array of objects or null, ' . gettype($data['aggregation']) . ' seen.');
                 }
             }
             if (isset($data['versioning'])) {
                 $this->setVersioning($data['versioning']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

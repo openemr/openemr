@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -203,7 +205,7 @@ class FHIRSubstanceProtein extends FHIRDomainResource implements \JsonSerializab
                         $this->addDisulfideLinkage($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"disulfideLinkage" must be array of objects or null, '.gettype($data['disulfideLinkage']).' seen.');
+                    throw new \InvalidArgumentException('"disulfideLinkage" must be array of objects or null, ' . gettype($data['disulfideLinkage']) . ' seen.');
                 }
             }
             if (isset($data['subunit'])) {
@@ -212,11 +214,11 @@ class FHIRSubstanceProtein extends FHIRDomainResource implements \JsonSerializab
                         $this->addSubunit($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"subunit" must be array of objects or null, '.gettype($data['subunit']).' seen.');
+                    throw new \InvalidArgumentException('"subunit" must be array of objects or null, ' . gettype($data['subunit']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

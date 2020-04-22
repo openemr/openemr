@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class ImportPharmacies
  * @package   OpenEMR
@@ -72,7 +73,7 @@ class ImportPharmacies
         $body = $response->body(); // already should be json.
 
         $pharmacyObj = json_decode($body, true, 512, 0);
-        $i=0;
+        $i = 0;
         foreach ($pharmacyObj as $obj => $value) {
             foreach ($value as $key => $show) {
                 /*********************Skip duplicates*******************/

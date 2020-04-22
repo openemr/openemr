@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Batch list processor, included from batchcom
  *
@@ -49,7 +50,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
                     <?php
                     while ($row = sqlFetchArray($res)) {
                         echo "<tr><td>";
-                        echo text($row['title']). ' ' . text($row['fname']) . ' ' . text($row['lname']);
+                        echo text($row['title']) . ' ' . text($row['fname']) . ' ' . text($row['lname']);
                         echo "</td><td>";
                         echo text($row['DOB']);
                         echo "</td><td>";

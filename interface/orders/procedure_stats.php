@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This module creates statistical reports related to lab tests and
  * other procedure orders.
@@ -13,7 +14,6 @@
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
@@ -266,7 +266,7 @@ function process_result_code($row)
     if ($form_by === '4') {
         $key = $row['order_name'] . ' / ' . $row['result_name'];
         loadColumnData($key, $row);
-    } else if ($form_by === '5') {  // Recommended followup services.
+    } elseif ($form_by === '5') {  // Recommended followup services.
         if (!empty($row['related_code'])) {
             $relcodes = explode(';', $row['related_code']);
             foreach ($relcodes as $codestring) {
@@ -452,9 +452,11 @@ if ($_POST['form_submit']) {
             continue;
         }
 
-        if ($askey == 'regdate' || $askey == 'sex' || $askey == 'DOB' ||
-        $askey == 'lname' || $askey == 'fname' || $askey == 'mname' ||
-        $askey == 'contrastart' || $askey == 'referral_source') {
+        if (
+            $askey == 'regdate' || $askey == 'sex' || $askey == 'DOB' ||
+            $askey == 'lname' || $askey == 'fname' || $askey == 'mname' ||
+            $askey == 'contrastart' || $askey == 'referral_source'
+        ) {
             continue;
         }
 
@@ -464,7 +466,7 @@ if ($_POST['form_submit']) {
     $sexcond = '';
     if ($form_sexes == '1') {
         $sexcond = "AND pd.sex NOT LIKE 'Male' ";
-    } else if ($form_sexes == '2') {
+    } elseif ($form_sexes == '2') {
         $sexcond = "AND pd.sex LIKE 'Male' ";
     }
 
@@ -538,7 +540,7 @@ if ($_POST['form_submit']) {
       // }
         if ($value == '.tneg') { // Total Negatives
             genHeadCell(xl('Negatives'));
-        } else if ($value == '.age') { // Age
+        } elseif ($value == '.age') { // Age
             genHeadCell(xl('0-10'), true);
             genHeadCell(xl('11-14'), true);
             genHeadCell(xl('15-19'), true);
@@ -548,11 +550,11 @@ if ($_POST['form_submit']) {
             genHeadCell(xl('35-39'), true);
             genHeadCell(xl('40-44'), true);
             genHeadCell(xl('45+'), true);
-        } else if ($arr_show[$value]['list_id']) {
+        } elseif ($arr_show[$value]['list_id']) {
             foreach ($arr_titles[$value] as $key => $dummy) {
                 genHeadCell(getListTitle($arr_show[$value]['list_id'], $key), true);
             }
-        } else if (!empty($arr_titles[$value])) {
+        } elseif (!empty($arr_titles[$value])) {
             foreach ($arr_titles[$value] as $key => $dummy) {
                 genHeadCell($key, true);
             }
@@ -599,11 +601,11 @@ if ($_POST['form_submit']) {
             // }
             if ($value == '.tneg') { // Total Negatives
                 genNumCell($areport[$key]['.neg'], $cnum++);
-            } else if ($value == '.age') { // Age
+            } elseif ($value == '.age') { // Age
                 for ($i = 0; $i < 9; ++$i) {
                     genNumCell($areport[$key]['.age'][$i], $cnum++);
                 }
-            } else if (!empty($arr_titles[$value])) {
+            } elseif (!empty($arr_titles[$value])) {
                 foreach ($arr_titles[$value] as $title => $dummy) {
                     genNumCell($areport[$key][$value][$title], $cnum++);
                 }

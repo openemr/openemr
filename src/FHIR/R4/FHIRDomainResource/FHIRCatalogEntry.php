@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -431,7 +433,7 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['type'])) {
@@ -449,7 +451,7 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
                         $this->addAdditionalIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"additionalIdentifier" must be array of objects or null, '.gettype($data['additionalIdentifier']).' seen.');
+                    throw new \InvalidArgumentException('"additionalIdentifier" must be array of objects or null, ' . gettype($data['additionalIdentifier']) . ' seen.');
                 }
             }
             if (isset($data['classification'])) {
@@ -458,7 +460,7 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
                         $this->addClassification($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"classification" must be array of objects or null, '.gettype($data['classification']).' seen.');
+                    throw new \InvalidArgumentException('"classification" must be array of objects or null, ' . gettype($data['classification']) . ' seen.');
                 }
             }
             if (isset($data['status'])) {
@@ -479,7 +481,7 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
                         $this->addAdditionalCharacteristic($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"additionalCharacteristic" must be array of objects or null, '.gettype($data['additionalCharacteristic']).' seen.');
+                    throw new \InvalidArgumentException('"additionalCharacteristic" must be array of objects or null, ' . gettype($data['additionalCharacteristic']) . ' seen.');
                 }
             }
             if (isset($data['additionalClassification'])) {
@@ -488,7 +490,7 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
                         $this->addAdditionalClassification($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"additionalClassification" must be array of objects or null, '.gettype($data['additionalClassification']).' seen.');
+                    throw new \InvalidArgumentException('"additionalClassification" must be array of objects or null, ' . gettype($data['additionalClassification']) . ' seen.');
                 }
             }
             if (isset($data['relatedEntry'])) {
@@ -497,11 +499,11 @@ class FHIRCatalogEntry extends FHIRDomainResource implements \JsonSerializable
                         $this->addRelatedEntry($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"relatedEntry" must be array of objects or null, '.gettype($data['relatedEntry']).' seen.');
+                    throw new \InvalidArgumentException('"relatedEntry" must be array of objects or null, ' . gettype($data['relatedEntry']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

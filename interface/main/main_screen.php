@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The outside frame that holds all of the OpenEMR User Interface.
  *
@@ -389,7 +390,7 @@ if ($GLOBALS['login_into_facility']) {
 }
 
 // Fetch the password expiration date (note LDAP skips this)
-$is_expired=false;
+$is_expired = false;
 if ((!AuthUtils::useActiveDirectory()) && ($GLOBALS['password_expiration_days'] != 0) && (check_integer($GLOBALS['password_expiration_days']))) {
     $result = privQuery("select `last_update_password` from `users_secure` where `id` = ?", [$_SESSION['authUserID']]);
     $current_date = date('Y-m-d');
@@ -405,7 +406,7 @@ if ((!AuthUtils::useActiveDirectory()) && ($GLOBALS['password_expiration_days'] 
 
     if (empty(strtotime($pwd_alert_date))) {
         error_log("OpenEMR ERROR: there is a problem when trying to check if user's password is expired");
-    } else if (strtotime($current_date) >= strtotime($pwd_alert_date)) {
+    } elseif (strtotime($current_date) >= strtotime($pwd_alert_date)) {
         $is_expired = true;
     }
 }
@@ -457,7 +458,7 @@ if ($is_expired) {
         )
     );
     if ($GLOBALS['default_top_pane']) {
-        $frame1url=attr($GLOBALS['default_top_pane']);
+        $frame1url = attr($GLOBALS['default_top_pane']);
         $frame1target = $map_paths_to_targets[$GLOBALS['default_top_pane']]['target'];
         $frame1label = $map_paths_to_targets[$GLOBALS['default_top_pane']]['label'];
         if (empty($frame1target)) {
@@ -468,7 +469,7 @@ if ($is_expired) {
         $frame1target = "cal";
     }
     if ($GLOBALS['default_second_tab']) {
-        $frame2url=attr($GLOBALS['default_second_tab']);
+        $frame2url = attr($GLOBALS['default_second_tab']);
         $frame2target = $map_paths_to_targets[$GLOBALS['default_second_tab']]['target'];
         $frame2label = $map_paths_to_targets[$GLOBALS['default_second_tab']]['label'];
         if (empty($frame2target)) {

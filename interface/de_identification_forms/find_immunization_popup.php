@@ -1,4 +1,5 @@
 <?php
+
 /**
  * find_immunization_popup.php
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -157,7 +157,7 @@ function check_search_str()
     {
     $query = "SELECT count(*) as count FROM list_options " .
       "WHERE (list_id = 'immunizations' and title LIKE ? AND activity = 1) " ;
-    $res = sqlStatement($query, array('%'.$search_term.'%'));
+    $res = sqlStatement($query, array('%' . $search_term . '%'));
     if ($row = sqlFetchArray($res)) {
         $no_of_items = $row['count'];
         if ($no_of_items < 1) {
@@ -173,7 +173,7 @@ function check_search_str()
         $query = "SELECT option_id,title FROM list_options " .
         "WHERE (list_id = 'immunizations' and title LIKE ? AND activity = 1) " .
         "ORDER BY title";
-        $res = sqlStatement($query, array('%'.$search_term.'%'));
+        $res = sqlStatement($query, array('%' . $search_term . '%'));
         $row_count = 0;
         while ($row = sqlFetchArray($res)) {
             $row_count = $row_count + 1;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ProductRegistrationService
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017 Victor Kofia <victor.kofia@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 namespace OpenEMR\Services;
 
@@ -64,9 +64,9 @@ class ProductRegistrationService
         if (empty($row)) {
             $row = new ProductRegistration();
             $row->setStatusAsString('UNREGISTERED');
-        } else if ($id !== 'null') {
+        } elseif ($id !== 'null') {
             $row->setStatusAsString('REGISTERED');
-        } else if (!empty($optOut) && $optOut == true) {
+        } elseif (!empty($optOut) && $optOut == true) {
             $row->setStatusAsString('OPT_OUT');
         }
 

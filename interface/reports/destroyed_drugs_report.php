@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This report lists destroyed drug lots within a specified date range.
  *

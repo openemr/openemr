@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -356,7 +358,7 @@ Work addresses are not typically entered in this property as they are usually ro
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['active'])) {
@@ -368,7 +370,7 @@ Work addresses are not typically entered in this property as they are usually ro
                         $this->addName($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"name" must be array of objects or null, '.gettype($data['name']).' seen.');
+                    throw new \InvalidArgumentException('"name" must be array of objects or null, ' . gettype($data['name']) . ' seen.');
                 }
             }
             if (isset($data['telecom'])) {
@@ -377,7 +379,7 @@ Work addresses are not typically entered in this property as they are usually ro
                         $this->addTelecom($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"telecom" must be array of objects or null, '.gettype($data['telecom']).' seen.');
+                    throw new \InvalidArgumentException('"telecom" must be array of objects or null, ' . gettype($data['telecom']) . ' seen.');
                 }
             }
             if (isset($data['address'])) {
@@ -386,7 +388,7 @@ Work addresses are not typically entered in this property as they are usually ro
                         $this->addAddress($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"address" must be array of objects or null, '.gettype($data['address']).' seen.');
+                    throw new \InvalidArgumentException('"address" must be array of objects or null, ' . gettype($data['address']) . ' seen.');
                 }
             }
             if (isset($data['gender'])) {
@@ -401,7 +403,7 @@ Work addresses are not typically entered in this property as they are usually ro
                         $this->addPhoto($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"photo" must be array of objects or null, '.gettype($data['photo']).' seen.');
+                    throw new \InvalidArgumentException('"photo" must be array of objects or null, ' . gettype($data['photo']) . ' seen.');
                 }
             }
             if (isset($data['qualification'])) {
@@ -410,7 +412,7 @@ Work addresses are not typically entered in this property as they are usually ro
                         $this->addQualification($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"qualification" must be array of objects or null, '.gettype($data['qualification']).' seen.');
+                    throw new \InvalidArgumentException('"qualification" must be array of objects or null, ' . gettype($data['qualification']) . ' seen.');
                 }
             }
             if (isset($data['communication'])) {
@@ -419,11 +421,11 @@ Work addresses are not typically entered in this property as they are usually ro
                         $this->addCommunication($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"communication" must be array of objects or null, '.gettype($data['communication']).' seen.');
+                    throw new \InvalidArgumentException('"communication" must be array of objects or null, ' . gettype($data['communication']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

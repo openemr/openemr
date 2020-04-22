@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/eRxStore.php Functions for interacting with NewCrop database.
  *
@@ -10,7 +11,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__."/../library/api.inc");
+require_once(__DIR__ . "/../library/api.inc");
 
 class eRxStore
 {
@@ -97,7 +98,7 @@ class eRxStore
 
     public function getPatientVitalsByPatientId($patientId)
     {
-        $result=sqlQuery(
+        $result = sqlQuery(
             "SELECT FORM_VITALS.date, FORM_VITALS.id 
             FROM form_vitals AS FORM_VITALS LEFT JOIN forms AS FORMS ON FORM_VITALS.id = FORMS.form_id 
             WHERE FORM_VITALS.pid=? AND FORMS.deleted != '1' 
@@ -107,8 +108,8 @@ class eRxStore
 
         $data = formFetch("form_vitals", $result['id']);
 
-        $weight = number_format($data['weight']*0.45359237, 2);
-        $height = round(number_format($data['height']*2.54, 2), 1);
+        $weight = number_format($data['weight'] * 0.45359237, 2);
+        $height = round(number_format($data['height'] * 2.54, 2), 1);
 
         return [
             'height' => $height,

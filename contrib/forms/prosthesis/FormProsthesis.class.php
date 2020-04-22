@@ -1,6 +1,5 @@
 <?php
 
-
 use OpenEMR\ORDataObject\ORDataObject;
 
 /**

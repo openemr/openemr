@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FIDO U2F Support Module
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
-
 
 require_once('../globals.php');
 require_once("$srcdir/options.inc.php");

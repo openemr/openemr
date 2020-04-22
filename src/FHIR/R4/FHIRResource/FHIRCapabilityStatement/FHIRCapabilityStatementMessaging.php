@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -196,7 +198,7 @@ class FHIRCapabilityStatementMessaging extends FHIRBackboneElement implements \J
                         $this->addEndpoint($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"endpoint" must be array of objects or null, '.gettype($data['endpoint']).' seen.');
+                    throw new \InvalidArgumentException('"endpoint" must be array of objects or null, ' . gettype($data['endpoint']) . ' seen.');
                 }
             }
             if (isset($data['reliableCache'])) {
@@ -211,11 +213,11 @@ class FHIRCapabilityStatementMessaging extends FHIRBackboneElement implements \J
                         $this->addSupportedMessage($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"supportedMessage" must be array of objects or null, '.gettype($data['supportedMessage']).' seen.');
+                    throw new \InvalidArgumentException('"supportedMessage" must be array of objects or null, ' . gettype($data['supportedMessage']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

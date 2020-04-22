@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Ledger Dashboard Help.
  *

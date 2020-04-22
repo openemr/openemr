@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/patient_file/label.php Displaying a PDF file of Labels for printing.
  *
@@ -14,7 +15,6 @@
  * @copyright Copyright (c) 2014 Terry Hill <terry@lillysystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 
@@ -58,7 +58,7 @@ $text = sprintf("  %s %s\n  %s\n  %s\n  %s", $patdata['fname'], $patdata['lname'
 // For loop for printing the labels
 //
 
-for ($i=1; $i<=$last; $i++) {
+for ($i = 1; $i <= $last; $i++) {
     $pdf->Add_Label($text);
 }
 

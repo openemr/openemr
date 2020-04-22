@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -991,7 +993,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['url'])) {
@@ -1030,7 +1032,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
                         $this->addSubject($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"subject" must be array of objects or null, '.gettype($data['subject']).' seen.');
+                    throw new \InvalidArgumentException('"subject" must be array of objects or null, ' . gettype($data['subject']) . ' seen.');
                 }
             }
             if (isset($data['authority'])) {
@@ -1039,7 +1041,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
                         $this->addAuthority($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"authority" must be array of objects or null, '.gettype($data['authority']).' seen.');
+                    throw new \InvalidArgumentException('"authority" must be array of objects or null, ' . gettype($data['authority']) . ' seen.');
                 }
             }
             if (isset($data['domain'])) {
@@ -1048,7 +1050,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
                         $this->addDomain($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"domain" must be array of objects or null, '.gettype($data['domain']).' seen.');
+                    throw new \InvalidArgumentException('"domain" must be array of objects or null, ' . gettype($data['domain']) . ' seen.');
                 }
             }
             if (isset($data['site'])) {
@@ -1057,7 +1059,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
                         $this->addSite($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"site" must be array of objects or null, '.gettype($data['site']).' seen.');
+                    throw new \InvalidArgumentException('"site" must be array of objects or null, ' . gettype($data['site']) . ' seen.');
                 }
             }
             if (isset($data['name'])) {
@@ -1075,7 +1077,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
                         $this->addAlias($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"alias" must be array of objects or null, '.gettype($data['alias']).' seen.');
+                    throw new \InvalidArgumentException('"alias" must be array of objects or null, ' . gettype($data['alias']) . ' seen.');
                 }
             }
             if (isset($data['author'])) {
@@ -1099,7 +1101,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
                         $this->addSubType($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"subType" must be array of objects or null, '.gettype($data['subType']).' seen.');
+                    throw new \InvalidArgumentException('"subType" must be array of objects or null, ' . gettype($data['subType']) . ' seen.');
                 }
             }
             if (isset($data['contentDefinition'])) {
@@ -1111,7 +1113,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
                         $this->addTerm($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"term" must be array of objects or null, '.gettype($data['term']).' seen.');
+                    throw new \InvalidArgumentException('"term" must be array of objects or null, ' . gettype($data['term']) . ' seen.');
                 }
             }
             if (isset($data['supportingInfo'])) {
@@ -1120,7 +1122,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
                         $this->addSupportingInfo($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"supportingInfo" must be array of objects or null, '.gettype($data['supportingInfo']).' seen.');
+                    throw new \InvalidArgumentException('"supportingInfo" must be array of objects or null, ' . gettype($data['supportingInfo']) . ' seen.');
                 }
             }
             if (isset($data['relevantHistory'])) {
@@ -1129,7 +1131,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
                         $this->addRelevantHistory($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"relevantHistory" must be array of objects or null, '.gettype($data['relevantHistory']).' seen.');
+                    throw new \InvalidArgumentException('"relevantHistory" must be array of objects or null, ' . gettype($data['relevantHistory']) . ' seen.');
                 }
             }
             if (isset($data['signer'])) {
@@ -1138,7 +1140,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
                         $this->addSigner($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"signer" must be array of objects or null, '.gettype($data['signer']).' seen.');
+                    throw new \InvalidArgumentException('"signer" must be array of objects or null, ' . gettype($data['signer']) . ' seen.');
                 }
             }
             if (isset($data['friendly'])) {
@@ -1147,7 +1149,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
                         $this->addFriendly($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"friendly" must be array of objects or null, '.gettype($data['friendly']).' seen.');
+                    throw new \InvalidArgumentException('"friendly" must be array of objects or null, ' . gettype($data['friendly']) . ' seen.');
                 }
             }
             if (isset($data['legal'])) {
@@ -1156,7 +1158,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
                         $this->addLegal($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"legal" must be array of objects or null, '.gettype($data['legal']).' seen.');
+                    throw new \InvalidArgumentException('"legal" must be array of objects or null, ' . gettype($data['legal']) . ' seen.');
                 }
             }
             if (isset($data['rule'])) {
@@ -1165,7 +1167,7 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
                         $this->addRule($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"rule" must be array of objects or null, '.gettype($data['rule']).' seen.');
+                    throw new \InvalidArgumentException('"rule" must be array of objects or null, ' . gettype($data['rule']) . ' seen.');
                 }
             }
             if (isset($data['legallyBindingAttachment'])) {
@@ -1174,8 +1176,8 @@ class FHIRContract extends FHIRDomainResource implements \JsonSerializable
             if (isset($data['legallyBindingReference'])) {
                 $this->setLegallyBindingReference($data['legallyBindingReference']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

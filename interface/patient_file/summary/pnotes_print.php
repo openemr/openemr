@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Display patient notes.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
@@ -55,7 +55,7 @@ if ($noteid) {
 <body class="body_top">
 
 <p><?php echo "<b>" .
-  generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $title) .
+  generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $title) .
   "</b>" . ' ' . xlt('for') . ' ' .
   "<b>" . attr($ptname) . "</b>"; ?></p>
 

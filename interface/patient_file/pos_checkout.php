@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Checkout Module.
  *
@@ -46,7 +47,6 @@
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -163,9 +163,9 @@ function generate_receipt($patient_id, $encounter = 0)
     $invoice_refno = $encrow['invoice_refno'];
 
     // being deliberately echoed to indicate it is part of the php function generate_receipt
-    echo "<!DOCTYPE html>". PHP_EOL;
-    echo "<html>".PHP_EOL;
-    echo"<head>".PHP_EOL;
+    echo "<!DOCTYPE html>" . PHP_EOL;
+    echo "<html>" . PHP_EOL;
+    echo"<head>" . PHP_EOL;
     ?>
 
         <?php Header::setupHeader(['datetime-picker']);?>
@@ -187,7 +187,7 @@ function generate_receipt($patient_id, $encounter = 0)
 
         // Process click on Delete button.
         function deleteme() {
-         dlgopen('deleter.php?billing=' + <?php echo js_url($patient_id.".".$encounter); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
+         dlgopen('deleter.php?billing=' + <?php echo js_url($patient_id . "." . $encounter); ?> + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
          return false;
         }
 
@@ -380,8 +380,8 @@ function generate_receipt($patient_id, $encounter = 0)
             </div>
         </div><!--end of receipt container div-->
     <?php // echoing the closing tags for receipts
-        echo"</body>".PHP_EOL;
-        echo "</html>".PHP_EOL;
+        echo"</body>" . PHP_EOL;
+        echo "</html>" . PHP_EOL;
 } // end function generate_receipt()
 ?>
     <?php
@@ -521,7 +521,7 @@ function generate_receipt($patient_id, $encounter = 0)
             $tmp = '';
             while (true) {
                 $ferow = sqlQuery("SELECT id FROM form_encounter WHERE " .
-                "pid = ? AND encounter = ?", array($form_pid, $form_encounter.$tmp));
+                "pid = ? AND encounter = ?", array($form_pid, $form_encounter . $tmp));
                 if (empty($ferow)) {
                     break;
                 }
@@ -620,30 +620,30 @@ function generate_receipt($patient_id, $encounter = 0)
             $paydesc = trim($_POST['form_method']);
             //Fetching the existing code and modifier
                 $ResultSearchNew = sqlStatement(
-                    "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key ".
+                    "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key " .
                     "WHERE code_types.ct_fee=1 AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier",
                     array($form_pid,$form_encounter)
                 );
             if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
-                              $Codetype=$RowSearch['code_type'];
-                $Code=$RowSearch['code'];
-                $Modifier=$RowSearch['modifier'];
+                              $Codetype = $RowSearch['code_type'];
+                $Code = $RowSearch['code'];
+                $Modifier = $RowSearch['modifier'];
             } else {
-                              $Codetype='';
-                $Code='';
-                $Modifier='';
+                              $Codetype = '';
+                $Code = '';
+                $Modifier = '';
             }
-              $session_id=sqlInsert(
-                  "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total,".
-                  " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) ".
+              $session_id = sqlInsert(
+                  "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," .
+                  " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) " .
                   " VALUES ('0',?,?,now(),?,?,'','patient','COPAY',?,?,'patient_payment',now())",
                   array($_SESSION['authUserID'],$form_source,$dosdate,$amount,$form_pid,$paydesc)
               );
 
               sqlBeginTrans();
               $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $form_encounter));
-              $insrt_id=sqlInsert(
-                  "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)".
+              $insrt_id = sqlInsert(
+                  "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" .
                   " VALUES (?,?,?,?,?,?,0,?,?,?,?,'PCP')",
                   array($form_pid,$form_encounter,$sequence_no['increment'],$Codetype,$Code,$Modifier,$dosdate,$_SESSION['authUserID'],$session_id,$amount)
               );
@@ -1036,10 +1036,10 @@ function generate_receipt($patient_id, $encounter = 0)
                                             $query1112 = "SELECT * FROM list_options where list_id=?  ORDER BY seq, title ";
                                             $bres1112 = sqlStatement($query1112, array('payment_method'));
                                         while ($brow1112 = sqlFetchArray($bres1112)) {
-                                            if ($brow1112['option_id']=='electronic' || $brow1112['option_id']=='bank_draft') {
+                                            if ($brow1112['option_id'] == 'electronic' || $brow1112['option_id'] == 'bank_draft') {
                                                 continue;
                                             }
-                                            echo "<option value='".attr($brow1112['option_id'])."'>".text(xl_list_label($brow1112['title']))."</option>";
+                                            echo "<option value='" . attr($brow1112['option_id']) . "'>" . text(xl_list_label($brow1112['title'])) . "</option>";
                                         }
                                         ?>
                                     </select>

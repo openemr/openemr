@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * Modified from main codebase for the patient portal.
@@ -39,7 +40,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
 } else {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-    header('Location: '.$landingpage.'&w');
+    header('Location: ' . $landingpage . '&w');
     exit();
 }
 
@@ -49,7 +50,7 @@ $ignoreAuth = 1;
 
 require_once("../interface/globals.php");
 require_once("$srcdir/patient.inc");
-require_once(dirname(__FILE__)."/../library/appointments.inc.php");
+require_once(dirname(__FILE__) . "/../library/appointments.inc.php");
 
 use OpenEMR\Core\Header;
 
@@ -90,7 +91,7 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
             }
 
             break; // ignore any positive duration for IN
-        } else if ($catid == 3) { // out of office
+        } elseif ($catid == 3) { // out of office
             $slots[$i] |= 2;
             break; // ignore any positive duration for OUT
         } else { // all other events reserve time
@@ -118,11 +119,13 @@ if ($_REQUEST['searchdays']) {
 }
 
  // Get a start date.
-if ($_REQUEST['startdate'] && preg_match(
-    "/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
-    $_REQUEST['startdate'],
-    $matches
-)) {
+if (
+    $_REQUEST['startdate'] && preg_match(
+        "/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
+        $_REQUEST['startdate'],
+        $matches
+    )
+) {
     $sdate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
 } else {
     $sdate = date("Y-m-d");
@@ -341,7 +344,7 @@ function setappt(year,mon,mday,hours,minutes) {
 
             $lastdate = $thisdate;
             echo " <tr class='oneresult'>\n";
-            echo "  <td class='srDate'>" . date("l", $utime)."<br />".date("Y-m-d", $utime) . "</td>\n";
+            echo "  <td class='srDate'>" . date("l", $utime) . "<br />" . date("Y-m-d", $utime) . "</td>\n";
             echo "  <td class='srTimes'>";
             echo "<div id='am'>AM ";
             $ampmFlag = "am";  // reset the AMPM flag
@@ -354,15 +357,15 @@ function setappt(year,mon,mday,hours,minutes) {
 
         $ampmFlag = $ampm;
 
-        $atitle = "Choose ".date("h:i a", $utime);
+        $atitle = "Choose " . date("h:i a", $utime);
         $adate = getdate($utime);
         $anchor = "<a href='' onclick='return setappt(" .
         attr_js($adate['year']) . "," .
         attr_js($adate['mon']) . "," .
         attr_js($adate['mday']) . "," .
         attr_js($adate['hours']) . "," .
-        attr_js($adate['minutes']) . ")'".
-        " title='" . attr($atitle) . "' alt='" . attr($atitle) . "'".
+        attr_js($adate['minutes']) . ")'" .
+        " title='" . attr($atitle) . "' alt='" . attr($atitle) . "'" .
         ">";
         echo (strlen(date('g', $utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
         $anchor . date("g:i", $utime) . "</a> ";

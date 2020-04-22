@@ -12,7 +12,7 @@ function snellen_report($pid, $encounter, $cols, $id)
     $count = 0;
     $cols = 2;
     $data = formFetch("form_snellen", $id);
-    $width = 100/$cols;
+    $width = 100 / $cols;
     if ($data) {
         ?>
 

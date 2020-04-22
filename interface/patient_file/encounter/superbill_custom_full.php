@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Provides manual administration for codes
  *
@@ -91,7 +92,7 @@ if (isset($mode) && $thisauthwrite) {
     if ($mode == "delete") {
         sqlStatement("DELETE FROM codes WHERE id = ?", array($code_id));
         $code_id = 0;
-    } else if ($mode == "add" || $mode == "modify_complete") { // this covers both adding and modifying
+    } elseif ($mode == "add" || $mode == "modify_complete") { // this covers both adding and modifying
         $crow = sqlQuery("SELECT COUNT(*) AS count FROM codes WHERE " .
             "code_type = '"    . ffescape($code_type)    . "' AND " .
             "code = '"         . ffescape($code)         . "' AND " .
@@ -142,7 +143,7 @@ if (isset($mode) && $thisauthwrite) {
                 $revenue_code = '';
             }
         }
-    } else if ($mode == "edit") { // someone clicked [Edit]
+    } elseif ($mode == "edit") { // someone clicked [Edit]
         $sql = "SELECT * FROM codes WHERE id = ?";
         $results = sqlStatement($sql, array($code_id));
         while ($row = sqlFetchArray($results)) {
@@ -160,7 +161,7 @@ if (isset($mode) && $thisauthwrite) {
             $reportable   = 0 + $row['reportable'];
             $financial_reporting  = 0 + $row['financial_reporting'];
         }
-    } else if ($mode == "modify") { // someone clicked [Modify]
+    } elseif ($mode == "modify") { // someone clicked [Modify]
         // this is to modify external code types, of which the modifications
         // are stored in the codes table
         $code_type_name_external = $_POST['code_type_name_external'];
@@ -185,10 +186,12 @@ if (isset($mode) && $thisauthwrite) {
     }
 
     // If codes history is enabled in the billing globals save data to codes history table
-    if ($GLOBALS['save_codes_history'] && $alertmsg=='' &&
-        ( $mode == "add" || $mode == "modify_complete" || $mode == "delete" )) {
-        $action_type= empty($_POST['code_id']) ? 'new' : $mode;
-        $action_type= ($action_type=='add') ? 'update' : $action_type ;
+    if (
+        $GLOBALS['save_codes_history'] && $alertmsg == '' &&
+        ( $mode == "add" || $mode == "modify_complete" || $mode == "delete" )
+    ) {
+        $action_type = empty($_POST['code_id']) ? 'new' : $mode;
+        $action_type = ($action_type == 'add') ? 'update' : $action_type ;
         $code       = $_POST['code'];
         $code_type  = $_POST['code_type'];
         $code_text  = $_POST['code_text'];
@@ -200,29 +203,29 @@ if (isset($mode) && $thisauthwrite) {
         $active     = empty($_POST['active']) ? 0 : 1;
         $reportable = empty($_POST['reportable']) ? 0 : 1; // dx reporting
         $financial_reporting = empty($_POST['financial_reporting']) ? 0 : 1; // financial service reporting
-        $fee=json_encode($_POST['fee']);
-        $code_sql= sqlFetchArray(sqlStatement("SELECT (ct_label) FROM code_types WHERE ct_id=?", array($code_type)));
-        $code_name='';
+        $fee = json_encode($_POST['fee']);
+        $code_sql = sqlFetchArray(sqlStatement("SELECT (ct_label) FROM code_types WHERE ct_id=?", array($code_type)));
+        $code_name = '';
 
         if ($code_sql) {
-            $code_name=$code_sql['ct_label'];
+            $code_name = $code_sql['ct_label'];
         }
 
-        $categorey_id= $_POST['form_superbill'];
-        $categorey_sql=sqlFetchArray(sqlStatement("SELECT (title ) FROM list_options WHERE list_id='superbill'".
+        $categorey_id = $_POST['form_superbill'];
+        $categorey_sql = sqlFetchArray(sqlStatement("SELECT (title ) FROM list_options WHERE list_id='superbill'" .
             " AND option_id=?", array($categorey_id)));
 
-        $categorey_name='';
+        $categorey_name = '';
 
         if ($categorey_sql) {
-            $categorey_name=$categorey_sql['title'];
+            $categorey_name = $categorey_sql['title'];
         }
 
-        $date=date('Y-m-d H:i:s');
-        $date=oeFormatShortDate($date);
+        $date = date('Y-m-d H:i:s');
+        $date = oeFormatShortDate($date);
         $results =  sqlStatement(
             "INSERT INTO codes_history ( " .
-            "date, code, modifier, active,diagnosis_reporting,financial_reporting,category,code_type_name,".
+            "date, code, modifier, active,diagnosis_reporting,financial_reporting,category,code_type_name," .
             "code_text,code_text_short,prices,action_type, update_by ) VALUES ( " .
             "?, ?,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,?)",
             array($date,$code,$modifier,$active,$reportable,$financial_reporting,$categorey_name,$code_name,$code_text,'',$fee,$action_type,$_SESSION['authUser'])
@@ -240,7 +243,7 @@ if (isset($_REQUEST['filter'])) {
     $filter = array();
     $filter_key = array();
     foreach ($_REQUEST['filter'] as $var) {
-        $var = $var+0;
+        $var = $var + 0;
         array_push($filter, $var);
         $var_key = convert_type_id_to_key($var);
         array_push($filter_key, $var_key);
@@ -562,7 +565,7 @@ if ($fend > $count) {
                 <td></td>
                 <td>
                     <?php
-                    generate_form_field(array('data_type'=>1,'field_id'=>'superbill','list_id'=>'superbill'), $superbill);
+                    generate_form_field(array('data_type' => 1,'field_id' => 'superbill','list_id' => 'superbill'), $superbill);
                     ?>
                     &nbsp;&nbsp;
                     <input type='checkbox' title='<?php echo xla("Syndromic Surveillance Report") ?>' name='reportable' value='1'<?php if (!empty($reportable)) {
@@ -775,12 +778,12 @@ if ($fend > $count) {
             echo "  <td class='text'>" . text($iter["code"]) . "</td>\n";
             echo "  <td class='text'>" . text($iter["modifier"]) . "</td>\n";
             if ($institutional) {
-                echo "  <td class='text'>" . ($iter['revenue_code'] > '' ? text($iter['revenue_code']) : 'none') ."</td>\n";
+                echo "  <td class='text'>" . ($iter['revenue_code'] > '' ? text($iter['revenue_code']) : 'none') . "</td>\n";
             }
             if ($iter["code_external"] > 0) {
                 // If there is no entry in codes sql table, then default to active
                 //  (this is reason for including NULL below)
-                echo "  <td class='text'>" . ( ($iter["active"] || $iter["active"]==null) ? xlt('Yes') : xlt('No')) . "</td>\n";
+                echo "  <td class='text'>" . ( ($iter["active"] || $iter["active"] == null) ? xlt('Yes') : xlt('No')) . "</td>\n";
             } else {
                 echo "  <td class='text'>" . ( ($iter["active"]) ? xlt('Yes') : xlt('No')) . "</td>\n";
             }
@@ -805,7 +808,7 @@ if ($fend > $count) {
                 $arel = explode(';', $iter['related_code']);
                 foreach ($arel as $tmp) {
                     list($reltype, $relcode) = explode(':', $tmp);
-                    $code_description = lookup_code_descriptions($reltype.":".$relcode);
+                    $code_description = lookup_code_descriptions($reltype . ":" . $relcode);
                     echo text($relcode) . ' ' . text(trim($code_description)) . '<br />';
                 }
 

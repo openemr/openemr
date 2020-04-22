@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRElement;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRElement;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -330,7 +332,7 @@ The value of mustSupport SHALL be a FHIRPath resolveable on the type of the Data
                         $this->addProfile($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"profile" must be array of objects or null, '.gettype($data['profile']).' seen.');
+                    throw new \InvalidArgumentException('"profile" must be array of objects or null, ' . gettype($data['profile']) . ' seen.');
                 }
             }
             if (isset($data['subjectCodeableConcept'])) {
@@ -345,7 +347,7 @@ The value of mustSupport SHALL be a FHIRPath resolveable on the type of the Data
                         $this->addMustSupport($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"mustSupport" must be array of objects or null, '.gettype($data['mustSupport']).' seen.');
+                    throw new \InvalidArgumentException('"mustSupport" must be array of objects or null, ' . gettype($data['mustSupport']) . ' seen.');
                 }
             }
             if (isset($data['codeFilter'])) {
@@ -354,7 +356,7 @@ The value of mustSupport SHALL be a FHIRPath resolveable on the type of the Data
                         $this->addCodeFilter($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"codeFilter" must be array of objects or null, '.gettype($data['codeFilter']).' seen.');
+                    throw new \InvalidArgumentException('"codeFilter" must be array of objects or null, ' . gettype($data['codeFilter']) . ' seen.');
                 }
             }
             if (isset($data['dateFilter'])) {
@@ -363,7 +365,7 @@ The value of mustSupport SHALL be a FHIRPath resolveable on the type of the Data
                         $this->addDateFilter($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"dateFilter" must be array of objects or null, '.gettype($data['dateFilter']).' seen.');
+                    throw new \InvalidArgumentException('"dateFilter" must be array of objects or null, ' . gettype($data['dateFilter']) . ' seen.');
                 }
             }
             if (isset($data['limit'])) {
@@ -375,11 +377,11 @@ The value of mustSupport SHALL be a FHIRPath resolveable on the type of the Data
                         $this->addSort($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"sort" must be array of objects or null, '.gettype($data['sort']).' seen.');
+                    throw new \InvalidArgumentException('"sort" must be array of objects or null, ' . gettype($data['sort']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Office note entity.
  *

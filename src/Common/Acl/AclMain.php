@@ -1,4 +1,5 @@
 <?php
+
 /**
  * AclMain class.
  *
@@ -102,7 +103,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 namespace OpenEMR\Common\Acl;
 
 use OpenEMR\Gacl\Gacl;
@@ -159,8 +159,8 @@ class AclMain
         if (empty($acl_results)) {
             return false; //deny access
         }
-        $access=false; //flag
-        $deny=false; //flag
+        $access = false; //flag
+        $deny = false; //flag
         foreach ($acl_results as $acl_result) {
             if (empty($acl_result['acl_id'])) {
                 return false; //deny access, since this happens if no pertinent ACL's are returned
@@ -170,17 +170,17 @@ class AclMain
                     if (empty($single_return_value)) {
                         // deal with case if not looking for specific return value
                         if ($acl_result['allow']) {
-                            $access=true;
+                            $access = true;
                         } else {
-                            $deny=true;
+                            $deny = true;
                         }
                     } else { //!empty($single_return_value)
                         // deal with case if looking for specific return value
                         if ($acl_result['return_value'] == $single_return_value) {
                             if ($acl_result['allow']) {
-                                $access=true;
+                                $access = true;
                             } else {
-                                $deny=true;
+                                $deny = true;
                             }
                         }
                     }
@@ -189,17 +189,17 @@ class AclMain
                 if (empty($return_value)) {
                     // deal with case if not looking for specific return value
                     if ($acl_result['allow']) {
-                        $access=true;
+                        $access = true;
                     } else {
-                        $deny=true;
+                        $deny = true;
                     }
                 } else { //!empty($return_value)
                     // deal with case if looking for specific return value
                     if ($acl_result['return_value'] == $return_value) {
                         if ($acl_result['allow']) {
-                            $access=true;
+                            $access = true;
                         } else {
-                            $deny=true;
+                            $deny = true;
                         }
                     }
                 }
@@ -270,7 +270,7 @@ class AclMain
                         LEFT JOIN module_acl_sections AS  acl_sections
                           ON group_settings.section_id = acl_sections.section_id
                       WHERE
-                        group_settings.group_id IN (".$groupPlacemakers.") AND acl_sections.`section_identifier` = ? ";
+                        group_settings.group_id IN (" . $groupPlacemakers . ") AND acl_sections.`section_identifier` = ? ";
 
         $sql_group_acl_allowed = $sql_group_acl_base . " AND group_settings.allowed = '1'";
 

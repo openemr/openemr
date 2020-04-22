@@ -1,4 +1,5 @@
 <?php
+
 /* X12_5010_837P Class
  *
  * This program creates an X12 5010 837P file.
@@ -241,7 +242,7 @@ class X12_5010_837P
                 "*" . $claim->providerNumberType() .
                 "*" . $claim->providerNumber() .
                 "~\n";
-        } else if ($claim->providerNumber() && !$claim->providerNumberType()) {
+        } elseif ($claim->providerNumber() && !$claim->providerNumberType()) {
             $log .= "*** Payer-specific provider insurance number is present but has no type assigned.\n";
         }
 
@@ -602,8 +603,10 @@ class X12_5010_837P
             "*" . "D8" .
             "*" . $claim->onsetDate() .
             "~\n";
-        } else if ($claim->miscOnsetDate() && ($claim->miscOnsetDate() !== $claim->serviceDate())
-            && ($claim->box14Qualifier()) && ($claim->miscOnsetDateValid())) {
+        } elseif (
+            $claim->miscOnsetDate() && ($claim->miscOnsetDate() !== $claim->serviceDate())
+            && ($claim->box14Qualifier()) && ($claim->miscOnsetDateValid())
+        ) {
             ++$edicount;
             $out .= "DTP" .
             "*" . $claim->box14Qualifier() .

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -457,7 +459,7 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
                         $this->addTarget($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"target" must be array of objects or null, '.gettype($data['target']).' seen.');
+                    throw new \InvalidArgumentException('"target" must be array of objects or null, ' . gettype($data['target']) . ' seen.');
                 }
             }
             if (isset($data['targetLocation'])) {
@@ -466,7 +468,7 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
                         $this->addTargetLocation($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"targetLocation" must be array of objects or null, '.gettype($data['targetLocation']).' seen.');
+                    throw new \InvalidArgumentException('"targetLocation" must be array of objects or null, ' . gettype($data['targetLocation']) . ' seen.');
                 }
             }
             if (isset($data['need'])) {
@@ -487,7 +489,7 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
                         $this->addValidationProcess($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"validationProcess" must be array of objects or null, '.gettype($data['validationProcess']).' seen.');
+                    throw new \InvalidArgumentException('"validationProcess" must be array of objects or null, ' . gettype($data['validationProcess']) . ' seen.');
                 }
             }
             if (isset($data['frequency'])) {
@@ -508,7 +510,7 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
                         $this->addPrimarySource($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"primarySource" must be array of objects or null, '.gettype($data['primarySource']).' seen.');
+                    throw new \InvalidArgumentException('"primarySource" must be array of objects or null, ' . gettype($data['primarySource']) . ' seen.');
                 }
             }
             if (isset($data['attestation'])) {
@@ -520,11 +522,11 @@ class FHIRVerificationResult extends FHIRDomainResource implements \JsonSerializ
                         $this->addValidator($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"validator" must be array of objects or null, '.gettype($data['validator']).' seen.');
+                    throw new \InvalidArgumentException('"validator" must be array of objects or null, ' . gettype($data['validator']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

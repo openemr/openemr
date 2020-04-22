@@ -1,4 +1,5 @@
 <?php
+
  // Copyright (C) 2010-2011 Aron Racho <aron@mi-squred.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -64,7 +65,7 @@ class RuleCriteriaType
 
             self::issue     =>  new RuleCriteriaType(self::issue, xl('Medical issue'), 'lists'),
             self::diagnosis =>  new RuleCriteriaType(self::diagnosis, xl('Diagnosis'), 'lists'),
-            self::medication=>  new RuleCriteriaType(self::medication, xl('Medication'), 'lists'),
+            self::medication =>  new RuleCriteriaType(self::medication, xl('Medication'), 'lists'),
             self::allergy   =>  new RuleCriteriaType(self::allergy, xl('Allergy'), 'lists'),
             self::surgery   =>  new RuleCriteriaType(self::surgery, xl('Surgery'), 'lists'),
 

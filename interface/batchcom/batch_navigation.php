@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Batchcom navigation bar.
  *

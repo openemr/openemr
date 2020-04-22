@@ -1,4 +1,5 @@
 <?php
+
 /**
  * validate_core.php
  *
@@ -28,10 +29,10 @@ function collectValidationPageRules($title, $active = true)
             "FROM `list_options` WHERE list_id=? AND title=?", array('page_validation', $title));
     }
 
-    $dataArray=array();
+    $dataArray = array();
     while ($row = sqlFetchArray($sql)) {
         $formPageNameArray = explode('#', $row['option_id']);
-        $dataArray[$formPageNameArray[1]]=array('page_name' => $formPageNameArray[0] ,'rules' => $row['notes']);
+        $dataArray[$formPageNameArray[1]] = array('page_name' => $formPageNameArray[0] ,'rules' => $row['notes']);
     }
 
     return $dataArray;
@@ -44,17 +45,17 @@ function collectValidationPageRules($title, $active = true)
 function validateUsingPageRules($fileNamePath)
 {
 
-    $path='';
+    $path = '';
 
-    if ($GLOBALS['webroot']!='') {
-        $path= str_replace($GLOBALS['webroot'], '', $fileNamePath);
+    if ($GLOBALS['webroot'] != '') {
+        $path = str_replace($GLOBALS['webroot'], '', $fileNamePath);
     } else {
-        $path=$fileNamePath;
+        $path = $fileNamePath;
     }
 
     print '<!--Page Form Validations-->';
 //if we would like to get all the page forms rules we need to call collectValidationPageRules($title) this way there is a
-    $collectThis=collectValidationPageRules($path);
+    $collectThis = collectValidationPageRules($path);
     if ($collectThis) {
         print '<!---Start of page  form validation-->';
         print '<!--//include new rules of submitme functionallity-->';
@@ -81,7 +82,7 @@ function validateUsingPageRules($fileNamePath)
             echo('//Use validation script js Validations-');
             echo("\r\n");
 
-            echo('$(' . js_escape("#".$key) . ').on("submit", function(event){');
+            echo('$(' . js_escape("#" . $key) . ').on("submit", function(event){');
             echo("\r\n");
 
             echo("\r\n");

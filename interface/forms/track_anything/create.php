@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Encounter form to track any clinical parameter.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2014 Joe Slam <trackanything@produnis.de>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
@@ -45,14 +45,14 @@ if ($dbaction == 'add') {
         $insertspell .= "(name, description, position, parent, active) VALUES (?,?,?,?,?)";
         $save_into_db = sqlInsert($insertspell, array($the_name, $the_descr, $the_pos, $the_parent,1));
     } else {
-        if ($the_type=='add') {
+        if ($the_type == 'add') {
             echo "<br /><span class='failure'>\n";
             echo xlt('Adding item to track failed') . ". ";
             echo xlt("Please enter at least the item's name") . ".";
             echo "</span><br /><br />\n";
         }
 
-        if ($the_type=='create') {
+        if ($the_type == 'create') {
             echo "<br /><span class='failure'>\n";
             echo xlt('Creating new track failed') . ". ";
             echo xlt("Please enter at least the track's name") . ".";

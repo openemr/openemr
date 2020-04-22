@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Create new handwritten notes area
  *

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -457,7 +459,7 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
                         $this->addAdditionalInstruction($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"additionalInstruction" must be array of objects or null, '.gettype($data['additionalInstruction']).' seen.');
+                    throw new \InvalidArgumentException('"additionalInstruction" must be array of objects or null, ' . gettype($data['additionalInstruction']) . ' seen.');
                 }
             }
             if (isset($data['patientInstruction'])) {
@@ -487,7 +489,7 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
                         $this->addDoseAndRate($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"doseAndRate" must be array of objects or null, '.gettype($data['doseAndRate']).' seen.');
+                    throw new \InvalidArgumentException('"doseAndRate" must be array of objects or null, ' . gettype($data['doseAndRate']) . ' seen.');
                 }
             }
             if (isset($data['maxDosePerPeriod'])) {
@@ -499,8 +501,8 @@ class FHIRDosage extends FHIRBackboneElement implements \JsonSerializable
             if (isset($data['maxDosePerLifetime'])) {
                 $this->setMaxDosePerLifetime($data['maxDosePerLifetime']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

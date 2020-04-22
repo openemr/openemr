@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * AMC 302m STAGE2 Denominator

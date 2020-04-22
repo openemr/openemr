@@ -1,4 +1,5 @@
 <?php
+
 /**
  * inventory_list.php
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -246,7 +246,7 @@ table.mymaintable td, table.mymaintable th {
                 $expdays = (int) ((strtotime($irow['expiration']) - time()) / (60 * 60 * 24));
                 if ($expdays <= 0) {
                     addWarning(text(xl('Lot') . " '$lotno' " . xl('has expired')));
-                } else if ($expdays <= 30) {
+                } elseif ($expdays <= 30) {
                     addWarning(text(xl('Lot') . " '$lotno' " . xl('expires in') . " $expdays " . xl('days')));
                 }
             }
@@ -256,7 +256,7 @@ table.mymaintable td, table.mymaintable th {
         echo "  <td>" . text($row['name']) . "</td>\n";
         echo "  <td>" . text($row['ndc_number']) . "</td>\n";
         echo "  <td>" .
-           generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
+           generate_display_field(array('data_type' => '1','list_id' => 'drug_form'), $row['form']) .
            "</td>\n";
         echo "  <td align='right'>" . text($row['on_hand']) . "</td>\n";
         echo "  <td align='right'>" . text($row['reorder_point']) . "</td>\n";

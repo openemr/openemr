@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CCR Script.
  *
@@ -19,7 +20,6 @@
  * @author  Garden State Health Systems <http://www.gshsys.com/>
  * @link    http://www.open-emr.org
  */
-
 
 $result = getActorData();
 while ($row = sqlFetchArray($result[0])) {
@@ -186,7 +186,7 @@ $row1 = sqlFetchArray($result[1]);
     $e_City = $ccr->createElement('City', $row1['city']);
     $e_Address->appendChild($e_City);
 
-    $e_State = $ccr->createElement('State', $row1['state'].' ');
+    $e_State = $ccr->createElement('State', $row1['state'] . ' ');
     $e_Address->appendChild($e_State);
     
     $e_PostalCode = $ccr->createElement('PostalCode', $row1['postal_code']);
@@ -296,7 +296,7 @@ while ($row2 = sqlFetchArray($result[2])) {
     $e_InformationSystem = $ccr->createElement('InformationSystem');
     $e_Actor->appendChild($e_InformationSystem);
 
-    $e_Name = $ccr->createElement('Name', $row2['lname']." ".$row2['fname']);
+    $e_Name = $ccr->createElement('Name', $row2['lname'] . " " . $row2['fname']);
     $e_InformationSystem->appendChild($e_Name);
   
     $e_Type = $ccr->createElement('Type', 'Lab Service');
@@ -341,7 +341,7 @@ while ($row2 = sqlFetchArray($result[2])) {
     $e_City = $ccr->createElement('City', $row2['city']);
     $e_Address->appendChild($e_City);
 
-    $e_State = $ccr->createElement('State', $row2['state'].' ');
+    $e_State = $ccr->createElement('State', $row2['state'] . ' ');
     $e_Address->appendChild($e_State);
     
     $e_PostalCode = $ccr->createElement('PostalCode', $row2['zip']);

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProduct;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProduct;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -173,7 +175,7 @@ class FHIRMedicinalProductName extends FHIRBackboneElement implements \JsonSeria
                         $this->addNamePart($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"namePart" must be array of objects or null, '.gettype($data['namePart']).' seen.');
+                    throw new \InvalidArgumentException('"namePart" must be array of objects or null, ' . gettype($data['namePart']) . ' seen.');
                 }
             }
             if (isset($data['countryLanguage'])) {
@@ -182,11 +184,11 @@ class FHIRMedicinalProductName extends FHIRBackboneElement implements \JsonSeria
                         $this->addCountryLanguage($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"countryLanguage" must be array of objects or null, '.gettype($data['countryLanguage']).' seen.');
+                    throw new \InvalidArgumentException('"countryLanguage" must be array of objects or null, ' . gettype($data['countryLanguage']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }
