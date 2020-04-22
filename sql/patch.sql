@@ -298,7 +298,7 @@ ALTER TABLE `medex_outgoing` ADD INDEX `i_msg_date` (`msg_date`);
 #IfNotRow2D icd10dx_order_code dx_code U071 active 1
 INSERT INTO `icd10_dx_order_code`
 (`dx_code`, `formatted_dx_code`, `valid_for_coding`, `short_desc`, `long_desc`, `active`, `revision`)
-VALUES ('U071', 'U07.1', '1', 'COVID-19, virus identified', 'COVID-19, virus identified', '1', `1`)
+VALUES ('U071', 'U07.1', '1', 'COVID-19, virus identified', 'COVID-19, virus identified', '1', '1')
 #EndIf
 
 #IfRow2D icd10dx_order_code dx_code U071 active 1
@@ -309,7 +309,7 @@ SET `revision` = (SELECT MAX(`revision`) from icd10_dx_order_code WHERE `dx_code
 #IfNotRow2D icd10dx_order_code dx_code U072 active 1
 INSERT INTO `icd10_dx_order_code`
 (`dx_code`, `formatted_dx_code`, `valid_for_coding`, `short_desc`, `long_desc`, `active`, `revision`)
-VALUES ('U072', 'U07.2', '1', 'COVID-19, virus not identified', 'COVID-19, virus not identified', '1', `1`)
+VALUES ('U072', 'U07.2', '1', 'COVID-19, virus not identified', 'COVID-19, virus not identified', '1', '1')
 #EndIf
 
 #IfRow2D icd10dx_order_code dx_code U072 active 1
