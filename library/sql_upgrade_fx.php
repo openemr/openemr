@@ -77,6 +77,23 @@ function columnHasType($tblname, $colname, $coltype)
 }
 
 /**
+ * Check if a Sql Column has a default value
+ *
+ * @param  string $tblname      Sql Table Name
+ * @param  string $colname      Sql Column Name
+ * @return boolean              returns true if the sql column has a default value
+ */
+function columnHasDefault($tblname, $colname)
+{
+    $row = sqlQuery("SHOW COLUMNS FROM $tblname LIKE '$colname'");
+    if (empty($row)) {
+        return true;
+    }
+
+    return $row['Default'] ? false: true;
+}
+
+/**
 * Check if a Sql row exists. (with one value)
 *
 * @param  string  $tblname  Sql Table Name
@@ -525,6 +542,10 @@ function convertLayoutProperties()
 *   arguments: table_name colname value
 *   behavior:  If the table table_name does not have a column colname with a data type equal to value, then the block will be executed
 *
+* #IfNotColumnTypeDefault
+*   arguments: table_name colname
+*   behavior:  If the table table_name does not have a column colname without a default value, then the block will be executed
+*
 * #IfNotRow
 *   arguments: table_name colname value
 *   behavior:  If the table table_name does not have a row where colname = value, the block will be executed.
@@ -661,7 +682,22 @@ function upgradeFromSqlFile($filename, $path = '')
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
+<<<<<<< HEAD
         } else if (preg_match('/^#IfNotColumnType\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+=======
+        } elseif (preg_match('/^#IfNotColumnTypeDefault\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+            if (tableExists($matches[1])) {
+                $skipping = columnHasDefault($matches[1], $matches[2]);
+            } else {
+                // If no such table then the column type is deemed not "missing".
+                $skipping = true;
+            }
+
+            if ($skipping) {
+                echo "<font color='green'>Skipping section $line</font><br />\n";
+            }
+        } elseif (preg_match('/^#IfNotColumnType\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+>>>>>>> 55b95553d... [build]: added a new sql upgrade block
             if (tableExists($matches[1])) {
                 $skipping = columnHasType($matches[1], $matches[2], $matches[3]);
             } else {

@@ -21,6 +21,10 @@
 --    arguments: table_name colname value
 --    behavior:  If the table table_name does not have a column colname with a data type equal to value, then the block will be executed
 
+--  #IfNotColumnTypeDefault
+--    arguments: table_name colname
+--    behavior:  If the table table_name does not have a column colname without a default value, then the block will be executed
+
 --  #IfNotRow
 --    arguments: table_name colname value
 --    behavior:  If the table table_name does not have a row where colname = value, the block will be executed.
