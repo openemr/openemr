@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Add or edit an event in the calendar.
  *

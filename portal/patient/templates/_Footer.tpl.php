@@ -1,4 +1,6 @@
-<?php echo "<!-- footer -->\n"; ?>
+<?php
+
+echo "<!-- footer -->\n"; ?>
 <div class="container">
     <hr id="footer-hr" />
     <footer>

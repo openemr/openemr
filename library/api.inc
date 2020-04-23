@@ -1,4 +1,5 @@
 <?php
+
 //our api for 3rd party developers
 require_once(dirname(__FILE__) . "/../interface/globals.php");
 
