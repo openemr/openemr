@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Intakeverslag - view
  * Report of First visit - Dutch specific form

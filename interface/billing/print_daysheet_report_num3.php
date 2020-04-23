@@ -1,4 +1,5 @@
 <?php
+
 /*
  * interface/billing/print_daysheet_report.php Genetating an end of day report.
  *

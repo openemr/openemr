@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Check/cash details are entered here.Used in New Payment and Edit Payment screen.
  * Special list function
