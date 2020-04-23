@@ -30,16 +30,16 @@ class FixtureManagerTest extends TestCase
     {
         $patientFixtures = $this->fixtureManager->getPatientFixtures();
         $this->assertIsArray($patientFixtures);
-        $this->assertGreaterThan(0, count($patientFixtures));        
+        $this->assertGreaterThan(0, count($patientFixtures));
         
-        foreach($patientFixtures as $index => $patientFixture) {
+        foreach ($patientFixtures as $index => $patientFixture) {
             $message = "Patient " . $index . " is missing";
             $this->assertObjectHasAttribute("pubpid", $patientFixture, $message . " pubpid");
             $this->assertObjectHasAttribute("fname", $patientFixture, $message . " fname");
             $this->assertObjectHasAttribute("lname", $patientFixture, $message . " lname");
             $this->assertObjectHasAttribute("DOB", $patientFixture, $message . " DOB");
 
-            $message = "Patient " . $index . " does not have a test pubpid ";            
+            $message = "Patient " . $index . " does not have a test pubpid ";
             $this->assertStringStartsWith("test-fixture", $patientFixture->pubpid, $message . $patientFixture->pubpid);
         }
     }

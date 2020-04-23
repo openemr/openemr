@@ -6,12 +6,12 @@ require_once("library/sql.inc");
 
 /**
  * Provides OpenEMR Fixtures/Sample Records to test cases as Objects or Database Records
- * 
+ *
  * The FixtureManager generates sample records from JSON files located within the Fixture namespace.
  * To provide support for additional record types:
  * - Add a JSON datafile to the Fixture namespace containing the sample records.
  * - Add public methods to get, install, and remove fixture records.
- * 
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Dixon Whitmire <dixon.whitmire@ibm.com>
@@ -29,8 +29,8 @@ class FixtureManager
 
     /**
      * Loads a JSON fixture from a file within the Fixture namespace, returning the data as an array of records.
-     * 
-     * @param $fileName The file name to load. The file 
+     *
+     * @param $fileName The file name to load.
      * @return array of records
      */
     private function loadJsonFile($fileName)
@@ -54,7 +54,7 @@ class FixtureManager
 
     /**
      * Installs fixtures into the OpenEMR DB
-     * 
+     *
      * @param $tableName The target OpenEMR DB table name
      * @param $fixtures Array of fixture objects to install
      * @return the number of fixtures installed
@@ -64,19 +64,16 @@ class FixtureManager
         $insertCount = 0;
         $sqlInsert = "INSERT INTO " . $tableName . " SET ";
 
-        foreach($fixtures as $index => $fixture)
-        {
+        foreach ($fixtures as $index => $fixture) {
             $sqlColumnValues = "";
             $sqlBinds = array();
 
-            foreach ($fixture as $field => $fieldValue)
-            {
+            foreach ($fixture as $field => $fieldValue) {
                 $sqlColumnValues .= $field . " = ?, ";
                 array_push($sqlBinds, $fieldValue);
             }
 
-            if ($tableName == "patient_data")
-            {
+            if ($tableName == "patient_data") {
                 $sqlColumnValues .= 'pid = ?';
                 $nextPidValue = $this->getNextPid();
                 array_push($sqlBinds, $nextPidValue);
@@ -85,13 +82,12 @@ class FixtureManager
             $sqlColumnValues = rtrim($sqlColumnValues, " ,");
 
             $isInserted = sqlInsert($sqlInsert . $sqlColumnValues, $sqlBinds);
-            if ($isInserted) 
-            {
+            if ($isInserted) {
                 $insertCount += 1;
             }
         }
         return $insertCount;
-    }    
+    }
 
     /**
      * @return array of patient fixtures
