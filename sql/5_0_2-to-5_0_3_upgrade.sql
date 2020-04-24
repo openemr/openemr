@@ -471,7 +471,7 @@ create table panel_enrollment (
 
 #IfNotRow2D panel_category name
 insert into panel_category (name) values ('Chronic Disease');
-insert into panel_category (name) values ('Social Worok');
+insert into panel_category (name) values ('Social Work');
 insert into panel_category (name) values ('Immunization');
 insert into panel_category (name) values ('Womens Health');
 #EndIf
