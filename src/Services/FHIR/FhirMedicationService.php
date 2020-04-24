@@ -33,7 +33,8 @@ class FhirMedicationService
         $this->id = $id;
     }
 
-    public function get() {
+    public function get()
+    {
         return "SELECT d.name,
                     d.ndc_number,
                     d.active,
@@ -80,10 +81,11 @@ class FhirMedicationService
 
         $status = new FHIRString();
 
-        if ($data['active'] == '1')
+        if ($data['active'] == '1') {
             $status->setValue("active");
-        else
+        } else {
             $status->setValue("inactive");
+        }
 
         $manufacturer = new FHIRReference();
         $manufacturer->setReference('Organization/' . $data['manufacturer']);
