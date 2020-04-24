@@ -724,7 +724,7 @@ MSG;
 
         /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
         if (!isset($GLOBALS['enable_auditlog']) || !($GLOBALS['enable_auditlog'])) {
-            if (isset($GLOBALS['enable_auditlog']) && !$GLOBALS['gbl_force_log_breakglass'] || !$this->isBreakglassUser($user)) {
+            if (!$GLOBALS['gbl_force_log_breakglass'] || !$this->isBreakglassUser($user)) {
                 return;
             }
         }

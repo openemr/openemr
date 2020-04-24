@@ -2,8 +2,6 @@
 
 namespace OpenEMR\Tests\Fixture;
 
-require_once("library/sql.inc");
-
 /**
  * Provides OpenEMR Fixtures/Sample Records to test cases as Objects or Database Records
  *
@@ -62,7 +60,7 @@ class FixtureManager
     private function installFixtures($tableName, $fixtures)
     {
         $insertCount = 0;
-        $sqlInsert = "INSERT INTO " . $tableName . " SET ";
+        $sqlInsert = "INSERT INTO " . escape_table_name($tableName) . " SET ";
 
         foreach ($fixtures as $index => $fixture) {
             $sqlColumnValues = "";
