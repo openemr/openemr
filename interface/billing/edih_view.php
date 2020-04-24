@@ -29,276 +29,299 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
 <head>
-    <title><?php echo xlt("edi history"); ?></title>
+    <title><?php echo xlt("EDI History"); ?></title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 
     <!-- TODO: Address no_bootstrap here !-->
-    <?php Header::setupHeader(['no_main-theme', 'no_bootstrap', 'datetime-picker', 'datatables', 'datatables-jqui', 'datatables-jqui-theme', 'datatables-scroller', 'datatables-scroller-jqui-theme', 'jquery-ui', 'jquery-ui-sunny']); ?>
+    <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'datatables', 'datatables-jqui', 'datatables-jqui-theme', 'datatables-scroller', 'datatables-scroller-jqui-theme', 'jquery-ui', 'jquery-ui-sunny']); ?>
+    <!-- <?php Header::setupHeader(['datetime-picker', 'datatables', 'datatables-scroller']); ?> -->
 
     <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history_v2.css" type="text/css" />
 
 </head>
 <!-- style for OpenEMR color -->
-<body style='background-color: #fefdcf'>
+<body class='body_top'>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="page-header clearfix">
+                    <h2><?php echo xlt('EDI History'); ?></h2>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid mb-3">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-item nav-link font-weight-bold active" id="nav-newfiles-tab" data-toggle="tab" href="#nav-newfiles" role="tab" aria-controls="nav-newfiles" aria-selected="true">
+                        <?php echo xlt("New Files"); ?>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-item nav-link font-weight-bold" id="nav-csvtables-tab" data-toggle="tab" href="#nav-csvtables" role="tab" aria-controls="nav-csvtables" aria-selected="false">
+                        <?php echo xlt("CSV Tables"); ?>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-item nav-link font-weight-bold" id="nav-edifile-tab" data-toggle="tab" href="#nav-edifile" role="tab" aria-controls="nav-edifile" aria-selected="false">
+                        <?php echo xlt("EDI File"); ?>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-item nav-link font-weight-bold" id="nav-notes-tab" data-toggle="tab" href="#nav-notes" role="tab" aria-controls="nav-notes" aria-selected="false">
+                        <?php echo xlt("Notes"); ?>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-item nav-link font-weight-bold" id="nav-archive-tab" data-toggle="tab" href="#nav-archive" role="tab" aria-controls="nav-archive" aria-selected="false">
+                        <?php echo xlt("Archive"); ?>
+                    </a>
+                </li>
+            </ul>
 
-<!-- Begin tabs section  class="Clear"-->
-<div id="tabs" style="visibility: hidden">
-  <ul>
-   <li><a href="#newfiles" id="btn-newfiles"><?php echo xlt("New Files"); ?></a></li>
-   <li><a href="#csvdatatables" id="btn-csvdatatables"><?php echo xlt("CSV Tables"); ?></a></li>
-   <li><a href="#x12text" id="btn-x12text"><?php echo xlt("EDI File"); ?></a></li>
-   <li><a href="#edinotes" id="btn-edinotes"><?php echo xlt("Notes"); ?></a></li>
-   <li><a href="#archive" id="btn-archive"><?php echo xlt("Archive"); ?></a></li>
-  </ul>
-
-    <div id="newfiles">
-        <table>
-        <tr vertical-align="middle">
-         <td align="center">
-            <form id="formupl" name="form_upl" action="edih_main.php" method="POST" enctype="multipart/form-data">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                <fieldset>
-                <legend><?php echo xlt("Select one or more files to upload"); ?></legend>
-                <input type="file" id="uplmulti" name="fileUplMulti[]" multiple />
-                <input type="hidden" name="NewFiles" form="formupl" value="ProcessNew" />
-                <input type="submit" id="uplsubmit" name="upl_submit" form="formupl" value=<?php echo xla("Submit"); ?> />
-                <input type="reset" id="uplreset" name="upl_reset" form="formupl" value=<?php echo xla("Reset"); ?> />
-                </fieldset>
-            </form>
-         </td>
-         <td align="center">
-            <form id="processnew" name="process_new" action="edih_main.php" method="GET">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                <fieldset>
-                <legend><?php echo xlt("Process new files for CSV records"); ?>:</legend>
-                <input type="checkbox" id="processhtml" name="process_html" form="processnew"  value="htm" checked /> <?php echo xlt("HTML Output?"); ?>
-                <input type="checkbox" id="processerr" name="process_err" form="processnew"  value="err" checked /> <?php echo xlt("Show Errors Only?"); ?> &nbsp;&nbsp;<br />
-                <input type="hidden" name="ProcessFiles" form="processnew" value="ProcessNew" />
-                <label for="process"><?php echo xlt("Process New Files"); ?></label>
-                <input type="submit" id="fuplprocess" name="process" form="processnew" value="<?php echo xla("Process"); ?>" />
-                </fieldset>
-            </form>
-         </td>
-        </tr>
-        </table>
-
-        <div id="fileupl1"></div>
-        <div id="fileupl2"></div>
-        <div id="processed"></div>
-        <div id="rsp" title="<?php echo xla("Response"); ?>"></div>
-        <div id="sub" title="<?php echo xla("Submitted"); ?>"></div>
-        <div id="seg" title="<?php echo xla("x12 Segments"); ?>"></div>
+            <div class="tab-content" id="nav-tabContent">
+                <!-- New Files Section -->
+                <div class="tab-pane fade show active" id="nav-newfiles" role="tabpanel" aria-labelledby="nav-newfiles-tab">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-12 col-md-6">
+                                <form id="formupl" name="form_upl" action="edih_main.php" method="POST" enctype="multipart/form-data">
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                    <h4><?php echo xlt("Select one or more files to upload"); ?></h4>
+                                    <div class="custom-file">
+                                        <label class="custom-file-label"><?php echo xlt("Choose file"); ?></label>
+                                        <input type="file" class="custom-file-input" id="uplmulti" name="fileUplMulti[]" multiple />
+                                        <input type="hidden" name="NewFiles" form="formupl" value="ProcessNew" />
+                                        <input type="submit" class="btn btn-primary" id="uplsubmit" name="upl_submit" form="formupl" value="<?php echo xla("Submit"); ?>" />
+                                        <input type="reset" class="btn btn-secondary" id="uplreset" name="upl_reset" form="formupl" value="<?php echo xla("Reset"); ?>" />
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-sm-12 col-md-6">
+                                <form id="processnew" name="process_new" action="edih_main.php" method="GET">
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                    <h4><?php echo xlt("Process new files for CSV records"); ?>:</h4>
+                                    <input type="checkbox" id="processhtml" name="process_html" form="processnew"  value="htm" checked /> <?php echo xlt("HTML Output?"); ?>
+                                    <input type="checkbox" id="processerr" name="process_err" form="processnew"  value="err" checked /> <?php echo xlt("Show Errors Only?"); ?> &nbsp;&nbsp;<br />
+                                    <input type="hidden" name="ProcessFiles" form="processnew" value="ProcessNew" />
+                                    <label for="process"><?php echo xlt("Process New Files"); ?></label>
+                                    <input type="submit" class="btn btn-primary btn-sm" id="fuplprocess" name="process" form="processnew" value="<?php echo xla("Process"); ?>" />
+                                </form>
+                            </div>
+                            <div class="col-12">
+                                <div id="fileupl1"></div>
+                                <div id="fileupl2"></div>
+                                <div id="processed"></div>
+                                <div id="rsp" title="<?php echo xla("Response"); ?>"></div>
+                                <div id="sub" title="<?php echo xla("Submitted"); ?>"></div>
+                                <div id="seg" title="<?php echo xla("x12 Segments"); ?>"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- CSV Tables Section -->
+                <div class="tab-pane fade" id="nav-csvtables" role="tabpanel" aria-labelledby="nav-csvtables-tab">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-12 col-md-8">
+                                <form id="formcsvtables" name="form_csvtables" action="edih_main.php" method="GET">
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                    <h4><?php echo xlt("View CSV tables"); ?>:</h4>
+                                    <table>
+                                        <tr>
+                                            <td colspan='4'><?php echo xlt("Choose a period or dates (YYYY-MM-DD)"); ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td class='text-center'><?php echo xlt("Choose CSV table"); ?>:</td>
+                                            <td class='text-center'><?php echo xlt("From Period"); ?></td>
+                                            <td class='text-center'><?php echo xlt("Start Date"); ?>: &nbsp;&nbsp; <?php echo xlt("End Date"); ?>:</td>
+                                            <td class='text-center'><?php echo xlt("Submit"); ?></td>
+                                        </tr>
+                                        <tr height='1.5em'>
+                                            <td class='text-center'>
+                                                <select class="custom-select" id="csvselect" name="csvtables"></select>
+                                            </td>
+                                            <td class='text-center'>
+                                                <select class="custom-select" id="csvperiod" name="csv_period">
+                                                    <option value='2w' selected='selected'>2 <?php echo xlt('weeks'); ?></option>
+                                                    <option value='1m'>1 <?php echo xlt('month'); ?></option>
+                                                    <option value='2m'>2 <?php echo xlt('months'); ?></option>
+                                                    <option value='3m'>3 <?php echo xlt('months'); ?></option>
+                                                    <option value='6m'>6 <?php echo xlt('months'); ?></option>
+                                                    <option value='9m'>9 <?php echo xlt('months'); ?></option>
+                                                    <option value='1y'>1 <?php echo xlt('year'); ?></option>
+                                                    <option value='ALL'><?php echo xlt('All Dates'); ?></option>
+                                                </select>
+                                            </td>
+                                            <!-- datekeyup(e, defcc, withtime)  dateblur(e, defcc, withtime) -->
+                                            <td class='text-left'>
+                                                <input type='text' size='10' class='datepicker' name="csv_date_start" id="caldte1" value="" title="<?php echo xla('yyyy-mm-dd Start Date'); ?>" />
+                                                <input type="text" size="10" class="datepicker" name="csv_date_end" id="caldte2" value="" title="<?php echo xla('yyyy-mm-dd End Date'); ?>" />
+                                            </td>
+                                            <td class='text-left'>
+                                                <input type="hidden" name="csvShowTable" form="formcsvtables" value="gettable">
+                                                <input id="csvshow" type="submit" class="btn btn-primary" name="csv_show" form="formcsvtables" value="<?php echo xla("Submit"); ?>" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </form>
+                            </div>
+                            <div class="col-sm-12 col-md-4">
+                                <form id="formcsvhist" name="hist_csv" action="edih_main.php" method="get">
+                                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                <h4><?php echo xlt("Per Encounter"); ?></h4>
+                                    <table>
+                                        <tr>
+                                            <td colspan='2'><?php echo xlt("Enter Encounter Number"); ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td><?php echo xlt("Encounter"); ?></td>
+                                            <td><?php echo xlt("Submit"); ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td><input id="histenctr" type="text" class="form-control" size=10 name="hist_enctr" value="" /></td>
+                                            <td><input id="histsbmt" type="submit" class="btn btn-primary" name="hist_sbmt" form="formcsvhist" value="<?php echo xla("Submit"); ?>" /></td>
+                                        </tr>
+                                    </table>
+                                </form>
+                            </div>
+                            <div class="col-12">
+                                <div id='tblshow'></div>
+                                <div id='tbcsvhist'></div>
+                                <div id='tbrpt'></div>
+                                <div id='tbrsp'></div>
+                                <div id='tbsub'></div>
+                                <div id='tbseg'></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- EDI File Section -->
+                <div class="tab-pane fade" id="nav-edifile" role="tabpanel" aria-labelledby="nav-edifile-tab">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                <form id="x12view" name="x12_view" action="edih_main.php" enctype="multipart/form-data" method="post">
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                    <h4><?php echo xlt("View EDI x12 file"); ?>:</h4>
+                                    <table>
+                                        <tr>
+                                            <td class='text-left'><label for="x12htm"><?php echo xlt("Report?"); ?></label></td>
+                                            <td class='text-center'><label for="x12file"><?php echo xlt("Choose File"); ?>:</label></td>
+                                            <td class='text-left'><label for="x12_filebtn"><?php echo xlt("Submit"); ?>:</label></td>
+                                            <td class='text-center'><label for="x12_filereset"><?php echo xlt("Reset"); ?>:</label></td>
+                                        </tr>
+                                        <tr>
+                                            <td class='text-left'>
+                                                <input type="hidden" name="viewx12Files" value="view_x12">
+                                                <input type="checkbox" id="x12htm" name="x12_html" value="html"  />
+                                            </td>
+                                            <td class='text-left'>
+                                                <div class="custom-file">
+                                                    <label class="custom-file-label"><?php echo xlt("Choose file"); ?></label>
+                                                    <input id="x12file" type="file" class="custom-file-input" size=30 name="fileUplx12" />
+                                                </div>
+                                            </td>
+                                            <td class='text-center'>
+                                                <input type="submit" class="btn btn-primary" id="x12filebtn" name="x12_filebtn" form="x12view" value="<?php echo xla("Submit"); ?>" />
+                                            </td>
+                                            <td class='text-center'>
+                                                <input type="button" class="btn btn-secondary" id="x12filerst" name="x12_filereset" form="x12view" value="<?php echo xla("Reset"); ?>" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </form>
+                                <div id="x12rsp"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Notes Section -->
+                <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                <a class="text-decoration-none" href="<?php echo $web_root; ?>/Documentation/Readme_edihistory.html" rel="noopener" target="_blank"><?php echo xlt("View the README file"); ?></a>
+                            </div>
+                            <div class="col-sm-12 col-md-6">
+                                <form id="formlog" name="form_log" action="edih_main.php" enctype="multipart/form-data" method="post">
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                    <h4><?php echo xlt("Inspect the log"); ?></h4>
+                                    <label for="logfile"><?php echo xlt("View Log"); ?></label>
+                                    <select class="custom-select id="logselect" name="log_select"></select>
+                                    <input type="hidden" name="logshowfile" value="getlog">
+                                    <input class="btn btn-primary" id="logshow" type="submit" form="formlog" value="<?php echo xla("Submit"); ?>" />
+                                    <input class="btn btn-secondary" id="logclose" type="button" form="formlog" value="<?php echo xla("Close"); ?>" />
+                                    <input class="btn btn-secondary" id="logarch" type="button" form="formlog" value="<?php echo xla("Archive"); ?>" />
+                                </form>
+                            </div>
+                            <div class="col-sm-12 col-md-6">
+                                <form id="formnotes" name="form_notes" action="edih_main.php" enctype="multipart/form-data" method="post">
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                    <h4><?php echo xlt("Notes"); ?></h4>
+                                    <label for="notesget"><?php echo xlt("Notes"); ?></label>
+                                    <input class="btn btn-primary" id="notesget" type="button" name="notes_get" form="formnotes" value="<?php echo xla("Open"); ?>" />
+                                    <input id="noteshidden" type="hidden" name="notes_hidden" value="putnotes" />
+                                    <input class="btn btn-primary" id="notessave" type="submit" name="notes_save" form="formnotes" value="<?php echo xla("Save"); ?>" />
+                                    <input class="btn btn-secondary" id="notesclose" type="button" name="notes_close" form="formnotes" value="<?php echo xla("Close"); ?>" />
+                                </form>
+                            </div>
+                            <div class="col-12">
+                                <div id='logrsp'></div>
+                                <div id='notesrsp'></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Archive Section -->
+                <div class="tab-pane fade" id="nav-archive" role="tabpanel" aria-labelledby="nav-archive-tab">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                <span><?php echo xlt("Selected files and data will be removed from folders and tables"); ?></span>
+                            </div>
+                            <div class="col-sm-12 col-md-6">
+                                <form id="formarchive" name="form_archive" action="edih_main.php" enctype="multipart/form-data" method="POST">
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                    <h4><?php echo xlt("Archive old files"); ?></h4>
+                                    <label for="archive_sel"><?php echo xlt("Older than"); ?>:</label>
+                                    <select class="custom-select" id="archiveselect" name="archive_sel">
+                                        <option value="" selected="selected"><?php echo xlt('Choose'); ?></option>
+                                        <option value="24m">24 <?php echo xlt('months'); ?></option>
+                                        <option value="18m">18 <?php echo xlt('months'); ?></option>
+                                        <option value="12m">12 <?php echo xlt('months'); ?></option>
+                                        <option value="9m">9 <?php echo xlt('months'); ?></option>
+                                        <option value="6m">6 <?php echo xlt('months'); ?></option>
+                                        <option value="3m">3 <?php echo xlt('months'); ?></option>
+                                    </select>
+                                    <label for="archivereport"><?php echo xlt("Report"); ?>:</label>
+                                    <input type="button" class="btn btn-sm btn-secondary" id="archiverpt" name="archivereport" form="formarchive" value="<?php echo xla("Report"); ?>" />
+                                    <input type="hidden" name="ArchiveRequest" form="formarchive" value="requested" />
+                                    <label for="archivesbmt"><?php echo xlt("Archive"); ?>:</label>
+                                    <input type="submit" class="btn btn-sm btn-secondary" id="archivesbmt" name="archive_sbmt" form="formarchive" value="<?php echo xla("Archive"); ?>" />
+                                </form>
+                            </div>
+                            <div class="col-sm-12 col-md-6">
+                                <form id="formarchrestore" name="form_archrestore" action="edih_main.php" enctype="multipart/form-data" method="POST">
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                    <h4><?php echo xlt("Restore Archive"); ?></h4>
+                                    <label for="archrestore_sel"><?php echo xlt("Restore"); ?>:</label>
+                                    <select class="custom-select" id="archrestoresel" name="archrestore_sel"> </select>
+                                    <input type="hidden" name="ArchiveRestore" form="formarchrestore" value="restore" />
+                                    <label for="arch_restore"><?php echo xlt("Restore"); ?>:</label>
+                                    <input type="submit" class="btn btn-sm btn-secondary" id="archrestore" name="arch_restore" form="formarchrestore" value="<?php echo xla("Restore"); ?>" />
+                                </form>
+                            </div>
+                            <div class="col-12">
+                                <div id="archiversp"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div id="csvdatatables">
-        <table>
-        <tr>
-        <td colspan=4>
 
-        <form id="formcsvtables" name="form_csvtables" action="edih_main.php" method="GET">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-            <fieldset>
-                <legend><?php echo xlt("View CSV tables"); ?>:</legend>
-                <table>
-                    <tr>
-                        <td colspan='4'><?php echo xlt("Choose a period or dates (YYYY-MM-DD)"); ?></td>
-                    </tr>
-                    <tr>
-                        <td align='center'><?php echo xlt("Choose CSV table"); ?>:</td>
-                        <td align='center'><?php echo xlt("From Period"); ?></td>
-                        <td align='center'><?php echo xlt("Start Date"); ?>: &nbsp;&nbsp; <?php echo xlt("End Date"); ?>:</td>
-                        <td align='center'><?php echo xlt("Submit"); ?></td>
-                    </tr>
-                    <tr height='1.5em'>
-                        <td align='center'>
-                            <select id="csvselect" name="csvtables"></select>
-                        </td>
-                        <td align='center'>
-                            <select id="csvperiod" name="csv_period">
-                                <option value='2w' selected='selected'>2 <?php echo xlt('weeks'); ?></option>
-                                <option value='1m'>1 <?php echo xlt('month'); ?></option>
-                                <option value='2m'>2 <?php echo xlt('months'); ?></option>
-                                <option value='3m'>3 <?php echo xlt('months'); ?></option>
-                                <option value='6m'>6 <?php echo xlt('months'); ?></option>
-                                <option value='9m'>9 <?php echo xlt('months'); ?></option>
-                                <option value='1y'>1 <?php echo xlt('year'); ?></option>
-                                <option value='ALL'><?php echo xlt('All Dates'); ?></option>
-                            </select>
-                        </td>
-                        <!-- datekeyup(e, defcc, withtime)  dateblur(e, defcc, withtime) -->
-                        <td align='left'>
-                           <input type='text' size='10' class='datepicker' name="csv_date_start" id="caldte1" value="" title="<?php echo xla('yyyy-mm-dd Start Date'); ?>" />
-
-                           <input type="text" size="10" class="datepicker" name="csv_date_end" id="caldte2" value="" title="<?php echo xla('yyyy-mm-dd End Date'); ?>" />
-
-                        </td>
-
-                        <td align='center'>
-                            <input type="hidden" name="csvShowTable" form="formcsvtables" value="gettable">
-                            <input id="csvshow" type="submit" name="csv_show" form="formcsvtables" value="<?php echo xla("Submit"); ?>" />
-                        </td>
-
-                    </tr>
-                </table>
-           </fieldset>
-        </form>
-
-        </td>
-        <td colspan=2>
-            <form id="formcsvhist" name="hist_csv" action="edih_main.php" method="get">
-               <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-               <fieldset>
-                  <legend><?php echo xlt("Per Encounter"); ?></legend>
-                  <table cols='2'>
-                        <tr><td colspan='2'><?php echo xlt("Enter Encounter Number"); ?></td></tr>
-                        <tr>
-                            <td><?php echo xlt("Encounter"); ?></td>
-                            <td><?php echo xlt("Submit"); ?></td>
-                        </tr>
-                        <tr>
-                            <td><input id="histenctr" type="text" size=10 name="hist_enctr" value="" /></td>
-                            <td><input id="histsbmt" type="submit" name="hist_sbmt" form="formcsvhist" value="<?php echo xla("Submit"); ?>" /></td>
-                        </tr>
-                  </table>
-                </fieldset>
-            </form>
-        </td>
-        </tr>
-        </table>
-
-        <div id='tblshow'></div>
-        <div id='tbcsvhist'></div>
-        <div id='tbrpt'></div>
-        <div id='tbrsp'></div>
-        <div id='tbsub'></div>
-        <div id='tbseg'></div>
-
-    </div>
- <!--     erafiles to be replaced by functionality in x12text
-    <div id='erafiles'>
-
-    </div>
- -->
-
-    <div id="x12text" >
-        <form id="x12view" name="x12_view" action="edih_main.php" enctype="multipart/form-data" method="post">
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-        <fieldset>
-        <legend><?php echo xlt("View EDI x12 file"); ?>:</legend>
-        <table>
-            <tr>
-              <td align='left'><label for="x12htm"><?php echo xlt("Report?"); ?></label></td>
-              <td align='center'><label for="x12file"><?php echo xlt("Choose File"); ?>:</label></td>
-              <td align='left'><label for="x12_filebtn"><?php echo xlt("Submit"); ?>:</label></td>
-              <td align='center'><label for="x12_filereset"><?php echo xlt("Reset"); ?>:</label></td>
-            </tr>
-            <tr>
-              <td align='left'>
-                <input type="hidden" name="viewx12Files" value="view_x12">
-                <input type="checkbox" id="x12htm" name="x12_html" value="html"  />
-              </td>
-              <td align='left'><input id="x12file" type="file" size=30 name="fileUplx12" /></td>
-              <td align='center'>
-                  <input type="submit" id="x12filebtn" name="x12_filebtn" form="x12view" value="<?php echo xla("Submit"); ?>" />
-              </td>
-              <td align='center'>
-                  <input type="button" id="x12filerst" name="x12_filereset" form="x12view" value="<?php echo xla("Reset"); ?>" />
-              </td>
-            </tr>
-        </table>
-        </fieldset>
-        </form>
-
-        <div id="x12rsp"></div>
-
-    </div>
-
-    <div id="edinotes">
-        <table>
-            <tr>
-                <td colspan="2"><a href="<?php echo $web_root; ?>/Documentation/Readme_edihistory.html" rel="noopener" target="_blank"><?php echo xlt("View the README file"); ?></a></td>
-            </tr>
-            <tr>
-                <td>
-                    <form id="formlog" name="form_log" action="edih_main.php" enctype="multipart/form-data" method="post">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                    <fieldset><legend><?php echo xlt("Inspect the log"); ?></legend>
-                    <label for="logfile"><?php echo xlt("View Log"); ?></label>
-                    <select id="logselect" name="log_select"> </select>
-                    <input type="hidden" name="logshowfile" value="getlog">
-                    <input id="logshow" type="submit" form="formlog" value="<?php echo xla("Submit"); ?>" />
-                    <input id="logclose" type="button" form="formlog" value="<?php echo xla("Close"); ?>" />
-                    <input id="logarch" type="button" form="formlog" value="<?php echo xla("Archive"); ?>" />
-                    </fieldset>
-                    </form>
-                </td>
-                <td><form id="formnotes" name="form_notes" action="edih_main.php" enctype="multipart/form-data" method="post">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                    <fieldset><legend><?php echo xlt("Notes"); ?></legend>
-                    <label for="notesget"><?php echo xlt("Notes"); ?></label>
-                    <input id="notesget" type="button" name="notes_get" form="formnotes" value="<?php echo xla("Open"); ?>" />
-                    <input id="noteshidden" type="hidden" name="notes_hidden" value="putnotes" />
-                    <input id="notessave" type="submit" name="notes_save" form="formnotes" value="<?php echo xla("Save"); ?>" />
-                    <input id="notesclose" type="button" name="notes_close" form="formnotes" value="<?php echo xla("Close"); ?>" />
-                    </fieldset>
-                    </form>
-                </td>
-            </tr>
-        </table>
-
-        <div id='logrsp'></div>
-        <div id='notesrsp'></div>
-
-    </div>
-
-    <div id="archive">
-        <table>
-            <tr>
-                <td colspan="3"><?php echo xlt("Selected files and data will be removed from folders and tables"); ?></td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <form id="formarchive" name="form_archive" action="edih_main.php" enctype="multipart/form-data" method="POST">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                    <fieldset><legend><?php echo xlt("Archive old files"); ?></legend>
-                    <label for="archive_sel"><?php echo xlt("Older than"); ?>:</label>
-                    <select id="archiveselect" name="archive_sel">
-                        <option value="" selected="selected"><?php echo xlt('Choose'); ?></option>
-                        <option value="24m">24 <?php echo xlt('months'); ?></option>
-                        <option value="18m">18 <?php echo xlt('months'); ?></option>
-                        <option value="12m">12 <?php echo xlt('months'); ?></option>
-                        <option value="9m">9 <?php echo xlt('months'); ?></option>
-                        <option value="6m">6 <?php echo xlt('months'); ?></option>
-                        <option value="3m">3 <?php echo xlt('months'); ?></option>
-                    </select>
-                    <label for="archivereport"><?php echo xlt("Report"); ?>:</label>
-                    <input type="button" id="archiverpt" name="archivereport" form="formarchive" value="<?php echo xla("Report"); ?>" />
-                    <input type="hidden" name="ArchiveRequest" form="formarchive" value="requested" />
-                    <label for="archivesbmt"><?php echo xlt("Archive"); ?>:</label>
-                    <input type="submit" id="archivesbmt" name="archive_sbmt" form="formarchive" value="<?php echo xla("Archive"); ?>" />
-                    </fieldset>
-                    </form>
-                </td>
-                <td><form id="formarchrestore" name="form_archrestore" action="edih_main.php" enctype="multipart/form-data" method="POST">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                    <fieldset><legend><?php echo xlt("Restore Archive"); ?></legend>
-                    <label for="archrestore_sel"><?php echo xlt("Restore"); ?>:</label>
-                    <select id="archrestoresel" name="archrestore_sel"> </select>
-                    <input type="hidden" name="ArchiveRestore" form="formarchrestore" value="restore" />
-                    <label for="arch_restore"><?php echo xlt("Restore"); ?>:</label>
-                    <input type="submit" id="archrestore" name="arch_restore" form="formarchrestore" value="<?php echo xla("Restore"); ?>" />
-                    </fieldset>
-                    </form>
-                </td>
-            </tr>
-        </table>
-
-        <div id="archiversp"></div>
-
-    </div>
-</div>
-<!-- End tabs section -->
-<!--  -->
 
 <!-- end DataTables js Begin local js -->
 <script>
