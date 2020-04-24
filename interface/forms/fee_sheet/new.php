@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Fee Sheet Program used to create charges, copays and add diagnosis codes to the encounter
  *

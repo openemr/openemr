@@ -1,4 +1,5 @@
 <?php
+
 /*
  * The functions of this class support the billing process like the script billing_process.php.
  *
