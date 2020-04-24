@@ -61,7 +61,7 @@ if (!$sql_strict_set_success) {
 //  command does not work)
 $GLOBALS['adodb']['db']->SetFetchMode(ADODB_FETCH_ASSOC);
 
-if (isset($GLOBALS['debug_ssl_mysql_connection']) && $GLOBALS['debug_ssl_mysql_connection']) {
+if ($GLOBALS['debug_ssl_mysql_connection']) {
     error_log("CHECK SSL CIPHER IN MAIN ADODB: " . errorLogEscape(print_r($GLOBALS['adodb']['db']->ExecuteNoLog("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true)));
 }
 
