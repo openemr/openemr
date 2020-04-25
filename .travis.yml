@@ -161,7 +161,7 @@ language: php
       echo "-------------"
       echo "Run E2e Tests"
       echo "-------------"
-      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_NO_SANDBOX=1; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver; cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite e2e --testdox" || failTest=true
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "${CHROMIUM_INSTALL}; export PANTHER_NO_SANDBOX=1; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver; cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite e2e --testdox" || failTest=true
       if $failTest; then
         failJob=true
         mes="FAILED"
@@ -288,6 +288,7 @@ jobs:
       env:
         - DOCKER_DIR=apache_73_105
         - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+        - CHROMIUM_INSTALL="apk update; apk add --no-cache chromium chromium-chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -308,6 +309,7 @@ jobs:
       env:
         - DOCKER_DIR=apache_73_104
         - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+        - CHROMIUM_INSTALL="apk update; apk add --no-cache chromium chromium-chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -328,6 +330,7 @@ jobs:
       env:
         - DOCKER_DIR=apache_73_103
         - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+        - CHROMIUM_INSTALL="apk update; apk add --no-cache chromium chromium-chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -348,6 +351,7 @@ jobs:
       env:
         - DOCKER_DIR=apache_73_102
         - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+        - CHROMIUM_INSTALL="apk update; apk add --no-cache chromium chromium-chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -368,6 +372,7 @@ jobs:
       env:
         - DOCKER_DIR=apache_73_101
         - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+        - CHROMIUM_INSTALL="apk update; apk add --no-cache chromium chromium-chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -388,6 +393,7 @@ jobs:
       env:
         - DOCKER_DIR=apache_73_8
         - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+        - CHROMIUM_INSTALL="apk update; apk add --no-cache chromium chromium-chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -408,6 +414,7 @@ jobs:
       env:
         - DOCKER_DIR=apache_73_57
         - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+        - CHROMIUM_INSTALL="apk update; apk add --no-cache chromium chromium-chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -428,6 +435,7 @@ jobs:
       env:
         - DOCKER_DIR=apache_73_56
         - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+        - CHROMIUM_INSTALL="apk update; apk add --no-cache chromium chromium-chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -448,6 +456,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_72
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y chromium-chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -468,6 +477,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_73
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y chromium-chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -488,6 +498,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_74
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y chromium-chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -508,6 +519,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_80
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y chromium-chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
