@@ -15,27 +15,28 @@
  * +------------------------------------------------------------------------------+
  *
  */
-
 /*
     Style index form
 */
-
 .form-style-1 {
     padding: 20px 12px 10px 20px;
     font: 13px "Lucida Sans Unicode", "Lucida Grande", sans-serif;
 }
+
 .form-style-1 li {
     padding: 0;
     display: block;
     list-style: none;
     margin: 10px 0 0 0;
 }
-.form-style-1 label{
-    margin:0 0 3px 0;
-    padding:0px;
-    display:block;
+
+.form-style-1 label {
+    margin: 0 0 3px 0;
+    padding: 0px;
+    display: block;
     font-weight: bold;
 }
+
 .form-style-1 input[type=text],
 .form-style-1 input[type=date],
 .form-style-1 input[type=datetime],
@@ -46,19 +47,20 @@
 .form-style-1 input[type=password],
 .form-style-1 input[type=email],
 textarea,
-select{
+select {
     box-sizing: border-box;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
-    border:1px solid #BEBEBE;
+    border: 1px solid #BEBEBE;
     padding: 7px;
-    margin:0px;
+    margin: 0px;
     -webkit-transition: all 0.30s ease-in-out;
     -moz-transition: all 0.30s ease-in-out;
     -ms-transition: all 0.30s ease-in-out;
     -o-transition: all 0.30s ease-in-out;
     outline: none;
 }
+
 .form-style-1 input[type=text]:focus,
 .form-style-1 input[type=date]:focus,
 .form-style-1 input[type=datetime]:focus,
@@ -69,42 +71,46 @@ select{
 .form-style-1 input[type=email]:focus,
 .form-style-1 input[type=password]:focus,
 .form-style-1 textarea:focus,
-.form-style-1 select:focus{
+.form-style-1 select:focus {
     -moz-box-shadow: 0 0 8px #88D5E9;
     -webkit-box-shadow: 0 0 8px #88D5E9;
     box-shadow: 0 0 8px #88D5E9;
     border: 1px solid #88D5E9;
 }
-.form-style-1 .field-divided{
+
+.form-style-1 .field-divided {
     width: 49%;
 }
 
-.form-style-1 .field-long{
+.form-style-1 .field-long {
     width: 100%;
 }
-.form-style-1 .field-select{
+
+.form-style-1 .field-select {
     width: 100%;
 }
-.form-style-1 .field-textarea{
+
+.form-style-1 .field-textarea {
     height: 100px;
 }
-input[type=submit], input[type=button]{
+
+input[type=submit], input[type=button] {
     background: #4B99AD;
     padding: 8px 15px 8px 15px;
     border: none;
-    color: #fff;
+    color: var(--white);
 }
-.form-style-1 input[type=submit]:hover, .form-style-1 input[type=button]:hover{
+
+.form-style-1 input[type=submit]:hover, .form-style-1 input[type=button]:hover {
     background: #4691A4;
-    box-shadow:none;
-    -moz-box-shadow:none;
-    -webkit-box-shadow:none;
-}
-.form-style-1 .required{
-    color:red;
+    box-shadow: none;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
 }
 
-
+.form-style-1 .required {
+    color: var(--danger);
+}
 
 /*
     Style index table
@@ -113,67 +119,80 @@ input[type=submit], input[type=button]{
     margin: 1em 0;
     width: 100%;
     overflow: hidden;
-    background: #FFF;
+    background: var(--white);
     color: #024457;
     border: 1px solid #167F92;
 }
+
 .responstable tr {
     border: 1px solid #D9E4E6;
-    text-align: center!important;
+    text-align: center !important;
 }
+
 .responstable tr:nth-child(odd) {
     background-color: #EAF3F3;
 }
+
 .responstable th {
     display: none;
-    border: 1px solid #FFF;
+    border: 1px solid var(--white);
     background-color: #167F92;
-    color: #FFF;
+    color: var(--white);
     padding: 1em;
-    text-align: center!important;
+    text-align: center !important;
 }
+
 .responstable th:first-child {
     display: table-cell;
     text-align: center;
 }
+
 .responstable th:nth-child(2) {
     display: table-cell;
 }
+
 .responstable th:nth-child(2) span {
     display: none;
 }
+
 .responstable th:nth-child(2):after {
     content: attr(data-th);
 }
+
 @media (min-width: 480px) {
     .responstable th:nth-child(2) span {
         display: block;
     }
+
     .responstable th:nth-child(2):after {
         display: none;
     }
 }
+
 .responstable td {
     display: block;
     word-wrap: break-word;
     max-width: 7em;
-    text-align: center!important;
-
+    text-align: center !important;
 }
+
 .responstable td:first-child {
     display: table-cell;
     text-align: center;
     border-right: 1px solid #D9E4E6;
 }
+
 @media (min-width: 480px) {
     .responstable td {
         border: 1px solid #D9E4E6;
     }
 }
+
 .responstable th, .responstable td {
     text-align: left;
     margin: .5em 1em;
 }
+
 @media (min-width: 480px) {
     .responstable th, .responstable td {
         display: table-cell;
@@ -185,25 +204,24 @@ input[type=submit], input[type=button]{
     style safe key
 
  */
-
-.safekey{
+.safekey {
     text-align: center;
 }
-.safekey h1{
+
+.safekey h1 {
     font-size: 40px;
 }
 
-.safekey .yoursafekey{
+.safekey .yoursafekey {
     display: block;
     font-size: 30px;
 }
 
-.safekey p{
+.safekey p {
     font-size: 18px;
 }
 
-
-.safekey .box{
+.safekey .box {
     font-size: 18px;
     background-color: #94bbbf;
     display: inline-block;
@@ -212,15 +230,13 @@ input[type=submit], input[type=button]{
     margin-bottom: 50px;
 }
 
-
-
 /*
     Style edit
 */
-.error{
-    color: red;
+.error {
+    color: var(--danger);
 }
 
-input.error{
-    border: 1px solid red!important;
+input.error {
+    border: 1px solid var(--danger) !important;
 }

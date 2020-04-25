@@ -4,7 +4,6 @@
 *	TODO: Consolidate with core themes in GSoC
 *
 */
-
 body {
     font-size: 0.875rem;
     color: var(--gray500) !important;

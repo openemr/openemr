@@ -13,7 +13,7 @@
 
 // Warning : PoC code
 // TBD - Must handle modules in external namespaces
-Use OpenEMR\Modules;
+use OpenEMR\Modules;
 
 $listener = $this->listenerObject;
 $hangers = $this->hangers;
@@ -27,22 +27,23 @@ $customDir = $GLOBALS['customModDir'];
 $zendModDir = $GLOBALS['zendModDir'];
 $confirmationMSG = $listener->z_xlt("Do you really want to delete?");
 // TODO: Change all of these magic numbers into constants, set them in the view and use them here so we can know what this all means.
-if (count($TabSettings) > 0) {
+?>
+<div class="container">
 
-    ?>
+<?php if (count($TabSettings) > 0) {?>
     <div class="easyui-tabs h-auto" id="tab<?php echo $this->escapeHtml($mod_id); ?>">
         <?php
         if (isset($TabSettings[1]) && $TabSettings[1] > 0) {
             ?>
             <div title="<?php echo $listener->z_xla('Access Control'); ?>" id="tab_acl<?php echo $this->escapeHtml($mod_id); ?>" iconCls="icon-acl">
-                <div class="easyui-accordion h-auto" id="configaccord<?php echo $this->escapeHtml($mod_id); ?>" style="width: 58.125rem; margin: 0.3125rem;">
+                <div class="easyui-accordion h-auto" id="configaccord<?php echo $this->escapeHtml($mod_id); ?>" style="margin: 0.3125rem;">
                     <iframe src="<?php echo $GLOBALS['webroot']; ?>/interface/modules/zend_modules/public/acl/acltab?module_id=<?php echo $this->escapeHtml($this->mod_id); ?>" class="w-100" style="height: 43.75rem; overflow: hidden;" frameborder="0"></iframe>
                 </div>
             </div>
             <?php
         } else {
             ?>
-            <div class="easyui-accordion" id="configaccord<?php echo $this->escapeHtml($mod_id); ?>" class="h-auto" style="width: 58.125rem; margin: 0.3125rem;"></div>
+            <div class="easyui-accordion" id="configaccord<?php echo $this->escapeHtml($mod_id); ?>" class="h-auto" style="margin: 0.3125rem;"></div>
             <?php
         }
         if (isset($TabSettings[2]) && $TabSettings[2] > 0) {
@@ -128,7 +129,6 @@ if (count($TabSettings) > 0) {
             <div title="<?php echo $listener->z_xla('Settings'); ?>" id="tab_config<?php echo $this->escapeHtml($mod_id); ?>" iconCls="icon-preference">
                 <?php
                 if (is_object($this->settings) && count($this->settings) > 0) {
-
                     $form = $this->settings;
                     if (method_exists($form, 'prepare')) {
                         $form->prepare();
@@ -214,3 +214,4 @@ if (count($TabSettings) > 0) {
     }
 }
 ?>
+</div>

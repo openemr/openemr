@@ -718,6 +718,7 @@ class InstModuleTable
     {
         $sql = "SELECT mod_active,mod_directory FROM modules WHERE mod_directory = ? ";
         $res = $this->applicationTable->zQuery($sql, array(trim($moduleDir)));
+        $check = "";
         foreach ($res as $row) {
             $check = $row;
         }

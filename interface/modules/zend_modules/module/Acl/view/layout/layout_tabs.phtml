@@ -20,19 +20,19 @@ use OpenEMR\Core\Header;
     <head>
         <meta charset="utf-8">
         <?php Header::setupHeader(['jquery-easyui']); ?>
-				<?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/images/favicon.ico'))
-      ->prependStylesheet($this->basePath() . '/css/icon.css')
-      ->prependStylesheet($this->basePath() . '/css/demo.css')
-			->prependStylesheet($this->basePath() . '/css/style.css')
-			->prependStylesheet($this->basePath() . '/css/suggestion.css')
-			->prependStylesheet($this->basePath() . '/css/emr.css');
-	?>
+                <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/images/favicon.ico'))
+                ->prependStylesheet($this->basePath() . '/css/icon.css')
+                ->prependStylesheet($this->basePath() . '/css/demo.css')
+                ->prependStylesheet($this->basePath() . '/css/style.css')
+                ->prependStylesheet($this->basePath() . '/css/suggestion.css')
+                ->prependStylesheet($this->basePath() . '/css/emr.css');
+                ?>
 
         <!-- Scripts -->
         <?php echo $this->headScript(); ?>
-<script type="text/javascript">
+<script>
     var i = 0;
-    $(function () {
+    $(function() {
         $('#tab').tabs({
         onSelect: function(title,index){
             if(index == 0){

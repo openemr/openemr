@@ -33,7 +33,7 @@ use OpenEMR\Core\Header;
     <?php Header::setupHeader(); ?>
 
     <!-- css files -->
-    <?php foreach($this->cssFiles as $file){
+    <?php foreach ($this->cssFiles as $file) {
         $this->headLink()->appendStylesheet($GLOBALS['assets_static_relative'] . $file);
     }
     echo $this->headLink();
@@ -41,15 +41,15 @@ use OpenEMR\Core\Header;
 
     <!-- Scripts -->
     <?php
-    foreach($this->jsFiles as $file){
+    foreach ($this->jsFiles as $file) {
         $this->headScript()->appendFile($GLOBALS['assets_static_relative'] . $file);
     }
-    echo  $this->headScript() ;
+    echo $this->headScript();
     ?>
 
 </head>
 
-<body class="container-fluid body_top " dir="<?php echo $language_direction?>" >
+<body class="body_top" dir="<?php echo $language_direction?>" >
 <nav class="navbar navbar-light navbar-expand">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -73,7 +73,7 @@ use OpenEMR\Core\Header;
     </div>
 </nav><!-- end of nav--->
 
-    <div class='row'>
+    <div class="row">
         <div class="col-md-12">
             <?php echo $this->content; ?>
         </div>

@@ -12,8 +12,8 @@
  */
 $status_title   = array('0' => 'Pending', '1' => 'Completed','2' => 'Secure Transfer', '3' => 'View');
 $status_details = array();
-foreach($this->status_details as $row_status){
-        $status_details[$row_status['pid']][] = $row_status;
+foreach ($this->status_details as $row_status) {
+    $status_details[$row_status['pid']][] = $row_status;
 }
 ?>
 <script>
@@ -136,7 +136,7 @@ foreach($this->status_details as $row_status){
     <li class="" data-type="import"><?php echo $this->listenerObject->z_xlt('Import');?></li>
   </ul>
   <div class="clear"></div>
-  <div class="main-tab-1 main-all" style="display: block;">
+  <div class="main-tab-1 main-all d-block">
     <ul class="child-tab-head">
       <li class="child_active"><?php echo $this->listenerObject->z_xlt('Transition Of Care');?></li>
       <li><?php echo $this->listenerObject->z_xlt('Immunization');?></li>
@@ -146,12 +146,12 @@ foreach($this->status_details as $row_status){
     <div class="child-tab-1 child-all">
       <!-- -->
       <div>
-        <form method="post" id="theform" style="font-size: 12px;">
+        <form method="post" id="theform" style="font-size: 0.75rem;">
         <div class="se_in_15 se_in_16">
                 <table>
                     <tr>
                         <td class="se_in_16_label"><label><?php echo $this->listenerObject->z_xlt('Date'); ?></label></td>
-                        <td nowrap>
+                        <td class="text-nowrap">
                                 <input readonly maxlength="10" style="width: 42%" type="text" name="form_date_from" id="form_date_from" class="dateClass"/>
                                 <input readonly maxlength="10" style="width: 42%" type="text" name="form_date_to" id="form_date_to" class="dateClass"/>
                                 <script>
@@ -163,7 +163,7 @@ foreach($this->status_details as $row_status){
                         </td>
                     </tr>
                     <tr>
-                        <td nowrap><label><?php echo $this->listenerObject->z_xlt('Patient Name/ID'); ?></label></td>
+                        <td class="text-nowrap"><label><?php echo $this->listenerObject->z_xlt('Patient Name/ID'); ?></label></td>
                         <td><input maxlength="25" type="text" name="form_pid" value="<?php echo $this->escapeHtml($this->form_data['pid']);?>" /><br/></td>
                     </tr>
                     <tr>
@@ -181,12 +181,12 @@ foreach($this->status_details as $row_status){
             <div class="header_wrap">
                 <div class="header_wrap_left">
                     <div class="search_button" title="Search"><?php echo $this->listenerObject->z_xlt('SEARCH'); ?></div>&nbsp;&nbsp;
-                    <div id="download_ccda" style="display: none;"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
+                    <div id="download_ccda" class="d-none"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
                     <input type="hidden" name="downloadccda" id="downloadccda" value="">
                     <input type="hidden" name="components" id="components" value="">
-                    <div style="display:none;" id="download_ccr"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
+                    <div class="d-none" id="download_ccr"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
                     <input type="hidden" name="downloadccr" id="downloadccr" value="">
-                    <div style="display:none;" id="download_ccd"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
+                    <div class="d-none" id="download_ccd"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
                     <input type="hidden" name="downloadccd" id="downloadccd" value="">
                     <input type="hidden" name="pid_ccda" id="pid_ccda" value="">
                     <input type="hidden" name="latestccda" id="latestccda" value="">
@@ -196,15 +196,21 @@ foreach($this->status_details as $row_status){
                     ?>
                     <div class="se_in_3" title="<?php echo $this->listenerObject->z_xlt('Reload');?>" onclick="javascript:clearCount();document.getElementById('theform').submit();"></div>
                 </div><!-- header_wrap_left -->
-                <div class="header_wrap_right" style="<?php if(count($this->details) == 0){ ?>display: none;<?php } ?>">
+                <div class="header_wrap_right <?php if (count($this->details) == 0) {
+                    ?>d-none<?php
+                                              } ?>">
                     <div class="se_in_4">
                         <label><?php echo $this->listenerObject->z_xlt('Show');?>&nbsp;</label>&nbsp;<input maxlength="3" type="text" onkeypress="return isNumber(event)" name="form_results" value="<?php echo $this->escapeHtml($this->form_data['results']);?>" />&nbsp;<label>&nbsp;<?php echo $this->listenerObject->z_xlt('Encounters'); ?></label>
                     </div>
                     <div class="se_in_6">
                         <div class="se_in_5">
                             <div class="se_in_5-1" onclick="pagination('first');"></div>
-                            <div class="se_in_5-2" onclick="<?php if($this->form_data['current_page']>1) {?>pagination('previous');<?php }?>"></div>
-                            <div class="se_in_5-3" onclick="<?php if($this->form_data['current_page']<$this->form_data['total_pages']) {?>pagination('next');<?php }?>"></div>
+                            <div class="se_in_5-2" onclick="<?php if ($this->form_data['current_page']>1) {
+                                ?>pagination('previous');<?php
+                                                            }?>"></div>
+                            <div class="se_in_5-3" onclick="<?php if ($this->form_data['current_page']<$this->form_data['total_pages']) {
+                                ?>pagination('next');<?php
+                                                            }?>"></div>
                             <div class="se_in_5-4" onclick="pagination('last');"></div>
                         </div>
                         <div class="clear"></div>
@@ -267,7 +273,9 @@ foreach($this->status_details as $row_status){
                         }
                 }
                 </script>
-                <table class="responsive" style="<?php if(count($this->details) == 0){ ?>display: none; <?php } ?>">
+                <table class="responsive <?php if (count($this->details) == 0) {
+                    ?>d-none <?php
+                                         } ?>">
                     <tr class="se_in_9">
                         <th width="1%" id="expand_all" class="expand_all se_in_23">&nbsp;</th>
                         <th width="3%"><label><?php echo $this->escapeHtml('#'); ?></label></th>
@@ -277,37 +285,40 @@ foreach($this->status_details as $row_status){
                         <th><label><?php echo $this->listenerObject->z_xlt('Total Transfers'); ?></label></th>
                         <th><label><?php echo $this->listenerObject->z_xlt('Successful Transfers'); ?></label></th>
                         <th><label><?php echo $this->listenerObject->z_xlt('Last Visit'); ?></label></th>
-                        <th width="3%"><input type="checkbox" value="1" name="form_select_all" id="form_select_all" <?php if($this->form_data['select_all'] == 1) echo "checked"; ?> /></th>
+                        <th width="3%"><input type="checkbox" value="1" name="form_select_all" id="form_select_all" <?php if ($this->form_data['select_all'] == 1) {
+                            echo "checked";
+                                                                                                                    } ?> /></th>
                         <th width="3%">&nbsp;</th>
                     </tr>
                     <?php
-                    $slno       = ($this->escapeHtml($this->form_data['current_page']) - 1) * $this->escapeHtml($this->form_data['results']);
-                    foreach($this->details as $row){
-                        $slno++;
-                        ?>
+                    $slno = ($this->escapeHtml($this->form_data['current_page']) - 1) * $this->escapeHtml($this->form_data['results']);
+                    foreach ($this->details as $row) {
+                        $slno++; ?>
                             <tr>
-                                <td id="expand_details_<?php echo $this->escapeHtml($row['pid']);?>" class="expand_details se_in_23" style="cursor: pointer;"></td>
-                                <td><label><?php echo $slno;?>)</label></td>
-                                <td><label><?php echo $this->escapeHtml($row['pid']);?></label></td>
+                                <td id="expand_details_<?php echo $this->escapeHtml($row['pid']); ?>" class="expand_details se_in_23" style="cursor: pointer;"></td>
+                                <td><label><?php echo $slno; ?>)</label></td>
+                                <td><label><?php echo $this->escapeHtml($row['pid']); ?></label></td>
                                 <td><label><?php echo $this->escapeHtml($row['fname'])." ".$this->escapeHtml($row['mname'])." ".$this->escapeHtml($row['lname']); ?></label></td>
-                                <td><label><?php echo $this->escapeHtml($row['enc_count']);?></label></td>
-                                <td><label><?php echo $this->escapeHtml($row['ccda_transfer_count']);?></label></td>
-                                <td><label><?php echo $this->escapeHtml($row['ccda_successfull_transfer_count']);?></label></td>
-                                <td><label><?php echo $this->commonplugin->date_format($row['last_visit_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?></label></td>
-                                <td nowrap>
-                                        <input class="check_pid check_pid_<?php echo $this->escapeHtml($row['pid']);?>" type="checkbox" name="ccda_pid[]" value="<?php echo $this->escapeHtml($row['pid']);?>" <?php if($this->form_data['select_all'] ==1) echo "checked"; ?>>
+                                <td><label><?php echo $this->escapeHtml($row['enc_count']); ?></label></td>
+                                <td><label><?php echo $this->escapeHtml($row['ccda_transfer_count']); ?></label></td>
+                                <td><label><?php echo $this->escapeHtml($row['ccda_successfull_transfer_count']); ?></label></td>
+                                <td><label><?php echo $this->commonplugin->date_format($row['last_visit_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd'); ?></label></td>
+                                <td class="text-nowrap">
+                                        <input class="check_pid check_pid_<?php echo $this->escapeHtml($row['pid']); ?>" type="checkbox" name="ccda_pid[]" value="<?php echo $this->escapeHtml($row['pid']); ?>" <?php if ($this->form_data['select_all'] ==1) {
+                                            echo "checked";
+                                                                          } ?>>
                                 </td>
                                 <td style="padding: 5px;">
-                                        <a href="<?php echo $this->basePath();?>/encounterccdadispatch/index?combination=<?php echo $this->escapeHtml($row['pid']);?>&view=1&recipient=self&param=<?php echo $_SESSION['authUserID'];?>" rel="noopener" target="_blank" style="text-decoration: none;">
-                                                <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath();?>/css/icons/view.png" title="<?php echo $this->listenerObject->z_xlt('View CCDA');?>">
+                                        <a href="<?php echo $this->basePath(); ?>/encounterccdadispatch/index?combination=<?php echo $this->escapeHtml($row['pid']); ?>&view=1&recipient=self&param=<?php echo $_SESSION['authUserID']; ?>" rel="noopener" target="_blank" class="text-decoration-none">
+                                                <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath(); ?>/css/icons/view.png" title="<?php echo $this->listenerObject->z_xlt('View CCDA'); ?>">
                                         </a>
                                 </td>
                             </tr>
                         <?php
-                                ?>
+                        ?>
                                 <tr>
-                                        <td colspan="9" id="hide_<?php echo $this->escapeHtml($row['pid']);?>" class="ccda_details" style="display: none;">
-                                                <table style="width: 85% !important; margin-left: auto !important; margin-right: auto !important;">
+                                        <td colspan="9" id="hide_<?php echo $this->escapeHtml($row['pid']); ?>" class="ccda_details d-none">
+                                                <table class="mx-auto" style="width: 85% !important;">
                                                         <tr class="se_in_9">
                                                                 <th width="1%"><?php echo '#'; ?></th>
                                                                 <th><label><?php echo $this->listenerObject->z_xlt('Encounter'); ?></label></th>
@@ -321,31 +332,35 @@ foreach($this->status_details as $row_status){
                                                         $slno_sub   = 0;
                                                         if (is_array($status_details[$row['pid']])) {
                                                             foreach ($status_details[$row['pid']] as $row_status) {
-                                                                $slno_sub++;
-                                                                ?>
+                                                                $slno_sub++; ?>
                                                                 <tr>
                                                                     <td><?php echo $slno_sub; ?>)</td>
                                                                     <td><?php echo $this->escapeHtml($row_status['encounter']); ?></td>
-                                                                    <td><?php echo $this->commonplugin->date_format($row_status['dos'],
-                                                                            $GLOBALS['date_display_format'],
-                                                                            'yyyy-mm-dd'); ?></td>
-                                                                    <td><?php echo $this->commonplugin->date_format(date('Y-m-d H:i:s',
-                                                                            $row_status['time']),
-                                                                            $GLOBALS['date_display_format'],
-                                                                            'yyyy-mm-dd'); ?></td>
+                                                                    <td><?php echo $this->commonplugin->date_format(
+                                                                        $row_status['dos'],
+                                                                        $GLOBALS['date_display_format'],
+                                                                        'yyyy-mm-dd'
+                                                                    ); ?></td>
+                                                                    <td><?php echo $this->commonplugin->date_format(
+                                                                        date(
+                                                                            'Y-m-d H:i:s',
+                                                                            $row_status['time']
+                                                                        ),
+                                                                        $GLOBALS['date_display_format'],
+                                                                        'yyyy-mm-dd'
+                                                                    ); ?></td>
                                                                     <td><?php echo($row_status['user_id'] == 'Scheduler' ? $this->listenerObject->z_xlt('Auto Transfer') : $this->escapeHtml($row_status['user_name'])); ?></td>
                                                                     <td>
-                                                                        <?php
-                                                                        if ($row_status['emr_transfer'] == 1) {
-                                                                            echo $this->listenerObject->z_xlt($status_title[2]);
-                                                                        } else {
-                                                                            if ($row_status['view'] == 1) {
-                                                                                echo $this->listenerObject->z_xlt($status_title[3]);
-                                                                            } else {
-                                                                                echo $this->listenerObject->z_xlt($status_title[$row_status['status']]);
-                                                                            }
-                                                                        }
-                                                                        ?>
+                                                                                                        <?php
+                                                                                                        if ($row_status['emr_transfer'] == 1) {
+                                                                                                            echo $this->listenerObject->z_xlt($status_title[2]);
+                                                                                                        } else {
+                                                                                                            if ($row_status['view'] == 1) {
+                                                                                                                echo $this->listenerObject->z_xlt($status_title[3]);
+                                                                                                            } else {
+                                                                                                                echo $this->listenerObject->z_xlt($status_title[$row_status['status']]);
+                                                                                                            }
+                                                                                                        } ?>
                                                                     </td>
                                                                     <td title="<?php echo $this->listenerObject->z_xlt('Download CCDA file'); ?>">
                                                                         <a rel="noopener" target="_blank"
@@ -355,10 +370,9 @@ foreach($this->status_details as $row_status){
                                                                         </a>
                                                                     </td>
                                                                 </tr>
-                                                                <?php
+                                                                                                <?php
                                                             }
-                                                        }
-                                                        ?>
+                                                        } ?>
                                                 </table>
                                         </td>
                                 </tr>
@@ -366,7 +380,9 @@ foreach($this->status_details as $row_status){
                     }
                     ?>
                 </table>
-                <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if(count($this->details) > 0){ ?>display: none; <?php } ?>">
+                <div class="mx-auto text-center font-weight-bold" style="width: 60%; border: 1px solid #CCCCCC; padding: 30px; font-size: 0.9375rem; background: #f7f7f7;<?php if (count($this->details) > 0) {
+                    ?>display: none; <?php
+                                                                                                                                                                         } ?>">
                         <?php echo $this->listenerObject->z_xlt('Nothing to display');?>
                 </div>
             </div>
@@ -384,12 +400,12 @@ foreach($this->status_details as $row_status){
           </div>
           </div><!-- Immunization Tab -->
           <div class="child-tab-2 child-all">
-                <iframe id="immunization_iframe" border="0" width="100%" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/immunization/index"></iframe>
+                <iframe id="immunization_iframe" class="w-100 border-0" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/immunization/index"></iframe>
           </div><!-- Syndromic Surveillance Tab -->
           <div class="child-tab-3 child-all">
-                <iframe id="syndromicsurveillance_iframe" border="0" width="100%" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/syndromicsurveillance/index"></iframe>
+                <iframe id="syndromicsurveillance_iframe" class="w-100 border-0" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/syndromicsurveillance/index"></iframe>
             </div><!-- third tab -->
-        <div class="main-tab-2 main-all" style="display: none;">
+        <div class="main-tab-2 main-all d-none">
             <ul class="child-tab-head-import">
                 <li class="child_active"><?php echo $this->listenerObject->z_xlt('CCD');?></li>
                 <li><?php echo $this->listenerObject->z_xlt('CCR');?></li>
@@ -397,17 +413,16 @@ foreach($this->status_details as $row_status){
           </ul><div class="clear"></div>
                 <!--CCD Tab-->
           <div class="import-child-tab-1 child-all-import">
-               <iframe id="ccd_iframe" border="0" width="100%" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/ccd/upload"></iframe>
+               <iframe id="ccd_iframe" class="w-100 border-0" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/ccd/upload"></iframe>
            </div>
                 <!--CCR Tab-->
           <div class="import-child-tab-2 child-all-import">
-                <iframe id="ccr_iframe" border="0" width="100%" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/ccr/index"></iframe>
+                <iframe id="ccr_iframe" class="w-100 border-0" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/ccr/index"></iframe>
           </div>
                 <!--CCDA Tab-->
           <div class="import-child-tab-3 child-all-import">
-                <iframe id="ccda_iframe" border="0" width="100%" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/carecoordination/upload?id=1"></iframe>
+                <iframe id="ccda_iframe" class="w-100 border-0" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/carecoordination/upload?id=1"></iframe>
            </div>
         </div>
         <div class="clear"></div>
     </div> <!-- New Wrapper ends-->
-

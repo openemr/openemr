@@ -29,8 +29,8 @@ class ImmunizationForm extends Form
                 'attributes'        => array(
                                         'multiple'      => 'multiple',
                                         'size'          => '3',
-                        'class'     => 'select',
-                        'style'     => 'width:150px',
+                        'class'     => 'form-control select',
+                        'style'     => 'width: 150px',
                         'editable'  => 'false',
                         'id'        => 'codes'
                 ),
@@ -46,9 +46,9 @@ class ImmunizationForm extends Form
                             'attributes' => array(
                                             'id'          => 'from_date',
                                             'placeholder' => 'From Date',
-                                            'value'       => date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7)),
-                                            'class'       => 'date_field',
-                                            'style'       => 'width: 42%;cursor:not-allowed;',
+                                            'value'       => date('Y-m-d', strtotime(date('Ymd')) - (86400*7)),
+                                            'class'       => 'form-control date_field',
+                                            'style'       => 'width: 42%; cursor:not-allowed;',
                             ),
                           ));
 
@@ -58,9 +58,9 @@ class ImmunizationForm extends Form
                         'attributes' => array(
                                         'id'        => 'to_date',
                                         'placeholder'   => 'To Date',
-                                        'class'         => 'date_field',
+                                        'class'         => 'form-control date_field',
                                         'value'         => date('Y-m-d'),
-                                        'style'         => 'width: 42%;cursor:not-allowed;',
+                                        'style'         => 'width: 42%; cursor:not-allowed;',
                                         'type'          => 'text',
                                         'onchange' => 'validate_search();'
                         ),
@@ -72,6 +72,7 @@ class ImmunizationForm extends Form
                         'attributes' => array(
                                         'value' => \Application\Listener\Listener::z_xlt('SEARCH'),
                                         'id'    => 'search_form_button',
+                                        'class' => 'btn btn-primary',
                                         ),
                     ));
         $this->add(array(
@@ -80,6 +81,7 @@ class ImmunizationForm extends Form
                                         'type'  => 'button',
                                         'value' => \Application\Listener\Listener::z_xlt('Print'),
                                         'id'    => 'printbutton',
+                                        'class' => 'btn btn-primary',
                                          ),
                     ));
         $this->add(array(
@@ -92,7 +94,7 @@ class ImmunizationForm extends Form
                                         // the button is hidden as we apparently use it to submit the form when the
                                         // shared sendTo will trigger this button to click...
                                         // @see sendTo.js and immunization.js and search for #hl7button
-                                        'style' => 'display:none;'
+                                        'class' => 'btn btn-primary d-none'
                                         ),
                     ));
     }

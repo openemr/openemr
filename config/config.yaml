@@ -74,6 +74,10 @@ assets:
     knockout:
         basePath: '%assets_static_relative%/knockout/build/output/'
         script: knockout-latest.js
+    jqtree:
+        basePath: '%assets_static_relative%/jqtree/'
+        script: tree.jquery.js
+        link: jqtree.css
     jquery-ui:
         basePath: '%assets_static_relative%/jquery-ui/'
         script: jquery-ui.min.js

@@ -6,7 +6,9 @@
  * @link      https://www.open-emr.org
  * @author    Jacob T.Paul <jacob@zhservices.com>
  * @author    Basil PT <basil@zhservices.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -15,60 +17,59 @@ $listener = $this->listenerObject;
 <script>
     var ajax_path = "<?php echo $GLOBALS['webroot']; ?>/interface/modules/zend_modules/public/acl/ajax";
     $(function () {
-        <?php if($this->component_id != ''){?>
+        <?php if ($this->component_id != '') {?>
             selectThis("<?php echo $this->component_id; ?>");
             selected_component = "<?php echo $this->component_id; ?>";
             rebuild();
-	<?php } ?>
+    <?php } ?>
     });
 </script>
 <div id="add_new_components" class="popup_items">
-    <center>
-				<div class="head"><?php echo $listener->z_xlt('Add New Components'); ?></div>
-		</center>
-
-		<table align="center">
-				<tr>
-						<td><?php echo $listener->z_xlt('Module'); ?></td>
-						<td>
-								<select id="add_component_mod_id" onchange="getSectionById(this.value);">
-										<option value=''></option>
-										<?php
-										foreach($this->active_modules as $mod_id => $mod_name) :
-										?>
-									<option value="<?php echo $this->escapeHtml($mod_id);?>"><?php echo $listener->z_xlt($mod_name);?></option>
-										<?php
-										endforeach
-										?>
-								</select>
-						</td>
-				</tr>
-				<tr>
-						<td><?php echo $listener->z_xlt('Parent'); ?></td>
-						<td><select id="add_component_section_id"></select></td>
-				</tr>
-				<tr>
-						<td><?php echo $listener->z_xlt('Section ID'); ?></td>
-						<td><input id="add_component_section_identifier" type="text"></td>
-				</tr>
-				<tr>
-						<td><?php echo $listener->z_xlt('Section Name'); ?></td>
-						<td><input id="add_component_section_name" type="text"></td>
-				</tr>
-				<tr>
-						<td colspan="2" class="text-right"><a href="#" onclick="addSectionSave();" class="btn btn-primary" title="<?php echo $listener->z_xla('Add New Component'); ?>"><?php echo $listener->z_xlt('Add'); ?></a></td>
-				</tr>
-				<tr>
-						<td colspan="2" class="text-right"><span id="add_component_section_message" style="color: #3AA845;"></span></td>
-				</tr>
-		</table>
+        <div class="head text-center"><?php echo $listener->z_xlt('Add New Components'); ?></div>
+    <div class="table-responsive">
+        <table class="table">
+                <tr>
+                        <td><?php echo $listener->z_xlt('Module'); ?></td>
+                        <td>
+                                <select id="add_component_mod_id" onchange="getSectionById(this.value);">
+                                        <option value=''></option>
+                                        <?php
+                                        foreach ($this->active_modules as $mod_id => $mod_name) :
+                                            ?>
+                                    <option value="<?php echo $this->escapeHtml($mod_id);?>"><?php echo $listener->z_xlt($mod_name);?></option>
+                                            <?php
+                                        endforeach
+                                        ?>
+                                </select>
+                        </td>
+                </tr>
+                <tr>
+                        <td><?php echo $listener->z_xlt('Parent'); ?></td>
+                        <td><select id="add_component_section_id"></select></td>
+                </tr>
+                <tr>
+                        <td><?php echo $listener->z_xlt('Section ID'); ?></td>
+                        <td><input id="add_component_section_identifier" type="text"></td>
+                </tr>
+                <tr>
+                        <td><?php echo $listener->z_xlt('Section Name'); ?></td>
+                        <td><input id="add_component_section_name" type="text"></td>
+                </tr>
+                <tr>
+                        <td colspan="2" class="text-right"><a href="#" onclick="addSectionSave();" class="btn btn-primary" title="<?php echo $listener->z_xla('Add New Component'); ?>"><?php echo $listener->z_xlt('Add'); ?></a></td>
+                </tr>
+                <tr>
+                        <td colspan="2" class="text-right"><span id="add_component_section_message" style="color: #3AA845;"></span></td>
+                </tr>
+        </table>
+  </div>
 </div>
 
-<div style="display: none;"><div id="control_div"><a href="#"><?php echo $listener->z_xlt('Collapse All'); ?></a>|<a href="#" id="expand_tree"><?php echo $listener->z_xlt('Expand All'); ?></a></div></div>
+<div class="d-none"><div id="control_div"><a href="#"><?php echo $listener->z_xlt('Collapse All'); ?></a>|<a href="#" id="expand_tree"><?php echo $listener->z_xlt('Expand All'); ?></a></div></div>
 
-<center>
-		<div class="scrollable default-skin" style="width: 750px; height: 600px;">
-				<table id="outer_table" align="center">
+        <div class="scrollable default-skin mx-auto" style="width: 750px; height: 600px;">
+      <!-- TODO: Update this table to a better BS4 equivalent  !-->
+                <table id="outer_table" align="center">
                     <tr>
                         <td>
                         <span id="messages"></span>
@@ -78,7 +79,8 @@ $listener = $this->listenerObject;
                                 </tr>
 
                                 <tr style="height: 30px;">
-                                    <td style="border: solid 1px #305A99" class="container head"><?php echo $listener->z_xlt('Components'); ?> &nbsp;<?php if(!$this->module_id) {?><a href="#" onclick="addNewItem('components');" class="btn btn-primary" title="<?php echo $listener->z_xla('Add New Component'); ?>"><?php echo $listener->z_xlt('Add'); ?></a><?php } ?></td>
+                                    <td style="border: solid 1px #305A99" class="container head"><?php echo $listener->z_xlt('Components'); ?> &nbsp;<?php if (!$this->module_id) {
+                                        ?><a href="#" onclick="addNewItem('components');" class="btn btn-primary" title="<?php echo $listener->z_xla('Add New Component'); ?>"><?php echo $listener->z_xlt('Add'); ?></a><?php } ?></td>
                                     <td style="border: solid 1px #305A99" class="container head"><?php echo $listener->z_xlt('Group') . '/' . $listener->z_xlt('Users'); ?></td>
                                     <td style="border: solid 1px #2A6614; background-color:#E4F7CD;" class="container head"><?php echo $listener->z_xlt('Allowed'); ?></td>
                                     <td style="border: solid 1px #B32317; background-color:#F9C7C7;" class="container head"><?php echo $listener->z_xlt('Denied'); ?></td>
@@ -97,6 +99,5 @@ $listener = $this->listenerObject;
                         </table>
                         </td>
                     </tr>
-				</table>
-		</div>
-</center>
+                </table>
+        </div>

@@ -33,8 +33,8 @@ use OpenEMR\Core\Header;
     <?php Header::setupHeader(); ?>
 
     <!-- css files -->
-    <?php foreach($this->cssFiles as $file) {
-        $this->headLink()->appendStylesheet( $GLOBALS['assets_static_relative']  . $file);
+    <?php foreach ($this->cssFiles as $file) {
+        $this->headLink()->appendStylesheet($GLOBALS['assets_static_relative']  . $file);
     }
     $this->headLink()->appendStylesheet($this->basePath() . '/css/multipledb/multipledb.css');
     echo $this->headLink();
@@ -42,8 +42,7 @@ use OpenEMR\Core\Header;
 
     <!-- Scripts -->
     <?php
-    foreach($this->jsFiles as $file){
-
+    foreach ($this->jsFiles as $file) {
         $this->headScript()->appendFile($GLOBALS['assets_static_relative']   . $file);
     }
     echo $this->headScript();
@@ -52,7 +51,7 @@ use OpenEMR\Core\Header;
 </head>
 
 <body class="container-fluid body_top" dir="<?php echo $language_direction; ?>">
-<?php if($title): ?>
+<?php if ($title) { ?>
         <nav class="navbar navbar-light navbar-expand">
             <div class="container-fluid">
                 <div class="navbar-header">
@@ -75,7 +74,7 @@ use OpenEMR\Core\Header;
                 </div><!--/.nav-collapse -->
             </div>
         </nav><!-- end of nav--->
-<?php endif; ?>
+<?php } ?>
     <div class='row'>
         <div class="col-md-12">
             <?php echo $this->content; ?>

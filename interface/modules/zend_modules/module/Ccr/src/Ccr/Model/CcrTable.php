@@ -25,16 +25,15 @@ require_once(dirname(__FILE__) . "/../../../../../../../../library/patient.inc")
 
 class CcrTable extends AbstractTableGateway
 {
-
     public function __construct()
     {
     }
-  /*
-  * Fetch the Catagory ID from categories table
-  *
-  * @param    title    Text    Name of the category(eg: CCR)
-  * @return   records  Array   ID of the Category
-  */
+    /*
+    * Fetch the Catagory ID from categories table
+    *
+    * @param    title    Text    Name of the category(eg: CCR)
+    * @return   records  Array   ID of the Category
+    */
     public function fetch_cat_id($title)
     {
         $appTable   = new ApplicationTable();
@@ -48,15 +47,15 @@ class CcrTable extends AbstractTableGateway
         return $records;
     }
 
-  /*
-  * Fetch the documents uploaded by a user
-  *
-  * @param  user          Integer   Uploaded user ID
-  * @param  time_start    Date      Uploaded start time
-  * @param  time_end      Date      Uploaded end time
-  *
-  * @return records       Array     List of documents uploaded by the user during a particular time
-  */
+    /*
+    * Fetch the documents uploaded by a user
+    *
+    * @param  user          Integer   Uploaded user ID
+    * @param  time_start    Date      Uploaded start time
+    * @param  time_end      Date      Uploaded end time
+    *
+    * @return records       Array     List of documents uploaded by the user during a particular time
+    */
     public function fetch_uploaded_documents($data)
     {
         $query = "SELECT * FROM categories_to_documents AS cat_doc
@@ -71,22 +70,22 @@ class CcrTable extends AbstractTableGateway
         return $records;
     }
 
-  /*
-  * List the documents uploaded by the user alogn with the matched data
-  *
-  * @param    cat_title   Text    Category Name
-  * @return   records     Array   List of CCR imported to the system, pending approval
-  */
+    /*
+    * List the documents uploaded by the user alogn with the matched data
+    *
+    * @param    cat_title   Text    Category Name
+    * @return   records     Array   List of CCR imported to the system, pending approval
+    */
     public function document_fetch($data)
     {
-        $query      = "SELECT am.id as amid, cat.name, u.fname, u.lname, d.imported, d.size, d.date, d.couch_docid, d.couch_revid, d.url AS file_url, d.id AS document_id, ad.field_value, ad1.field_value, ad2.field_value, pd.pid, CONCAT(ad.field_value,' ',ad1.field_value) as pat_name, DATE(ad2.field_value) as dob, CONCAT_WS(' ',pd.lname, pd.fname) as matched_patient
+        $query = "SELECT am.id as amid, cat.name, u.fname, u.lname, d.imported, d.size, d.date, d.couch_docid, d.couch_revid, d.url AS file_url, d.id AS document_id, ad.field_value, ad1.field_value, ad2.field_value, pd.pid, CONCAT(ad.field_value,' ',ad1.field_value) as pat_name, DATE(ad2.field_value) as dob, CONCAT_WS(' ',pd.lname, pd.fname) as matched_patient
                 FROM documents AS d
                 JOIN categories AS cat ON cat.name = 'CCR'
                 JOIN categories_to_documents AS cd ON cd.document_id = d.id AND cd.category_id = cat.id
                 LEFT JOIN audit_master AS am ON am.type = '11' AND am.approval_status = '1' AND d.audit_master_id = am.id
-                LEFT JOIN audit_details ad ON ad.audit_master_id = am.id AND ad.table_name = 'patient_data' AND ad.field_name = 'lname' 
-                LEFT JOIN audit_details ad1 ON ad1.audit_master_id = am.id AND ad1.table_name = 'patient_data' AND ad1.field_name = 'fname' 
-                LEFT JOIN audit_details ad2 ON ad2.audit_master_id = am.id AND ad2.table_name = 'patient_data' AND ad2.field_name = 'DOB' 
+                LEFT JOIN audit_details ad ON ad.audit_master_id = am.id AND ad.table_name = 'patient_data' AND ad.field_name = 'lname'
+                LEFT JOIN audit_details ad1 ON ad1.audit_master_id = am.id AND ad1.table_name = 'patient_data' AND ad1.field_name = 'fname'
+                LEFT JOIN audit_details ad2 ON ad2.audit_master_id = am.id AND ad2.table_name = 'patient_data' AND ad2.field_name = 'DOB'
                 LEFT JOIN patient_data pd ON pd.lname = ad.field_value AND pd.fname = ad1.field_value AND pd.DOB = DATE(ad2.field_value)
                 LEFT JOIN users AS u ON u.id = d.owner
                 WHERE d.audit_master_approval_status = 1
@@ -101,12 +100,12 @@ class CcrTable extends AbstractTableGateway
         return $records;
     }
 
-  /*
-  * Update the audit mater ID to documents table for future reference
-  *
-  * @param    audit_master_id   Integer   ID from audit_master table
-  * @param    doc_id            Integer   ID from documents table
-  */
+    /*
+    * Update the audit mater ID to documents table for future reference
+    *
+    * @param    audit_master_id   Integer   ID from audit_master table
+    * @param    doc_id            Integer   ID from documents table
+    */
     public function update_document($doc_id, $audit_master_id)
     {
         $appTable   = new ApplicationTable();
@@ -114,12 +113,12 @@ class CcrTable extends AbstractTableGateway
         $appTable->zQuery($query, array($audit_master_id, $doc_id));
     }
 
-  /*
-  * Insert the imprted data to audit master table
-  *
-  * @param    var   Array   Details parsed from the CCR xml file
-  * @return   audit_master_id   Integer   ID from audit_master table
-  */
+    /*
+    * Insert the imprted data to audit master table
+    *
+    * @param    var   Array   Details parsed from the CCR xml file
+    * @return   audit_master_id   Integer   ID from audit_master table
+    */
     public function insert_ccr_into_audit_data($var)
     {
         $appTable   = new ApplicationTable();
@@ -162,12 +161,12 @@ class CcrTable extends AbstractTableGateway
         return $audit_master_id;
     }
 
-  /*
-  * Library function to parse the CCR xml
-  *
-  * @param    content         XML     content from the CCR xml
-  * @param    field_mapping   Array   fields to be fetched from xml
-  */
+    /*
+    * Library function to parse the CCR xml
+    *
+    * @param    content         XML     content from the CCR xml
+    * @param    field_mapping   Array   fields to be fetched from xml
+    */
     public function parseXmlStream($content, $field_mapping)
     {
         $res    = array();
@@ -199,12 +198,12 @@ class CcrTable extends AbstractTableGateway
         return $res;
     }
 
-  /*
-  * Fetch the data from audit tables
-  *
-  * @param    am_id         integer     audit master ID
-  * @param    table_name    string      identifier inserted for each table (eg: prescriptions, list1 ...)
-  */
+    /*
+    * Fetch the data from audit tables
+    *
+    * @param    am_id         integer     audit master ID
+    * @param    table_name    string      identifier inserted for each table (eg: prescriptions, list1 ...)
+    */
     public function createAuditArray($am_id, $table_name)
     {
         $appTable     = new ApplicationTable();
@@ -218,11 +217,11 @@ class CcrTable extends AbstractTableGateway
             }
 
             $table_qry  = substr($table_qry, 0, -1);
-            $query      = "SELECT * FROM audit_master am LEFT JOIN audit_details ad ON ad.audit_master_id = am.id AND ad.table_name IN ($table_qry) 
+            $query      = "SELECT * FROM audit_master am LEFT JOIN audit_details ad ON ad.audit_master_id = am.id AND ad.table_name IN ($table_qry)
                     WHERE am.id = ? AND am.type = 11 AND am.approval_status = 1 ORDER BY ad.entry_identification,ad.field_name";
             $result     = $appTable->zQuery($query, $arr);
         } else {
-            $query      = "SELECT * FROM audit_master am LEFT JOIN audit_details ad ON ad.audit_master_id = am.id AND ad.table_name = ? 
+            $query      = "SELECT * FROM audit_master am LEFT JOIN audit_details ad ON ad.audit_master_id = am.id AND ad.table_name = ?
                     WHERE am.id = ? AND am.type = 11 AND am.approval_status = 1 ORDER BY ad.entry_identification,ad.field_name";
             $result     = $appTable->zQuery($query, array($table_name, $am_id));
         }
@@ -235,12 +234,12 @@ class CcrTable extends AbstractTableGateway
         return $records;
     }
 
-  /*
-  * Fetch the demographics data from audit tables
-  *
-  * @param    audit_master_id   Integer   ID from audit master table
-  * @return   records           Array     Demographics data
-  */
+    /*
+    * Fetch the demographics data from audit tables
+    *
+    * @param    audit_master_id   Integer   ID from audit master table
+    * @return   records           Array     Demographics data
+    */
     public function getDemographics($data)
     {
         $appTable   = new ApplicationTable();
@@ -255,12 +254,12 @@ class CcrTable extends AbstractTableGateway
         return $records;
     }
 
-  /*
-  * Fetch the current demographics data of a patient from patient_data table
-  *
-  * @param    pid       Integer   Patient ID
-  * @return   records   Array     current patient data
-  */
+    /*
+    * Fetch the current demographics data of a patient from patient_data table
+    *
+    * @param    pid       Integer   Patient ID
+    * @return   records   Array     current patient data
+    */
     public function getDemographicsOld($data)
     {
         $appTable   = new ApplicationTable();
@@ -274,12 +273,12 @@ class CcrTable extends AbstractTableGateway
         return $records;
     }
 
-  /*
-  * Fetch the current Problems of a patient from lists table
-  *
-  * @param    pid       Integer     patient id
-  * @return   records   Array       list of problems
-  */
+    /*
+    * Fetch the current Problems of a patient from lists table
+    *
+    * @param    pid       Integer     patient id
+    * @return   records   Array       list of problems
+    */
     public function getProblems($data)
     {
         $appTable   = new ApplicationTable();
@@ -293,12 +292,12 @@ class CcrTable extends AbstractTableGateway
         return $records;
     }
 
-  /*
-  * Fetch the current Allergies of a patient from lists table
-  *
-  * @param    pid       Integer     patient id
-  * @return   records   Array       list of allergies
-  */
+    /*
+    * Fetch the current Allergies of a patient from lists table
+    *
+    * @param    pid       Integer     patient id
+    * @return   records   Array       list of allergies
+    */
     public function getAllergies($data)
     {
         $appTable   = new ApplicationTable();
@@ -312,12 +311,12 @@ class CcrTable extends AbstractTableGateway
         return $records;
     }
 
-  /*
-  * Fetch the current Medications of a patient from prescriptions table
-  *
-  * @param    pid       Integer     patient id
-  * @return   records   Array       list of medications
-  */
+    /*
+    * Fetch the current Medications of a patient from prescriptions table
+    *
+    * @param    pid       Integer     patient id
+    * @return   records   Array       list of medications
+    */
     public function getMedications($data)
     {
         $appTable   = new ApplicationTable();
@@ -331,12 +330,12 @@ class CcrTable extends AbstractTableGateway
         return $records;
     }
 
-  /*
-  * Fetch the current Immunizations of a patient from immunizations table
-  *
-  * @param    pid       Integer     patient id
-  * @return   records   Array       list of immunizations
-  */
+    /*
+    * Fetch the current Immunizations of a patient from immunizations table
+    *
+    * @param    pid       Integer     patient id
+    * @return   records   Array       list of immunizations
+    */
     public function getImmunizations($data)
     {
         $appTable   = new ApplicationTable();
@@ -350,12 +349,12 @@ class CcrTable extends AbstractTableGateway
         return $records;
     }
 
-  /*
-  * Fetch the currect Lab Results of a patient
-  *
-  * @param    pid       Integer     patient id
-  * @return   records   Array       list of lab results
-  */
+    /*
+    * Fetch the currect Lab Results of a patient
+    *
+    * @param    pid       Integer     patient id
+    * @return   records   Array       list of lab results
+    */
     public function getLabResults($data)
     {
         $appTable   = new ApplicationTable();
@@ -371,12 +370,12 @@ class CcrTable extends AbstractTableGateway
         return $records;
     }
 
-  /*
-  * Insert the CCR data to the respective tables after approval
-  *
-  * @param    data    Array     POST values from the approval screen which contains the patient id
-  *                             and other details like demographics, problems etc..
-  */
+    /*
+    * Insert the CCR data to the respective tables after approval
+    *
+    * @param    data    Array     POST values from the approval screen which contains the patient id
+    *                             and other details like demographics, problems etc..
+    */
     public function insertApprovedData($data)
     {
         $appTable   = new ApplicationTable();
@@ -450,11 +449,11 @@ class CcrTable extends AbstractTableGateway
         $appTable->zQuery("UPDATE documents SET audit_master_approval_status=2 WHERE audit_master_id=?", array($data['amid']));
     }
 
-  /*
-  * Reject the data obtained from the CCR xml
-  *
-  * @param    audit_master_id     Integer     id from audit master table
-  */
+    /*
+    * Reject the data obtained from the CCR xml
+    *
+    * @param    audit_master_id     Integer     id from audit master table
+    */
     public function discardCCRData($data)
     {
         $appTable   = new ApplicationTable();
@@ -463,11 +462,11 @@ class CcrTable extends AbstractTableGateway
         $appTable->zQuery("UPDATE documents SET audit_master_approval_status=2 WHERE audit_master_id=?", array($data['audit_master_id']));
     }
 
-  /*
-  * Fetch the patient data from audit tables and update to patient_data table
-  *
-  * @param    audit_master_id     Integer     id from audit master table
-  */
+    /*
+    * Fetch the patient data from audit tables and update to patient_data table
+    *
+    * @param    audit_master_id     Integer     id from audit master table
+    */
     public function insert_patient($audit_master_id)
     {
         $pid = 0;
@@ -532,23 +531,23 @@ class CcrTable extends AbstractTableGateway
         $appTable->zQuery("UPDATE documents SET audit_master_approval_status=2 WHERE audit_master_id=?", array($audit_master_id));
     }
 
-  /*
-  * Fetch a document from the database
-  *
-  * @param  $document_id        Integer     Document ID
-  * @return $content            String      File content
-  */
+    /*
+    * Fetch a document from the database
+    *
+    * @param  $document_id        Integer     Document ID
+    * @return $content            String      File content
+    */
     public function getDocument($document_id)
     {
         $content = \Documents\Plugin\Documents::getDocument($document_id);
         return $content;
     }
 
-  /*
-  * Update the status of a document after importing
-  *
-  * @param    $document_id    Interger    Document ID
-  */
+    /*
+    * Update the status of a document after importing
+    *
+    * @param    $document_id    Interger    Document ID
+    */
     public function update_imported($document_id)
     {
         $appTable   = new ApplicationTable();
