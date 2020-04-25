@@ -103,7 +103,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "OpenEMR\\": ["src", "tests"]
+            "OpenEMR\\Tests\\": "tests\\Tests"
         }
     }
 }
