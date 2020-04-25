@@ -29,7 +29,6 @@ class ExampleE2eTest extends PantherTestCase
         $this->assertSame('OpenEMR Login', $title);
     }
     /** @test */
-    /** TEMP REMOVING THIS TEST UNTIL FIX WHY IT IS ERRATICALLY NOT PASSING IN TRAVIS
     public function url_without_token_should_redirect_to_login_page(): void
     {
         $openEmrPage = 'http://localhost';
@@ -40,7 +39,6 @@ class ExampleE2eTest extends PantherTestCase
         $title = $client->getTitle();
         $this->assertSame('OpenEMR Login', $title);
     }
-     */
     /** @test */
     public function visitor_with_valid_credential_can_be_authenticated(): void
     {
