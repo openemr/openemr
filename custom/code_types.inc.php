@@ -832,7 +832,7 @@ function sequential_code_set_search($form_code_type, $search_term, $limit = null
 * @param array $filter_elements Array that contains elements to filter
 * @return recordset/integer
 */
-function multiple_code_set_search($form_code_types = array(), $search_term, $limit = null, $modes = null, $count = false, $active = true, $start = null, $number = null, $filter_elements = array())
+function multiple_code_set_search(array $form_code_types = null, $search_term, $limit = null, $modes = null, $count = false, $active = true, $start = null, $number = null, $filter_elements = array())
 {
 
     if (empty($form_code_types)) {

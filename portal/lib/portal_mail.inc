@@ -312,8 +312,11 @@ function getMailDetails($id, $owner = '')
     }
 }
 
-function sendMail($owner, $note, $title = 'Unassigned', $to, $noteid, $sid, $sn, $rid, $rn, $status = 'New', $replyid = '')
+function sendMail($owner, $note, string $title = null, $to, $noteid, $sid, $sn, $rid, $rn, $status = 'New', $replyid = '')
 {
+    if (!$title) {
+        $title = 'Unassigned';
+    }
     if ($owner) {
         addPortalMailboxMail($owner, $note, '1', '1', $title, $to, '', $status, $noteid, $sid, $sn, $rid, $rn, $replyid);
         return 1;

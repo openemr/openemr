@@ -164,7 +164,7 @@ function user_role($doc, $r)
     $r->appendChild($b);
 }
 
-function destination($doc, $r, $page = '', $pid)
+function destination($doc, $r, string $page = null, $pid)
 {
     global $msg,$page;
     $userRole = sqlQuery("select * from users where username=?", array($_SESSION['authUser']));

@@ -218,8 +218,11 @@ function getMailDetails($id)
     }
 }
 
-function sendMail($pid, $note, $title = 'Unassigned', $to, $noteid)
+function sendMail($pid, $note, string $title = null, $to, $noteid)
 {
+    if (!$title) {
+        $title = 'Unassigned';
+    }
     if ($pid) {
         addPortalMailboxPnote($pid, $note, '1', '1', $title, $to, '', 'New', $noteid);
         return 1;

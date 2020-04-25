@@ -877,7 +877,7 @@ MIMEBODY;
         return $x12_271;
     }
 
-    public static function mimeParse($formBody = '', $contentType)
+    public static function mimeParse(string $formBody = null, $contentType)
     {
         $mimeBody = preg_replace('~\r\n?~', "\r", $formBody);
         list($contentType, $bound, $cs) = explode(";", trim($contentType)); // $contentType & $cs are throwaways
