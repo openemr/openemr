@@ -456,7 +456,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_72
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y chromium-chromedriver"
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y chromium-driver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -477,7 +477,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_73
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y chromium-chromedriver"
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y chromium-driver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -498,7 +498,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_74
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y chromium-chromedriver"
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y chromium-driver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -519,7 +519,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_80
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
-        - CHROMIUM_INSTALL="apt-get update; apt-get install -y chromium-chromedriver"
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y chromium-driver"
       script:
         - failJob=false
         - *dockers_env_start
