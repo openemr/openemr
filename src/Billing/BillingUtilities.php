@@ -1354,7 +1354,7 @@ class BillingUtilities
         $code,
         $code_text,
         $pid,
-        $authorized = "0",
+        string $authorized = null,
         $provider,
         $modifier = "",
         $units = "",
@@ -1366,6 +1366,9 @@ class BillingUtilities
         $pricelevel = '',
         $revenue_code = ""
     ) {
+        if (!$authorized) {
+            $authorized = "0";
+        }
 
         $sql = "INSERT INTO billing (date, encounter, code_type, code, code_text, " .
             "pid, authorized, user, groupname, activity, billed, provider_id, " .

@@ -138,11 +138,14 @@ class ApplicationTable
      *         $audit['action_taken_time']="";
      *         $audit['checksum']="";
      */
-    public function portalAudit($type = 'insert', $rec = '', array $auditvals, $oelog = true, $error = true)
+    public function portalAudit(string $type = null, string $rec = null, array $auditvals, $oelog = true, $error = true)
     {
         $return = false;
         $result = false;
         $audit = array ();
+        if (!$type) {
+            $type = 'insert';
+        }
         if ($type != 'insert') {
             $audit['date'] = $auditvals['date'] ? $auditvals['date'] : date("Y-m-d H:i:s");
         }

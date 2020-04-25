@@ -224,8 +224,11 @@ function allActiveMedsPat($patient_id, $from_date, $to_date)
     return $medArr;
 }
 
-function allProcPat($proc_type = "Procedure", $patient_id, $from_date, $to_date)
+function allProcPat(string $proc_type = null, $patient_id, $from_date, $to_date)
 {
+    if (!$proc_type) {
+        $proc_type = "Procedure";
+    }
     $procArr = array();
     $procQry = "SELECT poc.procedure_code, poc.procedure_name, po.date_ordered, fe.encounter,fe.date FROM form_encounter fe " .
             "INNER JOIN forms f ON f.encounter = fe.encounter AND f.deleted != 1 AND f.formdir = 'procedure_order' " .

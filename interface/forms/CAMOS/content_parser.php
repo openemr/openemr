@@ -38,8 +38,11 @@ function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp)
 }
 
 //This function was copied from BillingUtilities class and altered to support 'justify'
-function addBilling2($encounter, $code_type, $code, $code_text, $modifier = "", $units = "", $fee = "0.00", $justify)
+function addBilling2($encounter, $code_type, $code, $code_text, string $modifier = null, string $units = null, string $fee = null, $justify)
 {
+    if (!$fee) {
+        $fee = "0.00";
+    }
     $justify_string = '';
     if ($justify) {
         //trim eahc entry

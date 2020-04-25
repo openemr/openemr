@@ -468,8 +468,11 @@ class EncounterccdadispatchController extends AbstractActionController
         return $output;
     }
 
-    public function create_data($pid, $encounter, $sections, $send = 0, $components)
+    public function create_data($pid, $encounter, $sections, int $send = null, $components)
     {
+        if (!$send) {
+            $send = 0;
+        }
         global $assignedEntity;
         global $representedOrganization;
         $sections_list = explode('|', $sections);

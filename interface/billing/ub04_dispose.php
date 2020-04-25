@@ -95,8 +95,11 @@ function saveTemplate($encounter, $pid, $ub04id, $action = 'form')
     }
 }
 
-function buildTemplate($pid = '', $encounter = '', $htmlin, $action = 'form', &$log)
+function buildTemplate(string $pid = null, string $encounter = null, $htmlin, string $action = null, &$log)
 {
+    if (!$action) {
+        $action = 'form';
+    }
     $ub04id = get_ub04_array($pid, $encounter, $log);
 
     $ub04id = json_encode($ub04id);

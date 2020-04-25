@@ -1241,7 +1241,7 @@ function returnTargetGroups($rule)
  * @param  string   $dateTarget  target date (format Y-m-d H:i:s).
  * @return boolean               if target passes then true, otherwise false
  */
-function test_targets($patient_id, $rule, $group_id = '', $dateTarget)
+function test_targets($patient_id, $rule, string $group_id = null, $dateTarget)
 {
 
   // -------- Interval Target ----
@@ -1618,7 +1618,7 @@ function resolve_filter_sql($rule, $filter_method, $include_flag = 1)
  * @param  string   $include_flag   to allow selection for included or excluded targets
  * @return array                    targets
  */
-function resolve_target_sql($rule, $group_id = '', $target_method, $include_flag = 1)
+function resolve_target_sql($rule, string $group_id = null, $target_method, $include_flag = 1)
 {
 
     if ($group_id) {
@@ -1890,7 +1890,7 @@ function lists_check($patient_id, $filter, $dateTarget)
  * (2) If $data contains '#CURDATE#', then it will be converted to the current date.
  *
  */
-function exist_database_item($patient_id, $table, $column = '', $data_comp, $data = '', $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget = '')
+function exist_database_item($patient_id, $table, string $column = null, $data_comp, string $data = null, $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget = '')
 {
 
   // Set date to current if not set
@@ -1998,7 +1998,7 @@ function exist_database_item($patient_id, $table, $column = '', $data_comp, $dat
  * (1) If result_data ends with **, operators ne/eq are replaced by (NOT)LIKE operators
  *
  */
-function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp, $result_data = '', $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget = '')
+function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp, stirng $result_data = null, $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget = '')
 {
 
   // Set date to current if not set
@@ -2090,7 +2090,7 @@ function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp
  * @param  string   $dateTarget       target date(format Y-m-d H:i:s).
  * @return boolean                    true if check passed, otherwise false
  */
-function exist_custom_item($patient_id, $category, $item, $complete, $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget)
+function exist_custom_item($patient_id, $category, $item, $complete, $num_items_comp, $num_items_thres, string $intervalType = null, string $intervalValue = null, $dateTarget)
 {
 
   // Set the table
@@ -2450,7 +2450,7 @@ function is_duplicate_action($actions, $action)
  * @param  string  $type        either 'patient_reminder' or 'clinical_reminder'
  * @return array                see above for description of returned array
  */
-function calculate_reminder_dates($rule, $dateTarget = '', $type)
+function calculate_reminder_dates($rule, string $dateTarget = null, $type)
 {
 
   // Set date to current if not set
