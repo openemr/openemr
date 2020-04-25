@@ -42,12 +42,15 @@ if (!$thisauth) {
 
 ?>
 
-<form name='filterform' id='filterform' method='post' action='?m=definition&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>' onsubmit="return top.restoreSession()">
+<form name='filterform' id='filterform' method='post'
+      action='?m=definition&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>'
+      onsubmit="return top.restoreSession()">
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <!-- Filter for Constants -->
     <div class="form-group">
         <label for="filterForConstants"><?php echo xlt('Filter for Constants'); ?>:</label>
-        <input type='text' class="form-control" id="filterForConstants" name='filter_cons' size='8' value='<?php echo attr($_POST['filter_cons']); ?>' />
+        <input type='text' class="form-control" id="filterForConstants" name='filter_cons'
+               size='8' value='<?php echo attr($_POST['filter_cons']); ?>' />
         <small class="form-text text-muted">
             <?php echo xlt('(% matches any string, _ matches any character)'); ?>
         </small>
@@ -55,7 +58,8 @@ if (!$thisauth) {
     <!-- Filter for Definitions -->
     <div class="form-group">
         <label for="filterForDefinitions"><?php echo xlt('Filter for Definitions'); ?>:</label>
-        <input type='text' class="form-control" id="filterForDefinitions" name='filter_def' size='8' value='<?php echo attr($_POST['filter_def']); ?>' />
+        <input type='text' class="form-control" id="filterForDefinitions" name='filter_def'
+               size='8' value='<?php echo attr($_POST['filter_def']); ?>' />
         <small class="form-text text-muted">
             <?php echo xlt('(% matches any string, _ matches any character)'); ?>
         </small>
@@ -67,28 +71,25 @@ if (!$thisauth) {
             <?php
           // sorting order of language titles depends on language translation options.
             $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
-            if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation'])) {
-                $sql = "SELECT * FROM lang_languages ORDER BY lang_description, lang_id";
-                $res = SqlStatement($sql);
-            } else {
-                // Use and sort by the translated language name.
-                $sql = "SELECT ll.lang_id, " .
+            // Use and sort by the translated language name.
+            $sql = "SELECT ll.lang_id, " .
                 "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS lang_description " .
                 "FROM lang_languages AS ll " .
                 "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
                 "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
                 "ld.lang_id=? " .
                 "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-                $res = SqlStatement($sql, array($mainLangID));
-            }
+            $res = SqlStatement($sql, array($mainLangID));
 
           // collect the default selected language id, and then display list
             $tempLangID = isset($_POST['language_select']) ? $_POST['language_select'] : $mainLangID;
             while ($row = SqlFetchArray($res)) {
                 if ($tempLangID == $row['lang_id']) {
-                    echo "<option value='" . attr($row['lang_id']) . "' selected>" . text($row['lang_description']) . "</option>";
+                    echo "<option value='" . attr($row['lang_id']) . "' selected>" .
+                        text($row['lang_description']) . "</option>";
                 } else {
-                      echo "<option value='" . attr($row['lang_id']) . "'>" . text($row['lang_description']) . "</option>";
+                      echo "<option value='" . attr($row['lang_id']) . "'>" .
+                          text($row['lang_description']) . "</option>";
                 }
             }
             ?>
@@ -213,7 +214,8 @@ if ($_POST['edit']) {
     $res = SqlStatement($sql, $bind_sql_array);
 
         $isResults = false; //flag to record whether there are any results
-    echo ('<table><form method="post" action="?m=definition&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken()) . '" onsubmit="return top.restoreSession()">');
+    echo ('<table><form method="post" action="?m=definition&csrf_token_form='
+        . attr_url(CsrfUtils::collectCsrfToken()) . '" onsubmit="return top.restoreSession()">');
     echo ('<input type="hidden" name="csrf_token_form" value="' . attr(CsrfUtils::collectCsrfToken()) . '" />');
     // only english definitions
     if ($lang_id == 1) {
@@ -237,7 +239,8 @@ if ($_POST['edit']) {
                 }
             }
 
-            $stringTemp .= '<td><input type="text" size="50" NAME="' . attr($cons_name) . '" value="' . attr($row['definition']) . '">';
+            $stringTemp .= '<td><input type="text" size="50" NAME="' . attr($cons_name) .
+                '" value="' . attr($row['definition']) . '">';
             $stringTemp .= '</td><td></td></tr>';
             if ($isShow) {
                 //definition filter passed, so show
@@ -283,7 +286,8 @@ if ($_POST['edit']) {
                 }
             }
 
-            $stringTemp .= '<td><input type="text" size="50" name="' . attr($cons_name) . '" value="' . attr($row['definition']) . '">';
+            $stringTemp .= '<td><input type="text" size="50" name="' . attr($cons_name) . '" value="' .
+                attr($row['definition']) . '">';
             $stringTemp .= '</td></tr>';
             if ($isShow) {
         //definition filter passed, so show
@@ -296,7 +300,8 @@ if ($_POST['edit']) {
     }
 
     if ($isResults) {
-            echo ('<tr><td colspan=3><input type="submit" name="load" Value="' . xla('Load Definitions') . '"></td></tr>');
+            echo ('<tr><td colspan=3><input type="submit" name="load" Value="' .
+                xla('Load Definitions') . '"></td></tr>');
         ?>
             <input type="hidden" name="filter_cons" value="<?php echo attr($_POST['filter_cons']); ?>">
             <input type="hidden" name="filter_def" value="<?php echo attr($_POST['filter_def']); ?>">
