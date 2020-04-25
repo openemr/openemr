@@ -141,6 +141,9 @@ function twSetup(tabsid) {
     const closeTab = function() {
         const panelId = self.parent().attr("href").substring(1);
         top.restoreSession();
+        if ($(self).attr('id') === 'Fee Sheet') {
+            top.execute = false;
+        }
         twCloseTab(tabsid, panelId);
     }
 
@@ -190,20 +193,19 @@ function twAddTab(tabsid, label, content) {
   return panelId;
 }
 
-var execute = false;
 var temp;
 // Add a new tab using an iframe loading a specified URL.
 function twAddFrameTab(tabsid, label, url) {
   var panelId = nextPanelId(tabsid);
   top.restoreSession();
   if (label === "Fee Sheet") {
-    if (!execute) {
+    if (!top.execute) {
       twAddTab(
         tabsid,
         label,
         "<iframe name='" + panelId + "' frameborder='0' class='w-100' style='height:94.5%' src='" + url + "'>Oops</iframe>"
       );
-      execute = true;
+      top.execute = true;
       temp = panelId;
       return panelId;
     } else {
@@ -218,8 +220,8 @@ function twAddFrameTab(tabsid, label, url) {
     );
     return panelId;
   }
-  
-  
+
+
 }
 
 // Remove the specified tab from the specified tab set.
@@ -229,10 +231,6 @@ function twCloseTab(tabsid, panelId) {
   twObject[tabsid].content.find("#" + panelId).remove();
   top.restoreSession();
   activateTab(lastTabId);
-
-  if(panelId === temp){
-    execute = false;
-  }
 }
 
 </script>
@@ -254,7 +252,7 @@ EOD;
             $activateTab = count($this->tabs) == $i ? 'active' : '';
             $s .= "<li class='tabs-tabs' ><a data-toggle='tab' class='tabs-anchor {$activateTab}' href='#{$this->tabsid}-$i'>" . text($val['title']);
             if ($val['closeable']) {
-                $s .= " <span aria-label='close' class='icon-close' role='close'>&times;</span>";
+                $s .= " <span aria-label='close' class='icon-close' id='" . $val['title'] ."' role='close'>&times;</span>";
             }
             $s .= "</a> </li>\n";
         }
