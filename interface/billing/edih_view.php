@@ -32,9 +32,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
     <title><?php echo xlt("EDI History"); ?></title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 
-    <!-- TODO: Address no_bootstrap here !-->
-    <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'datatables', 'datatables-jqui', 'datatables-jqui-theme', 'datatables-scroller', 'datatables-scroller-jqui-theme', 'jquery-ui', 'jquery-ui-sunny']); ?>
-    <!-- <?php Header::setupHeader(['datetime-picker', 'datatables', 'datatables-scroller']); ?> -->
+    <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'datatables', 'datatables-bs', 'datatables-scroller']); ?>
 
     <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history_v2.css" type="text/css" />
 
@@ -107,10 +105,15 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                                     <input type="submit" class="btn btn-primary btn-sm" id="fuplprocess" name="process" form="processnew" value="<?php echo xla("Process"); ?>" />
                                 </form>
                             </div>
+                            <div class="col-sm-md-6 d-none" id="fileupl1">
+
+                            </div>
+                            <div class="col-sm-md-6 d-none" id="fileupl2">
+
+                            </div>
                             <div class="col-12">
-                                <div id="fileupl1"></div>
-                                <div id="fileupl2"></div>
-                                <div id="processed"></div>
+                                <div class="alert alert-primary mt-3 d-none" id="processed">
+                                </div>
                                 <div id="rsp" title="<?php echo xla("Response"); ?>"></div>
                                 <div id="sub" title="<?php echo xla("Submitted"); ?>"></div>
                                 <div id="seg" title="<?php echo xla("x12 Segments"); ?>"></div>
@@ -167,8 +170,8 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                             </div>
                             <div class="col-sm-12 col-md-4">
                                 <form id="formcsvhist" name="hist_csv" action="edih_main.php" method="get">
-                                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                                <h4><?php echo xlt("Per Encounter"); ?></h4>
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                    <h4><?php echo xlt("Per Encounter"); ?></h4>
                                     <table>
                                         <tr>
                                             <td colspan='2'><?php echo xlt("Enter Encounter Number"); ?></td>
@@ -185,7 +188,8 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                                 </form>
                             </div>
                             <div class="col-12">
-                                <div id='tblshow'></div>
+                                <div class='alert alert-primary mt-3 d-none' id='tblshow'>
+                                </div>
                                 <div id='tbcsvhist'></div>
                                 <div id='tbrpt'></div>
                                 <div id='tbrsp'></div>
@@ -320,7 +324,6 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
             </div>
         </div>
     </div>
-
 
 
 <!-- end DataTables js Begin local js -->
@@ -539,8 +542,10 @@ jquery-UI dialog
     $('#uplmulti').on('change', function(){
         // clear uploaded files list, since new selected files list is coming
         $('#fileupl2').html('');
+        $('#fileupl2').addClass('d-none');
         $('#fileupl2').removeClass('flist');
         $('#processed').html('');
+        $('#processed').addClass('d-none');
         var uplfiles = this.files; //event.target.files;
         var fct = uplfiles.length;
         var fsize = 0;
@@ -548,6 +553,7 @@ jquery-UI dialog
         fl1.html('');
         fl1.toggle(true);
         fl1.addClass('flist1');
+        fl1.removeClass('d-none')
         var fmaxupl = phpserver['maxfuploads'];   // $("#srvvals").data('mf');
         var pmaxsize = phpserver['postmaxsize']
         var str = "<p><em><?php echo xla('Selected Files'); ?>:</em></p>";
@@ -573,6 +579,7 @@ jquery-UI dialog
         $('#fileupl1').hide();
         $('#fileupl2').hide();
         $('#processed').html('');
+        $('#processed').addClass('d-none');
         $('#uplsubmit').prop('disabled', true);
         if (upld_ct == 0 ) {
             $('#fuplprocess').prop('disabled', true);
@@ -593,6 +600,7 @@ jquery-UI dialog
         var upldata = new FormData( document.getElementById('formupl') );
         var rspElem = $('#fileupl2');
         rspElem.html('');
+        rspElem.addClass('d-none');
         $.ajax({
                 url: $('#formupl').attr('action'),
                 type: 'POST',
@@ -603,7 +611,7 @@ jquery-UI dialog
                 contentType: false,
                 success: function(data) {
                     rspElem.html(data);
-                    rspElem.show();
+                    rspElem.removeClass('d-none');
                     $('#fuplprocess').prop('disabled', false );
                     $('#fuplupload').prop('disabled', true);
                     uplForm.reset();
@@ -624,17 +632,17 @@ jquery-UI dialog
                 success: [
                     function(data) {
                         $('#fileupl1').html('');
-                        $('#fileupl1').hide();
+                        $('#fileupl1').addClass('d-none');
                         $('#fileupl2').html('');
-                        $('#fileupl2').hide();
-                        //
+                        $('#fileupl2').addClass('d-none');
                         $('#processed').html(data);
-                        $('#processed').show();
+                        $('#processed').removeClass('d-none');
                     }
                 ],
                 error: function( xhr, status ) {
                     alert( <?php echo xlj('Sorry, there was a problem!'); ?> ),
-                    $('#processed').html(status)
+                    $('#processed').html(status);
+                    $('#processed').removeClass('d-none');
                 }
             });
         upld_ct = 0;
@@ -714,6 +722,7 @@ jquery-UI dialog
         // verify a csv file is selected
         if ($('#csvselect').val() == '') {
             $("#tblshow").html('<?php echo xla("No table selected! Select a table."); ?>');
+            $('#tblshow').removeClass('d-none');
             return false;
         }
         $.ajax({
@@ -725,6 +734,7 @@ jquery-UI dialog
                 function(data){
                     $('#tblshow').html(data);
                     $('#tblshow').css('maxWidth', 'fit-contents');
+                    $('#tblshow').removeClass('d-none');
                     $('#tblshow table#csvTable').DataTable({
                         'processing': true,
                         'scrollY': '300px',
@@ -744,17 +754,6 @@ jquery-UI dialog
         e.preventDefault();
         $('#tbcsvhist').empty();
         var chenctr = $('#histenctr').value;
-        var histopts = { modal: false,
-                    appendTo: '#tbcsvhist',
-                    height: 'auto',
-                    width: 568,
-                    maxWidth: 616,
-                    title: <?php echo xlj("Encounter EDI Record"); ?>,
-                    close: function(event, ui) {
-                        $(this).empty();
-                        $(this).dialog('close');
-                    }
-                };
         $.ajax({
             type: "GET",
             url: $('#formcsvhist').attr('action'),
@@ -762,7 +761,7 @@ jquery-UI dialog
             dataType: "html",
             success: [ function(data){
                 $('<div/>', {'class':'edihDlg', 'id':'link-'+($(this).index()+1)})
-                    .appendTo('#tbcsvhist').html($.trim(data)).dialog(histopts).dialog('open');
+                    .appendTo('#tbcsvhist').html($.trim(data));
                 }
             ]
         });
@@ -771,6 +770,7 @@ jquery-UI dialog
     $('#csvClear').on('click', function(e) {
         e.preventDefault();
         $("#tblshow").html('');
+        $('#tblshow').addClass('d-none');
     });
 /* **************
  * === end of csv tables and claim history
@@ -906,7 +906,7 @@ jquery-UI dialog
             success: function(data){
                 $('#notesrsp').html('');
                 $('#notesrsp').html("<H4>Notes:</H4>");
-                $('#notesrsp').append("<textarea id='txtnotes', name='txtnotes',form='formnotes',rows='10',cols='600',wrap='hard' autofocus='autofocus'></textarea>");
+                $('#notesrsp').append("<textarea class='form-control' id='txtnotes', name='txtnotes',form='formnotes',rows='10',cols='600',wrap='hard' autofocus='autofocus'></textarea>");
                 // necessary to trim the data since php from script has leading newlines (UTF-8 issue) '|:|'
                 $('#logrsp').hide();
                 $('#notesrsp \\:textarea').val($.trim(data));
