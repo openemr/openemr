@@ -26,7 +26,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools build-themes'
       ```
 6. If you wish to connect to the sql database, this docker environment provides the following 2 options:
-  - Navigate to `http://localhost:8310/` where you can login into phpMyAdmin.
+    - Navigate to `http://localhost:8310/` where you can login into phpMyAdmin.
     - Or you can directly connect to port 8320 via your favorite sql tool (Mysql Workbench etc.).
     - Use `username/user`: openemr, `password`: openemr .
 7. Developer tools and tricks.
