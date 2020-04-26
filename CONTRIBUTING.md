@@ -22,82 +22,61 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
 4. Navigate to `http://localhost:8300/` to login as `admin`. Password is `pass`.
 5. Make changes to any files on your local file system. Most changes will appear after a refresh of the page or iFrame you're working on.
     - An exception to this is if making changes to styling scripts in interface/themes/. In that case will need to clear web browser cache and run the following command to rebuild the theme files:
-    ```sh
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cd openemr; npm run build'
-    ```
-     - We also have a handy Alias for the above command
-    ```sh
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools build-themes'
-    ```
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools build-themes'
+      ```
 6. If you wish to connect to the sql database, this docker environment provides the following 2 options:
-    - Navigate to `http://localhost:8310/` where you can login into phpMyAdmin.
+  - Navigate to `http://localhost:8310/` where you can login into phpMyAdmin.
     - Or you can directly connect to port 8320 via your favorite sql tool (Mysql Workbench etc.).
     - Use `username/user`: openemr, `password`: openemr .
 7. Developer tools and tricks.
-    - To check PHP error logs run:
-    ```sh
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cat /var/log/apache2/error.log'
-    ```
-    - We also have a handy Alias for the above command
-    ```sh
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools php-log'
-    ```
-    - To create a report of PSR2 code styling issues (this takes several minutes):
-    ```sh
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cd openemr; php -d memory_limit=640M /root/.composer/vendor/squizlabs/php_codesniffer/bin/phpcs -n --extensions=php,inc --standard=ci/phpcs.xml --report=full .'
-    ```
-    - We also have a handy Alias for the above command
-    ```sh
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools psr2-report'
-    ```
-    - To fix PSR2 code styling issues (this takes several minutes):
-    ```sh
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cd openemr; php -d memory_limit=640M /root/.composer/vendor/squizlabs/php_codesniffer/bin/phpcbf -n --extensions=php,inc --standard=ci/phpcs.xml .'
-    ```
-    - We also have a handy Alias for the above command
-    ```sh
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools psr2-fix'
-    ```
+    - To check PHP error logs:
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools php-log'
+      ```
+    - To create a report of PSR12 code styling issues (this takes several minutes):
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools psr12-report'
+      ```
+    - To fix PSR12 code styling issues (this takes several minutes):
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools psr2-fix'
+      ```
     - To check PHP parsing errors (this takes several minutes):
-    ```sh
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cd openemr; find . -type f \( -name "*.php" -or -name "*.inc" \) \( -not -path "./vendor/*" -and -not -path "./node_modules/*" -and -not -path "./ccdaservice/node_modules}/*" \) -exec php -d error_reporting=32767 -l {} \; 2>&1 >&- | grep "^"'
-    ```
-    - We also have a handy Alias for the above command
-    ```sh
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools php-parserror'
-    ```
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools php-parserror'
+      ```
     - To run unit testing:
-    ```sh
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cd openemr; vendor/bin/phpunit --testsuite unit --testdox'
-    ```
-    - We also have a handy Alias for the above command
-    ```sh
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools unit-test'
-    ```
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools unit-test'
+      ```
     - To run api testing:
-    ```sh
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'cd openemr; vendor/bin/phpunit --testsuite api --testdox'
-    ```
-    - We also have a handy Alias for the above command
-    ```sh
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools api-test'
-    ```
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools api-test'
+      ```
     - To run e2e testing:
-    ```sh
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c 'export PANTHER_NO_SANDBOX=1; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver; cd openemr; vendor/bin/phpunit --testsuite e2e --testdox'
-    ```
-    - We also have a handy Alias for the above command
-    ```sh
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools e2e-test'
-    ```
-8. To run the entire dev tool suite(PHPCS fix,unit test,API test,e2e test, PHP parse error ) in one command, run
-
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools e2e-test'
+      ```
+    - To run service testing:
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools service-test'
+      ```
+    - To run fixture testing:
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools fixture-test'
+      ```
+8. To run the entire dev tool suite (PHPCS fix, PHP parse error, unit/API/e2e/service/fixture tests) in one command, run
     ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools clean-sweep'
     ```
-9. When you're done, it's best to clean up after yourself with `docker-compose down -v`
+9. To run only all the automated tests (unit/API/e2e/service/fixture tests) in one command, run
+    ```sh
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools clean-sweep-tests'
+    ```
+10. When you're done, it's best to clean up after yourself with `docker-compose down -v`
     - If you don't want to build from scratch every time, just use `docker-compose down` so your next `docker-compose up` will use the cached volumes.
-10. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
+11. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
 
 We look forward to your contribution...
 
