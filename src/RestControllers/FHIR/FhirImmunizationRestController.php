@@ -34,7 +34,7 @@ class FhirImmunizationRestController
                 "Invalid Parameter"
             );
         } else {
-			$statusCode = 200;
+            $statusCode = 200;
             $entries = array();
             $resourceURL = \RestConfig::$REST_FULL_URL;
             foreach ($result as $immunization) {
@@ -51,7 +51,7 @@ class FhirImmunizationRestController
             }
 
             $result = $this->fhirService->createBundle('Immunization', $entries, false);
-		}
+        }
         return RestControllerHelper::responseHandler($result, null, $statusCode);
     }
     

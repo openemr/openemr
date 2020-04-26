@@ -50,7 +50,7 @@ class FhirConditionRestController
                 $entries[] = new FHIRBundleEntry($entry);
             }
             $result = $this->fhirService->createBundle('Condition', $entries, false);
-		}
+        }
         return RestControllerHelper::responseHandler($result, null, $statusCode);
     }
     

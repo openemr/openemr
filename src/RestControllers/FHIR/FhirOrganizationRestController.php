@@ -34,23 +34,23 @@ class FhirOrganizationRestController
                 "Invalid Parameter"
             );
         } else {
-			$statusCode = 200;
+            $statusCode = 200;
             $entries = array();
             foreach ($result as $org) {
                 $entryResource = $this->fhirOrganizationService->createOrganizationResource(
-				    $org['id'],
-				    $org,
-				    false,
-				    $org['code'],
-				    $org['display']
-				);
+                    $org['id'],
+                    $org,
+                    false,
+                    $org['code'],
+                    $org['display']
+                );
                 $entry = array(
                     'fullUrl' => $resourceURL . "/" . $org['id'],
                     'resource' => $entryResource
                 );
                 $entries[] = new FHIRBundleEntry($entry);
             }
-        $result = $this->fhirService->createBundle('Organization', $entries, false);
+            $result = $this->fhirService->createBundle('Organization', $entries, false);
         }
         return RestControllerHelper::responseHandler($result, null, $statusCode);
     }

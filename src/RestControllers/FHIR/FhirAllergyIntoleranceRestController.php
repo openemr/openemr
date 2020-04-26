@@ -12,7 +12,7 @@ class FhirAllergyIntoleranceRestController
 {
     private $fhirAllergyIntoleranceService;
     private $fhirService;
-	private $fhirValidationService;
+    private $fhirValidationService;
     
     public function __construct($id)
     {
@@ -34,7 +34,7 @@ class FhirAllergyIntoleranceRestController
                 "Invalid Parameter"
             );
         } else {
-			$statusCode = 200;
+            $statusCode = 200;
             $entries = array();
             $resourceURL = \RestConfig::$REST_FULL_URL;
             foreach ($result as $allergy) {
