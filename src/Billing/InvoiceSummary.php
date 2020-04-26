@@ -42,7 +42,7 @@ use OpenEMR\Billing\SLEOB;
 //
 class InvoiceSummary
 {
-    public static function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false)
+    public static function arGetInvoiceSummary($patient_id, $encounter_id, $with_detail = false)
     {
         $codes = array();
         $keysuff1 = 1000;
@@ -207,7 +207,7 @@ class InvoiceSummary
 // Returns: -1=Nobody, 0=Patient, 1=Ins1, 2=Ins2, 3=Ins3.
 // for Integrated A/R.
 //
-    public static function ar_responsible_party($patient_id, $encounter_id)
+    public static function arResponsibleParty($patient_id, $encounter_id)
     {
         $row = sqlQuery("SELECT date, last_level_billed, last_level_closed " .
             "FROM form_encounter WHERE " .
@@ -229,7 +229,7 @@ class InvoiceSummary
         // There is no unclosed insurance, so see if there is an unpaid balance.
         // Currently hoping that form_encounter.balance_due can be discarded.
         $balance = 0;
-        $codes = self::ar_get_invoice_summary($patient_id, $encounter_id);
+        $codes = self::arGetInvoiceSummary($patient_id, $encounter_id);
         foreach ($codes as $cdata) {
             $balance += $cdata['bal'];
         }

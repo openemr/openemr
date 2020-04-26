@@ -457,7 +457,7 @@ if (($_POST['form_save'] || $_POST['form_cancel'])) {
 }
 
 // Get invoice charge details.
-$codes = InvoiceSummary::ar_get_invoice_summary($patient_id, $encounter_id, true);
+$codes = InvoiceSummary::arGetInvoiceSummary($patient_id, $encounter_id, true);
 $pdrow = sqlQuery("select billing_note from patient_data where pid = ? limit 1", array($patient_id));
 ?>
 

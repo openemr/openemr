@@ -36,17 +36,17 @@ class PaymentGateway
         $this->setGateway($name);
     }
 
-    function setApiKey($key)
+    public function setApiKey($key)
     {
         $this->apiKey = $key;
     }
 
-    function setTransactionKey($key)
+    public function setTransactionKey($key)
     {
         $this->transactionKey = $key;
     }
 
-    function setProduction($tf)
+    public function setProduction($tf)
     {
         $this->production = $tf;
     }
@@ -60,7 +60,7 @@ class PaymentGateway
      * $card['expireyear'] = '';
      * $card['cvv'] = '';
      */
-    function setCard($card)
+    public function setCard($card)
     {
         try {
             $ccard = new CreditCard($card);
@@ -76,7 +76,7 @@ class PaymentGateway
      * @param $pay
      * @return bool|string
      */
-    function submitPaymentCard($pay)
+    public function submitPaymentCard($pay)
     {
         try {
             // Send purchase request
@@ -106,7 +106,7 @@ class PaymentGateway
      * @param $pay
      * @return bool|string
      */
-    function submitPaymentToken($pay)
+    public function submitPaymentToken($pay)
     {
         try {
             // Send purchase request with card token
@@ -130,7 +130,7 @@ class PaymentGateway
      * @param $which
      * @return string
      */
-    function setGateway($which)
+    public function setGateway($which)
     {
         if (isset($this->gateway)) {
             unset($this->gateway);

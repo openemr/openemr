@@ -87,7 +87,7 @@ function GenerateTheQueryPart()
 
     if (isset($_REQUEST['final_this_page_criteria'])) {
         foreach ($_REQUEST['final_this_page_criteria'] as $criteria_key => $criteria_value) {
-            $criteria_value = BillingReport::PrepareSearchItem($criteria_value); // this escapes for sql
+            $criteria_value = BillingReport::prepareSearchItem($criteria_value); // this escapes for sql
             $SplitArray = array();
           //---------------------------------------------------------
             if (strpos($criteria_value, "billing.billed = '1'") !== false) {
@@ -189,7 +189,7 @@ function getBillsBetweendayReport(
     "ar_activity.adj_amount AS pat_adjust_dollar, providerid as 'provider_id' " .
     "FROM ar_activity LEFT OUTER JOIN patient_data ON patient_data.pid = ar_activity.pid " .
     "where 1=1 $query_part_day AND payer_type=0 ORDER BY fulname ASC, date ASC, pid");
-           
+
     for ($iter; $row = sqlFetchArray($query); $iter++) {
         $all[$iter] = $row;
     }
@@ -204,6 +204,6 @@ function getBillsBetweendayReport(
     for ($iter; $row = sqlFetchArray($query); $iter++) {
         $all[$iter] = $row;
     }
-        
+
     return $all;
 }

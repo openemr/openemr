@@ -54,7 +54,7 @@ if (isset($_POST['mode'])) {
     }
 
     if ($_POST['mode'] == 'export') {
-        $sql = BillingReport::ReturnOFXSql();
+        $sql = BillingReport::returnOFXSql();
         $db = get_db();
         $results = $db->Execute($sql);
         $billings = array();
@@ -683,7 +683,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         // The below section is needed if there is any 'include' type in the $TPSCriteriaDataTypeMaster
                         // Function name is added here.Corresponding include files need to be included in the respective pages as done in this page.
                         // It is labled(Included for Insurance ajax criteria)(Line:-279-299).
-                        $TPSCriteriaIncludeMaster[1] = "OpenEMR\Billing\BillingReport::InsuranceCompanyDisplay";
+                        $TPSCriteriaIncludeMaster[1] = "OpenEMR\Billing\BillingReport::insuranceCompanyDisplay";
                         if (!isset($_REQUEST['mode'])) {// default case
                             $_REQUEST['final_this_page_criteria'][0] = "(form_encounter.date between '" . date("Y-m-d 00:00:00") . "' and '" . date("Y-m-d 23:59:59") . "')";
                             $_REQUEST['final_this_page_criteria'][1] = "billing.billed = '0'";
