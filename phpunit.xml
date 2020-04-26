@@ -26,6 +26,8 @@
             <directory>tests/Tests/Unit</directory>
             <directory>tests/Tests/E2e</directory>
             <directory>tests/Tests/Api</directory>
+            <directory>tests/Tests/Fixture</directory>
+            <directory>tests/Tests/Services</directory>
         </testsuite>
         <testsuite name="unit">
             <directory>tests/Tests/Unit</directory>
@@ -35,6 +37,12 @@
         </testsuite>
         <testsuite name="api">
             <directory>tests/Tests/Api</directory>
+        </testsuite>
+        <testsuite name="fixture">
+            <directory>tests/Tests/Fixture</directory>
+        </testsuite>
+        <testsuite name="service">
+            <directory>tests/Tests/Service</directory>
         </testsuite>
     </testsuites>
 </phpunit>

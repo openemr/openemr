@@ -2,4 +2,6 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/../vendor/autoload.php';
+$_GET['site'] = 'default';
+$ignoreAuth = true;
+require_once(__DIR__ . "/../interface/globals.php");

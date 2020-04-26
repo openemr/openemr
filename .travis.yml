@@ -1,6 +1,4 @@
 language: php
-addons:
-  chrome: stable
 .steps:
   - &composer_github_auth |
       githubTokenRateLimitRequest=`curl -H "Authorization: token 310659f0a8658693af9ccb9da8969584b598910a" https://api.github.com/rate_limit`
@@ -146,7 +144,7 @@ addons:
       echo "---------------"
       echo "Run Unit Tests"
       echo "---------------"
-      php vendor/bin/phpunit --testsuite unit --testdox || failTest=true
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite unit --testdox" || failTest=true
       if $failTest; then
         failJob=true
         mes="FAILED"
@@ -163,7 +161,7 @@ addons:
       echo "-------------"
       echo "Run E2e Tests"
       echo "-------------"
-      php vendor/bin/phpunit --testsuite e2e --testdox || failTest=true
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "${CHROMIUM_INSTALL}; export PANTHER_NO_SANDBOX=1; cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite e2e --testdox" || failTest=true
       if $failTest; then
         failJob=true
         mes="FAILED"
@@ -180,7 +178,7 @@ addons:
       echo "-------------"
       echo "Run Api Tests"
       echo "-------------"
-      php vendor/bin/phpunit --testsuite api --testdox || failTest=true
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite api --testdox" || failTest=true
       if $failTest; then
         failJob=true
         mes="FAILED"
@@ -189,6 +187,40 @@ addons:
       fi
       echo "----------------------"
       jobTest="${mes} - Run Api Tests"
+      jobTests+="${jobTest}\n"
+      echo "${jobTest}"
+      echo "----------------------"
+  - &build_test_fixture |
+      failTest=false
+      echo "-------------"
+      echo "Run Fixture Tests"
+      echo "-------------"
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite fixture --testdox" || failTest=true
+      if $failTest; then
+        failJob=true
+        mes="FAILED"
+      else
+        mes="PASSED"
+      fi
+      echo "----------------------"
+      jobTest="${mes} - Run Fixture Tests"
+      jobTests+="${jobTest}\n"
+      echo "${jobTest}"
+      echo "----------------------"
+  - &build_test_service |
+      failTest=false
+      echo "-------------"
+      echo "Run Service Tests"
+      echo "-------------"
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "cd ${OPENEMR_DIR}; php ${OPENEMR_DIR}/vendor/bin/phpunit --testsuite service --testdox" || failTest=true
+      if $failTest; then
+        failJob=true
+        mes="FAILED"
+      else
+        mes="PASSED"
+      fi
+      echo "----------------------"
+      jobTest="${mes} - Run Service Tests"
       jobTests+="${jobTest}\n"
       echo "${jobTest}"
       echo "----------------------"
@@ -256,6 +288,7 @@ jobs:
       env:
         - DOCKER_DIR=apache_73_105
         - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+        - CHROMIUM_INSTALL="apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -266,6 +299,8 @@ jobs:
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
+        - *build_test_fixture
+        - *build_test_service
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -274,6 +309,7 @@ jobs:
       env:
         - DOCKER_DIR=apache_73_104
         - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+        - CHROMIUM_INSTALL="apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -284,6 +320,8 @@ jobs:
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
+        - *build_test_fixture
+        - *build_test_service
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -292,6 +330,7 @@ jobs:
       env:
         - DOCKER_DIR=apache_73_103
         - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+        - CHROMIUM_INSTALL="apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -302,6 +341,8 @@ jobs:
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
+        - *build_test_fixture
+        - *build_test_service
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -310,6 +351,7 @@ jobs:
       env:
         - DOCKER_DIR=apache_73_102
         - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+        - CHROMIUM_INSTALL="apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -320,6 +362,8 @@ jobs:
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
+        - *build_test_fixture
+        - *build_test_service
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -328,6 +372,7 @@ jobs:
       env:
         - DOCKER_DIR=apache_73_101
         - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+        - CHROMIUM_INSTALL="apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -338,6 +383,8 @@ jobs:
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
+        - *build_test_fixture
+        - *build_test_service
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -346,6 +393,7 @@ jobs:
       env:
         - DOCKER_DIR=apache_73_8
         - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+        - CHROMIUM_INSTALL="apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -356,6 +404,8 @@ jobs:
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
+        - *build_test_fixture
+        - *build_test_service
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -364,6 +414,7 @@ jobs:
       env:
         - DOCKER_DIR=apache_73_57
         - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+        - CHROMIUM_INSTALL="apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -374,6 +425,8 @@ jobs:
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
+        - *build_test_fixture
+        - *build_test_service
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -382,6 +435,7 @@ jobs:
       env:
         - DOCKER_DIR=apache_73_56
         - OPENEMR_DIR=/var/www/localhost/htdocs/openemr
+        - CHROMIUM_INSTALL="apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
       script:
         - failJob=false
         - *dockers_env_start
@@ -392,6 +446,8 @@ jobs:
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
+        - *build_test_fixture
+        - *build_test_service
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -400,6 +456,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_72
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
       script:
         - failJob=false
         - *dockers_env_start
@@ -410,6 +467,8 @@ jobs:
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
+        - *build_test_fixture
+        - *build_test_service
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -418,6 +477,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_73
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
       script:
         - failJob=false
         - *dockers_env_start
@@ -428,6 +488,8 @@ jobs:
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
+        - *build_test_fixture
+        - *build_test_service
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -436,6 +498,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_74
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
       script:
         - failJob=false
         - *dockers_env_start
@@ -446,6 +509,8 @@ jobs:
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
+        - *build_test_fixture
+        - *build_test_service
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -454,6 +519,7 @@ jobs:
       env:
         - DOCKER_DIR=nginx_80
         - OPENEMR_DIR=/usr/share/nginx/html/openemr
+        - CHROMIUM_INSTALL="apt-get update; apt-get install -y zip libnss3 chromium"
       script:
         - failJob=false
         - *dockers_env_start
@@ -464,6 +530,8 @@ jobs:
         - *build_test_unit
         - *build_test_e2e
         - *build_test_api
+        - *build_test_fixture
+        - *build_test_service
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
