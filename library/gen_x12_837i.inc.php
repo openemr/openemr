@@ -1,4 +1,5 @@
 <?php
+
 /**
  * X12 837I
  *
@@ -58,14 +59,14 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
         "*1" .
         "*X" .
         // "*" . $claim->x12gsversionstring() .
-    "*" . "005010X223A2".
+    "*" . "005010X223A2" .
     "~\n";
     ++$edicount;
     $out .= "ST" .
     "*" . "837" .
     "*" . "0021" .
     // "*" . $claim->x12gsversionstring() .
-    "*" . "005010X223A2".
+    "*" . "005010X223A2" .
     "~\n";
     ++$edicount;
     $out .= "BHT" .
@@ -175,7 +176,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
             "*" . $claim->providerNumberType() .
             "*" . $claim->providerNumber() .
             "~\n";
-    } else if ($claim->providerNumber() && !$claim->providerNumberType()) {
+    } elseif ($claim->providerNumber() && !$claim->providerNumberType()) {
         $log .= "*** Payer-specific provider insurance number is present but has no type assigned.\n";
     }
         // Situational PER*1C segment.
@@ -358,7 +359,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
         "~\n";
     // discharge hour
     if ($ub04id[29]) {
-        ++ $edicount;
+        ++$edicount;
         $out .= "DTP" . // Loop 2300
         "*" . "096" .
         "*" . "TM" .
@@ -370,7 +371,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
     // DTP 434 RD8 (Statment from OR to date)
 
     if ($ub04id[13]) {
-        ++ $edicount;
+        ++$edicount;
 
         $tmp = x12date($ub04id[13]);
         $tmp1 = x12date($ub04id[14]);
@@ -379,7 +380,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
     }
 
     if ($ub04id[13]) {
-        ++ $edicount;
+        ++$edicount;
         $tmp = x12date($ub04id[25]);
         $out .= "DTP" . // Loop 2300
         "*435" . "*" . "DT" . "*" . $tmp . $ub04id[26] . "~\n";
@@ -396,7 +397,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
     // CL1 (Admission Type Code) (Admission Source Code) (Patient Status Code)
 
     if ($ub04id[27] != "014X") { // Type of bill
-        ++ $edicount;
+        ++$edicount;
         $out .= "CL1" . // Loop 2300
         "*" . $ub04id[27] . "*" . $ub04id[28] . "*" . $ub04id[30] . "~\n";
     }
@@ -423,7 +424,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
     // Prior Authorization
     //
     if ($claim->priorAuth()) {
-        ++ $edicount;
+        ++$edicount;
         $out .= "REF" . // Prior Authorization Number
         "*G1" . "*" . $claim->priorAuth() . "~\n";
     }
@@ -457,7 +458,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
         // Billing note.
         // Check to verify I am getting this information on the ub04 form
 
-        ++ $edicount;
+        ++$edicount;
         $out .= "NTE" . // comments box 19
         "*" . "ADD" . "*" . $claim->additionalNotes() . "~\n";
     }
@@ -476,7 +477,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
             if ($tmp) {
                 $out .= "~\n";
             }
-            ++ $edicount;
+            ++$edicount;
             $out .= "HI"; // Health Diagnosis Codes
         }
         $out .= "*" . $diag_type_code . ":" . $diag;
@@ -486,7 +487,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
             $diag_type_code = 'ABF';
         }
 
-        ++ $tmp;
+        ++$tmp;
     }
     if ($tmp) {
         $out .= "~\n";
@@ -504,18 +505,18 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
                 if ($tmp) {
                     $out .= "~\n";
                 }
-                ++ $edicount;
+                ++$edicount;
                 $out .= "HI"; // Health Diagnosis Codes
             }
             if ($ub04id[$os]) {
-                $out .= "*" . $diag_type_code . ":" . $ub04id[$os ++] . ":" . x12date($ub04id[$os ++]) . ":" . x12date($ub04id[$os ++]);
+                $out .= "*" . $diag_type_code . ":" . $ub04id[$os++] . ":" . x12date($ub04id[$os++]) . ":" . x12date($ub04id[$os++]);
                 $diag_type_code = 'BI';
             }
             if ($os >= 57) {
                 $os = 67;
             }
-            ++ $tmp;
-            ++ $i;
+            ++$tmp;
+            ++$i;
         }
         if ($tmp) {
             $out .= "~\n";
@@ -535,18 +536,18 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
                 if ($tmp) {
                     $out .= "~\n";
                 }
-                ++ $edicount;
+                ++$edicount;
                 $out .= "HI"; // Health Diagnosis Codes
             }
             if ($ub04id[$os]) {
-                $out .= "*" . $diag_type_code . ":" . $ub04id[$os] . ":D8" . ":" . x12date($ub04id[$os ++]);
+                $out .= "*" . $diag_type_code . ":" . $ub04id[$os] . ":D8" . ":" . x12date($ub04id[$os++]);
                 $diag_type_code = 'BH';
             }
             if ($os >= 51) {
                 $os = 59;
             }
-            ++ $tmp;
-            ++ $i;
+            ++$tmp;
+            ++$i;
         }
         if ($tmp) {
             $out .= "~\n";
@@ -566,17 +567,17 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
                 if ($tmp) {
                     $out .= "~\n";
                 }
-                ++ $edicount;
+                ++$edicount;
                 $out .= "HI"; // Health Diagnosis Codes
             }
             if ($ub04id[$os]) {
                 // if ($i=1) {
-                $out .= "*" . $diag_type_code . ":" . $ub04id[$os ++] . ":" . ":" . x12date($ub04id[$os ++]);
+                $out .= "*" . $diag_type_code . ":" . $ub04id[$os++] . ":" . ":" . x12date($ub04id[$os++]);
                 $diag_type_code = 'BE';
                 // }
             }
-            ++ $tmp;
-            ++ $i;
+            ++$tmp;
+            ++$i;
         }
         if ($tmp) {
             $out .= "~\n";
@@ -596,18 +597,18 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
                 if ($tmp) {
                     $out .= "~\n";
                 }
-                ++ $edicount;
+                ++$edicount;
                 $out .= "HI"; // Health Diagnosis Codes
             }
             if ($ub04id[$os]) {
                 // if ($i=1) {
-                $out .= "*" . $diag_type_code . ":" . $ub04id[$os ++];
+                $out .= "*" . $diag_type_code . ":" . $ub04id[$os++];
                 $diag_type_code = 'BG';
                 // }
             }
 
-            ++ $tmp;
-            ++ $i;
+            ++$tmp;
+            ++$i;
         }
         if ($tmp) {
             $out .= "~\n";
@@ -627,7 +628,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
                 if ($tmp) {
                     $out .= "~\n";
                 }
-                ++ $edicount;
+                ++$edicount;
                 $out .= "HI"; // Health Diagnosis Codes
             }
 
@@ -648,8 +649,8 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
                 }
             }
 
-            ++ $tmp;
-            ++ $i;
+            ++$tmp;
+            ++$i;
         }
         if ($tmp) {
             $out .= "~\n";
@@ -662,7 +663,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
     // and Rendering Provider Name (Rendering Provider Name is futher down)
 
     if ($ub04id[388]) {
-        ++ $edicount;
+        ++$edicount;
         // Loop 2310A Attending Physician
         $out .= "NM1" . "*71" . "*1" . "*" . $ub04id[388] . "*" . $ub04id[389] . "*" . "*";
         if ($ub04id[379]) { // NPI
@@ -674,7 +675,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
         $out .= "~\n";
 
         if ($ub04id[380]) {
-            ++ $edicount;
+            ++$edicount;
             $out .= "REF" . // Attending Physician Secondary Identification
             "*" . $ub04id[380] . "*" . $ub04id[381] . "~\n";
         }
@@ -683,7 +684,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
     // 2310B
 
     if ($ub04id[400]) {
-        ++ $edicount;
+        ++$edicount;
 
         $out .= "NM1" . // Loop 2310B operating Physician
         "*72" . "*1" . "*" . $ub04id[400] . "*" . $ub04id[400] . "*" . "*";
@@ -696,7 +697,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
         $out .= "~\n";
 
         if ($ub04id[391]) {
-            ++ $edicount;
+            ++$edicount;
             $out .= "REF" . // operating Physician Secondary Identification
             "*" . $claim->$ub04id[391] . "*" . $ub04id[392] . "~\n";
         }
@@ -705,7 +706,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
     // 2310C
 
     if ($ub04id[413]) {
-        ++ $edicount;
+        ++$edicount;
 
         $out .= "NM1" . // Loop 2310C other operating Physician
         "*73" . "*1" . "*" . $ub04id[413] . "*" . $ub04id[414] . "*" . "*";
@@ -718,13 +719,13 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
         $out .= "~\n";
 
         if ($ub04id[407]) {
-            ++ $edicount;
+            ++$edicount;
             $out .= "REF" . // other operating Physician Secondary Identification
             "*" . $ub04id[407] . "*" . $ub04id[408] . "~\n";
         }
     }
     if ($ub04id[427]) {
-        ++ $edicount;
+        ++$edicount;
 
         $out .= "NM1" . // Loop 2310C other operating Physician
         "*73" . "*1" . "*" . $ub04id[427] . "*" . $ub04id[428] . "*" . "*";
@@ -737,7 +738,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
         $out .= "~\n";
 
         if ($ub04id[422]) {
-            ++ $edicount;
+            ++$edicount;
             $out .= "REF" . // other operating Physician Secondary Identification
             "*" . $ub04id[422] . "*" . $ub04id[421] . "~\n";
         }
@@ -747,7 +748,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
      * than the Loop 2010AA information
      */
     if ($claim->providerNPIValid() && $claim->billingFacilityNPI() !== $claim->providerNPI()) {
-        ++ $edicount;
+        ++$edicount;
         $out .= "NM1" . // Loop 2310D Rendering Provider
         "*82" . "*1" . "*" . $claim->providerLastName() . "*" . $claim->providerFirstName() . "*" . $claim->providerMiddleName() . "*" . "*";
         if ($claim->providerNPI()) {
@@ -774,14 +775,14 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
     //
     if (! $claim->providerNPI() && in_array($claim->providerNumberType(), array('0B', '1G', 'G2', 'LU'))) {
         if ($claim->providerNumber()) {
-            ++ $edicount;
+            ++$edicount;
             $out .= "REF" . "*" . $claim->providerNumberType() . "*" . $claim->providerNumber() . "~\n";
         }
     }
 
     // Loop 2310D is omitted in the case of home visits (POS=12).
     if ($claim->facilityPOS() != 12 && ($claim->facilityNPI() != $claim->billingFacilityNPI())) {
-        ++ $edicount;
+        ++$edicount;
 
         // Service Facility Name
 
@@ -801,11 +802,11 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
         }
         $out .= "~\n";
         if ($claim->facilityStreet()) {
-            ++ $edicount;
+            ++$edicount;
             $out .= "N3" . "*" . $claim->facilityStreet() . "~\n";
         }
         if ($claim->facilityState()) {
-            ++ $edicount;
+            ++$edicount;
             $out .= "N4" . "*" . $claim->facilityCity() . "*" . $claim->facilityState() . "*" . $claim->x12Zip($claim->facilityZip()) . "~\n";
         }
     }
@@ -817,7 +818,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
 
     if ($claim->referrerLastName()) {
         // Medicare requires referring provider's name and UPIN.
-        ++ $edicount;
+        ++$edicount;
 
         $out .= "NM1" . // Loop 2310F Referring Provider this needs to change position
         "*DN" . "*1" . "*" . $claim->referrerLastName() . "*" . $claim->referrerFirstName() . "*" . $claim->referrerMiddleName() . "*" . "*";
@@ -841,7 +842,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
     // Remember that insurance index 0 is always for the payer being billed
     // by this claim, and 1 and above are always for the "other" payers.
     //
-    for ($ins = 1; $ins < $claim->payerCount(); ++ $ins) {
+    for ($ins = 1; $ins < $claim->payerCount(); ++$ins) {
         $tmp1 = $claim->claimType($ins);
         $tmp2 = 'C1'; // Here a kludge. See page 321.
         if ($tmp1 === 'CI') {
@@ -865,7 +866,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
         if ($tmp1 === '09') {
             $tmp2 = 'PP';
         }
-        ++ $edicount;
+        ++$edicount;
 
         $out .= "SBR" . // Loop 2320, Subscriber Information - page 297/318
         "*" . $claim->payerSequence($ins) .
@@ -885,13 +886,13 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
             // Generate claim-level adjustments.
             $aarr = $claim->payerAdjustments($ins);
             foreach ($aarr as $a) {
-                ++ $edicount;
+                ++$edicount;
                 $out .= "CAS" . // Previous payer's claim-level adjustments. Page 301/323.
                 "*" . $a[1] . "*" . $a[2] . "*" . $a[3] . "~\n";
             }
 
             $payerpaid = $claim->payerTotals($ins);
-            ++ $edicount;
+            ++$edicount;
             $out .= "AMT" . // Previous payer's paid amount. Page 307/332.
             "*D" . "*" . $payerpaid[1] . "~\n";
 
@@ -899,7 +900,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
             // Segment AMT*EAF (Remaining Patient Liability) omitted.
         } // End of things that apply only to previous payers.
 
-        ++ $edicount;
+        ++$edicount;
         $out .= "OI" . // Other Insurance Coverage Information. Page 310/344.
         "*" . "*" . "*" . ($claim->billingFacilityAssignment($ins) ? 'Y' : 'N') .
         // For this next item, the 5010 example in the spec does not match its
@@ -981,7 +982,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
     // Procedure loop starts here.
     //
 
-    for ($tlh = 0; $tlh < $proccount; ++ $tlh) {
+    for ($tlh = 0; $tlh < $proccount; ++$tlh) {
         $tmp = $claim->procs[$tlh][code_text];
 
         if ($claim->procs[$tlh][code_type] == 'HCPCS') {
@@ -998,16 +999,16 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
     }
 
 
-    for ($prockey = 0; $prockey < $proccount; ++ $prockey) {
+    for ($prockey = 0; $prockey < $proccount; ++$prockey) {
         $os = 99 + ($loopcount * 8); // Form revenue code offset
         $dosos = 102 + ($loopcount * 8); // Procedure date of service form start offset-add 8 for loop
-        ++ $loopcount;
+        ++$loopcount;
 
-        ++ $edicount;
+        ++$edicount;
         $out .= "LX" . // Loop 2400 LX Service Line. Page 398.
         "*" . "$loopcount" . "~\n";
 
-        ++ $edicount;
+        ++$edicount;
 
         // Revenue code from form
         //
@@ -1036,14 +1037,14 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
         // Segment CRC (Hospice Employee Indicator) omitted.
         // Segment CRC (Condition Indicator / Durable Medical Equipment) omitted.
 
-        ++ $edicount;
+        ++$edicount;
 
         $out .= "DTP" . // Date of Service. Needs to be when service preformed.
             "*" . "472" . "*" . "D8" . "*" . $ub04id[$dosos] . "~\n"; //$claim->serviceDate()
 
         $testnote = rtrim($claim->cptNotecodes($prockey));
         if (! empty($testnote)) {
-            ++ $edicount;
+            ++$edicount;
             $out .= "NTE" . // Explain Unusual Circumstances.
             "*ADD" . "*" . $claim->cptNotecodes($prockey) . "~\n";
         }
@@ -1167,7 +1168,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
 
         // Loop 2430, adjudication by previous payers.
         //
-        for ($ins = 1; $ins < $claim->payerCount(); ++ $ins) {
+        for ($ins = 1; $ins < $claim->payerCount(); ++$ins) {
             if ($claim->payerSequence($ins) > $claim->payerSequence()) {
                 continue; // payer is future, not previous
             }
@@ -1180,13 +1181,13 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
                 continue;
             }
 
-            ++ $edicount;
+            ++$edicount;
             $out .= "SVD" . // Service line adjudication. Page 554.
             "*" . $claim->payerID($ins) . "*" . $payerpaid[1] . "*HC:" . $claim->cptKey($prockey) . "*" . "*" . $claim->cptUnits($prockey) . "~\n";
 
             $tmpdate = $payerpaid[0];
             foreach ($aarr as $a) {
-                ++ $edicount;
+                ++$edicount;
                 $out .= "CAS" . // Previous payer's line level adjustments. Page 558.
                 "*" . $a[1] . "*" . $a[2] . "*" . $a[3] . "~\n";
                 if (! $tmpdate) {
@@ -1195,7 +1196,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
             }
 
             if ($tmpdate) {
-                ++ $edicount;
+                ++$edicount;
                 $out .= "DTP" . // Previous payer's line adjustment date. Page 493/566.
                 "*573" . "*D8" . "*$tmpdate" . "~\n";
             }
@@ -1206,7 +1207,7 @@ function generate_x12_837I($pid, $encounter, &$log, $ub04id)
         } // end loop 2430
     } // end this procedure
 
-    ++ $edicount;
+    ++$edicount;
     $out .= "SE" . // SE Trailer
     "*$edicount" . "*0021" . "~\n";
 

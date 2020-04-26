@@ -1,11 +1,13 @@
 <?php
+
   /**
    * Pre-requisites: phpunit, phpunit-selenium, selenium-standalone-server, chrome driver, php-curl extension
    *
    *
    * @Matrix Israel Ltd.
    */
-require_once __DIR__.'/../../../vendor/autoload.php';
+
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
 {
@@ -38,7 +40,7 @@ class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
         $dob = $this->generateRandomDate();
         $randint = rand(100000, 200000);
 
-        return array( 'name'=>$name, 'lname'=>$lname, 'dob'=>$dob, 'randint'=> $randint );
+        return array( 'name' => $name, 'lname' => $lname, 'dob' => $dob, 'randint' => $randint );
     }
 
 
@@ -55,7 +57,7 @@ class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
         $this->frame("Login");
         $this->byName('authUser')->value(self::VAR_AUTHUSER);
         $this->byName('clearPass')->value(self::VAR_PASS);
-        $sumbmitClick=$this->byClassName("button");
+        $sumbmitClick = $this->byClassName("button");
         $sumbmitClick->click();
 
         /*Check that the login was succesfull coparing the title from the page*/
@@ -63,7 +65,7 @@ class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
 
         /*Move to frame left nav and click on new patient*/
         $this->frame("left_nav");
-        $newPatientLink=$this->byId('new0');
+        $newPatientLink = $this->byId('new0');
         $newPatientLink->click();
         $this->frame(null);
         $this->frame("RTop");
@@ -77,13 +79,13 @@ class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
 
         $this->select($this->byId('form_title'))->selectOptionByValue("Mr.");
         $this->select($this->byId('form_sex'))->selectOptionByValue("Male");
-        $createLink= $this->byName('create');
+        $createLink = $this->byName('create');
         $createLink->click();
 
        /*Move to the popup and click on create patient*/
-        $handles=$this->windowHandles();
+        $handles = $this->windowHandles();
         $this->window($handles[1]);
-        $createButton=$this->byXPath("//input[@type='button']");
+        $createButton = $this->byXPath("//input[@type='button']");
         $createButton->click();
         sleep(2);
 
@@ -104,9 +106,9 @@ class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
     public function testFindPatient($testset)
     {
         $this->database_connection();
-        $sql=sprintf("SELECT * FROM patient_data where fname='%s' and lname='%s' and DOB = '%s' ", $testset['name'], $testset['lname'], $testset['dob']);
-        $res=$this->dbconn->query($sql);
-        $numRows=mysqli_num_rows($res);
+        $sql = sprintf("SELECT * FROM patient_data where fname='%s' and lname='%s' and DOB = '%s' ", $testset['name'], $testset['lname'], $testset['dob']);
+        $res = $this->dbconn->query($sql);
+        $numRows = mysqli_num_rows($res);
         $this->assertEquals(1, $numRows, "Patient doesn't exists in the database");
     }
 
@@ -133,7 +135,7 @@ class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
      */
     private function generateRandomDate()
     {
-        $int= rand(1100000000, 1262055681);
+        $int = rand(1100000000, 1262055681);
         $string = date("Y-m-d", $int);
         return $string;
     }
@@ -143,7 +145,7 @@ class CheckCreateUserTest extends PHPUnit_Extensions_Selenium2TestCase
      */
     private function database_connection()
     {
-        require_once(__DIR__."/../../sites/default/sqlconf.php");
+        require_once(__DIR__ . "/../../sites/default/sqlconf.php");
 
       // Create connection
         $this->dbconn = new mysqli($sqlconf['host'], $sqlconf['login'], $sqlconf['pass'], $sqlconf['dbase']);

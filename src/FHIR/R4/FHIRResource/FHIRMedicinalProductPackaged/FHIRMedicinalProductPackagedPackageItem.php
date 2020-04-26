@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductPackaged;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductPackaged;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -404,7 +406,7 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['type'])) {
@@ -419,7 +421,7 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
                         $this->addMaterial($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"material" must be array of objects or null, '.gettype($data['material']).' seen.');
+                    throw new \InvalidArgumentException('"material" must be array of objects or null, ' . gettype($data['material']) . ' seen.');
                 }
             }
             if (isset($data['alternateMaterial'])) {
@@ -428,7 +430,7 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
                         $this->addAlternateMaterial($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"alternateMaterial" must be array of objects or null, '.gettype($data['alternateMaterial']).' seen.');
+                    throw new \InvalidArgumentException('"alternateMaterial" must be array of objects or null, ' . gettype($data['alternateMaterial']) . ' seen.');
                 }
             }
             if (isset($data['device'])) {
@@ -437,7 +439,7 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
                         $this->addDevice($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"device" must be array of objects or null, '.gettype($data['device']).' seen.');
+                    throw new \InvalidArgumentException('"device" must be array of objects or null, ' . gettype($data['device']) . ' seen.');
                 }
             }
             if (isset($data['manufacturedItem'])) {
@@ -446,7 +448,7 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
                         $this->addManufacturedItem($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"manufacturedItem" must be array of objects or null, '.gettype($data['manufacturedItem']).' seen.');
+                    throw new \InvalidArgumentException('"manufacturedItem" must be array of objects or null, ' . gettype($data['manufacturedItem']) . ' seen.');
                 }
             }
             if (isset($data['packageItem'])) {
@@ -455,7 +457,7 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
                         $this->addPackageItem($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"packageItem" must be array of objects or null, '.gettype($data['packageItem']).' seen.');
+                    throw new \InvalidArgumentException('"packageItem" must be array of objects or null, ' . gettype($data['packageItem']) . ' seen.');
                 }
             }
             if (isset($data['physicalCharacteristics'])) {
@@ -467,7 +469,7 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
                         $this->addOtherCharacteristics($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"otherCharacteristics" must be array of objects or null, '.gettype($data['otherCharacteristics']).' seen.');
+                    throw new \InvalidArgumentException('"otherCharacteristics" must be array of objects or null, ' . gettype($data['otherCharacteristics']) . ' seen.');
                 }
             }
             if (isset($data['shelfLifeStorage'])) {
@@ -476,7 +478,7 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
                         $this->addShelfLifeStorage($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"shelfLifeStorage" must be array of objects or null, '.gettype($data['shelfLifeStorage']).' seen.');
+                    throw new \InvalidArgumentException('"shelfLifeStorage" must be array of objects or null, ' . gettype($data['shelfLifeStorage']) . ' seen.');
                 }
             }
             if (isset($data['manufacturer'])) {
@@ -485,11 +487,11 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
                         $this->addManufacturer($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"manufacturer" must be array of objects or null, '.gettype($data['manufacturer']).' seen.');
+                    throw new \InvalidArgumentException('"manufacturer" must be array of objects or null, ' . gettype($data['manufacturer']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

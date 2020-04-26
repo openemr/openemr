@@ -1,4 +1,5 @@
 <?php
+
 /** @package verysimple::Email */
 
 /**
@@ -160,7 +161,7 @@ class EmailMessage
         $name = str_replace(",", ";", $name);
         $names = explode(";", $name);
         
-        for ($i = 0; $i < count($emails); $i ++) {
+        for ($i = 0; $i < count($emails); $i++) {
             $addr = trim($emails [$i]);
             $realname = isset($names [$i]) ? $names [$i] : $addr;
             

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductAuthorization;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicinalProductAuthorization;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -228,11 +230,11 @@ class FHIRMedicinalProductAuthorizationProcedure extends FHIRBackboneElement imp
                         $this->addApplication($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"application" must be array of objects or null, '.gettype($data['application']).' seen.');
+                    throw new \InvalidArgumentException('"application" must be array of objects or null, ' . gettype($data['application']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

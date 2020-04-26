@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Common javascript functions are stored in this page.
  *

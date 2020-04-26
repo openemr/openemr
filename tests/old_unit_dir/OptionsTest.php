@@ -1,4 +1,5 @@
 <?php
+
 /* Copyright © 2010 by Andrew Moore <amoore@cpan.org> */
 /* Licensing information appears at the end of this file. */
 require_once dirname(__FILE__) . '/BaseHarness.class.php';

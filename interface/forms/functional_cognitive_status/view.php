@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Functional cognitive status form view.php.
  *

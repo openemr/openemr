@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -540,7 +542,7 @@ class FHIRCapabilityStatementResource extends FHIRBackboneElement implements \Js
                         $this->addSupportedProfile($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"supportedProfile" must be array of objects or null, '.gettype($data['supportedProfile']).' seen.');
+                    throw new \InvalidArgumentException('"supportedProfile" must be array of objects or null, ' . gettype($data['supportedProfile']) . ' seen.');
                 }
             }
             if (isset($data['documentation'])) {
@@ -552,7 +554,7 @@ class FHIRCapabilityStatementResource extends FHIRBackboneElement implements \Js
                         $this->addInteraction($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"interaction" must be array of objects or null, '.gettype($data['interaction']).' seen.');
+                    throw new \InvalidArgumentException('"interaction" must be array of objects or null, ' . gettype($data['interaction']) . ' seen.');
                 }
             }
             if (isset($data['versioning'])) {
@@ -582,7 +584,7 @@ class FHIRCapabilityStatementResource extends FHIRBackboneElement implements \Js
                         $this->addReferencePolicy($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"referencePolicy" must be array of objects or null, '.gettype($data['referencePolicy']).' seen.');
+                    throw new \InvalidArgumentException('"referencePolicy" must be array of objects or null, ' . gettype($data['referencePolicy']) . ' seen.');
                 }
             }
             if (isset($data['searchInclude'])) {
@@ -591,7 +593,7 @@ class FHIRCapabilityStatementResource extends FHIRBackboneElement implements \Js
                         $this->addSearchInclude($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"searchInclude" must be array of objects or null, '.gettype($data['searchInclude']).' seen.');
+                    throw new \InvalidArgumentException('"searchInclude" must be array of objects or null, ' . gettype($data['searchInclude']) . ' seen.');
                 }
             }
             if (isset($data['searchRevInclude'])) {
@@ -600,7 +602,7 @@ class FHIRCapabilityStatementResource extends FHIRBackboneElement implements \Js
                         $this->addSearchRevInclude($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"searchRevInclude" must be array of objects or null, '.gettype($data['searchRevInclude']).' seen.');
+                    throw new \InvalidArgumentException('"searchRevInclude" must be array of objects or null, ' . gettype($data['searchRevInclude']) . ' seen.');
                 }
             }
             if (isset($data['searchParam'])) {
@@ -609,7 +611,7 @@ class FHIRCapabilityStatementResource extends FHIRBackboneElement implements \Js
                         $this->addSearchParam($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"searchParam" must be array of objects or null, '.gettype($data['searchParam']).' seen.');
+                    throw new \InvalidArgumentException('"searchParam" must be array of objects or null, ' . gettype($data['searchParam']) . ' seen.');
                 }
             }
             if (isset($data['operation'])) {
@@ -618,11 +620,11 @@ class FHIRCapabilityStatementResource extends FHIRBackboneElement implements \Js
                         $this->addOperation($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"operation" must be array of objects or null, '.gettype($data['operation']).' seen.');
+                    throw new \InvalidArgumentException('"operation" must be array of objects or null, ' . gettype($data['operation']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

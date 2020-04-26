@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Functions to globally validate and prepare data for sql database insertion.
  *
@@ -113,9 +114,9 @@ function escape_sql_column_name($s, $tables, $long = false)
     if (empty($tables)) {
         $res = sqlStatementNoLog("SHOW TABLES");
         $tables = array();
-        while ($row=sqlFetchArray($res)) {
+        while ($row = sqlFetchArray($res)) {
             $keys_return = array_keys($row);
-            $tables[]=$row[$keys_return[0]];
+            $tables[] = $row[$keys_return[0]];
         }
     }
 
@@ -128,12 +129,12 @@ function escape_sql_column_name($s, $tables, $long = false)
     // Collect all the possible sql columns from the tables
     $columns_options = array();
     foreach ($tables_escaped as $table_escaped) {
-        $res = sqlStatementNoLog("SHOW COLUMNS FROM ".$table_escaped);
-        while ($row=sqlFetchArray($res)) {
+        $res = sqlStatementNoLog("SHOW COLUMNS FROM " . $table_escaped);
+        while ($row = sqlFetchArray($res)) {
             if ($long) {
-                $columns_options[]=$table_escaped.".".$row['Field'];
+                $columns_options[] = $table_escaped . "." . $row['Field'];
             } else {
-                $columns_options[]=$row['Field'];
+                $columns_options[] = $row['Field'];
             }
         }
     }
@@ -166,9 +167,9 @@ function escape_table_name($s)
 {
     $res = sqlStatementNoLog("SHOW TABLES");
     $tables_array = array();
-    while ($row=sqlFetchArray($res)) {
+    while ($row = sqlFetchArray($res)) {
         $keys_return = array_keys($row);
-        $tables_array[]=$row[$keys_return[0]];
+        $tables_array[] = $row[$keys_return[0]];
     }
 
     // Now can escape(via whitelisting) the sql table name
@@ -235,7 +236,7 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
                 if ($die_if_no_match) {
                     // No match and $die_if_no_match is set, so die() and send error messages to screen and log
                     error_Log("ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s), 0);
-                    die("<br /><span style='color:red;font-weight:bold;'>".xlt("There was an OpenEMR SQL Escaping ERROR of the following string")." ".text($s)."</span><br />");
+                    die("<br /><span style='color:red;font-weight:bold;'>" . xlt("There was an OpenEMR SQL Escaping ERROR of the following string") . " " . text($s) . "</span><br />");
                 } else {
                     // Return first token since no match
                     $key = 0;
@@ -249,7 +250,7 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
             if (preg_match('/[^' . $whitelist_items . ']/', $s)) {
                 // Contains illegal character and $die_if_no_match is set, so die() and send error messages to screen and log
                 error_Log("ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s), 0);
-                die("<br /><span style='color:red;font-weight:bold;'>".xlt("There was an OpenEMR SQL Escaping ERROR of the following string")." ".text($s)."</span><br />");
+                die("<br /><span style='color:red;font-weight:bold;'>" . xlt("There was an OpenEMR SQL Escaping ERROR of the following string") . " " . text($s) . "</span><br />");
             } else {
                 // Contains all legal characters, so return the legal string
                 return $s;
@@ -274,7 +275,7 @@ function formData($name, $type = 'P', $isTrim = false)
 {
     if ($type == 'P') {
         $s = isset($_POST[$name]) ? $_POST[$name] : '';
-    } else if ($type == 'G') {
+    } elseif ($type == 'G') {
         $s = isset($_GET[$name]) ? $_GET[$name] : '';
     } else {
         $s = isset($_REQUEST[$name]) ? $_REQUEST[$name] : '';

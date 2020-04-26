@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -327,7 +329,7 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
                         $this->addSubject($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"subject" must be array of objects or null, '.gettype($data['subject']).' seen.');
+                    throw new \InvalidArgumentException('"subject" must be array of objects or null, ' . gettype($data['subject']) . ' seen.');
                 }
             }
             if (isset($data['diseaseSymptomProcedure'])) {
@@ -342,7 +344,7 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
                         $this->addComorbidity($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"comorbidity" must be array of objects or null, '.gettype($data['comorbidity']).' seen.');
+                    throw new \InvalidArgumentException('"comorbidity" must be array of objects or null, ' . gettype($data['comorbidity']) . ' seen.');
                 }
             }
             if (isset($data['intendedEffect'])) {
@@ -357,7 +359,7 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
                         $this->addOtherTherapy($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"otherTherapy" must be array of objects or null, '.gettype($data['otherTherapy']).' seen.');
+                    throw new \InvalidArgumentException('"otherTherapy" must be array of objects or null, ' . gettype($data['otherTherapy']) . ' seen.');
                 }
             }
             if (isset($data['undesirableEffect'])) {
@@ -366,7 +368,7 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
                         $this->addUndesirableEffect($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"undesirableEffect" must be array of objects or null, '.gettype($data['undesirableEffect']).' seen.');
+                    throw new \InvalidArgumentException('"undesirableEffect" must be array of objects or null, ' . gettype($data['undesirableEffect']) . ' seen.');
                 }
             }
             if (isset($data['population'])) {
@@ -375,11 +377,11 @@ class FHIRMedicinalProductIndication extends FHIRDomainResource implements \Json
                         $this->addPopulation($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"population" must be array of objects or null, '.gettype($data['population']).' seen.');
+                    throw new \InvalidArgumentException('"population" must be array of objects or null, ' . gettype($data['population']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

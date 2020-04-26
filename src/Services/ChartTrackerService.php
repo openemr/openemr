@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Chart tracker service.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2017 Victor Kofia <victor.kofia@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 namespace OpenEMR\Services;
 

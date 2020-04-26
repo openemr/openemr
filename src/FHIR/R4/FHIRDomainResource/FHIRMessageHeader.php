@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -405,7 +407,7 @@ class FHIRMessageHeader extends FHIRDomainResource implements \JsonSerializable
                         $this->addDestination($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"destination" must be array of objects or null, '.gettype($data['destination']).' seen.');
+                    throw new \InvalidArgumentException('"destination" must be array of objects or null, ' . gettype($data['destination']) . ' seen.');
                 }
             }
             if (isset($data['sender'])) {
@@ -435,14 +437,14 @@ class FHIRMessageHeader extends FHIRDomainResource implements \JsonSerializable
                         $this->addFocus($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"focus" must be array of objects or null, '.gettype($data['focus']).' seen.');
+                    throw new \InvalidArgumentException('"focus" must be array of objects or null, ' . gettype($data['focus']) . ' seen.');
                 }
             }
             if (isset($data['definition'])) {
                 $this->setDefinition($data['definition']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

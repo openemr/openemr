@@ -1,4 +1,5 @@
 <?php
+
 /**
  * code_choices.php
  *
@@ -8,6 +9,7 @@
  * @copyright Copyright (c) 2014 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 <script type="text/html" id="code-choice-options">
     &nbsp;

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -613,7 +615,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['type'])) {
@@ -637,7 +639,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
                         $this->addSpecialMeasures($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"specialMeasures" must be array of objects or null, '.gettype($data['specialMeasures']).' seen.');
+                    throw new \InvalidArgumentException('"specialMeasures" must be array of objects or null, ' . gettype($data['specialMeasures']) . ' seen.');
                 }
             }
             if (isset($data['paediatricUseIndicator'])) {
@@ -649,7 +651,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
                         $this->addProductClassification($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"productClassification" must be array of objects or null, '.gettype($data['productClassification']).' seen.');
+                    throw new \InvalidArgumentException('"productClassification" must be array of objects or null, ' . gettype($data['productClassification']) . ' seen.');
                 }
             }
             if (isset($data['marketingStatus'])) {
@@ -658,7 +660,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
                         $this->addMarketingStatus($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"marketingStatus" must be array of objects or null, '.gettype($data['marketingStatus']).' seen.');
+                    throw new \InvalidArgumentException('"marketingStatus" must be array of objects or null, ' . gettype($data['marketingStatus']) . ' seen.');
                 }
             }
             if (isset($data['pharmaceuticalProduct'])) {
@@ -667,7 +669,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
                         $this->addPharmaceuticalProduct($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"pharmaceuticalProduct" must be array of objects or null, '.gettype($data['pharmaceuticalProduct']).' seen.');
+                    throw new \InvalidArgumentException('"pharmaceuticalProduct" must be array of objects or null, ' . gettype($data['pharmaceuticalProduct']) . ' seen.');
                 }
             }
             if (isset($data['packagedMedicinalProduct'])) {
@@ -676,7 +678,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
                         $this->addPackagedMedicinalProduct($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"packagedMedicinalProduct" must be array of objects or null, '.gettype($data['packagedMedicinalProduct']).' seen.');
+                    throw new \InvalidArgumentException('"packagedMedicinalProduct" must be array of objects or null, ' . gettype($data['packagedMedicinalProduct']) . ' seen.');
                 }
             }
             if (isset($data['attachedDocument'])) {
@@ -685,7 +687,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
                         $this->addAttachedDocument($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"attachedDocument" must be array of objects or null, '.gettype($data['attachedDocument']).' seen.');
+                    throw new \InvalidArgumentException('"attachedDocument" must be array of objects or null, ' . gettype($data['attachedDocument']) . ' seen.');
                 }
             }
             if (isset($data['masterFile'])) {
@@ -694,7 +696,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
                         $this->addMasterFile($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"masterFile" must be array of objects or null, '.gettype($data['masterFile']).' seen.');
+                    throw new \InvalidArgumentException('"masterFile" must be array of objects or null, ' . gettype($data['masterFile']) . ' seen.');
                 }
             }
             if (isset($data['contact'])) {
@@ -703,7 +705,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
                         $this->addContact($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"contact" must be array of objects or null, '.gettype($data['contact']).' seen.');
+                    throw new \InvalidArgumentException('"contact" must be array of objects or null, ' . gettype($data['contact']) . ' seen.');
                 }
             }
             if (isset($data['clinicalTrial'])) {
@@ -712,7 +714,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
                         $this->addClinicalTrial($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"clinicalTrial" must be array of objects or null, '.gettype($data['clinicalTrial']).' seen.');
+                    throw new \InvalidArgumentException('"clinicalTrial" must be array of objects or null, ' . gettype($data['clinicalTrial']) . ' seen.');
                 }
             }
             if (isset($data['name'])) {
@@ -721,7 +723,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
                         $this->addName($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"name" must be array of objects or null, '.gettype($data['name']).' seen.');
+                    throw new \InvalidArgumentException('"name" must be array of objects or null, ' . gettype($data['name']) . ' seen.');
                 }
             }
             if (isset($data['crossReference'])) {
@@ -730,7 +732,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
                         $this->addCrossReference($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"crossReference" must be array of objects or null, '.gettype($data['crossReference']).' seen.');
+                    throw new \InvalidArgumentException('"crossReference" must be array of objects or null, ' . gettype($data['crossReference']) . ' seen.');
                 }
             }
             if (isset($data['manufacturingBusinessOperation'])) {
@@ -739,7 +741,7 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
                         $this->addManufacturingBusinessOperation($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"manufacturingBusinessOperation" must be array of objects or null, '.gettype($data['manufacturingBusinessOperation']).' seen.');
+                    throw new \InvalidArgumentException('"manufacturingBusinessOperation" must be array of objects or null, ' . gettype($data['manufacturingBusinessOperation']) . ' seen.');
                 }
             }
             if (isset($data['specialDesignation'])) {
@@ -748,11 +750,11 @@ class FHIRMedicinalProduct extends FHIRDomainResource implements \JsonSerializab
                         $this->addSpecialDesignation($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"specialDesignation" must be array of objects or null, '.gettype($data['specialDesignation']).' seen.');
+                    throw new \InvalidArgumentException('"specialDesignation" must be array of objects or null, ' . gettype($data['specialDesignation']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

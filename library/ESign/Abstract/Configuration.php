@@ -1,7 +1,5 @@
 <?php
 
-namespace ESign;
-
 /**
  * Abstract configuration class. We recommend subclassing this
  * class for your configuration to make the default routing
@@ -26,7 +24,9 @@ namespace ESign;
  * @link    https://www.open-emr.org
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/ConfigurationIF.php';
+namespace ESign;
+
+require_once $GLOBALS['srcdir'] . '/ESign/ConfigurationIF.php';
 
 abstract class Abstract_Configuration implements ConfigurationIF
 {
@@ -34,34 +34,34 @@ abstract class Abstract_Configuration implements ConfigurationIF
     {
         return "esign_log_view";
     }
-    
+
     public function getFormViewMethod()
     {
         return "esign_form_view";
     }
-    
+
     public function getFormSubmitMethod()
     {
         return "esign_form_submit";
     }
-    
+
     public function getBaseUrl()
     {
-        return $GLOBALS['webroot']."/interface/esign/index.php";
+        return $GLOBALS['webroot'] . "/interface/esign/index.php";
     }
-    
+
     public function getLogViewAction()
     {
-        return $this->getBaseUrl()."?module=".$this->getModule()."&method=".$this->getLogViewMethod();
+        return $this->getBaseUrl() . "?module=" . $this->getModule() . "&method=" . $this->getLogViewMethod();
     }
-    
+
     public function getFormViewAction()
     {
-        return $this->getBaseUrl()."?module=".$this->getModule()."&method=".$this->getFormViewMethod();
+        return $this->getBaseUrl() . "?module=" . $this->getModule() . "&method=" . $this->getFormViewMethod();
     }
-    
+
     public function getFormSubmitAction()
     {
-        return $this->getBaseUrl()."?module=".$this->getModule()."&method=".$this->getFormSubmitMethod();
+        return $this->getBaseUrl() . "?module=" . $this->getModule() . "&method=" . $this->getFormSubmitMethod();
     }
 }

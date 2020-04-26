@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Print postcards for patients currently in the $_SESSION['pidList'] variable.
  *

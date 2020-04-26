@@ -1,4 +1,5 @@
 <?php
+
 /**
  * library/RulesPlanMappingEventHandlers.php database interaction for admin-gui rules plan mappings.
  *
@@ -34,7 +35,7 @@ function getNonCQMPlans()
                 "JOIN `clinical_plans` clin_plans ON clin_plans.id = list_options.option_id " .
                 "LEFT JOIN `clinical_plans_rules` clin_plans_rules ON clin_plans_rules.plan_id = list_options.option_id " .
                 "LEFT JOIN `clinical_rules` clin_rules ON clin_rules.id = clin_plans_rules.rule_id " .
-                "WHERE (clin_rules.cqm_flag = 0 OR clin_rules.cqm_flag is NULL) ".
+                "WHERE (clin_rules.cqm_flag = 0 OR clin_rules.cqm_flag is NULL) " .
                 "AND list_options.option_id NOT LIKE '%plan_cqm' AND clin_plans.pid = 0 AND list_options.list_id = ?;";
     $result = sqlStatement($sql_st, array('clinical_plans'));
 
@@ -43,7 +44,7 @@ function getNonCQMPlans()
         $plan_pid = $row['pid'];
         $plan_title = $row['title'];
         
-        $plan_info = array('plan_id'=>$plan_id, 'plan_pid'=>$plan_pid, 'plan_title'=>$plan_title);
+        $plan_info = array('plan_id' => $plan_id, 'plan_pid' => $plan_pid, 'plan_title' => $plan_title);
         array_push($plans, $plan_info);
     }
 
@@ -167,7 +168,7 @@ function deletePlan($plan_id)
 function togglePlanStatus($plan_id, $nm_flag)
 {
          $sql_st = "UPDATE clinical_plans SET " .
-                   "normal_flag = ? ".
+                   "normal_flag = ? " .
                    "WHERE id = ? AND pid = 0 ";
          sqlStatement($sql_st, array($nm_flag, $plan_id));
     if ($nm_flag = 0) {

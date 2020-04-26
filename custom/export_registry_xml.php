@@ -48,9 +48,9 @@ function getLabelNumber($label)
     $tokens = explode(" ", $label);
 
     $num_tokens = sizeof($tokens);
-    if ($tokens[$num_tokens-1] != null) {
-        if (is_numeric($tokens[$num_tokens-1])) {
-            return $tokens[$num_tokens-1];
+    if ($tokens[$num_tokens - 1] != null) {
+        if (is_numeric($tokens[$num_tokens - 1])) {
+            return $tokens[$num_tokens - 1];
         }
     }
 
@@ -124,12 +124,12 @@ foreach ($dataSheet as $row) {
             $performance_not_met_instances = (int)$row['pass_filter'] - (int)$row['pass_target'] - (int)$row['excluded'];
             $pqri_measures['performance-not-met-instances'] = (string)$performance_not_met_instances;
             $pqri_measures['performance-rate'] = $row['percentage'];
-            $pqri_measures['reporting-rate'] = (($row['pass_filter']-$row['excluded'])/$row['pass_filter'])*100;
-                $pqri_measures['reporting-rate']=$pqri_measures['reporting-rate'].'%';
+            $pqri_measures['reporting-rate'] = (($row['pass_filter'] - $row['excluded']) / $row['pass_filter']) * 100;
+                $pqri_measures['reporting-rate'] = $pqri_measures['reporting-rate'] . '%';
             $xml->add_pqri_measures($pqri_measures);
         } else { // $row[0] == "sub"
         }
-    } else if (isset($row['is_provider'])) {
+    } elseif (isset($row['is_provider'])) {
         if ($firstProviderFlag == false) {
              $xml->close_provider();
         }

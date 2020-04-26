@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Encounter form for entering procedure orders.
  *
@@ -56,7 +57,7 @@ function cbinput($name, $colname)
 
 function cbcell($name, $desc, $colname)
 {
-    return "<td width='25%' nowrap>" . cbinput($name, $colname) . text($desc) ."</td>\n";
+    return "<td width='25%' nowrap>" . cbinput($name, $colname) . text($desc) . "</td>\n";
 }
 
 function QuotedOrNull($fld)

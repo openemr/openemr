@@ -1,4 +1,5 @@
 <?php
+
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Services\FhirOperationOutcomeResourceService;
@@ -50,7 +51,7 @@ class FhirValidationService
         $expression = ''
     ) {
         $resource = new FHIROperationOutcome();
-        $issue= new FHIROperationOutcomeIssue();
+        $issue = new FHIROperationOutcomeIssue();
         $severity = new FHIRIssueSeverity();
         $severity->setValue($severity_value);
         $issue->setSeverity($severity);

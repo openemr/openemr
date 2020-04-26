@@ -1,4 +1,5 @@
 <?php
+
  // Copyright (C) 2010-2011 Aron Racho <aron@mi-squred.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -77,7 +78,7 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria
         $dbView->value =
                   "CUSTOM::"
                 . $this->category . "::" . $this->item . "::"
-                . ($this->completed ? "YES":"NO") . "::"
+                . ($this->completed ? "YES" : "NO") . "::"
                 . $this->frequencyComparator . "::" . $this->frequency;
 
         return $dbView;

@@ -61,7 +61,7 @@ $formid = $_GET['id'];
 //
 if ($_POST['bn_save']) {
     $sets = "";
-    $sqlBindArray= array();
+    $sqlBindArray = array();
     $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'SRH' AND uor > 0 AND field_id != '' AND " .
     "edit_options != 'H' " .
@@ -195,7 +195,7 @@ while ($frow = sqlFetchArray($fres)) {
             $group_name = substr($this_group, 1);
             $last_group = $this_group;
             echo "<br /><span class='bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " .
-        "onclick='return divclick(this," . attr_js("div_".$group_seq) . ");'";
+        "onclick='return divclick(this," . attr_js("div_" . $group_seq) . ");'";
         if ($display_style == 'block') {
             echo " checked";
         }

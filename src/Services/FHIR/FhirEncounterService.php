@@ -3,7 +3,6 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Services\EncounterService;
-
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
 use OpenEMR\FHIR\R4\FHIRElement\FhirId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -29,7 +28,7 @@ class FhirEncounterService
         $id->setValue($eid);
         $resource->setId($id);
         $participant = new FHIREncounterParticipant();
-        $prtref = new FHIRReference;
+        $prtref = new FHIRReference();
         $temp = 'Practitioner/' . $data['provider_id'];
         $prtref->setReference($temp);
         $participant->setIndividual($prtref);

@@ -1,4 +1,5 @@
 <?php
+
 /** @package Openemr::Controller */
 
 /** import supporting libraries */

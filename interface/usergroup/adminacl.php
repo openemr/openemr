@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Allows acl(php-gacl) administration. Heavily ajax and
  * javascript/jquery dependent. All ajax functions are called
@@ -12,7 +13,6 @@
  * @copyright Copyright (c) 2017 Ranganath Pathak <pathak01@hotmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 

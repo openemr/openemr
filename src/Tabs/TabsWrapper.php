@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Wrapper for implementing tabs. Currently based on jQuery UI Tabs.
  *

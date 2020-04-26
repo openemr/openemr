@@ -1,5 +1,7 @@
 <?php
+
 /** @package    verysimple::Phreeze */
+
 require_once("IRenderEngine.php");
 
 /**

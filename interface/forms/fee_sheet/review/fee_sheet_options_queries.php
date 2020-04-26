@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Utility functions for retrieving fee sheet options.
  *
@@ -17,13 +18,13 @@ class fee_sheet_option
 {
     function __construct($c, $ct, $desc, $price, $category)
     {
-        $this->code=$c;
-        $this->code_type=$ct;
-        $this->description=$desc;
-        $this->price=$price;
-        $this->category=$category;
-        if ($price==null) {
-            $this->price=xl("Not Specified");
+        $this->code = $c;
+        $this->code_type = $ct;
+        $this->description = $desc;
+        $this->price = $price;
+        $this->category = $category;
+        if ($price == null) {
+            $this->price = xl("Not Specified");
         }
     }
     public $code;
@@ -41,10 +42,10 @@ class fee_sheet_option
  */
 function load_fee_sheet_options($pricelevel)
 {
-    $clFSO_code_type='substring_index(fso.fs_codes,"|",1)';
-    $clFSO_code='replace(substring_index(fso.fs_codes,"|",-2),"|","")';
+    $clFSO_code_type = 'substring_index(fso.fs_codes,"|",1)';
+    $clFSO_code = 'replace(substring_index(fso.fs_codes,"|",-2),"|","")';
 
-    $sql= "SELECT codes.code,code_types.ct_key as code_type,codes.code_text,pr_price,fso.fs_category
+    $sql = "SELECT codes.code,code_types.ct_key as code_type,codes.code_text,pr_price,fso.fs_category
         FROM fee_sheet_options as fso, code_types, codes
         LEFT JOIN prices ON (codes.id=prices.pr_id AND prices.pr_level=?)
         WHERE codes.code=?
@@ -52,12 +53,12 @@ function load_fee_sheet_options($pricelevel)
         AND codes.code_type=code_types.ct_id
         ORDER BY fso.fs_category,fso.fs_option";
 
-    $results=sqlStatement($sql, array($pricelevel, $clFSO_code, $clFSO_code));
+    $results = sqlStatement($sql, array($pricelevel, $clFSO_code, $clFSO_code));
 
-    $retval=array();
-    while ($res=sqlFetchArray($results)) {
-        $fso=new fee_sheet_option($res['code'], $res['code_type'], $res['code_text'], $res['pr_price'], $res['fs_category']);
-        $retval[]=$fso;
+    $retval = array();
+    while ($res = sqlFetchArray($results)) {
+        $fso = new fee_sheet_option($res['code'], $res['code_type'], $res['code_text'], $res['pr_price'], $res['fs_category']);
+        $retval[] = $fso;
     }
 
     return $retval;

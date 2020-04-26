@@ -1,12 +1,14 @@
 <?php
+
 /** @package    verysimple::Phreeze */
+
 require_once("IRenderEngine.php");
 
 define('EXT', '.php');
 define('BLADE_EXT', '.blade.php');
 define('CRLF', "\r\n");
 define('DEFAULT_BUNDLE', 'application');
-define('MB_STRING', ( int ) function_exists('mb_get_info'));
+define('MB_STRING', (int) function_exists('mb_get_info'));
 define('DS', DIRECTORY_SEPARATOR);
 
 require_once("laravel/paths.php");

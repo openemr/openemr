@@ -95,20 +95,20 @@ class FhirConditionService
             if (isset($data['enddate']) && $data['outcome'] == "1") {
                 $clinicalStatusCoding->setCode("resolved");
                 $clinicalStatusCoding->setDisplay("Resolved");
-            } else if (!isset($data['enddate'])) {
+            } elseif (!isset($data['enddate'])) {
                 $clinicalStatusCoding->setCode("active");
                 $clinicalStatusCoding->setDisplay("Active");
             }
-        } else if (isset($data['enddate']) && $data['outcome'] == "0") {
+        } elseif (isset($data['enddate']) && $data['outcome'] == "0") {
             $clinicalStatusCoding->setCode("inactive");
             $clinicalStatusCoding->setDisplay("Inactive");
-        } else if ($data['occurrence'] == 2 && !isset($data['enddate']) && $data['outcome'] == "0") {
+        } elseif ($data['occurrence'] == 2 && !isset($data['enddate']) && $data['outcome'] == "0") {
             $clinicalStatusCoding->setCode("recurrence");
             $clinicalStatusCoding->setDisplay("Recurrence");
-        } else if ($data['occurrence'] > 2 && isset($data['enddate']) && $data['outcome'] == "1") {
+        } elseif ($data['occurrence'] > 2 && isset($data['enddate']) && $data['outcome'] == "1") {
             $clinicalStatusCoding->setCode("remission");
             $clinicalStatusCoding->setDisplay("Remission");
-        } else if ($data['occurrence'] > 2 && !isset($data['enddate']) && $data['outcome'] == "0") {
+        } elseif ($data['occurrence'] > 2 && !isset($data['enddate']) && $data['outcome'] == "0") {
             $clinicalStatusCoding->setCode("relapse");
             $clinicalStatusCoding->setDisplay("Relapse");
         } else {
@@ -145,7 +145,7 @@ class FhirConditionService
         $bodySite->addCoding($bodySiteCoding);
 
         $subject = new FHIRReference();
-        $subject->setReference('Patient/'.$data['pid']);
+        $subject->setReference('Patient/' . $data['pid']);
         
         $onSetDateTime = new FHIRDateTime();
         $onSetDateTime->setValue($data['begdate']);
@@ -157,10 +157,10 @@ class FhirConditionService
         $recordedDateTime->setValue($data['recorded_date']);
         
         $recorder = new FHIRReference();
-        $recorder->setReference('Practitioner/'.$data['referredby']);
+        $recorder->setReference('Practitioner/' . $data['referredby']);
         
         $asserter = new FHIRReference();
-        $asserter->setReference('Patient/'.$data['pid']);
+        $asserter->setReference('Patient/' . $data['pid']);
         
         $note = new FHIRAnnotation();
         $note->setText($data['extrainfo']);

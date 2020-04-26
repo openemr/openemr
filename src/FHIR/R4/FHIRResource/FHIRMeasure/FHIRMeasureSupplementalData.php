@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMeasure;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMeasure;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -199,7 +201,7 @@ class FHIRMeasureSupplementalData extends FHIRBackboneElement implements \JsonSe
                         $this->addUsage($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"usage" must be array of objects or null, '.gettype($data['usage']).' seen.');
+                    throw new \InvalidArgumentException('"usage" must be array of objects or null, ' . gettype($data['usage']) . ' seen.');
                 }
             }
             if (isset($data['description'])) {
@@ -208,8 +210,8 @@ class FHIRMeasureSupplementalData extends FHIRBackboneElement implements \JsonSe
             if (isset($data['criteria'])) {
                 $this->setCriteria($data['criteria']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

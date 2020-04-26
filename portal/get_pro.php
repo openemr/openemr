@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Easipro class
  *
@@ -14,7 +15,6 @@
  * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("verify_session.php");
 
@@ -33,14 +33,14 @@ if (!empty($records)) { ?>
     <?php
     foreach ($records as $row) {
         echo "<tr>";
-        echo "<td>".text($row['form_name'])."</td>";
-        echo "<td>".text($row['deadline'])."</td>";
-        echo "<td id='asst_status_" . attr($row['assessment_oid']) . "'>".text($row['status'])."</td>";
-        if ($row['status']=='ordered') {
+        echo "<td>" . text($row['form_name']) . "</td>";
+        echo "<td>" . text($row['deadline']) . "</td>";
+        echo "<td id='asst_status_" . attr($row['assessment_oid']) . "'>" . text($row['status']) . "</td>";
+        if ($row['status'] == 'ordered') {
             echo "<td id='asst_" . attr($row['assessment_oid']) . "'><button class='btn btn-sm btn-primary' onclick=\"startAssessment(this," . attr_js($row['assessment_oid']) . ")\">" . xlt('Start Assessment') . "</button></td>";
-        } else if ($row['status']=='in-progress') {
+        } elseif ($row['status'] == 'in-progress') {
             echo "<td>" . xlt('Continue Assessment') . "</td>";
-        } else if ($row['status']=='completed') {
+        } elseif ($row['status'] == 'completed') {
             echo "<td><i class='fa fa-check-circle'></i></td>";
         }
         echo "</tr>";

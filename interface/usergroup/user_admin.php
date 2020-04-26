@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Edit user.
  *
@@ -9,7 +10,6 @@
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/calendar.inc");
@@ -224,13 +224,13 @@ function authorized_clicked() {
     <?php
     /*  Get the list ACL for the user */
     $is_super_user = AclMain::aclCheckCore('admin', 'super');
-    $acl_name=AclExtended::aclGetGroupTitles($iter["username"]);
-    $bg_name='';
-    $bg_count=count($acl_name);
+    $acl_name = AclExtended::aclGetGroupTitles($iter["username"]);
+    $bg_name = '';
+    $bg_count = count($acl_name);
     $selected_user_is_superuser = false;
-    for ($i=0; $i<$bg_count; $i++) {
+    for ($i = 0; $i < $bg_count; $i++) {
         if ($acl_name[$i] == "Emergency Login") {
-            $bg_name=$acl_name[$i];
+            $bg_name = $acl_name[$i];
         }
         //check if user member on group with superuser rule
         if (AclExtended::isGroupIncludeSuperuser($acl_name[$i])) {
@@ -393,7 +393,7 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
 <td><input type="text" name="state_license_number" style="width:150px;" class="form-control" value="<?php echo attr($iter["state_license_number"]); ?>"></td>
 <td class='text'><?php echo xlt('NewCrop eRX Role'); ?>:</td>
 <td>
-    <?php echo generate_select_list("erxrole", "newcrop_erx_role", $iter['newcrop_user_role'], '', xl('Select Role'), '', '', '', array('style'=>'width:150px')); ?>
+    <?php echo generate_select_list("erxrole", "newcrop_erx_role", $iter['newcrop_user_role'], '', xl('Select Role'), '', '', '', array('style' => 'width:150px')); ?>
 </td>
 </tr>
 <tr>

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRSubstanceSpecification;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -390,7 +392,7 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
                         $this->addLanguage($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"language" must be array of objects or null, '.gettype($data['language']).' seen.');
+                    throw new \InvalidArgumentException('"language" must be array of objects or null, ' . gettype($data['language']) . ' seen.');
                 }
             }
             if (isset($data['domain'])) {
@@ -399,7 +401,7 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
                         $this->addDomain($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"domain" must be array of objects or null, '.gettype($data['domain']).' seen.');
+                    throw new \InvalidArgumentException('"domain" must be array of objects or null, ' . gettype($data['domain']) . ' seen.');
                 }
             }
             if (isset($data['jurisdiction'])) {
@@ -408,7 +410,7 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
                         $this->addJurisdiction($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"jurisdiction" must be array of objects or null, '.gettype($data['jurisdiction']).' seen.');
+                    throw new \InvalidArgumentException('"jurisdiction" must be array of objects or null, ' . gettype($data['jurisdiction']) . ' seen.');
                 }
             }
             if (isset($data['synonym'])) {
@@ -417,7 +419,7 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
                         $this->addSynonym($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"synonym" must be array of objects or null, '.gettype($data['synonym']).' seen.');
+                    throw new \InvalidArgumentException('"synonym" must be array of objects or null, ' . gettype($data['synonym']) . ' seen.');
                 }
             }
             if (isset($data['translation'])) {
@@ -426,7 +428,7 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
                         $this->addTranslation($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"translation" must be array of objects or null, '.gettype($data['translation']).' seen.');
+                    throw new \InvalidArgumentException('"translation" must be array of objects or null, ' . gettype($data['translation']) . ' seen.');
                 }
             }
             if (isset($data['official'])) {
@@ -435,7 +437,7 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
                         $this->addOfficial($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"official" must be array of objects or null, '.gettype($data['official']).' seen.');
+                    throw new \InvalidArgumentException('"official" must be array of objects or null, ' . gettype($data['official']) . ' seen.');
                 }
             }
             if (isset($data['source'])) {
@@ -444,11 +446,11 @@ class FHIRSubstanceSpecificationName extends FHIRBackboneElement implements \Jso
                         $this->addSource($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"source" must be array of objects or null, '.gettype($data['source']).' seen.');
+                    throw new \InvalidArgumentException('"source" must be array of objects or null, ' . gettype($data['source']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

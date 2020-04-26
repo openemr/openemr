@@ -1,4 +1,5 @@
 <?php
+
 namespace Carecoordination;
 
 use Documents\Plugin\Documents;

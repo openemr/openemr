@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This program sets the global variables.
  *
@@ -79,8 +80,8 @@
 //   Urdu                           // xl('Urdu')
 //   Vietnamese                     // xl('Vietnamese')
 
-use \OpenEMR\Services\Globals\GlobalsService;
-use \OpenEMR\Events\Globals\GlobalsInitializedEvent;
+use OpenEMR\Services\Globals\GlobalsService;
+use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
@@ -195,7 +196,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'theme_tabs_layout' => array(
-            xl('Tabs Layout Theme').'*',
+            xl('Tabs Layout Theme') . '*',
             'tabs_css',
             'tabs_style_full.css',
             xl('Theme of the tabs layout (need to logout and then login to see this new setting).')
@@ -203,14 +204,14 @@ $GLOBALS_METADATA = array(
 
         'css_header' => array(
             // Note: Do not change this as it is only for theme defaults and adding themes here does nothing
-            xl('General Theme') .'*',
+            xl('General Theme') . '*',
             'css',
             'style_light.css',
             xl('Pick a general theme (need to logout/login after changing this setting).')
         ),
 
         'font-family' => array(
-            xl('Default font') .'*',
+            xl('Default font') . '*',
             array(
                 '__default__' => 'Use Theme Font',
                 '"Arial", "Helvetica", sans-serif' => "Arial",
@@ -227,7 +228,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'font-size' => array(
-            xl('Default font size').'*',
+            xl('Default font size') . '*',
             array(
                 '__default__' => 'Use Theme Font Size',
                 '0.625rem' => '10px',
@@ -494,7 +495,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'prevent_browser_refresh' => array(
-            xl('Prevent Web Browser Refresh').'*',
+            xl('Prevent Web Browser Refresh') . '*',
             array(
                 '0' => xl('Do not warn or prevent web browser refresh'),
                 '1' => xl('Warn, but do not prevent web browser refresh'),
@@ -1753,7 +1754,7 @@ $GLOBALS_METADATA = array(
             xl('This Allows a Date Range to be Selected in Patient Flow Board.')
         ),
 
-        'ptkr_start_date'=> array(
+        'ptkr_start_date' => array(
             xl('Flow Board: Default Starting Date'),
             array(
                 'D0' => xl('Current Day'),
@@ -3346,7 +3347,7 @@ $GLOBALS_METADATA = array(
             xl('Enable Easipro'),
             'bool',                           // data type
             '0',
-            xl('Enable Easipro. For licensing options for this feature, please contact').' api@assessmentcenter.net'
+            xl('Enable Easipro. For licensing options for this feature, please contact') . ' api@assessmentcenter.net'
         ),
 
         'easipro_server' => array(

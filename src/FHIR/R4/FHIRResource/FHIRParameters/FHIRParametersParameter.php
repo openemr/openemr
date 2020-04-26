@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRParameters;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRParameters;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -1450,11 +1452,11 @@ class FHIRParametersParameter extends FHIRBackboneElement implements \JsonSerial
                         $this->addPart($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"part" must be array of objects or null, '.gettype($data['part']).' seen.');
+                    throw new \InvalidArgumentException('"part" must be array of objects or null, ' . gettype($data['part']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

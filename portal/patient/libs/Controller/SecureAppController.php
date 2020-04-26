@@ -1,4 +1,5 @@
 <?php
+
 /** @package Cargo::Controller */
 
 /** import supporting libraries */

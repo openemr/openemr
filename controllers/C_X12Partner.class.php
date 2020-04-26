@@ -1,6 +1,5 @@
 <?php
 
-
 class C_X12Partner extends Controller
 {
 
@@ -13,8 +12,8 @@ class C_X12Partner extends Controller
         parent::__construct();
         $this->x12_partner = array();
         $this->template_mod = $template_mod;
-        $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . attr($_SERVER['QUERY_STRING']));
-        $this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings&x12_partner&");
+        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&x12_partner&");
         $this->assign("STYLE", $GLOBALS['style']);
     }
 
@@ -74,7 +73,7 @@ class C_X12Partner extends Controller
         //echo "action processeed";
         $_POST['process'] = "";
         $this->_state = false;
-        header('Location:'.$GLOBALS['webroot']."/controller.php?" . "practice_settings&x12_partner&action=list");//Z&H
+        header('Location:' . $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&x12_partner&action=list");//Z&H
         //return $this->edit_action(null,$this->x12_partner[0]);
     }
 }

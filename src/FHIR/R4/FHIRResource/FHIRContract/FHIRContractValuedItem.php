@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRContract;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRContract;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -515,7 +517,7 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
                         $this->addLinkId($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"linkId" must be array of objects or null, '.gettype($data['linkId']).' seen.');
+                    throw new \InvalidArgumentException('"linkId" must be array of objects or null, ' . gettype($data['linkId']) . ' seen.');
                 }
             }
             if (isset($data['securityLabelNumber'])) {
@@ -524,11 +526,11 @@ class FHIRContractValuedItem extends FHIRBackboneElement implements \JsonSeriali
                         $this->addSecurityLabelNumber($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"securityLabelNumber" must be array of objects or null, '.gettype($data['securityLabelNumber']).' seen.');
+                    throw new \InvalidArgumentException('"securityLabelNumber" must be array of objects or null, ' . gettype($data['securityLabelNumber']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

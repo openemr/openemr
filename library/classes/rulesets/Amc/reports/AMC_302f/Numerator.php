@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Brady Miller <brady.g.miller@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -19,11 +20,13 @@ class AMC_302f_Numerator implements AmcFilterIF
     {
         // Record and chart changes in vital signs
         //  Need height,weight,BP, and BMI.
-        if ((exist_database_item($patient->id, 'form_vitals', 'height', 'gt', '0', 'ge', 1, '', '', $endDate)) &&
+        if (
+            (exist_database_item($patient->id, 'form_vitals', 'height', 'gt', '0', 'ge', 1, '', '', $endDate)) &&
              (exist_database_item($patient->id, 'form_vitals', 'weight', 'gt', '0', 'ge', 1, '', '', $endDate)) &&
              (exist_database_item($patient->id, 'form_vitals', 'bps', '', '', 'ge', 1, '', '', $endDate)) &&
              (exist_database_item($patient->id, 'form_vitals', 'bpd', '', '', 'ge', 1, '', '', $endDate)) &&
-             (exist_database_item($patient->id, 'form_vitals', 'BMI', 'gt', '0', 'ge', 1, '', '', $endDate))) {
+             (exist_database_item($patient->id, 'form_vitals', 'BMI', 'gt', '0', 'ge', 1, '', '', $endDate))
+        ) {
             return true;
         } else {
             return false;

@@ -1,4 +1,5 @@
 <?php
+
 namespace Immunization;
 
 use Laminas\ModuleManager\ModuleManager;

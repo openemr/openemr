@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRContract;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRContract;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -448,7 +450,7 @@ class FHIRContractTerm extends FHIRBackboneElement implements \JsonSerializable
                         $this->addSecurityLabel($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"securityLabel" must be array of objects or null, '.gettype($data['securityLabel']).' seen.');
+                    throw new \InvalidArgumentException('"securityLabel" must be array of objects or null, ' . gettype($data['securityLabel']) . ' seen.');
                 }
             }
             if (isset($data['offer'])) {
@@ -460,7 +462,7 @@ class FHIRContractTerm extends FHIRBackboneElement implements \JsonSerializable
                         $this->addAsset($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"asset" must be array of objects or null, '.gettype($data['asset']).' seen.');
+                    throw new \InvalidArgumentException('"asset" must be array of objects or null, ' . gettype($data['asset']) . ' seen.');
                 }
             }
             if (isset($data['action'])) {
@@ -469,7 +471,7 @@ class FHIRContractTerm extends FHIRBackboneElement implements \JsonSerializable
                         $this->addAction($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"action" must be array of objects or null, '.gettype($data['action']).' seen.');
+                    throw new \InvalidArgumentException('"action" must be array of objects or null, ' . gettype($data['action']) . ' seen.');
                 }
             }
             if (isset($data['group'])) {
@@ -478,11 +480,11 @@ class FHIRContractTerm extends FHIRBackboneElement implements \JsonSerializable
                         $this->addGroup($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"group" must be array of objects or null, '.gettype($data['group']).' seen.');
+                    throw new \InvalidArgumentException('"group" must be array of objects or null, ' . gettype($data['group']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

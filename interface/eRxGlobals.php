@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/eRxGlobals.php Functions for retrieving NewCrop global configurations.
  *

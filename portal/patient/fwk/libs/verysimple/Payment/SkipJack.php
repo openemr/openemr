@@ -1,4 +1,5 @@
 <?php
+
 /** @package    verysimple::Payment */
 
 /**
@@ -85,7 +86,7 @@ class SkipJack extends PaymentProcessor
         $vals = explode("\",\"", $lines [1]);
         
         // convert these two lines into a hash so we can get individual values
-        for ($i = 0; $i < count($fields); $i ++) {
+        for ($i = 0; $i < count($fields); $i++) {
             $resp->ParsedResponse [$fields [$i]] = $vals [$i];
         }
         
@@ -102,10 +103,10 @@ class SkipJack extends PaymentProcessor
         // dependin on the status, get the best description we can
         if ($resp->IsSuccess) {
             $resp->ResponseMessage = $this->GetMessage($resp->ParsedResponse ["szReturnCode"]);
-        } else if (! $verifyOK) {
+        } elseif (! $verifyOK) {
             // verification failed
             $resp->ResponseMessage = $this->GetMessage($resp->ParsedResponse ["szReturnCode"]);
-        } else if (! $authOK) {
+        } elseif (! $authOK) {
             // verification was ok, but the processor didn't process the transaction
             $resp->ResponseMessage = $resp->ParsedResponse ["szAuthorizationDeclinedMessage"];
         } else {

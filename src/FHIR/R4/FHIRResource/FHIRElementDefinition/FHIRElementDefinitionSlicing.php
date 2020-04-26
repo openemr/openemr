@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRElementDefinition;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRElementDefinition;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -197,7 +199,7 @@ class FHIRElementDefinitionSlicing extends FHIRBackboneElement implements \JsonS
                         $this->addDiscriminator($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"discriminator" must be array of objects or null, '.gettype($data['discriminator']).' seen.');
+                    throw new \InvalidArgumentException('"discriminator" must be array of objects or null, ' . gettype($data['discriminator']) . ' seen.');
                 }
             }
             if (isset($data['description'])) {
@@ -209,8 +211,8 @@ class FHIRElementDefinitionSlicing extends FHIRBackboneElement implements \JsonS
             if (isset($data['rules'])) {
                 $this->setRules($data['rules']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

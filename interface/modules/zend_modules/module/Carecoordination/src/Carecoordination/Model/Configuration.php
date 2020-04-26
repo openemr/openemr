@@ -1,4 +1,5 @@
 <?php
+
 namespace Carecoordination\Model;
 
 use Laminas\InputFilter\Factory as InputFactory;
@@ -52,7 +53,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         $this->add(array(
             'name'  => 'hie_author_id',
         'type'      => 'Laminas\Form\Element\Select',
-            'attributes'=> array(
+            'attributes' => array(
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
@@ -71,7 +72,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         $this->add(array(
             'name'  => 'hie_data_enterer_id',
         'type'      => 'Laminas\Form\Element\Select',
-            'attributes'=> array(
+            'attributes' => array(
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
@@ -90,7 +91,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         $this->add(array(
             'name'  => 'hie_informant_id',
         'type'      => 'Laminas\Form\Element\Select',
-            'attributes'=> array(
+            'attributes' => array(
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
@@ -108,7 +109,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add(array(
             'name'  => 'hie_personal_informant_id',
-            'attributes'=> array(
+            'attributes' => array(
                     'type'  => 'text',
                     'id'    => 'hie_personal_informant_id'
                 ),
@@ -123,7 +124,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         $this->add(array(
             'name'  => 'hie_custodian_id',
         'type'      => 'Laminas\Form\Element\Select',
-            'attributes'=> array(
+            'attributes' => array(
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
@@ -142,7 +143,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         $this->add(array(
             'name'  => 'hie_recipient_id',
         'type'      => 'Laminas\Form\Element\Select',
-            'attributes'=> array(
+            'attributes' => array(
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
@@ -161,7 +162,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         $this->add(array(
             'name'  => 'hie_legal_authenticator_id',
         'type'      => 'Laminas\Form\Element\Select',
-            'attributes'=> array(
+            'attributes' => array(
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
@@ -180,7 +181,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         $this->add(array(
             'name'  => 'hie_authenticator_id',
         'type'      => 'Laminas\Form\Element\Select',
-            'attributes'=> array(
+            'attributes' => array(
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
@@ -199,7 +200,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         $this->add(array(
             'name'  => 'hie_primary_care_provider_id',
         'type'      => 'Laminas\Form\Element\Select',
-            'attributes'=> array(
+            'attributes' => array(
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
@@ -217,7 +218,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add(array(
             'name'  => 'hie_mirth_ip',
-            'attributes'=> array(
+            'attributes' => array(
                     'type'  => 'text',
                     'id'    => 'hie_mirth_ip'
                 ),
@@ -272,7 +273,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         $users = array('0' => '');
         $res = sqlStatement("SELECT id, fname, lname, street, city, state, zip  FROM users WHERE abook_type='ccda'");
         while ($row = sqlFetchArray($res)) {
-            $users[$row['id']] = $row['fname']." ".$row['lname'];
+            $users[$row['id']] = $row['fname'] . " " . $row['lname'];
         }
 
         return $users;

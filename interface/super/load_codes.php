@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Upload and install a designated code set to the codes table.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 set_time_limit(0);
 
@@ -73,7 +73,7 @@ if (!empty($_POST['bn_upload'])) {
     $seen_codes = array();
 
     if (is_uploaded_file($tmp_name) && $_FILES['form_file']['size']) {
-        $zipin = new ZipArchive;
+        $zipin = new ZipArchive();
         $eres = null;
         if ($zipin->open($tmp_name) === true) {
             // Must be a zip archive.

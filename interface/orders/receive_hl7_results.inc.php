@@ -1,4 +1,5 @@
 <?php
+
 /**
 * Functions to support parsing and saving hl7 results.
 *
@@ -283,7 +284,7 @@ function rhl7DecodeData($enctype, &$src)
     if ($enctype == 'Hex') {
         $data = '';
         for ($i = 0; $i < strlen($src) - 1; $i += 2) {
-            $data .= chr(hexdec($src[$i] . $src[$i+1]));
+            $data .= chr(hexdec($src[$i] . $src[$i + 1]));
         }
 
         return $data;
@@ -413,7 +414,7 @@ function match_patient($ptarr)
     if (sqlNumRows($res) > 1) {
         // Multiple matches, so ambiguous.
         $patient_id = -1;
-    } else if (sqlNumRows($res) == 1) {
+    } elseif (sqlNumRows($res) == 1) {
         // Got exactly one match, so use it.
         $tmp = sqlFetchArray($res);
         $patient_id = intval($tmp['pid']);
@@ -646,7 +647,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             // Ensoftek: Could come is as 'ORU^R01^ORU_R01'. Handle all cases when 'ORU^R01' is seen.
             if (strstr($a[8], "ORU^R01")) {
                 $msgtype = 'ORU';
-            } else if ($a[8] == 'MDM^T02' || $a[8] == 'MDM^T04' || $a[8] == 'MDM^T08') {
+            } elseif ($a[8] == 'MDM^T02' || $a[8] == 'MDM^T04' || $a[8] == 'MDM^T08') {
                 $msgtype = 'MDM';
                 $mdm_datetime = '';
                 $mdm_docname = '';
@@ -656,7 +657,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             }
 
             $in_message_id = $a[9];
-        } else if ($a[0] == 'PID') {
+        } elseif ($a[0] == 'PID') {
             $context = $a[0];
 
             if ('MDM' == $msgtype && !$dryrun) {
@@ -721,16 +722,16 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     $patient_id = 0;
                 }
             } // end results-only/MDM logic
-        } else if ('PD1' == $a[0]) {
+        } elseif ('PD1' == $a[0]) {
             // TBD: Save primary care provider name ($a[4]) somewhere?
-        } else if ('PV1' == $a[0]) {
+        } elseif ('PV1' == $a[0]) {
             if ('ORU' == $msgtype) {
                 // Save placer encounter number if present.
                 if ($direction != 'R' && !empty($a[19])) {
                     $tmp = explode($d2, $a[19]);
                     $in_encounter = intval($tmp[0]);
                 }
-            } else if ('MDM' == $msgtype) {
+            } elseif ('MDM' == $msgtype) {
                 // For documents we want the ordering provider.
                 // Try Referring Provider first.
                 $oprow = match_provider(explode($d2, $a[8]));
@@ -739,7 +740,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     $oprow = match_provider(explode($d2, $a[52]));
                 }
             }
-        } else if ('ORC' == $a[0] && 'ORU' == $msgtype) {
+        } elseif ('ORC' == $a[0] && 'ORU' == $msgtype) {
             $context = $a[0];
             $arep = array();
             $porow = false;
@@ -747,13 +748,13 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             if ($direction != 'R' && $a[2]) {
                 $in_orderid = intval($a[2]);
             }
-        } else if ('TXA' == $a[0] && 'MDM' == $msgtype) {
+        } elseif ('TXA' == $a[0] && 'MDM' == $msgtype) {
             $context = $a[0];
             $mdm_datetime = rhl7DateTime($a[4]);
             $mdm_docname = rhl7Text($a[12]);
-        } else if ($a[0] == 'NTE' && ($context == 'ORC' || $context == 'TXA')) {
+        } elseif ($a[0] == 'NTE' && ($context == 'ORC' || $context == 'TXA')) {
             // Is this ever used?
-        } else if ('OBR' == $a[0] && 'ORU' == $msgtype) {
+        } elseif ('OBR' == $a[0] && 'ORU' == $msgtype) {
             $context = $a[0];
             $arep = array();
             if ($direction != 'R' && $a[2]) {
@@ -985,10 +986,10 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $amain[$i]['rep'] = $arep;
             $amain[$i]['fid'] = $in_filler_id;
             $amain[$i]['res'] = array();
-        } else if ($a[0] == 'NTE' && $context == 'OBR') {
+        } elseif ($a[0] == 'NTE' && $context == 'OBR') {
             // Append this note to those for the most recent report.
-            $amain[count($amain)-1]['rep']['report_notes'] .= rhl7Text($a[3], true) . "\n";
-        } else if ('OBX' == $a[0] && 'ORU' == $msgtype) {
+            $amain[count($amain) - 1]['rep']['report_notes'] .= rhl7Text($a[3], true) . "\n";
+        } elseif ('OBX' == $a[0] && 'ORU' == $msgtype) {
             $tmp = explode($d2, $a[3]);
             $result_code = rhl7Text($tmp[0]);
             $result_text = rhl7Text($tmp[1]);
@@ -996,13 +997,14 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             // for its value, then treat it as an extension of that result's value.
             $i = count($amain) - 1;
             $j = count($amain[$i]['res']) - 1;
-            if ($j >= 0 && $context == 'OBX' && $a[2] == 'TX'
-            && $amain[$i]['res'][$j]['result_data_type'] == 'L'
-            && $amain[$i]['res'][$j]['result_code'     ] == $result_code
-            && $amain[$i]['res'][$j]['date'            ] == rhl7DateTime($a[14])
-            && $amain[$i]['res'][$j]['facility'        ] == rhl7Text($a[15])
-            && $amain[$i]['res'][$j]['abnormal'        ] == rhl7Abnormal($a[8])
-            && $amain[$i]['res'][$j]['result_status'   ] == rhl7ReportStatus($a[11])
+            if (
+                $j >= 0 && $context == 'OBX' && $a[2] == 'TX'
+                && $amain[$i]['res'][$j]['result_data_type'] == 'L'
+                && $amain[$i]['res'][$j]['result_code'     ] == $result_code
+                && $amain[$i]['res'][$j]['date'            ] == rhl7DateTime($a[14])
+                && $amain[$i]['res'][$j]['facility'        ] == rhl7Text($a[15])
+                && $amain[$i]['res'][$j]['abnormal'        ] == rhl7Abnormal($a[8])
+                && $amain[$i]['res'][$j]['result_status'   ] == rhl7ReportStatus($a[11])
             ) {
                 $amain[$i]['res'][$j]['comments'] =
                 substr($amain[$i]['res'][$j]['comments'], 0, strlen($amain[$i]['res'][$j]['comments']) - 1) .
@@ -1040,11 +1042,11 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
 
                     $ares['document_id'] = $d->get_id();
                 }
-            } else if ($a[2] == 'CWE') {
+            } elseif ($a[2] == 'CWE') {
                 $ares['result'] = rhl7CWE($a[5], $d2);
-            } else if ($a[2] == 'SN') {
+            } elseif ($a[2] == 'SN') {
                 $ares['result'] = trim(str_replace($d2, ' ', $a[5]));
-            } else if ($a[2] == 'TX' || strlen($a[5]) > 200) {
+            } elseif ($a[2] == 'TX' || strlen($a[5]) > 200) {
                 // OBX-5 can be a very long string of text with "~" as line separators.
                 // The first line of comments is reserved for such things.
                 $ares['result_data_type'] = 'L';
@@ -1083,8 +1085,8 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
 
             // Append this result to those for the most recent report.
             // Note the 'procedure_report_id' item is not yet present.
-            $amain[count($amain)-1]['res'][] = $ares;
-        } else if ('OBX' == $a[0] && 'MDM' == $msgtype) {
+            $amain[count($amain) - 1]['res'][] = $ares;
+        } elseif ('OBX' == $a[0] && 'MDM' == $msgtype) {
             $context = $a[0];
             if ($a[2] == 'TX') {
                 if ($mdm_text !== '') {
@@ -1095,7 +1097,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             } else {
                 return rhl7LogMsg(xl('Unsupported MDM OBX result type') . ': ' . $a[2]);
             }
-        } else if ('ZEF' == $a[0] && 'ORU' == $msgtype) {
+        } elseif ('ZEF' == $a[0] && 'ORU' == $msgtype) {
             // ZEF segment is treated like an OBX with an embedded Base64-encoded PDF.
             $context = 'OBX';
             $ares = array();
@@ -1128,22 +1130,22 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $ares['date'] = $arep['date_report']; // $arep is left over from the OBR logic.
             // Append this result to those for the most recent report.
             // Note the 'procedure_report_id' item is not yet present.
-            $amain[count($amain)-1]['res'][] = $ares;
-        } else if ('NTE' == $a[0] && 'OBX' == $context && 'ORU' == $msgtype) {
+            $amain[count($amain) - 1]['res'][] = $ares;
+        } elseif ('NTE' == $a[0] && 'OBX' == $context && 'ORU' == $msgtype) {
             // Append this note to the most recent result item's comments.
             $alast = count($amain) - 1;
             $rlast = count($amain[$alast]['res']) - 1;
             $amain[$alast]['res'][$rlast]['comments'] .= rhl7Text($a[3], true) . $commentdelim;
-        } else if ('SPM' == $a[0] && 'ORU' == $msgtype) { // Ensoftek: Get data from SPM segment for specimen.
+        } elseif ('SPM' == $a[0] && 'ORU' == $msgtype) { // Ensoftek: Get data from SPM segment for specimen.
             // SPM segment always occurs after the OBX segment.
             rhl7UpdateReportWithSpecimen($amain, $a, $d2);
-        } else if ('TQ1' == $a[0] && 'ORU' == $msgtype) { // Add code here for any other segment types that may be present.
+        } elseif ('TQ1' == $a[0] && 'ORU' == $msgtype) { // Add code here for any other segment types that may be present.
             // Ensoftek: Get data from SPM segment for specimen. Comes in with MU2 samples, but can be ignored.
             // Ignore and do nothing.
-        } else if ('NTE' == $a[0] && 'PID' == $context) {
+        } elseif ('NTE' == $a[0] && 'PID' == $context) {
             // will get orderid on save.
             $amain[0]['rep']['report_notes'] .= rhl7Text($a[3], true) . "\n";
-        } else if ('ZPS' == $a[0] && 'ORU' == $msgtype) {
+        } elseif ('ZPS' == $a[0] && 'ORU' == $msgtype) {
             //global $ares;
             $performingOrganization = parseZPS($a);
             if (!empty($performingOrganization)) {
@@ -1309,7 +1311,7 @@ function poll_hl7_results(&$info)
                     }
                 }
             } // end of this file
-        } else if ($protocol == 'FS') { // end SFTP
+        } elseif ($protocol == 'FS') { // end SFTP
             // Filesystem directory containing results files.
             $pathname = $pprow['results_path'];
             if (!($dh = opendir($pathname))) {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This report shows upcoming appointments with filtering and
  * sorting by patient, practitioner, appointment type, and date.
@@ -15,7 +16,6 @@
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
@@ -105,8 +105,8 @@ function fetch_reminders($pid, $appt_date)
     array_multisort($seq_due, SORT_DESC, $seq_cat, SORT_ASC, $seq_act, SORT_ASC, $rems_out);
     $rems = array();
     foreach ($rems_out as $ix => $rem) {
-        $rems[$rem['due_txt']] .= (isset($rems[$rem['due_txt']]) ? ', ':'').
-            $rem['act_txt'].' '.$rem['cat_txt'];
+        $rems[$rem['due_txt']] .= (isset($rems[$rem['due_txt']]) ? ', ' : '') .
+            $rem['act_txt'] . ' ' . $rem['cat_txt'];
     }
 
     return $rems;
@@ -186,7 +186,7 @@ function fetch_reminders($pid, $appt_date)
 
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Appointments'); ?></span>
 
-<div id="report_parameters_daterange"><?php echo text(oeFormatShortDate($from_date)) ." &nbsp; " . xlt('to{{Range}}') . " &nbsp; ". text(oeFormatShortDate($to_date)); ?>
+<div id="report_parameters_daterange"><?php echo text(oeFormatShortDate($from_date)) . " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatShortDate($to_date)); ?>
 </div>
 
 <form method='post' name='theform' id='theform' action='appointments_report.php' onsubmit='return top.restoreSession()'>
@@ -210,7 +210,7 @@ function fetch_reminders($pid, $appt_date)
                 // Build a drop-down list of providers.
                 //
 
-                $query = "SELECT id, lname, fname FROM users WHERE ".
+                $query = "SELECT id, lname, fname FROM users WHERE " .
                   "authorized = 1 $provider_facility_filter ORDER BY lname, fname"; //(CHEMED) facility filter
 
                 $ures = sqlStatement($query);
@@ -243,20 +243,20 @@ function fetch_reminders($pid, $appt_date)
 
             <tr>
                 <td class='col-form-label'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
-                <td><?php generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'All'), $_POST['form_apptstatus']);?></td>
+                <td><?php generate_form_field(array('data_type' => 1,'field_id' => 'apptstatus','list_id' => 'apptstat','empty_title' => 'All'), $_POST['form_apptstatus']);?></td>
                 <td><?php echo xlt('Category') #category drop down creation ?>:</td>
                 <td>
                                     <select id="form_apptcat" name="form_apptcat" class="form-control">
                                         <?php
-                                            $categories=fetchAppointmentCategories();
-                                            echo "<option value='ALL'>".xlt("All")."</option>";
-                                        while ($cat=sqlFetchArray($categories)) {
-                                            echo "<option value='".attr($cat['id'])."'";
-                                            if ($cat['id']==$_POST['form_apptcat']) {
+                                            $categories = fetchAppointmentCategories();
+                                            echo "<option value='ALL'>" . xlt("All") . "</option>";
+                                        while ($cat = sqlFetchArray($categories)) {
+                                            echo "<option value='" . attr($cat['id']) . "'";
+                                            if ($cat['id'] == $_POST['form_apptcat']) {
                                                 echo " selected='true' ";
                                             }
 
-                                            echo    ">".text(xl_appt_category($cat['category']))."</option>";
+                                            echo    ">" . text(xl_appt_category($cat['category'])) . "</option>";
                                         }
                                         ?>
                                     </select>
@@ -275,7 +275,7 @@ function fetch_reminders($pid, $appt_date)
                 <td>
                     <div class="checkbox">
                         <label><input type="checkbox" name="incl_reminders" id="incl_reminders"
-                        <?php echo ($incl_reminders ? ' checked':''); # This will include the reminder for the patients on the report ?>>
+                        <?php echo ($incl_reminders ? ' checked' : ''); # This will include the reminder for the patients on the report ?>>
                         <?php echo xlt('Show Reminders'); ?>
                         </label>
                     </div>
@@ -382,10 +382,10 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
     $lastdocname = "";
     //Appointment Status Checking
         $form_apptstatus = $_POST['form_apptstatus'];
-        $form_apptcat=null;
+        $form_apptcat = null;
     if (isset($_POST['form_apptcat'])) {
-        if ($form_apptcat!="ALL") {
-            $form_apptcat=intval($_POST['form_apptcat']);
+        if ($form_apptcat != "ALL") {
+            $form_apptcat = intval($_POST['form_apptcat']);
         }
     }
 
@@ -465,17 +465,17 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
         if ($patient_id && (!empty($rems) || !empty($appointment['pc_hometext']))) { // Not display of available slot or not showing reminders and comments empty ?>
     <tr valign='top' id='p2.<?php echo attr($patient_id) ?>' >
         <td colspan='<?php echo $showDate ? '"3"' : '"2"' ?>' class="detail"></td>
-       <td colspan='<?php echo ($incl_reminders ? "3":"6") ?>' class="detail" align='left'>
+       <td colspan='<?php echo ($incl_reminders ? "3" : "6") ?>' class="detail" align='left'>
             <?php
             if (trim($appointment['pc_hometext'])) {
-                echo '<strong>'.xlt('Comments') .'</strong>: '.text($appointment['pc_hometext']);
+                echo '<strong>' . xlt('Comments') . '</strong>: ' . text($appointment['pc_hometext']);
             }
 
             if ($incl_reminders) {
                 echo "<td class='detail' colspan='3' align='left'>";
                 $new_line = '';
                 foreach ($rems as $rem_due => $rem_items) {
-                    echo "$new_line<strong>$rem_due</strong>: ".attr($rem_items);
+                    echo "$new_line<strong>$rem_due</strong>: " . attr($rem_items);
                     $new_line = '<br />';
                 }
 

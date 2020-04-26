@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This class is responsible for shuttling SQL queries to the audit table. All
  * work is delegated to the existing SQL auditing function @see EventAuditLogger::auditSQLEvent
@@ -23,7 +24,7 @@
 
 namespace OpenEMR\Common\Database;
 
-use \Doctrine\DBAL\Logging\SQLLogger;
+use Doctrine\DBAL\Logging\SQLLogger;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\Logger;
 

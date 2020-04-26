@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/therapy_groups/therapy_groups_views/footer.php contains footer for all therapy group views.
  *
@@ -23,6 +24,7 @@
  * @author  Amiel Elboim <amielel@matrix.co.il>
  * @link    http://www.open-emr.org
  */
+
 ?>
 </body>
 </html>

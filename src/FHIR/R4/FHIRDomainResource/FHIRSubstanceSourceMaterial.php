@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -446,7 +448,7 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
                         $this->addParentSubstanceId($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"parentSubstanceId" must be array of objects or null, '.gettype($data['parentSubstanceId']).' seen.');
+                    throw new \InvalidArgumentException('"parentSubstanceId" must be array of objects or null, ' . gettype($data['parentSubstanceId']) . ' seen.');
                 }
             }
             if (isset($data['parentSubstanceName'])) {
@@ -455,7 +457,7 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
                         $this->addParentSubstanceName($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"parentSubstanceName" must be array of objects or null, '.gettype($data['parentSubstanceName']).' seen.');
+                    throw new \InvalidArgumentException('"parentSubstanceName" must be array of objects or null, ' . gettype($data['parentSubstanceName']) . ' seen.');
                 }
             }
             if (isset($data['countryOfOrigin'])) {
@@ -464,7 +466,7 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
                         $this->addCountryOfOrigin($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"countryOfOrigin" must be array of objects or null, '.gettype($data['countryOfOrigin']).' seen.');
+                    throw new \InvalidArgumentException('"countryOfOrigin" must be array of objects or null, ' . gettype($data['countryOfOrigin']) . ' seen.');
                 }
             }
             if (isset($data['geographicalLocation'])) {
@@ -473,7 +475,7 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
                         $this->addGeographicalLocation($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"geographicalLocation" must be array of objects or null, '.gettype($data['geographicalLocation']).' seen.');
+                    throw new \InvalidArgumentException('"geographicalLocation" must be array of objects or null, ' . gettype($data['geographicalLocation']) . ' seen.');
                 }
             }
             if (isset($data['developmentStage'])) {
@@ -485,7 +487,7 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
                         $this->addFractionDescription($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"fractionDescription" must be array of objects or null, '.gettype($data['fractionDescription']).' seen.');
+                    throw new \InvalidArgumentException('"fractionDescription" must be array of objects or null, ' . gettype($data['fractionDescription']) . ' seen.');
                 }
             }
             if (isset($data['organism'])) {
@@ -497,11 +499,11 @@ class FHIRSubstanceSourceMaterial extends FHIRDomainResource implements \JsonSer
                         $this->addPartDescription($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"partDescription" must be array of objects or null, '.gettype($data['partDescription']).' seen.');
+                    throw new \InvalidArgumentException('"partDescription" must be array of objects or null, ' . gettype($data['partDescription']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

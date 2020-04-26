@@ -1,4 +1,5 @@
 <?php
+
 /*
  * The functions of this class support the billing process like the script billing_process.php.
  *
@@ -1599,7 +1600,7 @@ class BillingUtilities
 
             sqlStatement($sql, $sqlBindArray);
             sqlCommitTrans();
-        } else if ($claimset) { // Otherwise update the existing claim row.
+        } elseif ($claimset) { // Otherwise update the existing claim row.
             $sqlBindArray = $sqlBindClaimset;
             array_push($sqlBindArray, $patient_id, $encounter_id, $row['version']);
             $claimset = substr($claimset, 2);
@@ -1746,7 +1747,7 @@ class BillingUtilities
             if (!empty($corow['bill_date'])) {
                 $date_original = $corow['bill_date'];
             }
-        } else if ($time == 'all') {
+        } elseif ($time == 'all') {
             $row = sqlQuery(
                 "SELECT SUM(pay_amount) AS payments, " .
                 "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
@@ -1849,7 +1850,7 @@ class BillingUtilities
                 "WHERE pid = ? AND encounter = ?",
                 array($patient_id, $encounter_id)
             );
-        } else if ($usingirnpools) {
+        } elseif ($usingirnpools) {
             // Non-purge means just assign a new invoice reference number.
             $new_invoice_refno = self::updateInvoiceRefNumber();
             sqlStatement(

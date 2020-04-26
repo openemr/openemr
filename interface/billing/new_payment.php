@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This screen handles the cash/cheque entry and its distribution to various charges.
  *
@@ -16,7 +17,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
 require_once("$srcdir/auth.inc");
 require_once("../../custom/code_types.inc.php");
@@ -29,7 +29,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
 //===============================================================================
-    $screen='new_payment';
+    $screen = 'new_payment';
 //===============================================================================
 // Initialisations
 $mode                    = isset($_POST['mode'])                   ? $_POST['mode']                   : '';
@@ -43,22 +43,22 @@ $hidden_type_code        = isset($_REQUEST['hidden_type_code']) ? $_REQUEST['hid
 //===============================================================================
 
 if ($mode == "new_payment" || $mode == "distribute") {
-    if (trim($_POST['type_name'])=='insurance') {
-        $QueryPart="payer_id = '" . add_escape_custom($hidden_type_code) . "', patient_id = '0" ;
-    } elseif (trim($_POST['type_name'])=='patient') {
-        $QueryPart="payer_id = '0', patient_id = '" .add_escape_custom($hidden_type_code);
+    if (trim($_POST['type_name']) == 'insurance') {
+        $QueryPart = "payer_id = '" . add_escape_custom($hidden_type_code) . "', patient_id = '0" ;
+    } elseif (trim($_POST['type_name']) == 'patient') {
+        $QueryPart = "payer_id = '0', patient_id = '" . add_escape_custom($hidden_type_code);
     }
-      $user_id=$_SESSION['authUserID'];
-      $closed=0;
+      $user_id = $_SESSION['authUserID'];
+      $closed = 0;
       $modified_time = date('Y-m-d H:i:s');
-      $check_date=DateToYYYYMMDD(formData('check_date'));
-      $deposit_date=DateToYYYYMMDD(formData('deposit_date'));
-      $post_to_date=DateToYYYYMMDD(formData('post_to_date'));
-    if ($post_to_date=='') {
-        $post_to_date=date('Y-m-d');
+      $check_date = DateToYYYYMMDD(formData('check_date'));
+      $deposit_date = DateToYYYYMMDD(formData('deposit_date'));
+      $post_to_date = DateToYYYYMMDD(formData('post_to_date'));
+    if ($post_to_date == '') {
+        $post_to_date = date('Y-m-d');
     }
-    if ($_POST['deposit_date']=='') {
-        $deposit_date=$post_to_date;
+    if ($_POST['deposit_date'] == '') {
+        $deposit_date = $post_to_date;
     }
       $payment_id = sqlInsert("insert into ar_session set "    .
         $QueryPart .
@@ -81,19 +81,19 @@ if ($mode == "new_payment" || $mode == "distribute") {
 //ar_activity addition code
 //===============================================================================
 if ($mode == "PostPayments" || $mode == "FinishPayments") {
-    $user_id=$_SESSION['authUserID'];
+    $user_id = $_SESSION['authUserID'];
     $created_time = date('Y-m-d H:i:s');
-    for ($CountRow=1;; $CountRow++) {
+    for ($CountRow = 1;; $CountRow++) {
         if (isset($_POST["HiddenEncounter$CountRow"])) {
             DistributionInsert($CountRow, $created_time, $user_id);
         } else {
             break;
         }
     }
-    if ($_REQUEST['global_amount']=='yes') {
+    if ($_REQUEST['global_amount'] == 'yes') {
         sqlStatement("update ar_session set global_amount=? where session_id =?", [(isset($_POST["HidUnappliedAmount"]) ? trim($_POST["HidUnappliedAmount"]) : ''), $payment_id]);
     }
-    if ($mode=="FinishPayments") {
+    if ($mode == "FinishPayments") {
         header("Location: edit_payment.php?payment_id=" . urlencode($payment_id) . "&ParentPage=new_payment");
         die();
     }
@@ -103,7 +103,7 @@ if ($mode == "PostPayments" || $mode == "FinishPayments") {
 
 //==============================================================================
 //===============================================================================
-$payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
+$payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
 //===============================================================================
 
 //==============================================================================
@@ -370,7 +370,7 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
             <div class="col-sm-12">
                 <form action="new_payment.php" id="new_payment" method='post' name='new_payment' onsubmit="
                 <?php
-                if ($payment_id*1==0) {
+                if ($payment_id * 1 == 0) {
                     echo 'top.restoreSession();';
                 } else {
                     echo 'return false;';
@@ -381,20 +381,20 @@ $payment_id=$payment_id*1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                         ?>
                         <br />
                         <?php
-                        if ($payment_id*1>0) {
+                        if ($payment_id * 1 > 0) {
                             ?>
                             <?php
-                            if ($PaymentType=='patient' && $default_search_patient != "default_search_patient") {
+                            if ($PaymentType == 'patient' && $default_search_patient != "default_search_patient") {
                                 $default_search_patient = "default_search_patient";
                                 $_POST['default_search_patient'] = $default_search_patient;
-                                $hidden_patient_code=$TypeCode;
-                                $_REQUEST['hidden_patient_code']=$hidden_patient_code;
-                                $_REQUEST['RadioPaid']='Show_Paid';
+                                $hidden_patient_code = $TypeCode;
+                                $_REQUEST['hidden_patient_code'] = $hidden_patient_code;
+                                $_REQUEST['RadioPaid'] = 'Show_Paid';
                             }
                                 require_once("payment_pat_sel.inc.php"); //Patient ajax section and listing of charges.
                             ?>
                             <?php
-                            if ($CountIndexBelow>0) {
+                            if ($CountIndexBelow > 0) {
                                 ?>
                                 <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
                             <br />

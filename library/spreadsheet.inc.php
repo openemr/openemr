@@ -1,4 +1,5 @@
 <?php
+
 /**
  * spreadsheet.inc.php
  *
@@ -81,7 +82,7 @@ if ($tempid) {
     $trow = sqlQuery("SELECT value FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
     " WHERE id = ? AND rownbr = -1 AND colnbr = -1", array($tempid));
     $template_name = $trow['value'];
-} else if ($formid) {
+} elseif ($formid) {
     $trow = sqlQuery("SELECT value FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
     " WHERE id = ? AND rownbr = -1 AND colnbr = -1", array($formid));
     list($form_completed, $start_date, $template_name) = explode('|', $trow['value'], 3);
@@ -151,7 +152,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
             }
 
             sqlStatement(
-                "INSERT INTO " . escape_table_name('form_' .$spreadsheet_form_name) . " ( " .
+                "INSERT INTO " . escape_table_name('form_' . $spreadsheet_form_name) . " ( " .
                 "id, rownbr, colnbr, datatype, value " .
                 ") VALUES ( ?, -1, -1, 0, ? )",
                 array(
@@ -244,7 +245,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
             }
         }
     }
-} else if ($_POST['bn_delete_template'] && $tempid) {
+} elseif ($_POST['bn_delete_template'] && $tempid) {
     sqlStatement(
         "DELETE FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
         " WHERE id = ?",
@@ -281,7 +282,7 @@ if ($formid) {
     );
     $num_used_rows = $tmprow['rowmax'] + 1;
     $num_used_cols = $tmprow['colmax'] + 1;
-} else if ($tempid) { // Otherwise if we are editing a template, get it.
+} elseif ($tempid) { // Otherwise if we are editing a template, get it.
     $dres = sqlStatement(
         "SELECT * FROM " . escape_table_name('form_' . $spreadsheet_form_name) .
         " WHERE id = ? ORDER BY rownbr, colnbr",
@@ -624,8 +625,10 @@ if ($popup) {
 <?php
 while ($trow = sqlFetchArray($tres)) {
     echo "    <option value='" . attr($trow['id']) . "'";
-    if ($tempid && $tempid == $trow['id'] ||
-    $formid && $template_name == $trow['value']) {
+    if (
+        $tempid && $tempid == $trow['id'] ||
+        $formid && $template_name == $trow['value']
+    ) {
         echo " selected";
     }
 
@@ -715,18 +718,18 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
         if ($celltype == '1') {
             // So we don't have to write a PHP version of genStatic():
             echo "<script language='JavaScript'>document.write(genStatic('$cellstatic'));</script>";
-        } else if ($celltype == '2') {
+        } elseif ($celltype == '2') {
             echo "<input type='checkbox' value='1' onclick='cbClick(this,$i,$j)'";
             if ($cellvalue) {
                 echo " checked";
             }
 
             echo " />";
-        } else if ($celltype == '3') {
+        } elseif ($celltype == '3') {
             echo "<input type='text' class='intext' onchange='textChange(this,$i,$j)'";
             echo " value='" . attr($cellvalue) . "'";
             echo " size='12' />";
-        } else if ($celltype == '4') {
+        } elseif ($celltype == '4') {
             echo "<textarea rows='3' cols='25' wrap='virtual' class='intext' " .
             "onchange='longChange(this,$i,$j)'>";
             echo text($cellvalue);

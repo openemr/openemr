@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCoverageEligibilityRequest;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCoverageEligibilityRequest;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -352,7 +354,7 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
                         $this->addSupportingInfoSequence($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"supportingInfoSequence" must be array of objects or null, '.gettype($data['supportingInfoSequence']).' seen.');
+                    throw new \InvalidArgumentException('"supportingInfoSequence" must be array of objects or null, ' . gettype($data['supportingInfoSequence']) . ' seen.');
                 }
             }
             if (isset($data['category'])) {
@@ -367,7 +369,7 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
                         $this->addModifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"modifier" must be array of objects or null, '.gettype($data['modifier']).' seen.');
+                    throw new \InvalidArgumentException('"modifier" must be array of objects or null, ' . gettype($data['modifier']) . ' seen.');
                 }
             }
             if (isset($data['provider'])) {
@@ -388,7 +390,7 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
                         $this->addDiagnosis($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"diagnosis" must be array of objects or null, '.gettype($data['diagnosis']).' seen.');
+                    throw new \InvalidArgumentException('"diagnosis" must be array of objects or null, ' . gettype($data['diagnosis']) . ' seen.');
                 }
             }
             if (isset($data['detail'])) {
@@ -397,11 +399,11 @@ class FHIRCoverageEligibilityRequestItem extends FHIRBackboneElement implements 
                         $this->addDetail($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"detail" must be array of objects or null, '.gettype($data['detail']).' seen.');
+                    throw new \InvalidArgumentException('"detail" must be array of objects or null, ' . gettype($data['detail']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

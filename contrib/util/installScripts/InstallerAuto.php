@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This script is for automatic installation and configuration
  *   of OpenEMR.
@@ -73,12 +74,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 // This exit is to avoid malicious use of this script.
 exit;
 
 // Include standard libraries/classes
-require_once dirname(__FILE__) .'/../../../vendor/autoload.php';
+require_once dirname(__FILE__) . '/../../../vendor/autoload.php';
 
 // Set up default configuration settings
 $installSettings = array();
@@ -102,7 +102,7 @@ $installSettings['no_root_db_access']        = 'BLANK';
 $installSettings['development_translations'] = 'BLANK';
 
 // Collect parameters(if exist) for installation configuration settings
-for ($i=1; $i < count($argv); $i++) {
+for ($i = 1; $i < count($argv); $i++) {
     $indexandvalue = explode("=", $argv[$i]);
     $index = $indexandvalue[0];
     $value = $indexandvalue[1];

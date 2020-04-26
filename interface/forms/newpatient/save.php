@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Encounter form save script.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/forms.inc");
@@ -95,7 +95,7 @@ if ($mode == 'new') {
         $userauthorized,
         $date
     );
-} else if ($mode == 'update') {
+} elseif ($mode == 'update') {
     $id = $_POST["id"];
     $result = sqlQuery("SELECT encounter, sensitivity FROM form_encounter WHERE id = ?", array($id));
     if ($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) {
@@ -153,7 +153,7 @@ if (is_array($_POST['issues'])) {
     }
 }
 
-$result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe ".
+$result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
     " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($pid));
 ?>
 <html>
@@ -164,7 +164,7 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
     EncounterIdArray=new Array;
     Count=0;
         <?php
-        if (sqlNumRows($result4)>0) {
+        if (sqlNumRows($result4) > 0) {
             while ($rowresult4 = sqlFetchArray($result4)) {
                 ?>
         EncounterIdArray[Count]=<?php echo js_escape($rowresult4['encounter']); ?>;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * login_screen.php
  *
@@ -9,8 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-$ignoreAuth=true;
+$ignoreAuth = true;
 require_once("./globals.php");
 ?>
 <html>

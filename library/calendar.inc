@@ -1,6 +1,7 @@
 <?php
+
 //Require once the holidays controller for the is_holiday() function
-require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
+require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
 
 function getIDfromUser($name)
 {

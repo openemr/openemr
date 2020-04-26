@@ -65,7 +65,7 @@ function rbcell($name, $value, $desc, $colname)
 function cbinput($name, $colname)
 {
     global $row;
-    $ret  = "<input type='checkbox' name='" .attr($name) . "' value='1'";
+    $ret  = "<input type='checkbox' name='" . attr($name) . "' value='1'";
     if ($row[$colname]) {
         $ret .= " checked";
     }
@@ -94,7 +94,7 @@ if ($_POST['bn_save']) {
     $simech_other = '';
     if ($_POST['activity'] == '7') {
         $simech_other = $_POST['activity_other'];
-    } else if ($_POST['activity'] == '23') {
+    } elseif ($_POST['activity'] == '23') {
         $simech_other = $_POST['activity_nc_other'];
     }
 

@@ -38,7 +38,7 @@ $alertmsg = '';
 $where = '';
 $eraname = '';
 $eracount = 0;
-$Processed=0;
+$Processed = 0;
 function era_callback(&$out)
 {
     global $where, $eracount, $eraname;
@@ -64,18 +64,18 @@ if ($_FILES['form_erafile']['size']) {
     // Handle .zip extension if present.  Probably won't work on Windows.
     if (strtolower(substr($_FILES['form_erafile']['name'], -4)) == '.zip') {
         rename($tmp_name, "$tmp_name.zip");
-        exec("unzip -p " . escapeshellarg($tmp_name.".zip") . " > " . escapeshellarg($tmp_name));
+        exec("unzip -p " . escapeshellarg($tmp_name . ".zip") . " > " . escapeshellarg($tmp_name));
         unlink("$tmp_name.zip");
     }
     $alertmsg .= ParseERA::parse_era($tmp_name, 'era_callback');
     $erafullname = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi";
     if (is_file($erafullname)) {
-        $alertmsg .=  xl("Warning").': '. xl("Set").' '.$eraname.' '. xl("was already uploaded").' ';
+        $alertmsg .=  xl("Warning") . ': ' . xl("Set") . ' ' . $eraname . ' ' . xl("was already uploaded") . ' ';
         if (is_file($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.html")) {
-            $Processed=1;
-            $alertmsg .=  xl("and processed.").' ';
+            $Processed = 1;
+            $alertmsg .=  xl("and processed.") . ' ';
         } else {
-            $alertmsg .=  xl("but not yet processed.").' ';
+            $alertmsg .=  xl("but not yet processed.") . ' ';
         };
     }
     rename($tmp_name, $erafullname);
@@ -123,7 +123,7 @@ if ($_FILES['form_erafile']['size']) {
         if ($_FILES['form_erafile']['size']) {
             ?>
             var f = document.forms[0];
-            var debug = <?php echo js_escape($_REQUEST['form_without']*1); ?> ;
+            var debug = <?php echo js_escape($_REQUEST['form_without'] * 1); ?> ;
          var paydate = f.check_date.value;
          var post_to_date = f.post_to_date.value;
          var deposit_date = f.deposit_date.value;

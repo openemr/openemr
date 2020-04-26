@@ -1,4 +1,5 @@
 <?php
+
 /**
  * print_referral.php
  *
@@ -61,7 +62,7 @@ $TEMPLATE_LABELS = array(
 );
 
 if (!is_file($template_file)) {
-    die(text($template_file). " does not exist!");
+    die(text($template_file) . " does not exist!");
 }
 
 $transid = empty($_REQUEST['transid']) ? 0 : $_REQUEST['transid'] + 0;
@@ -122,7 +123,7 @@ if (empty($torow)) {
 
 $vrow = sqlQuery("SELECT * FROM form_vitals WHERE " .
   "pid = ? AND date <= ? " .
-  "ORDER BY date DESC LIMIT 1", array($patient_id, $refer_date." 23:59:59"));
+  "ORDER BY date DESC LIMIT 1", array($patient_id, $refer_date . " 23:59:59"));
 if (empty($vrow)) {
     $vrow = array(
     'bps' => '',
@@ -192,7 +193,7 @@ while ($frow = sqlFetchArray($fres)) {
 
 foreach ($patdata as $key => $value) {
     if ($key == "sex") {
-        $s = str_replace("{pt_$key}", generate_display_field(array('data_type'=>'1','list_id'=>'sex'), $value), $s);
+        $s = str_replace("{pt_$key}", generate_display_field(array('data_type' => '1','list_id' => 'sex'), $value), $s);
     } else {
         $s = str_replace("{pt_$key}", text($value), $s);
     }
@@ -211,7 +212,7 @@ foreach ($vrow as $key => $value) {
 }
 
 foreach ($TEMPLATE_LABELS as $key => $value) {
-    $s = str_replace("{".$key."}", $value, $s);
+    $s = str_replace("{" . $key . "}", $value, $s);
 }
 
 foreach ($insurancedata as $key => $value) {

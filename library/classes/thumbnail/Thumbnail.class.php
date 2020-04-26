@@ -1,4 +1,5 @@
 <?php
+
 /**
  * library/classes/thumbnail/Thumbnail.class.php Make thumbnail file using PHP GD functions.
  *

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Encounter form to track any clinical parameter.
  *

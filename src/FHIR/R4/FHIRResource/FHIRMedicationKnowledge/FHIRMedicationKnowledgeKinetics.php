@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationKnowledge;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -170,7 +172,7 @@ class FHIRMedicationKnowledgeKinetics extends FHIRBackboneElement implements \Js
                         $this->addAreaUnderCurve($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"areaUnderCurve" must be array of objects or null, '.gettype($data['areaUnderCurve']).' seen.');
+                    throw new \InvalidArgumentException('"areaUnderCurve" must be array of objects or null, ' . gettype($data['areaUnderCurve']) . ' seen.');
                 }
             }
             if (isset($data['lethalDose50'])) {
@@ -179,14 +181,14 @@ class FHIRMedicationKnowledgeKinetics extends FHIRBackboneElement implements \Js
                         $this->addLethalDose50($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"lethalDose50" must be array of objects or null, '.gettype($data['lethalDose50']).' seen.');
+                    throw new \InvalidArgumentException('"lethalDose50" must be array of objects or null, ' . gettype($data['lethalDose50']) . ' seen.');
                 }
             }
             if (isset($data['halfLifePeriod'])) {
                 $this->setHalfLifePeriod($data['halfLifePeriod']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

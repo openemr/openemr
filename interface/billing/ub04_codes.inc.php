@@ -1,4 +1,5 @@
 <?php
+
 $ub04_codes = array(
   array('id' => '1','code_group' => 'revenue_code','code' => '0001','desc' => 'Total Charge','desc1' => '','desc2' => '','desc3' => ''),
   array('id' => '2','code_group' => 'revenue_code','code' => '0022','desc' => 'HIPPS','desc1' => '','desc2' => '','desc3' => ''),

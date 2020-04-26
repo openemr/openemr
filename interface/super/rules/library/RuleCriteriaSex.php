@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/controllers/edit/helper/common.php
  *

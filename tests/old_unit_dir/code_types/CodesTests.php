@@ -1,5 +1,5 @@
 <?php
-$GLOBALS['OE_SITE_DIR']="/var/www/openemr/sites/default";
+$GLOBALS['OE_SITE_DIR'] = "/var/www/openemr/sites/default";
 set_include_path(get_include_path() . PATH_SEPARATOR . "/var/www/openemr");
 require_once("library/sql.inc");
 require_once("library/htmlspecialchars.inc.php");
@@ -9,9 +9,9 @@ require_once("custom/code_types.inc.php");
 function search_test($type, $string, $mode = 'default', $return_only_one = false)
 {
     echo "<ol>";
-    $res=code_set_search($type, $string, false, true, $return_only_one, 0, 10, array(), null, $mode);
+    $res = code_set_search($type, $string, false, true, $return_only_one, 0, 10, array(), null, $mode);
     while ($code = sqlFetchArray($res)) {
-        echo "<li>". $code['code_type_name'].":".$code['code'].":".$code['code_text'].":".$code['code_text_short']."</li>";
+        echo "<li>" . $code['code_type_name'] . ":" . $code['code'] . ":" . $code['code_text'] . ":" . $code['code_text_short'] . "</li>";
     }
     echo "</ol>";
 }

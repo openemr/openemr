@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Formatting library.
  *
@@ -37,7 +38,7 @@ function oeFormatShortDate($date = 'today', $showYear = true)
         // assume input is yyyy-mm-dd
         if ($GLOBALS['date_display_format'] == 1) {      // mm/dd/yyyy, note year is added below
             $newDate = substr($date, 5, 2) . '/' . substr($date, 8, 2);
-        } else if ($GLOBALS['date_display_format'] == 2) { // dd/mm/yyyy, note year is added below
+        } elseif ($GLOBALS['date_display_format'] == 2) { // dd/mm/yyyy, note year is added below
             $newDate = substr($date, 8, 2) . '/' . substr($date, 5, 2);
         }
 
@@ -46,7 +47,7 @@ function oeFormatShortDate($date = 'today', $showYear = true)
             if ($showYear) {
                 $newDate .= '/' . substr($date, 0, 4);
             }
-        } else if (!$showYear) { // $GLOBALS['date_display_format'] == 0
+        } elseif (!$showYear) { // $GLOBALS['date_display_format'] == 0
             // need to remove the year
             $newDate = substr($date, 5, 2) . '-' . substr($date, 8, 2);
         } else { // $GLOBALS['date_display_format'] == 0
@@ -122,7 +123,7 @@ function oeTimestampFormatDateTime($timestamp)
 
     if ($GLOBALS['date_display_format'] == 1) { // mm/dd/yyyy
         $newDate = date('m/d/Y ' . $timeFormat, $timestamp);
-    } else if ($GLOBALS['date_display_format'] == 2) { // dd/mm/yyyy
+    } elseif ($GLOBALS['date_display_format'] == 2) { // dd/mm/yyyy
         $newDate = date('d/m/Y ' . $timeFormat, $timestamp);
     } else { // yyyy-mm-dd
         $newDate = date('Y-m-d ' . $timeFormat, $timestamp);
@@ -168,7 +169,7 @@ function DateFormatRead($mode = 'legacy')
     //For the 3 supported date format,the javascript code also should be twicked to display the date as per it.
     //Output of this function is given to 'ifFormat' parameter of the 'Calendar.setup'.
     //This will show the date as per the global settings.
-    if ($GLOBALS['date_display_format']==0) {
+    if ($GLOBALS['date_display_format'] == 0) {
         if ($mode == 'legacy') {
             return "%Y-%m-%d";
         } elseif ($mode == 'validateJS') {
@@ -176,7 +177,7 @@ function DateFormatRead($mode = 'legacy')
         } else { //$mode=='jquery-datetimepicker'
             return "Y-m-d";
         }
-    } else if ($GLOBALS['date_display_format']==1) {
+    } elseif ($GLOBALS['date_display_format'] == 1) {
         if ($mode == 'legacy') {
             return "%m/%d/%Y";
         } elseif ($mode == 'validateJS') {
@@ -184,7 +185,7 @@ function DateFormatRead($mode = 'legacy')
         } else { //$mode=='jquery-datetimepicker'
             return "m/d/Y";
         }
-    } else if ($GLOBALS['date_display_format']==2) {
+    } elseif ($GLOBALS['date_display_format'] == 2) {
         if ($mode == 'legacy') {
             return "%d/%m/%Y";
         } elseif ($mode == 'validateJS') {
@@ -200,20 +201,20 @@ function DateToYYYYMMDD($DateValue)
     //With the help of function DateFormatRead() now the user can enter date is any of the 3 formats depending upon the global setting.
     //But in database the date can be stored only in the yyyy-mm-dd format.
     //This function accepts a date in any of the 3 formats, and as per the global setting, converts it to the yyyy-mm-dd format.
-    if (trim($DateValue)=='') {
+    if (trim($DateValue) == '') {
         return '';
     }
 
-    if ($GLOBALS['date_display_format']==0) {
+    if ($GLOBALS['date_display_format'] == 0) {
         return $DateValue;
-    } else if ($GLOBALS['date_display_format']==1 || $GLOBALS['date_display_format']==2) {
-        $DateValueArray=explode('/', $DateValue);
-        if ($GLOBALS['date_display_format']==1) {
-            return $DateValueArray[2].'-'.$DateValueArray[0].'-'.$DateValueArray[1];
+    } elseif ($GLOBALS['date_display_format'] == 1 || $GLOBALS['date_display_format'] == 2) {
+        $DateValueArray = explode('/', $DateValue);
+        if ($GLOBALS['date_display_format'] == 1) {
+            return $DateValueArray[2] . '-' . $DateValueArray[0] . '-' . $DateValueArray[1];
         }
 
-        if ($GLOBALS['date_display_format']==2) {
-            return $DateValueArray[2].'-'.$DateValueArray[1].'-'.$DateValueArray[0];
+        if ($GLOBALS['date_display_format'] == 2) {
+            return $DateValueArray[2] . '-' . $DateValueArray[1] . '-' . $DateValueArray[0];
         }
     }
 }
@@ -223,7 +224,7 @@ function TimeToHHMMSS($TimeValue)
     //For now, just return the $TimeValue, since input fields are not formatting time.
     // This can be upgraded if decided to format input time fields.
 
-    if (trim($TimeValue)=='') {
+    if (trim($TimeValue) == '') {
         return '';
     }
 

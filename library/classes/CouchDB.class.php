@@ -1,4 +1,5 @@
 <?php
+
 // +-----------------------------------------------------------------------------+
 // Copyright (C) 2012 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
@@ -52,14 +53,14 @@ class CouchDB
 
     function createDB($db)
     {
-        $resp = $this->send("PUT", "/".$db);
+        $resp = $this->send("PUT", "/" . $db);
         return true;
     }
 
     function createView($db)
     {
 
-        $resp = $this->send("PUT", "/".$db."/_design/FilteringViews", '{"_id":"_design/FilteringViews","views": {"FilterPid": {"map": "function(doc) { if(doc.pid){emit(doc._id, doc);} }"},
+        $resp = $this->send("PUT", "/" . $db . "/_design/FilteringViews", '{"_id":"_design/FilteringViews","views": {"FilterPid": {"map": "function(doc) { if(doc.pid){emit(doc._id, doc);} }"},
                                                                                                                 "FilterEncounter": {"map": "function(doc) { if(doc.encounter){emit(doc._id, doc);} }"},
                                                                                                                 "FilterPidEncounter": {"map": "function(doc) { if(doc.pid && doc.encounter){emit(doc._id, doc);} }"}}}');
         return json_decode($resp);
@@ -78,7 +79,7 @@ class CouchDB
             $couch_json['th_data'] = $th_json;
         }
 
-        $resp = $this->send("PUT", "/".$db."/".$docid, json_encode($couch_json));
+        $resp = $this->send("PUT", "/" . $db . "/" . $docid, json_encode($couch_json));
         return json_decode($resp);
     }
 
@@ -96,20 +97,20 @@ class CouchDB
             $couch_json['th_data'] = $th_json;
         }
 
-        $resp = $this->send("PUT", "/".$db."/".$docid, json_encode($couch_json));
+        $resp = $this->send("PUT", "/" . $db . "/" . $docid, json_encode($couch_json));
         return json_decode($resp);
     }
 
     function DeleteDoc($db, $docid, $revid)
     {
-        $resp = $this->send("DELETE", "/".$db."/".$docid."?rev=".$revid);
+        $resp = $this->send("DELETE", "/" . $db . "/" . $docid . "?rev=" . $revid);
         return true;
     }
 
     function retrieve_doc($data)
     {
         list($db,$docid) = $data;
-        $resp = $this->send("GET", "/".$db."/".$docid);
+        $resp = $this->send("GET", "/" . $db . "/" . $docid);
         return json_decode($resp); // string(47) "{"_id":"123","_rev":"2039697587","data":"Foo"}"
     }
 
@@ -148,11 +149,11 @@ class CouchDB
         $request = "$method $url HTTP/1.0\r\nHost: $this->host\r\n";
 
         if ($this->user) {
-            $request .= 'Authorization: Basic '.base64_encode($this->user.':'.$this->pass)."\r\n";
+            $request .= 'Authorization: Basic ' . base64_encode($this->user . ':' . $this->pass) . "\r\n";
         }
 
         if ($post_data) {
-            $request .= "Content-Length: ".strlen($post_data)."\r\n\r\n";
+            $request .= "Content-Length: " . strlen($post_data) . "\r\n\r\n";
             $request .= "$post_data\r\n";
         } else {
             $request .= "\r\n";

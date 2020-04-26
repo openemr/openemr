@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Functional cognitive status form report.php.
  *
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc");
@@ -44,7 +44,7 @@ function functional_cognitive_status_report($pid, $encounter, $cols, $id)
                 <td style='border:1px solid #ccc;padding:4px;'><span class=text><?php echo text($value['codetext']); ?></span></td>
                 <td style='border:1px solid #ccc;padding:4px;'><span class=text><?php echo text($value['description']); ?></span></td>
                 <td style='border:1px solid #ccc;padding:4px;'><span class=text><?php echo text($value['date']); ?></span></td>
-                <td style='border:1px solid #ccc;padding:4px;'><span class=text><?php echo ($value['activity'] == 1)? xlt('Yes'): xlt('No'); ?></span></td>
+                <td style='border:1px solid #ccc;padding:4px;'><span class=text><?php echo ($value['activity'] == 1) ? xlt('Yes') : xlt('No'); ?></span></td>
             </tr>
                 <?php
             }

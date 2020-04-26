@@ -88,7 +88,7 @@ class CreditCardUtil
         $sum = 0;
         $last = strlen($str) - 1;
         
-        for ($i = 0; $i <= $last; $i ++) {
+        for ($i = 0; $i <= $last; $i++) {
             $sum += $map [$str [$last - $i] + ($i & 1) * 10];
         }
         

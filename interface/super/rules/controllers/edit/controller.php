@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/controllers/edit/controller.php
  *
@@ -146,14 +147,14 @@ class Controller_edit extends BaseController
         $search = _get('q');
         $codes = $this->getCodeManager()->search($search);
         foreach ($codes as $code) {
-            echo text($code->display()) . "|". text($code->id) . "\n";
+            echo text($code->display()) . "|" . text($code->id) . "\n";
         }
     }
 
     function _action_categories()
     {
         $stmts = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = 'rule_action_category' AND activity = 1");
-        for ($iter=0; $row=sqlFetchArray($stmts); $iter++) {
+        for ($iter = 0; $row = sqlFetchArray($stmts); $iter++) {
             $columns[] = array( "code" => $row['option_id'], "lbl" => xl_list_label($row['title']) );
         }
 
@@ -163,7 +164,7 @@ class Controller_edit extends BaseController
     function _action_items()
     {
         $stmts = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = 'rule_action' AND activity = 1");
-        for ($iter=0; $row=sqlFetchArray($stmts); $iter++) {
+        for ($iter = 0; $row = sqlFetchArray($stmts); $iter++) {
             $columns[] = array( "code" => $row['option_id'], "lbl" => xl_list_label($row['title']) );
         }
 
@@ -175,7 +176,7 @@ class Controller_edit extends BaseController
         $columns = array();
         $table = _get('table');
         $stmts = sqlStatement("SHOW COLUMNS FROM " . escape_table_name($table));
-        for ($iter=0; $row=sqlFetchArray($stmts); $iter++) {
+        for ($iter = 0; $row = sqlFetchArray($stmts); $iter++) {
             $columns[] = $row['Field'];
         }
 

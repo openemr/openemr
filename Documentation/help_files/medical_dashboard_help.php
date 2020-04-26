@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Medical Dashboard Help.
  *

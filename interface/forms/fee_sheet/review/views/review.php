@@ -1,4 +1,5 @@
 <?php
+
 /**
  * knockoutjs template for rendering review of old fee sheets.
  *
@@ -10,6 +11,7 @@
  * @copyright Copyright (c) 2019 bradymiller <bradymiller@users.sourceforge.net>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 <script type="text/html" id="review-display">
     <link rel="stylesheet" href="<?php echo $web_root;?>/interface/forms/fee_sheet/review/views/review.css" type="text/css" />

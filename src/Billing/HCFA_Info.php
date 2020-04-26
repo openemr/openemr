@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Helper class to manage rows and columns for the information on
  * the HCFA 1500 02/12 claim form.
@@ -31,10 +32,10 @@ class HCFA_Info
      */
     public function __construct($row, $column, $width, $info)
     {
-        $this->row=$row;
-        $this->column=$column;
-        $this->width=$width;
-        $this->info=$info;
+        $this->row = $row;
+        $this->column = $column;
+        $this->width = $width;
+        $this->info = $info;
     }
     
     /**
@@ -68,7 +69,7 @@ class HCFA_Info
      */
     private function get_position()
     {
-        return $this->row*100+$this->column;
+        return $this->row * 100 + $this->column;
     }
 
     /**
@@ -87,6 +88,6 @@ class HCFA_Info
             return 0;
         }
 
-        return $first_value<$second_value ? -1 : 1;
+        return $first_value < $second_value ? -1 : 1;
     }
 }

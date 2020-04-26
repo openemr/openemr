@@ -1,4 +1,5 @@
 <?php
+
 /**
  * RandomGenUtils class.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 namespace OpenEMR\Common\Utils;
 
@@ -85,10 +85,12 @@ class RandomGenUtils
                 error_log('OpenEMR Error : OpenEMR is not working because unable to create a random unique token.');
                 die("OpenEMR Error : OpenEMR is not working because unable to create a random unique token.");
             }
-            if (preg_match('/[A-Z]/', $the_password) &&
+            if (
+                preg_match('/[A-Z]/', $the_password) &&
                 preg_match('/[a-z]/', $the_password) &&
                 preg_match('/[0-9]/', $the_password) &&
-                preg_match('/[@#$%]/', $the_password)) {
+                preg_match('/[@#$%]/', $the_password)
+            ) {
                 // Password passes criteria
                 $success = true;
             }

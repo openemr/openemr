@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRElement;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRElement;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -284,7 +286,7 @@ class FHIRHumanName extends FHIRElement implements \JsonSerializable
                         $this->addGiven($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"given" must be array of objects or null, '.gettype($data['given']).' seen.');
+                    throw new \InvalidArgumentException('"given" must be array of objects or null, ' . gettype($data['given']) . ' seen.');
                 }
             }
             if (isset($data['prefix'])) {
@@ -293,7 +295,7 @@ class FHIRHumanName extends FHIRElement implements \JsonSerializable
                         $this->addPrefix($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"prefix" must be array of objects or null, '.gettype($data['prefix']).' seen.');
+                    throw new \InvalidArgumentException('"prefix" must be array of objects or null, ' . gettype($data['prefix']) . ' seen.');
                 }
             }
             if (isset($data['suffix'])) {
@@ -302,14 +304,14 @@ class FHIRHumanName extends FHIRElement implements \JsonSerializable
                         $this->addSuffix($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"suffix" must be array of objects or null, '.gettype($data['suffix']).' seen.');
+                    throw new \InvalidArgumentException('"suffix" must be array of objects or null, ' . gettype($data['suffix']) . ' seen.');
                 }
             }
             if (isset($data['period'])) {
                 $this->setPeriod($data['period']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * Script to find open appointment slots
@@ -16,11 +17,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
-
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
-require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
-require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
+require_once(dirname(__FILE__) . "/../../../library/appointments.inc.php");
+require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
@@ -74,7 +74,7 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
             }
 
             break; // ignore any positive duration for IN
-        } else if ($catid == 3) { // out of office
+        } elseif ($catid == 3) { // out of office
             $slots[$i] |= 2;
             break; // ignore any positive duration for OUT
         } else { // all other events reserve time
@@ -219,12 +219,12 @@ if ($_REQUEST['providerid']) {
 $ckavail = true;
 // If the requested date is a holiday/closed date we need to alert the user about it and let him choose if he wants to proceed
 //////
-$is_holiday=false;
+$is_holiday = false;
 $holidays_controller = new Holidays_Controller();
 $holidays = $holidays_controller->get_holidays_by_date_range($sdate, $edate);
 if (in_array($sdate, $holidays)) {
-    $is_holiday=true;
-    $ckavail=true;
+    $is_holiday = true;
+    $ckavail = true;
 }
 
 //////
@@ -389,7 +389,7 @@ if (isset($_REQUEST['cktime'])) {
                     $lastdate = $thisdate;
                     $dayName = date("l", $utime);
                     echo " <tr class='oneresult'>\n";
-                    echo "  <td class='srDate'>" . xlt($dayName)."<br />". text(oeFormatSDFT($utime)) . "</td>\n";
+                    echo "  <td class='srDate'>" . xlt($dayName) . "<br />" . text(oeFormatSDFT($utime)) . "</td>\n";
                     echo "  <td class='srTimes'>";
                     echo "<div id='am'>AM ";
                     $ampmFlag = "am";  // reset the AMPM flag
@@ -402,15 +402,15 @@ if (isset($_REQUEST['cktime'])) {
 
                 $ampmFlag = $ampm;
 
-                $atitle = "Choose ".date("h:i a", $utime);
+                $atitle = "Choose " . date("h:i a", $utime);
                 $adate = getdate($utime);
                 $anchor = "<a href='' class='text-decoration-none' onclick='return setappt(" .
                 attr_js($adate['year']) . "," .
                 attr_js($adate['mon']) . "," .
                 attr_js($adate['mday']) . "," .
                 attr_js($adate['hours']) . "," .
-                attr_js($adate['minutes']) . ")'".
-                " title='" . attr($atitle) . "' alt='" . attr($atitle) . "'".
+                attr_js($adate['minutes']) . ")'" .
+                " title='" . attr($atitle) . "' alt='" . attr($atitle) . "'" .
                 ">";
                 echo (strlen(date('g', $utime)) < 2 ? "<span class='invisible'>0</span>" : "") .
                 $anchor . date("g:i", $utime) . "</a> ";

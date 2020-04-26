@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  $Id$
  *
@@ -37,27 +38,27 @@ function smarty_function_pc_form_nav_close($args = array())
 
     if (!defined('_PC_FORM_DATE')) {
         $Date = postcalendar_getDate();
-        echo '<input type="hidden" name="Date" value="'.$Date.'" />';
+        echo '<input type="hidden" name="Date" value="' . $Date . '" />';
     }
 
     if (!defined('_PC_FORM_VIEW_TYPE')) {
-        echo '<input type="hidden" name="viewtype" value="'.pnVarCleanFromInput('viewtype').'" />';
+        echo '<input type="hidden" name="viewtype" value="' . pnVarCleanFromInput('viewtype') . '" />';
     }
 
     if (!defined('_PC_FORM_TEMPLATE')) {
-        echo '<input type="hidden" name="tplview" value="'.pnVarCleanFromInput('tplview').'" />';
+        echo '<input type="hidden" name="tplview" value="' . pnVarCleanFromInput('tplview') . '" />';
     }
 
     if (!defined('_PC_FORM_USERNAME')) {
-        echo '<input type="hidden" name="pc_username" value="'.pnVarCleanFromInput('pc_username').'" />';
+        echo '<input type="hidden" name="pc_username" value="' . pnVarCleanFromInput('pc_username') . '" />';
     }
 
     if (!defined('_PC_FORM_CATEGORY')) {
-        echo '<input type="hidden" name="pc_category" value="'.pnVarCleanFromInput('pc_category').'" />';
+        echo '<input type="hidden" name="pc_category" value="' . pnVarCleanFromInput('pc_category') . '" />';
     }
 
     if (!defined('_PC_FORM_TOPIC')) {
-        echo '<input type="hidden" name="pc_topic" value="'.pnVarCleanFromInput('pc_topic').'" />';
+        echo '<input type="hidden" name="pc_topic" value="' . pnVarCleanFromInput('pc_topic') . '" />';
     }
 
     echo '</form>';

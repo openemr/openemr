@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient Portal
  *
@@ -8,6 +9,7 @@
  * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 <!DOCTYPE html>
 <!-- Language grabbed by PDF var that has the correct format !-->

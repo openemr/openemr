@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Instructions for loading DSM IV Database
  *
@@ -20,8 +21,6 @@
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
-
-
 
 require_once("../../interface/globals.php");
 

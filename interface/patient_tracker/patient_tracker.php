@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient Tracker (Patient Flow Board)
  *
@@ -45,9 +46,11 @@ $form_apptstatus = prevSetting($uspfx, 'form_apptstatus', 'form_apptstatus', '')
 $facility = prevSetting($uspfx, 'form_facility', 'form_facility', '');
 $provider = prevSetting($uspfx, 'form_provider', 'form_provider', $_SESSION['authUserID']);
 
-if (($_POST['setting_new_window']) ||
+if (
+    ($_POST['setting_new_window']) ||
     ($_POST['setting_bootstrap_submenu']) ||
-    ($_POST['setting_selectors'])) {
+    ($_POST['setting_selectors'])
+) {
     // These are not form elements. We only ever change them via ajax, so exit now.
     exit();
 }
@@ -63,19 +66,19 @@ if (!$GLOBALS['ptkr_date_range']) {
     $from_date = date('Y-m-d');
 } elseif (!is_null($_REQUEST['form_from_date'])) {
     $from_date = DateToYYYYMMDD($_REQUEST['form_from_date']);
-} elseif (($GLOBALS['ptkr_start_date'])=='D0') {
+} elseif (($GLOBALS['ptkr_start_date']) == 'D0') {
     $from_date = date('Y-m-d');
-} elseif (($GLOBALS['ptkr_start_date'])=='B0') {
-    if (date(w)==GLOBALS['first_day_week']) {
+} elseif (($GLOBALS['ptkr_start_date']) == 'B0') {
+    if (date(w) == GLOBALS['first_day_week']) {
         //today is the first day of the week
         $from_date = date('Y-m-d');
-    } elseif ($GLOBALS['first_day_week']==0) {
+    } elseif ($GLOBALS['first_day_week'] == 0) {
         //Sunday
         $from_date = date('Y-m-d', strtotime('previous sunday'));
-    } elseif ($GLOBALS['first_day_week']==1) {
+    } elseif ($GLOBALS['first_day_week'] == 1) {
         //Monday
         $from_date = date('Y-m-d', strtotime('previous monday'));
-    } elseif ($GLOBALS['first_day_week']==6) {
+    } elseif ($GLOBALS['first_day_week'] == 6) {
         //Saturday
         $from_date = date('Y-m-d', strtotime('previous saturday'));
     }
@@ -131,7 +134,7 @@ if ($GLOBALS['medex_enable'] == '1') {
     $preferences = sqlStatement($sql);
     $prefs = sqlFetchArray($preferences);
     $results = json_decode($prefs['status'], true);
-    $logged_in=$results;
+    $logged_in = $results;
     if (!empty($prefs)) {
         foreach ($results['campaigns']['events'] as $event) {
             if ($event['M_group'] != 'REMINDER') {
@@ -647,10 +650,12 @@ if (!$_REQUEST['flb_table']) {
                                     $appointment[$row['msg_type']]['stage'] = "SENT";
                                     $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['SENT']['html'];
                                 } elseif (($row['msg_reply'] == "To Send") || (empty($appointment['stage']))) {
-                                    if (($appointment[$row['msg_type']]['stage'] != "CONFIRMED") &&
+                                    if (
+                                        ($appointment[$row['msg_type']]['stage'] != "CONFIRMED") &&
                                         ($appointment[$row['msg_type']]['stage'] != "READ") &&
                                         ($appointment[$row['msg_type']]['stage'] != "SENT") &&
-                                        ($appointment[$row['msg_type']]['stage'] != "FAILED")) {
+                                        ($appointment[$row['msg_type']]['stage'] != "FAILED")
+                                    ) {
                                         $appointment[$row['msg_type']]['stage'] = "QUEUED";
                                         $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['SCHEDULED']['html'];
                                     }
@@ -669,7 +674,7 @@ if (!$_REQUEST['flb_table']) {
                                         <input type='hidden' name='pc_pid' id='pc_pid' value='" . attr($appointment['pc_pid']) . "'>
                                         <input type='hidden' name='campaign_uid' id='campaign_uid' value='" . attr($row['campaign_uid']) . "'>
                                         <textarea name='txtCALLback' id='txtCALLback' rows=6 cols=20></textarea>
-                                        <input type='submit' name='saveCALLback' id='saveCALLback' value='" . xla("Save") ."'>
+                                        <input type='submit' name='saveCALLback' id='saveCALLback' value='" . xla("Save") . "'>
                                       </form>
                                     </span>
                                       ";
@@ -822,9 +827,9 @@ if (!$_REQUEST['flb_table']) {
                         }
                         if (($yestime == '1') && ($timecheck >= 1) && (strtotime($newarrive) != '')) {
                             echo text($timecheck . ' ' . ($timecheck >= 2 ? xl('minutes') : xl('minute')));
-                        } else if ($icon_here || $icon2_here || $icon_CALL) {
+                        } elseif ($icon_here || $icon2_here || $icon_CALL) {
                             echo "<span style='font-size:0.7em;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . implode($icon_here) . $icon2_here . "</span> " . $icon_CALL;
-                        } else if ($logged_in) {
+                        } elseif ($logged_in) {
                             $pat = $MedEx->display->possibleModalities($appointment);
                             echo "<span style='font-size:0.7em;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . $pat['SMS'] . $pat['AVM'] . $pat['EMAIL'] . "</span>";
                         }

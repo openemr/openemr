@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Routes
  * (All REST routes)
@@ -340,9 +341,11 @@ RestConfig::$ROUTE_MAP = array(
 use OpenEMR\RestControllers\FHIR\FhirAllergyIntoleranceRestController;
 use OpenEMR\RestControllers\FHIR\FhirConditionRestController;
 use OpenEMR\RestControllers\FHIR\FhirEncounterRestController;
+use OpenEMR\RestControllers\FHIR\FhirObservationRestController;
 use OpenEMR\RestControllers\FHIR\FhirImmunizationRestController;
 use OpenEMR\RestControllers\FHIR\FhirOrganizationRestController;
 use OpenEMR\RestControllers\FHIR\FhirPatientRestController;
+use OpenEMR\RestControllers\FHIR\FhirProcedureRestController;
 use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseController;
 
 RestConfig::$FHIR_ROUTE_MAP = array(
@@ -395,6 +398,14 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::authorization_check("patients", "med");
         return (new FhirAllergyIntoleranceRestController(null))->getOne($id);
     },
+    "GET /fhir/Observation/:id" => function ($id) {
+        RestConfig::authorization_check("patients", "med");
+        return (new FhirObservationRestController(null))->getOne($id);
+    },
+    "GET /fhir/Observation" => function () {
+        RestConfig::authorization_check("patients", "med");
+        return (new FhirObservationRestController(null))->getAll($_GET);
+    },
     "POST /fhir/QuestionnaireResponse" => function () {
         RestConfig::authorization_check("patients", "demo");
         $data = (array)(json_decode(file_get_contents("php://input"), true));
@@ -415,5 +426,13 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     "GET /fhir/Condition/:id" => function ($id) {
         RestConfig::authorization_check("patients", "med");
         return (new FhirConditionRestController(null))->getOne($id);
+    },
+    "GET /fhir/Procedure" => function () {
+        RestConfig::authorization_check("patients", "med");
+        return (new FhirProcedureRestController(null))->getAll($_GET);
+    },
+    "GET /fhir/Procedure/:id" => function ($id) {
+        RestConfig::authorization_check("patients", "med");
+        return (new FhirProcedureRestController(null))->getOne($id);
     }
 );

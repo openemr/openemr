@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Functions to globally validate and prepare data for sql database insertion.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2011 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 

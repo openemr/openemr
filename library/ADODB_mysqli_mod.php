@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ADODB custom wrapper class to support ssl option in gacl and calendar.
  *
@@ -47,15 +48,17 @@ class ADODB_mysqli_mod extends ADODB_mysqli
 
         //http ://php.net/manual/en/mysqli.persistconns.php
         if ($persist && PHP_VERSION > 5.2 && strncmp($argHostname, 'p:', 2) != 0) {
-            $argHostname = 'p:'.$argHostname;
+            $argHostname = 'p:' . $argHostname;
         }
 
         //Below was added by OpenEMR to support mysql ssl
         // Note there is really weird behavior where the paths to certificates do not work if within a variable.
         //  (super odd which is why have 2 different mysqli_ssl_set commands as a work around)
         if (defined('MYSQLI_CLIENT_SSL') && $this->clientFlags == MYSQLI_CLIENT_SSL) {
-            if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
-                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")) {
+            if (
+                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
+                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
+            ) {
                 // with client side certificate/key
                 mysqli_ssl_set(
                     $this->_connectionID,

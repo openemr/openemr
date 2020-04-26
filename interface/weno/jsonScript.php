@@ -1,4 +1,5 @@
 <?php
+
 /**
  * weno rx mark tx.
  *
@@ -11,9 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
-require_once($srcdir."/patient.inc");
+require_once($srcdir . "/patient.inc");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -28,7 +28,7 @@ $pid = $GLOBALS['pid'];
 $uid = $_SESSION['authUserID'];
 
 //Randomly generate number for each order unique ID
-$i = rand().rand().rand();
+$i = rand() . rand() . rand();
 $fillData = filter_input(INPUT_GET, "getJson");
 
 $fill = explode(",", $fillData);

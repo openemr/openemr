@@ -1,4 +1,5 @@
 <?php
+
 /**
  * AbstractAmcReport class
  *
@@ -23,8 +24,8 @@
  */
 
 require_once('AmcFilterIF.php');
-require_once(dirname(__FILE__)."/../../../../clinical_rules.php");
-require_once(dirname(__FILE__)."/../../../../amc.php");
+require_once(dirname(__FILE__) . "/../../../../clinical_rules.php");
+require_once(dirname(__FILE__) . "/../../../../amc.php");
 
 abstract class AbstractAmcReport implements RsReportIF
 {
@@ -43,17 +44,17 @@ abstract class AbstractAmcReport implements RsReportIF
     {
         // require all .php files in the report's sub-folder
         $className = get_class($this);
-        foreach (glob(dirname(__FILE__)."/../reports/".$className."/*.php") as $filename) {
+        foreach (glob(dirname(__FILE__) . "/../reports/" . $className . "/*.php") as $filename) {
             require_once($filename);
         }
 
         // require common .php files
-        foreach (glob(dirname(__FILE__)."/../reports/common/*.php") as $filename) {
+        foreach (glob(dirname(__FILE__) . "/../reports/common/*.php") as $filename) {
             require_once($filename);
         }
 
         // require clinical types
-        foreach (glob(dirname(__FILE__)."/../../../ClinicalTypes/*.php") as $filename) {
+        foreach (glob(dirname(__FILE__) . "/../../../ClinicalTypes/*.php") as $filename) {
             require_once($filename);
         }
 
@@ -103,7 +104,7 @@ abstract class AbstractAmcReport implements RsReportIF
         //   (patients, labs, transitions, visits, or prescriptions)
         $object_to_count = $this->getObjectToCount();
         if (empty($object_to_count)) {
-            $object_to_count="patients";
+            $object_to_count = "patients";
         }
         
         $numeratorObjects = 0;
@@ -131,9 +132,9 @@ abstract class AbstractAmcReport implements RsReportIF
                 //   First, collect the pertinent objects
                 $objects = $this->collectObjects($patient, $object_to_count, $tempBeginMeasurement, $this->_endMeasurement);
                 //   Second, test each object
-                $objects_pass=array();
+                $objects_pass = array();
                 foreach ($objects as $object) {
-                    $patient->object=$object;
+                    $patient->object = $object;
                     if ($denominator->test($patient, $tempBeginMeasurement, $this->_endMeasurement)) {
                         $denominatorObjects++;
                         array_push($objects_pass, $object);
@@ -163,7 +164,7 @@ abstract class AbstractAmcReport implements RsReportIF
                 // Counting objects other than patients
                 //   test each object that passed the above denominator testing
                 foreach ($objects_pass as $object) {
-                    $patient->object=$object;
+                    $patient->object = $object;
                     if ($numerator->test($patient, $tempBeginMeasurement, $this->_endMeasurement)) {
                         $numeratorObjects++;
 
@@ -188,7 +189,7 @@ abstract class AbstractAmcReport implements RsReportIF
         
         $percentage = calculate_percentage($denominatorObjects, 0, $numeratorObjects);
         $result = new AmcResult($this->_rowRule, $totalPatients, $denominatorObjects, 0, $numeratorObjects, $percentage);
-        $this->_resultsArray[]= $result;
+        $this->_resultsArray[] = $result;
     }
 
     private function collectObjects($patient, $object_label, $begin, $end)
@@ -201,22 +202,22 @@ abstract class AbstractAmcReport implements RsReportIF
             case "transitions-in":
                  $sql = "SELECT amc_misc_data.map_id as `encounter`, amc_misc_data.date_completed as `completed`, form_encounter.date as `date` " .
                         "FROM `amc_misc_data`, `form_encounter` " .
-                        "INNER JOIN openemr_postcalendar_categories opc on opc.pc_catid = form_encounter.pc_catid ".
+                        "INNER JOIN openemr_postcalendar_categories opc on opc.pc_catid = form_encounter.pc_catid " .
                         "WHERE amc_misc_data.map_id = form_encounter.encounter " .
                         "AND amc_misc_data.map_category = 'form_encounter' " .
                         "AND amc_misc_data.pid = ? AND form_encounter.pid = ? " .
                         "AND amc_misc_data.amc_id = 'med_reconc_amc' " .
-                        "AND form_encounter.date >= ? AND form_encounter.date <= ? ".
+                        "AND form_encounter.date >= ? AND form_encounter.date <= ? " .
                         "AND ((opc.pc_catname = 'New Patient') OR (opc.pc_catname = 'Established Patient' AND amc_misc_data.soc_provided is not null)) ";
                 array_push($sqlBindArray, $patient->id, $patient->id, $begin, $end);
                 break;
             case "transitions-out":
                 $sql = "SELECT transactions.id as id " .
                        "FROM transactions " .
-                       "INNER JOIN lbt_data on lbt_data.form_id = transactions.id ".
+                       "INNER JOIN lbt_data on lbt_data.form_id = transactions.id " .
                        "WHERE transactions.title = 'LBTref' " .
                        "AND transactions.pid = ? " .
-                       "AND lbt_data.field_id = 'refer_date' ".
+                       "AND lbt_data.field_id = 'refer_date' " .
                        "AND lbt_data.field_value >= ? AND lbt_data.field_value <= ?";
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
@@ -262,33 +263,33 @@ abstract class AbstractAmcReport implements RsReportIF
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
             case "image_orders":
-                $sql = "SELECT pr.* FROM procedure_order pr ".
-                "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
-                "WHERE pr.patient_id = ? ".
-                "AND prc.procedure_order_title LIKE '%imaging%' ".
+                $sql = "SELECT pr.* FROM procedure_order pr " .
+                "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id " .
+                "WHERE pr.patient_id = ? " .
+                "AND prc.procedure_order_title LIKE '%imaging%' " .
                 "AND (pr.date_ordered BETWEEN ? AND ?)";
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
             
             
             case "lab_radiology":
-                $sql = "SELECT pr.* FROM procedure_order pr ".
-                      "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
-                      "LEFT JOIN procedure_providers pp ON pr.lab_id = pp.ppid ".
-                      "LEFT JOIN users u ON u.id = pp.lab_director ".
-                      "WHERE pr.patient_id = ? ".
-                      "AND prc.procedure_order_title LIKE '%imaging%' ".
+                $sql = "SELECT pr.* FROM procedure_order pr " .
+                      "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id " .
+                      "LEFT JOIN procedure_providers pp ON pr.lab_id = pp.ppid " .
+                      "LEFT JOIN users u ON u.id = pp.lab_director " .
+                      "WHERE pr.patient_id = ? " .
+                      "AND prc.procedure_order_title LIKE '%imaging%' " .
                       "AND (pr.date_ordered BETWEEN ? AND ?)";
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
             
             case "cpoe_lab_orders":
-                $sql = "SELECT pr.* FROM procedure_order pr ".
-                      "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
-                      "LEFT JOIN procedure_providers pp ON pr.lab_id = pp.ppid ".
-                      "LEFT JOIN users u ON u.id = pp.lab_director ".
-                      "WHERE pr.patient_id = ? ".
-                      "AND prc.procedure_order_title LIKE '%laboratory_test%' ".
+                $sql = "SELECT pr.* FROM procedure_order pr " .
+                      "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id " .
+                      "LEFT JOIN procedure_providers pp ON pr.lab_id = pp.ppid " .
+                      "LEFT JOIN users u ON u.id = pp.lab_director " .
+                      "WHERE pr.patient_id = ? " .
+                      "AND prc.procedure_order_title LIKE '%laboratory_test%' " .
                       "AND (pr.date_ordered BETWEEN ? AND ?)";
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
@@ -306,17 +307,17 @@ abstract class AbstractAmcReport implements RsReportIF
                 break;
                 
             case "lab_orders":
-                $sql = "SELECT prc.* FROM procedure_order pr ".
-                      "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
-                      "WHERE pr.patient_id = ? ".
-                      "AND (prc.procedure_order_title LIKE '%Laboratory%' or (prc.procedure_source = 2 and prc.procedure_order_title is NULL)) ".
+                $sql = "SELECT prc.* FROM procedure_order pr " .
+                      "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id " .
+                      "WHERE pr.patient_id = ? " .
+                      "AND (prc.procedure_order_title LIKE '%Laboratory%' or (prc.procedure_source = 2 and prc.procedure_order_title is NULL)) " .
                       "AND (pr.date_ordered BETWEEN ? AND ?)";
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
         }
 
         $rez = sqlStatement($sql, $sqlBindArray);
-        for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
+        for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
             if ('transitions-out' == $object_label) {
                 $fres = sqlStatement(
                     "SELECT field_id, field_value FROM lbt_data WHERE form_id = ?",
@@ -327,7 +328,7 @@ abstract class AbstractAmcReport implements RsReportIF
                 }
             }
 
-            $results[$iter]=$row;
+            $results[$iter] = $row;
         }
 
         return $results;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Script to configure the Rules.
  *
@@ -82,7 +83,7 @@ use OpenEMR\Gacl\GaclApi;
                                 $aco_data = $gacl_temp->get_object_data($aco_id, 'ACO');
                                 $aco_title = $aco_data[0][3];
                                 $select = '';
-                                if ($rule->access_control() == $section.":".$aco) {
+                                if ($rule->access_control() == $section . ":" . $aco) {
                                     $select = 'selected';
                                 }
 

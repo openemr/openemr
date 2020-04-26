@@ -1,4 +1,5 @@
 <?php
+
 /** @package    verysimple::Phreeze */
 
 /**
@@ -556,7 +557,7 @@ abstract class Controller
         if (count($feedItems)) {
             $count = 0;
             foreach ($feedItems as $item) {
-                $count ++;
+                $count++;
                 
                 if ($item instanceof IRSSFeedItem) {
                     $rssWriter->addItem(
@@ -668,7 +669,7 @@ abstract class Controller
         $counter = 0;
         $props = array ();
         foreach (get_class_vars($this->ModelName) as $var => $val) {
-            $props [$counter ++] = $var;
+            $props [$counter++] = $var;
         }
 
         return $props;
@@ -872,7 +873,7 @@ abstract class Controller
         if (is_a($var, 'DataSet') || is_a($var, 'DataPage')) {
             // if a dataset or datapage can be converted directly into an array without enumerating twice
             $obj = $var->ToObjectArray($useSimpleObject, $options);
-        } else if ($useSimpleObject) {
+        } elseif ($useSimpleObject) {
             // we need to figure out what type
             if (is_array($var) || is_a($var, 'SplFixedArray')) {
                 $obj = array ();
@@ -1006,13 +1007,13 @@ abstract class Controller
         if (is_string($input)) {
             // pop recursion here
             $input = utf8_encode($input);
-        } else if (is_array($input)) {
+        } elseif (is_array($input)) {
             foreach ($input as &$value) {
                 $this->UTF8Encode($value);
             }
 
             unset($value);
-        } else if (is_object($input)) {
+        } elseif (is_object($input)) {
             $vars = array_keys(get_object_vars($input));
             foreach ($vars as $var) {
                 $this->UTF8Encode($input->$var);

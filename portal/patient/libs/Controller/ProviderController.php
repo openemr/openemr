@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ProviderController.php
  *
@@ -36,7 +37,7 @@ class ProviderController extends AppBaseController
      */
     public function Home()
     {
-        $cpid=$cuser=0;
+        $cpid = $cuser = 0;
         if (isset($_SESSION['authUserID'])) {
             $cuser = $_SESSION['authUserID'];
         } else {

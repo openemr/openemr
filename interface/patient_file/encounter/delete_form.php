@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This script delete an Encounter form.
  *
@@ -11,7 +12,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 require_once(dirname(__FILE__) . "/../../../library/forms.inc");
 
@@ -20,7 +20,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
 // allow a custom 'delete' form
-$deleteform = $incdir . "/forms/" . $_REQUEST["formname"]."/delete.php";
+$deleteform = $incdir . "/forms/" . $_REQUEST["formname"] . "/delete.php";
 
 check_file_dir_name($_REQUEST["formname"]);
 
@@ -55,7 +55,7 @@ if ($_POST['confirm']) {
         );
     }
     // log the event
-    EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Form ".$_POST['formname']." deleted from Encounter ".$_POST['encounter']);
+    EventAuditLogger::instance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Form " . $_POST['formname'] . " deleted from Encounter " . $_POST['encounter']);
 
     // redirect back to the encounter
     $address = "{$GLOBALS['rootdir']}/patient_file/encounter/$returnurl";
@@ -79,15 +79,15 @@ if ($_POST['confirm']) {
 <?php
 // output each GET variable as a hidden form input
 foreach ($_GET as $key => $value) {
-    echo '<input type="hidden" id="'.attr($key).'" name="'.attr($key).'" value="'.attr($value).'"/>'."\n";
+    echo '<input type="hidden" id="' . attr($key) . '" name="' . attr($key) . '" value="' . attr($value) . '"/>' . "\n";
 }
 ?>
 <input type="hidden" id="confirm" name="confirm" value="1" />
 <p>
 <?php
 
-$formdir=$_GET["formname"];
-$formName=getFormNameByFormdir($formdir);
+$formdir = $_GET["formname"];
+$formName = getFormNameByFormdir($formdir);
 echo xlt('You are about to delete the following form from this encounter') . ': ' . text(xl_form_title($formName["form_name"]));
 
 ?>

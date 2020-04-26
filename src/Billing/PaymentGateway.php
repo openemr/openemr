@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Payment Gateways for credit card transactions
  *

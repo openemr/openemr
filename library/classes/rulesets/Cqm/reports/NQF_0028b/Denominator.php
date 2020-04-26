@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Brady Miller <brady.g.miller@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -35,7 +36,7 @@ class NQF_0028b_Denominator implements CqmFilterIF
             // this is basically a check to see if the patient is an reported as an active smoker on their last encounter
             if (Helper::check(ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_USER, $patient, $beginMinus24Months, $date)) {
                 return true;
-            } else if (Helper::check(ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_NON_USER, $patient, $beginMinus24Months, $date)) {
+            } elseif (Helper::check(ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_NON_USER, $patient, $beginMinus24Months, $date)) {
                 return false;
             } else {
                 // nothing reported during this date period, so move on to next encounter

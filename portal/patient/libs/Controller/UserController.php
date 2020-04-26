@@ -1,4 +1,5 @@
 <?php
+
 /**
  * UserController.php
  *
@@ -45,7 +46,7 @@ class UserController extends AppBaseController
      */
     public function ListView()
     {
-        $rid=0;
+        $rid = 0;
         if (isset($_GET['id'])) {
             $rid = (int) $_GET['id'];
         }

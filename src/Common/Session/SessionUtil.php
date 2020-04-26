@@ -1,4 +1,5 @@
 <?php
+
 /**
  * start/destroy session/cookie for OpenEMR or OpenEMR (patient) portal
  *
@@ -38,7 +39,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 namespace OpenEMR\Common\Session;
 
 class SessionUtil
@@ -55,7 +55,7 @@ class SessionUtil
         if (version_compare(phpversion(), '7.3.0', '>=')) {
             session_start([
                 'cookie_samesite' => "Strict",
-                'name'=> 'OpenEMR',
+                'name' => 'OpenEMR',
                 'cookie_httponly' => false,
                 'cookie_path' => $web_root ? $web_root : '/',
                 'gc_maxlifetime' => self::$gc_maxlifetime,
@@ -95,7 +95,7 @@ class SessionUtil
         if (version_compare(phpversion(), '7.3.0', '>=')) {
             session_start([
                 'cookie_samesite' => "Strict",
-                'name'=> 'PortalOpenEMR',
+                'name' => 'PortalOpenEMR',
                 'cookie_httponly' => true,
                 'gc_maxlifetime' => self::$gc_maxlifetime,
                 'sid_bits_per_character' => self::$sid_bits_per_character,

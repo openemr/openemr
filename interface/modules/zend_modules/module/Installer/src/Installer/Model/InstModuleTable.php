@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php
  *
@@ -18,7 +19,7 @@ namespace Installer\Model;
 use Laminas\Db\TableGateway\TableGateway;
 use Laminas\Config\Reader\Ini;
 use Laminas\Db\ResultSet\ResultSet;
-use \Application\Model\ApplicationTable;
+use Application\Model\ApplicationTable;
 use Interop\Container\ContainerInterface;
 
 class InstModuleTable
@@ -48,7 +49,7 @@ class InstModuleTable
         $adapter = \Laminas\Db\TableGateway\Feature\GlobalAdapterFeature::getStaticAdapter();
         $this->adapter = $adapter;
         $this->resultSetPrototype = new ResultSet();
-        $this->applicationTable = new ApplicationTable;
+        $this->applicationTable = new ApplicationTable();
         $this->container = $container;
         $this->module_zend_path = $GLOBALS['srcdir'] . DIRECTORY_SEPARATOR
             . ".." . DIRECTORY_SEPARATOR . $GLOBALS['baseModDir'] . $GLOBALS['zendModDir'] . DIRECTORY_SEPARATOR . "module";
@@ -803,7 +804,7 @@ class InstModuleTable
 
     public function insertAclSections($acl_data, $mod_dir, $module_id)
     {
-        $obj = new ApplicationTable;
+        $obj = new ApplicationTable();
         foreach ($acl_data as $acl) {
             $identifier = $acl['section_id'];
             $name = $acl['section_name'];
@@ -858,7 +859,7 @@ class InstModuleTable
 
     public function deleteACLSections($module_id)
     {
-        $obj = new ApplicationTable;
+        $obj = new ApplicationTable();
         $sql = "DELETE FROM module_acl_sections WHERE module_id =? AND parent_section <> 0";
         $obj->zQuery($sql, array($module_id));
 
