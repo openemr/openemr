@@ -1,558 +1,553 @@
 /* ====================================
  * the style sheet for the ajax_template calendar
- * ====================================*/
+ * ==================================== */
 
 /* Bootstrap Breakpoints */
 @each $breakpoint in map-keys($grid-breakpoints) {
   @include media-breakpoint-up($breakpoint) {
-      $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
-    }
+    $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
+  }
 }
 
-div.tiny {
-    width: 0.0625rem;
-    height: 0.0625rem;
-    @include font-size("0.0625rem !important");
+div .tiny {
+  @include font-size("0.0625rem !important");
+  height: 0.0625rem;
+  width: 0.0625rem;
 }
 
 .currentview {
-    border: 2px solid $primary;
-    cursor: default;
+  border: 2px solid $primary;
+  cursor: default;
 }
 
 #printview,
 #dayview,
 #weekview,
 #monthview {
-    cursor: hand;
+  cursor: hand;
 }
 
 .calsearch_body {
-    padding: 0 !important;
+  padding: 0 !important;
 }
 
 .sidebar-wrapper {
-    margin-left: -30rem;
-    -webkit-transition: margin .25s ease-out;
-    -moz-transition: margin .25s ease-out;
-    -o-transition: margin .25s ease-out;
-    transition: margin .25s ease-out;
+  margin-left: -30rem;
+  transition: margin 0.25s ease-out;
 }
 
 #wrapper.toggled .sidebar-wrapper {
-    margin-left: 0;
-    top: 68px;
+  margin-left: 0;
+  top: 68px;
 }
 
 #wrapper.toggled .page-content-wrapper {
-    margin-left: 8.75rem;
+  margin-left: 8.75rem;
 }
 
 #functions {
-    min-width: 20%;
-    float: left;
-    padding: 0 0.3125rem 0 0.3125rem;
-    margin-right: 0%;
-    /* added because of the width issue above */
+  float: left;
+  margin-right: 0%;
+  min-width: 20%;
+  padding: 0 0.3125rem;
+
+  /* added because of the width issue above */
 }
 
-
 #topToolbarRight {
-    position: fixed;
-    float: right;
-    width: 100%;
-    border-bottom: 1px solid $black;
-    padding: 0.3125rem 0 0.1875rem 0;
-    z-index: 3;
+  border-bottom: 1px solid $black;
+  float: right;
+  padding: 0.3125rem 0 0.1875rem;
+  position: fixed;
+  width: 100%;
+  z-index: 3;
 }
 
 #dateNAV {
-    float: left;
-    font-family: "Arial", "Helvetica", sans-serif;
-    @include font-size("1.1875rem !important");
+  @include font-size("1.1875rem !important");
+  float: left;
+  font-family: "Arial", "Helvetica", sans-serif;
+}
+
+#dateDisplay {
+  float: left;
+  font-family: "Arial", "Helvetica", sans-serif;
+  padding-left: 0.625rem;
 }
 
 .rtl #functions,
 .rtl #dateNAV,
 .rtl #dateDisplay,
 .rtl #topToolbarRight {
-    float: right;
-}
-
-#dateDisplay {
-    float: left;
-    padding-left: 0.625rem;
-    font-family: "Arial", "Helvetica", sans-serif;
+  float: right;
 }
 
 #viewPicker {
-    float: right;
-    margin-right: 0.625rem;
+  float: right;
+  margin-right: 0.625rem;
+}
+
+#bigCalHeader {
+  @include font-size("1.1875rem !important");
+  float: right;
+  font-family: "Arial", "Helvetica", sans-serif;
+  text-align: center;
+  width: 70%;
 }
 
 .rtl #viewPicker,
 .rtl #bigCalHeader {
-    float: left;
-}
-
-#bigCalHeader {
-    width: 70%;
-    float: right;
-    text-align: center;
-    font-family: "Arial", "Helvetica", sans-serif;
-    @include font-size("1.1875rem !important");
+  float: left;
 }
 
 #providerPicker {
-    font-family: "Arial", "Helvetica", sans-serif;
-    width: 100%;
+  font-family: "Arial", "Helvetica", sans-serif;
+  width: 100%;
 }
 
 #providerPicker #pc_facility,
 #providerPicker #pc_username {
-    width: 100%;
+  width: 100%;
 }
 
 #facilityColor {
-    font-family: "Arial", "Helvetica", sans-serif;
-    width: 100%;
-    float: left;
+  float: left;
+  font-family: "Arial", "Helvetica", sans-serif;
+  width: 100%;
 }
 
 #facilityColor table {
-    width: 100%;
-    border-collapse: collapse;
+  border-collapse: collapse;
+  width: 100%;
 }
 
 #bottom {
-    float: left;
-    position: relative;
-    width: 100%;
+  float: left;
+  position: relative;
+  width: 100%;
 }
 
 #bigCal {
-    overflow: hidden;
-    background-color: $light;
-    border-left: 1px solid $black;
+  background-color: $light;
+  border-left: 1px solid $black;
+  overflow: hidden;
 }
 
 #bigCal table {
-    border-collapse: collapse;
-    border: none;
-    vertical-align: middle;
-    width: 100%;
-    margin-top: 45px;
+  border: 0;
+  border-collapse: collapse;
+  margin-top: 45px;
+  vertical-align: middle;
+  width: 100%;
 }
 
 #bigCal td {
-    padding: 0.0625rem;
-    margin: 0;
+  margin: 0;
+  padding: 0.0625rem;
 }
 
 #bottomLeft {
-    width: 15%;
-    min-width: 130px;
-    position: fixed;
-    top: 45px;
-    float: left;
-    clear: left;
+  clear: left;
+  float: left;
+  min-width: 130px;
+  position: fixed;
+  top: 45px;
+  width: 15%;
 }
 
 /* these are for the small datepicker DIV */
 #datePicker {
-    width: 100%;
+  width: 100%;
 }
 
 #datePicker table {
-    border-collapse: collapse;
-    /* margin-left: 0.1875rem;
-    border-right: 1px solid $black; */
-    width: 100%;
+  border-collapse: collapse;
+  width: 100%;
 }
 
 #datePicker td {
-    width: 1.21875rem;
-    font-family: "Arial", "Helvetica", sans-serif;
-    @include font-size("0.7rem !important");
-    text-align: center;
+  @include font-size("0.7rem !important");
+  font-family: "Arial", "Helvetica", sans-serif;
+  text-align: center;
+  width: 1.21875rem;
 }
 
 #datePicker .tdMonthName-small {
-    text-align: center;
-    font-family: "Arial", "Helvetica", sans-serif;
-    @include font-size("0.75rem !important");
-    font-style: normal;
-    background-color: lighten($light, 20%);
-    color: $body-color;
-    cursor: pointer;
+  @include font-size("0.75rem !important");
+  background-color: lighten($light, 20%);
+  color: $body-color;
+  cursor: pointer;
+  font-family: "Arial", "Helvetica", sans-serif;
+  font-style: normal;
+  text-align: center;
 }
 
 #datePicker .tdDOW-small {
-    font-family: "Arial", "Helvetica", sans-serif;
-    @include font-size("0.625rem !important");
-    vertical-align: top;
-    text-align: center;
-    border: none;
-    padding: 0.125rem 0.1875rem 0.125rem 0.1875rem;
-    background-color: lighten($light, 20%);
+  @include font-size("0.625rem !important");
+  background-color: lighten($light, 20%);
+  border: 0;
+  font-family: "Arial", "Helvetica", sans-serif;
+  padding: 0.125rem 0.1875rem;
+  text-align: center;
+  vertical-align: top;
 }
 
 #datePicker .tdDatePicker {
-    cursor: pointer;
-    cursor: hand;
+  cursor: pointer;
+  cursor: hand;
 }
 
 #datePicker .tdWeekend-small {
-    font-family: "Arial", "Helvetica", sans-serif;
-    @include font-size("0.625rem !important");
-    vertical-align: top;
-    border: none;
-    padding: 0.125rem 0.1875rem 0.125rem 0.1875rem;
-    background-color: $white;
-    color: $gray-600;
+  @include font-size("0.625rem !important");
+  background-color: $white;
+  border: 0;
+  color: $gray-600;
+  font-family: "Arial", "Helvetica", sans-serif;
+  padding: 0.125rem 0.1875rem;
+  vertical-align: top;
 }
 
 #datePicker .tdHoliday-small {
-    font-family: "Arial", "Helvetica", sans-serif;
-    @include font-size("0.625rem !important");
-    vertical-align: top;
-    border: none;
-    padding: 0.125rem 0.1875rem 0.125rem 0.1875rem;
-    background-color: $white;
-    color: $danger;
+  @include font-size("0.625rem !important");
+  background-color: $white;
+  border: 0;
+  color: $danger;
+  font-family: "Arial", "Helvetica", sans-serif;
+  padding: 0.125rem 0.1875rem;
+  vertical-align: top;
 }
 
 #datePicker .tdOtherMonthDay-small {
-    font-family: "Arial", "Helvetica", sans-serif;
-    @include font-size("0.625rem !important");
-    vertical-align: top;
-    border: none;
-    padding: 0.125rem 0.1875rem 0.125rem 0.1875rem;
-    background-color: $white;
-    color: $gray-600;
+  @include font-size("0.625rem !important");
+  background-color: $white;
+  border: 0;
+  color: $gray-600;
+  font-family: "Arial", "Helvetica", sans-serif;
+  padding: 0.125rem 0.1875rem;
+  vertical-align: top;
 }
 
 #datePicker .tdMonthDay-small {
-    font-family: "Arial", "Helvetica", sans-serif;
-    @include font-size("0.625rem !important");
-    vertical-align: top;
-    border: none;
-    padding: 0.125rem 0.1875rem 0.125rem 0.1875rem;
-    background-color: $white;
+  @include font-size("0.625rem !important");
+  background-color: $white;
+  border: 0;
+  font-family: "Arial", "Helvetica", sans-serif;
+  padding: 0.125rem 0.1875rem;
+  vertical-align: top;
 }
 
 #datePicker .currentWeek {
-    background-color: lighten($dark, 50%);
+  background-color: lighten($dark, 50%);
 }
 
 #datePicker .currentDate {
-    background-color: lighten($dark, 20%);
-    color: $light;
+  background-color: lighten($dark, 20%);
+  color: $light;
 }
 
 #datePicker .tdDatePickerHighlight {
-    background-color: lighten($dark, 30%);
-    color: $light;
+  background-color: lighten($dark, 30%);
+  color: $light;
 }
 
 /* the DIV of times */
 #times {
-    border-right: 1px solid $gray-600;
-    width: 1%;
-    background-color: lighten($yellow, 40%);
-    padding: 0;
+  background-color: lighten($yellow, 40%);
+  border-right: 1px solid $gray-600;
+  padding: 0;
+  width: 1%;
 }
 
 #times table {
-    border-collapse: collapse;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    background-color: lighten($yellow, 40%);
+  background-color: lighten($yellow, 40%);
+  border-collapse: collapse;
+  margin: 0;
+  padding: 0;
+  width: 100%;
 }
 
 #times table td {
-    border-bottom: 1px solid $gray-600;
-    margin: 0;
-    padding: 0;
-    @include font-size("0.8rem !important");
+  @include font-size("0.8rem !important");
+  border-bottom: 1px solid $gray-600;
+  margin: 0;
+  padding: 0;
 }
 
 .timeslot {
-    /* height value is tied to two PHP variables in the ajax_*.html files
+  /* height value is tied to two PHP variables in the ajax_*.html files
      * if you change this value then be sure to change the matching value
      * in those files */
-    height: 1.25rem;
-    margin: 0;
-    padding: 0;
-    text-align: center;
+  height: 1.25rem;
+  margin: 0;
+  padding: 0;
+  text-align: center;
 }
 
 .schedule {
-    background-color: $white;
-    vertical-align: top;
-    padding: 0;
-    margin: 0;
-    border: 1px solid $gray-600;
-    width: 25rem;
-
+  background-color: $white;
+  border: 1px solid $gray-600;
+  margin: 0;
+  padding: 0;
+  vertical-align: top;
+  width: 25rem;
 }
 
 /* for the header row with provider names */
 .providerheader {
-    text-align: center;
-    background-color: $primary;
-    color: $white;
-    width: 100%;
-    overflow: hidden;
-    border-bottom: 1px solid $gray-300;
-    white-space: nowrap;
+  background-color: $primary;
+  border-bottom: 1px solid $gray-300;
+  color: $white;
+  overflow: hidden;
+  text-align: center;
+  white-space: nowrap;
+  width: 100%;
 }
 
 /* for the DIV inside each TD, this DIV contains any events for a single day */
 .calendar_day {
-    position: relative;
-    height: 100%;
-    width: 100%;
+  height: 100%;
+  position: relative;
+  width: 100%;
 }
 
 /* classes specific to the WEEK view */
 .week_dateheader {
-    border-left: 1px solid $gray-600;
-    border-right: 1px solid $gray-600;
-    @include font-size("0.7rem !important");
-    font-weight: bold;
+  @include font-size("0.7rem !important");
+  border-left: 1px solid $gray-600;
+  border-right: 1px solid $gray-600;
+  font-weight: bold;
 }
 
 .week_dateheader a,
 .week_dateheader a:link,
 .week_dateheader a:visited,
 .week_dateheader a:active {
-    color: $body-color;
+  color: $body-color;
 }
 
 .week_dateheader a:hover {
-    color: $dark;
+  color: $dark;
 }
 
 .week_currday {
-    background-color: $primary;
+  background-color: $primary;
 }
 
 .week_currday a,
 .week_currday a:link,
 .week_currday a:visited,
 .week_currday a:active {
-    color: $white;
+  color: $white;
 }
 
 .week_currday a:hover {
-    color: $light;
+  color: $light;
 }
 
 .weekend-day {
-    /* background: lighten($dark, 50%); */
+  /* background: lighten($dark, 50%); */
 }
 
 /* classes specific to the MONTH view */
 .month_daylink {
-    width: 95%;
-    @include font-size("0.8rem !important");
-    text-align: right;
-    background-color: $white;
-    padding: 0.0625rem 0.125rem 0.0625rem 0.125rem;
+  @include font-size("0.8rem !important");
+  background-color: $white;
+  padding: 0.0625rem 0.125rem;
+  text-align: right;
+  width: 95%;
 }
 
 .month_dateheader {
-    @include font-size("0.7rem !important");
-    width: 13%;
+  @include font-size("0.7rem !important");
+  width: 13%;
 }
 
 .month_event {
-    @include font-size("0.8rem !important");
-    width: 100%;
+  @include font-size("0.8rem !important");
+  width: 100%;
 }
 
 /* types of events */
 .event {
-    position: absolute;
-    width: 100%;
+  position: absolute;
+  width: 100%;
 }
 
 .event img {
-    vertical-align: middle;
+  vertical-align: middle;
 }
 
 .event_in {
-    background-color: $white;
-    z-index: 1;
-    white-space: nowrap;
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    border: 1px solid $black;
+  background-color: $white;
+  border: 1px solid $black;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  z-index: 1;
 }
 
 .event_appointment {
-    background-color: $white;
-    z-index: 2;
-    overflow: hidden;
-    border: 1px solid $gray-400;
-    white-space: nowrap;
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    border: 1px solid $black;
+  background-color: $white;
+  border: 1px solid $gray-400;
+  border: 1px solid $black;
+  overflow: hidden;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  z-index: 2;
 }
 
 .event_noshow {
-    background-color: $pink;
-    z-index: 2;
-    overflow: hidden;
-    border: 1px solid lighten($pink, 20%);
+  background-color: $pink;
+  border: 1px solid lighten($pink, 20%);
+  overflow: hidden;
+  z-index: 2;
 }
 
 .event_reserved {
-    background-color: $pink;
-    z-index: 2;
-    overflow: hidden;
-    border: 1px solid lighten($green, 30%);
+  background-color: $pink;
+  border: 1px solid lighten($green, 30%);
+  overflow: hidden;
+  z-index: 2;
 }
 
 .event_holiday {
-    background-color: lighten($dark, 20%);
-    z-index: 2;
-    overflow: hidden;
-    border: 1px solid lighten($green, 30%);
+  background-color: lighten($dark, 20%);
+  border: 1px solid lighten($green, 30%);
+  overflow: hidden;
+  z-index: 2;
 }
 
 .event_highlight {
-    font-weight: bold;
-    border-top: 1px solid $gray-600;
-    border-left: 1px solid $gray-600;
-    border-right: 2px solid $gray-700;
-    border-bottom: 2px solid $gray-700;
-    margin: -0.1875rem;
-    background-color: $black;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    border: 1px solid $black;
+  background-color: $black;
+  border: 1px solid $black;
+  border-bottom: 2px solid $gray-700;
+  border-left: 1px solid $gray-600;
+  border-right: 2px solid $gray-700;
+  border-top: 1px solid $gray-600;
+  font-weight: bold;
+  margin: -0.1875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .event_time {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .event_time:hover {
-    color: $danger;
+  color: $danger;
 }
 
 .show-appointment {
-    position: absolute;
-    bottom: 0.125rem;
-    right: 0.25rem;
-    font-family: 'FontAwesome', sans-serif;
+  bottom: 0.125rem;
+  font-family: 'FontAwesome', sans-serif;
+  position: absolute;
+  right: 0.25rem;
 }
 
 .show-appointment.unshown::before {
-    cursor: pointer;
-    content: "\f06e";
+  content: "\f06e";
+  cursor: pointer;
 }
 
 .show-appointment.shown::before {
-    cursor: pointer;
-    content: "\f070";
+  content: "\f070";
+  cursor: pointer;
 }
 
 .in_start {
-    background: transparent;
-    z-index: 2;
+  background: transparent;
+  z-index: 2;
 }
 
 .event_out.event_highlight,
 .in_start.event_highlight {
-    font-weight: bold;
-    border-top: 1px solid $gray-600;
-    border-left: 1px solid $gray-600;
-    border-right: 2px solid $gray-700;
-    border-bottom: 2px solid $gray-700;
-    margin: 0;
-    background-color: $yellow;
-    opacity: 1;
-    z-index: 2;
-    cursor: pointer;
+  background-color: $yellow;
+  border-bottom: 2px solid $gray-700;
+  border-left: 1px solid $gray-600;
+  border-right: 2px solid $gray-700;
+  border-top: 1px solid $gray-600;
+  cursor: pointer;
+  font-weight: bold;
+  margin: 0;
+  opacity: 1;
+  z-index: 2;
 }
 
 .event_out {
-    z-index: 3;
-    background-color: $orange;
+  background-color: $orange;
+  z-index: 3;
 }
 
 .event_holiday {
-    width: 100% !important;
+  width: 100% !important;
 }
 
 .pop-up img {
-    width: 9.375rem;
-    margin: 0.625rem;
+  margin: 0.625rem;
+  width: 9.375rem;
 }
 
 @use "sass:meta";
 
 @if variable-exists("ovr-dark") {
-    .providerXbtn i {
-        color: $ovr-dark !important;
-    }
-    .providerheader {
-        color: $ovr-dark !important;
-    }
+  .providerXbtn i {
+    color: $ovr-dark !important;
+  }
+
+  .providerheader {
+    color: $ovr-dark !important;
+  }
 }
 
 @media (max-width: 768px) {
-    #prevday,
-    #nextday,
-    #prevweek,
-    #nextweek,
-    #prevmonth,
-    #nextmonth {
-        @include font-size("1.3rem !important");
-    }
+  #prevday,
+  #nextday,
+  #prevweek,
+  #nextweek,
+  #prevmonth,
+  #nextmonth {
+    @include font-size("1.3rem !important");
+  }
 
-    .page-content-wrapper {
-        margin-left: 0%;
-        width: 100%;
-    }
+  .page-content-wrapper {
+    margin-left: 0%;
+    width: 100%;
+  }
 
-    #wrapper.toggled .page-content-wrapper {
-        width: calc(100% - 150px);
-        margin-left: 130px;
-    }
+  #wrapper.toggled .page-content-wrapper {
+    margin-left: 130px;
+    width: calc(100% - 150px);
+  }
 }
 
-@media(max-width: 665px) {
-    #bigCal > table {
-        margin-top: 68px;
-    }
+@media (max-width: 665px) {
+  #bigCal > table {
+    margin-top: 68px;
+  }
 }
 
 @media (min-width: 860px) {
-    .sidebar-wrapper {
-        margin-left: 0;
-    }
+  .sidebar-wrapper {
+    margin-left: 0;
+  }
 
-    .page-content-wrapper {
-        min-width: 0;
-        width: 85%;
-        margin-left: 15%;
-    }
+  .page-content-wrapper {
+    margin-left: 15%;
+    min-width: 0;
+    width: 85%;
+  }
 
-    #wrapper.toggled .sidebar-wrapper {
-        margin-left: -30rem;
-    }
+  #wrapper.toggled .sidebar-wrapper {
+    margin-left: -30rem;
+  }
 
-    #wrapper.toggled .page-content-wrapper {
-        width: 100%;
-        margin-left: 0%;
-    }
+  #wrapper.toggled .page-content-wrapper {
+    margin-left: 0%;
+    width: 100%;
+  }
 }

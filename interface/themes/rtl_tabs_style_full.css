@@ -21,73 +21,73 @@
  */
 
 #mainBox {
-    padding: 0px 5px 0px 0px;
+  padding: 0 5px 0 0;
 }
 
 #mainBox .logo {
-    margin: 3px 10px 0px 4px;
-    float: right;
+  float: right;
+  margin: 3px 10px 0 4px;
 }
 
 #attendantData .patientDataColumn:nth-child(1) span {
-    float: right;
-    margin-right: 5px;
-    margin-left: 12px;
+  float: right;
+  margin-left: 12px;
+  margin-right: 5px;
 }
 
 #attendantData .patientDataColumn {
-    float: right;
+  float: right;
 }
 
 #attendantData .patientDataColumn:nth-child(1) .patientInfo .ptName span {
-    float: none;
+  float: none;
 }
 
 #attendantData .patientDataColumn:nth-child(1) .patientInfo .ptName span:nth-child(2) {
-    margin: 2px;
+  margin: 2px;
 }
 
 .appMenu {
-    position: relative;
-    float: right;
-    margin-right: 0px;
-    display: flex;
-    flex-direction: row;
+  display: flex;
+  flex-direction: row;
+  float: right;
+  margin-right: 0;
+  position: relative;
 }
 
 .btn-group.dropdown {
-    float: right;
-    direction: ltr;
+  direction: ltr;
+  float: right;
 }
 
 .closeButton {
-    display: inline-block;
-    float: left;
-    position: relative;
-    top: 12px;
-    left: 5px;
-    right: 0;
-    transform: scaleX(-1);
-    padding-right: 7px;
+  display: inline-block;
+  float: left;
+  left: 5px;
+  padding-right: 7px;
+  position: relative;
+  right: 0;
+  top: 12px;
+  transform: scaleX(-1);
 }
 
 #userData {
-    float: left;
+  float: left;
 }
 
 .userSection {
-    right: 0;
+  right: 0;
 }
 
 .messagesColumn {
-    float: left;
-    padding-left: 20px;
+  float: left;
+  padding-left: 20px;
 }
 
 .float-element {
-    float: right;
+  float: right;
 }
 
 .menuSection > .menuEntries .menuEntries {
-    right: 161px;
+  right: 161px;
 }

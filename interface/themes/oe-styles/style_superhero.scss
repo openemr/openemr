@@ -16,41 +16,42 @@ $gray: $gray-600;
 
 /* Color fix */
 $theme-colors: (
-    primary: $primary,
-    secondary: $secondary,
-    success: $green,
-    info: $cyan,
-    warning: $yellow,
-    danger: $red,
-    light: $light,
-    dark: $dark
+  primary: $primary,
+  secondary: $secondary,
+  success: $green,
+  info: $cyan,
+  warning: $yellow,
+  danger: $red,
+  light: $light,
+  dark: $dark
 );
 $colors: (
-    "blue": $blue,
-    "indigo": $indigo,
-    "purple": $purple,
-    "pink": $pink,
-    "red": $red,
-    "orange": $orange,
-    "yellow": $yellow,
-    "green": $green,
-    "teal": $teal,
-    "cyan": $cyan,
-    "white": $white,
-    "gray": $gray-600,
-    "gray-dark": $gray-800,
-    /* Overrides to allow regular CSS coloring */
-    "black": $black,
-    "gray100": $gray-100,
-    "gray200": $gray-200,
-    "gray300": $gray-300,
-    "gray400": $gray-400,
-    "gray500": $gray-500,
-	"gray600": $gray-600,
-    "gray700": $gray-700,
-	"gray800": $gray-800,
-    "gray900": $gray-900
+  "blue": $blue,
+  "indigo": $indigo,
+  "purple": $purple,
+  "pink": $pink,
+  "red": $red,
+  "orange": $orange,
+  "yellow": $yellow,
+  "green": $green,
+  "teal": $teal,
+  "cyan": $cyan,
+  "white": $white,
+  "gray": $gray-600,
+  "gray-dark": $gray-800,
+  "black": $black,
+  "gray100": $gray-100,
+  "gray200": $gray-200,
+  "gray300": $gray-300,
+  "gray400": $gray-400,
+  "gray500": $gray-500,
+  "gray600": $gray-600,
+  "gray700": $gray-700,
+  "gray800": $gray-800,
+  "gray900": $gray-900
 );
+
+/* Above adds overrides to allow regular CSS coloring */
 
 /* This needs to be the default Bootstrap value for OpenEMR so it doesn't break */
 $input-btn-padding-y: 0.5rem;
@@ -65,83 +66,80 @@ $font-family-base: $font-family-sans-serif;
 
 /* Required bootswatch import */
 @import "../../../public/assets/bootswatch/dist/superhero/bootswatch";
-
 @import "../theme-defaults";
-
-@import "../navigation-slide/_future-bootstrap";
+@import "../navigation-slide/future-bootstrap";
 
 /* Overrides go here */
 .calsearch_body {
-    color: $black !important;
+  color: $black !important;
 }
 
 .bgcolor2 {
-    background-color: $dark !important;
+  background-color: $dark !important;
 }
 
-div.tab,
-div.tab_long {
-    background: $dark none repeat scroll 0 0 !important;
+div .tab,
+div .tab_long {
+  background: $dark none repeat scroll 0 0 !important;
 }
 
 .oe-help-redirect {
-    color: $white !important;
+  color: $white !important;
 }
 
 /* Add login design */
 .login .container {
-    background: $black !important;
-    border: 10px solid $dark !important;
+  background: $black !important;
+  border: 10px solid $dark !important;
 }
 
 /* Makes tab font black */
 .menuLabel {
-    color: $dark !important;
+  color: $dark !important;
 }
 
 /* Calendar Overrides */
 #dateNAV,
 #topToolbarRight #menu-toggle,
 #providerPicker {
-    color: $white !important;
+  color: $white !important;
 }
 
 #datePicker .tdMonthName-small {
-    color: $black !important;
+  color: $black !important;
 }
-
 
 /* Tabs fixes */
 .tabSpan,
 .tabSpan .tabHidden,
 .tabSpan .fa {
-    color: $white !important;
+  color: $white !important;
 }
 
 .tabNotchosen,
 .tabNotchosen .tabHidden,
 .tabNotchosen .fa {
-    color: $dark !important;
+  color: $dark !important;
 }
 
 /* Changes all SVG colors to white to match theme */
 .login-emr-logo > #blue-color,
 .login-emr-logo > #gray-color {
-    fill: $white !important;
+  fill: $white !important;
 }
 
 .about-review-image > #color {
-    fill: $white !important;
+  fill: $white !important;
 }
 
 /* show orange color in the logo */
 .login-emr-logo > #red-color {
-    fill: $primary !important;
+  fill: $primary !important;
 }
 
 #mainBox .logo .emr-menu-logo > #blue-color,
 #mainBox_vertical .logo .emr-menu-logo > #blue-color {
-    fill: $primary !important;
+  fill: $primary !important;
 }
 
 /* search any */

@@ -32,7 +32,12 @@
     "minimist": "^1.2.5",
     "napa": "^3.0.0",
     "popper.js": "^1.16.1",
-    "replace-in-file": "^5.0.2"
+    "replace-in-file": "^5.0.2",
+    "stylelint": "^13.3.3",
+    "stylelint-config-sass-guidelines": "^7.0.0",
+    "stylelint-config-standard": "^20.0.0",
+    "stylelint-order": "^4.0.0",
+    "stylelint-scss": "^3.17.1"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "~5.13.0",

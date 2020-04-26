@@ -1,146 +1,278 @@
-a { color: #000090; text-decoration: none; }
-a:hover, a:active, a:focus { color: highlighttext; background-color: highlight; text-decoration: none; }
+a { color: #000090;
+  text-decoration: none; }
 
-body { background: #FFFFFF; }
-body, table { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; }
+a:hover,
+a:active,
+a:focus { background-color: highlight;
+  color: highlighttext;
+  text-decoration: none; }
 
-a img { border: 0px; }
+body { background: #fff; }
+
+body,
+table { font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-size: 10pt; }
+
+a img { border: 0; }
 
 /* Page layout/boxes */
 
 .info-box {  }
-.info-box-title { margin: 1em 0em 0em 0em; font-weight: normal; font-size: 14pt; color: #999999; border-bottom: 2px solid #999999; }
-.info-box-body { border: 1px solid #999999; padding: .5em; }
-.nav-bar { font-size: 8pt; white-space: nowrap; text-align: right; padding: .2em; margin: 0em 0em 1em 0em; }
 
-.oddrow { background-color: #F8F8F8; border: 1px solid #AAAAAA; padding: .5em; margin-bottom: 1em}
-.evenrow { border: 1px solid #AAAAAA; padding: .5em; margin-bottom: 1em}
+.info-box-title { border-bottom: 2px solid #999;
+  color: #999;
+  font-size: 14pt;
+  font-weight: normal;
+  margin: 1em 0 0; }
 
-.page-body { max-width: 800px; margin: auto; }
-.tree { white-space: nowrap; font: icon }
-.tree dd { margin-left: 19px }
-.tree dl { margin: 0px }
-.tree-icon { 	vertical-align: middle; border: 0px; margin-right: 3px }
+.info-box-body { border: 1px solid #999;
+  padding: 0.5em; }
+
+.nav-bar { font-size: 8pt;
+  margin: 0 0 1em;
+  padding: 0.2em;
+  text-align: right;
+  white-space: nowrap; }
+
+.oddrow { background-color: #f8f8f8;
+  border: 1px solid #aaa;
+  margin-bottom: 1em;
+  padding: 0.5em;}
+
+.evenrow { border: 1px solid #aaa;
+  margin-bottom: 1em;
+  padding: 0.5em;}
+
+.page-body { margin: auto;
+  max-width: 800px; }
+
+.tree { font: icon;
+  white-space: nowrap; }
+.tree dd { margin-left: 19px; }
+.tree dl { margin: 0; }
+
+.tree-icon { border: 0;
+  margin-right: 3px;
+  vertical-align: middle; }
 
 /* Index formatting classes */
 
-.index-item-body { margin-top: .5em; margin-bottom: .5em}
-.index-item-description { margin-top: .25em }
-.index-item-details { font-weight: normal; font-style: italic; font-size: 8pt }
-.index-letter-section { background-color: #EEEEEE; border: 1px dotted #999999; padding: .5em; margin-bottom: 1em}
-.index-letter-title { font-size: 12pt; font-weight: bold }
-.index-letter-menu { text-align: center; margin: 1em }
-.index-letter { font-size: 12pt }
+.index-item-body { margin-bottom: 0.5em;
+  margin-top: 0.5em;}
+.index-item-description { margin-top: 0.25em; }
+
+.index-item-details { font-size: 8pt;
+  font-style: italic;
+  font-weight: normal; }
+
+.index-letter-section { background-color: #eee;
+  border: 1px dotted #999;
+  margin-bottom: 1em;
+  padding: 0.5em;}
+
+.index-letter-title { font-size: 12pt;
+  font-weight: bold; }
+
+.index-letter-menu { margin: 1em;
+  text-align: center; }
+.index-letter { font-size: 12pt; }
 
 /* Docbook classes */
 
 .description {}
-.short-description { font-weight: bold; color: #666666; }
-.tags {	padding-left: 0em; margin-left: 3em; color: #666666; list-style-type: square; }
-.parameters {	padding-left: 0em; margin-left: 3em; color: #014fbe; list-style-type: square; }
-.redefinitions { font-size: 8pt; padding-left: 0em; margin-left: 2em; }
+
+.short-description { color: #666;
+  font-weight: bold; }
+
+.tags { color: #666;
+  list-style-type: square;
+  margin-left: 3em;
+  padding-left: 0; }
+
+.parameters { color: #014fbe;
+  list-style-type: square;
+  margin-left: 3em;
+  padding-left: 0; }
+
+.redefinitions { font-size: 8pt;
+  margin-left: 2em;
+  padding-left: 0; }
 .package { font-weight: bold; }
-.package-title { font-weight: bold; font-size: 14pt; border-bottom: 1px solid black }
+
+.package-title { border-bottom: 1px solid black;
+  font-size: 14pt;
+  font-weight: bold; }
 .package-details { font-size: 85%; }
 .sub-package { font-weight: bold; }
-.tutorial { border-width: thin; border-color: #0066ff; }
-.tutorial-nav-box { width: 100%; border: 1px solid #999999; background-color: #F8F8F8; }
-.folder-title { font-style: italic; font-family: Verdana, Arial, Helvetica, sans-serif }
+
+.tutorial { border-color: #06f;
+  border-width: thin; }
+
+.tutorial-nav-box { background-color: #f8f8f8;
+  border: 1px solid #999;
+  width: 100%; }
+
+.folder-title { font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-style: italic; }
 
 /* Generic formatting */
 
 .field { font-weight: bold; }
 .detail { font-size: 8pt; }
-.notes { font-style: italic; font-size: 8pt; }
-.separator { background-color: #999999; height: 2px; }
-.warning {  color: #FF6600; }
-.disabled { font-style: italic; color: #999999; }
+
+.notes { font-size: 8pt;
+  font-style: italic; }
+
+.separator { background-color: #999;
+  height: 2px; }
+.warning {  color: #f60; }
+
+.disabled { color: #999;
+  font-style: italic; }
 
 /* Code elements */
 
 .line-number {  }
 
 .class-table { width: 100%; }
-.class-table-header { border-bottom: 1px dotted #666666; text-align: left}
-.class-name { color: #0000AA; font-weight: bold; }
 
-.method-summary { color: #009000; padding-left: 1em; font-size: 8pt; }
+.class-table-header { border-bottom: 1px dotted #666;
+  text-align: left;}
+
+.class-name { color: #00a;
+  font-weight: bold; }
+
+.method-summary { color: #009000;
+  font-size: 8pt;
+  padding-left: 1em; }
 .method-header { }
-.method-definition { margin-bottom: .2em }
-.method-title { color: #009000; font-weight: bold; }
+.method-definition { margin-bottom: 0.2em; }
+
+.method-title { color: #009000;
+  font-weight: bold; }
 .method-name { font-weight: bold; }
-.method-signature { font-size: 85%; color: #666666; margin: .5em 0em }
+
+.method-signature { color: #666;
+  font-size: 85%;
+  margin: 0.5em 0; }
 .method-result { font-style: italic; }
 
-.var-summary { padding-left: 1em; font-size: 8pt; }
+.var-summary { font-size: 8pt;
+  padding-left: 1em; }
 .var-header { }
-.var-title { color: #014fbe; margin-bottom: .3em }
+
+.var-title { color: #014fbe;
+  margin-bottom: 0.3em; }
 .var-type { font-style: italic; }
 .var-name { font-weight: bold; }
 .var-default {}
-.var-description { font-weight: normal; color: #000000; }
+
+.var-description { color: #000;
+  font-weight: normal; }
 
 .include-title { color: #014fbe;}
 .include-type { font-style: italic; }
 .include-name { font-weight: bold; }
 
-.const-title { color: #FF6600; }
+.const-title { color: #f60; }
 .const-name { font-weight: bold; }
 
 /* Syntax highlighting */
 
 .src-code {  }
-*[class="src-code"] {	line-height : 0.5em }
+*[class="src-code"] {	line-height: 0.5em; }
 
-.src-code a:link { padding: 1px; text-decoration: underline; color: #0000DD; }
-.src-code a:visited { text-decoration: underline; color: #0000DD; }
-.src-code a:active { background-color: #FFFF66; color: #008000; }
-.src-code a:hover { background-color: #FFFF66; text-decoration: overline underline; color: #008000; }
+.src-code a:link { color: #00d;
+  padding: 1px;
+  text-decoration: underline; }
 
-.src-comm { color: #666666; }
-.src-id { color: #FF6600; font-style: italic; }
-.src-inc { color: #0000AA; font-weight: bold; }
-.src-key { color: #0000AA; font-weight: bold; }
-.src-num { color: #CC0000; }
-.src-str { color: #CC0000; }
+.src-code a:visited { color: #00d;
+  text-decoration: underline; }
+
+.src-code a:active { background-color: #ff6;
+  color: #008000; }
+
+.src-code a:hover { background-color: #ff6;
+  color: #008000;
+  text-decoration: overline underline; }
+
+.src-comm { color: #666; }
+
+.src-id { color: #f60;
+  font-style: italic; }
+
+.src-inc { color: #00a;
+  font-weight: bold; }
+
+.src-key { color: #00a;
+  font-weight: bold; }
+.src-num { color: #c00; }
+.src-str { color: #c00; }
 .src-sym { }
 .src-var { }
 
 .src-php { font-weight: bold; }
 
-.src-doc { color: #666666; }
-.src-doc-close-template { color: #666666 }
+.src-doc { color: #666; }
+.src-doc-close-template { color: #666; }
 .src-doc-coretag { color: #008000; }
 .src-doc-inlinetag {}
 .src-doc-internal {}
-.src-doc-tag { color: #0080CC; }
-.src-doc-template { color: #666666 }
-.src-doc-type { font-style: italic; color: #444444 }
-.src-doc-var { color: #444444 }
+.src-doc-tag { color: #0080cc; }
+.src-doc-template { color: #666; }
 
-.tute-tag { color: #009999 }
-.tute-attribute-name { color: #0000FF }
-.tute-attribute-value { color: #0099FF }
+.src-doc-type { color: #444;
+  font-style: italic; }
+.src-doc-var { color: #444; }
+
+.tute-tag { color: #099; }
+.tute-attribute-name { color: #00f; }
+.tute-attribute-value { color: #09f; }
 .tute-entity { font-weight: bold; }
-.tute-comment { font-style: italic }
-.tute-inline-tag { color: #636311; font-weight: bold }
+.tute-comment { font-style: italic; }
+
+.tute-inline-tag { color: #636311;
+  font-weight: bold; }
 
 /* tutorial */
 
 .authors {  }
-.author { font-style: italic; font-weight: bold }
-.author-blurb { margin: .5em 0em .5em 2em; font-size: 85%; font-weight: normal; font-style: normal }
-.example { border: 1px dashed #999999; background-color: #EEEEEE; padding: .5em; }
-*[class="example"] { line-height : 0.5em; }
-.listing { border: 1px dashed #999999; background-color: #EEEEEE; padding: .5em; white-space: nowrap; }
-*[class="listing"] { line-height : 0.5em; }
-.release-info { font-size: 85%; font-style: italic; margin: 1em 0em }
+
+.author { font-style: italic;
+  font-weight: bold; }
+
+.author-blurb { font-size: 85%;
+  font-style: normal;
+  font-weight: normal;
+  margin: 0.5em 0 0.5em 2em; }
+
+.example { background-color: #eee;
+  border: 1px dashed #999;
+  padding: 0.5em; }
+*[class="example"] { line-height: 0.5em; }
+
+.listing { background-color: #eee;
+  border: 1px dashed #999;
+  padding: 0.5em;
+  white-space: nowrap; }
+*[class="listing"] { line-height: 0.5em; }
+
+.release-info { font-size: 85%;
+  font-style: italic;
+  margin: 1em 0; }
 .ref-title-box {  }
 .ref-title {  }
-.ref-purpose { font-style: italic; color: #666666 }
+
+.ref-purpose { color: #666;
+  font-style: italic; }
 .ref-synopsis {  }
-.title { font-weight: bold; border-bottom: 1px solid #999999; color: #999999;  }
-.cmd-synopsis { margin: 1em 0em }
-.cmd-title { font-weight: bold }
-.toc { margin-left: 2em; padding-left: 0em }
+
+.title { border-bottom: 1px solid #999;
+  color: #999;
+  font-weight: bold;  }
+.cmd-synopsis { margin: 1em 0; }
+.cmd-title { font-weight: bold; }
+
+.toc { margin-left: 2em;
+  padding-left: 0; }
 

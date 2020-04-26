@@ -1,20 +1,20 @@
 /* OpenEMR batch payments, EOB Override */
 
 .oe-payment-select {
-    width: 80px !important;
-    text-align: right;
-    @include font-size("12px !important");
+  @include font-size("12px !important");
+  text-align: right;
+  width: 80px !important;
 }
 
 .oe-ckbox-label {
-    padding-left: 30px;
-    font-weight: 500;
+  font-weight: 500;
+  padding-left: 30px;
 }
 
 .oe-file-div {
-    padding: 10px 15px;
+  padding: 10px 15px;
 }
 
 .oe-modal-dialog {
-    width: 65% !important;
+  width: 65% !important;
 }

@@ -1,122 +1,122 @@
 /* fix for H2 Tags */
 .fa-oe-sm {
-    @include font-size("1.3rem !important");
-    line-height: 1 !important;
-    color: $gray !important;
+  @include font-size("1.3rem !important");
+  color: $gray !important;
+  line-height: 1 !important;
 }
 
 .btn::before {
-    font-family: "Font Awesome 5 Free";
-    display: inline;
-    font-weight: 900;
+  display: inline;
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
 }
 
 .btn-save::before {
-    content: "\f00c\00a0\00a0";
-    font-weight: 900;
+  content: "\f00c\00a0\00a0";
+  font-weight: 900;
 }
 
 .btn-cancel::before {
-    content: "\f00d\00a0\00a0";
-    font-weight: 900;
+  content: "\f00d\00a0\00a0";
+  font-weight: 900;
 }
 
 .btn-add::before {
-    content: '\f067\00a0\00a0';
-    font-weight: 900;
+  content: '\f067\00a0\00a0';
+  font-weight: 900;
 }
 
 .btn-search::before {
-    content: '\f002\00a0\00a0';
-    font-weight: 900;
+  content: '\f002\00a0\00a0';
+  font-weight: 900;
 }
 
 .btn-delete::before {
-    content: '\f2ed\00a0\00a0';
-    font-weight: 400;
+  content: '\f2ed\00a0\00a0';
+  font-weight: 400;
 }
 
 .btn-duplicate::before {
-    content: '\f0c5\00a0\00a0';
-    font-weight: 400;
+  content: '\f0c5\00a0\00a0';
+  font-weight: 400;
 }
 
 .btn-refresh::before {
-    content: '\f021\00a0\00a0';
-    font-weight: 900;
+  content: '\f021\00a0\00a0';
+  font-weight: 900;
 }
 
 .btn-edit::before {
-    content: '\f304\00a0\00a0';
-    font-weight: 900;
+  content: '\f304\00a0\00a0';
+  font-weight: 900;
 }
 
 .btn-transmit::before {
-    content: '\f061\00a0\00a0';
-    font-weight: 900;
+  content: '\f061\00a0\00a0';
+  font-weight: 900;
 }
 
 .btn-receive::before {
-    content: '\f060\00a0\00a0';
-    font-weight: 900;
+  content: '\f060\00a0\00a0';
+  font-weight: 900;
 }
 
 .btn-print::before {
-    content: '\f02f\00a0\00a0';
-    font-weight: 900;
+  content: '\f02f\00a0\00a0';
+  font-weight: 900;
 }
 
 .btn-back::before {
-    content: '\f053\00a0\00a0';
-    font-weight: 900;
+  content: '\f053\00a0\00a0';
+  font-weight: 900;
 }
 
 .btn-show::before {
-    content: '\f06e\00a0\00a0';
-    font-weight: 400;
+  content: '\f06e\00a0\00a0';
+  font-weight: 400;
 }
 
 .btn-hide::before {
-    content: '\f070\00a0\00a0';
-    font-weight: 400;
+  content: '\f070\00a0\00a0';
+  font-weight: 400;
 }
 
 .btn-undo::before {
-    content: '\f0e2\00a0\00a0';
-    font-weight: 900;
+  content: '\f0e2\00a0\00a0';
+  font-weight: 900;
 }
 
 .btn-update::before {
-    content: '\f01e\00a0\00a0';
-    font-weight: 900;
+  content: '\f01e\00a0\00a0';
+  font-weight: 900;
 }
 
 .btn-download::before {
-    content: '\f019\00a0\00a0';
-    font-weight: 900;
+  content: '\f019\00a0\00a0';
+  font-weight: 900;
 }
 
 .btn-mail::before {
-    content: '\f0e0\00a0\00a0';
-    font-weight: 400;
+  content: '\f0e0\00a0\00a0';
+  font-weight: 400;
 }
 
 .btn-calendar::before {
-    content: '\f073\00a0\00a0';
-    font-weight: 400;
+  content: '\f073\00a0\00a0';
+  font-weight: 400;
 }
 
 .btn-graph::before {
-    content: '\f201\00a0\00a0';
-    font-weight: 900;
+  content: '\f201\00a0\00a0';
+  font-weight: 900;
 }
 
 .btn-filter::before {
-    content: '\f0b0\00a0\00a0';
-    font-weight: 900;
+  content: '\f0b0\00a0\00a0';
+  font-weight: 900;
 }
 
 .btn-send-msg::before {
-    content: '\f1d8\00a0\00a0';
-    font-weight: 400;
+  content: '\f1d8\00a0\00a0';
+  font-weight: 400;
 }

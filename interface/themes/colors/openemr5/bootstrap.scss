@@ -1,45 +1,45 @@
 /* OpenEMR Bootstrap Override */
 
 fieldset {
-    margin-bottom: 10px !important;
-    padding: 0 0 15px 0 !important;
+  margin-bottom: 10px !important;
+  padding: 0 0 15px !important;
 }
 
 legend {
-    padding: 0 10px !important;
+  padding: 0 10px !important;
 }
 
 label {
-    padding: 0 5px !important;
+  padding: 0 5px !important;
 }
 
-textarea.form-control {
-    height: auto !important;
+textarea .form-control {
+  height: auto !important;
 }
 
 :focus {
-    outline: none !important;
+  outline: none !important;
 }
 
 .table > thead {
-    background: $mid !important;
+  background: $mid !important;
 }
 
 .table-striped > tbody > tr:nth-of-type(odd) {
-    background-color: $white !important;
+  background-color: $white !important;
 }
 
 .btn-secondary {
-    background: $darker !important;
-    color: $white !important;
-    border-color: $darker !important;
+  background: $darker !important;
+  border-color: $darker !important;
+  color: $white !important;
 }
 
 .btn-link {
-    background: $paler !important;
-    color: $gray !important;
-    border-color: $darkest !important;
-    border-radius: 2px !important;
+  background: $paler !important;
+  border-color: $darkest !important;
+  border-radius: 2px !important;
+  color: $gray !important;
 }
 
 .btn-secondary.active,
@@ -48,18 +48,18 @@ textarea.form-control {
 .btn-secondary:focus,
 .btn-secondary:hover,
 .open > .dropdown-toggle.btn-secondary {
-    border-color: $darkest !important;
-    background: $darkest !important;
+  background: $darkest !important;
+  border-color: $darkest !important;
 }
 
 .btn-link:focus,
 .btn-link:hover {
-    text-decoration: none !important;
+  text-decoration: none !important;
 }
 
 .btn-link {
-    border: 1px solid #ccc;
-    border-radius: 3px !important;
+  border: 1px solid #ccc;
+  border-radius: 3px !important;
 }
 
 .btn-link.active,
@@ -68,132 +68,132 @@ textarea.form-control {
 .btn-link:focus,
 .btn-link:hover,
 .open > .dropdown-toggle.btn-link {
-    color: $gray !important;
-    border-color: $darker !important;
-    background: $palepale !important;
-    box-shadow: 0 0 2px $darker inset;
-    transition: border-color ease-in-out .3s, box-shadow ease-in-out .3s;
+  background: $palepale !important;
+  border-color: $darker !important;
+  box-shadow: 0 0 2px $darker inset;
+  color: $gray !important;
+  transition: border-color ease-in-out 0.3s, box-shadow ease-in-out 0.3s;
 }
 
 .btn-separate-left,
 .oe-opt-btn-separate-left {
-    margin-left: 20px !important;
+  margin-left: 20px !important;
 }
 
 .btn-group .btn {
-    margin-right: 2px !important;
+  margin-right: 2px !important;
 }
 
 .btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle) {
-    border-top-right-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
-    border-bottom-left-radius: 3px !important;
-    border-top-left-radius: 3px !important;
+  border-bottom-left-radius: 3px !important;
+  border-bottom-right-radius: 0 !important;
+  border-top-left-radius: 3px !important;
+  border-top-right-radius: 0 !important;
 }
 
 .btn-group-pinch > .btn:nth-last-child(2):not(.dropdown-toggle),
 .oe-opt-btn-group-pinch > .btn:nth-last-child(2):not(.dropdown-toggle) {
-    border-top-right-radius: 3px !important;
-    border-bottom-right-radius: 3px !important;
+  border-bottom-right-radius: 3px !important;
+  border-top-right-radius: 3px !important;
 }
 
 .btn-sm {
-    @include font-size("10px !important");
+  @include font-size("10px !important");
 }
 
 .btn-lg {
-    border-radius: 3px !important;
+  border-radius: 3px !important;
 }
 
 .col-form-label {
-    font-weight: 600 !important;
+  font-weight: 600 !important;
 }
 
 input[type=checkbox],
 input[type=radio] {
-    margin: 4px;
+  margin: 4px;
 }
 
 .form-group {
-    margin-bottom: 5px !important;
+  margin-bottom: 5px !important;
 }
 
 .form-horizontal .col-form-label {
-    padding-top: 2px !important;
+  padding-top: 2px !important;
 }
 
 .form-control {
-    height: 24px !important;
-    padding: 0 6px !important;
+  height: 24px !important;
+  padding: 0 6px !important;
 }
 
 .checkbox input[type=checkbox],
 .checkbox-inline input[type=checkbox],
 .radio input[type=radio],
 .radio-inline input[type=radio] {
-    margin-left: -20px !important;
+  margin-left: -20px !important;
 }
 
 .checkbox label,
 .radio label {
-    padding-left: 20px !important;
+  padding-left: 20px !important;
 }
 
 .position-override {
-    text-align: center !important;
-    margin-left: 0px;
+  margin-left: 0;
+  text-align: center !important;
 }
 
 .oe-custom-line {
-    padding-bottom: 5px;
+  padding-bottom: 5px;
 }
 
 .oe-large {
-    display: inline-block;
+  display: inline-block;
 }
 
 .oe-small {
-    display: none;
+  display: none;
 }
 
 .oe-show-hide {
-    display: none;
+  display: none;
 }
 
 .oe-legend-radio {
-    @include font-size("12px !important");
-    padding: 5px 5px 0 0;
+  @include font-size("12px !important");
+  padding: 5px 5px 0 0;
 }
 
 .oe-bold-black {
-    font-weight: 700 !important;
-    color: #000 !important;
+  color: #000 !important;
+  font-weight: 700 !important;
 }
 
 .oe-btn-circle {
-    width: 30px;
-    height: 30px;
-    text-align: center;
-    padding: 6px 0;
-    @include font-size("12px !important");
-    line-height: 1.428571429;
-    border-radius: 15px;
-    background: $darker !important;
-    color: $white !important;
-    border-color: $darkest !important;
+  @include font-size("12px !important");
+  background: $darker !important;
+  border-color: $darkest !important;
+  border-radius: 15px;
+  color: $white !important;
+  height: 30px;
+  line-height: 1.428571429;
+  padding: 6px 0;
+  text-align: center;
+  width: 30px;
 }
 
-.patientInfo a.btn,
-.patientDataColumn a.btn {
-    width: 20px;
-    height: 20px;
-    text-align: center;
-    padding: 2px 0;
-    @include font-size("12px !important");
-    line-height: 1.428571429;
-    border-radius: 10px !important;
-    background: $darker !important;
-    color: $white !important;
-    border-color: $darkest !important;
-    margin: 5px;
+.patientInfo a .btn,
+.patientDataColumn a .btn {
+  @include font-size("12px !important");
+  background: $darker !important;
+  border-color: $darkest !important;
+  border-radius: 10px !important;
+  color: $white !important;
+  height: 20px;
+  line-height: 1.428571429;
+  margin: 5px;
+  padding: 2px 0;
+  text-align: center;
+  width: 20px;
 }

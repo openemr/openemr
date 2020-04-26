@@ -4,11 +4,11 @@
  *============================================================*/
 
 #report_custom {
-    width: 100%;
+  width: 100%;
 }
 
 #report_custom hr {
-    border: 2px dotted $black;
+  border: 2px dotted $black;
 }
 
 #report_custom .billing,
@@ -20,49 +20,49 @@
 #report_custom .demographics,
 #report_custom .insurance,
 #report_custom .history {
-    margin: 5px;
-    padding: 5px;
+  margin: 5px;
+  padding: 5px;
 }
 
 #report_custom h1 {
-    font-size: 120%;
-    margin: 0px 0px 5px 0px;
-    padding: 0px;
+  font-size: 120%;
+  margin: 0 0 5px;
+  padding: 0;
 }
 
 #report_custom .issue {
-    margin-left: 20px;
+  margin-left: 20px;
 }
 
 #report_custom .issue_type {
-    font-weight: bold;
-    padding: 5px 0px 5px 0px;
+  font-weight: bold;
+  padding: 5px 0;
 }
 
 #report_custom .issue_diag {
-    margin: 0px 20px 0px 20px;
+  margin: 0 20px;
 }
 
 #report_custom .encounter {
-    width: 100%;
-    border-top: 2px dotted $black;
-    padding: 10px 5px 10px 5px;
-    margin-top: 10px;
+  border-top: 2px dotted $black;
+  margin-top: 10px;
+  padding: 10px 5px;
+  width: 100%;
 }
 
 #report_custom .encounter h1 {
-    font-size: 140%;
-    margin: 0px;
-    padding: 0px;
+  font-size: 140%;
+  margin: 0;
+  padding: 0;
 }
 
 #report_custom .encounter_form {
-    border-top: 1px solid $gray;
+  border-top: 1px solid $gray;
 }
 
 @include if-rtl {
-    #report_custom .encounter_form {
-        margin: 10px;
-        padding: 10px;
-    }
+  #report_custom .encounter_form {
+    margin: 10px;
+    padding: 10px;
+  }
 }

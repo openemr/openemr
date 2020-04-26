@@ -4,28 +4,28 @@
  *============================================================*/
 
 #patient_stats_summary table {
-    border-collapse: collapse;
+  border-collapse: collapse;
 }
 
 #patient_stats_summary .noend_noreturn {
-    color: $danger;
+  color: $danger;
 }
 
 #patient_stats_summary .noend {
-    color: $orange;
+  color: $orange;
 }
 
 #patient_stats_summary .noreturn {
-    color: $primary;
+  color: $primary;
 }
 
 #patient_stats_summary .title {
-    @include font-size("1.1rem !important");
+  @include font-size("1.1rem !important");
 }
 
 #patient_stats_issues,
 #patient_stats_spreadsheets,
 #patient_stats_imm,
 #patient_stats_prescriptions {
-    width: 100%;
+  width: 100%;
 }

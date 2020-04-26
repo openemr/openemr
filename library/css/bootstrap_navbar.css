@@ -16,100 +16,98 @@
 
 
 .little_image {
-    width: 20px !important;
+  width: 20px !important;
 }
 
 .navbar {
-    height: 22px !important;
-    z-index: 1100 !important;
+  height: 22px !important;
+  z-index: 1100 !important;
 }
 
 .fixed-top {
-    background-color: var(--gray400) !important;
-    padding: 0px !important;
-    border-bottom: 0.1px solid var(--gray) !important;
-    -moz-box-shadow: 0 0 10px var(--black) !important;
-    -webkit-box-shadow: 0 0 10px var(--black) !important;
-    box-shadow: 0 0 10px var(--gray) !important;
-    z-index: 1000 !important;
+  background-color: var(--gray400) !important;
+  border-bottom: 0.1px solid var(--gray) !important;
+  box-shadow: 0 0 10px var(--gray) !important;
+  padding: 0 !important;
+  z-index: 1000 !important;
 }
 
 .navbar-custom {
-    padding: 0px !important;
-    color: var(--black) !important;
+  color: var(--black) !important;
+  padding: 0 !important;
 }
 
 .navbar-nav > .nav-item > a {
-    color: var(--black) !important;
-    /* just changes the base font color */
-    padding-top: 6px !important;
-    padding-left: 10px !important;
-    padding-right: 20px !important;
-    padding-bottom: 5px !important;
+  color: var(--black) !important;
+  padding-bottom: 5px !important;
+  padding-left: 10px !important;
+  padding-right: 20px !important;
+  /* just changes the base font color */
+  padding-top: 6px !important;
 }
 
 .navbar-nav > li .open > a {
-    color: var(--white) !important;
-    background-color: var(--primary) !important;
+  background-color: var(--primary) !important;
+  color: var(--white) !important;
 }
 
 .nav .navbar-right:last-child > li {
-    margin-right: 20px !important;
-    margin-left: 20px !important;
+  margin-left: 20px !important;
+  margin-right: 20px !important;
 }
 
 .nav > li > a:focus,
 .nav > li:focus {
-    text-decoration: none !important;
-    background-color: var(--primary) !important;
-    /* this is the "hover" blue */
-    color: var(--white) !important;
+  background-color: var(--primary) !important;
+  /* this is the "hover" blue */
+  color: var(--white) !important;
+  text-decoration: none !important;
 }
 
 .nav > .active > a,
 .navbar-nav > .open > a {
-    color: var(--white) !important;
-    background-color: var(--primary) !important;
-    /* Mac Menu title bar background color */
+  background-color: var(--primary) !important;
+  color: var(--white) !important;
+  /* Mac Menu title bar background color */
 }
 
 .dropdown-menu {
-    background-color: var(--gray300) !important;
-    /* Mac Menu dropdown bar background color */
+  background-color: var(--gray300) !important;
+  /* Mac Menu dropdown bar background color */
 }
 
 .dropdown-menu > li > a:hover,
 .dropdown-menu > li > a:focus {
-    color: var(--white) !important;
-    text-decoration: none !important;
-    background-color: var(--primary) !important;
-    text-shadow: none !important;
+  background-color: var(--primary) !important;
+  color: var(--white) !important;
+  text-decoration: none !important;
+  text-shadow: none !important;
 }
 
 .navbar-brand {
-    color: var(--black) !important;
-    height: 24px !important;
-    padding: 10 5 0 10 !important;
-    margin: 10px 0px 2px 0px !important;
+  color: var(--black) !important;
+  height: 24px !important;
+  margin: 10px 0 2px !important;
+  padding: 10 5 0 10 !important;
 }
 
-li.open > a:first {
-    color: var(--white) !important;
+li .open > a:first {
+  color: var(--white) !important;
 }
 
 .dropdown-menu .dropdown-divider {
-    height: 1px !important;
-    margin: 9px 0px !important;
-    overflow: hidden !important;
-    background-color: var(--gray400) !important;
+  background-color: var(--gray400) !important;
+  height: 1px !important;
+  margin: 9px 0 !important;
+  overflow: hidden !important;
 }
 
 .navbar-nav > li > a:hover {
-    color: var(--white) !important;
+  color: var(--white) !important;
 }
 
 .dropdown {
-    margin-bottom: 0px !important;
-    padding: 1px !important;
-    list-style: none !important;
+  list-style: none !important;
+  margin-bottom: 0 !important;
+  padding: 1px !important;
 }
