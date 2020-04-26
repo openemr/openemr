@@ -77,20 +77,22 @@ function columnHasType($tblname, $colname, $coltype)
 }
 
 /**
- * Check if a Sql Column has a default value
+ * Check if a Sql column has a certain type and a certain default value.
  *
  * @param  string $tblname      Sql Table Name
  * @param  string $colname      Sql Column Name
- * @return boolean              returns true if the sql column has a default value
+ * @param  string $coltype      Sql Column Type
+ * @param  string $coldefault   Sql Column Default
+ * @return boolean              returns true if the sql column is of the specified type and default
  */
-function columnHasDefault($tblname, $colname)
+function columnHasTypeDefault($tblname, $colname, $coltype, $coldefault)
 {
     $row = sqlQuery("SHOW COLUMNS FROM $tblname LIKE '$colname'");
     if (empty($row)) {
         return true;
     }
 
-    return $row['Default'] ? false: true;
+    return ((strcasecmp($row['Type'], $coltype) == 0) && (strcasecmp($row['Default'], $coldefault) == 0));
 }
 
 /**
@@ -543,8 +545,8 @@ function convertLayoutProperties()
 *   behavior:  If the table table_name does not have a column colname with a data type equal to value, then the block will be executed
 *
 * #IfNotColumnTypeDefault
-*   arguments: table_name colname
-*   behavior:  If the table table_name does not have a column colname without a default value, then the block will be executed
+*   arguments: table_name colname value value2
+*   behavior:  If the table table_name does not have a column colname with a data type equal to value and a default equal to value2, then the block will be executed
 *
 * #IfNotRow
 *   arguments: table_name colname value
@@ -682,9 +684,9 @@ function upgradeFromSqlFile($filename, $path = '')
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
-        } elseif (preg_match('/^#IfNotColumnTypeDefault\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+        } elseif (preg_match('/^#IfNotColumnTypeDefault\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
-                $skipping = columnHasDefault($matches[1], $matches[2]);
+                $skipping = columnHasTypeDefault($matches[1], $matches[2], $matches[3], $matches[4]);
             } else {
                 // If no such table then the column type is deemed not "missing".
                 $skipping = true;
@@ -714,7 +716,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<font color='green'>Skipping section $line</font><br />\n";
+                echo "<abrupfont color='green'>Skipping section $line</abrupfont><br />\n";
             }
         } else if (preg_match('/^#IfNotIndex\s+(\S+)\s+(\S+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
