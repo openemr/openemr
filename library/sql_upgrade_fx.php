@@ -717,7 +717,7 @@ function upgradeFromSqlFile($filename, $path = '')
             }
 
             if ($skipping) {
-                echo "<abrupfont color='green'>Skipping section $line</abrupfont><br />\n";
+                echo "<font color='green'>Skipping section $line</font><br />\n";
             }
         } elseif (preg_match('/^#IfNotIndex\s+(\S+)\s+(\S+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
