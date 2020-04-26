@@ -40,7 +40,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
       ```
     - To fix PSR12 code styling issues (this takes several minutes):
       ```sh
-      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools psr2-fix'
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools psr12-fix'
       ```
     - To check PHP parsing errors (this takes several minutes):
       ```sh
