@@ -19,7 +19,7 @@ class FhirMedicationRestController
         $this->fhirMedicationService = new FhirMedicationService();
         $this->fhirMedicationService->setId($id);
         $this->fhirService = new FhirResourcesService();
-        $this->fhirValidate = new FhirValidationService();
+        $this->fhirValidationService = new FhirValidationService();
     }
     
     public function getAll()
@@ -59,7 +59,7 @@ class FhirMedicationRestController
             $statusCode = 200;
         } else {
             $statusCode = 404;
-            $resource = $this->fhirValidate->operationOutcomeResourceService(
+            $resource = $this->fhirValidationService->operationOutcomeResourceService(
                 'error',
                 'invalid',
                 false,
