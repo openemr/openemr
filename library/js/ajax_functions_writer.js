@@ -142,7 +142,19 @@ function TemplateSentence(val){
     },
     success: function(thedata){
                 //alert(thedata)
-                document.getElementById('template_sentence').innerHTML = thedata;
+                let tempEl = document.createElement( 'div' ),finalEl='';
+                tempEl.innerHTML = thedata;
+                for (let i=0; i< tempEl.children.length; i++) {
+                    let ele = tempEl.children[i],temp;
+                    if(ele.id){
+                        ele.classList.add("draggable")
+                        temp = document.createElement( 'div' )
+                        temp.classList.add("droppable");
+                        temp.appendChild(ele.cloneNode(true));
+                        finalEl += temp.outerHTML;
+                    }
+                }
+                document.getElementById('template_sentence').innerHTML = finalEl;
                 },
     error:function(){
         //alert("fail");
