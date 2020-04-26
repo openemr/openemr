@@ -32,7 +32,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
     <title><?php echo xlt("EDI History"); ?></title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 
-    <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'datatables', 'datatables-bs', 'datatables-scroller']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'datatables', 'datatables-dt', 'datatables-bs', 'datatables-scroller']); ?>
 
     <link rel="stylesheet" href="<?php echo $web_root?>/library/css/edi_history_v2.css" type="text/css" />
 
