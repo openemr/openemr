@@ -329,9 +329,6 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
 <!-- end DataTables js Begin local js -->
 <script>
     $(function () {
-        // activate tab interface
-        $("#tabs").tabs();
-        $("#tabs").tabs().css('visibility','visible');
         // set some button disabled
         $('#processfiles').prop('disabled', true);
         $('#archivesubmit').prop('disabled', true);
@@ -917,7 +914,7 @@ jquery-UI dialog
 
     $('#notessave').on('click', function(e) {
         e.preventDefault();
-        var notetxt = $('#notesrsp :textarea').val();
+        var notetxt = $('#txtnotes').val();
         var noteURL = $('#formnotes').attr('action');
         $.post(noteURL, { putnotes: 'yes', tnotes: notetxt, csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?> },
             function(data){ $('#notesrsp').append(data); });
