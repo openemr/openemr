@@ -23,40 +23,32 @@ if (!(function_exists('xl'))) {
              $lang_id = 1;
         }
 
-        if ($lang_id == 1 && !empty($GLOBALS['skip_english_translation'])) {
-             // language id = 1, so no need to translate
-             //  -- remove comments
-             $string = preg_replace('/\{\{.*\}\}/', '', $constant);
+        // TRANSLATE
+        // first, clean lines
+        // convert new lines to spaces and remove windows end of lines
+        $patterns = array ('/\n/','/\r/');
+        $replace = array (' ','');
+        $constant = preg_replace($patterns, $replace, $constant);
+        // second, attempt translation
+        $sql = "SELECT * FROM lang_definitions JOIN lang_constants ON " .
+        "lang_definitions.cons_id = lang_constants.cons_id WHERE " .
+        "lang_id=? AND constant_name = ? LIMIT 1";
+        $res = sqlStatementNoLog($sql, array($lang_id,$constant));
+        $row = SqlFetchArray($res);
+        $string = $row['definition'];
+        if ($string == '') {
+            $string = "$constant";
+        }
+        // remove dangerous characters and remove comments
+        if ($GLOBALS['translate_no_safe_apostrophe']) {
+            $patterns = array ('/\n/','/\r/','/\{\{.*\}\}/');
+            $replace = array (' ','','');
+            $string = preg_replace($patterns, $replace, $string);
         } else {
-             // TRANSLATE
-             // first, clean lines
-             // convert new lines to spaces and remove windows end of lines
-             $patterns = array ('/\n/','/\r/');
-             $replace = array (' ','');
-             $constant = preg_replace($patterns, $replace, $constant);
-
-             // second, attempt translation
-             $sql = "SELECT * FROM lang_definitions JOIN lang_constants ON " .
-            "lang_definitions.cons_id = lang_constants.cons_id WHERE " .
-            "lang_id=? AND constant_name = ? LIMIT 1";
-             $res = sqlStatementNoLog($sql, array($lang_id,$constant));
-             $row = SqlFetchArray($res);
-             $string = $row['definition'];
-            if ($string == '') {
-                $string = "$constant";
-            }
-
-             // remove dangerous characters and remove comments
-            if ($GLOBALS['translate_no_safe_apostrophe']) {
-                $patterns = array ('/\n/','/\r/','/\{\{.*\}\}/');
-                $replace = array (' ','','');
-                $string = preg_replace($patterns, $replace, $string);
-            } else {
-                // convert apostrophes and quotes to safe apostrophe
-                $patterns = array ('/\n/','/\r/','/"/',"/'/",'/\{\{.*\}\}/');
-                $replace = array (' ','','`','`','');
-                $string = preg_replace($patterns, $replace, $string);
-            }
+            // convert apostrophes and quotes to safe apostrophe
+            $patterns = array ('/\n/','/\r/','/"/',"/'/",'/\{\{.*\}\}/');
+            $replace = array (' ','','`','`','');
+            $string = preg_replace($patterns, $replace, $string);
         }
 
         $string = "$prepend" . "$string" . "$append";

@@ -170,7 +170,7 @@ function generate_select_list(
         //   chosen order.)
         $lang_id = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
         // sort by title
-    if (($lang_id == '1' && !empty($GLOBALS['skip_english_translation'])) || !$GLOBALS['translate_lists']) {
+    if (!$GLOBALS['translate_lists']) {
         // do not translate
         if ($GLOBALS['gb_how_sort_list'] == '0') {
             // order by seq

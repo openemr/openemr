@@ -1044,10 +1044,7 @@ function writeITLine($it_array)
                         // List order depends on language translation options.
                         $lang_id = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
 
-                        if (
-                            ($lang_id == '1' && !empty($GLOBALS['skip_english_translation'])) ||
-                            !$GLOBALS['translate_lists']
-                        ) {
+                        if (!$GLOBALS['translate_lists']) {
                             $res = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
                                 "list_id = 'lists' ORDER BY title, seq");
                         } else {
