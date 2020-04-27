@@ -68,7 +68,7 @@ function edih_835_accounting($segments, $delimiters)
             // This is a claim-level adjustment and should be unusual.
             // Handle it by creating a dummy zero-charge service item and
             // then populating the adjustments into it.  See also code in
-            // ParseERA::parse_era_2100() which will later plug in a payment reversal
+            // ParseERA::parseERA2100() which will later plug in a payment reversal
             // amount that offsets these adjustments.
             $i = 0; // if present, the dummy service item will be first.
             if (!$out['svc'][$i]) {
@@ -209,7 +209,7 @@ function edih_835_accounting($segments, $delimiters)
             }
         }
         else if ($segid == 'SE') {
-            ParseERA::parse_era_2100($out, $cb);
+            ParseERA::parseERA2100($out, $cb);
             $out['loopid'] = '';
             if ($out['st_control_number'] != trim($seg[2])) {
                 return 'Ending transaction set control number mismatch';
@@ -296,7 +296,7 @@ function edih_835_accounting($segments, $delimiters)
                 // This is a claim-level adjustment and should be unusual.
                 // Handle it by creating a dummy zero-charge service item and
                 // then populating the adjustments into it.  See also code in
-                // ParseERA::parse_era_2100() which will later plug in a payment reversal
+                // ParseERA::parseERA2100() which will later plug in a payment reversal
                 // amount that offsets these adjustments.
                 $j = 0; // if present, the dummy service item will be first.
                 if (!$out['svc'][$j]) {

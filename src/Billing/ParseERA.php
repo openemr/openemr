@@ -16,7 +16,7 @@ namespace OpenEMR\Billing;
 
 class ParseERA
 {
-    public static function parse_era_2100(&$out, $cb)
+    public static function parseERA2100(&$out, $cb)
     {
         if ($out['loopid'] == '2110' || $out['loopid'] == '2100') {
             // Production date is posted with adjustments, so make sure it exists.
@@ -77,7 +77,7 @@ class ParseERA
         }
     }
 
-    public static function parse_era($filename, $cb)
+    public static function parseERA($filename, $cb)
     {
         $delimiter1 = '~';
         $delimiter2 = '|';
@@ -136,7 +136,7 @@ class ParseERA
                 $out['gs_time'] = trim($seg[5]);
                 $out['gs_control_number'] = trim($seg[6]);
             } elseif ($segid == 'ST') {
-                self::parse_era_2100($out, $cb);
+                self::parseERA2100($out, $cb);
                 $out['loopid'] = '';
                 $out['st_control_number'] = trim($seg[2]);
                 $out['st_segment_count'] = 0;
@@ -221,7 +221,7 @@ class ParseERA
                     return 'Unexpected LX segment';
                 }
 
-                self::parse_era_2100($out, $cb);
+                self::parseERA2100($out, $cb);
                 $out['loopid'] = '2000';
             } elseif ($segid == 'TS2' && $out['loopid'] == '2000') {
                 // ignore
@@ -233,7 +233,7 @@ class ParseERA
                     return 'Unexpected CLP segment';
                 }
 
-                self::parse_era_2100($out, $cb);
+                self::parseERA2100($out, $cb);
                 $out['loopid'] = '2100';
                 $out['warnings'] = '';
                 // Clear some stuff to start the new claim:
@@ -265,7 +265,7 @@ class ParseERA
                 // This is a claim-level adjustment and should be unusual.
                 // Handle it by creating a dummy zero-charge service item and
                 // then populating the adjustments into it.  See also code in
-                // self::parse_era_2100() which will later plug in a payment reversal
+                // self::parseERA2100() which will later plug in a payment reversal
                 // amount that offsets these adjustments.
                 $i = 0; // if present, the dummy service item will be first.
                 if (!$out['svc'][$i]) {
@@ -432,7 +432,7 @@ class ParseERA
                     // Note: For PLB adjustment reason codes see IG pages 165-170.
                 }
             } elseif ($segid == 'SE') {
-                self::parse_era_2100($out, $cb);
+                self::parseERA2100($out, $cb);
                 $out['loopid'] = '';
                 if ($out['st_control_number'] != trim($seg[2])) {
                     return 'Ending transaction set control number mismatch';
@@ -472,7 +472,7 @@ class ParseERA
     }
 
     //for getting the check details and provider details
-    public static function parse_era_for_check($filename)
+    public static function parseERAForCheck($filename)
     {
         $delimiter1 = '~';
         $delimiter2 = '|';

@@ -542,10 +542,10 @@ class UserService extends Userforms
         if (UserService::valid($data_credentials)) {
             require_once("../../library/options.inc.php");
             require_once("../../library/patient.inc");
-            if ($func == 'InvoiceSummary::ar_responsible_party') {
+            if ($func == 'InvoiceSummary::arResponsibleParty') {
                 $patient_id = $pid;
                 $encounter_id = $var['encounter'];
-                $x['ar_responsible_party'] = InvoiceSummary::ar_responsible_party($patient_id, $encounter_id);
+                $x['arResponsibleParty'] = InvoiceSummary::arResponsibleParty($patient_id, $encounter_id);
                 return UserService::function_return_to_xml($x);
             } elseif ($func == 'getInsuranceData') {
                 $type = $var['type'];

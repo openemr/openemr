@@ -19,7 +19,7 @@ namespace OpenEMR\Billing;
 
 class BillingReport
 {
-    public static function GenerateTheQueryPart()
+    public static function generateTheQueryPart()
     {
         global $query_part, $query_part2, $billstring, $auth;
         //Search Criteria section.
@@ -29,7 +29,7 @@ class BillingReport
         $query_part2 = '';
         if (isset($_REQUEST['final_this_page_criteria'])) {
             foreach ($_REQUEST['final_this_page_criteria'] as $criteria_key => $criteria_value) {
-                $criteria_value = self::PrepareSearchItem($criteria_value); // this escapes for sql
+                $criteria_value = self::prepareSearchItem($criteria_value); // this escapes for sql
                 $SplitArray = array();
                 //---------------------------------------------------------
                 if (strpos($criteria_value, "billing.billed = '1'") !== false) {
@@ -73,7 +73,7 @@ class BillingReport
         $code_type,
         $cols = "id,date,pid,code_type,code,user,authorized,x12_partner_id"
     ) {
-        self::GenerateTheQueryPart();
+        self::generateTheQueryPart();
         global $query_part, $billstring, $auth;
         // Selecting by the date in the billing table is wrong, because that is
         // just the data entry date; instead we want to go by the encounter date
@@ -106,7 +106,7 @@ class BillingReport
         $code_type,
         $cols = "id,date,pid,code_type,code,user,authorized,x12_partner_id"
     ) {
-        self::GenerateTheQueryPart();
+        self::generateTheQueryPart();
         global $query_part, $query_part2, $billstring, $auth;
         // Selecting by the date in the billing table is wrong, because that is
         // just the data entry date; instead we want to go by the encounter date
@@ -146,7 +146,7 @@ class BillingReport
         $code_type,
         $cols = "billing.id, form_encounter.date, billing.pid, billing.code_type, billing.code, billing.user"
     ) {
-        self::GenerateTheQueryPart();
+        self::generateTheQueryPart();
         global $query_part, $billstring, $auth;
         // See above comment in self::getBillsBetween().
         //
@@ -189,9 +189,9 @@ class BillingReport
         return;
     }
 
-    public static function ReturnOFXSql()
+    public static function returnOFXSql()
     {
-        self::GenerateTheQueryPart();
+        self::generateTheQueryPart();
         global $query_part, $billstring, $auth;
 
         $sql = "SELECT distinct billing.*, concat(patient_data.fname, ' ', patient_data.lname) as name from billing "
@@ -209,7 +209,7 @@ class BillingReport
         return $sql;
     }
 
-    public static function PrepareSearchItem($SearchItem)
+    public static function prepareSearchItem($SearchItem)
     {
         $SplitArray = explode(' like ', $SearchItem);
         if (isset($SplitArray[1])) {
@@ -229,7 +229,7 @@ class BillingReport
     }
 
     //Parses the database value and prepares for display.
-    public static function BuildArrayForReport($Query)
+    public static function buildArrayForReport($Query)
     {
         $array_data = array();
         $res = sqlStatement($Query);
@@ -241,9 +241,9 @@ class BillingReport
     }
 
     //The criteria  "Insurance Company" is coded here.The ajax one
-    public static function InsuranceCompanyDisplay()
+    public static function insuranceCompanyDisplay()
     {
-        
+
         // TPS = This Page Search
         global $TPSCriteriaDisplay, $TPSCriteriaKey, $TPSCriteriaIndex, $web_root;
 
