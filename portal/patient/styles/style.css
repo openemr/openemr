@@ -5,14 +5,14 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  *
  */
+
+/* TODO: What is this being used for?? */
+
 .modal.left .modal-dialog,
 .modal.right .modal-dialog {
   height: 75%;
   margin: auto;
   position: fixed;
-  -webkit-transform: translate3d(0%, 0, 0);
-  -ms-transform: translate3d(0%, 0, 0);
-  -o-transform: translate3d(0%, 0, 0);
   transform: translate3d(0%, 0, 0);
   width: 100%;
 }
@@ -31,9 +31,6 @@
 /*Left*/
 .modal.left.fade .modal-dialog {
   left: -320px;
-  -webkit-transition: opacity 0.3s linear, left 0.3s ease-out;
-  -moz-transition: opacity 0.3s linear, left 0.3s ease-out;
-  -o-transition: opacity 0.3s linear, left 0.3s ease-out;
   transition: opacity 0.3s linear, left 0.3s ease-out;
 }
 
@@ -43,9 +40,6 @@
 
 .modal.right.fade .modal-dialog {
   right: -320px;
-  -webkit-transition: opacity 0.3s linear, right 0.3s ease-out;
-  -moz-transition: opacity 0.3s linear, right 0.3s ease-out;
-  -o-transition: opacity 0.3s linear, right 0.3s ease-out;
   transition: opacity 0.3s linear, right 0.3s ease-out;
 }
 
@@ -55,7 +49,7 @@
 
 /* ----- MODAL STYLE ----- */
 .modal-content {
-  border: none;
+  border: 0;
   border-radius: 0;
 }
 
@@ -64,25 +58,6 @@
   border-bottom-color: #eee;
 }
 
-/* .close {
-	background-color: #999999;
-	color: #000000;
-	line-height: 35px;
-	position: absolute;
-	left: -5px;
-	text-align: center;
-	top: -15px;
-	width: 35px;
-	text-decoration: none;
-	font-weight: bold;
-	-webkit-border-radius: 12px;
-	-moz-border-radius: 12px;
-	border-radius: 12px;
-	-moz-box-shadow: 1px 1px 3px #000;
-	-webkit-box-shadow: 1px 1px 3px #000;
-	box-shadow: 1px 1px 3px #000;
-}
- */
 .close:hover {
   background: #00d9ff;
 }
@@ -100,17 +75,16 @@ legend {
   font-style: italic;
 }
 
-fieldset.forms-border {
+fieldset .forms-border {
   border: 2px groove #9bcdff !important;
-  -webkit-box-shadow: 0 0 0 0 #000;
   box-shadow: 0 0 0 0 #000;
   margin: 0 0 1.5em !important;
   padding: 0 1.4em 1.4em !important;
 }
 
-legend.forms-border {
+legend .forms-border {
   /* To give a bit of padding on the left and right */
-  border-bottom: none;
+  border-bottom: 0;
   /* Or auto */
   padding: 0 5px;
   width: auto;
@@ -122,13 +96,13 @@ input[type=checkbox]:checked + label {
   color: #000;
 }
 
-.btn-secondary.active {
+.btn-secondary .active {
   background-color: #fdfdfd;
   border-color: #ff0080;
   color: #000;
 }
 
-.btn-secondary.checked {
+.btn-secondary .checked {
   background-color: #fdfdfd;
   border-color: #ff0080;
   color: #000;
@@ -139,14 +113,14 @@ input[type=checkbox]:checked + label {
   margin-right: 0;
 }
 
-.form-group.inline {
+.form-group .inline {
   background-color: #f8f8ff !important;
   margin: 8px 8px 0 0;
   outline: 1px solid #d3d3d3;
   padding: 5px;
 }
 
-.form-group.plist-group {
+.form-group .plist-group {
   background-color: #f8f8ff !important;
   margin: 8px 8px 0 0;
   outline: 1px solid #d3d3d3;
@@ -186,10 +160,6 @@ body {
 img {
   color: var(--danger) !important;
   -webkit-user-drag: none;
-  user-drag: none;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
   user-select: none;
 }
 
@@ -201,19 +171,19 @@ hr {
   margin: 10px 0;
 }
 
-table.collection thead {
+table .collection thead {
   background: #e7ecfe;
 }
 
-table.collection tbody {
+table .collection tbody {
   background: #fff;
 }
 
-table.collection tr:hover {
+table .collection tr:hover {
   cursor: pointer;
 }
 
-table.collection th:hover {
+table .collection th:hover {
   cursor: pointer;
   opacity: 0.5;
 }
@@ -248,7 +218,7 @@ searchContainer button {
 }
 
 /* search filter button */
-.input-append button.add-on {
+.input-append button .add-on {
   color: #999;
   height: inherit !important;
   margin-top: 8px;
@@ -257,7 +227,6 @@ searchContainer button {
 }
 
 #loader {
-  -webkit-animation: spin 2s linear infinite;
   animation: spin 2s linear infinite;
   border: 16px solid #f3f3f3;
   border-bottom: 16px solid #3498db;
@@ -272,16 +241,6 @@ searchContainer button {
   width: 150px;
   width: 120px;
   z-index: 1;
-}
-
-@-webkit-keyframes spin {
-  0% {
-    -webkit-transform: rotate(0deg);
-  }
-
-  100% {
-    -webkit-transform: rotate(360deg);
-  }
 }
 
 @keyframes spin {
@@ -312,8 +271,8 @@ span.loader .progress-bar {
 } */
 
 /* form controls */
-span.help-inline {
-  color: red;
+span .help-inline {
+  color: var(--danger);
   cursor: pointer;
   font-size: 1.1em;
   font-style: italic;
@@ -321,7 +280,7 @@ span.help-inline {
 }
 
 /* fixes spacing glitch with combo-box followed by an empty inline help */
-span.help-inline:empty {
+span .help-inline:empty {
   display: none;
 }
 
@@ -330,21 +289,18 @@ input[type=email],
 input[type=date],
 select,
 fieldset {
-  -webkit-appearance: none;
-  -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
 
 input:required:invalid,
 input:focus:invalid {
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAeVJREFUeNqkU01oE1EQ/mazSTdRmqSxLVSJVKU9RYoHD8WfHr16kh5EFA8eSy6hXrwUPBSKZ6E9V1CU4tGf0DZWDEQrGkhprRDbCvlpavan3ezu+LLSUnADLZnHwHvzmJlvvpkhZkY7IqFNaTuAfPhhP/8Uo87SGSaDsP27hgYM/lUpy6lHdqsAtM+BPfvqKp3ufYKwcgmWCug6oKmrrG3PoaqngWjdd/922hOBs5C/jJA6x7AiUt8VYVUAVQXXShfIqCYRMZO8/N1N+B8H1sOUwivpSUSVCJ2MAjtVwBAIdv+AQkHQqbOgc+fBvorjyQENDcch16/BtkQdAlC4E6jrYHGgGU18Io3gmhzJuwub6/fQJYNi/YBpCifhbDaAPXFvCBVxXbvfbNGFeN8DkjogWAd8DljV3KRutcEAeHMN/HXZ4p9bhncJHCyhNx52R0Kv/XNuQvYBnM+CP7xddXL5KaJw0TMAF8qjnMvegeK/SLHubhpKDKIrJDlvXoMX3y9xcSMZyBQ+tpyk5hzsa2Ns7LGdfWdbL6fZvHn92d7dgROH/730YBLtiZmEdGPkFnhX4kxmjVe2xgPfCtrRd6GHRtEh9zsL8xVe+pwSzj+OtwvletZZ/wLeKD71L+ZeHHWZ/gowABkp7AwwnEjFAAAAAElFTkSuQmCC);
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAeVJREFUeNqkU01oE1EQ/mazSTdRmqSxLVSJVKU9RYoHD8WfHr16kh5EFA8eSy6hXrwUPBSKZ6E9V1CU4tGf0DZWDEQrGkhprRDbCvlpavan3ezu+LLSUnADLZnHwHvzmJlvvpkhZkY7IqFNaTuAfPhhP/8Uo87SGSaDsP27hgYM/lUpy6lHdqsAtM+BPfvqKp3ufYKwcgmWCug6oKmrrG3PoaqngWjdd/922hOBs5C/jJA6x7AiUt8VYVUAVQXXShfIqCYRMZO8/N1N+B8H1sOUwivpSUSVCJ2MAjtVwBAIdv+AQkHQqbOgc+fBvorjyQENDcch16/BtkQdAlC4E6jrYHGgGU18Io3gmhzJuwub6/fQJYNi/YBpCifhbDaAPXFvCBVxXbvfbNGFeN8DkjogWAd8DljV3KRutcEAeHMN/HXZ4p9bhncJHCyhNx52R0Kv/XNuQvYBnM+CP7xddXL5KaJw0TMAF8qjnMvegeK/SLHubhpKDKIrJDlvXoMX3y9xcSMZyBQ+tpyk5hzsa2Ns7LGdfWdbL6fZvHn92d7dgROH/730YBLtiZmEdGPkFnhX4kxmjVe2xgPfCtrRd6GHRtEh9zsL8xVe+pwSzj+OtwvletZZ/wLeKD71L+ZeHHWZ/gowABkp7AwwnEjFAAAAAElFTkSuQmCC');
   background-position: right top;
   background-repeat: no-repeat;
-  -moz-box-shadow: none;
 }
 
 input:required:valid {
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAepJREFUeNrEk79PFEEUx9/uDDd7v/AAQQnEQokmJCRGwc7/QeM/YGVxsZJQYI/EhCChICYmUJigNBSGzobQaI5SaYRw6imne0d2D/bYmZ3dGd+YQKEHYiyc5GUyb3Y+77vfeWNpreFfhvXfAWAAJtbKi7dff1rWK9vPHx3mThP2Iaipk5EzTg8Qmru38H7izmkFHAF4WH1R52654PR0Oamzj2dKxYt/Bbg1OPZuY3d9aU82VGem/5LtnJscLxWzfzRxaWNqWJP0XUadIbSzu5DuvUJpzq7sfYBKsP1GJeLB+PWpt8cCXm4+2+zLXx4guKiLXWA2Nc5ChOuacMEPv20FkT+dIawyenVi5VcAbcigWzXLeNiDRCdwId0LFm5IUMBIBgrp8wOEsFlfeCGm23/zoBZWn9a4C314A1nCoM1OAVccuGyCkPs/P+pIdVIOkG9pIh6YlyqCrwhRKD3GygK9PUBImIQQxRi4b2O+JcCLg8+e8NZiLVEygwCrWpYF0jQJziYU/ho2TUuCPTn8hHcQNuZy1/94sAMOzQHDeqaij7Cd8Dt8CatGhX3iWxgtFW/m29pnUjR7TSQcRCIAVW1FSr6KAVYdi+5Pj8yunviYHq7f72po3Y9dbi7CxzDO1+duzCXH9cEPAQYAhJELY/AqBtwAAAAASUVORK5CYII=);
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAepJREFUeNrEk79PFEEUx9/uDDd7v/AAQQnEQokmJCRGwc7/QeM/YGVxsZJQYI/EhCChICYmUJigNBSGzobQaI5SaYRw6imne0d2D/bYmZ3dGd+YQKEHYiyc5GUyb3Y+77vfeWNpreFfhvXfAWAAJtbKi7dff1rWK9vPHx3mThP2Iaipk5EzTg8Qmru38H7izmkFHAF4WH1R52654PR0Oamzj2dKxYt/Bbg1OPZuY3d9aU82VGem/5LtnJscLxWzfzRxaWNqWJP0XUadIbSzu5DuvUJpzq7sfYBKsP1GJeLB+PWpt8cCXm4+2+zLXx4guKiLXWA2Nc5ChOuacMEPv20FkT+dIawyenVi5VcAbcigWzXLeNiDRCdwId0LFm5IUMBIBgrp8wOEsFlfeCGm23/zoBZWn9a4C314A1nCoM1OAVccuGyCkPs/P+pIdVIOkG9pIh6YlyqCrwhRKD3GygK9PUBImIQQxRi4b2O+JcCLg8+e8NZiLVEygwCrWpYF0jQJziYU/ho2TUuCPTn8hHcQNuZy1/94sAMOzQHDeqaij7Cd8Dt8CatGhX3iWxgtFW/m29pnUjR7TSQcRCIAVW1FSr6KAVYdi+5Pj8yunviYHq7f72po3Y9dbi7CxzDO1+duzCXH9cEPAQYAhJELY/AqBtwAAAAASUVORK5CYII=');
   background-position: right top;
   background-repeat: no-repeat;
 }

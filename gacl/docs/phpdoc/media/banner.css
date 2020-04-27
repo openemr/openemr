@@ -1,4 +1,4 @@
-body { 
+body {
   background-color: #eee;
   margin: 0;
   padding: 0;
@@ -6,23 +6,21 @@ body {
 
 /* Banner (top bar) classes */
 
-.banner {  }
-
 .banner-menu {
   border-top: 2px solid #aaa;
   clear: both;
   padding: 0.5em;
-  text-align: right;	
+  text-align: right;
 }
 
-.banner-title { 
+.banner-title {
   font-size: 20pt;
   font-weight: bold;
   margin: 0.2em;
   text-align: right;
 }
 
-.package-selector { 
+.package-selector {
   background-color: #ddd;
   border: 1px solid #aaa;
   color: #000090;

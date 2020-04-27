@@ -24,27 +24,6 @@
  * @package OpenEMR
  * @subpackage ediHistory
  */
-/*
-@media only screen and (max-width: 768px) {
-	#turnover, tr td:nth-child(9)		{ display:none; visibility:hidden; }
-}
-
-@media only screen and (max-width: 420px) {
-	#changepercent, tr td:nth-child(4)	{ display:none; visibility:hidden; }
-	#yhigh, tr td:nth-child(5)			{ display:none; visibility:hidden; }
-	#ylow, tr td:nth-child(6)			{ display:none; visibility:hidden; }
-	#turnover, tr td:nth-child(9)		{ display:none; visibility:hidden; }
-}
-
-@media only screen and (max-width: 320px) {
-	#changepercent, tr td:nth-child(4)	{ display:none; visibility:hidden; }
-	#yhigh, tr td:nth-child(5)			{ display:none; visibility:hidden; }
-	#ylow, tr td:nth-child(6)			{ display:none; visibility:hidden; }
-	#dhigh, tr td:nth-child(7)			{ display:none; visibility:hidden; }
-	#dlow, tr td:nth-child(8)			{ display:none; visibility:hidden; }
-	#turnover, tr td:nth-child(9)		{ display:none; visibility:hidden; }
-}
-*/
 @media print {
   .print {
     width: 100%;
@@ -54,15 +33,15 @@
     display: none;
   }
 
-  table.era835 thead {
+  table .era835 thead {
     display: table-header-group;
   }
 
-  table.era835 tfoot {
+  table .era835 tfoot {
     display: table-footer-group;
   }
 
-  table.era835 tbody.eraclp {
+  table .era835 tbody .eraclp {
     page-break-after: auto;
     page-break-inside: avoid;
   }
@@ -82,20 +61,20 @@
  * DataTables
  *
  */
-table#csvTable a {
+table #csvTable a {
   color: #0e4f83;
   text-decoration: none;
 }
 
-table#csvTable a:visited {
+table #csvTable a:visited {
   color: #3f260e;
 }
 
-table#csvTable a:hover {
+table #csvTable a:hover {
   color: #c40e0e;
 }
 
-div#tbrsp {
+div #tbrsp {
   height: 100%;
 }
 
@@ -105,7 +84,7 @@ div#tbrsp {
 }
 
 /* **** upload lists box-sizing: content-box; **  */
-div#fileupl1 {
+div #fileupl1 {
   background-color: #cad8da;
   border-color: #cad8da;
   border-style: solid;
@@ -119,7 +98,7 @@ div#fileupl1 {
   vertical-align: top;
 }
 
-div#fileupl2 {
+div #fileupl2 {
   background-color: #abf0cb;
   border-color: #abf0cb;
   border-style: solid;
@@ -133,7 +112,7 @@ div#fileupl2 {
   vertical-align: top;
 }
 
-ul.fupl {
+ul .fupl {
   font-size: medium;
   list-style-type: none;
   text-align: left;
@@ -149,7 +128,7 @@ div #processed * {
   box-sizing: border-box;
 }
 
-h2.prcs {
+h2 .prcs {
   background-color: #cadfdd;
   border-collapse: collapse;
   border-style: none;
@@ -184,171 +163,171 @@ div #processed dd {
   padding: 2px 4px;
 }
 
-dl.f837 {
+dl .f837 {
   background-color: #b5d4cc;
 }
 
-dl.f837 > dt.fodd {
+dl .f837 > dt .fodd {
   background-color: #c6dad5;
 }
 
-dl.f837 > dt.feven {
+dl .f837 > dt .feven {
   background-color: #bdc1c0;
 }
 
-dl.f837 > dd.codd {
+dl .f837 > dd .codd {
   background-color: #b4ded3;
 }
 
-dl.f837 > dd.ceven {
+dl .f837 > dd .ceven {
   background-color: #a8cdc4;
 }
 
-dl.f997 {
+dl .f997 {
   background-color: #e2dbcc;
 }
 
-dl.f997 > dt.fodd {
+dl .f997 > dt .fodd {
   background-color: #efe1c2;
 }
 
-dl.f997 > dt.feven {
+dl .f997 > dt .feven {
   background-color: #dfd2b6;
 }
 
-dl.f997 > dd.codd {
+dl .f997 > dd .codd {
   background-color: #e7e5e1;
 }
 
-dl.f997 > dd.ceven {
+dl .f997 > dd .ceven {
   background-color: #e2dbcc;
 }
 
-dl.f835 {
+dl .f835 {
   background-color: #d2e6e0;
 }
 
-dl.f835 > dt.fodd {
+dl .f835 > dt .fodd {
   background-color: #dadada;
 }
 
-dl.f835 > dt.feven {
+dl .f835 > dt .feven {
   background-color: #d4eae4;
 }
 
-dl.f835 > dd.codd {
+dl .f835 > dd .codd {
   background-color: #cdded9;
 }
 
-dl.f835 > dd.ceven {
+dl .f835 > dd .ceven {
   background-color: #e7eceb;
 }
 
-dl.f270 {
+dl .f270 {
   background-color: #c0d9da;
 }
 
-dl.f270 > dt.fodd {
+dl .f270 > dt .fodd {
   background-color: #c6d8d8;
 }
 
-dl.f270 > dt.feven {
+dl .f270 > dt .feven {
   background-color: #acccca;
 }
 
-dl.f270 > dd.codd {
+dl .f270 > dd .codd {
   background-color: #b4d9db;
 }
 
-dl.f270 > dd.ceven {
+dl .f270 > dd .ceven {
   background-color: #c1e5e7;
 }
 
-dl.f271 {
+dl .f271 {
   background-color: #c0dddd;
 }
 
-dl.f271 > dt.fodd {
+dl .f271 > dt .fodd {
   background-color: #cdcfcf;
 }
 
-dl.f271 > dt.feven {
+dl .f271 > dt .feven {
   background-color: #c4e5e5;
 }
 
-dl.f271 > dd.codd {
+dl .f271 > dd .codd {
   background-color: #bfd0d0;
 }
 
-dl.f271 > dd.ceven {
+dl .f271 > dd .ceven {
   background-color: #c0e4e4;
 }
 
 /* ***** f276 class *******/
-dl.f276 {
+dl .f276 {
   background-color: #c6dfe8;
 }
 
-dl.f276 > dt.fodd {
+dl .f276 > dt .fodd {
   background-color: #d1d6d8;
 }
 
-dl.f276 > dt.feven {
+dl .f276 > dt .feven {
   background-color: #cbe1e9;
 }
 
-dl.f276 > dd.codd {
+dl .f276 > dd .codd {
   background-color: #cdd7db;
 }
 
-dl.f276 > dd.ceven {
+dl .f276 > dd .ceven {
   background-color: #cbe7f1;
 }
 
 /* ***** f277 class *******/
-dl.f277 {
+dl .f277 {
   background-color: #c8e6de;
 }
 
-dl.f277 > dt.fodd {
+dl .f277 > dt .fodd {
   background-color: #d9e4e1;
 }
 
-dl.f277 > dt.feven {
+dl .f277 > dt .feven {
   background-color: #caece3;
 }
 
-dl.f277 > dd.codd {
+dl .f277 > dd .codd {
   background-color: #c3ddd7;
 }
 
-dl.f277 > dd.ceven {
+dl .f277 > dd .ceven {
   background-color: #c8ede3;
 }
 
 /* ***** f278 class *******/
-dl.f278 {
+dl .f278 {
   background-color: #d4e7ea;
 }
 
-dl.f278 > dt.fodd {
+dl .f278 > dt .fodd {
   background-color: #dae5e6;
 }
 
-dl.f278 > dt.feven {
+dl .f278 > dt .feven {
   background-color: #daeef1;
 }
 
-dl.f278 > dd.codd {
+dl .f278 > dd .codd {
   background-color: #cbe0e3;
 }
 
-dl.f278 > dd.ceven {
+dl .f278 > dd .ceven {
   background-color: #c9e7ec;
 }
 
 /*  width: 940px;  */
-div#tblshow {
+div #tblshow {
   max-width: fit-content;
   width: 896px;
 }
@@ -356,7 +335,7 @@ div#tblshow {
 /*
  * encounter record table
  */
-table.clmhist {
+table .clmhist {
   background-color: #a4e1c7;
   border: 2px solid #007342;
   border-collapse: collapse;
@@ -369,80 +348,80 @@ table.clmhist {
   text-align: left;
 }
 
-table.clmhist caption {
+table .clmhist caption {
   font-size: medium;
   font-weight: bold;
 }
 
-table.clmhist tr.chhead {
+table .clmhist tr .chhead {
   background-color: #7fcba9;
   font-size: medium;
   font-weight: bold;
   padding: 5px;
 }
 
-table.clmhist td {
+table .clmhist td {
   padding: 2px;
 }
 
-table.clmhist tr.ch278 td {
+table .clmhist tr .ch278 td {
   background-color: #caefdc;
 }
 
-table.clmhist tr.ch270 td {
+table .clmhist tr .ch270 td {
   background-color: #d0e1de;
 }
 
-table.clmhist tr.ch271 td {
+table .clmhist tr .ch271 td {
   background-color: #c8eae3;
 }
 
-table.clmhist tr.ch837 td {
+table .clmhist tr .ch837 td {
   background-color: #d8e6da;
 }
 
-table.clmhist tr.ch997 td {
+table .clmhist tr .ch997 td {
   background-color: #e2ccbd;
 }
 
-table.clmhist tr.ch277 td {
+table .clmhist tr .ch277 td {
   background-color: #e1eff2;
 }
 
-table.clmhist tr.ch835 td {
+table .clmhist tr .ch835 td {
   background-color: #d4edce;
 }
 
-table#csvTable td {
+table #csvTable td {
   color: #000;
 }
 
-table#csvTable td.reject {
+table #csvTable td .reject {
   color: #a40808;
 }
 
 /* ***** f837 class *******/
-table#csvTable {
+table #csvTable {
   background-color: #d8dadb;
 }
 
-table#csvTable tr.odd td {
+table #csvTable tr .odd td {
   background-color: #dbe4dc;
 }
 
-table#csvTable tr.even td {
+table #csvTable tr .even td {
   background-color: #dadada;
 }
 
 /* ***** 999/997 error report*******/
-p.rpt997 {
+p .rpt997 {
   background-color: #cae2f2;
   border: 2px solid #d6d6d6;
   font-size: medium;
   margin: 8px;
 }
 
-p.err997 {
+p .err997 {
   background-color: #caeaf2;
   border: 2px solid #d6d6d6;
   font-size: medium;
@@ -474,235 +453,235 @@ div #processed table td {
   padding: 3px;
 }
 
-div #processed table td.reject {
+div #processed table td .reject {
   color: #a40808;
 }
 
 /* ***** f837 class *******/
-div #processed table.f837 {
+div #processed table .f837 {
   background-color: #9fd7ad;
 }
 
-div #processed table.f837 tr.fodd td {
+div #processed table .f837 tr .fodd td {
   background-color: #92dd99;
 }
 
-div #processed table.f837 tr.feven td {
+div #processed table .f837 tr .feven td {
   background-color: #b9ccbb;
 }
 
-div #processed table.cf837 {
+div #processed table .cf837 {
   background-color: #c7e2ce;
 }
 
-div #processed table.cf837 tr.codd td {
+div #processed table .cf837 tr .codd td {
   background-color: #92dd99;
 }
 
-div #processed table.cf837 tr.ceven td {
+div #processed table .cf837 tr .ceven td {
   background-color: #9bcca7;
 }
 
 /* ***** f997 class *******/
-div #processed table.f997 {
+div #processed table .f997 {
   background-color: #ebd195;
 }
 
-div #processed table.f997 caption {
+div #processed table .f997 caption {
   background-color: #ebd195;
 }
 
-div #processed table.f997 tr.fodd td {
+div #processed table .f997 tr .fodd td {
   background-color: #d7cfbd;
 }
 
-div #processed table.f997 tr.feven td {
+div #processed table .f997 tr .feven td {
   background-color: #ecdcb8;
 }
 
-div #processed table.cf997 {
+div #processed table .cf997 {
   background-color: #e8dabb;
 }
 
-div #processed table.cf997 tr.codd td {
+div #processed table .cf997 tr .codd td {
   background-color: #ebdab4;
 }
 
-div #processed table.cf997 tr.ceven td {
+div #processed table .cf997 tr .ceven td {
   background-color: #e1d6bd;
 }
 
 /* ***** f835 class *******/
-div #processed table.f835 {
+div #processed table .f835 {
   background-color: #acc3a5;
 }
 
-div #processed table.f835 caption {
+div #processed table .f835 caption {
   background-color: #ebd195;
 }
 
-div #processed table.f835 tr.fodd td {
+div #processed table .f835 tr .fodd td {
   background-color: #b3c7a1;
 }
 
-div #processed table.f835 tr.feven td {
+div #processed table .f835 tr .feven td {
   background-color: #c2c8bc;
 }
 
-div #processed table.cf835 {
+div #processed table .cf835 {
   background-color: #cedacb;
 }
 
-div #processed table.cf835 tr.codd td {
+div #processed table .cf835 tr .codd td {
   background-color: #aed0a2;
 }
 
-div #processed table.cf835 tr.ceven td {
+div #processed table .cf835 tr .ceven td {
   background-color: #b5d1aa;
 }
 
 /* ***** f270 class *******/
-div #processed table.f270 {
+div #processed table .f270 {
   background-color: #c0d9da;
 }
 
-div #processed table.f270 caption {
+div #processed table .f270 caption {
   background-color: #c0d9da;
 }
 
-div #processed table.f270 tr.fodd td {
+div #processed table .f270 tr .fodd td {
   background-color: #c6d8d8;
 }
 
-div #processed table.f270 tr.feven td {
+div #processed table .f270 tr .feven td {
   background-color: #acccca;
 }
 
-div #processed table.cf270 {
+div #processed table .cf270 {
   background-color: #def1f2;
 }
 
-div #processed table.cf270 tr.codd td {
+div #processed table .cf270 tr .codd td {
   background-color: #b4d9db;
 }
 
-div #processed table.cf270 tr.ceven td {
+div #processed table .cf270 tr .ceven td {
   background-color: #c1e5e7;
 }
 
 /* ***** f271 class *******/
-div #processed table.f271 {
+div #processed table .f271 {
   background-color: #ccefe4;
 }
 
-div #processed table.f271 caption {
+div #processed table .f271 caption {
   background-color: #ccefe4;
 }
 
-div #processed table.f271 tr.fodd td {
+div #processed table .f271 tr .fodd td {
   background-color: #96d6c2;
 }
 
-div #processed table.f271 tr.feven td {
+div #processed table .f271 tr .feven td {
   background-color: #afd0c6;
 }
 
-div #processed table.cf271 {
+div #processed table .cf271 {
   background-color: #e3eeeb;
 }
 
-div #processed table.cf271 tr.codd td {
+div #processed table .cf271 tr .codd td {
   background-color: #c0dad2;
 }
 
-div #processed table.cf271 tr.ceven td {
+div #processed table .cf271 tr .ceven td {
   background-color: #aee3d2;
 }
 
 /* ***** f276 class *******/
-div #processed table.f276 {
+div #processed table .f276 {
   background-color: #bce8f8;
 }
 
-div #processed table.f276 caption {
+div #processed table .f276 caption {
   background-color: #bce8f8;
 }
 
-div #processed table.f276 tr.fodd td {
+div #processed table .f276 tr .fodd td {
   background-color: #c4d7dd;
 }
 
-div #processed table.f276 tr.feven td {
+div #processed table .f276 tr .feven td {
   background-color: #aee1f4;
 }
 
-div #processed table.cf276 {
+div #processed table .cf276 {
   background-color: #bce8f8;
 }
 
-div #processed table.cf276 tr.codd td {
+div #processed table .cf276 tr .codd td {
   background-color: #bce8f8;
 }
 
-div #processed table.cf276 tr.ceven td {
+div #processed table .cf276 tr .ceven td {
   background-color: #bce8f8;
 }
 
 /* ***** f277 class *******/
-div #processed table.f277 {
+div #processed table .f277 {
   background-color: #bcf8e7;
 }
 
-div #processed table.f277 caption {
+div #processed table .f277 caption {
   background-color: #bcf8e7;
 }
 
-div #processed table.f277 tr.fodd td {
+div #processed table .f277 tr .fodd td {
   background-color: #badcd7;
 }
 
-div #processed table.f277 tr.feven td {
+div #processed table .f277 tr .feven td {
   background-color: #b7f3e1;
 }
 
-div #processed table.cf277 {
+div #processed table .cf277 {
   background-color: #d4ebe5;
 }
 
-div #processed table.cf277 tr.codd td {
+div #processed table .cf277 tr .codd td {
   background-color: #bdd5d1;
 }
 
-div #processed table.cf277 tr.ceven td {
+div #processed table .cf277 tr .ceven td {
   background-color: #a3e0d7;
 }
 
 /* ***** f278 class *******/
-div #processed table.f278 {
+div #processed table .f278 {
   background-color: #cceaef;
 }
 
-div #processed table.f278 caption {
+div #processed table .f278 caption {
   background-color: #b8dce2;
 }
 
-div #processed table.f278 tr.fodd td {
+div #processed table .f278 tr .fodd td {
   background-color: #abecd8;
 }
 
-div #processed table.f278 tr.feven td {
+div #processed table .f278 tr .feven td {
   background-color: #dbe3e0;
 }
 
-div #processed table.cf278 {
+div #processed table .cf278 {
   background-color: #d9eaed;
 }
 
-div #processed table.cf278 tr.codd td {
+div #processed table .cf278 tr .codd td {
   background-color: #dce0df;
 }
 
-div #processed table.cf278 tr.ceven td {
+div #processed table .cf278 tr .ceven td {
   background-color: #aee3d2;
 }
 
@@ -710,7 +689,7 @@ div #processed table.cf278 tr.ceven td {
  * ***** 27x transaction html display ******
  */
 /* ***** h271 eligibility transaction display *******/
-table.h271 {
+table .h271 {
   background-color: #deeae6;
   border-collapse: collapse;
   padding: 1em 1em 3em;
@@ -719,27 +698,27 @@ table.h271 {
   word-wrap: normal;
 }
 
-table.h271 caption {
+table .h271 caption {
   background-color: #c8e4da;
   font-family: "Liberation Sans", "Trebuchet MS", sans-serif;
   font-size: 1.2em;
   text-align: left;
 }
 
-table.h271 td {
+table .h271 td {
   vertical-align: top;
 }
 
-table.h271 tr.ebe td {
+table .h271 tr .ebe td {
   background-color: #d2e7e0;
 }
 
-table.h271 tr.ebo td {
+table .h271 tr .ebo td {
   background-color: #deeae6;
 }
 
 /* ***** h277 claim status transaction display *******/
-table.h277 {
+table .h277 {
   background-color: #cfedd9;
   border-collapse: collapse;
   font-family: "Liberation Serif", "Times New Roman", serif;
@@ -749,7 +728,7 @@ table.h277 {
   word-wrap: normal;
 }
 
-table.h277 caption {
+table .h277 caption {
   background-color: #cbe3cd;
   font-family: "Liberation Sans", "Trebuchet MS", sans-serif;
   font-size: 1.2em;
@@ -757,32 +736,32 @@ table.h277 caption {
   text-align: left;
 }
 
-table.h277 td {
+table .h277 td {
   vertical-align: top;
 }
 
-table.h277 tr.src td {
+table .h277 tr .src td {
   background-color: #cadcd0;
 }
 
-table.h277 tr.rcv td {
+table .h277 tr .rcv td {
   background-color: #cdded3;
 }
 
-table.h277 tr.prv td {
+table .h277 tr .prv td {
   background-color: #cbe3cd;
 }
 
-table.h277 tr.sbr td {
+table .h277 tr .sbr td {
   background-color: #cde7d2;
 }
 
-table.h277 tr.dep td {
+table .h277 tr .dep td {
   background-color: #caf6c8;
 }
 
 /* ***** h278 eligibility transaction display *******/
-table.h278 {
+table .h278 {
   background-color: #dde4e2;
   border-collapse: collapse;
   font-family: "Liberation Serif", "Times New Roman", serif;
@@ -792,7 +771,7 @@ table.h278 {
   word-wrap: normal;
 }
 
-table.h278 caption {
+table .h278 caption {
   background-color: #dde4e2;
   font-family: "Liberation Sans", "Trebuchet MS", sans-serif;
   font-size: 1.2em;
@@ -800,36 +779,36 @@ table.h278 caption {
   text-align: left;
 }
 
-table.h278 td {
+table .h278 td {
   vertical-align: top;
 }
 
-table.h278 tr.src td {
+table .h278 tr .src td {
   background-color: #c9e7dd;
 }
 
-table.h278 tr.rcv td {
+table .h278 tr .rcv td {
   background-color: #dde4e2;
 }
 
-table.h278 tr.sbr td {
+table .h278 tr .sbr td {
   background-color: #c9e6dc;
 }
 
-table.h278 tr.dep td {
+table .h278 tr .dep td {
   background-color: #d3dfdb;
 }
 
-table.h278 tr.evt td {
+table .h278 tr .evt td {
   background-color: #e0ece8;
 }
 
-table.h278 tr.svc td {
+table .h278 tr .svc td {
   background-color: #c9e7dd;
 }
 
 /* ***** h835 claim payment display *******/
-table.h835c {
+table .h835c {
   background-color: #9edc9f;
   border-collapse: collapse;
   font-family: "Liberation Serif", "Times New Roman", serif;
@@ -839,7 +818,7 @@ table.h835c {
   word-wrap: normal;
 }
 
-table.h835c caption {
+table .h835c caption {
   background-color: #9edc9f;
   font-family: "Liberation Sans", "Trebuchet MS", sans-serif;
   font-size: 1em;
@@ -847,35 +826,35 @@ table.h835c caption {
   text-align: left;
 }
 
-table.h835c td {
+table .h835c td {
   vertical-align: top;
 }
 
-table.h835c td:first-child {
+table .h835c td:first-child {
   min-width: 8em;
 }
 
-table.h835c tr.lx td {
+table .h835c tr .lx td {
   background-color: #e3dac6;
 }
 
-table.h835c tr.sbr td {
+table .h835c tr .sbr td {
   background-color: #d6eed5;
 }
 
-table.h835c tr.clp td {
+table .h835c tr .clp td {
   background-color: #d6eed5;
 }
 
-table.h835c tr.svc td {
+table .h835c tr .svc td {
   background-color: #c5e2e7;
 }
 
-table.h835c tr.mia td {
+table .h835c tr .mia td {
   background-color: #dcd8ce;
 }
 
-table.h835c tr.rems td {
+table .h835c tr .rems td {
   background-color: #d4e2e4;
 }
 

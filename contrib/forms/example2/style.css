@@ -1,6 +1,6 @@
-/* This CSS is used ONLY by the form defined in this same folder 
+/* This CSS is used ONLY by the form defined in this same folder
  * customize it as you see fit for your specific form
- */ 
+ */
 
 h1 {
   font-size: 120%;
@@ -9,7 +9,7 @@ h1 {
 
 #form_container {
   background-color: #ffc;
-  border: 1px solid black;
+  border: 1px solid var(--black);
   margin: 10px 0;
   padding: 10px;
   width: 750px;
@@ -20,12 +20,12 @@ h1 {
 }
 
 #history {
-  border-top: 1px solid black;
+  border-top: 1px solid var(--black);
   padding: 10px;
 }
 
 #bottom {
-  border-top: 1px solid black;
+  border-top: 1px solid var(--black);
   padding: 10px;
 }
 
@@ -47,14 +47,14 @@ h1 {
   font-weight: bold;
 }
 
-.bold { 
+.bold {
   font-size: 110%;
   font-weight: bold;
 }
 
 #print_form_container {
   background-color: #ffc;
-  border: 1px solid black;
+  border: 1px solid var(--black);
   margin: 10px 0;
   padding: 10px;
 }
@@ -64,11 +64,11 @@ h1 {
 }
 
 #print_history {
-  border-top: 1px solid black;
+  border-top: 1px solid var(--black);
   padding: 10px;
 }
 
 #print_bottom {
-  border-top: 1px solid black;
+  border-top: 1px solid var(--black);
   padding: 10px;
 }

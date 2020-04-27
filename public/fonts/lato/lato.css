@@ -1,179 +1,191 @@
-/* Webfont: Lato-Bold */@font-face {
+@font-face {
   font-family: 'lato';
   font-style: normal;
   font-weight: bold;
-  src: url('Lato-Bold.eot'); /* IE9 Compat Modes */
-  src: url('Lato-Bold.eot?#iefix') format('embedded-opentype'), 
-    url(    d.woff2') format('woff2'), 
-         url('Lato-Bold.woff') for    '        url('Lato-Bold.ttf') format('truetype');
+  src: url('Lato-Bold.eot');
+  src: url('Lato-Bold.eot?#iefix') format('embedded-opentype'),
+    url('Lato-Bold.woff2') format('woff2'),
+    url('Lato-Bold.woff') format('woff'),
+    url('Lato-Bold.ttf') format('truetype');
   text-rendering: optimizeLegibility;
-}
-
-/* Webfont: Lato-BoldItalic */@font-face {
-  font-family: 'lato';
-  font-style: italic;
-  font-weight: bold;
-  src: url('Lato-BoldItalic.eot'); /* IE9 Compat Modes */
-  src: url('Lato-BoldItalic.eot?#iefix') format('embedded-opentype'), 
-    url(    dItalic.woff2') format('woff2'), 
-         url('Lato-BoldItalic.woff    ('woff'        url('Lato-BoldItalic.ttf') format('truetype')      ;
-  text-rendering: optimizeLegibili  ty;  
 }
 
 @font-face {
   font-family: 'lato';
-     ont-style: normal;
-      nt-weight: 100;
-  sr     url('Lato-Hairlin    eot'); 
-  src: url('Lato-Hairline.eot?#iefix') format(    mbedded-opentype'), 
-         url(    rline.woff2') format('woff2')       url('Lato-Hairline.woff')    woff'), 
-         url('Lato-Hairline.ttf') format('true     ;
+  font-style: italic;
+  font-weight: bold;
+  src: url('Lato-BoldItalic.eot');
+  src: url('Lato-BoldItalic.eot?#iefix') format('embedded-opentype'),
+    url('Lato-BoldItalic.woff2') format('woff2'),
+    url('Lato-BoldItalic.woff') format('woff'),
+    url('Lato-BoldItalic.ttf') format('truetype');
   text-rendering: optimizeLegibility;
 }
 
-@font    ace {
+@font-face {
   font-family: 'lato';
-  font-  sty  le: italic;
+  font-style: normal;
   font-weight: 100;
-  src: url('Lat    HairlineItalic.eot');      src: url('Lato-Hai    ineItalic.eot?#ief    ') format('embedded-opentype'), 
-         url(    rlineItali    woff2') format('woff2'), 
-         url('Lato-HairlineItalic.    rmat('wof          url('Lato-HairlineItalic.ttf') format('truetyp    ;
-  text-rendering: optimizeLegibility;
-}
-
-    t: Lato-Heavy */@font-face {
-  font-family: 'lato';
-  font-style: normal;
-  font-weight: 800;
-  src: url('Lato-Heavy.eot'); /* IE9 Compat Modes */
-  src: url('Lato-Heavy.eot?#iefix') format('embedded-opentype'), 
-         url(    vy.woff2') format('woff2'), 
-         url('Lato-Heavy.woff') fo    f'), 
-         url('Lato-Heavy.ttf') format('truetype')    ;    endering: optimizeLegibility;
-}
-
-/* Webfont: Lato-HeavyItalic */@font-face {
-  font-family: 'lato';
-  font-style: italic;
-  font-weight: 800;
-  src: url('Lato-HeavyItalic.eot'); /* IE9 Compat Modes */
-  src: url('Lato-HeavyItalic.eot?#iefix') format('embedded-opentype'), 
-         url(    vyItalic.woff2') format('woff2'), 
-         url('Lato-HeavyItalic.wof    t('woff'), 
-         url('Lato-HeavyItalic.ttf') format('tru      ;
-  text-rendering: optimizeLegibility;
-}
-
-/* Webfont: Lato-Italic */@font-face {
-  font-family: 'lato';
-  font-style: italic;
-  font-weight: normal;
-  src: url('Lato-Italic.eot'); /* IE9 Compat Modes */
-  src: url('Lato-Italic.eot?#iefix') format('embedded-opentype'), 
-         url(    lic.woff2') format('woff2'), 
-         url('Lato-Italic.woff') f    ff'), 
-         url('Lato-Italic.ttf') format('truetype')       -rendering: optimizeLegibility;
-}
-
-/* Webfont: Lato-Light */@font-face {
-  font-family: 'lato';
-  font-style: normal;
-  font-weight: 300;
-  src: url('Lato-Light.eot'); /* IE9 Compat Modes */
-  src: url('Lato-Light.eot?#iefix') format('embedded-opentype'), 
-         url(    ht.woff2') format('woff2'), 
-         url('Lato-Light.woff') fo    f'), 
-         url('Lato-Light.ttf') format('truetype')    ;    endering: optimizeLegibility;
-}
-
-/* Webfont: Lato-LightItalic */@font-face {
-  font-family: 'lato';
-  font-style: italic;
-  font-weight: 300;
-  src: url('Lato-LightItalic.eot'); /* IE9 Compat Modes */
-  src: url('Lato-LightItalic.eot?#iefix') format('embedded-opentype'), 
-         url(    htItalic.woff2') format('woff2'), 
-         url('Lato-LightItalic.wof    t('woff'), 
-         url('Lato-LightItalic.ttf') format('tru      ;
-  text-rendering: optimizeLegibility;
-}
-
-/* Webfont: Lato-Medium */@font-face {
-  font-family: 'lato';
-  font-style: normal;
-  font-weight: 500;
-  src: url('Lato-Medium.eot'); /* IE9 Compat Modes */
-  src: url('Lato-Medium.eot?#iefix') format('embedded-opentype'), 
-         url(    ium.woff2') format('woff2'), 
-         url('Lato-Medium.woff') f    ff'), 
-         url('Lato-Medium.ttf') format('truetype')       -rendering: optimizeLegibility;
-}
-
-/* Webfont: Lato-MediumItalic */@font-face {
-  font-family: 'lato';
-  font-style: italic;
-  font-weight: 500;
-  src: url('Lato-MediumItalic.eot'); /* IE9 Compat Modes */
-  src: url('Lato-MediumItalic.eot?#iefix') format('embedded-opentype'), 
-         url(    iumItalic.woff2') format('woff2'), 
-         url('Lato-MediumItalic.wo    at('woff'), 
-         url('Lato-MediumItalic.ttf') format('t       ;
-  text-rendering: optimizeLegibility;
-}
-
-/* Webfont: Lato-Regular */@font-face {
-  font-family: 'lato';
-  font-style: normal;
-  font-weight: normal;
-  src: url('Lato-Regular.eot'); /* IE9 Compat Modes */
-  src: url('Lato-Regular.eot?#iefix') format('embedded-opentype'), 
-         url(    ular.woff2') format('woff2'), 
-         url('Lato-Regular.woff')     off'), 
-         url('Lato-Regular.ttf') format('truetype')     xt-rendering: optimizeLegibility;
-}
-
-/* Webfont: Lato-Semibold */@font-face {
-  font-family: 'lato';
-  font-style: normal;
-  font-weight: 600;
-  src: url('Lato-Semibold.eot'); /* IE9 Compat Modes */
-  src: url('Lato-Semibold.eot?#iefix') format('embedded-opentype'), 
-         url(    ibold.woff2') format('woff2'), 
-         url('Lato-Semibold.woff')    woff'), 
-         url('Lato-Semibold.ttf') format('truetype'    text-rendering: optimizeLegibility;
-}
-
-/* Webfont: Lato-SemiboldItalic */@font-face {
-  font-family: 'lato';
-  font-style: italic;
-  font-weight: 600;
-  src: url('Lato-SemiboldItalic.eot'); /* IE9 Compat Modes */
-  src: url('Lato-SemiboldItalic.eot?#iefix') format('embedded-opentype'), 
-         url(    iboldItalic.woff2') format('woff2'), 
-         url('Lato-SemiboldItalic.    rmat('woff'), 
-         url('Lato-SemiboldItalic.ttf') forma    p    ;
+  src: url('Lato-Hairline.eot');
+  src: url('Lato-Hairline.eot?#iefix') format('embedded-opentype'),
+    url('Lato-Hairline.woff2') format('woff2'),
+    url('Lato-Hairline.woff') format('woff'),
+    url('Lato-Hairline.ttf') format('truetype');
   text-rendering: optimizeLegibility;
 }
 
 @font-face {
   font-family: 'lato';
-  font-style: normal;     font-weight: 200;
-  src: url('Lato-  Thi  n.eot'); 
-  src: url('Lato-Thin.eot?#    fix') format('embedde    opentype'), 
-           url(    n.woff2')     rmat('woff2'), 
-         url('Lato-Thin.woff') for      '), 
-         url('Lato-Thin.ttf') format('truetype')    ;
-      ering: optimizeLegibility;
+  font-style: italic;
+  font-weight: 100;
+  src: url('Lato-HairlineItalic.eot');
+  src: url('Lato-HairlineItalic.eot?#iefix') format('embedded-opentype'),
+    url('Lato-HairlineItalic.woff2') format('woff2'),
+    url('Lato-HairlineItalic.woff') format('woff'),
+    url('Lato-HairlineItalic.ttf') format('truetype');
+  text-rendering: optimizeLegibility;
 }
 
 @font-face {
   font-family: 'lato';
-  font-st    ic;
+  font-style: normal;
+  font-weight: 800;
+  src: url('Lato-Heavy.eot');
+  src: url('Lato-Heavy.eot?#iefix') format('embedded-opentype'),
+    url('Lato-Heavy.woff2') format('woff2'),
+    url('Lato-Heavy.woff') format('woff'),
+    url('Lato-Heavy.ttf') format('truetype');
+  text-rendering: optimizeLegibility;
+}
+
+@font-face {
+  font-family: 'lato';
+  font-style: italic;
+  font-weight: 800;
+  src: url('Lato-HeavyItalic.eot');
+  src: url('Lato-HeavyItalic.eot?#iefix') format('embedded-opentype'),
+    url('Lato-HeavyItalic.woff2') format('woff2'),
+    url('Lato-HeavyItalic.woff') format('woff'),
+    url('Lato-HeavyItalic.ttf') format('truetype');
+  text-rendering: optimizeLegibility;
+}
+
+@font-face {
+  font-family: 'lato';
+  font-style: italic;
+  font-weight: normal;
+  src: url('Lato-Italic.eot');
+  src: url('Lato-Italic.eot?#iefix') format('embedded-opentype'),
+    url('Lato-Italic.woff2') format('woff2'),
+    url('Lato-Italic.woff') format('woff'),
+    url('Lato-Italic.ttf') format('truetype');
+  text-rendering: optimizeLegibility;
+}
+
+@font-face {
+  font-family: 'lato';
+  font-style: normal;
+  font-weight: 300;
+  src: url('Lato-Light.eot');
+  src: url('Lato-Light.eot?#iefix') format('embedded-opentype'),
+    url('Lato-Light.woff2') format('woff2'),
+    url('Lato-Light.woff') format('woff'),
+    url('Lato-Light.ttf') format('truetype');
+  text-rendering: optimizeLegibility;
+}
+
+@font-face {
+  font-family: 'lato';
+  font-style: italic;
+  font-weight: 300;
+  src: url('Lato-LightItalic.eot');
+  src: url('Lato-LightItalic.eot?#iefix') format('embedded-opentype'),
+    url('Lato-LightItalic.woff2') format('woff2'),
+    url('Lato-LightItalic.woff') format('woff'),
+    url('Lato-LightItalic.ttf') format('truetype');
+  text-rendering: optimizeLegibility;
+}
+
+@font-face {
+  font-family: 'lato';
+  font-style: normal;
+  font-weight: 500;
+  src: url('Lato-Medium.eot');
+  src: url('Lato-Medium.eot?#iefix') format('embedded-opentype'),
+    url('Lato-Medium.woff2') format('woff2'),
+    url('Lato-Medium.woff') format('woff'),
+    url('Lato-Medium.ttf') format('truetype');
+  text-rendering: optimizeLegibility;
+}
+
+@font-face {
+  font-family: 'lato';
+  font-style: italic;
+  font-weight: 500;
+  src: url('Lato-MediumItalic.eot');
+  src: url('Lato-MediumItalic.eot?#iefix') format('embedded-opentype'),
+    url('Lato-MediumItalic.woff2') format('woff2'),
+    url('Lato-MediumItalic.woff') format('woff'),
+    url('Lato-MediumItalic.ttf') format('truetype');
+  text-rendering: optimizeLegibility;
+}
+
+@font-face {
+  font-family: 'lato';
+  font-style: normal;
+  font-weight: normal;
+  src: url('Lato-Regular.eot');
+  src: url('Lato-Regular.eot?#iefix') format('embedded-opentype'),
+    url('Lato-Regular.woff2') format('woff2'),
+    url('Lato-Regular.woff') format('woff'),
+    url('Lato-Regular.ttf') format('truetype');
+  text-rendering: optimizeLegibility;
+}
+
+@font-face {
+  font-family: 'lato';
+  font-style: normal;
+  font-weight: 600;
+  src: url('Lato-Semibold.eot');
+  src: url('Lato-Semibold.eot?#iefix') format('embedded-opentype'),
+    url('Lato-Semibold.woff2') format('woff2'),
+    url('Lato-Semibold.woff') format('woff'),
+    url('Lato-Semibold.ttf') format('truetype');
+  text-rendering: optimizeLegibility;
+}
+
+@font-face {
+  font-family: 'lato';
+  font-style: italic;
+  font-weight: 600;
+  src: url('Lato-SemiboldItalic.eot');
+  src: url('Lato-SemiboldItalic.eot?#iefix') format('embedded-opentype'),
+    url('Lato-SemiboldItalic.woff2') format('woff2'),
+    url('Lato-SemiboldItalic.woff') format('woff'),
+    url('Lato-SemiboldItalic.ttf') format('truetype');
+  text-rendering: optimizeLegibility;
+}
+
+@font-face {
+  font-family: 'lato';
+  font-style: normal;
   font-weight: 200;
-  src: url('Lato-Thin    alic.eot'); 
-  src: url('Lato-ThinIt  ali  c.eot?#iefix') format('embedded-opentype'),             url(    nIta    c.woff2') format('wo    2'), 
-         url    Lato-ThinItalic.woff    ('woff'), 
-         url('Lato-Th    Italic.ttf') format('truetype')    ;
-  text-rendering: optimizeLegibi            ;
+  src: url('Lato-Thin.eot');
+  src: url('Lato-Thin.eot?#iefix') format('embedded-opentype'),
+    url('Lato-Thin.woff2') format('woff2'),
+    url('Lato-Thin.woff') format('woff'),
+    url('Lato-Thin.ttf') format('truetype');
+  text-rendering: optimizeLegibility;
+}
 
+@font-face {
+  font-family: 'lato';
+  font-style: italic;
+  font-weight: 200;
+  src: url('Lato-ThinItalic.eot');
+  src: url('Lato-ThinItalic.eot?#iefix') format('embedded-opentype'),
+    url('Lato-ThinItalic.woff2') format('woff2'),
+    url('Lato-ThinItalic.woff') format('woff'),
+    url('Lato-ThinItalic.ttf') format('truetype');
+  text-rendering: optimizeLegibility;
 }

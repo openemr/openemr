@@ -23,7 +23,7 @@ h1 {
 }
 
 .nav-tabs {
-  border-bottom: none;
+  border-bottom: 0;
 }
 
 .nav-tabs > li {
@@ -32,21 +32,21 @@ h1 {
 }
 
 .nav-tabs > li .active {
-  border-bottom: none;
+  border-bottom: 0;
 }
 
 .nav-tabs > li > a {
-  border: none;
+  border: 0;
   margin-right: 0;
 }
 
-.nav-tabs > li.active > a {
-  border: none;
+.nav-tabs > li .active > a {
+  border: 0;
 }
 
-.nav-tabs > li.active > a,
-.nav-tabs > li.active > a:focus,
-.nav-tabs > li.active > a:hover {
+.nav-tabs > li .active > a,
+.nav-tabs > li .active > a:focus,
+.nav-tabs > li .active > a:hover {
   border: unset;
 }
 
@@ -57,7 +57,6 @@ h1 {
 
 .sticky {
   opacity: 1;
-  position: -webkit-sticky;
   position: sticky;
   top: 12px;
   z-index: 990;
@@ -432,7 +431,7 @@ input[type="radio"] {
   width: 70%;
 }
 
-td.right {
+td .right {
   width: 30%;
 }
 

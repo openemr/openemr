@@ -11,8 +11,8 @@
 }
 
 #encounters .billing_note_text {
-  background-color: lightgrey;
-  border: 2px outset black;
+  background-color: #d3d3d3;
+  border: 2px outset #000;
   padding: 5px;
 }
 
@@ -35,7 +35,7 @@
 
 #encounters #tooltipdiv {
   background-color: #ffa;
-  border: 1px solid black;
+  border: 1px solid #000;
   font-size: 9pt;
   padding: 2px;
   position: absolute;
@@ -57,13 +57,12 @@
   position: absolute;
 }
 
-#encounters>table>*>tr>td {
-  border-top: 1px solid black;
+#encounters > table >* > tr > td {
+  border-top: 1px solid #000;
   vertical-align: top;
 }
 
-div.encreport td {
+div .encreport td {
   font-size: 8pt;
   vertical-align: top;
 }
-
