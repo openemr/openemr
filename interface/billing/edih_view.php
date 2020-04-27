@@ -511,21 +511,6 @@ jquery-UI dialog
         $('<div/>', {'class':'edihDlg', 'id':'link-'+($(this).index()+1)})
             .load($(this).attr('href')).appendTo('#processed').dialog(options);
     });
-
-/*
-// **** script ****
-/* ****
- * jquery-UI accordian -- for 27x file html (not used -- have not figured out how to invoke)
- */
-    function apply_accordion(selector) {
-        var sel = selector + ' > #accordion';
-        $( sel )
-          .accordion({
-            header: "h3",
-            collapsible: true,
-            heightStyle: "content"
-          });
-      };
 /* ****************************
  *
  * === upload multiple files
@@ -795,16 +780,6 @@ jquery-UI dialog
             },
             error: function( xhr, status ) { alert( <?php echo xlj('Sorry, there was a problem!'); ?> ); }
         });
-        // jquery accordion requires html to be present at document ready
-        // accordion does not work for added content, so no effect here
-        $('#x12rsp > #accordion')
-          .accordion({
-            header: "h3",
-            collapsible: true,
-            heightStyle: "content",
-            active: false
-          });
-        return false;
     });
     //
     $('#x12file').on('change', function(){
