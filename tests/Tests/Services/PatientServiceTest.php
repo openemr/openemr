@@ -95,16 +95,17 @@ class PatientServiceTest extends TestCase
     {
         $actualResult = $this->patientService->insert($this->patientFixture);
         $this->assertTrue($actualResult->isValid());
-        
-        $fixturePid = $actualResult->getData();
-        $this->patientFixture["phone_home"] = "555-111-4444";
 
-        $actualResult = $this->patientService->update($fixturePid, $this->patientFixture);
+        $actualPid = $actualResult->getData();
+        $this->assertGreaterThan(0, $actualPid);
+        
+        $this->patientFixture["phone_home"] = "555-111-4444";
+        $actualResult = $this->patientService->update($actualPid, $this->patientFixture);
 
         $sql = "SELECT pid, phone_home FROM patient_data WHERE pid = ?";
-        $result = sqlQuery($sql, array($fixturePid));
+        $result = sqlQuery($sql, array($actualPid));
 
-        $this->assertEquals($fixturePid, intval($result["pid"]));
+        $this->assertEquals($actualPid, intval($result["pid"]));
         $this->assertEquals("555-111-4444", $result["phone_home"]);
     }
 
