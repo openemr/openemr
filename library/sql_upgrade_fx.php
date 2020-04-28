@@ -88,12 +88,29 @@ function columnHasType($tblname, $colname, $coltype)
  */
 function columnHasTypeDefault($tblname, $colname, $coltype, $coldefault)
 {
-    $row = sqlQuery("SHOW COLUMNS FROM $tblname LIKE '$colname'");
+    $row = sqlQuery("SHOW COLUMNS FROM $tblname WHERE `Field` = ?", [$colname]);
     if (empty($row)) {
         return true;
     }
 
-    return ((strcasecmp($row['Type'], $coltype) == 0) && (strcasecmp($row['Default'], $coldefault) == 0));
+    // Check if the type matches
+    if (strcasecmp($row['Type'], $coltype) != 0) {
+        return false;
+    }
+
+    // Now for the more difficult check for if the default matches
+    if ($coldefault == "NULL") {
+        // Special case when checking if default is NULL
+        $row = sqlQuery("SHOW COLUMNS FROM $tblname WHERE `Field` = ? AND `Default` IS NULL", [$colname]);
+        return (!empty($row));
+    } elseif ($coldefault == "") {
+        // Special case when checking if default is ""(blank)
+        $row = sqlQuery("SHOW COLUMNS FROM $tblname WHERE `Field` = ? AND `Default` IS NOT NULL AND `Default` = ''", [$colname]);
+        return (!empty($row));
+    } else {
+        // Standard case when checking if default is neither NULL or ""(blank)
+        return (strcasecmp($row['Default'], $coldefault) == 0);
+    }
 }
 
 /**
@@ -686,6 +703,19 @@ function upgradeFromSqlFile($filename, $path = '')
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }
         } elseif (preg_match('/^#IfNotColumnTypeDefault\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+            // This allows capturing a default setting that is not blank
+            if (tableExists($matches[1])) {
+                $skipping = columnHasTypeDefault($matches[1], $matches[2], $matches[3], $matches[4]);
+            } else {
+                // If no such table then the column type is deemed not "missing".
+                $skipping = true;
+            }
+
+            if ($skipping) {
+                echo "<font color='green'>Skipping section $line</font><br />\n";
+            }
+        } elseif (preg_match('/^#IfNotColumnTypeDefault\s+(\S+)\s+(\S+)\s+(\S+)/', $line, $matches)) {
+            // This allows capturing a default setting that is blank
             if (tableExists($matches[1])) {
                 $skipping = columnHasTypeDefault($matches[1], $matches[2], $matches[3], $matches[4]);
             } else {
