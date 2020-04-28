@@ -104,7 +104,7 @@ class PatientService extends BaseService
 
     /**
      * Inserts a new patient record.
-     * 
+     *
      * @param $data The patient fields (array) to insert.
      * @return array(isValid => true|false, data => )
      */
@@ -142,7 +142,7 @@ class PatientService extends BaseService
 
     /**
      * Updates an existing patient record.
-     * 
+     *
      * @param $pid - The patient identifier (PID) used for update.
      * @param $data - The updated patient data fields
      * @return
@@ -164,7 +164,7 @@ class PatientService extends BaseService
         array_push($query['bind'], $pid);
         $sqlResult = sqlStatement($sql, $query['bind']);
 
-        if (!$sqlResult){
+        if (!$sqlResult) {
             $processingResult->addErrorMessage("error processing SQL Update");
         }
 

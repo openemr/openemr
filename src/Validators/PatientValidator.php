@@ -20,7 +20,7 @@ class PatientValidator extends BaseValidator
 
    /**
      * Validates that a PID exists in the database.
-     * 
+     *
      * @param $pid The pid/patient identifier to verify
      * @return true if the pid exists, otherwise false
      */
@@ -31,7 +31,7 @@ class PatientValidator extends BaseValidator
             array($pid)
         )['pid'];
 
-        $isExisting = $rtn == null ? false: true;
+        $isExisting = $rtn == null ? false : true;
         return $isExisting;
     }
 
@@ -77,6 +77,6 @@ class PatientValidator extends BaseValidator
                     return true;
                 })->integer();
             }
-        );        
+        );
     }
 }

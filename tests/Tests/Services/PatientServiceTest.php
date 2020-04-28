@@ -14,14 +14,14 @@ use OpenEMR\Tests\Fixtures\FixtureManager;
  * @author    Dixon Whitmire <dixon.whitmire@ibm.com>
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixon.whitmire@ibm.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- * 
+ *
  */
 class PatientServiceTest extends TestCase
 {
     private $patientService;
     private $fixtureManager;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->patientService = new PatientService();
         $this->fixtureManager = new FixtureManager();
@@ -30,7 +30,7 @@ class PatientServiceTest extends TestCase
 
     protected function tearDown(): void
     {
-        $this->fixtureManager->removePatientFixtures();        
+        $this->fixtureManager->removePatientFixtures();
     }
 
     /**
@@ -135,7 +135,7 @@ class PatientServiceTest extends TestCase
         $this->assertNotNull($resultData);
         $this->assertGreaterThan(0, count($resultData));
 
-        foreach($resultData as $key => $value) {
+        foreach ($resultData as $key => $value) {
             $this->assertEquals("CA", $value["state"]);
         }
     }

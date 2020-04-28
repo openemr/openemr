@@ -5,17 +5,16 @@ namespace OpenEMR\Tests\Services;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Validators\ProcessingResult;
 
-
 /**
  * Processing Result Tests
- * 
+ *
  * @coversDefaultClass OpenEMR\Services\ServiceResult
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Dixon Whitmire <dixon.whitmire@ibm.com>
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixon.whitmire@ibm.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- * 
+ *
  */
 class ProcessingResultTest extends TestCase
 {

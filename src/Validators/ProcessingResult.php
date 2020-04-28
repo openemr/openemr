@@ -4,7 +4,7 @@ namespace OpenEMR\Validators;
 
 /**
  * OpenEMR Service Processing Result
- * 
+ *
  * Data contained within a processing result includes:
  * - isValid: indicates if the data provided to the service was valid
  * - validatiomMessages: validation errors, if any, which occurred during processing

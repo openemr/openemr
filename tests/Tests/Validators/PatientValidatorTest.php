@@ -34,7 +34,7 @@ class PatientValidatorTest extends TestCase
      */
     public function testValidationInvalidContext()
     {
-        $this->expectException(\RuntimeException::class);        
+        $this->expectException(\RuntimeException::class);
         $this->patientValidator->validate($this->patientFixture, 'invalid-context');
     }
 
@@ -114,7 +114,7 @@ class PatientValidatorTest extends TestCase
         $fixturePid = sqlQuery(
             "SELECT pid FROM patient_data WHERE pubpid = ?",
             array($patientFixture->pubpid)
-        )['pid'];   
+        )['pid'];
         $fixturePid = intval($fixturePid);
 
         $this->assertGreaterThan(0, $fixturePid);
@@ -124,5 +124,5 @@ class PatientValidatorTest extends TestCase
 
         $actualResult = $this->patientValidator->isExistingPid(0);
         $this->assertFalse($actualResult);
-    }    
+    }
 }

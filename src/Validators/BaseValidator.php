@@ -27,7 +27,7 @@ abstract class BaseValidator
 
     /**
      * Configures the validator instance with validation requirements and rules.
-     * This default implementation sets the validator's supported context to include 
+     * This default implementation sets the validator's supported context to include
      * database inserts and updates.
      */
     protected function configureValidator()
@@ -39,7 +39,7 @@ abstract class BaseValidator
     {
         $this->validator = new Validator();
         $this->supportedContexts = [];
-        $this->configureValidator(); 
+        $this->configureValidator();
     }
 
     /**
@@ -52,11 +52,11 @@ abstract class BaseValidator
 
     /**
      * Performs a data validation using the configured rules and requirements.
-     * 
+     *
      * Validation results are conveyed by an array with the following keys:
      * - isValid => true|false
      * - messages => array(validationMessage, validationMessage, etc)
-     * 
+     *
      * @param $dataFields -  The fields to validate.
      * @param $context - The validation context to utilize. This is simply a "handle" for the rules.
      * @return $validationResult array
