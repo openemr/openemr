@@ -137,7 +137,7 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
     }
 }
 
-// This is called back by ParseERA::parse_era() if we are processing X12 835's.
+// This is called back by ParseERA::parseERA() if we are processing X12 835's.
 function era_callback(&$out)
 {
     global $where, $eracount, $eraname;
@@ -511,7 +511,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         // Recompute age at each invoice.
         $stmt['age'] = round((strtotime($today) - strtotime($stmt['duedate'])) / (24 * 60 * 60));
 
-        $invlines = InvoiceSummary::ar_get_invoice_summary($row['pid'], $row['encounter'], true);
+        $invlines = InvoiceSummary::arGetInvoiceSummary($row['pid'], $row['encounter'], true);
         foreach ($invlines as $key => $value) {
             $line = array();
             $line['dos'] = $svcdate;
@@ -892,7 +892,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 }
 
                                 echo "<!-- Notes from ERA upload processing:\n";
-                                $alertmsg .= ParseERA::parse_era($tmp_name, 'era_callback');
+                                $alertmsg .= ParseERA::parseERA($tmp_name, 'era_callback');
                                 echo "-->\n";
                                 $erafullname = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi";
 
@@ -908,7 +908,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                             } // End 835 upload
 
                             if ($eracount) {
-                                // Note that ParseERA::parse_era() modified $eracount and $where.
+                                // Note that ParseERA::parseERA() modified $eracount and $where.
                                 if (!$where) {
                                     $where = '1 = 2';
                                 }

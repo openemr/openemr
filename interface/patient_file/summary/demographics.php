@@ -25,7 +25,7 @@ require_once("$srcdir/clinical_rules.php");
 require_once("$srcdir/group.inc");
 require_once(dirname(__FILE__) . "/../../../library/appointments.inc.php");
 
-use OpenEMR\Billing\EDI_270;
+use OpenEMR\Billing\EDI270;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -1116,18 +1116,18 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 if ($_POST['status_update'] === 'true') {
                                                     unset($_POST['status_update']);
                                                     $showEligibility = true;
-                                                    $ok = EDI_270::requestEligibleTransaction($pid);
+                                                    $ok = EDI270::requestEligibleTransaction($pid);
                                                     if ($ok === true) {
-                                                        EDI_270::show_eligibility_information($pid, false);
+                                                        EDI270::showEligibilityInformation($pid, false);
                                                     } else {
                                                         echo $ok;
                                                     }
                                                 } else {
-                                                    EDI_270::show_eligibility_information($pid, true);
+                                                    EDI270::showEligibilityInformation($pid, true);
                                                 }
                                                 echo "</form>";
                                             } else {
-                                                EDI_270::show_eligibility_information($pid, true);
+                                                EDI270::showEligibilityInformation($pid, true);
                                             }
                                             echo "</div></div>";
 

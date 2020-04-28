@@ -16,7 +16,7 @@
 namespace OpenEMR\Billing;
 
 use OpenEMR\Billing\Claim;
-use OpenEMR\Billing\HCFA_Info;
+use OpenEMR\Billing\HCFAInfo;
 
 class Hcfa1500
 {
@@ -95,14 +95,14 @@ class Hcfa1500
             $icd_indicator = '9';
         }
 
-        $hcfa_entries[] = new HCFA_Info(37, 42, 1, $icd_indicator);
+        $hcfa_entries[] = new HCFAInfo(37, 42, 1, $icd_indicator);
 
         // Box 22. Medicaid Resubmission Code and Original Ref. No.
-        $hcfa_entries[] = new HCFA_Info(38, 50, 10, $claim->medicaidResubmissionCode());
-        $hcfa_entries[] = new HCFA_Info(38, 62, 15, $claim->medicaidOriginalReference());
+        $hcfa_entries[] = new HCFAInfo(38, 50, 10, $claim->medicaidResubmissionCode());
+        $hcfa_entries[] = new HCFAInfo(38, 62, 15, $claim->medicaidOriginalReference());
 
         // Box 23. Prior Authorization Number
-        $hcfa_entries[] = new HCFA_Info(40, 50, 28, $claim->priorAuth());
+        $hcfa_entries[] = new HCFAInfo(40, 50, 28, $claim->priorAuth());
 
         $diag_count = 0;
         foreach ($diags as $diag) {
@@ -115,7 +115,7 @@ class Hcfa1500
             $diag_count++;
         }
         // Sort the entries to put them in the page base sequence.
-        usort($hcfa_entries, array('OpenEMR\Billing\HCFA_Info', 'cmp_hcfa_info'));
+        usort($hcfa_entries, array('OpenEMR\Billing\HCFAInfo', 'cmpHcfaInfo'));
 
         foreach ($hcfa_entries as $hcfa_entry) {
             $this->putHcfa(
@@ -153,7 +153,7 @@ class Hcfa1500
         $strip = '/[.#]/';
         $diag = preg_replace($strip, '', strtoupper($diag));
         $row_pos = 38 + $row_num;
-        $hcfa_entries[] = new HCFA_Info($row_pos, $col_pos, 8, $diag);
+        $hcfa_entries[] = new HCFAInfo($row_pos, $col_pos, 8, $diag);
     }
 
     public function genHcfa1500($pid, $encounter, &$log)

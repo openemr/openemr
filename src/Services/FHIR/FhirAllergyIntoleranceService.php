@@ -94,12 +94,14 @@ class FhirAllergyIntoleranceService
 
         $sqlResult = sqlStatement($SQL, $id);
         $result = sqlFetchArray($sqlResult);
-        $codeSQL = "SELECT dx_code
-                        FROM icd10_dx_order_code
-                        WHERE short_desc = ?;";
+        if ($result) {
+            $codeSQL = "SELECT dx_code
+                            FROM icd10_dx_order_code
+                            WHERE short_desc = ?;";
 
-        $code = sqlQuery($codeSQL, array($result['reaction']));
-        $result['code'] = $code['dx_code'];
+            $code = sqlQuery($codeSQL, array($result['reaction']));
+            $result['code'] = $code['dx_code'];
+        }
         return $result;
     }
 

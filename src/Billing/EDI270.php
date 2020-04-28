@@ -29,7 +29,7 @@ use OpenEMR\Common\Utils\RandomGenUtils;
 
 // @TODO global to become private var when this goes to a class.
 //
-class EDI_270
+class EDI270
 {
 // SEGMENT FUNCTION START
 // ISA Segment  - EDI-270 format
@@ -40,7 +40,7 @@ class EDI_270
     {
     }
 
-    public static function create_ISA($row, $X12info, $segTer, $compEleSep)
+    public static function createISA($row, $X12info, $segTer, $compEleSep)
     {
         $ISA = array();
         $ISA[0] = "ISA"; // Interchange Control Header Segment ID
@@ -71,7 +71,7 @@ class EDI_270
     }
 
 // GS Segment  - EDI-270 format
-    public static function create_GS($row, $X12info, $segTer, $compEleSep)
+    public static function createGS($row, $X12info, $segTer, $compEleSep)
     {
         $GS = array();
         $GS[0] = "GS";                      // Functional Group Header Segment ID
@@ -89,7 +89,7 @@ class EDI_270
     }
 
 // ST Segment  - EDI-270 format
-    public static function create_ST($row, $X12info, $segTer, $compEleSep)
+    public static function createST($row, $X12info, $segTer, $compEleSep)
     {
         $ST = array();
         $ST[0] = "ST";                              // Transaction Set Header Segment ID
@@ -102,7 +102,7 @@ class EDI_270
     }
 
 // BHT Segment  - EDI-270 format
-    public static function create_BHT($row, $X12info, $segTer, $compEleSep)
+    public static function createBHT($row, $X12info, $segTer, $compEleSep)
     {
         $BHT = array();
         $BHT[0] = "BHT";                        // Beginning of Hierarchical Transaction Segment ID
@@ -119,7 +119,7 @@ class EDI_270
     }
 
 // HL Segment  - EDI-270 format
-    public static function create_HL($row, $nHlCounter, $X12info, $segTer, $compEleSep)
+    public static function createHL($row, $nHlCounter, $X12info, $segTer, $compEleSep)
     {
         $HL = array();
         $HL[0] = "HL";             // Hierarchical Level Segment ID
@@ -144,7 +144,7 @@ class EDI_270
     }
 
 // NM1 Segment  - EDI-270 format
-    public static function create_NM1($row, $nm1Cast, $X12info, $segTer, $compEleSep)
+    public static function createNM1($row, $nm1Cast, $X12info, $segTer, $compEleSep)
     {
         $NM1 = array();
         $NM1[0] = "NM1";                    // Subscriber Name Segment ID
@@ -200,7 +200,7 @@ class EDI_270
     }
 
 // REF Segment  - EDI-270 format
-    public static function create_REF($row, $ref, $X12info, $segTer, $compEleSep)
+    public static function createREF($row, $ref, $X12info, $segTer, $compEleSep)
     {
         $REF = array();
         $REF[0] = "REF";                            // Subscriber Additional Identification    does not want this for anything
@@ -217,7 +217,7 @@ class EDI_270
     }
 
 // TRN Segment - EDI-270 format
-    function create_TRN($row, $tracno, $refiden, $X12info, $segTer, $compEleSep)
+    public function createTRN($row, $tracno, $refiden, $X12info, $segTer, $compEleSep)
     {
         $TRN = array();
         $TRN[0] = "TRN";                        // Subscriber Trace Number Segment ID
@@ -231,7 +231,7 @@ class EDI_270
     }
 
 // DMG Segment - EDI-270 format
-    public static function create_DMG($row, $X12info, $segTer, $compEleSep)
+    public static function createDMG($row, $X12info, $segTer, $compEleSep)
     {
         $DMG = array();
         $DMG[0] = "DMG";                            // Date or Time or Period Segment ID
@@ -244,7 +244,7 @@ class EDI_270
     }
 
 // DTP Segment - EDI-270 format
-    public static function create_DTP($row, $qual, $X12info, $segTer, $compEleSep)
+    public static function createDTP($row, $qual, $X12info, $segTer, $compEleSep)
     {
         $DTP = array();
         $DTP[0] = "DTP";                            // Date or Time or Period Segment ID
@@ -271,7 +271,7 @@ class EDI_270
     }
 
 // EQ Segment - EDI-270 format
-    public static function create_EQ($row, $X12info, $segTer, $compEleSep)
+    public static function createEQ($row, $X12info, $segTer, $compEleSep)
     {
         $EQ = array();
         $EQ[0] = "EQ";                                     // Subscriber Eligibility or Benefit Inquiry Information
@@ -282,7 +282,7 @@ class EDI_270
     }
 
 // SE Segment - EDI-270 format
-    public static function create_SE($row, $segmentcount, $X12info, $segTer, $compEleSep)
+    public static function createSE($row, $segmentcount, $X12info, $segTer, $compEleSep)
     {
         $SE = array();
         $SE[0] = "SE";                              // Transaction Set Trailer Segment ID
@@ -294,7 +294,7 @@ class EDI_270
     }
 
 // GE Segment - EDI-270 format
-    public static function create_GE($row, $X12info, $segTer, $compEleSep)
+    public static function createGE($row, $X12info, $segTer, $compEleSep)
     {
         $GE = array();
         $GE[0] = "GE";                          // Functional Group Trailer Segment ID
@@ -306,7 +306,7 @@ class EDI_270
     }
 
 // IEA Segment - EDI-270 format
-    public static function create_IEA($row, $X12info, $segTer, $compEleSep)
+    public static function createIEA($row, $X12info, $segTer, $compEleSep)
     {
         $IEA = array();
         $IEA[0] = "IEA";                        // Interchange Control Trailer Segment ID
@@ -317,7 +317,7 @@ class EDI_270
         return trim($IEA['Created']);
     }
 
-    public static function translate_relationship($relationship)
+    public static function translateRelationship($relationship)
     {
         switch ($relationship) {
             case "spouse":
@@ -333,7 +333,7 @@ class EDI_270
     }
 
 // EDI-270 Batch file Generation
-    public static function print_elig($res, $X12info, $segTer, $compEleSep)
+    public static function printElig($res, $X12info, $segTer, $compEleSep)
     {
         $i = 1;
         $PATEDI = "";
@@ -345,30 +345,30 @@ class EDI_270
         foreach ($res as $row) {
             if ($nHlCounter == 1) {
                 // create ISA
-                $PATEDI = self::create_ISA($row, $X12info, $segTer, $compEleSep);
+                $PATEDI = self::createISA($row, $X12info, $segTer, $compEleSep);
                 // create GS
-                $PATEDI .= self::create_GS($row, $X12info, $segTer, $compEleSep);
+                $PATEDI .= self::createGS($row, $X12info, $segTer, $compEleSep);
                 // create ST
-                $PATEDI .= self::create_ST($row, $X12info, $segTer, $compEleSep);
+                $PATEDI .= self::createST($row, $X12info, $segTer, $compEleSep);
                 // create BHT
-                $PATEDI .= self::create_BHT($row, $X12info, $segTer, $compEleSep);
+                $PATEDI .= self::createBHT($row, $X12info, $segTer, $compEleSep);
                 // For Payer Segment
-                $PATEDI .= self::create_HL($row, 1, $X12info, $segTer, $compEleSep);
-                $PATEDI .= self::create_NM1($row, 'PR', $X12info, $segTer, $compEleSep);
+                $PATEDI .= self::createHL($row, 1, $X12info, $segTer, $compEleSep);
+                $PATEDI .= self::createNM1($row, 'PR', $X12info, $segTer, $compEleSep);
                 // For Provider Segment
-                $PATEDI .= self::create_HL($row, 2, $X12info, $segTer, $compEleSep);
-                $PATEDI .= self::create_NM1($row, '1P', $X12info, $segTer, $compEleSep);  // 5010 no longer uses FA
+                $PATEDI .= self::createHL($row, 2, $X12info, $segTer, $compEleSep);
+                $PATEDI .= self::createNM1($row, '1P', $X12info, $segTer, $compEleSep);  // 5010 no longer uses FA
                 $nHlCounter = $nHlCounter + 2;
                 $segmentcount = 6; // segment counts - start from ST
             }
             // For Subscriber Segment
-            $PATEDI .= self::create_HL($row, $nHlCounter, $X12info, $segTer, $compEleSep);
-            $PATEDI .= self::create_NM1($row, 'IL', $X12info, $segTer, $compEleSep);
+            $PATEDI .= self::createHL($row, $nHlCounter, $X12info, $segTer, $compEleSep);
+            $PATEDI .= self::createNM1($row, 'IL', $X12info, $segTer, $compEleSep);
             // send pid so we get it back in 271
-            $PATEDI .= self::create_REF($row, 'EJ', '', $segTer, '');
-            $PATEDI .= self::create_DMG($row, $X12info, $segTer, $compEleSep);
-            $PATEDI .= self::create_DTP($row, '291', $X12info, $segTer, $compEleSep);
-            $PATEDI .= self::create_EQ($row, $X12info, $segTer, $compEleSep);
+            $PATEDI .= self::createREF($row, 'EJ', '', $segTer, '');
+            $PATEDI .= self::createDMG($row, $X12info, $segTer, $compEleSep);
+            $PATEDI .= self::createDTP($row, '291', $X12info, $segTer, $compEleSep);
+            $PATEDI .= self::createEQ($row, $X12info, $segTer, $compEleSep);
             $segmentcount = $segmentcount + 6;
             $nHlCounter = $nHlCounter + 1;
             $rowCount = $rowCount + 1;
@@ -376,9 +376,9 @@ class EDI_270
             $refiden = $refiden + 1;
             if ($rowCount == count($res)) {
                 $segmentcount = $segmentcount + 1;
-                $PATEDI .= self::create_SE($row, $segmentcount, $X12info, $segTer, $compEleSep);
-                $PATEDI .= self::create_GE($row, $X12info, $segTer, $compEleSep);
-                $PATEDI .= self::create_IEA($row, $X12info, $segTer, $compEleSep);
+                $PATEDI .= self::createSE($row, $segmentcount, $X12info, $segTer, $compEleSep);
+                $PATEDI .= self::createGE($row, $X12info, $segTer, $compEleSep);
+                $PATEDI .= self::createIEA($row, $X12info, $segTer, $compEleSep);
             }
         }
         echo $PATEDI;
@@ -386,7 +386,7 @@ class EDI_270
 
     public static function requestEligibleTransaction($pid = 0, $eFlag = false)
     {
-        $query = "SELECT 
+        $query = "SELECT
             d.facility_id,
             p.lname,
             p.fname,
@@ -419,7 +419,7 @@ class EDI_270
             c.eligibility_id as eligibility_id,
             c.x12_default_eligibility_id as partner,
             c.name as payer_name
-        FROM patient_data AS p 
+        FROM patient_data AS p
         LEFT JOIN users AS d on (p.providerID = d.id)
         LEFT JOIN facility AS f on (f.id = d.facility_id)
         LEFT JOIN insurance_data AS i ON (i.id =(SELECT id FROM insurance_data AS i WHERE pid = p.pid AND type = 'primary' ORDER BY date DESC LIMIT 1))
@@ -463,33 +463,33 @@ class EDI_270
                 return $error_accum;
             }
             // create ISA
-            $PATEDI = self::create_ISA($row, $X12info, $segTer, $compEleSep);
+            $PATEDI = self::createISA($row, $X12info, $segTer, $compEleSep);
             // create GS
-            $PATEDI .= self::create_GS($row, $X12info, $segTer, $compEleSep);
+            $PATEDI .= self::createGS($row, $X12info, $segTer, $compEleSep);
             // create ST
-            $PATEDI .= self::create_ST($row, $X12info, $segTer, $compEleSep);
+            $PATEDI .= self::createST($row, $X12info, $segTer, $compEleSep);
             // create BHT
-            $PATEDI .= self::create_BHT($row, $X12info, $segTer, $compEleSep);
+            $PATEDI .= self::createBHT($row, $X12info, $segTer, $compEleSep);
             // For Payer Segment
-            $PATEDI .= self::create_HL($row, 1, $X12info, $segTer, $compEleSep);
-            $PATEDI .= self::create_NM1($row, 'PR', $X12info, $segTer, $compEleSep);
+            $PATEDI .= self::createHL($row, 1, $X12info, $segTer, $compEleSep);
+            $PATEDI .= self::createNM1($row, 'PR', $X12info, $segTer, $compEleSep);
             // For Provider Segment
-            $PATEDI .= self::create_HL($row, 2, $X12info, $segTer, $compEleSep);
+            $PATEDI .= self::createHL($row, 2, $X12info, $segTer, $compEleSep);
             // unsure but 'FA' may have to be an option vs '1P'
-            $PATEDI .= self::create_NM1($row, '1P', $X12info, $segTer, $compEleSep);
+            $PATEDI .= self::createNM1($row, '1P', $X12info, $segTer, $compEleSep);
             // For Subscriber Segment
-            $PATEDI .= self::create_HL($row, 3, $X12info, $segTer, $compEleSep);
-            $PATEDI .= self::create_NM1($row, 'IL', $X12info, $segTer, $compEleSep);
+            $PATEDI .= self::createHL($row, 3, $X12info, $segTer, $compEleSep);
+            $PATEDI .= self::createNM1($row, 'IL', $X12info, $segTer, $compEleSep);
             // send pid so we get it back in 271
-            $PATEDI .= self::create_REF($row, 'EJ', '', $segTer, '');
-            $PATEDI .= self::create_DMG($row, $X12info, $segTer, $compEleSep);
+            $PATEDI .= self::createREF($row, 'EJ', '', $segTer, '');
+            $PATEDI .= self::createDMG($row, $X12info, $segTer, $compEleSep);
             // 2110
-            $PATEDI .= self::create_DTP($row, '291', $X12info, $segTer, $compEleSep);
-            $PATEDI .= self::create_EQ($row, $X12info, $segTer, $compEleSep);
+            $PATEDI .= self::createDTP($row, '291', $X12info, $segTer, $compEleSep);
+            $PATEDI .= self::createEQ($row, $X12info, $segTer, $compEleSep);
             // the end
-            $PATEDI .= self::create_SE($row, 13, $X12info, $segTer, $compEleSep);
-            $PATEDI .= self::create_GE($row, $X12info, $segTer, $compEleSep);
-            $PATEDI .= self::create_IEA($row, $X12info, $segTer, $compEleSep);
+            $PATEDI .= self::createSE($row, 13, $X12info, $segTer, $compEleSep);
+            $PATEDI .= self::createGE($row, $X12info, $segTer, $compEleSep);
+            $PATEDI .= self::createIEA($row, $X12info, $segTer, $compEleSep);
             // make request
             $result = self::requestEligibility($X12info['id'], $PATEDI);
             $rowCount++;
@@ -515,7 +515,7 @@ class EDI_270
 
 // Report Generation
 
-    public static function show_elig($res, $X12info, $segTer, $compEleSep)
+    public static function showElig($res, $X12info, $segTer, $compEleSep)
     {
 
         $i = 0;
@@ -549,7 +549,7 @@ class EDI_270
             $elig[7] = $row['subscriber_dob'];                 // Subscriber Date of Birth
             $elig[8] = substr($row['subscriber_sex'], 0, 1);       // Subscriber Sex
             $elig[9] = $row['subscriber_ss'];              // Subscriber SSN
-            $elig[10] = self::translate_relationship($row['subscriber_relationship']);    // Pt Relationship to insured
+            $elig[10] = self::translateRelationship($row['subscriber_relationship']);    // Pt Relationship to insured
             $elig[11] = $row['lname'];                  // Dependent Last Name
             $elig[12] = $row['fname'];                  // Dependent First Name
             $elig[13] = $row['mname'];                  // Dependent Middle Initial
@@ -589,7 +589,7 @@ class EDI_270
     }
 
 // To Show Eligibility Verification data
-    public static function show_eligibility_information($pid, $flag = false)
+    public static function showEligibilityInformation($pid, $flag = false)
     {
         $query =
             "SELECT eligr.*, eligv.insurance_id, eligv.copay, insd.pid, insc.name, " .
@@ -667,7 +667,7 @@ class EDI_270
 
 // For EDI 271
 // Function to save the values in eligibility_verification table
-    public static function eligibility_verification_save($subscriber = [])
+    public static function eligibilityVerificationSave($subscriber = [])
     {
         $verification_id = 0;
         $insurance_id = 0;
@@ -1104,7 +1104,7 @@ MIMEBODY;
                             $elog = xlt("Error") . ": " . xlt("Unknown Transaction Error Maybe Subscriber Effective or DOB Dates");
                         }
                         foreach ($subscribers as $subscriber) {
-                            self::eligibility_verification_save($subscriber);
+                            self::eligibilityVerificationSave($subscriber);
                         }
                         break;
                 }

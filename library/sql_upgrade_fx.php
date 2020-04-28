@@ -78,6 +78,42 @@ function columnHasType($tblname, $colname, $coltype)
 }
 
 /**
+ * Check if a Sql column has a certain type and a certain default value.
+ *
+ * @param  string $tblname      Sql Table Name
+ * @param  string $colname      Sql Column Name
+ * @param  string $coltype      Sql Column Type
+ * @param  string $coldefault   Sql Column Default
+ * @return boolean              returns true if the sql column is of the specified type and default
+ */
+function columnHasTypeDefault($tblname, $colname, $coltype, $coldefault)
+{
+    $row = sqlQuery("SHOW COLUMNS FROM $tblname WHERE `Field` = ?", [$colname]);
+    if (empty($row)) {
+        return true;
+    }
+
+    // Check if the type matches
+    if (strcasecmp($row['Type'], $coltype) != 0) {
+        return false;
+    }
+
+    // Now for the more difficult check for if the default matches
+    if ($coldefault == "NULL") {
+        // Special case when checking if default is NULL
+        $row = sqlQuery("SHOW COLUMNS FROM $tblname WHERE `Field` = ? AND `Default` IS NULL", [$colname]);
+        return (!empty($row));
+    } elseif ($coldefault == "") {
+        // Special case when checking if default is ""(blank)
+        $row = sqlQuery("SHOW COLUMNS FROM $tblname WHERE `Field` = ? AND `Default` IS NOT NULL AND `Default` = ''", [$colname]);
+        return (!empty($row));
+    } else {
+        // Standard case when checking if default is neither NULL or ""(blank)
+        return (strcasecmp($row['Default'], $coldefault) == 0);
+    }
+}
+
+/**
 * Check if a Sql row exists. (with one value)
 *
 * @param  string  $tblname  Sql Table Name
@@ -526,6 +562,10 @@ function convertLayoutProperties()
 *   arguments: table_name colname value
 *   behavior:  If the table table_name does not have a column colname with a data type equal to value, then the block will be executed
 *
+* #IfNotColumnTypeDefault
+*   arguments: table_name colname value value2
+*   behavior:  If the table table_name does not have a column colname with a data type equal to value and a default equal to value2, then the block will be executed
+*
 * #IfNotRow
 *   arguments: table_name colname value
 *   behavior:  If the table table_name does not have a row where colname = value, the block will be executed.
@@ -656,6 +696,30 @@ function upgradeFromSqlFile($filename, $path = '')
                 $skipping = columnExists($matches[1], $matches[2]);
             } else {
                 // If no such table then the column is deemed not "missing".
+                $skipping = true;
+            }
+
+            if ($skipping) {
+                echo "<font color='green'>Skipping section $line</font><br />\n";
+            }
+        } elseif (preg_match('/^#IfNotColumnTypeDefault\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+            // This allows capturing a default setting that is not blank
+            if (tableExists($matches[1])) {
+                $skipping = columnHasTypeDefault($matches[1], $matches[2], $matches[3], $matches[4]);
+            } else {
+                // If no such table then the column type is deemed not "missing".
+                $skipping = true;
+            }
+
+            if ($skipping) {
+                echo "<font color='green'>Skipping section $line</font><br />\n";
+            }
+        } elseif (preg_match('/^#IfNotColumnTypeDefault\s+(\S+)\s+(\S+)\s+(\S+)/', $line, $matches)) {
+            // This allows capturing a default setting that is blank
+            if (tableExists($matches[1])) {
+                $skipping = columnHasTypeDefault($matches[1], $matches[2], $matches[3], $matches[4]);
+            } else {
+                // If no such table then the column type is deemed not "missing".
                 $skipping = true;
             }
 
