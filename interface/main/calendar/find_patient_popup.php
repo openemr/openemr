@@ -234,7 +234,7 @@ $(function () {
     //$(".event").dblclick(function() { EditEvent(this); });
     $("#theform").submit(function() { SubmitForm(this); });
 
-    $('select[name="searchby"']).on('change', function () {
+    $('select[name="searchby"]').on('change', function () {
         if($(this).val() === 'DOB'){
             $('#searchparm').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
