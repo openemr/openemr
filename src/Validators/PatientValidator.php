@@ -26,12 +26,12 @@ class PatientValidator extends BaseValidator
      */
     public function isExistingPid($pid)
     {
-        $rtn = sqlQuery(
-            "SELECT pid FROM patient_data WHERE pid = ?",
+        $result = sqlQuery(
+            "SELECT pid AS pid FROM patient_data WHERE pid = ?",
             array($pid)
-        )['pid'];
+        );
 
-        $isExisting = $rtn == null ? false : true;
+        $isExisting = !($result["pid"] == null);
         return $isExisting;
     }
 
