@@ -133,7 +133,7 @@ root {
   width: 80%;
 }
 
-.rule_detail.edit p .header {
+.rule_detail.edit p.header {
   margin-bottom: 5px;
 }
 
@@ -154,6 +154,6 @@ root {
   width: 90px;
 }
 
-input[type='text'] .short {
+input[type='text'].short {
   width: 80px;
 }

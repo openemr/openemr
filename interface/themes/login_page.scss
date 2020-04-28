@@ -28,10 +28,10 @@ body.login {
 }
 
 .login .container {
-  margin-top: 75px;
-  padding: 25px;
-  max-width: 785px;
   background: $white;
+  margin-top: 75px;
+  max-width: 785px;
+  padding: 25px;
 }
 
 .logo-left {
@@ -39,10 +39,10 @@ body.login {
 }
 
 .login-title-label {
+  font-size: 130%;
+  font-weight: bold;
   margin-bottom: 10px;
   margin-left: 30px;
-  font-weight: bold;
-  font-size: 130%;
 }
 
 .login-logo-wrapper {
@@ -50,9 +50,9 @@ body.login {
 }
 
 .tinylogopng {
-  width: 86px;
   height: 43px;
   margin-bottom: 10px;
+  width: 86px;
 }
 
 #ui-id-1 > .message {

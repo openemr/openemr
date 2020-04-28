@@ -35,7 +35,7 @@
     padding-left: 15px;
   }
 
-  ul .mainmenu {
+  ul.mainmenu {
     padding-bottom: 55px;
   }
 }
@@ -199,11 +199,11 @@ removed as doesn't make sense and ruins responsive sjp
   width: 160px;
 }
 
-.example_menu a .expanded {
+.example_menu a.expanded {
   background: $gray-300 url('collapse.gif') no-repeat 3px 50%;
 }
 
-.example_menu a .collapsed {
+.example_menu a.collapsed {
   background: $gray-300 url('expand.gif') no-repeat 3px 50%;
 }
 
@@ -228,19 +228,19 @@ removed as doesn't make sense and ruins responsive sjp
   text-decoration: underline;
 }
 
-.example_menu li .active a {
+.example_menu li.active a {
   background: $white;
 }
 
-.example_menu li .active li a {
+.example_menu li.active li a {
   background: $gray-200;
 }
 
-#menu1 li .footer,
-#menu2 li .footer,
-#menu3 li .footer,
-#menu4 li .footer,
-#menu5 li .footer,
+#menu1 li.footer,
+#menu2 li.footer,
+#menu3 li.footer,
+#menu4 li.footer,
+#menu5 li.footer,
 .example_menu .footer {
   background: transparent url('footer.jpg') no-repeat 0 0;
   border-top: 2px solid $white;

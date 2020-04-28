@@ -9,7 +9,6 @@
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 /*
     Core: General style
 ----------------------------
@@ -80,8 +79,7 @@ $colors: (
   "gray700": $gray-700,
   "gray900": $gray-900
 );
-
-/* Above adds overrides to allow regular CSS coloring */
+/* Above has overrides to allow regular CSS coloring */
 
 $body-bg: $white;
 $body-color: $gray-900;
@@ -134,12 +132,12 @@ body > .header {
   display: block;
 }
 
-/* right side - contins main content */
+/*right side - contins main content*/
 .right-side {
   margin-left: 220px;
 }
 
-/* left side - contains sidebar */
+/*left side - contains sidebar*/
 .left-side {
   position: absolute;
   top: 0;
@@ -151,7 +149,7 @@ body > .header {
     top: 50px;
   }
 
-  /* Right side strech mode */
+  /*Right side strech mode*/
   .right-side.strech {
     margin-left: 0;
   }
@@ -166,7 +164,7 @@ body > .header {
   }
 }
 
-/* Give content full width on xs screens */
+/*Give content full width on xs screens*/
 @media screen and (max-width: 992px) {
   .right-side {
     margin-left: 0;
@@ -177,24 +175,24 @@ body > .header {
     By default the layout is not fixed but if you add the class .fixed to the body element
     the sidebar and the navbar will automatically become poisitioned fixed
 */
-body .fixed > .header,
-body .fixed .left-side,
-body .fixed .navbar {
+body.fixed > .header,
+body.fixed .left-side,
+body.fixed .navbar {
   position: fixed;
 }
 
-body .fixed > .header {
+body.fixed > .header {
   left: 0;
   right: 0;
   top: 0;
 }
 
-body .fixed .navbar {
+body.fixed .navbar {
   left: 0;
   right: 0;
 }
 
-body .fixed .wrapper {
+body.fixed .wrapper {
   margin-top: 50px;
 }
 
@@ -222,13 +220,13 @@ img {
   max-width: 100% !important;
 }
 
-/* Display inline - DEPRECATED: Use d-inline BS4 class */
+/* Display inline */
 .inline {
   display: inline;
   width: auto;
 }
 
-/* Hide elements by display none only - DEPRECATED: Use d-none BS4 class */
+/*Hide elements by display none only*/
 .hide {
   display: none !important;
 }
@@ -271,36 +269,38 @@ img {
   }
 }
 
-// DEPRECATED: Use .rounded-0 BS4 class
+/* Remove border radius */
 .flat {
   border-radius: 0 !important;
 }
 
-// DEPRECATED: Use .border-0 BS4 class
 .table.no-border,
 .table.no-border td,
 .table.no-border th {
   border: 0;
 }
 
-// DEPRECATED: Use .text-left BS4 class
+/* .text-center in tables */
+table.text-center,
+table.text-center td,
+table.text-center th {
+  text-align: center;
+}
+
 .table.align th {
   text-align: left;
 }
 
-// DEPRECATED: Use .text-right BS4 class
 .table.align td {
   text-align: right;
 }
 
-// DEPRECATED: Use .font-weight-bold BS4 class
 .text-bold,
 .text-bold.table td,
 .text-bold.table th {
   font-weight: 700;
 }
 
-// DEPRECATED: Use .rounded-0 from BS4 instead
 .border-radius-none {
   border-radius: 0 !important;
 }
@@ -309,13 +309,12 @@ img {
   min-height: 100px;
 }
 
-/* ---------------------------------------------------
+/*---------------------------------------------------
     LESS Elements 0.9
   ---------------------------------------------------
     A set of useful LESS mixins
     More info at: http://lesselements.com
-  --------------------------------------------------- */
-
+  ---------------------------------------------------*/
 /*
     Components: navbar, logo and content header
 -------------------------------------------------
@@ -324,6 +323,12 @@ body > .header {
   max-height: 100px;
   position: relative;
   z-index: 1030;
+}
+
+body > .header .navbar {
+  /*height: 50px;
+    margin-bottom: 0;
+    margin-left: 220px;*/
 }
 
 body > .header .navbar .sidebar-toggle {
@@ -354,13 +359,13 @@ body > .header .navbar .sidebar-toggle .icon-bar + .icon-bar {
   margin-top: 4px;
 }
 
-body > .header .navbar .nav > li .user > a {
+body > .header .navbar .nav > li.user > a {
   font-weight: bold;
 }
 
-body > .header .navbar .nav > li .user > a > .fa,
-body > .header .navbar .nav > li .user > a > .glyphicon,
-body > .header .navbar .nav > li .user > a > .ion {
+body > .header .navbar .nav > li.user > a > .fa,
+body > .header .navbar .nav > li.user > a > .glyphicon,
+body > .header .navbar .nav > li.user > a > .ion {
   margin-right: 5px;
 }
 
@@ -468,8 +473,13 @@ body > .header .navbar .nav > li > a:hover > .label {
     margin: 0;
   }
 
-  body .fixed > .header {
+  body.fixed > .header {
     position: fixed;
+  }
+
+  body.fixed > .wrapper,
+  body.fixed .sidebar-offcanvas {
+    /*margin-top: 100px!important;*/
   }
 }
 
@@ -606,17 +616,17 @@ body > .header .navbar .nav > li > a:hover > .label {
     left: 0;
   }
 
-  body .fixed .sidebar-offcanvas {
+  body.fixed .sidebar-offcanvas {
     left: -220px;
     margin-top: 50px;
   }
 
-  body .fixed .row-offcanvas-left.active .navbar {
+  body.fixed .row-offcanvas-left.active .navbar {
     left: 220px !important;
     right: 0;
   }
 
-  body .fixed .row-offcanvas-left.active .sidebar-offcanvas {
+  body.fixed .row-offcanvas-left.active .sidebar-offcanvas {
     left: 0;
   }
 }
@@ -625,8 +635,7 @@ body > .header .navbar .nav > li > a:hover > .label {
     Dropdown menus
 ----------------------------
 */
-
-/* Dropdowns in general */
+/*Dropdowns in general*/
 .dropdown-menu {
   box-shadow: 0 3px 6px rgba($black, 0.1);
   z-index: 2300;
@@ -663,9 +672,9 @@ body > .header .navbar .nav > li > a:hover > .label {
   width: 260px;
 }
 
-.navbar-nav > .notifications-menu > .dropdown-menu > li .header,
-.navbar-nav > .messages-menu > .dropdown-menu > li .header,
-.navbar-nav > .tasks-menu > .dropdown-menu > li .header {
+.navbar-nav > .notifications-menu > .dropdown-menu > li.header,
+.navbar-nav > .messages-menu > .dropdown-menu > li.header,
+.navbar-nav > .tasks-menu > .dropdown-menu > li.header {
   @include font-size("14px");
   background-color: $white;
   border-bottom: 1px solid $light;
@@ -677,9 +686,9 @@ body > .header .navbar .nav > li > a:hover > .label {
   padding: 7px 10px;
 }
 
-.navbar-nav > .notifications-menu > .dropdown-menu > li .header::after,
-.navbar-nav > .messages-menu > .dropdown-menu > li .header::after,
-.navbar-nav > .tasks-menu > .dropdown-menu > li .header::after {
+.navbar-nav > .notifications-menu > .dropdown-menu > li.header::after,
+.navbar-nav > .messages-menu > .dropdown-menu > li.header::after,
+.navbar-nav > .tasks-menu > .dropdown-menu > li.header::after {
   border: solid transparent;
   border-color: rgba($white, 0);
   border-bottom-color: $white;
@@ -694,9 +703,9 @@ body > .header .navbar .nav > li > a:hover > .label {
   width: 0;
 }
 
-.navbar-nav > .notifications-menu > .dropdown-menu > li .footer > a,
-.navbar-nav > .messages-menu > .dropdown-menu > li .footer > a,
-.navbar-nav > .tasks-menu > .dropdown-menu > li .footer > a {
+.navbar-nav > .notifications-menu > .dropdown-menu > li.footer > a,
+.navbar-nav > .messages-menu > .dropdown-menu > li.footer > a,
+.navbar-nav > .tasks-menu > .dropdown-menu > li.footer > a {
   @include font-size("12px");
   background-color: $light;
   border-bottom: 1px solid $gray-200;
@@ -709,9 +718,9 @@ body > .header .navbar .nav > li > a:hover > .label {
   text-align: center;
 }
 
-.navbar-nav > .notifications-menu > .dropdown-menu > li .footer > a:hover,
-.navbar-nav > .messages-menu > .dropdown-menu > li .footer > a:hover,
-.navbar-nav > .tasks-menu > .dropdown-menu > li .footer > a:hover {
+.navbar-nav > .notifications-menu > .dropdown-menu > li.footer > a:hover,
+.navbar-nav > .messages-menu > .dropdown-menu > li.footer > a:hover,
+.navbar-nav > .tasks-menu > .dropdown-menu > li.footer > a:hover {
   background: $light;
   font-weight: normal;
   text-decoration: none;
@@ -729,7 +738,6 @@ body > .header .navbar .nav > li > a:hover > .label {
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a,
 .navbar-nav > .messages-menu > .dropdown-menu > li .menu > li > a,
 .navbar-nav > .tasks-menu > .dropdown-menu > li .menu > li > a {
-
   /* Prevent text from breaking */
   border-bottom: 1px solid $light;
   display: block;
@@ -756,11 +764,9 @@ body > .header .navbar .nav > li > a:hover > .label {
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a > .fa,
 .navbar-nav > .notifications-menu > .dropdown-menu > li .menu > li > a > .ion {
   @include font-size("20px");
-
   /* Default background and font colors */
   background: #00c0ef;
   color: darken($light, 10%);
-
   /* Fallback for browsers that doesn't support rgba */
   color: rgba($white, 0.7);
   margin-right: 5px;
@@ -874,14 +880,14 @@ body > .header .navbar .nav > li > a:hover > .label {
   width: 0;
 }
 
-.navbar-nav > .user-menu > .dropdown-menu > li .user-header {
+.navbar-nav > .user-menu > .dropdown-menu > li.user-header {
   background: #3c8dbc;
   height: 175px;
   padding: 10px;
   text-align: center;
 }
 
-.navbar-nav > .user-menu > .dropdown-menu > li .user-header > img {
+.navbar-nav > .user-menu > .dropdown-menu > li.user-header > img {
   border: 8px solid;
   border-color: transparent;
   border-color: rgba($white, 0.2);
@@ -890,7 +896,7 @@ body > .header .navbar .nav > li > a:hover > .label {
   z-index: 5;
 }
 
-.navbar-nav > .user-menu > .dropdown-menu > li .user-header > p {
+.navbar-nav > .user-menu > .dropdown-menu > li.user-header > p {
   @include font-size("17px");
   color: darken($light, 10%);
   color: rgba($white, 0.8);
@@ -899,47 +905,47 @@ body > .header .navbar .nav > li > a:hover > .label {
   z-index: 5;
 }
 
-.navbar-nav > .user-menu > .dropdown-menu > li .user-header > p > small {
+.navbar-nav > .user-menu > .dropdown-menu > li.user-header > p > small {
   @include font-size("12px");
   display: block;
 }
 
-.navbar-nav > .user-menu > .dropdown-menu > li .user-body {
+.navbar-nav > .user-menu > .dropdown-menu > li.user-body {
   border-bottom: 1px solid $light;
   border-top: 1px solid #ddd;
   padding: 15px;
 }
 
-.navbar-nav > .user-menu > .dropdown-menu > li .user-body::before,
-.navbar-nav > .user-menu > .dropdown-menu > li .user-body::after {
+.navbar-nav > .user-menu > .dropdown-menu > li.user-body::before,
+.navbar-nav > .user-menu > .dropdown-menu > li.user-body::after {
   content: " ";
   display: table;
 }
 
-.navbar-nav > .user-menu > .dropdown-menu > li .user-body::after {
+.navbar-nav > .user-menu > .dropdown-menu > li.user-body::after {
   clear: both;
 }
 
-.navbar-nav > .user-menu > .dropdown-menu > li .user-body > div > a {
+.navbar-nav > .user-menu > .dropdown-menu > li.user-body > div > a {
   color: #0073b7;
 }
 
-.navbar-nav > .user-menu > .dropdown-menu > li .user-footer {
+.navbar-nav > .user-menu > .dropdown-menu > li.user-footer {
   background-color: darken($light, 10%);
   padding: 10px;
 }
 
-.navbar-nav > .user-menu > .dropdown-menu > li .user-footer::before,
-.navbar-nav > .user-menu > .dropdown-menu > li .user-footer::after {
+.navbar-nav > .user-menu > .dropdown-menu > li.user-footer::before,
+.navbar-nav > .user-menu > .dropdown-menu > li.user-footer::after {
   content: " ";
   display: table;
 }
 
-.navbar-nav > .user-menu > .dropdown-menu > li .user-footer::after {
+.navbar-nav > .user-menu > .dropdown-menu > li.user-footer::after {
   clear: both;
 }
 
-.navbar-nav > .user-menu > .dropdown-menu > li .user-footer .btn-secondary {
+.navbar-nav > .user-menu > .dropdown-menu > li.user-footer .btn-secondary {
   color: $gray-700;
 }
 
@@ -983,15 +989,15 @@ body > .header .navbar .nav > li > a:hover > .label {
 
 /* Fix menu positions on xs screens to appear correctly and fully */
 @media screen and (max-width: 480px) {
-  .navbar-nav > .notifications-menu > .dropdown-menu > li .header,
-  .navbar-nav > .tasks-menu > .dropdown-menu > li .header,
-  .navbar-nav > .messages-menu > .dropdown-menu > li .header {
+  .navbar-nav > .notifications-menu > .dropdown-menu > li.header,
+  .navbar-nav > .tasks-menu > .dropdown-menu > li.header,
+  .navbar-nav > .messages-menu > .dropdown-menu > li.header {
     /* Remove arrow from the top */
   }
 
-  .navbar-nav > .notifications-menu > .dropdown-menu > li .header::after,
-  .navbar-nav > .tasks-menu > .dropdown-menu > li .header::after,
-  .navbar-nav > .messages-menu > .dropdown-menu > li .header::after {
+  .navbar-nav > .notifications-menu > .dropdown-menu > li.header::after,
+  .navbar-nav > .tasks-menu > .dropdown-menu > li.header::after,
+  .navbar-nav > .messages-menu > .dropdown-menu > li.header::after {
     border-width: 0 !important;
   }
 
@@ -1070,13 +1076,12 @@ body > .header .navbar .nav > li > a:hover > .label {
     Compenent: Progress bars
 --------------------------------
 */
-
 /* size variation */
-.progress .sm {
+.progress.sm {
   height: 10px;
 }
 
-.progress .xs {
+.progress.xs {
   height: 7px;
 }
 
@@ -1522,23 +1527,23 @@ body > .header .navbar .nav > li > a:hover > .label {
   margin-bottom: 0;
 }
 
-.box .todo-list > li .danger {
+.box .todo-list > li.danger {
   border-left-color: $danger;
 }
 
-.box .todo-list > li .warning {
+.box .todo-list > li.warning {
   border-left-color: $warning;
 }
 
-.box .todo-list > li .info {
+.box .todo-list > li.info {
   border-left-color: $info;
 }
 
-.box .todo-list > li .success {
+.box .todo-list > li.success {
   border-left-color: $success;
 }
 
-.box .todo-list > li .primary {
+.box .todo-list > li.primary {
   border-left-color: $primary;
 }
 
@@ -1574,16 +1579,16 @@ body > .header .navbar .nav > li > a:hover > .label {
   display: inline-block;
 }
 
-.box .todo-list > li .done {
+.box .todo-list > li.done {
   color: $gray-500;
 }
 
-.box .todo-list > li .done .text {
+.box .todo-list > li.done .text {
   font-weight: 500;
   text-decoration: line-through;
 }
 
-.box .todo-list > li .done .label {
+.box .todo-list > li.done .label {
   background: #eaeaec !important;
 }
 
@@ -1619,7 +1624,6 @@ body > .header .navbar .nav > li > a:hover > .label {
 /*
     Component: Navs
 */
-
 /* NAV PILLS */
 .nav.nav-pills > li > a {
   border-radius: 0;
@@ -1633,14 +1637,14 @@ body > .header .navbar .nav > li > a:hover > .label {
   margin-right: 5px;
 }
 
-.nav.nav-pills > li .active > a,
-.nav.nav-pills > li .active > a:hover {
+.nav.nav-pills > li.active > a,
+.nav.nav-pills > li.active > a:hover {
   background-color: darken($light, 5%);
   border-top-color: #3c8dbc;
   color: $gray-700;
 }
 
-.nav.nav-pills > li .active > a {
+.nav.nav-pills > li.active > a {
   font-weight: 600;
 }
 
@@ -1660,14 +1664,14 @@ body > .header .navbar .nav > li > a:hover > .label {
   border-left-color: #3c8dbc;
 }
 
-.nav.nav-pills.nav-stacked > li .active > a,
-.nav.nav-pills.nav-stacked > li .active > a:hover {
+.nav.nav-pills.nav-stacked > li.active > a,
+.nav.nav-pills.nav-stacked > li.active > a:hover {
   background-color: darken($light, 10%);
   border-left-color: #3c8dbc;
   color: $gray-700;
 }
 
-.nav.nav-pills.nav-stacked > li .header {
+.nav.nav-pills.nav-stacked > li.header {
   border-bottom: 1px solid #ddd;
   color: $gray-700;
   margin-bottom: 10px;
@@ -1708,16 +1712,16 @@ body > .header .navbar .nav > li > a:hover > .label {
   border-color: transparent;
 }
 
-.nav-tabs-custom > .nav-tabs > li .active {
+.nav-tabs-custom > .nav-tabs > li.active {
   border-top-color: #3c8dbc;
 }
 
-.nav-tabs-custom > .nav-tabs > li .active > a,
-.nav-tabs-custom > .nav-tabs > li .active:hover > a {
+.nav-tabs-custom > .nav-tabs > li.active > a,
+.nav-tabs-custom > .nav-tabs > li.active:hover > a {
   background-color: $white;
 }
 
-.nav-tabs-custom > .nav-tabs > li .active > a {
+.nav-tabs-custom > .nav-tabs > li.active > a {
   border-left-color: $light;
   border-right-color: $light;
   border-top: 0;
@@ -1727,7 +1731,7 @@ body > .header .navbar .nav > li > a:hover > .label {
   margin-left: 0;
 }
 
-.nav-tabs-custom > .nav-tabs > li:first-of-type .active > a {
+.nav-tabs-custom > .nav-tabs > li:first-of-type.active > a {
   border-left-width: 0;
 }
 
@@ -1743,12 +1747,12 @@ body > .header .navbar .nav > li > a:hover > .label {
   margin-right: 0;
 }
 
-.nav-tabs-custom > .nav-tabs.float-right > li:first-of-type .active > a {
+.nav-tabs-custom > .nav-tabs.float-right > li:first-of-type.active > a {
   border-left-width: 1px;
   border-right-width: 0;
 }
 
-.nav-tabs-custom > .nav-tabs > li .header {
+.nav-tabs-custom > .nav-tabs > li.header {
   @include font-size("20px");
   color: $gray-700;
   cursor: default;
@@ -1757,9 +1761,9 @@ body > .header .navbar .nav > li > a:hover > .label {
   padding: 0 10px;
 }
 
-.nav-tabs-custom > .nav-tabs > li .header > .fa,
-.nav-tabs-custom > .nav-tabs > li .header > .glyphicon,
-.nav-tabs-custom > .nav-tabs > li .header > .ion {
+.nav-tabs-custom > .nav-tabs > li.header > .fa,
+.nav-tabs-custom > .nav-tabs > li.header > .glyphicon,
+.nav-tabs-custom > .nav-tabs > li.header > .ion {
   margin-right: 10px;
 }
 
@@ -1781,6 +1785,9 @@ body > .header .navbar .nav > li > a:hover > .label {
 .pagination > li > a {
   background: darken($light, 15%);
   color: $gray-700;
+  /*-webkit-box-shadow: inset 0px -2px 0px 0px rgba($black, 0.09);
+  -moz-box-shadow: inset 0px -2px 0px 0px rgba($black, 0.09);
+  box-shadow: inset 0px -1px 0px 0px rgba($black, 0.09);*/
 }
 
 .pagination > li:first-of-type a,
@@ -1805,28 +1812,30 @@ body > .header .navbar .nav > li > a:hover > .label {
   border-right: 1px solid #ddd;
 }
 
-.mailbox .table-mailbox tr .unread > td {
+.mailbox .table-mailbox tr.unread > td {
   background-color: rgba($black, 0.05);
   color: $black;
   font-weight: 600;
 }
 
 .mailbox .table-mailbox tr > td > .fa.fa-star,
-.mailbox .table-mailbox tr > td > .fa.fa-star-o {
+.mailbox .table-mailbox tr > td > .fa.fa-star-o,
+.mailbox .table-mailbox tr > td > .glyphicon.glyphicon-star,
+.mailbox .table-mailbox tr > td > .glyphicon.glyphicon-star-empty {
   color: $warning;
   cursor: pointer;
 }
 
-.mailbox .table-mailbox tr > td .small-col {
+.mailbox .table-mailbox tr > td.small-col {
   width: 30px;
 }
 
-.mailbox .table-mailbox tr > td .name {
+.mailbox .table-mailbox tr > td.name {
   font-weight: 600;
   width: 150px;
 }
 
-.mailbox .table-mailbox tr > td .time {
+.mailbox .table-mailbox tr > td.time {
   text-align: right;
   width: 100px;
 }
@@ -1845,7 +1854,7 @@ body > .header .navbar .nav > li > a:hover > .label {
     width: 50%;
   }
 
-  .mailbox .nav-stacked > li:not(.header) .header {
+  .mailbox .nav-stacked > li:not(.header).header {
     border: 0 !important;
   }
 
@@ -1854,25 +1863,23 @@ body > .header .navbar .nav > li > a:hover > .label {
   }
 }
 
-
-
 /*
     Skins
     -----
 */
-
 /*
     Skin Blue
     ---------
 */
-
 /* skin-blue navbar */
 .skin-blue .navbar {
   background-color: #d3e7f0;
+  /* #3c8dbc; */
 }
 
 .skin-blue .navbar .nav a {
   color: rgba($black, 0.8);
+  /* rgba($white, 0.8); */
 }
 
 .skin-blue .navbar .nav > li > a:hover,
@@ -1952,7 +1959,7 @@ body > .header .navbar .nav > li > a:hover > .label {
 }
 
 .skin-blue .sidebar > .sidebar-menu > li > a:hover,
-.skin-blue .sidebar > .sidebar-menu > li .active > a {
+.skin-blue .sidebar > .sidebar-menu > li.active > a {
   background: darken($light, 10%);
   color: $gray-900;
 }
@@ -1965,7 +1972,6 @@ body > .header .navbar .nav > li > a:hover > .label {
 .skin-blue .left-side {
   background: #d3e7f0;
   box-shadow: inset -3px 0 8px -4px rgba($black, 0.07);
-
   /* #f4f4f4; */
   min-height: 100%;
 }
@@ -1982,7 +1988,7 @@ body > .header .navbar .nav > li > a:hover > .label {
   color: $gray-700;
 }
 
-.skin-blue .treeview-menu > li .active > a,
+.skin-blue .treeview-menu > li.active > a,
 .skin-blue .treeview-menu > li > a:hover {
   color: $dark;
 }
@@ -2027,7 +2033,7 @@ body > .header .navbar .nav > li > a:hover > .label {
   color: $gray-500;
 }
 
-/* general page */
+/*general page*/
 .progress-xs {
   height: 10px;
 }
@@ -2063,9 +2069,9 @@ body > .header .navbar .nav > li > a:hover > .label {
 }
 
 .card-header .nav > li > a,
-.card-header .nav > li .active > a,
-.card-header .nav > li .active > a:hover,
-.card-header .nav > li .active > a:focus {
+.card-header .nav > li.active > a,
+.card-header .nav > li.active > a:hover,
+.card-header .nav > li.active > a:focus {
   border-radius: 0;
   border-width: 0;
 }
@@ -2074,13 +2080,13 @@ body > .header .navbar .nav > li > a:hover > .label {
   color: $gray-600;
 }
 
-.card-header .nav > li .active > a,
+.card-header .nav > li.active > a,
 .card-header .nav > li > a:hover {
   background: $white;
   color: $success;
 }
 
-.card-header .nav > li:first-child .active > a,
+.card-header .nav > li:first-child.active > a,
 .card-header .nav > li:first-child > a:hover {
   border-radius: 0;
 }
@@ -2089,18 +2095,19 @@ body > .header .navbar .nav > li > a:hover > .label {
   display: block;
 }
 
+
 .dropdown-menu.dropdown-custom > li {
   @include font-size("12px");
   padding: 8px 10px;
 }
 
-.dropdown-menu li:first-child .dropdown-header {
+.dropdown-menu li:first-child.dropdown-header {
   border-top: 0;
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
 }
 
-li .dropdown-header {
+li.dropdown-header {
   background-color: darken($light, 5%);
   border-bottom: 1px solid #eaedf1;
   border-top: 1px solid #eaedf1;

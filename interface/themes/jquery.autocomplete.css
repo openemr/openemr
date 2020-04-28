@@ -17,16 +17,13 @@
 .ac_results li {
   cursor: default;
   display: block;
-
   /*
 	if width will be 100% horizontal scrollbar will apear
 	when scroll mode will be used
 	*/
-
-  /* width: 100%; */
+  /*width: 100%;*/
   font: menu;
   font-size: 12px;
-
   /*
 	it is very important, if line-height not setted or setted
 	in relative units scroll will be broken in firefox

@@ -27,7 +27,7 @@
 }
 
 .disabled_button,
-a .disabled_button:hover {
+a.disabled_button:hover {
   color: $gray;
 }
 
@@ -82,7 +82,7 @@ a .disabled_button:hover {
   width: 40%;
 }
 
-body .admin-layout input[type="button"] {
+body.admin-layout input[type="button"] {
   display: inline-block;
   float: none;
 }

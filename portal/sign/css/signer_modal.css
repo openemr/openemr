@@ -28,7 +28,12 @@ body {
 
 .signature-pad-body {
   border: 1px solid #e8e8e8;
+  -webkit-box-direction: normal;
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
+  -ms-flex-direction: column;
   flex-direction: column;
   padding: 0.1rem;
   position: relative;
@@ -37,9 +42,18 @@ body {
 .signature-pad-content {
   align-items: flex-end;
   background: #fff;
+  -webkit-box-align: initial;
+  -webkit-box-pack: initial;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
+  -ms-flex-align: initial;
+  -ms-flex-pack: initial;
   justify-content: flex-start;
   margin: 0;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
   user-select: none;
 }
 
@@ -60,7 +74,11 @@ body {
 }
 
 .signature-pad-actions {
+  -webkit-box-pack: justify;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
+  -ms-flex-pack: justify;
   justify-content: space-between;
   margin: 0.5rem 0 0;
   padding: 0.5rem;
@@ -85,6 +103,10 @@ body {
   color: var(--danger) !important;
   cursor: pointer;
   -webkit-user-drag: none;
+  user-drag: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
   user-select: none;
 }
 

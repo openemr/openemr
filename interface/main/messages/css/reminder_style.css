@@ -40,13 +40,13 @@ h1 {
   margin-right: 0;
 }
 
-.nav-tabs > li .active > a {
+.nav-tabs > li.active > a {
   border: 0;
 }
 
-.nav-tabs > li .active > a,
-.nav-tabs > li .active > a:focus,
-.nav-tabs > li .active > a:hover {
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover {
   border: unset;
 }
 
@@ -431,7 +431,7 @@ input[type="radio"] {
   width: 70%;
 }
 
-td .right {
+td.right {
   width: 30%;
 }
 

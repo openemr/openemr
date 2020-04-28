@@ -1,6 +1,6 @@
 /* ====================================
  * the style sheet for the ajax_template calendar
- * ==================================== */
+ * ====================================*/
 
 /* Bootstrap Breakpoints */
 @each $breakpoint in map-keys($grid-breakpoints) {
@@ -9,7 +9,7 @@
   }
 }
 
-div .tiny {
+div.tiny {
   @include font-size("0.0625rem !important");
   height: 0.0625rem;
   width: 0.0625rem;
@@ -50,9 +50,9 @@ div .tiny {
   margin-right: 0%;
   min-width: 20%;
   padding: 0 0.3125rem;
-
   /* added because of the width issue above */
 }
+
 
 #topToolbarRight {
   border-bottom: 1px solid $black;
@@ -69,12 +69,6 @@ div .tiny {
   font-family: "Arial", "Helvetica", sans-serif;
 }
 
-#dateDisplay {
-  float: left;
-  font-family: "Arial", "Helvetica", sans-serif;
-  padding-left: 0.625rem;
-}
-
 .rtl #functions,
 .rtl #dateNAV,
 .rtl #dateDisplay,
@@ -82,9 +76,20 @@ div .tiny {
   float: right;
 }
 
+#dateDisplay {
+  float: left;
+  font-family: "Arial", "Helvetica", sans-serif;
+  padding-left: 0.625rem;
+}
+
 #viewPicker {
   float: right;
   margin-right: 0.625rem;
+}
+
+.rtl #viewPicker,
+.rtl #bigCalHeader {
+  float: left;
 }
 
 #bigCalHeader {
@@ -93,11 +98,6 @@ div .tiny {
   font-family: "Arial", "Helvetica", sans-serif;
   text-align: center;
   width: 70%;
-}
-
-.rtl #viewPicker,
-.rtl #bigCalHeader {
-  float: left;
 }
 
 #providerPicker {
@@ -162,6 +162,8 @@ div .tiny {
 
 #datePicker table {
   border-collapse: collapse;
+  /* margin-left: 0.1875rem;
+    border-right: 1px solid $black; */
   width: 100%;
 }
 
@@ -290,6 +292,7 @@ div .tiny {
   padding: 0;
   vertical-align: top;
   width: 25rem;
+
 }
 
 /* for the header row with provider names */
@@ -342,10 +345,6 @@ div .tiny {
 
 .week_currday a:hover {
   color: $light;
-}
-
-.weekend-day {
-  /* background: lighten($dark, 50%); */
 }
 
 /* classes specific to the MONTH view */
@@ -525,7 +524,7 @@ div .tiny {
   }
 }
 
-@media (max-width: 665px) {
+@media(max-width: 665px) {
   #bigCal > table {
     margin-top: 68px;
   }

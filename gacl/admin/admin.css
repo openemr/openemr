@@ -8,43 +8,44 @@ div {
   position: relative;
 }
 
-div #top-tr {
+div#top-tr {
   background: #ccc url("images/top-r.png") no-repeat top right;
   margin: 0;
   padding: 0;
 }
 
-div #top-tl {
+div#top-tl {
   background: url("images/top-l.png") no-repeat top left;
   margin: 0;
   padding: 0;
 }
 
-div #top-br {
+div#top-br {
   background: url("images/div-r.png") no-repeat bottom right;
   margin: 0;
   padding: 0;
 }
 
-div #top-bl {
+div#top-bl {
   background: url("images/div-l.png") no-repeat bottom left;
   margin: 0;
   padding: 10px 180px 0 10px;
 }
 
-div #top-bl h1 {
+div#top-bl h1 {
   position: absolute;
   visibility: hidden;
 }
 
-div #top-bl h2 {
+div#top-bl h2 {
   color: #eee;
   font-size: 150%;
   margin: 6px 4px;
   padding: 0;
 }
 
-ul #menu {
+ul#menu {
+	
   display: table;
   list-style-type: none;
   margin: 0;
@@ -52,16 +53,18 @@ ul #menu {
   width: 100%;
 }
 
-ul #menu li {
+ul#menu li {
   background: #999 url("images/tab-off-r.png") no-repeat top right;
   border-bottom: 1px solid #666;
   float: left;
+	
   margin: 0 2px 0 0;
   padding: 0;
 }
 
-ul #menu li a {
+ul#menu li a {
   background: url("images/tab-off-l.png") no-repeat top left;
+	
   color: #d8d8d8;
   display: block;
   font-weight: normal;
@@ -71,71 +74,74 @@ ul #menu li a {
   text-align: center;
   text-decoration: none;
   white-space: nowrap;
+	
   width: 0.1em;
 }
 
-ul #menu li>a {
+ul#menu li>a {
   width: auto;
 }
 
-ul #menu li a:hover {
+ul#menu li a:hover {
   color: #fff;
 }
 
-ul #menu li .current {
+ul#menu li.current {
   background-color: #fff;
   background-image: url("images/tab-on-r.png");
   border-bottom-width: 0;
 }
 
-ul #menu li .current a {
+ul#menu li.current a {
   background-image: url("images/tab-on-l.png");
+	
   color: #666;
   padding-bottom: 2px;
   text-decoration: none;
 }
 
-ul #menu li .current a:hover {
+ul#menu li.current a:hover {
   color: #666;
 }
 
-div #mid-r {
+div#mid-r {
   background: #fff url("images/mid-r.png") repeat-y top right;
   margin: 0;
   padding: 0;
 }
 
-div #mid-l {
+div#mid-l {
   background: url("images/mid-l.png") repeat-y top left;
   margin: 0;
   padding: 4px 10px;
 }
 
-div #bot-tr {
+div#bot-tr {
   background: url("images/div-r.png") no-repeat top right;
   margin: 0;
   padding: 0;
 }
 
-div #bot-tl {
+div#bot-tl {
   background: url("images/div-l.png") no-repeat top left;
+	
   font-size: 8pt;
   margin: 0;
   padding: 2px 10px 10px;
   text-align: center;
 }
 
-div #bot-tl a {
+div#bot-tl a {
   text-decoration: none;
 }
 
-div #bot-br {
+div#bot-br {
   background: #ccc url("images/bot-r.png") no-repeat bottom right;
   margin: 0;
   padding: 0;
 }
 
-div #bot-bl {
+div#bot-bl {
   background: url("images/bot-l.png") no-repeat bottom left;
   margin: 0;
   padding: 0;
@@ -164,29 +170,29 @@ th {
   text-align: center;
 }
 
-tr .controls {
+tr.controls {
   background-color: #999;
 }
 
-tr .odd {
+tr.odd {
   background-color: #c0c0c0;
 }
 
-tr .even {
+tr.even {
   background-color: #d0d0d0;
 }
 
-tr .spacer {
+tr.spacer {
   background-color: transparent;
   height: 10px;
 }
 
-td .green {
-  background-color: #008000;
+td.green {
+  background-color: green;
 }
 
-td .red {
-  background-color: #f00;
+td.red {
+  background-color: red;
 }
 
 input,
@@ -201,18 +207,18 @@ input {
   padding: 1px 2px;
 }
 
-input .checkbox,
-input .radio {
+input.checkbox,
+input.radio {
   border: 0;
   margin: 1px 2px 0;
   padding: 0;
 }
 
-input .button {
+input.button {
   width: 100px;
 }
 
-input .paypal {
+input.paypal {
   border-width: 0;
 }
 
@@ -240,15 +246,18 @@ form {
   margin: 0;
 }
 
-tr .hide {
+tr.hide {
   display: none;
 }
 
-td .tabon {
+tr.show {
+}
+
+td.tabon {
   background: #438ec5;
 }
 
-td .taboff {
+td.taboff {
   background: #abc3d4;
 }
 
@@ -258,21 +267,21 @@ select {
 }
 
 textarea,
-input #return_value {
+input#return_value {
   width: 99%;
 }
 
-input .un-select {
+input.un-select {
   margin-top: 5px;
   width: 99%;
 }
 
-input .select {
+input.select {
   margin-top: 5px;
   width: 99%;
 }
 
-input .deselect {
+input.deselect {
   margin-top: 8px;
   width: 99%;
 }

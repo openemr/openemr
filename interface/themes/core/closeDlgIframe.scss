@@ -2,7 +2,7 @@
  * closeDlgIframe common styles
  */
 
-div .closeDlgIframe {
+div.closeDlgIframe {
   background: $danger;
   cursor: pointer;
   height: 25px;
@@ -13,7 +13,7 @@ div .closeDlgIframe {
   z-index: 10010;
 }
 
-div .closeDlgIframe::before {
+div.closeDlgIframe::before {
   color: $white;
   content: "\f00d";
   display: inline-block;

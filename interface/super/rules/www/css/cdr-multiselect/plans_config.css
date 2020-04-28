@@ -13,7 +13,7 @@
  speak for themselves. Background we set to 80% white with
  our animation centered, and no-repeating */
 .modal {
-  background: rgba(255, 255, 255, 0.8) url('ajax_wait.gif') 50% 50% no-repeat;
+  background: rgba(255, 255, 255, 0.8) url("ajax_wait.gif") 50% 50% no-repeat;
   display: none;
   height: 100%;
   left: 0;
@@ -25,19 +25,19 @@
 
 /* When the body has the loading class, we turn
    the scrollbar off with overflow:hidden */
-body .loading {
+body.loading {
   overflow: hidden;
 }
 
 /* Anytime the body has the loading class, our
    modal element will be visible */
-body .loading .modal {
+body.loading .modal {
   display: block;
 }
 
 .delete_button {
   background-color: none;
-  background-image: url('trash_icon.png');
+  background-image: url("trash_icon.png");
   background-position: 0 0;
   background-repeat: no-repeat;
   border: 0;
@@ -49,7 +49,6 @@ body .loading .modal {
 
 .delete_button:hover {
   box-shadow: 0 0 10px #ccc;
-
 }
 
 .overlay {

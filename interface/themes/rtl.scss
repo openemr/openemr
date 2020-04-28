@@ -16,7 +16,6 @@
   }
 
   /*Bootstrap 3 classes modified for rtl*/
-
   #navigation-slide,
   #navigation-slide * {
     margin-right: 0;
@@ -118,13 +117,13 @@
   }
 
   /* /main/messages/messages.php */
-  td .amount-msg {
+  td.amount-msg {
     direction: ltr;
     text-align: left !important;
   }
 
   /*  /interface/billing/edih_view.php  */
-  #tabs ul .ui-tabs-nav li .ui-state-default {
+  #tabs ul.ui-tabs-nav li.ui-state-default {
     float: right;
   }
 
@@ -158,11 +157,11 @@
     transform: translate(2px, 0) rotate(-90deg);
   }
 
-  .tabs-container ul .tabs {
+  .tabs-container ul.tabs {
     width: 100%;
   }
 
-  .tabs-container ul .tabs li {
+  .tabs-container ul.tabs li {
     float: none !important;
   }
 
@@ -173,7 +172,7 @@
   .top-menu-carecoordination li,
   .setup-carecoordination .top-menu-carecoordination li,
   .setup-carecoordination .ca-ca-in-1,
-  .setup-carecoordination ul .virtualpage_system_based_forms {
+  .setup-carecoordination ul.virtualpage_system_based_forms {
     float: right !important;
   }
 
@@ -195,21 +194,21 @@
   /* online - portal */
 
   /* patients/summary_pat_portal.php */
-  div #portal-buttons-bottom {
+  div#portal-buttons-bottom {
     padding: 5px 15px;
   }
 
   #DEM .label_custom,
-  #report_parameters table table td .label_custom {
+  #report_parameters table table td.label_custom {
     text-align: left !important;
   }
 
   /* flow board */
-  form #pattrk h2 > span {
+  form#pattrk h2 > span {
     float: right !important;
   }
 
-  form #pattrk #inanewwindow > span {
+  form#pattrk #inanewwindow > span {
     float: left !important;
   }
 
@@ -240,13 +239,13 @@
     float: right;
   }
 
-  .xdsoft_datepicker .xdsoft_mounthpicker button .xdsoft_prev,
-  .xdsoft_datepicker .xdsoft_mounthpicker button .xdsoft_next {
+  .xdsoft_datepicker .xdsoft_mounthpicker button.xdsoft_prev,
+  .xdsoft_datepicker .xdsoft_mounthpicker button.xdsoft_next {
     filter: progid:DXImageTransform.Microsoft.Matrix(M11=-1, M12=0, M21=0, M22=-1, DX=0, DY=0, SizingMethod='auto expand');
     transform: rotate(180deg);
   }
 
-  div .formname {
+  div.formname {
     float: right !important;
     padding-left: 10px !important;
   }
@@ -266,21 +265,21 @@
 }
 
 /*expandable search rtl in main.php*/
-.oe-expandable-search button .btn-search1 {
+.oe-expandable-search button.btn-search1 {
   padding: 4px 6px 4px 0 !important;
   right: 0;
 }
 
-.oe-expandable-search input:focus ~ button .btn-search1 {
+.oe-expandable-search input:focus ~ button.btn-search1 {
   outline: 0;
   right: 245px;
 }
 
-.oe-expandable-search button .btn-globals-legacy {
+.oe-expandable-search button.btn-globals-legacy {
   right: 110px;
 }
 
-.oe-expandable-search button .btn-globals-modern {
+.oe-expandable-search button.btn-globals-modern {
   right: 0;
 }
 

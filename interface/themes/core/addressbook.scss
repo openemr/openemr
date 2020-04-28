@@ -12,20 +12,20 @@
     color: $primary;
   }
 
-  tr .search {
+  tr.search {
     font-weight: bold;
   }
 
-  tr .head {
+  tr.head {
     background-color: $gray-400;
     font-weight: bold;
   }
 
-  tr .evenrow {
+  tr.evenrow {
     background-color: $light;
   }
 
-  tr .oddrow {
+  tr.oddrow {
     background-color: $white;
   }
 

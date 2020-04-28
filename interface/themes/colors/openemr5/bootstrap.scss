@@ -13,7 +13,7 @@ label {
   padding: 0 5px !important;
 }
 
-textarea .form-control {
+textarea.form-control {
   height: auto !important;
 }
 
@@ -183,8 +183,8 @@ input[type=radio] {
   width: 30px;
 }
 
-.patientInfo a .btn,
-.patientDataColumn a .btn {
+.patientInfo a.btn,
+.patientDataColumn a.btn {
   @include font-size("12px !important");
   background: $darker !important;
   border-color: $darkest !important;

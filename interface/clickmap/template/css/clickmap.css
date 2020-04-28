@@ -9,7 +9,7 @@
 }
 
 .marker {
-  background-color: #f00;
+  background-color: var(--danger);
   border: 1px solid;
   min-height: 12px;
   min-width: 12px;
@@ -18,7 +18,7 @@
 }
 
 .count {
-  color: #fff;
+  color: var(--white);
   font-size: 12px;
   font-weight: bold;
   margin: 2px;

@@ -225,18 +225,18 @@ a:hover {
   color: #00c;
 }
 
-#addressbook_list tr .search {
+#addressbook_list tr.search {
   font-size: 9pt;
   font-weight: bold;
 }
 
-#addressbook_list tr .head {
+#addressbook_list tr.head {
   background-color: #ccc;
   font-size: 10pt;
   font-weight: bold;
 }
 
-#addressbook_list tr .detail {
+#addressbook_list tr.detail {
   font-size: 10pt;
 }
 
@@ -395,7 +395,7 @@ a:hover {
   vertical-align: top;
 }
 
-#pnotes_ps_expand div .tab table td {
+#pnotes_ps_expand div.tab table td {
   padding-right: 10px;
 }
 
@@ -690,15 +690,16 @@ a:hover {
   padding: 0;
 }
 
-#report_custom img .bigimage {
+#report_custom img.bigimage {
   width: 540pt;
+  /* 540pt = 7.5 inches */
 }
 
-#addressbook_list tr .evenrow {
+#addressbook_list tr.evenrow {
   background-color: #ddf;
 }
 
-#addressbook_list tr .oddrow {
+#addressbook_list tr.oddrow {
   background-color: #fff;
 }
 
@@ -709,18 +710,18 @@ a:hover {
 /*
  * TABS
 */
-ul .tabNav {
+ul.tabNav {
   margin: 0;
   padding: 0;
 }
 
-ul .tabNav {
+ul.tabNav {
   float: left;
   list-style: none;
   width: 100%;
 }
 
-ul .tabNav li {
+ul.tabNav li {
   float: left;
   font-size: 0.8em;
   margin: 0 1px 0 0;
@@ -729,7 +730,7 @@ ul .tabNav li {
   vertical-align: bottom;
 }
 
-ul .tabNav li .current {
+ul.tabNav li.current {
   font-size: 0.8em;
   font-weight: bold;
   padding-top: 0;
@@ -737,7 +738,7 @@ ul .tabNav li .current {
   vertical-align: bottom;
 }
 
-ul .tabNav a {
+ul.tabNav a {
   background: #a7a7a7;
   border: 1px solid #fff;
   border-width: 1px 1px 0;
@@ -747,66 +748,67 @@ ul .tabNav a {
   text-decoration: none;
 }
 
-ul .tabNav li .current a {
+ul.tabNav li.current a {
   background: #fff;
   padding: 8px;
 }
 
-div .tabContainer {
+div.tabContainer {
   clear: both;
   float: left;
   width: 100%;
 }
 
-div .tabContainer div .tab {
+div.tabContainer div.tab {
   border: 1px solid #fff;
   color: #000;
   display: none;
   padding: 10px;
 }
 
-div .tabContainer div .current {
+div.tabContainer div.current {
   display: block;
 }
 
-div .tab {
+div.tab {
   background: #fff none repeat scroll 0 0;
   margin-bottom: 10px;
   min-height: 180px;
   width: 665px;
 }
 
-div .tab_long {
+div.tab_long {
   background: #fff none repeat scroll 0 0;
   margin-bottom: 10px;
   min-height: 180px;
   width: 100%;
 }
 
-div .tab p:last-child {
+div.tab p:last-child {
   margin-bottom: 0;
 }
 
-div .tab table td {
+div.tab table td {
   padding-bottom: 0;
   padding-right: 1px;
 }
 
-div .tab table td .label_custom {
+div.tab table td.label_custom {
   min-width: 80px;
 }
 
-div .tab table td .data {
+div.tab table td.data {
   min-width: 120px;
+  /*170px*/
 }
 
-div .notab {
+div.notab {
   background: #fff none repeat scroll 0 0;
   margin-bottom: 10px;
   width: 100%;
 }
 
-div .notab-right {
+div.notab-right {
   background: #fff none repeat scroll 0 0;
   margin-bottom: 10px;
   width: 100%;
@@ -852,7 +854,7 @@ div .notab-right {
   font-size: 0.8em;
 }
 
-#report_parameters table table td .label_custom {
+#report_parameters table table td.label_custom {
   text-align: right;
 }
 
@@ -1006,51 +1008,79 @@ div .notab-right {
   width: 150px;
 }
 
-#navigation-slide li a .collapsed {
+#navigation-slide li a.collapsed {
   background: #999;
+  /* for IE */
+  /* for webkit browsers */
   background: linear-gradient(to top, #fe5301, #fefdcf);
+  /* for non-css3 browsers */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fe5301', endColorstr='#fefdcf');
+  /* for firefox 3.6+ */
 }
 
-#navigation-slide li a .expanded {
+#navigation-slide li a.expanded {
   background: #999;
+  /* for IE */
+  /* for webkit browsers */
   background: linear-gradient(to top, #fefdcf, #fe5301);
+  /* for non-css3 browsers */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefdcf', endColorstr='#fe5301');
+  /* for firefox 3.6+ */
 }
 
-#navigation-slide ul li a .collapsed_lv2 {
+#navigation-slide ul li a.collapsed_lv2 {
   background: #999;
+  /* for IE */
+  /* for webkit browsers */
   background: linear-gradient(to top, #ffac84, #fefdcf);
+  /* for non-css3 browsers */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffac84', endColorstr='#fefdcf');
+  /* for firefox 3.6+ */
 }
 
-#navigation-slide ul li a .expanded_lv2 {
+#navigation-slide ul li a.expanded_lv2 {
   background: #999;
+  /* for IE */
+  /* for webkit browsers */
   background: linear-gradient(to top, #fefdcf, #ffac84);
+  /* for non-css3 browsers */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefdcf', endColorstr='#ffac84');
+  /* for firefox 3.6+ */
 }
 
-#navigation-slide ul li a .collapsed_lv3 {
+#navigation-slide ul li a.collapsed_lv3 {
   background: #999;
+  /* for IE */
+  /* for webkit browsers */
   background: linear-gradient(to top, #aaa, #eee);
+  /* for non-css3 browsers */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#aaaaaa', endColorstr='#eeeeee');
+  /* for firefox 3.6+ */
 }
 
-#navigation-slide ul li a .expanded_lv3 {
+#navigation-slide ul li a.expanded_lv3 {
   background: #999;
+  /* for IE */
+  /* for webkit browsers */
   background: linear-gradient(to top, #eee, #aaa);
+  /* for non-css3 browsers */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#aaaaaa');
+  /* for firefox 3.6+ */
 }
 
 #sddm li {
   background: #999;
+  /* for IE */
+  /* for webkit browsers */
   background: linear-gradient(to top, #fe5301, #fefdcf);
   border: 1px solid #fefdcf;
+  /* for non-css3 browsers */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fe5301', endColorstr='#fefdcf');
   float: left;
   list-style: none;
   margin: 0;
   padding: 0;
+  /* for firefox 3.6+ */
 }
 
 #sddm li a {
@@ -1092,7 +1122,6 @@ div .notab-right {
   position: relative;
   text-align: left;
   text-decoration: none;
-  white-space: normal;
   width: 170px;
 }
 
@@ -1157,11 +1186,11 @@ div .notab-right {
   width: 160px;
 }
 
-.example_menu a .expanded {
+.example_menu a.expanded {
   background: #bbb url("collapse.gif") no-repeat 3px 50%;
 }
 
-.example_menu a .collapsed {
+.example_menu a.collapsed {
   background: #bbb url("expand.gif") no-repeat 3px 50%;
 }
 
@@ -1186,19 +1215,19 @@ div .notab-right {
   text-decoration: underline;
 }
 
-.example_menu li .active a {
+.example_menu li.active a {
   background: #fff;
 }
 
-.example_menu li .active li a {
+.example_menu li.active li a {
   background: #e8e8e8;
 }
 
-#menu1 li .footer,
-#menu2 li .footer,
-#menu3 li .footer,
-#menu4 li .footer,
-#menu5 li .footer,
+#menu1 li.footer,
+#menu2 li.footer,
+#menu3 li.footer,
+#menu4 li.footer,
+#menu5 li.footer,
 .example_menu .footer {
   background: transparent url("footer.jpg") no-repeat 0 0;
   border-top: 2px solid #fff;
@@ -1227,12 +1256,12 @@ div .notab-right {
 }
 
 /* For PDF output of lab results. Need very small font size. */
-.labres tr .head {
+.labres tr.head {
   font-size: 7pt;
   text-align: center;
 }
 
-.labres tr .detail {
+.labres tr.detail {
   font-size: 7pt;
 }
 
@@ -1516,37 +1545,40 @@ body {
  * TABS
 */
 
-ul .tabNav {
-  float: right;
+ul.tabNav {
   margin: 0;
   padding: 0;
 }
 
-ul .tabNav li {
+ul.tabNav {
+  float: right;
+}
+
+ul.tabNav li {
   float: right;
   margin: 0 1px 0 0;
   padding: 6px 0 0;
   text-align: right;
 }
 
-ul .tabNav li .current {
+ul.tabNav li.current {
   padding-top: 0;
   text-align: right;
 }
 
-ul .tabNav a {
+ul.tabNav a {
   padding: 4px 4px 5px;
 }
 
-ul .tabNav li .current a {
+ul.tabNav li.current a {
   padding: 8px;
 }
 
-div .tabContainer {
+div.tabContainer {
   float: right;
 }
 
-div .tab table td {
+div.tab table td {
   padding-right: 1px;
 }
 
@@ -1554,7 +1586,7 @@ div .tab table td {
 * REPORTS
 */
 
-#report_parameters table table td .label_custom {
+#report_parameters table table td.label_custom {
   text-align: left;
 }
 
@@ -1612,6 +1644,7 @@ div .tab table td {
   text-align: right;
 }
 
+
 .text-area {
   text-align: right;
 }
@@ -1621,11 +1654,11 @@ div .tab table td {
   padding: 2px 2px 2px 17px;
 }
 
-#menu1 li .footer,
-#menu2 li .footer,
-#menu3 li .footer,
-#menu4 li .footer,
-#menu5 li .footer,
+#menu1 li.footer,
+#menu2 li.footer,
+#menu3 li.footer,
+#menu4 li.footer,
+#menu5 li.footer,
 .example_menu .footer {
   margin: 0 0 10px;
 }
@@ -1649,6 +1682,7 @@ div .tab table td {
 /* record_disclosure.php */
 #record-disclosure,
 #record-disclosure > div {
+
   float: none !important;
 
 }
@@ -1730,18 +1764,20 @@ body > .nav {
 }
 
 /* /main/messages/messages.php */
-td .amount-msg {
+td.amount-msg {
   direction: ltr;
+
   text-align: left !important;
 }
 
 /*  /interface/billing/edih_view.php  */
-#tabs ul .ui-tabs-nav li .ui-state-default {
+#tabs ul.ui-tabs-nav li.ui-state-default {
   float: right;
 }
 
 
 /* /interface/code_systems/dataloads_ajax.php */
+
 #accordion .left_wrpr,
 #accordion .wrpr {
   float: right !important;
@@ -1751,7 +1787,9 @@ td .amount-msg {
   float: none !important;
 }
 
+
 /*  /library/js/datatables/media/css/demo_table.css */
+
 .cancel-float {
   float: none !important;
 }
@@ -1762,6 +1800,7 @@ td .amount-msg {
   display: inline-block;
   float: none !important;
 }
+
 
 #documents_list img[src*=branch],
 #documents_list img[src*=line],
@@ -1774,11 +1813,12 @@ td .amount-msg {
   transform: translate(2px, 0) rotate(-90deg);
 }
 
-.tabs-container ul .tabs {
+
+.tabs-container ul.tabs {
   width: 100%;
 }
 
-.tabs-container ul .tabs li {
+.tabs-container ul.tabs li {
 
   float: none !important;
 }
@@ -1800,7 +1840,8 @@ td .amount-msg {
   float: right !important;
 }
 
-.setup-carecoordination ul .virtualpage_system_based_forms {
+.setup-carecoordination ul.virtualpage_system_based_forms {
+
   float: right !important;
 }
 
@@ -1824,21 +1865,21 @@ td .amount-msg {
 /* online - portal */
 
 /* patients/summary_pat_portal.php */
-div #portal-buttons-bottom {
+div#portal-buttons-bottom {
   padding: 5px 15px;
 }
 
 #DEM .label_custom,
-#report_parameters table table td .label_custom {
+#report_parameters table table td.label_custom {
   text-align: left !important;
 }
 
 /* flow board */
-form #pattrk h2 > span {
+form#pattrk h2 > span {
   float: right !important;
 }
 
-form #pattrk #inanewwindow > span {
+form#pattrk #inanewwindow > span {
   float: left !important;
 }
 
@@ -1877,8 +1918,8 @@ form #pattrk #inanewwindow > span {
   float: right;
 }
 
-.xdsoft_datepicker .xdsoft_mounthpicker button .xdsoft_prev,
-.xdsoft_datepicker .xdsoft_mounthpicker button .xdsoft_next {
+.xdsoft_datepicker .xdsoft_mounthpicker button.xdsoft_prev,
+.xdsoft_datepicker .xdsoft_mounthpicker button.xdsoft_next {
   /* W3C compliant browsers */
 
   /* IE8 and below */
@@ -1886,19 +1927,19 @@ form #pattrk #inanewwindow > span {
   transform: rotate(180deg);
 }
 
-#file_type_whitelist .subject-black-list,
-#file_type_whitelist .subject-white-list,
-#file_type_whitelist .subject-info-save,
-#file_type_whitelist .subject-info-arrows {
+#file_type_#ffflist .subject-#000-list,
+#file_type_#ffflist .subject-#fff-list,
+#file_type_#ffflist .subject-info-save,
+#file_type_#ffflist .subject-info-arrows {
   float: right;
 }
 
-#white-list,
-#black-list {
+##fff-list,
+##000-list {
   direction: ltr;
 }
 
-div .formname {
+div.formname {
   float: right !important;
   padding-left: 10px !important;
 }

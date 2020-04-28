@@ -25,19 +25,16 @@
   background-color: $gray-200;
 }
 
-#navigation-slide li a .collapsed_lv2::before,
-#navigation-slide * li a .collapsed_lv2::before,
-#navigation-slide li a .collapsed_lv3::before,
-#navigation-slide * li a .collapsed_lv3::before {
+#navigation-slide li a.collapsed_lv2::before,
+#navigation-slide * li a.collapsed_lv2::before,
+#navigation-slide li a.collapsed_lv3::before,
+#navigation-slide * li a.collapsed_lv3::before {
   border-bottom: 5px solid transparent;
-
   /* right arrow slant */
   border-left: 5px solid $dark;
-
   /* left arrow slant */
   border-top: 5px solid transparent;
   content: "&nbsp;";
-
   /* bottom, add background color here */
   font-size: 0;
   height: 0;
@@ -45,23 +42,21 @@
   width: 0;
 }
 
-#navigation-slide li a .expanded,
-#navigation-slide * li a .expanded {
+#navigation-slide li a.expanded,
+#navigation-slide * li a.expanded {
   background: $light;
 }
 
-#navigation-slide li a .expanded_lv2::before,
-#navigation-slide * li a .expanded_lv2::before,
-#navigation-slide li a .expanded_lv3::before,
-#navigation-slide * li a .expanded_lv3::before {
+#navigation-slide li a.expanded_lv2::before,
+#navigation-slide * li a.expanded_lv2::before,
+#navigation-slide li a.expanded_lv3::before,
+#navigation-slide * li a.expanded_lv3::before {
   /* right arrow slant */
   border-left: 5px solid $dark;
   border-right: 5px solid transparent;
-
   /* left arrow slant */
   border-top: 5px solid transparent;
   content: "&nbsp;";
-
   /* bottom, add background color here */
   font-size: 0;
   height: 0;

@@ -1,4 +1,4 @@
-// ---------------------------openemr5.0.2 messages---------------------------
+/*---------------------------openemr5.0.2 messages--------------------------- */
 .oe-margin-t-3 {
   margin-top: 3px;
 }
@@ -19,9 +19,9 @@
   margin-bottom: 10px;
 }
 
-a .arrowhead,
-a:hover .arrowhead,
-a:visited .arrowhead {
+a.arrowhead,
+a:hover.arrowhead,
+a:visited.arrowhead {
   color: $body-color;
 }
 
@@ -37,4 +37,4 @@ a:visited .arrowhead {
   background: lighten($yellow, 80%) !important;
 }
 
-/* ---------------------------openemr5.0.2 messages--------------------------- */
+/*---------------------------openemr5.0.2 messages--------------------------- */

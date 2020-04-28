@@ -1,3 +1,5 @@
+@CHARSET "UTF-8";
+
 body {
   margin-top: 20px;
 }
@@ -77,13 +79,16 @@ body {
   width: 35px;
 }
 
+/* stylelint-disable */
 input[type=text],
 input[type=email],
 input[type=date],
 select,
 fieldset {
+  -webkit-appearance: none;
   box-sizing: border-box;
 }
+/* stylelint-enable */
 
 input:required:invalid,
 input:focus:invalid {

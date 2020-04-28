@@ -139,18 +139,18 @@ a {
   color: #00c;
 }
 
-#addressbook_list tr .search {
+#addressbook_list tr.search {
   font-size: 9pt;
   font-weight: bold;
 }
 
-#addressbook_list tr .head {
+#addressbook_list tr.head {
   background-color: #ccc;
   font-size: 10pt;
   font-weight: bold;
 }
 
-#addressbook_list tr .detail {
+#addressbook_list tr.detail {
   font-size: 10pt;
 }
 

@@ -1,7 +1,8 @@
 /* Multiselect
 ----------------------------------*/
 
-/* TODO: Marked For Removal */
+/* TODO: To be removed */
+
 .ui-multiselect {
   border: solid 1px;
   font-size: 0.8em;
@@ -18,7 +19,8 @@
   line-height: 20px;
   list-style: none;
   margin: 0;
-  padding: 0; }
+  padding: 0;
+}
 
 .ui-multiselect li a {
   color: #999;
@@ -29,11 +31,11 @@
   text-decoration: none;
 }
 
-.ui-multiselect li .ui-draggable-dragging {
+.ui-multiselect li.ui-draggable-dragging {
   padding-left: 10px;
 }
 
-.ui-multiselect div .selected {
+.ui-multiselect div.selected {
   border: 0;
   float: left;
   margin: 0;
@@ -41,7 +43,7 @@
   position: relative;
 }
 
-.ui-multiselect ul .selected {
+.ui-multiselect ul.selected {
   background: #fff;
   border: 0;
   list-style: none;
@@ -54,7 +56,7 @@
   width: 100%;
 }
 
-.ui-multiselect div .available {
+.ui-multiselect div.available {
   border: 0;
   border-left: 1px solid;
   float: left;
@@ -63,7 +65,7 @@
   position: relative;
 }
 
-.ui-multiselect ul .available {
+.ui-multiselect ul.available {
   background: #fff;
   border: 0;
   list-style: none;
@@ -72,9 +74,10 @@
   overflow-x: hidden;
   padding: 0;
   position: relative;
-  width: 100%; }
+  width: 100%;
+}
 
-.ui-multiselect ul .available li {
+.ui-multiselect ul.available li {
   padding-left: 10px;
 }
 
@@ -115,18 +118,18 @@
   padding: 7px;
 }
 
-.ui-multiselect li span .ui-icon-arrowthick-2-n-s {
+.ui-multiselect li span.ui-icon-arrowthick-2-n-s {
   left: 2px;
   position: absolute;
 }
 
-.ui-multiselect li a .action {
+.ui-multiselect li a.action {
   position: absolute;
   right: 2px;
   top: 2px;
 }
 
-.ui-multiselect input .search {
+.ui-multiselect input.search {
   height: 17px;
   margin: 4px;
   opacity: 0.5;

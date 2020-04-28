@@ -1,6 +1,6 @@
 /* OpenEMR Login CSS Override */
 
-.login div .container {
+.login div.container {
   background: $paler !important;
   border-bottom: solid $palepale 1px;
   border-left: solid $palepale 1px;
@@ -10,6 +10,6 @@
   max-width: 500px;
 }
 
-body .login {
+body.login {
   background: $light !important;
 }

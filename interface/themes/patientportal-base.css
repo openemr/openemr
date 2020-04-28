@@ -47,12 +47,12 @@ ul {
   list-style-type: none;
 }
 
-span .expand_section {
+span.expand_section {
   color: var(--white);
   cursor: pointer;
 }
 
-td .menuheadtoolbar {
+td.menuheadtoolbar {
   text-align: left;
 }
 

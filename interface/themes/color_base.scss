@@ -69,7 +69,6 @@ $gray-900: #212529;
 
 /* Equivalents to bg-light/dark as well as default for gray */
 $light: $gray-100;
-
 /* Renamed to bs-dark to accommodate for color variables */
 $bs-dark: $gray-800;
 $gray: $gray-600;
@@ -96,8 +95,8 @@ $theme-colors: (
   oe-paler: $paler,
   oe-midnightblue: $midnightblue
 );
+/* Above has addition of alternating colors to bootstrap (will come up as new classes) */
 
-/* Above adds addition of alternating colors to bootstrap (will come up as new classes) */
 
 /* Array of random colors that can be added to */
 $colors: (
@@ -124,7 +123,7 @@ $colors: (
   "gray900": $gray-900
 );
 
-/* Above adds overrides to allow regular CSS coloring */
+/* Above has overrides to allow regular CSS coloring */
 
 $body-bg: $white;
 $body-color: $black;
@@ -137,6 +136,7 @@ $close-color: $black;
 $close-text-shadow: 0 1 0 $black;
 
 @import "core";
+
 
 @import "theme-defaults";
 
@@ -153,7 +153,7 @@ $close-text-shadow: 0 1 0 $black;
 .bold,
 .font-weight-bold,
 .link_submit,
-#addressbook_list tr .detail,
+#addressbook_list tr.detail,
 .redtext,
 #patient_stats .head,
 #patient_stats .detail {
@@ -228,11 +228,11 @@ $close-text-shadow: 0 1 0 $black;
   font-family: "Arial", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
-#addressbook_list tr .search {
+#addressbook_list tr.search {
   @include font-size("12px !important");
 }
 
-#addressbook_list tr .head {
+#addressbook_list tr.head {
   @include font-size("0.8125rem !important");
   background-color: inherit;
 }
@@ -281,20 +281,20 @@ $close-text-shadow: 0 1 0 $black;
   font-weight: bold;
 }
 
-/* =============================================================
+/*=============================================================
  * Patient Past Encounters and Documents
  * seen in the patient encounter screen
- *============================================================ */
+ *============================================================*/
 #patient_pastenc #tooltipdiv {
   @include font-size("12px !important");
 }
 
-#addressbook_list tr .evenrow,
+#addressbook_list tr.evenrow,
 #searchResults tr:nth-child(even) {
   background-color: $white;
 }
 
-#addressbook_list tr .oddrow,
+#addressbook_list tr.oddrow,
 #searchResults tr:nth-child(odd),
 .signout-restore-subheading {
   background-color: $palepale;
@@ -304,18 +304,18 @@ $close-text-shadow: 0 1 0 $black;
  * TABS A7A7A7
 */
 
-ul .tabNav {
+ul.tabNav {
   margin: 0 0 -4;
   padding: 0;
 }
 
-ul .tabNav li {
+ul.tabNav li {
   @include font-size("0.8rem !important");
   margin: 0 1px 0 0;
   padding: 6px 0 0;
 }
 
-ul .tabNav li .current {
+ul.tabNav li.current {
   @include font-size("0.8rem !important");
   font-weight: bold;
   padding-top: 0;
@@ -323,7 +323,7 @@ ul .tabNav li .current {
   vertical-align: bottom;
 }
 
-ul .tabNav a {
+ul.tabNav a {
   background: $palepale;
   border: solid $dark;
   border-top-left-radius: 5px;
@@ -333,17 +333,17 @@ ul .tabNav a {
   padding: 4px 4px 5px;
 }
 
-ul .tabNav a:hover {
+ul.tabNav a:hover {
   background-color: $dark;
   color: $black;
 }
 
-div .tabContainer div .current {
+div.tabContainer div.current {
   background: $pale;
   border: 1px solid $pale;
 }
 
-ul .tabNav li .current a {
+ul.tabNav li.current a {
   background: $pale;
   padding: 8px;
 }
@@ -363,8 +363,7 @@ ul .tabNav li .current a {
 
 #report_parameters > table > tbody > tr > td > table {
   border-left: 1px solid $darkest !important;
-
-  /* openemr5 */
+  /*openemr5*/
 }
 
 #report_parameters .form-control {
@@ -424,6 +423,8 @@ ul .tabNav li .current a {
 @import "navigation-slide/color";
 
 #sddm li {
+  background: $dark;
+  background: -webkit-gradient(linear, left top, left bottom, from($dark), to($dark));
   background: linear-gradient(to top, $dark, $dark);
   border: 1px solid $paler;
   filter: unquote("progid:DXImageTransform.Microsoft.gradient(startColorstr='$dark', endColorstr='$dark')");
@@ -467,7 +468,7 @@ ul .tabNav li .current a {
   z-index: 100;
 }
 
-.example_menu ul a:subjective {
+.example_menu ul a:Subjective {
   font-weight: normal;
 }
 
@@ -489,15 +490,15 @@ ul .tabNav li .current a {
   background: $paler !important;
 }
 
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~search div ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~search div ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-div .section,
-div .borderbox {
+div.section,
+div.borderbox {
   background-color: $palepale;
   border-color: $darkest !important;
 }
 
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~search div ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~search div ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 @import "colors/openemr5/login";
 @import "colors/openemr5/fee-sheet";
@@ -517,7 +518,7 @@ div .borderbox {
   @include font-size("11px !important");
 }
 
-/* flow board filters */
+/* flow board filters*/
 
 #flow_board_parameters {
   background-color: $palepale;
@@ -532,40 +533,39 @@ div .borderbox {
   border-color: $darkest !important;
 }
 
-/* flow board filters */
-
-/* openemr 5 patient-finder */
+/* flow board filters*/
+/*openemr 5 patient-finder*/
 @media screen and (max-width: 750px) {
   #pt_table {
     @include font-size("0.9rem !important");
   }
 }
 
-/* openemr 5 patient-finder */
+/*openemr 5 patient-finder*/
 
-/* vertical main menu */
+/*vertical main menu */
 
 .appMenu_small .menuSection > .menuEntries {
   box-shadow: 3px 5px 8px $darker !important;
   left: 40px;
 }
 
-/* vertical main menu */
+/*vertical main menu */
 
-/* search any */
+/*search any*/
 *.oe-expandable-search .any-search-legacy {
   background: $paler !important;
 }
 
-/* search any */
+/*search any*/
 @import "colors/openemr5/external-data";
 @import "colors/openemr5/ros";
 @import "colors/openemr5/codes";
 @import "colors/openemr5/bootstrap-nav-menu";
 @import "colors/openemr5/bootstrap";
 
-th .currentvalues,
-th .historicalvalues {
+th.currentvalues,
+th.historicalvalues {
   background: $dark !important;
 }
 
@@ -574,7 +574,7 @@ th .historicalvalues {
   margin-top: 35px;
 }
 
-/* search any */
+/*search any*/
 *.oe-expandable-search .any-search-legacy {
   background: $paler !important;
 }

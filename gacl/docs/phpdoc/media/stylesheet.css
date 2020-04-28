@@ -86,6 +86,7 @@ a img {
 }
 
 /* Index formatting classes */
+
 .index-item-body {
   margin-bottom: 0.5em;
   margin-top: 0.5em;
@@ -184,6 +185,7 @@ a img {
 }
 
 /* Generic formatting */
+
 .field {
   font-weight: bold;
 }
@@ -212,6 +214,7 @@ a img {
 }
 
 /* Code elements */
+
 .class-table {
   width: 100%;
 }
@@ -299,6 +302,7 @@ a img {
 }
 
 /* Syntax highlighting */
+
 *[class="src-code"] {
   line-height: 0.5em;
 }
@@ -411,6 +415,7 @@ a img {
 }
 
 /* tutorial */
+
 .author {
   font-style: italic;
   font-weight: bold;

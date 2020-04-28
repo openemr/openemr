@@ -62,7 +62,7 @@ body {
   margin: 0;
 }
 
-#mainBox > div .mainFrames {
+#mainBox > div.mainFrames {
   display: flex;
   flex: 1 0 auto;
   flex-direction: column;
@@ -187,11 +187,11 @@ body {
   z-index: 1;
 }
 
-.patientEncounterList table .encounters {
+.patientEncounterList table.encounters {
   display: none;
 }
 
-.patientEncounterList:hover table .encounters {
+.patientEncounterList:hover table.encounters {
   display: block;
 }
 
@@ -209,7 +209,7 @@ body {
   color: var(--danger);
 }
 
-.patientEncounterList table .encounters td:hover {
+.patientEncounterList table.encounters td:hover {
   color: var(--danger);
 }
 

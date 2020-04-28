@@ -226,18 +226,18 @@ a:hover {
   color: #00c;
 }
 
-#addressbook_list tr .search {
+#addressbook_list tr.search {
   font-size: 9pt;
   font-weight: bold;
 }
 
-#addressbook_list tr .head {
+#addressbook_list tr.head {
   background-color: #ccc;
   font-size: 10pt;
   font-weight: bold;
 }
 
-#addressbook_list tr .detail {
+#addressbook_list tr.detail {
   font-size: 10pt;
 }
 
@@ -299,7 +299,7 @@ a:hover {
 }
 
 #documents_actions iframe {
-  border: 0;
+  border: none;
   display: inline;
   height: 600px;
   overflow: auto;
@@ -343,6 +343,7 @@ a:hover {
   padding-right: 6px;
   text-align: left;
   vertical-align: top;
+  /*30px - ie 6 fix*/
   width: 22%;
 }
 
@@ -391,13 +392,13 @@ a:hover {
 }
 
 #pnotes .noterow td {
-  border-bottom: 1px dashed #000;
+  border-bottom: 1px dashed black;
   margin: 5px;
   padding: 5px;
   vertical-align: top;
 }
 
-#pnotes_ps_expand div .tab table td {
+#pnotes_ps_expand div.tab table td {
   padding-right: 10px;
 }
 
@@ -504,8 +505,8 @@ a:hover {
 }
 
 #patient_pastenc .billing_note_text {
-  background-color: #d3d3d3;
-  border: 2px outset #000;
+  background-color: lightgrey;
+  border: 2px outset black;
   padding: 5px;
 }
 
@@ -523,7 +524,7 @@ a:hover {
 }
 
 #patient_pastenc td {
-  border-top: 1px solid #000;
+  border-top: 1px solid black;
   vertical-align: top;
 }
 
@@ -533,7 +534,7 @@ a:hover {
 
 #patient_pastenc #tooltipdiv {
   background-color: #ffa;
-  border: 1px solid #000;
+  border: 1px solid black;
   font-size: 9pt;
   padding: 2px;
   position: absolute;
@@ -607,7 +608,7 @@ a:hover {
 }
 
 #report_custom hr {
-  border: 2px dotted #000;
+  border: 2px dotted black;
 }
 
 #report_custom .billing {
@@ -678,8 +679,12 @@ a:hover {
   margin: 0 20px;
 }
 
+#report_custom .issue_title {}
+
+#report_custom .issue_comments {}
+
 #report_custom .encounter {
-  border-top: 2px dotted #000;
+  border-top: 2px dotted black;
   margin-top: 10px;
   padding: 10px 5px;
   width: 100%;
@@ -692,20 +697,21 @@ a:hover {
 }
 
 #report_custom .encounter_form {
-  border-top: 1px solid #808080;
+  border-top: 1px solid gray;
   margin: 10px;
   padding: 0;
 }
 
-#report_custom img .bigimage {
+#report_custom img.bigimage {
   width: 540pt;
+  /* 540pt = 7.5 inches */
 }
 
-#addressbook_list tr .evenrow {
+#addressbook_list tr.evenrow {
   background-color: #ddf;
 }
 
-#addressbook_list tr .oddrow {
+#addressbook_list tr.oddrow {
   background-color: #fff;
 }
 
@@ -718,15 +724,18 @@ a:hover {
  * TABS
 */
 
-ul .tabNav {
-  float: left;
-  list-style: none;
+ul.tabNav {
   margin: 0;
   padding: 0;
+}
+
+ul.tabNav {
+  float: left;
+  list-style: none;
   width: 100%;
 }
 
-ul .tabNav li {
+ul.tabNav li {
   float: left;
   font-size: 0.8em;
   margin: 0 1px 0 0;
@@ -735,7 +744,7 @@ ul .tabNav li {
   vertical-align: bottom;
 }
 
-ul .tabNav li .current {
+ul.tabNav li.current {
   font-size: 0.8em;
   font-weight: bold;
   padding-top: 0;
@@ -743,7 +752,7 @@ ul .tabNav li .current {
   vertical-align: bottom;
 }
 
-ul .tabNav a {
+ul.tabNav a {
   background: #a7a7a7;
   border: 1px solid #fff;
   border-width: 1px 1px 0;
@@ -753,66 +762,67 @@ ul .tabNav a {
   text-decoration: none;
 }
 
-ul .tabNav li .current a {
+ul.tabNav li.current a {
   background: #fff;
   padding: 8px;
 }
 
-div .tabContainer {
+div.tabContainer {
   clear: both;
   float: left;
   width: 100%;
 }
 
-div .tabContainer div .tab {
+div.tabContainer div.tab {
   border: 1px solid #fff;
   color: #000;
   display: none;
   padding: 10px;
 }
 
-div .tabContainer div .current {
+div.tabContainer div.current {
   display: block;
 }
 
-div .tab {
+div.tab {
   background: #fff none repeat scroll 0 0;
   margin-bottom: 10px;
   min-height: 180px;
   width: 665px;
 }
 
-div .tab_long {
+div.tab_long {
   background: #fff none repeat scroll 0 0;
   margin-bottom: 10px;
   min-height: 180px;
   width: 100%;
 }
 
-div .tab p:last-child {
+div.tab p:last-child {
   margin-bottom: 0;
 }
 
-div .tab table td {
+div.tab table td {
   padding-bottom: 0;
   padding-right: 1px;
 }
 
-div .tab table td .label_custom {
+div.tab table td.label_custom {
   min-width: 80px;
 }
 
-div .tab table td .data {
+div.tab table td.data {
   min-width: 120px;
+  /*170px*/
 }
 
-div .notab {
+div.notab {
   background: #fff none repeat scroll 0 0;
   margin-bottom: 10px;
   width: 100%;
 }
 
-div .notab-right {
+div.notab-right {
   background: #fff none repeat scroll 0 0;
   margin-bottom: 10px;
   width: 100%;
@@ -859,16 +869,16 @@ div .notab-right {
   font-size: 0.8em;
 }
 
-#report_parameters table table td .label_custom {
+#report_parameters table table td.label_custom {
   text-align: right;
 }
 
 #report_results table {
-  border-bottom: 1px solid #000;
+  border-bottom: 1px solid black;
   border-collapse: collapse;
-  border-left: 1px solid #000;
-  border-right: 1px solid #000;
-  border-top: 1px solid #000;
+  border-left: 1px solid black;
+  border-right: 1px solid black;
+  border-top: 1px solid black;
   margin-top: 1px;
   width: 100%;
 }
@@ -883,7 +893,7 @@ div .notab-right {
 }
 
 #report_results table th {
-  border-bottom: 1px solid #000;
+  border-bottom: 1px solid black;
   padding: 5px;
 }
 
@@ -946,7 +956,7 @@ div .notab-right {
 
 /* Password alert styles */
 .pwdalert {
-  color: #000;
+  color: black;
   display: block;
   margin-left: 100px;
   padding: 10px 10px 10px 15px;
@@ -991,7 +1001,7 @@ div .notab-right {
 
 .de_id_upgrade_login {
   background-color: #fff;
-  border: 1px solid #000;
+  border: 1px solid Black;
   width: 40%;
 }
 
@@ -1015,58 +1025,86 @@ div .notab-right {
   width: 150px;
 }
 
-#navigation-slide li a .collapsed {
+#navigation-slide li a.collapsed {
   background: #999;
+  /* for IE */
   background: -webkit-gradient(linear, left top, left bottom, from(#fe5301), to(#fefdcf));
-  background: linear-gradient(to top, #fe5301, #fefdcf);
+  /* for webkit browsers */
+  background: -moz-linear-gradient(top, #fe5301, #fefdcf);
+  /* for non-css3 browsers */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fe5301', endColorstr='#fefdcf');
+  /* for firefox 3.6+ */
 }
 
-#navigation-slide li a .expanded {
+#navigation-slide li a.expanded {
   background: #999;
+  /* for IE */
   background: -webkit-gradient(linear, left top, left bottom, from(#fefdcf), to(#fe5301));
-  background: linear-gradient(to top, #fefdcf, #fe5301);
+  /* for webkit browsers */
+  background: -moz-linear-gradient(top, #fefdcf, #fe5301);
+  /* for non-css3 browsers */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefdcf', endColorstr='#fe5301');
+  /* for firefox 3.6+ */
 }
 
-#navigation-slide ul li a .collapsed_lv2 {
+#navigation-slide ul li a.collapsed_lv2 {
   background: #999;
+  /* for IE */
   background: -webkit-gradient(linear, left top, left bottom, from(#ffac84), to(#fefdcf));
-  background: linear-gradient(to top, #ffac84, #fefdcf);
+  /* for webkit browsers */
+  background: -moz-linear-gradient(top, #ffac84, #fefdcf);
+  /* for non-css3 browsers */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffac84', endColorstr='#fefdcf');
+  /* for firefox 3.6+ */
 }
 
-#navigation-slide ul li a .expanded_lv2 {
+#navigation-slide ul li a.expanded_lv2 {
   background: #999;
+  /* for IE */
   background: -webkit-gradient(linear, left top, left bottom, from(#fefdcf), to(#ffac84));
-  background: linear-gradient(to top, #fefdcf, #ffac84);
+  /* for webkit browsers */
+  background: -moz-linear-gradient(top, #fefdcf, #ffac84);
+  /* for non-css3 browsers */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefdcf', endColorstr='#ffac84');
+  /* for firefox 3.6+ */
 }
 
-#navigation-slide ul li a .collapsed_lv3 {
+#navigation-slide ul li a.collapsed_lv3 {
   background: #999;
+  /* for IE */
   background: -webkit-gradient(linear, left top, left bottom, from(#aaa), to(#eee));
-  background: linear-gradient(to top, #aaa, #eee);
+  /* for webkit browsers */
+  background: -moz-linear-gradient(top, #aaa, #eee);
+  /* for non-css3 browsers */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#aaaaaa', endColorstr='#eeeeee');
+  /* for firefox 3.6+ */
 }
 
-#navigation-slide ul li a .expanded_lv3 {
+#navigation-slide ul li a.expanded_lv3 {
   background: #999;
+  /* for IE */
   background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#aaa));
-  background: linear-gradient(to top, #eee, #aaa);
+  /* for webkit browsers */
+  background: -moz-linear-gradient(top, #eee, #aaa);
+  /* for non-css3 browsers */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#aaaaaa');
+  /* for firefox 3.6+ */
 }
 
 #sddm li {
   background: #999;
+  /* for IE */
   background: -webkit-gradient(linear, left top, left bottom, from(#fe5301), to(#fefdcf));
-  background: linear-gradient(to top, #fe5301, #fefdcf);
+  /* for webkit browsers */
+  background: -moz-linear-gradient(top, #fe5301, #fefdcf);
   border: 1px solid #fefdcf;
+  /* for non-css3 browsers */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fe5301', endColorstr='#fefdcf');
   float: left;
   list-style: none;
   margin: 0;
   padding: 0;
+  /* for firefox 3.6+ */
 }
 
 #sddm li a {
@@ -1119,7 +1157,7 @@ div .notab-right {
 
 .text-area {
   background-color: #fff;
-  border: 1px solid #000;
+  border: 1px solid black;
   height: 100px;
   overflow: auto;
   text-align: left;
@@ -1154,7 +1192,7 @@ div .notab-right {
 #menu5 li,
 .example_menu li {
   background-image: none;
-  border-bottom: 1px solid #fff;
+  border-bottom: 1px solid white;
   margin: 0;
   padding: 0;
 }
@@ -1173,11 +1211,11 @@ div .notab-right {
   width: 160px;
 }
 
-.example_menu a .expanded {
+.example_menu a.expanded {
   background: #bbb url('collapse.gif') no-repeat 3px 50%;
 }
 
-.example_menu a .collapsed {
+.example_menu a.collapsed {
   background: #bbb url('expand.gif') no-repeat 3px 50%;
 }
 
@@ -1202,19 +1240,19 @@ div .notab-right {
   text-decoration: underline;
 }
 
-.example_menu li .active a {
+.example_menu li.active a {
   background: #fff;
 }
 
-.example_menu li .active li a {
+.example_menu li.active li a {
   background: #e8e8e8;
 }
 
-#menu1 li .footer,
-#menu2 li .footer,
-#menu3 li .footer,
-#menu4 li .footer,
-#menu5 li .footer,
+#menu1 li.footer,
+#menu2 li.footer,
+#menu3 li.footer,
+#menu4 li.footer,
+#menu5 li.footer,
 .example_menu .footer {
   background: transparent url('footer.jpg') no-repeat 0 0;
   border-top: 2px solid #fff;
@@ -1243,12 +1281,12 @@ div .notab-right {
 }
 
 /* For PDF output of lab results. Need very small font size. */
-.labres tr .head {
+.labres tr.head {
   font-size: 7pt;
   text-align: center;
 }
 
-.labres tr .detail {
+.labres tr.detail {
   font-size: 7pt;
 }
 

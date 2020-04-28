@@ -2,77 +2,77 @@
  * TABS
 */
 
-ul .tabNav {
+ul.tabNav {
   float: $left;
   list-style: none;
   width: 100%;
 }
 
-ul .tabNav li {
+ul.tabNav li {
   float: $left;
   text-align: $left;
   vertical-align: bottom;
 }
 
-ul .tabNav a {
+ul.tabNav a {
   display: block;
 }
 
-div .tabContainer {
+div.tabContainer {
   clear: both;
   float: $left;
   width: 100%;
 }
 
-div .tabContainer div .tab {
+div.tabContainer div.tab {
   border: 1px solid $white;
   color: $body-color;
   display: none;
   padding: 10px;
 }
 
-div .tabContainer div .current {
+div.tabContainer div.current {
   display: block;
 }
 
-div .tab {
+div.tab {
   background: $white none repeat scroll 0 0;
   margin-bottom: 10px;
   min-height: 180px;
   width: 665px;
 }
 
-div .tab_long {
+div.tab_long {
   background: $white none repeat scroll 0 0;
   margin-bottom: 10px;
   min-height: 180px;
   width: 100%;
 }
 
-div .tab p:last-child {
+div.tab p:last-child {
   margin-bottom: 0;
 }
 
-div .tab table td {
+div.tab table td {
   padding-bottom: 0;
   padding-right: 1px;
 }
 
-div .tab table td .label_custom {
+div.tab table td.label_custom {
   min-width: 80px;
 }
 
-div .tab table td .data {
+div.tab table td.data {
   min-width: 120px;
 }
 
-div .notab {
+div.notab {
   background: $white none repeat scroll 0 0;
   margin-bottom: 10px;
   width: 100%;
 }
 
-div .notab-right {
+div.notab-right {
   background: $white none repeat scroll 0 0;
   margin-bottom: 10px;
   width: 100%;

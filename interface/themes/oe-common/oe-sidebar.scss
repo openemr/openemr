@@ -24,7 +24,7 @@ main,
   width: calc(100% - 15.625rem);
 }
 
-main .active,
+main.active,
 .main-added.active {
   margin: 0;
   width: 100%;
@@ -101,6 +101,7 @@ main .active,
   transition: all 0.5s ease;
 }
 
+
 @media (min-width: 768px) {
   .sidebar-header {
     padding: 0 1rem;
@@ -120,9 +121,10 @@ main .active,
   .main-added {
     margin: 0;
     width: 100%;
+
   }
 
-  main .active,
+  main.active,
   .main-added.active {
     margin-left: 15.625rem;
     width: calc(100% - 15.625rem);

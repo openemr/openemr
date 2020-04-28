@@ -30,9 +30,9 @@
   color: $white !important;
 }
 
-.small span .text,
-span .required,
-span .bold {
+.small span.text,
+span.required,
+span.bold {
   @include font-size("1rem !important");
 }
 
@@ -71,7 +71,7 @@ span .bold {
 
 /* $login_body_line */
 
-#addressbook_list tr .search,
+#addressbook_list tr.search,
 #addressbook_list .inputtext {
   @include font-size("0.9rem !important");
 }
@@ -131,16 +131,16 @@ span .bold {
   @include font-size("1.4rem !important");
 }
 
-#addressbook_list tr .evenrow {
+#addressbook_list tr.evenrow {
   background-color: $light;
 }
 
-#addressbook_list tr .oddrow {
+#addressbook_list tr.oddrow {
   background-color: $white;
 }
 
-tr .odd,
-td .even {
+tr.odd,
+td.even {
   background-color: $white !important;
 }
 
@@ -151,28 +151,28 @@ td .even {
 /*
  * TABS
 */
-ul .tabNav {
+ul.tabNav {
   background: $primary;
   margin: 0;
   padding: 0;
   padding-top: 4px;
 }
 
-ul .tabNav li {
+ul.tabNav li {
   padding: 0 4px;
 }
 
-ul .tabNav li .current a {
+ul.tabNav li.current a {
   background: $white;
   color: $primary;
 }
 
-ul .tabNav a {
+ul.tabNav a {
   color: $white;
   padding: 8px 17px;
 }
 
-ul .tabNav a:focus {
+ul.tabNav a:focus {
   outline: none;
 }
 
@@ -227,7 +227,7 @@ ul .tabNav a:focus {
   background: $primary;
 }
 
-#sddm li .encounter-form-category-li {
+#sddm li.encounter-form-category-li {
   position: relative;
   z-index: 1;
 }
@@ -282,7 +282,7 @@ ul .tabNav a:focus {
 }
 
 /* to align feesheet buttons*/
-div .category-display {
+div.category-display {
   margin-left: 25px !important;
 }
 
@@ -309,7 +309,7 @@ div .category-display {
   margin: 0;
 }
 
-#oe-nav-ul.tabNav li .current {
+#oe-nav-ul.tabNav li.current {
   color: $primary;
 }
 

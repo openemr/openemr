@@ -9,6 +9,7 @@
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 .pure-form input[type="text"],
 .pure-form input[type="password"],
 .pure-form input[type="email"],
@@ -119,8 +120,8 @@ a:active {
   width: 100%;
 }
 
-#tabs_left .ui-tabs-nav li .ui-tabs-selected,
-#tabs_left .ui-tabs-nav li .ui-state-active {
+#tabs_left .ui-tabs-nav li.ui-tabs-selected,
+#tabs_left .ui-tabs-nav li.ui-state-active {
   border-right: 1px solid transparent;
 }
 
@@ -208,7 +209,7 @@ tabs_left-vertical .ui-tabs-panel {
   width: 43px;
 }
 
-textarea .ACT {
+textarea.ACT {
   border: 0;
   font-size: 1em;
   height: 40px;
@@ -254,10 +255,11 @@ label {
   font-size: 1.1em;
 }
 
-textarea .HPI_text {
+textarea.HPI_text {
   max-width: 95%;
   min-width: 95%;
   overflow: auto;
+
 }
 
 .HPI2_text {
@@ -279,7 +281,7 @@ textarea .HPI_text {
   font-weight: 600;
 }
 
-textarea .full {
+textarea.full {
   height: 20px;
 }
 
@@ -291,7 +293,6 @@ textarea .full {
 }
 
 .input-helper--checkbox.boxed::before {
-  border: 0 solid #808080;
   height: 18px;
   left: 0;
   margin: 0;
@@ -299,15 +300,15 @@ textarea .full {
   width: 18px;
 }
 
-input[type="radio"] .hidden {
+input[type="radio"].hidden {
   display: none;
 }
 
-input[type="checkbox"] .hidden {
+input[type="checkbox"].hidden {
   display: none;
 }
 
-input[type="checkbox"] .hidden:checked+label::before {
+input[type="checkbox"].hidden:checked + label::before {
   background: #222;
 }
 
@@ -319,7 +320,9 @@ input[type=text] {
   width: 45px;
 }
 
+
 /* REFRACTION PANEL */
+
 #REFRACTION_sections {
   margin: 0 auto;
 }
@@ -340,10 +343,11 @@ input[type=text] {
   padding: 0.1in;
 }
 
-.refraction2>input[type="text"] {
+.refraction2 > input[type="text"] {
   display: inline-block;
   padding: 0.2em 0.4em;
   width: 20px;
+
 }
 
 .refraction {
@@ -448,12 +452,13 @@ input[type=text] {
 }
 
 /*Drop downs stuff */
+
 .dropdowns {
   background-color: var(--danger);
   position: relative;
 }
 
-.refraction td .right {
+.refraction td.right {
   text-align: right;
   text-decoration: none;
   vertical-align: text-top;
@@ -506,6 +511,7 @@ input[type=text] {
   padding-left: 180px;
   width: 180px;
   /* Equal to width of new image */
+
 }
 
 .HPI {
@@ -591,7 +597,7 @@ input[type=text] {
 
 .current_W input,
 .current_W textarea {
-  background-color: var(--white) !important;
+  background-color: #fff !important;
 }
 
 .manifest {
@@ -625,6 +631,7 @@ th {
 /* This CSS is used ONLY by the form defined in this same folder
  * customize it as you see fit for your specific form
  */
+
 body {
   margin-left: auto;
   margin-right: auto;
@@ -650,6 +657,7 @@ body {
   padding: 0;
   position: relative;
   width: 100%;
+
 }
 
 .nodisplay {
@@ -710,8 +718,8 @@ body {
   clear: both;
 }
 
-textarea .EXTTEXT {
-  font-size: 1rem;
+textarea.EXTTEXT {
+  font-size: 1em;
   height: 0.4in;
   max-height: 0.5in;
   max-width: 1in;
@@ -719,9 +727,9 @@ textarea .EXTTEXT {
   width: 1in;
 }
 
-textarea .ANTSEGTEXT {
+textarea.ANTSEGTEXT {
   height: 40px;
-  max-height: 10rem;
+  max-height: 10em;
   width: 2in;
 }
 
@@ -734,6 +742,7 @@ textarea .ANTSEGTEXT {
 }
 
 .canvas {
+
   /* background:#29c7c4;*/
   background-image: url('../../../forms/eye_mag/images/beige013.jpg');
   background-repeat: repeat;
@@ -760,6 +769,7 @@ textarea .ANTSEGTEXT {
 
     */
   position: relative;
+
 }
 
 .ANTSEGTEXT {
@@ -789,6 +799,8 @@ textarea .ANTSEGTEXT {
   border: 2px solid #ccc;
   border-bottom: 0;
   border-radius: 5px 5px 0 0;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
   box-shadow: 0 5px 9px #888;
   color: var(--black);
   font-size: 1.7em;
@@ -800,34 +812,36 @@ textarea .ANTSEGTEXT {
 #tabs li a:hover {
   background-color: #ddd;
   color: #000080;
+
 }
 
-#tabs li .active a {
+#tabs li.active a {
   background-color: var(--white);
   border-bottom: 0;
   color: #000080;
   padding: 4px 6px 5px;
+
 }
 
-#tabs li .active a:hover {
+#tabs li.active a:hover {
   background-color: #eee;
   border-bottom: 0;
 }
 
-#tabs li .inactive {
+#tabs li.inactive {
   background-color: #eee;
   border-bottom: 1px solid var(--black);
   width: 100%;
 }
 
-#tabs li a .icon_accept {
+#tabs li a.icon_accept {
   background-image: url('accept.png');
   background-position: 5px;
   background-repeat: no-repeat;
   padding-left: 24px;
 }
 
-#tabs li a .icon_accept:hover {
+#tabs li a.icon_accept:hover {
   padding-left: 24px;
 }
 
@@ -905,7 +919,7 @@ textarea .ANTSEGTEXT {
 }
 
 #tabs {
-  font-size: 0.55em;
+  font-size: 0.55rem;
   line-height: normal;
   margin: 0 auto;
   width: 95%;
@@ -924,14 +938,19 @@ textarea .ANTSEGTEXT {
   text-decoration: underline;
 }
 
+
+
 /* CSS for QP_buttons */
 .eye_button {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0.6, #f6f9ed), color-stop(0.6, #f6f9ed));
-  background: linear-gradient(to center top, #f6f9ed 80%, #f6f9ed 100%);
   background-color: #3d94f6;
   border: var(--black);
   border-radius: 2px;
-  box-shadow: inset 1px 1px 1px 0 var(--black);
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 3px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  box-shadow: inset 0 1px 0 0 #97c4fe;
   color: var(--black);
   display: inline-block;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#9eedf0', endColorstr='#1e62d0');
@@ -964,7 +983,6 @@ textarea .ANTSEGTEXT {
 
 .eye_button:hover {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #1e62d0), color-stop(1, #3d94f6));
-  background: linear-gradient(to top, #1e62d0 5%, #3d94f6 100%);
   background-color: #1e62d0;
   color: var(--white);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e62d0', endColorstr='#3d94f6');
@@ -972,7 +990,6 @@ textarea .ANTSEGTEXT {
 
 .eye_button:active {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #1e62d0), color-stop(1, #3d94f6));
-  background: linear-gradient(to top, #1e62d0 5%, #3d94f6 100%);
   background-color: #1e62d0;
   color: var(--white);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e62d0', endColorstr='#3d94f6');
@@ -982,7 +999,6 @@ textarea .ANTSEGTEXT {
 
 .eye_button_selected {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #000080), color-stop(1, #3d94f6));
-  background: linear-gradient(to top, #000080 5%, #3d94f6 100%);
   border: var(--white);
   border-radius: 2px;
   box-shadow: inset 0 1px 0 0 #97c4fe;
@@ -999,6 +1015,7 @@ textarea .ANTSEGTEXT {
   text-align: center;
   text-decoration: none;
   text-indent: 0;
+
 }
 
 .divTable {
@@ -1027,6 +1044,7 @@ textarea .ANTSEGTEXT {
   border-collapse: collapse;
   display: table-row;
   font-weight: 900;
+
 }
 
 .divMidCell {
@@ -1036,6 +1054,7 @@ textarea .ANTSEGTEXT {
   /*fix for  buggy browsers*/
   /* display:table-column; */
   text-align: center;
+
 }
 
 .divCell {
@@ -1097,6 +1116,7 @@ textarea .ANTSEGTEXT {
   font-size: 0.7em;
   position: relative;
   vertical-align: top;
+
 }
 
 .var(--warning) {
@@ -1107,7 +1127,7 @@ textarea {
   font-size: 0.9em;
 }
 
-textarea .EXTTEXT {
+textarea.EXTTEXT {
   height: 0.42in;
   max-height: 0.42in;
   max-width: 1in;
@@ -1141,6 +1161,7 @@ textarea .EXTTEXT {
 
 .Clinical_header {
   width: 100%;
+
 }
 
 .narrow_textarea th {
@@ -1178,7 +1199,6 @@ textarea .EXTTEXT {
 
 .closeButton:hover {
   background-color: var(--warning);
-  border: 0 solid #808080;
   cursor: pointer;
   text-decoration: none;
 }
@@ -1205,9 +1225,9 @@ textarea .EXTTEXT {
 
 .closeButton_2:hover {
   background-color: var(--warning);
-  border: 0 solid #808080;
   cursor: pointer;
   text-decoration: none;
+
 }
 
 .closeButton_3 {
@@ -1222,9 +1242,9 @@ textarea .EXTTEXT {
 
 .closeButton_3:hover {
   background-color: var(--warning);
-  border: 0 solid #808080;
   cursor: pointer;
   text-decoration: none;
+
 }
 
 .closeButton_4 {
@@ -1239,7 +1259,6 @@ textarea .EXTTEXT {
 
 .closeButton_4:hover {
   background-color: var(--warning);
-  border: 0 solid #808080;
   cursor: pointer;
   text-decoration: none;
 }
@@ -1256,7 +1275,6 @@ textarea .EXTTEXT {
 
 .closeButton_5:hover {
   background-color: var(--warning);
-  border: 0 solid #808080;
   cursor: pointer;
   text-decoration: none;
 }
@@ -1318,16 +1336,18 @@ h1 {
   text-align: right;
 }
 
+
 /* done testing ACT header tabs */
 /* ACT_TEXT test */
 .ACT_TEXT {
   display: table-cell;
   vertical-align: middle;
+
 }
 
 .ACT_selected {
   background-color: var(--white);
-  border-bottom: 0;
+  border-bottom: 9;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   border-left: 1px solid var(--black);
@@ -1353,6 +1373,7 @@ h1 {
   font-size: 1em;
   height: 25px;
   margin: 5px;
+
 }
 
 .ACT_boxed {
@@ -1374,7 +1395,7 @@ h1 {
   z-index: 10;
 }
 
-b .ACT_box {
+b.ACT_box {
   font-size: 0.7em;
 }
 
@@ -1395,7 +1416,7 @@ b .ACT_box {
   z-index: 100;
 }
 
-input[type=text] .fullscreen {
+input[type=text].fullscreen {
   font-size: 0.8em;
   height: 150px;
   text-indent: 0;
@@ -1449,10 +1470,12 @@ input[type=text] .fullscreen {
 }
 
 .rotate-left {
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
   transform: rotate(-90deg);
 }
 
 .rotate-right {
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
   transform: rotate(+90deg);
 }
 
@@ -1466,6 +1489,7 @@ input[type=text] .fullscreen {
 
 .PRIORS_color {
   background-color: #ccf;
+
 }
 
 .PRIORS textarea,
@@ -1489,7 +1513,7 @@ input {
 }
 
 .navbar-custom,
-.navbar-nav>li>li:focus {
+.navbar-nav > li > li:focus {
   background-color: #3e76c2;
   border-radius: 0;
   color: var(--white);
@@ -1508,19 +1532,19 @@ input {
   padding: 2px;
 }
 
-.navbar-nav>li>a {
+.navbar-nav > li > a {
   color: var(--black);
   /* just changes the base font color */
   padding: 6px 20px 4px;
 }
 
-.nav.navbar-right:last-child>li {
+.nav.navbar-right:last-child > li {
   margin-left: 20px;
   margin-right: 20px;
 }
 
-.nav>li>a:focus,
-.nav>li:focus {
+.nav > li > a:focus,
+.nav > li:focus {
   background-color: #1c5ecf;
   /* this is the "hover" blue */
   color: var(--white);
@@ -1530,9 +1554,9 @@ input {
 
 .navbar-custom,
 .navbar-nav,
-.nav>.active>a,
-.navbar-nav>.active>a:hover,
-.navbar-nav>.active>a:focus {
+.nav > .active > a,
+.navbar-nav > .active > a:hover,
+.navbar-nav > .active > a:focus {
   background-color: #c9dbf2;
   color: var(--white);
   /* Mac Menu title bar background color */
@@ -1547,8 +1571,8 @@ input {
   /* Mac Menu dropdown bar background color */
 }
 
-.dropdown-menu>li>a:hover,
-.dropdown-menu>li>a:focus {
+.dropdown-menu > li > a:hover,
+.dropdown-menu > li > a:focus {
   background-color: #1c5ecf;
   color: var(--white);
   /*#262626;*/
@@ -1562,9 +1586,10 @@ input {
   height: 24px;
   margin: 10px 0 2px;
   padding: 10px 5px 0 10px;
+
 }
 
-.navbar-nav>li>.dropdown-menu {
+.navbar-nav > li > .dropdown-menu {
   margin-top: 1px;
 }
 
@@ -1591,6 +1616,7 @@ a:focus {
 .icon-bar {
   background-color: #c0c0c0;
   /* this turns the small screen menu "button" 's lines this color */
+
 }
 
 .anchor {
@@ -1620,11 +1646,11 @@ a:focus {
 
 .panel_side {
   background-color: #f5f5dc;
-  border: 1px #c6bbbb solid;
+  border: 1px solid #c6bbbb;
   box-shadow: inset 0 0 0 1px #808080;
   color: var(--black);
   display: none;
-  font-size: 0.9em;
+  font-size: 0.9rem;
   overflow: auto;
   padding: 10px;
   padding-top: 22px;
@@ -1638,6 +1664,7 @@ a:focus {
 }
 
 .bottom_PMSFH_tab {
+
   bottom: 0;
   color: var(--black);
   /* Firefox 3.5+, Opera 9+, Safari 1+, Chrome, IE10 */
@@ -1847,7 +1874,6 @@ a:focus {
 
 .build_PLAN li {
   background: #eee;
-  border: 0 solid #808080;
   margin: 1em;
   padding: 0.5em;
   padding-left: 42px;
@@ -1903,6 +1929,7 @@ li .handle {
 }
 
 .issues span {
+
   margin-right: 5px;
 }
 
@@ -1969,7 +1996,7 @@ View.php
   width: 80%;
 }
 
-#tab1_CC_text>table {
+#tab1_CC_text > table {
   min-height: 2in;
   text-align: left;
 }
@@ -2090,6 +2117,7 @@ View.php
   width: 1.9in;
 }
 
+
 #DA_EXAM_sections {
   display: inline-table;
   max-width: 93%;
@@ -2114,7 +2142,7 @@ View.php
 
 #Lyr31 {
   border: 0;
-  font-family: 'San Serif', serif;
+  font-family: sans-serif;
   font-size: 4.2em;
   height: 0.3in;
   left: 0.09in;
@@ -2133,29 +2161,29 @@ View.php
   top: 0.47in;
 }
 
-#Visions_A>span:nth-of-type(2),
-#Visions_B>span:nth-of-type(2) {
+#Visions_A > span:nth-of-type(2),
+#Visions_B > span:nth-of-type(2) {
   font-size: 0.8em;
   left: 0.35in;
   position: absolute;
 }
 
-#Visions_A>span:nth-of-type(3),
-#Visions_B>span:nth-of-type(3) {
+#Visions_A > span:nth-of-type(3),
+#Visions_B > span:nth-of-type(3) {
   font-size: 0.8em;
   left: 0.77in;
   position: absolute;
 }
 
-#Visions_A>span:nth-of-type(4),
-#Visions_B>span:nth-of-type(4) {
+#Visions_A > span:nth-of-type(4),
+#Visions_B > span:nth-of-type(4) {
   font-size: 0.8em;
   left: 1.2in;
   position: absolute;
 }
 
-#Visions_A>input,
-#Visions_B>input {
+#Visions_A > input,
+#Visions_B > input {
   height: 0.19in;
   margin: 2px;
   width: 0.35in;
@@ -2205,7 +2233,7 @@ View.php
   width: 0.37in;
 }
 
-#Lyr41>font:nth-of-type(1) {
+#Lyr41 > font:nth-of-type(1) {
   font-family: "Arial", sans-serif;
   font-size: 0.9em;
 }
@@ -2225,21 +2253,21 @@ View.php
   width: 0.25in;
 }
 
-#Lyr42>span:nth-of-type(1) {
+#Lyr42 > span:nth-of-type(1) {
   font-size: 0.8em;
   left: 0.3in;
   position: absolute;
   top: 0.5in;
 }
 
-#Lyr42>span:nth-of-type(2) {
+#Lyr42 > span:nth-of-type(2) {
   font-size: 0.8em;
   left: 0.65in;
   position: absolute;
   top: 0.5in;
 }
 
-#Lyr42>span:nth-of-type(3) {
+#Lyr42 > span:nth-of-type(3) {
   font-size: 0.8em;
   left: 1in;
   position: absolute;
@@ -2261,7 +2289,7 @@ View.php
   text-align: right;
 }
 
-#Lyr51>table {
+#Lyr51 > table {
   font-size: 0.8em;
   margin: -3px 2px 0;
   padding: 0;
@@ -2331,12 +2359,12 @@ View.php
   padding: 20px 10px 5px 0;
 }
 
-#Lyr70>th {
+#Lyr70 > th {
   padding: 0.1in;
   width: 0.2in;
 }
 
-#Lyr70>th:nth-of-type(2) {
+#Lyr70 > th:nth-of-type(2) {
   width: 0.7in;
 }
 
@@ -2460,7 +2488,7 @@ textarea[name=COMMENTS_W] {
   width: 100%;
 }
 
-#LayerVision_MR>table {
+#LayerVision_MR > table {
   margin-bottom: 5px;
 }
 
@@ -2609,6 +2637,7 @@ div[name=prior_selector] {
   padding-left: 20px;
   padding-right: 20px;
 }
+
 
 #DIL_RISKS {
   margin-left: 100px;

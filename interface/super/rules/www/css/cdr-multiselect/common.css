@@ -4,10 +4,8 @@
 	http://developer.yahoo.net/yui/license.txt
 	version: 2.2.0
 	*/
-
-/* TODO: Marked For Removal */
 body {
-  font: 13px 'Helvetica', arial, clean, sans-serif;
+  font: 13px "Helvetica", arial, clean, sans-serif;
   *font: x-small;
   *font-size: small;
 }
@@ -81,9 +79,7 @@ th,
 var {
   font-style: normal;
   font-weight: normal;
-}
-
-/*ol,ul {list-style:none;}*/
+} /*ol,ul {list-style:none;}*/
 caption,
 th {
   text-align: left;
@@ -101,7 +97,7 @@ h6 {
 
 q::before,
 q::after {
-  content: '';
+  content: "";
 }
 
 abbr,
@@ -110,6 +106,7 @@ acronym {
 }
 
 /* end of yahoo reset and fonts */
+
 body {
   background: #232f2e;
   color: #333;
@@ -191,7 +188,7 @@ ol li {
   margin: 0 0 10px;
 }
 
-div #wrapper {
+div#wrapper {
   background: #fff;
   border: 10px solid #0f1616;
   border-width: 0 10px 10px;
@@ -200,24 +197,24 @@ div #wrapper {
   width: 560px;
 }
 
-div #header {
+div#header {
   border-bottom: 1px dotted;
   margin: 0 0 10px;
   padding: 0 0 10px;
   position: relative;
 }
 
-div #header p {
+div#header p {
   margin: 0;
   padding: 0;
 }
 
-div #header h1 {
+div#header h1 {
   margin: 0;
   padding: 0;
 }
 
-ul #nav {
+ul#nav {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -226,12 +223,12 @@ ul #nav {
   top: 0;
 }
 
-ul #nav li {
+ul#nav li {
   display: inline;
   padding: 0 0 0 5px;
 }
 
-div #footer {
+div#footer {
   border-top: 1px dotted;
   margin: 40px 0 0;
   padding: 10px 0 0;

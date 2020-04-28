@@ -9,6 +9,7 @@
  * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 .pure-form input[type="text"],
 .pure-form input[type="password"],
 .pure-form input[type="email"],
@@ -109,7 +110,7 @@
 }
 
 .loading {
-  font-size: 1em;
+  font-size: 1rem;
   height: 180px;
   margin: 0 auto;
   text-align: center;
@@ -119,7 +120,7 @@
 .ACT {
   align-items: center;
   border: 0;
-  border: 1pt solid #000;
+  border: 1px solid #000;
   font-size: 1em;
   height: 38px;
   justify-content: center;
@@ -128,7 +129,7 @@
   width: 38px;
 }
 
-textarea .ACT {
+textarea.ACT {
   border: 0;
   font-size: 9px;
   height: 38px;
@@ -144,7 +145,7 @@ textarea .ACT {
 }
 
 .input-helper::before {
-  content: '';
+  content: "";
   display: block;
   padding-left: 10px;
   position: relative;
@@ -171,7 +172,7 @@ label {
   font-size: 1.1em;
 }
 
-textarea .HPI_text {
+textarea.HPI_text {
   height: 40px;
   max-height: 2in;
   max-width: 95%;
@@ -198,7 +199,7 @@ textarea .HPI_text {
   font-weight: 600;
 }
 
-textarea .full {
+textarea.full {
   height: 20px;
 }
 
@@ -216,19 +217,19 @@ textarea .full {
   width: 18px;
 }
 
-input[type="radio"] .hidden {
+input[type="radio"].hidden {
   display: none;
 }
 
-input[type="checkbox"] .hidden {
+input[type="checkbox"].hidden {
   display: none;
 }
 
-input[type="checkbox"] .hidden:checked+label::before {
+input[type="checkbox"].hidden:checked + label::before {
   background: #222;
 }
 
-input[type=text] {
+input[type="text"] {
   display: inline-block;
   height: 20px;
   padding: 0.2em 0.4em;
@@ -249,14 +250,14 @@ input[type=text] {
   border-radius: 8px;
   box-shadow: 10px 10px 50px #888;
   float: left;
-  font-size: 0.6em;
+  font-size: 0.6rem;
   margin-right: 4px;
   padding: 0.1in;
 }
 
 .refraction2 input[type="text"] {
   display: inline-block;
-  padding: 0.2em 0.4em;
+  padding: 0.2rem 0.4rem;
   width: 20px;
 }
 
@@ -301,7 +302,7 @@ input[type=text] {
   float: left;
 }
 
-input[type=text] .refraction {
+input[type="text"].refraction {
   display: inline-block;
   padding: 0.2em 0.4em;
   text-align: right;
@@ -339,8 +340,9 @@ input[type=text] .refraction {
 }
 
 /*Drop downs stuff */
+
 .dropdowns {
-  background-color: #f00;
+  background-color: var(--danger);
   position: relative;
 }
 
@@ -357,7 +359,7 @@ input[type=text] .refraction {
   margin-right: 4px;
 }
 
-.refraction td .right {
+.refraction td.right {
   text-align: right;
   text-decoration: none;
   vertical-align: text-top;
@@ -400,15 +402,17 @@ input[type=text] .refraction {
   background: url('images/Amsler_2.jpg') no-repeat;
   box-sizing: border-box;
   display: block;
-  height: 236px;
-  /* Height of new image */
-  padding-left: 180px;
-  /* Equal to width of new image */
-  width: 180px;
-  /* Width of new image */
+  height: 236px; /* Height of new image */
+  padding-left: 180px; /* Equal to width of new image */
+  width: 180px; /* Width of new image */
 }
-
 /* All in one selector */
+/*
+#AmslerOD {
+ /*
+    value:1;
+}
+*/
 
 .HPI {
   padding: 40px;
@@ -457,7 +461,7 @@ input[type=text] .refraction {
 
 th {
   color: #000;
-  font-size: 1em;
+  font-size: 1rem;
   text-align: center;
 }
 
@@ -468,6 +472,7 @@ th {
 /* This CSS is used ONLY by the form defined in this same folder
  * customize it as you see fit for your specific form
  */
+
 body {
   display: inline-block;
   margin-left: auto;
@@ -480,7 +485,7 @@ body {
 }
 
 #form_container {
-  border: 0 solid #f00;
+  border: 0 solid var(--danger);
   margin: 20px auto 0;
   padding: 0;
   position: relative;
@@ -488,7 +493,7 @@ body {
 
 /* Refraction Panel Defaults */
 #Layer1 {
-  border: 0 solid #f00;
+  border: 0 solid var(--danger);
   margin: 20px auto 0;
   padding: 0;
   position: relative;
@@ -547,7 +552,7 @@ body {
   width: 463px;
 }
 
-textarea .EXTTEXT {
+textarea.EXTTEXT {
   font-size: 1em;
   height: 0.4in;
   max-height: 0.5in;
@@ -556,7 +561,7 @@ textarea .EXTTEXT {
   width: 1in;
 }
 
-textarea .ANTSEGTEXT {
+textarea.ANTSEGTEXT {
   height: 40px;
   max-height: 10em;
   width: 2in;
@@ -569,7 +574,7 @@ textarea .ANTSEGTEXT {
 .button {
   background-color: #e3e1b8;
   color: #050;
-  font: bold 84% Arial, 'trebuchet ms', helvetica, sans-serif;
+  font: bold 84% Arial, "trebuchet ms", helvetica, sans-serif;
   padding: 2px 4px;
   text-decoration: none;
 }
@@ -596,6 +601,7 @@ textarea .ANTSEGTEXT {
   border: 2px solid #ccc;
   border-bottom: 0;
   border-radius: 5px 5px 0 0;
+  border-top-left-radius: 5px;
   box-shadow: 0 5px 9px #888;
   color: #000;
   font-size: 1.7em;
@@ -609,26 +615,26 @@ textarea .ANTSEGTEXT {
   color: #000080;
 }
 
-#tabs li .active a {
+#tabs li.active a {
   background-color: #fff;
   border-bottom: 0;
   color: #000080;
   padding: 4px 6px 5px;
 }
 
-#tabs li .active a:hover {
+#tabs li.active a:hover {
   background-color: #eee;
   border-bottom: 0;
 }
 
-#tabs li a .icon_accept {
+#tabs li a.icon_accept {
   background-image: url('accept.png');
   background-position: 5px;
   background-repeat: no-repeat;
   padding-left: 24px;
 }
 
-#tabs li a .icon_accept:hover {
+#tabs li a.icon_accept:hover {
   padding-left: 24px;
 }
 
@@ -639,18 +645,17 @@ textarea .ANTSEGTEXT {
 }
 
 .button-success {
-  background: rgb(240, 240, 0);
-  /* this is a green */
+  background: rgb(240, 240, 0); /* this is a green */
   border-radius: 45px;
   box-shadow: 2px 2px 2px #888;
 }
 
 .button_over {
-  background-color: #f00;
+  background-color: var(--danger);
 }
 
 .buttonRefraction_selected {
-  background-color: #ff0 !important;
+  background-color: var(--warning) !important;
   border: #000;
 }
 
@@ -669,6 +674,7 @@ textarea .ANTSEGTEXT {
 }
 
 .tools {
+  border: 0 solid #000;
   color: #000;
   font-weight: bold;
   height: 50px;
@@ -685,12 +691,12 @@ textarea .ANTSEGTEXT {
   z-index: 10;
 }
 
-/* DEPRECATED: Use font-weight-bold BS4 class */
+/* DEPRECATED */
 .bold {
   font-weight: bold;
 }
 
-/* DEPRECATED: Use text-underline BS4 class */
+/* DEPRECATED */
 .underline {
   text-decoration: underline;
 }
@@ -718,15 +724,14 @@ textarea .ANTSEGTEXT {
 /* CSS for QP_buttons */
 .eye_button {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0.6, #f6f9ed), color-stop(0.6, #f6f9ed));
-  background: linear-gradient(center top, #f6f9ed 80%, #f6f9ed 100%);
   background-color: #3d94f6;
   border: #000;
   border-radius: 2px;
-  box-shadow: inset 1px 1px 1px 0 #000;
+  box-shadow: inset 0 1px 0 0 #97c4fe;
   color: #000;
   display: inline-block;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#9eedf0', endColorstr='#1e62d0');
-  font-family: Arial, Serif;
+  font-family: Arial, sans-serif;
   font-size: 11px;
   font-weight: 600;
   height: 18px;
@@ -754,15 +759,17 @@ textarea .ANTSEGTEXT {
 
 .eye_button:hover {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #1e62d0), color-stop(1, #3d94f6));
-  background: linear-gradient(center top, #1e62d0 5%, #3d94f6 100%);
   background-color: #1e62d0;
   color: #fff;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e62d0', endColorstr='#3d94f6');
 }
 
 .eye_button:active {
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #1e62d0), color-stop(1, #3d94f6));
-  background: linear-gradient(center top, #1e62d0 5%, #3d94f6 100%);
+  background: -webkit-gradient(linear,
+  left top,
+  left bottom,
+  color-stop(0.05, #1e62d0),
+  color-stop(1, #3d94f6));
   background-color: #1e62d0;
   color: #fff;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e62d0', endColorstr='#3d94f6');
@@ -771,14 +778,18 @@ textarea .ANTSEGTEXT {
 }
 
 .eye_button_selected {
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #000080), color-stop(1, #3d94f6));
-  background: linear-gradient(center top, #000080 5%, #3d94f6 100%);
+  background: -webkit-gradient(linear,
+  left top,
+  left bottom,
+  color-stop(0.05, #000080),
+  color-stop(1, #3d94f6));
   border: 1px solid #fff;
   border-radius: 2px;
+  border-top-left-radius: 3px;
   box-shadow: inset 0 1px 0 0 #97c4fe;
   color: #fff;
   display: inline-block;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='navy', endColorstr='#3d94f6');
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#000080', endColorstr='#3d94f6');
   font-family: Arial, Serif;
   font-size: 11px;
   font-weight: 400;
@@ -792,8 +803,8 @@ textarea .ANTSEGTEXT {
   text-indent: 0;
 }
 
-/* This button was generated using CSSButtonGenerator.com */
 .divTable {
+  border: 0 solid var(--danger);
   border-spacing: 0;
   cursor: pointer;
   float: left;
@@ -803,6 +814,7 @@ textarea .ANTSEGTEXT {
   padding: 10px 0 0 5px;
   position: relative;
   width: 100%;
+
   /*cellspacing:poor IE support for  this*/
   /* border-collapse:separate;*/
 }
@@ -825,8 +837,7 @@ textarea .ANTSEGTEXT {
   border-top: 3px solid;
   float: left;
   /* display:table-column; */
-  text-align: center;
-  /*fix for  buggy browsers*/
+  text-align: center; /*fix for  buggy browsers*/
 }
 
 .divCell {
@@ -838,8 +849,7 @@ textarea .ANTSEGTEXT {
   height: 5.1px;
   padding: 0;
   text-align: center;
-  width: 5.1px;
-  /*fix for  buggy browsers*/
+  width: 5.1px; /*fix for  buggy browsers*/
 }
 
 .top_right {
@@ -863,7 +873,7 @@ textarea .ANTSEGTEXT {
 
 .kb_left {
   bottom: 0;
-  color: #f00;
+  color: var(--danger);
   float: left;
   font-size: 0.7em;
   left: 0;
@@ -875,7 +885,7 @@ textarea .ANTSEGTEXT {
 
 .kb_right {
   bottom: 0;
-  color: #f00;
+  color: var(--danger);
   float: right;
   font-size: 0.7em;
   position: relative;
@@ -885,17 +895,17 @@ textarea .ANTSEGTEXT {
 }
 
 .kb_center {
-  color: #f00;
+  color: var(--danger);
   font-size: 0.7em;
   position: relative;
   vertical-align: top;
 }
 
 .yellow {
-  background-color: #ff0;
+  background-color: var(--warning);
 }
 
-textarea .EXTTEXT {
+textarea.EXTTEXT {
   height: 0.42in;
   max-height: 0.42in;
   max-width: 1in;
@@ -973,6 +983,7 @@ textarea .EXTTEXT {
 }
 
 .closeButton:hover {
+  border: 0 solid #808080;
   color: #808080;
   cursor: pointer;
   text-decoration: none;
@@ -999,6 +1010,7 @@ textarea .EXTTEXT {
 }
 
 .closeButton_2:hover {
+  border: 0 solid #808080;
   color: #808080;
   cursor: pointer;
   text-decoration: none;
@@ -1015,6 +1027,7 @@ textarea .EXTTEXT {
 }
 
 .closeButton_3:hover {
+  border: 0 solid #808080;
   color: #808080;
   cursor: pointer;
   text-decoration: none;
@@ -1031,11 +1044,11 @@ textarea .EXTTEXT {
 }
 
 .closeButton_4:hover {
+  border: 0 solid #808080;
   color: #808080;
   cursor: pointer;
   text-decoration: none;
 }
-
 /* testing out the tabs header stuff for ACT */
 #header ul {
   list-style: none;
@@ -1105,35 +1118,35 @@ h1 {
   border-bottom: 0;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
-  border-left: 1pt solid #000;
-  border-right: 1pt solid #000;
-  border-top: 1pt solid #000;
+  border-left: 1px solid #000;
+  border-right: 1px solid #000;
+  border-top: 1px solid #000;
   border-top-left-radius: 7px;
   border-top-right-radius: 7px;
   box-shadow: 1px -1px 1px 0 #888;
   color: #000;
-  font-size: 1.1em;
+  font-size: 1.1rem;
   height: 25px;
   margin: 5px 0 0;
 }
 
 .ACT_deselected {
   background-color: #2d6775;
-  border-bottom: 1pt solid #000;
+  border-bottom: 1px solid #000;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   border-top-left-radius: 7px;
   border-top-right-radius: 7px;
   color: #fff;
-  font-size: 1em;
+  font-size: 1rem;
   height: 25px;
   margin: 5px;
 }
 
 .ACT_box {
-  border-bottom: 1pt solid #000;
-  border-left: 1pt solid #000;
-  border-right: 1pt solid #000;
+  border-bottom: 1px solid #000;
+  border-left: 1px solid #000;
+  border-right: 1px solid #000;
   border-top: 0;
   box-shadow: 1px 5px 5px 0 #888;
   padding: 10px;
@@ -1141,7 +1154,7 @@ h1 {
   z-index: 10;
 }
 
-b .ACT_box {
+b.ACT_box {
   font-size: 0.7em;
 }
 
@@ -1162,7 +1175,7 @@ b .ACT_box {
   z-index: 100;
 }
 
-input[type=text] .fullscreen {
+input[type="text"].fullscreen {
   font-size: 0.8em;
   height: 150px;
   text-indent: 0;
@@ -1174,7 +1187,7 @@ input[type=text] .fullscreen {
   background-color: #fff;
   border: 0;
   color: #000;
-  font-family: Arial, serif, Arial;
+  font-family: Arial, sans-serif;
   font-size: 1em;
   height: 1.2em;
   left: 0.05in;
@@ -1221,7 +1234,6 @@ input[type=text] .fullscreen {
 }
 
 .rotate-right {
-  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
   transform: rotate(+90deg);
 }
 
@@ -1254,7 +1266,7 @@ input {
 }
 
 .navbar-custom,
-.navbar-nav>li>li:focus {
+.navbar-nav > li > li:focus {
   background-color: #3e76c2;
   border-radius: 0;
   color: #fff;
@@ -1262,34 +1274,29 @@ input {
 }
 
 .navbar-custom {
-  color: #000;
-  /* just changes the base font color */
+  color: #000; /* just changes the base font color */
   margin: 0;
   padding: 6px 10px 4px;
 }
 
-.navbar-nav>li>a {
-  color: #000;
-  /* just changes the base font color */
+.navbar-nav > li > a {
+  color: #000; /* just changes the base font color */
   padding: 6px 10px 4px;
 }
 
-.nav>li>a:focus,
-.nav>li:focus {
-  background-color: #1c5ecf;
-  /* this is the "hover" blue */
-  color: #fff;
-  /*#33aa33; <--- this is kelly green */
+.nav > li > a:focus,
+.nav > li:focus {
+  background-color: #1c5ecf; /* this is the "hover" blue */
+  color: #fff; /*#33aa33; <--- this is kelly green */
   text-decoration: none;
 }
 
 .navbar-custom,
 .navbar-nav,
-.nav>.active>a,
-.navbar-nav>.active>a:hover,
-.navbar-nav>.active>a:focus {
-  background-color: #c9dbf2;
-  /* Mac Menu title bar background color */
+.nav > .active > a,
+.navbar-nav > .active > a:hover,
+.navbar-nav > .active > a:focus {
+  background-color: #c9dbf2; /* Mac Menu title bar background color */
   color: #fff;
 }
 
@@ -1298,33 +1305,29 @@ input {
 }
 
 .dropdown-menu {
-  background-color: #dee9f7;
-  /* Mac Menu dropdown bar background color */
+  background-color: #dee9f7; /* Mac Menu dropdown bar background color */
 }
 
-.dropdown-menu>li>a:hover,
-.dropdown-menu>li>a:focus {
-  background-color: #1c5ecf;
-  /*#3E76C2;*/
-  color: #fff;
-  /*#262626;*/
+.dropdown-menu > li > a:hover,
+.dropdown-menu > li > a:focus {
+  background-color: #1c5ecf; /*#3E76C2;*/
+  color: #fff; /*#262626;*/
   text-decoration: none;
 }
 
 .navbar-brand {
-  color: #f00;
+  color: var(--danger);
   height: 24px;
   margin: 10px 0 2px;
   padding: 10px 5px 0 10px;
 }
 
-.navbar-nav>li>.dropdown-menu {
+.navbar-nav > li > .dropdown-menu {
   margin-top: 2px;
 }
 
 .dropdown-menu .divider {
-  background-color: #c0c0c0;
-  /*gba(131, 135, 146, 0.61);*/
+  background-color: #c0c0c0; /*gba(131, 135, 146, 0.61);*/
   height: 1px;
   margin: 9px 0;
   overflow: hidden;
@@ -1336,8 +1339,7 @@ a:focus {
 }
 
 .icon-bar {
-  background-color: #c0c0c0;
-  /* this turns the small screen menu "button" 's lines this color */
+  background-color: #c0c0c0; /* this turns the small screen menu "button" 's lines this color */
 }
 
 .anchor {
@@ -1345,10 +1347,8 @@ a:focus {
      * The fields/anchors are added as blank elements (sorry) in view.php
      */
   display: block;
-  height: 20px;
-  /*same height as header*/
-  margin-top: -20px;
-  /*same height as header*/
+  height: 20px; /*same height as header*/
+  margin-top: -20px; /*same height as header*/
   visibility: hidden;
 }
 
@@ -1358,7 +1358,7 @@ a:focus {
 }
 
 .sketch_tools:active {
-  color: #f00;
+  color: var(--danger);
   height: 100px;
 }
 
@@ -1386,12 +1386,10 @@ a:focus {
 .bottom_PMSFH_tab {
   bottom: 0;
   color: #000;
-  filter: progid:DXImageTransform.Microsoft.Glow(Color=#000, Strength=1);
-  /* IE<10 */
+  filter: progid:DXImageTransform.Microsoft.Glow(Color=#000, Strength=1); /* IE<10 */
   position: absolute;
   right: 10px;
-  text-shadow: 0 0 2px #000;
-  /* Firefox 3.5+, Opera 9+, Safari 1+, Chrome, IE10 */
+  text-shadow: 0 0 2px #000; /* Firefox 3.5+, Opera 9+, Safari 1+, Chrome, IE10 */
 }
 
 .bottom_PMSFH_tab img {
@@ -1496,11 +1494,11 @@ a:focus {
 }
 
 .ui-draggable-dragging {
-  box-shadow: 5px 5px 9px #f00;
+  box-shadow: 5px 5px 9px var(--danger);
 }
 
 .build_PLAN li:hover {
-  background: #ff0;
+  background: var(--warning);
 }
 
 .building_blocks {
@@ -1566,11 +1564,11 @@ li .handle {
 }
 
 .ui-selecting {
-  background: #ff0;
+  background: var(--warning);
 }
 
 .build_PLAN .ui-selecting .handle {
-  background: #f00;
+  background: var(--danger);
 }
 
 .ui-selected {
@@ -1651,7 +1649,7 @@ h2 {
   float: left;
 }
 
-input[type=text] {
+input[type="text"] {
   display: inline-block;
   font-size: 0.7em;
   padding: 0.2em 0.4em;
