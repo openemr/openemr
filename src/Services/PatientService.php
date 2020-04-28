@@ -17,6 +17,8 @@
 namespace OpenEMR\Services;
 
 use Particle\Validator\Validator;
+use OpenEMR\Validators\PatientValidator;
+use OpenEMR\Validators\ProcessingResult;
 
 class PatientService extends BaseService
 {
@@ -27,7 +29,7 @@ class PatientService extends BaseService
      */
     private $patient_picture_fallback_id = -1;
 
-    private $validator;
+    private $patientValidator;
 
     /**
      * Default constructor.
@@ -35,56 +37,8 @@ class PatientService extends BaseService
     public function __construct()
     {
         parent::__construct('patient_data');
+        $this->patientValidator = new PatientValidator();
     }
-
-    // make this a comprehensive validation
-    public function validate($patient, $context, $id = null)
-    {
-        $this->validator = new Validator();
-        if ($id) {
-            $vPid = $this->validatePid($id);
-            if ($vPid->isNotValid()) {
-                return $vPid;
-            }
-        }
-
-        $this->validator->context(
-            'insert',
-            function (Validator $context) {
-                $context->required('fname', "First Name")->lengthBetween(2, 255);
-                $context->required('lname', 'Last Name')->lengthBetween(2, 255);
-                $context->required('sex', 'Gender')->lengthBetween(4, 30);
-                $context->required('DOB', 'Date of Birth')->datetime('Y-m-d');
-            }
-        );
-
-        $this->validator->context(
-            'update',
-            function (Validator $context) {
-                $context->copyContext(
-                    'insert',
-                    function ($rules) {
-                        foreach ($rules as $key => $chain) {
-                            $chain->required(false);
-                        }
-                    }
-                );
-            }
-        );
-
-        return $this->validator->validate($patient, $context);
-    }
-
-    public function validatePid($pid)
-    {
-        $this->validator->required('pid')->callback(
-            function ($value) {
-                return $this->verifyPid($value);
-            }
-        )->numeric();
-        return $this->validator->validate(['pid' => $pid]);
-    }
-
     public function setPid($pid)
     {
         $this->pid = $pid;
@@ -145,19 +99,25 @@ class PatientService extends BaseService
     public function getFreshPid()
     {
         $pid = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
-
-        return $pid['pid'] === null ? 1 : $pid['pid'];
+        return $pid['pid'] === null ? 1 : intval($pid['pid']);
     }
 
+    /**
+     * Inserts a new patient record.
+     * 
+     * @param $data The patient fields (array) to insert.
+     * @return array(isValid => true|false, data => )
+     */
     public function insert($data)
     {
-        $validationResult = $this->validate($data, 'insert');
-        if ($validationResult->isNotValid()) {
-            return $validationResult;
+        $processingResult = $this->patientValidator->validate($data, PatientValidator::DATABASE_INSERT_CONTEXT);
+
+        if (!$processingResult->isValid()) {
+            return $processingResult;
         }
-        $fresh_pid = $this->getFreshPid();
-        $data['pid'] = $fresh_pid;
-        $data['pubpid'] = $fresh_pid;
+
+        $freshPid = $this->getFreshPid();
+        $data['pid'] = $freshPid;
         $data['date'] = date("Y-m-d H:i:s");
         $data['regdate'] = date("Y-m-d H:i:s");
 
@@ -169,18 +129,30 @@ class PatientService extends BaseService
             $sql,
             $query['bind']
         );
+
         if ($results) {
-            return $fresh_pid;
+            $processingResult->setData($freshPid);
+            return $processingResult;
+        } else {
+            $processingResult->addProcessingError("error processing SQL Insert");
         }
 
-        return $results;
+        return $processingResult;
     }
 
+    /**
+     * Updates an existing patient record.
+     * 
+     * @param $pid - The patient identifier (PID) used for update.
+     * @param $data - The updated patient data fields
+     * @return
+     */
     public function update($pid, $data)
     {
-        $validationResult = $this->validate($data, 'update', $pid);
-        if ($validationResult->isNotValid()) {
-            return $validationResult;
+        $data["pid"] = $pid;
+        $processingResult = $this->patientValidator->validate($data, PatientValidator::DATABASE_UPDATE_CONTEXT);
+        if (!$processingResult->isValid()) {
+            return $processingResult;
         }
         $data['date'] = date("Y-m-d H:i:s");
 
@@ -188,11 +160,15 @@ class PatientService extends BaseService
         $sql = " UPDATE patient_data SET ";
         $sql .= $query['set'];
         $sql .= " WHERE pid = ?";
+        
         array_push($query['bind'], $pid);
-        return sqlStatement(
-            $sql,
-            $query['bind']
-        );
+        $sqlResult = sqlStatement($sql, $query['bind']);
+
+        if (!$sqlResult){
+            $processingResult->addErrorMessage("error processing SQL Update");
+        }
+
+        return $processingResult;
     }
 
     /**
@@ -260,7 +236,9 @@ class PatientService extends BaseService
             array_push($results, $row);
         }
 
-        return $results;
+        $processingResult = new ProcessingResult();
+        $processingResult->setData($results);
+        return $processingResult;
     }
 
     /**
@@ -297,7 +275,10 @@ class PatientService extends BaseService
                 FROM patient_data
                 WHERE pid = ?";
 
-        return sqlQuery($sql, $this->pid);
+        $sqlResult = sqlQuery($sql, $this->pid);
+        $processingResult = new ProcessingResult();
+        $processingResult->setData($sqlResult);
+        return $processingResult;
     }
 
     /**

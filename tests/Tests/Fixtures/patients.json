@@ -62,7 +62,8 @@
 		"phone_biz" : "(619) 333-3333",
 		"email" : "richard@pennfirm.com",
 		"DOB" : "1940-12-16",
-		"status" : "married"
+		"status" : "married",
+		"sex": "Male"
 	},
 	{
 		"pubpid" : "test-fixture-22",
@@ -96,6 +97,7 @@
 		"phone_home" : "(567) 789-7891",
 		"phone_biz" : "(567) 789-1234",
 		"DOB" : "1977-05-02",
+		"sex": "Male",
 		"status" : "single"
 	},
 	{
@@ -143,6 +145,7 @@
 		"phone_home" : "(808) 555-1234",
 		"phone_biz" : "(808) 555-4444",
 		"DOB" : "1955-04-12",
+		"sex": "Male",
 		"status" : "married"
 	},
 	{
@@ -177,6 +180,7 @@
 		"phone_home" : "(555) 111-1111",
 		"phone_biz" : "(555) 111-1234",
 		"DOB" : "1952-04-03",
+		"sex": "Male",
 		"status" : "domestic partner"
 	},
 	{
