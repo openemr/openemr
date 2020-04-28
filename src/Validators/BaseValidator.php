@@ -7,7 +7,7 @@ use OpenEMR\Validators\ProcessingResult;
 
 /**
  * Base class for OpenEMR object validation.
- *
+ * Validation processes are implemented using Particle (https://github.com/particle-php/Validator)
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Dixon Whitmire <dixon.whitmire@ibm.com>

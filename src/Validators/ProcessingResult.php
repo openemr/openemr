@@ -20,14 +20,12 @@ namespace OpenEMR\Validators;
 
 class ProcessingResult
 {
-    private $isValid;
     private $validationMessages;
     private $processingErrors;
     private $data;
 
     public function __construct()
     {
-        $this->isValid = false;
         $this->validationMessages = array();
         $this->processingErrors = array();
         $this->data = null;

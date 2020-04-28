@@ -22,10 +22,13 @@ class PatientValidator extends BaseValidator
      * Validates that a PID exists in the database.
      *
      * @param $pid The pid/patient identifier to verify
-     * @return true if the pid exists, otherwise false
+     * @return true if the pid is a valid existing pid, otherwise false
      */
     public function isExistingPid($pid)
     {
+        if (!is_int($pid)) {
+            return false;
+        }
         $result = sqlQuery(
             "SELECT pid AS pid FROM patient_data WHERE pid = ?",
             array($pid)
@@ -34,7 +37,6 @@ class PatientValidator extends BaseValidator
         $pidValue = $result["pid"] ?? 0;
         return $pidValue > 0;
     }
-
 
     /**
      * Configures validations for the Patient DB Insert and Update use-case.

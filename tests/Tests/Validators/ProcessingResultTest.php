@@ -39,11 +39,11 @@ class ProcessingResultTest extends TestCase
     }
 
     /**
-     * @#cover ::setValidationMessages
-     * @#cover ::getValidationMessages
-     * @#cover ::setProcessingErrors
-     * @#cover ::getProcessingErrors
-     * @#cover ::addProcessingError
+     * @cover ::setValidationMessages
+     * @cover ::getValidationMessages
+     * @cover ::setProcessingErrors
+     * @cover ::getProcessingErrors
+     * @cover ::addProcessingError
      */
     public function testGetSetOperations()
     {

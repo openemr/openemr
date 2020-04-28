@@ -113,11 +113,11 @@ class FixtureManager
     }
 
     /**
-     * Installs  a single Patient Fixtures into the OpenEMR DB
+     * Installs a single Patient Fixtures into the OpenEMR DB
      * @param $patientFixture - The fixture to install
      * @return count of records inserted
      */
-    public function installPatientFixture($patientFixture)
+    public function installSinglePatientFixture($patientFixture)
     {
         return $this->installFixtures("patient_data", array($patientFixture));
     }
