@@ -21,6 +21,10 @@
 --    arguments: table_name colname value
 --    behavior:  If the table table_name does not have a column colname with a data type equal to value, then the block will be executed
 
+--  #IfNotColumnTypeDefault
+--    arguments: table_name colname value value2
+--    behavior:  If the table table_name does not have a column colname with a data type equal to value and a default equal to value2, then the block will be executed
+
 --  #IfNotRow
 --    arguments: table_name colname value
 --    behavior:  If the table table_name does not have a row where colname = value, the block will be executed.
@@ -438,4 +442,8 @@ ALTER TABLE `form_eye_mag_prefs` MODIFY `ordering` smallint(6) DEFAULT NULL;
 
 #IfNotColumnType codes code_text_short varchar(255)
 ALTER TABLE `codes` MODIFY `code_text_short` varchar(255) NOT NULL default '';
+#EndIf
+
+#IfNotColumnTypeDefault amendments created_time timestamp NULL
+ALTER TABLE `amendments` MODIFY `created_time` timestamp NULL COMMENT 'created time';
 #EndIf
