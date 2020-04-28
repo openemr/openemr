@@ -112,7 +112,7 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("Click the Clear button to start afresh"); ?>.
                     <button type="button" class="btn btn-secondary btn-undo btn-sm oe-no-float"><?php echo xlt("Clear"); ?></button>
                 </p>
-                
+
                 <p><?php echo xlt("Type the message and click Send Message "); ?>.
                     <button type="button" class="btn btn-secondary btn-send-msg btn-sm oe-no-float"><?php echo xlt("Send Message"); ?></button>
                 </p>
@@ -360,7 +360,7 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("It will take you to the MedEx sign-up page"); ?>.</p>
 
                 <p><?php echo xlt("More information available at the openEMR MedEx wiki page"); ?>.
-                    <a href="https://www.open-emr.org/wiki/index.php/MedEx" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                    <a href="https://www.open-emr.org/wiki/index.php/MedEx" rel="noopener" target="_blank"><i class="fa fa-external-link-alt text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                 </p>
 
                 <p><?php echo xlt("The features of a MedEx enabled installation are explained in this video"); ?>.
