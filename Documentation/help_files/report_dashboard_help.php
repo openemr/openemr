@@ -245,7 +245,7 @@ require_once("../../interface/globals.php");
                     <p><i class="fa fa-exclamation-triangle oe-text-red"  aria-hidden="true"></i> <strong><?php echo xlt("You will need Administrator privileges to setup phiMail Direct Messaging");?>.</strong></p>
 
                     <p><?php echo xlt("The first step is signing up for a production Direct messaging account with EMR Direct by registering on their website");?>.
-                        <a href="https://www.emrdirect.com/subscribe"" rel="noopener" target="_blank"><i class="fa fa-external-link-alt text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                        <a href="https://www.emrdirect.com/subscribe" rel="noopener" target="_blank"><i class="fa fa-external-link-alt text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                     </p>
 
                     <p><?php echo xlt("Subscribers will receive the username, password, and server address information with which to configure OpenEMR");?>.</p>
