@@ -176,6 +176,7 @@ class FacilityService extends BaseService
         $sql = " UPDATE facility SET ";
         $sql .= $query['set'];
         $sql .= " WHERE id = ?";
+        array_push($query['bind'], $data['id']);
         return sqlStatement(
             $sql,
             $query['bind']
