@@ -31,8 +31,8 @@ class PatientValidator extends BaseValidator
             array($pid)
         );
 
-        $isExisting = !($result["pid"] == null);
-        return $isExisting;
+        $pidValue = $result["pid"] ?? 0;
+        return $pidValue > 0;
     }
 
 
