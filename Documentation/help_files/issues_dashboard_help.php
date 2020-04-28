@@ -272,7 +272,7 @@ require_once("../../interface/globals.php");
                     </p>
 
                     <p><?php echo xlt("More information about Issues can be found here");?>.
-                        <a href="https://www.open-emr.org/wiki/index.php/Issues_&_Immunizations" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                        <a href="https://www.open-emr.org/wiki/index.php/Issues_&_Immunizations" rel="noopener" target="_blank"><i class="fa fa-external-link-alt text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                     </p>
                 </div>
             </div>
