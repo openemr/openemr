@@ -3,10 +3,10 @@
 namespace OpenEMR\Tests\Fixture;
 
 use PHPUnit\Framework\TestCase;
-use OpenEMR\Tests\Fixture\FixtureManager;
+use OpenEMR\Tests\Fixtures\FixtureManager;
 
 /**
- * Tests FixtureManager
+ * @coversDefaultClass OpenEMR\Tests\Fixture\FixtureManager
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -24,7 +24,26 @@ class FixtureManagerTest extends TestCase
     }
 
     /**
-     * Validates that patient fixtures utilize core fields with a "test case specific" pubpid
+     * Executes assertions on Patient Fixture Fields
+     * @param $patientFixture - The patient fixture to validate
+     */
+    private function assertPatientFields($patientFixture)
+    {
+        $this->assertNotNull($patientFixture);
+
+        $message = "Patient is missing";
+        $this->assertObjectHasAttribute("pubpid", $patientFixture, $message . " pubpid");
+        $this->assertObjectHasAttribute("fname", $patientFixture, $message . " fname");
+        $this->assertObjectHasAttribute("lname", $patientFixture, $message . " lname");
+        $this->assertObjectHasAttribute("DOB", $patientFixture, $message . " DOB");
+        $this->assertObjectHasAttribute("sex", $patientFixture, $message . " sex");
+
+        $message = "Patient does not have a test pubpid ";
+        $this->assertStringStartsWith("test-fixture", $patientFixture->pubpid, $message . $patientFixture->pubpid);
+    }
+
+    /**
+     * @covers ::getPatientFixtures
      */
     public function testGetPatientFixtures()
     {
@@ -33,19 +52,22 @@ class FixtureManagerTest extends TestCase
         $this->assertGreaterThan(0, count($patientFixtures));
         
         foreach ($patientFixtures as $index => $patientFixture) {
-            $message = "Patient " . $index . " is missing";
-            $this->assertObjectHasAttribute("pubpid", $patientFixture, $message . " pubpid");
-            $this->assertObjectHasAttribute("fname", $patientFixture, $message . " fname");
-            $this->assertObjectHasAttribute("lname", $patientFixture, $message . " lname");
-            $this->assertObjectHasAttribute("DOB", $patientFixture, $message . " DOB");
-
-            $message = "Patient " . $index . " does not have a test pubpid ";
-            $this->assertStringStartsWith("test-fixture", $patientFixture->pubpid, $message . $patientFixture->pubpid);
+            $this->assertPatientFields($patientFixture);
         }
     }
 
     /**
-     * Validates loading and deleting Patient Fixtures
+     * @covers ::getPatientFixture
+     */
+    public function testGetPatientFixture()
+    {
+        $patientFixture = $this->fixtureManager->getPatientFixture();
+        $this->assertPatientFields($patientFixture);
+    }
+
+    /**
+     * @covers ::installPatientFixtures
+     * @covers ::removePatientFixtures
      */
     public function testInstallAndRemovePatientFixtures()
     {

@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenEMR\Tests\Fixture;
+namespace OpenEMR\Tests\Fixtures;
 
 /**
  * Provides OpenEMR Fixtures/Sample Records to test cases as Objects or Database Records
@@ -51,7 +51,7 @@ class FixtureManager
     }
 
     /**
-     * Installs fixtures into the OpenEMR DB
+     * Installs fixtures into the OpenEMR DB.
      *
      * @param $tableName The target OpenEMR DB table name
      * @param $fixtures Array of fixture objects to install
@@ -96,11 +96,30 @@ class FixtureManager
     }
 
     /**
+     * @return a random patient fixture
+     */
+    public function getPatientFixture()
+    {
+        $randomIndex = array_rand($this->patientFixtures, 1);
+        return $this->patientFixtures[$randomIndex];
+    }
+
+    /**
      * Installs Patient Fixtures into the OpenEMR DB
      */
     public function installPatientFixtures()
     {
         return $this->installFixtures("patient_data", $this->getPatientFixtures());
+    }
+
+    /**
+     * Installs a single Patient Fixtures into the OpenEMR DB
+     * @param $patientFixture - The fixture to install
+     * @return count of records inserted
+     */
+    public function installSinglePatientFixture($patientFixture)
+    {
+        return $this->installFixtures("patient_data", array($patientFixture));
     }
 
     /**

@@ -26,8 +26,9 @@
             <directory>tests/Tests/Unit</directory>
             <directory>tests/Tests/E2e</directory>
             <directory>tests/Tests/Api</directory>
-            <directory>tests/Tests/Fixture</directory>
+            <directory>tests/Tests/Fixtures</directory>
             <directory>tests/Tests/Services</directory>
+            <directory>tests/Tests/Validators</directory>
         </testsuite>
         <testsuite name="unit">
             <directory>tests/Tests/Unit</directory>
@@ -38,11 +39,14 @@
         <testsuite name="api">
             <directory>tests/Tests/Api</directory>
         </testsuite>
-        <testsuite name="fixture">
-            <directory>tests/Tests/Fixture</directory>
+        <testsuite name="fixtures">
+            <directory>tests/Tests/Fixtures</directory>
         </testsuite>
-        <testsuite name="service">
-            <directory>tests/Tests/Service</directory>
+        <testsuite name="services">
+            <directory>tests/Tests/Services</directory>
+        </testsuite>
+        <testsuite name="validators">
+            <directory>tests/Tests/Validators</directory>
         </testsuite>
     </testsuites>
 </phpunit>
