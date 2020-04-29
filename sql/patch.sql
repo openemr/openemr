@@ -295,24 +295,24 @@ ALTER TABLE `medex_recalls` ADD INDEX `i_eventDate` (`r_eventDate`);
 ALTER TABLE `medex_outgoing` ADD INDEX `i_msg_date` (`msg_date`);
 #EndIf
 
-#IfNotRow2D icd10dx_order_code dx_code U071 active 1
+#IfNotRow2D icd10_dx_order_code dx_code U071 active 1
 INSERT INTO `icd10_dx_order_code`
 (`dx_code`, `formatted_dx_code`, `valid_for_coding`, `short_desc`, `long_desc`, `active`, `revision`)
 VALUES ('U071', 'U07.1', '1', 'COVID-19, virus identified', 'COVID-19, virus identified', '1', '1');
 #EndIf
 
-#IfRow2D icd10dx_order_code dx_code U071 active 1
+#IfRow2D icd10_dx_order_code dx_code U071 active 1
 UPDATE `icd10_dx_order_code`
 SET `revision` = (SELECT MAX(`revision`) from icd10_dx_order_code) WHERE `dx_code` = 'U071';
 #EndIf
 
-#IfNotRow2D icd10dx_order_code dx_code U072 active 1
+#IfNotRow2D icd10_dx_order_code dx_code U072 active 1
 INSERT INTO `icd10_dx_order_code`
 (`dx_code`, `formatted_dx_code`, `valid_for_coding`, `short_desc`, `long_desc`, `active`, `revision`)
 VALUES ('U072', 'U07.2', '1', 'COVID-19, virus not identified', 'COVID-19, virus not identified', '1', '1');
 #EndIf
 
-#IfRow2D icd10dx_order_code dx_code U072 active 1
+#IfRow2D icd10_dx_order_code dx_code U072 active 1
 UPDATE `icd10_dx_order_code`
 SET `revision` = (SELECT MAX(`revision`) from icd10_dx_order_code) WHERE `dx_code` = 'U072';
 #EndIf
