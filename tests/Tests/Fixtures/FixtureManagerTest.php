@@ -61,7 +61,7 @@ class FixtureManagerTest extends TestCase
      */
     public function testGetPatientFixture()
     {
-        $patientFixture = $this->fixtureManager->getPatientFixture();
+        $patientFixture = $this->fixtureManager->getSinglePatientFixture();
         $this->assertPatientFields($patientFixture);
     }
 

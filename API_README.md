@@ -4,6 +4,36 @@
 
 Easy-to-use JSON-based REST API for OpenEMR. All code is done in classes and separate from the view to help with codebase modernization efforts. FHIR is also supported, see FHIR API documentation [here](FHIR_README.md)
 
+## Implementation
+
+REST API endpoints are defined in the [primary routes file](_rest_routes.inc.php). The routes file maps an external, addressable
+endpoint to the OpenEMR controller which handles the request, and also handles the JSON data conversions.
+
+```php
+"POST /api/patient" => function () {
+    RestConfig::authorization_check("patients", "demo");
+    $data = (array)(json_decode(file_get_contents("php://input")));
+    return (new PatientRestController())->post($data);
+}
+```
+
+At a high level, the request processing flow consists of the following steps:
+```bash
+JSON Request -> Controller Component -> Validation -> Service Component -> Database
+```
+
+The logical response flow begins with the database result:
+```bash
+Database Result -> Service Component -> Controller Component -> RequestControllerHelper -> JSON Response
+```
+
+The [RequestControllerHelper class](./src/RestControllers/RestControllerHelper.php) evaluates the Service Component's
+result and maps it to a http response code and response payload. Existing APIs should be updated to utilize the
+`handleProcessingResult` method as it supports the [Validator](./src/Validators/BaseValidator.php) components.
+
+The [PatientRestController](./src/RestControllers/PatientRestController.php) may be used as a reference to see how APIs are
+integrated with `RequestControllerHelper::handleProcessingResult` and the `Validator` components.
+
 ### Sections
 * [facility API](API_README.md#post-apifacility)
 * [provider API](API_README.md#get-apiprovider)
