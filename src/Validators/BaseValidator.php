@@ -10,9 +10,9 @@ use OpenEMR\Validators\ProcessingResult;
  * Validation processes are implemented using Particle (https://github.com/particle-php/Validator)
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    Dixon Whitmire <dixon.whitmire@ibm.com>
+ * @author    Dixon Whitmire <dixonwh@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2020 Dixon Whitmire <dixon.whitmire@ibm.com>
+ * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 abstract class BaseValidator

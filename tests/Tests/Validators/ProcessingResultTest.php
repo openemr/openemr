@@ -11,8 +11,8 @@ use OpenEMR\Validators\ProcessingResult;
  * @coversDefaultClass OpenEMR\Services\ServiceResult
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    Dixon Whitmire <dixon.whitmire@ibm.com>
- * @copyright Copyright (c) 2020 Dixon Whitmire <dixon.whitmire@ibm.com>
+ * @author    Dixon Whitmire <dixonwh@gmail.com>
+ * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
@@ -32,27 +32,35 @@ class ProcessingResultTest extends TestCase
     public function testConstruct()
     {
         $this->assertEquals(0, count($this->processingResult->getValidationMessages()));
-        $this->assertEquals(0, count($this->processingResult->getProcessingErrors()));
+        $this->assertEquals(0, count($this->processingResult->getInternalErrors()));
+        $this->assertEquals(0, count($this->processingResult->getData()));
+
         $this->assertTrue($this->processingResult->isValid());
+        $this->assertFalse($this->processingResult->hasInternalErrors());
         $this->assertFalse($this->processingResult->hasErrors());
-        $this->assertNull($this->processingResult->getData());
     }
 
     /**
-     * @cover ::setValidationMessages
+     * @cover ::addValidationMessages
      * @cover ::getValidationMessages
-     * @cover ::setProcessingErrors
-     * @cover ::getProcessingErrors
-     * @cover ::addProcessingError
+     * @cover ::getInternalErrors
+     * @cover ::addInternalError
+     * @cover ::getData
+     * @cover ::addData
      */
     public function testGetSetOperations()
     {
+        $this->assertEquals(0, count($this->processingResult->getValidationMessages()));
         $this->processingResult->setValidationMessages(array("foo" => "bar"));
-        $this->processingResult->setProcessingErrors(array("bar", "baz"));
-        $this->processingResult->addProcessingError("boz");
+        $this->assertEquals(1, count($this->processingResult->getValidationMessages()));
 
-        $this->assertEquals(array("foo" => "bar"), $this->processingResult->getValidationMessages());
-        $this->assertEquals(array("bar", "baz", "boz"), $this->processingResult->getProcessingErrors());
+        $this->assertEquals(0, count($this->processingResult->getInternalErrors()));
+        $this->processingResult->addInternalError("internal error occurred");
+        $this->assertEquals(1, count($this->processingResult->getInternalErrors()));
+
+        $this->assertEquals(0, count($this->processingResult->getData()));
+        $this->processingResult->addData(array("fname" => "John", "lname" => "Doe"));
+        $this->assertEquals(1, count($this->processingResult->getData()));
     }
 
     /**
@@ -67,9 +75,9 @@ class ProcessingResultTest extends TestCase
     }
 
     /**
-     * @cover ::hasError
+     * @cover ::hasErrors
      */
-    public function testHasError()
+    public function testHasErrors()
     {
         // no validation or processing errors
         $this->assertFalse($this->processingResult->hasErrors());
@@ -80,11 +88,23 @@ class ProcessingResultTest extends TestCase
 
         // single processing error
         $this->processingResult->setValidationMessages(array());
-        $this->processingResult->setProcessingErrors(array("foo" => "bar"));
+        $this->processingResult->addInternalError("internal error");
         $this->assertTrue($this->processingResult->hasErrors());
 
         // validation and processing errors
         $this->processingResult->setValidationMessages(array("foo" => "bar"));
         $this->assertTrue($this->processingResult->hasErrors());
+    }
+
+    /**
+     * @cover ::hasInternalErrors
+     */
+    public function testHasInternalErrors()
+    {
+        $this->assertFalse($this->processingResult->hasInternalErrors());
+
+        $this->processingResult->addInternalError("error");
+        $this->assertTrue($this->processingResult->hasInternalErrors());
+        $this->assertEquals(1, count($this->processingResult->getInternalErrors()));
     }
 }

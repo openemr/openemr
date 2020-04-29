@@ -84,7 +84,7 @@ class PatientValidatorTest extends TestCase
      */
     public function testValidationUpdateSuccess()
     {
-        $patientFixture = $this->fixtureManager->getPatientFixture();
+        $patientFixture = $this->fixtureManager->getSinglePatientFixture();
         $this->fixtureManager->installSinglePatientFixture($patientFixture);
 
         $fixturePid = sqlQuery(
@@ -108,7 +108,7 @@ class PatientValidatorTest extends TestCase
     public function testIsExistingPid()
     {
         // ensure we have an installed record/patient
-        $patientFixture = $this->fixtureManager->getPatientFixture();
+        $patientFixture = $this->fixtureManager->getSinglePatientFixture();
         $this->fixtureManager->installSinglePatientFixture($patientFixture);
 
         $fixturePid = sqlQuery(
