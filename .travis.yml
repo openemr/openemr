@@ -224,7 +224,7 @@ language: php
       jobTests+="${jobTest}\n"
       echo "${jobTest}"
       echo "----------------------"
-  - &build_test_validation |
+  - &build_test_validators |
       failTest=false
       echo "-------------"
       echo "Run Validator Tests"
@@ -237,7 +237,7 @@ language: php
         mes="PASSED"
       fi
       echo "----------------------"
-      jobTest="${mes} - Run Validation Tests"
+      jobTest="${mes} - Run Validator Tests"
       jobTests+="${jobTest}\n"
       echo "${jobTest}"
       echo "----------------------"      
