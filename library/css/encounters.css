@@ -11,8 +11,8 @@
 }
 
 #encounters .billing_note_text {
-  background-color: lightgrey;
-  border: 2px outset black;
+  background-color: #d3d3d3;
+  border: 2px outset var(--black);
   padding: 5px;
 }
 
@@ -35,8 +35,8 @@
 
 #encounters #tooltipdiv {
   background-color: #ffa;
-  border: 1px solid black;
-  font-size: 9pt;
+  border: 1px solid var(--black);
+  font-size: 0.75rem;
   padding: 2px;
   position: absolute;
   visibility: hidden;
@@ -45,7 +45,7 @@
 }
 
 #encounters .highlight {
-  background-color: #fff;
+  background-color: var(--white);
 }
 
 #encounters .tooltip {
@@ -58,12 +58,17 @@
 }
 
 #encounters>table>*>tr>td {
-  border-top: 1px solid black;
+  border-top: 1px solid var(--black);
   vertical-align: top;
+}
+
+@media print {
+  div.encreport td {
+    font-size: 8pt !important;
+  }
 }
 
 div.encreport td {
-  font-size: 8pt;
+  font-size: 0.6875rem;
   vertical-align: top;
 }
-

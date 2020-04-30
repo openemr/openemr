@@ -4,7 +4,7 @@
     "extends": "stylelint-config-sass-guidelines",
     "rules": {
         "selector-no-qualifying-type": [true, {
-            "ignore": ["attribute"]
+            "ignore": ["attribute", "class", "id"]
         }],
         "string-quotes": null,
         "selector-class-pattern": null,

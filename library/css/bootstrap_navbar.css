@@ -27,8 +27,6 @@
 .fixed-top {
   background-color: var(--gray400) !important;
   border-bottom: 0.1px solid var(--gray) !important;
-  -moz-box-shadow: 0 0 10px var(--black) !important;
-  -webkit-box-shadow: 0 0 10px var(--black) !important;
   box-shadow: 0 0 10px var(--gray) !important;
   padding: 0 !important;
   z-index: 1000 !important;

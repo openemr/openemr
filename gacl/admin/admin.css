@@ -45,7 +45,7 @@ div#top-bl h2 {
 }
 
 ul#menu {
-	
+
   display: table;
   list-style-type: none;
   margin: 0;
@@ -57,14 +57,14 @@ ul#menu li {
   background: #999 url("images/tab-off-r.png") no-repeat top right;
   border-bottom: 1px solid #666;
   float: left;
-	
+
   margin: 0 2px 0 0;
   padding: 0;
 }
 
 ul#menu li a {
   background: url("images/tab-off-l.png") no-repeat top left;
-	
+
   color: #d8d8d8;
   display: block;
   font-weight: normal;
@@ -74,7 +74,7 @@ ul#menu li a {
   text-align: center;
   text-decoration: none;
   white-space: nowrap;
-	
+
   width: 0.1em;
 }
 
@@ -94,7 +94,7 @@ ul#menu li.current {
 
 ul#menu li.current a {
   background-image: url("images/tab-on-l.png");
-	
+
   color: #666;
   padding-bottom: 2px;
   text-decoration: none;
@@ -124,7 +124,7 @@ div#bot-tr {
 
 div#bot-tl {
   background: url("images/div-l.png") no-repeat top left;
-	
+
   font-size: 8pt;
   margin: 0;
   padding: 2px 10px 10px;
@@ -188,11 +188,11 @@ tr.spacer {
 }
 
 td.green {
-  background-color: green;
+  background-color: #008000;
 }
 
 td.red {
-  background-color: red;
+  background-color: #f00;
 }
 
 input,
@@ -248,9 +248,6 @@ form {
 
 tr.hide {
   display: none;
-}
-
-tr.show {
 }
 
 td.tabon {
