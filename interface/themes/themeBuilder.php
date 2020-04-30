@@ -23,10 +23,17 @@ header('Content-Type: text/css');
 header("Cache-Control: no-cache, must-revalidate"); //HTTP 1.1
 header("Pragma: no-cache"); //HTTP 1.0
 header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
+
 ?>
 
 @import "<?php echo $GLOBALS['fonts_dir']; ?>/lato/lato.css";
+<?php if (($GLOBALS['font-family'] != "__default__") || ($GLOBALS['font-size'] != "__default__")) { ?>
 body {
-    font-family: <?php echo $GLOBALS['font-family']; ?> !important;
-    font-size: <?php echo $GLOBALS['font-size']; ?> !important;
+    <?php if ($GLOBALS['font-family'] != "__default__") { ?>
+      font-family: <?php echo $GLOBALS['font-family']; ?> !important;
+  <?php }
+    if ($GLOBALS['font-size'] != "__default__") { ?>
+      font-size: <?php echo $GLOBALS['font-size']; ?> !important;
+  <?php } ?>
 }
+<?php } ?>
