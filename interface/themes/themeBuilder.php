@@ -27,6 +27,6 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 
 @import "<?php echo $GLOBALS['fonts_dir']; ?>/lato/lato.css";
 body {
-	font-family: <?php echo $GLOBALS['font-family']; ?> !important;
-	font-size: <?php echo $GLOBALS['font-size']; ?> !important;
+    font-family: <?php echo $GLOBALS['font-family']; ?> !important;
+    font-size: <?php echo $GLOBALS['font-size']; ?> !important;
 }
