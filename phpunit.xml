@@ -29,6 +29,7 @@
             <directory>tests/Tests/Fixtures</directory>
             <directory>tests/Tests/Services</directory>
             <directory>tests/Tests/Validators</directory>
+            <directory>tests/Tests/RestControllers</directory>            
         </testsuite>
         <testsuite name="unit">
             <directory>tests/Tests/Unit</directory>
@@ -47,6 +48,9 @@
         </testsuite>
         <testsuite name="validators">
             <directory>tests/Tests/Validators</directory>
+        </testsuite>
+        <testsuite name="controllers">
+            <directory>tests/Tests/RestControllers</directory>
         </testsuite>
     </testsuites>
 </phpunit>

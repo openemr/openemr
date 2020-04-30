@@ -39,15 +39,6 @@ class PatientService extends BaseService
         parent::__construct('patient_data');
         $this->patientValidator = new PatientValidator();
     }
-    public function setPid($pid)
-    {
-        $this->pid = $pid;
-    }
-
-    public function getPid()
-    {
-        return $this->pid;
-    }
 
     /**
      * TODO: This should go in the ChartTrackerService and doesn't have to be static.
@@ -106,7 +97,8 @@ class PatientService extends BaseService
      * Inserts a new patient record.
      *
      * @param $data The patient fields (array) to insert.
-     * @return array(isValid => true|false, data => )
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
      */
     public function insert($data)
     {
@@ -131,12 +123,11 @@ class PatientService extends BaseService
         );
 
         if ($results) {
-            $processingResult->setData($freshPid);
-            return $processingResult;
+            $processingResult->addData(array("pid" => $freshPid));
         } else {
-            $processingResult->addProcessingError("error processing SQL Insert");
+            $processingResult->addInternalError("error processing SQL Insert");
         }
-
+        
         return $processingResult;
     }
 
@@ -145,7 +136,8 @@ class PatientService extends BaseService
      *
      * @param $pid - The patient identifier (PID) used for update.
      * @param $data - The updated patient data fields
-     * @return
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
      */
     public function update($pid, $data)
     {
@@ -166,8 +158,10 @@ class PatientService extends BaseService
 
         if (!$sqlResult) {
             $processingResult->addErrorMessage("error processing SQL Update");
+        } else {
+            $processingResult = $this->getOne($pid);
         }
-
+        
         return $processingResult;
     }
 
@@ -177,7 +171,8 @@ class PatientService extends BaseService
      * If no search criteria is provided, all records are returned.
      *
      * @param  $search search array parameters
-     * @return patient records matching criteria.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
      */
     public function getAll($search = array())
     {
@@ -231,21 +226,32 @@ class PatientService extends BaseService
 
         $statementResults = sqlStatement($sql, $sqlBindArray);
 
-        $results = array();
+        $processingResult = new ProcessingResult();
         while ($row = sqlFetchArray($statementResults)) {
-            array_push($results, $row);
+            $processingResult->addData($row);
         }
 
-        $processingResult = new ProcessingResult();
-        $processingResult->setData($results);
         return $processingResult;
     }
 
     /**
      * Returns a single patient record by patient id.
+     * @param $pid - The patient identifier used to lookup the patient record.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
      */
-    public function getOne()
+    public function getOne($pid)
     {
+        $processingResult = new ProcessingResult();
+
+        if (!$this->patientValidator->isExistingPid($pid)) {
+            $validationMessages = [
+                "pid" => ["invalid or nonexisting pid" => "pid value " . $pid]
+            ];
+            $processingResult->setValidationMessages($validationMessages);
+            return $processingResult;
+        }
+
         $sql = "SELECT  id,
                         pid,
                         pubpid,
@@ -275,16 +281,15 @@ class PatientService extends BaseService
                 FROM patient_data
                 WHERE pid = ?";
 
-        $sqlResult = sqlQuery($sql, $this->pid);
-        $processingResult = new ProcessingResult();
-        $processingResult->setData($sqlResult);
+        $sqlResult = sqlQuery($sql, $pid);
+        $processingResult->addData($sqlResult);
         return $processingResult;
     }
 
     /**
      * @return number
      */
-    public function getPatientPictureDocumentId()
+    public function getPatientPictureDocumentId($pid)
     {
         $sql = "SELECT doc.id AS id
                  FROM documents doc
@@ -294,7 +299,7 @@ class PatientService extends BaseService
                    ON cate.id = cate_to_doc.category_id
                 WHERE cate.name LIKE ? and doc.foreign_id = ?";
 
-        $result = sqlQuery($sql, array($GLOBALS['patient_photo_category_name'], $this->pid));
+        $result = sqlQuery($sql, array($GLOBALS['patient_photo_category_name'], $pid));
 
         if (empty($result) || empty($result['id'])) {
             return $this->patient_picture_fallback_id;

@@ -37,39 +37,47 @@ class PatientRestController
         "DOB",
     );
 
-    function __construct($pid)
+    function __construct()
     {
         $this->patientService = new PatientService();
-        $this->patientService->setPid($pid);
     }
 
+    /**
+     * Process a HTTP POST request used to create a patient record.
+     * @param $data - array of patient fields.
+     * @return a 201/Created status code and the patient identifier if successful.
+     */
     function post($data)
     {
-        $serviceResult = $this->patientService->insert($data);
-        $validationHandlerResult = RestControllerHelper::validationHandler($serviceResult);
-        if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult;
-        }
-        return RestControllerHelper::responseHandler($serviceResult, array("pid" => $serviceResult), 201);
+        $processingResult = $this->patientService->insert($data);
+        return RestControllerHelper::handleProcessingResult($processingResult, 201);
     }
 
+    /**
+     * Processes a HTTP PUT request used to update an existing patient record.
+     * @param $pid - The patient identifier used to lookup the existing record.
+     * @param $data - array of patient fields (full resource).
+     * @return a 200/Ok status code and the patient resource.
+     */
     function put($pid, $data)
     {
-        $serviceResult = $this->patientService->update($pid, $data);
-        $validationHandlerResult = RestControllerHelper::validationHandler($serviceResult);
-        if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult;
-        }
-        return RestControllerHelper::responseHandler($serviceResult, array("pid" => $pid), 200);
+        $processingResult = $this->patientService->update($pid, $data);
+        return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 
     /**
      * Fetches a single patient resource by id.
+     * @param $pid The patient identifier to fetch.
      */
-    function getOne()
+    function getOne($pid)
     {
-        $serviceResult = $this->patientService->getOne();
-        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+        $processingResult = $this->patientService->getOne($pid);
+
+        if (!$processingResult->hasErrors() && count($processingResult->getData()) == 0) {
+            return RestControllerHelper::handleProcessingResult($processingResult, 404);
+        }
+
+        return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 
     /**
@@ -85,8 +93,7 @@ class PatientRestController
             ARRAY_FILTER_USE_KEY
         );
 
-        $serviceResult = $this->patientService->getAll($validSearchFields);
-
-        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+        $processingResult = $this->patientService->getAll($validSearchFields);
+        return RestControllerHelper::handleProcessingResult($processingResult, 200, true);
     }
 }
