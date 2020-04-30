@@ -302,8 +302,8 @@ VALUES ('U071', 'U07.1', '1', 'COVID-19, virus identified', 'COVID-19, virus ide
 #EndIf
 
 #IfRow2D icd10_dx_order_code dx_code U071 active 1
-UPDATE `icd10_dx_order_code`
-SET `revision` = (SELECT MAX(`revision`) from icd10_dx_order_code) WHERE `dx_code` = 'U071';
+set @newMax = (SELECT MAX(revision) from icd10_dx_order_code);
+UPDATE `icd10_dx_order_code` SET `revision` = @newMax WHERE `dx_code` = 'U071';
 #EndIf
 
 #IfNotRow2D icd10_dx_order_code dx_code U072 active 1
@@ -313,6 +313,6 @@ VALUES ('U072', 'U07.2', '1', 'COVID-19, virus not identified', 'COVID-19, virus
 #EndIf
 
 #IfRow2D icd10_dx_order_code dx_code U072 active 1
-UPDATE `icd10_dx_order_code`
-SET `revision` = (SELECT MAX(`revision`) from icd10_dx_order_code) WHERE `dx_code` = 'U072';
+set @newMax = (SELECT MAX(revision) from icd10_dx_order_code);
+UPDATE `icd10_dx_order_code` SET `revision` = @newMax WHERE `dx_code` = 'U072';
 #EndIf
