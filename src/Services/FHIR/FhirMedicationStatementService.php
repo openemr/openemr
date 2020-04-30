@@ -114,7 +114,7 @@ class FhirMedicationStatementService
         $informationSource->setReference('Practitioner/' . $data['provider_id']);
 
         $note = new FHIRAnnotation();
-        $note->setText($data['note']);  
+        $note->setText($data['note']);
 
         list($unitValue) = [
             '0' => [''],
@@ -128,7 +128,7 @@ class FhirMedicationStatementService
             '8' => ['grams'],
             '9' => ['mL']
         ][$data['unit']] ?? [''];
-		
+
         $unit = new FHIRUnitsOfTime();
         $unit->setValue($unitValue);
 
