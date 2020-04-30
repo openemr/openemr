@@ -58,7 +58,7 @@ require_once("../../interface/globals.php");
 
                 <p><?php echo xlt("The National Uniform Claim Committee (NUCC) is responsible for the maintenance of the 1500 Claim Form");?>.</p>
 
-                <p><?php echo xlt("The Instruction manual on how to fill the CMS 1500 form can be found here");?>.<a href="http://www.nucc.org" rel="noopener" target="_blank">&nbsp;<i id="show_hide" class="fa fa-external-link fa-lg small" title=<?php echo xlt("Click to Show");?>></i></a></p>
+                <p><?php echo xlt("The Instruction manual on how to fill the CMS 1500 form can be found here");?>.<a href="http://www.nucc.org" rel="noopener" target="_blank">&nbsp;<i id="show_hide" class="fa fa-external-link-alt fa-lg small" title=<?php echo xlt("Click to Show");?>></i></a></p>
 
                 <p><?php echo xlt("The CMS 1500 form has 33 boxes and is divided into two sections");?>.&nbsp;<a href="https://www.cms.gov/Medicare/CMS-Forms/CMS-Forms/Downloads/CMS1500.pdf" rel="noopener" target="_blank"><i id="show_hide" class="fa fa-eye fa-lg small" title=<?php echo xlt("Click to Show");?>></i></a></p>
 

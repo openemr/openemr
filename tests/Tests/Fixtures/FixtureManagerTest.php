@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 
 /**
- * @coversDefaultClass OpenEMR\Tests\Fixture\FixtureManager.
+ * @coversDefaultClass OpenEMR\Tests\Fixture\FixtureManager
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -39,7 +39,7 @@ class FixtureManagerTest extends TestCase
         $this->assertObjectHasAttribute("sex", $patientFixture, $message . " sex");
 
         $message = "Patient does not have a test pubpid ";
-        $this->assertStringStartsWith(FixtureManager::PATIENT_FIXTURE_PUBPID_PREFIX, $patientFixture->pubpid, $message . $patientFixture->pubpid);
+        $this->assertStringStartsWith("test-fixture", $patientFixture->pubpid, $message . $patientFixture->pubpid);
     }
 
     /**
@@ -77,8 +77,7 @@ class FixtureManagerTest extends TestCase
         $this->fixtureManager->removePatientFixtures();
 
         $recordCountSql = "SELECT COUNT(*) FROM patient_data WHERE pubpid LIKE ?";
-        $bindVariable = FixtureManager::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
-        $recordCountResult = sqlQueryNoLog($recordCountSql, array($bindVariable));
+        $recordCountResult = sqlQueryNoLog($recordCountSql, array("test-fixture%"));
         $recordCount = array_values($recordCountResult)[0];
 
         $this->assertEquals(0, $recordCount);
