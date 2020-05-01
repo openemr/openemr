@@ -16,14 +16,28 @@ use OpenEMR\Tests\Api\ApiTestClient;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
-class ApiTestClientTestDisabled extends TestCase
+class ApiTestClientTest extends TestCase
 {
     private $testClient;
 
+    /**
+     * Configures the test client using environment variables and reasonable defaults
+     */
     protected function setUp(): void
     {
         $baseUrl = getenv("OPENEMR_BASE_URL", true) ?: "http://localhost";
-        $this->client = new ApiTestClient($baseUrl);
+        $this->client = new ApiTestClient($baseUrl, false);
+    }
+
+    /**
+     * @return "array of arrays" of URLs used as a PHPUnit "DataProvider" for parametrized testing
+     */
+    public function baseUrlDataProvider()
+    {
+        return array(
+            array("OpenEMRBaseApiUrl" => ApiTestClient::OPENEMR_API_AUTH_ENDPOINT),
+            array("OpenEMRBaseFhirApiUrl" => ApiTestClient::OPENEMR_FHIR_API_AUTH_ENDPOINT)
+        );
     }
 
     /**
@@ -40,7 +54,7 @@ class ApiTestClientTestDisabled extends TestCase
      */
     public function testGetConfig()
     {
-        $this->assertTrue($this->client->getConfig("http_errors"));
+        $this->assertFalse($this->client->getConfig("http_errors"));
         $this->assertEquals(10, $this->client->getConfig("timeout"));
         $this->assertNotNull($this->client->getConfig("base_uri"));
 
@@ -50,33 +64,51 @@ class ApiTestClientTestDisabled extends TestCase
     }
 
     /**
-     * Tests OpenEMR API Auth
-     * @cover ::setAuthToken
-     * @cover ::removeAuthToken
+     * Tests OpenEMR REST and FHIR APIs when invalid credentials arguments are provided
+     * @covers ::setAuthToken with invalid credential argument
+     * @dataProvider baseUrlDataProvider
      */
-    public function testOpenEMRApiAuth()
+    public function testApiAuthInvalidArgs($baseUrl)
     {
-        $this->client->setAuthToken(ApiTestClient::OPENEMR_API_AUTH_ENDPOINT);
-        
-        $actualHeaders = $this->client->getConfig("headers");
-        $this->assertArrayHasKey("Authorization", $actualHeaders);
-        
-        $authHeaderValue = substr($actualHeaders["Authorization"], 7);
-        $this->assertGreaterThan(10, strlen($authHeaderValue));
+        try {
+            $this->client->setAuthToken($baseUrl, array("foo" => "bar"));
+            $this->assertFalse(true, "expected InvalidArgumentException");
+        } catch (\InvalidArgumentException $e) {
+            $this->assertTrue(true);
+        }
 
-        $this->client->removeAuthToken();
-        $actualHeaders = $this->client->getConfig("headers");
-        $this->assertArrayNotHasKey("Authorization", $actualHeaders);
+        try {
+            $this->client->setAuthToken($baseUrl, array("username" => "bar"));
+            $this->assertFalse(true, "expected InvalidArgumentException");
+        } catch (\InvalidArgumentException $e) {
+            $this->assertTrue(true);
+        }
     }
 
     /**
-     * Tests OpenEMR FHIR API Auth
+     * Tests OpenEMR REST and FHIR APIs when invalid credentials are provided
+     * @covers ::setAuthToken with invalid credentials
+     * @dataProvider baseUrlDataProvider
+     */
+    public function testApiAuthInvalidCredentials($baseUrl)
+    {
+        $actualValue = $this->client->setAuthToken(
+            $baseUrl,
+            array("username" => "bar", "password" => "boo")
+        );
+        $this->assertEquals(401, $actualValue->getStatusCode());
+    }
+
+    /**
+     * Tests OpenEMR API Auth for the REST and FHIR APIs
      * @cover ::setAuthToken
      * @cover ::removeAuthToken
+     * @dataProvider baseUrlDataProvider
      */
-    public function testOpenEMRFhirApiAuth()
+    public function testApiAuth($baseUrl)
     {
-        $this->client->setAuthToken(ApiTestClient::OPENEMR_FHIR_API_AUTH_ENDPOINT);
+        $actualValue = $this->client->setAuthToken($baseUrl);
+        $this->assertEquals(200, $actualValue->getStatusCode());
         
         $actualHeaders = $this->client->getConfig("headers");
         $this->assertArrayHasKey("Authorization", $actualHeaders);

@@ -52,20 +52,42 @@ class ApiTestClient
      * Requests an auth token from an OpenEMR Auth Endpoint.
      * If the request succeeds the token is set in the HTTP Authorization header.
      *
+     * Credentials are optionally provided using the $credentials array. Supported
+     * keys include username and password. If credentials are not provided they will be parsed
+     * from environment variables or fallback to a reasonable default if the environment variable
+     * does not exist.
+     *
      * @param $authURL - The URL for authentication requests.
+     * @param $credentials - The credentials used for authentication requests (associative array/map)
+     * @return the authorization response
+     *
      */
-    public function setAuthToken($authURL)
+    public function setAuthToken($authURL, $credentials = array())
     {
+        if (!empty($credentials)) {
+            if (!array_key_exists("username", $credentials) || !array_key_exists("password", $credentials)) {
+                throw new \InvalidArgumentException("username and password credentials are required");
+            }
+        } else {
+            $credentials["username"] = getenv("OE_USER", true) ?: "admin";
+            $credentials["password"] = getenv("OE_PASS", true) ?: "admin";
+        }
+
         $authBody = [
             "grant_type" => "password",
-            "username" => "admin",
-            "password" => "pass",
+            "username" => $credentials["username"],
+            "password" => $credentials["password"],
             "scope" => "default"
         ];
 
         $authResponse = $this->post($authURL, $authBody);
-        $responseBody = json_decode($authResponse->getBody());
-        $this->headers[self::AUTHORIZATION_HEADER] = "Bearer " . $responseBody->access_token;
+
+        if ($authResponse->getStatusCode() == 200) {
+            $responseBody = json_decode($authResponse->getBody());
+            $this->headers[self::AUTHORIZATION_HEADER] = "Bearer " . $responseBody->access_token;
+        }
+
+        return $authResponse;
     }
 
     /**
