@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is used to add an item to the list_options table
  *
@@ -17,14 +18,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 //verify csrf
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    echo json_encode(array("error"=> xl('Authentication Error') ));
+    echo json_encode(array("error" => xl('Authentication Error') ));
     CsrfUtils::csrfNotVerified(false);
 }
 
@@ -41,19 +41,19 @@ $option_id = trim($_GET['newitem_abbr']);
 $option_value = 0;
 
 // make sure we're not adding a duplicate title or id
-$exists_title = sqlQuery("SELECT * FROM list_options WHERE ".
-    " list_id= ? ".
+$exists_title = sqlQuery("SELECT * FROM list_options WHERE " .
+    " list_id= ? " .
     " and title = ? AND activity = 1", array($list_id, $title));
 if ($exists_title) {
-    echo json_encode(array("error"=> xl('Record already exist') ));
+    echo json_encode(array("error" => xl('Record already exist') ));
     exit;
 }
 
-$exists_id = sqlQuery("SELECT * FROM list_options WHERE ".
-    " list_id= ?".
-    "AND option_id = ?". "AND activity = 1", array($list_id, $option_id));
+$exists_id = sqlQuery("SELECT * FROM list_options WHERE " .
+    " list_id= ?" .
+    "AND option_id = ?" . "AND activity = 1", array($list_id, $option_id));
 if ($exists_id) {
-    echo json_encode(array("error"=> xl('Record already exist') ));
+    echo json_encode(array("error" => xl('Record already exist') ));
     exit;
 }
 
@@ -61,7 +61,7 @@ if ($exists_id) {
 // it should be the maximum number for the specified list plus one
 $seq = 0;
 $row = sqlQuery("SELECT max(seq) as maxseq FROM list_options WHERE list_id = ? AND activity = 1", array($list_id));
-$seq = $row['maxseq']+1;
+$seq = $row['maxseq'] + 1;
 
 // add the new list item
 $rc = sqlInsert("INSERT INTO list_options ( " .
@@ -79,7 +79,7 @@ while ($lrow = sqlFetchArray($lres)) {
 
     // translate title if translate-lists flag set and not english
     if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
-        echo '"title":' . xlj($lrow['title']) .'}';
+        echo '"title":' . xlj($lrow['title']) . '}';
     } else {
         echo '"title":' . js_escape($lrow['title']) . '}';
     }

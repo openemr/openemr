@@ -1,4 +1,5 @@
 <?php
+
 // +-----------------------------------------------------------------------------+
 // Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
@@ -37,8 +38,8 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 function listitemCode($strDisp, $strInsert)
 {
     if ($strInsert) {
-        echo '<li><span><a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('.
-             "'" . htmlspecialchars($strInsert, ENT_QUOTES) . "'" .');">'. htmlspecialchars($strDisp, ENT_QUOTES) . '</a></span></li>';
+        echo '<li><span><a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText(' .
+             "'" . htmlspecialchars($strInsert, ENT_QUOTES) . "'" . ');">' . htmlspecialchars($strDisp, ENT_QUOTES) . '</a></span></li>';
     }
 }
 $allowTemplateWarning = checkUserSetting('disable_template_warning', '1') === true ? 0 : 1;
@@ -50,7 +51,15 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['common', 'opener', 'jquery-ui', 'select2', 'ckeditor']); ?>
+<style>
+    .draggable {
+        cursor: pointer !important
+    }
+    .is-dragging {
+        cursor: move !important
+    }
+</style>
+<?php Header::setupHeader(['common', 'opener', 'select2', 'ckeditor']); ?>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajax_functions_writer.js"></script>
 
 <script>
@@ -141,14 +150,17 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
 </script>
 <script type="text/javascript">
     $(function () {
-        $(function () {
-            $("#menu5 div").sortable({
-                opacity: 0.3, cursor: 'move', update: function () {
-                    var order = $(this).sortable("serialize") + '&action=updateRecordsListings';
-                    $.post("updateDB.php", order);
+        function sortableCallback(elem){
+            let clorder  = [];
+            for (let i=0; i< elem.length; i++) {
+                let ele = elem[i];
+                if(ele.tagName == "DIV"){
+                    clorder.push("clorder[]="+ele.firstElementChild.id.split("_")[1]);
                 }
-            });
-        });
+            }
+            $.post("updateDB.php", clorder.join('&')+"&action=updateRecordsListings");
+        }
+        oeSortable(sortableCallback);
     });
     <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 </script>
@@ -177,9 +189,9 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
                                 <?php if (!$isNN) { ?>
                                     <td>
                                         <div id="searchCriteria">
-                                            <div class="select-box form-inline" style="margin-bottom:5px;">
+                                            <div class="select-box form-inline mb-1">
                                                 <label><?php echo xlt('Context') . ':'; ?></label>
-                                                <select id="contextSearch" name="contextId" class="form-control" style="width:50%;">
+                                                <select id="contextSearch" name="contextId" class="form-control w-50">
                                                     <option value=""></option>
                                                 </select>
                                             </div>

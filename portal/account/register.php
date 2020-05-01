@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Portal Registration Wizard
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 use OpenEMR\Core\Header;
 
@@ -58,19 +58,14 @@ if (!isset($_SESSION['language_choice'])) {
 if ($GLOBALS['language_menu_login']) {
     // sorting order of language titles depends on language translation options.
     $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
-    if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation'])) {
-        $sql = "SELECT * FROM lang_languages ORDER BY lang_description, lang_id";
-        $res3 = SqlStatement($sql);
-    } else {
-        // Use and sort by the translated language name.
-        $sql = "SELECT ll.lang_id, " . "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " . "ll.lang_description " .
-            "FROM lang_languages AS ll " . "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
-            "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " . "ld.lang_id = ? " .
-            "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-        $res3 = SqlStatement($sql, array(
-            $mainLangID
-        ));
-    }
+    // Use and sort by the translated language name.
+    $sql = "SELECT ll.lang_id, " . "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " . "ll.lang_description " .
+        "FROM lang_languages AS ll " . "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
+        "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " . "ld.lang_id = ? " .
+        "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
+    $res3 = SqlStatement($sql, array(
+        $mainLangID
+    ));
 
     for ($iter = 0; $row = sqlFetchArray($res3); $iter++) {
         $result3[$iter] = $row;

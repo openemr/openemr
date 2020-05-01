@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OpenEMR Installation Help.
  *
@@ -8,6 +9,7 @@
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 <!DOCTYPE HTML>
 <html>
@@ -195,7 +197,7 @@
                     <p><?php echo ("For all practical purposes, MariaDB is a binary drop in replacement of the same MySQL version (for example MySQL 5.1 -> MariaDB 5.1, MariaDB 5.2 & MariaDB 5.3 are compatible. MySQL 5.5 is compatible with MariaDB 5.5 and also in practice with MariaDB 10.0, MySQL 5.6 is compatible with MariaDB 10.0 and MySQL 5.7 is compatible with MariaDB 10.2)");?>.</p>
 
                     <p><?php echo ("More information about the differences and similarities between MySQL and MariaDB can be found here");?>.
-                        <a href="https://mariadb.com/kb/en/library/mariadb-vs-mysql-compatibility/" rel="noopener"  target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title="MariaDB vs MySQL"></i></a>
+                        <a href="https://mariadb.com/kb/en/library/mariadb-vs-mysql-compatibility/" rel="noopener"  target="_blank"><i class="fa fa-external-link-alt text-primary" aria-hidden="true" data-original-title="" title="MariaDB vs MySQL"></i></a>
                     </p>
 
                     <p><?php echo ("In Step 1 you are given the choice to either let the setup script create the database and populate it with the necessary tables or you create a blank database and let the setup script write the OpenEMR specific tables");?>.</p>
@@ -205,8 +207,8 @@
                     <p><?php echo ("If you chose the 'Have setup Create the Database' option you then have the opportunity to select the collation for any other language listed in the 'UTF-8 Collation' drop-down box in the next step");?>.</p>
 
                     <p><?php echo ("Collation refers to a set of rules that determine how data is sorted and compared in a database");?>.
-                        <a href="https://en.wikipedia.org/wiki/Collation" rel="noopener"  target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title="Collation - Wikipedia"></i></a>&nbsp;
-                        <a href="https://database.guide/what-is-collation-in-databases/" rel="noopener"  target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title="Collation in Databases"></i></a>
+                        <a href="https://en.wikipedia.org/wiki/Collation" rel="noopener"  target="_blank"><i class="fa fa-external-link-alt text-primary" aria-hidden="true" data-original-title="" title="Collation - Wikipedia"></i></a>&nbsp;
+                        <a href="https://database.guide/what-is-collation-in-databases/" rel="noopener"  target="_blank"><i class="fa fa-external-link-alt text-primary" aria-hidden="true" data-original-title="" title="Collation in Databases"></i></a>
                     </p>
 
                     <p><?php echo ("If you are not sure select 'General' i.e. utf8_general_ci");?>.</p>
@@ -519,8 +521,8 @@
                     <p><?php echo ("Before you start using the application for clinical work you need to do the following");?>:</p>
                         <ul>
                             <li><?php echo ("Customize your settings under Administration > Globals"); ?></li>
-                            <li><?php echo ("Setup the clinic"); ?> <a href="https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#Installation_Manuals" rel="noopener"  target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a></li>
-                            <li><?php echo ("Secure and harden the application"); ?> <a href="https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#Security_.2F_Hardening" rel="noopener"  target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a></li>
+                            <li><?php echo ("Setup the clinic"); ?> <a href="https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#Installation_Manuals" rel="noopener"  target="_blank"><i class="fa fa-external-link-alt text-primary" aria-hidden="true" data-original-title="" title=""></i></a></li>
+                            <li><?php echo ("Secure and harden the application"); ?> <a href="https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#Security_.2F_Hardening" rel="noopener"  target="_blank"><i class="fa fa-external-link-alt text-primary" aria-hidden="true" data-original-title="" title=""></i></a></li>
                             <li><?php echo ("Implement a backup and recovery strategy"); ?></li>
                         </ul>
 

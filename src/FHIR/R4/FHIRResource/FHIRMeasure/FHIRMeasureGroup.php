@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMeasure;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRMeasure;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -202,7 +204,7 @@ class FHIRMeasureGroup extends FHIRBackboneElement implements \JsonSerializable
                         $this->addPopulation($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"population" must be array of objects or null, '.gettype($data['population']).' seen.');
+                    throw new \InvalidArgumentException('"population" must be array of objects or null, ' . gettype($data['population']) . ' seen.');
                 }
             }
             if (isset($data['stratifier'])) {
@@ -211,11 +213,11 @@ class FHIRMeasureGroup extends FHIRBackboneElement implements \JsonSerializable
                         $this->addStratifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"stratifier" must be array of objects or null, '.gettype($data['stratifier']).' seen.');
+                    throw new \InvalidArgumentException('"stratifier" must be array of objects or null, ' . gettype($data['stratifier']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

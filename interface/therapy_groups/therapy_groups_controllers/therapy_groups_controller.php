@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php contains the main controller for therapy groups.
  *
@@ -294,7 +295,7 @@ class TherapyGroupsController extends BaseController
 
         $length = strlen($notes);
         if ($length > $this->notes_preview_proper_length) {
-            $notes = mb_substr($notes, 0, 50).'...';
+            $notes = mb_substr($notes, 0, 50) . '...';
         }
 
         return $notes;

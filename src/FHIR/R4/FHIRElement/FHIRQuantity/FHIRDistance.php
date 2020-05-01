@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -87,8 +89,8 @@ class FHIRDistance extends FHIRQuantity implements \JsonSerializable
     public function __construct($data = [])
     {
         if (is_array($data)) {
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

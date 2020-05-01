@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/therapy_groups/therapy_groups_views/groupDetailsParticipants.php contains group participants details view .
  *
@@ -55,7 +56,7 @@ use OpenEMR\Common\Acl\AclMain;
                         <div id="component-border">
                             <div  class="row">
                                 <form  id="add-participant-form" name="add-participant-form" class="<?php echo isset($addStatus) ? 'showAddForm' : '' ?>" action="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=addParticipant&group_id=' . attr_url($groupId)?>" method="post">
-                                    <input type="hidden" id="pid" name="pid" value="<?php echo !is_null($participant_data) ? attr($participant_data['pid']): ''?>">
+                                    <input type="hidden" id="pid" name="pid" value="<?php echo !is_null($participant_data) ? attr($participant_data['pid']) : ''?>">
                                     <div class="col-md-12">
                                         <div class="row">
                                             <div class="offset-md-1 col-md-5">
@@ -64,7 +65,7 @@ use OpenEMR\Common\Acl\AclMain;
                                                         <span class="bold"><?php echo xlt("Participant's name"); ?>:</span>
                                                     </div>
                                                     <div class="col-md-8">
-                                                        <input type="text" id="participant_name" name="participant_name" class="full-width" value="<?php echo !is_null($participant_data) ? attr($participant_data['participant_name']): ''?>" readonly>
+                                                        <input type="text" id="participant_name" name="participant_name" class="full-width" value="<?php echo !is_null($participant_data) ? attr($participant_data['participant_name']) : ''?>" readonly>
                                                     </div>
                                                 </div>
                                             </div>
@@ -74,7 +75,7 @@ use OpenEMR\Common\Acl\AclMain;
                                                         <span class="bold"><?php echo xlt('Date of registration'); ?>:</span>
                                                     </div>
                                                     <div class="col-md-8">
-                                                        <input type="text" id="group_patient_start" name="group_patient_start" class="full-width datepicker"  value="<?php echo !is_null($participant_data) ? attr(oeFormatShortDate($participant_data['group_patient_start'])): oeFormatShortDate(date('Y-m-d'));?>">
+                                                        <input type="text" id="group_patient_start" name="group_patient_start" class="full-width datepicker"  value="<?php echo !is_null($participant_data) ? attr(oeFormatShortDate($participant_data['group_patient_start'])) : oeFormatShortDate(date('Y-m-d'));?>">
                                                     </div>
                                                 </div>
                                             </div>
@@ -84,7 +85,7 @@ use OpenEMR\Common\Acl\AclMain;
                                                 <span class="bold"><?php echo xlt('Comment'); ?>:</span>
                                             </div>
                                             <div class="col-md-8">
-                                                <input type="text" id="group_patient_comment" name="group_patient_comment" value="<?php echo !is_null($participant_data) ? attr($participant_data['group_patient_comment']): ''?>" class="full-width">
+                                                <input type="text" id="group_patient_comment" name="group_patient_comment" value="<?php echo !is_null($participant_data) ? attr($participant_data['group_patient_comment']) : ''?>" class="full-width">
                                             </div>
                                         </div>
                                         <div class="row">
@@ -136,7 +137,7 @@ use OpenEMR\Common\Acl\AclMain;
                                                 <tr>
                                                     <td>
                                                         <input type="hidden" name="pid[]" value="<?php echo attr($participant['pid']); ?>" />
-                                                        <span><?php echo text($participant['lname']) .', ' . text($participant['fname']); ?></span>
+                                                        <span><?php echo text($participant['lname']) . ', ' . text($participant['fname']); ?></span>
                                                     </td>
                                                     <td><span><?php echo text($participant['pid']); ?></span></td>
                                                     <td>
@@ -148,12 +149,12 @@ use OpenEMR\Common\Acl\AclMain;
                                                             <?php endforeach; ?>
                                                         </select>
                                                     </td>
-                                                    <td><input type="text" name="group_patient_start[]" id="start-date<?php echo $i+1?>" class="datepicker"  value="<?php echo attr(oeFormatShortDate($participant['group_patient_start']));?>" <?php echo $readonly; ?>></td>
-                                                    <td><input type="text" name="group_patient_end[]" id="end-date<?php echo $i+1?>" class="datepicker" value="<?php echo $participant['group_patient_end'] == '0000-00-00' ? '' : attr(oeFormatShortDate($participant['group_patient_end'])) ;?>" <?php echo $readonly; ?>></td>
+                                                    <td><input type="text" name="group_patient_start[]" id="start-date<?php echo $i + 1?>" class="datepicker"  value="<?php echo attr(oeFormatShortDate($participant['group_patient_start']));?>" <?php echo $readonly; ?>></td>
+                                                    <td><input type="text" name="group_patient_end[]" id="end-date<?php echo $i + 1?>" class="datepicker" value="<?php echo $participant['group_patient_end'] == '0000-00-00' ? '' : attr(oeFormatShortDate($participant['group_patient_end'])) ;?>" <?php echo $readonly; ?>></td>
                                                     <td><input type="text" name="group_patient_comment[]" class="full-width"  value="<?php echo attr($participant['group_patient_comment']);?>" <?php echo $readonly; ?> /></td>
                                                     <?php if ($readonly == '') : ?>
                                                         <td class="delete_btn">
-                                                            <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id='. attr_url($groupId) .'&deleteParticipant=1&pid=' . attr_url($participant['pid']); ?>"><span>X</span></a>
+                                                            <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr_url($groupId) . '&deleteParticipant=1&pid=' . attr_url($participant['pid']); ?>"><span>X</span></a>
                                                         </td>
                                                     <?php endif; ?>
                                                 </tr>
@@ -192,13 +193,13 @@ use OpenEMR\Common\Acl\AclMain;
             "order": false,
             "searching": false,
             <?php // Bring in the translations ?>
-            <?php $translationsDatatablesOverride = array('lengthMenu'=>(xla('Display').' _MENU_  '.xla('records per page')),
-                                                          'zeroRecords'=>(xla('Nothing found - sorry')),
-                                                          'info'=>(xla('Showing') .' _START_ '. xla('to{{range}}') . ' _END_ ' . xla('of') . ' _TOTAL_ ' . xla('participants')),
-                                                          'infoEmpty'=>(xla('No records available')),
-                                                          'infoFiltered'=>('('.xla('filtered from').' _MAX_ '.xla('total records').')'),
-                                                          'infoPostFix'=>(''),
-                                                          'url'=>('')); ?>
+            <?php $translationsDatatablesOverride = array('lengthMenu' => (xla('Display') . ' _MENU_  ' . xla('records per page')),
+                                                          'zeroRecords' => (xla('Nothing found - sorry')),
+                                                          'info' => (xla('Showing') . ' _START_ ' . xla('to{{range}}') . ' _END_ ' . xla('of') . ' _TOTAL_ ' . xla('participants')),
+                                                          'infoEmpty' => (xla('No records available')),
+                                                          'infoFiltered' => ('(' . xla('filtered from') . ' _MAX_ ' . xla('total records') . ')'),
+                                                          'infoPostFix' => (''),
+                                                          'url' => ('')); ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
         });
         var countRows =table.rows().count();
@@ -280,7 +281,7 @@ use OpenEMR\Common\Acl\AclMain;
    // parent.left_nav.setTherapyGroup(<?php echo attr_js($group_id);?>,<?php echo attr_js('test'); ?>);
     /* show the encounters menu in the title menu (code like interface/forms/newGroupEncounter/save.php) */
     <?php
-    $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_groups_encounter AS fe ".
+    $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_groups_encounter AS fe " .
         " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.group_id = ? order by fe.date desc", array($groupId));
     ?>
 
@@ -289,7 +290,7 @@ use OpenEMR\Common\Acl\AclMain;
     EncounterIdArray=new Array;
     Count=0;
     <?php
-    if (sqlNumRows($result4)>0) {
+    if (sqlNumRows($result4) > 0) {
         while ($rowresult4 = sqlFetchArray($result4)) {
             ?>
         EncounterIdArray[Count]=<?php echo js_escape($rowresult4['encounter']); ?>;

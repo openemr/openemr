@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This program creates the misc_billing_form
  *

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This report lists referrals for a given date range.
  *
@@ -12,7 +13,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -94,7 +94,7 @@ $form_facility = isset($_POST['form_facility']) ? $_POST['form_facility'] : '';
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Referrals'); ?></span>
 
 <div id="report_parameters_daterange">
-<?php echo text(oeFormatShortDate($form_from_date)) ." &nbsp; " . xlt('to{{Range}}') . " &nbsp; ". text(oeFormatShortDate($form_to_date)); ?>
+<?php echo text(oeFormatShortDate($form_from_date)) . " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatShortDate($form_to_date)); ?>
 </div>
 
 <form name='theform' id='theform' method='post' action='referrals_report.php' onsubmit='return top.restoreSession()'>
@@ -215,7 +215,7 @@ if ($_POST['form_refresh']) {
    <tr>
     <td>
             <?php
-            if ($row['organization']!=null || $row['organization']!='') {
+            if ($row['organization'] != null || $row['organization'] != '') {
                 echo text($row['organization']);
             } else {
                 echo text($row['referer_to']);

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * destroy lot
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("drugs.inc.php");
@@ -91,7 +91,7 @@ if ($_POST['form_save']) {
   //
     echo "<script>\n";
     if ($info_msg) {
-        echo " alert('".addslashes($info_msg)."');\n";
+        echo " alert('" . addslashes($info_msg) . "');\n";
     }
 
     echo " window.close();\n";

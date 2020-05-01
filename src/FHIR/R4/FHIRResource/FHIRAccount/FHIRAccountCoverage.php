@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRAccount;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRAccount;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -150,8 +152,8 @@ A coverage may only be responsible for specific types of charges, and the sequen
             if (isset($data['priority'])) {
                 $this->setPriority($data['priority']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

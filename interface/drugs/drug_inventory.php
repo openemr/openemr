@@ -1,4 +1,5 @@
 <?php
+
  // Copyright (C) 2006-2016 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -51,7 +52,7 @@ $orderby = $ORDERHASH[$form_orderby];
  function generateEmptyTd($n)
  {
      $temp = '';
-     while ($n>0) {
+     while ($n > 0) {
          $temp .= "<td></td>";
          $n--;
      }
@@ -86,11 +87,11 @@ $orderby = $ORDERHASH[$form_orderby];
          echo "  <td>" . ($row['active'] ? xlt('Yes') : xlt('No')) . "</td>\n";
          echo "  <td>" . text($row['ndc_number']) . "</td>\n";
          echo "  <td>" .
-         generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
+         generate_display_field(array('data_type' => '1','list_id' => 'drug_form'), $row['form']) .
          "</td>\n";
          echo "  <td>" . text($row['size']) . "</td>\n";
          echo "  <td>" .
-         generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']) .
+         generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row['unit']) .
          "</td>\n";
          echo "  <td title='" . xla('Click to receive (add) new lot') . "' onclick='doiclick(" . attr(addslashes($lastid)) . ",0)' title='" . xla('Add new lot and transaction') . "'>" .
          "<a href='' onclick='return false'>" . xlt('New') . "</a></td>\n";

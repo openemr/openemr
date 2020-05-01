@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright Medical Information Integration,LLC info@mi-squared.com
  * This program is free software; you can redistribute it and/or
@@ -15,7 +16,7 @@
  * remember that include paths are calculated relative to the including script, not this file.
  * to lock the path to this script (so if called from different scripts) use the dirname(FILE) variable
 */
-require_once(dirname(__FILE__).'/../globals.php');
+require_once(dirname(__FILE__) . '/../globals.php');
 
 /* For the addform() function */
 require_once($GLOBALS['srcdir'] . '/forms.inc');

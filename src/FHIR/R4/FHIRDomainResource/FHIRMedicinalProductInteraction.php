@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -275,7 +277,7 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
                         $this->addSubject($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"subject" must be array of objects or null, '.gettype($data['subject']).' seen.');
+                    throw new \InvalidArgumentException('"subject" must be array of objects or null, ' . gettype($data['subject']) . ' seen.');
                 }
             }
             if (isset($data['description'])) {
@@ -287,7 +289,7 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
                         $this->addInteractant($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"interactant" must be array of objects or null, '.gettype($data['interactant']).' seen.');
+                    throw new \InvalidArgumentException('"interactant" must be array of objects or null, ' . gettype($data['interactant']) . ' seen.');
                 }
             }
             if (isset($data['type'])) {
@@ -302,8 +304,8 @@ class FHIRMedicinalProductInteraction extends FHIRDomainResource implements \Jso
             if (isset($data['management'])) {
                 $this->setManagement($data['management']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

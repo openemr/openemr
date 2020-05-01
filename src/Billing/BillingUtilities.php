@@ -1,4 +1,5 @@
 <?php
+
 /*
  * The functions of this class support the billing process like the script billing_process.php.
  *
@@ -15,7 +16,7 @@ namespace OpenEMR\Billing;
 
 class BillingUtilities
 {
-    const claim_status_codes_CLP02 = array(
+    const CLAIM_STATUS_CODES_CLP02 = array(
         '1'  => 'Processed as Primary',
         '2'  => 'Processed as Secondary',
         '3'  => 'Processed as Tertiary',
@@ -35,7 +36,7 @@ class BillingUtilities
         '27' => 'Reviewed',
     );
 
-    const claim_adjustment_reason_codes = array(
+    const CLAIM_ADJUSTMENT_REASON_CODES = array(
         '1' => 'Deductible Amount',
         '2' => 'Coinsurance Amount',
         '3' => 'Co-payment Amount',
@@ -320,7 +321,7 @@ class BillingUtilities
         'P29' => 'Liability Benefits jurisdictional fee schedule adjustment. Usage: If adjustment is at the Claim Level, the payer must send and the provider should refer to the 835 Class of Contract Code Identification Segment (Loop 2100 Other Claim Related Information REF). If adjustment is at the Line Level, the payer must send and the provider should refer to the 835 Healthcare Policy Identification Segment (loop 2110 Service Payment information REF) if the regulations apply. To be used for Property and Casualty Auto only.'
     );
 
-    const remittance_advice_remark_codes = array(
+    const REMITTANCE_ADVICE_REMARK_CODES = array(
         'M1' => 'X-ray not taken within the past 12 months or near enough to the start of treatment.',
         'M2' => 'Not paid separately when the patient is an inpatient.',
         'M3' => 'Equipment is the same or similar to equipment already being used.',
@@ -1353,7 +1354,7 @@ class BillingUtilities
         $code,
         $code_text,
         $pid,
-        $authorized = "0",
+        string $authorized = null,
         $provider,
         $modifier = "",
         $units = "",
@@ -1365,6 +1366,9 @@ class BillingUtilities
         $pricelevel = '',
         $revenue_code = ""
     ) {
+        if (!$authorized) {
+            $authorized = "0";
+        }
 
         $sql = "INSERT INTO billing (date, encounter, code_type, code, code_text, " .
             "pid, authorized, user, groupname, activity, billed, provider_id, " .
@@ -1402,9 +1406,9 @@ class BillingUtilities
     //   claims row.  In this case bill_process will remain at 0 and process_time
     //   and process_file will not be set.
     // * billing_process.php sets bill_process, payer, target and x12 partner
-    //   before calling gen_x12_837.  Create a claims row.
+    //   before calling genX12837P.  Create a claims row.
     // * billing_process.php sets claim status to 2 (billed), bill_process to 2,
-    //   process_time and process_file after calling gen_x12_837.  Claims row
+    //   process_time and process_file after calling genX12837P.  Claims row
     //   already exists.
     // * billing_process.php sets claim status to 2 (billed) after creating
     //   an electronic batch (hcfa-only with recent changes).  Claims
@@ -1599,7 +1603,7 @@ class BillingUtilities
 
             sqlStatement($sql, $sqlBindArray);
             sqlCommitTrans();
-        } else if ($claimset) { // Otherwise update the existing claim row.
+        } elseif ($claimset) { // Otherwise update the existing claim row.
             $sqlBindArray = $sqlBindClaimset;
             array_push($sqlBindArray, $patient_id, $encounter_id, $row['version']);
             $claimset = substr($claimset, 2);
@@ -1746,7 +1750,7 @@ class BillingUtilities
             if (!empty($corow['bill_date'])) {
                 $date_original = $corow['bill_date'];
             }
-        } else if ($time == 'all') {
+        } elseif ($time == 'all') {
             $row = sqlQuery(
                 "SELECT SUM(pay_amount) AS payments, " .
                 "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
@@ -1849,7 +1853,7 @@ class BillingUtilities
                 "WHERE pid = ? AND encounter = ?",
                 array($patient_id, $encounter_id)
             );
-        } else if ($usingirnpools) {
+        } elseif ($usingirnpools) {
             // Non-purge means just assign a new invoice reference number.
             $new_invoice_refno = self::updateInvoiceRefNumber();
             sqlStatement(

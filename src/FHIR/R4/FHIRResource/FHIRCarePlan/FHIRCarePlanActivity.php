@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCarePlan;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRCarePlan;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -222,7 +224,7 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
                         $this->addOutcomeCodeableConcept($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"outcomeCodeableConcept" must be array of objects or null, '.gettype($data['outcomeCodeableConcept']).' seen.');
+                    throw new \InvalidArgumentException('"outcomeCodeableConcept" must be array of objects or null, ' . gettype($data['outcomeCodeableConcept']) . ' seen.');
                 }
             }
             if (isset($data['outcomeReference'])) {
@@ -231,7 +233,7 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
                         $this->addOutcomeReference($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"outcomeReference" must be array of objects or null, '.gettype($data['outcomeReference']).' seen.');
+                    throw new \InvalidArgumentException('"outcomeReference" must be array of objects or null, ' . gettype($data['outcomeReference']) . ' seen.');
                 }
             }
             if (isset($data['progress'])) {
@@ -240,7 +242,7 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
                         $this->addProgress($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"progress" must be array of objects or null, '.gettype($data['progress']).' seen.');
+                    throw new \InvalidArgumentException('"progress" must be array of objects or null, ' . gettype($data['progress']) . ' seen.');
                 }
             }
             if (isset($data['reference'])) {
@@ -249,8 +251,8 @@ class FHIRCarePlanActivity extends FHIRBackboneElement implements \JsonSerializa
             if (isset($data['detail'])) {
                 $this->setDetail($data['detail']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file contains the FormPainMap class, used to model the data contents of a clickmap based form.
  *

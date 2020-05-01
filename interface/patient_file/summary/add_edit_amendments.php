@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Add/Edit Amendments
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -257,7 +257,7 @@ $(function () {
                 $userName = $row['lname'] . ", " . $row['fname'];
                 echo "<td align=left class=text>" . text(oeFormatShortDate($created_date)) . "</td>";
                 echo "<td align=left class=text>" . text($userName) . "</td>";
-                echo "<td align=left class=text>" . ( ( $row['amendment_status'] ) ? generate_display_field(array('data_type'=>'1','list_id'=>'amendment_status'), $row['amendment_status']) : '') . "</td>";
+                echo "<td align=left class=text>" . ( ( $row['amendment_status'] ) ? generate_display_field(array('data_type' => '1','list_id' => 'amendment_status'), $row['amendment_status']) : '') . "</td>";
                 echo "<td align=left class=text>" . text($row['amendment_note']) . "</td>";
                 echo "<tr>";
             }

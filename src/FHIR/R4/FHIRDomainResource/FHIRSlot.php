@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -379,7 +381,7 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['serviceCategory'])) {
@@ -388,7 +390,7 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
                         $this->addServiceCategory($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"serviceCategory" must be array of objects or null, '.gettype($data['serviceCategory']).' seen.');
+                    throw new \InvalidArgumentException('"serviceCategory" must be array of objects or null, ' . gettype($data['serviceCategory']) . ' seen.');
                 }
             }
             if (isset($data['serviceType'])) {
@@ -397,7 +399,7 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
                         $this->addServiceType($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"serviceType" must be array of objects or null, '.gettype($data['serviceType']).' seen.');
+                    throw new \InvalidArgumentException('"serviceType" must be array of objects or null, ' . gettype($data['serviceType']) . ' seen.');
                 }
             }
             if (isset($data['specialty'])) {
@@ -406,7 +408,7 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
                         $this->addSpecialty($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"specialty" must be array of objects or null, '.gettype($data['specialty']).' seen.');
+                    throw new \InvalidArgumentException('"specialty" must be array of objects or null, ' . gettype($data['specialty']) . ' seen.');
                 }
             }
             if (isset($data['appointmentType'])) {
@@ -430,8 +432,8 @@ class FHIRSlot extends FHIRDomainResource implements \JsonSerializable
             if (isset($data['comment'])) {
                 $this->setComment($data['comment']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

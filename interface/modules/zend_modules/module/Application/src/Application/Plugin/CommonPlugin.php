@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php
  *
@@ -9,6 +10,7 @@
  * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace Application\Plugin;
 
 use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
@@ -31,7 +33,7 @@ class CommonPlugin extends AbstractPlugin
         // is there some db related state that is being loaded here in a global type of way that we aren't aware of?? Or can we just remove this line?
         $container->get('Laminas\Db\Adapter\Adapter');
         $this->application    = new ApplicationTable();
-        $this->listenerObject = new Listener;
+        $this->listenerObject = new Listener();
     }
 
   /**
@@ -62,7 +64,7 @@ class CommonPlugin extends AbstractPlugin
         $style_i  = 'highlight_i';
         $var        = '';
         foreach (explode(' ', $keywords) as $keyword) {
-            $replacement  =   "<?? ?='" . $style . "'>" . trim($keyword). "</??>";
+            $replacement  =   "<?? ?='" . $style . "'>" . trim($keyword) . "</??>";
             $var          .=  $replacement . " ";
             $str      =   str_ireplace($keyword, $replacement, $str);
         }
@@ -122,8 +124,8 @@ class CommonPlugin extends AbstractPlugin
                     $detail_query_array[] = $key;
                     $detail_query_array[] = trim($field_name);
                     if (is_array($field_value)) {
-                        if ($field_value['status']||$field_value['enddate']) {
-                            $detail_query_array[] = trim($field_value['value'])."|".trim($field_value['status'])."|".trim($field_value['begdate']);
+                        if ($field_value['status'] || $field_value['enddate']) {
+                            $detail_query_array[] = trim($field_value['value']) . "|" . trim($field_value['status']) . "|" . trim($field_value['begdate']);
                         } else {
                             $detail_query_array[] = trim($field_value['value']);
                         }
@@ -138,7 +140,7 @@ class CommonPlugin extends AbstractPlugin
         }
 
         $detail_query = substr($detail_query, 0, -1);
-        $detail_query = $detail_query.';';
+        $detail_query = $detail_query . ';';
         $appTable->zQuery($detail_query, $detail_query_array);
         return $audit_master_id;
     }
@@ -146,7 +148,7 @@ class CommonPlugin extends AbstractPlugin
     public function getList($list_id, $selected = '', $opt = '')
     {
         $appTable = new ApplicationTable();
-        $this->listenerObject = new Listener;
+        $this->listenerObject = new Listener();
         $res = $appTable->zQuery("SELECT * FROM list_options WHERE list_id=? ORDER BY seq, title", array($list_id));
         $i = 0;
         if ($opt == 'search') {
@@ -166,7 +168,7 @@ class CommonPlugin extends AbstractPlugin
         }
 
         foreach ($res as $row) {
-            $sel = ($row['option_id']==$selected) ? true : false;
+            $sel = ($row['option_id'] == $selected) ? true : false;
             $rows[$i] = array (
             'value' => htmlspecialchars($row['option_id'], ENT_QUOTES),
             'label' => $this->listenerObject->z_xlt($row['title']),

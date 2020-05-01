@@ -1,4 +1,5 @@
 <?php
+
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
@@ -39,7 +40,7 @@ if ($_GET['method'] == "enable") {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-    registerForm($_GET['name']) or $err=xl('error while registering form!');
+    registerForm($_GET['name']) or $err = xl('error while registering form!');
 }
 
 $bigdata = getRegistered("%") or $bigdata = false;
@@ -73,11 +74,11 @@ $bigdata = getRegistered("%") or $bigdata = false;
                 foreach ($_POST as $key => $val) {
                     if (preg_match('/nickname_(\d+)/', $key, $matches)) {
                         sqlQuery("update registry set nickname = ? where id = ?", array($val, $matches[1]));
-                    } else if (preg_match('/category_(\d+)/', $key, $matches)) {
+                    } elseif (preg_match('/category_(\d+)/', $key, $matches)) {
                         sqlQuery("update registry set category = ? where id = ?", array($val, $matches[1]));
-                    } else if (preg_match('/priority_(\d+)/', $key, $matches)) {
+                    } elseif (preg_match('/priority_(\d+)/', $key, $matches)) {
                         sqlQuery("update registry set priority = ? where id = ?", array($val, $matches[1]));
-                    } else if (preg_match('/aco_spec_(\d+)/', $key, $matches)) {
+                    } elseif (preg_match('/aco_spec_(\d+)/', $key, $matches)) {
                         sqlQuery("update registry set aco_spec = ? where id = ?", array($val, $matches[1]));
                     }
                 }
@@ -182,11 +183,13 @@ $bigdata = getRegistered("%") or $bigdata = false;
                         $dpath = "$srcdir/../interface/forms/";
                         $dp = opendir($dpath);
 
-                        for ($i=0; false != ($fname = readdir($dp)); $i++) {
-                            if ($fname != "." && $fname != ".." && $fname != "CVS" && $fname != "LBF" &&
-                            (is_dir($dpath.$fname) || stristr($fname, ".tar.gz") ||
-                            stristr($fname, ".tar") || stristr($fname, ".zip") ||
-                            stristr($fname, ".gz"))) {
+                        for ($i = 0; false != ($fname = readdir($dp)); $i++) {
+                            if (
+                                $fname != "." && $fname != ".." && $fname != "CVS" && $fname != "LBF" &&
+                                (is_dir($dpath . $fname) || stristr($fname, ".tar.gz") ||
+                                stristr($fname, ".tar") || stristr($fname, ".zip") ||
+                                stristr($fname, ".gz"))
+                            ) {
                                 $inDir[$i] = $fname;
                             }
                         }
@@ -209,7 +212,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                             <tr>
                                 <td colspan="2">
                                     <?php
-                                        $form_title_file = @file($GLOBALS['srcdir']."/../interface/forms/$fname/info.txt");
+                                        $form_title_file = @file($GLOBALS['srcdir'] . "/../interface/forms/$fname/info.txt");
                                     if ($form_title_file) {
                                             $form_title = $form_title_file[0];
                                     } else {

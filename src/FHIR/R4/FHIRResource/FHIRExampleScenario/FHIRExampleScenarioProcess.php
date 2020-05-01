@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRExampleScenario;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -234,11 +236,11 @@ class FHIRExampleScenarioProcess extends FHIRBackboneElement implements \JsonSer
                         $this->addStep($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"step" must be array of objects or null, '.gettype($data['step']).' seen.');
+                    throw new \InvalidArgumentException('"step" must be array of objects or null, ' . gettype($data['step']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

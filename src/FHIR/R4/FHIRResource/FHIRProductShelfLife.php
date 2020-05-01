@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -206,11 +208,11 @@ class FHIRProductShelfLife extends FHIRBackboneElement implements \JsonSerializa
                         $this->addSpecialPrecautionsForStorage($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"specialPrecautionsForStorage" must be array of objects or null, '.gettype($data['specialPrecautionsForStorage']).' seen.');
+                    throw new \InvalidArgumentException('"specialPrecautionsForStorage" must be array of objects or null, ' . gettype($data['specialPrecautionsForStorage']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

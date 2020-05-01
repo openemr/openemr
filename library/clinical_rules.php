@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Clinical Decision Rules(CDR) engine functions.
  *
@@ -16,7 +17,6 @@
  * @copyright Copyright (c) 2011 Ensofttek, LLC
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(dirname(__FILE__) . "/patient.inc");
 require_once(dirname(__FILE__) . "/forms.inc");
@@ -36,7 +36,7 @@ function listingCDRReminderLog($begin_date = '', $end_date = '')
 {
 
     if (empty($end_date)) {
-        $end_date=date('Y-m-d H:i:s');
+        $end_date = date('Y-m-d H:i:s');
     }
 
     $sqlArray = array();
@@ -77,7 +77,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
         if (isset($action['is_plan']) && $action['is_plan']) {
             echo "<br /><b>";
             echo xlt("Plan") . ": ";
-            echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'), $action['id']);
+            echo generate_display_field(array('data_type' => '1','list_id' => 'clinical_plans'), $action['id']);
             echo "</b><br />";
             continue;
         }
@@ -111,9 +111,9 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 
             if ((!empty($tooltip)) || (!empty($web_reference))) {
                 if (!empty($web_reference)) {
-                    $tooltip = "<a href='".attr($web_reference)."' rel='noopener' target='_blank' style='white-space: pre-line;' title='".$tooltip."'>?</a>";
+                    $tooltip = "<a href='" . attr($web_reference) . "' rel='noopener' target='_blank' style='white-space: pre-line;' title='" . $tooltip . "'>?</a>";
                 } else {
-                    $tooltip = "<span style='white-space: pre-line;' title='".$tooltip."'>?</span>";
+                    $tooltip = "<span style='white-space: pre-line;' title='" . $tooltip . "'>?</span>";
                 }
             }
         }
@@ -123,7 +123,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             $url = "../rules/patient_data.php?category=" . attr_url($action['category']);
             $url .= "&item=" . attr_url($action['item']);
             echo "<a href='" . $url . "' class='medium_modal' onclick='return top.restoreSession()'>";
-        } else if ($action['clin_rem_link']) {
+        } elseif ($action['clin_rem_link']) {
             // Start link for reminders that use the custom rules input screen
             $pieces_url = parse_url($action['clin_rem_link']);
             $url_prefix = $pieces_url['scheme'];
@@ -139,8 +139,8 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
         }
 
         // Display Reminder Details
-        echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $action['category']) .
-        ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $action['item']);
+        echo generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $action['category']) .
+        ": " . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $action['item']);
 
         if ($action['custom_flag'] || $action['clin_rem_link']) {
             // End link for reminders that use an html link
@@ -152,20 +152,20 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             // Color code the status (red for past due, purple for due, green for not due and black for soon due)
             if ($action['due_status'] == "past_due") {
                 echo "&nbsp;&nbsp;(<span style='color:red'>";
-            } else if ($action['due_status'] == "due") {
+            } elseif ($action['due_status'] == "due") {
                 echo "&nbsp;&nbsp;(<span style='color:purple'>";
-            } else if ($action['due_status'] == "not_due") {
+            } elseif ($action['due_status'] == "not_due") {
                 echo "&nbsp;&nbsp;(<span style='color:green'>";
             } else {
                 echo "&nbsp;&nbsp;(<span>";
             }
 
-            echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $action['due_status']) . "</span>)";
+            echo generate_display_field(array('data_type' => '1','list_id' => 'rule_reminder_due_opt'), $action['due_status']) . "</span>)";
         }
 
         // Display the tooltip
         if (!empty($tooltip)) {
-            echo "&nbsp;".$tooltip."<br />";
+            echo "&nbsp;" . $tooltip . "<br />";
         } else {
             echo "<br />";
         }
@@ -173,8 +173,8 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
         // Add the target(and rule id and room for future elements as needed) to the $current_targets array.
         // Only when $mode is reminders-due
         if ($mode == "reminders-due" && $GLOBALS['enable_alert_log']) {
-            $target_temp = $action['category'].":".$action['item'];
-            $current_targets[$target_temp] =  array('rule_id'=>$action['rule_id'],'due_status'=>$action['due_status']);
+            $target_temp = $action['category'] . ":" . $action['item'];
+            $current_targets[$target_temp] =  array('rule_id' => $action['rule_id'],'due_status' => $action['due_status']);
         }
     }
 
@@ -186,16 +186,16 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             // If there are new action(s), then throw a popup (if the enable_cdr_new_crp global is turned on)
             //  Note I am taking advantage of a slight hack in order to run javascript within code that
             //  is being passed via an ajax call by using a dummy image.
-            echo '<img src="../../pic/empty.gif" onload="alert(\''.xls('New Due Clinical Reminders').'\n\n';
+            echo '<img src="../../pic/empty.gif" onload="alert(\'' . xls('New Due Clinical Reminders') . '\n\n';
             foreach ($new_targets as $key => $value) {
                 $category_item = explode(":", $key);
                 $category = $category_item[0];
                 $item = $category_item[1];
-                echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
-                   ': ' . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $item). '\n';
+                echo generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $category) .
+                   ': ' . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $item) . '\n';
             }
 
-            echo '\n' . '('. xls('See the Clinical Reminders widget for more details'). ')';
+            echo '\n' . '(' . xls('See the Clinical Reminders widget for more details') . ')';
             echo '\');this.parentNode.removeChild(this);" />';
         }
     }
@@ -236,29 +236,29 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
         if ($action['is_plan']) {
             $returnOutput .= "<br /><b>";
             $returnOutput .= xlt("Plan") . ": ";
-            $returnOutput .= generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'), $action['id']);
+            $returnOutput .= generate_display_field(array('data_type' => '1','list_id' => 'clinical_plans'), $action['id']);
             $returnOutput .= "</b><br />";
             continue;
         }
 
         // Display Reminder Details
-        $returnOutput .= generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $action['category']) .
-        ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $action['item']);
+        $returnOutput .= generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $action['category']) .
+        ": " . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $action['item']);
 
         // Display due status
         if ($action['due_status']) {
             // Color code the status (red for past due, purple for due, green for not due and black for soon due)
             if ($action['due_status'] == "past_due") {
                 $returnOutput .= "&nbsp;&nbsp;(<span style='color:red'>";
-            } else if ($action['due_status'] == "due") {
+            } elseif ($action['due_status'] == "due") {
                 $returnOutput .= "&nbsp;&nbsp;(<span style='color:purple'>";
-            } else if ($action['due_status'] == "not_due") {
+            } elseif ($action['due_status'] == "not_due") {
                 $returnOutput .= "&nbsp;&nbsp;(<span style='color:green'>";
             } else {
                 $returnOutput .= "&nbsp;&nbsp;(<span>";
             }
 
-            $returnOutput .= generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $action['due_status']) . "</span>)<br />";
+            $returnOutput .= generate_display_field(array('data_type' => '1','list_id' => 'rule_reminder_due_opt'), $action['due_status']) . "</span>)<br />";
         } else {
             $returnOutput .= "<br />";
         }
@@ -266,8 +266,8 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
         // Add the target(and rule id and room for future elements as needed) to the $current_targets array.
         // Only when $mode is reminders-due and $test is FALSE
         if (($mode == "reminders-due") && ($test === false) && ($GLOBALS['enable_alert_log'])) {
-            $target_temp = $action['category'].":".$action['item'];
-            $current_targets[$target_temp] =  array('rule_id'=>$action['rule_id'],'due_status'=>$action['due_status']);
+            $target_temp = $action['category'] . ":" . $action['item'];
+            $current_targets[$target_temp] =  array('rule_id' => $action['rule_id'],'due_status' => $action['due_status']);
         }
     }
 
@@ -276,13 +276,13 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
     if (($mode == "reminders-due") && ($test === false) && ($GLOBALS['enable_alert_log'])) {
         $new_targets = compare_log_alerts($patient_id, $current_targets, 'active_reminder_popup', $_SESSION['authUserID']);
         if (!empty($new_targets)) {
-            $returnOutput .="<br />" . xlt('New Items (see above for details)') . ":<br />";
+            $returnOutput .= "<br />" . xlt('New Items (see above for details)') . ":<br />";
             foreach ($new_targets as $key => $value) {
                 $category_item = explode(":", $key);
                 $category = $category_item[0];
                 $item = $category_item[1];
-                $returnOutput .= generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
-                   ': ' . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $item). '<br />';
+                $returnOutput .= generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $category) .
+                   ': ' . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $item) . '<br />';
             }
         }
     }
@@ -312,8 +312,8 @@ function allergy_conflict($patient_id, $mode, $user, $test = false)
                                 "OR `enddate` > NOW() ) " .
                                 "AND `pid`=?", $sqlParam);
     $allergies = array();
-    for ($iter=0; $row=sqlFetchArray($res_allergies); $iter++) {
-        $allergies[$iter]=$row['title'];
+    for ($iter = 0; $row = sqlFetchArray($res_allergies); $iter++) {
+        $allergies[$iter] = $row['title'];
     }
 
   // Build sql element of IN for below queries
@@ -358,7 +358,7 @@ function allergy_conflict($patient_id, $mode, $user, $test = false)
 
   // If there are conflicts, $test is FALSE, and alert logging is on, then run through compare_log_alerts
     $new_conflicts = array();
-    if ((!empty($conflicts_unique)) && $GLOBALS['enable_alert_log'] && ($test===false)) {
+    if ((!empty($conflicts_unique)) && $GLOBALS['enable_alert_log'] && ($test === false)) {
         $new_conflicts = compare_log_alerts($patient_id, $conflicts_unique, 'allergy_alert', $_SESSION['authUserID'], $mode);
     }
 
@@ -420,7 +420,7 @@ function compare_log_alerts($patient_id, $current_targets, $category = 'clinical
   // Store current action_log and the new items
   //  If $log_trigger=='all'
   //  or If $log_trigger=='new' and there are new items
-    if (($log_trigger=='all') || (($log_trigger=='new')  && (!empty($new_targets)))) {
+    if (($log_trigger == 'all') || (($log_trigger == 'new')  && (!empty($new_targets)))) {
         $current_targets_json = json_encode($current_targets);
         $new_targets_json = '';
         if (!empty($new_targets)) {
@@ -469,46 +469,46 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
 
   // Default to a batchsize, if empty
     if (empty($batchSize)) {
-        $batchSize=100;
+        $batchSize = 100;
     }
 
   // Collect total number of pertinent patients (to calculate batching parameters)
     $totalNumPatients = buildPatientArray('', $provider, $pat_prov_rel, null, null, true);
 
   // Cycle through the batches and collect/combine results
-    if (($totalNumPatients%$batchSize) > 0) {
+    if (($totalNumPatients % $batchSize) > 0) {
         // not perfectly divisible
-        $totalNumberBatches = floor($totalNumPatients/$batchSize) + 1;
+        $totalNumberBatches = floor($totalNumPatients / $batchSize) + 1;
     } else {
         // perfectly divisible
-        $totalNumberBatches = floor($totalNumPatients/$batchSize);
+        $totalNumberBatches = floor($totalNumPatients / $batchSize);
     }
 
   // Fix things in the $options array(). This now stores the number of labs to be used in the denominator in the AMC report.
   // The problem with this variable is that is is added in every batch. So need to fix it by dividing this number by the number
   // of planned batches(note the fixed array will go into the test_rules_clinic function, however the original will be used
   // in the report storing/tracking engine.
-    $options_modified=$options;
+    $options_modified = $options;
     if (!empty($options_modified['labs_manual'])) {
         $options_modified['labs_manual'] = $options_modified['labs_manual'] / $totalNumberBatches;
     }
 
   // Prepare the database to track/store results
-    $fields = array('provider'=>$provider,'mode'=>$mode,'plan'=>$plan,'organize_mode'=>$organize_mode,'pat_prov_rel'=>$pat_prov_rel);
+    $fields = array('provider' => $provider,'mode' => $mode,'plan' => $plan,'organize_mode' => $organize_mode,'pat_prov_rel' => $pat_prov_rel);
     if (is_array($dateTarget)) {
-        $fields = array_merge($fields, array('date_target'=>$dateTarget['dateTarget']));
-        $fields = array_merge($fields, array('date_begin'=>$dateTarget['dateBegin']));
+        $fields = array_merge($fields, array('date_target' => $dateTarget['dateTarget']));
+        $fields = array_merge($fields, array('date_begin' => $dateTarget['dateBegin']));
     } else {
         if (empty($dateTarget)) {
-            $fields = array_merge($fields, array('date_target'=>date("Y-m-d H:i:s")));
+            $fields = array_merge($fields, array('date_target' => date("Y-m-d H:i:s")));
         } else {
-            $fields = array_merge($fields, array('date_target'=>$dateTarget));
+            $fields = array_merge($fields, array('date_target' => $dateTarget));
         }
     }
 
     if (!empty($options)) {
         foreach ($options as $key => $value) {
-            $fields = array_merge($fields, array($key=>$value));
+            $fields = array_merge($fields, array($key => $value));
         }
     }
 
@@ -516,21 +516,23 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
     setTotalItemsReportDatabase($report_id, $totalNumPatients);
 
   // Set ability to itemize report if this feature is turned on
-    if (( ($type == "active_alert" || $type == "passive_alert")          && ($GLOBALS['report_itemizing_standard']) ) ||
-       ( ($type == "cqm" || $type == "cqm_2011" || $type == "cqm_2014") && ($GLOBALS['report_itemizing_cqm'])      ) ||
-       ( ($type == "amc" || $type == "amc_2011" || $type == "amc_2014" || $type == "amc_2014_stage1" || $type == "amc_2014_stage2") && ($GLOBALS['report_itemizing_amc'])      )) {
+    if (
+        ( ($type == "active_alert" || $type == "passive_alert")          && ($GLOBALS['report_itemizing_standard']) ) ||
+        ( ($type == "cqm" || $type == "cqm_2011" || $type == "cqm_2014") && ($GLOBALS['report_itemizing_cqm'])      ) ||
+        ( ($type == "amc" || $type == "amc_2011" || $type == "amc_2014" || $type == "amc_2014_stage1" || $type == "amc_2014_stage2") && ($GLOBALS['report_itemizing_amc'])      )
+    ) {
         $GLOBALS['report_itemizing_temp_flag_and_id'] = $report_id;
     } else {
         $GLOBALS['report_itemizing_temp_flag_and_id'] = 0;
     }
 
-    for ($i=0; $i<$totalNumberBatches; $i++) {
+    for ($i = 0; $i < $totalNumberBatches; $i++) {
         // If itemization is turned on, then reset the rule id iterator
         if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
             $GLOBALS['report_itemized_test_id_iterator'] = 1;
         }
 
-        $dataSheet_batch = test_rules_clinic($provider, $type, $dateTarget, $mode, '', $plan, $organize_mode, $options_modified, $pat_prov_rel, (($batchSize*$i)+1), $batchSize);
+        $dataSheet_batch = test_rules_clinic($provider, $type, $dateTarget, $mode, '', $plan, $organize_mode, $options_modified, $pat_prov_rel, (($batchSize * $i) + 1), $batchSize);
         if ($i == 0) {
             // For first cycle, simply copy it to dataSheet
             $dataSheet = $dataSheet_batch;
@@ -716,7 +718,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
         // If using cqm or amc type, then use the hard-coded rules set.
         // Note these rules are only used in report mode.
         if ($rowRule['cqm_flag'] || $rowRule['amc_flag']) {
-            require_once(dirname(__FILE__)."/classes/rulesets/ReportManager.php");
+            require_once(dirname(__FILE__) . "/classes/rulesets/ReportManager.php");
             $manager = new ReportManager();
             if ($rowRule['amc_flag']) {
                 // Send array of dates ('dateBegin' and 'dateTarget')
@@ -798,7 +800,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                     //Set date counter and reminder token (applicable for reminders only)
                     if ($dateCounter == 1) {
                         $reminder_due = "soon_due";
-                    } else if ($dateCounter == 2) {
+                    } elseif ($dateCounter == 2) {
                         $reminder_due = "due";
                     } else { // $dateCounter == 3
                         $reminder_due = "past_due";
@@ -879,12 +881,12 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
         // Calculate and save the data for the rule
         $percentage = calculate_percentage($pass_filter, $exclude_filter, $pass_target);
         if ($mode == "report") {
-            $newRow=array('is_main'=>true,'total_patients'=>$total_patients,'excluded'=>$exclude_filter,'pass_filter'=>$pass_filter,'pass_target'=>$pass_target,'percentage'=>$percentage);
-            $newRow=array_merge($newRow, $rowRule);
+            $newRow = array('is_main' => true,'total_patients' => $total_patients,'excluded' => $exclude_filter,'pass_filter' => $pass_filter,'pass_target' => $pass_target,'percentage' => $percentage);
+            $newRow = array_merge($newRow, $rowRule);
 
             // If itemization is turned on, then record the itemized_test_id
             if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                $newRow=array_merge($newRow, array('itemized_test_id'=>$GLOBALS['report_itemized_test_id_iterator']));
+                $newRow = array_merge($newRow, array('itemized_test_id' => $GLOBALS['report_itemized_test_id_iterator']));
             }
 
             array_push($results, $newRow);
@@ -927,7 +929,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         //Set date counter and reminder token (applicable for reminders only)
                         if ($dateCounter == 1) {
                             $reminder_due = "soon_due";
-                        } else if ($dateCounter == 2) {
+                        } elseif ($dateCounter == 2) {
                             $reminder_due = "due";
                         } else { // $dateCounter == 3
                             $reminder_due = "past_due";
@@ -1005,11 +1007,11 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                 $actionArray = resolve_action_sql($rowRule['id'], $i);
                 $action = $actionArray[0];
                 if ($mode == "report") {
-                    $newRow=array('is_sub'=>true,'action_category'=>$action['category'],'action_item'=>$action['item'],'total_patients'=>'','excluded'=>'','pass_filter'=>'','pass_target'=>$pass_target,'percentage'=>$percentage);
+                    $newRow = array('is_sub' => true,'action_category' => $action['category'],'action_item' => $action['item'],'total_patients' => '','excluded' => '','pass_filter' => '','pass_target' => $pass_target,'percentage' => $percentage);
 
                   // If itemization is turned on, then record the itemized_test_id
                     if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-                        $newRow=array_merge($newRow, array('itemized_test_id'=>$GLOBALS['report_itemized_test_id_iterator']));
+                        $newRow = array_merge($newRow, array('itemized_test_id' => $GLOBALS['report_itemized_test_id_iterator']));
                     }
 
                     array_push($results, $newRow);
@@ -1053,22 +1055,22 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
                 }
             } else {
                 // batching
-                $rez = sqlStatementCdrEngine("SELECT `pid` FROM `patient_data` ORDER BY `pid` LIMIT ?,?", array(($start-1),$batchSize));
+                $rez = sqlStatementCdrEngine("SELECT `pid` FROM `patient_data` ORDER BY `pid` LIMIT ?,?", array(($start - 1),$batchSize));
             }
         } else {
             // Look at an individual physician
             if ($pat_prov_rel == 'encounter') {
                 // Choose patients that are related to specific physician by an encounter
                 if ($start == null || $batchSize == null || $onlyCount) {
-                    $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `form_encounter` ".
+                    $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `form_encounter` " .
                               " WHERE `provider_id`=? OR `supervisor_id`=? ORDER BY `pid`", array($provider,$provider));
                     if ($onlyCount) {
                               $patientNumber = sqlNumRows($rez);
                     }
                 } else {
                     //batching
-                    $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `form_encounter` ".
-                              " WHERE `provider_id`=? OR `supervisor_id`=?  ORDER BY `pid` LIMIT ?,?", array($provider,$provider,($start-1),$batchSize));
+                    $rez = sqlStatementCdrEngine("SELECT DISTINCT `pid` FROM `form_encounter` " .
+                              " WHERE `provider_id`=? OR `supervisor_id`=?  ORDER BY `pid` LIMIT ?,?", array($provider,$provider,($start - 1),$batchSize));
                 }
             } else {  //$pat_prov_rel == 'primary'
                 // Choose patients that are assigned to the specific physician (primary physician in patient demographics)
@@ -1080,15 +1082,15 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
                     }
                 } else {
                     $rez = sqlStatementCdrEngine("SELECT `pid` FROM `patient_data` " .
-                              "WHERE `providerID`=? ORDER BY `pid` LIMIT ?,?", array($provider,($start-1),$batchSize));
+                              "WHERE `providerID`=? ORDER BY `pid` LIMIT ?,?", array($provider,($start - 1),$batchSize));
                 }
             }
         }
 
         // convert the sql query results into an array if returning the array
         if (!$onlyCount) {
-            for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
-                $patientData[$iter]=$row;
+            for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+                $patientData[$iter] = $row;
             }
         }
     }
@@ -1223,7 +1225,7 @@ function returnTargetGroups($rule)
     "WHERE `id`=?", array($rule));
 
     $groups = array();
-    for ($iter=0; $row=sqlFetchArray($sql); $iter++) {
+    for ($iter = 0; $row = sqlFetchArray($sql); $iter++) {
         array_push($groups, $row['group_id']);
     }
 
@@ -1239,7 +1241,7 @@ function returnTargetGroups($rule)
  * @param  string   $dateTarget  target date (format Y-m-d H:i:s).
  * @return boolean               if target passes then true, otherwise false
  */
-function test_targets($patient_id, $rule, $group_id = '', $dateTarget)
+function test_targets($patient_id, $rule, string $group_id = null, $dateTarget)
 {
 
   // -------- Interval Target ----
@@ -1290,8 +1292,8 @@ function resolve_plans_sql($type = '', $patient_id = '0', $configurableOnly = fa
         $sql = sqlStatementCdrEngine("SELECT * FROM `clinical_plans` WHERE `pid`=0 ORDER BY `id`");
     }
 
-    $returnArray= array();
-    for ($iter=0; $row=sqlFetchArray($sql); $iter++) {
+    $returnArray = array();
+    for ($iter = 0; $row = sqlFetchArray($sql); $iter++) {
         array_push($returnArray, $row);
     }
 
@@ -1333,8 +1335,10 @@ function resolve_plans_sql($type = '', $patient_id = '0', $configurableOnly = fa
                 array_push($newReturnArray, $goPlan);
             }
         } else {
-            if ($goPlan['normal_flag'] == 1 ||
-              $goPlan['cqm_flag'] == 1) {
+            if (
+                $goPlan['normal_flag'] == 1 ||
+                $goPlan['cqm_flag'] == 1
+            ) {
                 // active, so use the plan
                 array_push($newReturnArray, $goPlan);
             }
@@ -1379,7 +1383,7 @@ function set_plan_activity_patient($plan, $type, $setting, $patient_id)
   // Convert setting
     if ($setting == "on") {
         $setting = 1;
-    } else if ($setting == "off") {
+    } elseif ($setting == "off") {
         $setting = 0;
     } else { // $setting == "default"
         $setting = null;
@@ -1396,7 +1400,7 @@ function set_plan_activity_patient($plan, $type, $setting, $patient_id)
     }
 
   // Update patient specific row
-    $query = "UPDATE `clinical_plans` SET `" . escape_sql_column_name($type."_flag", array("clinical_plans")) . "`= ? WHERE id = ? AND pid = ?";
+    $query = "UPDATE `clinical_plans` SET `" . escape_sql_column_name($type . "_flag", array("clinical_plans")) . "`= ? WHERE id = ? AND pid = ?";
     sqlStatementCdrEngine($query, array($setting,$plan,$patient_id));
 }
 
@@ -1422,8 +1426,8 @@ function resolve_rules_sql($type = '', $patient_id = '0', $configurableOnly = fa
         $sql = sqlStatementCdrEngine("SELECT * FROM `clinical_rules` WHERE `pid`=0 ORDER BY `id`");
     }
 
-    $returnArray= array();
-    for ($iter=0; $row=sqlFetchArray($sql); $iter++) {
+    $returnArray = array();
+    for ($iter = 0; $row = sqlFetchArray($sql); $iter++) {
         array_push($returnArray, $row);
     }
 
@@ -1539,7 +1543,7 @@ function set_rule_activity_patient($rule, $type, $setting, $patient_id)
   // Convert setting
     if ($setting == "on") {
         $setting = 1;
-    } else if ($setting == "off") {
+    } elseif ($setting == "off") {
         $setting = 0;
     } else { // $setting == "default"
         $setting = null;
@@ -1560,7 +1564,7 @@ function set_rule_activity_patient($rule, $type, $setting, $patient_id)
     }
 
   // Update patient specific row
-    $query = "UPDATE `clinical_rules` SET `" . escape_sql_column_name($type."_flag", ["clinical_rules"]) . "`= ?, `access_control` = ? WHERE id = ? AND pid = ?";
+    $query = "UPDATE `clinical_rules` SET `" . escape_sql_column_name($type . "_flag", ["clinical_rules"]) . "`= ?, `access_control` = ? WHERE id = ? AND pid = ?";
     sqlStatementCdrEngine($query, array($setting,$patient_rule_original['access_control'],$rule,$patient_id));
 }
 
@@ -1576,8 +1580,8 @@ function resolve_reminder_sql($rule, $reminder_method)
     $sql = sqlStatementCdrEngine("SELECT `method_detail`, `value` FROM `rule_reminder` " .
     "WHERE `id`=? AND `method`=?", array($rule, $reminder_method));
 
-    $returnArray= array();
-    for ($iter=0; $row=sqlFetchArray($sql); $iter++) {
+    $returnArray = array();
+    for ($iter = 0; $row = sqlFetchArray($sql); $iter++) {
         array_push($returnArray, $row);
     }
 
@@ -1597,8 +1601,8 @@ function resolve_filter_sql($rule, $filter_method, $include_flag = 1)
     $sql = sqlStatementCdrEngine("SELECT `method_detail`, `value`, `required_flag` FROM `rule_filter` " .
     "WHERE `id`=? AND `method`=? AND `include_flag`=?", array($rule, $filter_method, $include_flag));
 
-    $returnArray= array();
-    for ($iter=0; $row=sqlFetchArray($sql); $iter++) {
+    $returnArray = array();
+    for ($iter = 0; $row = sqlFetchArray($sql); $iter++) {
         array_push($returnArray, $row);
     }
 
@@ -1614,7 +1618,7 @@ function resolve_filter_sql($rule, $filter_method, $include_flag = 1)
  * @param  string   $include_flag   to allow selection for included or excluded targets
  * @return array                    targets
  */
-function resolve_target_sql($rule, $group_id = '', $target_method, $include_flag = 1)
+function resolve_target_sql($rule, string $group_id = null, $target_method, $include_flag = 1)
 {
 
     if ($group_id) {
@@ -1625,8 +1629,8 @@ function resolve_target_sql($rule, $group_id = '', $target_method, $include_flag
         "WHERE `id`=? AND `method`=? AND `include_flag`=?", array($rule, $target_method, $include_flag));
     }
 
-    $returnArray= array();
-    for ($iter=0; $row=sqlFetchArray($sql); $iter++) {
+    $returnArray = array();
+    for ($iter = 0; $row = sqlFetchArray($sql); $iter++) {
         array_push($returnArray, $row);
     }
 
@@ -1657,8 +1661,8 @@ function resolve_action_sql($rule, $group_id = '')
         "WHERE a.id=?", array($rule));
     }
 
-    $returnArray= array();
-    for ($iter=0; $row=sqlFetchArray($sql); $iter++) {
+    $returnArray = array();
+    for ($iter = 0; $row = sqlFetchArray($sql); $iter++) {
         array_push($returnArray, $row);
     }
 
@@ -1708,7 +1712,7 @@ function database_check($patient_id, $filter, $interval = '', $dateTarget = '')
                     return false;
                 }
             }
-        } else if ($temp_df[0] == "LIFESTYLE") {
+        } elseif ($temp_df[0] == "LIFESTYLE") {
             // Row description
             //   [0]=>special modes(LIFESTYLE) [1]=>column [2]=>status
             if (exist_lifestyle_item($patient_id, $temp_df[1], $temp_df[2], $dateTarget)) {
@@ -1886,7 +1890,7 @@ function lists_check($patient_id, $filter, $dateTarget)
  * (2) If $data contains '#CURDATE#', then it will be converted to the current date.
  *
  */
-function exist_database_item($patient_id, $table, $column = '', $data_comp, $data = '', $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget = '')
+function exist_database_item($patient_id, $table, string $column = null, $data_comp, string $data = null, $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget = '')
 {
 
   // Set date to current if not set
@@ -1930,27 +1934,27 @@ function exist_database_item($patient_id, $table, $column = '', $data_comp, $dat
         // simple search for any table entries
         $sql = sqlStatementCdrEngine("SELECT * " .
         "FROM `" . escape_table_name($table)  . "` " .
-        " ". $whereTables. " ".
+        " " . $whereTables . " " .
         "WHERE " . add_escape_custom($patient_id_label) . "=? " . $customSQL, array($patient_id));
     } else {
         // mdsupport : Allow trailing '**' in the strings to perform LIKE searches
-        if ((substr($data, -2)=='**') && (($compSql == "=") || ($compSql == "!="))) {
-            $compSql = ($compSql == "!=" ? " NOT": "")." LIKE CONCAT('%',?,'%') ";
+        if ((substr($data, -2) == '**') && (($compSql == "=") || ($compSql == "!="))) {
+            $compSql = ($compSql == "!=" ? " NOT" : "") . " LIKE CONCAT('%',?,'%') ";
             $data = substr_replace($data, '', -2);
         } else {
             $compSql = $compSql . "? ";
         }
 
-        if ($whereTables=="" && strpos($table, 'form_')!== false) {
+        if ($whereTables == "" && strpos($table, 'form_') !== false) {
             //To handle standard forms starting with form_
             //In this case, we are assuming the date field is "date"
-            $sql =sqlStatementCdrEngine(
+            $sql = sqlStatementCdrEngine(
                 "SELECT b.`" . escape_sql_column_name($column, [$table]) . "` " .
-                "FROM forms a ".
-                "LEFT JOIN `" . escape_table_name($table) . "` " . " b ".
-                "ON (a.form_id=b.id AND a.formdir LIKE '".add_escape_custom(substr($table, 5))."') ".
-                "WHERE a.deleted != '1' ".
-                "AND b.`" . escape_sql_column_name($column, [$table]) ."`" . $compSql .
+                "FROM forms a " .
+                "LEFT JOIN `" . escape_table_name($table) . "` " . " b " .
+                "ON (a.form_id=b.id AND a.formdir LIKE '" . add_escape_custom(substr($table, 5)) . "') " .
+                "WHERE a.deleted != '1' " .
+                "AND b.`" . escape_sql_column_name($column, [$table]) . "`" . $compSql .
                 "AND b." . add_escape_custom($patient_id_label) . "=? " . $customSQL
                 . str_replace("`date`", "b.`date`", $dateSql),
                 array($data, $patient_id)
@@ -1958,7 +1962,7 @@ function exist_database_item($patient_id, $table, $column = '', $data_comp, $dat
         } else {
             // This allows to enter the wild card #CURDATE# in the CDR Demographics filter criteria  at the value field
             // #CURDATE# is replace by the Current date allowing a dynamic date filtering
-            if ($data=='#CURDATE#') {
+            if ($data == '#CURDATE#') {
                 $data = date("Y-m-d");
             }
 
@@ -1994,7 +1998,7 @@ function exist_database_item($patient_id, $table, $column = '', $data_comp, $dat
  * (1) If result_data ends with **, operators ne/eq are replaced by (NOT)LIKE operators
  *
  */
-function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp, $result_data = '', $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget = '')
+function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp, stirng $result_data = null, $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget = '')
 {
 
   // Set date to current if not set
@@ -2019,7 +2023,7 @@ function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp
     $compSql = convertCompSql($result_comp);
 
   // explode the code array
-    $codes= array();
+    $codes = array();
     if (!empty($proc_code)) {
         $codes = explode("||", $proc_code);
     } else {
@@ -2032,7 +2036,7 @@ function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp
     }
 
   // collect specific items (use both title and/or codes) that fulfill request
-    $sqlBindArray=array();
+    $sqlBindArray = array();
     $sql_query = "SELECT procedure_result.result FROM " .
                "procedure_order_code, " .
                "procedure_order, " .
@@ -2054,8 +2058,8 @@ function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp
     }
 
   // mdsupport : Allow trailing '**' in the strings to perform LIKE searches
-    if ((substr($result_data, -2)=='**') && (($compSql == "=") || ($compSql == "!="))) {
-        $compSql = ($compSql == "!=" ? " NOT": "")." LIKE CONCAT('%',?,'%') ";
+    if ((substr($result_data, -2) == '**') && (($compSql == "=") || ($compSql == "!="))) {
+        $compSql = ($compSql == "!=" ? " NOT" : "") . " LIKE CONCAT('%',?,'%') ";
         $result_data = substr_replace($result_data, '', -2);
     } else {
         $compSql = $compSql . "? ";
@@ -2086,7 +2090,7 @@ function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp
  * @param  string   $dateTarget       target date(format Y-m-d H:i:s).
  * @return boolean                    true if check passed, otherwise false
  */
-function exist_custom_item($patient_id, $category, $item, $complete, $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget)
+function exist_custom_item($patient_id, $category, $item, $complete, $num_items_comp, $num_items_thres, string $intervalType = null, string $intervalValue = null, $dateTarget)
 {
 
   // Set the table
@@ -2132,15 +2136,17 @@ function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget)
     $history = getHistoryData($patient_id, $lifestyle, '', $dateTarget);
 
   // See if match
-    $stringFlag = strstr($history[$lifestyle], "|".$status);
+    $stringFlag = strstr($history[$lifestyle], "|" . $status);
     if (empty($status)) {
         // Only ensuring any data has been entered into the field
         $stringFlag = true;
     }
 
-    if ($history[$lifestyle] &&
-       $history[$lifestyle] != '|0|' &&
-       $stringFlag) {
+    if (
+        $history[$lifestyle] &&
+        $history[$lifestyle] != '|0|' &&
+        $stringFlag
+    ) {
         return true;
     } else {
         return false;
@@ -2175,14 +2181,14 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget)
 
         // Modify $code for both 'CUSTOM' and diagnosis searches
         // Note: Diagnosis is always 'LIKE' and should not have '**'
-        if (substr($code, -2)=='**') {
+        if (substr($code, -2) == '**') {
             $sqloper = " LIKE CONCAT('%',?,'%') ";
             $code = substr_replace($code, '', -2);
         } else {
             $sqloper = "=?";
         }
 
-        if ($code_type=='CUSTOM') {
+        if ($code_type == 'CUSTOM') {
             // Deal with custom code type first (title column in lists table)
             $response = sqlQueryCdrEngine("SELECT * FROM `lists` " .
             "WHERE `type`=? " .
@@ -2200,7 +2206,7 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget)
             "AND `pid`=? " .
             "AND `diagnosis` LIKE ? " .
             "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
-            "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,"%".$code_type.":".$code."%",$dateTarget,$dateTarget,$dateTarget));
+            "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,"%" . $code_type . ":" . $code . "%",$dateTarget,$dateTarget,$dateTarget));
             if (!empty($response)) {
                 return true;
             }
@@ -2210,7 +2216,7 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget)
         //   Yes, this is essentially the same as the code type listed as CUSTOM above. This provides flexibility and will ensure compatibility.
 
         // Check for '**'
-        if (substr($value, -2)=='**') {
+        if (substr($value, -2) == '**') {
             $sqloper = " LIKE CONCAT('%',?,'%') ";
             $value = substr_replace($value, '', -2);
         } else {
@@ -2220,7 +2226,7 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget)
         $response = sqlQueryCdrEngine("SELECT * FROM `lists` " .
         "WHERE `type`=? " .
         "AND `pid`=? " .
-        "AND `title` $sqloper ".
+        "AND `title` $sqloper " .
         "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
         "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,$value,$dateTarget,$dateTarget,$dateTarget));
         if (!empty($response)) {
@@ -2250,7 +2256,7 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget)
 function sql_interval_string($table, $intervalType, $intervalValue, $dateTarget)
 {
 
-    $dateSql="";
+    $dateSql = "";
 
   // Collect the correct column label for date in the table
     $date_label = collect_database_label('date', $table);
@@ -2307,8 +2313,8 @@ function sql_interval_string($table, $intervalType, $intervalValue, $dateTarget)
                 $dateArray = explode("-", $dateTarget);
                 $Year = $dateArray[0];
                 $dateThisYear = $Year . "-09-01";
-                $dateLastYear = ($Year-1) . "-09-01";
-                $dateSql =" " .
+                $dateLastYear = ($Year - 1) . "-09-01";
+                $dateSql = " " .
                 "AND ((" .
                     "MONTH('" . add_escape_custom($dateTarget) . "') < 9 " .
                     "AND " . add_escape_custom($date_label) . " >= '" . $dateLastYear . "' ) " .
@@ -2344,47 +2350,47 @@ function collect_database_label($label, $table)
         // tables to get this value
         if ($label == "pid") {
             $returnedLabel = "procedure_order.patient_id";
-        } else if ($label == "date") {
+        } elseif ($label == "date") {
             $returnedLabel = "procedure_report.date_collected";
         } else {
             // unknown label, so return the original label
             $returnedLabel = $label;
         }
-    } else if ($table == 'immunizations') {
+    } elseif ($table == 'immunizations') {
         // return requested label for immunization table
         if ($label == "pid") {
             $returnedLabel = "patient_id";
-        } else if ($label == "date") {
+        } elseif ($label == "date") {
             $returnedLabel = "`administered_date`";
         } else {
             // unknown label, so return the original label
             $returnedLabel = $label;
         }
-    } else if ($table == 'prescriptions') {
+    } elseif ($table == 'prescriptions') {
         // return requested label for prescriptions table
         if ($label == "pid") {
             $returnedLabel = "patient_id";
-        } else if ($label == "date") {
+        } elseif ($label == "date") {
             $returnedLabel = 'date_added';
         } else {
             // unknown label, so return the original label
             $returnedLabel = $label;
         }
-    } else if ($table == 'procedure_result') {
+    } elseif ($table == 'procedure_result') {
         // return requested label for prescriptions table
         if ($label == "pid") {
             $returnedLabel = "procedure_order.patient_id";
-        } else if ($label == "date") {
+        } elseif ($label == "date") {
             $returnedLabel = "procedure_report.date_collected";
         } else {
             // unknown label, so return the original label
             $returnedLabel = $label;
         }
-    } else if ($table == 'openemr_postcalendar_events') {
+    } elseif ($table == 'openemr_postcalendar_events') {
       // return requested label for prescriptions table
         if ($label == "pid") {
             $returnedLabel = "pc_pid";
-        } else if ($label == "date") {
+        } elseif ($label == "date") {
             $returnedLabel = "pc_eventdate";
         } else {
           // unknown label, so return the original label
@@ -2394,7 +2400,7 @@ function collect_database_label($label, $table)
         // return requested label for default tables
         if ($label == "pid") {
             $returnedLabel = "pid";
-        } else if ($label == "date") {
+        } elseif ($label == "date") {
             $returnedLabel = "`date`";
         } else {
           // unknown label, so return the original label
@@ -2415,9 +2421,11 @@ function collect_database_label($label, $table)
 function is_duplicate_action($actions, $action)
 {
     foreach ($actions as $row) {
-        if ($row['category'] == $action['category'] &&
-        $row['item'] == $action['item'] &&
-        $row['value'] == $action['value']) {
+        if (
+            $row['category'] == $action['category'] &&
+            $row['item'] == $action['item'] &&
+            $row['value'] == $action['value']
+        ) {
             // Is a duplicate
             return true;
         }
@@ -2442,14 +2450,14 @@ function is_duplicate_action($actions, $action)
  * @param  string  $type        either 'patient_reminder' or 'clinical_reminder'
  * @return array                see above for description of returned array
  */
-function calculate_reminder_dates($rule, $dateTarget = '', $type)
+function calculate_reminder_dates($rule, string $dateTarget = null, $type)
 {
 
   // Set date to current if not set
     $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
 
   // Collect the current date settings (to ensure not skip)
-    $res = resolve_reminder_sql($rule, $type.'_current');
+    $res = resolve_reminder_sql($rule, $type . '_current');
     if (!empty($res)) {
         $row = $res[0];
         if ($row ['method_detail'] == "SKIP") {
@@ -2459,7 +2467,7 @@ function calculate_reminder_dates($rule, $dateTarget = '', $type)
 
   // Collect the past_due date
     $past_due_date = "";
-    $res = resolve_reminder_sql($rule, $type.'_post');
+    $res = resolve_reminder_sql($rule, $type . '_post');
     if (!empty($res)) {
         $row = $res[0];
         if ($row ['method_detail'] == "week") {
@@ -2484,7 +2492,7 @@ function calculate_reminder_dates($rule, $dateTarget = '', $type)
 
   // Collect the soon_due date
     $soon_due_date = "";
-    $res = resolve_reminder_sql($rule, $type.'_pre');
+    $res = resolve_reminder_sql($rule, $type . '_pre');
     if (!empty($res)) {
         $row = $res[0];
         if ($row ['method_detail'] == "week") {
@@ -2532,9 +2540,11 @@ function reminder_results_integrate($reminderOldArray, $reminderNew)
   // If duplicate reminder, then replace the old one
     $duplicate = false;
     foreach ($reminderOldArray as $reminderOld) {
-        if ($reminderOld['pid'] == $reminderNew['pid'] &&
-          $reminderOld['category'] == $reminderNew['category'] &&
-          $reminderOld['item'] == $reminderNew['item']) {
+        if (
+            $reminderOld['pid'] == $reminderNew['pid'] &&
+            $reminderOld['category'] == $reminderNew['category'] &&
+            $reminderOld['item'] == $reminderNew['item']
+        ) {
             array_push($results, $reminderNew);
             $duplicate = true;
         } else {
@@ -2563,15 +2573,15 @@ function itemsNumberCompare($comp, $thres, $num_items)
 
     if (($comp == "eq") && ($num_items == $thres)) {
         return true;
-    } else if (($comp == "ne") && ($num_items != $thres) && ($num_items > 0)) {
+    } elseif (($comp == "ne") && ($num_items != $thres) && ($num_items > 0)) {
         return true;
-    } else if (($comp == "gt") && ($num_items > $thres)) {
+    } elseif (($comp == "gt") && ($num_items > $thres)) {
         return true;
-    } else if (($comp == "ge") && ($num_items >= $thres)) {
+    } elseif (($comp == "ge") && ($num_items >= $thres)) {
         return true;
-    } else if (($comp == "lt") && ($num_items < $thres) && ($num_items > 0)) {
+    } elseif (($comp == "lt") && ($num_items < $thres) && ($num_items > 0)) {
         return true;
-    } else if (($comp == "le") && ($num_items <= $thres) && ($num_items > 0)) {
+    } elseif (($comp == "le") && ($num_items <= $thres) && ($num_items > 0)) {
         return true;
     } else {
         return false;
@@ -2589,13 +2599,13 @@ function convertCompSql($comp)
 
     if ($comp == "eq") {
         return "=";
-    } else if ($comp == "ne") {
+    } elseif ($comp == "ne") {
         return "!=";
-    } else if ($comp == "gt") {
+    } elseif ($comp == "gt") {
         return ">";
-    } else if ($comp == "ge") {
+    } elseif ($comp == "ge") {
         return ">=";
-    } else if ($comp == "lt") {
+    } elseif ($comp == "lt") {
         return "<";
     } else { // ($comp == "le")
         return "<=";
@@ -2612,7 +2622,7 @@ function convertCompSql($comp)
  */
 function convertDobtoAgeYearDecimal($dob, $target)
 {
-    $ageInfo=parseAgeInfo($dob, $target);
+    $ageInfo = parseAgeInfo($dob, $target);
     return $ageInfo['age'];
 }
 
@@ -2625,7 +2635,7 @@ function convertDobtoAgeYearDecimal($dob, $target)
  */
 function convertDobtoAgeMonthDecimal($dob, $target)
 {
-    $ageInfo=parseAgeInfo($dob, $target);
+    $ageInfo = parseAgeInfo($dob, $target);
     return $ageInfo['age_in_months'];
 }
 
@@ -2640,9 +2650,9 @@ function convertDobtoAgeMonthDecimal($dob, $target)
 function calculate_percentage($pass_filt, $exclude_filt, $pass_targ)
 {
     if ($pass_filt > 0) {
-        $perc = number_format(($pass_targ/($pass_filt-$exclude_filt))*100, 4) . xl('%');
+        $perc = number_format(($pass_targ / ($pass_filt - $exclude_filt)) * 100, 4) . xl('%');
     } else {
-        $perc = "0". xl('%');
+        $perc = "0" . xl('%');
     }
 
     return $perc;

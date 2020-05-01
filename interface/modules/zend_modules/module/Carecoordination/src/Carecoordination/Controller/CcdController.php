@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php
  *
@@ -8,6 +9,7 @@
  * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace Carecoordination\Controller;
 
 use Laminas\Mvc\Controller\AbstractActionController;
@@ -46,7 +48,7 @@ class CcdController extends AbstractActionController
         DocumentsController $documentsController
     ) {
 
-        $this->listenerObject = new Listener;
+        $this->listenerObject = new Listener();
         $this->ccdTable = $ccdTable;
         $this->carecoordinationTable = $carecoordinationTable;
         $this->documentsTable = $documentsTable;
@@ -90,7 +92,7 @@ class CcdController extends AbstractActionController
           'category_id'   => $category_details[0]['id'],
           'file_location' => basename($_FILES['file']['name']),
           'patient_id'    => '00',
-          'listenerObject'=> $this->listenerObject
+          'listenerObject' => $this->listenerObject
         ));
         return $view;
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Access Control List Help.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2017 Ranganath Pathak <pathak01@hotmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../interface/globals.php");
 
@@ -204,7 +204,7 @@ use OpenEMR\Core\Header;
 
                 <p><?php echo xlt("Move the individual items from 'Active' to 'Inactive' or vice-versa by selecting the items and pressing the relevant button with the double chevron."); ?></p>  <input class='button_submit btn btn-primary oe-inline oe-no-float' type='button' value=' >> ' >&nbsp;&nbsp;<input class='button_submit btn btn-primary oe-inline oe-no-float' type='button' value=' << ' >
 
-                <p><i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i><strong><?php echo xlt("Note there is no 'Save' button."); ?></strong></p> 
+                <p><i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i><strong><?php echo xlt("Note there is no 'Save' button."); ?></strong></p>
 
                 <p><?php echo xlt("Click the slashed-eye icon to close."); ?></p>
 
@@ -254,7 +254,7 @@ use OpenEMR\Core\Header;
             </div>
             <div class= "row" id="advanced_acl">
                 <h4 class="oe-help-heading"><?php echo xlt("Advanced - Finer Access Control"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
-                <p><?php echo xlt("Click on the icon next to the 'Access Control List Administration' title to go to the phpGACL page."); ?><i id='advanced' class='fa fa-external-link small' aria-hidden='true'></i></p>
+                <p><?php echo xlt("Click on the icon next to the 'Access Control List Administration' title to go to the phpGACL page."); ?><i id='advanced' class='fa fa-external-link-alt small' aria-hidden='true'></i></p>
 
                 <p><?php echo xlt("Here you can customize the ACL further."); ?></p>
 

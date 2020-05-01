@@ -15,9 +15,9 @@ class C_DocumentCategory extends Controller
         parent::__construct();
         $this->document_categories = array();
         $this->template_mod = $template_mod;
-        $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . attr($_SERVER['QUERY_STRING']));
-        $this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings&document_category&");
-        $this->link = $GLOBALS['webroot']."/controller.php?" . "document_category&";
+        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&document_category&");
+        $this->link = $GLOBALS['webroot'] . "/controller.php?" . "document_category&";
         $this->assign("STYLE", $GLOBALS['style']);
         $this->assign("V_JS_INCLUDES", $GLOBALS['v_js_includes']);
 
@@ -121,7 +121,7 @@ class C_DocumentCategory extends Controller
             $this->assign("message", $trans_message);
 
             if (is_numeric($id)) {
-                $sql = "UPDATE categories_to_documents set category_id = '" . $category_info['parent'] . "' where category_id = '" . $id ."'";
+                $sql = "UPDATE categories_to_documents set category_id = '" . $category_info['parent'] . "' where category_id = '" . $id . "'";
                 $this->tree->_db->Execute($sql);
             }
         } else {

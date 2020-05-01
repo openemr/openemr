@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -274,7 +276,7 @@ class FHIRDocumentReferenceContext extends FHIRBackboneElement implements \JsonS
                         $this->addEncounter($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"encounter" must be array of objects or null, '.gettype($data['encounter']).' seen.');
+                    throw new \InvalidArgumentException('"encounter" must be array of objects or null, ' . gettype($data['encounter']) . ' seen.');
                 }
             }
             if (isset($data['event'])) {
@@ -283,7 +285,7 @@ class FHIRDocumentReferenceContext extends FHIRBackboneElement implements \JsonS
                         $this->addEvent($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"event" must be array of objects or null, '.gettype($data['event']).' seen.');
+                    throw new \InvalidArgumentException('"event" must be array of objects or null, ' . gettype($data['event']) . ' seen.');
                 }
             }
             if (isset($data['period'])) {
@@ -304,11 +306,11 @@ class FHIRDocumentReferenceContext extends FHIRBackboneElement implements \JsonS
                         $this->addRelated($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"related" must be array of objects or null, '.gettype($data['related']).' seen.');
+                    throw new \InvalidArgumentException('"related" must be array of objects or null, ' . gettype($data['related']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

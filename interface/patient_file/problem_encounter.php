@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This script add and delete Issues and Encounters relationships.
  *
@@ -12,7 +13,6 @@
  * @copyright Copyright (c) 2015-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -34,7 +34,7 @@ if ($patdata['squad'] && ! AclMain::aclCheckCore('squads', $patdata['squad'])) {
 
 if (!$thisauth) {
     echo "<html>\n<body>\n";
-    echo "<p>" .xlt('You are not authorized for this.'). "</p>\n";
+    echo "<p>" . xlt('You are not authorized for this.') . "</p>\n";
     echo "</body>\n</html>\n";
     exit();
 }
@@ -70,7 +70,7 @@ if ($_POST['form_save']) {
     }
 
     echo "<html><body>"
-    ."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"
+    . "<script type=\"text/javascript\" src=\"" . $webroot . "/interface/main/tabs/js/include_opener.js\"></script>"
     . "<script language='JavaScript'>\n";
     if ($alertmsg) {
         echo " alert(" . js_escape($alertmsg) . ");\n";

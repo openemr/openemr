@@ -1,4 +1,5 @@
 <?php
+
 /**
  * add_transaction is a misnomer, as this script will now also edit
  * existing transactions.
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/transactions.inc");
@@ -600,7 +600,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <p />
 
         <!-- include support for the list-add selectbox feature -->
-        <?php include $GLOBALS['fileroot']."/library/options_listadd.inc"; ?>
+        <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
     </div> <!--end of container div-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>

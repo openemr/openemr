@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Smarty plugin
  * @package Smarty
@@ -6,7 +7,6 @@
  * user_info() version for smarty templates
  * Kevin Yeh 2013
  */
-
 
 /**
  * Smarty {user_info} function plugin
@@ -34,8 +34,8 @@ function smarty_function_user_info($params, &$smarty)
             $user_id = $params['id'];
     }
 
-        $user_info=getUserIDInfo($user_id);
+        $user_info = getUserIDInfo($user_id);
     if ($user_info) {
-        echo $user_info['fname']." ".$user_info['lname'];
+        echo $user_info['fname'] . " " . $user_info['lname'];
     }
 }

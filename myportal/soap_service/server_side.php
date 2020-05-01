@@ -1,4 +1,5 @@
 <?php
+
 // +-----------------------------------------------------------------------------+
 // Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
@@ -29,12 +30,12 @@
 use OpenEMR\Billing\InvoiceSummary;
 
 global $ISSUE_TYPES;
-$ignoreAuth=true;
+$ignoreAuth = true;
 ob_start();
 
 require_once("../../interface/globals.php");
-require_once(dirname(__FILE__)."/../../controllers/C_Document.class.php");
-require_once(dirname(__FILE__)."/../../library/options.inc.php");
+require_once(dirname(__FILE__) . "/../../controllers/C_Document.class.php");
+require_once(dirname(__FILE__) . "/../../library/options.inc.php");
 require_once(dirname(__FILE__) . "/../../library/patient.inc");
 require_once(dirname(__FILE__) . "/../../library/direct_message_check.inc");
 
@@ -54,7 +55,7 @@ class UserService extends Userforms
     public function get_display_field($data)
     {
         if ($this->valid($data[0])) {
-            $ret = generate_display_field(array('data_type'=>$data['data_type'],'list_id'=>$data['list_id']), $data['value']);
+            $ret = generate_display_field(array('data_type' => $data['data_type'],'list_id' => $data['list_id']), $data['value']);
             return $ret;
         }
     }
@@ -186,7 +187,7 @@ class UserService extends Userforms
             }
 
             if ($res) {
-                for ($iter=0; $row=sqlFetchArray($res); $iter++) {
+                for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                     $all[$iter] = $row;
                 }
             }
@@ -200,19 +201,19 @@ class UserService extends Userforms
     {
         global $pid;
         if ($this->valid($data[0])) {
-            $file_name=$data[1];
-            $data=$data[2];
-            $savedpath=$GLOBALS['OE_SITE_DIR']."/documents/myportal/patientuploads/".$pid;
+            $file_name = $data[1];
+            $data = $data[2];
+            $savedpath = $GLOBALS['OE_SITE_DIR'] . "/documents/myportal/patientuploads/" . $pid;
             if (is_dir($savedpath)) {
             } else {
                 mkdir($savedpath, 0777, true);
                 chmod($savedpath, 0777);
             }
 
-            $handler = fopen($savedpath."/".$file_name, "w");
+            $handler = fopen($savedpath . "/" . $file_name, "w");
             fwrite($handler, base64_decode($data));
             fclose($handler);
-            chmod($savedpath."/".$file_name, 0777);
+            chmod($savedpath . "/" . $file_name, 0777);
         } else {
             throw new SoapFault("Server", "credentials failed");
         }
@@ -229,39 +230,39 @@ class UserService extends Userforms
             $_POST['new_patient_id']  = $data[4];
             $file_path = '';
             if ($data[9] == 2) {
-                $file_path = $GLOBALS['OE_SITE_DIR']."/documents/myportal/unsigned/".$data[6];
+                $file_path = $GLOBALS['OE_SITE_DIR'] . "/documents/myportal/unsigned/" . $data[6];
             } elseif ($data[9] == 1) {
-                $file_path = $GLOBALS['OE_SITE_DIR']."/documents/myportal/signed/".$data[6];
+                $file_path = $GLOBALS['OE_SITE_DIR'] . "/documents/myportal/signed/" . $data[6];
             } elseif ($data[9] == 4) {
-                $file_path = $GLOBALS['OE_SITE_DIR']."/documents/myportal/patientuploads/".$data[5]."/".$data[6];
+                $file_path = $GLOBALS['OE_SITE_DIR'] . "/documents/myportal/patientuploads/" . $data[5] . "/" . $data[6];
             }
 
             $mime_types = array(
-              "pdf"=>"application/pdf"
-              ,"exe"=>"application/octet-stream"
-              ,"zip"=>"application/zip"
-              ,"docx"=>"application/msword"
-              ,"doc"=>"application/msword"
-              ,"xls"=>"application/vnd.ms-excel"
-              ,"ppt"=>"application/vnd.ms-powerpoint"
-              ,"gif"=>"image/gif"
-              ,"png"=>"image/png"
-              ,"jpeg"=>"image/jpg"
-              ,"jpg"=>"image/jpg"
-              ,"mp3"=>"audio/mpeg"
-              ,"wav"=>"audio/x-wav"
-              ,"mpeg"=>"video/mpeg"
-              ,"mpg"=>"video/mpeg"
-              ,"mpe"=>"video/mpeg"
-              ,"mov"=>"video/quicktime"
-              ,"avi"=>"video/x-msvideo"
-              ,"3gp"=>"video/3gpp"
-              ,"css"=>"text/css"
-              ,"jsc"=>"application/javascript"
-              ,"js"=>"application/javascript"
-              ,"php"=>"text/html"
-              ,"htm"=>"text/html"
-              ,"html"=>"text/html"
+              "pdf" => "application/pdf"
+              ,"exe" => "application/octet-stream"
+              ,"zip" => "application/zip"
+              ,"docx" => "application/msword"
+              ,"doc" => "application/msword"
+              ,"xls" => "application/vnd.ms-excel"
+              ,"ppt" => "application/vnd.ms-powerpoint"
+              ,"gif" => "image/gif"
+              ,"png" => "image/png"
+              ,"jpeg" => "image/jpg"
+              ,"jpg" => "image/jpg"
+              ,"mp3" => "audio/mpeg"
+              ,"wav" => "audio/x-wav"
+              ,"mpeg" => "video/mpeg"
+              ,"mpg" => "video/mpeg"
+              ,"mpe" => "video/mpeg"
+              ,"mov" => "video/quicktime"
+              ,"avi" => "video/x-msvideo"
+              ,"3gp" => "video/3gpp"
+              ,"css" => "text/css"
+              ,"jsc" => "application/javascript"
+              ,"js" => "application/javascript"
+              ,"php" => "text/html"
+              ,"htm" => "text/html"
+              ,"html" => "text/html"
             );
 
             $extension = strtolower(end(explode('.', $file_path)));
@@ -278,11 +279,11 @@ class UserService extends Userforms
 
             $cdoc = new C_Document();
             $cdoc->upload_action_process();
-            if ($GLOBALS['document_storage_method']==0) {
+            if ($GLOBALS['document_storage_method'] == 0) {
                 if ($data[3]) {
-                    copy($file_path, $cdoc->file_path.$data[3]);
+                    copy($file_path, $cdoc->file_path . $data[3]);
                 } else {
-                    copy($file_path, $cdoc->file_path.$data[6]);
+                    copy($file_path, $cdoc->file_path . $data[6]);
                 }
             }
 
@@ -349,7 +350,7 @@ class UserService extends Userforms
 
             $res = sqlStatement($query);
             if ($res) {
-                for ($iter=0; $row=sqlFetchArray($res); $iter++) {
+                for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                     $all[$iter] = $row;
                 }
             }
@@ -369,7 +370,7 @@ class UserService extends Userforms
             $query = "SELECT * FROM categories";
             $res = sqlStatement($query);
             if ($res) {
-                for ($iter=0; $row=sqlFetchArray($res); $iter++) {
+                for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                     $all[$iter] = $row;
                 }
             }
@@ -436,7 +437,7 @@ class UserService extends Userforms
     public function delete_file($data)
     {
         if ($this->valid($data[0])) {
-            $file_name_with_path=$data[1];
+            $file_name_with_path = $data[1];
             @unlink($file_name_with_path);
         } else {
             throw new SoapFault("Server", "credentials failed");
@@ -449,7 +450,7 @@ class UserService extends Userforms
     public function file_to_xml($data)
     {
         if ($this->valid($data[0])) {
-             $file_name_with_path=$data[1];
+             $file_name_with_path = $data[1];
              $path_parts = pathinfo($file_name_with_path);
              $handler = fopen($file_name_with_path, "rb");
              $returnData = fread($handler, filesize($file_name_with_path));
@@ -491,30 +492,30 @@ class UserService extends Userforms
     public function store_to_file($data)
     {
         if ($this->valid($data[0])) {
-               $file_name_with_path=$data[1];
-               $data=$data[2];
-               $savedpath=$GLOBALS['OE_SITE_DIR']."/documents/myportal/";
+               $file_name_with_path = $data[1];
+               $data = $data[2];
+               $savedpath = $GLOBALS['OE_SITE_DIR'] . "/documents/myportal/";
             if (is_dir($savedpath)) {
             } else {
                 mkdir($savedpath, 0777);
                 chmod($savedpath, 0777);
             }
 
-               $savedpath=$GLOBALS['OE_SITE_DIR']."/documents/myportal/unsigned/";
+               $savedpath = $GLOBALS['OE_SITE_DIR'] . "/documents/myportal/unsigned/";
             if (is_dir($savedpath)) {
             } else {
                 mkdir($savedpath, 0777);
                 chmod($savedpath, 0777);
             }
 
-               $savedpath=$GLOBALS['OE_SITE_DIR']."/documents/myportal/signed/";
+               $savedpath = $GLOBALS['OE_SITE_DIR'] . "/documents/myportal/signed/";
             if (is_dir($savedpath)) {
             } else {
                 mkdir($savedpath, 0777);
                 chmod($savedpath, 0777);
             }
 
-               $savedpath=$GLOBALS['OE_SITE_DIR']."/documents/myportal/upload/";
+               $savedpath = $GLOBALS['OE_SITE_DIR'] . "/documents/myportal/upload/";
             if (is_dir($savedpath)) {
             } else {
                 mkdir($savedpath, 0777);
@@ -541,84 +542,84 @@ class UserService extends Userforms
         if (UserService::valid($data_credentials)) {
             require_once("../../library/options.inc.php");
             require_once("../../library/patient.inc");
-            if ($func=='InvoiceSummary::ar_responsible_party') {
-                $patient_id=$pid;
-                $encounter_id=$var['encounter'];
-                $x['ar_responsible_party'] = InvoiceSummary::ar_responsible_party($patient_id, $encounter_id);
+            if ($func == 'InvoiceSummary::arResponsibleParty') {
+                $patient_id = $pid;
+                $encounter_id = $var['encounter'];
+                $x['arResponsibleParty'] = InvoiceSummary::arResponsibleParty($patient_id, $encounter_id);
                 return UserService::function_return_to_xml($x);
-            } elseif ($func=='getInsuranceData') {
-                $type=$var['type'];
-                $given=$var['given'];
-                $x=getInsuranceData($pid, $type, $given);
+            } elseif ($func == 'getInsuranceData') {
+                $type = $var['type'];
+                $given = $var['given'];
+                $x = getInsuranceData($pid, $type, $given);
                 return UserService::function_return_to_xml($x);
-            } elseif ($func=='generate_select_list') {
-                $tag_name=$var['tag_name'];
-                $list_id=$var['list_id'];
-                $currvalue=$var['currvalue'];
-                $title=$var['title'];
-                $empty_name=$var['empty_name'];
-                $class=$var['class'];
-                $onchange=$var['onchange'];
-                    $x['generate_select_list']=generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_name, $class, $onchange);
+            } elseif ($func == 'generate_select_list') {
+                $tag_name = $var['tag_name'];
+                $list_id = $var['list_id'];
+                $currvalue = $var['currvalue'];
+                $title = $var['title'];
+                $empty_name = $var['empty_name'];
+                $class = $var['class'];
+                $onchange = $var['onchange'];
+                    $x['generate_select_list'] = generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_name, $class, $onchange);
                 return UserService::function_return_to_xml($x);
-            } elseif ($func=='xl_layout_label') {
-                $constant=$var['constant'];
-                    $x['xl_layout_label']=xl_layout_label($constant);
+            } elseif ($func == 'xl_layout_label') {
+                $constant = $var['constant'];
+                    $x['xl_layout_label'] = xl_layout_label($constant);
                 return UserService::function_return_to_xml($x);
-            } elseif ($func=='generate_form_field') {
-                $frow=$var['frow'];
-                $currvalue=$var['currvalue'];
+            } elseif ($func == 'generate_form_field') {
+                $frow = $var['frow'];
+                $currvalue = $var['currvalue'];
                     ob_start();
                 generate_form_field($frow, $currvalue);
-                $x['generate_form_field']=ob_get_contents();
+                $x['generate_form_field'] = ob_get_contents();
                 ob_end_clean();
                 return UserService::function_return_to_xml($x);
-            } elseif ($func=='getInsuranceProviders') {
-                $i=$var['i'];
-                $provider=$var['provider'];
-                $insurancei=getInsuranceProviders();
-                    $x=$insurancei;
+            } elseif ($func == 'getInsuranceProviders') {
+                $i = $var['i'];
+                $provider = $var['provider'];
+                $insurancei = getInsuranceProviders();
+                    $x = $insurancei;
                 return $x;
-            } elseif ($func=='get_layout_form_value') {
-                $frow=$var['frow'];
-                $_POST=$var['post_array'];
-                $x['get_layout_form_value']=get_layout_form_value($frow);
+            } elseif ($func == 'get_layout_form_value') {
+                $frow = $var['frow'];
+                $_POST = $var['post_array'];
+                $x['get_layout_form_value'] = get_layout_form_value($frow);
                 return UserService::function_return_to_xml($x);
-            } elseif ($func=='updatePatientData') {
-                $patient_data=$var['patient_data'];
-                $create=$var['create'];
+            } elseif ($func == 'updatePatientData') {
+                $patient_data = $var['patient_data'];
+                $create = $var['create'];
                 updatePatientData($pid, $patient_data, $create);
-                $x['ok']='ok';
+                $x['ok'] = 'ok';
                 return UserService::function_return_to_xml($x);
-            } elseif ($func=='updateEmployerData') {
-                $employer_data=$var['employer_data'];
-                $create=$var['create'];
+            } elseif ($func == 'updateEmployerData') {
+                $employer_data = $var['employer_data'];
+                $create = $var['create'];
                 updateEmployerData($pid, $employer_data, $create);
-                $x['ok']='ok';
+                $x['ok'] = 'ok';
                 return UserService::function_return_to_xml($x);
-            } elseif ($func=='newHistoryData') {
+            } elseif ($func == 'newHistoryData') {
                 newHistoryData($pid);
-                $x['ok']='ok';
+                $x['ok'] = 'ok';
                 return UserService::function_return_to_xml($x);
-            } elseif ($func=='newInsuranceData') {
-                $_POST=$var[0];
+            } elseif ($func == 'newInsuranceData') {
+                $_POST = $var[0];
                 foreach ($var as $key => $value) {
-                    if ($key>=3) {//first 3 need to be skipped.
-                        $var[$key]=formData($value);
+                    if ($key >= 3) {//first 3 need to be skipped.
+                        $var[$key] = formData($value);
                     }
 
-                    if ($key>=1) {
-                        $parameters[$key]=$var[$key];
+                    if ($key >= 1) {
+                        $parameters[$key] = $var[$key];
                     }
                 }
 
-                $parameters[12]=fixDate($parameters[12]);
-                $parameters[27]=fixDate($parameters[27]);
+                $parameters[12] = fixDate($parameters[12]);
+                $parameters[27] = fixDate($parameters[27]);
                 call_user_func_array('newInsuranceData', $parameters);
-                $x['ok']='ok';
+                $x['ok'] = 'ok';
                 return UserService::function_return_to_xml($x);
-            } elseif ($func=='generate_layout_validation') {
-                $form_id=$var['form_id'];
+            } elseif ($func == 'generate_layout_validation') {
+                $form_id = $var['form_id'];
                 ob_start();
                 generate_layout_validation($form_id);
                 $x = ob_get_clean();
@@ -633,11 +634,11 @@ class UserService extends Userforms
     public function insert_login_details($var)
     {
         global $pid;
-        $data_credentials=$var[0];
+        $data_credentials = $var[0];
         if (UserService::valid($data_credentials)) {
-            $username=$var['username'];
-            $authPass=$var['authPass'];
-            $query="insert into patient_access_offsite(pid,portal_username,portal_pwd) values (?,?,?)";
+            $username = $var['username'];
+            $authPass = $var['authPass'];
+            $query = "insert into patient_access_offsite(pid,portal_username,portal_pwd) values (?,?,?)";
             sqlStatement($query, array($pid,$username,$authPass));
         } else {
             throw new SoapFault("Server", "credentials failed");
@@ -650,32 +651,32 @@ class UserService extends Userforms
 
     public function update_password($var)
     {
-          $data_credentials=$var[0];
+          $data_credentials = $var[0];
           global $pid,$auditmasterid;
-        if (UserService::valid($data_credentials)=='existingpatient' || UserService::valid($data_credentials)=='newpatient') {
+        if (UserService::valid($data_credentials) == 'existingpatient' || UserService::valid($data_credentials) == 'newpatient') {
             $status = $var['new_pwd_status'];
-            $pwd=$var['new_pwd'];
+            $pwd = $var['new_pwd'];
             $oldpwd = $var['old_pwd'];
             $set = '';
             $setarray = '';
             $where = '';
             if ($status) {
                 $where = "portal_pwd_status=? and pid=?";
-                $set= "portal_pwd=?,portal_pwd_status=?";
-                $setarray[]=$pwd;
-                $setarray[]=$status;
-                $setarray[]=0;
-                $setarray[]=$pid;
+                $set = "portal_pwd=?,portal_pwd_status=?";
+                $setarray[] = $pwd;
+                $setarray[] = $status;
+                $setarray[] = 0;
+                $setarray[] = $pid;
             } else {
-                $set= "portal_pwd=? ";
-                $setarray[]=$pwd;
+                $set = "portal_pwd=? ";
+                $setarray[] = $pwd;
                 $where = " pid=?";
-                $setarray[]=$pid;
+                $setarray[] = $pid;
             }
 
             $qry = "select * from  patient_access_offsite  WHERE pid=?  AND portal_pwd=?";
-            $res=sqlStatement($qry, array($pid,$oldpwd));
-            if (sqlNumRows($res)>0) {
+            $res = sqlStatement($qry, array($pid,$oldpwd));
+            if (sqlNumRows($res) > 0) {
                 $qry = "UPDATE  patient_access_offsite SET $set WHERE $where";
                 sqlStatement($qry, $setarray);
                 return 'ok';
@@ -683,11 +684,11 @@ class UserService extends Userforms
                 return 'notok';
             }
         } elseif (UserService::valid($data_credentials) == 'newpatienttoapprove') {
-              $pwd=$var['new_pwd'];
+              $pwd = $var['new_pwd'];
             $oldpwd = $var['old_pwd'];
             $qry = "SELECT * from audit_details WHERE audit_master_id = ? AND table_name = 'patient_access_offsite' AND field_name = 'portal_pwd' AND field_value = ?";
-            $res=sqlStatement($qry, array($auditmasterid,$oldpwd));
-            if (sqlNumRows($res)>0) {
+            $res = sqlStatement($qry, array($auditmasterid,$oldpwd));
+            if (sqlNumRows($res) > 0) {
                 $qry = "UPDATE audit_details SET field_value = ? WHERE audit_master_id = ? AND table_name = 'patient_access_offsite' AND field_name = 'portal_pwd'";
                 sqlStatement($qry, array($pwd,$auditmasterid));
                 return 'ok';
@@ -704,13 +705,13 @@ class UserService extends Userforms
 
     public function update_openemr_appointment($var)
     {
-          $data_credentials=$var[0];
-        if (UserService::valid($data_credentials)=='existingpatient' || UserService::valid($data_credentials)=='newpatient') {
+          $data_credentials = $var[0];
+        if (UserService::valid($data_credentials) == 'existingpatient' || UserService::valid($data_credentials) == 'newpatient') {
             foreach ($var[1] as $key => $value) {
-                $eid=explode('_', $var[1][$key]);
-                if ($eid[0]=='calendar') {
+                $eid = explode('_', $var[1][$key]);
+                if ($eid[0] == 'calendar') {
                     sqlQuery("update openemr_postcalendar_events set pc_apptstatus='x' where pc_eid=?", array($eid[1]));
-                } elseif ($eid[0]=='audit') {
+                } elseif ($eid[0] == 'audit') {
                     sqlQuery("update audit_master set approval_status='5' where id=?", array($eid[1]));
                 }
             }
@@ -724,9 +725,9 @@ class UserService extends Userforms
 
     public function update_dlm_dld($var)
     {
-        $data_credentials=$var[0];
+        $data_credentials = $var[0];
         if (UserService::valid($data_credentials)) {
-            $qry=" UPDATE  documents_legal_detail set dld_signed=2 where dld_id=?";
+            $qry = " UPDATE  documents_legal_detail set dld_signed=2 where dld_id=?";
                sqlStatement($qry, array($var['dld_id']));
         } else {
             throw new SoapFault("Server", "credentials failed");
@@ -782,7 +783,7 @@ class UserService extends Userforms
                     $qry = "UPDATE documents_legal_detail SET dld_pid=?,dld_signed=?,dld_denial_reason=? WHERE dld_id=?";
                     sqlStatement($qry, array($pid['pid'],$data[1][0],$data[1][1],$result['dld_id']));
                 } else {
-                    return "Please approve the patient ".$status['name'].", for approving the selected document";
+                    return "Please approve the patient " . $status['name'] . ", for approving the selected document";
                 }
             } else {
                 $qry = "UPDATE documents_legal_detail SET dld_signed=?,dld_denial_reason=? WHERE dld_id=?";
@@ -822,16 +823,16 @@ class UserService extends Userforms
     public function insert_dld($data)
     {
          global $pid,$auditmasterid;
-        if (UserService::valid($data[0])=='existingpatient' || UserService::valid($data[0])=='newpatient') {
-            sqlStatement("INSERT INTO documents_legal_detail (dld_pid,dld_signed,dld_filepath,dld_master_docid,dld_filename,dld_encounter,dld_file_for_pdf_generation) ".
+        if (UserService::valid($data[0]) == 'existingpatient' || UserService::valid($data[0]) == 'newpatient') {
+            sqlStatement("INSERT INTO documents_legal_detail (dld_pid,dld_signed,dld_filepath,dld_master_docid,dld_filename,dld_encounter,dld_file_for_pdf_generation) " .
             " VALUES (?,?,?,?,?,?,?)", array($pid,$data[2],$data[3],$data[4],$data[5],$data[6],$data[7]));
-        } elseif (UserService::valid($data[0])=='newpatienttoapprove') {
-            $param=array($data[0],'audit_master_id_to_delete'=>"",'pid'=>"$pid",'approval_status'=>'1',
-            'type'=>'3','ip_address'=>'',
-            'table_name_array'=>array('documents_legal_detail','patient_access_offsite'),
-            'field_name_value_array'=>array(array('dld_pid'=>"$pid",'dld_signed'=>$data[2],'dld_filepath'=>$data[3],'dld_master_docid'=>$data[4],'dld_filename'=>$data[5],'dld_encounter'=>$data[6],'dld_file_for_pdf_generation'=>$data[7]),
-            array('pid'=>"$pid",'portal_username'=>$data[0][6])),
-            'entry_identification_array'=>array(1,1),
+        } elseif (UserService::valid($data[0]) == 'newpatienttoapprove') {
+            $param = array($data[0],'audit_master_id_to_delete' => "",'pid' => "$pid",'approval_status' => '1',
+            'type' => '3','ip_address' => '',
+            'table_name_array' => array('documents_legal_detail','patient_access_offsite'),
+            'field_name_value_array' => array(array('dld_pid' => "$pid",'dld_signed' => $data[2],'dld_filepath' => $data[3],'dld_master_docid' => $data[4],'dld_filename' => $data[5],'dld_encounter' => $data[6],'dld_file_for_pdf_generation' => $data[7]),
+            array('pid' => "$pid",'portal_username' => $data[0][6])),
+            'entry_identification_array' => array(1,1),
             );
             UserService::insert_to_be_audit_data($param);
         } else {
@@ -844,7 +845,7 @@ class UserService extends Userforms
 
     public function insert_dlm($data)
     {
-        if ($this->valid($data[0])=='oemruser') {
+        if ($this->valid($data[0]) == 'oemruser') {
             sqlStatement("INSERT INTO documents_legal_master(dlm_category, dlm_subcategory,dlm_document_name,dlm_facility,dlm_provider,
 	       dlm_filename,dlm_filepath,dlm_effective_date,content) values (?,?,?,?,?,?,?,?,?)", array($data[1],$data[2],$data[3],$data[4],$data[5],$data[6],$data[7],$data[8],$data[9]));
         } else {
@@ -861,13 +862,13 @@ class UserService extends Userforms
         if ($this->valid($data[0])) {
             $batch = $data[1];
             foreach ($batch as $key => $value) {
-                $batchkey=$value['batchkey'];
-                $case=$value['case'];
-                $param=$value['param'];
+                $batchkey = $value['batchkey'];
+                $case = $value['case'];
+                $param = $value['param'];
                 $arrproc[] = $case;
                 $arrproc[] = $param;
-                $return_array[$batchkey]=$this->selectquery(array($data[0],$arrproc));
-                $arrproc=null;
+                $return_array[$batchkey] = $this->selectquery(array($data[0],$arrproc));
+                $arrproc = null;
             }
 
             return $return_array;
@@ -885,12 +886,12 @@ class UserService extends Userforms
         if ($this->valid($data[0])) {
             $batch = $data[1];
             foreach ($batch as $key => $value) {
-                $batchkey=$value['batchkey'];
-                $function=$value['funcname'];
-                $param=$value['param'];
-                $param[]=$data[0];
-                $res=call_user_func_array("UserService::$function", $param);
-                $return_array[$batchkey]=$res;
+                $batchkey = $value['batchkey'];
+                $function = $value['funcname'];
+                $param = $value['param'];
+                $param[] = $data[0];
+                $res = call_user_func_array("UserService::$function", $param);
+                $return_array[$batchkey] = $res;
             }
 
             return $return_array;
@@ -906,17 +907,17 @@ class UserService extends Userforms
     {
          $batch = $data[1];
         foreach ($batch as $key => $value) {
-            $batchkey=$value['batchkey'];
-            $function=$value['funcname'];
-            $param=$value['param'];
+            $batchkey = $value['batchkey'];
+            $function = $value['funcname'];
+            $param = $value['param'];
             if (is_array($param)) {
                 array_unshift($param, $data[0]);
             } else {
-                $param[]=$data[0];
+                $param[] = $data[0];
             }
 
-            $res= UserService::$function($param);
-            $return_array[$batchkey]=$res;
+            $res = UserService::$function($param);
+            $return_array[$batchkey] = $res;
         }
 
          return $return_array;
@@ -934,10 +935,10 @@ class UserService extends Userforms
 
     public function loginchecking($data)
     {
-        if ($this->valid($data[0])=='existingpatient' || $this->valid($data[0])=='newpatient') {
+        if ($this->valid($data[0]) == 'existingpatient' || $this->valid($data[0]) == 'newpatient') {
                 $res = sqlStatement("SELECT portal_pwd_status, 'yes' AS patient_status, portal_relation  FROM patient_access_offsite WHERE BINARY portal_username=? AND  BINARY portal_pwd=?", $data[1]);
                 return $this->resourcetoxml($res);
-        } elseif ($this->valid($data[0])=='newpatienttoapprove') {
+        } elseif ($this->valid($data[0]) == 'newpatienttoapprove') {
               $res = sqlStatement("
 					SELECT
 						COUNT(*) AS portal_pwd_status,
@@ -967,7 +968,7 @@ class UserService extends Userforms
     public function selectquery($data)
     {
         //global $pid;
-        $sql_result_set='';
+        $sql_result_set = '';
         $utype = $this->valid($data[0]);
         if ($utype) {
                 $newobj = factoryclass::dynamic_class_factory($utype);
@@ -1028,7 +1029,7 @@ class UserService extends Userforms
   //Writing facility payment configuration to table
     public function save_payment_configuration($var)
     {
-        $data_credentials=$var[0];
+        $data_credentials = $var[0];
         if (UserService::valid($data_credentials)) {
             if ($var['service'] == 'paypal') {
                 if ($var['paypal'] != '') {
@@ -1056,10 +1057,10 @@ class UserService extends Userforms
     public function insert_authorizenet_details($var)
     {
         global $pid;
-        $data_credentials=$var[0];
+        $data_credentials = $var[0];
         if (UserService::valid($data_credentials)) {
-            $authorizenetid=$var['authorizenetid'];
-            $query="UPDATE patient_access_offsite SET authorize_net_id = ? WHERE pid = ?";
+            $authorizenetid = $var['authorizenetid'];
+            $query = "UPDATE patient_access_offsite SET authorize_net_id = ? WHERE pid = ?";
             sqlStatement($query, array($authorizenetid,$pid));
         } else {
             throw new SoapFault("Server", "credentials failed");
@@ -1068,19 +1069,19 @@ class UserService extends Userforms
 
     public function valid($credentials)
     {
-        $timminus = date("Y-m-d H:m", (strtotime(date("Y-m-d H:m"))-7200)).":00";
+        $timminus = date("Y-m-d H:m", (strtotime(date("Y-m-d H:m")) - 7200)) . ":00";
         sqlStatement("DELETE FROM audit_details WHERE audit_master_id IN(SELECT id FROM audit_master WHERE type=5 AND created_time<=?)", array($timminus));
         sqlStatement("DELETE FROM audit_master WHERE type=5 AND created_time<=?", array($timminus));
         global $pid;
-        $ok=0;
-        $okE=0;
-        $okN=0;
-        $okO=0;
-        $okP=0;
+        $ok = 0;
+        $okE = 0;
+        $okN = 0;
+        $okO = 0;
+        $okP = 0;
         $tim = strtotime(gmdate("Y-m-d H:m"));
         $res = sqlStatement("SELECT * FROM audit_details WHERE field_value=?", array($credentials[3]));
         if (sqlNumRows($res)) {
-            if ($GLOBALS['validated_offsite_portal'] !=true) {
+            if ($GLOBALS['validated_offsite_portal'] != true) {
                 return false;
             }
         } else {
@@ -1088,15 +1089,15 @@ class UserService extends Userforms
               sqlStatement("INSERT INTO audit_details SET field_value=? , audit_master_id=? ", array($credentials[3],$grpID));
         }
 
-        if (sha1($GLOBALS['portal_offsite_password'].date("Y-m-d H", $tim).$credentials[3])==$credentials[2]) {
-              $ok =1;
-        } elseif (sha1($GLOBALS['portal_offsite_password'].date("Y-m-d H", ($tim-3600)).$credentials[3])==$credentials[2]) {
-              $ok =1;
-        } elseif (sha1($GLOBALS['portal_offsite_password'].date("Y-m-d H", ($tim+3600)).$credentials[3])==$credentials[2]) {
-              $ok =1;
+        if (sha1($GLOBALS['portal_offsite_password'] . date("Y-m-d H", $tim) . $credentials[3]) == $credentials[2]) {
+              $ok = 1;
+        } elseif (sha1($GLOBALS['portal_offsite_password'] . date("Y-m-d H", ($tim - 3600)) . $credentials[3]) == $credentials[2]) {
+              $ok = 1;
+        } elseif (sha1($GLOBALS['portal_offsite_password'] . date("Y-m-d H", ($tim + 3600)) . $credentials[3]) == $credentials[2]) {
+              $ok = 1;
         }
 
-        if (($credentials[1]==$GLOBALS['portal_offsite_username'] && $ok==1 && $GLOBALS['portal_offsite_enable']==1)||$GLOBALS['validated_offsite_portal']==true) {
+        if (($credentials[1] == $GLOBALS['portal_offsite_username'] && $ok == 1 && $GLOBALS['portal_offsite_enable'] == 1) || $GLOBALS['validated_offsite_portal'] == true) {
             $prow = sqlQuery("SELECT * FROM patient_access_offsite WHERE portal_username=?", array($credentials[6]));
             if ($credentials[4] == 'existingpatient') {
                 if (UserService::validcredential($credentials) === 2) {
@@ -1123,7 +1124,7 @@ class UserService extends Userforms
                 }
             }
 
-            if ($okE==1 || $okN == 2 || $okN == 1 || $okO == 1) {
+            if ($okE == 1 || $okN == 2 || $okN == 1 || $okO == 1) {
                 $pid = $prow['pid'];
                 $GLOBALS['pid'] = $prow['pid'];
             } elseif ($okE == 2 || $okN == 3) {
@@ -1165,7 +1166,7 @@ class UserService extends Userforms
 				", array($credentials[6]));
                 }
 
-                if (strtolower($portal['allow_patient_portal'])!='yes') {
+                if (strtolower($portal['allow_patient_portal']) != 'yes') {
                     return false;
                 }
             }
@@ -1218,19 +1219,19 @@ class UserService extends Userforms
 				", array($credentials[6]));
             }
 
-            if (sha1($prow['portal_pwd'].date("Y-m-d H", $tim).$credentials[8])==$credentials[7]) {
+            if (sha1($prow['portal_pwd'] . date("Y-m-d H", $tim) . $credentials[8]) == $credentials[7]) {
                 if ($newpatient_to_approve) {
                     return 2;
                 } else {
                     return true;
                 }
-            } elseif (sha1($prow['portal_pwd'].date("Y-m-d H", ($tim-3600)).$credentials[8])==$credentials[7]) {
+            } elseif (sha1($prow['portal_pwd'] . date("Y-m-d H", ($tim - 3600)) . $credentials[8]) == $credentials[7]) {
                 if ($newpatient_to_approve) {
                     return 2;
                 } else {
                     return true;
                 }
-            } elseif (sha1($prow['portal_pwd'].date("Y-m-d H", ($tim+3600)).$credentials[8])==$credentials[7]) {
+            } elseif (sha1($prow['portal_pwd'] . date("Y-m-d H", ($tim + 3600)) . $credentials[8]) == $credentials[7]) {
                 if ($newpatient_to_approve) {
                     return 2;
                 } else {
@@ -1281,9 +1282,9 @@ class UserService extends Userforms
      */
     public function addDirectAddress($data)
     {
-        if ($this->valid($data[0])=='existingpatient') {
+        if ($this->valid($data[0]) == 'existingpatient') {
             $qry = "SELECT email FROM users WHERE LOWER(email) = ?";
-            $res=sqlStatement($qry, array(strtolower($data['direct_address_string'])));
+            $res = sqlStatement($qry, array(strtolower($data['direct_address_string'])));
             if (!(sqlNumRows($res) > 0)) {
                 sqlStatement("INSERT INTO users SET fname=? , mname=?, lname = ?, email = ?, active = ?, abook_type = ? ", array($data['first_name'],$data['middle_name'], $data['middle_name'], $data['direct_address_string'], 1, 'emr_direct'));
                 $status = 'insert-success';
@@ -1307,9 +1308,9 @@ class UserService extends Userforms
      */
     public function updateDirectAddress($data)
     {
-        if ($this->valid($data[0])=='existingpatient') {
+        if ($this->valid($data[0]) == 'existingpatient') {
             $qry = "SELECT email FROM users WHERE LOWER(email) = ? AND id <> ?";
-            $res=sqlStatement($qry, array($data['direct_address_string'], $data['id']));
+            $res = sqlStatement($qry, array($data['direct_address_string'], $data['id']));
 
             if (!(sqlNumRows($res) > 0)) {
                 sqlStatement("UPDATE users SET fname=? , mname=?, lname = ?, email = ?  WHERE id = ?", array($data['first_name'],$data['middle_name'], $data['middle_name'], $data['direct_address_string'], $data['id']));
@@ -1335,11 +1336,11 @@ class UserService extends Userforms
      */
     public function getDirectAddressDetails($data)
     {
-        if ($this->valid($data[0])=='existingpatient') {
+        if ($this->valid($data[0]) == 'existingpatient') {
             $qry = "SELECT fname, mname, lname,email,id FROM users WHERE id = ?";
 
-            $res=sqlStatement($qry, array($data['id']));
-            if (sqlNumRows($res)>0) {
+            $res = sqlStatement($qry, array($data['id']));
+            if (sqlNumRows($res) > 0) {
                 return $this->resourcetoxml($res);
             } else {
                 $status = 'invalid-id';
@@ -1366,10 +1367,10 @@ class UserService extends Userforms
             fclose($fh12);
 
 
-        if ($this->valid($data[0])=='existingpatient') {
+        if ($this->valid($data[0]) == 'existingpatient') {
             $qry = "SELECT fname, mname, lname,email,id FROM users WHERE abook_type = ?";
-            $res=sqlStatement($qry, array('emr_direct'));
-            if (sqlNumRows($res)>0) {
+            $res = sqlStatement($qry, array('emr_direct'));
+            if (sqlNumRows($res) > 0) {
                 return $this->resourcetoxml($res);
             } else {
                 $status = 'empty-records';

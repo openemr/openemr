@@ -97,25 +97,25 @@ class FhirProcedureService
 
         $sqlResult = sqlStatement($SQL, $id);
         $result = sqlFetchArray($sqlResult);
+        if ($result) {
+            $SQLProvider = "SELECT specialty, organization FROM users WHERE id = ?";
+            $provider = sqlQuery($SQLProvider, array($result['provider_id']));
+            $result['function'] = $provider['specialty'];
+            $result['organization'] = $provider['organization'];
 
-        $SQLProvider = "SELECT specialty, organization FROM users WHERE id = ?";
-        $provider = sqlQuery($SQLProvider, array($result['provider_id']));
-        $result['function'] = $provider['specialty'];
-        $result['organization'] = $provider['organization'];
+            $SQLFollowUpNotes = "SELECT p.body,
+                                    p.update_date
+                                    FROM pnotes AS p
+                                    LEFT JOIN gprelations AS r
+                                    ON p.id = r.id2
+                                    AND r.type1 = 2
+                                    AND r.id1 = ?
+                                    AND r.type2 = 6
+                                    AND p.pid != p.`user`;";
 
-        $SQLFollowUpNotes = "SELECT p.body,
-                                p.update_date
-                                FROM pnotes AS p
-                                LEFT JOIN gprelations AS r
-                                ON p.id = r.id2
-                                AND r.type1 = 2
-                                AND r.id1 = ?
-                                AND r.type2 = 6
-                                AND p.pid != p.`user`;";
-
-        $followUpNotes = sqlQuery($SQLFollowUpNotes, array($result['procedure_order_id']));
-        $result['followUp'] = $followUpNotes['body'] . " " . $followUpNotes['update_date'];
-
+            $followUpNotes = sqlQuery($SQLFollowUpNotes, array($result['procedure_order_id']));
+            $result['followUp'] = $followUpNotes['body'] . " " . $followUpNotes['update_date'];
+        }
         return $result;
     }
 
@@ -140,19 +140,19 @@ class FhirProcedureService
         $procedureCode->addCoding($procedureCodeCoding);
 
         $subject = new FHIRReference();
-        $subject->setReference('Patient/'.$data['patient_id']);
+        $subject->setReference('Patient/' . $data['patient_id']);
 
         $encounter = new FHIRReference();
-        $encounter->setReference('Encounter/'.$data['encounter_id']);
+        $encounter->setReference('Encounter/' . $data['encounter_id']);
 
         $performedDateTime = new FHIRDateTime();
         $performedDateTime->setValue($data['date_collected']);
 
         $recorder = new FHIRReference();
-        $recorder->setReference('Practitioner/'.$data['provider_id']);
+        $recorder->setReference('Practitioner/' . $data['provider_id']);
 
         $asserter = new FHIRReference();
-        $asserter->setReference('Practitioner/'.$data['provider_id']);
+        $asserter->setReference('Practitioner/' . $data['provider_id']);
 
         $function = new FHIRCodeableConcept();
         $functionCoding = new FHIRCoding();
@@ -162,10 +162,10 @@ class FhirProcedureService
         $function->addCoding($functionCoding);
 
         $actor = new FHIRReference();
-        $actor->setReference('Practitioner/'.$data['provider_id']);
+        $actor->setReference('Practitioner/' . $data['provider_id']);
 
         $onBehalfOf = new FHIRReference();
-        $onBehalfOf->setReference('Organization/'.$data['organization']);
+        $onBehalfOf->setReference('Organization/' . $data['organization']);
 
         $performer = new FHIRProcedurePerformer();
         $performer->setActor($actor);

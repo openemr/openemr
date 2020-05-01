@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * Patient summary screen.
@@ -16,16 +17,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
 require_once("../history/history.inc.php");
 require_once("$srcdir/clinical_rules.php");
 require_once("$srcdir/group.inc");
-require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");
+require_once(dirname(__FILE__) . "/../../../library/appointments.inc.php");
 
-use OpenEMR\Billing\EDI_270;
+use OpenEMR\Billing\EDI270;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -76,7 +76,7 @@ function print_as_money($money)
     $tmp = wordwrap(strrev($moneymatches[1]), 3, ",", 1);
     $ccheck = strrev($tmp);
     if ($ccheck[0] == ",") {
-        $tmp = substr($ccheck, 1, strlen($ccheck)-1);
+        $tmp = substr($ccheck, 1, strlen($ccheck) - 1);
     }
 
     if ($moneymatches[2] != "") {
@@ -307,8 +307,8 @@ $(function () {
     <?php
     if ($GLOBALS['erx_enable']) {
         //$soap_status=sqlQuery("select soap_import_status from patient_data where pid=?",array($pid));
-        $soap_status=sqlStatement("select soap_import_status,pid from patient_data where pid=? and soap_import_status in ('1','3')", array($pid));
-        while ($row_soapstatus=sqlFetchArray($soap_status)) {
+        $soap_status = sqlStatement("select soap_import_status,pid from patient_data where pid=? and soap_import_status in ('1','3')", array($pid));
+        while ($row_soapstatus = sqlFetchArray($soap_status)) {
             //if($soap_status['soap_import_status']=='1' || $soap_status['soap_import_status']=='3'){ ?>
             top.restoreSession();
             $.ajax({
@@ -442,7 +442,7 @@ $gfres = sqlStatement("SELECT grp_form_id FROM layout_group_properties WHERE " .
   "ORDER BY grp_seq, grp_title");
 while ($gfrow = sqlFetchArray($gfres)) {
     ?>
-    $(<?php echo js_escape("#".$gfrow['grp_form_id']."_ps_expand"); ?>).load("lbf_fragment.php?formname=" + <?php echo js_url($gfrow['grp_form_id']); ?>,
+    $(<?php echo js_escape("#" . $gfrow['grp_form_id'] . "_ps_expand"); ?>).load("lbf_fragment.php?formname=" + <?php echo js_url($gfrow['grp_form_id']); ?>,
         {
             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
         }
@@ -608,9 +608,9 @@ if (isset($_GET['set_pid'])) {
     var Count = 0;
     <?php
    //Encounter details are stored to javacript as array.
-    $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe ".
+    $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
     " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($pid));
-    if (sqlNumRows($result4)>0) {
+    if (sqlNumRows($result4) > 0) {
         while ($rowresult4 = sqlFetchArray($result4)) {?>
             EncounterIdArray[Count] = <?php echo js_escape($rowresult4['encounter']); ?>;
             EncounterDateArray[Count] = <?php echo js_escape(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>;
@@ -708,8 +708,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         $viewEvent = new ViewEvent($pid);
         $viewEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(ViewEvent::EVENT_HANDLE, $viewEvent, 10);
 
-        if (!$thisauth ||
-            !$viewEvent->authorized()) {
+        if (
+            !$thisauth ||
+            !$viewEvent->authorized()
+        ) {
             echo "<p>(" . xlt('Demographics not authorized') . ")</p>\n";
             echo "</body>\n</html>\n";
             exit();
@@ -786,20 +788,20 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $patientbalance = get_patient_balance($pid, false);
                                 //Debit the patient balance from insurance balance
                                     $insurancebalance = get_patient_balance($pid, true) - $patientbalance;
-                                    $totalbalance=$patientbalance + $insurancebalance;
+                                    $totalbalance = $patientbalance + $insurancebalance;
 
                                 // Show current balance and billing note, if any.
                                     echo "<table class='border-0'><tr><td>" .
                                     "<table ><tr><td><span class='font-weight-bold text-danger'>" .
                                     xlt('Patient Balance Due') .
                                     " : " . text(oeFormatMoney($patientbalance)) .
-                                    "</span></td></tr>".
+                                    "</span></td></tr>" .
                                     "<tr><td><span class='font-weight-bold text-danger'>" .
                                     xlt('Insurance Balance Due') .
                                     " : " . text(oeFormatMoney($insurancebalance)) .
-                                    "</span></td></tr>".
+                                    "</span></td></tr>" .
                                     "<tr><td><span class='font-weight-bold text-danger'>" .
-                                    xlt('Total Balance Due').
+                                    xlt('Total Balance Due') .
                                     " : " . text(oeFormatMoney($totalbalance)) .
                                     "</span></td></td></tr>";
                                     if (!empty($result['billing_note'])) {
@@ -927,7 +929,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         if ($row['provider']) {
                                             $ins_description = ucfirst($instype);
                                             $ins_description = xl($ins_description);
-                                            $ins_description .= strcmp($enddate, 'Present') != 0 ? " (".xl('Old').")" : "";
+                                            $ins_description .= strcmp($enddate, 'Present') != 0 ? " (" . xl('Old') . ")" : "";
                                             ?>
                                             <li <?php echo $first ? 'class="current"' : '' ?>><a href="#">
                                                         <?php echo text($ins_description); ?></a></li>
@@ -973,8 +975,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                                 echo xlt("Old") . " ";
                                                             }
                                                             ?>
-                                                            <?php $tempinstype=ucfirst($instype);
-                                                            echo xlt($tempinstype.' Insurance'); ?>
+                                                            <?php $tempinstype = ucfirst($instype);
+                                                            echo xlt($tempinstype . ' Insurance'); ?>
                                                             <?php if (strcmp($row['date'], '0000-00-00') != 0) { ?>
                                                                 <?php echo ' ' . xlt('from') . ' ' . $row['date']; ?>
                                                             <?php } ?>
@@ -1114,18 +1116,18 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 if ($_POST['status_update'] === 'true') {
                                                     unset($_POST['status_update']);
                                                     $showEligibility = true;
-                                                    $ok = EDI_270::requestEligibleTransaction($pid);
+                                                    $ok = EDI270::requestEligibleTransaction($pid);
                                                     if ($ok === true) {
-                                                        EDI_270::show_eligibility_information($pid, false);
+                                                        EDI270::showEligibilityInformation($pid, false);
                                                     } else {
                                                         echo $ok;
                                                     }
                                                 } else {
-                                                    EDI_270::show_eligibility_information($pid, true);
+                                                    EDI270::showEligibilityInformation($pid, true);
                                                 }
                                                 echo "</form>";
                                             } else {
-                                                EDI_270::show_eligibility_information($pid, true);
+                                                EDI270::showEligibilityInformation($pid, true);
                                             }
                                             echo "</div></div>";
 
@@ -1248,7 +1250,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         echo " </tr></table>\n";
                                 }
 
-                                while ($row=sqlFetchArray($result)) {
+                                while ($row = sqlFetchArray($result)) {
                                         echo "&nbsp;&nbsp;";
                                         echo "<a class= '" . attr($widgetButtonClass) . "' href='" . $GLOBALS['webroot'] . "/interface/patient_file/summary/add_edit_amendments.php?id=" . attr_url($row['amendment_id']) . "' onclick='top.restoreSession()'>" . text($row['amendment_date']);
                                         echo "&nbsp; " . text($row['amendment_desc']);
@@ -1511,8 +1513,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     // Show Clinical Reminders for any user that has rules that are permitted.
                     $clin_rem_check = resolve_rules_sql('', '0', true, '', $_SESSION['authUser']);
-                    if (!empty($clin_rem_check) && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw'] &&
-                        AclMain::aclCheckCore('patients', 'alert')) {
+                    if (
+                        !empty($clin_rem_check) && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw'] &&
+                        AclMain::aclCheckCore('patients', 'alert')
+                    ) {
                         // clinical summary expand collapse widget
                         $widgetTitle = xl("Clinical Reminders");
                         $widgetLabel = "clinical_reminders";
@@ -1666,7 +1670,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             $etitle = xl('(Click to edit)');
                             if ($row['pc_hometext'] != "") {
-                                $etitle = xl('Comments').": ".($row['pc_hometext'])."\r\n".$etitle;
+                                $etitle = xl('Comments') . ": " . ($row['pc_hometext']) . "\r\n" . $etitle;
                             }
 
                             //////
@@ -1694,16 +1698,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
 
                             echo "<b>" . text(oeFormatShortDate($row['pc_eventDate'])) . ", ";
-                            echo text(sprintf("%02d", $disphour) .":$dispmin " . xl($dispampm) . " (" . xl($dayname))  . ")</b> ";
+                            echo text(sprintf("%02d", $disphour) . ":$dispmin " . xl($dispampm) . " (" . xl($dayname))  . ")</b> ";
                             if ($row['pc_recurrtype']) {
                                 echo "<img src='" . $GLOBALS['webroot'] . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='" . xla("Repeating event") . "' alt='" . xla("Repeating event") . "'>";
                             }
 
-                            echo "<span title='" . generate_display_field(array('data_type'=>'1','list_id'=>'apptstat'), $row['pc_apptstatus']) . "'>";
+                            echo "<span title='" . generate_display_field(array('data_type' => '1','list_id' => 'apptstat'), $row['pc_apptstatus']) . "'>";
                             echo "<br />" . xlt('Status') . "( " . text($row['pc_apptstatus']) . " ) </span>";
                             echo text(xl_appt_category($row['pc_catname'])) . "\n";
                             if (in_array($row['pc_catid'], $therapyGroupCategories)) {
-                                echo "<br /><span>" . xlt('Group name') .": " . text(getGroup($row['pc_gid'])['group_name']) . "</span>\n";
+                                echo "<br /><span>" . xlt('Group name') . ": " . text(getGroup($row['pc_gid'])['group_name']) . "</span>\n";
                             }
 
                             if ($row['pc_hometext']) {
@@ -1730,22 +1734,24 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             while ($result2 = sqlFetchArray($query)) {
                                 //tabYourIt('recall', 'main/messages/messages.php?go=' + choice);
                                 //parent.left_nav.loadFrame('1', tabNAME, url);
-                                echo "&nbsp;&nbsp<b>Recall: <a onclick=\"top.left_nav.loadFrame('1', 'rcb', '../interface/main/messages/messages.php?go=addRecall');\">" . text(oeFormatShortDate($result2['r_eventDate'])). " (". text($result2['r_reason']).") </a></b>";
+                                echo "&nbsp;&nbsp<b>Recall: <a onclick=\"top.left_nav.loadFrame('1', 'rcb', '../interface/main/messages/messages.php?go=addRecall');\">" . text(oeFormatShortDate($result2['r_eventDate'])) . " (" . text($result2['r_reason']) . ") </a></b>";
                                 $count2++;
                             }
                             //if there is no appt and no recall
                             if (($count < 1) && ($count2 < 1)) {
                                 echo "<br /><br />&nbsp;&nbsp;<a onclick=\"top.left_nav.loadFrame('1', 'rcb', '../interface/main/messages/messages.php?go=addRecall');\">" . xlt('No Recall') . "</a>";
                             }
-                            $count =0;
+                            $count = 0;
                             echo "</div>";
                         }
                     } // End of Appointments Widget.
 
 
                     /* Widget that shows recurrences for appointments. */
-                    if (isset($pid) && !$GLOBALS['disable_calendar'] && $GLOBALS['appt_recurrences_widget'] &&
-                        AclMain::aclCheckCore('patients', 'appt')) {
+                    if (
+                        isset($pid) && !$GLOBALS['disable_calendar'] && $GLOBALS['appt_recurrences_widget'] &&
+                        AclMain::aclCheckCore('patients', 'appt')
+                    ) {
                          $widgetTitle = xl("Recurrent Appointments");
                          $widgetLabel = "recurrent_appointments";
                          $widgetButtonLabel = xl("Add");
@@ -1803,8 +1809,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $showpast = $GLOBALS['num_past_appointments_to_show'];
                     }
 
-                    if (isset($pid) && !$GLOBALS['disable_calendar'] && $showpast > 0 &&
-                      AclMain::aclCheckCore('patients', 'appt')) {
+                    if (
+                        isset($pid) && !$GLOBALS['disable_calendar'] && $showpast > 0 &&
+                        AclMain::aclCheckCore('patients', 'appt')
+                    ) {
                         $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
                         "e.pc_startTime, e.pc_hometext, u.fname, u.lname, u.mname, " .
                         "c.pc_catname, e.pc_apptstatus " .
@@ -1844,12 +1852,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             $petitle = xl('(Click to edit)');
                             if ($row['pc_hometext'] != "") {
-                                $petitle = xl('Comments').": ".($row['pc_hometext'])."\r\n".$petitle;
+                                $petitle = xl('Comments') . ": " . ($row['pc_hometext']) . "\r\n" . $petitle;
                             }
 
                             echo "<a href='javascript:oldEvt(" . attr_js(preg_replace("/-/", "", $row['pc_eventDate'])) . ', ' . attr_js($row['pc_eid']) . ")' title='" . attr($petitle) . "'>";
                             echo "<b>" . text(xl($dayname) . ", " . oeFormatShortDate($row['pc_eventDate'])) . "</b> " . xlt("Status") .  "(";
-                            echo " " .  generate_display_field(array('data_type'=>'1','list_id'=>'apptstat'), $row['pc_apptstatus']) . ")<br />";   // can't use special char parser on this
+                            echo " " .  generate_display_field(array('data_type' => '1','list_id' => 'apptstat'), $row['pc_apptstatus']) . ")<br />";   // can't use special char parser on this
                             echo text("$disphour:$dispmin ") . xlt($dispampm) . " ";
                             echo text($row['fname'] . " " . $row['lname']) . "</a><br />\n";
                         }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * Modified from interface/main/calendar/add_edit_event.php for

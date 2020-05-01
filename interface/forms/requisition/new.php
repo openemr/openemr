@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  Lab Requisition Form
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
@@ -34,7 +34,7 @@ $encounter = $_SESSION['encounter'];
 $oid = fetchProcedureId($pid, $encounter);
 
 if (empty($oid)) {
-    print "<center>".xlt('No Order found, please enter procedure order first')."</center>";
+    print "<center>" . xlt('No Order found, please enter procedure order first') . "</center>";
     exit;
 }
 
@@ -171,16 +171,16 @@ table, th, td {
         <p><font size="4"><b><?php print xlt('Requisition Number') ?>:</b> <?php echo text($bar); ?>  &#160;&#160;&#160;&#160;&#160;&#160;<b><?php print xlt('Client Number') ?>:</b> <?php echo text($provLabId['recv_fac_id']); ?></font></p>
            <div class="cinfo">
            <font size="4">
-                <?php echo text($facility['name']) ."<br />". text($facility['street']) . "<br />" .
-                          text($facility['city']).",".text($facility['state']).",".text($facility['postal_code']) . "<br />" .
+                <?php echo text($facility['name']) . "<br />" . text($facility['street']) . "<br />" .
+                          text($facility['city']) . "," . text($facility['state']) . "," . text($facility['postal_code']) . "<br />" .
                           text($facility['phone']); ?>
                           </font>
            </div>
            <div class="pdata">
                  <p><font size="4">
-            <?php echo text($pp['organization'])."<br />".
-            text($pp['street'])." | ".text($pp['city']).", ".text($pp['state'])." ".text($pp['zip'])."<br />".
-            "O:".text($pp['phone'])." | F:".text($pp['fax'])."<br />";
+            <?php echo text($pp['organization']) . "<br />" .
+            text($pp['street']) . " | " . text($pp['city']) . ", " . text($pp['state']) . " " . text($pp['zip']) . "<br />" .
+            "O:" . text($pp['phone']) . " | F:" . text($pp['fax']) . "<br />";
             ?></font></p>
 
            </div>
@@ -211,7 +211,7 @@ table, th, td {
                         <?php echo text($pid); ?><br />
                         <?php echo text($pdata['DOB']); ?><br />
                         <?php echo text(getListItemTitle('sex', $pdata['sex'])); ?><br />
-                        <?php echo text($pdata['fname']) ." ". text($pdata['lname']); ?><br />
+                        <?php echo text($pdata['fname']) . " " . text($pdata['lname']); ?><br />
                     </div>
                    </td>
                </tr>
@@ -224,7 +224,7 @@ table, th, td {
                         <?php echo xlt('NPI') ?>:         <br />
                         <?php echo xlt('UPIN') ?>:        <br />
                        </div>
-                     <div class="pFill"><?php echo text($provider['fname']) ." ". text($provider['lname']); ?><br />
+                     <div class="pFill"><?php echo text($provider['fname']) . " " . text($provider['lname']); ?><br />
                         <?php echo text($npi[0]); ?><br />
                         <?php echo text($npi[1]); ?><br />
 
@@ -276,7 +276,7 @@ table, th, td {
                         <?php echo "/"; ?><br />
                         <?php echo text($ins[0]['name']); ?><br />
                         <?php echo text($ins[0]['line1']); ?><br />
-                        <?php echo text($ins[0]['city']) .", ". text($ins[0]['state'])." ".text($ins[0]['zip']); ?><br />
+                        <?php echo text($ins[0]['city']) . ", " . text($ins[0]['state']) . " " . text($ins[0]['zip']); ?><br />
                         <?php echo text($ins[0]['policy_number']); ?><br />
                         <?php echo text($ins[0]['group_number']); ?><br />
                         <?php echo "/"; ?><br />
@@ -309,7 +309,7 @@ table, th, td {
                         <?php echo "/"; ?><br />
                         <?php echo text($ins[1]['name']); ?><br />
                         <?php echo text($ins[1]['line1']); ?><br />
-                        <?php echo text($ins[1]['city']) .", ". text($ins[1]['state'])." ".$ins[1]['zip']; ?><br />
+                        <?php echo text($ins[1]['city']) . ", " . text($ins[1]['state']) . " " . $ins[1]['zip']; ?><br />
                         <?php echo text($ins[1]['policy_number']); ?><br />
                         <?php echo text($ins[1]['group_number']); ?><br />
                         <?php echo "/"; ?><br />
@@ -324,9 +324,9 @@ table, th, td {
                    <td style="vertical-align:top; width:400px;">
                        <div class="notes">
                          <font size="4"><strong><?php echo xlt('Test Ordered') ?>:</strong></font><br />
-                            <?php echo text($order[2]) ." ". text($order[3]); ?><br />
-                            <?php echo text($order[17]) ." ". text($order[16]); ?><br />
-                            <?php echo text($order[28]) ." ". text($order[29]); ?><br />
+                            <?php echo text($order[2]) . " " . text($order[3]); ?><br />
+                            <?php echo text($order[17]) . " " . text($order[16]); ?><br />
+                            <?php echo text($order[28]) . " " . text($order[29]); ?><br />
                        </div>
                    </td>
                    <td style="vertical-align:top">

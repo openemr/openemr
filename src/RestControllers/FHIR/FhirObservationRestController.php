@@ -63,7 +63,8 @@ class FhirObservationRestController
                         $profile_data,
                         false
                     );
-                    if ((empty($search['code']) || $this->checkCode($code, $searchParam['code'], $id))
+                    if (
+                        (empty($search['code']) || $this->checkCode($code, $searchParam['code'], $id))
                         && $profile_data['profile'] == $value
                     ) {
                         $entry = array(

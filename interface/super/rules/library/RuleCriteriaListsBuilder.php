@@ -1,4 +1,5 @@
 <?php
+
  // Copyright (C) 2010-2011 Aron Racho <aron@mi-squred.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -29,13 +30,13 @@ class RuleCriteriaListsBuilder extends RuleCriteriaBuilder
                     // assume its a diagnosis
                     return RuleCriteriaType::from(RuleCriteriaType::diagnosis);
                 }
-            } else if ($methodDetail == 'medication') {
+            } elseif ($methodDetail == 'medication') {
                 // its a medication
                 return RuleCriteriaType::from(RuleCriteriaType::medication);
-            } else if ($methodDetail == 'allergy') {
+            } elseif ($methodDetail == 'allergy') {
                 // its a medication
                 return RuleCriteriaType::from(RuleCriteriaType::allergy);
-            } else if ($methodDetail == 'surgery') {
+            } elseif ($methodDetail == 'surgery') {
                 // its a medication
                 return RuleCriteriaType::from(RuleCriteriaType::surgery);
             }

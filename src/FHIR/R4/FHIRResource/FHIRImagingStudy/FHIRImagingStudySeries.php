@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRImagingStudy;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRImagingStudy;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -419,7 +421,7 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
                         $this->addEndpoint($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"endpoint" must be array of objects or null, '.gettype($data['endpoint']).' seen.');
+                    throw new \InvalidArgumentException('"endpoint" must be array of objects or null, ' . gettype($data['endpoint']) . ' seen.');
                 }
             }
             if (isset($data['bodySite'])) {
@@ -434,7 +436,7 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
                         $this->addSpecimen($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"specimen" must be array of objects or null, '.gettype($data['specimen']).' seen.');
+                    throw new \InvalidArgumentException('"specimen" must be array of objects or null, ' . gettype($data['specimen']) . ' seen.');
                 }
             }
             if (isset($data['started'])) {
@@ -446,7 +448,7 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
                         $this->addPerformer($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"performer" must be array of objects or null, '.gettype($data['performer']).' seen.');
+                    throw new \InvalidArgumentException('"performer" must be array of objects or null, ' . gettype($data['performer']) . ' seen.');
                 }
             }
             if (isset($data['instance'])) {
@@ -455,11 +457,11 @@ class FHIRImagingStudySeries extends FHIRBackboneElement implements \JsonSeriali
                         $this->addInstance($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"instance" must be array of objects or null, '.gettype($data['instance']).' seen.');
+                    throw new \InvalidArgumentException('"instance" must be array of objects or null, ' . gettype($data['instance']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

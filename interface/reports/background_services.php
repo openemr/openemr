@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Report to view the background services.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2013-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 
@@ -136,7 +136,7 @@ while ($row = sqlFetchArray($res)) {
           <td align='center'><?php echo xlt('Not Applicable'); ?></td>
         <?php } ?>
 
-          <td align='center'><?php echo ($row['running']>0) ? xlt("Yes") : xlt("No"); ?></td>
+          <td align='center'><?php echo ($row['running'] > 0) ? xlt("Yes") : xlt("No"); ?></td>
 
         <?php if ($row['running'] > -1) { ?>
           <td align='center'><?php echo text(oeFormatDateTime($row['last_run_start'], "global", true)); ?></td>

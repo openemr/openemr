@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Given a list ID, name of a target form field and a default value, this creates
  * JavaScript that will write Option values into the target selection list.
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 
@@ -31,7 +31,7 @@ $res = sqlStatement("SELECT option_id FROM list_options WHERE list_id = ? AND ac
 
 echo "var itemsel = document.forms[0][" . js_escape($target) . "];\n";
 echo "var j = 0;\n";
-echo "itemsel.options[j++] = new Option(" . js_escape("-- ".xl('Please Select')." --") . ",'',false,false);\n";
+echo "itemsel.options[j++] = new Option(" . js_escape("-- " . xl('Please Select') . " --") . ",'',false,false);\n";
 while ($row = sqlFetchArray($res)) {
     $tmp = js_escape($row['option_id']);
     $def = $row['option_id'] == $current ? 'true' : 'false';

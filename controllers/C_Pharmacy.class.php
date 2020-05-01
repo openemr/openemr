@@ -1,4 +1,5 @@
 <?php
+
 /**
  * C_Pharmacy class
  *
@@ -21,8 +22,8 @@ class C_Pharmacy extends Controller
         parent::__construct();
         $this->pharmacies = array();
         $this->template_mod = $template_mod;
-        $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . attr($_SERVER['QUERY_STRING']));
-        $this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings&pharmacy&");
+        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&pharmacy&");
         $this->assign("STYLE", $GLOBALS['style']);
         $this->Pharmacy = new Pharmacy();
     }
@@ -82,6 +83,6 @@ class C_Pharmacy extends Controller
         $this->pharmacies[0]->persist();
         //echo "action processeed";
         $_POST['process'] = "";
-        header('Location:'.$GLOBALS['webroot']."/controller.php?" . "practice_settings&pharmacy&action=list");//Z&H
+        header('Location:' . $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&pharmacy&action=list");//Z&H
     }
 }

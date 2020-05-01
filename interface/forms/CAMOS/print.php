@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CAMOS print.php
  *
@@ -12,7 +13,6 @@
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("../../../library/api.inc");
@@ -58,7 +58,7 @@ formHeader("Form: CAMOS");
         </table><input type="submit" name="submit form" value="submit form" />
         <?php
         echo "<a href='{$GLOBALS['form_exit_url']}' onclick='top.restoreSession()'>[" .
-        xlt('do not save') ."]</a>";
+        xlt('do not save') . "]</a>";
         ?>
 
     </form>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Login screen.
  *
@@ -15,8 +16,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-
 
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
@@ -37,7 +36,7 @@ $rs = sqlStatement(
 if (sqlNumRows($rs)) {
     while ($app = sqlFetchArray($rs)) {
         $app_req = explode('?', trim($app['title']));
-        if (! file_exists('../'.$app_req[0])) {
+        if (! file_exists('../' . $app_req[0])) {
             continue;
         }
 
@@ -184,21 +183,16 @@ if (count($emr_app)) {
                         if ($GLOBALS['language_menu_login']) {
                             // sorting order of language titles depends on language translation options.
                             $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
-                            if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation'])) {
-                                $sql = "SELECT *,lang_description as trans_lang_description FROM lang_languages ORDER BY lang_description, lang_id";
-                                  $res3=SqlStatement($sql);
-                            } else {
-                                // Use and sort by the translated language name.
-                                $sql = "SELECT ll.lang_id, " .
-                                    "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
-                                      "ll.lang_description " .
-                                    "FROM lang_languages AS ll " .
-                                    "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
-                                    "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
-                                    "ld.lang_id = ? " .
-                                    "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-                                $res3=SqlStatement($sql, array($mainLangID));
-                            }
+                            // Use and sort by the translated language name.
+                            $sql = "SELECT ll.lang_id, " .
+                                "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
+                                "ll.lang_description " .
+                                "FROM lang_languages AS ll " .
+                                "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
+                                "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
+                                "ld.lang_id = ? " .
+                                "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
+                            $res3 = SqlStatement($sql, array($mainLangID));
 
                             for ($iter = 0; $row = sqlFetchArray($res3); $iter++) {
                                 $result3[$iter] = $row;
@@ -209,7 +203,7 @@ if (count($emr_app)) {
                                 echo "<input type='hidden' name='languageChoice' value='1' />\n";
                             }
                         } else {
-                            echo "<input type='hidden' name='languageChoice' value='".attr($defaultLangID)."' />\n";
+                            echo "<input type='hidden' name='languageChoice' value='" . attr($defaultLangID) . "' />\n";
                         }
 
                         if ($GLOBALS['login_into_facility']) {
@@ -225,7 +219,7 @@ if (count($emr_app)) {
                 <div class="col-sm-12">
                     <?php if (isset($_SESSION['relogin']) && ($_SESSION['relogin'] == 1)) : // Begin relogin dialog ?>
                     <div class="alert alert-info m-1 font-weight-bold">
-                        <?php echo xlt('Password security has recently been upgraded.').'&nbsp;&nbsp;'.xlt('Please login again.'); ?>
+                        <?php echo xlt('Password security has recently been upgraded.') . '&nbsp;&nbsp;' . xlt('Please login again.'); ?>
                     </div>
                         <?php unset($_SESSION['relogin']);
                     endif;
@@ -298,14 +292,14 @@ if (count($emr_app)) {
                                                 continue; // skip the dummy language
                                             }
 
-                                                echo "<option value='".attr($iter['lang_id'])."'>".text($iter['trans_lang_description'])."</option>\n";
+                                                echo "<option value='" . attr($iter['lang_id']) . "'>" . text($iter['trans_lang_description']) . "</option>\n";
                                         } else {
                                             if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
                                                 if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
                                                     continue; // skip the dummy language
                                                 }
 
-                                                    echo "<option value='".attr($iter['lang_id'])."'>" . text($iter['trans_lang_description']) . "</option>\n";
+                                                    echo "<option value='" . attr($iter['lang_id']) . "'>" . text($iter['trans_lang_description']) . "</option>\n";
                                             }
                                         }
                                     endforeach; ?>

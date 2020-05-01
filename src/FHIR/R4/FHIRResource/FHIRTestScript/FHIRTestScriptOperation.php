@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRTestScript;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRTestScript;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -567,7 +569,7 @@ class FHIRTestScriptOperation extends FHIRBackboneElement implements \JsonSerial
                         $this->addRequestHeader($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"requestHeader" must be array of objects or null, '.gettype($data['requestHeader']).' seen.');
+                    throw new \InvalidArgumentException('"requestHeader" must be array of objects or null, ' . gettype($data['requestHeader']) . ' seen.');
                 }
             }
             if (isset($data['requestId'])) {
@@ -585,8 +587,8 @@ class FHIRTestScriptOperation extends FHIRBackboneElement implements \JsonSerial
             if (isset($data['url'])) {
                 $this->setUrl($data['url']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

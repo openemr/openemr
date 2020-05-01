@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This include is just a HTML and JS *fragment* it CANNOT stand alone
  *
@@ -20,6 +21,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+
 ?>
 
 

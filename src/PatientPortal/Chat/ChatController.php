@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  Chat Class ChatController
  *

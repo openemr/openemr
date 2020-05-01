@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/therapy_groups/index.php routing for therapy groups
  *

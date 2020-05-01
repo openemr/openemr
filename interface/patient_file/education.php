@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This is called as a pop-up to display patient education materials.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -40,15 +40,15 @@ if ($_POST['bn_submit']) {
         $url .= '?mainSearchCriteria.v.cs=';
         if ('ICD9'   == $codetype) {
             $url .= '2.16.840.1.113883.6.103';
-        } else if ('ICD10'  == $codetype) {
+        } elseif ('ICD10'  == $codetype) {
             $url .= '2.16.840.1.113883.6.90' ;
-        } else if ('SNOMED' == $codetype) {
+        } elseif ('SNOMED' == $codetype) {
             $url .= '2.16.840.1.113883.6.96' ;
-        } else if ('RXCUI'  == $codetype) {
+        } elseif ('RXCUI'  == $codetype) {
             $url .= '2.16.840.1.113883.6.88' ;
-        } else if ('NDC'    == $codetype) {
+        } elseif ('NDC'    == $codetype) {
             $url .= '2.16.840.1.113883.6.69' ;
-        } else if ('LOINC'  == $codetype) {
+        } elseif ('LOINC'  == $codetype) {
             $url .= '2.16.840.1.113883.6.1'  ;
         } else {
             die(xlt('Code type not recognized') . ': ' . text($codetype));

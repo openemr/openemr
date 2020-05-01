@@ -1,4 +1,5 @@
 <?php
+
 /**
  * weno rx ajax sample code
  *
@@ -9,7 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once('../globals.php');
 
 use OpenEMR\Core\Header;
@@ -19,7 +19,7 @@ use OpenEMR\Core\Header;
 <html>
 <head>
 <title><?php print xlt("Weno Sample Code") ?></title>
-<?php Header::setupHeader(['jquery-ui', 'jquery-ui-sunny']); ?>
+<?php Header::setupHeader(); ?>
 
 </head>
 

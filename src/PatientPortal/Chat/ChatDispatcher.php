@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  Chat Class ChatDispatcher
  *
@@ -193,7 +194,7 @@ abstract class ChatDispatcher
     public function getModel()
     {
         if ($this->_defaultModel && class_exists($this->_defaultModel)) {
-            return new $this->_defaultModel;
+            return new $this->_defaultModel();
         }
     }
 

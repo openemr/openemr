@@ -1,7 +1,5 @@
 <?php
 
-namespace ESign;
-
 /**
  * SignableIF Interface represents an object that can be signed, locked
  * and verified
@@ -25,7 +23,9 @@ namespace ESign;
  * @link    http://www.open-emr.org
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/VerifiableIF.php';
+namespace ESign;
+
+require_once $GLOBALS['srcdir'] . '/ESign/VerifiableIF.php';
 
 interface SignableIF extends VerifiableIF
 {

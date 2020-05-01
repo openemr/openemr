@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient Portal
  *
@@ -8,6 +9,7 @@
  * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 require_once(dirname(__FILE__) . '/../../interface/globals.php');
 
 use OpenEMR\Common\Crypto\CryptoGen;
@@ -85,7 +87,7 @@ class ApplicationTable
                     $action
             );
         try {
-            $sql = "Select * From onsite_portal_activity As pa Where  pa.patient_id = ? And  pa.activity = ? And  pa.require_audit = ? ".
+            $sql = "Select * From onsite_portal_activity As pa Where  pa.patient_id = ? And  pa.activity = ? And  pa.require_audit = ? " .
                                     "And pa.status = ? And  pa.pending_action = ? ORDER BY pa.date ASC LIMIT 1";
             $return = sqlStatementNoLog($sql, $audit);
             $result = true;
@@ -136,11 +138,14 @@ class ApplicationTable
      *         $audit['action_taken_time']="";
      *         $audit['checksum']="";
      */
-    public function portalAudit($type = 'insert', $rec = '', array $auditvals, $oelog = true, $error = true)
+    public function portalAudit(string $type = null, string $rec = null, array $auditvals, $oelog = true, $error = true)
     {
         $return = false;
         $result = false;
         $audit = array ();
+        if (!$type) {
+            $type = 'insert';
+        }
         if ($type != 'insert') {
             $audit['date'] = $auditvals['date'] ? $auditvals['date'] : date("Y-m-d H:i:s");
         }
@@ -165,13 +170,13 @@ class ApplicationTable
 
         try {
             if ($type != 'update') {
-                $logsql = "INSERT INTO onsite_portal_activity".
-                        "( date, patient_id, activity, require_audit, pending_action, action_taken, status, narrative,".
-                            "table_action, table_args, action_user, action_taken_time, checksum) ".
+                $logsql = "INSERT INTO onsite_portal_activity" .
+                        "( date, patient_id, activity, require_audit, pending_action, action_taken, status, narrative," .
+                            "table_action, table_args, action_user, action_taken_time, checksum) " .
                                 "VALUES (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             } else {
-                $logsql = "update onsite_portal_activity set date=?, patient_id=?, activity=?, require_audit=?,".
-                        "            pending_action=?, action_taken=?,status=?, narrative=?, table_action=?, table_args=?,".
+                $logsql = "update onsite_portal_activity set date=?, patient_id=?, activity=?, require_audit=?," .
+                        "            pending_action=?, action_taken=?,status=?, narrative=?, table_action=?, table_args=?," .
                                         "action_user=?, action_taken_time=?, checksum=? ";
                 $logsql .= "where id='" . add_escape_custom($rec) . "' And patient_id='" . add_escape_custom($audit['patient_id']) . "'";
             }
@@ -293,9 +298,9 @@ class ApplicationTable
     {
         if ($format == "0") {
             $date_format = 'yyyy/mm/dd';
-        } else if ($format == 1) {
+        } elseif ($format == 1) {
             $date_format = 'mm/dd/yyyy';
-        } else if ($format == 2) {
+        } elseif ($format == 2) {
             $date_format = 'dd/mm/yyyy';
         } else {
             $date_format = $format;
@@ -375,7 +380,7 @@ class ApplicationTable
         $sql = "insert into log ( date, event, user, groupname, success, comments, log_from, crt_user, patient_id, user_notes) " . "values ( NOW(), " . $adodb->qstr($event) . "," .
             $adodb->qstr($user) . "," . $adodb->qstr($groupname) . "," . $adodb->qstr($success) . "," .
             $adodb->qstr($comments) . "," . $adodb->qstr($log_from) . "," . $adodb->qstr($crt_user) . "," .
-            $adodb->qstr($patient_id) . "," . $adodb->qstr($user_notes) .")";
+            $adodb->qstr($patient_id) . "," . $adodb->qstr($user_notes) . ")";
 
         $ret = sqlInsertClean_audit($sql);
 

@@ -2,6 +2,7 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -11,37 +12,46 @@ class FhirConditionRestController
 {
     private $fhirConditionService;
     private $fhirService;
-    
+    private $fhirValidationService;
+
     public function __construct($id)
     {
         $this->fhirConditionService = new FhirConditionService();
         $this->fhirConditionService->setId($id);
         $this->fhirService = new FhirResourcesService();
+        $this->fhirValidationService = new FhirValidationService();
     }
     
     public function getAll($search)
     {
         $result = $this->fhirConditionService->getAll(array('patient' => $search['patient']));
-        if ($result === false) {
-            http_response_code(404);
-            exit;
-        }
-        $entries = array();
-        $resourceURL = \RestConfig::$REST_FULL_URL;
-        foreach ($result as $condition) {
-            $entryResource = $this->fhirConditionService->createConditionResource(
-                $condition['id'],
-                $condition,
-                false
+        if (!$result) {
+            $statusCode = 400;
+            $result = $this->fhirValidationService->operationOutcomeResourceService(
+                'error',
+                'invalid',
+                false,
+                "Invalid Parameter"
             );
-            $entry = array(
-                'fullUrl' => $resourceURL . "/" . $condition['id'],
-                'resource' => $entryResource
-            );
-            $entries[] = new FHIRBundleEntry($entry);
+        } else {
+            $statusCode = 200;
+            $entries = array();
+            $resourceURL = \RestConfig::$REST_FULL_URL;
+            foreach ($result as $condition) {
+                $entryResource = $this->fhirConditionService->createConditionResource(
+                    $condition['id'],
+                    $condition,
+                    false
+                );
+                $entry = array(
+                    'fullUrl' => $resourceURL . "/" . $condition['id'],
+                    'resource' => $entryResource
+                );
+                $entries[] = new FHIRBundleEntry($entry);
+            }
+            $result = $this->fhirService->createBundle('Condition', $entries, false);
         }
-        $result = $this->fhirService->createBundle('Condition', $entries, false);
-        return RestControllerHelper::responseHandler($result, null, 200);
+        return RestControllerHelper::responseHandler($result, null, $statusCode);
     }
     
     public function getOne($id)
@@ -56,7 +66,7 @@ class FhirConditionRestController
             $statusCode = 200;
         } else {
             $statusCode = 404;
-            $resource = $this->fhirValidate->operationOutcomeResourceService(
+            $resource = $this->fhirValidationService->operationOutcomeResourceService(
                 'error',
                 'invalid',
                 false,

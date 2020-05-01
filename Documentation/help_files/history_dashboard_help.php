@@ -1,4 +1,5 @@
 <?php
+
 /**
  * History Dashboard Help.
  *
@@ -56,8 +57,8 @@ require_once("../../interface/globals.php");
 
                     <p><?php echo xlt("There are 3 forms in the Core category - Demographics, Facility Specific User Information and History and all 5 forms in Transactions that can be edited ");?>.</p>
 
-                    <p><?php echo xlt("More information on how to edit this form and other such forms can be found here");?>. &nbsp; <a href="https://www.open-emr.org/wiki/index.php/LBV_Forms" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>&nbsp;
-                        <a href="https://www.open-emr.org/wiki/index.php/Sample_Layout_Based_Visit_Form" rel="noopener" target="_blank"><i class="fa fa-external-link text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
+                    <p><?php echo xlt("More information on how to edit this form and other such forms can be found here");?>. &nbsp; <a href="https://www.open-emr.org/wiki/index.php/LBV_Forms" rel="noopener" target="_blank"><i class="fa fa-external-link-alt text-primary" aria-hidden="true" data-original-title="" title=""></i></a>&nbsp;
+                        <a href="https://www.open-emr.org/wiki/index.php/Sample_Layout_Based_Visit_Form" rel="noopener" target="_blank"><i class="fa fa-external-link-alt text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
                     </p>
                 </div>
             </div>

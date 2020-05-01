@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRObservation;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRObservation;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -488,7 +490,7 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
                         $this->addInterpretation($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"interpretation" must be array of objects or null, '.gettype($data['interpretation']).' seen.');
+                    throw new \InvalidArgumentException('"interpretation" must be array of objects or null, ' . gettype($data['interpretation']) . ' seen.');
                 }
             }
             if (isset($data['referenceRange'])) {
@@ -497,11 +499,11 @@ class FHIRObservationComponent extends FHIRBackboneElement implements \JsonSeria
                         $this->addReferenceRange($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"referenceRange" must be array of objects or null, '.gettype($data['referenceRange']).' seen.');
+                    throw new \InvalidArgumentException('"referenceRange" must be array of objects or null, ' . gettype($data['referenceRange']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

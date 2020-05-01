@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This allows entry and editing of a "billing note" for the patient.
  *
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2019-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");

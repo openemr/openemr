@@ -126,7 +126,6 @@ function navigateTab(url,name,afterLoadFunction,loading_label='')
 {
 
     top.restoreSession();
-    var curTab;
     if($("iframe[name='"+name+"']").length>0)
     {
         if(typeof afterLoadFunction !== 'function'){
@@ -136,11 +135,11 @@ function navigateTab(url,name,afterLoadFunction,loading_label='')
                 afterLoadFunction();
             });
         }
-       $("iframe[name='"+name+"']").get(0).contentWindow.location=url;
+        openExistingTab(url,name);
     }
     else
     {
-        curTab=new tabStatus(xl("Loading") + "...",url,name,loading_label,true,false,false);
+        let curTab=new tabStatus(xl("Loading") + "...",url,name,loading_label,true,false,false);
         app_view_model.application_data.tabs.tabsList.push(curTab);
         if(typeof afterLoadFunction === 'function'){
             afterLoadFunction();
@@ -331,7 +330,7 @@ function menuActionClick(data,evt)
           dataurl = '/interface/patient_file/encounter/encounter_top.php?formname=' +
             matches[1] + '&formdesc=' + encodeURIComponent(data.label());
         }
-
+        
         navigateTab(webroot_url + dataurl, data.target, function () {
             activateTabByName(data.target,true);
         },xl("Loading") + " " + dataLabel);
@@ -409,4 +408,43 @@ function clearTherapyGroup()
 
         }
     });
+}
+
+function openExistingTab(url, name) {
+    for (let tabIdx = 0; tabIdx < app_view_model.application_data.tabs.tabsList().length; tabIdx++) {
+        let currTab = app_view_model.application_data.tabs.tabsList()[tabIdx];
+        let currTabUrl = currTab.url();
+        let currTabName = currTab.name();
+        //Check if URL is from $GLOBAL['default_tab']
+        switch (currTabUrl) {
+            case '../main_info.php':
+                currTabUrl = webroot_url + '/interface/main/main_info.php';
+                break;
+            case '../../new/new.php':
+                currTabUrl = webroot_url + '/interface/new/new.php';
+                break;
+            case '../../../interface/main/finder/dynamic_finder.php':
+                currTabUrl = webroot_url + '/interface/main/finder/dynamic_finder.php';
+                break;
+            case '../../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1':
+                currTabUrl = webroot_url + '/interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1';
+                break;
+            case '../../../interface/main/messages/messages.php?form_active=1':
+                currTabUrl = webroot_url + '/interface/main/messages/messages.php?form_active=1';
+                break;
+        }
+        if (url === currTabUrl) {
+            currTab.visible(true);
+            exist = true;
+        }
+        else if (url !== currTabUrl && currTabName == name) {
+            currTab.visible(true);
+            currTab.url(url);
+        }
+        else {
+            if (!currTab.locked()) {
+                currTab.visible(false);
+            }
+        }
+    }
 }

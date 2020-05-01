@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -529,7 +531,7 @@ class FHIRGuidanceResponse extends FHIRDomainResource implements \JsonSerializab
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['moduleUri'])) {
@@ -562,7 +564,7 @@ class FHIRGuidanceResponse extends FHIRDomainResource implements \JsonSerializab
                         $this->addReasonCode($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"reasonCode" must be array of objects or null, '.gettype($data['reasonCode']).' seen.');
+                    throw new \InvalidArgumentException('"reasonCode" must be array of objects or null, ' . gettype($data['reasonCode']) . ' seen.');
                 }
             }
             if (isset($data['reasonReference'])) {
@@ -571,7 +573,7 @@ class FHIRGuidanceResponse extends FHIRDomainResource implements \JsonSerializab
                         $this->addReasonReference($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"reasonReference" must be array of objects or null, '.gettype($data['reasonReference']).' seen.');
+                    throw new \InvalidArgumentException('"reasonReference" must be array of objects or null, ' . gettype($data['reasonReference']) . ' seen.');
                 }
             }
             if (isset($data['note'])) {
@@ -580,7 +582,7 @@ class FHIRGuidanceResponse extends FHIRDomainResource implements \JsonSerializab
                         $this->addNote($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"note" must be array of objects or null, '.gettype($data['note']).' seen.');
+                    throw new \InvalidArgumentException('"note" must be array of objects or null, ' . gettype($data['note']) . ' seen.');
                 }
             }
             if (isset($data['evaluationMessage'])) {
@@ -589,7 +591,7 @@ class FHIRGuidanceResponse extends FHIRDomainResource implements \JsonSerializab
                         $this->addEvaluationMessage($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"evaluationMessage" must be array of objects or null, '.gettype($data['evaluationMessage']).' seen.');
+                    throw new \InvalidArgumentException('"evaluationMessage" must be array of objects or null, ' . gettype($data['evaluationMessage']) . ' seen.');
                 }
             }
             if (isset($data['outputParameters'])) {
@@ -604,11 +606,11 @@ class FHIRGuidanceResponse extends FHIRDomainResource implements \JsonSerializab
                         $this->addDataRequirement($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"dataRequirement" must be array of objects or null, '.gettype($data['dataRequirement']).' seen.');
+                    throw new \InvalidArgumentException('"dataRequirement" must be array of objects or null, ' . gettype($data['dataRequirement']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

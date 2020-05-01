@@ -1,4 +1,5 @@
 <?php
+
 /** @package    verysimple::Authentication */
 
 /**
@@ -23,7 +24,7 @@ class PassPhrase
      */
     static function GetRandomPassPhrase($length = 8)
     {
-        srand(( double ) microtime() * 1000000);
+        srand((double) microtime() * 1000000);
         
         $vowels = array (
                 "a",
@@ -95,7 +96,7 @@ class PassPhrase
         $num_cons = count($cons);
         $password = "";
         
-        for ($i = 0; $i < $length; $i ++) {
+        for ($i = 0; $i < $length; $i++) {
             $password .= $cons [rand(0, $num_cons - 1)] . $vowels [rand(0, $num_vowels - 1)];
         }
         

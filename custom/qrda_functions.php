@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * QRDA Functions
@@ -33,12 +34,12 @@ function getQRDAStratumInfo($patArr, $begin_date)
     $startumArr = array();
     if (count($patArr) > 0) {
         //Age Between 3 and 11
-        $stratumOneQry = "SELECT FLOOR( DATEDIFF( '".add_escape_custom($begin_date)."' , DOB ) /365 ) as pt_age FROM patient_data WHERE pid IN (".add_escape_custom(implode(",", $patArr)).") HAVING  (pt_age BETWEEN 1 AND 10) ";
+        $stratumOneQry = "SELECT FLOOR( DATEDIFF( '" . add_escape_custom($begin_date) . "' , DOB ) /365 ) as pt_age FROM patient_data WHERE pid IN (" . add_escape_custom(implode(",", $patArr)) . ") HAVING  (pt_age BETWEEN 1 AND 10) ";
         $stratumOneRes = sqlStatement($stratumOneQry);
         $stratumOneRows = sqlNumRows($stratumOneRes);
 
         //Age Between 12 and 17
-        $stratumTwoQry = "SELECT FLOOR( DATEDIFF( '".add_escape_custom($begin_date)."' , DOB ) /365 ) as pt_age FROM patient_data WHERE pid IN (".add_escape_custom(implode(",", $patArr)).") HAVING  (pt_age BETWEEN 11 AND 16) ";
+        $stratumTwoQry = "SELECT FLOOR( DATEDIFF( '" . add_escape_custom($begin_date) . "' , DOB ) /365 ) as pt_age FROM patient_data WHERE pid IN (" . add_escape_custom(implode(",", $patArr)) . ") HAVING  (pt_age BETWEEN 11 AND 16) ";
         $stratumTwoRes = sqlStatement($stratumTwoQry);
         $stratumTwoRows = sqlNumRows($stratumTwoRes);
         $startumArr[1] = $stratumOneRows;
@@ -60,16 +61,16 @@ function getQRDAPayerInfo($patArr)
     $payerCheckArr['Private Health Insurance'] = 0;
     $payerCheckArr['Other'] = 0;
     if (count($patArr) > 0) {
-        $insQry = "SELECT insd.*, ic.ins_type_code FROM (SELECT pid, provider FROM insurance_data WHERE type = 'primary' ORDER BY id DESC) insd ".
-                  "INNER JOIN  insurance_companies ic ON insd.provider = ic.id ".
-                  "WHERE insd.pid IN (".add_escape_custom(implode(",", $patArr)).")";
+        $insQry = "SELECT insd.*, ic.ins_type_code FROM (SELECT pid, provider FROM insurance_data WHERE type = 'primary' ORDER BY id DESC) insd " .
+                  "INNER JOIN  insurance_companies ic ON insd.provider = ic.id " .
+                  "WHERE insd.pid IN (" . add_escape_custom(implode(",", $patArr)) . ")";
         $insRes = sqlStatement($insQry);
         while ($insRow = sqlFetchArray($insRes)) {
             if ($insRow['ins_type_code'] == 8) {//Self Pay (Private Insurance)
                 $payerCheckArr['Private Health Insurance']++;
-            } else if ($insRow['ins_type_code'] == 2) {//Medicare
+            } elseif ($insRow['ins_type_code'] == 2) {//Medicare
                 $payerCheckArr['Medicare']++;
-            } else if ($insRow['ins_type_code'] == 3) {//Self Pay (Private Insurance)
+            } elseif ($insRow['ins_type_code'] == 3) {//Self Pay (Private Insurance)
                 $payerCheckArr['Medicaid']++;
             } else {//Other
                 $payerCheckArr['Other']++;
@@ -104,12 +105,12 @@ function getQRDAPatientNeedInfo($patArr)
 
     $mainArr = array();
     if (count($patArr) > 0) {
-        $patRes = sqlStatement("SELECT pid, sex, race, ethnicity FROM patient_data WHERE pid IN (".add_escape_custom(implode(",", $patArr)).")");
+        $patRes = sqlStatement("SELECT pid, sex, race, ethnicity FROM patient_data WHERE pid IN (" . add_escape_custom(implode(",", $patArr)) . ")");
         while ($patRow = sqlFetchArray($patRes)) {
             //Gender Collection
             if ($patRow['sex'] == "Male") {
                 $genderArr['Male']++;
-            } else if ($patRow['sex'] == "Female") {
+            } elseif ($patRow['sex'] == "Female") {
                 $genderArr['Female']++;
             } else {
                 $genderArr['Unknown']++;
@@ -118,21 +119,21 @@ function getQRDAPatientNeedInfo($patArr)
             //Race Section
             if ($patRow['race'] == "amer_ind_or_alaska_native") {
                 $raceArr['American Indian or Alaska Native']++;
-            } else if ($patRow['race'] == "Asian") {
+            } elseif ($patRow['race'] == "Asian") {
                 $raceArr['Asian']++;
-            } else if ($patRow['race'] == "black_or_afri_amer") {
+            } elseif ($patRow['race'] == "black_or_afri_amer") {
                 $raceArr['Black or African American']++;
-            } else if ($patRow['race'] == "native_hawai_or_pac_island") {
+            } elseif ($patRow['race'] == "native_hawai_or_pac_island") {
                 $raceArr['Native Hawaiian or Other Pacific Islander']++;
-            } else if ($patRow['race'] == "white") {
+            } elseif ($patRow['race'] == "white") {
                 $raceArr['White']++;
-            } else if ($patRow['race'] == "Asian_Pacific_Island") {
+            } elseif ($patRow['race'] == "Asian_Pacific_Island") {
                 $raceArr['Other']++;
-            } else if ($patRow['race'] == "Black_not_of_Hispan") {
+            } elseif ($patRow['race'] == "Black_not_of_Hispan") {
                 $raceArr['Other']++;
-            } else if ($patRow['race'] == "Hispanic") {
+            } elseif ($patRow['race'] == "Hispanic") {
                 $raceArr['Other']++;
-            } else if ($patRow['race'] == "White_not_of_Hispan") {
+            } elseif ($patRow['race'] == "White_not_of_Hispan") {
                 $raceArr['Other']++;
             } else {
                 $raceArr['Other']++;
@@ -140,7 +141,7 @@ function getQRDAPatientNeedInfo($patArr)
 
             if ($patRow['ethnicity'] == "hisp_or_latin") {
                 $ethincityArr['Hispanic or Latino']++;
-            } else if ($patRow['ethnicity'] == "not_hisp_or_latin") {
+            } elseif ($patRow['ethnicity'] == "not_hisp_or_latin") {
                 $ethincityArr['Not Hispanic or Latino']++;
             }
         }
@@ -156,16 +157,16 @@ function getQRDAPatientNeedInfo($patArr)
 function payerPatient($patient_id)
 {
     $payer = 'Other';
-    $insQry = "SELECT insd.*, ic.ins_type_code FROM (SELECT pid, provider FROM insurance_data WHERE type = 'primary' ORDER BY id DESC) insd ".
-              "INNER JOIN  insurance_companies ic ON insd.provider = ic.id ".
+    $insQry = "SELECT insd.*, ic.ins_type_code FROM (SELECT pid, provider FROM insurance_data WHERE type = 'primary' ORDER BY id DESC) insd " .
+              "INNER JOIN  insurance_companies ic ON insd.provider = ic.id " .
               "WHERE insd.pid = ?";
     $insRes = sqlStatement($insQry, array($patient_id));
     while ($insRow = sqlFetchArray($insRes)) {
         if ($insRow['ins_type_code'] == 8) {//Self Pay (Private Insurance)
             $payer = 'Private Health Insurance';
-        } else if ($insRow['ins_type_code'] == 2) {//Medicare
+        } elseif ($insRow['ins_type_code'] == 2) {//Medicare
             $payer = 'Medicare';
-        } else if ($insRow['ins_type_code'] == 3) {//Self Pay (Private Insurance)
+        } elseif ($insRow['ins_type_code'] == 3) {//Self Pay (Private Insurance)
             $payer = 'Medicaid';
         } else {//Other
             $payer = 'Other';
@@ -223,14 +224,17 @@ function allActiveMedsPat($patient_id, $from_date, $to_date)
     return $medArr;
 }
 
-function allProcPat($proc_type = "Procedure", $patient_id, $from_date, $to_date)
+function allProcPat(string $proc_type = null, $patient_id, $from_date, $to_date)
 {
+    if (!$proc_type) {
+        $proc_type = "Procedure";
+    }
     $procArr = array();
-    $procQry = "SELECT poc.procedure_code, poc.procedure_name, po.date_ordered, fe.encounter,fe.date FROM form_encounter fe ".
-            "INNER JOIN forms f ON f.encounter = fe.encounter AND f.deleted != 1 AND f.formdir = 'procedure_order' ".
-            "INNER JOIN procedure_order po ON po.encounter_id = f.encounter ".
-            "INNER JOIN procedure_order_code poc ON poc.procedure_order_id = po.procedure_order_id ".
-            "WHERE poc.procedure_order_title = ? AND po.patient_id = ? ".
+    $procQry = "SELECT poc.procedure_code, poc.procedure_name, po.date_ordered, fe.encounter,fe.date FROM form_encounter fe " .
+            "INNER JOIN forms f ON f.encounter = fe.encounter AND f.deleted != 1 AND f.formdir = 'procedure_order' " .
+            "INNER JOIN procedure_order po ON po.encounter_id = f.encounter " .
+            "INNER JOIN procedure_order_code poc ON poc.procedure_order_id = po.procedure_order_id " .
+            "WHERE poc.procedure_order_title = ? AND po.patient_id = ? " .
             "AND (po.date_ordered BETWEEN ? AND ?)";
     $procRes = sqlStatement($procQry, array($proc_type, $patient_id, $from_date, $to_date));
     while ($procRow = sqlFetchArray($procRes)) {
@@ -243,10 +247,10 @@ function allProcPat($proc_type = "Procedure", $patient_id, $from_date, $to_date)
 function allVitalsPat($patient_id, $from_date, $to_date)
 {
     $vitArr = array();
-    $vitQry = "SELECT fe.encounter, v.bps, v.date,v.bpd,v.BMI as bmi FROM form_encounter fe ".
-            "INNER JOIN forms f ON f.encounter = fe.encounter AND f.deleted != 1 AND f.formdir = 'vitals' ".
-            "INNER JOIN form_vitals v ON v.id = f.form_id ".
-            "WHERE v.pid = ? ".
+    $vitQry = "SELECT fe.encounter, v.bps, v.date,v.bpd,v.BMI as bmi FROM form_encounter fe " .
+            "INNER JOIN forms f ON f.encounter = fe.encounter AND f.deleted != 1 AND f.formdir = 'vitals' " .
+            "INNER JOIN form_vitals v ON v.id = f.form_id " .
+            "WHERE v.pid = ? " .
             "AND (v.date BETWEEN ? AND ?)";
     $vitRes = sqlStatement($vitQry, array($patient_id, $from_date, $to_date));
     while ($vitRow = sqlFetchArray($vitRes)) {
@@ -259,8 +263,8 @@ function allVitalsPat($patient_id, $from_date, $to_date)
 function allImmuPat($patient_id, $from_date, $to_date)
 {
     $immArr = array();
-    $immQry =   "SELECT * FROM immunizations ".
-            "WHERE patient_id = ? ".
+    $immQry =   "SELECT * FROM immunizations " .
+            "WHERE patient_id = ? " .
             "AND (administered_date BETWEEN ? AND ?)";
     $immRes = sqlStatement($immQry, array($patient_id, $from_date, $to_date));
     while ($immRow = sqlFetchArray($immRes)) {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file implements the main jquery interface for loading external
  * database files into openEMR
@@ -14,7 +15,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../interface/globals.php");
 

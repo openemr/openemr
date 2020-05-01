@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/controllers/edit/helper/common.php
  *
@@ -10,6 +11,7 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 <!--
 
@@ -93,7 +95,7 @@ Compound Helpers
         <span class="end_col">
             <input data-grp-tgt="flt_target_interval" class="form-control field short" type="text" name="fld_target_interval" value="<?php echo xlt($criteria->interval); ?>" />
 
-            <?php echo timeunit_select(array( "context"=>"rule_target_intervals", "target"=>"fld_target_interval_", "name" => "fld_target_interval_type", "value" => $criteria->intervalType )); ?>
+            <?php echo timeunit_select(array( "context" => "rule_target_intervals", "target" => "fld_target_interval_", "name" => "fld_target_interval_type", "value" => $criteria->intervalType )); ?>
         </span>
     </p>
     <?php } ?>

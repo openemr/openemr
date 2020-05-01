@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -509,7 +511,7 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['type'])) {
@@ -542,7 +544,7 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
                         $this->addVariant($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"variant" must be array of objects or null, '.gettype($data['variant']).' seen.');
+                    throw new \InvalidArgumentException('"variant" must be array of objects or null, ' . gettype($data['variant']) . ' seen.');
                 }
             }
             if (isset($data['observedSeq'])) {
@@ -554,7 +556,7 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
                         $this->addQuality($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"quality" must be array of objects or null, '.gettype($data['quality']).' seen.');
+                    throw new \InvalidArgumentException('"quality" must be array of objects or null, ' . gettype($data['quality']) . ' seen.');
                 }
             }
             if (isset($data['readCoverage'])) {
@@ -566,7 +568,7 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
                         $this->addRepository($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"repository" must be array of objects or null, '.gettype($data['repository']).' seen.');
+                    throw new \InvalidArgumentException('"repository" must be array of objects or null, ' . gettype($data['repository']) . ' seen.');
                 }
             }
             if (isset($data['pointer'])) {
@@ -575,7 +577,7 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
                         $this->addPointer($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"pointer" must be array of objects or null, '.gettype($data['pointer']).' seen.');
+                    throw new \InvalidArgumentException('"pointer" must be array of objects or null, ' . gettype($data['pointer']) . ' seen.');
                 }
             }
             if (isset($data['structureVariant'])) {
@@ -584,11 +586,11 @@ class FHIRMolecularSequence extends FHIRDomainResource implements \JsonSerializa
                         $this->addStructureVariant($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"structureVariant" must be array of objects or null, '.gettype($data['structureVariant']).' seen.');
+                    throw new \InvalidArgumentException('"structureVariant" must be array of objects or null, ' . gettype($data['structureVariant']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

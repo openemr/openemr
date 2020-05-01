@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/patient_file/ccr_import.php Upload screen and parser for the CCR XML.
  *
@@ -13,7 +14,6 @@
  * @copyright Copyright (c) 2017 Jason Oettinger
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(dirname(__FILE__) . "../../globals.php");
 
@@ -36,10 +36,10 @@ use OpenEMR\Core\Header;
       <div class="col-md-6 offset-md-3">
         <h3><?php echo xlt("Steps for uploading CCR XML");?></h3>
         <ol class="list-group">
-          <li class="list-group-item"><?php echo xlt('For an existing patient, go to Patient Summary->Documents. For a new patient, go to Miscellanous->New Documents').'.'; ?></li>
-          <li class="list-group-item"><?php echo xlt('Upload the xml file under the category CCR').'.'; ?></li>
-          <li class="list-group-item"><?php echo xlt('After Uploading, click "Import"').'.'; ?></li>
-          <li class="list-group-item"><?php echo xlt('Approve the patient from Patient/Client->Import->Pending Approval').'.'; ?></li>
+          <li class="list-group-item"><?php echo xlt('For an existing patient, go to Patient Summary->Documents. For a new patient, go to Miscellanous->New Documents') . '.'; ?></li>
+          <li class="list-group-item"><?php echo xlt('Upload the xml file under the category CCR') . '.'; ?></li>
+          <li class="list-group-item"><?php echo xlt('After Uploading, click "Import"') . '.'; ?></li>
+          <li class="list-group-item"><?php echo xlt('Approve the patient from Patient/Client->Import->Pending Approval') . '.'; ?></li>
         </ol>
       </div>
     </div>

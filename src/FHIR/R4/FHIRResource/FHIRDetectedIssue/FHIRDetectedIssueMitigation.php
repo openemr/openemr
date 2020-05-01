@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRDetectedIssue;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRDetectedIssue;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -173,8 +175,8 @@ class FHIRDetectedIssueMitigation extends FHIRBackboneElement implements \JsonSe
             if (isset($data['author'])) {
                 $this->setAuthor($data['author']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

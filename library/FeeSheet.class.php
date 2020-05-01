@@ -1,4 +1,5 @@
 <?php
+
 /**
  * library/FeeSheet.class.php
  *
@@ -488,7 +489,7 @@ class FeeSheet
             $li['ndcnum'  ] = $ndcnum;
             $li['ndcuom'  ] = $ndcuom;
             $li['ndcqty'  ] = $ndcqty;
-        } else if ($ndc_info) {
+        } elseif ($ndc_info) {
             $li['ndc_info'  ] = $ndc_info;
         }
 
@@ -719,19 +720,21 @@ class FeeSheet
                         if ($warehouse_id && $warehouse_id != $dirow['warehouse_id']) {
                             // Changing warehouse so check inventory in the new warehouse.
                             // Nothing is updated by this call.
-                            if (!sellDrug(
-                                $drug_id,
-                                $units,
-                                0,
-                                $this->pid,
-                                $this->encounter,
-                                0,
-                                $this->visit_date,
-                                '',
-                                $warehouse_id,
-                                true,
-                                $expiredlots
-                            )) {
+                            if (
+                                !sellDrug(
+                                    $drug_id,
+                                    $units,
+                                    0,
+                                    $this->pid,
+                                    $this->encounter,
+                                    0,
+                                    $this->visit_date,
+                                    '',
+                                    $warehouse_id,
+                                    true,
+                                    $expiredlots
+                                )
+                            ) {
                                 $insufficient = $drug_id;
                             }
                         } else {
@@ -742,19 +745,21 @@ class FeeSheet
                     }
                 } else { // Otherwise it's a new item...
                     // This only checks for sufficient inventory, nothing is updated.
-                    if (!sellDrug(
-                        $drug_id,
-                        $units,
-                        0,
-                        $this->pid,
-                        $this->encounter,
-                        0,
-                        $this->visit_date,
-                        '',
-                        $warehouse_id,
-                        true,
-                        $expiredlots
-                    )) {
+                    if (
+                        !sellDrug(
+                            $drug_id,
+                            $units,
+                            0,
+                            $this->pid,
+                            $this->encounter,
+                            0,
+                            $this->visit_date,
+                            '',
+                            $warehouse_id,
+                            true,
+                            $expiredlots
+                        )
+                    ) {
                         $insufficient = $drug_id;
                     }
                 }
@@ -863,7 +868,7 @@ class FeeSheet
                                   array($_SESSION['authUserID'], $fee, $session_id)
                               );
                                   sqlStatement(
-                                      "UPDATE ar_activity SET code_type=?, code=?, modifier=?, post_user=?, post_time=now(),".
+                                      "UPDATE ar_activity SET code_type=?, code=?, modifier=?, post_user=?, post_time=now()," .
                                       "pay_amount=?, modified_time=now() WHERE pid=? AND encounter=? AND account_code='PCP' AND session_id=?",
                                       array($ct0, $cod0, $mod0, $_SESSION['authUserID'], $fee, $this->pid, $this->encounter, $session_id)
                                   );
@@ -968,9 +973,9 @@ class FeeSheet
                             }
                         }
                     }
-                } else if (!$del) { // Otherwise it's a new item...
+                } elseif (!$del) { // Otherwise it's a new item...
                     $this->logFSMessage(xl('Service added'));
-                    $code_text = lookup_code_descriptions($code_type.":".$code);
+                    $code_text = lookup_code_descriptions($code_type . ":" . $code);
                     BillingUtilities::addBilling(
                         $this->encounter,
                         $code_type,
@@ -997,7 +1002,7 @@ class FeeSheet
         // non-empty modifier and code
         if ($copay_update == true && $update_session_id != '' && $mod0 != '') {
             sqlStatement(
-                "UPDATE ar_activity SET code_type = ?, code = ?, modifier = ?".
+                "UPDATE ar_activity SET code_type = ?, code = ?, modifier = ?" .
                 " WHERE pid = ? AND encounter = ? AND account_code = 'PCP' AND session_id = ?",
                 array($ct0, $cod0, $mod0, $this->pid, $this->encounter, $update_session_id)
             );
@@ -1050,13 +1055,15 @@ class FeeSheet
                     } else {
                           // Modify the sale and adjust inventory accordingly.
                         if (!empty($tmprow)) {
-                            foreach (array(
-                              'quantity'    => $units,
-                              'fee'         => $fee,
-                              'pricelevel'  => $pricelevel,
-                              'selector'    => $selector,
-                              'sale_date'   => $this->visit_date,
-                            ) as $key => $value) {
+                            foreach (
+                                array(
+                                'quantity'    => $units,
+                                'fee'         => $fee,
+                                'pricelevel'  => $pricelevel,
+                                'selector'    => $selector,
+                                'sale_date'   => $this->visit_date,
+                                ) as $key => $value
+                            ) {
                                 if ($tmprow[$key] != $value) {
                                                   $somechange = true;
                                     if ('fee'        == $key) {
@@ -1122,7 +1129,7 @@ class FeeSheet
                             sqlStatement("DELETE FROM prescriptions WHERE id = ?", array($rxid));
                         }
                     }
-                } else if (! $del) { // Otherwise it's a new item...
+                } elseif (! $del) { // Otherwise it's a new item...
                     $somechange = true;
                     $this->logFSMessage(xl('Product added'));
                     $tmpnull = null;
@@ -1287,7 +1294,7 @@ class FeeSheet
                     $this->insert_lbf_item($newid, 'provider', $main_provid);
                     addForm($this->encounter, 'Contraception', $newid, 'LBFccicon', $this->pid, $GLOBALS['userauthorized']);
                 }
-            } else if (empty($csrow) || $csrow['field_value'] != "IPPFCM:$ippfconmeth") {
+            } elseif (empty($csrow) || $csrow['field_value'] != "IPPFCM:$ippfconmeth") {
                   // Contraceptive method does not match what is in an existing Contraception
                   // form for this visit, or there is no such form. User intervention is needed.
                   return empty($csrow) ? -1 : intval($csrow['form_id']);

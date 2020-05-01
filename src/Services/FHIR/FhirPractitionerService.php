@@ -3,7 +3,6 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Services\ProviderService;
-
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FhirId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;

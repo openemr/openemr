@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This provides helper functions for the billing report.
  *
@@ -18,7 +19,7 @@ namespace OpenEMR\Billing;
 
 class BillingReport
 {
-    public static function GenerateTheQueryPart()
+    public static function generateTheQueryPart()
     {
         global $query_part, $query_part2, $billstring, $auth;
         //Search Criteria section.
@@ -28,7 +29,7 @@ class BillingReport
         $query_part2 = '';
         if (isset($_REQUEST['final_this_page_criteria'])) {
             foreach ($_REQUEST['final_this_page_criteria'] as $criteria_key => $criteria_value) {
-                $criteria_value = self::PrepareSearchItem($criteria_value); // this escapes for sql
+                $criteria_value = self::prepareSearchItem($criteria_value); // this escapes for sql
                 $SplitArray = array();
                 //---------------------------------------------------------
                 if (strpos($criteria_value, "billing.billed = '1'") !== false) {
@@ -72,7 +73,7 @@ class BillingReport
         $code_type,
         $cols = "id,date,pid,code_type,code,user,authorized,x12_partner_id"
     ) {
-        self::GenerateTheQueryPart();
+        self::generateTheQueryPart();
         global $query_part, $billstring, $auth;
         // Selecting by the date in the billing table is wrong, because that is
         // just the data entry date; instead we want to go by the encounter date
@@ -105,7 +106,7 @@ class BillingReport
         $code_type,
         $cols = "id,date,pid,code_type,code,user,authorized,x12_partner_id"
     ) {
-        self::GenerateTheQueryPart();
+        self::generateTheQueryPart();
         global $query_part, $query_part2, $billstring, $auth;
         // Selecting by the date in the billing table is wrong, because that is
         // just the data entry date; instead we want to go by the encounter date
@@ -145,7 +146,7 @@ class BillingReport
         $code_type,
         $cols = "billing.id, form_encounter.date, billing.pid, billing.code_type, billing.code, billing.user"
     ) {
-        self::GenerateTheQueryPart();
+        self::generateTheQueryPart();
         global $query_part, $billstring, $auth;
         // See above comment in self::getBillsBetween().
         //
@@ -188,9 +189,9 @@ class BillingReport
         return;
     }
 
-    public static function ReturnOFXSql()
+    public static function returnOFXSql()
     {
-        self::GenerateTheQueryPart();
+        self::generateTheQueryPart();
         global $query_part, $billstring, $auth;
 
         $sql = "SELECT distinct billing.*, concat(patient_data.fname, ' ', patient_data.lname) as name from billing "
@@ -208,7 +209,7 @@ class BillingReport
         return $sql;
     }
 
-    public static function PrepareSearchItem($SearchItem)
+    public static function prepareSearchItem($SearchItem)
     {
         $SplitArray = explode(' like ', $SearchItem);
         if (isset($SplitArray[1])) {
@@ -216,7 +217,7 @@ class BillingReport
             $SplitArray[1] = substr($SplitArray[1], 1);
             $SearchItem = $SplitArray[0] . ' like ' . "'" . add_escape_custom($SplitArray[1]) . "'";
         } else {
-            $SplitArray=explode(' = ', $SearchItem);
+            $SplitArray = explode(' = ', $SearchItem);
             if (isset($SplitArray[1])) {
                 $SplitArray[1] = substr($SplitArray[1], 0, -1);
                 $SplitArray[1] = substr($SplitArray[1], 1);
@@ -228,7 +229,7 @@ class BillingReport
     }
 
     //Parses the database value and prepares for display.
-    public static function BuildArrayForReport($Query)
+    public static function buildArrayForReport($Query)
     {
         $array_data = array();
         $res = sqlStatement($Query);
@@ -240,38 +241,38 @@ class BillingReport
     }
 
     //The criteria  "Insurance Company" is coded here.The ajax one
-    public static function InsuranceCompanyDisplay()
+    public static function insuranceCompanyDisplay()
     {
-        
+
         // TPS = This Page Search
         global $TPSCriteriaDisplay, $TPSCriteriaKey, $TPSCriteriaIndex, $web_root;
 
-        echo '<table width="140" border="0" cellspacing="0" cellpadding="0">'.
-            '<tr>'.
-            '<td width="140" colspan="2">'.
-            '<iframe id="frame_to_hide" style="position:absolute;display:none; width:240px; height:100px" frameborder=0'.
-            'scrolling=no marginwidth=0 src="" marginheight=0>hello</iframe>'.
-            '<input type="hidden" id="hidden_ajax_close_value" value="'.attr($_POST['type_code']).'" /><input name="type_code"  id="type_code" class="text "'.
-            'style=" width:140px;"  title="'.xla("Type Id or Name.3 characters minimum (including spaces).").'"'.
-            'onfocus="hide_frame_to_hide();appendOptionTextCriteria('.attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]).','.
-            ''.attr_js($TPSCriteriaKey[$TPSCriteriaIndex]).','.
-            'document.getElementById(\'type_code\').value,document.getElementById(\'div_insurance_or_patient\').innerHTML,'.
-            '\' = \','.
-            '\'text\')" onblur="show_frame_to_hide()" onKeyDown="PreventIt(event)" value="'.attr($_POST['type_code']).'"  autocomplete="off"   /><br />'.
-            '<!--onKeyUp="ajaxFunction(event,\'non\',\'search_payments.php\');"-->'.
-            '<div id="ajax_div_insurance_section">'.
-            '<div id="ajax_div_insurance_error">            </div>'.
-            '<div id="ajax_div_insurance" style="display:none;"></div>'.
-            '</div>'.
-            '</div>        </td>'.
-            '</tr>'.
-            '<tr height="5"><td colspan="2"></td></tr>'.
-            '<tr>'.
-            '<td><div  name="div_insurance_or_patient" id="div_insurance_or_patient" class="text"  style="border:1px solid black; padding-left:5px; width:50px; height:17px;">'.attr($_POST['hidden_type_code']).'</div><input type="hidden" name="description"  id="description" /></td>'.
-            '<td><a href="#" onClick="CleanUpAjax('.attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]).','.
-            attr_js($TPSCriteriaKey[$TPSCriteriaIndex]).',\' = \')"><img src="'.$web_root.'/interface/pic/Clear.gif" border="0" /></a></td>'.
-            '</tr>'.
-            '</table>'.
-            '<input type="hidden" name="hidden_type_code" id="hidden_type_code" value="'.attr($_POST['hidden_type_code']).'"/>';
+        echo '<table width="140" border="0" cellspacing="0" cellpadding="0">' .
+            '<tr>' .
+            '<td width="140" colspan="2">' .
+            '<iframe id="frame_to_hide" style="position:absolute;display:none; width:240px; height:100px" frameborder=0' .
+            'scrolling=no marginwidth=0 src="" marginheight=0>hello</iframe>' .
+            '<input type="hidden" id="hidden_ajax_close_value" value="' . attr($_POST['type_code']) . '" /><input name="type_code"  id="type_code" class="text "' .
+            'style=" width:140px;"  title="' . xla("Type Id or Name.3 characters minimum (including spaces).") . '"' .
+            'onfocus="hide_frame_to_hide();appendOptionTextCriteria(' . attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]) . ',' .
+            '' . attr_js($TPSCriteriaKey[$TPSCriteriaIndex]) . ',' .
+            'document.getElementById(\'type_code\').value,document.getElementById(\'div_insurance_or_patient\').innerHTML,' .
+            '\' = \',' .
+            '\'text\')" onblur="show_frame_to_hide()" onKeyDown="PreventIt(event)" value="' . attr($_POST['type_code']) . '"  autocomplete="off"   /><br />' .
+            '<!--onKeyUp="ajaxFunction(event,\'non\',\'search_payments.php\');"-->' .
+            '<div id="ajax_div_insurance_section">' .
+            '<div id="ajax_div_insurance_error">            </div>' .
+            '<div id="ajax_div_insurance" style="display:none;"></div>' .
+            '</div>' .
+            '</div>        </td>' .
+            '</tr>' .
+            '<tr height="5"><td colspan="2"></td></tr>' .
+            '<tr>' .
+            '<td><div  name="div_insurance_or_patient" id="div_insurance_or_patient" class="text"  style="border:1px solid black; padding-left:5px; width:50px; height:17px;">' . attr($_POST['hidden_type_code']) . '</div><input type="hidden" name="description"  id="description" /></td>' .
+            '<td><a href="#" onClick="CleanUpAjax(' . attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]) . ',' .
+            attr_js($TPSCriteriaKey[$TPSCriteriaIndex]) . ',\' = \')"><img src="' . $web_root . '/interface/pic/Clear.gif" border="0" /></a></td>' .
+            '</tr>' .
+            '</table>' .
+            '<input type="hidden" name="hidden_type_code" id="hidden_type_code" value="' . attr($_POST['hidden_type_code']) . '"/>';
     }
 }

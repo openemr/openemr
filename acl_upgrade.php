@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Upgrade script for access controls.
  *
@@ -139,7 +140,7 @@ if (empty($acl_version)) {
 // Upgrade for acl_version 1
 $upgrade_acl = 1;
 if ($acl_version < $upgrade_acl) {
-    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
+    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
 
     //Collect the ACL ID numbers.
     echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
@@ -340,7 +341,7 @@ if ($acl_version < $upgrade_acl) {
 // Upgrade for acl_version 2
 $upgrade_acl = 2;
 if ($acl_version < $upgrade_acl) {
-    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
+    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
 
     //Collect the ACL ID numbers.
     echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
@@ -376,7 +377,7 @@ if ($acl_version < $upgrade_acl) {
 // Upgrade for acl_version 3
 $upgrade_acl = 3;
 if ($acl_version < $upgrade_acl) {
-    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
+    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
 
     //Collect the ACL ID numbers.
     echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
@@ -416,7 +417,7 @@ if ($acl_version < $upgrade_acl) {
 // Upgrade for acl_version 4
 $upgrade_acl = 4;
 if ($acl_version < $upgrade_acl) {
-    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
+    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
 
     //Collect the ACL ID numbers.
     echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
@@ -480,7 +481,7 @@ if ($acl_version < $upgrade_acl) {
 // Upgrade for acl_version 5
 $upgrade_acl = 5;
 if ($acl_version < $upgrade_acl) {
-    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
+    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
 
     //Collect the ACL ID numbers.
     echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
@@ -526,7 +527,7 @@ if ($acl_version < $upgrade_acl) {
 // Upgrade for acl_version 6
 $upgrade_acl = 6;
 if ($acl_version < $upgrade_acl) {
-    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
+    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
 
     //Collect the ACL ID numbers.
     echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
@@ -622,7 +623,7 @@ if ($acl_version < $upgrade_acl) {
 // Upgrade for acl_version 7
 $upgrade_acl = 7;
 if ($acl_version < $upgrade_acl) {
-    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
+    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
 
     //Collect the ACL ID numbers.
     echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
@@ -655,7 +656,7 @@ if ($acl_version < $upgrade_acl) {
 // Upgrade for acl_version 8
 $upgrade_acl = 8;
 if ($acl_version < $upgrade_acl) {
-    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
+    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
 
     //Collect the ACL ID numbers.
     echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
@@ -689,7 +690,7 @@ if ($acl_version < $upgrade_acl) {
 // Upgrade for acl_version 9
 $upgrade_acl = 9;
 if ($acl_version < $upgrade_acl) {
-    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION ".$upgrade_acl.":</B></BR>";
+    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
 
     //Collect the ACL ID numbers.
     echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";

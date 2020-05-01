@@ -1,4 +1,5 @@
 <?php
+
 /**
  * new_comprehensive_save.php
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 
@@ -52,7 +52,7 @@ setpid($newpid);
 
 if (empty($pid)) {
   // sqlStatement("unlock tables");
-    die("Internal error: setpid(" .text($newpid) . ") failed!");
+    die("Internal error: setpid(" . text($newpid) . ") failed!");
 }
 
 // Update patient_data and employer_data:

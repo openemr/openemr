@@ -1,4 +1,5 @@
 <?php
+
 /**
  * orders_results.php
  *
@@ -476,9 +477,9 @@ if ($form_batch) {
             }
         }
 
-        $query_test=sqlFetchArray(sqlStatement("select deleted from forms where form_id=? and formdir='procedure_order'", array($order_id)));
+        $query_test = sqlFetchArray(sqlStatement("select deleted from forms where form_id=? and formdir='procedure_order'", array($order_id)));
       // skip the procedure that has been deleted from the encounter form
-        if ($query_test['deleted']==1) {
+        if ($query_test['deleted'] == 1) {
             continue;
         }
 
@@ -715,7 +716,7 @@ if ($form_batch) {
               "</textarea></td></tr>\n" .
               "</table>\n" .
               "<p><center><input class='btn btn-primary' type='button' value='" . xla('Close') . "' " .
-              "onclick='extShow(" . attr_js($lino) . ", false)' /></center></p>\n".
+              "onclick='extShow(" . attr_js($lino) . ", false)' /></center></p>\n" .
               "</div>";
 
             $lastpoid = $order_id;
@@ -728,17 +729,17 @@ if ($form_batch) {
     if (!empty($facilities)) {
       // display facility information
         $extra_html .= "<table>";
-        $extra_html .= "<tr><th>". xlt('Performing Laboratory Facility') . "</th></tr>";
+        $extra_html .= "<tr><th>" . xlt('Performing Laboratory Facility') . "</th></tr>";
         foreach ($facilities as $facilityID) {
             foreach (explode(":", $facilityID) as $lab_facility) {
                 $facility_array = getFacilityInfo($lab_facility);
                 if ($facility_array) {
                     $extra_html .=
                     "<tr><td><hr></td></tr>" .
-                    "<tr><td>". text($facility_array['fname']) . " " . text($facility_array['lname']) . ", " . text($facility_array['title']). "</td></tr>" .
-                    "<tr><td>". text($facility_array['organization']) . "</td></tr>" .
-                    "<tr><td>". text($facility_array['street']) . " " .text($facility_array['city']) . " " . text($facility_array['state']) . "</td></tr>" .
-                    "<tr><td>". text(formatPhone($facility_array['phone'])) . "</td></tr>";
+                    "<tr><td>" . text($facility_array['fname']) . " " . text($facility_array['lname']) . ", " . text($facility_array['title']) . "</td></tr>" .
+                    "<tr><td>" . text($facility_array['organization']) . "</td></tr>" .
+                    "<tr><td>" . text($facility_array['street']) . " " . text($facility_array['city']) . " " . text($facility_array['state']) . "</td></tr>" .
+                    "<tr><td>" . text(formatPhone($facility_array['phone'])) . "</td></tr>";
                 }
             }
         }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CDR trigger log report.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2015-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
@@ -176,9 +176,9 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
         //Create category title
         if ($row['category'] == 'clinical_reminder_widget') {
             $category_title = xl("Passive Alert");
-        } else if ($row['category'] == 'active_reminder_popup') {
+        } elseif ($row['category'] == 'active_reminder_popup') {
             $category_title = xl("Active Alert");
-        } else if ($row['category'] == 'allergy_alert') {
+        } elseif ($row['category'] == 'allergy_alert') {
             $category_title = xl("Allergy Warning");
         } else {
             $category_title = $row['category'];
@@ -204,10 +204,10 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
                 $catAndTarget = explode(':', $targetInfo);
                 $category = $catAndTarget[0];
                 $target = $catAndTarget[1];
-                echo "<span title='" .attr($rule_title) . "'>" .
-                  generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
-                  ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $target) .
-                  " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $alert['due_status']) . ")" .
+                echo "<span title='" . attr($rule_title) . "'>" .
+                  generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $category) .
+                  ": " . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $target) .
+                  " (" . generate_display_field(array('data_type' => '1','list_id' => 'rule_reminder_due_opt'), $alert['due_status']) . ")" .
                   "<span><br />";
             } else { // $row['category'] == 'allergy_alert'
                  echo $alert . "<br />";
@@ -225,10 +225,10 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date']);
                     $catAndTarget = explode(':', $targetInfo);
                     $category = $catAndTarget[0];
                     $target = $catAndTarget[1];
-                    echo "<span title='" .attr($rule_title) . "'>" .
-                      generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
-                      ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $target) .
-                      " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $alert['due_status']) . ")" .
+                    echo "<span title='" . attr($rule_title) . "'>" .
+                      generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $category) .
+                      ": " . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $target) .
+                      " (" . generate_display_field(array('data_type' => '1','list_id' => 'rule_reminder_due_opt'), $alert['due_status']) . ")" .
                       "<span><br />";
                 } else { // $row['category'] == 'allergy_alert'
                     echo $alert . "<br />";

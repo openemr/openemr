@@ -1,4 +1,5 @@
 <?php
+
 /**
  * copay.php
  *
@@ -36,7 +37,7 @@ function getInsuranceCompanies($pid)
 }
 
 //the number of rows to display before resetting and starting a new column:
-$N=10
+$N = 10
 ?>
 <html>
 <head>
@@ -81,7 +82,7 @@ document.copay_form.codeH.value="";
 <input type="radio" name="payment_method" value="other"><?php echo xlt('other'); ?><br /><br />
 <input type="radio" name="payment_method" value="insurance"><?php echo xlt('insurance'); ?>
 <?php
-if ($ret=getInsuranceCompanies($pid)) {
+if ($ret = getInsuranceCompanies($pid)) {
     if (sizeof($ret) > 0) {
         echo "<select name='insurance_company'>\n";
         foreach ($ret as $iter) {
@@ -89,7 +90,7 @@ if ($ret=getInsuranceCompanies($pid)) {
             if ($plan_name != '') {
                 echo "<option value='"
                 . attr($plan_name)
-                ."'>" . text($plan_name) ."\n";
+                . "'>" . text($plan_name) . "\n";
             }
         }
 

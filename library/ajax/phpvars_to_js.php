@@ -1,4 +1,5 @@
 <?php
+
 /**
  * import php variables to js
  *

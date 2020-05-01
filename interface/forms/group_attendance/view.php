@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/forms/group_attendance/view.php
  *

@@ -1,4 +1,5 @@
 <?php
+
 namespace Installer\Model;
 
 use Laminas\Db\TableGateway\TableGateway;

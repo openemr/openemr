@@ -1,4 +1,5 @@
 <?php
+
 // +-----------------------------------------------------------------------------+
 // Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
@@ -32,16 +33,16 @@ if (!extension_loaded('soap')) {
 }
 
 require_once("../interface/globals.php");
- $emr_path = $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+ $emr_path = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
  $emrpatharr = explode("/myportal", $emr_path);
- $emr_path = (!empty($_SERVER['HTTPS'])) ? "https://".$emrpatharr[0] : "http://".$emrpatharr[0];
+ $emr_path = (!empty($_SERVER['HTTPS'])) ? "https://" . $emrpatharr[0] : "http://" . $emrpatharr[0];
  $row = sqlQuery("SELECT fname,lname FROM users WHERE id=?", array($_SESSION['authUserID']));
- sqlStatement("DELETE FROM audit_details WHERE audit_master_id IN(SELECT id FROM audit_master WHERE type=5 AND created_time<'".date("Y-m-d H:m", (strtotime(date("Y-m-d H:m")-7200))).":00')");
- sqlStatement("DELETE FROM audit_master WHERE type=5 AND created_time<'".date("Y-m-d H:m", (strtotime(date("Y-m-d H:m")-7200))).":00'");
+ sqlStatement("DELETE FROM audit_details WHERE audit_master_id IN(SELECT id FROM audit_master WHERE type=5 AND created_time<'" . date("Y-m-d H:m", (strtotime(date("Y-m-d H:m") - 7200))) . ":00')");
+ sqlStatement("DELETE FROM audit_master WHERE type=5 AND created_time<'" . date("Y-m-d H:m", (strtotime(date("Y-m-d H:m") - 7200))) . ":00'");
 
 function md5_pass($length = 8)
 {
-    $randkey = substr(md5(rand().rand()), 0, $length);
+    $randkey = substr(md5(rand() . rand()), 0, $length);
     $res = sqlStatement("SELECT * FROM audit_master AS am LEFT OUTER JOIN audit_details AS ad ON ad.audit_master_id=am.id WHERE type=5 AND field_value=?", array($randkey));
     if (sqlNumRows($res)) {
         md5_pass();
@@ -51,9 +52,9 @@ function md5_pass($length = 8)
         return $randkey;
     }
 }
-for ($i=1; $i<=5; $i++) {//some times php is continuing without getting the return value from the function md5_pass()
+for ($i = 1; $i <= 5; $i++) {//some times php is continuing without getting the return value from the function md5_pass()
     if (!$randkey) {
-        if ($i>1) {
+        if ($i > 1) {
             sleep(1);
         }
 
@@ -63,7 +64,7 @@ for ($i=1; $i<=5; $i++) {//some times php is continuing without getting the retu
     }
 }
 
- $pass = sha1($GLOBALS['portal_offsite_password'].gmdate('Y-m-d H').$randkey);
+ $pass = sha1($GLOBALS['portal_offsite_password'] . gmdate('Y-m-d H') . $randkey);
 ?>
 <html>
 <head>
@@ -76,11 +77,11 @@ for ($i=1; $i<=5; $i++) {//some times php is continuing without getting the retu
 </head>
 <title><?php echo xlt('Redirection');?></title>
 <body onload="getshansubmit()">
-    <form name="portal" method="post" action="<?php echo htmlspecialchars($GLOBALS['portal_offsite_address']."?version=".$v_offsite_portal, ENT_QUOTES);?>">
+    <form name="portal" method="post" action="<?php echo htmlspecialchars($GLOBALS['portal_offsite_address'] . "?version=" . $v_offsite_portal, ENT_QUOTES);?>">
     <input type="hidden" name="user" value="<?php echo htmlspecialchars($GLOBALS['portal_offsite_username'], ENT_QUOTES);?>">
     <input type="hidden" name="emr_path" value="<?php echo htmlspecialchars($emr_path, ENT_QUOTES);?>">
     <input type="hidden" name="emr_site" value="<?php echo htmlspecialchars($_SESSION['site_id'], ENT_QUOTES);?>">
-    <input type="hidden" name="uname" value="<?php echo htmlspecialchars($row['fname']." ".$row['lname'], ENT_QUOTES);?>">
+    <input type="hidden" name="uname" value="<?php echo htmlspecialchars($row['fname'] . " " . $row['lname'], ENT_QUOTES);?>">
     <input type="hidden" name="pass" value="<?php echo htmlspecialchars($GLOBALS['portal_offsite_password'], ENT_QUOTES);?>">
     <input type="hidden" name="randkey" value="<?php echo htmlspecialchars($randkey, ENT_QUOTES);?>">
       <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pass, ENT_QUOTES);?>">

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/library/RuleCriteriaDatabaseCustom.php
  *
@@ -71,7 +72,7 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
     {
         $options = array();
         $stmts = sqlStatement("SHOW TABLES");
-        for ($iter=0; $row=sqlFetchArray($stmts); $iter++) {
+        for ($iter = 0; $row = sqlFetchArray($stmts); $iter++) {
             foreach ($row as $key => $value) {
                 array_push($options, array( "id" => $value, "label" => xl($value)));
             }
@@ -88,7 +89,7 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
         $dbView->methodDetail = "";
         $dbView->value =
                 "::"
-                . $this->table . "::" . $this->column. "::"
+                . $this->table . "::" . $this->column . "::"
                 . $this->valueComparator . "::" . $this->value . "::"
                 . $this->frequencyComparator . "::" . $this->frequency;
         return $dbView;

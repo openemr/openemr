@@ -1,4 +1,5 @@
 <?php
+
 // +-----------------------------------------------------------------------------+
 // Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
@@ -31,7 +32,7 @@ require_once("../../interface/globals.php");
 
 use OpenEMR\Core\Header;
 
-$res=sqlStatement("SELECT * FROM customlists as cl left outer join users as u on cl_creator=u.id WHERE cl_list_type=3 AND cl_deleted=0");
+$res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u on cl_creator=u.id WHERE cl_list_type=3 AND cl_deleted=0");
 ?>
 <html>
     <head>
@@ -98,18 +99,18 @@ $res=sqlStatement("SELECT * FROM customlists as cl left outer join users as u on
                 <th><?php echo htmlspecialchars(xl('Delete'), ENT_QUOTES);?></th>
             </tr>
     <?php
-    $i=0;
-    while ($row=sqlFetchArray($res)) {
-        $context=sqlQuery("SELECT * FROM customlists WHERE cl_list_slno=?", array($row['cl_list_id']));
+    $i = 0;
+    while ($row = sqlFetchArray($res)) {
+        $context = sqlQuery("SELECT * FROM customlists WHERE cl_list_slno=?", array($row['cl_list_id']));
         $i++;
-        $class = ($class=='reportTableOddRow') ? 'reportTableEvenRow' : 'reportTableOddRow';
-        echo "<tr class='text ".htmlspecialchars($class, ENT_QUOTES)."'>";
-        echo "<td>".$i."</td>";
-        echo "<td>".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."</td>";
-        echo "<td>".htmlspecialchars($context['cl_list_item_long'], ENT_QUOTES)."</td>";
-        echo "<td>".htmlspecialchars($row['fname']." ".$row['mname']." ".$row['lname'], ENT_QUOTES)."</td>";
+        $class = ($class == 'reportTableOddRow') ? 'reportTableEvenRow' : 'reportTableOddRow';
+        echo "<tr class='text " . htmlspecialchars($class, ENT_QUOTES) . "'>";
+        echo "<td>" . $i . "</td>";
+        echo "<td>" . htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES) . "</td>";
+        echo "<td>" . htmlspecialchars($context['cl_list_item_long'], ENT_QUOTES) . "</td>";
+        echo "<td>" . htmlspecialchars($row['fname'] . " " . $row['mname'] . " " . $row['lname'], ENT_QUOTES) . "</td>";
         echo "<td><a href=#>";
-        echo "<img src='../../interface/pic/Delete.gif' border=0 title='Delete This Row' onclick=delete_category('".htmlspecialchars($row['cl_list_slno'], ENT_QUOTES)."')>";
+        echo "<img src='../../interface/pic/Delete.gif' border=0 title='Delete This Row' onclick=delete_category('" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "')>";
         echo "</a></td>";
         echo "</tr>";
     }

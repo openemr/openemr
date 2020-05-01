@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * Throws PHP5 exceptions for Savant.

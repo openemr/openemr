@@ -1,4 +1,5 @@
 <?php
+
 /*
  * interface/billing/print_daysheet_report.php Genetating an end of day report.
  *
@@ -26,7 +27,7 @@ use OpenEMR\Core\Header;
 //global variables:
 if (!isset($_GET["mode"])) {
     if (!isset($_GET["from_date"])) {
-        $from_date=date("Y-m-d");
+        $from_date = date("Y-m-d");
     } else {
         $from_date = $_GET["from_date"];
     }
@@ -38,7 +39,7 @@ if (!isset($_GET["mode"])) {
     }
 
     if (!isset($_GET["code_type"])) {
-        $code_type="all";
+        $code_type = "all";
     } else {
         $code_type = $_GET["code_type"];
     }
@@ -94,7 +95,7 @@ if ($code_type === 'all') {
 
 if (!isset($_GET["mode"])) {
     if (!isset($_GET["from_date"])) {
-        $from_date=date("Y-m-d");
+        $from_date = date("Y-m-d");
     } else {
         $from_date = $_GET["from_date"];
     }
@@ -106,7 +107,7 @@ if (!isset($_GET["mode"])) {
     }
 
     if (!isset($_GET["code_type"])) {
-        $code_type="all";
+        $code_type = "all";
     } else {
         $code_type = $_GET["code_type"];
     }
@@ -369,10 +370,10 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if ($old_pid == $new_old_pid) {
                     if ($line_total != 0) {
                         print "<td class='w-100'><br /><span class='text'><strong><center>" . xlt('Total') . "</strong></center>";
-                        Printf("<br /></span></td><td class='w-100'><span class='text'><center>"." %1\$.2f", text($line_total)). "</center></td>";
+                        Printf("<br /></span></td><td class='w-100'><span class='text'><center>" . " %1\$.2f", text($line_total)) . "</center></td>";
                     } else {
                         print "<td class='w-100'><br /><span class='text'><strong><center>" . xlt('Total') . "</strong></center>";
-                        Printf("<br /></span></td><td class='w-100'><span class='text'><center>"." %1\$.2f", text($line_total_pay)). "</center></td>";
+                        Printf("<br /></span></td><td class='w-100'><span class='text'><center>" . " %1\$.2f", text($line_total_pay)) . "</center></td>";
                     }
 
                     $line_total = 0;
@@ -381,7 +382,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
 
                 if ($first_time) {
                      print "<table class='border-0'><tr>\n";     // small table
-                     $first_time=0;
+                     $first_time = 0;
                 }
 
                 // Displays name
@@ -391,21 +392,21 @@ if ($ret = getBillsBetweendayReport($code_type)) {
 
                 if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment') {
                       print "<td class='w-100'><span class='text'><center><strong>" . xlt("Units") . "</strong></center>";
-                      print "</span></td><td class='w-100'><span class='text'><center><strong>" . xlt("Fee"). "</strong></center>" ;
-                      print "</span></td><td class='w-100'><span class='text'><center><strong>" . xlt("Code"). "</strong></center>" ;
+                      print "</span></td><td class='w-100'><span class='text'><center><strong>" . xlt("Fee") . "</strong></center>" ;
+                      print "</span></td><td class='w-100'><span class='text'><center><strong>" . xlt("Code") . "</strong></center>" ;
                       print "</span></td><td class='w-100'><span class='text'><strong>";
-                      print "</span></td><td class='w-100'><span class='text'><center><strong>" . xlt("User"). "</strong></center>";
+                      print "</span></td><td class='w-100'><span class='text'><center><strong>" . xlt("User") . "</strong></center>";
                       print "</span></td><td class='w-100'><span class='small'><strong>" ;
-                      print "</span></td><td class='w-100'><span class='small'><center><strong>". xlt("Post Date"). "</strong></center>";
+                      print "</span></td><td class='w-100'><span class='small'><center><strong>" . xlt("Post Date") . "</strong></center>";
                       print "</span></td><td></tr><tr>\n";
                 } else {
-                    print "<td class='w-100'><span class='text'><strong><center>" . xlt("Units"). "</strong></center>";
-                    print "</span></td><td class='w-100'><span class='text'><center><strong>" . xlt("Fee"). "</strong></center>";
+                    print "<td class='w-100'><span class='text'><strong><center>" . xlt("Units") . "</strong></center>";
+                    print "</span></td><td class='w-100'><span class='text'><center><strong>" . xlt("Fee") . "</strong></center>";
                     print "</span></td><td class='w-100'><span class='text'><center><strong>" . xlt("Code") . "</strong></center>";
-                    print "</span></td><td class='w-100'><span class='text'><strong><center>" . xlt("Provider Id"). "</strong></center>";
-                    print "</span></td><td class='w-100'><span class='text'><strong><center>" . xlt("User"). "</strong></center>";
-                    print "</span></td><td class='w-100'><span class='small'><center><strong>" . xlt("Bill Date"). "</strong></center>";
-                    print "</span></td><td class='w-100'><span class='small'><center><strong>". xlt("Date of Service"). "</strong></center>";
+                    print "</span></td><td class='w-100'><span class='text'><strong><center>" . xlt("Provider Id") . "</strong></center>";
+                    print "</span></td><td class='w-100'><span class='text'><strong><center>" . xlt("User") . "</strong></center>";
+                    print "</span></td><td class='w-100'><span class='small'><center><strong>" . xlt("Bill Date") . "</strong></center>";
+                    print "</span></td><td class='w-100'><span class='small'><center><strong>" . xlt("Date of Service") . "</strong></center>";
                     print "</span></td><td></tr><tr>\n";
                 }
 
@@ -418,7 +419,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
 
             if ($iter['code_type'] != 'payment_info') {
                 if ($iter['code_type'] === 'COPAY' || $iter['code_type'] === 'Patient Payment' || $iter['code_type'] === 'Insurance Payment') {
-                       print "<td class='w-100'><span class='text'><center>" . "1". "</center>" ;
+                       print "<td class='w-100'><span class='text'><center>" . "1" . "</center>" ;
 
                       // start fee output
                       //    [pat_code] => 0.00
@@ -427,67 +428,67 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                       //    [ins_adjust_dollar] => 0.00
                     if (($iter['ins_adjust_dollar']) != 0 and ($iter['code_type']) === 'Insurance Payment') {
                         $line_total_pay = $line_total_pay + $iter['ins_adjust_dollar'];
-                        print  "</span></td><td class='w-100'><span class='text'><center>" . text($iter['ins_adjust_dollar']). "</center>";
+                        print  "</span></td><td class='w-100'><span class='text'><center>" . text($iter['ins_adjust_dollar']) . "</center>";
                     }
 
                     if (($iter['ins_code']) != 0 and ($iter['code_type']) === 'Insurance Payment') {
                            $line_total_pay = $line_total_pay + $iter['ins_code'];
-                        print  "</span></td><td class='w-100'><span class='text'><center>" . text($iter['ins_code']). "</center>";
+                        print  "</span></td><td class='w-100'><span class='text'><center>" . text($iter['ins_code']) . "</center>";
                     }
 
                     if (($iter['code_type']) != 'Patient Payment' and ($iter['code_type']) != 'Insurance Payment') {
                            $line_total_pay = $line_total_pay + $iter["code"];
-                        print  "</span></td><td class='w-100'><span class='text'><center>" . text($iter["code"]). "</center>";
+                        print  "</span></td><td class='w-100'><span class='text'><center>" . text($iter["code"]) . "</center>";
                     }
 
                     if (($iter['pat_adjust_dollar']) != 0 and ($iter['code_type']) === 'Patient Payment') {
                            $line_total_pay = $line_total_pay + $iter['pat_adjust_dollar'];
-                        print  "</span></td><td class='w-100'><span class='text'><center>" . text($iter['pat_adjust_dollar']). "</center>";
+                        print  "</span></td><td class='w-100'><span class='text'><center>" . text($iter['pat_adjust_dollar']) . "</center>";
                     }
 
                     if (($iter['pat_code']) != 0 and ($iter['code_type']) === 'Patient Payment') {
                            $line_total_pay = $line_total_pay + $iter['pat_code'];
-                        print  "</span></td><td class='w-100'><span class='text'><center>" .text($iter['pat_code']). "</center>";
+                        print  "</span></td><td class='w-100'><span class='text'><center>" . text($iter['pat_code']) . "</center>";
                     }
 
                       // end fee output
 
                     if (($iter['ins_adjust_dollar']) != 0 and ($iter['code_type']) === 'Insurance Payment') {
-                           print  "</span></td><td width='250'><span class='text'><center>" . xlt("Insurance Adjustment"). "</center>";
+                           print  "</span></td><td width='250'><span class='text'><center>" . xlt("Insurance Adjustment") . "</center>";
                     }
 
                     if (($iter['pat_adjust_dollar']) != 0 and ($iter['code_type']) === 'Patient Payment') {
-                           print  "</span></td><td width='250'><span class='text'><center>" . xlt("Patient Adjustment"). "</center>";
+                           print  "</span></td><td width='250'><span class='text'><center>" . xlt("Patient Adjustment") . "</center>";
                     }
 
                     if (($iter['ins_code']) > 0 and ($iter['code_type']) === 'Insurance Payment') {
-                           print  "</span></td><td width='250'><span class='text'><center>" . xlt('Insurance Payment'). "</center>";
+                           print  "</span></td><td width='250'><span class='text'><center>" . xlt('Insurance Payment') . "</center>";
                     }
 
                     if (($iter['pat_code']) > 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
-                           print  "</span></td><td width='250'><span class='text'><center>" . xlt('Patient Payment'). "</center>";
+                           print  "</span></td><td width='250'><span class='text'><center>" . xlt('Patient Payment') . "</center>";
                     }
 
                     if (($iter['ins_code']) < 0 and ($iter['code_type']) === 'Insurance Payment') {
-                           print  "</span></td><td width='250'><span class='text'><center>" . xlt("Insurance Credit"). "</center>";
+                           print  "</span></td><td width='250'><span class='text'><center>" . xlt("Insurance Credit") . "</center>";
                     }
 
                     if (($iter['pat_code']) < 0 and ($iter['code_type']) === 'Patient Payment' and $iter['paytype'] != 'PCP') {
-                           print  "</span></td><td width='250'><span class='text'><center>" . xlt("Patient Credit"). "</center>";
+                           print  "</span></td><td width='250'><span class='text'><center>" . xlt("Patient Credit") . "</center>";
                     }
 
                     if ($iter['paytype'] == 'PCP') {
-                        print  "</span></td><td width='250'><span class='text'><center>" . xlt('COPAY'). "</center>";
+                        print  "</span></td><td width='250'><span class='text'><center>" . xlt('COPAY') . "</center>";
                     }
 
                     if (($iter['code_type']) != 'Insurance Payment' and ($iter['code_type']) != 'Patient Payment' and $iter['paytype'] != 'PCP') {
-                           print  "</span></td><td width='250'><span class='text'><center>" . text($iter['code_type']). "</center>";
+                           print  "</span></td><td width='250'><span class='text'><center>" . text($iter['code_type']) . "</center>";
                     }
 
-                      print  "</span></td><td class='w-100'><span class='text'><center>" . text($iter['provider_id']). "</center>";
-                      print  "</span></td><td class='w-100'><span class='text'><center>" . text($iter['user']). "</center>" ;
+                      print  "</span></td><td class='w-100'><span class='text'><center>" . text($iter['provider_id']) . "</center>";
+                      print  "</span></td><td class='w-100'><span class='text'><center>" . text($iter['user']) . "</center>" ;
                       print  "</span></td><td class='w-100'><span class='text'>";
-                      print  "</span></td><td class='w-100'><span class='small'><center>" . text(date("Y-m-d", strtotime($iter['date']))). "</center>";
+                      print  "</span></td><td class='w-100'><span class='small'><center>" . text(date("Y-m-d", strtotime($iter['date']))) . "</center>";
                       print  "</span></td>\n";
                 } else {
                     if (date("Y-m-d", strtotime($iter['bill_date'])) == "1969-12-31") {
@@ -501,8 +502,8 @@ if ($ret = getBillsBetweendayReport($code_type)) {
 
                         print "</span></td><td class='w-100'><span class='text'><center>" . text($iter['provider_id']) . "</center>" ;
                         print "</span></td><td class='w-100'><span class='text'><center>" . text($iter['user']) . "</center>" ;
-                        print "</span></td><td class='w-100'><span class='text'><center>" . xlt('Not Billed'). "</center>";
-                        print "</span></td><td class='w-100'><span class='small'><center>" . text(date("Y-m-d", strtotime($iter['date']))). "</center>";
+                        print "</span></td><td class='w-100'><span class='text'><center>" . xlt('Not Billed') . "</center>";
+                        print "</span></td><td class='w-100'><span class='small'><center>" . text(date("Y-m-d", strtotime($iter['date']))) . "</center>";
                         print "</span></td>\n";
                     } else {
                         if ($iter['fee'] != 0) {
@@ -518,7 +519,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                             print "</span></td><td class='w-100'><span class='text'><center>" . text($iter['provider_id']) . "</center>";
                             print "</span></td><td class='w-100'><span class='text'><center>" . text($iter['user']) . "</center>";
                             print "</span></td><td class='w-100'><span class='small'><center>" . text(date("Y-m-d", strtotime($iter['bill_date']))) . "</center>";
-                            print "</span></td><td class='w-100'><span class='small'><center>" . text(date("Y-m-d", strtotime($iter["date"]))). "</center>";
+                            print "</span></td><td class='w-100'><span class='small'><center>" . text(date("Y-m-d", strtotime($iter["date"]))) . "</center>";
                             print "</span></td>\n";
                         }
                     }
@@ -755,11 +756,11 @@ if ($us19_fee != 0 || $us19_inspay != 0 || $us19_insadj != 0 || $us19_patadj != 
 if ($totals_only != 1) {
     if ($line_total != 0) {
         print "<td class='w-100'><br /><span class='text'><strong><center>" . xlt('Total') . "</strong></center>";
-        Printf("<br /></span></td><td class='w-100'><span class='text'><center>"." %1\$.2f", text($line_total)). "</center></span></td>\n<br />";
+        Printf("<br /></span></td><td class='w-100'><span class='text'><center>" . " %1\$.2f", text($line_total)) . "</center></span></td>\n<br />";
         print "</tr><tr>\n";
     } else {
         print "<td class='w-100'><br /><span class='text'><strong><center>" . xlt('Total') . "</strong></center>";
-        Printf("<br /></span></td><td class='w-100'><span class='text'><center>"." %1\$.2f", text($line_total_pay)). "</center></td>\n<br />";
+        Printf("<br /></span></td><td class='w-100'><span class='text'><center>" . " %1\$.2f", text($line_total_pay)) . "</center></td>\n<br />";
         print "</tr><tr>\n";
     }
 }
@@ -769,19 +770,19 @@ if ($totals_only == 1) {
     $to_date = oeFormatShortDate(substr($query_part_day, 63, 10));
     print "<br /><br />";
 
-    ?><span><?php echo xlt('Totals for '). text($from_date) . ' ' . xlt('To{{Range}}') . ' ' . text($to_date) ?></span><?php
+    ?><span><?php echo xlt('Totals for ') . text($from_date) . ' ' . xlt('To{{Range}}') . ' ' . text($to_date) ?></span><?php
 }
 
-for ($i=1; $i<$k;) {
+for ($i = 1; $i < $k;) {
     print "<table border='1'><tr>\n";
     print "<br /><br />";
 
-    Printf("<td width='70'><span class='text'><strong><center>". xlt("User") . ' ' . "</center></strong><center>".text($user_info['user'][$i])). "</center>";
-    Printf("<td width='140'><span class='text'><strong><center>". xlt("Charges") . ' ' . "</center></strong><center>"." %1\$.2f", text($user_info['fee'][$i])). "</center>";
-    Printf("<td width='140'><span class='text'><strong><center>". xlt("Insurance Adj").'. '."</center></strong><center>"."%1\$.2f", text($user_info['insadj'][$i])). "</center>";
-    Printf("<td width='140'><span class='text'><strong><center>". xlt("Insurance Payments") . ' ' . "</center></strong><center>"."%1\$.2f", text($user_info['inspay'][$i])). "</center>";
-    Printf("<td width='140'><span class='text'><strong><center>". xlt("Patient Adj").'. '."</center></strong><center>"."%1\$.2f", text($user_info['patadj'][$i])). "</center>";
-    Printf("<td width='140'><span class='text'><strong><center>". xlt("Patient Payments") . ' ' . "</center></strong><center>"."%1\$.2f", text($user_info['patpay'][$i])). "</center>";
+    Printf("<td width='70'><span class='text'><strong><center>" . xlt("User") . ' ' . "</center></strong><center>" . text($user_info['user'][$i])) . "</center>";
+    Printf("<td width='140'><span class='text'><strong><center>" . xlt("Charges") . ' ' . "</center></strong><center>" . " %1\$.2f", text($user_info['fee'][$i])) . "</center>";
+    Printf("<td width='140'><span class='text'><strong><center>" . xlt("Insurance Adj") . '. ' . "</center></strong><center>" . "%1\$.2f", text($user_info['insadj'][$i])) . "</center>";
+    Printf("<td width='140'><span class='text'><strong><center>" . xlt("Insurance Payments") . ' ' . "</center></strong><center>" . "%1\$.2f", text($user_info['inspay'][$i])) . "</center>";
+    Printf("<td width='140'><span class='text'><strong><center>" . xlt("Patient Adj") . '. ' . "</center></strong><center>" . "%1\$.2f", text($user_info['patadj'][$i])) . "</center>";
+    Printf("<td width='140'><span class='text'><strong><center>" . xlt("Patient Payments") . ' ' . "</center></strong><center>" . "%1\$.2f", text($user_info['patpay'][$i])) . "</center>";
 
     $gtotal_fee = $gtotal_fee + $user_info[fee][$i];
     $gtotal_insadj = $gtotal_insadj + $user_info[insadj][$i];
@@ -797,12 +798,12 @@ for ($i=1; $i<$k;) {
 print "<table border='1'><tr>\n";
 print "<br /><br />";
 
-Printf("<td width='70'><span class='text'><strong><center>". xlt("Grand Totals") . ' ');
-Printf("<td width='140'><span class='text'><strong><center>". xlt("Total Charges") . ' ' . "</center></strong><center>"." %1\$.2f", text($gtotal_fee)). "</center>";
-Printf("<td width='140'><span class='text'><strong><center>". xlt("Insurance Adj").'. '."</center></strong><center>"."%1\$.2f", text($gtotal_insadj)). "</center>";
-Printf("<td width='140'><span class='text'><strong><center>". xlt("Insurance Payments") . ' ' . "</center></strong><center>"."%1\$.2f", text($gtotal_inspay)). "</center>";
-Printf("<td width='140'><span class='text'><strong><center>". xlt("Patient Adj").'.'."</center></strong><center>"."%1\$.2f", text($gtotal_patadj)). "</center>";
-Printf("<td width='140'><span class='text'><strong><center>". xlt("Patient Payments") . ' ' . "</center></strong><center>"."%1\$.2f", text($gtotal_patpay)). "</center>";
+Printf("<td width='70'><span class='text'><strong><center>" . xlt("Grand Totals") . ' ');
+Printf("<td width='140'><span class='text'><strong><center>" . xlt("Total Charges") . ' ' . "</center></strong><center>" . " %1\$.2f", text($gtotal_fee)) . "</center>";
+Printf("<td width='140'><span class='text'><strong><center>" . xlt("Insurance Adj") . '. ' . "</center></strong><center>" . "%1\$.2f", text($gtotal_insadj)) . "</center>";
+Printf("<td width='140'><span class='text'><strong><center>" . xlt("Insurance Payments") . ' ' . "</center></strong><center>" . "%1\$.2f", text($gtotal_inspay)) . "</center>";
+Printf("<td width='140'><span class='text'><strong><center>" . xlt("Patient Adj") . '.' . "</center></strong><center>" . "%1\$.2f", text($gtotal_patadj)) . "</center>";
+Printf("<td width='140'><span class='text'><strong><center>" . xlt("Patient Payments") . ' ' . "</center></strong><center>" . "%1\$.2f", text($gtotal_patpay)) . "</center>";
 
 print "<br /></td>";
 print "</table>";

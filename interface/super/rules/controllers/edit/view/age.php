@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/controllers/edit/view/age.php
  *
@@ -10,6 +11,7 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 <!-- age -->
 <p class="row">
@@ -21,7 +23,7 @@
 <p class="row">
     <span class="left_col colhead req" data-fld="fld_timeunit"><?php echo xlt('Unit');?></span>
     <span class="end_col">
-    <?php echo timeunit_select(array( "context" => "rule_age_intervals", "target"=>"fld_target_interval_type", "name" => "fld_target_interval_type", "value" => $criteria->timeUnit )); ?>
+    <?php echo timeunit_select(array( "context" => "rule_age_intervals", "target" => "fld_target_interval_type", "name" => "fld_target_interval_type", "value" => $criteria->timeUnit )); ?>
     </span>
 </p>
 

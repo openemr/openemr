@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * Copyright (C) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
@@ -21,6 +22,7 @@
  * @link http://www.open-emr.org
  *
  */
+
 //namespace OnsitePortal;
 
 require_once("verify_session.php");

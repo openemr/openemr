@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  $Id$
  *
@@ -24,6 +25,7 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
+
 require_once $smarty->_get_plugin_filepath('shared', 'make_timestamp');
 function smarty_modifier_pc_date_format($string, $format = null, $default_date = null)
 {

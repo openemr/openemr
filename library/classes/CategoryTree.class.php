@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * class CategoryTree
  * This is a class for storing document categories using the MPTT implementation

@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -18,7 +19,7 @@ class CqmPopulation extends RsPopulation
     public function __construct(array $patientIdArray)
     {
         foreach ($patientIdArray as $patientId) {
-            $this->_patients[]= new CqmPatient($patientId);
+            $this->_patients[] = new CqmPatient($patientId);
         }
     }
 

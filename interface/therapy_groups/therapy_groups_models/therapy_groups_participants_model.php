@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/therapy_groups/therapy_groups_models/therapy_groups_participants_model.php contains the model for therapy group participants.
  *
@@ -69,7 +70,7 @@ class Therapy_groups_participants
 
         $data = array_merge($participant, array($patientId, $groupId));
         $result = sqlStatement($sql, $data);
-        return !$result ? false :true;
+        return !$result ? false : true;
     }
 
     public function removeParticipant($groupId, $pid)
@@ -77,7 +78,7 @@ class Therapy_groups_participants
 
         $sql = "DELETE FROM " . self::TABLE . " WHERE group_id = ? AND pid = ?";
         $result = sqlStatement($sql, array($groupId, $pid));
-        return !$result ? false :true;
+        return !$result ? false : true;
     }
 
     public function isAlreadyRegistered($pid, $groupId)
@@ -94,7 +95,7 @@ class Therapy_groups_participants
     public function saveParticipant($participantData)
     {
            // print_r($participantData);die;
-        $sql = "INSERT INTO " .self::TABLE . " VALUES(?,?,?,?,?,?);";
+        $sql = "INSERT INTO " . self::TABLE . " VALUES(?,?,?,?,?,?);";
         $data[] = $participantData['group_id'];
         $data[] = $participantData['pid'];
         $data[] = $participantData['group_patient_status'];
@@ -104,6 +105,6 @@ class Therapy_groups_participants
 
         $result = sqlStatement($sql, $data);
 
-        return !$result ? false :true;
+        return !$result ? false : true;
     }
 }

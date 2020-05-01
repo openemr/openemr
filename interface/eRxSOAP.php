@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/eRxSOAP.php Functions for interacting with NewCrop SOAP calls.
  *
@@ -179,7 +180,7 @@ class eRxSOAP
      */
     public function setPatientId($id)
     {
-        $this->patientId = (integer) $id;
+        $this->patientId = (int) $id;
 
         return $this;
     }
@@ -202,7 +203,7 @@ class eRxSOAP
     {
         $paths = $this->getGlobals()->getSoapPaths();
 
-        return $this->setSoapClient(new SoapClient($paths[(integer) $pathId]));
+        return $this->setSoapClient(new SoapClient($paths[(int) $pathId]));
     }
 
     /**
@@ -285,7 +286,7 @@ class eRxSOAP
             return true;
         }
 
-        return strtotime('-'.$ttl.' seconds') >= strtotime($soap);
+        return strtotime('-' . $ttl . ' seconds') >= strtotime($soap);
     }
 
     /**
@@ -440,7 +441,7 @@ class eRxSOAP
 
         $this->soapSettings['prescriptionHistoryRequest'] = array(
             'StartHistory'              => '2011-01-01T00:00:00.000',
-            'EndHistory'                => date('Y-m-d').'T23:59:59.000',
+            'EndHistory'                => date('Y-m-d') . 'T23:59:59.000',
             'PrescriptionStatus'        => 'C',
             'PrescriptionSubStatus'     => '%',
             'PrescriptionArchiveStatus' => 'N',

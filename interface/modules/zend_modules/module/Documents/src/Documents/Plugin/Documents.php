@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Documents/src/Documents/Plugin/Documents.php
  *
@@ -8,6 +9,7 @@
  * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace Documents\Plugin;
 
 use OpenEMR\Common\Crypto\CryptoGen;
@@ -15,6 +17,7 @@ use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 use Documents\Model\DocumentsTable;
 use Application\Model\ApplicationTable;
 use Application\Listener\Listener;
+
 require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 use C_Document;
 

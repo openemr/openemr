@@ -1,4 +1,5 @@
 <?php
+
 /**
  * painmap view.php
  *
@@ -9,10 +10,10 @@
  */
 
 /* include globals.php, required. */
-require_once(dirname(__FILE__).'/../../globals.php');
+require_once(dirname(__FILE__) . '/../../globals.php');
 
 /* include api.inc. also required. */
-require_once($GLOBALS['srcdir'].'/api.inc');
+require_once($GLOBALS['srcdir'] . '/api.inc');
 
 /* include our smarty derived controller class. */
 require('C_FormPainMap.class.php');

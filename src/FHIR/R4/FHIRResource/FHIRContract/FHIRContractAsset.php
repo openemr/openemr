@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRContract;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRContract;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -485,7 +487,7 @@ class FHIRContractAsset extends FHIRBackboneElement implements \JsonSerializable
                         $this->addType($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"type" must be array of objects or null, '.gettype($data['type']).' seen.');
+                    throw new \InvalidArgumentException('"type" must be array of objects or null, ' . gettype($data['type']) . ' seen.');
                 }
             }
             if (isset($data['typeReference'])) {
@@ -494,7 +496,7 @@ class FHIRContractAsset extends FHIRBackboneElement implements \JsonSerializable
                         $this->addTypeReference($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"typeReference" must be array of objects or null, '.gettype($data['typeReference']).' seen.');
+                    throw new \InvalidArgumentException('"typeReference" must be array of objects or null, ' . gettype($data['typeReference']) . ' seen.');
                 }
             }
             if (isset($data['subtype'])) {
@@ -503,7 +505,7 @@ class FHIRContractAsset extends FHIRBackboneElement implements \JsonSerializable
                         $this->addSubtype($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"subtype" must be array of objects or null, '.gettype($data['subtype']).' seen.');
+                    throw new \InvalidArgumentException('"subtype" must be array of objects or null, ' . gettype($data['subtype']) . ' seen.');
                 }
             }
             if (isset($data['relationship'])) {
@@ -515,7 +517,7 @@ class FHIRContractAsset extends FHIRBackboneElement implements \JsonSerializable
                         $this->addContext($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"context" must be array of objects or null, '.gettype($data['context']).' seen.');
+                    throw new \InvalidArgumentException('"context" must be array of objects or null, ' . gettype($data['context']) . ' seen.');
                 }
             }
             if (isset($data['condition'])) {
@@ -527,7 +529,7 @@ class FHIRContractAsset extends FHIRBackboneElement implements \JsonSerializable
                         $this->addPeriodType($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"periodType" must be array of objects or null, '.gettype($data['periodType']).' seen.');
+                    throw new \InvalidArgumentException('"periodType" must be array of objects or null, ' . gettype($data['periodType']) . ' seen.');
                 }
             }
             if (isset($data['period'])) {
@@ -536,7 +538,7 @@ class FHIRContractAsset extends FHIRBackboneElement implements \JsonSerializable
                         $this->addPeriod($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"period" must be array of objects or null, '.gettype($data['period']).' seen.');
+                    throw new \InvalidArgumentException('"period" must be array of objects or null, ' . gettype($data['period']) . ' seen.');
                 }
             }
             if (isset($data['usePeriod'])) {
@@ -545,7 +547,7 @@ class FHIRContractAsset extends FHIRBackboneElement implements \JsonSerializable
                         $this->addUsePeriod($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"usePeriod" must be array of objects or null, '.gettype($data['usePeriod']).' seen.');
+                    throw new \InvalidArgumentException('"usePeriod" must be array of objects or null, ' . gettype($data['usePeriod']) . ' seen.');
                 }
             }
             if (isset($data['text'])) {
@@ -557,7 +559,7 @@ class FHIRContractAsset extends FHIRBackboneElement implements \JsonSerializable
                         $this->addLinkId($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"linkId" must be array of objects or null, '.gettype($data['linkId']).' seen.');
+                    throw new \InvalidArgumentException('"linkId" must be array of objects or null, ' . gettype($data['linkId']) . ' seen.');
                 }
             }
             if (isset($data['answer'])) {
@@ -566,7 +568,7 @@ class FHIRContractAsset extends FHIRBackboneElement implements \JsonSerializable
                         $this->addAnswer($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"answer" must be array of objects or null, '.gettype($data['answer']).' seen.');
+                    throw new \InvalidArgumentException('"answer" must be array of objects or null, ' . gettype($data['answer']) . ' seen.');
                 }
             }
             if (isset($data['securityLabelNumber'])) {
@@ -575,7 +577,7 @@ class FHIRContractAsset extends FHIRBackboneElement implements \JsonSerializable
                         $this->addSecurityLabelNumber($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"securityLabelNumber" must be array of objects or null, '.gettype($data['securityLabelNumber']).' seen.');
+                    throw new \InvalidArgumentException('"securityLabelNumber" must be array of objects or null, ' . gettype($data['securityLabelNumber']) . ' seen.');
                 }
             }
             if (isset($data['valuedItem'])) {
@@ -584,11 +586,11 @@ class FHIRContractAsset extends FHIRBackboneElement implements \JsonSerializable
                         $this->addValuedItem($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"valuedItem" must be array of objects or null, '.gettype($data['valuedItem']).' seen.');
+                    throw new \InvalidArgumentException('"valuedItem" must be array of objects or null, ' . gettype($data['valuedItem']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

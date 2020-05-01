@@ -201,6 +201,125 @@ function initInteractors(dragContext = document, resizeContext = '') {
 }
 
 /*
+* @function oeSortable(callBackFn)
+* @summary call this function from scripts you may need to use sortable
+*
+* @param function A callback function which is called with the sorted elements as parameter
+*/
+function oeSortable(callBackFn) {
+    if (typeof window.interact !== 'function') {
+        (async (interactfn) => {
+            await includeScript(interactfn, 'script');
+        })(top.webroot_url + '/public/assets/interactjs/dist/interact.js').then(() => {
+            load();
+        });
+    } else {
+        load();
+    }
+    function clearTranslate(elem){
+        elem.style.webkitTransform =
+            elem.style.transform =
+            'translate(' + 0 + 'px, ' + 0 + 'px)'
+        elem.setAttribute('data-x', 0)
+        elem.setAttribute('data-y', 0)
+    }
+    function switchElem(elem1, elem2, clear = false){
+        $(elem2).append($(elem1).children()[0]);
+        $(elem1).append($(elem2).children()[0]);
+        if(clear){
+             clearTranslate($(elem2).children()[0]);
+             clearTranslate($(elem1).children()[0]);
+        }
+    }
+    function moveUp(elem){
+        if(elem){
+            let prevElem = $(elem).prev(".droppable");
+            if(prevElem.length > 0){
+                let childIsDragging = prevElem.children("li.is-dragging")[0];
+                if(childIsDragging){
+                    switchElem(elem, prevElem[0], true);
+                    return true;
+                }else{ 
+                    if(prevElem[0]){
+                        if(moveUp(prevElem[0])){
+                            switchElem(elem, prevElem[0]);
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    function moveDown(elem){
+        if(elem){
+            let nxtElem = $(elem).next(".droppable");
+            if(nxtElem.length > 0){
+                let childIsDragging = nxtElem.children("li.is-dragging")[0];
+                if(childIsDragging){
+                    switchElem(elem, nxtElem[0], true);
+                    return true;
+                }else{ 
+                    if(nxtElem[0]){
+                        if(moveDown(nxtElem[0])){
+                            switchElem(elem, nxtElem[0]);
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    function dragMoveListener (event) {
+        var target = event.target
+        var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
+        var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
+        target.style.webkitTransform =
+            target.style.transform =
+            'translate(' + x + 'px, ' + y + 'px)'
+        target.setAttribute('data-x', x)
+        target.setAttribute('data-y', y)
+    }
+    function load(){
+        interact('.droppable').dropzone({
+            accept: null,
+            overlap: 0.9,
+            ondropactivate: function (event) {
+                event.relatedTarget.classList.add('is-dragging');
+            },
+            ondragenter: function (event) {
+                let isUpper = moveUp(event.target);
+                if(!isUpper){
+                    moveDown(event.target);
+                }
+            },
+            ondropdeactivate: function (event) {
+                if(event.target.firstChild.classList.contains('is-dragging')){
+                    let items = event.target.parentNode.children;
+                    event.relatedTarget.classList.remove('is-dragging');
+                    clearTranslate(event.relatedTarget);
+                    callBackFn && callBackFn(items);
+                }
+            }
+        })
+    
+        interact('.draggable')
+            .draggable({
+                inertia: true,
+                modifiers: [
+                interact.modifiers.restrictRect({
+                    restriction: null,
+                    endOnly: true
+                })
+                ],
+                autoScroll: true,
+                listeners: { move: dragMoveListener }
+        })
+    }
+
+};
+
+
+/*
 * Universal async BS alert message with promise
 * Note the use of new javaScript translate function xl().
 *

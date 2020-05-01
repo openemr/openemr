@@ -1,4 +1,5 @@
 <?php
+
 /**
  * lang_constant.php script
  *
@@ -9,16 +10,17 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("language.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 // Ensure this script is not called separately
-if ((empty($_SESSION['lang_module_unique_id'])) ||
+if (
+    (empty($_SESSION['lang_module_unique_id'])) ||
     (empty($unique_id)) ||
-    ($unique_id != $_SESSION['lang_module_unique_id'])) {
+    ($unique_id != $_SESSION['lang_module_unique_id'])
+) {
     die(xlt('Authentication Error'));
 }
 unset($_SESSION['lang_module_unique_id']);
@@ -39,22 +41,22 @@ if ($_POST['add']) {
 
     //validate
     if ($_POST['constant_name'] == "") {
-            echo xlt('Constant name is blank').'<br />';
-            $err='y';
+            echo xlt('Constant name is blank') . '<br />';
+            $err = 'y';
     }
 
-    $sql="SELECT * FROM lang_constants WHERE constant_name=? limit 1" ;
-    $res=SqlQuery($sql, array($_POST['constant_name']));
+    $sql = "SELECT * FROM lang_constants WHERE constant_name=? limit 1" ;
+    $res = SqlQuery($sql, array($_POST['constant_name']));
     if ($res) {
-        echo xlt('Data Alike is already in database, please change constant name').'<br />';
-        $err='y';
+        echo xlt('Data Alike is already in database, please change constant name') . '<br />';
+        $err = 'y';
     }
 
-    if ($err=='y') {
-        $val_constant=$_POST['constant_name'];
+    if ($err == 'y') {
+        $val_constant = $_POST['constant_name'];
     } else {
             //insert into the main table
-        $sql="INSERT INTO lang_constants SET constant_name=?";
+        $sql = "INSERT INTO lang_constants SET constant_name=?";
         SqlStatement($sql, array($_POST['constant_name']));
 
                 //insert into the log table - to allow persistant customizations

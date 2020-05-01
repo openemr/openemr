@@ -1,4 +1,5 @@
 <?php
+
 /**
  * pharmacyHelper
  * This helper is to bridge information from the admin page ajax

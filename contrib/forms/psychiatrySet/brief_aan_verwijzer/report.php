@@ -1,4 +1,5 @@
 <?php
+
 ////////////////////////////////////////////////////////////////////
 // Form:    BRIEF AAN VERWIJZER
 // Package: letter to - Dutch specific form
@@ -7,7 +8,7 @@
 ////////////////////////////////////////////////////////////////////
 
 require_once("../../globals.php");
-require_once($GLOBALS["srcdir"]."/api.inc");
+require_once($GLOBALS["srcdir"] . "/api.inc");
 
 ////////////////////////////////////////////////////////////////////
 // Function:    brief_aan_verwijzer_report
@@ -23,9 +24,11 @@ function brief_aan_verwijzer_report($pid, $encounter, $cols, $id)
 
         foreach ($data as $key => $value) {
             // here we check for current ???? what ? session ?
-            if ($key == "id" || $key == "pid" || $key == "user" ||
-            $key == "groupname" || $key == "authorized" || $key == "activity" ||
-            $key == "date" || $value == "" || $value == "0000-00-00 00:00:00") {
+            if (
+                $key == "id" || $key == "pid" || $key == "user" ||
+                $key == "groupname" || $key == "authorized" || $key == "activity" ||
+                $key == "date" || $value == "" || $value == "0000-00-00 00:00:00"
+            ) {
                 continue;
             }
 

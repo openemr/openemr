@@ -1,4 +1,5 @@
 <?php
+
 /**
  * AclExtended class.
  *
@@ -14,7 +15,6 @@
  * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 namespace OpenEMR\Common\Acl;
 
@@ -253,8 +253,10 @@ class AclExtended
         $counter = 0;
         foreach ($arr_all_group_ids as $value) {
             $arr_group_data = $gacl->get_group_data($value, 'ARO');
-            if ((empty($arr_group_titles)) ||
-                (in_array($arr_group_data[3], $arr_group_titles))) {
+            if (
+                (empty($arr_group_titles)) ||
+                (in_array($arr_group_data[3], $arr_group_titles))
+            ) {
                 //We have a hit, so need to add group and increment counter
                 // because processing of first hit is unique
                 //This will also deal with an empty $arr_group_titles array
@@ -819,7 +821,7 @@ class AclExtended
                 $group_id = $gacl->get_group_id($name, $title, 'ARO');
                 if ($group_id) {
                     //group already exist, so just create acl
-                    $temp_acl_id = $gacl->add_acl(array("placeholder"=>array("filler")), null, array($group_id), null, null, 1, 1, $return_value, $note);
+                    $temp_acl_id = $gacl->add_acl(array("placeholder" => array("filler")), null, array($group_id), null, null, 1, 1, $return_value, $note);
                     if ($temp_acl_id) {
                         echo "The '$title' group already exist.</BR>";
                         echo "The '$title' group '$return_value' ACL has been successfully added.</BR>";
@@ -832,7 +834,7 @@ class AclExtended
                     //create group, then create acl
                     $parent_id = $gacl->get_root_group_id();
                     $aro_id = $gacl->add_group($name, $title, $parent_id, 'ARO');
-                    $temp_acl_id = $gacl->add_acl(array("placeholder"=>array("filler")), null, array($aro_id), null, null, 1, 1, $return_value, $note);
+                    $temp_acl_id = $gacl->add_acl(array("placeholder" => array("filler")), null, array($aro_id), null, null, 1, 1, $return_value, $note);
                     if ($aro_id) {
                         echo "The '$title' group has been successfully added.</BR>";
                     } else {
@@ -953,10 +955,12 @@ class AclExtended
         $tmp_objectID = $gacl->get_object_id($section_name, $object_name, 'ACO');
         if ($tmp_objectID) {
             $tmp_object = $gacl->get_object_data($tmp_objectID, 'ACO');
-            if ($tmp_object[0][2] ==  $order_number &&
+            if (
+                $tmp_object[0][2] ==  $order_number &&
                 $tmp_object[0][0] ==  $section_name &&
                 $tmp_object[0][1] ==  $object_name &&
-                $tmp_object[0][3] ==  $object_title) {
+                $tmp_object[0][3] ==  $object_title
+            ) {
                 echo "The '$object_title' object in the '$section_title' section has already been updated.</BR>";
             } else {
                 $tmp_boolean = $gacl->edit_object($tmp_objectID, $section_name, $object_title, $object_name, $order_number, 0, 'ACO');
@@ -991,7 +995,7 @@ class AclExtended
         $tmp_array = $gacl->search_acl($section_name, $object_name, false, false, $group_title, false, false, false, $return_value);
         switch (count($tmp_array)) {
             case 0:
-                $tmp_boolean = @$gacl->append_acl($array_acl_id_number[0], null, null, null, null, array($section_name=>array($object_name)));
+                $tmp_boolean = @$gacl->append_acl($array_acl_id_number[0], null, null, null, null, array($section_name => array($object_name)));
                 if ($tmp_boolean) {
                     echo "Successfully placed the '$object_title' object of the '$section_title' section into the '$group_title' group '$return_value' ACL.</BR>";
                 } else {

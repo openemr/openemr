@@ -1,4 +1,5 @@
 <?php
+
 /**
  * immunization lot search.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once('../../../interface/globals.php');
 
@@ -25,7 +25,7 @@ if (!empty($_GET['term'])) {
     $return_arr = array();
 
     $sql = "SELECT DISTINCT lot_number FROM immunizations WHERE lot_number LIKE ?";
-    $res = sqlstatement($sql, array("%".$term."%"));
+    $res = sqlstatement($sql, array("%" . $term . "%"));
     while ($row = sqlFetchArray($res)) {
         $return_arr[] =  $row['lot_number'] ;
     }

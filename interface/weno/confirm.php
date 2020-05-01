@@ -1,4 +1,5 @@
 <?php
+
 /**
  * weno rx confirm
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once('../globals.php');
 require_once("$srcdir/patient.inc");
@@ -34,7 +34,7 @@ $mailOrder = $tData->mailOrderPharmacy();
 
 <html>
 <head>
-    <?php Header::setupHeader(['jquery-ui', 'jquery-ui-sunny']); ?>
+    <?php Header::setupHeader(); ?>
 
 
     <style>
@@ -52,7 +52,7 @@ $mailOrder = $tData->mailOrderPharmacy();
 <body class="body_top">
 
 <h2><?php print xlt("Prescription Transmit Review"); ?></h2>
-<div class="table-responsive text-center" style="margin-left:10%;width:75%;">
+<div class="table-responsive text-center w-75" style="margin-left:10%;">
 <table class="table table-sm table-striped">
     <thead>
         <th class='text-center'><?php print xlt("Drug"); ?></th>
@@ -63,7 +63,7 @@ $mailOrder = $tData->mailOrderPharmacy();
 
     $drug = array(); //list of records that need to updated with pharmacy information
     while ($list = sqlFetchArray($send)) {
-        print "<tr class='text-center'><td>". text($list['drug']) . " </td><td> " . text($list['quantity']) . "</td></tr>";
+        print "<tr class='text-center'><td>" . text($list['drug']) . " </td><td> " . text($list['quantity']) . "</td></tr>";
         $drug[] = $list['id'];
     }
 
@@ -72,7 +72,7 @@ $mailOrder = $tData->mailOrderPharmacy();
 </table>
 </div>
 <?php if (empty($drug)) {
-    echo "<br /> <p class='text-danger'><strong> ".xlt("No prescriptions selected"). "</strong></p>";
+    echo "<br /> <p class='text-danger'><strong> " . xlt("No prescriptions selected") . "</strong></p>";
     exit;
 }
 ?>
@@ -82,7 +82,7 @@ $mailOrder = $tData->mailOrderPharmacy();
     <input type = 'radio' name = "pharmacy" id = 'patientPharmacy' value="<?php print attr($patientPharmacy['pharmacy_id']) ?>" checked="checked">
     <?php
     if (!$patientPharmacy['name']) {
-        print "<b>".xlt("Please set pharmacy in patient\'s chart!")."</b><br /> <br />";
+        print "<b>" . xlt("Please set pharmacy in patient\'s chart!") . "</b><br /> <br />";
     } else {
         print text($patientPharmacy['name']);
     }

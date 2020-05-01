@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Edit Layout Properties.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 
@@ -156,15 +156,15 @@ if ($_POST['form_submit'] && !$alertmsg) {
                 $sqlvars
             );
         }
-    } else if (!$group_id) {
+    } elseif (!$group_id) {
         // They want to add a new layout. New groups not supported here.
         $form_form_id = $_POST['form_form_id'];
         $form_title = $_POST['form_title'];
         if ($form_form_id == '') {
             $alertmsg = xl('Layout ID is required');
-        } else if ($form_title == '') {
+        } elseif ($form_title == '') {
             $alertmsg = xl('Title is required');
-        } else if (preg_match('/(LBF|LBT)[0-9A-Za-z_]+/', $form_form_id)) {
+        } elseif (preg_match('/(LBF|LBT)[0-9A-Za-z_]+/', $form_form_id)) {
             $tmp = sqlQuery(
                 "SELECT grp_form_id FROM layout_group_properties WHERE " .
                 "grp_form_id = ? AND grp_group_id = ''",

@@ -1,4 +1,5 @@
 <?php
+
 /************************************************************************
             address.php - Copyright duhlman
 
@@ -74,12 +75,12 @@ class Company extends ORDataObject
     function toString($html = false)
     {
         $string .= "\n"
-        . "ID: " . $this->id."\n"
-        . "FID: " . $this->foreign_id."\n"
-        .$this->line1 . "\n"
-        .$this->line2 . "\n"
-        .$this->city . ", " . strtoupper($this->state) . " " . $this->zip . "-" . $this->plus_four. "\n"
-        .$this->country. "\n";
+        . "ID: " . $this->id . "\n"
+        . "FID: " . $this->foreign_id . "\n"
+        . $this->line1 . "\n"
+        . $this->line2 . "\n"
+        . $this->city . ", " . strtoupper($this->state) . " " . $this->zip . "-" . $this->plus_four . "\n"
+        . $this->country . "\n";
 
         if ($html) {
             return nl2br($string);

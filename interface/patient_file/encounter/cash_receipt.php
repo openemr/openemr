@@ -1,4 +1,5 @@
 <?php
+
 /**
  * cash_receipt.php
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 // TODO: Code cleanup
 
@@ -40,8 +40,8 @@ $first_issue = 1;
 <?php
 $titleres = getPatientData($pid, "fname,lname,providerID");
 // $sql = "select * from facility where billing_location = 1";
-$sql = "select f.* from facility f ".
-    "LEFT JOIN form_encounter fe on fe.facility_id = f.id ".
+$sql = "select f.* from facility f " .
+    "LEFT JOIN form_encounter fe on fe.facility_id = f.id " .
     "where fe.encounter = ?";
 $db = $GLOBALS['adodb']['db'];
 $results = $db->Execute($sql, array($encounter));
@@ -161,7 +161,7 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
     $key = "COPAY";
     $val = $billing_html[$key];
         print $val;
-    $balance = $total-$copay;
+    $balance = $total - $copay;
     if ($balance != 0.00) {
         print "<tr><td>" . xlt('balance') . "</td><td></td><td>" . xlt('Please pay this amount') . ":</td><td>" . text(oeFormatMoney($balance)) . "</td></tr>\n";
     }
