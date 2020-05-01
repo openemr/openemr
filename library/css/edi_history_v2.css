@@ -24,27 +24,6 @@
  * @package OpenEMR
  * @subpackage ediHistory
  */
-/*
-@media only screen and (max-width: 768px) {
-	#turnover, tr td:nth-child(9)		{ display:none; visibility:hidden; }
-}
-
-@media only screen and (max-width: 420px) {
-	#changepercent, tr td:nth-child(4)	{ display:none; visibility:hidden; }
-	#yhigh, tr td:nth-child(5)			{ display:none; visibility:hidden; }
-	#ylow, tr td:nth-child(6)			{ display:none; visibility:hidden; }
-	#turnover, tr td:nth-child(9)		{ display:none; visibility:hidden; }
-}
-
-@media only screen and (max-width: 320px) {
-	#changepercent, tr td:nth-child(4)	{ display:none; visibility:hidden; }
-	#yhigh, tr td:nth-child(5)			{ display:none; visibility:hidden; }
-	#ylow, tr td:nth-child(6)			{ display:none; visibility:hidden; }
-	#dhigh, tr td:nth-child(7)			{ display:none; visibility:hidden; }
-	#dlow, tr td:nth-child(8)			{ display:none; visibility:hidden; }
-	#turnover, tr td:nth-child(9)		{ display:none; visibility:hidden; }
-}
-*/
 @media print {
   .print {
     width: 100%;
@@ -141,7 +120,6 @@ ul.fupl {
 
 /* ***** process class dl.process  padding: 10px; border: none; margin: 2px;*******/
 div#processed {
-  background-color: #b7cbd0;
   max-width: fit-content;
 }
 
@@ -411,27 +389,6 @@ table.clmhist tr.ch277 td {
 
 table.clmhist tr.ch835 td {
   background-color: #d4edce;
-}
-
-table#csvTable td {
-  color: #000;
-}
-
-table#csvTable td.reject {
-  color: #a40808;
-}
-
-/* ***** f837 class *******/
-table#csvTable {
-  background-color: #d8dadb;
-}
-
-table#csvTable tr.odd td {
-  background-color: #dbe4dc;
-}
-
-table#csvTable tr.even td {
-  background-color: #dadada;
 }
 
 /* ***** 999/997 error report*******/
