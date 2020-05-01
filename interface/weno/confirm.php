@@ -34,7 +34,7 @@ $mailOrder = $tData->mailOrderPharmacy();
 
 <html>
 <head>
-    <?php Header::setupHeader(['jquery-ui', 'jquery-ui-sunny']); ?>
+    <?php Header::setupHeader(); ?>
 
 
     <style>
@@ -52,7 +52,7 @@ $mailOrder = $tData->mailOrderPharmacy();
 <body class="body_top">
 
 <h2><?php print xlt("Prescription Transmit Review"); ?></h2>
-<div class="table-responsive text-center" style="margin-left:10%;width:75%;">
+<div class="table-responsive text-center w-75" style="margin-left:10%;">
 <table class="table table-sm table-striped">
     <thead>
         <th class='text-center'><?php print xlt("Drug"); ?></th>

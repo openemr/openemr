@@ -1,6 +1,6 @@
 <?php
 
-/* X12_5010_837P Class
+/* X125010837P Class
  *
  * This program creates an X12 5010 837P file.
  *
@@ -17,9 +17,9 @@ namespace OpenEMR\Billing;
 
 use OpenEMR\Billing\Claim;
 
-class X12_5010_837P
+class X125010837P
 {
-    public static function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
+    public static function genX12837P($pid, $encounter, &$log, $encounter_claim = false)
     {
         $today = time();
         $out = '';

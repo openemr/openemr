@@ -20,7 +20,7 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/report.inc");
 require_once("$srcdir/calendar.inc");
 
-use OpenEMR\Billing\EDI_270;
+use OpenEMR\Billing\EDI270;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -49,7 +49,7 @@ if (isset($_FILES) && !empty($_FILES)) {
             $message = xlt('The following EDI file has been uploaded') . ': "' . text(basename($_FILES['uploaded']['name'])) . '"';
             $Response271 = file($target);
             if ($Response271) {
-                $batch_log = EDI_270::parseEdi271($Response271);
+                $batch_log = EDI270::parseEdi271($Response271);
             } else {
                 $message = xlt('The following EDI file upload failed to open') . ': "' . text(basename($_FILES['uploaded']['name'])) . '"';
             }

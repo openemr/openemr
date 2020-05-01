@@ -57,7 +57,7 @@ CREATE TABLE `amendments` (
   `amendment_desc` text COMMENT 'Amendment Details',
   `created_by` int(11) NOT NULL COMMENT 'references users.id for session owner',
   `modified_by` int(11) NULL COMMENT 'references users.id for session owner',
-  `created_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'created time',
+  `created_time` timestamp NULL COMMENT 'created time',
   `modified_time` timestamp NULL COMMENT 'modified time',
   PRIMARY KEY amendments_id(`amendment_id`),
   KEY amendment_pid(`pid`)
@@ -75,7 +75,7 @@ CREATE TABLE `amendments_history` (
   `amendment_note` text COMMENT 'Amendment requested from',
   `amendment_status` VARCHAR(50) NULL COMMENT 'Amendment Request Status',
   `created_by` int(11) NOT NULL COMMENT 'references users.id for session owner',
-  `created_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'created time',
+  `created_time` timestamp NULL COMMENT 'created time',
 KEY amendment_history_id(`amendment_id`)
 ) ENGINE = InnoDB;
 

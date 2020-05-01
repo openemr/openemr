@@ -36,7 +36,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
 
     <title><?php echo xlt("Edit Facility Specific User Information"); ?></title>
 
-    <?php Header::setupHeader(['common','jquery-ui','datetime-picker','opener']); ?>
+    <?php Header::setupHeader(['common','datetime-picker','opener']); ?>
 
     <script language="JavaScript">
         $(function () {

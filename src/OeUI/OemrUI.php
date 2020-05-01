@@ -192,7 +192,7 @@ class OemrUI
                     $target = '_self';
                 }
                 $action_title = ($action_title) ? $action_title : xl("Click to go to page");
-                $action_icon = "<a href='" . attr($action_href) . "' target = '" . attr($target) . "' onclick='top.restoreSession()'><i id='advanced-action' class='fa fa-external-link fa-oe-sm' title='" . attr($action_title) . "' aria-hidden='true'></i></a>";
+                $action_icon = "<a href='" . attr($action_href) . "' target = '" . attr($target) . "' onclick='top.restoreSession()'><i id='advanced-action' class='fa fa-external-link-alt fa-oe-sm' title='" . attr($action_title) . "' aria-hidden='true'></i></a>";
                 break;
             case "back":
                 $action_title = ($action_title) ? $action_title : xl("Go Back");

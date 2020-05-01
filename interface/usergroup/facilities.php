@@ -71,7 +71,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] !
 /*      Editing existing facility                   */
 if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] == "admin_facility") {
     $newFacility = array(
-        "fid" => trim(isset($_POST["fid"]) ? $_POST["fid"] : ''),
+        "id" => trim(isset($_POST["fid"]) ? $_POST["fid"] : ''),
         "name" => trim(isset($_POST["facility"]) ? $_POST["facility"] : ''),
         "phone" => trim(isset($_POST["phone"]) ? $_POST["phone"] : ''),
         "fax" => trim(isset($_POST["fax"]) ? $_POST["fax"] : ''),

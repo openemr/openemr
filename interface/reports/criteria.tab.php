@@ -118,7 +118,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
             ?>
             <?php
             if ($TPSCriteriaDataType[$TPSCriteriaIndex] == 'query_drop_down') {
-                $array_query_drop_down = BillingReport::BuildArrayForReport($TPSCriteriaQueryDropDownMaster[$TPSCriteriaQueryDropDown[$TPSCriteriaIndex]]);
+                $array_query_drop_down = BillingReport::buildArrayForReport($TPSCriteriaQueryDropDownMaster[$TPSCriteriaQueryDropDown[$TPSCriteriaIndex]]);
                 $QueryDropDownNamePart = str_replace('.', '_', $TPSCriteriaKey[$TPSCriteriaIndex]);
                 ?>
                 <div class="form-group px-2" id="table_<?php echo attr($TPSCriteriaKey[$TPSCriteriaIndex]) ?>" style="display: none">

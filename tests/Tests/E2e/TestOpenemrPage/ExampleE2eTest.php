@@ -9,12 +9,21 @@ use Symfony\Component\Panther\Client;
 
 class ExampleE2eTest extends PantherTestCase
 {
+    /**
+     * The base url used for e2e (end to end) browser testing.
+     */
+    private $e2eBaseUrl;
+
+    protected function setUp(): void
+    {
+        $this->e2eBaseUrl = getenv("E2E_BASE_URL", true) ?: "http://localhost";
+    }
+
     /** @test */
     public function check_openEmr_login_page(): void
     {
-        $openEmrPage = 'http://localhost';
         // ok - PantherClient
-        $client = static::createPantherClient(['external_base_uri' => $openEmrPage]);
+        $client = static::createPantherClient(['external_base_uri' => $this->e2eBaseUrl]);
         // ok - GoutteClient -> Goutte is not installed. Run "composer req fabpot/goutte".
         //$goutteClient = static::createGoutteClient();
         // ok ChromeClient
@@ -32,8 +41,7 @@ class ExampleE2eTest extends PantherTestCase
     /** TEMP REMOVING THIS TEST UNTIL FIX WHY IT IS ERRATICALLY NOT PASSING IN TRAVIS
     public function url_without_token_should_redirect_to_login_page(): void
     {
-        $openEmrPage = 'http://localhost';
-        $client = static::createPantherClient(['external_base_uri' => $openEmrPage]);
+        $client = static::createPantherClient(['external_base_uri' => $this->e2eBaseUrl]);
         $crawler = $client->request('GET', '/interface/main/tabs/main.php');
         self::assertTrue($client->isFollowingRedirects());
         // TITLE

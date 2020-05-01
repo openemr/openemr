@@ -71,7 +71,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
 <html>
 <head>
 
-    <?php Header::setupHeader(['common', 'opener', 'jquery-ui',]); ?>
+    <?php Header::setupHeader(['common', 'opener']); ?>
 
     <script type="text/javascript">
 
@@ -451,7 +451,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
         </tr>
         <tr class="text">
             <td colspan="3">
-                <div style="width:100%;overflow:auto;height:150px" id="itemdiv"></div>
+                <div class="w-100 overflow-auto" style="height:150px" id="itemdiv"></div>
             </td>
         </tr>
     </table>

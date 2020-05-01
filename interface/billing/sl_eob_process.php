@@ -149,7 +149,7 @@ function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor)
     }
 }
 
-    // This is called back by ParseERA::parse_era() once per claim.
+    // This is called back by ParseERA::parseERA() once per claim.
     //
 
 // TODO: Sort colors here for Bootstrap themes
@@ -248,7 +248,7 @@ function era_callback(&$out)
                   $invnumber = $out['our_claim_id'];
             } else {
                   $inverror = false;
-                  $codes = InvoiceSummary::ar_get_invoice_summary($pid, $encounter, true);
+                  $codes = InvoiceSummary::arGetInvoiceSummary($pid, $encounter, true);
                   // $svcdate = substr($ferow['date'], 0, 10);
             }
         }
@@ -272,7 +272,7 @@ function era_callback(&$out)
         writeMessageLine(
             $bgcolor,
             'infdetail',
-            "Claim status $csc: " . BillingUtilities::claim_status_codes_CLP02[$csc]
+            "Claim status $csc: " . BillingUtilities::CLAIM_STATUS_CODES_CLP02[$csc]
         );
 
     // Show an error message if the claim is missing or already posted.
@@ -452,7 +452,7 @@ function era_callback(&$out)
             if ($svc['remark']) {
                 $rmk = $svc['remark'];
                 writeMessageLine($bgcolor, 'infdetail', "$rmk: " .
-                    BillingUtilities::remittance_advice_remark_codes[$rmk]);
+                    BillingUtilities::REMITTANCE_ADVICE_REMARK_CODES[$rmk]);
             }
 
             // Post and report the payment for this service item from the ERA.
@@ -497,7 +497,7 @@ function era_callback(&$out)
             // must be 25 characters or less in order to fit on patient statements.
             foreach ($svc['adj'] as $adj) {
                 $description = $adj['reason_code'] . ': ' .
-                    BillingUtilities::claim_adjustment_reason_codes[$adj['reason_code']];
+                    BillingUtilities::CLAIM_ADJUSTMENT_REASON_CODES[$adj['reason_code']];
                 if ($adj['group_code'] == 'PR' || !$primary) {
                     // Group code PR is Patient Responsibility.  Enter these as zero
                     // adjustments to retain the note without crediting the claim.
@@ -736,7 +736,7 @@ if (!$debug) {
 <center>
 <?php
 if ($_GET['original'] == 'original') {
-    $alertmsg = ParseERA::parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi", 'era_callback');
+    $alertmsg = ParseERA::parseERAForCheck($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi", 'era_callback');
     echo $StringToEcho;
 } else {
     ?>
@@ -770,8 +770,8 @@ if ($_GET['original'] == 'original') {
     global $InsertionId;
 
     $eraname = $_REQUEST['eraname'];
-    $alertmsg = ParseERA::parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi");
-    $alertmsg = ParseERA::parse_era($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi", 'era_callback');
+    $alertmsg = ParseERA::parseERAForCheck($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi");
+    $alertmsg = ParseERA::parseERA($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi", 'era_callback');
     if (!$debug) {
           $StringIssue = xl("Total Distribution for following check number is not full") . ': ';
           $StringPrint = 'No';

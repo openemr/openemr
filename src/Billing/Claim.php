@@ -49,8 +49,7 @@ class Claim
         return preg_replace('/[^A-Z0-9!"\\&\'()+,\\-.\\/;?=@ ]/', '', strtoupper($str));
     }
 
-    // X12 likes 9 digit zip codes also moving this from gen_x12
-    // to pursue PSR-0 and PSR-4
+    // X12 likes 9 digit zip codes also moving this from X125010837P to pursue PSR-0 and PSR-4
     public function x12Zip($zip)
     {
         $zip = $this->x12Clean($zip);
@@ -136,7 +135,7 @@ class Claim
         //
         $this->invoice = array();
         if ($this->payerSequence() != 'P') {
-            $this->invoice = InvoiceSummary::ar_get_invoice_summary($this->pid, $this->encounter_id, true);
+            $this->invoice = InvoiceSummary::arGetInvoiceSummary($this->pid, $this->encounter_id, true);
             // Secondary claims might not have modifiers in SQL-Ledger data.
             // In that case, note that we should not try to match on them.
             $this->using_modifiers = false;
@@ -285,7 +284,7 @@ class Claim
         if (!$this->supervisor_numbers) {
             $this->supervisor_numbers = array();
         }
-    } // end constructor
+    }
 
   // Return an array of adjustments from the designated prior payer for the
   // designated procedure key (might be procedure:modifier), or for the claim

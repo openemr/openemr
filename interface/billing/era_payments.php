@@ -34,7 +34,7 @@ $deposit_date = isset($_POST['deposit_date']) ? $_POST['deposit_date'] : '';
 $type_code = isset($_POST['type_code']) ? $_POST['type_code'] : '';
 
 //===============================================================================
-// This is called back by ParseERA::parse_era() if we are processing X12 835's.
+// This is called back by ParseERA::parseERA() if we are processing X12 835's.
 $alertmsg = '';
 $where = '';
 $eraname = '';
@@ -68,7 +68,7 @@ if ($_FILES['form_erafile']['size']) {
         exec("unzip -p " . escapeshellarg($tmp_name . ".zip") . " > " . escapeshellarg($tmp_name));
         unlink("$tmp_name.zip");
     }
-    $alertmsg .= ParseERA::parse_era($tmp_name, 'era_callback');
+    $alertmsg .= ParseERA::parseERA($tmp_name, 'era_callback');
     $erafullname = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi";
     if (is_file($erafullname)) {
         $alertmsg .=  xl("Warning") . ': ' . xl("Set") . ' ' . $eraname . ' ' . xl("was already uploaded") . ' ';

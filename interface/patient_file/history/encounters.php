@@ -663,7 +663,7 @@ while ($result4 = sqlFetchArray($res4)) {
                                 "pid = ? AND encounter = ?", array($pid,$result4['encounter']));
                     $arid = 0 + $tmp['id'];
                 if ($arid) {
-                    $arinvoice = InvoiceSummary::ar_get_invoice_summary($pid, $result4['encounter'], true);
+                    $arinvoice = InvoiceSummary::arGetInvoiceSummary($pid, $result4['encounter'], true);
                 }
                 if ($arid) {
                     $arlinkbeg = "<a onclick='editInvoice(event, " . attr_js($arid) . ")" . "'" . " class='text' style='color:#00cc00'>";
@@ -779,7 +779,7 @@ while ($result4 = sqlFetchArray($res4)) {
         if ($auth_demo) {
             $responsible = -1;
             if ($arid) {
-                    $responsible = InvoiceSummary::ar_responsible_party($pid, $result4['encounter']);
+                    $responsible = InvoiceSummary::arResponsibleParty($pid, $result4['encounter']);
             }
             $subresult5 = getInsuranceDataByDate($pid, $raw_encounter_date, "primary");
             if ($subresult5 && $subresult5["provider_name"]) {
