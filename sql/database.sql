@@ -161,7 +161,7 @@ CREATE TABLE `batchcom` (
   `msg_type` varchar(60) default NULL,
   `msg_subject` varchar(255) default NULL,
   `msg_text` mediumtext,
-  `msg_date_sent` datetime NOT NULL default '0000-00-00 00:00:00',
+  `msg_date_sent` datetime NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
 
