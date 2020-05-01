@@ -1,16 +1,18 @@
 /*-------------------openemr ACL-------------------*/
 
-#adminacl .loading {
-  @include font-size("10px !important");
-  color: $danger;
-  font-weight: bold;
-  text-decoration: blink;
-}
+#adminacl {
+  .loading {
+    @include font-size("10px !important");
+    color: $danger;
+    font-weight: bold;
+    text-decoration: blink;
+  }
 
-#adminacl .alert {
-  @include font-size("10px !important");
-  color: $danger;
-  font-weight: bold;
+  .alert {
+    @include font-size("10px !important");
+    color: $danger;
+    font-weight: bold;
+  }
 }
 
 .section {

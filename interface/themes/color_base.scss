@@ -41,9 +41,9 @@
     ~ - common for all flat stylesheets
 */
 
-/* Bootstrap Code */
+// Bootstrap Code
 
-/* Default Colors */
+// Default Colors
 $blue: $darker;
 $indigo: #6610f2;
 $purple: $palepurple;
@@ -56,7 +56,7 @@ $teal: #20c997;
 $cyan: #17a2b8;
 $black: #000;
 
-/* Default Grays */
+// Default Grays
 $gray-100: #f8f9fa;
 $gray-200: #e9ecef;
 $gray-300: #dee2e6;
@@ -67,13 +67,13 @@ $gray-700: #495057;
 $gray-800: #343a40;
 $gray-900: #212529;
 
-/* Equivalents to bg-light/dark as well as default for gray */
+// Equivalents to bg-light/dark as well as default for gray
 $light: $gray-100;
-/* Renamed to bs-dark to accommodate for color variables */
+// Renamed to bs-dark to accommodate for color variables
 $bs-dark: $gray-800;
 $gray: $gray-600;
 
-/* Array of theme colors that can be added to */
+// Array of theme colors that can be added to
 $theme-colors: (
   primary: $blue,
   secondary: $gray-100,
@@ -224,33 +224,37 @@ $close-text-shadow: 0 1 0 $black;
 
 /* style taken out of the addressbook code and put here instead */
 
-#addressbook_list td {
-  font-family: "Arial", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-}
+#addressbook_list {
+  td {
+    font-family: "Arial", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  }
 
-#addressbook_list tr.search {
-  @include font-size("12px !important");
-}
+  tr {
+    &.search {
+      @include font-size("12px !important");
+    }
 
-#addressbook_list tr.head {
-  @include font-size("0.8125rem !important");
-  background-color: inherit;
-}
+    &.head {
+      @include font-size("0.8125rem !important");
+      background-color: inherit;
+    }
+  }
 
-#addressbook_list .inputtext {
-  background-color: inherit;
-  border-color: inherit;
-  border-style: inherit;
-  border-width: inherit;
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-}
+  .inputtext {
+    background-color: inherit;
+    border-color: inherit;
+    border-style: inherit;
+    border-width: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+  }
 
-#addressbook_list .button {
-  @include font-size("11px !important");
-  font-family: sans-serif;
-  font-weight: bold;
+  .button {
+    @include font-size("11px !important");
+    font-family: sans-serif;
+    font-weight: bold;
+  }
 }
 
 .address_names:hover {
@@ -267,18 +271,20 @@ $close-text-shadow: 0 1 0 $black;
   font-family: "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
 }
 
-#documents_list td,
-#documents_list a {
-  font-family: "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
-}
+#documents_list {
+  td,
+  a {
+    font-family: "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+  }
 
-#documents_list .treeMenuDefault {
-  font-style: italic;
-}
+  .treeMenuDefault {
+    font-style: italic;
+  }
 
-#documents_list .treeMenuBold {
-  font-style: italic;
-  font-weight: bold;
+  .treeMenuBold {
+    font-style: italic;
+    font-weight: bold;
+  }
 }
 
 /*=============================================================
@@ -307,45 +313,45 @@ $close-text-shadow: 0 1 0 $black;
 ul.tabNav {
   margin: 0 0 -4;
   padding: 0;
-}
 
-ul.tabNav li {
-  @include font-size("0.8rem !important");
-  margin: 0 1px 0 0;
-  padding: 6px 0 0;
-}
+  li {
+    @include font-size("0.8rem !important");
+    margin: 0 1px 0 0;
+    padding: 6px 0 0;
 
-ul.tabNav li.current {
-  @include font-size("0.8rem !important");
-  font-weight: bold;
-  padding-top: 0;
-  text-align: left;
-  vertical-align: bottom;
-}
+    &.current {
+      @include font-size("0.8rem !important");
+      font-weight: bold;
+      padding-top: 0;
+      text-align: left;
+      vertical-align: bottom;
 
-ul.tabNav a {
-  background: $palepale;
-  border: solid $dark;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-  border-width: 3px 1px 0;
-  color: $bs-dark;
-  padding: 4px 4px 5px;
-}
+      a {
+        background: $pale;
+        padding: 8px;
+      }
+    }
+  }
 
-ul.tabNav a:hover {
-  background-color: $dark;
-  color: $black;
+  a {
+    background: $palepale;
+    border: solid $dark;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-width: 3px 1px 0;
+    color: $bs-dark;
+    padding: 4px 4px 5px;
+
+    &:hover {
+      background-color: $dark;
+      color: $black;
+    }
+  }
 }
 
 div.tabContainer div.current {
   background: $pale;
   border: 1px solid $pale;
-}
-
-ul.tabNav li.current a {
-  background: $pale;
-  padding: 8px;
 }
 
 /*
@@ -355,39 +361,38 @@ ul.tabNav li.current a {
 #report_parameters {
   background-color: $palepale;
   margin: 10px 0 5px;
-}
 
-#report_parameters table {
-  border: solid 1px $darkest;
-}
+  table {
+    border: solid 1px $darkest;
+  }
 
-#report_parameters > table > tbody > tr > td > table {
-  border-left: 1px solid $darkest !important;
-  /*openemr5*/
-}
+  > table > tbody > tr > td > table {
+    border-left: 1px solid $darkest !important;
+  }
 
-#report_parameters .form-control {
-  width: auto;
-}
+  .form-control {
+    width: auto;
+  }
 
-#report_results table {
-  margin-top: 1px;
-}
+  table {
+    margin-top: 1px;
 
-#report_results table thead {
-  background-color: inherit;
-  border: solid 1px $darkest;
-}
+    thead {
+      background-color: inherit;
+      border: solid 1px $darkest;
+    }
 
-#report_results table th {
-  background-color: inherit;
-  border-bottom: 2px solid $darkest;
-}
+    th {
+      background-color: inherit;
+      border-bottom: 2px solid $darkest;
+    }
 
-#report_results table td {
-  @include font-size("0.8rem !important");
-  border-bottom: 1px dashed;
-  padding: 5px;
+    td {
+      @include font-size("0.8rem !important");
+      border-bottom: 1px dashed;
+      padding: 5px;
+    }
+  }
 }
 
 .report_totals td {
@@ -422,45 +427,47 @@ ul.tabNav li.current a {
 
 @import "navigation-slide/color";
 
-#sddm li {
-  background: $dark;
-  background: -webkit-gradient(linear, left top, left bottom, from($dark), to($dark));
-  background: linear-gradient(to top, $dark, $dark);
-  border: 1px solid $paler;
-  filter: unquote("progid:DXImageTransform.Microsoft.gradient(startColorstr='$dark', endColorstr='$dark')");
-  padding: 0;
-}
+#sddm {
+  li {
+    background: $dark;
+    background: -webkit-gradient(linear, left top, left bottom, from($dark), to($dark));
+    background: -moz-linear-gradient(top, $dark, $dark);
+    border: 1px solid $paler;
+    filter: unquote("progid:DXImageTransform.Microsoft.gradient(startColorstr='$dark', endColorstr='$dark')");
+    padding: 0;
 
-#sddm li a {
-  @include font-size("0.8rem !important");
-  color: darken($primary, 15%) !important;
-  font-weight: bold;
-  padding: 4px 10px;
-}
+    a {
+      @include font-size("0.8rem !important");
+      color: darken($primary, 15%) !important;
+      font-weight: bold;
+      padding: 4px 10px;
 
-#sddm li a:hover {
-  background: $palepale;
-}
+      &:hover {
+        background: $palepale;
+      }
+    }
+  }
 
-#sddm div {
-  background: #c9f1b5;
-  border-bottom: 1px solid $black;
-  border-left: 1px solid $black;
-  border-right: 1px solid $black;
-  display: none;
-  margin: 0;
-  padding: 0;
-}
+  div {
+    background: #c9f1b5;
+    border-bottom: 1px solid $black;
+    border-left: 1px solid $black;
+    border-right: 1px solid $black;
+    display: none;
+    margin: 0;
+    padding: 0;
 
-#sddm div a {
-  background: $paler;
-  color: $primary;
-  z-index: 10;
-}
+    a {
+      background: $paler;
+      color: $primary;
+      z-index: 10;
 
-#sddm div a:hover {
-  background: $palepale;
-  color: $black;
+      &:hover {
+        background: $palepale;
+        color: $black;
+      }
+    }
+  }
 }
 
 .encounter-form-category-li {
@@ -523,10 +530,10 @@ div.borderbox {
 #flow_board_parameters {
   background-color: $palepale;
   width: 1041px;
-}
 
-#flow_board_parameters table {
-  border: solid 1px $darkest;
+  table {
+    border: solid 1px $darkest;
+  }
 }
 
 .divider {

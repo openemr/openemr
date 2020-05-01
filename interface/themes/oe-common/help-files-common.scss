@@ -1,15 +1,17 @@
 /*-----------------------openemr5.0.2 help files styling---------------------- */
 
-.oe-help-container a,
-.oe-help-container a:not(.btn),
-.oe-help-container a:not(oe-help-redirect) {
-  color: $gray;
-  font-weight: 700;
-  text-decoration: none !important;
-}
+.oe-help-container {
+  a,
+  a:not(.btn),
+  a:not(oe-help-redirect) {
+    color: $gray;
+    font-weight: 700;
+    text-decoration: none !important;
+  }
 
-.oe-help-container h2 > a {
-  font-weight: 500 !important;
+  h2 > a {
+    font-weight: 500 !important;
+  }
 }
 
 .oe-help-heading {

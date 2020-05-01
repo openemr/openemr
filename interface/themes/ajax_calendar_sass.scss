@@ -2,14 +2,12 @@
  * the style sheet for the ajax_template calendar
  * ====================================*/
 
-/* Bootstrap Breakpoints */
-@each $breakpoint in map-keys($grid-breakpoints) {
-  @include media-breakpoint-up($breakpoint) {
-    $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
-  }
-}
+@import "../../public/assets/bootstrap/scss/functions";
+@import "../../public/assets/bootstrap/scss/variables";
+@import "../../public/assets/bootstrap/scss/mixins";
 
 div.tiny {
+
   @include font-size("0.0625rem !important");
   height: 0.0625rem;
   width: 0.0625rem;
@@ -33,16 +31,23 @@ div.tiny {
 
 .sidebar-wrapper {
   margin-left: -30rem;
+  -webkit-transition: margin 0.25s ease-out;
+  -moz-transition: margin 0.25s ease-out;
+  -o-transition: margin 0.25s ease-out;
   transition: margin 0.25s ease-out;
 }
 
-#wrapper.toggled .sidebar-wrapper {
-  margin-left: 0;
-  top: 68px;
-}
+#wrapper {
+  &.toggled {
+    .sidebar-wrapper {
+      margin-left: 0;
+      top: 68px;
+    }
 
-#wrapper.toggled .page-content-wrapper {
-  margin-left: 8.75rem;
+    .page-content-wrapper {
+      margin-left: 8.75rem;
+    }
+  }
 }
 
 #functions {
@@ -50,9 +55,9 @@ div.tiny {
   margin-right: 0%;
   min-width: 20%;
   padding: 0 0.3125rem;
+
   /* added because of the width issue above */
 }
-
 
 #topToolbarRight {
   border-bottom: 1px solid $black;
@@ -64,6 +69,7 @@ div.tiny {
 }
 
 #dateNAV {
+
   @include font-size("1.1875rem !important");
   float: left;
   font-family: "Arial", "Helvetica", sans-serif;
@@ -93,6 +99,7 @@ div.tiny {
 }
 
 #bigCalHeader {
+
   @include font-size("1.1875rem !important");
   float: right;
   font-family: "Arial", "Helvetica", sans-serif;
@@ -103,22 +110,22 @@ div.tiny {
 #providerPicker {
   font-family: "Arial", "Helvetica", sans-serif;
   width: 100%;
-}
 
-#providerPicker #pc_facility,
-#providerPicker #pc_username {
-  width: 100%;
+  #pc_facility,
+  #pc_username {
+    width: 100%;
+  }
 }
 
 #facilityColor {
   float: left;
   font-family: "Arial", "Helvetica", sans-serif;
   width: 100%;
-}
 
-#facilityColor table {
-  border-collapse: collapse;
-  width: 100%;
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
 }
 
 #bottom {
@@ -131,19 +138,19 @@ div.tiny {
   background-color: $light;
   border-left: 1px solid $black;
   overflow: hidden;
-}
 
-#bigCal table {
-  border: 0;
-  border-collapse: collapse;
-  margin-top: 45px;
-  vertical-align: middle;
-  width: 100%;
-}
+  table {
+    border: none;
+    border-collapse: collapse;
+    margin-top: 45px;
+    vertical-align: middle;
+    width: 100%;
+  }
 
-#bigCal td {
-  margin: 0;
-  padding: 0.0625rem;
+  td {
+    margin: 0;
+    padding: 0.0625rem;
+  }
 }
 
 #bottomLeft {
@@ -158,98 +165,110 @@ div.tiny {
 /* these are for the small datepicker DIV */
 #datePicker {
   width: 100%;
-}
 
-#datePicker table {
-  border-collapse: collapse;
-  /* margin-left: 0.1875rem;
-    border-right: 1px solid $black; */
-  width: 100%;
-}
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
 
-#datePicker td {
-  @include font-size("0.7rem !important");
-  font-family: "Arial", "Helvetica", sans-serif;
-  text-align: center;
-  width: 1.21875rem;
-}
+  td {
 
-#datePicker .tdMonthName-small {
-  @include font-size("0.75rem !important");
-  background-color: lighten($light, 20%);
-  color: $body-color;
-  cursor: pointer;
-  font-family: "Arial", "Helvetica", sans-serif;
-  font-style: normal;
-  text-align: center;
-}
+    @include font-size("0.7rem !important");
+    font-family: "Arial", "Helvetica", sans-serif;
 
-#datePicker .tdDOW-small {
-  @include font-size("0.625rem !important");
-  background-color: lighten($light, 20%);
-  border: 0;
-  font-family: "Arial", "Helvetica", sans-serif;
-  padding: 0.125rem 0.1875rem;
-  text-align: center;
-  vertical-align: top;
-}
+    text-align: center;
+    width: 1.21875rem;
+  }
 
-#datePicker .tdDatePicker {
-  cursor: pointer;
-  cursor: hand;
-}
+  .tdMonthName-small {
 
-#datePicker .tdWeekend-small {
-  @include font-size("0.625rem !important");
-  background-color: $white;
-  border: 0;
-  color: $gray-600;
-  font-family: "Arial", "Helvetica", sans-serif;
-  padding: 0.125rem 0.1875rem;
-  vertical-align: top;
-}
+    @include font-size("0.75rem !important");
+    background-color: lighten($light, 20%);
+    color: $body-color;
+    cursor: pointer;
+    font-family: "Arial", "Helvetica", sans-serif;
 
-#datePicker .tdHoliday-small {
-  @include font-size("0.625rem !important");
-  background-color: $white;
-  border: 0;
-  color: $danger;
-  font-family: "Arial", "Helvetica", sans-serif;
-  padding: 0.125rem 0.1875rem;
-  vertical-align: top;
-}
+    font-style: normal;
+    text-align: center;
+  }
 
-#datePicker .tdOtherMonthDay-small {
-  @include font-size("0.625rem !important");
-  background-color: $white;
-  border: 0;
-  color: $gray-600;
-  font-family: "Arial", "Helvetica", sans-serif;
-  padding: 0.125rem 0.1875rem;
-  vertical-align: top;
-}
+  .tdDOW-small {
 
-#datePicker .tdMonthDay-small {
-  @include font-size("0.625rem !important");
-  background-color: $white;
-  border: 0;
-  font-family: "Arial", "Helvetica", sans-serif;
-  padding: 0.125rem 0.1875rem;
-  vertical-align: top;
-}
+    @include font-size("0.625rem !important");
+    background-color: lighten($light, 20%);
+    border: none;
+    font-family: "Arial", "Helvetica", sans-serif;
+    padding: 0.125rem 0.1875rem;
+    text-align: center;
 
-#datePicker .currentWeek {
-  background-color: lighten($dark, 50%);
-}
+    vertical-align: top;
+  }
 
-#datePicker .currentDate {
-  background-color: lighten($dark, 20%);
-  color: $light;
-}
+  .tdDatePicker {
+    cursor: pointer;
+    cursor: hand;
+  }
 
-#datePicker .tdDatePickerHighlight {
-  background-color: lighten($dark, 30%);
-  color: $light;
+  .tdWeekend-small {
+
+    @include font-size("0.625rem !important");
+    background-color: $white;
+    border: none;
+    color: $gray-600;
+    font-family: "Arial", "Helvetica", sans-serif;
+    padding: 0.125rem 0.1875rem;
+
+    vertical-align: top;
+  }
+
+  .tdHoliday-small {
+
+    @include font-size("0.625rem !important");
+    background-color: $white;
+    border: none;
+    color: $danger;
+    font-family: "Arial", "Helvetica", sans-serif;
+    padding: 0.125rem 0.1875rem;
+
+    vertical-align: top;
+  }
+
+  .tdOtherMonthDay-small {
+
+    @include font-size("0.625rem !important");
+    background-color: $white;
+    border: none;
+    color: $gray-600;
+    font-family: "Arial", "Helvetica", sans-serif;
+    padding: 0.125rem 0.1875rem;
+
+    vertical-align: top;
+  }
+
+  .tdMonthDay-small {
+
+    @include font-size("0.625rem !important");
+    background-color: $white;
+    border: none;
+    font-family: "Arial", "Helvetica", sans-serif;
+    padding: 0.125rem 0.1875rem;
+
+    vertical-align: top;
+  }
+
+  .currentWeek {
+    background-color: lighten($dark, 50%);
+  }
+
+  .currentDate {
+    background-color: lighten($dark, 20%);
+    color: $light;
+  }
+
+  .tdDatePickerHighlight {
+    background-color: lighten($dark, 30%);
+    color: $light;
+  }
 }
 
 /* the DIV of times */
@@ -258,27 +277,28 @@ div.tiny {
   border-right: 1px solid $gray-600;
   padding: 0;
   width: 1%;
-}
 
-#times table {
-  background-color: lighten($yellow, 40%);
-  border-collapse: collapse;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-}
+  table {
+    background-color: lighten($yellow, 40%);
+    border-collapse: collapse;
+    margin: 0;
+    padding: 0;
+    width: 100%;
 
-#times table td {
-  @include font-size("0.8rem !important");
-  border-bottom: 1px solid $gray-600;
-  margin: 0;
-  padding: 0;
+    td {
+
+      @include font-size("0.8rem !important");
+      border-bottom: 1px solid $gray-600;
+      margin: 0;
+      padding: 0;
+    }
+  }
 }
 
 .timeslot {
   /* height value is tied to two PHP variables in the ajax_*.html files
-     * if you change this value then be sure to change the matching value
-     * in those files */
+   * if you change this value then be sure to change the matching value
+   * in those files */
   height: 1.25rem;
   margin: 0;
   padding: 0;
@@ -292,7 +312,6 @@ div.tiny {
   padding: 0;
   vertical-align: top;
   width: 25rem;
-
 }
 
 /* for the header row with provider names */
@@ -315,54 +334,60 @@ div.tiny {
 
 /* classes specific to the WEEK view */
 .week_dateheader {
+
   @include font-size("0.7rem !important");
   border-left: 1px solid $gray-600;
   border-right: 1px solid $gray-600;
+
   font-weight: bold;
-}
 
-.week_dateheader a,
-.week_dateheader a:link,
-.week_dateheader a:visited,
-.week_dateheader a:active {
-  color: $body-color;
-}
+  a,
+  a:link,
+  a:visited,
+  a:active {
+    color: $body-color;
+  }
 
-.week_dateheader a:hover {
-  color: $dark;
+  a:hover {
+    color: $dark;
+  }
 }
 
 .week_currday {
   background-color: $primary;
-}
 
-.week_currday a,
-.week_currday a:link,
-.week_currday a:visited,
-.week_currday a:active {
-  color: $white;
-}
+  a,
+  a:link,
+  a:visited,
+  a:active {
+    color: $white;
+  }
 
-.week_currday a:hover {
-  color: $light;
+  a:hover {
+    color: $light;
+  }
 }
 
 /* classes specific to the MONTH view */
 .month_daylink {
+
   @include font-size("0.8rem !important");
   background-color: $white;
   padding: 0.0625rem 0.125rem;
+
   text-align: right;
   width: 95%;
 }
 
 .month_dateheader {
   @include font-size("0.7rem !important");
+
   width: 13%;
 }
 
 .month_event {
   @include font-size("0.8rem !important");
+
   width: 100%;
 }
 
@@ -370,10 +395,10 @@ div.tiny {
 .event {
   position: absolute;
   width: 100%;
-}
 
-.event img {
-  vertical-align: middle;
+  img {
+    vertical-align: middle;
+  }
 }
 
 .event_in {
@@ -435,10 +460,10 @@ div.tiny {
 
 .event_time {
   cursor: pointer;
-}
 
-.event_time:hover {
-  color: $danger;
+  &:hover {
+    color: $danger;
+  }
 }
 
 .show-appointment {
@@ -446,16 +471,16 @@ div.tiny {
   font-family: 'FontAwesome', sans-serif;
   position: absolute;
   right: 0.25rem;
-}
 
-.show-appointment.unshown::before {
-  content: "\f06e";
-  cursor: pointer;
-}
+  &.unshown::before {
+    content: "\f06e";
+    cursor: pointer;
+  }
 
-.show-appointment.shown::before {
-  content: "\f070";
-  cursor: pointer;
+  &.shown::before {
+    content: "\f070";
+    cursor: pointer;
+  }
 }
 
 .in_start {
@@ -503,7 +528,7 @@ div.tiny {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: var(--breakpoint-md)) {
   #prevday,
   #nextday,
   #prevweek,
@@ -524,7 +549,7 @@ div.tiny {
   }
 }
 
-@media(max-width: 665px) {
+@media (max-width: 665px) {
   #bigCal > table {
     margin-top: 68px;
   }
@@ -541,12 +566,16 @@ div.tiny {
     width: 85%;
   }
 
-  #wrapper.toggled .sidebar-wrapper {
-    margin-left: -30rem;
-  }
+  #wrapper {
+    &.toggled {
+      .sidebar-wrapper {
+        margin-left: -30rem;
+      }
 
-  #wrapper.toggled .page-content-wrapper {
-    margin-left: 0%;
-    width: 100%;
+      .page-content-wrapper {
+        margin-left: 0%;
+        width: 100%;
+      }
+    }
   }
 }

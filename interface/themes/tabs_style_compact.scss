@@ -1,0 +1,468 @@
+/**
+ * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
+ * Copyright (C) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Kevin Yeh <kevin.y@integralemr.com>
+ * @author  Ray Magauran <magauran@MedFetch.com>
+ * @author  Tyler Wrenn <tyler@tylerwrenn.com>
+ * @link    http://www.open-emr.org
+ */
+
+@import "../../public/assets/bootstrap/scss/functions";
+@import "../../public/assets/bootstrap/scss/variables";
+@import "../../public/assets/bootstrap/scss/mixins";
+
+html {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+body {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+#mainBox {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  align-content: space-between;
+  width: 100%;
+  flex: 1 0 auto;
+  margin: 0;
+  padding: 0;
+
+  > div.mainFrames {
+	display: flex;
+	flex: 1 0 auto;
+	flex-direction: column;
+	padding: 0;
+	z-index: 3;
+	margin: 0;
+  }
+
+  > #tabs_div {
+    flex: 0 1 auto;
+    margin: 0;
+  }
+
+  .logo {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+#mainBox_vertical {
+  align-items: stretch;
+  align-content: space-between;
+  flex: 1 0 auto;
+  margin: 0;
+  padding: 0;
+
+  .logo {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  > .body_top {
+    background-color: var(--light);
+    margin: 0 !important;
+  }
+}
+
+#framesDisplay {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: row;
+
+  > div {
+    flex: 1 0 auto;
+    align-items: stretch;
+    align-content: stretch;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    border-left: 1px solid var(--black);
+    border-right: 1px solid var(--black);
+
+    > iframe {
+      flex: 1 0 auto;
+      border: 0;
+      width: 100%;
+    }
+  }
+}
+
+.tabControls {
+  margin: -9px 0 0 0;
+  padding: 9px 0 0 0;
+  display: flex;
+  flex-direction: row;
+  overflow: auto;
+}
+
+.tabSpan {
+  margin: 0;
+  padding: 0.3125rem 0.4375rem;
+  border: 1px solid var(--black);
+  border-bottom: 0;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  flex: 0 1 auto;
+  white-space: nowrap;
+  overflow: visible;
+
+  .fa {
+    color: var(--gray);
+  }
+}
+
+.tabHidden {
+  color: var(--gray);
+}
+
+.tabNotchosen {
+  background-color: transparent !important;
+  border-bottom: 1px solid var(--black);
+  display: block;
+}
+
+.tabsNoHover {
+  background: transparent !important;
+  border-top: 4px solid transparent;
+  border-left: none;
+  border-right: none;
+  border-bottom: 1px solid var(--black);
+  display: block;
+}
+
+#attendantData {
+  min-height: 4rem;
+}
+
+.patientCurrentEncounter {
+  display: inline;
+}
+
+.patientDataColumn {
+  width: 33%;
+  float: left;
+  display: block;
+}
+
+.messagesColumn {
+  float: right;
+  padding-right: 20px;
+}
+
+.patientEncounterList {
+  position: fixed;
+  overflow: hidden;
+  border: 1px solid var(--black);
+  background: var(--white);
+  cursor: pointer;
+  z-index: 1;
+
+  &:hover {
+    overflow: visible;
+    height: auto;
+    z-index: 4;
+
+    table.encounters {
+      display: block;
+    }
+  }
+
+  table.encounters {
+    display: none;
+
+    td:hover {
+      color: var(--danger);
+    }
+  }
+
+  > div {
+    padding: 2px;
+
+    &:hover {
+      color: var(--danger);
+    }
+  }
+
+  .review {
+    font-size: x-small;
+    padding: 2px;
+    border: 1px solid var(--black);
+    background-color: var(--gray300);
+    border-radius: 5px;
+  }
+}
+
+.patientInfo {
+  padding: 1px 1px 1px 10px;
+
+  .clear {
+    font-size: x-small;
+    margin: 1px;
+    padding: 3px;
+    border: 1px solid var(--black);
+    background-color: var(--gray300);
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--danger);
+    }
+  }
+}
+
+.patientPicture {
+  margin-top: -1px;
+  margin-right: 7px;
+
+  img {
+    height: 75px;
+  }
+}
+
+/* TODO: Marked this class for removal */
+.top {
+  vertical-align: top;
+}
+
+.appMenu > span {
+  float: left;
+  padding: 0;
+  white-space: nowrap;
+  text-shadow: none;
+}
+
+.appMenu_small > span {
+  padding: 0;
+  white-space: nowrap;
+}
+
+.appMenu > span:hover,
+.appMenu .appMenu > span:hover {
+  color: var(--white);
+  text-decoration: none;
+  background-color: var(--primary);
+  text-shadow: none;
+}
+
+.appMenu ul,
+.appMenu_small ul {
+  list-style: none;
+  margin: 0;
+  padding: 1px 5px 2px 1px;
+}
+
+.appMenu {
+  li {
+    padding-left: 14px;
+
+    &:hover {
+      color: var(--white);
+      text-decoration: none;
+      background-color: var(--primary);
+      text-shadow: none;
+
+      > .menuDisabled {
+        background-color: transparent;
+      }
+    }
+  }
+
+  .oe-show {
+    display: none;
+  }
+}
+
+.appMenu_small .oe-show {
+  display: block;
+}
+
+.menuSection {
+  position: relative;
+
+  &:hover > .menuEntries {
+    display: block;
+  }
+
+  > .menuEntries {
+    display: none;
+    position: absolute;
+    top: 19px;
+    z-index: 1000;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
+    min-width: 175px;
+    border: 0.5px solid var(--gray);
+    border-radius: 0 5px 5px 5px !important;
+    color: var(--black);
+    margin-top: 4px;
+    padding-top: 3px;
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: 4px;
+    white-space: nowrap;
+
+    .menuEntries {
+      display: none;
+      position: absolute;
+      top: -4px;
+      left: 159px;
+      transition: 2s background-color;
+    }
+  }
+}
+
+/* Needed for things that require it */
+.menu-shadow-ovr {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176) !important;
+}
+
+.oemr-navitem {
+  color: var(--dark) !important;
+  padding-top: 0.3125rem;
+  padding-bottom: 0.3125rem;
+  padding-left: 0.625rem;
+  padding-right: 0.625rem;
+  transition: background-color 0.1s ease;
+
+  &:hover {
+    background: #CCE3F8 !important;
+    color: var(--dark) !important;
+  }
+}
+
+// For subnav items only - prevents issues of not being able to select them
+.oemr-subnavitem {
+  color: var(--dark) !important;
+  padding-top: 0.3125rem;
+  padding-bottom: 0.3125rem;
+  padding-left: 0.625rem;
+  padding-right: 0.625rem;
+  transition: background-color 0.1s ease;
+
+  &:hover {
+    background: #CCE3F8 !important;
+    color: var(--dark) !important;
+  }
+}
+
+.menuDisabled {
+  color: var(--gray) !important;
+  pointer-events: none;
+  background-color: transparent;
+}
+
+.userSection {
+  min-width: 200px;
+  right: 10px;
+}
+
+.body_top {
+  background-color: var(--light);
+  padding: 0;
+  z-index: 10;
+}
+
+.body_title {
+  color: var(--black);
+  background-color: var(--light);
+  padding: 10px 0 0 0;
+}
+
+#username {
+  > .userfunctions > div:hover {
+    color: var(--danger);
+  }
+}
+
+.logo {
+  border-radius: 50%;
+  -webkit-transition: -webkit-transform .8s ease-in-out;
+  -moz-transition: -moz-transform .8s ease-in-out;
+  transition: transform .8s ease-in-out;
+
+  &:hover {
+    -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+.menu_arrow {
+  bottom: 0;
+  margin: 7px 7px 2px 7px;
+}
+
+.topToolbarRight {
+  border-top: 0;
+}
+
+.oemr-droptoggle {
+  @include caret(right);
+
+  &::after {
+    vertical-align: 0;
+    float: right;
+    position: relative;
+  }
+}
+
+/* TODO: Marked this class for removal */
+.float-element {
+  float: left;
+}
+
+/* main.php */
+.body_main {
+  background-color: #C9DBF2;
+}
+
+#logout_icon {
+  margin: 12px 5px 0 10px;
+  cursor: pointer;
+}
+
+#menu_icon {
+  margin: 12px 25px;
+  cursor: pointer;
+}
+
+#patient_caret {
+  font-size: 2rem;
+  margin-top: -5px;
+}
+
+@media (max-width: var(--breakpoint-md)) {
+  .mainFrames {
+    margin: 0;
+    padding-left: 1px;
+  }
+
+  #framesDisplay > div {
+    height: 100vh;
+    width: 100%;
+  }
+}

@@ -12,72 +12,74 @@
   float: left;
   margin: 0;
   position: relative;
-}
 
-.oe-expandable-search input {
-  background: transparent;
-  border-radius: 15px;
-  height: 31px;
-  outline: none;
-  transition: all 0.8s ease-in-out !important;
-  width: 30px;
-}
+  input {
+    background: transparent;
+    border-radius: 15px;
+    height: 31px;
+    outline: none;
+    transition: all 0.8s ease-in-out !important;
+    width: 30px;
 
-.oe-expandable-search input:focus {
-  height: 31px;
-  outline: none;
-  width: 275px;
+    &:focus {
+      height: 31px;
+      outline: none;
+      width: 275px;
 
-}
+      ~ button.btn-search1 {
+        left: 245px;
+        outline: none;
+      }
+    }
+  }
 
-.oe-expandable-search input:focus ~ button.btn-search1 {
-  left: 245px;
-  outline: none;
-}
+  button {
+    transition: all 0.8s ease-in-out;
 
-.oe-expandable-search button {
-  transition: all 0.8s ease-in-out;
-}
+    &.btn-search1 {
+      border: 1px solid $black;
+      border-radius: 50%;
+      height: 31px;
+      margin: 3px;
+      outline: none !important;
+      padding: 4px;
+      padding-left: 8px;
+      position: absolute;
+      width: 30px;
+    }
 
-.oe-expandable-search button.btn-search1 {
-  border: 1px solid $black;
-  border-radius: 50%;
-  height: 31px;
-  margin: 3px;
-  outline: none !important;
-  padding: 4px;
-  padding-left: 8px;
-  position: absolute;
-  width: 30px;
-}
+    &.btn-globals-legacy {
+      right: 0;
+    }
 
-.oe-expandable-search .any-search-legacy {
-  width: 140px;
-}
+    &.btn-globals-modern {
+      left: 0;
+    }
 
-.oe-expandable-search button.btn-globals-legacy {
-  right: 0;
-}
+    &.btn-globals-fixed {
+      display: inline;
+      position: inherit;
+    }
 
-.oe-expandable-search .any-search-modern {
-  width: 30px;
-}
+    &.btn-globals-none {
+      display: none;
+    }
+  }
 
-.oe-expandable-search button.btn-globals-modern {
-  left: 0;
-}
+  .any-search-legacy {
+    width: 140px;
+  }
 
-.oe-expandable-search .any-search-fixed {
-  border-radius: 7px;
-  width: 250px !important;
-}
+  .any-search-modern {
+    width: 30px;
+  }
 
-.oe-expandable-search button.btn-globals-fixed {
-  display: inline;
-  position: inherit;
-}
+  .any-search-fixed {
+    border-radius: 7px;
+    width: 250px !important;
+  }
 
-.oe-expandable-search .any-search-none,
-.oe-expandable-search button.btn-globals-none {
-  display: none;
+  .any-search-none {
+    display: none;
+  }
 }

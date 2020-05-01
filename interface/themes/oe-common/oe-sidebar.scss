@@ -88,19 +88,21 @@ main.active,
 .sidebar-expand {
   display: inline-flex;
   margin: 0 0 1rem;
-}
 
-.sidebar-expand button {
-  @include font-size("2rem !important");
-  background: 0 0;
-  border-color: rgba($white, 0.1);
-  border-width: 0;
-  color: $body-color;
-  cursor: pointer;
-  line-height: 0.9;
-  transition: all 0.5s ease;
+  button {
+    @include font-size("2rem !important");
+    background: 0 0;
+    border-color: rgba($white, 0.1);
+    border-width: 0;
+    color: $body-color;
+    cursor: pointer;
+    line-height: 0.9;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+  }
 }
-
 
 @media (min-width: 768px) {
   .sidebar-header {

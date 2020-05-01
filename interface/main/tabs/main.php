@@ -42,7 +42,7 @@ if ($GLOBALS['prevent_browser_refresh'] > 1) {
 $esignApi = new Api();
 
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
     <title><?php echo text($openemr_name); ?></title>
@@ -304,9 +304,9 @@ $esignApi = new Api();
 </head>
 <body class="min-vw-100">
     <!-- Below iframe is to support auto logout when timeout is reached -->
-    <iframe name="timeout" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="timeout_iframe.php"></iframe>
+    <iframe name="timeout" class="position-absolute border-0" style="visibility:hidden; left:0; top:0; height:0; width:0;" src="timeout_iframe.php"></iframe>
     <!-- Below iframe is to support logout, which needs to be run in an inner iframe to work as intended -->
-    <iframe name="logoutinnerframe" id="logoutinnerframe" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="about:blank"></iframe>
+    <iframe name="logoutinnerframe" class="position-absolute border-0" id="logoutinnerframe" style="visibility:hidden; left:0; top:0; height:0; width:0;" src="about:blank"></iframe>
     <?php // mdsupport - app settings
     $disp_mainBox = '';
     if (isset($_SESSION['app1'])) {
@@ -315,15 +315,15 @@ $esignApi = new Api();
             array('apps', $_SESSION['app1'])
         );
         if ($rs['app_url'] != "main/main_screen.php") {
-            echo '<iframe name="app1" src="../../' . attr($rs['app_url']) . '"
-    			style="position: absolute; left: 0; top: 0; height: 100%; width: 100%; border: none;" />';
+            echo '<iframe name="app1" class="position-absolute w-100 h-100 border-0" src="../../' . attr($rs['app_url']) . '"
+    			style="left: 0; top: 0;" />';
             $disp_mainBox = 'style="display: none;"';
         }
     }
     ?>
-    <div id="mainBox" <?php echo $disp_mainBox ?> >
-        <nav class="navbar navbar-expand-xl navbar-light bg-light py-0">
-            <a class="navbar-brand mt-2 mt-xl-0 mr-3 mr-xl-2" href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank">
+    <div id="mainBox" <?php echo $disp_mainBox; ?>>
+        <nav class="navbar navbar-expand-xl navbar-light bg-light py-0 oemr-navbar">
+            <a class="navbar-brand" href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank">
                 <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/menu-logo.svg"); ?>
             </a>
             <!--<a href="../../logout.php" target="logoutinnerframe" class="d-lg-none" id="logout_link" onclick="top.restoreSession()" title="<?php /*echo xla("Logout"); */ ?>"><i class="fa fa-2x fa-sign-out oe-pull-toward" aria-hidden="true" id="logout_icon"></i>
@@ -347,7 +347,6 @@ $esignApi = new Api();
         ko.applyBindings(app_view_model);
 
         $(function () {
-            $('.dropdown-toggle').dropdown();
             goRepeaterServices();
             $('#patient_caret').click(function () {
                 $('#attendantData').slideToggle();
@@ -357,12 +356,12 @@ $esignApi = new Api();
         $(function () {
             $('#logo_menu').focus();
         });
-        $('#anySearchBox').keypress(function (event) {
-            if (event.which === 13 || event.keyCode === 13) {
-                event.preventDefault();
-                $('#search_globals').mousedown();
-            }
-        });
+         $('#anySearchBox').keypress(function (event) {
+             if (event.which === 13 || event.keyCode === 13) {
+                 event.preventDefault();
+                 $('#search_globals').mousedown();
+             }
+           });
         document.addEventListener('touchstart', {}); //specifically added for iOS devices, especially in iframes
     </script>
 </body>

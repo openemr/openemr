@@ -1,0 +1,437 @@
+/**
+ * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
+ * Copyright (C) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * Copyright (C) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Kevin Yeh <kevin.y@integralemr.com>
+ * @author  Robert Down <robertdown@live.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author  Tyler Wrenn <tyler@tylerwrenn.com>
+ * @link    http://www.open-emr.org
+ */
+
+@import "../../public/assets/bootstrap/scss/functions";
+@import "../../public/assets/bootstrap/scss/variables";
+@import "../../public/assets/bootstrap/scss/mixins";
+
+html {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+body {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+#mainBox {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  align-content: space-between;
+  width: 100%;
+  flex: 1 0 auto;
+  margin: 0;
+  padding: 0;
+
+  > div.mainFrames {
+	display: flex;
+	flex: 1 0 auto;
+	flex-direction: column;
+	padding: 0;
+	z-index: 3;
+	margin: 0;
+  }
+
+  > #tabs_div {
+    flex: 0 1 auto;
+    margin: 0;
+  }
+
+  .logo {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+#mainBox_vertical {
+  align-items: stretch;
+  align-content: space-between;
+  flex: 1 0 auto;
+  margin: 0;
+  padding: 0;
+
+  .logo {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+#framesDisplay {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: row;
+
+  > div {
+    flex: 1 0 auto;
+    align-items: stretch;
+    align-content: stretch;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+
+    > iframe {
+      flex: 1 0 auto;
+      border: 0px solid var(--black);
+      width: 100%;
+    }
+  }
+}
+
+.tabControls {
+  margin: 0;
+  padding: 0;
+  padding-top: 4px;
+  display: flex;
+  flex-direction: row;
+  background: var(--light);
+  overflow: auto;
+}
+
+.tabSpan {
+  font-size: 0.9rem;
+  margin: 0;
+  padding: 0.5rem;
+  border-top: 4px solid var(--primary);
+  border-left: 1px solid var(--primary);
+  border-bottom: 0;
+  border-right: 1px solid var(--primary);
+  cursor: pointer;
+  flex: 0 1 auto;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+.tabSpan .fa,
+.tabHidden {
+  color: var(--gray);
+}
+
+.tabNotchosen {
+  background-color: transparent !important;
+  border-top: 4px solid transparent !important;
+  border-left: none;
+  border-right: none;
+  border-bottom: 1px solid var(--primary);
+  display: block;
+
+  &:hover {
+    background: var(--light);
+  }
+}
+
+.tabsNoHover {
+  background: transparent !important;
+  border-top: 4px solid transparent;
+  border-left: none;
+  border-right: none;
+  border-bottom: 1px solid var(--primary);
+  display: block;
+}
+
+#attendantData {
+  background-color: var(--light);
+}
+
+.patientPicture {
+  margin-top: -1px;
+  margin-right: 7px;
+
+  img {
+    height: 75px;
+  }
+}
+
+.patientCurrentEncounter {
+  display: inline;
+
+  a {
+    color: var(--dark) !important;
+  }
+}
+
+.patientDataColumn {
+  width: 33%;
+  float: left;
+  display: block;
+}
+
+.messagesColumn {
+  float: right;
+  padding-right: 20px;
+}
+
+.patientEncounterList {
+  position: fixed;
+  overflow: hidden;
+  border: 1px solid var(--black);
+  background: var(--white);
+  cursor: pointer;
+  z-index: 1;
+
+  &:hover {
+    overflow: visible;
+    height: auto;
+    z-index: 4;
+
+    table.encounters {
+      display: block;
+    }
+  }
+
+  table.encounters {
+    display: none;
+  }
+
+  > div {
+    padding: 2px;
+  }
+
+  .review {
+    padding: 2px;
+    border: 1px solid var(--black);
+    background-color: var(--gray);
+    border-radius: 5px;
+  }
+}
+
+.patientEncounterList > div:hover,
+.patientEncounterList table.encounters td:hover,
+.patientInfo .clear:hover i {
+  color: var(--danger);
+}
+
+.patientInfo {
+  padding: 1px 1px 1px 10px;
+
+  a {
+    color: var(--dark) !important;
+  }
+}
+
+/* TODO: Marked this class for removal */
+.top {
+  vertical-align: top;
+}
+
+.appMenu > span:hover,
+.appMenu .appMenu > span:hover {
+  color: var(--white);
+  text-decoration: none;
+  background-color: var(--primary);
+  text-shadow: none;
+}
+
+.appMenu ul,
+.appMenu_small ul {
+  list-style: none;
+  margin: 0;
+  padding: 1px 5px 2px 1px;
+}
+
+.appMenu {
+  li:hover > .menuDisabled {
+    background-color: transparent;
+  }
+
+  .oe-show {
+    display: none;
+  }
+
+  > span {
+    float: left;
+    padding: 0;
+    white-space: nowrap;
+  }
+}
+
+.appMenu_small {
+  > span {
+    padding: 0;
+    white-space: nowrap;
+  }
+
+  .menuLabel {
+    padding: 0.625rem 0.625rem;
+  }
+
+  .oe-show {
+    display: block;
+  }
+}
+
+.menuSection {
+  position: relative;
+
+  &:hover {
+    background-color: #CCE3F8;
+
+    > .menuEntries {
+      display: block;
+    }
+  }
+
+  > .menuEntries {
+    display: none;
+    position: absolute;
+    top: 40px;
+    z-index: 1000;
+    min-width: 175px;
+    box-shadow: 0 5px 5px var(--gray);
+    padding: 0;
+    white-space: nowrap;
+
+    .menuEntries {
+      display: none;
+      position: absolute;
+      top: -3px;
+      left: 161px;
+    }
+  }
+}
+
+/* Needed for things that require it */
+.menu-shadow-ovr {
+  box-shadow: 0 5px 5px var(--gray) !important;
+}
+
+/* Need separate styling for top level vs submenu items
+ * This currently controls ALL links in menu, no bueno
+ * --Robert Down */
+.oemr-navitem {
+  color: var(--dark) !important;
+  padding: 0.9375rem 0.625rem;
+  font-weight: 700;
+  transition: background-color 0.1s ease;
+
+  &:hover {
+    background: #CCE3F8 !important;
+    color: var(--dark) !important;
+  }
+}
+
+// For subnav items only - prevents issues of not being able to select them
+.oemr-subnavitem {
+  color: var(--dark) !important;
+  font-weight: 700;
+  transition: background-color 0.1s ease;
+  display: block;
+  padding: 0.625rem 1.25rem;
+  float: none;
+
+  &:hover {
+    background: #CCE3F8 !important;
+    color: var(--dark) !important;
+  }
+}
+
+.menuDisabled {
+  color: var(--gray) !important;
+  pointer-events: none;
+  background-color: transparent;
+}
+
+.userSection {
+  min-width: 200px;
+  right: 10px;
+}
+
+/* Main menu bar */
+.body_top {
+  background-color: var(--light);
+  color: var(--dark);
+  padding: 0;
+  margin: 0;
+  z-index: 10;
+}
+
+.body_title {
+  color: var(--black);
+  background-color: var(--light);
+  padding: 10px 0 0 0;
+}
+
+#username {
+  > .userfunctions > div:hover {
+    color: var(--danger);
+  }
+}
+
+.menu_arrow {
+  bottom: 0;
+  margin: 7px 7px 2px 7px;
+}
+
+.topToolbarRight {
+  border-top: 0;
+}
+
+.oemr-droptoggle {
+  @include caret(right);
+
+  &::after {
+    vertical-align: 0;
+    float: right;
+    position: relative;
+  }
+}
+
+.float-element {
+  float: left;
+}
+
+#logout_icon {
+  margin: 12px 5px 0 10px;
+  cursor: pointer;
+}
+
+#menu_icon {
+  margin: 12px 25px;
+  cursor: pointer;
+}
+
+#patient_caret {
+  font-size: 2rem;
+  margin-top: -5px;
+}
+
+@media (max-width: var(--breakpoint-md)) {
+  .mainFrames {
+    margin: 0;
+    padding-left: 1px;
+  }
+
+  #framesDisplay > div {
+    height: 100vh;
+    width: 100%;
+  }
+}

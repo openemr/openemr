@@ -13,10 +13,10 @@
   top: 0;
   width: 100%;
   z-index: 100;
-}
 
-.menuBar ~ .container {
-  margin-top: 95px;
+  ~ .container {
+    margin-top: 95px;
+  }
 }
 
 .logout {
@@ -69,13 +69,6 @@ span.bold {
   background-color: lighten($yellow, 30%) !important;
 }
 
-/* $login_body_line */
-
-#addressbook_list tr.search,
-#addressbook_list .inputtext {
-  @include font-size("0.9rem !important");
-}
-
 [href~="deleter"],
 [onclick~="delete"] {
   background: $danger !important;
@@ -93,11 +86,11 @@ span.bold {
   height: 95%;
   overflow: auto;
   width: 100%;
-}
 
-#documents_list td,
-#documents_list a {
-  @include font-size("0.8rem !important");
+  td,
+  a {
+    @include font-size("0.8rem !important");
+  }
 }
 
 .body_title table tr td {
@@ -123,20 +116,29 @@ span.bold {
  * Report - Custom
  * seen as the patient report (custom_report.php)
  *============================================================*/
-#report_custom h1 {
-  @include font-size("1.2rem !important");
+#report_custom {
+  h1 {
+    @include font-size("1.2rem !important");
+  }
+
+  .encounter h1 {
+    @include font-size("1.4rem !important");
+  }
 }
 
-#report_custom .encounter h1 {
-  @include font-size("1.4rem !important");
-}
+#addressbook_list {
+  tr.evenrow {
+    background-color: $light;
+  }
 
-#addressbook_list tr.evenrow {
-  background-color: $light;
-}
+  tr.oddrow {
+    background-color: $white;
+  }
 
-#addressbook_list tr.oddrow {
-  background-color: $white;
+  tr.search,
+  .inputtext {
+    @include font-size("0.9rem !important");
+  }
 }
 
 tr.odd,
@@ -156,24 +158,24 @@ ul.tabNav {
   margin: 0;
   padding: 0;
   padding-top: 4px;
-}
 
-ul.tabNav li {
-  padding: 0 4px;
-}
+  a {
+    color: $white;
+    padding: 8px 17px;
 
-ul.tabNav li.current a {
-  background: $white;
-  color: $primary;
-}
+    &:focus {
+      outline: none;
+    }
+  }
 
-ul.tabNav a {
-  color: $white;
-  padding: 8px 17px;
-}
+  li {
+    padding: 0 4px;
 
-ul.tabNav a:focus {
-  outline: none;
+    &.current a {
+      background: $white;
+      color: $primary;
+    }
+  }
 }
 
 /* Override BS4 dropdown toggle */
@@ -199,37 +201,39 @@ ul.tabNav a:focus {
   @include font-size("0.8rem !important");
 }
 
-#sddm li {
-  background: $light;
-}
+#sddm {
+  li {
+    background: $light;
 
-#sddm li a {
-  color: $primary;
-  padding: 12px;
-}
+    a {
+      color: $primary;
+      padding: 12px;
 
-#sddm li a:hover {
-  background: darken($light, 15%);
-}
+      &:hover {
+        background: darken($light, 15%);
+      }
+    }
+  }
 
-#sddm div {
-  background: $light;
-  display: none;
-  margin: 0;
-  padding: 0;
-}
+  div {
+    background: $light;
+    display: none;
+    margin: 0;
+    padding: 0;
 
-#sddm div a {
-  color: darken($primary, 15%);
-}
+    a {
+      color: darken($primary, 15%);
 
-#sddm div a:hover {
-  background: $primary;
-}
+      &:hover {
+        background: $primary;
+      }
+    }
+  }
 
-#sddm li.encounter-form-category-li {
-  position: relative;
-  z-index: 1;
+  li.encounter-form-category-li {
+    position: relative;
+    z-index: 1;
+  }
 }
 
 .text-area {
@@ -243,11 +247,11 @@ ul.tabNav a:focus {
 
 .example_menu {
   @include font-size("0.7rem !important");
-}
 
-.example_menu ul a:hover {
-  background: darken($light, 15%);
-  text-decoration: underline;
+  ul a:hover {
+    background: darken($light, 15%);
+    text-decoration: underline;
+  }
 }
 
 .error-message {
@@ -270,10 +274,10 @@ ul.tabNav a:focus {
 .sidebar {
   @include font-size("0.95rem !important");
   background-color: lighten($light, 10%);
-}
 
-.sidebar .submenu {
-  @include font-size("0.9rem !important");
+  .submenu {
+    @include font-size("0.9rem !important");
+  }
 }
 
 .alert-danger-custom {
@@ -309,29 +313,29 @@ div.category-display {
   margin: 0;
 }
 
-#oe-nav-ul.tabNav li.current {
-  color: $primary;
-}
-
-#oe-nav-ul.tabNav a {
-  background: $light;
-  border-bottom: 1px solid $gray-400;
-  border-left: 2px solid $primary;
-}
-
-#oe-nav-ul.tabNav a:hover {
-  background-color: $white !important;
-  color: $primary;
-}
-
 #oe-nav-ul.tabNav {
   background: rgba($black, 0.05) !important;
-}
 
-#oe-nav-ul.tabNav .current a {
-  background: $white;
-  border-color: $primary;
-  color: $primary;
+  a {
+    background: $light;
+    border-bottom: 1px solid $gray-400;
+    border-left: 2px solid $primary;
+
+    &:hover {
+      background-color: $white !important;
+      color: $primary;
+    }
+  }
+
+  li.current {
+    color: $primary;
+  }
+
+  .current a {
+    background: $white;
+    border-color: $primary;
+    color: $primary;
+  }
 }
 
 #globals-div .tabContainer {
@@ -411,16 +415,18 @@ fieldset {
   background-color: $white !important;
 }
 
-.login-emr-logo > #red-color {
-  fill: #a40c04;
-}
+.login-emr-logo {
+  > #red-color {
+    fill: #a40c04;
+  }
 
-.login-emr-logo > #blue-color {
-  fill: #2c9cd4;
-}
+  > #blue-color {
+    fill: #2c9cd4;
+  }
 
-.login-emr-logo > #gray-color {
-  fill: #5c5c5c;
+  > #gray-color {
+    fill: #5c5c5c;
+  }
 }
 
 #mainBox .logo .emr-menu-logo > #blue-color,
@@ -430,4 +436,9 @@ fieldset {
 
 .about-review-image > #color {
   fill: #083c5d;
+}
+
+// TODO: Make this target only the main EMR navbar instead of globally
+.dropdown:hover > .dropdown-menu {
+  display: block !important;
 }
