@@ -18,7 +18,7 @@ use GuzzleHttp\Exception\ClientException;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
-class PatientApiDisabled extends TestCase
+class PatientApiTest extends TestCase
 {
     const PATIENT_API_ENDPOINT = "/apis/api/patient";
     private $testClient;
