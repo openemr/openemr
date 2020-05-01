@@ -70,7 +70,7 @@ class ApiTestClient
             }
         } else {
             $credentials["username"] = getenv("OE_USER", true) ?: "admin";
-            $credentials["password"] = getenv("OE_PASS", true) ?: "admin";
+            $credentials["password"] = getenv("OE_PASS", true) ?: "pass";
         }
 
         $authBody = [

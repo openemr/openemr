@@ -5,7 +5,6 @@ namespace OpenEMR\Tests\Api;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Api\ApiTestClient;
 use OpenEMR\Tests\Fixtures\FixtureManager;
-use GuzzleHttp\Exception\ClientException;
 
 /**
  * Patient API Endpoint Test Cases.
