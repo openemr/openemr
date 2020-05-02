@@ -36,11 +36,11 @@ integrated with `RequestControllerHelper::handleProcessingResult` and the `Valid
 
 Finally, APIs which are integrated with the new `handleProcessingResult` method utilize a common response format.
 
-```sh
+```json
 {
     "validationErrors": [],
     "internalErrors": [],
-    "data": < data payload>
+    "data": < data payload >
 }
 ```
 
