@@ -1,15 +1,15 @@
 <?php
 /**
-* Patient Portal
-*
-* @package   OpenEMR
-* @link      http://www.open-emr.org
-* @author    Jerry Padgett <sjpadgett@gmail.com>
-* @author    Tyler Wrenn <tyler@tylerwrenn.com>
-* @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
-* @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
-* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
-*/
+ * Patient Portal
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 use OpenEMR\Core\Header;
 
@@ -237,91 +237,82 @@ function restoreDocumentEdits() {
     restoreTextInputs();
 }
 </script>
-<nav class="nav navbar-light bg-light fixed-top top-before-sidebar">
+<nav class="nav navbar-light bg-light sticky-top">
     <div class="container-fluid py-2">
         <div class="sidebar-expand d-md-none">
             <button type="button" class="text-dark">
-                <i class="fa fa-angle-right"></i>
+                <i class="fas fa-angle-right"></i>
             </button>
         </div>
         <a class="navbar-brand" href="#"><?php echo xlt("Document Center") ?></a>
     </div>
 </nav>
+<div class="row">
 <script type="text/template" id="onsiteDocumentModelTemplate">
-  <div class="container-fluid pl-0">
-  <nav class="nav-sidebar bg-light mt-4 mt-md-5 pt-5 pt-md-3">
-      <div class="sidebar-header mx-md-5">
-          <h6 class="text-center"><?php echo xlt('Actions') ?></h6>
-      </div>
-      <div class="sidebar-content">
-          <ul class="nav flex-column">
-              <li class="nav-item"><a class="nav-link text-primary" id="signTemplate" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Signature'); ?></a></li>
-              <li class="nav-item"><a class="nav-link text-primary" id="saveTemplate" href="#"><?php echo xlt('Save'); ?></a></li>
-              <li class="nav-item"><a class="nav-link text-primary" id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><?php echo xlt('Print'); ?></a></li>
-              <li class="nav-item"><a class="nav-link text-primary" id="submitTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
-              <li class="nav-item"><a class="nav-link text-primary" id="sendTemplate" href="#"><?php echo xlt('Send for Review'); ?></a></li>
-              <li class="nav-item"><a class="nav-link text-primary" id="chartTemplate" href="#"><?php echo xlt('Chart to Category') . ' ' . text($catname); ?></a></li>
-              <li class="nav-item"><a class="nav-link text-primary" id="downloadTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
-              <?php if (!$is_module) { ?>
-                  <li class="nav-item">
-                      <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Home'); ?></a>
-                  </li>
-              <?php } else { ?>
-                  <li class="nav-item">
-                      <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt(' Return'); ?></a>
-                  </li>
-              <?php } ?>
-          </ul>
-      </div>
+  <nav class="sidebar bg-light col-md-2">
+    <div class="sidebar-sticky collapse collapse-md">
+        <ul class="nav flex-column">
+            <li class="navbar-brand"><h6 class="text-center"><?php echo xlt('Actions') ?></h6></li>
+            <li class="nav-item"><a class="nav-link text-primary" id="signTemplate" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Signature'); ?></a></li>
+            <li class="nav-item"><a class="nav-link text-primary" id="saveTemplate" href="#"><?php echo xlt('Save'); ?></a></li>
+            <li class="nav-item"><a class="nav-link text-primary" id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><?php echo xlt('Print'); ?></a></li>
+            <li class="nav-item"><a class="nav-link text-primary" id="submitTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
+            <li class="nav-item"><a class="nav-link text-primary" id="sendTemplate" href="#"><?php echo xlt('Send for Review'); ?></a></li>
+            <li class="nav-item"><a class="nav-link text-primary" id="chartTemplate" href="#"><?php echo xlt('Chart to Category') . ' ' . text($catname); ?></a></li>
+            <li class="nav-item"><a class="nav-link text-primary" id="downloadTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
+            <?php if (!$is_module) { ?>
+                <li class="nav-item">
+                    <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Home'); ?></a>
+                </li>
+            <?php } else { ?>
+                <li class="nav-item">
+                    <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt(' Return'); ?></a>
+                </li>
+            <?php } ?>
+        </ul>
+    </div>
   </nav>
-  <main class="main-full">
-        <section class="row">
-            <div class="col-md">
-                <div class="card" id="docpanel">
-                    <header class="card-header bg-primary text-light" id='docPanelHeader'><?php echo xlt('Patient Document'); ?></header>
-                    <form id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
-                        <div id="templatediv" class="card-body bg-white mr-auto">
-                            <div id="templatecontent" class="template-body bg-white mr-auto"></div>
-                        </div>
-                        <input type="hidden" name="content" id="content" value="" />
-                        <input type="hidden" name="cpid" id="cpid" value="" />
-                        <input type="hidden" name="docid" id="docid" value="" />
-                        <input type="hidden" name="handler" id="handler" value="download" />
-                        <input type="hidden" name="status" id="status" value="Open" />
-                    </form>
-                    <div class="card-footer">
-                        <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
-                            <fieldset>
-                                <div class="form-group">
-                                    <label class="col-form-label"></label>
-                                    <div class="controls">
-                                        <button id="deleteOnsiteDocumentButton" class="btn btn-sm btn-danger"><i class="icon-trash icon-white"></i><?php echo xlt('Delete Document'); ?></button>
-                                        <span id="confirmDeleteOnsiteDocumentContainer">
-                                            <button id="cancelDeleteOnsiteDocumentButton" class="btn btn-link btn-sm"><?php echo xlt('Cancel'); ?></button>
-                                            <button id="confirmDeleteOnsiteDocumentButton" class="btn btn-sm btn-danger"><?php echo xlt('Confirm'); ?></button>
-                                        </span>
-                                    </div>
-                                </div>
-                            </fieldset>
-                        </form>
+  <main class="col-md-10">
+            <div class="card" id="docpanel">
+                <header class="card-header bg-primary text-light" id='docPanelHeader'><?php echo xlt('Patient Document'); ?></header>
+                <form id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
+                    <div id="templatediv" class="card-body bg-white mr-auto">
+                        <div id="templatecontent" class="template-body bg-white mr-auto"></div>
                     </div>
+                    <input type="hidden" name="content" id="content" value="" />
+                    <input type="hidden" name="cpid" id="cpid" value="" />
+                    <input type="hidden" name="docid" id="docid" value="" />
+                    <input type="hidden" name="handler" id="handler" value="download" />
+                    <input type="hidden" name="status" id="status" value="Open" />
+                </form>
+                <div class="card-footer">
+                    <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
+                        <fieldset>
+                            <div class="form-group">
+                                <label class="col-form-label"></label>
+                                <div class="controls">
+                                    <button id="deleteOnsiteDocumentButton" class="btn btn-sm btn-danger"><i class="icon-trash icon-white"></i><?php echo xlt('Delete Document'); ?></button>
+                                    <span id="confirmDeleteOnsiteDocumentContainer">
+                                        <button id="cancelDeleteOnsiteDocumentButton" class="btn btn-link btn-sm"><?php echo xlt('Cancel'); ?></button>
+                                        <button id="confirmDeleteOnsiteDocumentButton" class="btn btn-sm btn-danger"><?php echo xlt('Confirm'); ?></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
                 </div>
-            </div>
-        </section>
-    </main>
-</div>
-
+              </div>
+            </main>
 </script>
 <script type="text/template" id="onsiteDocumentCollectionTemplate">
-<div class="container-fluid pt-4 pt-md-3 px-3" id="dynamicspacing">
-  <section class="row">
-  <div class="col-md">
+<div class="col-md-10">
+<div class="container-fluid px-3" id="dynamicspacing">
     <nav class="navbar navbar-expand-md navbar-light bg-light border" id="topnav">
         <div class="navbar-header">
             <a class="navbar-brand text-primary" href="#"><i class="fa fa-file-text-o">&nbsp;</i><?php echo xla('Pending') ?></a>
         </div>
         <ul class="nav nav-pills nav-pills-ovr mr-auto">
-            <?php require_once(dirname(__FILE__) . '/../../lib/template_menu.php'); ?>
+            <?php require_once dirname(__FILE__) . '/../../lib/template_menu.php'; ?>
             <?php if (!$is_module) { ?>
                 <li class="nav-item px-1 py-1 py-md-0">
                     <a class="nav-link text-danger btn btn-outline-danger" href="#" onclick='window.location.replace("./../home.php")'><?php echo xlt('Home'); ?></a>
@@ -369,12 +360,12 @@ function restoreDocumentEdits() {
         <%= view.getPaginationHtml(page) %>
     </div>
 </div>
+</div>
 </script>
 <!-- processed templates go here.-->
 <div id="onsiteDocumentModelContainer" class="modelContainer"></div>
 <div id="onsiteDocumentCollectionContainer" class="collectionContainer"></div>
-</div>
-</section>
+
 <?php
 // footer close body html
 $this->display('_Footer.tpl.php');

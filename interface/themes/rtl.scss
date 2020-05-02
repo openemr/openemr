@@ -15,11 +15,6 @@
         text-align: right !important;
     }
 
-    /*Bootstrap 3 classes modified for rtl*/
-    .text-center {
-        text-align: center !important;
-    }
-
     #navigation-slide,
     #navigation-slide * {
         padding-right: 0px;
@@ -92,10 +87,6 @@
 
     .graphic-pain-map img {
         width: 100%;
-    }
-
-    body > .nav {
-        margin-right: 40px;
     }
 
     /* ajax_template.html */

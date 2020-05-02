@@ -1,4 +1,5 @@
 <?php
+
 /**
  * portal/get_patient_info.php
  *
@@ -13,6 +14,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+ ini_set('display_errors', 1);
+ ini_set('display_startup_errors', 1);
+ ini_set("error_log", "../phperror/php-error.log");
+ error_reporting(E_ALL);
+
 // starting the PHP session
 // Will start the (patient) portal OpenEMR session/cookie.
 require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
@@ -20,10 +26,6 @@ OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 // regenerating the session id to avoid session fixation attacks
 session_regenerate_id(true);
-//
-
-// landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
 //
 
 // checking whether the request comes from index.php
@@ -57,7 +59,7 @@ if (!empty($_POST['languageChoice'])) {
 }
 
 // Settings that will override globals.php
-$ignoreAuth = 1;
+$ignoreAuth = true;
 //
 
 // Authentication
@@ -67,6 +69,10 @@ require_once("$srcdir/user.inc");
 
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
+
+// landing page definition -- where to go if something goes wrong
+// Must go below globals declaration to work
+$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
 
 $logit = new ApplicationTable();
 $password_update = isset($_SESSION['password_update']) ? $_SESSION['password_update'] : 0;
@@ -170,18 +176,19 @@ $sql = "SELECT * FROM `patient_data` WHERE `pid` = ?";
 
 if ($userData = sqlQuery($sql, array(
     $auth['pid']
-))) { // if query gets executed
+    ))
+) { // if query gets executed
     if (empty($userData)) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':not active patient'), '', '0');
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        header('Location: ' . $landingpage . '&w=inactive');
+        header('Location: ' . $landingpage . '&w');
         exit();
     }
 
     if ($userData['email'] != $_POST['passaddon'] && $GLOBALS['enforce_signin_email']) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid email'), '', '0');
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        header('Location: ' . $landingpage . '&w=bademail');
+        header('Location: ' . $landingpage . '&w');
         exit();
     }
 
@@ -189,7 +196,7 @@ if ($userData = sqlQuery($sql, array(
         // Patient has not authorized portal, so escape
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':allow portal turned off'), '', '0');
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        header('Location: ' . $landingpage . '&w=noportal');
+        header('Location: ' . $landingpage . '&w');
         exit();
     }
 
@@ -265,7 +272,7 @@ if ($userData = sqlQuery($sql, array(
     } else {
         $logit->portalLog('login', '', ($_POST['uname'] . ':not authorized'), '', '0');
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        header('Location: ' . $landingpage . '&w=unauth');
+        header('Location: ' . $landingpage . '&w');
         exit();
     }
 } else { // problem with query
