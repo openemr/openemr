@@ -102,12 +102,12 @@
   }
 
   #dateNav > a:nth-child(2) {
-    background-image: url(../../public/images/rightbtn.gif);
+    background-image: url('../../public/images/rightbtn.gif');
     margin-right: 10px;
   }
 
   #dateNav > a:nth-child(3) {
-    background-image: url(../../public/images/leftbtn.gif);
+    background-image: url('../../public/images/leftbtn.gif');
   }
 
   /* /main/messages/messages.php */
@@ -144,18 +144,10 @@
   #documents_list img[src*=line],
   #documents_list img[src*=plus],
   #documents_list img[src*=minus] {
-    -webkit-transform: rotate(180deg);
-    -moz-transform: rotate(180deg);
-    -o-transform: rotate(180deg);
-    -ms-transform: rotate(180deg);
     transform: rotate(180deg);
   }
 
   #documents_list img[src*=branchbottom] {
-    -webkit-transform: translate(2px, 0) rotate(-90deg);
-    -moz-transform: translate(2px, 0) rotate(-90deg);
-    -o-transform: translate(2px, 0) rotate(-90deg);
-    -ms-transform: translate(2px, 0) rotate(-90deg);
     transform: translate(2px, 0) rotate(-90deg);
   }
 
@@ -243,18 +235,6 @@
 
   .xdsoft_datepicker .xdsoft_mounthpicker button.xdsoft_prev,
   .xdsoft_datepicker .xdsoft_mounthpicker button.xdsoft_next {
-    /* W3C compliant browsers */
-
-    /* IE8 and below */
-    filter: progid:DXImageTransform.Microsoft.Matrix(M11=-1, M12=0, M21=0, M22=-1, DX=0, DY=0, SizingMethod='auto expand');
-    -webkit-transform: rotate(180deg);
-    /* Chrome and other webkit browsers */
-    -moz-transform: rotate(180deg);
-    /* FF */
-    -o-transform: rotate(180deg);
-    /* Opera */
-    -ms-transform: rotate(180deg);
-    /* IE9 */
     transform: rotate(180deg);
   }
 
