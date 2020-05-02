@@ -431,7 +431,7 @@ div.tabContainer div.current {
   li {
     background: $dark;
     background: -webkit-gradient(linear, left top, left bottom, from($dark), to($dark));
-    background: -moz-linear-gradient(top, $dark, $dark);
+    background: linear-gradient(to top, $dark, $dark);
     border: 1px solid $paler;
     filter: unquote("progid:DXImageTransform.Microsoft.gradient(startColorstr='$dark', endColorstr='$dark')");
     padding: 0;

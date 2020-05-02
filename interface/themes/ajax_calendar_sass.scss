@@ -31,9 +31,6 @@ div.tiny {
 
 .sidebar-wrapper {
   margin-left: -30rem;
-  -webkit-transition: margin 0.25s ease-out;
-  -moz-transition: margin 0.25s ease-out;
-  -o-transition: margin 0.25s ease-out;
   transition: margin 0.25s ease-out;
 }
 
@@ -140,7 +137,7 @@ div.tiny {
   overflow: hidden;
 
   table {
-    border: none;
+    border: 0;
     border-collapse: collapse;
     margin-top: 45px;
     vertical-align: middle;
@@ -193,10 +190,9 @@ div.tiny {
   }
 
   .tdDOW-small {
-
     @include font-size("0.625rem !important");
     background-color: lighten($light, 20%);
-    border: none;
+    border: 0;
     font-family: "Arial", "Helvetica", sans-serif;
     padding: 0.125rem 0.1875rem;
     text-align: center;
@@ -213,7 +209,7 @@ div.tiny {
 
     @include font-size("0.625rem !important");
     background-color: $white;
-    border: none;
+    border: 0;
     color: $gray-600;
     font-family: "Arial", "Helvetica", sans-serif;
     padding: 0.125rem 0.1875rem;
@@ -225,7 +221,7 @@ div.tiny {
 
     @include font-size("0.625rem !important");
     background-color: $white;
-    border: none;
+    border: 0;
     color: $danger;
     font-family: "Arial", "Helvetica", sans-serif;
     padding: 0.125rem 0.1875rem;
@@ -237,7 +233,7 @@ div.tiny {
 
     @include font-size("0.625rem !important");
     background-color: $white;
-    border: none;
+    border: 0;
     color: $gray-600;
     font-family: "Arial", "Helvetica", sans-serif;
     padding: 0.125rem 0.1875rem;
@@ -249,7 +245,7 @@ div.tiny {
 
     @include font-size("0.625rem !important");
     background-color: $white;
-    border: none;
+    border: 0;
     font-family: "Arial", "Helvetica", sans-serif;
     padding: 0.125rem 0.1875rem;
 

@@ -25,38 +25,38 @@
 @import "../../public/assets/bootstrap/scss/mixins";
 
 html {
-  margin: 0;
-  padding: 0;
   border: 0;
-  height: 100%;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  flex: 1 0 auto;
   display: flex;
+  flex: 1 0 auto;
   flex-direction: column;
   margin: 0;
 }
 
 #mainBox {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
   align-content: space-between;
-  width: 100%;
+  align-items: stretch;
+  display: flex;
   flex: 1 0 auto;
+  flex-direction: column;
   margin: 0;
   padding: 0;
+  width: 100%;
 
   > div.mainFrames {
-	display: flex;
-	flex: 1 0 auto;
-	flex-direction: column;
-	padding: 0;
-	z-index: 3;
-	margin: 0;
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    z-index: 3;
   }
 
   > #tabs_div {
@@ -65,21 +65,21 @@ body {
   }
 
   .logo {
-    width: 1.25rem;
     height: 1.25rem;
+    width: 1.25rem;
   }
 }
 
 #mainBox_vertical {
-  align-items: stretch;
   align-content: space-between;
+  align-items: stretch;
   flex: 1 0 auto;
   margin: 0;
   padding: 0;
 
   .logo {
-    width: 1.25rem;
     height: 1.25rem;
+    width: 1.25rem;
   }
 
   > .body_top {
@@ -89,47 +89,47 @@ body {
 }
 
 #framesDisplay {
-  flex: 1 0 auto;
   display: flex;
+  flex: 1 0 auto;
   flex-direction: row;
 
   > div {
-    flex: 1 0 auto;
-    align-items: stretch;
     align-content: stretch;
+    align-items: stretch;
+    border-left: 1px solid var(--black);
+    border-right: 1px solid var(--black);
     display: flex;
+    flex: 1 0 auto;
     flex-direction: column;
     margin: 0;
     padding: 0;
-    border-left: 1px solid var(--black);
-    border-right: 1px solid var(--black);
 
     > iframe {
-      flex: 1 0 auto;
       border: 0;
+      flex: 1 0 auto;
       width: 100%;
     }
   }
 }
 
 .tabControls {
-  margin: -9px 0 0 0;
-  padding: 9px 0 0 0;
   display: flex;
   flex-direction: row;
+  margin: -9px 0 0;
   overflow: auto;
+  padding: 9px 0 0;
 }
 
 .tabSpan {
-  margin: 0;
-  padding: 0.3125rem 0.4375rem;
   border: 1px solid var(--black);
   border-bottom: 0;
   border-radius: 6px 6px 0 0;
   cursor: pointer;
   flex: 0 1 auto;
-  white-space: nowrap;
+  margin: 0;
   overflow: visible;
+  padding: 0.3125rem 0.4375rem;
+  white-space: nowrap;
 
   .fa {
     color: var(--gray);
@@ -148,10 +148,10 @@ body {
 
 .tabsNoHover {
   background: transparent !important;
-  border-top: 4px solid transparent;
-  border-left: none;
-  border-right: none;
   border-bottom: 1px solid var(--black);
+  border-left: 0;
+  border-right: 0;
+  border-top: 4px solid transparent;
   display: block;
 }
 
@@ -164,9 +164,9 @@ body {
 }
 
 .patientDataColumn {
-  width: 33%;
-  float: left;
   display: block;
+  float: left;
+  width: 33%;
 }
 
 .messagesColumn {
@@ -175,16 +175,16 @@ body {
 }
 
 .patientEncounterList {
-  position: fixed;
-  overflow: hidden;
-  border: 1px solid var(--black);
   background: var(--white);
+  border: 1px solid var(--black);
   cursor: pointer;
+  overflow: hidden;
+  position: fixed;
   z-index: 1;
 
   &:hover {
-    overflow: visible;
     height: auto;
+    overflow: visible;
     z-index: 4;
 
     table.encounters {
@@ -209,11 +209,11 @@ body {
   }
 
   .review {
+    background-color: var(--gray300);
+    border: 1px solid var(--black);
+    border-radius: 5px;
     font-size: x-small;
     padding: 2px;
-    border: 1px solid var(--black);
-    background-color: var(--gray300);
-    border-radius: 5px;
   }
 }
 
@@ -221,13 +221,13 @@ body {
   padding: 1px 1px 1px 10px;
 
   .clear {
+    background-color: var(--gray300);
+    border: 1px solid var(--black);
+    border-radius: 5px;
+    cursor: pointer;
     font-size: x-small;
     margin: 1px;
     padding: 3px;
-    border: 1px solid var(--black);
-    background-color: var(--gray300);
-    border-radius: 5px;
-    cursor: pointer;
 
     &:hover {
       color: var(--danger);
@@ -236,8 +236,8 @@ body {
 }
 
 .patientPicture {
-  margin-top: -1px;
   margin-right: 7px;
+  margin-top: -1px;
 
   img {
     height: 75px;
@@ -252,8 +252,8 @@ body {
 .appMenu > span {
   float: left;
   padding: 0;
-  white-space: nowrap;
   text-shadow: none;
+  white-space: nowrap;
 }
 
 .appMenu_small > span {
@@ -263,9 +263,9 @@ body {
 
 .appMenu > span:hover,
 .appMenu .appMenu > span:hover {
+  background-color: var(--primary);
   color: var(--white);
   text-decoration: none;
-  background-color: var(--primary);
   text-shadow: none;
 }
 
@@ -281,9 +281,9 @@ body {
     padding-left: 14px;
 
     &:hover {
+      background-color: var(--primary);
       color: var(--white);
       text-decoration: none;
-      background-color: var(--primary);
       text-shadow: none;
 
       > .menuDisabled {
@@ -309,27 +309,27 @@ body {
   }
 
   > .menuEntries {
-    display: none;
-    position: absolute;
-    top: 19px;
-    z-index: 1000;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
-    min-width: 175px;
     border: 0.5px solid var(--gray);
-    border-radius: 0 5px 5px 5px !important;
+    border-radius: 0 5px 5px !important;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
     color: var(--black);
+    display: none;
     margin-top: 4px;
-    padding-top: 3px;
+    min-width: 175px;
+    padding-bottom: 4px;
     padding-left: 0;
     padding-right: 0;
-    padding-bottom: 4px;
+    padding-top: 3px;
+    position: absolute;
+    top: 19px;
     white-space: nowrap;
+    z-index: 1000;
 
     .menuEntries {
       display: none;
+      left: 159px;
       position: absolute;
       top: -4px;
-      left: 159px;
       transition: 2s background-color;
     }
   }
@@ -342,14 +342,14 @@ body {
 
 .oemr-navitem {
   color: var(--dark) !important;
-  padding-top: 0.3125rem;
   padding-bottom: 0.3125rem;
   padding-left: 0.625rem;
   padding-right: 0.625rem;
+  padding-top: 0.3125rem;
   transition: background-color 0.1s ease;
 
   &:hover {
-    background: #CCE3F8 !important;
+    background: #cce3f8 !important;
     color: var(--dark) !important;
   }
 }
@@ -357,22 +357,22 @@ body {
 // For subnav items only - prevents issues of not being able to select them
 .oemr-subnavitem {
   color: var(--dark) !important;
-  padding-top: 0.3125rem;
   padding-bottom: 0.3125rem;
   padding-left: 0.625rem;
   padding-right: 0.625rem;
+  padding-top: 0.3125rem;
   transition: background-color 0.1s ease;
 
   &:hover {
-    background: #CCE3F8 !important;
+    background: #cce3f8 !important;
     color: var(--dark) !important;
   }
 }
 
 .menuDisabled {
+  background-color: transparent;
   color: var(--gray) !important;
   pointer-events: none;
-  background-color: transparent;
 }
 
 .userSection {
@@ -387,9 +387,9 @@ body {
 }
 
 .body_title {
-  color: var(--black);
   background-color: var(--light);
-  padding: 10px 0 0 0;
+  color: var(--black);
+  padding: 10px 0 0;
 }
 
 #username {
@@ -400,20 +400,16 @@ body {
 
 .logo {
   border-radius: 50%;
-  -webkit-transition: -webkit-transform .8s ease-in-out;
-  -moz-transition: -moz-transform .8s ease-in-out;
-  transition: transform .8s ease-in-out;
+  transition: transform 0.8s ease-in-out;
 
   &:hover {
-    -webkit-transform: rotate(360deg);
-    -moz-transform: rotate(360deg);
     transform: rotate(360deg);
   }
 }
 
 .menu_arrow {
   bottom: 0;
-  margin: 7px 7px 2px 7px;
+  margin: 7px 7px 2px;
 }
 
 .topToolbarRight {
@@ -424,9 +420,9 @@ body {
   @include caret(right);
 
   &::after {
-    vertical-align: 0;
     float: right;
     position: relative;
+    vertical-align: 0;
   }
 }
 
@@ -437,17 +433,17 @@ body {
 
 /* main.php */
 .body_main {
-  background-color: #C9DBF2;
+  background-color: #c9dbf2;
 }
 
 #logout_icon {
-  margin: 12px 5px 0 10px;
   cursor: pointer;
+  margin: 12px 5px 0 10px;
 }
 
 #menu_icon {
-  margin: 12px 25px;
   cursor: pointer;
+  margin: 12px 25px;
 }
 
 #patient_caret {

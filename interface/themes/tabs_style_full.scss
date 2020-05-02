@@ -27,38 +27,38 @@
 @import "../../public/assets/bootstrap/scss/mixins";
 
 html {
-  margin: 0;
-  padding: 0;
   border: 0;
-  height: 100%;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  flex: 1 0 auto;
   display: flex;
+  flex: 1 0 auto;
   flex-direction: column;
   margin: 0;
 }
 
 #mainBox {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
   align-content: space-between;
-  width: 100%;
+  align-items: stretch;
+  display: flex;
   flex: 1 0 auto;
+  flex-direction: column;
   margin: 0;
   padding: 0;
+  width: 100%;
 
   > div.mainFrames {
-	display: flex;
-	flex: 1 0 auto;
-	flex-direction: column;
-	padding: 0;
-	z-index: 3;
-	margin: 0;
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    z-index: 3;
   }
 
   > #tabs_div {
@@ -67,68 +67,68 @@ body {
   }
 
   .logo {
-    width: 1.25rem;
     height: 1.25rem;
+    width: 1.25rem;
   }
 }
 
 #mainBox_vertical {
-  align-items: stretch;
   align-content: space-between;
+  align-items: stretch;
   flex: 1 0 auto;
   margin: 0;
   padding: 0;
 
   .logo {
-    width: 1.25rem;
     height: 1.25rem;
+    width: 1.25rem;
   }
 }
 
 #framesDisplay {
-  flex: 1 0 auto;
   display: flex;
+  flex: 1 0 auto;
   flex-direction: row;
 
   > div {
-    flex: 1 0 auto;
-    align-items: stretch;
     align-content: stretch;
+    align-items: stretch;
     display: flex;
+    flex: 1 0 auto;
     flex-direction: column;
     margin: 0;
     padding: 0;
 
     > iframe {
+      border: 0 solid var(--black);
       flex: 1 0 auto;
-      border: 0px solid var(--black);
       width: 100%;
     }
   }
 }
 
 .tabControls {
-  margin: 0;
-  padding: 0;
-  padding-top: 4px;
+  background: var(--light);
   display: flex;
   flex-direction: row;
-  background: var(--light);
+  margin: 0;
   overflow: auto;
+  padding: 0;
+  padding-top: 4px;
 }
 
 .tabSpan {
-  font-size: 0.9rem;
-  margin: 0;
-  padding: 0.5rem;
-  border-top: 4px solid var(--primary);
-  border-left: 1px solid var(--primary);
   border-bottom: 0;
+  border-left: 1px solid var(--primary);
   border-right: 1px solid var(--primary);
+  border-top: 4px solid var(--primary);
   cursor: pointer;
   flex: 0 1 auto;
-  white-space: nowrap;
+  font-size: 0.9rem;
+  margin: 0;
   overflow: visible;
+  padding: 0.5rem;
+  white-space: nowrap;
 }
 
 .tabSpan .fa,
@@ -138,10 +138,10 @@ body {
 
 .tabNotchosen {
   background-color: transparent !important;
-  border-top: 4px solid transparent !important;
-  border-left: none;
-  border-right: none;
   border-bottom: 1px solid var(--primary);
+  border-left: 0;
+  border-right: 0;
+  border-top: 4px solid transparent !important;
   display: block;
 
   &:hover {
@@ -151,10 +151,10 @@ body {
 
 .tabsNoHover {
   background: transparent !important;
-  border-top: 4px solid transparent;
-  border-left: none;
-  border-right: none;
   border-bottom: 1px solid var(--primary);
+  border-left: 0;
+  border-right: 0;
+  border-top: 4px solid transparent;
   display: block;
 }
 
@@ -163,8 +163,8 @@ body {
 }
 
 .patientPicture {
-  margin-top: -1px;
   margin-right: 7px;
+  margin-top: -1px;
 
   img {
     height: 75px;
@@ -180,9 +180,9 @@ body {
 }
 
 .patientDataColumn {
-  width: 33%;
-  float: left;
   display: block;
+  float: left;
+  width: 33%;
 }
 
 .messagesColumn {
@@ -191,16 +191,16 @@ body {
 }
 
 .patientEncounterList {
-  position: fixed;
-  overflow: hidden;
-  border: 1px solid var(--black);
   background: var(--white);
+  border: 1px solid var(--black);
   cursor: pointer;
+  overflow: hidden;
+  position: fixed;
   z-index: 1;
 
   &:hover {
-    overflow: visible;
     height: auto;
+    overflow: visible;
     z-index: 4;
 
     table.encounters {
@@ -217,10 +217,10 @@ body {
   }
 
   .review {
-    padding: 2px;
-    border: 1px solid var(--black);
     background-color: var(--gray);
+    border: 1px solid var(--black);
     border-radius: 5px;
+    padding: 2px;
   }
 }
 
@@ -245,9 +245,9 @@ body {
 
 .appMenu > span:hover,
 .appMenu .appMenu > span:hover {
+  background-color: var(--primary);
   color: var(--white);
   text-decoration: none;
-  background-color: var(--primary);
   text-shadow: none;
 }
 
@@ -281,7 +281,7 @@ body {
   }
 
   .menuLabel {
-    padding: 0.625rem 0.625rem;
+    padding: 0.625rem;
   }
 
   .oe-show {
@@ -293,7 +293,7 @@ body {
   position: relative;
 
   &:hover {
-    background-color: #CCE3F8;
+    background-color: #cce3f8;
 
     > .menuEntries {
       display: block;
@@ -301,20 +301,20 @@ body {
   }
 
   > .menuEntries {
+    box-shadow: 0 5px 5px var(--gray);
     display: none;
+    min-width: 175px;
+    padding: 0;
     position: absolute;
     top: 40px;
-    z-index: 1000;
-    min-width: 175px;
-    box-shadow: 0 5px 5px var(--gray);
-    padding: 0;
     white-space: nowrap;
+    z-index: 1000;
 
     .menuEntries {
       display: none;
+      left: 161px;
       position: absolute;
       top: -3px;
-      left: 161px;
     }
   }
 }
@@ -329,12 +329,12 @@ body {
  * --Robert Down */
 .oemr-navitem {
   color: var(--dark) !important;
-  padding: 0.9375rem 0.625rem;
   font-weight: 700;
+  padding: 0.9375rem 0.625rem;
   transition: background-color 0.1s ease;
 
   &:hover {
-    background: #CCE3F8 !important;
+    background: #cce3f8 !important;
     color: var(--dark) !important;
   }
 }
@@ -342,22 +342,22 @@ body {
 // For subnav items only - prevents issues of not being able to select them
 .oemr-subnavitem {
   color: var(--dark) !important;
-  font-weight: 700;
-  transition: background-color 0.1s ease;
   display: block;
-  padding: 0.625rem 1.25rem;
   float: none;
+  font-weight: 700;
+  padding: 0.625rem 1.25rem;
+  transition: background-color 0.1s ease;
 
   &:hover {
-    background: #CCE3F8 !important;
+    background: #cce3f8 !important;
     color: var(--dark) !important;
   }
 }
 
 .menuDisabled {
+  background-color: transparent;
   color: var(--gray) !important;
   pointer-events: none;
-  background-color: transparent;
 }
 
 .userSection {
@@ -369,15 +369,15 @@ body {
 .body_top {
   background-color: var(--light);
   color: var(--dark);
-  padding: 0;
   margin: 0;
+  padding: 0;
   z-index: 10;
 }
 
 .body_title {
-  color: var(--black);
   background-color: var(--light);
-  padding: 10px 0 0 0;
+  color: var(--black);
+  padding: 10px 0 0;
 }
 
 #username {
@@ -388,7 +388,7 @@ body {
 
 .menu_arrow {
   bottom: 0;
-  margin: 7px 7px 2px 7px;
+  margin: 7px 7px 2px;
 }
 
 .topToolbarRight {
@@ -399,9 +399,9 @@ body {
   @include caret(right);
 
   &::after {
-    vertical-align: 0;
     float: right;
     position: relative;
+    vertical-align: 0;
   }
 }
 
@@ -410,13 +410,13 @@ body {
 }
 
 #logout_icon {
-  margin: 12px 5px 0 10px;
   cursor: pointer;
+  margin: 12px 5px 0 10px;
 }
 
 #menu_icon {
-  margin: 12px 25px;
   cursor: pointer;
+  margin: 12px 25px;
 }
 
 #patient_caret {
