@@ -109,14 +109,17 @@ $enable-responsive-font-sizes: true;
 
 /* Layouts */
 .wrapper {
-    min-height: 100%;
-	&:before, &:after {
-	    display: table;
-	    content: " ";
-	}
-	&:after {
-	    clear: both;
-	}
+  min-height: 100%;
+
+  &::before,
+  &::after {
+    content: " ";
+    display: table;
+  }
+
+  &::after {
+    clear: both;
+  }
 }
 
 /* Header */
@@ -137,6 +140,30 @@ body > .header {
 .right-side {
   flex-grow: 1;
   order: 2;
+}
+
+@media screen and (min-width: 992px) {
+  .left-side {
+    top: 50px;
+    // Left side collapse
+    &.collapse-left {
+      left: -220px;
+    }
+  }
+
+  /*Right side strech mode*/
+  .right-side.strech {
+    margin-left: 0;
+
+    > .content-header {
+      margin-top: 0;
+    }
+  }
+
+  > .header,
+  .navbar {
+    position: fixed;
+  }
 }
 
 /*
@@ -161,11 +188,11 @@ body.fixed {
   }
 
   > .header,
+  .left-side,
   .navbar {
     position: fixed;
   }
 }
-
 
 
 /* Content */
@@ -177,13 +204,14 @@ body.fixed {
 
 /* Page Header */
 .page-header {
-    margin: 10px 0 20px 0;
-    @include font-size("22px");
-	> small {
-	    color: $gray-700;
-	    display: block;
-	    margin-top: 5px;
-	}
+  @include font-size("22px");
+  margin: 10px 0 20px;
+
+  > small {
+    color: $gray-700;
+    display: block;
+    margin-top: 5px;
+  }
 }
 
 /* All images should be responsive */
@@ -294,17 +322,36 @@ body > .header {
   max-height: 100px;
   position: relative;
   z-index: 1030;
-}
 
-body > .header .navbar .nav > li.user > a {
-  font-weight: bold;
-}
+  .navbar .nav > li.user > a {
+    font-weight: bold;
+
+    > .fa,
+    > .ion {
+      margin-right: 5px;
+    }
+  }
+
+  .navbar .nav > li > a > .label {
+    @include font-size("10px");
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%;
+    font-weight: normal;
+    height: 15px;
+    line-height: 1em;
+    padding: 2px;
+    position: absolute;
+    right: 2px;
+    text-align: center;
+    top: 7px;
+    width: 15px;
+  }
 
   .navbar .nav > li > a:hover > .label {
     top: 3px;
   }
 }
-
 
 
 .right-side > .content-header {
@@ -319,21 +366,23 @@ body > .header .navbar .nav > li.user > a {
       @include font-size("15px");
       display: inline-block;
       font-weight: 300;
-      padding-#{$left}: 4px;
+      padding-left: 4px;
     }
   }
 
   > .breadcrumb {
     @include font-size("12px");
     background: transparent;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
     border-radius: 2px;
-    float: $right;
+    float: right;
     margin-bottom: 0;
     margin-top: 0;
     padding: 7px 5px;
     position: absolute;
+    right: 10px;
     top: 15px;
-    #{$right}: 10px;
   }
 }
 
@@ -369,17 +418,6 @@ body > .header .navbar .nav > li.user > a {
     .navbar {
       margin: 0;
     }
-  }
-
-  .logo,
-  .navbar {
-    float: none;
-    position: relative !important;
-    width: 100%;
-  }
-
-  body > .header .navbar {
-    margin: 0;
   }
 
   body.fixed > .header {
@@ -419,12 +457,12 @@ body > .header .navbar .nav > li.user > a {
       @include font-size("11px");
       font-weight: normal;
       margin-top: 3px;
+      padding-right: 5px;
       text-decoration: none;
-      padding-#{$right}: 5px;
 
       > .fa,
       > .ion {
-        margin-#{$right}: 3px;
+        margin-right: 3px;
       }
     }
   }
@@ -462,13 +500,15 @@ body > .header .navbar .nav > li.user > a {
 */
 /*Dropdowns in general*/
 .dropdown-menu {
+  -webkit-box-shadow: 0 3px 6px rgba($black, 0.1);
+  -moz-box-shadow: 0 3px 6px rgba($black, 0.1);
   box-shadow: 0 3px 6px rgba($black, 0.1);
   z-index: 2300;
 
   > li > a {
     > .fa,
     > .ion {
-      margin-#{$right}: 10px;
+      margin-right: 10px;
     }
 
     &:hover {
@@ -495,6 +535,8 @@ body > .header .navbar .nav > li.user > a {
   > .tasks-menu {
     > .dropdown-menu {
       border: 1px solid #dfdfdf;
+      -webkit-border-radius: 4px !important;
+      -moz-border-radius: 4px !important;
       border-radius: 4px !important;
       margin: 0 !important;
       padding: 0 !important;
@@ -521,11 +563,11 @@ body > .header .navbar .nav > li.user > a {
             bottom: 100%;
             content: " ";
             height: 0;
+            left: 92%;
+            margin-left: -7px;
             pointer-events: none;
             position: absolute;
             width: 0;
-            #{$left}: 92%;
-            margin-#{$left}: -7px;
           }
         }
 
@@ -590,10 +632,10 @@ body > .header .navbar .nav > li.user > a {
               color: darken($light, 10%);
               /* Fallback for browsers that doesn't support rgba */
               color: rgba($white, 0.7);
+              margin-right: 5px;
               padding: 15px 0;
               text-align: center;
               width: 50px;
-              margin-#{$right}: 5px;
 
               &.danger {
                 background: $danger;
@@ -643,7 +685,7 @@ body > .header .navbar .nav > li.user > a {
               > small {
                 @include font-size("10px");
                 color: $gray-500;
-                float: $right;
+                float: right;
               }
             }
 
@@ -707,11 +749,11 @@ body > .header .navbar .nav > li.user > a {
         bottom: 100%;
         content: " ";
         height: 0;
+        margin-left: -10px;
         pointer-events: none;
         position: absolute;
+        right: 10px;
         width: 0;
-        margin-#{$left}: -10px;
-        #{$right}: 10px;
       }
 
       > li {
@@ -929,9 +971,9 @@ body > .header .navbar .nav > li.user > a {
   &.vertical {
     display: inline-block;
     height: 200px;
+    margin-right: 10px;
     position: relative;
     width: 30px;
-    margin-#{$right}: 10px;
 
     > .progress-bar {
       bottom: 0;
@@ -1494,11 +1536,6 @@ body > .header .navbar .nav > li.user > a {
   color: $gray-700;
 }
 
-.nav-pills .nav-link.active,
-.nav-pills .show >.nav-link {
-  color: $gray-700;
-}
-
 .nav.nav-pills.nav-stacked > li > a {
   border-#{$left}: 3px solid transparent;
   border-radius: 0;
@@ -1508,12 +1545,13 @@ body > .header .navbar .nav > li.user > a {
 
 .nav.nav-pills.nav-stacked > li > a:hover {
   background-color: darken($light, 10%);
-  border-#{$left}-color: $primary;
+  border-left-color: $primary;
 }
 
 .nav.nav-pills.nav-stacked > li.active > a,
 .nav.nav-pills.nav-stacked > li.active > a:hover {
   background-color: darken($light, 10%);
+  border-left-color: $primary;
   color: $gray-700;
   border-#{$left}-color: $primary;
 }
@@ -1713,59 +1751,60 @@ body > .header .navbar .nav > li.user > a {
     ---------
 */
 /* skin-blue navbar */
-.skin-blue .navbar {
-  background-color: #d3e7f0;
-  /* #3c8dbc; */
-}
+.skin-blue {
+  .navbar {
+    background-color: #d3e7f0;
 
-.skin-blue .navbar .nav a {
-  color: rgba($black, 0.8);
-  /* rgba($white, 0.8); */
-}
+    .nav {
+      a {
+        color: rgba($black, 0.8);
+      }
 
-.skin-blue .navbar .nav > li > a:hover,
-.skin-blue .navbar .nav > li > a:active,
-.skin-blue .navbar .nav > li > a:focus,
-.skin-blue .navbar .nav .open > a,
-.skin-blue .navbar .nav .open > a:hover,
-.skin-blue .navbar .nav .open > a:focus {
-  background: rgba($black, 0.1);
-  color: darken($light, 10%);
-}
+      > li > a:hover,
+      > li > a:active,
+      > li > a:focus,
+      .open > a,
+      .open > a:hover,
+      .open > a:focus {
+        background: rgba($black, 0.1);
+        color: darken($light, 10%);
+      }
+    }
 
-.skin-blue .navbar .navbar-right > .nav {
-  margin-right: 10px;
-}
+    .navbar-right > .nav {
+      margin-right: 10px;
+    }
+  }
 
-/* skin-blue logo */
-.skin-blue .logo {
-  background-color: #367fa9;
-  color: darken($light, 10%);
-}
+  .logo {
+    background-color: #367fa9;
+    color: darken($light, 10%);
 
-.skin-blue .logo > a {
-  color: darken($light, 10%);
-}
+    > a {
+      color: darken($light, 10%);
+    }
 
-.skin-blue .logo:hover {
-  background: $white;
-  color: $white;
-}
+    &:hover {
+      background: $white;
+      color: $white;
+    }
+  }
+  // skin-blue content header
+  .right-side > .content-header {
+    background: darken($light, 15%);
+    box-shadow: 1px 1px 2px rgba($black, 0.1);
+  }
+  // Skin-blue user panel
+  .user-panel {
+    > .image > img {
+      border: 1px solid #dfdfdf;
+    }
 
-/* skin-blue content header */
-.skin-blue .right-side > .content-header {
-  background: darken($light, 15%);
-  box-shadow: 1px 1px 2px rgba($black, 0.1);
-}
-
-/* Skin-blue user panel */
-.skin-blue .user-panel > .image > img {
-  border: 1px solid #dfdfdf;
-}
-
-.skin-blue .user-panel > .info,
-.skin-blue .user-panel > .info > a {
-  color: $gray-700;
+    > .info,
+    > .info > a {
+      color: $gray-700;
+    }
+  }
 }
 
 /*general page*/
@@ -1778,7 +1817,7 @@ body > .header .navbar .nav > li.user > a {
 }
 
 .card {
-  border: 0;
+  border: none;
   margin: 0.75rem;
 
   .card-header {
@@ -1818,10 +1857,15 @@ body > .header .navbar .nav > li.user > a {
 
       &:first-child.active > a,
       &:first-child > a:hover {
+        -webkit-border-radius: 0;
         border-radius: 0;
       }
     }
   }
+}
+
+.card-body {
+  padding: 0.25rem;
 }
 
 .block {
@@ -1886,11 +1930,24 @@ li.dropdown-header {
 .sidebar {
   bottom: 0;
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
   left: 0;
   padding: 48px 0 0;
-  position: fixed;
-  top: 0;
-  z-index: 100;
+
+  .nav-link {
+    color: $gray-800;
+    font-weight: 500;
+
+    .feather {
+      color: $gray-600;
+      margin-right: 4px;
+    }
+
+    &:hover .feather,
+    &.active .feather {
+      color: inherit;
+    }
+  }
 }
 
 .sidebar-sticky {
@@ -1909,25 +1966,10 @@ li.dropdown-header {
   }
 }
 
-.sidebar .nav-link {
-  color: $gray-800;
-  font-weight: 500;
-}
-
 .feather {
   height: 16px;
   vertical-align: text-bottom;
   width: 16px;
-}
-
-.sidebar .nav-link .feather {
-  color: $gray-600;
-  margin-right: 4px;
-}
-
-.sidebar .nav-link:hover .feather,
-.sidebar .nav-link.active .feather {
-  color: inherit;
 }
 
 @media (min-width: 768px) {
