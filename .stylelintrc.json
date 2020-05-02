@@ -13,6 +13,7 @@
         "at-rule-no-unknown": null,
         "declaration-empty-line-before": null,
         "at-rule-empty-line-before": null,
-        "scss/at-mixin-pattern": null
+        "scss/at-mixin-pattern": null,
+        "max-nesting-depth": null
     }
 }
