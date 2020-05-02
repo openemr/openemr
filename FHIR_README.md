@@ -155,6 +155,18 @@ curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance'
 curl -X GET 'http://localhost:8300/apis/fhir/AllergyIntolerance/1'
 ```
 
+#### GET /fhir/Observation
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Observation'
+```
+
+#### GET /fhir/Observation/:id
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Observation/vitals-1'
+```
+
 #### POST /fhir/QuestionnaireResponse
 
 ```sh
