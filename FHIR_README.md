@@ -222,6 +222,18 @@ curl -X GET 'http://localhost:8300/apis/fhir/Procedure'
 curl -X GET 'http://localhost:8300/apis/fhir/Procedure/1'
 ```
 
+#### GET /fhir/MedicationStatement
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/MedicationStatement'
+```
+
+#### GET /fhir/MedicationStatement/:id
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/MedicationStatement/1'
+```
+
 #### GET /fhir/Medication
 
 ```sh
