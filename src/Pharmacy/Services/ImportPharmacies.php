@@ -50,7 +50,7 @@ class ImportPharmacies
             'skip' => '',
             'version' => '2.1',
         ];
-        
+
         /**
          * The function call was changed in PR#3172 from oeHttp::get() to oeHttpRequest::getCurlOptions()
          * with the 'ECDHE-RSA-AES256-GCM-SHA384' cipher passed to curl in order to handle an issue in
@@ -63,7 +63,7 @@ class ImportPharmacies
          * apparently still used by the CMS server.  Once CMS updates their encryption it may be possible to
          * revert this back to the original call.
          */
-         $response = oeHttpRequest::getCurlOptions(
+         $response = oeHttp::getCurlOptions(
              'https://npiregistry.cms.hhs.gov/api/',
              $query,
              [CURLOPT_SSL_CIPHER_LIST => 'ECDHE-RSA-AES256-GCM-SHA384']

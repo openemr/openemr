@@ -638,7 +638,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         }
 
         function npopup(pid) {
-            window.open('sl_eob_patient_note.php?patient_id=' + encodeURIComponent(pid), '_blank', 'width=500,height=250,resizable=1');
+            window.open('sl_eob_patient_note.php?patient_id=' + encodeURIComponent(pid), '_blank', 'resizable=1');
             return false;
         }
 
@@ -794,9 +794,9 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                 </fieldset>
                 <fieldset id="search-upload">
                     <legend>
-                        &nbsp;<span><?php echo xlt('Select Method'); ?></span>&nbsp;<i id='select-method-tooltip' 
+                        &nbsp;<span><?php echo xlt('Select Method'); ?></span>&nbsp;<i id='select-method-tooltip'
                         class="fa fa-info-circle oe-superscript" aria-hidden="true"></i>
-                                      
+
                         <div id="radio-div" class="oe-pull-away oe-legend-radio">
                             <label class="radio-inline">
                                 <input type="radio" id="invoice_search" name="radio-search" onclick=""
