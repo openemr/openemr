@@ -455,3 +455,7 @@ ALTER TABLE `amendments_history` MODIFY `created_time` timestamp NULL COMMENT 'c
 #IfNotColumnTypeDefault batchcom msg_date_sent datetime NULL
 ALTER TABLE `batchcom` MODIFY `msg_date_sent` datetime NULL;
 #EndIf
+
+#IfNotColumnTypeDefault drug_inventory last_notify date NULL
+ALTER TABLE `drug_inventory` MODIFY `last_notify` date NULL;
+#EndIf
