@@ -15,11 +15,6 @@
     text-align: right !important;
   }
 
-  /*Bootstrap 3 classes modified for rtl*/
-  .text-center {
-    text-align: center !important;
-  }
-
   #navigation-slide,
   #navigation-slide * {
     margin-right: 0;
@@ -94,10 +89,6 @@
     width: 100%;
   }
 
-  body > .nav {
-    margin-right: 40px;
-  }
-
   /* ajax_template.html */
 
   #dateNAV img {
@@ -112,12 +103,12 @@
   }
 
   #dateNav > a:nth-child(2) {
-    background-image: url('../../public/images/rightbtn.gif');
+    background-image: url(../../public/images/rightbtn.gif);
     margin-right: 10px;
   }
 
   #dateNav > a:nth-child(3) {
-    background-image: url('../../public/images/leftbtn.gif');
+    background-image: url(../../public/images/leftbtn.gif);
   }
 
   /* /main/messages/messages.php */
