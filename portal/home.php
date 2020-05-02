@@ -106,7 +106,8 @@ foreach ($msgs as $i) {
             });
             // Must be switched here
             $('main').removeClass('ml-sm-auto').addClass('mr-sm-auto');
-            $('.sidebar').addClass('text-right').addClass('float-right');
+            $('.nav-pills').addClass('text-right').addClass('justify-content-between');
+
           }
 
             $("#profilereport").load("get_profile.php", {}, function () {
@@ -198,7 +199,14 @@ foreach ($msgs as $i) {
                 $('#popwait').hide();
                 $('#callccda').click(function () {
                     $('#popwait').show();
-                })
+                });
+
+                $('#pillCollapse').on('show.bs.collapse', function () {
+                  $('.sidebar').removeClass('d-none').addClass('position-relative');
+                });
+                $('#pillCollapse').on('hide.bs.collapse', function () {
+                  $('.sidebar').addClass('d-none').removeClass('position-relative');
+                });
             });
         function editAppointment(mode, deid) {
             let mdata = {};
@@ -358,7 +366,7 @@ foreach ($msgs as $i) {
                 <a href="home.php" class="navbar-brand d-none d-sm-block">
                     <img class="img-fluid" width="140" src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png' />
                 </a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#pillCollapse" aria-controls="pillCollapse" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span>
+                <button class="navbar-toggler" id="toggleSidebarNav" type="button" data-toggle="collapse" data-target="#pillCollapse" aria-controls="pillCollapse" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span>
                 </button>
                 <!-- Sidebar toggle button-->
                 <ul class="nav navbar-nav flex-row">
@@ -390,10 +398,10 @@ foreach ($msgs as $i) {
                             <div class="dropdown-divider"></div>
                             <?php if ($GLOBALS['allow_portal_chat']) {
                                 ?>
-                                <div><a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/secure_chat.php?fullscreen=true"> <i class="fa fa-user fa-fw"></i><?php echo xlt('Chat'); ?></a></div>
+                                <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/secure_chat.php?fullscreen=true"> <i class="fa fa-user fa-fw"></i><?php echo xlt('Chat'); ?></a>
                                 <?php
                             } ?>
-                            <div><a class="dropdown-item" href="javascript:changeCredentials(event)"> <i class="fa fa-cog fa-fw"></i> <?php echo xlt('Change Credentials'); ?></a></div>
+                            <a class="dropdown-item" href="javascript:changeCredentials(event)"> <i class="fa fa-cog fa-fw"></i> <?php echo xlt('Change Credentials'); ?></a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="logout.php"><i class="fa fa-ban fa-fw"></i> <?php echo xlt('Logout'); ?></a>
                         </div>
@@ -405,7 +413,7 @@ foreach ($msgs as $i) {
     <div class="container-fluid">
       <div class="row">
         <!-- Left side column. contains the logo and sidebar -->
-        <nav class="col-md-2 d-block bg-light sidebar">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
             <section class="sidebar-sticky collapse collapse-md" id="pillCollapse">
                 <!-- Sidebar user panel -->
                 <div class="user-panel">
@@ -419,59 +427,46 @@ foreach ($msgs as $i) {
                 </div>
                 <ul class="nav nav-pills flex-column text-dark">
                     <!-- css class was sidebar-menu -->
-                    <li class="nav-item" data-toggle='pill'><a class="nav-link" href="#profilecard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-calendar-o feather"></i> <?php echo xlt('Profile'); ?>
+                    <li class="nav-item active" data-toggle='pill'><a class="nav-link" href="#profilecard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fas fa-id-card feather"></i> <?php echo xlt('Profile'); ?>
                         </a></li>
                     <li class="nav-item" data-toggle='pill'><a class="nav-link" href="#lists" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-list feather"></i><?php echo xlt('Lists'); ?></a></li>
-                    <li class="nav-item" data-toggle='pill'><a class="nav-link" href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr_url($pid); ?>"> <i class="fa fa-gavel feather"></i><?php echo xlt('Patient Documents'); ?></a></li>
-                    <?php if ($GLOBALS['allow_portal_appointments']) {
-                        ?>
-                        <li class="nav-item" data-toggle='pill'><a class="nav-link" href="#appointmentcard" data-toggle="collapse"
-                                data-parent="#cardgroup"> <i class="fa fa-calendar-o feather"></i> <?php echo xlt("Appointment"); ?>
+                    <li class="nav-item"><a class="nav-link" href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr_url($pid); ?>"> <i class="fa fa-gavel feather"></i><?php echo xlt('Patient Documents'); ?></a></li>
+                    <?php if ($GLOBALS['allow_portal_appointments']) { ?>
+                        <li class="nav-item" data-toggle='pill'><a class="nav-link" href="#appointmentcard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fas fa-calendar-day feather"></i> <?php echo xlt("Appointment"); ?>
                             </a></li>
-                        <?php
-                    } ?>
-                    <?php if ($GLOBALS['portal_two_ledger'] || $GLOBALS['portal_two_payments']) {
-                        ?>
+                    <?php } ?>
+                    <?php if ($GLOBALS['portal_two_ledger'] || $GLOBALS['portal_two_payments']) { ?>
                         <li class="nav-item dropdown accounting-menu" data-toggle='pill'><a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-book feather"></i> <?php echo xlt('Accountings'); ?></a>
-                            <div class="dropdown-menu">
-                                <?php if ($GLOBALS['portal_two_ledger']) {
-                                    ?>
+                            <div class="dropdown-menu dropdown-menu-md-right">
+                                <?php if ($GLOBALS['portal_two_ledger']) { ?>
                                     <a class="dropdown-item" href="#ledgercard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-folder-open feather"></i> <?php echo xlt('Ledger'); ?></a>
-                                    <?php
-                                } ?>
-                                <?php if ($GLOBALS['portal_two_payments']) {
-                                    ?>
+                                    <?php } ?>
+                                <?php if ($GLOBALS['portal_two_payments']) { ?>
                                     <a class="dropdown-item" href="#paymentcard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-credit-card feather"></i> <?php echo xlt('Make Payment'); ?></a>
-                                    <?php
-                                } ?>
+                                    <?php } ?>
                             </div>
                         </li>
-                        <?php
-                    } ?>
-                    <li class="nav-item dropdown reporting-menu" data-toggle='pill'><a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"> <i class="fa fa-calendar feather"></i> <?php echo xlt('Reports'); ?></a>
-                        <div class="dropdown-menu">
-                            <?php if ($GLOBALS['ccda_alt_service_enable'] > 1) {
-                                ?>
+                        <?php } ?>
+                    <li class="nav-item dropdown reporting-menu" data-toggle='pill'><a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"> <i class="fas fa-folder-open feather"></i> <?php echo xlt('Reports'); ?></a>
+                        <div class="dropdown-menu dropdown-menu-md-right">
+                            <?php if ($GLOBALS['ccda_alt_service_enable'] > 1) { ?>
                                 <a class="dropdown-item" id="callccda" href="<?php echo $GLOBALS['web_root']; ?>/ccdaservice/ccda_gateway.php?action=startandrun">
                                     <i class="fa fa-envelope feather" aria-hidden="true"></i><?php echo xlt('View CCD'); ?></a>
-                                <?php
-                            } ?>
-                            <?php if (!empty($GLOBALS['portal_onsite_document_download'])) {
-                                ?>
+                                <?php } ?>
+                            <?php if (!empty($GLOBALS['portal_onsite_document_download'])) { ?>
                                 <a class="dropdown-item" href="#reportcard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-folder-open feather"></i> <?php echo xlt('Report Content'); ?></a>
 
                                 <a class="dropdown-item" href="#downloadcard" data-toggle="collapse" data-parent="#cardgroup"> <i class="fa fa-download feather"></i> <?php echo xlt('Download Lab Documents'); ?></a>
-                                <?php
-                            } ?>
+                                <?php } ?>
                         </div>
                     </li>
-                    <li class="nav-item" data-toggle='pill'><a class="nav-link" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"><i class="fa fa-envelope feather" aria-hidden="true"></i>
+                    <li class="nav-item"><a class="nav-link" href="<?php echo $GLOBALS['web_root']; ?>/portal/messaging/messages.php"><i class="fa fa-envelope feather" aria-hidden="true"></i>
                             <?php echo xlt('Secure Messaging'); ?>
                         </a></li>
                     <?php if ($GLOBALS['allow_portal_chat']) {
                         ?>
                         <li class="nav-item" data-toggle='pill'><a class="nav-link" href="#messagescard" data-toggle="collapse"
-                                data-parent="#cardgroup"> <i class="fa fa-envelope feather"></i> <?php echo xlt("Secure Chat"); ?>
+                                data-parent="#cardgroup"> <i class="fas fa-comments feather"></i> <?php echo xlt("Secure Chat"); ?>
                             </a></li>
                         <?php
                     } ?>
@@ -481,7 +476,7 @@ foreach ($msgs as $i) {
                         <?php
                     } ?>
                     <li class="nav-item" data-toggle='pill'><a class="nav-link" href="#openSignModal" data-toggle="modal" data-type="patient-signature">
-                            <i class="fa fa-sign-in feather"></i><?php echo xlt('Signature on File'); ?>
+                            <i class="fas fa-file-signature feather"></i><?php echo xlt('Signature on File'); ?>
                         </a></li>
                     <li class="nav-item" data-toggle='pill'><a class="nav-link" href="logout.php"><i class="fa fa-ban fa-fw feather"></i> <?php echo xlt('Logout'); ?></a></li>
                 </ul>
@@ -489,7 +484,7 @@ foreach ($msgs as $i) {
             <!-- /.sidebar -->
         </nav>
         <!-- Right side column. Contains content of the page -->
-        <main class="col-md-10 ml-sm-auto mt-5">
+        <main class="col-md-10 ml-sm-auto mt-5 d-flex">
             <!-- Main content -->
             <section class="container-fluid" id="cardgroup">
                 <div id="popwait" class="alert alert-warning"><strong><?php echo xlt('Working!'); ?></strong> <?php echo xlt('Please wait...'); ?></div>
