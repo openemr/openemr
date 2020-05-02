@@ -5,23 +5,23 @@
  *============================================================*/
 
 #DEM .groupname {
-    font-weight: bold;
-    color: $success;
-    @include font-size("0.8rem !important");
-    padding-right: 5px;
-    vertical-align: top;
+  @include font-size("0.8rem !important");
+  color: $success;
+  font-weight: bold;
+  padding-right: 5px;
+  vertical-align: top;
 }
 
 #DEM .label_custom {
-    font-weight: bold;
-    @include font-size("0.8rem !important");
-    vertical-align: top;
-    text-align: $right;
+  @include font-size("0.8rem !important");
+  font-weight: bold;
+  text-align: $right;
+  vertical-align: top;
 }
 
 #DEM .data {
-    @include font-size("0.8rem !important");
-    vertical-align: top;
-    text-align: $left;
-    padding-right: 6px;
+  @include font-size("0.8rem !important");
+  padding-right: 6px;
+  text-align: $left;
+  vertical-align: top;
 }

@@ -1,14 +1,14 @@
 /* OpenEMR ROS Override */
 
 .responsetd {
-    border-color: $darkest !important;
-    background-color: $palepale;
-    border-spacing: 5px !important;
-    border-collapse: separate;
-    margin: 0 0 5px 10px;
+  background-color: $palepale;
+  border-collapse: separate;
+  border-color: $darkest !important;
+  border-spacing: 5px !important;
+  margin: 0 0 5px 10px;
 }
 
 .response {
-    background-color: $paler;
-    border-color: $darkest !important;
+  background-color: $paler;
+  border-color: $darkest !important;
 }

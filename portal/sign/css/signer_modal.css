@@ -10,114 +10,106 @@
 
 html,
 body {
-    touch-action: none;
+  touch-action: none;
 }
 
 /* override width to give user some space */
 @media (min-width: 576px) {
-    .model-dialog {
-        max-width: 98% !important;
-    }
+  .model-dialog {
+    max-width: 98% !important;
+  }
 }
 
 @media (max-width: 768px) {
-    .modal-dialog {
-        max-width: 98% !important;
-    }
+  .modal-dialog {
+    max-width: 98% !important;
+  }
 }
 
+/* stylelint-disable */
 .signature-pad-body {
-    position: relative;
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    border: 1px solid #e8e8e8;
-    padding: .1rem;
+  border: 1px solid #e8e8e8;
+  -webkit-box-direction: normal;
+  -webkit-box-orient: vertical;
+  display: flex;
+  flex-direction: column;
+  padding: 0.1rem;
+  position: relative;
 }
+/* stylelint-enable */
 
+/* stylelint-disable */
 .signature-pad-content {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-pack: initial;
-    -ms-flex-pack: initial;
-    justify-content: flex-start;
-    -webkit-box-align: initial;
-    -ms-flex-align: initial;
-    align-items: flex-end;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    margin: 0;
-    background: #fff;
+  align-items: flex-end;
+  background: #fff;
+  -webkit-box-align: initial;
+  -webkit-box-pack: initial;
+  display: flex;
+  -ms-flex-align: initial;
+  -ms-flex-pack: initial;
+  justify-content: flex-start;
+  margin: 0;
+  user-select: none;
 }
+/* stylelint-enable */
 
 .signature-pad-content canvas {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    touch-action: none;
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  touch-action: none;
+  width: 100%;
 }
 
 .signature-pad-footer {
-    text-align: center;
-    font-size: .8rem;
-    margin: .25rem 0 0 0;
-    width: 100%;
+  font-size: 0.8rem;
+  margin: 0.25rem 0 0;
+  text-align: center;
+  width: 100%;
 }
 
+/* stylelint-disable */
 .signature-pad-actions {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-pack: justify;
-    -ms-flex-pack: justify;
-    justify-content: space-between;
-    margin: .5rem 0 0 0;
-    padding: .5rem;
+  -webkit-box-pack: justify;
+  display: flex;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  margin: 0.5rem 0 0;
+  padding: 0.5rem;
 }
+/* stylelint-enable */
 
 .sigNav {
-    display: none;
-    height: 2.25em;
-    margin: 0;
-    position: relative;
-    list-style-type: none;
+  display: none;
+  height: 2.25em;
+  list-style-type: none;
+  margin: 0;
+  position: relative;
 }
 
 .signature {
-    cursor: pointer;
-    width: auto !important;
-    height: 6.0rem !important;
-    z-index: 5 !important;
+  cursor: pointer;
+  height: 6rem !important;
+  width: auto !important;
+  z-index: 5 !important;
 }
 
 .signature img {
-    cursor: pointer;
-    color: var(--danger) !important;
-    user-drag: none;
-    user-select: none;
-    -moz-user-select: none;
-    -webkit-user-drag: none;
-    -webkit-user-select: none;
-    -ms-user-select: none;
+  color: var(--danger) !important;
+  cursor: pointer;
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
 #openSignModal .modal-header {
-    padding: 2px;
+  padding: 2px;
 }
 
 #openSignModal .modal-open {
-    padding-right: 0;
+  padding-right: 0;
 }
 
 #openSignModal .modal-header .input-group {
-    margin-left: 5%;
+  margin-left: 5%;
 }

@@ -3,71 +3,66 @@
  */
 
 .ui-draggable:hover {
-    cursor: move;
-    cursor: grab;
-    cursor: -moz-grab;
-    cursor: -webkit-grab;
+  cursor: move;
+  cursor: grab;
 }
 
 .ui-draggable:active {
-    cursor: move;
-    cursor: grabbing;
-    cursor: -moz-grabbing;
-    cursor: -webkit-grabbing;
+  cursor: move;
+  cursor: grabbing;
 }
 
 .ui-icon-gripsmall-diagonal-se {
-    background-position: -64px -224px;
+  background-position: -64px -224px;
 }
 
 .ui-icon,
 .ui-widget-content .ui-icon {
-    background-image: url("/public/assets/jquery-ui-themes/themes/sunny/images/ui-icons_d19405_256x240.png");
+  background-image: url("/public/assets/jquery-ui-themes/themes/sunny/images/ui-icons_d19405_256x240.png");
 }
 
 .ui-icon {
-    width: 16px;
-    height: 16px;
+  height: 16px;
+  width: 16px;
 }
 
 .ui-icon {
-    display: inline-block;
-    vertical-align: middle;
-    margin-top: -.25em;
-    position: relative;
-    text-indent: -99999px;
-    overflow: hidden;
-    background-repeat: no-repeat;
+  background-repeat: no-repeat;
+  display: inline-block;
+  margin-top: -0.25em;
+  overflow: hidden;
+  position: relative;
+  text-indent: -99999px;
+  vertical-align: middle;
 }
 
 .ui-resizable-handle {
-    position: absolute;
-    font-size: 0.1px;
-    display: block;
-    -ms-touch-action: none;
-    touch-action: none;
+  display: block;
+  font-size: 0.1px;
+  position: absolute;
+  touch-action: none;
 }
 
 .ui-resizable-se {
-    cursor: se-resize;
-    width: 12px;
-    height: 12px;
-    right: 1px;
-    bottom: 1px;
+  bottom: 1px;
+  cursor: se-resize;
+  height: 12px;
+  right: 1px;
+  width: 12px;
 }
 
 .ui-resizable-s {
-    cursor: s-resize;
-    height: 7px;
-    width: 100%;
-    bottom: -5px;
-    left: 0;
+  bottom: -5px;
+  cursor: s-resize;
+  height: 7px;
+  left: 0;
+  width: 100%;
 }
 
 .ui-resizable-e {
-    cursor: e-resize;
-    width: 7px;
-    right: -5px;
-    top: 0;
-    height: 100%;
+  cursor: e-resize;
+  height: 100%;
+  right: -5px;
+  top: 0;
+  width: 7px;
 }

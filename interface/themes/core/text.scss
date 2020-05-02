@@ -1,58 +1,58 @@
 .text {
-    text-decoration: none;
-    @include font-size("0.9rem !important");
+  @include font-size("0.9rem !important");
+  text-decoration: none;
 }
 
 .required {
-    text-decoration: none;
-    @include font-size("0.9rem !important");
-    color: $danger;
-    font-weight: bold;
+  @include font-size("0.9rem !important");
+  color: $danger;
+  font-weight: bold;
+  text-decoration: none;
 }
 
 /* Deprecated - Please use font-weight-bold class - Will be removed soon */
 .bold {
-    text-decoration: none;
-    @include font-size("0.9rem !important");
-    font-weight: bold;
+  @include font-size("0.9rem !important");
+  font-weight: bold;
+  text-decoration: none;
 }
 
 .small {
-    text-decoration: none;
-    @include font-size("0.8rem !important");
+  @include font-size("0.8rem !important");
+  text-decoration: none;
 }
 
 .sellistclass {
-    float: $left;
+  float: $left;
 }
 
 .disabled_button,
 a.disabled_button:hover {
-    color: $gray;
+  color: $gray;
 }
 
 /* Password alert styles */
 
 .pwdalert {
-    display: block;
-    width: 520px;
-    margin-left: 100px;
-    padding: 10px 10px 10px 15px;
+  display: block;
+  margin-left: 100px;
+  padding: 10px 10px 10px 15px;
+  width: 520px;
 }
 
 .alertmsg1 {
-    border: 3px solid $danger;
-    background-color: rgba(lighten($orange, 60%), 0.5);
+  background-color: rgba(lighten($orange, 60%), 0.5);
+  border: 3px solid $danger;
 }
 
 .alertmsg2 {
-    border: 3px solid lighten($pink, 20%);
-    background-color: lighten($pink, 30%);
+  background-color: lighten($pink, 30%);
+  border: 3px solid lighten($pink, 20%);
 }
 
 .alertmsg3 {
-    border: 3px solid $yellow;
-    background-color: lighten($yellow, 60%);
+  background-color: lighten($yellow, 60%);
+  border: 3px solid $yellow;
 }
 
 /* Password alert styles */
@@ -60,61 +60,61 @@ a.disabled_button:hover {
 /* Style for red font */
 
 .redtext {
-    text-decoration: none;
-    color: $danger;
+  color: $danger;
+  text-decoration: none;
 }
 
 /* Style for red font */
 
 .de_identification_status_message {
-    width: 50%;
-    border: 1px solid $primary;
+  border: 1px solid $primary;
+  width: 50%;
 }
 
 .de_identification_input_controls_box {
-    width: 100%;
-    border: 1px solid $primary;
+  border: 1px solid $primary;
+  width: 100%;
 }
 
 .de_id_upgrade_login {
-    width: 40%;
-    border: 1px solid $black;
-    background-color: $white;
+  background-color: $white;
+  border: 1px solid $black;
+  width: 40%;
 }
 
 body.admin-layout input[type="button"] {
-    display: inline-block;
-    float: none;
+  display: inline-block;
+  float: none;
 }
 
 /* error message = new validation */
 
 .error-message {
-    color: $danger;
-    display: block;
-    white-space: nowrap;
-    font-weight: normal;
+  color: $danger;
+  display: block;
+  font-weight: normal;
+  white-space: nowrap;
 }
 
 .error-border {
-    border: 1px solid $danger !important;
+  border: 1px solid $danger !important;
 }
 
 .tinylogocontainer {
-    display: inline-block;
-    border: none;
+  border: 0;
+  display: inline-block;
 }
 
 .tinylogopng {
-    display: inline-block;
-    width: 44px;
-    height: 22px;
+  display: inline-block;
+  height: 22px;
+  width: 44px;
 }
 
 .oe-text-to-right {
-    text-align: $right;
+  text-align: $right;
 }
 
 .oe-text-to-left {
-    text-align: $left;
+  text-align: $left;
 }
