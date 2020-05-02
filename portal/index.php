@@ -19,18 +19,20 @@
 //setting the session & other config options
 
 // Will start the (patient) portal OpenEMR session/cookie.
-require_once dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php";
+require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 //don't require standard openemr authorization in globals.php
-$ignoreAuth = 1;
-
-//For redirect if the site on session does not match
-$landingpage = "index.php?site=" . urlencode($_GET['site']);
+$ignoreAuth = true;
 
 //includes
-require_once '../interface/globals.php';
-require_once dirname(__FILE__) . "/lib/appsql.class.php";
+require_once('../interface/globals.php');
+require_once(dirname(__FILE__) . "/lib/appsql.class.php");
+
+
+//For redirect if the site on session does not match
+$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
+
 $logit = new ApplicationTable();
 
 use OpenEMR\Common\Crypto\CryptoGen;
@@ -248,22 +250,25 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                                     <input class="form-control" name="login_uname" id="login_uname" type="text" autofocus autocomplete="none" title="<?php echo xla('Please enter a username of 12 to 80 characters. Recommended to include symbols and numbers but not required.'); ?>" placeholder="<?php echo xla('Must be 12 to 80 characters'); ?>" pattern=".{12,80}" value="<?php echo attr($_SESSION['portal_login_username']); ?>" onblur="checkUserName()" />
                                 </div>
                             </div>
+                            <?php if (!isset($_SESSION['onetime'])) { ?>
                             <div class="form-row my-3">
                                 <label class="col-md-2 col-form-label" for="pass"><?php echo !$_SESSION['onetime'] ? xlt('Current Password') : ''; ?></label>
                                 <div class="col-md">
-                                    <input class="form-control" name="pass" id="pass" <?php echo $_SESSION['onetime'] ? 'type="hidden" ' : 'type="password" '; ?> autocomplete="none" value="<?php echo attr($_SESSION['onetime']);
-                                    $_SESSION['password_update'] = $_SESSION['onetime'] ? 2 : 1;
-                                    unset($_SESSION['onetime']); ?>" required />
+                                    <input class="form-control" name="pass" id="pass" <?php echo $_SESSION['onetime'] ? 'type="hidden" ' : 'type="password" '; ?> autocomplete="none" value="<?php if (isset($_SESSION['onetime'])) {
+                                        echo attr($_SESSION['onetime']);
+                                        $_SESSION['password_update'] = $_SESSION['onetime'] ? 2 : 1;
+                                        unset($_SESSION['onetime']); } ?>" required />
                                 </div>
                             </div>
-                            <?php if ($_SESSION['pin']) { ?>
+                          <?php }
+                            if (isset($_SESSION['pin'])) { ?>
                                 <div class="form-row my-3">
                                     <label class="col-md-2 col-form-label" for="token_pin"><?php echo xlt('One Time PIN'); ?></label>
                                     <div class="col-md">
                                         <input class="form-control" name="token_pin" id="token_pin" type="password" autocomplete="none" value="" required pattern=".{6,20}" />
                                     </div>
                                 </div>
-                            <?php } ?>
+                              <?php } ?>
                             <div class="form-row my-3">
                                 <label class="col-md-2 col-form-label" for="pass_new"><?php echo xlt('New Password'); ?></label>
                                 <div class="col-md">
@@ -418,10 +423,12 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                 $_SESSION['pid'] = true;
                 ?>
             $('.datepicker').datetimepicker({
-                <?php $datetimepicker_timepicker = false; ?>
-                <?php $datetimepicker_showseconds = false; ?>
-                <?php $datetimepicker_formatInput = false; ?>
-                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php
+                $datetimepicker_timepicker = false;
+                $datetimepicker_showseconds = false;
+                $datetimepicker_formatInput = false;
+                require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
+                ?>
             });
             $(document.body).on('hidden.bs.modal', function () {
                 callServer('cleanup');
@@ -432,51 +439,19 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
                 return false;
             });
             <?php } ?>
-            <?php if ((isset($_GET['w'])) && $_GET['w'] == "unauth") { ?>
+            <?php if (isset($_GET['w'])) { ?>
             var unique_id = $.gritter.add({
                 title: '<span class="text-danger">' + <?php echo xlj('Oops!');?> +'</span>',
-                text: <?php echo xlj('Incorrect username or password. Please try again.'); ?>,
+                text: <?php echo xlj('Something went wrong. Please try again.'); ?>,
                 sticky: false,
                 time: '5000',
                 class_name: 'my-nonsticky-class'
             });
-            <?php } elseif ((isset($_GET['w'])) && $_GET['w'] == "bademail") { ?>
-              var unique_id = $.gritter.add({
-                  title: '<span class="text-danger">' + <?php echo xlj('Oops!');?> +'</span>',
-                  text: <?php echo xlj('Invalid email. Please try again.'); ?>,
-                  sticky: false,
-                  time: '5000',
-                  class_name: 'my-nonsticky-class'
-              });
-            <?php } elseif ((isset($_GET['w'])) && $_GET['w'] == "inactive") { ?>
-              var unique_id = $.gritter.add({
-                  title: '<span class="text-danger">' + <?php echo xlj('Oops!');?> +'</span>',
-                  text: <?php echo xlj('Inactive user. Please contact your healthcare provider.'); ?>,
-                  sticky: false,
-                  time: '5000',
-                  class_name: 'my-nonsticky-class'
-              });
-            <?php } elseif ((isset($_GET['w'])) && $_GET['w'] == "noportal") { ?>
-              var unique_id = $.gritter.add({
-                  title: '<span class="text-danger">' + <?php echo xlj('Oops!');?> +'</span>',
-                  text: <?php echo xlj('Portal access turned off. Please contact your healthcare provider.'); ?>,
-                  sticky: false,
-                  time: '5000',
-                  class_name: 'my-nonsticky-class'
-              });
-              <?php } elseif (isset($_GET['w'])) { ?>
-              var unique_id = $.gritter.add({
-                  title: '<span class="text-danger">' + <?php echo xlj('Oops!');?> +'</span>',
-                  text: <?php echo xlj('Something went wrong. Please try again.'); ?>,
-                  sticky: false,
-                  time: '5000',
-                  class_name: 'my-nonsticky-class'
-              });
-              <?php } ?>
+            <?php } ?>
             <?php // if successfully logged out
             if (isset($_GET['logout'])) { ?>
             var unique_id = $.gritter.add({
-                title: '<span class="green">' + <?php echo xlj('Success');?> +'</span>',
+                title: '<span class="text-success">' + <?php echo xlj('Success');?> +'</span>',
                 text: <?php echo xlj('You have been successfully logged out.');?>,
                 sticky: false,
                 time: '5000',
