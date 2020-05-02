@@ -46,7 +46,7 @@ class ImmunizationForm extends Form
                             'attributes' => array(
                                             'id'          => 'from_date',
                                             'placeholder' => 'From Date',
-                                            'value'       => date('Y-m-d', strtotime(date('Ymd')) - (86400*7)),
+                                            'value'       => date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7)),
                                             'class'       => 'form-control date_field',
                                             'style'       => 'width: 42%; cursor:not-allowed;',
                             ),
