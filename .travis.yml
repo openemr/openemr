@@ -141,7 +141,7 @@ language: php
       echo "Install and Configure OpenEMR for testing (remove registration modal on login and turn on api)"
       echo "----------------------------------------------------------------------------------------------"
       sudo chmod 666 sites/default/sqlconf.php || failTest=true
-      sudo chown -R www-data:www-data sites/default/documents || failTest=true
+      sudo chmod -R 777 sites/default/documents || failTest=true
       sed -e 's@^exit;@ @' < contrib/util/installScripts/InstallerAuto.php > contrib/util/installScripts/InstallerAutoTemp.php || failTest=true
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "php -f ${OPENEMR_DIR}/contrib/util/installScripts/InstallerAutoTemp.php rootpass=root server=mysql loginhost=%" || failTest=true
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c "rm -f ${OPENEMR_DIR}/contrib/util/installScripts/InstallerAutoTemp.php" || failTest=true
@@ -363,6 +363,7 @@ jobs:
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
+        - *build_test_controllers
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -385,6 +386,7 @@ jobs:
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
+        - *build_test_controllers
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -407,6 +409,7 @@ jobs:
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
+        - *build_test_controllers
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -429,6 +432,7 @@ jobs:
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
+        - *build_test_controllers
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -451,6 +455,7 @@ jobs:
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
+        - *build_test_controllers
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -473,6 +478,7 @@ jobs:
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
+        - *build_test_controllers
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -495,6 +501,7 @@ jobs:
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
+        - *build_test_controllers
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -517,6 +524,7 @@ jobs:
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
+        - *build_test_controllers
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -539,6 +547,7 @@ jobs:
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
+        - *build_test_controllers
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -561,6 +570,7 @@ jobs:
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
+        - *build_test_controllers
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -583,6 +593,7 @@ jobs:
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
+        - *build_test_controllers
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -605,6 +616,7 @@ jobs:
         - *build_test_fixtures
         - *build_test_services
         - *build_test_validators
+        - *build_test_controllers
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
