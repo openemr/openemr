@@ -2,9 +2,10 @@ vendor/**/*.css
 vendor/**/*.scss
 node_modules/**/*.css
 node_modules/**/*.scss
+ccdaservice/node_modules/**/*.css
+ccdaservice/node_modules/**/*.scss
 interface/modules/zend_modules/public/css/**/*.css
 public/assets/**/*.css
+public/assets/**/*.scss
 public/themes/**/*.css
 public/themes/**/*.scss
-public/assets/**/*.scss
-interface/themes/themeBuilder.css

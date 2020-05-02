@@ -23,8 +23,8 @@
 /* TODO: Fully redesign the navbar to be better supported with BS4 */
 
 html {
-  display: flex;
   border: 0;
+  display: flex;
   flex-direction: column;
   height: 100%;
   margin: 0;
