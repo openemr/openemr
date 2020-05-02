@@ -2,7 +2,7 @@
 
 #reports_list td,
 #reports_list a {
-    @include font-size("0.8rem !important");
+  @include font-size("0.8rem !important");
 }
 
 /*
@@ -10,48 +10,48 @@
 */
 
 #report_parameters {
-    margin-top: 10px;
+  margin-top: 10px;
 }
 
 #report_parameters table {
-    width: 100%;
-    border-collapse: collapse;
+  border-collapse: collapse;
+  width: 100%;
 }
 
 #report_parameters table td {
-    padding: 5px;
+  padding: 5px;
 }
 
 #report_parameters table table {
-    border: 0;
-    border-collapse: collapse;
-    @include font-size("0.8rem !important");
+  @include font-size("0.8rem !important");
+  border: 0;
+  border-collapse: collapse;
 }
 
 #report_parameters table table td.label_custom {
-    text-align: $right;
+  text-align: $right;
 }
 
 #report_results table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1px;
+  border-collapse: collapse;
+  margin-top: 1px;
+  width: 100%;
 }
 
 #report_results table thead {
-    text-align: $left;
-    font-weight: bold;
+  font-weight: bold;
+  text-align: $left;
 }
 
 #report_results table th {
-    padding: 5px;
+  padding: 5px;
 }
 
 #report_results table td {
-    padding: 5px;
+  padding: 5px;
 }
 
 .report_totals td {
-    background-color: lighten($green, 30%);
-    font-weight: bold;
+  background-color: lighten($green, 30%);
+  font-weight: bold;
 }

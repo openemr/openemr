@@ -21,58 +21,59 @@
 **/
 
 .esign-signature-log-container {
-	display: table;	
+  display: table;	
 }
 
 .esign-signature-log-table {
-	font-size: small;
-	width: 100%;
-	margin-top: 10px;
+  font-size: small;
+  margin-top: 10px;
+  width: 100%;
 	
 }
 
 .esign-log-row.header {
-	border-bottom: 1px dashed;
-	text-align: center;
+  border-bottom: 1px dashed;
+  text-align: center;
 }
 
 .esign-log-row {
-	display: block;
-	float: left;
-	width: 100%;
+  display: block;
+  float: left;
+  width: 100%;
 }
 
 .esign-log-row span {
-	display: block;
-	padding-left: 4px;
-	padding-top: 2px;
-	padding-bottom: 2px;
+  display: block;
+  padding-bottom: 2px;
+  padding-left: 4px;
+  padding-top: 2px;
 }
 
 .esign-log-row span.esign-amendment {
-	padding-top: 4px;
-	font-style: italic;
+  font-style: italic;
+  padding-top: 4px;
 }
+
 .esign-log-row-container {
-	border-bottom: 1px dashed;
-	padding-top: 4px;
-	padding-bottom: 4px;
+  border-bottom: 1px dashed;
+  padding-bottom: 4px;
+  padding-top: 4px;
 }
 
 .span3 {
-	width: 33%;
+  width: 33%;
 }
 
 .span9 {
-	width: 100%; 
+  width: 100%; 
 }
 
 .esign-log-element {
-	display: inline;
-	float: left;
+  display: inline;
+  float: left;
 }
 
 .esign-log-element span {
-	padding: 4px;
+  padding: 4px;
 }
 

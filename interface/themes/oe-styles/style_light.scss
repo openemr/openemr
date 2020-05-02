@@ -32,43 +32,44 @@ $gray: $gray-600;
 
 /* Array of theme colors that can be added to */
 $theme-colors: (
-    primary: $blue,
-    secondary: $gray-100,
-    success: $green,
-    info: $cyan,
-    warning: $yellow,
-    danger: $red,
-    light: $gray-100,
-    dark: $gray-800
+  primary: $blue,
+  secondary: $gray-100,
+  success: $green,
+  info: $cyan,
+  warning: $yellow,
+  danger: $red,
+  light: $gray-100,
+  dark: $gray-800
 );
 
 /* Array of random colors that can be added to */
 $colors: (
-    "blue": $blue,
-    "indigo": $indigo,
-    "purple": $purple,
-    "pink": $pink,
-    "red": $red,
-    "orange": $orange,
-    "yellow": $yellow,
-    "green": $green,
-    "teal": $teal,
-    "cyan": $cyan,
-    "white": $white,
-    "gray": $gray-600,
-    "gray-dark": $gray-800,
-    /* Overrides to allow regular CSS coloring */
-    "black": $black,
-    "gray100": $gray-100,
-    "gray200": $gray-200,
-    "gray300": $gray-300,
-    "gray400": $gray-400,
-    "gray500": $gray-500,
-	"gray600": $gray-600,
-    "gray700": $gray-700,
-	"gray800": $gray-800,
-    "gray900": $gray-900
+  "blue": $blue,
+  "indigo": $indigo,
+  "purple": $purple,
+  "pink": $pink,
+  "red": $red,
+  "orange": $orange,
+  "yellow": $yellow,
+  "green": $green,
+  "teal": $teal,
+  "cyan": $cyan,
+  "white": $white,
+  "gray": $gray-600,
+  "gray-dark": $gray-800,
+  "black": $black,
+  "gray100": $gray-100,
+  "gray200": $gray-200,
+  "gray300": $gray-300,
+  "gray400": $gray-400,
+  "gray500": $gray-500,
+  "gray600": $gray-600,
+  "gray700": $gray-700,
+  "gray800": $gray-800,
+  "gray900": $gray-900
 );
+
+/* Above adds overrides to allow regular CSS coloring */
 
 $body-bg: $white;
 $body-color: $gray-900;
@@ -84,14 +85,14 @@ $close-text-shadow: 0 1 0 $black;
 
 @import "../theme-defaults";
 
-@import "../navigation-slide/_future-bootstrap";
+@import "../navigation-slide/future-bootstrap";
 
 /* Overrides go here */
 
 .btn-secondary {
-    background-color: rgba($black, .05) !important;
-    color: rgba($black, .87) !important;
-    border-color: $gray-500 !important;
+  background-color: rgba($black, 0.05) !important;
+  border-color: $gray-500 !important;
+  color: rgba($black, 0.87) !important;
 }
 
 /* search any */
