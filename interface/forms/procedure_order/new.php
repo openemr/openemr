@@ -721,9 +721,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <input type='hidden' name='form_proc_type[<?php echo attr($i); ?>]' value='<?php echo attr($ptid); ?>'/>
                                 </td>
                                 <td class="diagnosis-div input-group">
-                                    <div class="input-group-prepend">
-                                        <button class="btn btn-secondary" onclick='current_diagnoses(this)'><i class='fa fa-search fa-lg' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i></button>
-                                    </div>
+                                    <span class="btn btn-secondary"><i onclick='current_diagnoses(this)' class='input-group-prepend fa fa-search fa-lg' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i></span>
                                     <input class='form-control' type='text' name='form_proc_type_diag[<?php echo attr($i); ?>]' value='<?php echo attr($oprow['diagnoses']) ?>' onclick='sel_related(this.name)' title='<?php echo xla('Click to add a diagnosis'); ?>' onfocus='this.blur()' style='cursor:pointer;' readonly/>
                                 </td>
                                 <td class="qoe-div">

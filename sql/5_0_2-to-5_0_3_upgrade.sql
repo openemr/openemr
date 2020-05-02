@@ -447,3 +447,11 @@ ALTER TABLE `codes` MODIFY `code_text_short` varchar(255) NOT NULL default '';
 #IfNotColumnTypeDefault amendments created_time timestamp NULL
 ALTER TABLE `amendments` MODIFY `created_time` timestamp NULL COMMENT 'created time';
 #EndIf
+
+#IfNotColumnTypeDefault amendments_history created_time timestamp NULL
+ALTER TABLE `amendments_history` MODIFY `created_time` timestamp NULL COMMENT 'created time';
+#EndIf
+
+#IfNotColumnTypeDefault batchcom msg_date_sent datetime NULL
+ALTER TABLE `batchcom` MODIFY `msg_date_sent` datetime NULL;
+#EndIf

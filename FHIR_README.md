@@ -1,4 +1,3 @@
-
 # OpenEMR FHIR API Documentation
 
 ### Overview
@@ -233,6 +232,18 @@ curl -X GET 'http://localhost:8300/apis/fhir/MedicationStatement'
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/fhir/MedicationStatement/1'
+```
+
+#### GET /fhir/Medication
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Medication'
+```
+
+#### GET /fhir/Medication/:id
+
+```sh
+curl -X GET 'http://localhost:8300/apis/fhir/Medication/1'
 ```
 
 ### Dev Notes

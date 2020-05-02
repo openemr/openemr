@@ -1,24 +1,24 @@
 /**
  * edi_history_v2.css
- * 
+ *
  * Copyright 2016 Kevin McCormick Carrollton, Texas
- * 
- * 
+ *
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; version 3 or later.  You should have 
- * received a copy of the GNU General Public License along with this program; 
- * if not, write to the Free Software Foundation, Inc., 
+ * the Free Software Foundation; version 3 or later.  You should have
+ * received a copy of the GNU General Public License along with this program;
+ * if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *  <http://opensource.org/licenses/gpl-license.php>
- * 
+ *
  * css styles for edi claim history project
- * 
+ *
  * @author Kevin McCormick
  * @link: http://www.open-emr.org
  * @package OpenEMR
@@ -61,15 +61,15 @@
  * tables -- processed files html
  * 		  -- csv tables
  * 		  -- html detail
- * 
+ *
  * text -- x12 segments display
  *      -- notes file
  *  	-- uploaded files list
- * 
+ *
  * jquery ui -- tabs, dialogs
- * 
+ *
  * DataTables
- * 
+ *
  */
 table#csvTable a {
     color: #0E4F83;
@@ -104,7 +104,7 @@ div#fileupl1 {
 	border-style: solid;
 	border-width: 6px, 2px, 6px, 2px;
 	border-color: #CAD8DA;
-}		
+}
 div#fileupl2 {
 	float: left;
 	min-width: 40ch;
@@ -125,7 +125,6 @@ ul.fupl { list-style-type: none;
 /* ***** process class dl.process  padding: 10px; border: none; margin: 2px;*******/
 div#processed {
     max-width: fit-content;
-    background-color: #B7CBD0;
 }
 
 div#processed * { box-sizing: border-box; }
@@ -146,7 +145,7 @@ div#processed dl {
     margin-right: 2;
 }
 div#processed dt {
-    margin-top: .5em;	
+    margin-top: .5em;
     margin-bottom: .5em;
     margin-left: 2;
     margin-right: 2;
@@ -161,7 +160,7 @@ div#processed dd {
     padding: 2px 4px 2px 4px;
     min-width: 50%;
 }
-} 
+}
 dl.f837 { background-color: #B5D4CC; }
 dl.f837 > dt.fodd { background-color: #C6DAD5;}
 dl.f837 > dt.feven { background-color: #BDC1C0; }
@@ -203,7 +202,7 @@ dl.f277 > dt.fodd { background-color: #D9E4E1; }
 dl.f277 > dt.feven { background-color: #CAECE3; }
 dl.f277 > dd.codd { background-color: #C3DDD7; }
 dl.f277 > dd.ceven { background-color: #C8EDE3; }
-/* ***** f278 class *******/  
+/* ***** f278 class *******/
 dl.f278 { background-color: #D4E7EA; }
 dl.f278 > dt.fodd { background-color: #DAE5E6; }
 dl.f278 > dt.feven { background-color: #DAEEF1; }
@@ -215,7 +214,7 @@ div#tblshow {
    width: 896px;
    max-width: fit-content;
 }
-/* 
+/*
  * encounter record table
  */
 table.clmhist  {
@@ -223,7 +222,7 @@ table.clmhist  {
     text-align: left;
     font-weight: normal;
     font-size: medium;
-    empty-cells: show; 
+    empty-cells: show;
     background-color: #A4E1C7;
     border-collapse: collapse;
     border: 2px solid #007342;
@@ -247,25 +246,19 @@ table.clmhist tr.ch271 td { background-color: #C8EAE3; }
 table.clmhist tr.ch837 td { background-color: #D8E6DA; }
 table.clmhist tr.ch997 td { background-color: #E2CCBD; }
 table.clmhist tr.ch277 td { background-color: #E1EFF2; }
-table.clmhist tr.ch835 td { background-color: #D4EDCE; } 
+table.clmhist tr.ch835 td { background-color: #D4EDCE; }
 
-table#csvTable td { color: #000000; }
-table#csvTable td.reject { color: #A40808; }
-/* ***** f837 class *******/
-table#csvTable { background-color: #D8DADB; }
-table#csvTable tr.odd td { background-color: #DBE4DC; }
-table#csvTable tr.even td { background-color: #DADADA; }
 /* ***** 999/997 error report*******/
 p.rpt997 {
     font-size: medium;
     margin: 8px;
-    border: 2px solid #D6D6D6; 
+    border: 2px solid #D6D6D6;
     background-color: #CAE2F2;
 }
 p.err997 {
     font-size: medium;
     margin: 8px;
-    border: 2px solid #D6D6D6; 
+    border: 2px solid #D6D6D6;
     background-color: #CAEAF2;
 }
 /* ***** process class table.process*******/
@@ -275,7 +268,7 @@ div#processed table {
 	border-collapse: collapse;
 	border: 1px solid #000;
 	vertical-align: middle;
-	empty-cells: show; 
+	empty-cells: show;
 }
 /*  div#processed table  */
 div#processed table caption {
@@ -295,7 +288,7 @@ div#processed table.f837 tr.feven td { background-color: #B9CCBB; }
 div#processed table.cf837 { background-color: #C7E2CE; }
 div#processed table.cf837 tr.codd td { background-color: #92DD99; }
 div#processed table.cf837 tr.ceven td { background-color: #9BCCA7; }
-/* ***** f997 class *******/ 
+/* ***** f997 class *******/
 div#processed table.f997 { background-color: #EBD195; }
 div#processed table.f997 caption { background-color: #EBD195; }
 div#processed table.f997 tr.fodd td { background-color: #D7CFBD; }
@@ -303,15 +296,15 @@ div#processed table.f997 tr.feven td { background-color: #ECDCB8; }
 div#processed table.cf997 { background-color: #E8DABB; }
 div#processed table.cf997 tr.codd td { background-color: #EBDAB4; }
 div#processed table.cf997 tr.ceven td { background-color: #E1D6BD; }
-/* ***** f835 class *******/  
+/* ***** f835 class *******/
 div#processed table.f835 { background-color: #ACC3A5; }
 div#processed table.f835 caption { background-color: #EBD195; }
 div#processed table.f835 tr.fodd td { background-color: #B3C7A1; }
 div#processed table.f835 tr.feven td { background-color: #C2C8BC; }
 div#processed table.cf835 { background-color: #CEDACB; }
 div#processed table.cf835 tr.codd td { background-color: #AED0A2; }
-div#processed table.cf835 tr.ceven td { background-color: #B5D1AA; } 
-/* ***** f270 class *******/  
+div#processed table.cf835 tr.ceven td { background-color: #B5D1AA; }
+/* ***** f270 class *******/
 div#processed table.f270 { background-color: #C0D9DA; }
 div#processed table.f270 caption { background-color: #C0D9DA; }
 div#processed table.f270 tr.fodd td { background-color: #C6D8D8; }
@@ -319,7 +312,7 @@ div#processed table.f270 tr.feven td { background-color: #ACCCCA; }
 div#processed table.cf270 { background-color: #DEF1F2; }
 div#processed table.cf270 tr.codd td { background-color: #B4D9DB; }
 div#processed table.cf270 tr.ceven td { background-color: #C1E5E7; }
-/* ***** f271 class *******/  
+/* ***** f271 class *******/
 div#processed table.f271 { background-color: #CCEFE4; }
 div#processed table.f271 caption { background-color: #CCEFE4; }
 div#processed table.f271 tr.fodd td { background-color: #96D6C2; }
@@ -343,7 +336,7 @@ div#processed table.f277 tr.feven td { background-color: #B7F3E1; }
 div#processed table.cf277 { background-color: #D4EBE5; }
 div#processed table.cf277 tr.codd td { background-color: #BDD5D1; }
 div#processed table.cf277 tr.ceven td { background-color: #A3E0D7; }
-/* ***** f278 class *******/  
+/* ***** f278 class *******/
 div#processed table.f278 { background-color: #CCEAEF; }
 div#processed table.f278 caption { background-color: #B8DCE2; }
 div#processed table.f278 tr.fodd td { background-color: #ABECD8; }
@@ -355,38 +348,38 @@ div#processed table.cf278 tr.ceven td { background-color: #AEE3D2; }
  * ***** 27x transaction html display ******
  */
 /* ***** h271 eligibility transaction display *******/
-table.h271 { background-color: #DEEAE6; 
-	border-collapse: collapse; 
+table.h271 { background-color: #DEEAE6;
+	border-collapse: collapse;
 	vertical-align: bottom;
 	padding: 1em 1em 3em 1em;
 	word-wrap: normal;
 	width: 45em;
 	}
-table.h271 caption { 
+table.h271 caption {
 	background-color: #C8E4DA;
 	font-family: "Liberation Sans", "Trebuchet MS", sans-serif;
 	font-size: 1.2em;
-	text-align: left;	
+	text-align: left;
 	}
 table.h271 td { vertical-align: top; }
 table.h271 tr.ebe td { background-color: #D2E7E0; }
 table.h271 tr.ebo td { background-color: #DEEAE6; }
 /* ***** h277 claim status transaction display *******/
-table.h277 { 
+table.h277 {
 	font-family: "Liberation Serif", "Times New Roman", serif;
-	background-color: #CFEDD9; 
-	border-collapse: collapse; 
+	background-color: #CFEDD9;
+	border-collapse: collapse;
 	vertical-align: bottom;
 	word-wrap: normal;
 	padding: 1em 1em 3em 1em;
 	width: 45em;
 	}
-table.h277 caption { 
+table.h277 caption {
 	background-color: #CBE3CD;
 	font-family: "Liberation Sans", "Trebuchet MS", sans-serif;
 	font-size: 1.2em;
 	padding: 0.5em;
-	text-align: left;	
+	text-align: left;
 	}
 table.h277 td { vertical-align: top; }
 table.h277 tr.src td { background-color: #CADCD0; }
@@ -395,14 +388,14 @@ table.h277 tr.prv td { background-color: #CBE3CD; }
 table.h277 tr.sbr td { background-color: #CDE7D2; }
 table.h277 tr.dep td { background-color: #CAF6C8; }
 /* ***** h278 eligibility transaction display *******/
-table.h278 { 
+table.h278 {
 	background-color: #DDE4E2;
-	border-collapse: collapse; 
+	border-collapse: collapse;
 	vertical-align: bottom;
 	padding: 1em 1em 3em 1em;
 	font-family: "Liberation Serif", "Times New Roman", serif;
 	word-wrap: normal;
-	width: 45em; 
+	width: 45em;
 	}
 
 table.h278 caption {
@@ -421,14 +414,14 @@ table.h278 tr.evt td { background-color: #E0ECE8; }
 table.h278 tr.svc td { background-color: #C9E7DD; }
 
 /* ***** h835 claim payment display *******/
-table.h835c { 
+table.h835c {
 	background-color: #9EDC9F;
-	border-collapse: collapse; 
+	border-collapse: collapse;
 	vertical-align: bottom;
 	padding: 1em 1em 3em 1em;
 	font-family: "Liberation Serif", "Times New Roman", serif;
 	word-wrap: normal;
-	width: 45em; 
+	width: 45em;
 	}
 table.h835c caption {
 	background-color: #9EDC9F;
@@ -447,14 +440,14 @@ table.h835c tr.mia td { background-color: #DCD8CE; }
 table.h835c tr.rems td { background-color: #D4E2E4; }
 table.h835c tr.remc td { background-color: #CFDDCE; }
 
-table.h835 { 
+table.h835 {
 	background-color: #9EDC9F;
-	border-collapse: collapse; 
+	border-collapse: collapse;
 	vertical-align: bottom;
 	padding: 1.2em;
 	font-family: "Liberation Serif", "Times New Roman", serif;
 	word-wrap: normal;
-	width: 45em; 
+	width: 45em;
 	}
 table.h835 caption {
 	background-color: #B4D2D8;
@@ -472,14 +465,14 @@ table.h835 tr.rcv td { background-color: #CADC9E; }
 /* ***** edi segments display *******/
 table.segtxt {
 	background-color: #ECE3BE;
-	border-collapse: collapse; 
+	border-collapse: collapse;
 	vertical-align: bottom;
 	font-family: "Liberation Mono", "Lucida Console", Consolas, Courier, monospace;
 	font-size: 1.0em;
 	text-align: left;
 	padding: 0.5em 0.5em 3em 0.5em;
 	width: 45em;
-	word-wrap: break-word; 
+	word-wrap: break-word;
 	}
 table.segtxt hr > td { text-align: center; }
 table.segtxt caption {
@@ -488,33 +481,33 @@ table.segtxt caption {
 	font-size: 1.2em;
 	text-align: left;
 	}
-table.segtxt td.bterr { 
-	background-color: #F9F3E0; 
+table.segtxt td.bterr {
+	background-color: #F9F3E0;
 	padding: 0.5em, 2px;
 	color: #A92315;
 	}
-table.segtxt td.btseg { 
-	background-color: #F8F6E8; 
+table.segtxt td.btseg {
+	background-color: #F8F6E8;
 	padding-left: 0.5em;
 	padding-right:0.5em;
 	color: #140C0C;
 	}
-table.segtxt td.btloop { 
-	background-color: #F4F3EA; 
+table.segtxt td.btloop {
+	background-color: #F4F3EA;
 	color: #3B2F2F;
 	text-align: center;
 	}
-table.segtxt td.btnum { 
-	background-color: #F6F3DD; 
+table.segtxt td.btnum {
+	background-color: #F6F3DD;
 	color: #3B2F2F;
 	padding: 2px, 2px;
 	text-align: right;
 	}
 
 /*
- * to show log file 
+ * to show log file
  * http://dean.resplace.net/blog/2011/08/jquery-tabs-iframes/
- */	
+ */
 ol.logview {
     background: none repeat scroll 0 0 #EDE8CE;
     border: 1px solid #999999;
@@ -536,14 +529,14 @@ ol.logview li {
 }
 
 /*
- * era summary RA 
+ * era summary RA
  */
 table.summaryRA {
 	background-color: #D8E0E0;
 	width: 640px;
 	border-collapse: collapse;
 	border: 1px solid #000;
-	empty-cells: show 
+	empty-cells: show
 }
 table.summaryRA tr.summary td {
     background-color: #97DFD9;
@@ -568,8 +561,8 @@ table.summaryRA caption {
 }
 
 
-/* 
- * 997/999 status 
+/*
+ * 997/999 status
 */
 p.ak999stat {
 	background-color: #eae1d0;
@@ -577,14 +570,14 @@ p.ak999stat {
 	text-align: left;
 	font-size: medium;
 }
-	
+
 /*
  * css for the era Remittance Advice html output
  * TO-DO figure out a scheme for print output
- *       possibly a start claim style e.g. 
+ *       possibly a start claim style e.g.
  *       table.era835 tbody.claimdetail {
  *             page-break-before: auto;
- *		  }  
+ *		  }
  */
 table.era835 {
 	font-size: medium;
@@ -592,7 +585,7 @@ table.era835 {
 	width: 960px;
 	border-collapse: collapse;
 	border: 1px solid #000;
-	empty-cells: show; 
+	empty-cells: show;
 }
 table.era835 th {
 	padding: 5px;
@@ -644,16 +637,16 @@ table.era835 caption {
     border: 2px solid #000;
 }
 
-/* 
+/*
  * files display, text files, monospace
  * word-wrap: break-word;
  */
-div.filetext {  
+div.filetext {
   font-family: sans-serif;
   background-color: #FDF5DB;
   width: auto;
   clear:both;
-} 
+}
 
 div.filetext pre,code,kbd,samp,tt {
   font-family: monospace,monospace;
@@ -661,7 +654,7 @@ div.filetext pre,code,kbd,samp,tt {
   padding:1em 0;
   margin-left:0.9em;
   margin-bottom:2em;
-  background-color: #FDF5DB; 
+  background-color: #FDF5DB;
   width: auto;
   float: left
 }
@@ -676,22 +669,22 @@ div.filetext ol {
 	background-color: #FCDE93;
 	width: auto;
 }
-	
+
 div.filetext li {
     padding-left: 0.2em;
-    margin-top: 0em; 
-	margin-right: 1em; 
-	margin-left: 1em; 
+    margin-top: 0em;
+	margin-right: 1em;
+	margin-left: 1em;
 	margin-bottom: 0.1em;
 	background-color: #F1E8D1;
-	
+
 }
 
-div.filetext ol p { 
+div.filetext ol p {
   font-family: monospace,monospace;
   font-style: normal;
-  margin: 1px; 
-  font-size: 0.9em; 
+  margin: 1px;
+  font-size: 0.9em;
   word-wrap: break-word;
   display:inline-block;
 
@@ -722,7 +715,7 @@ div.filetext table.batchst tbody {
 div.filetext table.batchst td.btloop {
   font-family: "Lucida Sans", "DejaVu Sans", sans-serif;
   font-style: italic;
-  text-align: center; 
+  text-align: center;
   padding: 1px 3px;
   border-right-color: #9E948C;
   background-color: #DDD8C4;
@@ -730,14 +723,14 @@ div.filetext table.batchst td.btloop {
 
 div.filetext table.batchst td.btseg {
   border-color: #E5E1D1 #E5E1D1 #E5E1D1 #9E948C;
-  text-align: left;  
+  text-align: left;
   padding: 1px 3px;
   background-color: #EFE8D0;
 }
 
 div.filetext table.batchst td.bterr {
   border-color: #E12417 #E12417 #E12417 #E12417;
-  text-align: left;  
+  text-align: left;
   padding: 1px 3px;
   background-color: #FCF4D8;
 }
@@ -748,7 +741,7 @@ div.filetext table.batchst td.bterr {
     bottom: 0px;
     left: 0px;
 }
- 
+
 .dialog_window_minimized {
     float: left;
     padding: 5px 10px;
@@ -757,14 +750,14 @@ div.filetext table.batchst td.bterr {
     margin-right: 2px;
     display: none;
 }
- 
+
 .dialog_window_minimized .ui-icon {
     display: inline-block !important;
     position: relative;
     top: 3px;
     cursor: pointer;
 }
- 
+
 .ui-dialog .ui-dialog-titlebar-minimize {
     height: 18px;
     width: 19px;
@@ -773,12 +766,12 @@ div.filetext table.batchst td.bterr {
     right: 23px;
     top: 9px;
 }
- 
+
 .ui-dialog .ui-dialog-titlebar-minimize .ui-icon {
     display: block;
     margin: 1px;
 }
- 
+
 .ui-dialog .ui-dialog-titlebar-minimize:hover, .ui-dialog .ui-dialog-titlebar-minimize:focus {
     padding: 0;
 }
