@@ -492,3 +492,4 @@ insert into panel (name,category_id) values ('HTN',4);
 insert into panel (name,category_id) values ('Pelvic Pain',4);
 insert into panel (name,category_id) values ('Obesity',4);
 insert into panel (name,category_id) values ('Classes',4);
+#ENDIF

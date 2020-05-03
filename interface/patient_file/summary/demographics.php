@@ -1540,9 +1540,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $widgetTitle = xl("Panels");
                         $widgetLabel = "Panels";
                         $widgetButtonLabel = xl("Edit");
-                        $widgetButtonLink = "javascript:load_location(\"${GLOBALS['webroot']}/interface/patient_file/summary/panels.php\")";
+                        //$widgetButtonLink = "javascript:load_location(\"${GLOBALS['webroot']}/interface/patient_file/summary/panels.php\")";
+                        $widgetButtonLink = "panels.php";
                         $widgetButtonClass = "";
-                        $linkMethod = "javascript";
+                        //$linkMethod = "javascript";
+                        $linkMethod = "html";
                         $bodyClass = "summary_item small";
                         $widgetAuth = true;
                         $fixedWidth = false;
@@ -1554,24 +1556,27 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                          #sqlQueryNoLogIgnoreError ignore error and return the 1st row
                          #sqlStatement return all the results
 
+                         $panels = getPanelCategoryByPatient_id($pid);
                          $resultSet = getPatientPanelsInfo($pid);
-                         if ($resultSet === -1 or sqlNumRows($resultSet)<1) {
+                         if ($resultSet === -1 or sqlNumRows($panels)<1) {
                             echo ("This patien is not inrolled in any panel");
                           }
-                          while ($row = sqlFetchArray($resultSet)) {
-                            $pc_startTime = sqlFetchArray(getPanelAppointment($row['panel'], $pid))['pc_startTime'];
-                            $pc_eventDate = sqlFetchArray(getPanelAppointment($row['panel'], $pid))['pc_eventDate'];
 
-                            //print the category and the sub category
-                            echo "<b>" . attr($row['category']) . ": </b>";
-                            echo attr($row['panel']) . " <br/>";
-                            echo "<b>Enrollment Date: </b>" . attr($row['enrollment_date']) . " <br/>";
-                            if (count($pc_startTime) > 0){
-                              echo "<b>Follow Up Date: </b>"
-                                  . attr($pc_eventDate) . ", "
-                                  . attr(date('h:i A', strtotime($pc_startTime))) . " ("
-                                  . date('D', strtotime($pc_eventDate)) . ") "
-                                  . " <br/>";
+                          while ($row = sqlFetchArray($panels)) {
+                            //print the category
+                            echo "<b>" . attr($row['name']) . ": </b> <br/>";
+
+                            $SubPanels = getPatientPanelsInfo($pid,$row['name']);
+
+                            while ($row = sqlFetchArray($SubPanels)) {
+                              //print the sub panels
+                              $pc_eventDate = sqlFetchArray(getPanelAppointment($row['panel'], $pid))['pc_eventDate'];
+                              echo attr($row['panel']) . " <br/>";
+                              echo "<b>Enrollment Date: </b>" . attr($row['enrollment_date']) . " <br/>";
+                              if (strtotime($pc_eventDate) > date("d/m/y")){
+                                echo "<b>Follow Up Date: </b>"
+                                    . attr($pc_eventDate) . " <br/>";
+                              }
                             }
                             echo "<br/>"; // to keep empty line between the panels
                           }

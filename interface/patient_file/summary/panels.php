@@ -19,7 +19,6 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
-
 $oemr_ui = new OemrUI($arrOeUiSettings);
 
 if (isset($_GET['set_pid'])) {
@@ -94,11 +93,46 @@ input[type=submit] {
   margin: 4px 2px;
   cursor: pointer;
 }
+/*for collaps used in the panels table */
+.collapsible {
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+}
+
+.active, .collapsible:hover {
+  background-color: #555;
+}
+
+.content {
+  padding: 0 18px;
+  display: none;
+  overflow: hidden;
+  background-color: #f1f1f1;
+}
+
+.PanelHead{
+  background-color: #777;
+  color: white;
+  cursor: pointer;
+}
+.active, .PanelHead:hover {
+  background-color: #555;
+}
+
+
+
 </style>
+
 <title><?php echo xlt("Panels"); ?></title>
 
 <!--This scrept for discharge a pation from a panels
 It is called in the table discharge a tage-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
 function testFunction(panel) {
 if (confirm("Do you want to discharge from "+panel+"?")) {
@@ -107,8 +141,17 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
   return false ;
 }
 }
-</script>
 
+  $( document ).ready(function() {
+    //collapse and expand section
+    $('.breakrow').click(function(){
+      $(this).nextUntil('tr.breakrow').slideToggle(200);
+    });
+  });
+</script>
+<script type="text/javascript">
+
+</script>
 </head>
 
 <body class="body_top">
@@ -119,15 +162,15 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
     //display panels information
     // check if the patien inrolled in any panels
         if (isset($pid)) {
-        $resultSet = getPatientPanelsInfo($pid,"all");
-        if ($resultSet === -1 or sqlNumRows($resultSet)<1) {
+        $panels = getPanelCategoryByPatient_id($pid,"all");
+        if ($panels === -1 or sqlNumRows($panels)<1) {
            echo ("This patien is not inrolled in any panel</br></br>");
          }else {  //if the patient inrolled into a panel then print the table
            //print the table start
      ?>
      <table id="customers">
       <tr>
-        <th>Panel Catgegory</th>
+        <th>ID</th>
         <th>Panel</th>
         <th>Status</th>
         <th>Risk Stratification</th>
@@ -141,41 +184,46 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
    <?php
    // print the panels info for the selected pation in a talbe format
    // TODO add edit to the table so patient can be distcharged
-   while ($row = sqlFetchArray($resultSet)) {  ?>
-     <tr>
-       <td><?php echo attr($row['category']); ?></td>
-       <td><?php echo attr($row['panel']); ?></td>
-       <td><?php echo attr($row['status']); ?></td>
-       <td><?php echo attr($row['risk_stratification']); ?></td>
-       <td><?php echo attr($row['enrollment_date']); ?></td>
-       <td><?php echo attr($row['discharge_date']); ?></td>
-       <td><?php
-            $pc_startTime = sqlFetchArray(getPanelAppointment($row['panel'], $pid))['pc_startTime'];
-            $pc_eventDate = sqlFetchArray(getPanelAppointment($row['panel'], $pid))['pc_eventDate'];
-            if($row['status'] == "Active" and count($pc_startTime) > 0){
-              echo attr($pc_eventDate) . ", "
-                 . attr(date('h:i A', strtotime($pc_startTime))) . " ("
-                 . date('D', strtotime($pc_eventDate)) . ") "
-                 . " <br/>";
-             }
-          ?></td>
-      <td>
-        <form action="panel_history.php" method="post">
-          <input type="hidden" name="panel" value="<?php echo attr($row['panel']); ?>" />
-          <input type="hidden" name="enrollment_id" value="<?php echo attr($row['id']); ?>" />
-         <input type="submit" value="History"/>
-       </form>
-      </td>
-       <td>
-         <form action="#" method="post">
-           <input type="hidden" name="request" value="discharge" />
-           <input type="hidden" name="enrollment_id" value="<?php echo attr($row['id']); ?>" />
-          <input type="submit" value="Discharge"
-          onClick="return testFunction('<?php echo attr($row['category']) . ": " . attr($row['panel']); ?>')" />
-          </form>
-       </td>
+   while ($row = sqlFetchArray($panels)) {
+     $SubPanels = getPatientPanelsInfo($pid,$row['name'],"all");
+     ?>
 
+     <tr class="breakrow">
+       <td colspan="9" class="PanelHead"><b><?php echo attr($row['name']); ?></b></td>
      </tr>
+       <?php while ($row = sqlFetchArray($SubPanels)) { ?>
+          <tr class="datarow">
+             <td><?php echo attr($row['id']); ?></td>
+             <td><?php echo attr($row['panel']); ?></td>
+             <td><?php echo attr($row['status']); ?></td>
+             <td><?php echo attr($row['risk_stratification']); ?></td>
+             <td><?php echo attr($row['enrollment_date']); ?></td>
+             <td><?php echo attr($row['discharge_date']); ?></td>
+             <td><?php
+                  $pc_eventDate = sqlFetchArray(getPanelAppointment($row['panel'], $pid))['pc_eventDate'];
+                  if (strtotime($pc_eventDate) > date("d/m/y")){
+                    echo attr($pc_eventDate) . " <br/>";
+                  }else {
+                    echo "&nbsp;";
+                  }
+                ?></td>
+            <td>
+              <form action="panel_history.php" method="post">
+                <input type="hidden" name="panel" value="<?php echo attr($row['panel']); ?>" />
+                <input type="hidden" name="enrollment_id" value="<?php echo attr($row['id']); ?>" />
+               <input type="submit" value="History"/>
+             </form>
+            </td>
+             <td>
+               <form action="#" method="post">
+                 <input type="hidden" name="request" value="discharge" />
+                 <input type="hidden" name="enrollment_id" value="<?php echo attr($row['id']); ?>" />
+                <input type="submit" value="Discharge"
+                onClick="return testFunction('<?php echo attr($row['category']) . ": " . attr($row['panel']); ?>')" />
+                </form>
+             </td>
+           </tr>
+           <?php } // end the while loop?>
    <?php } // end the while loop?>
    </table>
 </br></br>
@@ -192,19 +240,21 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
 <form action="#" method="post">
   <h3>Enroll to a panel</h3>
   <?php
-   $panels = getAllPanels();
+   $panels = getAllPanelCategories();
   ?>
   <p>Select the panel:
   <select name="panel">
+    <option selected disabled>Select Panel</option>
   <?php
     while ($row = sqlFetchArray($panels)) {
       echo "<option value=\"" . attr($row['id']) . "\"";
       echo ">";
-      echo attr(getPanelCategory($row['category_id'])["name"]);
-      echo ": " . attr($row['name']) . "</option>";
+      echo attr($row['name']) . "</option>";
     }
   ?>
   </select></p>
+
+
   <p>Select the risk stratification:
   <select name="risk_stratification">
     <option value="High">High</option>

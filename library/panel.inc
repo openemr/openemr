@@ -20,7 +20,8 @@ function isPanelDB()
 {
   # test query
   $sql = "SELECT * FROM panel_category ";
-  if (sqlQueryNoLogIgnoreError(add_escape_custom($sql)))
+  //if (sqlQueryNoLogIgnoreError(add_escape_custom($sql)))
+  if (sqlQuery(add_escape_custom($sql)))
   {
     return TRUE; // if the result is array
   } else {
@@ -43,6 +44,23 @@ function getEnrollments($pid)
   {
     $sql = "SELECT * FROM panel_enrollment WHERE patient_id = " . add_escape_custom($pid);
     return sqlStatement($sql);
+  } else { return -1; }
+}
+/**
+  * Purpose:
+  * request the panels categories
+  * if the tables exist
+  * @return array the panel {id, name}
+  * if the tables  do not exist
+  * @return integer return -1
+  */
+function getAllPanelCategories()
+{
+  if (isPanelDB())
+  {
+
+  $sql = "SELECT * FROM panel_category ";
+  return sqlStatement($sql);
   } else { return -1; }
 }
 
@@ -72,6 +90,7 @@ function getAllPanels()
   * @return array the panel {id, name, category_id}
   * if the tables  do not exist
   *@return integer return -1
+  *TODO change the name of the function to getPanelById
   */
 function getPanel($panel_id)
 {
@@ -92,6 +111,7 @@ function getPanel($panel_id)
   * @return array the panel category {id, name}
   * if the tables  are not exist
   *@return integer -1
+  *TODO change panel category to panel and panels to sub panel
   */
 function getPanelCategory($category_id)
 {
@@ -103,7 +123,35 @@ function getPanelCategory($category_id)
   } else { return -1; }
 }
 
+/**
+  * Purpose:
+  *
+  * Parameters:
+  * @param integer $patient ID panal category id
+  * if the tables exist:
+  * @return array the panel category
+  * if the tables  are not exist
+  *@return integer -1
+  *TODO change panel category to panel and panels to sub panel
+  */
+function getPanelCategoryByPatient_id($pid, $status = "active")
+{
+  if (isPanelDB())
+  {
+  // get  the category name
+  $sql = "SELECT DISTINCT c.name ";
+  $sql .= " FROM panel_enrollment AS e  ";
+  $sql .= "JOIN panel AS p ON e.panel_id = p.id  ";
+  $sql .= "JOIN panel_category AS c ON p.category_id = c.id ";
+  $sql .= "WHERE e.patient_id =\"" . add_escape_custom($pid) . "\" ";
+  if ($status != "all"){
+    $sql .= "AND e.status = \"" . add_escape_custom($status) . "\" ";
+  }
+  $sql .= "ORDER BY c.name ";
+  return sqlStatement($sql);
 
+  } else { return -1; }
+}
 /**
   * Purpose:
   * request the patient enrolment data with the category name and panel name
@@ -115,7 +163,7 @@ function getPanelCategory($category_id)
   * if the tables are not exist or if the patient is not enrolled in any panels yet:
   * @return integer return -1
   */
-function getPatientPanelsInfo($pid, $status = "active")
+function getPatientPanelsInfo($pid, $panelCategory = "None", $status = "active")
 {
   if (!isPanelDB()) {
     #if the panels is not activated print bellow line
@@ -128,9 +176,12 @@ function getPatientPanelsInfo($pid, $status = "active")
     $sql .= "FROM panel_enrollment AS  e ";
     $sql .= "JOIN panel AS p ON e.panel_id = p.id ";
     $sql .= "JOIN panel_category AS c ON p.category_id = c.id ";
-    $sql .= "WHERE e.patient_id = " . add_escape_custom($pid) . " ";
+    $sql .= "WHERE e.patient_id = \"" . add_escape_custom($pid) . "\" ";
     if ($status != "all"){
-      $sql .= "AND e.status = \"" . add_escape_custom($status) . "\"";
+      $sql .= "AND e.status = \"" . add_escape_custom($status) . "\" ";
+    }
+    if ($panelCategory != "None"){
+      $sql .= "AND c.name = \"" . add_escape_custom($panelCategory) . "\" ";
     }
     $sql .= "ORDER BY e.status, category ";
     return sqlStatement($sql);
@@ -173,7 +224,7 @@ function insertEnrolment($enrollment)
 }
 /**
   * Purpose:
-  * insert the patient into a new panel
+  * discharge the patient from a panel
   * @param  array  $updates      aray of updated info
   * (patient_id, panel_id)
   * @return integer  Last id generated from the sql insert command
