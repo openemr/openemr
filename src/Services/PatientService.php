@@ -16,7 +16,6 @@
 
 namespace OpenEMR\Services;
 
-use Particle\Validator\Validator;
 use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\ProcessingResult;
 

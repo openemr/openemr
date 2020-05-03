@@ -18,12 +18,12 @@ endpoint to the OpenEMR controller which handles the request, and also handles t
 ```
 
 At a high level, the request processing flow consists of the following steps:
-```sh
+```
 JSON Request -> Controller Component -> Validation -> Service Component -> Database
 ```
 
 The logical response flow begins with the database result:
-```sh
+```
 Database Result -> Service Component -> Controller Component -> RequestControllerHelper -> JSON Response
 ```
 
@@ -85,7 +85,7 @@ curl -X POST -H 'Content-Type: application/json' 'http://localhost:8300/apis/api
 }'
 ```
 Response:
-```sh
+```json
 {
     "token_type": "Bearer",
     "access_token": "eyJ0b2tlbiI6IjAwNmZ4TWpsNWhsZmNPelZicXBEdEZVUlNPQUY5KzdzR1Jjejc4WGZyeGFjUjY2QlhaaEs4eThkU3cxbTd5VXFBeTVyeEZpck9mVzBQNWc5dUlidERLZ0trUElCME5wRDVtTVk5bE9WaE5DTHF5RnRnT0Q0OHVuaHRvbXZ6OTEyNmZGUmVPUllSYVJORGoyZTkzTDA5OWZSb0ZRVGViTUtWUFd4ZW5cL1piSzhIWFpJZUxsV3VNcUdjQXR5dmlLQXRXNDAiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6Im9lbXIifQ==",
@@ -187,7 +187,7 @@ curl -X POST 'http://localhost:8300/apis/api/patient' -d \
 ```
 
 Response
-```sh
+```json
 {
     "validationErrors": [],
     "internalErrors": [],
@@ -220,7 +220,7 @@ curl -X PUT 'http://localhost:8300/apis/api/patient/1' -d \
 ```
 
 Response
-```sh
+```json
 {
     "validationErrors": [],
     "internalErrors": [],
@@ -262,7 +262,7 @@ curl -X GET 'http://localhost:8300/apis/api/patient'
 ```
 
 Response
-```sh
+```json
 {
     "validationErrors": [],
     "internalErrors": [],
@@ -279,7 +279,7 @@ curl -X GET 'http://localhost:8300/apis/api/patient&fname=...&lname=...&dob=...'
 ```
 
 Response
-```sh
+```json
 {
     "validationErrors": [],
     "internalErrors": [],
@@ -299,7 +299,7 @@ curl -X GET 'http://localhost:8300/apis/api/patient/1'
 ```
 
 Response
-```sh
+```json
 {
     "validationErrors": [],
     "internalErrors": [],
