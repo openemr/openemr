@@ -146,12 +146,7 @@ class RestConfig
 
     static function authorization_check($section, $value)
     {
-        if (self::$notRestCall || self::$localCall) {
-            $result = AclMain::aclCheckCore($section, $value, $_SESSION['authUser']);
-        } else {
-            $authRestController = new AuthRestController();
-            $result = $authRestController->aclCheck($_SERVER["HTTP_X_API_TOKEN"], $section, $value);
-        }
+        $result = AclMain::aclCheckCore($section, $value);
         if (!$result) {
             if (!self::$notRestCall) {
                 http_response_code(401);
@@ -212,9 +207,11 @@ class RestConfig
             $token = $_SERVER["HTTP_X_API_TOKEN"];
             $authRestController = new AuthRestController();
             if (!$authRestController->isValidToken($token)) {
+                self::destroySession();
                 http_response_code(401);
                 exit();
             } else {
+                // Note the isValidToken() set the _SESSION['authUser'] and $_SESSION['authUserId']
                 $authRestController->optionallyAddMoreTokenTime($token);
             }
         }
