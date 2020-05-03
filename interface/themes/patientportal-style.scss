@@ -138,8 +138,14 @@ body > .header {
 
 /* right side - contins main content */
 .right-side {
-  flex-grow: 1;
-  order: 2;
+  margin-#{$left}: 220px;
+}
+
+/*left side - contains sidebar*/
+.left-side {
+  position: absolute;
+  top: 0;
+  width: 220px;
 }
 
 @media screen and (min-width: 992px) {
@@ -147,22 +153,23 @@ body > .header {
     top: 50px;
     // Left side collapse
     &.collapse-left {
-      left: -220px;
+      #{$left}: -220px;
     }
   }
 
   /*Right side strech mode*/
   .right-side.strech {
-    margin-left: 0;
+    margin-#{$left}: 0;
 
     > .content-header {
       margin-top: 0;
     }
   }
 
-  > .header,
-  .navbar {
-    position: fixed;
+/*Give content full width on xs screens*/
+@media screen and (max-width: 992px) {
+  .right-side {
+    margin-#{$left}: 0;
   }
 }
 
@@ -329,7 +336,7 @@ body > .header {
 
     > .fa,
     > .ion {
-      margin-right: 5px;
+      margin-#{$right}: 5px;
     }
   }
 
@@ -341,10 +348,10 @@ body > .header {
     line-height: 1em;
     padding: 2px;
     position: absolute;
-    right: 2px;
     text-align: center;
     top: 7px;
     width: 15px;
+    #{$right}: 2px;
   }
 
   .navbar .nav > li > a:hover > .label {
@@ -366,7 +373,7 @@ body > .header {
       @include font-size("15px");
       display: inline-block;
       font-weight: 300;
-      padding-left: 4px;
+      padding-#{$left}: 4px;
     }
   }
 
@@ -374,13 +381,13 @@ body > .header {
     @include font-size("12px");
     background: transparent;
     border-radius: 2px;
-    float: right;
+    float: $right;
     margin-bottom: 0;
     margin-top: 0;
     padding: 7px 5px;
     position: absolute;
-    right: 10px;
     top: 15px;
+    #{$right}: 10px;
   }
 }
 
@@ -399,6 +406,7 @@ body > .header {
     margin-top: 5px;
     position: relative;
     top: 0;
+    #{$right}: 0;
   }
 }
 
@@ -458,12 +466,12 @@ body > .header {
       @include font-size("11px");
       font-weight: normal;
       margin-top: 3px;
-      padding-right: 5px;
       text-decoration: none;
+      padding-#{$right}: 5px;
 
       > .fa,
       > .ion {
-        margin-right: 3px;
+        margin-#{$right}: 3px;
       }
     }
   }
@@ -486,12 +494,12 @@ body > .header {
   }
 
   .row-offcanvas-left.active {
-    left: 220px;
+    #{$left}: 220px;
   }
 
   body.fixed .row-offcanvas-left.active .navbar {
-    left: 220px !important;
-    right: 0;
+    #{$left}: 220px !important;
+    #{$right}: 0;
   }
 }
 
@@ -507,7 +515,7 @@ body > .header {
   > li > a {
     > .fa,
     > .ion {
-      margin-right: 10px;
+      margin-#{$right}: 10px;
     }
 
     &:hover {
@@ -560,11 +568,11 @@ body > .header {
             bottom: 100%;
             content: " ";
             height: 0;
-            left: 92%;
-            margin-left: -7px;
             pointer-events: none;
             position: absolute;
             width: 0;
+            #{$left}: 92%;
+            margin-#{$left}: -7px;
           }
         }
 
@@ -629,10 +637,10 @@ body > .header {
               color: darken($light, 10%);
               /* Fallback for browsers that doesn't support rgba */
               color: rgba($white, 0.7);
-              margin-right: 5px;
               padding: 15px 0;
               text-align: center;
               width: 50px;
+              margin-#{$right}: 5px;
 
               &.danger {
                 background: $danger;
@@ -682,7 +690,7 @@ body > .header {
               > small {
                 @include font-size("10px");
                 color: $gray-500;
-                float: right;
+                float: $right;
               }
             }
 
@@ -746,11 +754,11 @@ body > .header {
         bottom: 100%;
         content: " ";
         height: 0;
-        margin-left: -10px;
         pointer-events: none;
         position: absolute;
-        right: 10px;
         width: 0;
+        margin-#{$left}: -10px;
+        #{$right}: 10px;
       }
 
       > li {
@@ -968,9 +976,9 @@ body > .header {
   &.vertical {
     display: inline-block;
     height: 200px;
-    margin-right: 10px;
     position: relative;
     width: 30px;
+    margin-#{$right}: 10px;
 
     > .progress-bar {
       bottom: 0;
@@ -1547,13 +1555,12 @@ body > .header {
 
 .nav.nav-pills.nav-stacked > li > a:hover {
   background-color: darken($light, 10%);
-  border-left-color: $primary;
+  border-#{$left}-color: $primary;
 }
 
 .nav.nav-pills.nav-stacked > li.active > a,
 .nav.nav-pills.nav-stacked > li.active > a:hover {
   background-color: darken($light, 10%);
-  border-left-color: $primary;
   color: $gray-700;
   border-#{$left}-color: $primary;
 }
@@ -1778,7 +1785,7 @@ body > .header {
     }
 
     .navbar-right > .nav {
-      margin-right: 10px;
+      margin-#{$right}: 10px;
     }
   }
 
@@ -1931,10 +1938,8 @@ li.dropdown-header {
 .sidebar {
   bottom: 0;
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
-  left: 0;
   padding: 48px 0 0;
+  #{$left}: 0;
 
   .nav-link {
     color: $gray-800;
@@ -1942,64 +1947,7 @@ li.dropdown-header {
 
     .feather {
       color: $gray-600;
-      margin-right: 4px;
-    }
-
-    &:hover .feather,
-    &.active .feather {
-      color: inherit;
-    }
-  }
-}
-
-.sidebar-sticky {
-  height: calc(100vh - 48px);
-  overflow-x: hidden;
-  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
-  padding-top: 0.5rem;
-  position: relative;
-  top: 0;
-}
-
-@supports ((position: -webkit-sticky) or (position: sticky)) {
-  .sidebar-sticky {
-    position: sticky;
-  }
-}
-
-.feather {
-  height: 16px;
-  vertical-align: text-bottom;
-  width: 16px;
-}
-
-@media (min-width: 768px) {
-  .collapse-md {
-    display: inherit !important;
-  }
-}
-
-/**
-*	Brand new Sidebar
-*	Grabbed from Bootstrap 4 Documentation Examples
-*/
-
-.sidebar {
-  bottom: 0;
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
-  left: 0;
-  padding: 48px 0 0;
-  position: fixed;
-  top: 0;
-  z-index: 100;
-
-  .nav-link {
-    color: $gray-800;
-    font-weight: 500;
-
-    .feather {
-      color: $gray-600;
-      margin-right: 4px;
+      margin-#{$right}: 4px;
     }
 
     &:hover .feather,
