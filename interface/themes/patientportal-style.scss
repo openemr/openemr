@@ -92,9 +92,14 @@ $font-family-base: $font-family-sans-serif;
 $close-color: $black;
 $close-text-shadow: 0 1 0 $black;
 
+// Enables responsive text for Bootstrap
 $enable-responsive-font-sizes: true;
+// Import Bootstrap 4 SCSS Files before doing anything
+// This gets replaced in gulp now -- do not touch
+// bs4import
 
-@import "../../public/assets/bootstrap/scss/bootstrap";
+@import "oe-common/oe-sidebar";
+@import "directional";
 
 .btn-secondary {
   background-color: rgba($black, 0.05) !important;
@@ -131,7 +136,7 @@ body > .header {
 
 /*right side - contins main content*/
 .right-side {
-  margin-left: 220px;
+  margin-#{$left}: 220px;
 }
 
 /*left side - contains sidebar*/
@@ -142,21 +147,20 @@ body > .header {
 }
 
 @media screen and (min-width: 992px) {
-    .left-side {
-        top: 50px;
-		// Left side collapse
-		&.collapse-left {
-	        left: -220px;
-	    }
+  .left-side {
+    top: 50px;
+    // Left side collapse
+    &.collapse-left {
+      #{$left}: -220px;
     }
   }
 
-    /*Right side strech mode*/
-    .right-side.strech {
-        margin-left: 0;
-		> .content-header {
-	        margin-top: 0;
-	    }
+  /*Right side strech mode*/
+  .right-side.strech {
+    margin-#{$left}: 0;
+
+    > .content-header {
+      margin-top: 0;
     }
   }
 }
@@ -164,7 +168,7 @@ body > .header {
 /*Give content full width on xs screens*/
 @media screen and (max-width: 992px) {
   .right-side {
-    margin-left: 0;
+    margin-#{$left}: 0;
   }
 }
 
@@ -286,11 +290,11 @@ table.text-center th {
 }
 
 .table.align th {
-  text-align: left;
+  text-align: $left;
 }
 
 .table.align td {
-  text-align: right;
+  text-align: $right;
 }
 
 .text-bold,
@@ -327,7 +331,7 @@ body > .header {
 
     > .fa,
     > .ion {
-      margin-right: 5px;
+      margin-#{$right}: 5px;
     }
   }
 
@@ -339,10 +343,10 @@ body > .header {
     line-height: 1em;
     padding: 2px;
     position: absolute;
-    right: 2px;
     text-align: center;
     top: 7px;
     width: 15px;
+    #{$right}: 2px;
   }
 
   .navbar .nav > li > a:hover > .label {
@@ -364,7 +368,7 @@ body > .header {
       @include font-size("15px");
       display: inline-block;
       font-weight: 300;
-      padding-left: 4px;
+      padding-#{$left}: 4px;
     }
   }
 
@@ -372,13 +376,13 @@ body > .header {
     @include font-size("12px");
     background: transparent;
     border-radius: 2px;
-    float: right;
+    float: $right;
     margin-bottom: 0;
     margin-top: 0;
     padding: 7px 5px;
     position: absolute;
-    right: 10px;
     top: 15px;
+    #{$right}: 10px;
   }
 }
 
@@ -396,8 +400,8 @@ body > .header {
     float: none;
     margin-top: 5px;
     position: relative;
-    right: 0;
     top: 0;
+    #{$right}: 0;
   }
 }
 
@@ -457,12 +461,12 @@ body > .header {
       @include font-size("11px");
       font-weight: normal;
       margin-top: 3px;
-      padding-right: 5px;
       text-decoration: none;
+      padding-#{$right}: 5px;
 
       > .fa,
       > .ion {
-        margin-right: 3px;
+        margin-#{$right}: 3px;
       }
     }
   }
@@ -480,18 +484,18 @@ body > .header {
         position: relative;
     }
 
-    .row-offcanvas-right.active {
-        right: 220px;
-    }
+  .row-offcanvas-right.active {
+    #{$right}: 220px;
+  }
 
-    .row-offcanvas-left.active {
-        left: 220px;
-    }
+  .row-offcanvas-left.active {
+    #{$left}: 220px;
+  }
 
-    body.fixed .row-offcanvas-left.active .navbar {
-        left: 220px !important;
-        right: 0;
-    }
+  body.fixed .row-offcanvas-left.active .navbar {
+    #{$left}: 220px !important;
+    #{$right}: 0;
+  }
 }
 
 /*
@@ -506,7 +510,7 @@ body > .header {
   > li > a {
     > .fa,
     > .ion {
-      margin-right: 10px;
+      margin-#{$right}: 10px;
     }
 
     &:hover {
@@ -559,11 +563,11 @@ body > .header {
             bottom: 100%;
             content: " ";
             height: 0;
-            left: 92%;
-            margin-left: -7px;
             pointer-events: none;
             position: absolute;
             width: 0;
+            #{$left}: 92%;
+            margin-#{$left}: -7px;
           }
         }
 
@@ -628,10 +632,10 @@ body > .header {
               color: darken($light, 10%);
               /* Fallback for browsers that doesn't support rgba */
               color: rgba($white, 0.7);
-              margin-right: 5px;
               padding: 15px 0;
               text-align: center;
               width: 50px;
+              margin-#{$right}: 5px;
 
               &.danger {
                 background: $danger;
@@ -681,7 +685,7 @@ body > .header {
               > small {
                 @include font-size("10px");
                 color: $gray-500;
-                float: right;
+                float: $right;
               }
             }
 
@@ -745,11 +749,11 @@ body > .header {
         bottom: 100%;
         content: " ";
         height: 0;
-        margin-left: -10px;
         pointer-events: none;
         position: absolute;
-        right: 10px;
         width: 0;
+        margin-#{$left}: -10px;
+        #{$right}: 10px;
       }
 
       > li {
@@ -857,10 +861,10 @@ body > .header {
     border-bottom: 1px solid #ddd;
     border-left: 1px solid #ddd;
     border-right: 1px solid #ddd;
-    left: auto;
     position: absolute;
-    right: 0;
     top: 100%;
+    #{$left}: auto;
+    #{$right}: 0;
   }
 }
 
@@ -879,21 +883,21 @@ body > .header {
   }
 
   .navbar-nav > .tasks-menu > .dropdown-menu {
-    left: auto;
+    #{$left}: auto;
     position: absolute;
-    right: -120px;
+    #{$right}: -120px;
   }
 
   .navbar-nav > .notifications-menu > .dropdown-menu {
-    left: auto;
+    #{$left}: auto;
     position: absolute;
-    right: -170px;
+    #{$right}: -170px;
   }
 
   .navbar-nav > .messages-menu > .dropdown-menu {
-    left: auto;
+    #{$left}: auto;
     position: absolute;
-    right: -210px;
+    #{$right}: -210px;
   }
 }
 
@@ -967,9 +971,9 @@ body > .header {
   &.vertical {
     display: inline-block;
     height: 200px;
-    margin-right: 10px;
     position: relative;
     width: 30px;
+    margin-#{$right}: 10px;
 
     > .progress-bar {
       bottom: 0;
@@ -1107,9 +1111,9 @@ body > .header {
   bottom: 5px;
   color: rgba($black, 0.15);
   position: absolute;
-  right: 5px;
   top: auto;
   z-index: 0;
+  #{$right}: 5px;
 }
 
 .small-box:hover {
@@ -1193,7 +1197,7 @@ body > .header {
   @include font-size("20px");
   cursor: default;
   display: inline-block;
-  float: left;
+  float: $left;
   font-weight: 400;
   margin: 0;
   padding: 10px;
@@ -1244,15 +1248,15 @@ body > .header {
   @include font-size("15px");
   color: $gray-700;
   line-height: 1.6em;
-  margin-left: 10px;
+  margin-#{$left}: 10px;
 }
 
 .box .box-body .fc-header-right {
-  padding-right: 10px;
+  padding-#{$right}: 10px;
 }
 
 .box .box-body .fc-header-left {
-  padding-left: 10px;
+  padding-#{$left}: 10px;
 }
 
 .box .box-body .fc-widget-header {
@@ -1273,7 +1277,7 @@ body > .header {
 
 .box .box-body .fc-widget-header:last-of-type,
 .box .box-body .fc-widget-content:last-of-type {
-  border-right: 0;
+  border-#{$right}: 0;
 }
 
 .box .box-body .table {
@@ -1393,11 +1397,11 @@ body > .header {
 
 .box .todo-list > li {
   background: $light;
-  border-left: 2px solid #e6e7e8;
   border-radius: 2px;
   color: $gray-700;
   margin-bottom: 2px;
   padding: 10px;
+  border-#{$left}: 2px solid #e6e7e8;
 }
 
 .box .todo-list > li:last-of-type {
@@ -1405,23 +1409,23 @@ body > .header {
 }
 
 .box .todo-list > li.danger {
-  border-left-color: $danger;
+  border-#{$left}-color: $danger;
 }
 
 .box .todo-list > li.warning {
-  border-left-color: $warning;
+  border-#{$left}-color: $warning;
 }
 
 .box .todo-list > li.info {
-  border-left-color: $info;
+  border-#{$left}-color: $info;
 }
 
 .box .todo-list > li.success {
-  border-left-color: $success;
+  border-#{$left}-color: $success;
 }
 
 .box .todo-list > li.primary {
-  border-left-color: $primary;
+  border-#{$left}-color: $primary;
 }
 
 .box .todo-list > li > input[type='checkbox'] {
@@ -1431,24 +1435,24 @@ body > .header {
 .box .todo-list > li .text {
   display: inline-block;
   font-weight: 600;
-  margin-left: 5px;
+  margin-#{$left}: 5px;
 }
 
 .box .todo-list > li .label {
   @include font-size("9px");
-  margin-left: 10px;
+  margin-#{$left}: 10px;
 }
 
 .box .todo-list > li .tools {
   color: $danger;
   display: none;
-  float: right;
+  float: $right;
 }
 
 .box .todo-list > li .tools > .fa,
 .box .todo-list > li .tools > .ion {
   cursor: pointer;
-  margin-right: 5px;
+  margin-#{$right}: 5px;
 }
 
 .box .todo-list > li:hover .tools {
@@ -1477,10 +1481,10 @@ body > .header {
 .box > .overlay,
 .box > .loading-img {
   height: 100%;
-  left: 0;
   position: absolute;
   top: 0;
   width: 100%;
+  #{$left}: 0;
 }
 
 .box > .overlay {
@@ -1509,7 +1513,7 @@ body > .header {
 
 .nav.nav-pills > li > a > .fa,
 .nav.nav-pills > li > a > .ion {
-  margin-right: 5px;
+  margin-#{$right}: 5px;
 }
 
 .nav.nav-pills > li.active > a,
@@ -1538,7 +1542,7 @@ body > .header {
 }
 
 .nav.nav-pills.nav-stacked > li > a {
-  border-left: 3px solid transparent;
+  border-#{$left}: 3px solid transparent;
   border-radius: 0;
   border-top: 0;
   color: $gray-700;
@@ -1546,14 +1550,14 @@ body > .header {
 
 .nav.nav-pills.nav-stacked > li > a:hover {
   background-color: darken($light, 10%);
-  border-left-color: $primary;
+  border-#{$left}-color: $primary;
 }
 
 .nav.nav-pills.nav-stacked > li.active > a,
 .nav.nav-pills.nav-stacked > li.active > a:hover {
   background-color: darken($light, 10%);
-  border-left-color: $primary;
   color: $gray-700;
+  border-#{$left}-color: $primary;
 }
 
 .nav.nav-pills.nav-stacked > li.header {
@@ -1578,7 +1582,7 @@ body > .header {
 .nav-tabs-custom > .nav-tabs > li {
   border-top: 3px solid transparent;
   margin-bottom: -2px;
-  margin-right: 5px;
+  margin-#{$right}: 5px;
 }
 
 .nav-tabs-custom > .nav-tabs > li > a {
@@ -1613,11 +1617,11 @@ body > .header {
 }
 
 .nav-tabs-custom > .nav-tabs > li:first-of-type {
-  margin-left: 0;
+  margin-#{$left}: 0;
 }
 
 .nav-tabs-custom > .nav-tabs > li:first-of-type.active > a {
-  border-left-width: 0;
+  border-#{$left}-width: 0;
 }
 
 .nav-tabs-custom > .nav-tabs.float-right {
@@ -1625,16 +1629,16 @@ body > .header {
 }
 
 .nav-tabs-custom > .nav-tabs.float-right > li {
-  float: right;
+  float: $right;
 }
 
 .nav-tabs-custom > .nav-tabs.float-right > li:first-of-type {
-  margin-right: 0;
+  margin-#{$right}: 0;
 }
 
 .nav-tabs-custom > .nav-tabs.float-right > li:first-of-type.active > a {
-  border-left-width: 1px;
-  border-right-width: 0;
+  border-#{$left}-width: 1px;
+  border-#{$right}-width: 0;
 }
 
 .nav-tabs-custom > .nav-tabs > li.header {
@@ -1648,7 +1652,7 @@ body > .header {
 
 .nav-tabs-custom > .nav-tabs > li.header > .fa,
 .nav-tabs-custom > .nav-tabs > li.header > .ion {
-  margin-right: 10px;
+  margin-#{$right}: 10px;
 }
 
 .nav-tabs-custom > .tab-content {
@@ -1715,7 +1719,7 @@ body > .header {
 }
 
 .mailbox .table-mailbox tr > td.time {
-  text-align: right;
+  text-align: $right;
   width: 100px;
 }
 
@@ -1729,7 +1733,7 @@ body > .header {
 
 @media screen and (max-width: 767px) {
   .mailbox .nav-stacked > li:not(.header) {
-    float: left;
+    float: $left;
     width: 50%;
 
     &.header {
@@ -1772,7 +1776,7 @@ body > .header {
     }
 
     .navbar-right > .nav {
-      margin-right: 10px;
+      margin-#{$right}: 10px;
     }
   }
 
@@ -1925,9 +1929,8 @@ li.dropdown-header {
 .sidebar {
   bottom: 0;
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
-  left: 0;
   padding: 48px 0 0;
+  #{$left}: 0;
 
   .nav-link {
     color: $gray-800;
@@ -1935,64 +1938,7 @@ li.dropdown-header {
 
     .feather {
       color: $gray-600;
-      margin-right: 4px;
-    }
-
-    &:hover .feather,
-    &.active .feather {
-      color: inherit;
-    }
-  }
-}
-
-.sidebar-sticky {
-  height: calc(100vh - 48px);
-  overflow-x: hidden;
-  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
-  padding-top: 0.5rem;
-  position: relative;
-  top: 0;
-}
-
-@supports ((position: -webkit-sticky) or (position: sticky)) {
-  .sidebar-sticky {
-    position: sticky;
-  }
-}
-
-.feather {
-  height: 16px;
-  vertical-align: text-bottom;
-  width: 16px;
-}
-
-@media (min-width: 768px) {
-  .collapse-md {
-    display: inherit !important;
-  }
-}
-
-/**
-*	Brand new Sidebar
-*	Grabbed from Bootstrap 4 Documentation Examples
-*/
-
-.sidebar {
-  bottom: 0;
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
-  left: 0;
-  padding: 48px 0 0;
-  position: fixed;
-  top: 0;
-  z-index: 100;
-
-  .nav-link {
-    color: $gray-800;
-    font-weight: 500;
-
-    .feather {
-      color: $gray-600;
-      margin-right: 4px;
+      margin-#{$right}: 4px;
     }
 
     &:hover .feather,

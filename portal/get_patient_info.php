@@ -21,32 +21,11 @@ OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 // regenerating the session id to avoid session fixation attacks
 session_regenerate_id(true);
-
-// Settings that will override globals.php
-$ignoreAuth = true;
-
-// Authentication
-require_once('../interface/globals.php');
-require_once(dirname(__FILE__) . "/lib/appsql.class.php");
-require_once("$srcdir/user.inc");
-
-use OpenEMR\Common\Auth\AuthHash;
-use OpenEMR\Common\Csrf\CsrfUtils;
-
-// set the language
-if (!empty($_POST['languageChoice'])) {
-    $_SESSION['language_choice'] = (int)$_POST['languageChoice'];
-} elseif (empty($_SESSION['language_choice'])) {
-    // just in case both are empty, then use english
-    $_SESSION['language_choice'] = 1;
-} else {
-    // keep the current session language token
-}
+//
 
 // landing page definition -- where to go if something goes wrong
-// Must go below globals declaration to work
 $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
-
+//
 
 // checking whether the request comes from index.php
 if (!isset($_SESSION['itsme'])) {
@@ -67,6 +46,28 @@ if (!isset($_POST['pass']) || empty($_POST['pass'])) {
     header('Location: ' . $landingpage . '&w&c');
     exit();
 }
+
+// set the language
+if (!empty($_POST['languageChoice'])) {
+    $_SESSION['language_choice'] = (int)$_POST['languageChoice'];
+} elseif (empty($_SESSION['language_choice'])) {
+    // just in case both are empty, then use english
+    $_SESSION['language_choice'] = 1;
+} else {
+    // keep the current session language token
+}
+
+// Settings that will override globals.php
+$ignoreAuth = 1;
+//
+
+// Authentication
+require_once('../interface/globals.php');
+require_once(dirname(__FILE__) . "/lib/appsql.class.php");
+require_once("$srcdir/user.inc");
+
+use OpenEMR\Common\Auth\AuthHash;
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 $logit = new ApplicationTable();
 $password_update = isset($_SESSION['password_update']) ? $_SESSION['password_update'] : 0;
@@ -161,12 +162,18 @@ if ($password_update === 2) {
     }
 }
 
+
+
 $_SESSION['portal_username'] = $auth[COL_POR_USER];
 $_SESSION['portal_login_username'] = $auth[COL_POR_LOGINUSER];
 
 $sql = "SELECT * FROM `patient_data` WHERE `pid` = ?";
 
-if ($userData = sqlQuery($sql, array($auth['pid']))) { // if query gets executed
+if (
+    $userData = sqlQuery($sql, array(
+    $auth['pid']
+    ))
+) { // if query gets executed
     if (empty($userData)) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':not active patient'), '', '0');
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();

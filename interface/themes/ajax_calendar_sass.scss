@@ -32,22 +32,22 @@ div.tiny {
 }
 
 .sidebar-wrapper {
-  margin-left: -30rem;
+  margin-#{$left}: -30rem;
   transition: margin 0.25s ease-out;
 }
 
 #wrapper.toggled .sidebar-wrapper {
-  margin-left: 0;
+  margin-#{$left}: 0;
   top: 68px;
 }
 
 #wrapper.toggled .page-content-wrapper {
-  margin-left: 8.75rem;
+  margin-#{$left}: 8.75rem;
 }
 
 #functions {
-  float: left;
-  margin-right: 0%;
+  float: $left;
+  margin-#{$right}: 0%;
   min-width: 20%;
   padding: 0 0.3125rem;
   /* added because of the width issue above */
@@ -56,7 +56,7 @@ div.tiny {
 
 #topToolbarRight {
   border-bottom: 1px solid $black;
-  float: right;
+  float: $right;
   padding: 0.3125rem 0 0.1875rem;
   position: fixed;
   width: 100%;
@@ -65,36 +65,24 @@ div.tiny {
 
 #dateNAV {
   @include font-size("1.1875rem !important");
-  float: left;
+  float: $left;
   font-family: "Arial", "Helvetica", sans-serif;
-}
-
-.rtl #functions,
-.rtl #dateNAV,
-.rtl #dateDisplay,
-.rtl #topToolbarRight {
-  float: right;
 }
 
 #dateDisplay {
-  float: left;
+  float: $left;
   font-family: "Arial", "Helvetica", sans-serif;
-  padding-left: 0.625rem;
+  padding-#{$left}: 0.625rem;
 }
 
 #viewPicker {
-  float: right;
-  margin-right: 0.625rem;
-}
-
-.rtl #viewPicker,
-.rtl #bigCalHeader {
-  float: left;
+  float: $right;
+  margin-#{$right}: 0.625rem;
 }
 
 #bigCalHeader {
   @include font-size("1.1875rem !important");
-  float: right;
+  float: $right;
   font-family: "Arial", "Helvetica", sans-serif;
   text-align: center;
   width: 70%;
@@ -111,7 +99,7 @@ div.tiny {
 }
 
 #facilityColor {
-  float: left;
+  float: $left;
   font-family: "Arial", "Helvetica", sans-serif;
   width: 100%;
 }
@@ -122,14 +110,14 @@ div.tiny {
 }
 
 #bottom {
-  float: left;
+  float: $left;
   position: relative;
   width: 100%;
 }
 
 #bigCal {
   background-color: $light;
-  border-left: 1px solid $black;
+  border-#{$left}: 1px solid $black;
   overflow: hidden;
 }
 
@@ -147,8 +135,8 @@ div.tiny {
 }
 
 #bottomLeft {
-  clear: left;
-  float: left;
+  clear: $left;
+  float: $left;
   min-width: 130px;
   position: fixed;
   top: 45px;
@@ -162,8 +150,6 @@ div.tiny {
 
 #datePicker table {
   border-collapse: collapse;
-  /* margin-left: 0.1875rem;
-    border-right: 1px solid $black; */
   width: 100%;
 }
 
@@ -255,7 +241,7 @@ div.tiny {
 /* the DIV of times */
 #times {
   background-color: lighten($yellow, 40%);
-  border-right: 1px solid $gray-600;
+  border-#{$right}: 1px solid $gray-600;
   padding: 0;
   width: 1%;
 }
@@ -352,7 +338,7 @@ div.tiny {
   @include font-size("0.8rem !important");
   background-color: $white;
   padding: 0.0625rem 0.125rem;
-  text-align: right;
+  text-align: $right;
   width: 95%;
 }
 
@@ -388,9 +374,7 @@ div.tiny {
 
 .event_appointment {
   background-color: $white;
-  border: 1px solid $gray-400;
   border: 1px solid $black;
-  overflow: hidden;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -423,8 +407,8 @@ div.tiny {
   background-color: $black;
   border: 1px solid $black;
   border-bottom: 2px solid $gray-700;
-  border-left: 1px solid $gray-600;
-  border-right: 2px solid $gray-700;
+  border-#{$left}: 1px solid $gray-600;
+  border-#{$right}: 2px solid $gray-700;
   border-top: 1px solid $gray-600;
   font-weight: bold;
   margin: -0.1875rem;
@@ -445,7 +429,7 @@ div.tiny {
   bottom: 0.125rem;
   font-family: 'FontAwesome', sans-serif;
   position: absolute;
-  right: 0.25rem;
+  #{$right}: 0.25rem;
 }
 
 .show-appointment.unshown::before {
@@ -467,8 +451,8 @@ div.tiny {
 .in_start.event_highlight {
   background-color: $yellow;
   border-bottom: 2px solid $gray-700;
-  border-left: 1px solid $gray-600;
-  border-right: 2px solid $gray-700;
+  border-#{$left}: 1px solid $gray-600;
+  border-#{$right}: 2px solid $gray-700;
   border-top: 1px solid $gray-600;
   cursor: pointer;
   font-weight: bold;
@@ -514,12 +498,12 @@ div.tiny {
   }
 
   .page-content-wrapper {
-    margin-left: 0%;
+    margin-#{$left}: 0%;
     width: 100%;
   }
 
   #wrapper.toggled .page-content-wrapper {
-    margin-left: 130px;
+    margin-#{$left}: 130px;
     width: calc(100% - 150px);
   }
 }
@@ -532,21 +516,21 @@ div.tiny {
 
 @media (min-width: 860px) {
   .sidebar-wrapper {
-    margin-left: 0;
+    margin-#{$left}: 0;
   }
 
   .page-content-wrapper {
-    margin-left: 15%;
+    margin-#{$left}: 15%;
     min-width: 0;
     width: 85%;
   }
 
   #wrapper.toggled .sidebar-wrapper {
-    margin-left: -30rem;
+    margin-#{$left}: -30rem;
   }
 
   #wrapper.toggled .page-content-wrapper {
-    margin-left: 0%;
+    margin-#{$left}: 0%;
     width: 100%;
   }
 }

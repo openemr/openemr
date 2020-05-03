@@ -19,6 +19,8 @@
  *
  */
 
+@import "directional";
+
 .login {
   background-color: #f4f4f4;
 }
@@ -53,15 +55,15 @@ span.expand_section {
 }
 
 td.menuheadtoolbar {
-  text-align: left;
+  text-align: $left;
 }
 
 .copyright {
   bottom: -24px;
   color: var(--black);
   font-size: small;
-  left: 139px;
   position: absolute;
+  #{$left}: 139px;
 }
 
 .shadow {
@@ -69,15 +71,15 @@ td.menuheadtoolbar {
 }
 
 .algnRight {
-  text-align: right;
+  text-align: $right;
 }
 
 .heading {
   color: var(--gray);
   font-style: italic;
-  margin-left: -21px;
   position: absolute;
   top: -60px;
+  margin-#{$left}: -21px;
 }
 
 #selLanguage {

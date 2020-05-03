@@ -22,6 +22,8 @@
 
 /* TODO: Fully redesign the navbar to be better supported with BS4 */
 
+@import "directional";
+
 html {
   border: 0;
   display: flex;
@@ -169,13 +171,13 @@ body {
 
 .patientDataColumn {
   display: block;
-  float: left;
+  float: $left;
   width: 33%;
 }
 
 .messagesColumn {
-  float: right;
-  padding-right: 20px;
+  float: $right;
+  padding-#{$right}: 20px;
 }
 
 .patientEncounterList {
@@ -222,7 +224,7 @@ body {
 }
 
 #userData {
-  float: right;
+  float: $right;
   position: relative;
 }
 
@@ -245,7 +247,7 @@ body {
 }
 
 .patientPicture {
-  margin-right: 7px;
+  margin-#{$right}: 7px;
   margin-top: -1px;
 }
 
@@ -258,7 +260,7 @@ body {
 }
 
 .appMenu > span {
-  float: left;
+  float: $left;
   padding: 0;
   text-shadow: none;
   white-space: nowrap;
@@ -285,7 +287,7 @@ body {
 }
 
 .appMenu li {
-  padding-left: 14px;
+  padding-#{$left}: 14px;
 }
 
 .appMenu li:hover {
@@ -331,10 +333,10 @@ body {
 
 .menuSection > .menuEntries .menuEntries {
   display: none;
-  left: 159px;
   position: absolute;
   top: -4px;
   transition: 2s background-color;
+  #{$left}: 159px;
 }
 
 .menuSection:hover > .menuEntries {
@@ -373,7 +375,11 @@ body {
 
 .userSection {
   min-width: 200px;
-  right: 10px;
+  @if $dir == rtl {
+    right: 0;
+  } @else {
+    right: 10px;
+  }
 }
 
 .body_top {
@@ -422,15 +428,15 @@ body {
 
 .closeButton {
   display: inline-block;
-  float: right;
+  float: $right;
   position: relative;
-  right: 5px;
   top: 8px;
+  #{$right}: 5px;
 }
 
 /* TODO: Marked this class for removal */
 .float-element {
-  float: left;
+  float: $left;
 }
 
 /* main.php */
@@ -456,11 +462,63 @@ body {
 @media (max-width: 768px) {
   .mainFrames {
     margin: 0;
-    padding-left: 1px;
+    padding-#{$left}: 1px;
   }
 
   #framesDisplay > div {
     height: 100vh;
     width: 100%;
+  }
+}
+
+@include if-rtl {
+  #mainBox {
+    padding: 0 5px 0 0;
+  }
+
+  #attendantData .patientDataColumn:nth-child(1) span {
+    float: right;
+    margin-left: 12px;
+    margin-right: 5px;
+  }
+
+  #attendantData .patientDataColumn {
+    float: right;
+  }
+
+  #attendantData .patientDataColumn:nth-child(1) .patientInfo .ptName span {
+    float: none;
+  }
+
+  #attendantData .patientDataColumn:nth-child(1) .patientInfo .ptName span:nth-child(2) {
+    margin: 2px;
+  }
+
+  .appMenu {
+    display: flex;
+    flex-direction: row;
+    float: right;
+    margin-right: 0;
+    position: relative;
+  }
+
+  .closeButton {
+    display: inline-block;
+    float: left;
+    left: 5px;
+    padding-right: 7px;
+    position: relative;
+    right: 0;
+    top: 12px;
+    transform: scaleX(-1);
+  }
+
+  .userSection {
+    right: 0;
+  }
+
+  .messagesColumn {
+    float: left;
+    padding-left: 20px;
   }
 }

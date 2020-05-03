@@ -24,6 +24,8 @@
 
 /* TODO: Fully redesign the navbar to be better supported with BS4 */
 
+@import "directional";
+
 html {
   border: 0;
   display: flex;
@@ -177,7 +179,7 @@ body {
 }
 
 .patientPicture {
-  margin-right: 7px;
+  margin-#{$right}: 7px;
   margin-top: -1px;
 }
 
@@ -195,13 +197,13 @@ body {
 
 .patientDataColumn {
   display: block;
-  float: left;
+  float: $left;
   width: 33%;
 }
 
 .messagesColumn {
-  float: right;
-  padding-right: 20px;
+  float: $right;
+  padding-#{$right}: 20px;
 }
 
 .patientEncounterList {
@@ -245,7 +247,7 @@ body {
 }
 
 #userData {
-  float: right;
+  float: $right;
   position: relative;
 }
 
@@ -259,7 +261,7 @@ body {
 }
 
 .appMenu > span {
-  float: left;
+  float: $left;
   padding: 0;
   white-space: nowrap;
 }
@@ -321,9 +323,9 @@ body {
 
 .menuSection > .menuEntries .menuEntries {
   display: none;
-  left: 161px;
   position: absolute;
   top: -3px;
+  #{$left}: 161px;
 }
 
 .menuSection:hover > .menuEntries {
@@ -385,7 +387,7 @@ div.menuLabel:hover {
 
 .userSection {
   min-width: 200px;
-  right: 10px;
+  #{$right}: 10px;
 }
 
 /* Main menu bar */
@@ -423,14 +425,14 @@ div.menuLabel:hover {
 
 .closeButton {
   display: inline-block;
-  float: right;
+  float: $right;
   position: relative;
-  right: 5px;
   top: 14px;
+  #{$right}: 5px;
 }
 
 .float-element {
-  float: left;
+  float: $left;
 }
 
 #logout_icon {
@@ -451,11 +453,55 @@ div.menuLabel:hover {
 @media (max-width: 768px) {
   .mainFrames {
     margin: 0;
-    padding-left: 1px;
+    padding-#{$left}: 1px;
   }
 
   #framesDisplay > div {
     height: 100vh;
     width: 100%;
+  }
+}
+
+@include if-rtl {
+  #mainBox {
+    padding: 0 5px 0 0 !important;
+  }
+
+  #mainBox .logo {
+    float: right !important;
+    margin: 3px 10px 0 4px !important;
+  }
+
+  #attendantData .patientDataColumn:nth-child(1) span {
+    float: right;
+    margin-left: 12px;
+    margin-right: 5px;
+  }
+
+  #attendantData .patientDataColumn {
+    float: right;
+  }
+
+  #attendantData .patientDataColumn:nth-child(1) .patientInfo .ptName span {
+    float: none;
+  }
+
+  #attendantData .patientDataColumn:nth-child(1) .patientInfo .ptName span:nth-child(2) {
+    margin: 2px;
+  }
+
+  .appMenu {
+    display: flex;
+    flex-direction: row;
+    float: right;
+    margin-right: 0;
+    position: relative;
+  }
+
+  .closeButton {
+    padding-right: 7px;
+    right: 0;
+    top: 12px;
+    transform: scaleX(-1);
   }
 }

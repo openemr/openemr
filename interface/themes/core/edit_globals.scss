@@ -6,7 +6,7 @@
 
 #oe-nav-ul.tabNav li {
   @include font-size("0.8rem !important");
-  float: left;
+  float: $left;
   padding: 0;
   vertical-align: bottom;
 }
@@ -15,7 +15,7 @@
   font-weight: 700;
   margin-top: -4px;
   padding-top: 0;
-  text-align: left;
+  text-align: $left;
   vertical-align: bottom;
 }
 

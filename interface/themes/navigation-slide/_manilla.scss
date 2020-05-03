@@ -1,7 +1,7 @@
 #navigation-slide,
 #navigation-slide * {
-  margin-left: 0;
-  padding-left: 1px;
+  margin-#{$left}: 0;
+  padding-#{$left}: 1px;
 }
 
 #navigation-slide li {
@@ -11,7 +11,7 @@
 #navigation-slide a {
   background: $white;
   border-bottom: 1px solid $black;
-  border-left: 1px solid $black;
+  border-#{$left}: 1px solid $black;
   border-top: 0;
   color: $body-color;
   display: block;
@@ -38,23 +38,9 @@
 }
 
 #navigation-slide ul li a.expanded_lv2 {
-  background: #999;
-  /* for IE */
-  background: -webkit-gradient(linear, left top, left bottom, from(#fefdcf), to(#fefdcf));
-  /* for webkit browsers */
   background: linear-gradient(center top, #fefdcf, #fefdcf) repeat scroll 0% 0% transparent;
-  background: none repeat scroll 0% 0% #fefdcf;
-  /* for non-css3 browsers */
-  filter: unquote("progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefdcf', endColorstr='#fefdcf')");
 }
 
 #navigation-slide ul li a.expanded_lv3 {
-  background: #999;
-  /* for IE */
-  background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#eee));
-  /* for webkit browsers */
   background: linear-gradient(center top, #eee, #eee) repeat scroll 0% 0% transparent;
-  background: none repeat scroll 0% 0% #eee;
-  /* for non-css3 browsers */
-  filter: unquote("progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#eeeeee')");
 }

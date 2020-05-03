@@ -32,7 +32,7 @@
   padding-right: 0 !important;
 
   .submenu {
-    padding-left: 15px;
+    padding-#{$left}: 15px;
   }
 
   ul.mainmenu {
@@ -140,7 +140,7 @@ removed as doesn't make sense and ruins responsive sjp
 /* The top navigation icon styling*/
 
 .top-nav-icons {
-  margin-right: 15px;
+  margin-#{$right}: 15px;
   margin-top: 5px;
 }
 
@@ -194,7 +194,7 @@ removed as doesn't make sense and ruins responsive sjp
   cursor: pointer;
   display: block;
   font-weight: bold;
-  margin-left: 0;
+  margin-#{$left}: 0;
   padding: 2px 2px 2px 17px;
   width: 160px;
 }
