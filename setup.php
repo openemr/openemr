@@ -1295,13 +1295,9 @@ STP5TOP;
                         $register_globals = ini_get('register_globals') ? 'On' : 'Off';
                         $register_globals_style = $register_globals.strcmp('Off') ? '' : 'text-danger';
                         $max_input_vars = ini_get('max_input_vars');
-                        // $max_input_vars_style = $max_input_vars.strcmp('at least 3000') ? '' : 'text-danger';
                         $max_input_vars_style = $max_input_vars < 3000 ? 'text-danger' : '';
-
                         $max_execution_time = ini_get('max_execution_time');
-                        // $max_execution_time_style = $max_execution_time.strcmp('at least 60') ? '' : 'text-danger';
-                        $max_execution_time_style = $max_execution_time < 60 ? 'text-danger' : '';
-
+                        $max_execution_time_style = $max_execution_time < 60 || $max_execution_time !== 0 ? 'text-danger' : '';
                         $max_input_time = ini_get('max_input_time');
                         $max_input_time_style = $max_input_time.strcmp('-1') ? '' : 'text-danger';
                         $post_max_size = ini_get('post_max_size');
