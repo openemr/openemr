@@ -121,75 +121,51 @@ class InstallerController extends AbstractActionController
         $status = $this->listenerObject->z_xlt("Failure");
         if ($request->isPost()) {
             if ($request->getPost('modAction') == "enable") {
-                $resp = $this->getInstallerTable()->updateRegistered($request->getPost('modId'), "mod_active=0");
-                if ($resp['status'] == 'failure' && $resp['code'] == '200') {
-                    $status = $resp['value'];
-                } else {
-                    $status = $this->listenerObject->z_xlt("Success");
-                }
-            } elseif ($request->getPost('modAction') == "disable") {
-                $resp = $this->getInstallerTable()->updateRegistered($request->getPost('modId'), "mod_active=1");
-                if ($resp['status'] == 'failure' && $resp['code'] == '200') {
-                    $plural = "Module";
-                    if (count($resp['value']) > 1) {
-                        $plural = "Modules";
-                    }
-
-                    $status = $this->listenerObject->z_xlt("Dependency Problem") . ':' . implode(", ", $resp['value']) . " " . $this->listenerObject->z_xlt($plural) . " " . $this->listenerObject->z_xlt("Should be Enabled");
-                } elseif ($resp['status'] == 'failure' && ($resp['code'] == '300' || $resp['code'] == '400')) {
-                    $status = $resp['value'];
-                } else {
-                    $status = $this->listenerObject->z_xlt("Success");
-                }
-            } elseif ($request->getPost('modAction') == "install") {
-                $dirModule = $this->getInstallerTable()->getRegistryEntry($request->getPost('modId'), "mod_directory");
-                $mod_enc_menu = $request->getPost('mod_enc_menu');
-                $mod_nick_name = $request->getPost('mod_nick_name');
-                if ($this->getInstallerTable()->installSQL($GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . $GLOBALS['customModDir'] . "/" . $dirModule->modDirectory)) {
-                    $values = array($mod_nick_name, $mod_enc_menu);
-                    //Run custom sql's in folder sql of module
-                    if ($this->getInstallerTable()->installSQL($GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule->modDirectory . "/sql")) {
-                        $values[2] = $this->getModuleVersionFromFile($request->getPost('modId'));
-                        $this->getInstallerTable()->updateRegistered($request->getPost('modId'), '', $values);
-                        $status = $this->listenerObject->z_xlt("Success");
-                    } else {
-                        $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not run sql query");
-                    }
-                } else {
-                    $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not open table") . '.' . $this->listenerObject->z_xlt("sql") . ', ' . $this->listenerObject->z_xlt("broken form") . "?";
-                }
-            } elseif ($request->getPost('modAction') == 'install_sql') {
+                $status =$this->InstallModuleSQL($request->getPost('modId'));
+            }
+            elseif ($request->getPost('modAction') == "disable") {
+                $status =$this->DisableModule($request->getPost('modId'));
+            }
+            elseif ($request->getPost('modAction') == "install") {
+                $status =$this->InstallModule($request);
+            }
+            elseif ($request->getPost('modAction') == 'install_sql') {
                 if ($this->InstallModuleSQL($request->getPost('modId'))) {
                     $status = $this->listenerObject->z_xlt("Success");
                 } else {
                     $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not open table") . '.' . $this->listenerObject->z_xlt("sql") . ', ' . $this->listenerObject->z_xlt("broken form") . "?";
                 }
-            } elseif ($request->getPost('modAction') == 'upgrade_sql') {
+            }
+            elseif ($request->getPost('modAction') == 'upgrade_sql') {
                 $div = $this->UpgradeModuleSQL($request->getPost('modId'));
                 $status = $this->listenerObject->z_xlt("Success");
-            } elseif ($request->getPost('modAction') == 'install_acl') {
+            }
+            elseif ($request->getPost('modAction') == 'install_acl') {
                 if ($div = $this->InstallModuleACL($request->getPost('modId'))) {
                     $status = $this->listenerObject->z_xlt("Success");
                 } else {
                     $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not install ACL ");
                 }
-            } elseif ($request->getPost('modAction') == 'upgrade_acl') {
+            }
+            elseif ($request->getPost('modAction') == 'upgrade_acl') {
                 if ($div = $this->UpgradeModuleACL($request->getPost('modId'))) {
                     $status = $this->listenerObject->z_xlt("Success");
                 } else {
                     $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not install ACL ");
                 }
-            } elseif ($request->getPost('modAction') == "unregister") {
-                $resp = $this->getInstallerTable()->unRegister($request->getPost('modId'));
-                if ($resp == 'failure') {
-                    $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("Failed to unregister module.");
-                } else {
-                    $status = $this->listenerObject->z_xlt("Success");
-                }
+            }
+            elseif ($request->getPost('modAction') == "unregister") {
+
+                $status = $this->UnregisterModule($request->getPost('modId'));
             }
         }
 
-        echo json_encode(["status" => $status, "output" => implode("<br />\n", $div)]);
+        $output="";
+        if(is_array($div)){
+            $output=implode("<br />\n", $div);
+        }
+        echo json_encode(["status" => $status, "output" => $output]);
+
         exit(0);
     }
 
@@ -607,6 +583,99 @@ class InstallerController extends AbstractActionController
     }
 
     /**
+     * Function to Enable Module
+     *
+     * @param string $dir Location of the php file which calling functions to add sections,aco etc.
+     * @return boolean
+     */
+    public function EnableModule($modId = '')
+    {
+        $resp = $this->getInstallerTable()->updateRegistered($modId, "mod_active=0");
+        if ($resp['status'] == 'failure' && $resp['code'] == '200') {
+            $status = $resp['value'];
+        } else {
+            $status = $this->listenerObject->z_xlt("Success");
+        }
+
+        return $status;
+    }
+
+    /**
+     * Function to Disable Module
+     *
+     * @param string $dir Location of the php file which calling functions to add sections,aco etc.
+     * @return boolean
+     */
+    public function DisableModule($modId = '')
+    {
+        $resp = $this->getInstallerTable()->updateRegistered($modId, "mod_active=1");
+        if ($resp['status'] == 'failure' && $resp['code'] == '200') {
+            $plural = "Module";
+            if (count($resp['value']) > 1) {
+                $plural = "Modules";
+            }
+
+            $status = $this->listenerObject->z_xlt("Dependency Problem") . ':' . implode(", ", $resp['value']) . " " . $this->listenerObject->z_xlt($plural) . " " . $this->listenerObject->z_xlt("Should be Enabled");
+        } elseif ($resp['status'] == 'failure' && ($resp['code'] == '300' || $resp['code'] == '400')) {
+            $status = $resp['value'];
+        } else {
+            $status = $this->listenerObject->z_xlt("Success");
+        }
+        return $status;
+    }
+
+    /**
+     * Function to Install Module
+     *
+     * @param string $dir Location of the php file which calling functions to add sections,aco etc.
+     * @return boolean
+     */
+    public function InstallModule($request)
+    {
+        $dirModule = $this->getInstallerTable()->getRegistryEntry($request->getPost('modId'), "mod_directory");
+        $mod_enc_menu = $request->getPost('mod_enc_menu');
+        $mod_nick_name = $request->getPost('mod_nick_name');
+        if ($this->getInstallerTable()->installSQL($GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . $GLOBALS['customModDir'] . "/" . $dirModule->modDirectory)) {
+            $values = array($mod_nick_name, $mod_enc_menu);
+            //Run custom sql's in folder sql of module
+            if ($this->getInstallerTable()->installSQL($GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule->modDirectory . "/sql")) {
+                $values[2] = $this->getModuleVersionFromFile($request->getPost('modId'));
+                $this->getInstallerTable()->updateRegistered($request->getPost('modId'), '', $values);
+                $status = $this->listenerObject->z_xlt("Success");
+            } else {
+                $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not run sql query");
+            }
+        } else {
+            $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not open table") . '.' . $this->listenerObject->z_xlt("sql") . ', ' . $this->listenerObject->z_xlt("broken form") . "?";
+        }
+
+        return $status;
+    }
+
+    /**
+     * Function to Unregister Module
+     *
+     * @param string $dir Location of the php file which calling functions to add sections,aco etc.
+     * @return boolean
+     */
+    public function UnregisterModule($modId = '')
+    {
+        $resp = $this->getInstallerTable()->unRegister($modId);
+        if ($resp == 'failure') {
+            $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("Failed to unregister module.");
+        } else {
+            $status = $this->listenerObject->z_xlt("Success");
+        }
+
+        return $status;
+    }
+
+
+
+
+
+
+    /**
      * @param string $modId
      * @return array|bool
      */
@@ -660,26 +729,58 @@ class InstallerController extends AbstractActionController
             $moduleId = $this->getModuleId($moduleName);
         }
 
+
+        $msg="";
+
         if ($moduleId !== null) {
             echo 'module [' . $moduleName . '] was find' . PHP_EOL;
+
+            $msg="command completed successfully";
 
             if ($moduleAction === "install_sql") {
                 $this->InstallModuleSQL($moduleId);
             }
 
-            if ($moduleAction === "upgrade_sql") {
+            elseif ($moduleAction === "upgrade_sql") {
                 $div = $this->UpgradeModuleSQL($moduleId);
             }
 
-            if ($moduleAction === "install_acl") {
+            elseif ($moduleAction === "install_acl") {
                 $div = $this->InstallModuleACL($moduleId);
             }
 
-            if ($moduleAction === "upgrade_acl") {
+            elseif ($moduleAction === "upgrade_acl") {
                 $div = $this->UpgradeModuleACL($moduleId);
             }
+            elseif ($moduleAction === "enable") {
+                $div = $this->EnableModule($moduleId);
+            }
+            elseif ($moduleAction === "disable") {
+                $div = $this->DisableModule($moduleId);
+            }
+            elseif ($moduleAction === "install") {
+                $div = $this->InstallModule($moduleId);
+            }
+            elseif ($moduleAction === "unregister") {
+                $div = $this->UnregisterModule($moduleId);
+            }
+            else{
+                $msg='Unsupported command';
+            }
+        }else{
+            $msg="module Id is null";
         }
-        echo implode("<br />\n", $div) . PHP_EOL;
-        exit('command completed successfully' . PHP_EOL);
+
+
+        $output="";
+
+        if(is_array($div)){
+            $output= implode("<br />\n", $div) . PHP_EOL;
+        }
+        echo $output;
+
+        exit($msg . PHP_EOL);
+
+
     }
 }
