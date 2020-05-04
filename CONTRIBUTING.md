@@ -41,7 +41,15 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     - To fix PSR12 code styling issues (this takes several minutes):
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools psr12-fix'
+      ```      
+    - To create a report of theme styling issues:
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools lint-themes-report'
       ```
+    - To fix theme styling issues:
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools lint-themes-fix'
+      ```      
     - To check PHP parsing errors (this takes several minutes):
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools php-parserror'
@@ -59,6 +67,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools e2e-test'
       ```
     - To run services testing:
+<<<<<<< HEAD
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools services-test'
       ```
@@ -75,6 +84,28 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools clean-sweep'
     ```
 9. To run only all the automated tests (unit/API/e2e/services/fixtures/validators tests) in one command, run
+=======
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools services-test'
+      ```
+    - To run fixtures testing:
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools fixtures-test'
+      ```
+    - To run validators testing:
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools validators-test'
+      ```
+    - To run controllers testing:
+      ```sh
+      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools controllers-test'
+      ```
+8. To run the entire dev tool suite (PSR12 fix, lint themes fix, PHP parse error, unit/API/e2e/services/fixtures/validators/controllers tests) in one command, run
+    ```sh
+    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools clean-sweep'
+    ```
+9. To run only all the automated tests (unit/API/e2e/services/fixtures/validators/controllers tests) in one command, run
+>>>>>>> upstream/master
     ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools clean-sweep-tests'
     ```

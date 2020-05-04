@@ -11,101 +11,101 @@
  */
 
 div.review {
-    position: absolute;
-    z-index: 100;
-    background-color: var(--light);
+  background-color: var(--light);
+  position: absolute;
+  z-index: 100;
 }
 
 div.review > div {
-    border: 1px solid;
-    padding: 1px;
+  border: 1px solid;
+  padding: 1px;
 }
 
 div.review table td {
-    text-align: left;
+  text-align: left;
 }
 
 th.first_column {
-    text-align: left;
+  text-align: left;
 }
 
 div.review table input.price {
-    width: 5em;
-    text-align: right;
+  text-align: right;
+  width: 5em;
 }
 
 div.review table input.units {
-    width: 3em;
-    text-align: right;
+  text-align: right;
+  width: 3em;
 }
 
 a.justify_label {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 div.justify_template {
-    position: absolute;
-    z-index: 100;
-    background-color: var(--light);
+  background-color: var(--light);
+  position: absolute;
+  z-index: 100;
 }
 
 div.justify_template > div {
-    border: 1px solid var(--black);
+  border: 1px solid var(--black);
 }
 
 div.justify_template span.search_results {
-    position: absolute;
-    background-color: var(--white);
-    border: 1px solid var(--black);
+  background-color: var(--white);
+  border: 1px solid var(--black);
+  position: absolute;
 }
 
 div.justify_template span.search_results table {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 
 tr[encounter_issue] > td.info {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 tr.patient > td.info {
-    color: var(--primary);
+  color: var(--primary);
 }
 
 tr.common > td.info {
-    color: #2f4f4f;
+  color: #2f4f4f;
 }
 
 tr.search > td.info {
-    color: var(--success);
+  color: var(--success);
 }
 
 td.priority {
-    text-align: center;
-    width: 1.1em;
+  text-align: center;
+  width: 1.1em;
 }
 
 th.sort {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 div.justify_template span.search_results tr:hover {
-    background-color: var(--yellow);
+  background-color: var(--yellow);
 }
 
 .problem_warning {
-    font-weight: bold;
-    cursor: pointer;
-    background-color: var(--yellow);
-    width: 100%;
+  background-color: var(--yellow);
+  cursor: pointer;
+  font-weight: bold;
+  width: 100%;
 }
 
 .warning_details {
-    position: absolute;
-    background-color: var(--white);
-    width: 100%
+  background-color: var(--white);
+  position: absolute;
+  width: 100%;
 }
 
 td > input.description {
-    width: 100%;
+  width: 100%;
 }

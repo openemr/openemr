@@ -1,238 +1,238 @@
 /* For Track-Anything Forms */
 
 .menu {
-    font-family: sans-serif;
-    font-style: italic;
-    font-size: 90%;
-    color: #ffffff;
-    text-decoration: none;
-    text-align: left;
+  color: #fff;
+  font-family: sans-serif;
+  font-size: 90%;
+  font-style: italic;
+  text-align: left;
+  text-decoration: none;
 }
 
 .menu_selected {
-    font-family: sans-serif;
-    font-style: italic;
-    font-size: 90%;
-    color: #000000;
-    text-decoration: none;
-    text-align: left;
+  color: #000;
+  font-family: sans-serif;
+  font-size: 90%;
+  font-style: italic;
+  text-align: left;
+  text-decoration: none;
 }
 
 .logout {
-    font-family: sans-serif;
-    font-style: italic;
-    font-size: 80%;
-    color: #000000;
-    text-decoration: none;
-    text-align: right;
+  color: #000;
+  font-family: sans-serif;
+  font-size: 80%;
+  font-style: italic;
+  text-align: right;
+  text-decoration: none;
 }
 
 .text {
-    font-family: sans-serif;
-    text-decoration: none;
-    color: #000000;
-    font-size: 12pt;
+  color: #000;
+  font-family: sans-serif;
+  font-size: 12pt;
+  text-decoration: none;
 }
 
 
 .required {
-    font-family: sans-serif;
-    text-decoration: none;
-    font-size: 12pt;
-    color: #770000;
-    font-weight: bold;
+  color: #700;
+  font-family: sans-serif;
+  font-size: 12pt;
+  font-weight: bold;
+  text-decoration: none;
 }
 
 /* Deprecated - Please use font-weight-bold class - Will be removed soon */
 .bold {
-    font-family: sans-serif;
-    text-decoration: none;
-    font-size: 12pt;
-    color: #000000;
-    font-weight: bold;
+  color: #000;
+  font-family: sans-serif;
+  font-size: 12pt;
+  font-weight: bold;
+  text-decoration: none;
 }
 
 .alert-custom {
-    font-family: sans-serif;
-    font-size: 70%;
-    color: #FF0000;
-    text-decoration: none;
+  color: #f00;
+  font-family: sans-serif;
+  font-size: 70%;
+  text-decoration: none;
 }
 
 .small {
-    text-decoration: none;
-    color: #000000;
-    font-family: sans-serif;
-    font-size: 60%;
+  color: #000;
+  font-family: sans-serif;
+  font-size: 60%;
+  text-decoration: none;
 }
 
 .link {
-    font-family: sans-serif;
-    text-decoration: none;
-    color: #000000;
-    font-size: 70%;
+  color: #000;
+  font-family: sans-serif;
+  font-size: 70%;
+  text-decoration: none;
 }
 
 .more {
-    font-family: sans-serif;
-    text-decoration: none;
-    color: #aaaaaa;
-    font-size: 70%;
+  color: #aaa;
+  font-family: sans-serif;
+  font-size: 70%;
+  text-decoration: none;
 }
 
 .back {
-    font-family: sans-serif;
-    text-decoration: none;
-    color: #aaaaaa;
-    font-size: 70%;
+  color: #aaa;
+  font-family: sans-serif;
+  font-size: 70%;
+  text-decoration: none;
 }
 
 .link_selected {
-    font-family: sans-serif;
-    text-decoration: none;
-    color: #0000FF;
-    font-size: 10pt;
+  color: #00f;
+  font-family: sans-serif;
+  font-size: 10pt;
+  text-decoration: none;
 }
 
 .link_submit {
-    font-family: sans-serif;
-    text-decoration: none;
-    color: #000066;
-    font-size: 70%;
+  color: #006;
+  font-family: sans-serif;
+  font-size: 70%;
+  text-decoration: none;
 }
 
 .items {
-    font-family: sans-serif;
-    font-size: 6pt;
+  font-family: sans-serif;
+  font-size: 6pt;
 }
 
 .title {
-    font-family: sans-serif;
-    font-size: 12pt;
-    font-weight: bold;
-    text-decoration: none;
-    color: #000000;
+  color: #000;
+  font-family: sans-serif;
+  font-size: 12pt;
+  font-weight: bold;
+  text-decoration: none;
 }
 
 .title_bar {
-    font-family: sans-serif;
-    font-size: 12pt;
-    font-weight: bold;
-    text-decoration: none;
-    color: #FFFFFF;
+  color: #fff;
+  font-family: sans-serif;
+  font-size: 12pt;
+  font-weight: bold;
+  text-decoration: none;
 }
 
 a {
-    text-decoration: none;
+  text-decoration: none;
 }
 
 /* style taken out of the addressbook code and put here instead */
 #addressbook_list td {
-    font-family: "Arial", "Helvetica", sans-serif;
-    padding-left: 4px;
-    padding-right: 4px;
+  font-family: "Arial", "Helvetica", sans-serif;
+  padding-left: 4px;
+  padding-right: 4px;
 }
 
 #addressbook_list a,
 #addressbook_list a:visited,
 #addressbook_list a:hover {
-    color: #0000cc;
+  color: #00c;
 }
 
 #addressbook_list tr.search {
-    font-size: 9pt;
-    font-weight: bold;
+  font-size: 9pt;
+  font-weight: bold;
 }
 
 #addressbook_list tr.head {
-    font-size: 10pt;
-    background-color: #cccccc;
-    font-weight: bold;
+  background-color: #ccc;
+  font-size: 10pt;
+  font-weight: bold;
 }
 
 #addressbook_list tr.detail {
-    font-size: 10pt;
+  font-size: 10pt;
 }
 
 #addressbook_list .inputtext {
-    font-family: monospace;
-    font-size: 9pt;
-    font-weight: normal;
-    border-style: solid;
-    border-width: 1px;
-    border-color: #000000;
-    background-color: transparent;
+  background-color: transparent;
+  border-color: #000;
+  border-style: solid;
+  border-width: 1px;
+  font-family: monospace;
+  font-size: 9pt;
+  font-weight: normal;
 }
 
 #addressbook_list .button {
-    font-family: sans-serif;
-    font-size: 8pt;
-    font-weight: bold;
+  font-family: sans-serif;
+  font-size: 8pt;
+  font-weight: bold;
 }
 
 /* styles taken out of templates/report/general_default.html */
 #reports_list td {
-    font-size: 8pt;
-    font-family: "Helvetica", sans-serif;
+  font-family: "Helvetica", sans-serif;
+  font-size: 8pt;
 }
 
 #reports_list a {
-    font-size: 8pt;
-    font-family: "Helvetica", sans-serif;
+  font-family: "Helvetica", sans-serif;
+  font-size: 8pt;
 }
 
 /* styles taken out of templates/documents/general_list.html */
 #documents_list td {
-    font-size: 8pt;
-    font-family: "Helvetica", sans-serif;
+  font-family: "Helvetica", sans-serif;
+  font-size: 8pt;
 }
 
 #documents_list a {
-    font-size: 8pt;
-    font-family: "Helvetica", sans-serif;
+  font-family: "Helvetica", sans-serif;
+  font-size: 8pt;
 }
 
 #documents_list .treeMenuDefault {
-    font-style: italic;
+  font-style: italic;
 }
 
 #documents_list .treeMenuBold {
-    font-style: italic;
-    font-weight: bold;
+  font-style: italic;
+  font-weight: bold;
 }
 
 #documents_list {
-    width: 25%;
-    height: 90%;
-    overflow: auto;
-    border: 2px inset;
-    float: left;
+  border: 2px inset;
+  float: left;
+  height: 90%;
+  overflow: auto;
+  width: 25%;
 }
 
 #documents_actions {
-    padding-top: 10px;
-    width: 70%;
-    height: 90%;
-    float: right;
-    overflow: auto;
+  float: right;
+  height: 90%;
+  overflow: auto;
+  padding-top: 10px;
+  width: 70%;
 }
 
 #documents_actions iframe {
-    display: inline;
-    border: none;
-    width: 100%;
-    height: 600px;
-    overflow: auto;
+  border: 0;
+  display: inline;
+  height: 600px;
+  overflow: auto;
+  width: 100%;
 }
 
 #documents_actions form {
-    margin: 0px;
-    padding: 0px;
+  margin: 0;
+  padding: 0;
 }
 
 #documents_actions table {
-    width: 100%;
-    height: 100%;
+  height: 100%;
+  width: 100%;
 }
 
 /*=============================================================
@@ -241,33 +241,33 @@ a {
  * Patient Demographics are a custom layout.
  *============================================================*/
 #DEM .groupname {
-    font-weight: bold;
-    color: #080;
-    font-size: 0.8em;
-    padding-right: 5px;
-    vertical-align: bottom;
+  color: #080;
+  font-size: 0.8em;
+  font-weight: bold;
+  padding-right: 5px;
+  vertical-align: bottom;
 }
 
 #DEM .label_custom {
-    font-weight: bold;
-    font-size: 0.8em;
-    vertical-align: bottom;
-    text-align: right;
+  font-size: 0.8em;
+  font-weight: bold;
+  text-align: right;
+  vertical-align: bottom;
 }
 
 #DEM .data {
-    font-size: 0.8em;
-    vertical-align: bottom;
-    text-align: left;
+  font-size: 0.8em;
+  text-align: left;
+  vertical-align: bottom;
 }
 
 .tinylogocontainer {
-    display: inline-block;
-    border: none;
+  border: 0;
+  display: inline-block;
 }
 
 .tinylogopng {
-    display: inline-block;
-    width: 44px;
-    height: 22px;
+  display: inline-block;
+  height: 22px;
+  width: 44px;
 }
