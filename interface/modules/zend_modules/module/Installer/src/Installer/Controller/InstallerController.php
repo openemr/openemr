@@ -164,7 +164,6 @@ class InstallerController extends AbstractActionController
                     $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not install ACL ");
                 }
             } elseif ($request->getPost('modAction') == "unregister") {
-
                 $status = $this->UnregisterModule($request->getPost('modId'));
             }
         }
