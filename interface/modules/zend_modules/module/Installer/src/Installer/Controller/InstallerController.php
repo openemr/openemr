@@ -88,7 +88,7 @@ class InstallerController extends AbstractActionController
     {
         $status = false;
         $request = $this->getRequest();
-        if (method_exists($request,'isPost')) {
+        if (method_exists($request, 'isPost')) {
             if ($request->getPost('mtype') == 'zend') {
                 // TODO: We want to be able to load the modules
                 // from the database.. however, this can be fairly slow so we might want to do some kind of APC caching of the module
@@ -112,7 +112,7 @@ class InstallerController extends AbstractActionController
 
             die($status ? $this->listenerObject->z_xlt("Success") : $this->listenerObject->z_xlt("Failure"));
 
-        }else{
+        } else {
 
             $moduleType = $request->getParam('mtype');
             $moduleName = $request->getParam('modname');
@@ -126,8 +126,7 @@ class InstallerController extends AbstractActionController
                     $status = true;
                 }
                 die($status ? $this->listenerObject->z_xlt("Success") : $this->listenerObject->z_xlt("Failure"));
-            }
-            else{
+            } else {
                 die("not supported");
             }
         }
@@ -140,52 +139,45 @@ class InstallerController extends AbstractActionController
         $status = $this->listenerObject->z_xlt("Failure");
         if ($request->isPost()) {
             if ($request->getPost('modAction') == "enable") {
-                $status =$this->EnableModule($request->getPost('modId'));
-            }
-            elseif ($request->getPost('modAction') == "disable") {
-                $status =$this->DisableModule($request->getPost('modId'));
-            }
-            elseif ($request->getPost('modAction') == "install") {
+                $status = $this->EnableModule($request->getPost('modId'));
+            } elseif ($request->getPost('modAction') == "disable") {
+                $status = $this->DisableModule($request->getPost('modId'));
+            } elseif ($request->getPost('modAction') == "install") {
                 $modId = $request->getPost('modId');
-                $mod_enc_menu=$request->getPost('mod_enc_menu');
-                $mod_nick_name=$request->getPost('mod_nick_name');
+                $mod_enc_menu = $request->getPost('mod_enc_menu');
+                $mod_nick_name = $request->getPost('mod_nick_name');
 
-                $status =$this->InstallModule($modId,$mod_enc_menu,$mod_nick_name);
-            }
-            elseif ($request->getPost('modAction') == 'install_sql') {
+                $status = $this->InstallModule($modId, $mod_enc_menu, $mod_nick_name);
+            } elseif ($request->getPost('modAction') == 'install_sql') {
                 if ($this->InstallModuleSQL($request->getPost('modId'))) {
                     $status = $this->listenerObject->z_xlt("Success");
                 } else {
                     $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not open table") . '.' . $this->listenerObject->z_xlt("sql") . ', ' . $this->listenerObject->z_xlt("broken form") . "?";
                 }
-            }
-            elseif ($request->getPost('modAction') == 'upgrade_sql') {
+            } elseif ($request->getPost('modAction') == 'upgrade_sql') {
                 $div = $this->UpgradeModuleSQL($request->getPost('modId'));
                 $status = $this->listenerObject->z_xlt("Success");
-            }
-            elseif ($request->getPost('modAction') == 'install_acl') {
+            } elseif ($request->getPost('modAction') == 'install_acl') {
                 if ($div = $this->InstallModuleACL($request->getPost('modId'))) {
                     $status = $this->listenerObject->z_xlt("Success");
                 } else {
                     $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not install ACL ");
                 }
-            }
-            elseif ($request->getPost('modAction') == 'upgrade_acl') {
+            } elseif ($request->getPost('modAction') == 'upgrade_acl') {
                 if ($div = $this->UpgradeModuleACL($request->getPost('modId'))) {
                     $status = $this->listenerObject->z_xlt("Success");
                 } else {
                     $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not install ACL ");
                 }
-            }
-            elseif ($request->getPost('modAction') == "unregister") {
+            } elseif ($request->getPost('modAction') == "unregister") {
 
                 $status = $this->UnregisterModule($request->getPost('modId'));
             }
         }
 
-        $output="";
-        if(is_array($div)){
-            $output=implode("<br />\n", $div);
+        $output = "";
+        if (is_array($div)) {
+            $output = implode("<br />\n", $div);
         }
         echo json_encode(["status" => $status, "output" => $output]);
 
@@ -652,7 +644,7 @@ class InstallerController extends AbstractActionController
      * @param string $dir Location of the php file which calling functions to add sections,aco etc.
      * @return boolean
      */
-    public function InstallModule($modId = '',$mod_enc_menu='',$mod_nick_name='')
+    public function InstallModule($modId = '', $mod_enc_menu = '', $mod_nick_name = '')
     {
         $dirModule = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
 
@@ -745,63 +737,46 @@ class InstallerController extends AbstractActionController
         echo PHP_EOL . '--- Run command [' . $moduleAction . '] in module:  ' . $moduleName . '---' . PHP_EOL;
         echo 'start process - ' . date('Y-m-d H:i:s') . PHP_EOL;
 
-
         if (!empty($moduleAction) && !empty($moduleName) && $moduleName != "all") {
             $moduleId = $this->getModuleId($moduleName);
         }
 
-
-        $msg="";
-
         if ($moduleId !== null) {
             echo 'module [' . $moduleName . '] was find' . PHP_EOL;
 
-            $msg="command completed successfully";
+            $msg = "command completed successfully";
 
             if ($moduleAction === "install_sql") {
                 $this->InstallModuleSQL($moduleId);
-            }
-
-            elseif ($moduleAction === "upgrade_sql") {
+            } elseif ($moduleAction === "upgrade_sql") {
                 $div = $this->UpgradeModuleSQL($moduleId);
-            }
-
-            elseif ($moduleAction === "install_acl") {
+            } elseif ($moduleAction === "install_acl") {
                 $div = $this->InstallModuleACL($moduleId);
-            }
-
-            elseif ($moduleAction === "upgrade_acl") {
+            } elseif ($moduleAction === "upgrade_acl") {
                 $div = $this->UpgradeModuleACL($moduleId);
-            }
-            elseif ($moduleAction === "enable") {
+            } elseif ($moduleAction === "enable") {
                 $div = $this->EnableModule($moduleId);
-            }
-            elseif ($moduleAction === "disable") {
+            } elseif ($moduleAction === "disable") {
                 $div = $this->DisableModule($moduleId);
-            }
-            elseif ($moduleAction === "install") {
+            } elseif ($moduleAction === "install") {
                 $div = $this->InstallModule($moduleId);
-            }
-            elseif ($moduleAction === "unregister") {
+            } elseif ($moduleAction === "unregister") {
                 $div = $this->UnregisterModule($moduleId);
+            } else {
+                $msg = 'Unsupported command';
             }
-            else{
-                $msg='Unsupported command';
-            }
-        }else{
-            $msg="module Id is null";
+        } else {
+            $msg = "module Id is null";
         }
 
 
-        $output="";
+        $output = "";
 
-        if(is_array($div)){
-            $output= implode("<br />\n", $div) . PHP_EOL;
+        if (is_array($div)) {
+            $output = implode("<br />\n", $div) . PHP_EOL;
         }
         echo $output;
 
         exit($msg . PHP_EOL);
-
-
     }
 }
