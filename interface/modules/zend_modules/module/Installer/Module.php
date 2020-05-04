@@ -50,6 +50,9 @@ class Module
             ['--site=<site_name>', 'Name of site, by default: "default" '],
             ['--modaction=<action_name>', 'Available actions: install_sql, install_acl, upgrade_acl, upgrade_sql, install, enable, disable, unregister'],
             ['--modname=<module_name>', 'Name of module'],
+            ['register', 'Part of route for console call'],
+            ['--mtype=<module_type>', 'module'],
+            ['--modname=<module_name>', 'Name of module'],
         ];
     }
 }
