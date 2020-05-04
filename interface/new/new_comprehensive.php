@@ -413,20 +413,6 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-12">
-                <div class="btn-group">
-                    <?php if ($WITH_SEARCH) { ?>
-                        <button type="button" class="btn btn-secondary btn-search" id="search" value="<?php echo xla('Search'); ?>">
-                            <?php echo xlt('Search'); ?>
-                        </button>
-                    <?php } ?>
-                    <button type="button" class="btn btn-secondary btn-save" name='create' id="create" value="<?php echo xla('Create New Patient'); ?>">
-                        <?php echo xlt('Create New Patient'); ?>
-                    </button>
-                </div>
-            </div>
-        </div>
         <br />
         <div class="row">
             <div class="col-sm-12">
@@ -813,6 +799,20 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         </tr>
                     </table>
                 </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="btn-group">
+                    <?php if ($WITH_SEARCH) { ?>
+                        <button type="button" class="btn btn-secondary btn-search" id="search" value="<?php echo xla('Search'); ?>">
+                            <?php echo xlt('Search'); ?>
+                        </button>
+                    <?php } ?>
+                    <button type="button" class="btn btn-primary btn-save" name='create' id="create" value="<?php echo xla('Create New Patient'); ?>">
+                        <?php echo xlt('Create New Patient'); ?>
+                    </button>
+                </div>
             </div>
         </div>
     </div> <!--end of container div -->
