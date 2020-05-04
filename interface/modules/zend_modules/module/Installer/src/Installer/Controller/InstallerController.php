@@ -88,7 +88,7 @@ class InstallerController extends AbstractActionController
     {
         $status = false;
         $request = $this->getRequest();
-        if ($request->isPost()) {
+        if (method_exists($request,'isPost')) {
             if ($request->getPost('mtype') == 'zend') {
                 // TODO: We want to be able to load the modules
                 // from the database.. however, this can be fairly slow so we might want to do some kind of APC caching of the module
@@ -111,6 +111,25 @@ class InstallerController extends AbstractActionController
             }
 
             die($status ? $this->listenerObject->z_xlt("Success") : $this->listenerObject->z_xlt("Failure"));
+
+        }else{
+
+            $moduleType = $request->getParam('mtype');
+            $moduleName = $request->getParam('modname');
+
+            if ($moduleType == 'zend') {
+
+                $rel_path = "public/" . $moduleName . "/";
+                // registering the table inserts the module record into the database.
+                // it's always loaded regardless, but it inserts it in the database as not activated
+                if ($this->getInstallerTable()->register($moduleName, $rel_path, 0, $GLOBALS['zendModDir'])) {
+                    $status = true;
+                }
+                die($status ? $this->listenerObject->z_xlt("Success") : $this->listenerObject->z_xlt("Failure"));
+            }
+            else{
+                die("not supported");
+            }
         }
     }
 
