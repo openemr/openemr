@@ -1289,23 +1289,31 @@ STP5TOP;
                         }
 
                         $short_tag = ini_get('short_open_tag') ? 'On' : 'Off';
-                        $short_tag_style = $short_tag.strcmp('Off') ? ' ' : 'text-danger';
+                        $short_tag_style = $short_tag.strcmp('Off') ? '' : 'text-danger';
+
                         $display_errors = ini_get('display_errors') ? 'On' : 'Off';
-                        $display_errors_style = $display_errors.strcmp('Off') ? ' ' : 'text-danger';
+                        $display_errors_style = $display_errors.strcmp('Off') ? '' : 'text-danger';
+
                         $register_globals = ini_get('register_globals') ? 'On' : 'Off';
-                        $register_globals_style = $register_globals.strcmp('Off') ? ' ' : 'text-danger';
+                        $register_globals_style = $register_globals.strcmp('Off') ? '' : 'text-danger';
+
                         $max_input_vars = ini_get('max_input_vars');
-                        $max_input_vars_style = $max_input_vars < 3000 ? 'text-danger' : ' ';
+                        $max_input_vars_style = $max_input_vars < 3000 ? 'text-danger' : '';
+
                         $max_execution_time = ini_get('max_execution_time');
-                        $max_execution_time_style = $max_execution_time < 60 || $max_execution_time !== 0 ? 'text-danger' : ' ';
+                        $max_execution_time_style = $max_execution_time < 60 || $max_execution_time !== 0 ? 'text-danger' : '';
+
                         $max_input_time = ini_get('max_input_time');
-                        $max_input_time_style = $max_input_time.strcmp('-1') ? ' ' : 'text-danger';
+                        $max_input_time_style = $max_input_time.strcmp('-1') ? '' : 'text-danger';
+
                         $post_max_size = ini_get('post_max_size');
-                        $post_max_size_style = $post_max_size < 30 ? 'text-danger' : ' ';
+                        $post_max_size_style = $post_max_size < 30 ? 'text-danger' : '';
+
                         $memory_limit = ini_get('memory_limit');
-                        $memory_limit_style = $memory_limit < 256 ? 'text-danger' : ' ';
+                        $memory_limit_style = $memory_limit < 256 ? 'text-danger' : '';
+
                         $mysqli_allow_local_infile = ini_get('mysqli.allow_local_infile') ? 'On' : 'Off';
-                        $mysqli_allow_local_infile_style = $mysqli_allow_local_infile.strcmp('On') ? ' ' : 'text-danger';
+                        $mysqli_allow_local_infile_style = $mysqli_allow_local_infile.strcmp('On') ? '' : 'text-danger';
 
                         $step5_table = <<<STP5TAB
                             <li>To ensure proper functioning of OpenEMR you must make sure that PHP settings include:
