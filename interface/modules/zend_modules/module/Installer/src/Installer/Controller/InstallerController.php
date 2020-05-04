@@ -109,16 +109,11 @@ class InstallerController extends AbstractActionController
                     $status = true;
                 }
             }
-
             die($status ? $this->listenerObject->z_xlt("Success") : $this->listenerObject->z_xlt("Failure"));
-
         } else {
-
             $moduleType = $request->getParam('mtype');
             $moduleName = $request->getParam('modname');
-
             if ($moduleType == 'zend') {
-
                 $rel_path = "public/" . $moduleName . "/";
                 // registering the table inserts the module record into the database.
                 // it's always loaded regardless, but it inserts it in the database as not activated
@@ -146,7 +141,6 @@ class InstallerController extends AbstractActionController
                 $modId = $request->getPost('modId');
                 $mod_enc_menu = $request->getPost('mod_enc_menu');
                 $mod_nick_name = $request->getPost('mod_nick_name');
-
                 $status = $this->InstallModule($modId, $mod_enc_menu, $mod_nick_name);
             } elseif ($request->getPost('modAction') == 'install_sql') {
                 if ($this->InstallModuleSQL($request->getPost('modId'))) {
@@ -174,13 +168,11 @@ class InstallerController extends AbstractActionController
                 $status = $this->UnregisterModule($request->getPost('modId'));
             }
         }
-
         $output = "";
         if (is_array($div)) {
             $output = implode("<br />\n", $div);
         }
         echo json_encode(["status" => $status, "output" => $output]);
-
         exit(0);
     }
 
