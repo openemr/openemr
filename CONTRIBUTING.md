@@ -67,24 +67,6 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools e2e-test'
       ```
     - To run services testing:
-<<<<<<< HEAD
-      ```sh
-      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools services-test'
-      ```
-    - To run fixtures testing:
-      ```sh
-      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools fixtures-test'
-      ```
-    - To run validators testing:
-      ```sh
-      docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools validators-test'
-      ```
-8. To run the entire dev tool suite (PHPCS fix, PHP parse error, unit/API/e2e/services/fixtures/validators tests) in one command, run
-    ```sh
-    docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools clean-sweep'
-    ```
-9. To run only all the automated tests (unit/API/e2e/services/fixtures/validators tests) in one command, run
-=======
       ```sh
       docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools services-test'
       ```
@@ -105,7 +87,6 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools clean-sweep'
     ```
 9. To run only all the automated tests (unit/API/e2e/services/fixtures/validators/controllers tests) in one command, run
->>>>>>> upstream/master
     ```sh
     docker exec -i $(docker ps | grep _openemr | cut -f 1 -d " ") sh -c '/root/devtools clean-sweep-tests'
     ```
