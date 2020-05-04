@@ -48,7 +48,7 @@ class Module
         return [
             ['zfc-module', 'Part of route for console call'],
             ['--site=<site_name>', 'Name of site, by default: "default" '],
-            ['--modaction=<action_name>', 'Available actions: install_sql, install_acl, upgrade_acl, upgrade_sql,install,enable,disable,unregister'],
+            ['--modaction=<action_name>', 'Available actions: install_sql, install_acl, upgrade_acl, upgrade_sql, install, enable, disable, unregister'],
             ['--modname=<module_name>', 'Name of module'],
         ];
     }
