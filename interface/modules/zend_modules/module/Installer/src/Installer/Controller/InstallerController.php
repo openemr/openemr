@@ -121,13 +121,17 @@ class InstallerController extends AbstractActionController
         $status = $this->listenerObject->z_xlt("Failure");
         if ($request->isPost()) {
             if ($request->getPost('modAction') == "enable") {
-                $status =$this->InstallModuleSQL($request->getPost('modId'));
+                $status =$this->EnableModule($request->getPost('modId'));
             }
             elseif ($request->getPost('modAction') == "disable") {
                 $status =$this->DisableModule($request->getPost('modId'));
             }
             elseif ($request->getPost('modAction') == "install") {
-                $status =$this->InstallModule($request);
+                $modId = $request->getPost('modId');
+                $mod_enc_menu=$request->getPost('mod_enc_menu');
+                $mod_nick_name=$request->getPost('mod_nick_name');
+
+                $status =$this->InstallModule($modId,$mod_enc_menu,$mod_nick_name);
             }
             elseif ($request->getPost('modAction') == 'install_sql') {
                 if ($this->InstallModuleSQL($request->getPost('modId'))) {
@@ -596,7 +600,6 @@ class InstallerController extends AbstractActionController
         } else {
             $status = $this->listenerObject->z_xlt("Success");
         }
-
         return $status;
     }
 
@@ -630,17 +633,16 @@ class InstallerController extends AbstractActionController
      * @param string $dir Location of the php file which calling functions to add sections,aco etc.
      * @return boolean
      */
-    public function InstallModule($request)
+    public function InstallModule($modId = '',$mod_enc_menu='',$mod_nick_name='')
     {
-        $dirModule = $this->getInstallerTable()->getRegistryEntry($request->getPost('modId'), "mod_directory");
-        $mod_enc_menu = $request->getPost('mod_enc_menu');
-        $mod_nick_name = $request->getPost('mod_nick_name');
+        $dirModule = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
+
         if ($this->getInstallerTable()->installSQL($GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . $GLOBALS['customModDir'] . "/" . $dirModule->modDirectory)) {
             $values = array($mod_nick_name, $mod_enc_menu);
             //Run custom sql's in folder sql of module
             if ($this->getInstallerTable()->installSQL($GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule->modDirectory . "/sql")) {
-                $values[2] = $this->getModuleVersionFromFile($request->getPost('modId'));
-                $this->getInstallerTable()->updateRegistered($request->getPost('modId'), '', $values);
+                $values[2] = $this->getModuleVersionFromFile($modId);
+                $this->getInstallerTable()->updateRegistered($modId, '', $values);
                 $status = $this->listenerObject->z_xlt("Success");
             } else {
                 $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not run sql query");
