@@ -179,7 +179,7 @@ curl -X POST 'http://localhost:8300/apis/api/patient' -d \
     "state": "FL",
     "country_code": "US",
     "phone_contact": "123-456-7890",
-    "dob": "1992-02-02",
+    "DOB": "1992-02-02",
     "sex": "Male",
     "race": "",
     "ethnicity": ""
