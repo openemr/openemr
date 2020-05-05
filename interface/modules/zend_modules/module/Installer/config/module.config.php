@@ -56,6 +56,7 @@ return array(
     'console' => array(
         'router' => array(
             'routes' => array(
+
                 'zfc-module' => array(
                     'options' => array(
                         'route' => 'zfc-module --site= --modaction= --modname= ',
@@ -65,6 +66,17 @@ return array(
                         ),
                     )
                 ),
+
+                'register' => array(
+                    'options' => array(
+                        'route'    => 'register --mtype= --modname=',
+                        'defaults' => array(
+                            'controller' => Installer\Controller\InstallerController::class,
+                            'action'     => 'register',
+                        ),
+                    ),
+                ),
+
             )
         )
     ),
