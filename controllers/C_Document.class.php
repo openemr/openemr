@@ -542,8 +542,7 @@ class C_Document extends Controller
 
         switch ($context) {
             case "patient_picture":
-                $this->patientService->setPid($patient_id);
-                $document_id = $this->patientService->getPatientPictureDocumentId();
+                $document_id = $this->patientService->getPatientPictureDocumentId($patient_id);
                 break;
         }
 

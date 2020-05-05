@@ -69,21 +69,21 @@ RestConfig::$ROUTE_MAP = array(
     },
     "GET /api/patient" => function () {
         RestConfig::authorization_check("patients", "demo");
-        return (new PatientRestController(null))->getAll($_GET);
+        return (new PatientRestController())->getAll($_GET);
     },
     "POST /api/patient" => function () {
         RestConfig::authorization_check("patients", "demo");
         $data = (array)(json_decode(file_get_contents("php://input")));
-        return (new PatientRestController(null))->post($data);
+        return (new PatientRestController())->post($data);
     },
     "PUT /api/patient/:pid" => function ($pid) {
         RestConfig::authorization_check("patients", "demo");
         $data = (array)(json_decode(file_get_contents("php://input")));
-        return (new PatientRestController(null))->put($pid, $data);
+        return (new PatientRestController())->put($pid, $data);
     },
     "GET /api/patient/:pid" => function ($pid) {
         RestConfig::authorization_check("patients", "demo");
-        return (new PatientRestController($pid))->getOne();
+        return (new PatientRestController())->getOne($pid);
     },
     "GET /api/patient/:pid/encounter" => function ($pid) {
         RestConfig::authorization_check("encounters", "auth_a");
