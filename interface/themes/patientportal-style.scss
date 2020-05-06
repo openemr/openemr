@@ -128,48 +128,15 @@ body > .header {
   z-index: 1030;
 }
 
-/* Define 2 column template */
-.right-side,
+/* left side - contains sidebar */
 .left-side {
-  display: block;
+  order: 1;
 }
 
-/*right side - contins main content*/
+/* right side - contins main content */
 .right-side {
-  margin-#{$left}: 220px;
-}
-
-/*left side - contains sidebar*/
-.left-side {
-  position: absolute;
-  top: 0;
-  width: 220px;
-}
-
-@media screen and (min-width: 992px) {
-  .left-side {
-    top: 50px;
-    // Left side collapse
-    &.collapse-left {
-      #{$left}: -220px;
-    }
-  }
-
-  /*Right side strech mode*/
-  .right-side.strech {
-    margin-#{$left}: 0;
-
-    > .content-header {
-      margin-top: 0;
-    }
-  }
-}
-
-/*Give content full width on xs screens*/
-@media screen and (max-width: 992px) {
-  .right-side {
-    margin-#{$left}: 0;
-  }
+  flex-grow: 1;
+  order: 2;
 }
 
 /*
@@ -178,23 +145,25 @@ body > .header {
 */
 
 body.fixed {
-	> .header {
-	    top: 0;
-	    right: 0;
-	    left: 0;
-	}
-	.navbar {
-	    left: 0;
-	    right: 0;
-	}
-	.wrapper {
-	    margin-top: 50px;
-	}
-	> .header,
-	.left-side,
-	.navbar {
-	    position: fixed;
-	}
+  > .header {
+    left: 0;
+    right: 0;
+    top: 0;
+  }
+
+  .navbar {
+    left: 0;
+    right: 0;
+  }
+
+  .wrapper {
+    margin-top: 50px;
+  }
+
+  > .header,
+  .navbar {
+    position: fixed;
+  }
 }
 
 
@@ -1921,48 +1890,6 @@ li.dropdown-header {
   background-color: $gray-200;
 }
 
-/**
-*	Brand new Sidebar
-*	Grabbed from Bootstrap 4 Documentation Examples
-*/
-
-.sidebar {
-  bottom: 0;
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
-  padding: 48px 0 0;
-  #{$left}: 0;
-
-  .nav-link {
-    color: $gray-800;
-    font-weight: 500;
-
-    .feather {
-      color: $gray-600;
-      margin-#{$right}: 4px;
-    }
-
-    &:hover .feather,
-    &.active .feather {
-      color: inherit;
-    }
-  }
-}
-
-.sidebar-sticky {
-  height: calc(100vh - 48px);
-  overflow-x: hidden;
-  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
-  padding-top: 0.5rem;
-  position: relative;
-  top: 0;
-}
-
-@supports ((position: -webkit-sticky) or (position: sticky)) {
-  .sidebar-sticky {
-    position: sticky;
-  }
-}
-
 .feather {
   height: 16px;
   vertical-align: text-bottom;
@@ -1973,4 +1900,9 @@ li.dropdown-header {
   .collapse-md {
     display: inherit !important;
   }
+}
+
+// Set cursor pointer
+.cursor-pointer {
+  cursor: pointer !important;
 }

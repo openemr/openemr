@@ -21,11 +21,6 @@ OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 // regenerating the session id to avoid session fixation attacks
 session_regenerate_id(true);
-//
-
-// landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
-//
 
 // checking whether the request comes from index.php
 if (!isset($_SESSION['itsme'])) {
@@ -68,6 +63,9 @@ require_once("$srcdir/user.inc");
 
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
+
+// landing page definition -- where to go if something goes wrong
+$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
 
 $logit = new ApplicationTable();
 $password_update = isset($_SESSION['password_update']) ? $_SESSION['password_update'] : 0;
