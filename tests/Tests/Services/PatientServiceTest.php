@@ -25,7 +25,7 @@ class PatientServiceTest extends TestCase
     {
         $this->patientService = new PatientService();
         $this->fixtureManager = new FixtureManager();
-        $this->patientFixture = (array) $this->fixtureManager->getPatientFixture();
+        $this->patientFixture = (array) $this->fixtureManager->getSinglePatientFixture();
     }
 
     protected function tearDown(): void
@@ -68,7 +68,17 @@ class PatientServiceTest extends TestCase
     {
         $actualResult = $this->patientService->insert($this->patientFixture);
         $this->assertTrue($actualResult->isValid());
-        $this->assertGreaterThan(0, $actualResult->getData());
+        $this->assertEquals(1, count($actualResult->getData()));
+
+        $dataResult = $actualResult->getData()[0];
+        $this->assertIsArray($dataResult);
+        $this->assertArrayHasKey("pid", $dataResult);
+        $this->assertGreaterThan(0, $dataResult["pid"]);
+
+        $this->assertEquals(0, count($actualResult->getValidationMessages()));
+        $this->assertTrue($actualResult->isValid());
+        $this->assertEquals(0, count($actualResult->getInternalErrors()));
+        $this->assertFalse($actualResult->hasInternalErrors());
     }
 
     /**
@@ -95,10 +105,14 @@ class PatientServiceTest extends TestCase
     {
         $actualResult = $this->patientService->insert($this->patientFixture);
         $this->assertTrue($actualResult->isValid());
+        $this->assertEquals(1, count($actualResult->getData()));
 
-        $actualPid = $actualResult->getData();
-        $this->assertGreaterThan(0, $actualPid);
+        $dataResult = $actualResult->getData()[0];
+        $this->assertIsArray($dataResult);
+        $this->assertArrayHasKey("pid", $dataResult);
+        $this->assertGreaterThan(0, $dataResult["pid"]);
         
+        $actualPid = $dataResult["pid"];
         $this->patientFixture["phone_home"] = "555-111-4444";
         $actualResult = $this->patientService->update($actualPid, $this->patientFixture);
 
@@ -116,13 +130,11 @@ class PatientServiceTest extends TestCase
     public function testPatientQueries()
     {
         $this->fixtureManager->installPatientFixtures();
-
         $existingPid = $this->patientService->getFreshPid() - 1;
-        $this->patientService->setPid($existingPid);
 
         // getOne
-        $actualResult = $this->patientService->getOne();
-        $resultData = $actualResult->getData();
+        $actualResult = $this->patientService->getOne($existingPid);
+        $resultData = $actualResult->getData()[0];
         $this->assertNotNull($resultData);
         $this->assertEquals($existingPid, intval($resultData["pid"]));
         $this->assertArrayHasKey("fname", $resultData);
@@ -130,14 +142,19 @@ class PatientServiceTest extends TestCase
         $this->assertArrayHasKey("sex", $resultData);
         $this->assertArrayHasKey("DOB", $resultData);
 
+        // getOne - with an invalid pid
+        $actualResult = $this->patientService->getOne("not-a-pid");
+        $this->assertEquals(1, count($actualResult->getValidationMessages()));
+        $this->assertEquals(0, count($actualResult->getInternalErrors()));
+        $this->assertEquals(0, count($actualResult->getData()));
+
         // getAll
         $actualResult = $this->patientService->getAll(array("state" => "CA"));
-        $resultData = $actualResult->getData();
-        $this->assertNotNull($resultData);
-        $this->assertGreaterThan(0, count($resultData));
+        $this->assertNotNull($actualResult);
+        $this->assertGreaterThan(1, count($actualResult->getData()));
 
-        foreach ($resultData as $key => $value) {
-            $this->assertEquals("CA", $value["state"]);
+        foreach ($actualResult->getData() as $index => $patientRecord) {
+            $this->assertEquals("CA", $patientRecord["state"]);
         }
     }
 }

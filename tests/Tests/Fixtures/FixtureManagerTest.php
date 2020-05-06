@@ -31,12 +31,16 @@ class FixtureManagerTest extends TestCase
     {
         $this->assertNotNull($patientFixture);
 
+        $expectedFields = array("pubpid", "title", "fname", "mname",
+         "lname", "ss", "street", "contact_relationship",
+         "postal_code", "city", "state", "phone_contact",
+         "phone_home", "phone_biz", "email", "DOB",
+         "sex", "status", "drivers_license");
+
         $message = "Patient is missing";
-        $this->assertObjectHasAttribute("pubpid", $patientFixture, $message . " pubpid");
-        $this->assertObjectHasAttribute("fname", $patientFixture, $message . " fname");
-        $this->assertObjectHasAttribute("lname", $patientFixture, $message . " lname");
-        $this->assertObjectHasAttribute("DOB", $patientFixture, $message . " DOB");
-        $this->assertObjectHasAttribute("sex", $patientFixture, $message . " sex");
+        foreach ($expectedFields as $index => $expectedField) {
+            $this->assertObjectHasAttribute($expectedField, $patientFixture, $message . " " . $expectedField);
+        }
 
         $message = "Patient does not have a test pubpid ";
         $this->assertStringStartsWith("test-fixture", $patientFixture->pubpid, $message . $patientFixture->pubpid);
@@ -61,7 +65,7 @@ class FixtureManagerTest extends TestCase
      */
     public function testGetPatientFixture()
     {
-        $patientFixture = $this->fixtureManager->getPatientFixture();
+        $patientFixture = $this->fixtureManager->getSinglePatientFixture();
         $this->assertPatientFields($patientFixture);
     }
 

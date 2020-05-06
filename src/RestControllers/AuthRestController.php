@@ -143,8 +143,8 @@ class AuthRestController
         $ip = collectIpAddresses();
 
         // Query with first part of token
-        $tokenResult = sqlQueryNoLog("SELECT u.username, a.token, a.token_auth, a.expiry FROM api_token a JOIN users_secure u ON u.id = a.user_id WHERE BINARY token=?", array($token_a));
-        if (!$tokenResult || empty($tokenResult['username']) || empty($tokenResult['token']) || empty($tokenResult['token_auth']) || empty($tokenResult['expiry'])) {
+        $tokenResult = sqlQueryNoLog("SELECT u.username, a.user_id, a.token, a.token_auth, a.expiry FROM api_token a JOIN users_secure u ON u.id = a.user_id WHERE BINARY token=?", array($token_a));
+        if (!$tokenResult || empty($tokenResult['username']) || empty($tokenResult['user_id']) || empty($tokenResult['token']) || empty($tokenResult['token_auth']) || empty($tokenResult['expiry'])) {
             EventAuditLogger::instance()->newEvent('api', $tokenResult['username'], '', 0, "API failure: " . $ip['ip_string'] . ". token not found");
             return false;
         }
@@ -176,33 +176,12 @@ class AuthRestController
         }
 
         EventAuditLogger::instance()->newEvent('api', $tokenResult['username'], '', 1, "API success for API token use: " . $ip['ip_string']);
+
+        // Set needed session variables
+        $_SESSION['authUser'] = $tokenResult['username'];
+        $_SESSION['authUserId'] = $tokenResult['user_id'];
+
         return true;
-    }
-
-    public function aclCheck($tokenRaw, $section, $value)
-    {
-        // decrypt/validate the encrypted/signed token
-        $token = $this->decryptValidateToken($tokenRaw);
-        if (empty($token)) {
-            return false;
-        }
-
-        // Only use first part of token since authentication of token not needed here
-        $token = substr($token, 0, 32);
-
-        // Collect username
-        $sql = " SELECT";
-        $sql .= " u.username";
-        $sql .= " FROM api_token a";
-        $sql .= " JOIN users_secure u ON u.id = a.user_id";
-        $sql .= " WHERE BINARY a.token = ?";
-        $userResult = sqlQueryNoLog($sql, array($token));
-        if (empty($userResult["username"])) {
-            return false;
-        }
-
-        // Check if user is authorized
-        return AclMain::aclCheckCore($section, $value, $userResult["username"]);
     }
 
     public function optionallyAddMoreTokenTime($tokenRaw)

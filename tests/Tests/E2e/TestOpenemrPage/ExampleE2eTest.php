@@ -16,7 +16,7 @@ class ExampleE2eTest extends PantherTestCase
 
     protected function setUp(): void
     {
-        $this->e2eBaseUrl = getenv("E2E_BASE_URL", true) ?: "http://localhost";
+        $this->e2eBaseUrl = getenv("OPENEMR_BASE_URL", true) ?: "http://localhost";
     }
 
     /** @test */
