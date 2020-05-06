@@ -35,7 +35,7 @@ if($is_post_request){
 
   if($request == "enroll"){
     $panel['risk_stratification'] = $_POST['risk_stratification'] ?? '';
-    $panel['panel_id'] = $_POST['panel'] ?? '';
+    $panel['panel_ids'] = $_POST['panel_ids'];
     $panel['patient_id'] =  $pid ?? '';
 
     insertEnrolment($panel);
@@ -45,6 +45,19 @@ if($is_post_request){
 
     dischargePatient($enrollment_id);
   }
+//post request from jx
+  if(isset($_POST['id'])){
+    $id = $_POST['id'] ?? '';
+    $result = getPanelsByCategory($id);
+    $emparray = [];
+    while($row =sqlFetchArray($result))
+    {
+        $emparray[] = $row;
+    }
+    echo json_encode($emparray);
+
+  }
+
 }
 //end of post request section
 ////////////////////////////////////////////////////////////////
@@ -149,9 +162,26 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
     });
   });
 </script>
+<!-- Print the sub panels based on the panel category -->
 <script type="text/javascript">
-
-</script>
+		$(document).ready(function(){
+			$("#panels").change(function(){
+				var id = $("#panels").val();
+				$.ajax({
+					url: "panels.php",
+					method: 'post',
+					data: 'id=' + id
+				}).done(function(sub_panels){
+					sub_panels = JSON.parse(sub_panels.split("<html>")[0]);
+					$('#sub_panels').empty();
+					sub_panels.forEach(function(sub_panels){
+						$('#sub_panels').append('<input type="checkbox" id="panel_ids" name="panel_ids[]" value="' + sub_panels.id +
+            '"/>' + sub_panels.name + '<br>');
+					})
+				})
+			})
+		})
+	</script>
 </head>
 
 <body class="body_top">
@@ -243,17 +273,22 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
    $panels = getAllPanelCategories();
   ?>
   <p>Select the panel:
-  <select name="panel">
+  <select name="panels" id="panels">
     <option selected disabled>Select Panel</option>
   <?php
     while ($row = sqlFetchArray($panels)) {
       echo "<option value=\"" . attr($row['id']) . "\"";
+      echo "id=\"" . attr($row['id']) . "\"";
       echo ">";
       echo attr($row['name']) . "</option>";
     }
   ?>
   </select></p>
+  <label for="sub_panels">Sub Panels</label>
+  <div id="sub_panels" name="sub_panels">
+      <!-- cod from javacript will be past here -->
 
+  </div>
 
   <p>Select the risk stratification:
   <select name="risk_stratification">

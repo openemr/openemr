@@ -9,6 +9,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+
  /**
   * Purpose:
   * To check if the panels tables are created
@@ -81,6 +82,25 @@ function getAllPanels()
   return sqlStatement($sql);
   } else { return -1; }
 }
+/**
+  * Purpose:
+  * request the panels information
+  * if the tables exist
+  * @return array the panel {id, name, category_id}
+  * if the tables  do not exist
+  * @return integer return -1
+  */
+function getPanelsByCategory($category_id)
+{
+  if (isPanelDB())
+  {
+
+  $sql = "SELECT * FROM panel ";
+  $sql .= "WHERE category_id= \"" .add_escape_custom($category_id) ."\"";
+  return sqlStatement($sql);
+  } else { return -1; }
+}
+
 
 /**
   * Purpose:
@@ -98,7 +118,7 @@ function getPanel($panel_id)
   {
 
   $sql = "SELECT * FROM panel WHERE id=" . add_escape_custom($panel_id);
-  return sqlQuery($sql);
+  return sqlStatement($sql);
   } else { return -1; }
 }
 
@@ -196,31 +216,32 @@ function getPatientPanelsInfo($pid, $panelCategory = "None", $status = "active")
   */
 function insertEnrolment($enrollment)
 {
-  #Check if the patient already enrolled and active
-  $sql  = "SELECT id, status FROM panel_enrollment ";
-  $sql .= "WHERE patient_id ='" .add_escape_custom($enrollment['patient_id']) . "' ";
-  $sql .= "AND panel_id ='" . add_escape_custom($enrollment['panel_id']) . "' ";
-  $sql .= 'AND status = "Active"';
-  $resultSet = sqlQuery($sql);
+  foreach ($enrollment['panel_ids'] as $panel_id){
+    #Check if the patient already enrolled and active
+    $sql  = "SELECT id, status FROM panel_enrollment ";
+    $sql .= "WHERE patient_id ='" .add_escape_custom($enrollment['patient_id']) . "' ";
+    $sql .= "AND panel_id ='" . add_escape_custom($panel_id) . "' ";
+    $sql .= 'AND status = "Active"';
+    $resultSet = sqlQuery($sql);
 
-  if (!isPanelDB()) {
-    #if the panels is not activated print bellow line
-    return -1;
-    # less than 2 because the result is one even if the patient is not enrolled
-  } elseif(count($resultSet)<2){
-      #insert the patient Panels
-      $sql  = "INSERT INTO panel_enrollment ";
-      $sql .= "(patient_id, panel_id, enrollment_date, status, risk_stratification) ";
-      $sql .= " VALUES ( ";
-      $sql .= "'" . add_escape_custom($enrollment['patient_id']) . "', ";
-      $sql .= "'" .add_escape_custom($enrollment['panel_id']) . "', ";
-      $sql .= "'" . date('Y-m-d H:i:s') . "', ";
-      $sql .=  "'" ."Active". "', ";
-      $sql .= "'" .add_escape_custom($enrollment['risk_stratification']) . "' ";
-      $sql .= ")" ;
-      $result = sqlInsert($sql);
-      return $result;
-  }
+    if (!isPanelDB()) {
+      #if the panels is not activated print bellow line
+      return -1;
+      # less than 2 because the result is one even if the patient is not enrolled
+    } elseif(count($resultSet)<2){
+        #insert the patient Panels
+        $sql  = "INSERT INTO panel_enrollment ";
+        $sql .= "(patient_id, panel_id, enrollment_date, status, risk_stratification) ";
+        $sql .= " VALUES ( ";
+        $sql .= "'" . add_escape_custom($enrollment['patient_id']) . "', ";
+        $sql .= "'" .add_escape_custom($panel_id) . "', ";
+        $sql .= "'" . date('Y-m-d H:i:s') . "', ";
+        $sql .=  "'" ."Active". "', ";
+        $sql .= "'" .add_escape_custom($enrollment['risk_stratification']) . "' ";
+        $sql .= ")" ;
+        $result = sqlInsert($sql);
+    }
+}
 }
 /**
   * Purpose:
@@ -261,3 +282,5 @@ function getPanelAppointment($panel_name, $pid, $eventDates = 'next'){
 
   return sqlStatement($sql);
 }
+
+?>
