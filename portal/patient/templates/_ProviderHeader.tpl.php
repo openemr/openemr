@@ -30,7 +30,7 @@
         <?php } ?>
 
         <link href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/styles/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />
-        <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+        <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet" />
         <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" type="text/css" />
 
         <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js" type="text/javascript"></script>
@@ -50,7 +50,7 @@
     </head>
 
     <body class="skin-blue pt-2">
- <!--      Removed until we can find a use for this 
+ <!--      Removed until we can find a use for this
 <div class="navbar navbar-light navbar-expand-md bg-light fixed-top">
             <div class="container">
                     <a class="navbar-brand" href="<?php// echo $GLOBALS['web_root']; ?>/portal/patient/provider"><?php //echo xlt('Home'); ?></a>

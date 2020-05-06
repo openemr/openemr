@@ -125,7 +125,7 @@ if (!$COMMAND_LINE && empty($_REQUEST['site'])) {
         <link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css" type="text/css">
         <script type="text/javascript" src="public/assets/jquery/dist/jquery.min.js"></script>
         <script type="text/javascript" src="public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-        <link rel="stylesheet" href="public/assets/font-awesome/css/font-awesome.min.css" type="text/css">
+        <link rel="stylesheet" href="public/assets/@fortawesome/fontawesome-free/css/all.min.css" type="text/css">
         <link rel="shortcut icon" href="public/images/favicon.ico" />
         <style>
         .oe-pull-away {
@@ -233,7 +233,7 @@ if (file_exists($OE_SITE_DIR)) {
 <link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css" type="text/css">
 <script type="text/javascript" src="public/assets/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript" src="public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<link rel="stylesheet" href="public/assets/font-awesome/css/font-awesome.min.css" type="text/css">
+<link rel="stylesheet" href="public/assets/@fortawesome/fontawesome-free/css/all.min.css" type="text/css">
 <link rel="shortcut icon" href="public/images/favicon.ico" />
 
 <style>
@@ -927,7 +927,6 @@ SOURCESITEBOT;
                         </div>
                     </fieldset>
                             <p class='mt-4 mark'>Click the <b>Create DB and User</b> button below to create the database and first user <a href='#create_db_button' title='Click me'><i class="fa fa-arrow-circle-down" aria-hidden="true"></i></a>. $note: This process will take a few minutes.</p>
-                            <!--<p class='p-1 bg-success text-white'>Upon successful completion will automatically take you to the next step.</p>-->
                              <p class='p-1 bg-success text-white oe-spinner' style = 'visibility:hidden;'>Upon successful completion will automatically take you to the next step.<i class='fa fa-spinner fa-pulse fa-fw'></i></p>
                             <button type='submit' id='create_db_button' value='Continue' class='wait'><b>Create DB and User</b></button>
                         </form>
