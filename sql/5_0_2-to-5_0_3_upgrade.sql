@@ -483,6 +483,7 @@ insert into panel (name,category_id) values ('Case Management',2);
 insert into panel (name,category_id) values ('Counseling',2);
 insert into panel (name,category_id) values ('Care Navigation',2);
 insert into panel (name,category_id) values ('Social Determinants of Health',2);
+insert into panel (name,category_id) values ('Immunization',3);
 insert into panel (name,category_id) values ('Contraception',4);
 insert into panel (name,category_id) values ('Pap Smear',4);
 insert into panel (name,category_id) values ('Mammogram',4);

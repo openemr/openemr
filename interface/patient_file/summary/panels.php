@@ -106,6 +106,9 @@ input[type=submit] {
   margin: 4px 2px;
   cursor: pointer;
 }
+input[type=submit]:hover {
+  background-color: #1e65ff;
+}
 /*for collaps used in the panels table */
 .collapsible {
   cursor: pointer;
@@ -138,7 +141,21 @@ input[type=submit] {
 }
 
 
+#form_background {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 20px;
+}
 
+input[type=text], select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
 </style>
 
 <title><?php echo xlt("Panels"); ?></title>
@@ -161,6 +178,18 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
       $(this).nextUntil('tr.breakrow').slideToggle(200);
     });
   });
+
+  function checkform() {
+    if(document.enrolment.panels.value == "select_panel") {
+        alert("please select a panel");
+        return false;
+    } else if ($('#sub_panels').find('input[type=checkbox]:checked').length < 1) {
+      alert("please select sub panel/s");
+      return false;
+    } else {
+        document.enrolment.submit();
+    }
+}
 </script>
 <!-- Print the sub panels based on the panel category -->
 <script type="text/javascript">
@@ -266,16 +295,17 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
 <?php
 //adding the patient into a new panels
 ?>
-<div>
-<form action="#" method="post">
+<div id="form_background">
+<form action="#" method="post" name="enrolment"  onsubmit="return checkform()" >
   <h3>Enroll to a panel</h3>
   <?php
    $panels = getAllPanelCategories();
   ?>
-  <p>Select the panel:
+
+  <b><label for="panel">Select the panel:</label></b>
   <select name="panels" id="panels">
-    <option selected disabled>Select Panel</option>
-  <?php
+    <option value= "select_panel" id="select_panel" selected disabled>Select Panel</option>
+    <?php
     while ($row = sqlFetchArray($panels)) {
       echo "<option value=\"" . attr($row['id']) . "\"";
       echo "id=\"" . attr($row['id']) . "\"";
@@ -283,23 +313,25 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
       echo attr($row['name']) . "</option>";
     }
   ?>
-  </select></p>
-  <label for="sub_panels">Sub Panels</label>
+</select>
+
+  <b><label for="sub_panels">Sub Panels</label></b>
   <div id="sub_panels" name="sub_panels">
       <!-- cod from javacript will be past here -->
-
   </div>
-
-  <p>Select the risk stratification:
+</br>
+<b><label for="risk_stratification">Select the risk stratification:</label></b>
   <select name="risk_stratification">
     <option value="High">High</option>
     <option value="Moderate" selected>Moderate</option>
     <option value="Low">Low</option>
-  </select></p>
+  </select>
+
   <input type="hidden" name="request" value="enroll" />
-  <input type="submit" value="Enroll Patient" />
+  <input type="submit" value="Enroll Patient"/>
+
 </form>
-</div>
+</div> <!-- end of the form -->
 <?php //end of the adding panels section ?>
 
   </div>
