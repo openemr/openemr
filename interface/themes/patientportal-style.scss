@@ -973,10 +973,36 @@ body > .header {
   background-color: $primary;
 }
 
-.progress-striped .progress-bar-light-blue,
-.progress-striped .progress-bar-primary {
-  background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba($white, 0.15)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba($white, 0.15)), color-stop(0.75, rgba($white, 0.15)), color-stop(0.75, transparent), to(transparent));
-  background-image: linear-gradient(45deg, rgba($white, 0.15) 25%, transparent 25%, transparent 50%, rgba($white, 0.15) 50%, rgba($white, 0.15) 75%, transparent 75%, transparent);
+.progress-striped {
+  .progress-bar-light-blue,
+  .progress-bar-primary {
+    background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba($white, 0.15)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba($white, 0.15)), color-stop(0.75, rgba($white, 0.15)), color-stop(0.75, transparent), to(transparent));
+    background-image: linear-gradient(45deg, rgba($white, 0.15) 25%, transparent 25%, transparent 50%, rgba($white, 0.15) 50%, rgba($white, 0.15) 75%, transparent 75%, transparent);
+  }
+
+  .progress-bar-green,
+  .progress-bar-success {
+    background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba($white, 0.15)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba($white, 0.15)), color-stop(0.75, rgba($white, 0.15)), color-stop(0.75, transparent), to(transparent));
+    background-image: linear-gradient(45deg, rgba($white, 0.15) 25%, transparent 25%, transparent 50%, rgba($white, 0.15) 50%, rgba($white, 0.15) 75%, transparent 75%, transparent);
+  }
+
+  .progress-bar-aqua,
+  .progress-bar-info {
+    background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba($white, 0.15)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba($white, 0.15)), color-stop(0.75, rgba($white, 0.15)), color-stop(0.75, transparent), to(transparent));
+    background-image: linear-gradient(45deg, rgba($white, 0.15) 25%, transparent 25%, transparent 50%, rgba($white, 0.15) 50%, rgba($white, 0.15) 75%, transparent 75%, transparent);
+  }
+
+  .progress-bar-yellow,
+  .progress-bar-warning {
+    background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba($white, 0.15)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba($white, 0.15)), color-stop(0.75, rgba($white, 0.15)), color-stop(0.75, transparent), to(transparent));
+    background-image: linear-gradient(45deg, rgba($white, 0.15) 25%, transparent 25%, transparent 50%, rgba($white, 0.15) 50%, rgba($white, 0.15) 75%, transparent 75%, transparent);
+  }
+
+  .progress-bar-red,
+  .progress-bar-danger {
+    background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba($white, 0.15)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba($white, 0.15)), color-stop(0.75, rgba($white, 0.15)), color-stop(0.75, transparent), to(transparent));
+    background-image: linear-gradient(45deg, rgba($white, 0.15) 25%, transparent 25%, transparent 50%, rgba($white, 0.15) 50%, rgba($white, 0.15) 75%, transparent 75%, transparent);
+  }
 }
 
 .progress-bar-green,
@@ -984,21 +1010,9 @@ body > .header {
   background-color: $success;
 }
 
-.progress-striped .progress-bar-green,
-.progress-striped .progress-bar-success {
-  background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba($white, 0.15)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba($white, 0.15)), color-stop(0.75, rgba($white, 0.15)), color-stop(0.75, transparent), to(transparent));
-  background-image: linear-gradient(45deg, rgba($white, 0.15) 25%, transparent 25%, transparent 50%, rgba($white, 0.15) 50%, rgba($white, 0.15) 75%, transparent 75%, transparent);
-}
-
 .progress-bar-aqua,
 .progress-bar-info {
   background-color: $info;
-}
-
-.progress-striped .progress-bar-aqua,
-.progress-striped .progress-bar-info {
-  background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba($white, 0.15)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba($white, 0.15)), color-stop(0.75, rgba($white, 0.15)), color-stop(0.75, transparent), to(transparent));
-  background-image: linear-gradient(45deg, rgba($white, 0.15) 25%, transparent 25%, transparent 50%, rgba($white, 0.15) 50%, rgba($white, 0.15) 75%, transparent 75%, transparent);
 }
 
 .progress-bar-yellow,
@@ -1006,21 +1020,9 @@ body > .header {
   background-color: $warning;
 }
 
-.progress-striped .progress-bar-yellow,
-.progress-striped .progress-bar-warning {
-  background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba($white, 0.15)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba($white, 0.15)), color-stop(0.75, rgba($white, 0.15)), color-stop(0.75, transparent), to(transparent));
-  background-image: linear-gradient(45deg, rgba($white, 0.15) 25%, transparent 25%, transparent 50%, rgba($white, 0.15) 50%, rgba($white, 0.15) 75%, transparent 75%, transparent);
-}
-
 .progress-bar-red,
 .progress-bar-danger {
   background-color: $danger;
-}
-
-.progress-striped .progress-bar-red,
-.progress-striped .progress-bar-danger {
-  background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba($white, 0.15)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba($white, 0.15)), color-stop(0.75, rgba($white, 0.15)), color-stop(0.75, transparent), to(transparent));
-  background-image: linear-gradient(45deg, rgba($white, 0.15) 25%, transparent 25%, transparent 50%, rgba($white, 0.15) 50%, rgba($white, 0.15) 75%, transparent 75%, transparent);
 }
 
 /*
@@ -1031,79 +1033,79 @@ body > .header {
   display: block;
   margin-bottom: 15px;
   position: relative;
-}
 
-.small-box > .inner {
-  padding: 10px;
-}
+  > .inner {
+    padding: 10px;
+  }
 
-.small-box > .small-box-footer {
-  background: rgba($black, 0.1);
-  color: $white;
-  color: rgba($white, 0.8);
-  display: block;
-  padding: 3px 0;
-  position: relative;
-  text-align: center;
-  text-decoration: none;
-  z-index: 10;
-}
+  > .small-box-footer {
+    background: rgba($black, 0.1);
+    color: $white;
+    color: rgba($white, 0.8);
+    display: block;
+    padding: 3px 0;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    z-index: 10;
 
-.small-box > .small-box-footer:hover {
-  background: rgba($black, 0.15);
-  color: $white;
-}
+    &:hover {
+      background: rgba($black, 0.15);
+      color: $white;
+    }
+  }
 
-.small-box h3 {
-  @include font-size("38px");
-  font-weight: bold;
-  margin: 0 0 10px;
-  padding: 0;
-  white-space: nowrap;
-}
+  h3 {
+    @include font-size("38px");
+    font-weight: bold;
+    margin: 0 0 10px;
+    padding: 0;
+    white-space: nowrap;
+  }
 
-.small-box p {
-  @include font-size("15px");
-}
+  p {
+    @include font-size("15px");
 
-.small-box p > small {
-  @include font-size("13px");
-  color: darken($light, 10%);
-  display: block;
-  margin-top: 5px;
-}
+    > small {
+      @include font-size("13px");
+      color: darken($light, 10%);
+      display: block;
+      margin-top: 5px;
+    }
+  }
 
-.small-box h3,
-.small-box p {
-  z-index: 5px;
-}
+  h3,
+  p {
+    z-index: 5px;
+  }
 
-.small-box .icon {
-  @include font-size("90px");
-  bottom: 5px;
-  color: rgba($black, 0.15);
-  position: absolute;
-  top: auto;
-  z-index: 0;
-  #{$right}: 5px;
-}
+  .icon {
+    @include font-size("90px");
+    bottom: 5px;
+    color: rgba($black, 0.15);
+    position: absolute;
+    top: auto;
+    z-index: 0;
+    #{$right}: 5px;
+  }
 
-.small-box:hover {
-  color: darken($light, 10%);
-  text-decoration: none;
+  &:hover {
+    color: darken($light, 10%);
+    text-decoration: none;
+  }
 }
 
 @media screen and (max-width: 480px) {
   .small-box {
     text-align: center;
-  }
 
-  .small-box .icon {
-    display: none;
-  }
+    .icon {
+      display: none;
+    }
 
-  .small-box p {
-    @include font-size("12px");
+    p {
+      @include font-size("12px");
+    }
   }
 }
 
@@ -1501,11 +1503,6 @@ body > .header {
 
 .nav.nav-pills > li > a:hover {
   background-color: darken($light, 10%);
-}
-
-.nav-pills .nav-link.active,
-.nav-pills .show >.nav-link {
-  color: $gray-700;
 }
 
 .nav-pills .nav-link.active,

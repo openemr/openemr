@@ -74,15 +74,15 @@ foreach ($msgs as $i) {
 
     Header::setupHeader(['no_main-theme', 'datetime-picker', 'patientportal-style']); ?>
 
-    <script type="text/javascript" src="../interface/main/tabs/js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
-    <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" type="text/css" />
+    <script src="../interface/main/tabs/js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
+    <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $v_js_includes; ?>" rel="stylesheet" />
 
-    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
-    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $v_js_includes; ?>" type="text/javascript"></script>
+    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $v_js_includes; ?>"></script>
 
     <?php if ($GLOBALS['payment_gateway'] == 'Stripe') {
         ?>
-        <script type="text/javascript" src="https://js.stripe.com/v3/"></script>
+        <script src="https://js.stripe.com/v3/"></script>
         <?php
     } ?>
     <?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') {
@@ -91,7 +91,7 @@ foreach ($msgs as $i) {
         if ($GLOBALS['gateway_mode_production']) {
             $script = "https://js.authorize.net/v1/Accept.js"; // Production script
         } ?>
-        <script type="text/javascript" src="<?php echo $script; ?>" charset="utf-8"></script>
+        <script src="<?php echo $script; ?>"></script>
         <?php
     } ?>
 
@@ -128,12 +128,10 @@ foreach ($msgs as $i) {
             $("#reports").load("./report/portal_patient_report.php?pid='<?php echo attr_url($pid) ?>'", {}, function () {
             });
 
-            <?php if ($GLOBALS['portal_two_payments']) {
-                ?>
+            <?php if ($GLOBALS['portal_two_payments']) { ?>
             $("#payment").load("./portal_payment.php", {}, function () {
             });
-                <?php
-            } ?>
+            <?php } ?>
 
             <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
                 ?>
@@ -177,6 +175,7 @@ foreach ($msgs as $i) {
             $('#cardgroup').on('show.bs.collapse', '.collapse', function () {
                 $('#cardgroup').find('.collapse.show').collapse('hide');
             });
+
             $("[data-toggle='pill']").on("click", function (e) {
                 e.preventDefault();
                 // don't toggle if already active.
@@ -189,19 +188,11 @@ foreach ($msgs as $i) {
                     $("[data-toggle='offcanvas']").click();
                 }
             });
-            $(function () {
-                $('#popwait').hide();
-                $('#callccda').click(function () {
-                    $('#popwait').show();
-                });
-
-                $('#pillCollapse').on('show.bs.collapse', function () {
-                  $('.sidebar').removeClass('d-none').addClass('position-relative');
-                });
-                $('#pillCollapse').on('hide.bs.collapse', function () {
-                  $('.sidebar').addClass('d-none').removeClass('position-relative');
-                });
+            $('#popwait').hide();
+            $('#callccda').click(function () {
+              $('#popwait').show();
             });
+          });
         function editAppointment(mode, deid) {
             let mdata = {};
             let title = '';
@@ -355,7 +346,7 @@ foreach ($msgs as $i) {
 
 <body class="fixed">
     <header class="header">
-        <nav class="navbar navbar-expand-md fixed-top navbar-light bg-light" role="navigation">
+        <nav class="navbar navbar-expand-md fixed-top navbar-light bg-light">
             <div class="container-fluid">
                 <a href="home.php" class="navbar-brand d-none d-sm-block">
                     <img class="img-fluid" width="140" src='<?php echo $GLOBALS['images_static_relative']; ?>/logo-full-con.png' />
@@ -404,10 +395,10 @@ foreach ($msgs as $i) {
             </div>
         </nav>
     </header>
-    <div class="wrapper row-offcanvas row-offcanvas-left d-flex">
+    <div class="wrapper d-flex">
         <!-- Left side column. contains the logo and sidebar -->
         <aside class="left-side sidebar-offcanvas collapse collapse-md mt-3" id="left-collapse">
-            <section class="sidebar">
+            <nav class="sidebar">
                 <!-- Sidebar user panel -->
                 <div class="user-panel">
                     <div class="float-left image">
@@ -463,9 +454,8 @@ foreach ($msgs as $i) {
                     <li class="nav-item" data-toggle="pill"><a class="nav-link" href="#openSignModal" data-toggle="modal" data-type="patient-signature"><i class="fas fa-file-signature"></i> <?php echo xlt('Signature on File'); ?></a></li>
                     <li class="nav-item"><a class="nav-link" href="logout.php"><i class="fa fa-ban"></i> <?php echo xlt('Logout'); ?></a></li>
                 </ul>
-            </section>
-            <!-- /.sidebar -->
-        </nav>
+            </nav>
+          </aside>
         <!-- Right side column. Contains content of the page -->
         <aside class="right-side mt-3">
             <!-- Main content -->
@@ -552,7 +542,7 @@ foreach ($msgs as $i) {
                 } ?>
                     <?php if ($GLOBALS['portal_two_payments']) {
                         ?>
-                        <div class="row collapse" id="paymentcard">
+                        <div class="collapse" id="paymentcard">
                             <div class="card">
                                 <header class="card-header bg-primary text-light"> <?php echo xlt('Payments'); ?> </header>
                                 <div id="payment" class="card-body bg-light"></div>
@@ -563,41 +553,38 @@ foreach ($msgs as $i) {
                         <div class="collapse" id="messagescard">
                             <div class="card pt-0 pb-0">
                                 <header class="card-header bg-primary text-light"><?php echo xlt('Secure Chat'); ?>  </header>
-                                <div id="messages" class="card-body p-0" style="height:calc(100vh - 120px); overflow:auto;">
-                                    <iframe src="./messaging/secure_chat.php" width="100%" height="100%"></iframe>
+                                <div id="messages" class="card-body p-0 overflow-auto" style="height: calc(100vh - 120px);">
+                                    <iframe src="./messaging/secure_chat.php" class="w-100 h-100"></iframe>
                                 </div>
                             </div>
                         </div>
                         <?php
                     } ?>
-                    <div class="row">
-                        <div class="card collapse w-100" id="reportcard">
-                            <header class="card-header bg-primary text-light"><?php echo xlt('Reports'); ?></header>
-                            <div id="reports" class="card-body"></div>
-                        </div>
-                        <?php if (!empty($GLOBALS['portal_onsite_document_download'])) {
-                            ?>
-                            <div class="card collapse w-100" id="downloadcard">
-                                <header class="card-header bg-primary text-light"> <?php echo xlt('Download Documents'); ?> </header>
-                                <div id="docsdownload" class="card-body">
-                                    <div>
-                                        <span class="text"><?php echo xlt('Download all patient documents'); ?></span>
-                                        <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
-                                            <input type="button" class="generateDoc_download" value="<?php echo xla('Download'); ?>" />
-                                        </form>
-                                    </div>
-                                </div><!-- /.card-body -->
-                            </div>
-                            <?php
-                        } ?>
-                    </div>
+                  <div class="card collapse" id="reportcard">
+                      <header class="card-header bg-primary text-light"><?php echo xlt('Reports'); ?></header>
+                      <div id="reports" class="card-body"></div>
+                  </div>
+                  <?php if (!empty($GLOBALS['portal_onsite_document_download'])) {
+                      ?>
+                      <div class="card collapse" id="downloadcard">
+                          <header class="card-header bg-primary text-light"> <?php echo xlt('Download Documents'); ?> </header>
+                          <div id="docsdownload" class="card-body">
+                              <div>
+                                  <span class="text"><?php echo xlt('Download all patient documents'); ?></span>
+                                  <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
+                                      <input type="button" class="generateDoc_download" value="<?php echo xla('Download'); ?>" />
+                                  </form>
+                              </div>
+                          </div><!-- /.card-body -->
+                      </div>
+                      <?php } ?>
                     <?php if ($GLOBALS['portal_two_ledger']) {
                         ?>
-                        <div class="row collapse" id="ledgercard">
-                            <div class="card w-100">
+                        <div class="collapse" id="ledgercard">
+                            <div class="card">
                                 <header class="card-header bg-primary text-light"><?php echo xlt('Ledger'); ?></header>
                                 <div id="patledger" class="card-body">
-                                    <iframe src="./report/pat_ledger.php" width="100%" height="475" scrolling="yes"></iframe>
+                                    <iframe src="./report/pat_ledger.php" class="w-100 vh-100 border-0" scrolling="yes"></iframe>
                                 </div>
                             </div>
                         </div>
@@ -605,13 +592,13 @@ foreach ($msgs as $i) {
                     } ?>
                     <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
                         ?>
-                        <div class="row card collapse" id="procard">
+                        <div class="card collapse" id="procard">
                             <header class="card-header bg-primary text-light"> <?php echo xlt('Patient Reported Outcomes'); ?> </header>
                             <div id="pro" class="card-body bg-light"></div>
                         </div>
                         <?php
                     } ?>
-                    <div class="row card collapse" id="profilecard">
+                    <div class="card collapse" id="profilecard">
                         <header class="card-header bg-primary text-light"><?php echo xlt('Profile'); ?></header>
                         <div id="profilereport" class="card-body bg-light"></div>
                     </div>
