@@ -25,9 +25,6 @@ OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 //don't require standard openemr authorization in globals.php
 $ignoreAuth = 1;
 
-//For redirect if the site on session does not match
-$landingpage = "index.php?site=" . urlencode($_GET['site']);
-
 //includes
 require_once '../interface/globals.php';
 require_once dirname(__FILE__) . "/lib/appsql.class.php";

@@ -259,15 +259,7 @@
 
 
 @mixin portal_style {
-  .right-side {
-    margin-left: 0 !important;
-    margin-right: 220px !important;
-  }
-
-  .sidebar {
-    left: auto !important;
-    right: 0 !important;
-  }
+  // None needed at the moment
 }
 
 /*expandable search rtl in main.php*/
