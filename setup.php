@@ -403,7 +403,7 @@ function cloneClicked() {
                 echo "<p><code>sudo apachectl -k restart</code></p>";
 
                 ?>
-            <p>
+            <p class='mb-5'>
              <a href='./?site=<?php echo $site_id; ?>'>Click here to start using OpenEMR. </a>
             </p>
             </fieldset>
@@ -1289,14 +1289,23 @@ STP5TOP;
                         }
 
                         $short_tag = ini_get('short_open_tag') ? 'On' : 'Off';
+                        $short_tag_style = (strcmp($short_tag, 'Off') === 0) ? '' : 'text-danger';
                         $display_errors = ini_get('display_errors') ? 'On' : 'Off';
+                        $display_errors_style = (strcmp($display_errors, "Off")  === 0) ? '' : 'text-danger';
                         $register_globals = ini_get('register_globals') ? 'On' : 'Off';
+                        $register_globals_style = (strcmp($register_globals, 'Off')  === 0) ? '' : 'text-danger';
                         $max_input_vars = ini_get('max_input_vars');
-                        $max_execution_time = ini_get('max_execution_time');
+                        $max_input_vars_style = $max_input_vars < 3000 ? 'text-danger' : '';
+                        $max_execution_time = (int)ini_get('max_execution_time');
+                        $max_execution_time_style = $max_execution_time >= 60 || $max_execution_time === 0 ? '' : 'text-danger';
                         $max_input_time = ini_get('max_input_time');
+                        $max_input_time_style = (strcmp($max_input_time, '-1')  === 0) ? '' : 'text-danger';
                         $post_max_size = ini_get('post_max_size');
+                        $post_max_size_style = $post_max_size < 30 ? 'text-danger' : '';
                         $memory_limit = ini_get('memory_limit');
+                        $memory_limit_style = $memory_limit < 256 ? 'text-danger' : '';
                         $mysqli_allow_local_infile = ini_get('mysqli.allow_local_infile') ? 'On' : 'Off';
+                        $mysqli_allow_local_infile_style = (strcmp($mysqli_allow_local_infile, 'On')  === 0) ? '' : 'text-danger';
 
                         $step5_table = <<<STP5TAB
                             <li>To ensure proper functioning of OpenEMR you must make sure that PHP settings include:
@@ -1309,47 +1318,47 @@ STP5TOP;
                                     <tr>
                                         <td>short_open_tag</td>
                                         <td>Off</td>
-                                        <td>$short_tag</td>
+                                        <td class='$short_tag_style'>$short_tag</td>
                                     </tr>
                                     <tr>
                                         <td>display_errors</td>
                                         <td>Off</td>
-                                        <td>$display_errors</td>
+                                        <td class='$display_errors_style'>$display_errors</td>
                                     </tr>
                                     <tr>
                                         <td>register_globals</td>
                                         <td>Off</td>
-                                        <td>$register_globals</td>
+                                        <td class='$register_globals_style'>$register_globals</td>
                                     </tr>
                                     <tr>
                                         <td>max_input_vars</td>
                                         <td>at least 3000</td>
-                                        <td>$max_input_vars</td>
+                                        <td class='$max_input_vars_style'>$max_input_vars</td>
                                     </tr>
                                     <tr>
                                         <td>max_execution_time</td>
                                         <td>at least 60</td>
-                                        <td>$max_execution_time</td>
+                                        <td class='$max_execution_time_style'>$max_execution_time</td>
                                     </tr>
                                     <tr>
                                         <td>max_input_time</td>
                                         <td>-1</td>
-                                        <td>$max_input_time</td>
+                                        <td class='$max_input_time_style'>$max_input_time</td>
                                     </tr>
                                     <tr>
                                         <td>post_max_size</td>
                                         <td>at least 30M</td>
-                                        <td>$post_max_size</td>
+                                        <td class='$post_max_size_style'>$post_max_size</td>
                                     </tr>
                                     <tr>
                                         <td>memory_limit</td>
                                         <td>at least 256M</td>
-                                        <td>$memory_limit</td>
+                                        <td class='$memory_limit_style'>$memory_limit</td>
                                     </tr>
                                     <tr>
                                         <td>mysqli.allow_local_infile</td>
                                         <td>On</td>
-                                        <td>$mysqli_allow_local_infile</td>
+                                        <td class='$mysqli_allow_local_infile_style'>$mysqli_allow_local_infile</td>
                                     </tr>
                                 </table>
                             </li>
