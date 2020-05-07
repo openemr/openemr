@@ -23,10 +23,6 @@ require_once("verysimple/Phreeze/Dispatcher.php");
 $gc = GlobalConfig::GetInstance();
 
 try {
-    if (!$_SERVER['HTTP_REFERER']) {
-        $error = 'Unauthorized';
-        throw new Exception($error);
-    }
     if (isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite_two']))) {
         // Need to bootstrap all requests to only allow the pid in $_SESSION['pid']
         //  and to only allow access to api calls applicable to that pid (or patientId).

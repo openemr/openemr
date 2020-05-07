@@ -91,15 +91,6 @@ class GenericRouter implements IRouter
             // expects mapped values to be in the form: Controller.Model
             list ( $controller, $method ) = explode(".", $this->routeMap [$uri] ["route"]);
 
-            if (!empty($GLOBALS['bootstrap_pid'])) {
-                // p_acl check
-                if ($this->routeMap[$uri]["p_acl"] != 'p_all') {
-                    // failed p_acl check
-                    $error = 'Unauthorized';
-                    throw new Exception($error);
-                }
-            }
-
             $this->matchedRoute = array (
                     "key" => $this->routeMap [$uri],
                     "route" => $this->routeMap [$uri] ["route"],
@@ -123,17 +114,6 @@ class GenericRouter implements IRouter
 
             // check for RegEx match
             if (preg_match('#^' . $key . '$#', $uri, $match)) {
-                if (!empty($GLOBALS['bootstrap_pid'])) {
-                    // p_acl check
-                    $p_acl = $this->routeMap[$unalteredKey]["p_acl"];
-                    if (($p_acl == 'p_none') ||
-                        (($p_acl == 'p_limited') && ($GLOBALS['bootstrap_pid'] != $match[1]))) {
-                        // failed p_acl check
-                        $error = 'Unauthorized';
-                        throw new Exception($error);
-                    }
-                }
-
                 $this->matchedRoute = array (
                         "key" => $unalteredKey,
                         "route" => $value ["route"],

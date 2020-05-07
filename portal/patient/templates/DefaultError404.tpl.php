@@ -10,9 +10,6 @@
  */
 
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("File Not Found"));
-    $this->assign('nav', 'home');
-
-    $this->display('_Header.tpl.php');
 ?>
 
 <div class="container">
