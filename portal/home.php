@@ -104,6 +104,9 @@ foreach ($msgs as $i) {
              $('.dropdown-menu-right').each(function() {
                $(this).removeClass('dropdown-menu-right');
              });
+             $('.dropdown-menu-md-right').each(function() {
+               $(this).removeClass('dropdown-menu-md-right');
+             });
            }
             $("#profilereport").load("get_profile.php", {}, function () {
                 $("table").addClass("table");
@@ -565,7 +568,7 @@ foreach ($msgs as $i) {
                       <div id="reports" class="card-body"></div>
                   </div>
                   <?php if (!empty($GLOBALS['portal_onsite_document_download'])) {
-                      ?>
+                        ?>
                       <div class="card collapse" id="downloadcard">
                           <header class="card-header bg-primary text-light"> <?php echo xlt('Download Documents'); ?> </header>
                           <div id="docsdownload" class="card-body">

@@ -14,7 +14,7 @@ use OpenEMR\Core\Header;
 
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html>
     <head>
         <meta charset="utf-8" />
 
@@ -39,16 +39,12 @@ use OpenEMR\Core\Header;
     </head>
 
     <body>
-        <div class="navbar navbar-default fixed-top">
+        <div class="navbar navbar-light bg-light sticky-top">
             <div class="container">
-                    <div class="navbar-header"><a class="navbar-brand" href="./"><?php echo xlt('Home'); ?></a>
-                        <a class="navbar-toggler btn-secondary" data-toggle="collapse" data-target=".navbar-collapse"><span class="navbar-toggler-icon"></span></a>
-                        </div>
+                      <a class="navbar-brand" href="./"><?php echo xlt('Home'); ?></a>
+                        <a class="navbar-toggler" data-toggle="collapse" data-target=".navbar-collapse"><span class="navbar-toggler-icon"></span></a>
                         <div class="container">
-                        <div class="navbar-collapse">
-                            <ul class="nav navbar-nav">
-                                <!-- reserved -->
-                                </ul>
+                        <div class="collapse navbar-collapse">
                             <ul class="nav float-right navbar-nav">
                                 <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-lock"></i> <?php echo xlt('Login'); ?> <i class="caret"></i></a>

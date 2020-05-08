@@ -136,7 +136,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
 <head>
     <title><?php echo xlt('Patient Portal Login'); ?></title>
     <?php
-    Header::setupHeader(['no_main-theme', 'datetime-picker', 'jquery-gritter', 'patientportal-base', 'patientportal-register']);
+    Header::setupHeader(['no_main-theme', 'datetime-picker', 'jquery-gritter', 'patientportal-style', 'patientportal-base', 'patientportal-register']);
     ?>
     <script>
         function checkUserName() {
@@ -227,7 +227,7 @@ if (!(isset($_SESSION['password_update']) || isset($_GET['requestNew']))) {
         }
     </script>
 </head>
-<body class="login container">
+<body class="login container mt-2">
     <div id="wrapper" class="container-fluid text-center">
                 <?php if (isset($_SESSION['password_update']) || isset($_GET['password_update'])) {
                     $_SESSION['password_update'] = 1;

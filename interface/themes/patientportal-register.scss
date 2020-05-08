@@ -13,6 +13,10 @@ body {
   margin-top: 20px;
 }
 
+.btn-circle {
+  border-radius: 0.9375rem !important;
+}
+
 .embedded-content {
   border: 0;
   width: 100% !important;
@@ -44,7 +48,7 @@ body {
   display: table-row;
 
   &::before {
-    background-color: #ccc;
+    background-color: var(--gray400);
     bottom: 0;
     content: " ";
     height: 1px;

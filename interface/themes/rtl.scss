@@ -42,40 +42,42 @@
   }
 
   /* /patient_file/encounter/forms.php  */
-  #encounter_forms .encounter-summary-column {
-    float: right !important;
-  }
+  #encounter_forms {
+    .encounter-summary-column {
+      float: right !important;
+    }
 
-  #encounter_forms .form_header_controls,
-  #encounter_forms .form_header {
-    float: none !important;
+    .form_header_controls,
+    .form_header {
+      float: none !important;
+    }
   }
 
   /* /interface/patient_file/summary/demographics.php */
   .demographics-box {
     position: relative;
-  }
 
-  .demographics-box > div {
-    float: none !important;
-    position: absolute;
-  }
+    > div {
+      float: none !important;
+      position: absolute;
 
-  .demographics-box > div:first-child {
-    width: 55% !important;
-  }
+      &:first-child {
+        width: 55% !important;
+      }
 
-  .demographics-box > div:last-child {
-    margin-right: 75%;
+      &:last-child {
+        margin-right: 75%;
+      }
+    }
   }
 
   #tdallday3 > span {
     direction: ltr;
     display: inline-block;
-  }
 
-  #tdallday3 > span > input {
-    text-align: right;
+    > input {
+      text-align: right;
+    }
   }
 
   /* /interface/clickmap/template/general_new.html */
@@ -90,24 +92,26 @@
 
   /* ajax_template.html */
 
-  #dateNAV img {
-    display: none;
-  }
+  #dateNAV {
+    img {
+      display: none;
+    }
 
-  #dateNav > a:nth-child(2),
-  #dateNav > a:nth-child(3) {
-    display: inline-block;
-    height: 15.5px;
-    width: 16px;
-  }
+    > a:nth-child(2),
+    > a:nth-child(3) {
+      display: inline-block;
+      height: 15.5px;
+      width: 16px;
+    }
 
-  #dateNav > a:nth-child(2) {
-    background-image: url('../../public/images/rightbtn.gif');
-    margin-right: 10px;
-  }
+    > a:nth-child(2) {
+      background-image: url('../../public/images/rightbtn.gif');
+      margin-right: 10px;
+    }
 
-  #dateNav > a:nth-child(3) {
-    background-image: url('../../public/images/leftbtn.gif');
+    > a:nth-child(3) {
+      background-image: url('../../public/images/leftbtn.gif');
+    }
   }
 
   /* /main/messages/messages.php */
@@ -153,10 +157,10 @@
 
   .tabs-container ul.tabs {
     width: 100%;
-  }
 
-  .tabs-container ul.tabs li {
-    float: none !important;
+    li {
+      float: none !important;
+    }
   }
 
   .container_body .viewport .overview {
@@ -170,19 +174,23 @@
     float: right !important;
   }
 
-  .setup-carecoordination .ca-ca-in-2 {
-    float: right !important;
-    padding-right: 2% !important;
-  }
+  .setup-carecoordination {
+    .ca-ca-in-2 {
+      float: right !important;
+      padding-right: 2% !important;
+    }
 
-  .setup-carecoordination #paginatediv_database_tables a[rel=next] {
-    float: left !important;
-    transform: rotate(180deg);
-  }
+    #paginatediv_database_tables {
+      a[rel=next] {
+        float: left !important;
+        transform: rotate(180deg);
+      }
 
-  .setup-carecoordination #paginatediv_database_tables a[rel=previous] {
-    float: right !important;
-    transform: rotate(180deg);
+      a[rel=previous] {
+        float: right !important;
+        transform: rotate(180deg);
+      }
+    }
   }
 
   /* online - portal */
@@ -198,12 +206,14 @@
   }
 
   /* flow board */
-  form#pattrk h2 > span {
-    float: right !important;
-  }
+  form#pattrk {
+    h2 > span {
+      float: right !important;
+    }
 
-  form#pattrk #inanewwindow > span {
-    float: left !important;
+    #inanewwindow > span {
+      float: left !important;
+    }
   }
 
   /* cdr Groups */
@@ -211,16 +221,18 @@
     padding: 0 20px;
   }
 
-  .rule_detail.edit.summry .left_col {
-    float: none;
-    margin: 5px;
-  }
+  .rule_detail {
+    &.edit.summry .left_col {
+      float: none;
+      margin: 5px;
+    }
 
-  .rule_detail .left_col,
-  .rule_detail .mid_col,
-  .rule_detail .end_col {
-    display: inline-block;
-    float: none;
+    .left_col,
+    .mid_col,
+    .end_col {
+      display: inline-block;
+      float: none;
+    }
   }
 
   #namecontainer_preminders,
@@ -228,14 +240,16 @@
     float: right !important;
   }
 
-  .xdsoft_datepicker .xdsoft_mounthpicker button,
-  .xdsoft_datepicker .xdsoft_mounthpicker > div {
-    float: right;
-  }
+  .xdsoft_datepicker .xdsoft_mounthpicker {
+    button,
+    > div {
+      float: right;
+    }
 
-  .xdsoft_datepicker .xdsoft_mounthpicker button.xdsoft_prev,
-  .xdsoft_datepicker .xdsoft_mounthpicker button.xdsoft_next {
-    transform: rotate(180deg);
+    button.xdsoft_prev,
+    button.xdsoft_next {
+      transform: rotate(180deg);
+    }
   }
 
   div.formname {
@@ -263,22 +277,27 @@
 }
 
 /*expandable search rtl in main.php*/
-.oe-expandable-search button.btn-search1 {
-  padding: 4px 6px 4px 0 !important;
-  right: 0;
-}
 
-.oe-expandable-search input:focus ~ button.btn-search1 {
-  outline: 0;
-  right: 245px;
-}
+.oe-expandable-search {
+  button {
+    &.btn-search1 {
+      padding: 4px 6px 4px 0 !important;
+      right: 0;
+    }
 
-.oe-expandable-search button.btn-globals-legacy {
-  right: 110px;
-}
+    &.btn-globals-legacy {
+      right: 110px;
+    }
 
-.oe-expandable-search button.btn-globals-modern {
-  right: 0;
+    &.btn-globals-modern {
+      right: 0;
+    }
+  }
+
+  input:focus ~ button.btn-search1 {
+    outline: 0;
+    right: 245px;
+  }
 }
 
 /*expandable search rtl in main.php*/

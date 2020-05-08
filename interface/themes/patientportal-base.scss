@@ -22,7 +22,7 @@
 @import "directional";
 
 .login {
-  background-color: #f4f4f4;
+  background-color: var(--white);
 }
 
 .login-image {
@@ -36,7 +36,7 @@
 }
 
 .body_top {
-  background: url('../../images/background.png');
+  background: url('../../portal/images/background.png');
   background-color: #6692d1;
   background-repeat: no-repeat;
 }
@@ -95,7 +95,7 @@ td.menuheadtoolbar {
 }
 
 #wrapper {
-  background-color: var(--white);
+  background-color: var(--gray100);
   margin: 0 2px 10px;
   padding: 25px;
   position: relative;
