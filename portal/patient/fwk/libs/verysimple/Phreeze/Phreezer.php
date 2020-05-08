@@ -547,7 +547,7 @@ class Phreezer extends Observable
         if (! $pkm) {
             throw new Exception("Table for '$objectclass' has no primary key");
         }
-        if ($objectclass === 'Patient') {
+        if ($objectclass === 'Patient' && !empty($GLOBALS['bootstrap_pid'])) {
             $criteria = new PatientCriteria();
             $criteria->Id_Equals = $id;
             $criteria->Pid_Equals = $_SESSION['pid'];
