@@ -31,7 +31,11 @@ try {
     if (isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite_two']))) {
         // Need to bootstrap all requests to only allow the pid in $_SESSION['pid']
         //  and to only allow access to api calls applicable to that pid (or patientId).
+        // Also need to collect the id of the patient to verify the correct id is used
+        //  in the uri check in GenericRouter.php .
         $GLOBALS['bootstrap_pid'] = $_SESSION['pid'];
+        $sqlCollectPatientId = sqlQuery("SELECT `id` FROM `patient_data` WHERE `pid` = ?", [$GLOBALS['bootstrap_pid']]);
+        $GLOBALS['bootstrap_uri_id'] = $sqlCollectPatientId['id'];
         if (
             (!empty($_POST['pid']) && ($_POST['pid'] != $GLOBALS['bootstrap_pid'])) ||
             (!empty($_GET['pid']) && ($_GET['pid'] != $GLOBALS['bootstrap_pid'])) ||

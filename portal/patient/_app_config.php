@@ -208,11 +208,11 @@ GlobalConfig::$ROUTE_MAP = array (
         ),
         'GET:api/onsiteportalactivities' => array (
                 'route' => 'OnsitePortalActivity.Query',
-                'p_acl' => 'p_none'
+                'p_acl' => 'p_all' // Secured this at downstream function level
         ),
         'POST:api/onsiteportalactivity' => array (
                 'route' => 'OnsitePortalActivity.Create',
-                'p_acl' => 'p_none'
+                'p_acl' => 'p_all' // Secured this at downstream function level
         ),
         'GET:api/onsiteportalactivity/(:num)' => array (
                 'route' => 'OnsitePortalActivity.Read',
@@ -226,7 +226,7 @@ GlobalConfig::$ROUTE_MAP = array (
                 'params' => array (
                         'id' => 2
                 ),
-                'p_acl' => 'p_none'
+                'p_acl' => 'p_all' // Secured this at downstream function level
         ),
         'DELETE:api/onsiteportalactivity/(:num)' => array (
                 'route' => 'OnsitePortalActivity.Delete',
