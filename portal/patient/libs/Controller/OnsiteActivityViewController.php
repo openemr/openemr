@@ -23,7 +23,7 @@ require_once("Model/OnsiteActivityView.php");
  * the model as necessary and displaying the appropriate view.
  *
  * @package Patient Portal::Controller
- * @author ClassBuilder
+ * @author  ClassBuilder
  * @version 1.0
  */
 class OnsiteActivityViewController extends AppBaseController
@@ -138,6 +138,12 @@ class OnsiteActivityViewController extends AppBaseController
             $this->RenderExceptionJSON($ex);
         }
     }
+
+    /**
+     * Used for dashboard audit views.
+     *
+     * @param $viewcriteria
+     */
     public function CreateView($viewcriteria)
     {
         $sql = "CREATE OR REPLACE VIEW onsite_activity_view As Select
@@ -185,119 +191,6 @@ class OnsiteActivityViewController extends AppBaseController
         // $sql .= "Where onsite_portal_activity.status = 'waiting'";
         try {
             $this->Phreezer->DataAdapter->Execute($sql);
-        } catch (Exception $ex) {
-            $this->RenderExceptionJSON($ex);
-        }
-    }
-    /**
-     * API Method inserts a new OnsiteActivityView record and render response as JSON
-     */
-    public function Create()
-    {
-        ;
-    }
-
-    /**
-     * API Method updates an existing OnsiteActivityView record and render response as JSON
-     */
-    public function Update()
-    {
-        try {
-            // TODO: views are read-only by default. uncomment at your own discretion
-            throw new Exception('Database views are read-only and cannot be updated');
-
-            $json = json_decode(RequestUtil::GetBody());
-
-            if (! $json) {
-                throw new Exception('The request body does not contain valid JSON');
-            }
-
-            $pk = $this->GetRouter()->GetUrlParam('id');
-            $onsiteactivityview = $this->Phreezer->Get('OnsiteActivityView', $pk);
-
-            // TODO: any fields that should not be updated by the user should be commented out
-
-            // this is a primary key. uncomment if updating is allowed
-            // $onsiteactivityview->Id = $this->SafeGetVal($json, 'id', $onsiteactivityview->Id);
-
-            $onsiteactivityview->Date = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'date', $onsiteactivityview->Date)));
-            $onsiteactivityview->PatientId = $this->SafeGetVal($json, 'patientId', $onsiteactivityview->PatientId);
-            $onsiteactivityview->Activity = $this->SafeGetVal($json, 'activity', $onsiteactivityview->Activity);
-            $onsiteactivityview->RequireAudit = $this->SafeGetVal($json, 'requireAudit', $onsiteactivityview->RequireAudit);
-            $onsiteactivityview->PendingAction = $this->SafeGetVal($json, 'pendingAction', $onsiteactivityview->PendingAction);
-            $onsiteactivityview->ActionTaken = $this->SafeGetVal($json, 'actionTaken', $onsiteactivityview->ActionTaken);
-            $onsiteactivityview->Status = $this->SafeGetVal($json, 'status', $onsiteactivityview->Status);
-            $onsiteactivityview->Narrative = $this->SafeGetVal($json, 'narrative', $onsiteactivityview->Narrative);
-            $onsiteactivityview->TableAction = $this->SafeGetVal($json, 'tableAction', $onsiteactivityview->TableAction);
-            $onsiteactivityview->TableArgs = $this->SafeGetVal($json, 'tableArgs', $onsiteactivityview->TableArgs);
-            $onsiteactivityview->ActionUser = $this->SafeGetVal($json, 'actionUser', $onsiteactivityview->ActionUser);
-            $onsiteactivityview->ActionTakenTime = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'actionTakenTime', $onsiteactivityview->ActionTakenTime)));
-            $onsiteactivityview->Checksum = $this->SafeGetVal($json, 'checksum', $onsiteactivityview->Checksum);
-            $onsiteactivityview->Title = $this->SafeGetVal($json, 'title', $onsiteactivityview->Title);
-            $onsiteactivityview->Fname = $this->SafeGetVal($json, 'fname', $onsiteactivityview->Fname);
-            $onsiteactivityview->Lname = $this->SafeGetVal($json, 'lname', $onsiteactivityview->Lname);
-            $onsiteactivityview->Mname = $this->SafeGetVal($json, 'mname', $onsiteactivityview->Mname);
-            $onsiteactivityview->Dob = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'dob', $onsiteactivityview->Dob)));
-            $onsiteactivityview->Ss = $this->SafeGetVal($json, 'ss', $onsiteactivityview->Ss);
-            $onsiteactivityview->Street = $this->SafeGetVal($json, 'street', $onsiteactivityview->Street);
-            $onsiteactivityview->PostalCode = $this->SafeGetVal($json, 'postalCode', $onsiteactivityview->PostalCode);
-            $onsiteactivityview->City = $this->SafeGetVal($json, 'city', $onsiteactivityview->City);
-            $onsiteactivityview->State = $this->SafeGetVal($json, 'state', $onsiteactivityview->State);
-            $onsiteactivityview->Referrerid = $this->SafeGetVal($json, 'referrerid', $onsiteactivityview->Referrerid);
-            $onsiteactivityview->Providerid = $this->SafeGetVal($json, 'providerid', $onsiteactivityview->Providerid);
-            $onsiteactivityview->RefProviderid = $this->SafeGetVal($json, 'refProviderid', $onsiteactivityview->RefProviderid);
-            $onsiteactivityview->Pubpid = $this->SafeGetVal($json, 'pubpid', $onsiteactivityview->Pubpid);
-            $onsiteactivityview->CareTeam = $this->SafeGetVal($json, 'careTeam', $onsiteactivityview->CareTeam);
-            $onsiteactivityview->Username = $this->SafeGetVal($json, 'username', $onsiteactivityview->Username);
-            $onsiteactivityview->Authorized = $this->SafeGetVal($json, 'authorized', $onsiteactivityview->Authorized);
-            $onsiteactivityview->Ufname = $this->SafeGetVal($json, 'ufname', $onsiteactivityview->Ufname);
-            $onsiteactivityview->Umname = $this->SafeGetVal($json, 'umname', $onsiteactivityview->Umname);
-            $onsiteactivityview->Ulname = $this->SafeGetVal($json, 'ulname', $onsiteactivityview->Ulname);
-            $onsiteactivityview->Facility = $this->SafeGetVal($json, 'facility', $onsiteactivityview->Facility);
-            $onsiteactivityview->Active = $this->SafeGetVal($json, 'active', $onsiteactivityview->Active);
-            $onsiteactivityview->Utitle = $this->SafeGetVal($json, 'utitle', $onsiteactivityview->Utitle);
-            $onsiteactivityview->PhysicianType = $this->SafeGetVal($json, 'physicianType', $onsiteactivityview->PhysicianType);
-
-            $onsiteactivityview->Validate();
-            $errors = $onsiteactivityview->GetValidationErrors();
-
-            if (count($errors) > 0) {
-                $this->RenderErrorJSON('Please check the form for errors', $errors);
-            } else {
-                $onsiteactivityview->Save();
-                $this->RenderJSON($onsiteactivityview, $this->JSONPCallback(), true, $this->SimpleObjectParams());
-            }
-        } catch (Exception $ex) {
-            // this table does not have an auto-increment primary key, so it is semantically correct to
-            // issue a REST PUT request, however we have no way to know whether to insert or update.
-            // if the record is not found, this exception will indicate that this is an insert request
-            if (is_a($ex, 'NotFoundException')) {
-                return $this->Create();
-            }
-
-            $this->RenderExceptionJSON($ex);
-        }
-    }
-
-    /**
-     * API Method deletes an existing OnsiteActivityView record and render response as JSON
-     */
-    public function Delete()
-    {
-        try {
-            // TODO: views are read-only by default. uncomment at your own discretion
-            throw new Exception('Database views are read-only and cannot be updated');
-
-            // TODO: if a soft delete is prefered, change this to update the deleted flag instead of hard-deleting
-
-            $pk = $this->GetRouter()->GetUrlParam('id');
-            $onsiteactivityview = $this->Phreezer->Get('OnsiteActivityView', $pk);
-
-            $onsiteactivityview->Delete();
-
-            $output = new stdClass();
-
-            $this->RenderJSON($output, $this->JSONPCallback());
         } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
