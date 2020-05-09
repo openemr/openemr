@@ -24,10 +24,21 @@
     <div class="menuSection dropdown">
         <div class='menuLabel dropdown-toggle oe-dropdown-toggle' data-bind="text:label" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></div>
         <ul class="menuEntries dropdown-menu rounded-0 border-0" name="menuEntries" data-bind="foreach: children">
-            <li data-bind="template: {name:header ? 'menu-header' : 'menu-action', data: $data }"></li>
+            <li data-bind="template: {name:header ? 'menu-item' : 'menu-action', data: $data }"></li>
         </ul>
     </div>
 </script>
+
+<script type="text/html" id="menu-item">
+    <i data-bind="css: icon" class="fa closeButton"></i>
+    <div class="menuSection dropdown">
+        <div class='menuLabel' data-bind="text:label" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></div>
+        <ul class="menuEntries dropdown-menu rounded-0 border-0" name="menuEntries" data-bind="foreach: children">
+            <li data-bind="template: {name:header ? 'menu-item' : 'menu-action', data: $data }"></li>
+        </ul>
+    </div>
+</script>
+
 <script type="text/html" id="menu-template">
     <div class='appMenu navbar-nav mr-auto' data-bind="foreach: menu">
         <div data-bind="template: {name:header ? 'menu-header' : 'menu-action', data: $data }"></div>
