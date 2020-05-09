@@ -24,14 +24,6 @@
   width: 100%;
 }
 
-.float-right {
-  float: right;
-}
-
-.rtl .float-right {
-  float: left;
-}
-
 table.dataTable#therapy_groups_list tbody td {
   font-size: 15px;
   padding-left: 20px;
@@ -79,7 +71,7 @@ table.dataTable#therapy_groups_list tbody td {
 
 #addParticipant {
   position: absolute;
-  right: 0;
+  #{$right}: 0;
   z-index: 100;
 }
 
@@ -106,7 +98,7 @@ table.dataTable#therapy_groups_list tbody td {
 
 #add_participant {
   margin-bottom: 20px;
-  margin-left: 10px;
+  margin-#{$left}: 10px;
 }
 
 #add_participant .patient_wrap,

@@ -55,7 +55,7 @@ div.tab p:last-child {
 
 div.tab table td {
   padding-bottom: 0;
-  padding-right: 1px;
+  padding-#{$right}: 1px;
 }
 
 div.tab table td.label_custom {

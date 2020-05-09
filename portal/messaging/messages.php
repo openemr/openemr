@@ -93,7 +93,7 @@ function getAuthPortalUsers()
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <?php Header::setupHeader(['no_main-theme', 'summernote', 'fontawesome', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model']); ?>
+    <?php Header::setupHeader(['no_main-theme', 'patientportal-style', 'summernote', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model']); ?>
     <title><?php echo xlt("Secure Messaging"); ?></title>
     <meta name="description" content="Mail Application" />
 </head>
@@ -512,7 +512,7 @@ function getAuthPortalUsers()
 </script>
     <ng ng-app="emrMessageApp">
     <div class="container" id='main' style="display: none">
-        <div class='header logo my-3'>
+        <div class='my-3'>
             <h2><i class='fa fa-envelope w-auto h-auto'></i><?php echo xlt('Patient Secure Mail'); ?></h2>
         </div>
         <div class="row" ng-controller="inboxCtrl">
@@ -549,10 +549,8 @@ function getAuthPortalUsers()
                             <span class="fa fa-edit fa-lg"></span>
                         </button>
                         <div class="btn-group btn-group float-right">
-                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                            <?php echo xlt('Actions'); ?> <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" role="menu">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><?php echo xlt('Actions'); ?></button>
+                            <ul class="dropdown-menu dropdown-menu-right">
                                 <li>
                                     <a class="dropdown-item" href="javascript:;" ng-click="readAll()"><?php echo xlt('Mark all as read'); ?></a>
                                 </li>
