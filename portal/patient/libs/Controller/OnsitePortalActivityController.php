@@ -112,6 +112,13 @@ class OnsitePortalActivityController extends AppBaseController
         try {
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
+            // only allow patient to update onsiteportalactivity about themself
+            if (!empty($GLOBALS['bootstrap_pid'])) {
+                if ($GLOBALS['bootstrap_pid'] !== $onsiteportalactivity->PatientId) {
+                    $error = 'Unauthorized';
+                    throw new Exception($error);
+                }
+            }
             $this->RenderJSON($onsiteportalactivity, $this->JSONPCallback(), true, $this->SimpleObjectParams());
         } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
