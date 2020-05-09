@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -23,13 +25,10 @@ use OpenEMR\Core\Header;
         <base href="<?php $this->eprint($this->ROOT_URL); ?>" />
         <meta name="description" content="Patient Portal" />
         <meta name="author" content="Form | sjpadgett@gmail.com" />
-        <?php Header::setupHeader(['no_main-theme', 'patientportal-style', 'opener', 'fontawesome', 'datetime-picker']); ?>
+        <?php Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker']); ?>
         <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
         <script type="text/javascript">
-            $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js").wait()
-                .script("<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.bundle.min.js")
-                .script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment/moment.js")
-                .script("<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js")
+            $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/moment/moment.js")
                 .script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore/underscore-min.js").wait()
                 .script("<?php echo $GLOBALS['assets_static_relative']; ?>/backbone/backbone-min.js")
                 .script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app.js?v=<?php echo $GLOBALS['v_js_includes']; ?>")

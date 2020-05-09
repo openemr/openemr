@@ -80,11 +80,9 @@ foreach ($msgs as $i) {
     <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $v_js_includes; ?>"></script>
 
-    <?php if ($GLOBALS['payment_gateway'] == 'Stripe') {
-        ?>
+    <?php if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
         <script src="https://js.stripe.com/v3/"></script>
-        <?php
-    } ?>
+        <?php } ?>
     <?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') {
         // Must be loaded from their server
         $script = "https://jstest.authorize.net/v1/Accept.js"; // test script
@@ -92,8 +90,7 @@ foreach ($msgs as $i) {
             $script = "https://js.authorize.net/v1/Accept.js"; // Production script
         } ?>
         <script src="<?php echo $script; ?>"></script>
-        <?php
-    } ?>
+        <?php } ?>
 
     <script>
         $(function () {
@@ -136,12 +133,10 @@ foreach ($msgs as $i) {
             });
             <?php } ?>
 
-            <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
-                ?>
+            <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) { ?>
             $("#pro").load("./get_pro.php", {}, function () {
             });
-                <?php
-            } ?>
+            <?php } ?>
 
             $(".generateDoc_download").click(function () {
                 $("#doc_form").submit();
@@ -541,6 +536,7 @@ foreach ($msgs as $i) {
                             </span>
                         </div>
                     </div><!-- /.row -->
+                </div>
                     <?php
                 } ?>
                     <?php if ($GLOBALS['portal_two_payments']) {
@@ -581,8 +577,7 @@ foreach ($msgs as $i) {
                           </div><!-- /.card-body -->
                       </div>
                       <?php } ?>
-                    <?php if ($GLOBALS['portal_two_ledger']) {
-                        ?>
+                    <?php if ($GLOBALS['portal_two_ledger']) { ?>
                         <div class="collapse" id="ledgercard">
                             <div class="card">
                                 <header class="card-header bg-primary text-light"><?php echo xlt('Ledger'); ?></header>
@@ -591,23 +586,20 @@ foreach ($msgs as $i) {
                                 </div>
                             </div>
                         </div>
-                        <?php
-                    } ?>
+                        <?php } ?>
                     <?php if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
                         ?>
                         <div class="card collapse" id="procard">
                             <header class="card-header bg-primary text-light"> <?php echo xlt('Patient Reported Outcomes'); ?> </header>
                             <div id="pro" class="card-body bg-light"></div>
                         </div>
-                        <?php
-                    } ?>
+                        <?php } ?>
                     <div class="card collapse" id="profilecard">
                         <header class="card-header bg-primary text-light"><?php echo xlt('Profile'); ?></header>
                         <div id="profilereport" class="card-body bg-light"></div>
                     </div>
             </section>
-        </main><!-- /.right-side -->
+        </aside><!-- /.right-side -->
     </div><!-- ./wrapper -->
-</div>
 </body>
 </html>
