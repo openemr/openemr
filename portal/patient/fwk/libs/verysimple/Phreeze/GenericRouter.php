@@ -129,7 +129,7 @@ class GenericRouter implements IRouter
                     $p_acl = $this->routeMap[$unalteredKey]["p_acl"];
                     if (
                         ($p_acl == 'p_none') ||
-                        (($p_acl == 'p_limited') && ($GLOBALS['bootstrap_pid'] != $match[1]))
+                        (($p_acl == 'p_limited') && ($GLOBALS['bootstrap_uri_id'] != $match[1]))
                     ) {
                         // failed p_acl check
                         $error = 'Unauthorized';
