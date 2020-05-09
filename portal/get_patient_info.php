@@ -21,11 +21,22 @@ OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 // regenerating the session id to avoid session fixation attacks
 session_regenerate_id(true);
-//
+
+// Settings that will override globals.php
+$ignoreAuth = 1;
+
+// Authentication
+require_once('../interface/globals.php');
+require_once(dirname(__FILE__) . "/lib/appsql.class.php");
+require_once("$srcdir/user.inc");
+
+use OpenEMR\Common\Auth\AuthHash;
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 // landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
-//
+if (isset($_GET['site'])) {
+    $landingpage = "index.php?site=" . urlencode($_GET['site']);
+}
 
 // checking whether the request comes from index.php
 if (!isset($_SESSION['itsme'])) {
@@ -56,18 +67,6 @@ if (!empty($_POST['languageChoice'])) {
 } else {
     // keep the current session language token
 }
-
-// Settings that will override globals.php
-$ignoreAuth = 1;
-//
-
-// Authentication
-require_once('../interface/globals.php');
-require_once(dirname(__FILE__) . "/lib/appsql.class.php");
-require_once("$srcdir/user.inc");
-
-use OpenEMR\Common\Auth\AuthHash;
-use OpenEMR\Common\Csrf\CsrfUtils;
 
 $logit = new ApplicationTable();
 $password_update = isset($_SESSION['password_update']) ? $_SESSION['password_update'] : 0;
@@ -169,11 +168,7 @@ $_SESSION['portal_login_username'] = $auth[COL_POR_LOGINUSER];
 
 $sql = "SELECT * FROM `patient_data` WHERE `pid` = ?";
 
-if (
-    $userData = sqlQuery($sql, array(
-    $auth['pid']
-    ))
-) { // if query gets executed
+if ($userData = sqlQuery($sql, array($auth['pid']))) { // if query gets executed
     if (empty($userData)) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':not active patient'), '', '0');
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
@@ -223,11 +218,7 @@ if (
                 )
             );
             $authorizedPortal = true;
-            $logit->portalLog(
-                'password update',
-                $auth['pid'],
-                ($_POST['login_uname'] . ': ' . $_SESSION['ptName'] . ':success')
-            );
+            $logit->portalLog('password update', $auth['pid'], ($_POST['login_uname'] . ': ' . $_SESSION['ptName'] . ':success'));
         }
     }
 

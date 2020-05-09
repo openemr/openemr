@@ -131,9 +131,6 @@ function messageCreate($uname, $pass, $encoded_link = '')
 
 function doCredentials($pid)
 {
-    global $srcdir;
-    require_once("$srcdir/authentication/common_operations.php");
-
     $newpd = sqlQuery("SELECT id,fname,mname,lname,email,email_direct FROM `patient_data` WHERE `pid`=?", array(
         $pid
     ));

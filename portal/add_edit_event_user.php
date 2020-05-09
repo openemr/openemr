@@ -643,110 +643,85 @@ if ($userid) {
 </script>
 <body class="skin-blue">
     <div class="card">
-        <form class="form-inline" method='post' name='theaddform' id='theaddform' action='add_edit_event_user.php?eid=<?php echo attr_url($eid); ?>'>
-            <input type="hidden" name="form_action" id="form_action" value="">
+        <form method='post' name='theaddform' id='theaddform' action='add_edit_event_user.php?eid=<?php echo attr_url($eid); ?>'>
+            <input type="hidden" name="form_action" id="form_action" value="" />
             <input type='hidden' name='form_title' id='form_title' value='<?php echo $row['pc_catid'] ? attr($row['pc_title']) : xla("Office Visit"); ?>' />
             <input type='hidden' name='form_apptstatus' id='form_apptstatus' value='<?php echo $row['pc_apptstatus'] ? attr($row['pc_apptstatus']) : "^" ?>' />
-            <table border='0' width='100%'>
-                <tr>
-                    <td width='1%' nowrap>
-                        <b><?php echo xlt('Visit'); ?>: </b>
-                    </td>
-                    <td nowrap style='padding:0px 5px 5px 0'>
-                        <select class="form-control" onchange='set_category()' id='form_category' name='form_category' value='<?php echo ($row['pc_catid'] > "") ? attr($row['pc_catid']) : '5'; ?>'>
-                            <?php echo $catoptions ?>
-                        </select>
-                    </td>
-                    <td></td>
-                    <td width='1%' nowrap>
-                        <b><?php echo xlt('Date'); ?>:</b>
-                    </td>
-                    <td colspan='2' nowrap id='tdallday1'>
-                        <input class="form-control" type='text' size='10' name='form_date' readonly id='form_date'
-                            value='<?php echo (isset($eid) && $eid) ? attr($row['pc_eventDate']) : attr($date); ?>' />
-                    </td>
-                </tr>
-                <tr>
-                    <td nowrap>
-                        <b><?php //xl('Title','e'); ?></b>
-                    </td>
-                    <td style='padding:0px 5px 5px 0' nowrap>
-                    </td>
-                    <td nowrap>
-                    </td>
-                    <td width='1%' nowrap id='tdallday2'>
-                        <b><?php echo xlt('Time'); ?>:</b>
-                    </td>
-                    <td width='1%' nowrap id='tdallday3'>
-                        <input class="form-control inline" type='text' size='2' name='form_hour' value='<?php echo (isset($eid)) ? $starttimeh : ''; ?>'
-                            title='<?php echo xla('Event start time'); ?>' readonly /> :
-                        <input class="form-control inline" type='text' size='2' name='form_minute' value='<?php echo (isset($eid)) ? $starttimem : ''; ?>'
-                            title='<?php echo xla('Event start time'); ?>' readonly />&nbsp; <!--  -->
-                        <select class="form-control" name='form_ampm' title='Note: 12:00 noon is PM, not AM' readonly>
-                            <option value='1'><?php echo xlt('AM'); ?></option>
-                            <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td nowrap>
-                        <b><?php echo xlt('Patient'); ?>:</b>
-                    </td>
-                    <td style='padding: 0px 5px 5px 0' nowrap>
-                        <input class="form-control" type='text' id='form_patient' name='form_patient' value='<?php echo attr($patientname); ?>' title='Patient' readonly />
-                        <input type='hidden' name='form_pid' value='<?php echo attr($patientid); ?>' />
-                    </td>
-                    <td nowrap>
-                        &nbsp;
-                    </td>
-                    <td nowrap id='tdallday4'><?php echo xlt('Duration'); ?></td>
-                    <td nowrap id='tdallday5'>
-                        <input class="form-control form-control-sm" type='text' size='1' name='form_duration' value='<?php echo $row['pc_duration'] ? ($row['pc_duration'] * 1 / 60) : attr($thisduration) ?>' readonly /><?php echo "&nbsp" . xlt('minutes'); ?>
-                    </td>
-                </tr>
-                <tr>
-                </tr>
-                <tr>
-                    <td nowrap>
-                        <b><?php echo xlt('Provider'); ?>:</b>
-                    </td>
-                    <td style='padding:0px 5px 5px 0' nowrap>
-                        <select class="form-control" name='form_provider_ae' id='form_provider_ae' onchange='change_provider();'>
-                            <?php
-                            // present a list of providers to choose from
-                            // default to the currently logged-in user
-                            while ($urow = sqlFetchArray($ures)) {
-                                echo "    <option value='" . attr($urow['id']) . "'";
-                                if (($urow['id'] == $_GET['userid']) || ($urow['id'] == $userid)) {
-                                    echo " selected";
-                                }
 
-                                echo ">" . text($urow['lname']);
-                                if ($urow['fname']) {
-                                    echo ", " . text($urow['fname']);
-                                }
+            <div class="form-row my-1">
+              <label for="form_category" class="col-2 col-form-label"><?php echo xlt('Visit'); ?>:</label>
+              <div class="col">
+                <select class="form-control" onchange='set_category()' id='form_category' name='form_category' value='<?php echo ($row['pc_catid'] > "") ? attr($row['pc_catid']) : '5'; ?>'>
+                  <?php echo $catoptions ?>
+                </select>
+              </div>
+              <label for="form_date" class="col-1 col-form-label"><?php echo xlt('Date'); ?>:</label>
+              <div class="col">
+                <input class="form-control" type='text' name='form_date' readonly id='form_date' value='<?php echo (isset($eid) && $eid) ? attr($row['pc_eventDate']) : attr($date); ?>' />
+              </div>
+            </div>
+            <div class="form-row my-1">
+              <label class="col-2 col-form-label"><?php echo xlt('Time'); ?>:</label>
+              <div class="col form-inline">
+                <input class="form-control" type='text' name='form_hour' size='2' value='<?php echo (isset($eid)) ? $starttimeh : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
+                <span>:</span>
+                <input class="form-control" type='text' name='form_minute' size='2' value='<?php echo (isset($eid)) ? $starttimem : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
+                <select class="form-control" name='form_ampm' title='Note: 12:00 noon is PM, not AM' readonly>
+                    <option value='1'><?php echo xlt('AM'); ?></option>
+                    <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
+                </select>
+              </div>
+              <label for="form_patient" class="col-1 col-form-label"><?php echo xlt('Patient'); ?>:</label>
+              <div class="col">
+                <input class="form-control" type='text' id='form_patient' name='form_patient' value='<?php echo attr($patientname); ?>' title='Patient' readonly />
+                <input type='hidden' name='form_pid' value='<?php echo attr($patientid); ?>' />
+              </div>
+            </div>
+            <div class="form-row my-1">
+              <label for="form_duration" class="col-2 col-form-label"><?php echo xlt('Duration'); ?></label>
+              <div class="col">
+                <div class="input-group">
+                  <input class="form-control" type='text' size='1' id='form_duration' name='form_duration' value='<?php echo $row['pc_duration'] ? ($row['pc_duration'] * 1 / 60) : attr($thisduration) ?>' readonly />
+                  <div class="input-group-append">
+                    <span class="input-group-text"><?php echo "&nbsp;" . xlt('minutes'); ?></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-row my-1">
+              <label for="form_provider_ae" class="col-2 col-form-label"><?php echo xlt('Provider'); ?>:</label>
+              <div class="col-8">
+                <select class="form-control" name='form_provider_ae' id='form_provider_ae' onchange='change_provider();'>
+                    <?php
+                    // present a list of providers to choose from
+                    // default to the currently logged-in user
+                    while ($urow = sqlFetchArray($ures)) {
+                        echo "    <option value='" . attr($urow['id']) . "'";
+                        if (($urow['id'] == $_GET['userid']) || ($urow['id'] == $userid)) {
+                            echo " selected";
+                        }
 
-                                echo "</option>\n";
-                            }
-                            ?>
-                        </select>
-                    </td>
-                    <td nowrap style='font-size:8pt'>
-                    </td>
-                    <td>
-                        <input type='button' class='btn btn-success btn-sm' value='<?php echo xla('Openings'); ?>' onclick='find_available()' />
-                    </td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td nowrap>
-                        <b><?php echo xlt('Reason'); ?>:</b>
-                    </td>
-                    <td style='padding:0px 5px 5px 0' colspan='4' nowrap>
-                        <input class="form-control w-100" type='text' size='40' name='form_comments' value='<?php echo attr($hometext); ?>' title='<?php echo xla('Optional information about this event'); ?>' />
-                    </td>
-                </tr>
-            </table>
+                        echo ">" . text($urow['lname']);
+                        if ($urow['fname']) {
+                            echo ", " . text($urow['fname']);
+                        }
+
+                        echo "</option>\n";
+                    }
+                    ?>
+                </select>
+              </div>
+              <div class="col text-right">
+                <input type='button' class='btn btn-success' value='<?php echo xla('Openings'); ?>' onclick='find_available()' />
+              </div>
+            </div>
+            <div class="form-row my-1">
+              <label class="col-2 col-form-label"><?php echo xlt('Reason'); ?>:</label>
+              <div class="col">
+                <input class="form-control" type='text' size='40' name='form_comments' value='<?php echo attr($hometext); ?>' title='<?php echo xla('Optional information about this event'); ?>' />
+              </div>
+            </div>
+
             <div class="form-group">
                 <br />
                 <?php if ($_GET['eid'] && $row['pc_apptstatus'] !== 'x') { ?>
@@ -812,9 +787,13 @@ if ($userid) {
                 f.form_date.value = '' + year + '-' +
                     ('' + (mon + 100)).substring(1) + '-' +
                     ('' + (mday + 100)).substring(1);
-                f.form_ampm.selectedIndex = (hours >= 12) ? 1 : 0;
-                f.form_hour.value = (hours > 12) ? hours - 12 : hours;
-                f.form_minute.value = ('' + (minutes + 100)).substring(1);
+                f.form_ampm.selectedIndex = (hours > 12) ? 1 : 0;
+                if (hours == 0) {
+                  f.form_hour.value = 12;
+                } else {
+                  f.form_hour.value = (hours >= 13) ? hours - 12 : hours;
+                }
+                f.form_minute.value = minutes;
             }
 
             // Invoke the find-available popup.

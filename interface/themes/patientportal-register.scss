@@ -1,7 +1,20 @@
-@CHARSET "UTF-8";
-
+/**
+ * patientportal-register.css
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 body {
   margin-top: 20px;
+}
+
+.btn-circle {
+  border-radius: 0.9375rem !important;
 }
 
 .embedded-content {
@@ -31,12 +44,18 @@ body {
   }
 }
 
-.stepwiz-step p {
-  margin-top: 10px;
-}
-
 .stepwiz-row {
   display: table-row;
+
+  &::before {
+    background-color: var(--gray400);
+    bottom: 0;
+    content: " ";
+    height: 1px;
+    position: absolute;
+    top: 14px;
+    width: 100%;
+  }
 }
 
 .stepwiz {
@@ -46,26 +65,19 @@ body {
   width: 100%;
 }
 
-.stepwiz-step button[disabled] {
-  filter: alpha(opacity=100) !important;
-  opacity: 1 !important;
-}
-
-.stepwiz-row::before {
-  background-color: #ccc;
-  bottom: 0;
-  content: " ";
-  height: 1px;
-  position: absolute;
-  top: 14px;
-  width: 100%;
-  z-index: 0;
-}
-
 .stepwiz-step {
   display: table-cell;
   position: relative;
   text-align: center;
+
+  p {
+    margin-top: 10px;
+  }
+
+  button[disabled] {
+    filter: alpha(opacity=100) !important;
+    opacity: 1 !important;
+  }
 }
 
 .btn-circle {
@@ -79,16 +91,14 @@ body {
   width: 35px;
 }
 
-/* stylelint-disable */
 input[type=text],
 input[type=email],
 input[type=date],
 select,
 fieldset {
-  -webkit-appearance: none;
+  appearance: none;
   box-sizing: border-box;
 }
-/* stylelint-enable */
 
 input:required:invalid,
 input:focus:invalid {

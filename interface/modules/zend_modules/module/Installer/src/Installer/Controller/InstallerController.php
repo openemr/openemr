@@ -460,7 +460,7 @@ class InstallerController extends AbstractActionController
             include_once($sqldir . "/acl_upgrade.php");
 
             foreach ($ACL_UPGRADE as $toVersion => $function) {
-                if (version_compare($mod->acl_version, $toVersion) >= 0) {
+                if (version_compare($mod->acl_version, $toVersion) > 0) {
                     continue;
                 }
                 $mod->acl_action = "upgrade";
@@ -494,6 +494,7 @@ class InstallerController extends AbstractActionController
     {
         $dirModule = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
         if ($this->getInstallerTable()->installSQL($GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule->modDirectory . "/sql")) {
+            $values = array($dirModule->mod_nick_name,$dirModule->mod_enc_menu);
             $values[2] = $this->getModuleVersionFromFile($modId);
             $values[3] = $dirModule->acl_version;
             $this->getInstallerTable()->updateRegistered($modId, '', $values);
@@ -512,16 +513,12 @@ class InstallerController extends AbstractActionController
         $Module = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
         $modDir = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $Module->modDirectory;
         $versions = $this->getFilesForUpgrade($Module->modDirectory);
-        $values = [];
+        $values = array($Module->mod_nick_name,$Module->mod_enc_menu);
         $div = [];
         $outputToBrowser = '';
-
         foreach ($versions as $version => $filename) {
             if (version_compare($version, $Module->sql_version) < 0) {
                 continue;
-            }
-            if (preg_match('/^\d+_\d+_\d+-to-(\d)+_(\d)+_(\d)+_upgrade.sql$/', $filename, $matches)) {
-                $values[2] = $matches[1] . '.' . $matches[2] . '.' . $matches[3];
             }
 
             ob_start();
@@ -558,6 +555,7 @@ class InstallerController extends AbstractActionController
                 $k++;
             }
         }
+        $values[2] = $this->getModuleVersionFromFile($modId);
         $values[3] = $Module->acl_version;
         $this->getInstallerTable()->updateRegistered($modId, '', $values);
         return $div;
@@ -581,6 +579,7 @@ class InstallerController extends AbstractActionController
             include_once($modDir . "/acl/acl_setup.php");
             $div[] = ob_get_contents();
             ob_end_clean();
+            $values = array($Module->mod_nick_name,$Module->mod_enc_menu);
             $values[2] = $Module->sql_version;
             $values[3] = $this->getModuleVersionFromFile($modId);
             $this->getInstallerTable()->updateRegistered($modId, '', $values);
@@ -701,8 +700,9 @@ class InstallerController extends AbstractActionController
             ob_end_clean();
 
             if (strlen($version) > 0) {
+                $values = array($Module->mod_nick_name,$Module->mod_enc_menu);
                 $values[2] = $Module->sql_version;
-                $values[3] = $version;
+                $values[3] = $this->getModuleVersionFromFile($modId);
                 $this->getInstallerTable()->updateRegistered($modId, '', $values);
             }
             return $div;

@@ -353,6 +353,11 @@ $esignApi = new Api();
                 $('#attendantData').slideToggle();
                 $('#patient_caret').toggleClass('fa-caret-down').toggleClass('fa-caret-up');
             });
+            if($('body').css('direction') == "rtl") {
+              $('.dropdown-menu-right').each(function() {
+                $(this).removeClass('dropdown-menu-right');
+              });
+            }
         });
         $(function () {
             $('#logo_menu').focus();

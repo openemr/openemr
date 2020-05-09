@@ -111,12 +111,12 @@ class PortalPatientController extends AppBaseController
     public function Read()
     {
         try {
+            // not required here but, represents patient rec id, not audit id.
             $pk = $this->GetRouter()->GetUrlParam('id');
             $ppid = RequestUtil::Get('patientId');
-            // $patient = $this->Phreezer->Get( 'Patient', $pk );
             $appsql = new ApplicationTable();
             $edata = $appsql->getPortalAudit($ppid, 'review');
-            $changed = unserialize($edata['table_args'], ['allowed_classes' => false]);
+            $changed = !empty($edata['table_args']) ? unserialize($edata['table_args'], ['allowed_classes' => false]) : [];
             $newv = array ();
             foreach ($changed as $key => $val) {
                 $newv[lcfirst(ucwords(preg_replace_callback("/(\_(.))/", create_function('$matches', 'return strtoupper($matches[2]);'), strtolower($key))))] = $val;
