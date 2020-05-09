@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * Derived from phreeze package
@@ -7,9 +8,6 @@
  */
 
     $this->assign('title', xlt('Patient Portal'));
-    $this->assign('nav', 'home');
-
-    $this->display('_Header.tpl.php');
 ?>
 
 <div class="container">
