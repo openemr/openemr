@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OnsitePortalActivityController.php
  *
@@ -50,7 +51,14 @@ class OnsitePortalActivityController extends AppBaseController
     {
         try {
             $criteria = new OnsitePortalActivityCriteria();
-            $pid = RequestUtil::Get('patientId');
+
+            // only allow patient to see their own activity
+            if (!empty($GLOBALS['bootstrap_pid'])) {
+                $pid = $GLOBALS['bootstrap_pid'];
+            } else {
+                $pid = RequestUtil::Get('patientId');
+            }
+
             $activity = RequestUtil::Get('activity');
             $doc = RequestUtil::Get('doc');
             $doc = $doc ? $doc : 0;
@@ -104,6 +112,13 @@ class OnsitePortalActivityController extends AppBaseController
         try {
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
+            // only allow patient to update onsiteportalactivity about themself
+            if (!empty($GLOBALS['bootstrap_pid'])) {
+                if ($GLOBALS['bootstrap_pid'] !== $onsiteportalactivity->PatientId) {
+                    $error = 'Unauthorized';
+                    throw new Exception($error);
+                }
+            }
             $this->RenderJSON($onsiteportalactivity, $this->JSONPCallback(), true, $this->SimpleObjectParams());
         } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
@@ -130,7 +145,14 @@ class OnsitePortalActivityController extends AppBaseController
             // $onsiteportalactivity->Id = $this->SafeGetVal($json, 'id');
 
             $onsiteportalactivity->Date = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'date')));
-            $onsiteportalactivity->PatientId = $this->SafeGetVal($json, 'patientId');
+
+            // only allow patient to create onsiteportalactivity about themself
+            if (!empty($GLOBALS['bootstrap_pid'])) {
+                $onsiteportalactivity->PatientId = $GLOBALS['bootstrap_pid'];
+            } else {
+                $onsiteportalactivity->PatientId = $this->SafeGetVal($json, 'patientId');
+            }
+
             $onsiteportalactivity->Activity = $this->SafeGetVal($json, 'activity');
             $onsiteportalactivity->RequireAudit = $this->SafeGetVal($json, 'requireAudit');
             $onsiteportalactivity->PendingAction = $this->SafeGetVal($json, 'pendingAction');
@@ -171,6 +193,13 @@ class OnsitePortalActivityController extends AppBaseController
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
+
+            // only allow patient to update onsiteportalactivity about themself
+            if (!empty($GLOBALS['bootstrap_pid'])) {
+                if ($GLOBALS['bootstrap_pid'] != $this->SafeGetVal($json, 'patientId', $onsiteportalactivity->PatientId)) {
+                    throw new Exception('Bad PID');
+                }
+            }
 
             // TODO: any fields that should not be updated by the user should be commented out
 
