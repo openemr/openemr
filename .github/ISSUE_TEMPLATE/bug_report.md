@@ -25,6 +25,7 @@ Steps to reproduce the behavior:
 ### Client configuration
 
 - Browser:
+- OpenEMR version:
 - Operating system:
 
 <!-- Love openemr? Please consider supporting our collective:

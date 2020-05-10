@@ -21,22 +21,11 @@ OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 // regenerating the session id to avoid session fixation attacks
 session_regenerate_id(true);
-
-// Settings that will override globals.php
-$ignoreAuth = 1;
-
-// Authentication
-require_once('../interface/globals.php');
-require_once(dirname(__FILE__) . "/lib/appsql.class.php");
-require_once("$srcdir/user.inc");
-
-use OpenEMR\Common\Auth\AuthHash;
-use OpenEMR\Common\Csrf\CsrfUtils;
+//
 
 // landing page definition -- where to go if something goes wrong
-if (isset($_GET['site'])) {
-    $landingpage = "index.php?site=" . urlencode($_GET['site']);
-}
+$landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
+//
 
 // checking whether the request comes from index.php
 if (!isset($_SESSION['itsme'])) {
@@ -67,6 +56,18 @@ if (!empty($_POST['languageChoice'])) {
 } else {
     // keep the current session language token
 }
+
+// Settings that will override globals.php
+$ignoreAuth = 1;
+//
+
+// Authentication
+require_once('../interface/globals.php');
+require_once(dirname(__FILE__) . "/lib/appsql.class.php");
+require_once("$srcdir/user.inc");
+
+use OpenEMR\Common\Auth\AuthHash;
+use OpenEMR\Common\Csrf\CsrfUtils;
 
 $logit = new ApplicationTable();
 $password_update = isset($_SESSION['password_update']) ? $_SESSION['password_update'] : 0;
