@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenEMR\Tests\Services;
+namespace OpenEMR\Tests\Validators;
 
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Validators\ProcessingResult;
