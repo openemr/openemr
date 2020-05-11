@@ -1342,7 +1342,7 @@ CREATE TABLE `drugs` (
   `on_order` int(11) NOT NULL default '0',
   `reorder_point` float NOT NULL DEFAULT 0.0,
   `max_level` float NOT NULL DEFAULT 0.0,
-  `last_notify` date NOT NULL default '0000-00-00',
+  `last_notify` date NULL,
   `reactions` text,
   `form` int(3) NOT NULL default '0',
   `size` varchar(25) NOT NULL default '',
