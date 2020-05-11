@@ -31,6 +31,7 @@ $timeslotHeightUnit="px";
  }
 
  function newEvt(startampm, starttimeh, starttimem, eventdate, providerid, catid) {
+     refreshme();
   dlgopen('add_edit_event.php?startampm=' + encodeURIComponent(startampm) +
    '&starttimeh=' + encodeURIComponent(starttimeh) + '&userid=' + encodeURIComponent(providerid) + '&starttimem=' + encodeURIComponent(starttimem) +
    '&date=' + encodeURIComponent(eventdate) + '&catid=' + encodeURIComponent(catid)[-php-]
