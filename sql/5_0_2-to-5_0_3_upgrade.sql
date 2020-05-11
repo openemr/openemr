@@ -446,12 +446,32 @@ ALTER TABLE `codes` MODIFY `code_text_short` varchar(255) NOT NULL default '';
 
 #IfNotColumnTypeDefault amendments created_time timestamp NULL
 ALTER TABLE `amendments` MODIFY `created_time` timestamp NULL COMMENT 'created time';
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `amendments` SET `created_time` = NULL WHERE `created_time` = '0000-00-00 00:00:00';
+SET sql_mode = @currentSQLMode;
 #EndIf
 
 #IfNotColumnTypeDefault amendments_history created_time timestamp NULL
 ALTER TABLE `amendments_history` MODIFY `created_time` timestamp NULL COMMENT 'created time';
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `amendments_history` SET `created_time` = NULL WHERE `created_time` = '0000-00-00 00:00:00';
+SET sql_mode = @currentSQLMode;
 #EndIf
 
 #IfNotColumnTypeDefault batchcom msg_date_sent datetime NULL
 ALTER TABLE `batchcom` MODIFY `msg_date_sent` datetime NULL;
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `batchcom` SET `msg_date_sent` = NULL WHERE `msg_date_sent` = '0000-00-00 00:00:00';
+SET sql_mode = @currentSQLMode;
+#EndIf
+
+#IfNotColumnTypeDefault drug_inventory last_notify date NULL
+ALTER TABLE `drug_inventory` MODIFY `last_notify` date NULL;
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `drug_inventory` SET `last_notify` = NULL WHERE `last_notify` = '0000-00-00';
+SET sql_mode = @currentSQLMode;
 #EndIf
