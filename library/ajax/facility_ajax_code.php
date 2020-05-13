@@ -22,16 +22,26 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
-
-if ($_GET['mode'] == 'get_pos') {
+if ($_GET['mode'] === 'get_pos') {
     // put here for encounter facility changes sjp
-    //
     $fid = $_GET['facility_id'] ? (int)$_GET['facility_id'] : exit('0');
     $pos = sqlQuery("SELECT pos_code FROM facility WHERE id = ?", array($fid));
-    echo ((int)$pos['pos_code'] < 10) ? ("0" . $pos['pos_code']) : $pos['pos_code'];
+
+    echo json_encode(((int)$pos['pos_code'] < 10) ? ("0" . $pos['pos_code']) : $pos['pos_code']);
+    exit();
+} elseif ($_GET['mode'] === 'get_user_data') {
+    // put here for encounter user changes sjp
+    $provider_id = $_GET['provider_id'] ? (int)$_GET['provider_id'] : exit('0');
+    $userService = new \OpenEMR\Services\UserService();
+    $facilityService = new \OpenEMR\Services\FacilityService();
+    $fac = $facilityService->getFacilityForUser($provider_id);
+    $fid = $fac['id'];
+    $pos = ((int)$fac['pos_code'] < 10) ? ("0" .$fac['pos_code']) : $fac['pos_code'];
+    $isBilling = $fac['billing_location'];
+
+    echo json_encode(array($fid, $pos, $isBilling));
     exit();
 }
-
 $pid = $_POST['pid'];
 $facility = $_POST['facility'];
 $date = $_POST['date'];

@@ -36,6 +36,7 @@ $reason           = (isset($_POST['reason']))               ? $_POST['reason'] :
 $mode             = (isset($_POST['mode']))                 ? $_POST['mode'] : '';
 $referral_source  = (isset($_POST['form_referral_source'])) ? $_POST['form_referral_source'] : '';
 $pos_code         = (isset($_POST['pos_code']))              ? $_POST['pos_code'] : '';
+$encounter_provider = $_POST['provider_id'] ?? 0;
 //save therapy group if exist in external_id column
 $external_id         = isset($_POST['form_gid']) ? $_POST['form_gid'] : '';
 
@@ -46,15 +47,17 @@ $normalurl = "patient_file/encounter/encounter_top.php";
 
 $nexturl = $normalurl;
 
+$provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
+$provider_id = $provider_id ? $encounter_provider : $provider_id;
+
 if ($mode == 'new') {
-    $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
     $encounter = generate_id();
     addForm(
         $encounter,
         "New Patient Encounter",
         sqlInsert(
             "INSERT INTO form_encounter SET
-                date = ?,      
+                date = ?,
                 onset_date = ?,
                 reason = ?,
                 facility = ?,
@@ -108,6 +111,7 @@ if ($mode == 'new') {
     array_push(
         $sqlBindArray,
         $onset_date,
+        $provider_id,
         $reason,
         $facility,
         $pc_catid,
@@ -122,6 +126,7 @@ if ($mode == 'new') {
         "UPDATE form_encounter SET
             $datepart
             onset_date = ?,
+            provider_id = ?,
             reason = ?,
             facility = ?,
             pc_catid = ?,
