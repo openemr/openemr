@@ -18,6 +18,7 @@ require_once("../../interface/globals.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Services\FacilityService;
 
 if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -29,11 +30,11 @@ if ($_GET['mode'] === 'get_pos') {
 
     echo json_encode(((int)$pos['pos_code'] < 10) ? ("0" . $pos['pos_code']) : $pos['pos_code']);
     exit();
-} elseif ($_GET['mode'] === 'get_user_data') {
+}
+if ($_GET['mode'] === 'get_user_data') {
     // put here for encounter user changes sjp
     $provider_id = $_GET['provider_id'] ? (int)$_GET['provider_id'] : exit('0');
-    $userService = new \OpenEMR\Services\UserService();
-    $facilityService = new \OpenEMR\Services\FacilityService();
+    $facilityService = new FacilityService();
     $fac = $facilityService->getFacilityForUser($provider_id);
     $fid = $fac['id'];
     $pos = ((int)$fac['pos_code'] < 10) ? ("0" .$fac['pos_code']) : $fac['pos_code'];
