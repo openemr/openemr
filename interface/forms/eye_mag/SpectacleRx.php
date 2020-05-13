@@ -289,7 +289,7 @@ if ($_REQUEST['dispensed']) {
     <title><?php echo xlt('Rx Dispensed History'); ?></title>
     <head>
 
-        <?php Header::setupHeader([ 'opener', 'jquery-ui', 'jquery-ui-redmond', 'pure', 'jscolor' ]); ?>
+        <?php Header::setupHeader(['opener', 'pure', 'jscolor']); ?>
 
         <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
 
@@ -694,7 +694,7 @@ if ($_REQUEST['dispensed']) {
 ?>
 <html>
 <head>
-    <?php Header::setupHeader([ 'opener', 'jquery-ui', 'jquery-ui-redmond', 'pure', 'jscolor' ]); ?>
+    <?php Header::setupHeader(['opener', 'pure', 'jscolor']); ?>
     <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
 
     <style>
