@@ -590,7 +590,7 @@ foreach (explode(',', $given) as $item) {
     </script>
     <!-- Add Font stuff for the look and feel.  -->
 
-    <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-excite-bike', 'purecss', 'shortcut', 'opener']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'purecss', 'shortcut', 'opener']); ?>
     <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css" />
 
     <style>
@@ -1368,16 +1368,16 @@ foreach (explode(',', $given) as $item) {
                     </tr>
                 </table>
             </div>
-            <p class="text-center" style="width:100%;margin-top:0px;">
+            <div class="text-center w-100 mt-0">
                 <input type="hidden" id="issue_js" name="issue_js" value="test">
                 <input type="hidden" id="pid" name="pid" value="<?php echo attr($pid); ?>">
-                <input type='button' id='form_save' name='form_save' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only navy" onclick='top.restoreSession();submit_this_form();' value='<?php echo xla('Save'); ?>' />
+                <button type='button' id='form_save' name='form_save' class="btn btn-primary btn-save" onclick='top.restoreSession();submit_this_form();'><?php echo xla('Save'); ?></button>
                 <?php $display_delete = "nodisplay"; ?>
                 &nbsp;
-                <input type='button' name='delete_button' id='delete_button' class="<?php echo $display_delete; ?> ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only navy" onclick='top.restoreSession();deleteme();' value='<?php echo xla('Delete'); ?>' />
+                <button type='button' name='delete_button' id='delete_button' class="btn btn-secondary btn-delete <?php echo $display_delete; ?>" onclick='top.restoreSession();deleteme();'><?php echo xla('Delete'); ?></button>
                 &nbsp;
-                <input type='button' name='cancel_button' id='cancel_button' class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only navy" value='<?php echo xla('Cancel'); ?>' onclick='clearme();' />
-            </p>
+                <button type='button' name='cancel_button' id='cancel_button' class="btn btn-secondary btn-cancel" onclick='clearme();'><?php echo xla('Cancel'); ?></button>
+            </div>
         </form>
     </div>
 <script>
