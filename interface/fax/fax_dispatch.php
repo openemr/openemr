@@ -466,26 +466,6 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
     <?php Header::setupHeader(['opener', 'datetime-picker']);?>
     <title><?php echo xlt('Dispatch Received Document'); ?></title>
 
-<style>
-
-td, input, select, textarea {
- font-size: 10pt;
-}
-
-.itemtitle {
- font-weight: bold;
-}
-
-div.section {
- border: solid;
- border-width: 1px;
- border-color: #0000ff;
- margin-left: 2em;
- padding: 1em;
-}
-
-</style>
-
 <script language="JavaScript">
 
     <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
