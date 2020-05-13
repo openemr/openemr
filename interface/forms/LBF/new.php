@@ -321,7 +321,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['opener', 'common', 'datetime-picker', 'jquery-ui',]); ?>
+    <?php Header::setupHeader(['opener', 'common', 'datetime-picker']); ?>
 
     <style>
 
@@ -1515,7 +1515,6 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 
             <div class="col-12">
                 <div class="btn-group">
-
                     <?php
                     if (!$from_trend_form && !$from_lbf_edit) {
                         // Generate price level selector if we are doing services or products.
@@ -1525,21 +1524,16 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                             echo "&nbsp;&nbsp;";
                         }
                         ?>
-                        <button type="submit" class="btn btn-secondary btn-save" name="bn_save"
-                                value="<?php echo xla('Save'); ?>">
+                        <button type="submit" class="btn btn-primary btn-save" name="bn_save">
                             <?php echo xlt('Save'); ?>
                         </button>
-
-                        &nbsp;
-                        <button type='submit' class="btn btn-link" name='bn_save_continue'
-                                value='<?php echo xla('Save and Continue') ?>'>
+                        <button type='submit' class="btn btn-secondary" name='bn_save_continue'>
                             <?php echo xlt('Save and Continue'); ?>
                         </button>
                         <?php
                         if (!$from_issue_form) {
                             ?>
-                            &nbsp;
-                            <button type='submit' class="btn btn-link" name='bn_save_print'
+                            <button type='submit' class="btn btn-secondary" name='bn_save_print'
                                     value='<?php echo xla('Save and Print') ?>'>
                                 <?php echo xlt('Save and Print'); ?>
                             </button>
@@ -1559,7 +1553,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                                 <?php
                             } // end form is graphable
                             ?>
-                            <button type='button' class="btn btn-link btn-cancel" onclick="verifyCancel()">
+                            <button type='button' class="btn btn-secondary btn-cancel" onclick="verifyCancel()">
                                 <?php echo xlt('Cancel'); ?>
                             </button>
                             <?php
