@@ -56,21 +56,23 @@ Finally, APIs which are integrated with the new `handleProcessingResult` method 
 * [appointment API](API_README.md#get-apiappointment)
 * [document API](API_README.md#get-apipatientpiddocument)
 * [message API](API_README.md#post-apipatientpidmessage)
+* [patient portal API](API_README.md#portal-Endpoints)
 * [dev notes](API_README.md#dev-notes)
 * [todos](API_README.md#project-management)
 
 ### Prerequisite
-Enable this API service in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR REST API"
+Enable the Standard API service (/api/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Standard REST API"
+Enable the Patient Portal API service (/portal/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Patient Portal REST API"
 
 ### Using API Internally
 There are several ways to make API calls from an authorized session and maintain security:
 * See the script at tests/api/InternalApiTest.php for examples of internal API use cases.
 
-### Endpoints
-OpenEMR standard endpoints Use `http://localhost:8300/apis/ as base URI.`
+### /api/ Endpoints
+OpenEMR standard endpoints Use `http://localhost:8300/apis/api as base URI.`
 
 _Example:_ `http://localhost:8300/apis/api/patient` returns a resource of all Patients.
-#### POST /apis/auth
+#### POST /api/auth
 
 The OpenEMR API utilizes the OAuth2 password credential flow for authentication. To obtain an API token, submit your login credentials and requested scope. The scope must match a site that has been setup in OpenEMR, in the /sites/ directory.  If additional sites have not been created, set the scope
 to 'default'.
@@ -966,6 +968,84 @@ Notes:
 
 ```sh
 curl -X DELETE 'http://localhost:8300/apis/api/patient/1/message/1'
+```
+
+### /portal/ Endpoints
+OpenEMR patient portal endpoints Use `http://localhost:8300/apis/portal as base URI.`
+
+_Example:_ `http://localhost:8300/apis/portal/patient` returns a resource of the patient.
+
+#### POST /portal/auth
+The OpenEMR Patient Portal API utilizes the OAuth2 password credential flow for authentication. To obtain an API token, submit your login credentials and requested scope. The scope must match a site that has been setup in OpenEMR, in the /sites/ directory.  If additional sites have not been created, set the scope
+to 'default'. If the patient portal is set to require email address on authenticate, then need to also include an `email` field in the request.
+
+```sh
+curl -X POST -H 'Content-Type: application/json' 'http://localhost:8300/apis/portal/auth' \
+-d '{
+    "grant_type":"password",
+    "username": "ServiceUser",
+    "password": "password",
+    "scope":"site id"
+}'
+```
+Response:
+```json
+{
+    "token_type": "Bearer",
+    "access_token": "eyJ0b2tlbiI6IjAwNmZ4TWpsNWhsZmNPelZicXBEdEZVUlNPQUY5KzdzR1Jjejc4WGZyeGFjUjY2QlhaaEs4eThkU3cxbTd5VXFBeTVyeEZpck9mVzBQNWc5dUlidERLZ0trUElCME5wRDVtTVk5bE9WaE5DTHF5RnRnT0Q0OHVuaHRvbXZ6OTEyNmZGUmVPUllSYVJORGoyZTkzTDA5OWZSb0ZRVGViTUtWUFd4ZW5cL1piSzhIWFpJZUxsV3VNcUdjQXR5dmlLQXRXNDAiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6Im9lbXIifQ==",
+    "expires_in": "3600",
+    "user_data": {
+        "user_id": "1"
+    }
+}
+```
+The Bearer token is required for each OpenEMR Patient Portal API request, and is conveyed using an Authorization header.
+
+```sh
+curl -X GET 'http://localhost:8300/apis/portal/patient' \
+  -H 'Authorization: Bearer eyJ0b2tlbiI6IjAwNmZ4TWpsNWhsZmNPelZicXBEdEZVUlNPQUY5KzdzR1Jjejc4WGZyeGFjUjY2QlhaaEs4eThkU3cxbTd5VXFBeTVyeEZpck9mVzBQNWc5dUlidERLZ0trUElCME5wRDVtTVk5bE9WaE5DTHF5RnRnT0Q0OHVuaHRvbXZ6OTEyNmZGUmVPUllSYVJORGoyZTkzTDA5OWZSb0ZRVGViTUtWUFd4ZW5cL1piSzhIWFpJZUxsV3VNcUdjQXR5dmlLQXRXNDAiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6Im9lbXIifQ=='
+```
+
+#### GET /portal/patient
+
+```sh
+curl -X GET 'http://localhost:8300/apis/portal/patient'
+```
+
+Response
+```json
+{
+    "validationErrors": [],
+    "internalErrors": [],
+    "data": {
+        "id": "193",
+        "pid": "1",
+        "pubpid": "",
+        "title": "Mr",
+        "fname": "Baz",
+        "mname": "",
+        "lname": "Bop",
+        "ss": "",
+        "street": "456 Tree Lane",
+        "postal_code": "08642",
+        "city": "FooTown",
+        "state": "FL",
+        "county": "",
+        "country_code": "US",
+        "drivers_license": "",
+        "contact_relationship": "",
+        "phone_contact": "123-456-7890",
+        "phone_home": "",
+        "phone_biz": "",
+        "phone_cell": "",
+        "email": "",
+        "DOB": "1992-02-03",
+        "sex": "Male",
+        "race": "",
+        "ethnicity": "",
+        "status": ""
+    }
+}
 ```
 
 ### Dev Notes

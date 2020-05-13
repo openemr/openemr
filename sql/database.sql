@@ -10590,9 +10590,11 @@ CREATE TABLE `login_mfa_registrations` (
 DROP TABLE IF EXISTS `api_token`;
 CREATE TABLE `api_token` (
     `id`           bigint(20) NOT NULL AUTO_INCREMENT,
+    `token_api`    varchar(40),
     `user_id`      bigint(20) NOT NULL,
+    `patient_id`   bigint(20) NOT NULL,
     `token`        varchar(256) DEFAULT NULL,
-    `token_auth` varchar(255),
+    `token_auth`   varchar(255),
     `expiry`       datetime NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;

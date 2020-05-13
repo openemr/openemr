@@ -39,17 +39,43 @@ class AuthRestController
             return;
         }
 
-        $authAPILogin = new AuthUtils('api');
-        if (!$authAPILogin->confirmUserPassword($authPayload["username"], $authPayload["password"])) {
-            http_response_code(401);
-            return;
-        }
-        $userId = $authAPILogin->getUserId();
-        $userGroup = $authAPILogin->getUserGroup();
-        if (empty($userId) || empty($userGroup)) {
-            // Something is seriously wrong
-            error_log('OpenEMR Error : OpenEMR is not working because unable to collect critical information.');
-            die("OpenEMR Error : OpenEMR is not working because unable to collect critical information.");
+        if (($_SESSION['api'] == "port") || ($_SESSION['api'] == "pofh")) {
+            // authentication for patient portal api
+            if (empty($authPayload["email"])) {
+                $authPayload["email"] = '';
+            }
+            $authAPILogin = new AuthUtils('portal-api');
+            if (!$authAPILogin->confirmPassword($authPayload["username"], $authPayload["password"], $authPayload["email"])) {
+                http_response_code(401);
+                return;
+            }
+            $userId = 0;
+            $userGroup = '';
+            $patientId = $authAPILogin->getPatientId();
+            if (empty($patientId)) {
+                // Something is seriously wrong
+                error_log('OpenEMR Error : OpenEMR is not working because unable to collect critical information.');
+                die("OpenEMR Error : OpenEMR is not working because unable to collect critical information.");
+            }
+            $event = 'portal-api';
+            $genericUserId = $patientId;
+        } else { // $_SESSION['api'] == "oemr" || $_SESSION['api'] == "fhir"
+            // authentication for core api or fhir
+            $authAPILogin = new AuthUtils('api');
+            if (!$authAPILogin->confirmPassword($authPayload["username"], $authPayload["password"])) {
+                http_response_code(401);
+                return;
+            }
+            $userId = $authAPILogin->getUserId();
+            $userGroup = $authAPILogin->getUserGroup();
+            $patientId = 0;
+            if (empty($userId) || empty($userGroup)) {
+                // Something is seriously wrong
+                error_log('OpenEMR Error : OpenEMR is not working because unable to collect critical information.');
+                die("OpenEMR Error : OpenEMR is not working because unable to collect critical information.");
+            }
+            $event = 'api';
+            $genericUserId = $userId;
         }
 
         // PASSED
@@ -96,11 +122,13 @@ class AuthRestController
 
         // Storing token_a as plain text and token_b as secure hash
         $sql = " INSERT INTO api_token SET";
-        $sql .= "     user_id=?,";
-        $sql .= "     token=?,";
-        $sql .= "     token_auth=?,";
-        $sql .= "     expiry=DATE_ADD(NOW(), INTERVAL 1 HOUR)";
-        sqlStatementNoLog($sql, [$userId, $new_token_a, $new_token_b_hash]);
+        $sql .= "     `token_api` = ?,";
+        $sql .= "     `user_id` = ?,";
+        $sql .= "     `patient_id` = ?,";
+        $sql .= "     `token` = ?,";
+        $sql .= "     `token_auth` = ?,";
+        $sql .= "     `expiry` = DATE_ADD(NOW(), INTERVAL 1 HOUR)";
+        sqlStatementNoLog($sql, [$_SESSION['api'], $userId, $patientId, $new_token_a, $new_token_b_hash]);
 
         // Sending the full token back to user in encrypted/signed form
         $cryptoGen = new CryptoGen();
@@ -111,9 +139,9 @@ class AuthRestController
             return;
         }
         $encoded_token = base64_encode(json_encode(['token' => $encrypted_new_full_token, 'site_id' => trim($_SESSION['site_id']), 'api' => trim($_SESSION['api'])]));
-        $give = array("token_type" => "Bearer", "access_token" => $encoded_token, "expires_in" => "3600", "user_data" => array("user_id" => $userId));
+        $give = array("token_type" => "Bearer", "access_token" => $encoded_token, "expires_in" => "3600", "user_data" => array("user_id" => $genericUserId));
         $ip = collectIpAddresses();
-        EventAuditLogger::instance()->newEvent('api', $authPayload["username"], $userGroup, 1, "API success for API token request: " . $ip['ip_string']);
+        EventAuditLogger::instance()->newEvent($event, $authPayload["username"], $userGroup, 1, "API success for API token request: " . $ip['ip_string'], !empty($patientId) ? $patientId : null);
         http_response_code(200);
         return $give;
     }
@@ -143,10 +171,26 @@ class AuthRestController
         $ip = collectIpAddresses();
 
         // Query with first part of token
-        $tokenResult = sqlQueryNoLog("SELECT u.username, a.user_id, a.token, a.token_auth, a.expiry FROM api_token a JOIN users_secure u ON u.id = a.user_id WHERE BINARY token=?", array($token_a));
-        if (!$tokenResult || empty($tokenResult['username']) || empty($tokenResult['user_id']) || empty($tokenResult['token']) || empty($tokenResult['token_auth']) || empty($tokenResult['expiry'])) {
-            EventAuditLogger::instance()->newEvent('api', $tokenResult['username'], '', 0, "API failure: " . $ip['ip_string'] . ". token not found");
-            return false;
+        if (($_SESSION['api'] == "port") || ($_SESSION['api'] == "pofh")) {
+            // For patient portal api
+            $tokenResult = sqlQueryNoLog("SELECT p.`pid`, p.`portal_username`, p.`portal_login_username`, a.`token`, a.`token_auth`, a.`expiry` FROM `api_token` a JOIN `patient_access_onsite` p ON p.`pid` = a.`patient_id` WHERE BINARY `token` = ? AND `token_api` = ?", array($token_a, $_SESSION['api']));
+            if (!$tokenResult || empty($tokenResult['pid']) || empty($tokenResult['portal_username']) || empty($tokenResult['portal_login_username']) || empty($tokenResult['token']) || empty($tokenResult['token_auth']) || empty($tokenResult['expiry'])) {
+                EventAuditLogger::instance()->newEvent('portal-api', $tokenResult['portal_login_username'], '', 0, "API failure: " . $ip['ip_string'] . ". token not found", $tokenResult['pid']);
+                return false;
+            }
+            $event = 'portal-api';
+            $genericUserName = $tokenResult['portal_login_username'];
+            $logPid = $tokenResult['pid'];
+        } else { // $_SESSION['api'] == "oemr" || $_SESSION['api'] == "fhir"
+            // For core api or fhir api
+            $tokenResult = sqlQueryNoLog("SELECT u.`username`, a.`user_id`, a.`token`, a.`token_auth`, a.`expiry` FROM `api_token` a JOIN `users_secure` u ON u.`id` = a.`user_id` WHERE BINARY `token` = ? AND `token_api` = ?", array($token_a, $_SESSION['api']));
+            if (!$tokenResult || empty($tokenResult['username']) || empty($tokenResult['user_id']) || empty($tokenResult['token']) || empty($tokenResult['token_auth']) || empty($tokenResult['expiry'])) {
+                EventAuditLogger::instance()->newEvent('api', $tokenResult['username'], '', 0, "API failure: " . $ip['ip_string'] . ". token not found");
+                return false;
+            }
+            $event = 'api';
+            $genericUserName = $tokenResult['username'];
+            $logPid = null;
         }
 
         // Authenticate with second part of token
@@ -163,7 +207,7 @@ class AuthRestController
                 sqlStatementNoLog("UPDATE `api_token` SET `token_auth` = ? WHERE BINARY `token` = ?", [$newHash, $token_a]);
             }
         } else {
-            EventAuditLogger::instance()->newEvent('api', $tokenResult['username'], '', 0, "API failure: " . $ip['ip_string'] . ". token not authorized");
+            EventAuditLogger::instance()->newEvent($event, $genericUserName, '', 0, "API failure: " . $ip['ip_string'] . ". token not authorized", $logPid);
             return false;
         }
 
@@ -171,15 +215,21 @@ class AuthRestController
         $currentDateTime = date("Y-m-d H:i:s");
         $expiryDateTime = date("Y-m-d H:i:s", strtotime($tokenResult['expiry']));
         if ($expiryDateTime <= $currentDateTime) {
-            EventAuditLogger::instance()->newEvent('api', $tokenResult['username'], '', 0, "API failure: " . $ip['ip_string'] . ". token expired");
+            EventAuditLogger::instance()->newEvent($event, $genericUserName, '', 0, "API failure: " . $ip['ip_string'] . ". token expired", $logPid);
             return false;
         }
 
-        EventAuditLogger::instance()->newEvent('api', $tokenResult['username'], '', 1, "API success for API token use: " . $ip['ip_string']);
+        EventAuditLogger::instance()->newEvent($event, $genericUserName, '', 1, "API success for API token use: " . $ip['ip_string'], $logPid);
 
         // Set needed session variables
-        $_SESSION['authUser'] = $tokenResult['username'];
-        $_SESSION['authUserId'] = $tokenResult['user_id'];
+        if (($_SESSION['api'] == "port") || ($_SESSION['api'] == "pofh")) {
+            // For patient portal api
+            $_SESSION['pid'] = $tokenResult['pid'];
+        } else { // $_SESSION['api'] == "oemr" || $_SESSION['api'] == "fhir"
+            // For core api or fhir api
+            $_SESSION['authUser'] = $tokenResult['username'];
+            $_SESSION['authUserId'] = $tokenResult['user_id'];
+        }
 
         return true;
     }
