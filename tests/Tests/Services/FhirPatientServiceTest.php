@@ -5,6 +5,7 @@ namespace OpenEMR\Tests\Services;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Services\FHIR\FhirPatientService;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 
 /**
  * FHIR Patient Service Tests
@@ -128,5 +129,8 @@ class FhirPatientServiceTest extends TestCase
     {
         $actualResult = $this->fhirPatientService->parseOpenEMRRecord($this->patientFixture, false);
         $this->assertFhirPatientResource($actualResult, $this->patientFixture);
+
+        $actualResult = $this->fhirPatientService->parseOpenEMRRecord($this->patientFixture, true);
+        $this->assertIsString($actualResult);
     }
 }
