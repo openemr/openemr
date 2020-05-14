@@ -57,6 +57,11 @@ class ProcessingResult
         return $this->internalErrors;
     }
 
+    public function setInternalErrors($internalErrors)
+    {
+        $this->internalErrors = $internalErrors;
+    }
+
     /**
      * Appends an internal  error to the current instance.
      * @param $internalError - The internal error to append.
@@ -69,6 +74,11 @@ class ProcessingResult
     public function getData()
     {
         return $this->data;
+    }
+
+    public function setData($data)
+    {
+        $this->data = $data;
     }
 
     /**

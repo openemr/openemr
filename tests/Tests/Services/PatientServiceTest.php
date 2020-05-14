@@ -74,6 +74,7 @@ class PatientServiceTest extends TestCase
         $this->assertIsArray($dataResult);
         $this->assertArrayHasKey("pid", $dataResult);
         $this->assertGreaterThan(0, $dataResult["pid"]);
+        $this->assertArrayHasKey("uuid", $dataResult);
 
         $this->assertEquals(0, count($actualResult->getValidationMessages()));
         $this->assertTrue($actualResult->isValid());
@@ -86,8 +87,11 @@ class PatientServiceTest extends TestCase
      */
     public function testUpdateFailure()
     {
-        $this->patientService->insert($this->patientFixture);
+        $actualResult = $this->patientService->insert($this->patientFixture);
+        $actualUuid = $actualResult->getData()[0]["uuid"];
+
         $this->patientFixture["fname"] = "A";
+        $this->patientFixture["uuid"] = $actualUuid;
 
         $actualResult = $this->patientService->update("not-a-pid", $this->patientFixture);
 
@@ -111,8 +115,12 @@ class PatientServiceTest extends TestCase
         $this->assertIsArray($dataResult);
         $this->assertArrayHasKey("pid", $dataResult);
         $this->assertGreaterThan(0, $dataResult["pid"]);
+        $this->assertArrayHasKey("uuid", $dataResult);
         
         $actualPid = $dataResult["pid"];
+        $actualUuid = $dataResult["uuid"];
+        $this->patientFixture["pid"] = $actualPid;
+        $this->patientFixture["uuid"] = $actualUuid;
         $this->patientFixture["phone_home"] = "555-111-4444";
         $actualResult = $this->patientService->update($actualPid, $this->patientFixture);
 
@@ -141,9 +149,24 @@ class PatientServiceTest extends TestCase
         $this->assertArrayHasKey("lname", $resultData);
         $this->assertArrayHasKey("sex", $resultData);
         $this->assertArrayHasKey("DOB", $resultData);
+        $this->assertArrayHasKey("uuid", $resultData);
+
+        // getOne - validate uuid
+        $expectedUuid = $resultData["uuid"];
+        $actualResult = $this->patientService->getOne($expectedUuid, true);
+        $resultData = $actualResult->getData()[0];
+        $this->assertNotNull($resultData);
+        $this->assertEquals($existingPid, intval($resultData["pid"]));
+        $this->assertEquals($expectedUuid, $resultData["uuid"]);
 
         // getOne - with an invalid pid
         $actualResult = $this->patientService->getOne("not-a-pid");
+        $this->assertEquals(1, count($actualResult->getValidationMessages()));
+        $this->assertEquals(0, count($actualResult->getInternalErrors()));
+        $this->assertEquals(0, count($actualResult->getData()));
+
+        // getOne - with an invalid uuid
+        $actualResult = $this->patientService->getOne("not-a-uuid", true);
         $this->assertEquals(1, count($actualResult->getValidationMessages()));
         $this->assertEquals(0, count($actualResult->getInternalErrors()));
         $this->assertEquals(0, count($actualResult->getData()));
@@ -154,6 +177,11 @@ class PatientServiceTest extends TestCase
         $this->assertGreaterThan(1, count($actualResult->getData()));
 
         foreach ($actualResult->getData() as $index => $patientRecord) {
+            $this->assertArrayHasKey("fname", $resultData);
+            $this->assertArrayHasKey("lname", $resultData);
+            $this->assertArrayHasKey("sex", $resultData);
+            $this->assertArrayHasKey("DOB", $resultData);
+            $this->assertArrayHasKey("uuid", $resultData);
             $this->assertEquals("CA", $patientRecord["state"]);
         }
     }

@@ -70,6 +70,7 @@ class BaseService
             if (in_array($key, array_column($this->autoIncrements, 'Field'))) {
                 continue;
             }
+            // include existing columns
             if (!in_array($key, $this->fields)) {
                 continue;
             }
@@ -104,6 +105,10 @@ class BaseService
 
         foreach ($passed_in as $key => $value) {
             if (in_array($key, array_column($this->autoIncrements, 'Field'))) {
+                continue;
+            }
+            // exclude uuid columns
+            if ($key == 'uuid') {
                 continue;
             }
             if (!in_array($key, $this->fields)) {

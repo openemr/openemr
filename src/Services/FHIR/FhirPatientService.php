@@ -2,48 +2,212 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use Ramsey\Uuid\Uuid;
+use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\PatientService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\Validators\ProcessingResult;
 
-class FhirPatientService
+/**
+ * FHIR Patient Service
+ *
+ * @coversDefaultClass OpenEMR\Services\FHIR\FhirPatientService
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Dixon Whitmire <dixonwh@gmail.com>
+ * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ */
+class FhirPatientService extends FhirServiceBase
 {
     private $patientService;
 
     public function __construct()
     {
+        parent::__construct();
         $this->patientService = new PatientService();
     }
 
-    public function createPatientResource($resourceId = '', $data = '', $encode = true)
+    /**
+     * Returns an array mapping FHIR Patient Resource search parameters to OpenEMR Patient search parameters
+     * @return The search parameters
+     */
+    protected function loadSearchParameters()
     {
-        // @todo add display text after meta
-        $nowDate = date("Y-m-d\TH:i:s");
-        $id = new FhirId();
-        $id->setValue($resourceId);
-        $name = new FHIRHumanName();
-        $address = new FHIRAddress();
-        $gender = new FHIRAdministrativeGender();
-        $meta = array('versionId' => '1', 'lastUpdated' => $nowDate);
-        $initResource = array('id' => $id, 'meta' => $meta);
-        $name->setUse('official');
-        $name->setFamily($data['lname']);
-        $name->given = [$data['fname'], $data['mname']];
-        $address->addLine($data['street']);
-        $address->setCity($data['city']);
-        $address->setState($data['state']);
-        $address->setPostalCode($data['postal_code']);
-        $gender->setValue(strtolower($data['sex']));
+        return  [
+            'address' => ['street', 'postal_code', 'city', 'state'],
+            'address-city' => ['city'],
+            'address-postalcode' => ['postal_code'],
+            'address-state' => ['state'],
+            'birthdate' => ['DOB'],
+            'email' => ['email'],
+            'family' => ['lname'],
+            'gender' => ['sex'],
+            'given' => ['fname', 'mname'],
+            'name' => ['title', 'fname', 'mname', 'lname'],
+            'phone' => ['phone_home', 'phone_biz', 'phone_cell'],
+            'telecom' => ['email', 'phone_home', 'phone_biz', 'phone_cell']
+        ];
+    }
 
-        $patientResource = new FHIRPatient($initResource);
-        //$patientResource->setId($id);
+    /**
+     * Parses an OpenEMR patient record, returning the equivalent FHIR Patient Resource
+     *
+     * @param $dataRecord The source OpenEMR data record
+     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @return the FHIR Resource. Returned format is defined using $encode parameter.
+     */
+    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
+    {
+        $patientResource = new FHIRPatient();
+
+        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
+        $patientResource->setMeta($meta);
+
         $patientResource->setActive(true);
-        $patientResource->setGender($gender);
+
+        $narrativeText = '';
+        if (isset($dataRecord['fname'])) {
+            $narrativeText = $dataRecord['fname'];
+        }
+        if (isset($dataRecord['lname'])) {
+            $narrativeText .= ' ' . $dataRecord['lname'];
+        }
+        $text = array(
+            'status' => 'generated',
+            'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
+        );
+        $patientResource->setText($text);
+
+        $id = new FhirId();
+        $id->setValue($dataRecord['uuid']);
+        $patientResource->setId($id);
+
+        $name = new FHIRHumanName();
+        $name->setUse('official');
+
+        if (isset($dataRecord['title'])) {
+            $name->addPrefix($dataRecord['title']);
+        }
+        if (isset($dataRecord['lname'])) {
+            $name->setFamily($dataRecord['lname']);
+        }
+
+        $givenName = array();
+        if (isset($dataRecord['fname'])) {
+            array_push($givenName, $dataRecord['fname']);
+        }
+
+        if (isset($dataRecord['mname'])) {
+            array_push($givenName, $dataRecord['mname']);
+        }
+
+        if (count($givenName) > 0) {
+            $name->given = $givenName;
+        }
+
         $patientResource->addName($name);
+
+        if (isset($dataRecord['DOB'])) {
+            $patientResource->setBirthDate($dataRecord['DOB']);
+        }
+
+        $address = new FHIRAddress();
+        if (isset($dataRecord['street'])) {
+            $address->addLine($dataRecord['street']);
+        }
+        if (isset($dataRecord['city'])) {
+            $address->setCity($dataRecord['city']);
+        }
+        if (isset($dataRecord['state'])) {
+            $address->setState($dataRecord['state']);
+        }
+        if (isset($dataRecord['postal_code'])) {
+            $address->setPostalCode($dataRecord['postal_code']);
+        }
+        if (isset($dataRecord['country_code'])) {
+            $address->setCountry($dataRecord['country_code']);
+        }
+
         $patientResource->addAddress($address);
+
+        if (isset($dataRecord['phone_home'])) {
+            $patientResource->addTelecom(array(
+                'system' => 'phone',
+                'value' => $dataRecord['phone_home'],
+                'use' => 'home'
+            ));
+        }
+
+        if (isset($dataRecord['phone_biz'])) {
+            $patientResource->addTelecom(array(
+                'system' => 'phone',
+                'value' => $dataRecord['phone_biz'],
+                'use' => 'work'
+            ));
+        }
+
+        if (isset($dataRecord['phone_cell'])) {
+            $patientResource->addTelecom(array(
+                'system' => 'phone',
+                'value' => $dataRecord['phone_cell'],
+                'use' => 'mobile'
+            ));
+        }
+
+        if (isset($dataRecord['email'])) {
+            $patientResource->addTelecom(array(
+                'system' => 'email',
+                'value' => $dataRecord['email'],
+                'use' => 'home'
+            ));
+        }
+
+        $gender = new FHIRAdministrativeGender();
+        if (isset($dataRecord['sex'])) {
+            $gender->setValue(strtolower($dataRecord['sex']));
+        }
+        $patientResource->setGender($gender);
+
+        if (isset($dataRecord['ss'])) {
+            $fhirIdentifier = [
+                'use' => 'official',
+                'type' => [
+                    'coding' => [
+                        [
+                            'system' => 'http://terminology.hl7.org/CodeSystem/v2-0203',
+                            'code' => 'SS'
+                        ]
+                    ]
+                ],
+                'system' => 'http://hl7.org/fhir/sid/us-ssn',
+                'value' => $dataRecord['ss']
+            ];
+            $patientResource->addIdentifier($fhirIdentifier);
+        }
+
+        if (isset($dataRecord['pubpid'])) {
+            $fhirIdentifier = [
+                'use' => 'official',
+                'type' => [
+                    'coding' => [
+                        [
+                            'system' => 'http://terminology.hl7.org/CodeSystem/v2-0203',
+                            'code' => 'PT'
+                        ]
+                    ]
+                ],
+                'system' => 'http:\\terminology.hl7.org\ValueSet\v2-0203',
+                'value' => $dataRecord['pubpid']
+            ];
+            $patientResource->addIdentifier($fhirIdentifier);
+        }
 
         if ($encode) {
             return json_encode($patientResource);
@@ -52,64 +216,76 @@ class FhirPatientService
         }
     }
 
-    public function parsePatientResource($fhirJson)
+    /**
+     * Parses a FHIR Patient Resource, returning the equivalent OpenEMR patient record.
+     *
+     * @param $fhirResource The source FHIR resource
+     * @return a mapped OpenEMR data record (array)
+     */
+    public function parseFhirResource($fhirResource = array())
     {
-        if (isset($fhirJson['name'])) {
+        $data = array();
+
+        if (isset($fhirResource['id'])) {
+            $data['uuid'] = $fhirResource['id'];
+        }
+
+        if (isset($fhirResource['name'])) {
             $name = [];
-            foreach ($fhirJson["name"] as $sub_name) {
-                if ($sub_name["use"] == "official") {
+            foreach ($fhirResource['name'] as $sub_name) {
+                if ($sub_name['use'] == 'official') {
                     $name = $sub_name;
                     break;
                 }
             }
-            if (isset($name["family"])) {
-                $data["lname"] = $name["family"];
+            if (isset($name['family'])) {
+                $data['lname'] = $name['family'];
             }
-            if ($name["given"][0]) {
-                $data["fname"] = $name["given"][0];
+            if ($name['given'][0]) {
+                $data['fname'] = $name['given'][0];
             }
-            if (isset($name["given"][1])) {
-                $data["mname"] = $name["given"][1];
+            if (isset($name['given'][1])) {
+                $data['mname'] = $name['given'][1];
             }
-        }
-        if (isset($fhirJson["address"])) {
-            if (isset($fhirJson["address"][0]["line"][0])) {
-                $data["street"] = $fhirJson["address"][0]["line"][0];
-            }
-            if (isset($fhirJson["address"][0]["postalCode"][0])) {
-                $data["postal_code"] = $fhirJson["address"][0]["postalCode"];
-            }
-            if (isset($fhirJson["address"][0]["city"][0])) {
-                $data["city"] = $fhirJson["address"][0]["city"];
-            }
-            if (isset($fhirJson["address"][0]["state"][0])) {
-                $data["state"] = $fhirJson["address"][0]["state"];
-            }
-            if (isset($fhirJson["address"][0]["country"][0])) {
-                $data["country"] = $fhirJson["address"][0]["country"];
+            if (isset($name['prefix'][0])) {
+                $data['title'] = $name['prefix'][0];
             }
         }
-        if (isset($fhirJson["telecom"])) {
-            foreach ($fhirJson["telecom"] as $telecom) {
+        if (isset($fhirResource['address'])) {
+            if (isset($fhirResource['address'][0]['line'][0])) {
+                $data['street'] = $fhirResource['address'][0]['line'][0];
+            }
+            if (isset($fhirResource['address'][0]['postalCode'][0])) {
+                $data['postal_code'] = $fhirResource['address'][0]['postalCode'];
+            }
+            if (isset($fhirResource['address'][0]['city'][0])) {
+                $data['city'] = $fhirResource['address'][0]['city'];
+            }
+            if (isset($fhirResource['address'][0]['state'][0])) {
+                $data['state'] = $fhirResource['address'][0]['state'];
+            }
+            if (isset($fhirResource['address'][0]['country'][0])) {
+                $data['country'] = $fhirResource['address'][0]['country'];
+            }
+        }
+        if (isset($fhirResource['telecom'])) {
+            foreach ($fhirResource['telecom'] as $telecom) {
                 switch ($telecom['system']) {
                     case 'phone':
                         switch ($telecom['use']) {
                             case 'mobile':
-                                $data["phone_contact"] = $telecom["value"];
+                                $data['phone_cell'] = $telecom['value'];
                                 break;
                             case 'home':
-                                $data["phone_home"] = $telecom["value"];
+                                $data['phone_home'] = $telecom['value'];
                                 break;
                             case 'work':
-                                $data["phone_biz"] = $telecom["value"];
-                                break;
-                            default:
-                                $data["phone_contact"] = $telecom["value"];
+                                $data['phone_biz'] = $telecom['value'];
                                 break;
                         }
                         break;
                     case 'email':
-                        $data["email"] = $telecom["value"];
+                        $data['email'] = $telecom['value'];
                         break;
                     default:
                     //Should give Error for incapability
@@ -117,52 +293,91 @@ class FhirPatientService
                 }
             }
         }
-        if (isset($fhirJson["birthDate"])) {
-            $data["DOB"] = $fhirJson["birthDate"];
+        if (isset($fhirResource['birthDate'])) {
+            $data['DOB'] = $fhirResource['birthDate'];
         }
-        if (isset($fhirJson["gender"])) {
-            $data["sex"] = $fhirJson["gender"];
+        if (isset($fhirResource['gender'])) {
+            $data['sex'] = $fhirResource['gender'];
+        }
+
+        foreach ($fhirResource['identifier'] as $index => $identifier) {
+            if (!isset($identifier['type']['coding'][0])) {
+                continue;
+            }
+
+            $code = $identifier['type']['coding'][0]['code'];
+            switch ($code) {
+                case 'SS':
+                    $data['ss'] = $identifier['value'];
+                    break;
+                case 'PT':
+                    $data['pubpid'] = $identifier['value'];
+                    break;
+            }
         }
         return $data;
     }
 
-    public function setId($id)
+    /**
+     * Inserts an OpenEMR record into the sytem.
+     * @param $openEmrRecord OpenEMR patient record
+     * @return The OpenEMR processing result.
+     */
+    public function insertOpenEMRRecord($openEmrRecord)
     {
-        $this->patientService->setPid($id);
+        $processingResult = $this->patientService->insert($openEmrRecord);
+        return $processingResult;
     }
 
-    public function validate($data)
+
+    /**
+     * Updates an existing OpenEMR record.
+     * @param $fhirResourceId The OpenEMR record's FHIR Resource ID.
+     * @param $updatedOpenEMRRecord The "updated" OpenEMR record.
+     * @return The OpenEMR Service Result
+     */
+    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
     {
-        return $this->patientService->validate($data, 'insert');
+        $processingResult = $this->patientService->getOne($fhirResourceId, true);
+
+        if ($processingResult->hasErrors()) {
+            return $processingResult;
+        }
+
+        $existingPid = null;
+        if (isset($processingResult->getData()[0])) {
+            $existingPid = intval($processingResult->getData()[0]['pid']);
+        }
+
+        $processingResult = $this->patientService->update($existingPid, $updatedOpenEMRRecord);
+        return $processingResult;
     }
 
-    public function validateUpdate($pid, $data)
+    /**
+     * Performs a FHIR Patient Resource lookup by FHIR Resource ID
+     * @param $fhirResourceId The OpenEMR record's FHIR Patient Resource ID.
+     */
+    public function getOne($fhirResourceId)
     {
-        return $this->patientService->validate($data, 'update', $pid);
+        $processingResult = $this->patientService->getOne($fhirResourceId, true);
+        if (!$processingResult->hasErrors()) {
+            if (count($processingResult->getData()) > 0) {
+                $openEmrRecord = $processingResult->getData()[0];
+                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
+                $processingResult->setData([]);
+                $processingResult->addData($fhirRecord);
+            }
+        }
+        return $processingResult;
     }
-
-    public function insert($data)
+    
+    /**
+     * Searches for OpenEMR records using OpenEMR search parameters
+     * @param openEMRSearchParameters OpenEMR search fields
+     * @return OpenEMR records
+     */
+    public function searchForOpenEMRRecords($openEMRSearchParameters)
     {
-        return $this->patientService->insert($data);
-    }
-
-    public function update($pid, $data)
-    {
-        return $this->patientService->update($pid, $data);
-    }
-
-    public function getOne()
-    {
-        return $this->patientService->getOne();
-    }
-
-    public function getId()
-    {
-        return $this->patientService->getPid();
-    }
-
-    public function getAll($searchParam)
-    {
-        return $this->patientService->getAll($searchParam);
+        return $this->patientService->getAll($openEMRSearchParameters, false);
     }
 }

@@ -355,13 +355,28 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         $data = (array) RestConfig::getPostData((file_get_contents("php://input")));
         return (new AuthRestController())->authenticate($data);
     },
+    "POST /fhir/Patient" => function () {
+        RestConfig::authorization_check("patients", "demo");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        return (new FhirPatientRestController())->post($data);
+    },
+    "PUT /fhir/Patient/:id" => function ($pid) {
+        RestConfig::authorization_check("patients", "demo");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        return (new FhirPatientRestController())->put($id, $data);
+    },
+    "PATCH /fhir/Patient/:pid" => function ($id) {
+        RestConfig::authorization_check("patients", "demo");
+        $data = (array)(json_decode(file_get_contents("php://input"), true));
+        return (new FhirPatientRestController())->put($id, $data);
+    },
     "GET /fhir/Patient" => function () {
         RestConfig::authorization_check("patients", "demo");
-        return (new FhirPatientRestController(null))->getAll($_GET);
+        return (new FhirPatientRestController())->getAll($_GET);
     },
-    "GET /fhir/Patient/:pid" => function ($pid) {
+    "GET /fhir/Patient/:id" => function ($id) {
         RestConfig::authorization_check("patients", "demo");
-        return (new FhirPatientRestController($pid))->getOne();
+        return (new FhirPatientRestController())->getOne($id);
     },
     "GET /fhir/Encounter" => function () {
         RestConfig::authorization_check("encounters", "auth_a");
@@ -370,21 +385,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     "GET /fhir/Encounter/:eid" => function ($eid) {
         RestConfig::authorization_check("encounters", "auth_a");
         return (new FhirEncounterRestController())->getOne($eid);
-    },
-    "POST /fhir/Patient" => function () {
-        RestConfig::authorization_check("patients", "demo");
-        $data = (array)(json_decode(file_get_contents("php://input"), true));
-        return (new FhirPatientRestController(null))->post($data);
-    },
-    "PUT /fhir/Patient/:pid" => function ($pid) {
-        RestConfig::authorization_check("patients", "demo");
-        $data = (array)(json_decode(file_get_contents("php://input"), true));
-        return (new FhirPatientRestController(null))->put($pid, $data);
-    },
-    "PATCH /fhir/Patient/:pid" => function ($pid) {
-        RestConfig::authorization_check("patients", "demo");
-        $data = (array)(json_decode(file_get_contents("php://input"), true));
-        return (new FhirPatientRestController(null))->put($pid, $data);
     },
     "GET /fhir/Organization" => function () {
         return (new FhirOrganizationRestController(null))->getAll($_GET);

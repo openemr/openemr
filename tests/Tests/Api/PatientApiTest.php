@@ -68,10 +68,13 @@ class PatientApiTest extends TestCase
         $newPatientPid = $responseBody["data"]["pid"];
         $this->assertIsInt($newPatientPid);
         $this->assertGreaterThan(0, $newPatientPid);
+
+        $newPatientUuid = $responseBody["data"]["uuid"];
+        $this->assertIsString($newPatientUuid);
     }
 
     /**
-     * @covers ::put with an invalid pid
+     * @covers ::put with an invalid pid and uuid
      */
     public function testInvalidPut()
     {
@@ -83,7 +86,7 @@ class PatientApiTest extends TestCase
 
         $this->assertEquals(400, $actualResponse->getStatusCode());
         $responseBody = json_decode($actualResponse->getBody(), true);
-        $this->assertEquals(1, count($responseBody["validationErrors"]));
+        $this->assertEquals(2, count($responseBody["validationErrors"]));
         $this->assertEquals(0, count($responseBody["internalErrors"]));
         $this->assertEquals(0, count($responseBody["data"]));
     }
@@ -98,7 +101,10 @@ class PatientApiTest extends TestCase
         $responseBody = json_decode($actualResponse->getBody(), true);
 
         $patientPid = $responseBody["data"]["pid"];
+        $patientUuid = $responseBody["data"]["uuid"];
+
         $this->patientRecord["phone_home"] = "222-222-2222";
+        $this->patientRecord["uuid"] =  $patientUuid;
         $actualResponse = $this->testClient->put(self::PATIENT_API_ENDPOINT, $patientPid, $this->patientRecord);
 
         $this->assertEquals(200, $actualResponse->getStatusCode());
@@ -143,6 +149,7 @@ class PatientApiTest extends TestCase
         $this->assertEquals(0, count($responseBody["internalErrors"]));
         $this->assertEquals($patientPid, $responseBody["data"]["pid"]);
     }
+
 
     /**
      * @covers ::getAll
