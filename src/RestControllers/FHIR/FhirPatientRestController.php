@@ -28,7 +28,6 @@ class FhirPatientRestController
     {
         $this->fhirService = new FhirResourcesService();
         $this->fhirPatientService = new FhirPatientService();
-        $this->fhirPatientService->setId($pid);
         $this->fhirValidate = new FhirValidationService();
     }
 
