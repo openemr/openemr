@@ -475,3 +475,11 @@ SET sql_mode = '';
 UPDATE `drug_inventory` SET `last_notify` = NULL WHERE `last_notify` = '0000-00-00';
 SET sql_mode = @currentSQLMode;
 #EndIf
+
+#IfNotColumnTypeDefault drugs last_notify date NULL
+ALTER TABLE `drugs` MODIFY `last_notify` date NULL;
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `drugs` SET `last_notify` = NULL WHERE `last_notify` = '0000-00-00';
+SET sql_mode = @currentSQLMode;
+#EndIf
