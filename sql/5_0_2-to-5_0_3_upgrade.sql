@@ -483,3 +483,11 @@ SET sql_mode = '';
 UPDATE `drugs` SET `last_notify` = NULL WHERE `last_notify` = '0000-00-00';
 SET sql_mode = @currentSQLMode;
 #EndIf
+
+#IfNotColumnTypeDefault insurance_data date NULL
+ALTER TABLE `insurance_data` MODIFY `date` date NULL;
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `insurance_data` SET `date` = NULL WHERE `date` = '0000-00-00';
+SET sql_mode = @currentSQLMode;
+#EndIf
