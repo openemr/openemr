@@ -20,6 +20,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Services\UserService;
 
 $facilityService = new FacilityService();
 
@@ -134,11 +135,8 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
         });
     });
 
-    function bill_loc(){
-        var pid = <?php echo attr($pid);?>;
-        var dte = document.getElementById('form_date').value;
-        var facility = document.forms[0].facility_id.value;
-        ajax_bill_loc(pid, dte, facility);
+    function getPOS(){
+        let facility = document.forms[0].facility_id.value;
         <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
             $.ajax({
                 url: "./../../../library/ajax/facility_ajax_code.php",
@@ -149,12 +147,35 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
                     csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                 }})
                 .done(function (fid) {
-                    document.forms[0].pos_code.value = fid;
+                    document.forms[0].pos_code.value = JSON.parse(fid);
                 })
                 .fail(function (xhr) {
                     console.log('error', xhr);
                 });
         <?php } ?>
+    }
+
+    function newUserSelected(){
+        let provider = document.getElementById('provider_id').value;
+        $.ajax({
+            url: "./../../../library/ajax/facility_ajax_code.php",
+            method: "GET",
+            data: {
+                mode: "get_user_data",
+                provider_id: provider,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            }})
+        .done(function (data) {
+            let rtn = JSON.parse(data);
+            document.forms[0].facility_id.value = rtn[0];
+            document.forms[0].pos_code.value = rtn[1];
+            if (Number(rtn[2]) === 1) {
+                document.forms[0]['billing_facility'].value = rtn[0];
+            }
+        })
+        .fail(function (xhr) {
+            console.log('error', xhr);
+        });
     }
 
     // Handler for Cancel clicked when creating a new encounter.
@@ -224,6 +245,28 @@ $arrOeUiSettings = array(
     'help_file_name' => "common_help.php"
 );
 $oemr_ui = new OemrUI($arrOeUiSettings);
+
+$provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
+if (!$viewmode) {
+    $now = date('Y-m-d');
+    $encnow = date('Y-m-d 00:00:00');
+    $time = date("H:i:00");
+    $q = "SELECT pc_aid, pc_facility, pc_billing_location, pc_catid, pc_startTime" .
+        " FROM openemr_postcalendar_events WHERE pc_pid=? AND pc_eventDate=?" .
+        " ORDER BY pc_startTime ASC";
+    $q_events = sqlStatement($q, array($pid, $now));
+    while ($override = sqlFetchArray($q_events)) {
+        $q = "SELECT encounter FROM form_encounter" .
+            " WHERE pid=? AND date=? AND provider_id=?";
+        $q_enc = sqlQuery($q, array($pid, $encnow, $override['pc_aid']));
+        if (is_array($override) && !$q_enc['encounter']) {
+            $provider_id = $override['pc_aid'];
+            $default_bill_fac_override = $override['pc_billing_location'];
+            $default_fac_override = $override['pc_facility'];
+            $default_catid_override = $override['pc_catid'];
+        }
+    }
+}
 ?>
 </head>
 <body class="body_top" <?php echo $body_javascript;?>>
@@ -240,201 +283,222 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <div class="row">
             <div class="col-sm-12">
                 <form id="new-encounter-form" method='post' action="<?php echo $rootdir ?>/forms/newpatient/save.php" name='new_encounter'>
-                <?php if ($viewmode) { ?>
-                    <input type=hidden name='mode' value='update'>
-                    <input type=hidden name='id' value='<?php echo (isset($_GET["id"])) ? attr($_GET["id"]) : '' ?>'>
-                <?php } else { ?>
-                    <input type='hidden' name='mode' value='new'>
-                <?php } ?>
+                    <?php if ($viewmode) { ?>
+                        <input type=hidden name='mode' value='update'>
+                        <input type=hidden name='id' value='<?php echo (isset($_GET["id"])) ? attr($_GET["id"]) : '' ?>'>
+                    <?php } else { ?>
+                        <input type='hidden' name='mode' value='new'>
+                    <?php } ?>
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <fieldset>
-                        <legend><?php echo xlt('Visit Details')?></legend>
-                        <div id = "visit-details">
+                        <legend><?php echo xlt('Visit Details') ?></legend>
+                        <div id="visit-details">
                             <div class="form-group ">
-                                    <label for="pc_catid" class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Visit Category:'); ?></label>
-                                    <div class="col-sm-3">
-                                        <select  name='pc_catid' id='pc_catid' class='form-control col-sm-12'>
-                                            <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
-                                            <?php
-                                            //Bring only patient ang group categories
-                                            $visitSQL = "SELECT pc_catid, pc_catname, pc_cattype 
+                                <label for="pc_catid" class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Visit Category:'); ?></label>
+                                <div class="col-sm-3">
+                                    <select name='pc_catid' id='pc_catid' class='form-control col-sm-12'>
+                                        <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
+                                        <?php
+                                        //Bring only patient and group categories
+                                        $visitSQL = "SELECT pc_catid, pc_catname, pc_cattype
                                                        FROM openemr_postcalendar_categories
                                                        WHERE pc_active = 1 and pc_cattype IN (0,3) and pc_constant_id  != 'no_show' ORDER BY pc_seq";
 
-                                            $visitResult = sqlStatement($visitSQL);
-                                            $therapyGroupCategories = [];
+                                        $visitResult = sqlStatement($visitSQL);
+                                        $therapyGroupCategories = [];
 
-                                            while ($row = sqlFetchArray($visitResult)) {
-                                                $catId = $row['pc_catid'];
-                                                $name = $row['pc_catname'];
+                                        while ($row = sqlFetchArray($visitResult)) {
+                                            $catId = $row['pc_catid'];
+                                            $name = $row['pc_catname'];
 
-                                                if ($row['pc_cattype'] == 3) {
-                                                    $therapyGroupCategories[] = $catId;
-                                                }
-
-                                                if ($catId === "_blank") {
-                                                    continue;
-                                                }
-
-                                                if ($row['pc_cattype'] == 3 && !$GLOBALS['enable_group_therapy']) {
-                                                    continue;
-                                                }
-
-                                                // Fetch acl for category of given encounter. Only if has write auth for a category, then can create an encounter of that category.
-                                                $postCalendarCategoryACO = fetchPostCalendarCategoryACO($catId);
-                                                if ($postCalendarCategoryACO) {
-                                                    $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
-                                                    $authPostCalendarCategoryWrite = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1], '', 'write');
-                                                } else { // if no aco is set for category
-                                                    $authPostCalendarCategoryWrite = true;
-                                                }
-
-                                                //if no permission for category write, don't show in drop-down
-                                                if (!$authPostCalendarCategoryWrite) {
-                                                    continue;
-                                                }
-
-                                                $optionStr = '<option value="%pc_catid%" %selected%>%pc_catname%</option>';
-                                                $optionStr = str_replace("%pc_catid%", attr($catId), $optionStr);
-                                                $optionStr = str_replace("%pc_catname%", text(xl_appt_category($name)), $optionStr);
-                                                if ($viewmode) {
-                                                    $selected = ($result['pc_catid'] == $catId) ? " selected" : "";
-                                                } else {
-                                                    $selected = ($GLOBALS['default_visit_category'] == $catId) ? " selected" : "";
-                                                }
-
-                                                  $optionStr = str_replace("%selected%", $selected, $optionStr);
-                                                  echo $optionStr;
+                                            if ($row['pc_cattype'] == 3) {
+                                                $therapyGroupCategories[] = $catId;
                                             }
-                                            ?>
-                                        </select>
-                                    </div>
-                                    <?php
-                                        $sensitivities = acl_get_sensitivities();
-                                    if ($sensitivities && count($sensitivities)) {
-                                        usort($sensitivities, "sensitivity_compare");
+
+                                            if ($catId === "_blank") {
+                                                continue;
+                                            }
+
+                                            if ($row['pc_cattype'] == 3 && !$GLOBALS['enable_group_therapy']) {
+                                                continue;
+                                            }
+
+                                            // Fetch acl for category of given encounter. Only if has write auth for a category, then can create an encounter of that category.
+                                            $postCalendarCategoryACO = fetchPostCalendarCategoryACO($catId);
+                                            if ($postCalendarCategoryACO) {
+                                                $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
+                                                $authPostCalendarCategoryWrite = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1], '', 'write');
+                                            } else { // if no aco is set for category
+                                                $authPostCalendarCategoryWrite = true;
+                                            }
+
+                                            //if no permission for category write, don't show in drop-down
+                                            if (!$authPostCalendarCategoryWrite) {
+                                                continue;
+                                            }
+
+                                            $optionStr = '<option value="%pc_catid%" %selected%>%pc_catname%</option>';
+                                            $optionStr = str_replace("%pc_catid%", attr($catId), $optionStr);
+                                            $optionStr = str_replace("%pc_catname%", text(xl_appt_category($name)), $optionStr);
+                                            if ($viewmode) {
+                                                $selected = ((int)$result['pc_catid'] === (int)$catId) ? " selected" : "";
+                                            } elseif ($default_catid_override) {
+                                                $selected = ((int)$default_catid_override === (int)$catId) ? " selected" : "";
+                                            } else {
+                                                $selected = ((int)$GLOBALS['default_visit_category'] === (int)$catId) ? " selected" : "";
+                                            }
+                                            $optionStr = str_replace("%selected%", $selected, $optionStr);
+                                            echo $optionStr;
+                                        }
                                         ?>
-                                        <label for="pc_catid" class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Sensitivity:'); ?> &nbsp;<i id='sensitivity-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
-                                        <div class="col-sm-3">
-                                        <select name='form_sensitivity' id='form_sensitivity' class='form-control col-sm-12' >
-                                            <?php
-                                            foreach ($sensitivities as $value) {
-                                                // Omit sensitivities to which this user does not have access.
-                                                if (acl_check('sensitivities', $value[1])) {
-                                                    echo "       <option value='" . attr($value[1]) . "'";
-                                                    if ($viewmode && $result['sensitivity'] == $value[1]) {
-                                                        echo " selected";
-                                                    }
-
-                                                    echo ">" . xlt($value[3]) . "</option>\n";
-                                                }
-                                            }
-
-                                            echo "       <option value=''";
-                                            if ($viewmode && !$result['sensitivity']) {
-                                                echo " selected";
-                                            }
-
-                                            echo ">" . xlt('None'). "</option>\n";
-                                            ?>
-                                        </select>
-                                        <?php
-                                    } else {
-                                        ?>
-
-                                        <?php
-                                    }
+                                    </select>
+                                </div>
+                                <?php
+                                $sensitivities = acl_get_sensitivities();
+                                if ($sensitivities && count($sensitivities)) {
+                                    usort($sensitivities, "sensitivity_compare");
                                     ?>
-                                    </div>
-                                    <div class="clearfix"></div>
-                                </div>
-                                <div class="form-group">
-                                    <label for='form_date' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Date of Service:'); ?></label>
-                                    <div class="col-sm-3">
-                                        <input type='text' class='form-control datepicker col-sm-12' name='form_date' id='form_date' <?php echo $disabled ?>
-                                        value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : attr(oeFormatShortDate(date('Y-m-d'))); ?>'
-                                        title='<?php echo xla('Date of service'); ?>'/>
-                                    </div>
-
-                                    <div
+                                <label for="pc_catid" class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Sensitivity:'); ?> &nbsp;<i id='sensitivity-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
+                                <div class="col-sm-3">
+                                    <select name='form_sensitivity' id='form_sensitivity' class='form-control col-sm-12'>
                                         <?php
-                                        if ($GLOBALS['ippf_specific']) {
-                                            echo " style='visibility:hidden;'";
-                                        } ?>>
-                                        <label for='form_onset_date' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Onset/hosp. date:'); ?> &nbsp;<i id='onset-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
-                                        <div class="col-sm-3">
-                                            <input type='text' class='form-control datepicker col-sm-12' name='form_onset_date' id='form_onset_date'
-                                            value='<?php echo $viewmode && $result['onset_date']!='0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr($result['onset_date'], 0, 10))) : ''; ?>'
-                                            title='<?php echo xla('Date of onset or hospitalization'); ?>' />
-                                        </div>
-                                    </div>
-                                    <div class="clearfix"></div>
+                                        foreach ($sensitivities as $value) {
+                                            // Omit sensitivities to which this user does not have access.
+                                            if (acl_check('sensitivities', $value[1])) {
+                                                echo "       <option value='" . attr($value[1]) . "'";
+                                                if ($viewmode && $result['sensitivity'] == $value[1]) {
+                                                    echo " selected";
+                                                }
+
+                                                echo ">" . xlt($value[3]) . "</option>\n";
+                                            }
+                                        }
+                                        echo "<option value=''";
+                                        if ($viewmode && !$result['sensitivity']) {
+                                            echo " selected";
+                                        }
+                                        echo ">" . xlt('None') . "</option>\n";
+                                        ?>
+                                    </select>
+                                    <?php } else { ?>
+                                    <?php } ?>
                                 </div>
-                                <div class="form-group"
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for='form_date' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Date of Service:'); ?></label>
+                                <div class="col-sm-3">
+                                    <input type='text' class='form-control datepicker col-sm-12' name='form_date' id='form_date' <?php echo $disabled ?>
+                                        value='<?php echo $viewmode ? attr(oeFormatShortDate(substr($result['date'], 0, 10))) : attr(oeFormatShortDate(date('Y-m-d'))); ?>'
+                                        title='<?php echo xla('Date of service'); ?>' />
+                                </div>
+                                <div
                                     <?php
-                                    if (!$GLOBALS['gbl_visit_referral_source']) {
-                                        echo "style='display:none' " ;
-                                    } ?>
-                                    >
-                                    <label  class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Referral Source'); ?>:</label>
+                                    if ($GLOBALS['ippf_specific']) {
+                                        echo " style='visibility:hidden;'";
+                                    } ?>>
+                                    <label for='form_onset_date' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Onset/hosp. date:'); ?> &nbsp;<i id='onset-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
                                     <div class="col-sm-3">
-                                        <?php echo generate_select_list('form_referral_source', 'refsource', $viewmode ? $result['referral_source'] : '', '');?>
+                                        <input type='text' class='form-control datepicker col-sm-12' name='form_onset_date' id='form_onset_date'
+                                            value='<?php echo $viewmode && $result['onset_date'] != '0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr($result['onset_date'], 0, 10))) : ''; ?>'
+                                            title='<?php echo xla('Date of onset or hospitalization'); ?>' />
                                     </div>
-                                    <div class="clearfix"></div>
                                 </div>
-                                <?php if ($GLOBALS['enable_group_therapy']) { ?>
-                                <div class="form-group"id="therapy_group_name" style="display: none">
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="form-group"
+                                <?php
+                                if (!$GLOBALS['gbl_visit_referral_source']) {
+                                    echo " style='display:none' ";
+                                } ?>>
+                                <label class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Referral Source'); ?>:</label>
+                                <div class="col-sm-3">
+                                    <?php echo generate_select_list('form_referral_source', 'refsource', $viewmode ? $result['referral_source'] : '', ''); ?>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                            <?php if ($GLOBALS['enable_group_therapy']) { ?>
+                                <div class="form-group" id="therapy_group_name" style="display: none">
                                     <label for="form_group" class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Group name'); ?>:</label>
                                     <div class="col-sm-3">
-                                        <input type='text'name='form_group' class='form-control col-sm-12' id="form_group"  placeholder='<?php echo xla('Click to select');?>' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr(getGroup($result['external_id'])['group_name']) : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
+                                        <input type='text' name='form_group' class='form-control col-sm-12' id="form_group" placeholder='<?php echo xla('Click to select'); ?>' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr(getGroup($result['external_id'])['group_name']) : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
                                         <input type='hidden' name='form_gid' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr($result['external_id']) : '' ?>' />
                                     </div>
                                     <div class="clearfix"></div>
                                 </div>
-                                <?php }?>
-                                <div class="form-group">
-                                    <label for='facility_id' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Facility'); ?>:</label>
-                                    <div class="col-sm-8">
-                                        <select name='facility_id' id='facility_id' class='form-control col-sm-9' onChange="bill_loc()">
-                                            <?php
-                                            if ($viewmode) {
-                                                $def_facility = $result['facility_id'];
-                                            } else {
-                                                $dres = sqlStatement("select facility_id from users where username = ?", array($_SESSION['authUser']));
-                                                $drow = sqlFetchArray($dres);
-                                                $def_facility = $drow['facility_id'];
+                            <?php } ?>
+                            <div class="form-group">
+                                <label for='provider_id' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Encounter Provider'); ?>:</label>
+                                <div class="col-sm-8">
+                                    <select name='provider_id' id='provider_id' class='form-control col-sm-9' onChange="newUserSelected()">
+                                        <?php
+                                        if ($viewmode) {
+                                            $provider_id = $result['provider_id'];
+                                        }
+                                        $userService = new UserService();
+                                        $users = $userService->getActiveUsers();
+                                        foreach ($users as $activeUser) {
+                                            echo "<option value='" . attr($activeUser->getId()) . "'";
+                                            if ((int)$provider_id === $activeUser->getId()) {
+                                                echo "selected";
                                             }
-                                            $posCode = '';
-                                            $facilities = $facilityService->getAllServiceLocations();
-                                            if ($facilities) {
-                                                foreach ($facilities as $iter) { ?>
-                                            <option value="<?php echo attr($iter['id']); ?>"
+                                            echo ">" . text($activeUser->getLname()) . ' ' .
+                                                text($activeUser->getFname()) . ' ' . text($activeUser->getMname()) . "</option>\n";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="form-group">
+                                <label for='facility_id' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Facility'); ?>:</label>
+                                <div class="col-sm-8">
+                                    <select name='facility_id' id='facility_id' class='form-control col-sm-9' onChange="getPOS()">
+                                        <?php
+                                        if ($viewmode) {
+                                            $def_facility = $result['facility_id'];
+                                        } elseif ($default_fac_override) {
+                                            $def_facility = $default_fac_override;
+                                        } else {
+                                            $def_facility = $facilityService->getFacilityForUser($_SESSION['authUserID'])['id'];
+                                        }
+                                        $posCode = '';
+                                        $facilities = $facilityService->getAllServiceLocations();
+                                        if ($facilities) {
+                                            foreach ($facilities as $iter) { ?>
+                                                <option value="<?php echo attr($iter['id']); ?>"
                                                     <?php
                                                     if ($def_facility == $iter['id']) {
+                                                        echo " selected";
                                                         if (!$viewmode) {
                                                             $posCode = $iter['pos_code'];
                                                         }
-                                                        echo "selected";
-                                                    }?>><?php echo text($iter['name']); ?>
-                                            </option>
-                                                    <?php
-                                                }
-                                            }
-                                            ?>
-                                        </select>
-                                    </div>
-                                    <div class="clearfix"></div>
+                                                    } ?>><?php echo text($iter['name']); ?>
+                                                </option>
+                                            <?php }
+                                        } ?>
+                                    </select>
                                 </div>
-                                <div class="form-group">
-                                    <label for='billing_facility' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Billing Facility'); ?>:</label>
-                                    <div id="ajaxdiv" class="col-sm-8">
-                                        <?php
-                                            $default_bill_fac = isset($result['billing_facility']) ? $result['billing_facility'] : $def_facility;
-                                            billing_facility('billing_facility', $default_bill_fac);
-                                        ?>
-                                    </div>
-                                    <div class="clearfix"></div>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for='billing_facility' class="control-label col-sm-2 oe-text-to-right"><?php echo xlt('Billing Facility'); ?>:</label>
+                                <div id="ajaxdiv" class="col-sm-8">
+                                    <?php
+                                    if ($default_bill_fac_override) {
+                                        $default_bill_fac = $default_bill_fac_override;
+                                    } elseif (!$viewmode) {
+                                        $tmp_be = $facilityService->getPrimaryBusinessEntity();
+                                        $tmp = $tmp_be['id'] ? $tmp_be['id'] : $facilityService->getPrimaryBillingLocation()['id'];
+                                        $default_bill_fac = !empty($tmp) ? $tmp : $def_facility;
+                                    } else {
+                                        $default_bill_fac = isset($result['billing_facility']) ? $result['billing_facility'] : $def_facility;
+                                    }
+                                    billing_facility('billing_facility', $default_bill_fac);
+                                    ?>
                                 </div>
+                                <div class="clearfix"></div>
+                            </div>
                         </div>
                         <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
                             <div class="form-group">
@@ -475,8 +539,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             break;
                         }
                     }
-                    if ($issuesauth) {
-                        ?>
+                    if ($issuesauth) { ?>
                     <fieldset>
                         <legend><?php echo xlt('Link/Add Issues (Injuries/Medical/Allergy) to Current Visit')?></legend>
                             <div id = "visit-issues">

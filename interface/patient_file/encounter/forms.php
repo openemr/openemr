@@ -91,6 +91,12 @@ if (!empty($_GET['attachid'])) {
 <script type="text/javascript">
 $.noConflict();
 jQuery(document).ready( function($) {
+    <?php if ((boolean) $GLOBALS['expand_form']) { ?>
+    expandcollapse("expand");
+    <?php } else { ?>
+    expandcollapse("collapse");
+    <?php } ?>
+
     var formConfig = <?php echo $esignApi->formConfigToJson(); ?>;
     $(".esign-button-form").esign(
         formConfig,
@@ -545,7 +551,7 @@ $old_category = '';
 $encounterLocked = false;
 if ($esignApi->lockEncounters() &&
 isset($GLOBALS['encounter']) &&
-!empty($GLOBALS['encounter']) ) {
+!empty($GLOBALS['encounter'])) {
     $esign = $esignApi->createEncounterESign($GLOBALS['encounter']);
     if ($esign->isLocked()) {
         $encounterLocked = true;
