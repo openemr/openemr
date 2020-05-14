@@ -61,7 +61,7 @@
     "angular-sanitize": "1.7.9",
     "angular-summernote": "0.8.1",
     "backbone": "1.4.0",
-    "bootstrap": "4.4.1",
+    "bootstrap": "^4.5.0",
     "bootswatch": "4.4.1",
     "chart.js": "2.9.3",
     "checklist-model": "1.0.0",
