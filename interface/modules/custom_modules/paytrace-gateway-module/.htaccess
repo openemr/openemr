@@ -1,0 +1,8 @@
+##
+## ACCESS RULES FOR API
+RewriteEngine On
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-l
+RewriteRule (.*) ?_ACTION_COMMAND=$1 [QSA,L]

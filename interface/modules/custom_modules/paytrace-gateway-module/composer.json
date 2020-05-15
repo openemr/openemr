@@ -1,0 +1,26 @@
+{
+    "name": "openemr/paytrace-gateway-module",
+    "description": "OpenEMR PayTrace Gateway module",
+    "type": "openemr-module",
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Sherwin Gaddis",
+            "email": "sherwingaddis@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {"OpenEMR\\Modules\\PaytraceGateway\\Controllers\\": "controllers/"}
+    },
+    "require": {
+        "openemr/paytrace-gateway-plugin": "^0.1.0",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "php": "^7.1",
+        "paytrace/api-demo": "*"
+    },
+    "conflict": {
+        "openemr/openemr": ">=5.0.3"
+    }
+}
