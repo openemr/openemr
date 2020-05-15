@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Paytrace Payment Gateway
  * link    http://www.open-emr.org
@@ -8,7 +9,6 @@
  */
 
 namespace OpenEMR\Modules\Paytrace\Controllers;
-
 
 class AppDispatch
 {
