@@ -1,4 +1,5 @@
 <?php
+
 /**
  * While creating new encounter this code is used to change the "Billing Facility:".
  * This happens on change of the "Facility:" field.
@@ -12,7 +13,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../interface/globals.php");
 require_once("$srcdir/options.inc.php");
@@ -37,7 +37,7 @@ if ($_GET['mode'] === 'get_user_data') {
     $facilityService = new FacilityService();
     $fac = $facilityService->getFacilityForUser($provider_id);
     $fid = $fac['id'];
-    $pos = ((int)$fac['pos_code'] < 10) ? ("0" .$fac['pos_code']) : $fac['pos_code'];
+    $pos = ((int)$fac['pos_code'] < 10) ? ("0" . $fac['pos_code']) : $fac['pos_code'];
     $isBilling = $fac['billing_location'];
 
     echo json_encode(array($fid, $pos, $isBilling));
