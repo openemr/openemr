@@ -89,7 +89,7 @@ class PatientValidatorTest extends TestCase
 
         $fixturePid = sqlQuery(
             "SELECT pid FROM patient_data WHERE pubpid = ?",
-            array($patientFixture->pubpid)
+            array($patientFixture['pubpid'])
         )['pid'];
 
         $this->patientFixture['pid'] = intval($fixturePid);
@@ -113,7 +113,7 @@ class PatientValidatorTest extends TestCase
 
         $fixturePid = sqlQuery(
             "SELECT pid FROM patient_data WHERE pubpid = ?",
-            array($patientFixture->pubpid)
+            array($patientFixture['pubpid'])
         )['pid'];
         $fixturePid = intval($fixturePid);
 

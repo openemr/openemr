@@ -3,7 +3,7 @@
 namespace OpenEMR\Services\FHIR;
 
 use Ramsey\Uuid\Uuid;
-use OpenEMR\Services\FHIR\iFhirService;
+use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\PatientService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
@@ -17,11 +17,12 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Dixon Whitmire <dixonwh@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
-class FhirPatientService implements iFhirService
+class FhirPatientService extends FhirServiceBase
 {
     private $patientService;
 
@@ -35,6 +36,12 @@ class FhirPatientService implements iFhirService
      */
     public function parseOpenEMRRecord($data = array(), $encode = true)
     {
+        // TODO convert time to utc
+        // add simple text
+        // "text": {
+        //     "status": "generated",
+        //     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">\n      \n      <p>Patient Donald DUCK @ Acme Healthcare, Inc. MR = 654321</p>\n    \n    </div>"
+        // }
         $patientResource = new FHIRPatient();
 
         // @todo add display text after meta
@@ -137,16 +144,18 @@ class FhirPatientService implements iFhirService
 
         if (isset($data['ss'])) {
             $fhirIdentifier = [
+                'use' => 'official',
                 'type' => [
                     'coding' => [
-                        'system' => 'http://terminology.hl7.org/CodeSystem/v2-0203',
-                        'code' => 'SS'
+                        [
+                            'system' => 'http://terminology.hl7.org/CodeSystem/v2-0203',
+                            'code' => 'SS'
+                        ]
                     ]
                 ],
                 'system' => 'http://hl7.org/fhir/sid/us-ssn',
                 'value' => $data['ss']
             ];
-            
             $patientResource->addIdentifier($fhirIdentifier);
         }
 

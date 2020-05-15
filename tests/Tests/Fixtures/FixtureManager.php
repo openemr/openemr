@@ -23,10 +23,12 @@ class FixtureManager
     const PATIENT_FIXTURE_PUBPID_PREFIX = "test-fixture";
 
     private $patientFixtures;
+    private $fhirPatientFixtures;
 
     public function __construct()
     {
         $this->patientFixtures = $this->loadJsonFile("patients.json");
+        $this->fhirPatientFixtures = $this->loadJsonFile("fhir-patients.json");
     }
 
     /**
@@ -38,7 +40,7 @@ class FixtureManager
     {
         $filePath = dirname(__FILE__) . "/" . $fileName;
         $jsonData = file_get_contents($filePath);
-        $parsedRecords = json_decode($jsonData);
+        $parsedRecords = json_decode($jsonData, true);
         return $parsedRecords;
     }
 
@@ -91,6 +93,22 @@ class FixtureManager
     }
 
     /**
+     * @return array of fhir patient fixtures.
+     */
+    public function getFhirPatientFixtures()
+    {
+        return $this->fhirPatientFixtures;
+    }
+
+    /**
+     * @return single/random fhir patient fixture
+     */
+    public function getSingleFhirPatientFixture()
+    {
+        return $this->getSingleEntry($this->fhirPatientFixtures);
+    }
+
+    /**
      * @return array of patient fixtures.
      */
     public function getPatientFixtures()
@@ -99,12 +117,20 @@ class FixtureManager
     }
 
     /**
+     * @return random single entry from an array.
+     */
+    private function getSingleEntry($array)
+    {
+        $randomIndex = array_rand($array, 1);
+        return $array[$randomIndex];
+    }
+
+    /**
      * @return a random patient fixture.
      */
     public function getSinglePatientFixture()
     {
-        $randomIndex = array_rand($this->patientFixtures, 1);
-        return $this->patientFixtures[$randomIndex];
+        return $this->getSingleEntry($this->patientFixtures);
     }
 
     /**

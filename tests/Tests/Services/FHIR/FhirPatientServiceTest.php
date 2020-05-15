@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenEMR\Tests\Services;
+namespace OpenEMR\Tests\Services\FHIR;
 
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\FixtureManager;
