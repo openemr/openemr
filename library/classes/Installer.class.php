@@ -208,14 +208,14 @@ class Installer
         return $this->execute_sql($sql);
     }
 
-    public function check_database_user()
-    {
-        return $this->execute_sql("SELECT user FROM mysql.user WHERE user = '" . $this->escapeSql($this->login) . "' AND host = '" . $this->escapeSql($this->loginhost) . "'");
-    }
-
     public function create_database_user()
     {
-        $checkUser = $this->check_database_user();
+        // First, check for database user in the mysql.user table (this works for all except mariadb 10.4+)
+        $checkUser = $this->execute_sql("SELECT user FROM mysql.user WHERE user = '" . $this->escapeSql($this->login) . "' AND host = '" . $this->escapeSql($this->loginhost) . "'", false);
+        if ($checkUser === false) {
+            // Above caused error, so is MariaDB 10.4+, and need to do below query instead in the mysql.global_priv table
+            $checkUser = $this->execute_sql("SELECT user FROM mysql.global_priv WHERE user = '" . $this->escapeSql($this->login) . "' AND host = '" . $this->escapeSql($this->loginhost) . "'");
+        }
 
         if ($checkUser === false) {
             // there was an error in the check database user query, so return false
