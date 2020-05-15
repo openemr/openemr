@@ -11,7 +11,14 @@
 
 require_once "../interface/globals.php";
 
-if ($_POST) {
+use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (isset($_POST["drugId"])) {
+
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
+    }
+
     $id = filter_input(INPUT_POST, 'drugId', FILTER_VALIDATE_INT);
 
     $sql = "delete from prescriptions where id = ?";
