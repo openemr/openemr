@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  @package   OpenEMR
  *  @link      http://www.open-emr.org
@@ -14,7 +15,6 @@ require_once "../interface/globals.php";
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 if (isset($_POST["drugId"])) {
-
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }

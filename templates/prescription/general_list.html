@@ -84,7 +84,7 @@ function Check(chk) {
 }
 
 function deleteDrug(d) {
-        let msg = 'Do you really want to delete ';
+        let msg = xl('Do you really want to delete ');
         let choice = confirm(msg + d);
         if (choice == true) {
             $.ajax({
