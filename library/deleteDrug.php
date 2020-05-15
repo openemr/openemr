@@ -14,16 +14,18 @@ require_once "../interface/globals.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 
-if (isset($_POST["drugId"])) {
+$id = filter_input(INPUT_POST, 'drugId', FILTER_VALIDATE_INT);
+$id = trim($id);
+if (isset($id)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
+        throw new Exception("Form validation failed");
     }
-
-    $id = filter_input(INPUT_POST, 'drugId', FILTER_VALIDATE_INT);
-
-    $sql = "delete from prescriptions where id = ?";
-
-    sqlQuery($sql, [$id]);
-
-    echo "Done";
+    try {
+        $sql = "delete from prescriptions where id = ?";
+        sqlQuery($sql, [$id]);
+        echo xlt("Done");
+    } catch(Exception $e) {
+        echo 'Error Message: ' .$e->getMessage();
+    }
 }

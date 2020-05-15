@@ -84,11 +84,10 @@ function Check(chk) {
 }
 
 function deleteDrug(d) {
-    let msg = 'Do you really want to delete ';
-    let choice = confirm(msg + d);
     let isPromise = top.jsFetchGlobals('e_rx');
     isPromise.then(
-        msg => {alert('msg.e_rx.deleteWarn');
+        msg => {
+            alert('msg.e_rx.deleteWarn');
             if (choice == true) {
                 $.ajax({
                     url: "./library/deleteDrug.php",

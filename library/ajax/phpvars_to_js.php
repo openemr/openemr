@@ -36,6 +36,7 @@ if ($import === []) {
     $custom['alert']['gotIt'] = xlt("Got It");
     $custom['alert']['title'] = xlt("Alert");
     $custom['alert']['dismiss'] = xlt("Dismiss");
+    $custom['e_rx']['deleteWarn'] = xlt('Do you really want to delete ');
 
     $import[$scope] = $custom[$scope];
 }
