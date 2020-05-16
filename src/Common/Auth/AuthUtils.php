@@ -125,7 +125,7 @@ class AuthUtils
     private function confirmPatientPassword($username, &$password, $email = '')
     {
         // Set variables for log
-        $event = 'portal-api';
+        $event = 'portalapi';
         $beginLog = 'Portal API failure';
 
         // Collect ip address for log

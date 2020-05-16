@@ -57,7 +57,7 @@ class AuthRestController
                 error_log('OpenEMR Error : OpenEMR is not working because unable to collect critical information.');
                 die("OpenEMR Error : OpenEMR is not working because unable to collect critical information.");
             }
-            $event = 'portal-api';
+            $event = 'portalapi';
             $genericUserId = $patientId;
         } else { // $_SESSION['api'] == "oemr" || $_SESSION['api'] == "fhir"
             // authentication for core api or fhir
@@ -175,10 +175,10 @@ class AuthRestController
             // For patient portal api
             $tokenResult = sqlQueryNoLog("SELECT p.`pid`, p.`portal_username`, p.`portal_login_username`, a.`token`, a.`token_auth`, a.`expiry` FROM `api_token` a JOIN `patient_access_onsite` p ON p.`pid` = a.`patient_id` WHERE BINARY `token` = ? AND `token_api` = ?", array($token_a, $_SESSION['api']));
             if (!$tokenResult || empty($tokenResult['pid']) || empty($tokenResult['portal_username']) || empty($tokenResult['portal_login_username']) || empty($tokenResult['token']) || empty($tokenResult['token_auth']) || empty($tokenResult['expiry'])) {
-                EventAuditLogger::instance()->newEvent('portal-api', $tokenResult['portal_login_username'], '', 0, "API failure: " . $ip['ip_string'] . ". token not found", $tokenResult['pid']);
+                EventAuditLogger::instance()->newEvent('portalapi', $tokenResult['portal_login_username'], '', 0, "API failure: " . $ip['ip_string'] . ". token not found", $tokenResult['pid']);
                 return false;
             }
-            $event = 'portal-api';
+            $event = 'portalapi';
             $genericUserName = $tokenResult['portal_login_username'];
             $logPid = $tokenResult['pid'];
         } else { // $_SESSION['api'] == "oemr" || $_SESSION['api'] == "fhir"
