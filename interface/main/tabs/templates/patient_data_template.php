@@ -77,6 +77,19 @@ switch ($search_any_type) {
                 <!-- /ko -->
             </div>
         </div>
+
+        .dropdown-menu {
+            margin-top: 0px;
+        }
+        .dropdown:hover>.dropdown-menu {
+            display: block;
+        }
+
+        .dropdown>.dropdown-toggle:active {
+            pointer-events: none;
+        }
+
+
         <div class="flex-fill ml-2">
             <!-- ko if: patient -->
             <!-- ko with: patient -->

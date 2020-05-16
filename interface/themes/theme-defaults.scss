@@ -15,18 +15,6 @@
     z-index: 100;
 }
 
-.dropdown-menu {
-    margin-top: 0;
-}
-
-.dropdown:hover>.dropdown-menu {
-    display: block;
-}
-
-.dropdown>.dropdown-toggle:active {
-    pointer-events: none;
-}
-
 .menuBar ~ .container {
     margin-top: 95px;
 }
