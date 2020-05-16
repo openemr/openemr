@@ -472,7 +472,8 @@ RestConfig::$PORTAL_FHIR_ROUTE_MAP = array(
         $data = (array) RestConfig::getPostData((file_get_contents("php://input")));
         return (new AuthRestController())->authenticate($data);
     },
-    "GET /portalfhir/patient" => function () {
+    "GET /portalfhir/Patient" => function () {
+        // TODO - Will replace below with working call when it is fixed
         return (new FhirPatientRestController($_SESSION['pid']))->getOne();
     }
 );

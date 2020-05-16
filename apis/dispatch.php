@@ -81,7 +81,6 @@ require_once("./../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
-use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 
 
@@ -119,8 +118,6 @@ if ($isLocalApi) {
 if ($gbl::is_fhir_request($resource)) {
     if (!$GLOBALS['rest_fhir_api'] && !$isLocalApi) {
         // if the external fhir api is turned off and this is not a local api call, then exit
-        $ip = collectIpAddresses();
-        EventAuditLogger::instance()->newEvent('api', '', '', 0, "API failure: " . $ip['ip_string'] . ". rest standard fhir api is turned off");
         http_response_code(501);
         exit();
     }
@@ -129,8 +126,6 @@ if ($gbl::is_fhir_request($resource)) {
 } elseif ($gbl::is_portal_request($resource)) {
     if (!$GLOBALS['rest_portal_api'] && !$isLocalApi) {
         // if the external portal api is turned off and this is not a local api call, then exit
-        $ip = collectIpAddresses();
-        EventAuditLogger::instance()->newEvent('portalapi', '', '', 0, "API failure: " . $ip['ip_string'] . ". rest portal api is turned off");
         http_response_code(501);
         exit();
     }
@@ -139,8 +134,6 @@ if ($gbl::is_fhir_request($resource)) {
 } elseif ($gbl::is_portal_fhir_request($resource)) {
     if (!$GLOBALS['rest_portal_fhir_api'] && !$isLocalApi) {
         // if the external portal fhir api is turned off and this is not a local api call, then exit
-        $ip = collectIpAddresses();
-        EventAuditLogger::instance()->newEvent('portalapi', '', '', 0, "API failure: " . $ip['ip_string'] . ". rest portal fhir api is turned off");
         http_response_code(501);
         exit();
     }
@@ -149,8 +142,6 @@ if ($gbl::is_fhir_request($resource)) {
 } else {
     if (!$GLOBALS['rest_api'] && !$isLocalApi) {
         // if the external api is turned off and this is not a local api call, then exit
-        $ip = collectIpAddresses();
-        EventAuditLogger::instance()->newEvent('api', '', '', 0, "API failure: " . $ip['ip_string'] . ". rest standard api is turned off");
         http_response_code(501);
         exit();
     }
