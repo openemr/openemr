@@ -1,5 +1,5 @@
 {
-    "name": "openemr/paytrace-gateway-module",
+    "name": "openemr/paytrace-gateway",
     "description": "OpenEMR PayTrace Gateway module",
     "type": "openemr-module",
     "license": "GPL-3.0",
