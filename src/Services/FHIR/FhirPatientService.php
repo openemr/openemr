@@ -183,7 +183,7 @@ class FhirPatientService extends FhirServiceBase
     public function parseFhirResource($fhirJson = array())
     {
         $data = array();
-        
+
         if (isset($fhirJson['name'])) {
             $name = [];
             foreach ($fhirJson['name'] as $sub_name) {
@@ -263,23 +263,24 @@ class FhirPatientService extends FhirServiceBase
         return $data;
     }
 
-    public function insert($data)
+    public function insertOpenEMRRecord($openEmrRecord)
     {
-        return $this->patientService->insert($data);
     }
 
-    public function update($pid, $data)
+    public function updateOpenEMRRecord($openEMRLookupId, $updatedOpenEMRRecord)
     {
-        return $this->patientService->update($pid, $data);
     }
 
-    public function getOne()
+    public function getOne($fhirResourceId)
     {
-        return $this->patientService->getOne();
+        return array();
     }
 
-    public function getAll($searchParam)
+    public function mapSearchParameters($fhirSearchParameters)
     {
-        return $this->patientService->getAll($searchParam);
+    }
+
+    public function searchForOpenEMRRecords($openEMRSearchParameters)
+    {
     }
 }
