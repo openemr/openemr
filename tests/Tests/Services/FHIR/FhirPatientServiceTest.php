@@ -21,12 +21,14 @@ class FhirPatientServiceTest extends TestCase
 {
     private $fixtureManager;
     private $patientFixture;
+    private $fhirPatientFixture;
     private $fhirPatientService;
 
     protected function setUp(): void
     {
         $this->fixtureManager = new FixtureManager();
         $this->patientFixture = (array) $this->fixtureManager->getSinglePatientFixture();
+        $this->fhirPatientFixture = (array) $this->fixtureManager->getSingleFhirPatientFixture();
         $this->fhirPatientService = new FhirPatientService();
     }
 
@@ -87,6 +89,9 @@ class FhirPatientServiceTest extends TestCase
     {
         $this->assertEquals(1, $fhirPatientResource->getMeta()['versionId']);
         $this->assertNotEmpty($fhirPatientResource->getMeta()['lastUpdated']);
+
+        $this->assertEquals('generated', $fhirPatientResource->getText()['status']);
+        $this->assertNotEmpty($fhirPatientResource->getText()['div']);
         
         $this->assertTrue($fhirPatientResource->getActive());
 
@@ -132,5 +137,101 @@ class FhirPatientServiceTest extends TestCase
 
         $actualResult = $this->fhirPatientService->parseOpenEMRRecord($this->patientFixture, true);
         $this->assertIsString($actualResult);
+    }
+
+    /**
+     * Finds matching FHIR Patient telecom entries by system and use.
+     * @param $fhirPatientResource - The FHIR Patient Resource to search
+     * @param $telecomSystem - The telecom system to match
+     * @param $telecomUse - The telecom use to match
+     * @return matching entries (array)
+     */
+    private function findTelecomEntry($fhirPatientResource, $telecomSystem, $telecomUse)
+    {
+        $matchingEntries = array();
+
+        if (!isset($fhirPatientResource['telecom'])) {
+            return $matchingEntries;
+        }
+
+        foreach ($fhirPatientResource['telecom'] as $index => $telecomEntry) {
+            if ($telecomEntry['system'] == $telecomSystem && $telecomEntry['use'] == $telecomUse) {
+                array_push($matchingEntries, $telecomEntry);
+            }
+        }
+        return $matchingEntries;
+    }
+    /**
+     * @covers ::parseFhirResource
+     */
+    public function testParseFhirResource()
+    {
+        $actualResult = $this->fhirPatientService->parseFhirResource($this->fhirPatientFixture);
+
+        $title = $this->fhirPatientFixture['name'][0]['prefix'][0];
+        $this->assertEquals($title, $actualResult['title']);
+
+        $fname = $this->fhirPatientFixture['name'][0]['given'][0];
+        $this->assertEquals($fname, $actualResult['fname']);
+
+        $mname = $this->fhirPatientFixture['name'][0]['given'][1];
+        $this->assertEquals($mname, $actualResult['mname']);
+
+        $lname = $this->fhirPatientFixture['name'][0]['family'];
+        $this->assertEquals($lname, $actualResult['lname']);
+
+        $dob = $this->fhirPatientFixture['birthDate'];
+        $this->assertEquals($dob, $actualResult['DOB']);
+
+        $sex = $this->fhirPatientFixture['gender'];
+        $this->assertEquals($sex, $actualResult['sex']);
+
+        $ss = $this->fhirPatientFixture['identifier'][0]['value'];
+        $this->assertEquals($ss, $actualResult['ss']);
+
+        $address = $this->fhirPatientFixture['address'][0];
+
+        $street = $address['line'][0];
+        $this->assertEquals($street, $actualResult['street']);
+
+        $city = $address['city'];
+        $this->assertEquals($city, $actualResult['city']);
+
+        $state = $address['state'];
+        $this->assertEquals($state, $actualResult['state']);
+
+        $postalCode = $address['postalCode'];
+        $this->assertEquals($postalCode, $actualResult['postal_code']);
+
+        $phoneCell = $this->findTelecomEntry($this->fhirPatientFixture, 'phone', 'mobile');
+        $this->assertEquals(1, count($phoneCell));
+        $this->assertEquals($phoneCell[0]['value'], $actualResult['phone_cell']);
+
+        $phoneHome = $this->findTelecomEntry($this->fhirPatientFixture, 'phone', 'home');
+        $this->assertEquals(1, count($phoneHome));
+        $this->assertEquals($phoneHome[0]['value'], $actualResult['phone_home']);
+
+        $phoneBiz = $this->findTelecomEntry($this->fhirPatientFixture, 'phone', 'work');
+        $this->assertEquals(1, count($phoneBiz));
+        $this->assertEquals($phoneBiz[0]['value'], $actualResult['phone_biz']);
+
+        $email = $this->findTelecomEntry($this->fhirPatientFixture, 'email', 'home');
+        $this->assertEquals(1, count($email));
+        $this->assertEquals($email[0]['value'], $actualResult['email']);
+    }
+
+    /**
+     * Utility function used to generate resources used as "FHIR Patient Fixtures"
+     */
+    public function generateFhirPatientFixtures()
+    {
+        $patientFixtures = $this->fixtureManager->getPatientFixtures();
+        
+        foreach ($patientFixtures as $index => $patientFixture) {
+            var_dump('-----------');
+            $actualResult = $this->fhirPatientService->parseOpenEMRRecord($this->patientFixture, true);
+            var_dump($actualResult);
+            var_dump('-----------');
+        }
     }
 }

@@ -12,7 +12,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 
 /**
- * FHIR Patient Service Tests
+ * FHIR Patient Service
+ *
  * @coversDefaultClass OpenEMR\Services\FHIR\FhirPatientService
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -32,24 +33,32 @@ class FhirPatientService extends FhirServiceBase
     }
 
     /**
-     * This implementation parses an OpenEMR patient record to a FHIR R4 Patient resource.
+     * Parses an OpenEMR patient record to a FHIR R4 Patient resource.
+     * @param $data The OpenEMR Patient record
+     * @param $encode Indicates if the return value (FHIR R4 Patient) is encoded to a string. Defaults to true.
+     * @return The FHIR R4 Patient resource
      */
     public function parseOpenEMRRecord($data = array(), $encode = true)
     {
-        // TODO convert time to utc
-        // add simple text
-        // "text": {
-        //     "status": "generated",
-        //     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">\n      \n      <p>Patient Donald DUCK @ Acme Healthcare, Inc. MR = 654321</p>\n    \n    </div>"
-        // }
         $patientResource = new FHIRPatient();
 
-        // @todo add display text after meta
-        $nowDate = date('Y-m-d\TH:i:s');
-        $meta = array('versionId' => '1', 'lastUpdated' => $nowDate);
+        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
         $patientResource->setMeta($meta);
 
         $patientResource->setActive(true);
+
+        $narrativeText = '';
+        if (isset($data['fname'])) {
+            $narrativeText = $data['fname'];
+        }
+        if (isset($data['lname'])) {
+            $narrativeText .= ' ' . $data['lname'];
+        }
+        $text = array(
+            'status' => 'generated',
+            'div' => '<div xmlns="http://www.w3.org/1999/xhtml"> <p>' . $narrativeText . '</p></div>'
+        );
+        $patientResource->setText($text);
 
         $fhirId = Uuid::uuid4()->toString();
         $id = new FhirId();
@@ -166,8 +175,15 @@ class FhirPatientService extends FhirServiceBase
         }
     }
 
+    /**
+     * Parses a FHIR R4 Patient resource into an OpenEMR Patient record.
+     * @param $fhirJson The FHIR R4 Patient resource
+     * @return OpenEMR patient record
+     */
     public function parseFhirResource($fhirJson = array())
     {
+        $data = array();
+        
         if (isset($fhirJson['name'])) {
             $name = [];
             foreach ($fhirJson['name'] as $sub_name) {
@@ -184,6 +200,9 @@ class FhirPatientService extends FhirServiceBase
             }
             if (isset($name['given'][1])) {
                 $data['mname'] = $name['given'][1];
+            }
+            if (isset($name['prefix'][0])) {
+                $data['title'] = $name['prefix'][0];
             }
         }
         if (isset($fhirJson['address'])) {
@@ -209,16 +228,13 @@ class FhirPatientService extends FhirServiceBase
                     case 'phone':
                         switch ($telecom['use']) {
                             case 'mobile':
-                                $data['phone_contact'] = $telecom['value'];
+                                $data['phone_cell'] = $telecom['value'];
                                 break;
                             case 'home':
                                 $data['phone_home'] = $telecom['value'];
                                 break;
                             case 'work':
                                 $data['phone_biz'] = $telecom['value'];
-                                break;
-                            default:
-                                $data['phone_contact'] = $telecom['value'];
                                 break;
                         }
                         break;
@@ -236,6 +252,13 @@ class FhirPatientService extends FhirServiceBase
         }
         if (isset($fhirJson['gender'])) {
             $data['sex'] = $fhirJson['gender'];
+        }
+
+        foreach ($fhirJson['identifier'] as $index => $identifier) {
+            if (strpos($identifier['system'], 'us-ssn') !== false && isset($identifier['value'])) {
+                $data['ss'] = $identifier['value'];
+                break;
+            }
         }
         return $data;
     }
