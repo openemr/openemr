@@ -186,6 +186,11 @@ class RestConfig
         return trim($parse[1]);
     }
 
+    static function is_api_request($resource)
+    {
+        return (stripos(strtolower($resource), "/api/") !== false) ? true : false;
+    }
+
     static function is_fhir_request($resource)
     {
         return (stripos(strtolower($resource), "/fhir/") !== false) ? true : false;
@@ -219,7 +224,13 @@ class RestConfig
                 http_response_code(401);
                 exit();
             }
-        } elseif ($api !== 'oemr') {
+        } elseif (self::is_api_request($resource)) {
+            if ($api !== 'oemr') {
+                http_response_code(401);
+                exit();
+            }
+        } else {
+            // somebody is up to no good
             http_response_code(401);
             exit();
         }

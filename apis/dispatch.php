@@ -139,7 +139,7 @@ if ($gbl::is_fhir_request($resource)) {
     }
     $_SESSION['api'] = 'pofh';
     $routes = $gbl::$PORTAL_FHIR_ROUTE_MAP;
-} else {
+} elseif ($gbl::is_api_request($resource)) {
     if (!$GLOBALS['rest_api'] && !$isLocalApi) {
         // if the external api is turned off and this is not a local api call, then exit
         http_response_code(501);
@@ -147,6 +147,10 @@ if ($gbl::is_fhir_request($resource)) {
     }
     $_SESSION['api'] = 'oemr';
     $routes = $gbl::$ROUTE_MAP;
+} else {
+    // somebody is up to no good
+    http_response_code(501);
+    exit();
 }
 
 if ($isLocalApi) {
