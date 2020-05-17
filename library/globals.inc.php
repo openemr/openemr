@@ -3060,6 +3060,34 @@ $GLOBALS_METADATA = array(
     //
     'Connectors' => array(
 
+        'rest_api' => array(
+            xl('Enable OpenEMR Standard REST API'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR Standard RESTful API.')
+        ),
+
+        'rest_fhir_api' => array(
+            xl('Enable OpenEMR Standard FHIR REST API'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR Standard FHIR RESTful API.')
+        ),
+
+        'rest_portal_api' => array(
+            xl('Enable OpenEMR Patient Portal REST API'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR Patient Portal RESTful API.')
+        ),
+
+        'rest_portal_fhir_api' => array(
+            xl('Enable OpenEMR Patient Portal FHIR REST API'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR Patient Portal FHIR RESTful API.')
+        ),
+
         'fhir_enable' => array(
             xl('Enable FHIR Provider Client Service'),
             array(
@@ -3076,13 +3104,6 @@ $GLOBALS_METADATA = array(
             'text',
             'https://hapi.fhir.org/baseDstu3/',
             xl('Base URL for FHIR Server.')
-        ),
-
-        'rest_api' => array(
-            xl('Enable OpenEMR REST API'),
-            'bool',
-            '0',
-            xl('Enable OpenEMR RESTful API. SSL Required')
         ),
 
         'payment_gateway' => array(

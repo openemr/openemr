@@ -5,15 +5,16 @@
 Easy-to-use JSON-based REST API for OpenEMR FHIR. All code is done in classes and separate from the view to help with codebase modernization efforts. See standard OpenEMR API docs [here](API_README.md)
 
 ### Prerequisite
-Enable this FHIR service in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR REST API" 
+Enable the Standard FHIR service (/fhir/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Standard FHIR REST API"
+Enable the Patient Portal FHIR service (/portalfhir/ endpoints) in OpenEMR menu: Administration->Globals->Connectors->"Enable OpenEMR Patient Portal FHIR REST API"
 
 ### Using FHIR API Internally
 There are several ways to make API calls from an authorized session and maintain security:
 * See the script at tests/api/InternalApiTest.php for examples of internal API use cases.
 
 
-### Endpoints
- FHIR endpoints Use `http://localhost:8300/apis/fhir as base URI.`
+### /fhir/ Endpoints
+Standard FHIR endpoints Use `http://localhost:8300/apis/fhir as base URI.`
 
 _Example:_ `http://localhost:8300/apis/fhir/Patient` returns a Patient's bundle resource, etc
 
@@ -256,6 +257,48 @@ curl -X GET 'http://localhost:8300/apis/fhir/Medication'
 
 ```sh
 curl -X GET 'http://localhost:8300/apis/fhir/Medication/1'
+```
+
+### /portalfhir/ Endpoints
+OpenEMR patient portal fhir endpoints Use `http://localhost:8300/apis/portalfhir as base URI.`
+
+_Example:_ `http://localhost:8300/apis/portalfhir/Patient` returns a resource of the patient.
+
+#### POST /portalfhir/auth
+The OpenEMR Patient Portal FHIR service utilizes the OAuth2 password credential flow for authentication. To obtain an API token, submit your login credentials and requested scope. The scope must match a site that has been setup in OpenEMR, in the /sites/ directory.  If additional sites have not been created, set the scope
+to 'default'. If the patient portal is set to require email address on authenticate, then need to also include an `email` field in the request.
+
+```sh
+curl -X POST -H 'Content-Type: application/json' 'http://localhost:8300/apis/portalfhir/auth' \
+-d '{
+    "grant_type":"password",
+    "username": "ServiceUser",
+    "password": "password",
+    "scope":"site id"
+}'
+```
+Response:
+```json
+{
+    "token_type": "Bearer",
+    "access_token": "eyJ0b2tlbiI6IjAwNmZ4TWpsNWhsZmNPelZicXBEdEZVUlNPQUY5KzdzR1Jjejc4WGZyeGFjUjY2QlhaaEs4eThkU3cxbTd5VXFBeTVyeEZpck9mVzBQNWc5dUlidERLZ0trUElCME5wRDVtTVk5bE9WaE5DTHF5RnRnT0Q0OHVuaHRvbXZ6OTEyNmZGUmVPUllSYVJORGoyZTkzTDA5OWZSb0ZRVGViTUtWUFd4ZW5cL1piSzhIWFpJZUxsV3VNcUdjQXR5dmlLQXRXNDAiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6Im9lbXIifQ==",
+    "expires_in": "3600",
+    "user_data": {
+        "user_id": "1"
+    }
+}
+```
+The Bearer token is required for each OpenEMR Patient Portal FHIR service request, and is conveyed using an Authorization header.
+
+```sh
+curl -X GET 'http://localhost:8300/apis/portalfhir/Patient' \
+  -H 'Authorization: Bearer eyJ0b2tlbiI6IjAwNmZ4TWpsNWhsZmNPelZicXBEdEZVUlNPQUY5KzdzR1Jjejc4WGZyeGFjUjY2QlhaaEs4eThkU3cxbTd5VXFBeTVyeEZpck9mVzBQNWc5dUlidERLZ0trUElCME5wRDVtTVk5bE9WaE5DTHF5RnRnT0Q0OHVuaHRvbXZ6OTEyNmZGUmVPUllSYVJORGoyZTkzTDA5OWZSb0ZRVGViTUtWUFd4ZW5cL1piSzhIWFpJZUxsV3VNcUdjQXR5dmlLQXRXNDAiLCJzaXRlX2lkIjoiZGVmYXVsdCIsImFwaSI6Im9lbXIifQ=='
+```
+
+#### GET /portalfhir/Patient
+
+```sh
+curl -X GET 'http://localhost:8300/apis/portalfhir/Patient'
 ```
 
 ### Dev Notes
