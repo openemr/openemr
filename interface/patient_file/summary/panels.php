@@ -237,7 +237,6 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
         <th>Discharge Date</th>
         <th>Next Follow Up Date</th>
         <th>&nbsp;</th>
-        <th>&nbsp;</th>
       </tr>
 
    <?php
@@ -248,7 +247,7 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
      ?>
 
      <tr class="breakrow">
-       <td colspan="9" class="PanelHead"><b><?php echo attr($row['name']); ?></b></td>
+       <td colspan="8" class="PanelHead"><b><?php echo attr($row['name']); ?></b></td>
      </tr>
        <?php while ($row = sqlFetchArray($SubPanels)) { ?>
           <tr class="datarow">
@@ -266,13 +265,6 @@ if (confirm("Do you want to discharge from "+panel+"?")) {
                     echo "&nbsp;";
                   }
                 ?></td>
-            <td>
-              <form action="panel_history.php" method="post">
-                <input type="hidden" name="panel" value="<?php echo attr($row['panel']); ?>" />
-                <input type="hidden" name="enrollment_id" value="<?php echo attr($row['id']); ?>" />
-               <input type="submit" value="History"/>
-             </form>
-            </td>
              <td>
                <form action="#" method="post">
                  <input type="hidden" name="request" value="discharge" />
