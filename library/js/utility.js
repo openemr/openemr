@@ -201,6 +201,35 @@ function initInteractors(dragContext = document, resizeContext = '') {
 }
 
 /*
+* @function draggable(elem)
+* @summary call this function from scripts you can drag the elements
+*
+* @param elem context of element to apply drag.
+*/
+function draggable(elem) {
+    const position = { x: 0, y: 0 }
+    let isLoaded = typeof window.interact;
+    if (isLoaded !== 'function') {
+        (async (utilfn) => {
+            await includeScript(utilfn, 'script');
+        })(top.webroot_url + '/public/assets/interactjs/dist/interact.js')
+        .then(() => {
+            interact(elem).draggable({
+                listeners: {
+                  move (event) {
+                    position.x += event.dx;
+                    position.y += event.dy;
+
+                    event.target.style.transform =
+                      `translate(${position.x}px, ${position.y}px)`
+                  },
+                }
+              });
+        });
+    }
+}
+
+/*
 * @function oeSortable(callBackFn)
 * @summary call this function from scripts you may need to use sortable
 *
@@ -239,7 +268,7 @@ function oeSortable(callBackFn) {
                 if(childIsDragging){
                     switchElem(elem, prevElem[0], true);
                     return true;
-                }else{ 
+                }else{
                     if(prevElem[0]){
                         if(moveUp(prevElem[0])){
                             switchElem(elem, prevElem[0]);
@@ -258,7 +287,7 @@ function oeSortable(callBackFn) {
                 if(childIsDragging){
                     switchElem(elem, nxtElem[0], true);
                     return true;
-                }else{ 
+                }else{
                     if(nxtElem[0]){
                         if(moveDown(nxtElem[0])){
                             switchElem(elem, nxtElem[0]);
@@ -301,7 +330,7 @@ function oeSortable(callBackFn) {
                 }
             }
         })
-    
+
         interact('.draggable')
             .draggable({
                 inertia: true,

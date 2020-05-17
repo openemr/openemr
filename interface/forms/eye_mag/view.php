@@ -191,7 +191,6 @@ if ($refresh and $refresh != 'fullscreen') {
       <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor' ]); ?>
 
       <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
-
   </head>
   <!--Need a margin-top due to fixed nav, move to style.css to separate view stuff? Long way from that... -->
   <body class="bgcolor2" background="<?php echo $GLOBALS['backpic']?>" style="margin:5px 0 0 0;">
@@ -1213,7 +1212,7 @@ if ($refresh and $refresh != 'fullscreen') {
               <div id="REFRACTION_sections" name="REFRACTION_sections" class="row nodisplay clear_both">
                 <div id="LayerVision2">
                     <?php ($RXHX == 1) ? ($display_Add = "") : ($display_Add = "nodisplay"); ?>
-                    <div id="LayerVision_RXHX" class="refraction borderShadow old_refractions ui-draggable ui-draggable-handle <?php echo $display_Add; ?>">
+                    <div id="LayerVision_RXHX" class="refraction borderShadow old_refractions  <?php echo $display_Add; ?>">
                         <span title="<?php echo attr('Close this panel and make this a Preference to stay closed'); ?>" class="closeButton fa  fa-close" id="Close_RXHX" name="Close_RXHX"></span>
                         <table class="GFS_table">
                             <tr>
@@ -1894,7 +1893,7 @@ if ($refresh and $refresh != 'fullscreen') {
               <!-- start of the Shorthand Entry Box -->
               <div id="EXAM_KB" name="EXAM_KB" class="kb borderShadow nodisplay">
                 <span class="closeButton fa fa-close" id="CLOSE_kb" name="CLOSE_kb"></span>
-                <span class="BAR2_kb" title="<?php echo xla('Click to display shorthand field names.'); ?>" class="ke"><b><?php echo xlt('Shorthand'); ?></b>
+                <span class="BAR2_kb" title="<?php echo xla('Click to display shorthand field names.'); ?>" class="ke"><b><?php echo xlt('Shorthand 2'); ?></b>
                 </span>
 
                 <a  target="_shorthand" href="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/help.php">

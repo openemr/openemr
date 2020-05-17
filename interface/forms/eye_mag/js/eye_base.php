@@ -3946,12 +3946,11 @@ $("body").on("click","[name^='old_canvas']", function() {
                   $('#left-panel').css("right","0px");
                   $('#EXAM_KB').css({position: 'fixed', top: '29px'});
                   $('#EXAM_KB').css('display', 'block');
-                  $('#EXAM_KB').draggable();
-                  $('#IMP').droppable({ drop: dragto_IMPPLAN } );
-                  $('#IMPPLAN_zone').droppable({ drop: dragto_IMPPLAN_zone } );
-                  $('#IMPPLAN_text').droppable({ drop: dragto_IMPPLAN_zone } );
-
-                  $('[id^="PLANS"]').draggable(  { cursor: 'move', revert: true });
+                  draggable('#EXAM_KB');
+                  //$('#IMP').droppable({ drop: dragto_IMPPLAN } );
+                  //$('#IMPPLAN_zone').droppable({ drop: dragto_IMPPLAN_zone } );
+                  //$('#IMPPLAN_text').droppable({ drop: dragto_IMPPLAN_zone } );
+                  draggable('[id^="PLANS"]');
                   $('[id^="PLAN_"]').height( $(this).scrollHeight );
 
                   /*  Sorting of diagnoses in IMP/PLAN right panel builds IMP_order[] array.
