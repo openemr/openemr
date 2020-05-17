@@ -137,7 +137,7 @@ class FhirPatientServiceTest extends TestCase
         $actualIdentifiers = $fhirPatientResource->getIdentifier();
         $this->assertFhirPatientIdentifier('SS', $sourcePatientRecord['ss'], $actualIdentifiers);
         $this->assertFhirPatientIdentifier('PT', $sourcePatientRecord['pubpid'], $actualIdentifiers);
-        }
+    }
 
     /**
      * @covers ::parseOpenEMRRecord
