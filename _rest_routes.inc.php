@@ -454,3 +454,26 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return (new FhirMedicationRestController(null))->getOne($id);
     }
 );
+
+// Patient portal api routes
+RestConfig::$PORTAL_ROUTE_MAP = array(
+    "POST /portal/auth" => function () {
+        $data = (array) RestConfig::getPostData((file_get_contents("php://input")));
+        return (new AuthRestController())->authenticate($data);
+    },
+    "GET /portal/patient" => function () {
+        return (new PatientRestController())->getOne($_SESSION['pid']);
+    }
+);
+
+// Patient portal fhir api routes
+RestConfig::$PORTAL_FHIR_ROUTE_MAP = array(
+    "POST /portalfhir/auth" => function () {
+        $data = (array) RestConfig::getPostData((file_get_contents("php://input")));
+        return (new AuthRestController())->authenticate($data);
+    },
+    "GET /portalfhir/Patient" => function () {
+        // TODO - Will replace below with working call when it is fixed
+        return (new FhirPatientRestController($_SESSION['pid']))->getOne();
+    }
+);

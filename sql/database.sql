@@ -2547,7 +2547,7 @@ CREATE TABLE `insurance_data` (
   `subscriber_employer_country` varchar(255) default NULL,
   `subscriber_employer_city` varchar(255) default NULL,
   `copay` varchar(255) default NULL,
-  `date` date NOT NULL default '0000-00-00',
+  `date` date NULL,
   `pid` bigint(20) NOT NULL default '0',
   `subscriber_sex` varchar(25) default NULL,
   `accept_assignment` varchar(5) NOT NULL DEFAULT 'TRUE',
@@ -10590,9 +10590,11 @@ CREATE TABLE `login_mfa_registrations` (
 DROP TABLE IF EXISTS `api_token`;
 CREATE TABLE `api_token` (
     `id`           bigint(20) NOT NULL AUTO_INCREMENT,
+    `token_api`    varchar(40),
     `user_id`      bigint(20) NOT NULL,
+    `patient_id`   bigint(20) NOT NULL,
     `token`        varchar(256) DEFAULT NULL,
-    `token_auth` varchar(255),
+    `token_auth`   varchar(255),
     `expiry`       datetime NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;

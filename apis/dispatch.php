@@ -83,11 +83,14 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 
+
 //Extend API using RestApiCreateEvent
-$restApiCreateEvent = new RestApiCreateEvent($gbl::$ROUTE_MAP, $gbl::$FHIR_ROUTE_MAP);
+$restApiCreateEvent = new RestApiCreateEvent($gbl::$ROUTE_MAP, $gbl::$FHIR_ROUTE_MAP, $gbl::$PORTAL_ROUTE_MAP, $gbl::$PORTAL_FHIR_ROUTE_MAP);
 $restApiCreateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiCreateEvent::EVENT_HANDLE, $restApiCreateEvent, 10);
 $gbl::$ROUTE_MAP = $restApiCreateEvent->getRouteMap();
 $gbl::$FHIR_ROUTE_MAP = $restApiCreateEvent->getFHIRRouteMap();
+$gbl::$PORTAL_ROUTE_MAP = $restApiCreateEvent->getPortalRouteMap();
+$gbl::$PORTAL_FHIR_ROUTE_MAP = $restApiCreateEvent->getPortalFHIRRouteMap();
 
 if ($isLocalApi) {
     // need to check for csrf match when using api locally
@@ -109,21 +112,45 @@ if ($isLocalApi) {
     }
 }
 
-if (!$GLOBALS['rest_api'] && !$isLocalApi) {
-    // if the external api is turned off and this is not a local api call, then exit
-    http_response_code(501);
-    exit();
-}
-
 // api flag must be four chars
 // Pass only routes for current api.
-//
+// Also check to ensure route is turned on in globals
 if ($gbl::is_fhir_request($resource)) {
+    if (!$GLOBALS['rest_fhir_api'] && !$isLocalApi) {
+        // if the external fhir api is turned off and this is not a local api call, then exit
+        http_response_code(501);
+        exit();
+    }
     $_SESSION['api'] = 'fhir';
     $routes = $gbl::$FHIR_ROUTE_MAP;
-} else {
+} elseif ($gbl::is_portal_request($resource)) {
+    if (!$GLOBALS['rest_portal_api'] && !$isLocalApi) {
+        // if the external portal api is turned off and this is not a local api call, then exit
+        http_response_code(501);
+        exit();
+    }
+    $_SESSION['api'] = 'port';
+    $routes = $gbl::$PORTAL_ROUTE_MAP;
+} elseif ($gbl::is_portal_fhir_request($resource)) {
+    if (!$GLOBALS['rest_portal_fhir_api'] && !$isLocalApi) {
+        // if the external portal fhir api is turned off and this is not a local api call, then exit
+        http_response_code(501);
+        exit();
+    }
+    $_SESSION['api'] = 'pofh';
+    $routes = $gbl::$PORTAL_FHIR_ROUTE_MAP;
+} elseif ($gbl::is_api_request($resource)) {
+    if (!$GLOBALS['rest_api'] && !$isLocalApi) {
+        // if the external api is turned off and this is not a local api call, then exit
+        http_response_code(501);
+        exit();
+    }
     $_SESSION['api'] = 'oemr';
     $routes = $gbl::$ROUTE_MAP;
+} else {
+    // somebody is up to no good
+    http_response_code(501);
+    exit();
 }
 
 if ($isLocalApi) {
