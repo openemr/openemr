@@ -32,20 +32,31 @@ class FhirPatientServiceTest extends TestCase
         $this->fhirPatientService = new FhirPatientService();
     }
 
+    protected function tearDown(): void
+    {
+        $this->fixtureManager->removePatientFixtures();
+    }
+
     /**
      * Asserts an expected identifier value against an array of patient identifiers
      *
-     * @param $expectedSystem The identifier system to match
-     * @param $expectedValue The expected identifer value
+     * @param $expectedCode The identifier code type code
+     * @param $expectedValue The expected identifer value (value set)
      * @param $actualIdentifiers FHIR Patient identifier entries
      */
-    private function assertFhirPatientIdentifier($expectedSystem, $expectedValue, $actualIdentifiers)
+    private function assertFhirPatientIdentifier($expectedCode, $expectedValue, $actualIdentifiers)
     {
         $matchFound = false;
         foreach ($actualIdentifiers as $index => $actualIdentifier) {
+            if (!isset($actualIdentifier['type']['coding'][0])) {
+                continue;
+            }
+            $codeTypeCode = $actualIdentifier['type']['coding'][0]['code'];
+            $value = $actualIdentifier['value'];
+
             if (
-                $expectedSystem == $actualIdentifier['system'] &&
-                $expectedValue == $actualIdentifier['value']
+                $expectedCode == $codeTypeCode &&
+                $expectedValue == $value
             ) {
                 $matchFound = true;
                 break;
@@ -124,8 +135,9 @@ class FhirPatientServiceTest extends TestCase
         $this->assertFhirPatientTelecom('email', 'home', $sourcePatientRecord['email'], $actualTelecoms);
 
         $actualIdentifiers = $fhirPatientResource->getIdentifier();
-        $this->assertFhirPatientIdentifier('http://hl7.org/fhir/sid/us-ssn', $sourcePatientRecord['ss'], $actualIdentifiers);
-    }
+        $this->assertFhirPatientIdentifier('SS', $sourcePatientRecord['ss'], $actualIdentifiers);
+        $this->assertFhirPatientIdentifier('PT', $sourcePatientRecord['pubpid'], $actualIdentifiers);
+        }
 
     /**
      * @covers ::parseOpenEMRRecord
@@ -161,6 +173,30 @@ class FhirPatientServiceTest extends TestCase
         }
         return $matchingEntries;
     }
+
+    /**
+     * Searches a FHIR R4 Patient resource for an identifier code value.
+     * @param $fhirPatientResource The FHIR Patient resource to search
+     * @param $fhirCodeType The code to lookup
+     * @return the code value if found, otherwise null
+     */
+    private function findIdentiferCodeValue($fhirPatientResource, $fhirCodeType)
+    {
+        $codeValue = null;
+
+        foreach ($fhirPatientResource['identifier'] as $index => $identifier) {
+            if (!isset($identifier['type']['coding'][0])) {
+                continue;
+            }
+
+            $identifierCodeType = $identifier['type']['coding'][0]['code'];
+            if ($identifierCodeType === $fhirCodeType) {
+                $codeValue = $identifier['value'];
+                break;
+            }
+        }
+        return $codeValue;
+    }
     /**
      * @covers ::parseFhirResource
      */
@@ -186,8 +222,11 @@ class FhirPatientServiceTest extends TestCase
         $sex = $this->fhirPatientFixture['gender'];
         $this->assertEquals($sex, $actualResult['sex']);
 
-        $ss = $this->fhirPatientFixture['identifier'][0]['value'];
+        $ss = $this->findIdentiferCodeValue($this->fhirPatientFixture, 'SS');
         $this->assertEquals($ss, $actualResult['ss']);
+
+        $pubpid = $this->findIdentiferCodeValue($this->fhirPatientFixture, 'PT');
+        $this->assertEquals($pubpid, $actualResult['pubpid']);
 
         $address = $this->fhirPatientFixture['address'][0];
 
@@ -221,6 +260,70 @@ class FhirPatientServiceTest extends TestCase
     }
 
     /**
+     * @covers ::insert
+     * @covers ::insertOpenEMRRecord
+     */
+    public function testInsert()
+    {
+        $this->markTestSkipped();
+        // $processResult = $this->fhirPatientService->insert($this->fhirPatientFixture);
+    }
+
+    /**
+     * @covers ::insert
+     * @covers ::insertOpenEMRRecord
+     */
+    public function testInsertWithErrors()
+    {
+        $this->markTestSkipped();
+    }
+
+    /**
+     * @covers ::update
+     * @covers ::updateOpenEMRRecord
+     */
+    public function testUpdate()
+    {
+        $this->markTestSkipped();
+    }
+
+    /**
+     * @covers ::update
+     * @covers ::updateOpenEMRRecord
+     */
+    public function testUpdateWithErrors()
+    {
+        $this->markTestSkipped();
+    }
+
+    /**
+     * @covers ::getOne
+     */
+    public function testGetOne()
+    {
+        $this->expectException(\Exception::class);
+        $this->fhirPatientService->getOne("a-fhir-resource-id");
+    }
+
+    /**
+     * @covers ::mapSearchParameters
+     */
+    public function testMapSearchParameters()
+    {
+        $this->markTestSkipped();
+    }
+
+    /**
+     * @covers ::getAll
+     * @covers ::searchForOpenEMRRecords
+     */
+    public function testSearchForOpenEMRRecords()
+    {
+        $this->markTestSkipped();
+    }
+
+
+    /**
      * Utility function used to generate resources used as "FHIR Patient Fixtures"
      */
     public function generateFhirPatientFixtures()
@@ -229,7 +332,7 @@ class FhirPatientServiceTest extends TestCase
         
         foreach ($patientFixtures as $index => $patientFixture) {
             var_dump('-----------');
-            $actualResult = $this->fhirPatientService->parseOpenEMRRecord($this->patientFixture, true);
+            $actualResult = $this->fhirPatientService->parseOpenEMRRecord($patientFixture, true);
             var_dump($actualResult);
             var_dump('-----------');
         }

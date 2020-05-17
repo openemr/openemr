@@ -168,6 +168,23 @@ class FhirPatientService extends FhirServiceBase
             $patientResource->addIdentifier($fhirIdentifier);
         }
 
+        if (isset($data['pubpid'])) {
+            $fhirIdentifier = [
+                'use' => 'official',
+                'type' => [
+                    'coding' => [
+                        [
+                            'system' => 'http://terminology.hl7.org/CodeSystem/v2-0203',
+                            'code' => 'PT'
+                        ]
+                    ]
+                ],
+                'system' => 'http:\\terminology.hl7.org\ValueSet\v2-0203',
+                'value' => $data['pubpid']
+            ];
+            $patientResource->addIdentifier($fhirIdentifier);
+        }
+
         if ($encode) {
             return json_encode($patientResource);
         } else {
@@ -255,9 +272,18 @@ class FhirPatientService extends FhirServiceBase
         }
 
         foreach ($fhirJson['identifier'] as $index => $identifier) {
-            if (strpos($identifier['system'], 'us-ssn') !== false && isset($identifier['value'])) {
-                $data['ss'] = $identifier['value'];
-                break;
+            if (!isset($identifier['type']['coding'][0])) {
+                continue;
+            }
+
+            $code = $identifier['type']['coding'][0]['code'];
+            switch ($code) {
+                case 'SS':
+                    $data['ss'] = $identifier['value'];
+                    break;
+                case 'PT':
+                    $data['pubpid'] = $identifier['value'];
+                    break;
             }
         }
         return $data;
@@ -273,7 +299,7 @@ class FhirPatientService extends FhirServiceBase
 
     public function getOne($fhirResourceId)
     {
-        return array();
+        throw new \Exception("not implemented");
     }
 
     public function mapSearchParameters($fhirSearchParameters)
