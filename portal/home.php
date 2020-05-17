@@ -517,7 +517,7 @@ foreach ($msgs as $i) {
                                     echo '<div class="card p-2">';
                                     $mode = (int)$row['pc_recurrtype'] > 0 ? text("recurring") : $row['pc_recurrtype'];
                                     $appt_type_icon = (int)$row['pc_recurrtype'] > 0 ? "<i class='float-right fa fa-edit text-danger bg-light'></i>" : "<i class='float-right fa fa-edit text-success bg-light'></i>";
-                                    echo "<div class='card-header clearfix'><a href='#' onclick='editAppointment(" . attr_js($mode) . "," . attr_js($row ['pc_eid']) . ")'" . "title='" . attr($etitle) . "'>" . $appt_type_icon . "</a></div>";
+                                    echo "<div class='card-header clearfix'><a href='#' onclick='editAppointment(" . attr_js($mode) . "," . attr_js($row ['pc_eid']) . ")'" . " title='" . attr($etitle) . "'>" . $appt_type_icon . "</a></div>";
                                     echo "<div class='body font-weight-bold'><p>" . text($dayname . ", " . $row ['pc_eventDate']) . "&nbsp;";
                                     echo text($disphour . ":" . $dispmin . " " . $dispampm) . "<br />";
                                     echo xlt("Type") . ": " . text($row ['pc_catname']) . "<br />";
@@ -531,12 +531,11 @@ foreach ($msgs as $i) {
                             } else { // if no appts
                                 echo "<h3 class='text-center'>" . xlt('No Appointments') . "</h3>";
                             }
-                                echo '</div>'; ?>
+                            echo '</div>'; ?>
                             <span><a class='btn btn-primary btn-block' href='#' onclick="editAppointment('add',<?php echo attr_js($pid); ?>)"><?php echo xlt('Schedule A New Appointment'); ?></a>
                             </span>
                         </div>
                     </div><!-- /.row -->
-                </div>
                     <?php
                 } ?>
                     <?php if ($GLOBALS['portal_two_payments']) {

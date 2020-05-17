@@ -27,8 +27,8 @@
 //
 // +------------------------------------------------------------------------------+
 
-require_once(dirname(__FILE__) . '/calendar.inc');
-require_once(dirname(__FILE__) . '/patient_tracker.inc.php');
+require_once(__DIR__ . '/calendar.inc');
+require_once(__DIR__ . '/patient_tracker.inc.php');
 
 
 //===============================================================================
@@ -99,6 +99,7 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
     $facility = $tmprow['facility'];
     $facility_id = $fac_id ? (int)$fac_id : $tmprow['facility_id'];
     $billing_facility = $billing_fac ? (int)$billing_fac : $tmprow['facility_id'];
+    $pos_code = sqlQuery("SELECT pos_code FROM facility WHERE id = ?", array($facility_id))['pos_code'];
     $visit_cat = $cat ? $cat : '(NULL)';
     $conn = $GLOBALS['adodb']['db'];
     $encounter = $conn->GenID("sequences");
@@ -115,8 +116,9 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
             "provider_id = ?, " .
             "pid = ?, " .
             "encounter = ?," .
-            "pc_catid = ?",
-            array($dos,$visit_reason,$facility,$facility_id,$billing_facility,$visit_provider,$patient_id,$encounter,$visit_cat)
+            "pc_catid = ?," .
+            "pos_code = ?",
+            array($dos,$visit_reason,$facility,$facility_id,$billing_facility,$visit_provider,$patient_id,$encounter,$visit_cat, $pos_code)
         ),
         "newpatient",
         $patient_id,
