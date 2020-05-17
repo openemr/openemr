@@ -699,6 +699,11 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
         $('#sensitivity-tooltip').attr({"title": <?php echo xlj('If set as high will restrict visibility of encounter to users belonging to certain groups (AROs). By default - Physicians and Administrators'); ?>, "data-toggle": "tooltip", "data-placement": "bottom"}).tooltip();
         $('#onset-tooltip').attr({"title": <?php echo xlj('Hospital date needed for successful billing of hospital encounters'); ?>, "data-toggle": "tooltip", "data-placement": "bottom"}).tooltip();
     });
+
 </script>
+
+<?php if (!empty($GLOBALS['text_templates_enabled'])) { ?>
+    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
+<?php } ?>
 </body>
 </html>

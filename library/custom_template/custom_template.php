@@ -23,7 +23,7 @@
 //
 // Author:   Eldho Chacko <eldho@zhservices.com>
 //           Jacob T Paul <jacob@zhservices.com>
-//           Jerry Padgett <sjpadgett@gmail.com> 2019
+//           Jerry Padgett <sjpadgett@gmail.com> 2019-2020
 //
 // +------------------------------------------------------------------------------+
 
@@ -43,7 +43,7 @@ function listitemCode($strDisp, $strInsert)
     }
 }
 $allowTemplateWarning = checkUserSetting('disable_template_warning', '1') === true ? 0 : 1;
-$contextName = !empty($_GET['contextName']) ? $_GET['contextName'] : 'Plan';
+$contextName = !empty($_GET['contextName']) ? $_GET['contextName'] : '';
 $type = isset($_GET['type']) ? $_GET['type'] : '';
 $cc_flag = isset($_GET['ccFlag']) ? $_GET['ccFlag'] : '';
 $isNN = empty($cc_flag) ? 1 : 0;
@@ -169,7 +169,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
 <input type="hidden" name="list_id" id="list_id" value="<?php echo $rowContext['cl_list_id']; ?>" />
 <table class="ml-0 w-100" align='left' cellpadding='0' cellspacing='0'>
     <?php
-    if ($rowContext['cl_list_item_long']) {
+    if ($rowContext['cl_list_item_long'] || !$isNN) {
         ?>
         <tr class="text">
             <th colspan="2" align="center"><?php echo strtoupper(text($rowContext['cl_list_item_long'])); ?></th>
@@ -301,6 +301,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
         <?php
     } else {
         echo htmlspecialchars(xl('NO SUCH CONTEXT NAME') . $contextName, ENT_QUOTES);
+        exit();
     }
     ?>
 </table>
@@ -309,7 +310,9 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
         <?php if (!$isNN) { ?>
             CKEDITOR.on('instanceReady', function(){$("#cke_1_toolbar_collapser").click();});
         <?php } ?>
-        edit(<?php echo js_escape($type); ?>, <?php echo js_escape($cc_flag); ?>);
+        $(function () {
+            edit(<?php echo js_escape($type); ?>, <?php echo js_escape($cc_flag); ?>);
+        });
         <?php if ($allowTemplateWarning && !$isNN) { ?>
         let isPromise = top.jsFetchGlobals('custom_template');
         isPromise.then(msg => {
