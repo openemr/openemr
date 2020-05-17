@@ -1191,7 +1191,7 @@ function newInsuranceData(
     $subscriber_employer_country = "",
     $copay = "",
     $subscriber_sex = "",
-    $effective_date = "0000-00-00",
+    $effective_date = null,
     $accept_assignment = "TRUE",
     $policy_type = ""
 ) {
@@ -1200,9 +1200,9 @@ function newInsuranceData(
         return false;
     }
 
-    // If empty dates were passed, then zero them.
+    // If empty dates were passed, then null.
     if (empty($effective_date)) {
-        $effective_date = '0000-00-00';
+        $effective_date = null;
     }
     if (empty($subscriber_DOB)) {
         $subscriber_DOB = '0000-00-00';
@@ -1227,9 +1227,12 @@ function newInsuranceData(
             if (!$idrow['provider'] && !sqlFetchArray($idres)) {
                 $replace = true;
             } else {
+                if (empty($effective_date)) {
+                    $temp_effective_date = "0000-00-00";
+                }
                 $ferow = sqlQuery("SELECT count(*) AS count FROM form_encounter " .
                 "WHERE pid = ? AND date < ? AND " .
-                "date >= ?", array($pid, $effective_date . " 00:00:00", $idrow['date'] . " 00:00:00"));
+                "date >= ?", array($pid, $temp_effective_date . " 00:00:00", $idrow['date'] . " 00:00:00"));
                 if ($ferow['count'] == 0) {
                     $replace = true;
                 }
@@ -1278,37 +1281,68 @@ function newInsuranceData(
         updateInsuranceData($idrow['id'], $data);
         return $idrow['id'];
     } else {
-        return sqlInsert("INSERT INTO insurance_data SET
-      type = '" . add_escape_custom($type) . "',
-      provider = '" . add_escape_custom($provider) . "',
-      policy_number = '" . add_escape_custom($policy_number) . "',
-      group_number = '" . add_escape_custom($group_number) . "',
-      plan_name = '" . add_escape_custom($plan_name) . "',
-      subscriber_lname = '" . add_escape_custom($subscriber_lname) . "',
-      subscriber_mname = '" . add_escape_custom($subscriber_mname) . "',
-      subscriber_fname = '" . add_escape_custom($subscriber_fname) . "',
-      subscriber_relationship = '" . add_escape_custom($subscriber_relationship) . "',
-      subscriber_ss = '" . add_escape_custom($subscriber_ss) . "',
-      subscriber_DOB = '" . add_escape_custom($subscriber_DOB) . "',
-      subscriber_street = '" . add_escape_custom($subscriber_street) . "',
-      subscriber_postal_code = '" . add_escape_custom($subscriber_postal_code) . "',
-      subscriber_city = '" . add_escape_custom($subscriber_city) . "',
-      subscriber_state = '" . add_escape_custom($subscriber_state) . "',
-      subscriber_country = '" . add_escape_custom($subscriber_country) . "',
-      subscriber_phone = '" . add_escape_custom($subscriber_phone) . "',
-      subscriber_employer = '" . add_escape_custom($subscriber_employer) . "',
-      subscriber_employer_city = '" . add_escape_custom($subscriber_employer_city) . "',
-      subscriber_employer_street = '" . add_escape_custom($subscriber_employer_street) . "',
-      subscriber_employer_postal_code = '" . add_escape_custom($subscriber_employer_postal_code) . "',
-      subscriber_employer_state = '" . add_escape_custom($subscriber_employer_state) . "',
-      subscriber_employer_country = '" . add_escape_custom($subscriber_employer_country) . "',
-      copay = '" . add_escape_custom($copay) . "',
-      subscriber_sex = '" . add_escape_custom($subscriber_sex) . "',
-      pid = '" . add_escape_custom($pid) . "',
-      date = '" . add_escape_custom($effective_date) . "',
-      accept_assignment = '" . add_escape_custom($accept_assignment) . "',
-      policy_type = '" . add_escape_custom($policy_type) . "'
-    ");
+        return sqlInsert(
+            "INSERT INTO `insurance_data` SET `type` = ?,
+            `provider` = ?,
+            `policy_number` = ?,
+            `group_number` = ?,
+            `plan_name` = ?,
+            `subscriber_lname` = ?,
+            `subscriber_mname` = ?,
+            `subscriber_fname` = ?,
+            `subscriber_relationship` = ?,
+            `subscriber_ss` = ?,
+            `subscriber_DOB` = ?,
+            `subscriber_street` = ?,
+            `subscriber_postal_code` = ?,
+            `subscriber_city` = ?,
+            `subscriber_state` = ?,
+            `subscriber_country` = ?,
+            `subscriber_phone` = ?,
+            `subscriber_employer` = ?,
+            `subscriber_employer_city` = ?,
+            `subscriber_employer_street` = ?,
+            `subscriber_employer_postal_code` = ?,
+            `subscriber_employer_state` = ?,
+            `subscriber_employer_country` = ?,
+            `copay` = ?,
+            `subscriber_sex` = ?,
+            `pid` = ?,
+            `date` = ?,
+            `accept_assignment` = ?,
+            `policy_type` = ?",
+            [
+                $type,
+                $provider,
+                $policy_number,
+                $group_number,
+                $plan_name,
+                $subscriber_lname,
+                $subscriber_mname,
+                $subscriber_fname,
+                $subscriber_relationship,
+                $subscriber_ss,
+                $subscriber_DOB,
+                $subscriber_street,
+                $subscriber_postal_code,
+                $subscriber_city,
+                $subscriber_state,
+                $subscriber_country,
+                $subscriber_phone,
+                $subscriber_employer,
+                $subscriber_employer_city,
+                $subscriber_employer_street,
+                $subscriber_employer_postal_code,
+                $subscriber_employer_state,
+                $subscriber_employer_country,
+                $copay,
+                $subscriber_sex,
+                $pid,
+                $effective_date,
+                $accept_assignment,
+                $policy_type
+            ]
+        );
     }
 }
 
@@ -1324,14 +1358,17 @@ function updateInsuranceData($id, $new)
         }
     }
 
+    $sqlBindArray = [];
     $sql = "UPDATE insurance_data SET ";
     foreach ($use as $key => $value) {
-        $sql .= "`$key` = '" . add_escape_custom($value) . "', ";
+        $sql .= "`" . $key . "` = ?, ";
+        array_push($sqlBindArray, $value);
     }
 
-    $sql = substr($sql, 0, -2) . " WHERE id = '" . add_escape_custom($id) . "'";
+    $sql = substr($sql, 0, -2) . " WHERE id = ?";
+    array_push($sqlBindArray, $id);
 
-    sqlStatement($sql);
+    sqlStatement($sql, $sqlBindArray);
 }
 
 function newHistoryData($pid, $new = false)
