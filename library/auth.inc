@@ -35,7 +35,7 @@ if (
     // set language direction according to language choice. Later in globals.php we'll override main theme name if needed.
     $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']);
 
-    if (!(new AuthUtils('login'))->confirmUserPassword($_POST['authUser'], $_POST['clearPass'])) {
+    if (!(new AuthUtils('login'))->confirmPassword($_POST['authUser'], $_POST['clearPass'])) {
         // login attempt failed
         $_SESSION['loginfailure'] = 1;
         authLoginScreen();

@@ -507,3 +507,11 @@ SET sql_mode = '';
 UPDATE `onsite_documents` SET `review_date` = NULL WHERE `review_date` = '0000-00-00 00:00:00';
 SET sql_mode = @currentSQLMode;
 #EndIf
+
+#IfMissingColumn api_token token_api
+ALTER TABLE `api_token` ADD `token_api` varchar(40);
+#EndIf
+
+#IfMissingColumn api_token patient_id
+ALTER TABLE `api_token` ADD `patient_id` bigint(20) NOT NULL;
+#EndIf
