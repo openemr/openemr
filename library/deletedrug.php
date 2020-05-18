@@ -26,6 +26,6 @@ if (isset($id)) {
         sqlQuery($sql, [$id]);
         echo xlt("Done");
     } catch(Exception $e) {
-        echo 'Error Message: ' .$e->getMessage();
+        echo 'Error Message: ' .text($e->getMessage());
     }
 }

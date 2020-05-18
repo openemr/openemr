@@ -87,14 +87,15 @@ function deleteDrug(d) {
     let isPromise = top.jsFetchGlobals('e_rx');
     isPromise.then(
         msg => {
+            top.restoreSession();
             alert('msg.e_rx.deleteWarn');
             if (choice == true) {
                 $.ajax({
-                    url: "./library/deleteDrug.php",
+                    url: "./library/deletedrug.php",
                     type: 'POST',
                     data: {
                         drugId: d,
-                        csrf_token_form: {$CSRF_TOKEN_FORM}
+                        csrf_token_form: {$CSRF_TOKEN_FORM|js_escape}
                     },
                     success: function(data) {
                         console.log(data);
