@@ -703,7 +703,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 </script>
 
 <?php if (!empty($GLOBALS['text_templates_enabled'])) { ?>
-    <script type="text/javascript" src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
+    <script src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
 <?php } ?>
 </body>
 </html>
