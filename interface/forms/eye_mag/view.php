@@ -448,7 +448,7 @@ if ($refresh and $refresh != 'fullscreen') {
                       <!-- start    QP_HPI_Build -->
                       <div id="QP_HPI" name="QP_HPI" class="QP_class left">
                         <div id="HPI_text_list" name="HPI_text_list">
-                          <span class="closeButton fa fa-close float-right z100" id="BUTTON_TEXTD_HPI" name="BUTTON_TEXTD_HPI" value="1"></span>
+                          <span class="closeButton fas fa-times float-right z100" id="BUTTON_TEXTD_HPI" name="BUTTON_TEXTD_HPI" value="1"></span>
                           <b><?php echo xlt('HPI Elements'); ?>:</b> <br />
                           <div id="tabs_wrapper" >
                             <div id="tabs_container">
@@ -727,7 +727,7 @@ if ($refresh and $refresh != 'fullscreen') {
                       <a class="nodisplay left_PMSFH_tab" id="right-panel-link" href="#right-panel">
                         <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/PMSFHx.png">
                       </a>
-                      <span class="fa fa-close float-right closeButton" id="BUTTON_TEXTD_PMH" name="BUTTON_TEXTD_PMH" value="1"></span>
+                      <span class="fas fa-times float-right closeButton" id="BUTTON_TEXTD_PMH" name="BUTTON_TEXTD_PMH" value="1"></span>
                         <?php display_draw_section("PMH", $encounter, $pid); ?>
                       <div id="QP_PMH" name="QP_PMH" class="QP_class" style="max-height:100%">
                         <?php echo display_PRIOR_section("PMSFH", $id, $id, $pid); ?>
@@ -1213,7 +1213,7 @@ if ($refresh and $refresh != 'fullscreen') {
                 <div id="LayerVision2">
                     <?php ($RXHX == 1) ? ($display_Add = "") : ($display_Add = "nodisplay"); ?>
                     <div id="LayerVision_RXHX" class="refraction borderShadow old_refractions  <?php echo $display_Add; ?>">
-                        <span title="<?php echo attr('Close this panel and make this a Preference to stay closed'); ?>" class="closeButton fa  fa-close" id="Close_RXHX" name="Close_RXHX"></span>
+                        <span title="<?php echo attr('Close this panel and make this a Preference to stay closed'); ?>" class="closeButton fas fa-times" id="Close_RXHX" name="Close_RXHX"></span>
                         <table class="GFS_table">
                             <tr>
                                 <th class="text-center"><?php echo xlt('Prior Refractions'); ?></th>
@@ -1251,9 +1251,9 @@ if ($refresh and $refresh != 'fullscreen') {
                   <div id="LayerVision_W" class="<?php echo $display_W; ?> ">
                     <input type="hidden" id="W_1" name="W_1" value="1">
                     <div id="LayerVision_W_1" name="currentRX" class="refraction current_W borderShadow <?php echo $display_W_width; ?>">
-                      <i class="closeButton fa fa-close" id="Close_W_1" name="Close_W_1"
+                      <i class="closeButton fas fa-times" id="Close_W_1" name="Close_W_1"
                         title="<?php echo xla('Close All Current Rx Panels and make this a Preference to stay closed'); ?>"></i>
-                      <i class="closeButton_2 fa fa-arrows-h " id="W_width_display_1" name="W_width_display"
+                      <i class="closeButton_2 fa fas fa-arrows-alt " id="W_width_display_1" name="W_width_display"
                         title="<?php echo xla("Rx Details"); ?>" ></i>
                       <i onclick="top.restoreSession();  doscript('W','<?php echo attr($pid); ?>','<?php echo attr($encounter); ?>','1'); return false;"
                         title="<?php echo xla("Dispense this Rx"); ?>" class="closeButton_3 fa fa-print"></i>
@@ -1404,7 +1404,7 @@ if ($refresh and $refresh != 'fullscreen') {
                     <i onclick="top.restoreSession();  dispensed('<?php echo attr($pid); ?>');return false;"
                      title="<?php echo xla("List of previously dispensed Spectacle and Contact Lens Rxs"); ?>" class="closeButton_3 fa fa-list-ul"></i>
                     <span class="closeButton_2 fa fa-print" title="<?php echo xla('Dispense this Rx'); ?>" onclick="top.restoreSession();doscript('MR',<?php echo attr($pid); ?>,<?php echo attr($encounter); ?>);return false;"></span>
-                    <span class="closeButton fa  fa-close" id="Close_MR" name="Close_MR" title="<?php echo xla('Close this panel and make this a Preference to stay closed'); ?>"></span>
+                    <span class="closeButton fas fa-times" id="Close_MR" name="Close_MR" title="<?php echo xla('Close this panel and make this a Preference to stay closed'); ?>"></span>
                     <table id="dry_wet_refraction">
                       <th colspan="5"><?php echo xlt('Manifest (Dry) Refraction'); ?></th>
                       <th NOWRAP colspan="2">
@@ -1507,7 +1507,7 @@ if ($refresh and $refresh != 'fullscreen') {
                     <?php ($CR == 1)  ? ($display_Cyclo = "") : ($display_Cyclo = "nodisplay"); ?>
                   <div id="LayerVision_CR" class="refraction autoref borderShadow <?php echo $display_Cyclo; ?>">
                     <i title="<?php echo xla('Dispense this Rx'); ?>" class="closeButton_2 fa fa-print" onclick="top.restoreSession();doscript('AR',<?php echo attr($pid); ?>,<?php echo attr($encounter); ?>);return false;"></i>
-                    <span title="<?php echo xla('Close this panel and make this a Preference to stay closed'); ?>" class="closeButton fa  fa-close" id="Close_CR" name="Close_CR"></span>
+                    <span title="<?php echo xla('Close this panel and make this a Preference to stay closed'); ?>" class="closeButton fas fa-times" id="Close_CR" name="Close_CR"></span>
                     <table id="autorefraction">
                       <th colspan="9"><?php echo xlt('Auto Refraction'); ?></th>
                       <tr>
@@ -1555,7 +1555,7 @@ if ($refresh and $refresh != 'fullscreen') {
                       <i onclick="top.restoreSession();  dispensed('<?php echo attr($pid); ?>');return false;"
                          title="<?php echo xla("List of previously dispensed Spectacle and Contact Lens Rxs"); ?>" class="closeButton_3 fa fa-list-ul"></i>
                       <i title="<?php echo xla('Dispense this RX'); ?>" class="closeButton_2 fa fa-print" onclick="top.restoreSession();doscript('CTL',<?php echo attr($pid); ?>,<?php echo attr($encounter); ?>);return false;"></i>
-                    <span title="<?php echo xla('Close this panel and make this a Preference to stay closed'); ?>" class="closeButton fa  fa-close" id="Close_CTL" name="Close_CTL"></span>
+                    <span title="<?php echo xla('Close this panel and make this a Preference to stay closed'); ?>" class="closeButton fas fa-times" id="Close_CTL" name="Close_CTL"></span>
                     <table id="CTL">
                       <th colspan="9"><?php echo xlt('Contact Lens Refraction'); ?></th>
                       <tr>
@@ -1730,7 +1730,7 @@ if ($refresh and $refresh != 'fullscreen') {
 
                     <?php ($ADDITIONAL == 1) ? ($display_Add = "") : ($display_Add = "nodisplay"); ?>
                   <div id="LayerVision_ADDITIONAL" class="refraction borderShadow <?php echo $display_Add; ?>">
-                    <span title="<?php echo xla('Close and make this a Preference to stay closed'); ?>" class="closeButton fa  fa-close" id="Close_ADDITIONAL" name="Close_ADDITIONAL"></span>
+                    <span title="<?php echo xla('Close and make this a Preference to stay closed'); ?>" class="closeButton fas fa-times" id="Close_ADDITIONAL" name="Close_ADDITIONAL"></span>
 
                     <table id="Additional">
                       <th colspan=9><?php echo xlt('Additional Data Points'); ?></th>
@@ -1797,7 +1797,7 @@ if ($refresh and $refresh != 'fullscreen') {
 
                     <?php ($VAX == 1) ? ($display_Add = "") : ($display_Add = "nodisplay"); ?>
                   <div id="LayerVision_VAX" class="refraction borderShadow <?php echo $display_Add; ?>">
-                    <span title="<?php echo attr('Close this panel and make this a Preference to stay closed'); ?>" class="closeButton fa  fa-close" id="Close_VAX" name="Close_VAX"></span>
+                    <span title="<?php echo attr('Close this panel and make this a Preference to stay closed'); ?>" class="closeButton fas fa-times" id="Close_VAX" name="Close_VAX"></span>
                     <table id="Additional_VA">
                       <tr>
                           <th colspan="9"><?php echo xlt('Visual Acuity'); ?></th>
@@ -1892,7 +1892,7 @@ if ($refresh and $refresh != 'fullscreen') {
 
               <!-- start of the Shorthand Entry Box -->
               <div id="EXAM_KB" name="EXAM_KB" class="kb borderShadow nodisplay">
-                <span class="closeButton fa fa-close" id="CLOSE_kb" name="CLOSE_kb"></span>
+                <span class="closeButton fas fa-times" id="CLOSE_kb" name="CLOSE_kb"></span>
                 <span class="BAR2_kb" title="<?php echo xla('Click to display shorthand field names.'); ?>" class="ke"><b><?php echo xlt('Shorthand 2'); ?></b>
                 </span>
 
@@ -2064,7 +2064,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <div id="QP_EXT" name="QP_EXT" class="QP_class">
                               <input type="hidden" id="EXT_prefix" name="EXT_prefix" value="<?php echo attr($EXT_prefix); ?>">
 
-                              <span class="closeButton fa fa-close float-right z100" id="BUTTON_TEXTD_EXT" name="BUTTON_TEXTD_EXT" value="1"></span>
+                              <span class="closeButton fas fa-times float-right z100" id="BUTTON_TEXTD_EXT" name="BUTTON_TEXTD_EXT" value="1"></span>
                               <div class="qp10">
                                   <span class="eye_button eye_button_selected" id="EXT_prefix_off" name="EXT_prefix_off" onclick="$('#EXT_prefix').val('').trigger('change');"><?php echo xlt('Off'); ?></span>
                                   <span class="eye_button" id="EXT_defaults" name="EXT_defaults"><?php echo xlt('Defaults'); ?></span>
@@ -2316,7 +2316,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <div class="QP_block borderShadow text_clinical " >
                             <?php echo $QP_ANTSEG = display_QP("ANTSEG", $provider_id); ?>
                           </div>
-                          <span class="closeButton fa fa-close float-right z100" id="BUTTON_TEXTD_ANTSEG" name="BUTTON_TEXTD_ANTSEG"></span>
+                          <span class="closeButton fas fa-times float-right z100" id="BUTTON_TEXTD_ANTSEG" name="BUTTON_TEXTD_ANTSEG"></span>
                       </div>
                   </div>
                 </div>
@@ -2482,7 +2482,7 @@ if ($refresh and $refresh != 'fullscreen') {
                       <div class="QP_block borderShadow text_clinical" >
                         <?php echo $QP_RETINA = display_QP("RETINA", $provider_id); ?>
                       </div>
-                      <span class="closeButton fa fa-close float-right z100" id="BUTTON_TEXTD_RETINA" name="BUTTON_TEXTD_RETINA" value="1"></span>
+                      <span class="closeButton fas fa-times float-right z100" id="BUTTON_TEXTD_RETINA" name="BUTTON_TEXTD_RETINA" value="1"></span>
                     </div>
                   </div>
                 </div>
@@ -3282,7 +3282,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <span class="eye_button" id="NEURO_value_40" name="NEURO_value"  onclick="$('#NEURO_value').val('40').trigger('change');">40</span>
                         </div>
                       </div>
-                      <span class="closeButton fa fa-close float-right z100" id="BUTTON_TEXTD_NEURO" name="BUTTON_TEXTD_NEURO" value="1"></span>
+                      <span class="closeButton fas fa-times float-right z100" id="BUTTON_TEXTD_NEURO" name="BUTTON_TEXTD_NEURO" value="1"></span>
                     </div>
                   </div>
                 </div>
@@ -3315,8 +3315,8 @@ if ($refresh and $refresh != 'fullscreen') {
                                   echo '</span><ol>';
                                   echo '<li>' . xlt('Manually type into the New DX box above.') . '<br />' . xlt('The *Tab* key creates each entry.') . '</li>';
                                   echo '<span class"bold" style="margin-left:-5px;">' . xlt('or utilize the Impression/Plan Builder') . '</span>';
-                                  echo '<li>' . xlt('Drag a DX over by its handle') . ':&nbsp;<i class="fa fa-arrows"></i></li>';
-                                  echo '<li>' . xlt('Double click on a DX\'s handle') . ':&nbsp;<i class="fa fa-arrows"></i></li>';
+                                  echo '<li>' . xlt('Drag a DX over by its handle') . ':&nbsp;<i class="fas fa-arrows-alt"></i></li>';
+                                  echo '<li>' . xlt('Double click on a DX\'s handle') . ':&nbsp;<i class="fas fa-arrows-alt"></i></li>';
                                   echo '<li>' . xlt('Multi-select desired DX(s) and click the') . ' <i class="fa fa-reply"></i> ' . xlt('icon') . '</li>';
                                   echo '</ol>';
                                 ?>
@@ -3347,7 +3347,7 @@ if ($refresh and $refresh != 'fullscreen') {
                           <div id="IP_P_1">
                                 <?php echo $selector = priors_select("IMPPLAN", $id, $id, $pid); ?>
                           </div>
-                          <span class="closeButton fa fa-close float-right z100" id="BUTTON_TEXTD_IMPPLAN" name="BUTTON_TEXTD_IMPPLAN" value="1"></span>
+                          <span class="closeButton fas fa-times float-right z100" id="BUTTON_TEXTD_IMPPLAN" name="BUTTON_TEXTD_IMPPLAN" value="1"></span>
                           <br />
                             <?php
                               /*
@@ -4190,7 +4190,7 @@ if ($refresh and $refresh != 'fullscreen') {
         <span class="fa fa-database" id="PANEL_QP" name="PANEL_QP" style="margin:2px;"></span>
         <span class="fa fa-paint-brush" id="PANEL_DRAW" name="PANEL_DRAW" style="margin:2px;"></span>
         <span class="fa fa-user-md fa-sm" style="margin:2px;" name="Shorthand_kb"></span>
-        <span class="fa fa-close" id="close-panel-bt" style="margin:2px;"></span>
+        <span class="fas fa-times" id="close-panel-bt" style="margin:2px;"></span>
       </div>
       <div id="right_panel_refresh" data-role="panel" name="right_panel_refresh">
         <?php

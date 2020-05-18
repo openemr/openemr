@@ -1253,7 +1253,7 @@ function build_DX_list(obj) {
                   $('#make_new_IMP').trigger('click'); //any items selected are sent to IMPPLAN directly.
                   })
             //this places the handle for the user to drag the item around.
-        .prepend( "<div class='handle '><i class='fa fa-arrows fa-1'></i></div>" );
+        .prepend( "<div class='handle '><i class='fas fa-arrows-alt fa-1'></i></div>" );
     } else {
         out = '<br /><span class="bold"><?php echo xlt("Build Your Plan") . "."; ?></span><br /><br />';
         out += '<?php echo xlt('Suggestions for the Imp/Plan are built from the Exam, the Past Ocular History (POH and POS) and the Past Medical History (PMH)') . "."; ?><br />';
@@ -1394,7 +1394,7 @@ function build_IMPPLAN(items,nodisplay) {
                "' style='width:100%;max-width:100%;height:auto;min-height:3em;overflow-y: hidden;padding-top: 1.1em; '>"+
                value.plan +"</textarea><br /></li>";
                $('#IMPPLAN_zone').append('<div id="IMPPLAN_zone_'+index+'" class="IMPPLAN_class">'+
-                                         '<i class="float-right fa fa-close" id="BUTTON_IMPPLAN_'+index+'"></i>'+
+                                         '<i class="float-right fas fa-times" id="BUTTON_IMPPLAN_'+index+'"></i>'+
                                          contents_here+'</div>');
                $('#BUTTON_IMPPLAN_'+index).on('click', function() {//delete/close icon
                                                  var item = this.id.match(/BUTTON_IMPPLAN_(.*)/)[1];
