@@ -484,11 +484,27 @@ UPDATE `drugs` SET `last_notify` = NULL WHERE `last_notify` = '0000-00-00';
 SET sql_mode = @currentSQLMode;
 #EndIf
 
-#IfNotColumnTypeDefault insurance_data date NULL
+#IfNotColumnTypeDefault insurance_data date date NULL
 ALTER TABLE `insurance_data` MODIFY `date` date NULL;
 SET @currentSQLMode = (SELECT @@sql_mode);
 SET sql_mode = '';
 UPDATE `insurance_data` SET `date` = NULL WHERE `date` = '0000-00-00';
+SET sql_mode = @currentSQLMode;
+#EndIf
+
+#IfNotColumnTypeDefault onsite_documents patient_signed_time datetime NULL
+ALTER TABLE `onsite_documents` MODIFY `patient_signed_time` datetime NULL;
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `onsite_documents` SET `patient_signed_time` = NULL WHERE `patient_signed_time` = '0000-00-00 00:00:00';
+SET sql_mode = @currentSQLMode;
+#EndIf
+
+#IfNotColumnTypeDefault onsite_documents review_date datetime NULL
+ALTER TABLE `onsite_documents` MODIFY `review_date` datetime NULL;
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `onsite_documents` SET `review_date` = NULL WHERE `review_date` = '0000-00-00 00:00:00';
 SET sql_mode = @currentSQLMode;
 #EndIf
 
@@ -499,4 +515,3 @@ ALTER TABLE `api_token` ADD `token_api` varchar(40);
 #IfMissingColumn api_token patient_id
 ALTER TABLE `api_token` ADD `patient_id` bigint(20) NOT NULL;
 #EndIf
-
