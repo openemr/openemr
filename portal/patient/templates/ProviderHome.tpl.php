@@ -55,7 +55,7 @@ echo "<script>var cpid='" . attr($this->cpid) . "';var cuser='" . attr($this->cu
     <div class="row">
         <div class="col-sm-3 col-md-3">
             <h4>
-                <i class="icon-cogs"></i><?php echo xlt('Document Templates') ?>
+                <i class="icon-cogs"></i><?php echo xlt('Templates') ?>
             </h4>
             <a class="btn btn-success btn-sm" href="<?php echo $GLOBALS['web_root'];?>/portal/import_template_ui.php"><?php echo xlt('Manage Templates') ?> »</a>
         </div>
