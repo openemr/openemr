@@ -357,7 +357,7 @@ ALTER TABLE users DROP COLUMN `pwd_history2`;
 #EndIf
 
 #IfMissingColumn users_secure last_update_password
-ALTER TABLE `users_secure` ADD `last_update_password` datetime DEFAULT NULL;
+ALTER TABLE `users_secure` ADD `last_update_password` datetime NOT NULL;
 UPDATE `users_secure` SET `last_update_password` = NOW();
 #EndIf
 
@@ -409,14 +409,14 @@ CREATE TABLE `pro_assessments` (
   `form_oid` varchar(255) NOT NULL COMMENT 'unique id for specific instrument, pulled from assessment center API',
   `form_name` varchar (255) NOT NULL COMMENT 'pulled from assessment center API',
   `user_id` int(11) NOT NULL COMMENT 'ID for user that orders the form',
-  `deadline` datetime DEFAULT NULL COMMENT 'deadline to complete the form, will be used when sending notification and reminders',
+  `deadline` datetime NOT NULL COMMENT 'deadline to complete the form, will be used when sending notification and reminders',
   `patient_id` int(11) NOT NULL COMMENT 'ID for patient to order the form for',
   `assessment_oid` varchar(255) NOT NULL COMMENT 'unique id for this specific assessment, pulled from assessment center API',
   `status` varchar(255) NOT NULL COMMENT 'ordered or completed',
   `score` double NOT NULL COMMENT 'T-Score for the assessment',
   `error` double NOT NULL COMMENT 'Standard error for the score',
-  `created_at` datetime DEFAULT NULL COMMENT 'timestamp recording the creation time of this assessment',
-  `updated_at` datetime DEFAULT NULL COMMENT 'this field indicates the completion time when the status is completed',
+  `created_at` datetime NOT NULL COMMENT 'timestamp recording the creation time of this assessment',
+  `updated_at` datetime NOT NULL COMMENT 'this field indicates the completion time when the status is completed',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 #EndIf
@@ -516,12 +516,12 @@ ALTER TABLE `api_token` ADD `token_api` varchar(40);
 ALTER TABLE `api_token` ADD `patient_id` bigint(20) NOT NULL;
 #EndIf
 
-#IfNotTable fhir_forced_id
-CREATE TABLE `fhir_forced_id` (
+#IfNotTable api_forced_id
+CREATE TABLE `api_forced_id` (
     `pid` bigint(20) NOT NULL,
     `forced_id` varchar(100) NOT NULL,
     `resource_pid` bigint(20) NOT NULL,
-    `resource_type` varchar(100) DEFAULT '',
+    `resource_type` varchar(100) DEFAULT NULL,
     PRIMARY KEY (`pid`),
     UNIQUE KEY `idx_forcedid_resid` (`resource_pid`),
     UNIQUE KEY `idx_forcedid_type_resid` (`resource_type`,`resource_pid`),
@@ -529,42 +529,33 @@ CREATE TABLE `fhir_forced_id` (
 ) ENGINE=InnoDB;
 #EndIf
 
-#IfNotTable fhir_resource
-CREATE TABLE `fhir_resource` (
-    `res_id` bigint(20) NOT NULL,
-    `res_deleted_at` datetime DEFAULT NULL,
-    `res_version` varchar(7) DEFAULT NULL,
-    `has_tags` bit(1) NOT NULL,
-    `res_published` datetime DEFAULT NULL,
-    `res_updated` datetime DEFAULT NULL,
-    `sp_has_links` bit(1) DEFAULT NULL,
-    `hash_sha256` varchar(64) DEFAULT NULL,
-    `sp_index_status` bigint(20) DEFAULT NULL,
-    `res_language` varchar(20) DEFAULT NULL,
-    `sp_cmpstr_uniq_present` bit(1) DEFAULT NULL,
-    `sp_coords_present` bit(1) DEFAULT NULL,
-    `sp_date_present` bit(1) DEFAULT NULL,
-    `sp_number_present` bit(1) DEFAULT NULL,
-    `sp_quantity_present` bit(1) DEFAULT NULL,
-    `sp_string_present` bit(1) DEFAULT NULL,
-    `sp_token_present` bit(1) DEFAULT NULL,
-    `sp_uri_present` bit(1) DEFAULT NULL,
-    `res_profile` varchar(200) DEFAULT NULL,
-    `res_type` varchar(30) DEFAULT NULL,
-    `res_ver` bigint(20) DEFAULT NULL,
-    `forced_id_pid` bigint(20) DEFAULT NULL,
-    PRIMARY KEY (`res_id`),
-    KEY `idx_res_date` (`res_updated`),
-    KEY `idx_res_lang` (`res_type`,`res_language`),
-    KEY `idx_res_profile` (`res_profile`),
-    KEY `idx_res_type` (`res_type`),
-    KEY `idx_indexstatus` (`sp_index_status`),
-    KEY `fk_resource_forcedid` (`forced_id_pid`)
+#IfNotTable api_resource
+CREATE TABLE `api_resource` (
+     `res_id` bigint(20) NOT NULL,
+     `res_deleted_at` datetime DEFAULT NULL,
+     `res_version` varchar(7) DEFAULT NULL,
+     `has_tags` bit(1) NOT NULL,
+     `res_published` datetime DEFAULT NULL,
+     `res_updated` datetime DEFAULT NULL,
+     `reviewed_date` datetime DEFAULT NULL,
+     `hash_sha256` varchar(64) DEFAULT NULL,
+     `res_language` varchar(20) DEFAULT NULL,
+     `res_profile` varchar(200) DEFAULT NULL,
+     `res_type` varchar(30) DEFAULT NULL,
+     `res_ver` bigint(20) DEFAULT NULL,
+     `forced_id_pid` bigint(20) DEFAULT NULL,
+     PRIMARY KEY (`res_id`),
+     KEY `idx_res_date` (`res_updated`),
+     KEY `idx_res_lang` (`res_type`,`res_language`),
+     KEY `idx_res_profile` (`res_profile`),
+     KEY `idx_res_type` (`res_type`),
+     KEY `idx_reviewed_date` (`reviewed_date`),
+     KEY `fk_resource_forcedid` (`forced_id_pid`)
 ) ENGINE=InnoDB;
 #EndIf
 
-#IfNotTable fhir_res_ver
-CREATE TABLE `fhir_res_ver` (
+#IfNotTable api_res_ver
+CREATE TABLE `api_res_ver` (
     `pid` bigint(20) NOT NULL,
     `res_deleted_at` datetime DEFAULT NULL,
     `res_version` varchar(7) DEFAULT NULL,
@@ -585,12 +576,12 @@ CREATE TABLE `fhir_res_ver` (
     KEY `fk_resver_forcedid` (`forced_id_pid`)
 ) ENGINE=InnoDB;
 
-ALTER TABLE `fhir_forced_id`
-    ADD CONSTRAINT `fk_forcedid_resource` FOREIGN KEY (`resource_pid`) REFERENCES `fhir_resource` (`res_id`);
+ALTER TABLE `api_forced_id`
+    ADD CONSTRAINT `fk_forcedid_resource` FOREIGN KEY (`resource_pid`) REFERENCES `api_resource` (`res_id`);
 
-ALTER TABLE `fhir_resource`
-    ADD CONSTRAINT `fk_resource_forcedid` FOREIGN KEY (`forced_id_pid`) REFERENCES `fhir_forced_id` (`pid`);
+ALTER TABLE `api_resource`
+    ADD CONSTRAINT `fk_resource_forcedid` FOREIGN KEY (`forced_id_pid`) REFERENCES `api_forced_id` (`pid`);
 
-ALTER TABLE `fhir_res_ver`
-    ADD CONSTRAINT `fk_resver_forcedid` FOREIGN KEY (`forced_id_pid`) REFERENCES `fhir_forced_id` (`pid`);
+ALTER TABLE `api_res_ver`
+    ADD CONSTRAINT `fk_resver_forcedid` FOREIGN KEY (`forced_id_pid`) REFERENCES `api_forced_id` (`pid`);
 #EndIf
