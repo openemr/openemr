@@ -27,22 +27,6 @@ class FhirPatientService extends FhirServiceBase
 {
     private $patientService;
 
-    // maps FHIR Search Terms to OpenEMR Search Terms
-    private static $mappedSearchTerms = [
-        'address' => ['street', 'postal_code', 'city', 'state'],
-        'address-city' => ['city'],
-        'address-postalcode' => ['postal_code'],
-        'address-state' => ['state'],
-        'birthdate' => ['DOB'],
-        'email' => ['email'],
-        'family' => ['lname'],
-        'gender' => ['sex'],
-        'given' => ['fname', 'mname'],
-        'name' => ['title', 'fname', 'mname', 'lname'],
-        'phone' => ['phone_home', 'phone_biz', 'phone_cell'],
-        'telecom' => ['email', 'phone_home', 'phone_biz', 'phone_cell']
-    ];
-
     public function __construct()
     {
         parent::__construct();
