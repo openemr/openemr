@@ -35,7 +35,7 @@ if ($showit == 'ext') {
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="description" content="Eye Exam Help" />
     <meta name="author" content="openEMR: ophthalmology help" />
-    <?php Header::setupHeader(['jquery-ui', 'jquery-ui-excite-bike']); ?>
+    <?php Header::setupHeader(); ?>
 
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/purecss/pure-min.css" />
     <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css" type="text/css" />
