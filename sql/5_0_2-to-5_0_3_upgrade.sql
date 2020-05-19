@@ -409,14 +409,14 @@ CREATE TABLE `pro_assessments` (
   `form_oid` varchar(255) NOT NULL COMMENT 'unique id for specific instrument, pulled from assessment center API',
   `form_name` varchar (255) NOT NULL COMMENT 'pulled from assessment center API',
   `user_id` int(11) NOT NULL COMMENT 'ID for user that orders the form',
-  `deadline` datetime NOT NULL COMMENT 'deadline to complete the form, will be used when sending notification and reminders',
+  `deadline` datetime DEFAULT NULL COMMENT 'deadline to complete the form, will be used when sending notification and reminders',
   `patient_id` int(11) NOT NULL COMMENT 'ID for patient to order the form for',
   `assessment_oid` varchar(255) NOT NULL COMMENT 'unique id for this specific assessment, pulled from assessment center API',
   `status` varchar(255) NOT NULL COMMENT 'ordered or completed',
   `score` double NOT NULL COMMENT 'T-Score for the assessment',
   `error` double NOT NULL COMMENT 'Standard error for the score',
-  `created_at` datetime NOT NULL COMMENT 'timestamp recording the creation time of this assessment',
-  `updated_at` datetime NOT NULL COMMENT 'this field indicates the completion time when the status is completed',
+  `created_at` datetime DEFAULT NULL COMMENT 'timestamp recording the creation time of this assessment',
+  `updated_at` datetime DEFAULT NULL COMMENT 'this field indicates the completion time when the status is completed',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 #EndIf
@@ -535,8 +535,8 @@ CREATE TABLE `fhir_resource` (
     `res_deleted_at` datetime DEFAULT NULL,
     `res_version` varchar(7) DEFAULT NULL,
     `has_tags` bit(1) NOT NULL,
-    `res_published` datetime NOT NULL,
-    `res_updated` datetime NOT NULL,
+    `res_published` datetime DEFAULT NULL,
+    `res_updated` datetime DEFAULT NULL,
     `sp_has_links` bit(1) DEFAULT NULL,
     `hash_sha256` varchar(64) DEFAULT NULL,
     `sp_index_status` bigint(20) DEFAULT NULL,
@@ -560,7 +560,7 @@ CREATE TABLE `fhir_resource` (
     KEY `idx_res_type` (`res_type`),
     KEY `idx_indexstatus` (`sp_index_status`),
     KEY `fk_resource_forcedid` (`forced_id_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 #EndIf
 
 #IfNotTable fhir_res_ver
@@ -569,8 +569,8 @@ CREATE TABLE `fhir_res_ver` (
     `res_deleted_at` datetime DEFAULT NULL,
     `res_version` varchar(7) DEFAULT NULL,
     `has_tags` bit(1) NOT NULL,
-    `res_published` datetime NOT NULL,
-    `res_updated` datetime NOT NULL,
+    `res_published` datetime DEFAULT NULL,
+    `res_updated` datetime DEFAULT NULL,
     `res_encoding` varchar(5) NOT NULL,
     `res_text` longblob,
     `res_id` bigint(20) DEFAULT NULL,
@@ -583,7 +583,7 @@ CREATE TABLE `fhir_res_ver` (
     KEY `idx_resver_id_date` (`res_id`,`res_updated`),
     KEY `idx_resver_date` (`res_updated`),
     KEY `fk_resver_forcedid` (`forced_id_pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB;
 
 ALTER TABLE `fhir_forced_id`
     ADD CONSTRAINT `fk_forcedid_resource` FOREIGN KEY (`resource_pid`) REFERENCES `fhir_resource` (`res_id`);

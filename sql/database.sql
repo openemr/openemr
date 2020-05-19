@@ -97,7 +97,7 @@ CREATE TABLE `audit_master` (
   `approval_status` tinyint(4) NOT NULL COMMENT '1-Pending,2-Approved,3-Denied,4-Appointment directly updated to calendar table,5-Cancelled appointment',
   `comments` text,
   `created_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `modified_time` datetime NOT NULL,
+  `modified_time` datetime DEFAULT NULL,
   `ip_address` varchar(100) NOT NULL,
   `type` tinyint(4) NOT NULL COMMENT '1-new patient,2-existing patient,3-change is only in the document,4-Patient upload,5-random key,10-Appointment',
   PRIMARY KEY (`id`)
@@ -1077,7 +1077,7 @@ DROP TABLE IF EXISTS `syndromic_surveillance`;
 CREATE TABLE `syndromic_surveillance` (
   `id` bigint(20) NOT NULL auto_increment,
   `lists_id` bigint(20) NOT NULL,
-  `submission_date` datetime NOT NULL,
+  `submission_date` datetime DEFAULT NULL,
   `filename` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`id`),
   KEY (`lists_id`)
@@ -1094,7 +1094,7 @@ CREATE TABLE `dated_reminders` (
   `dr_id` int(11) NOT NULL AUTO_INCREMENT,
   `dr_from_ID` int(11) NOT NULL,
   `dr_message_text` varchar(160) NOT NULL,
-  `dr_message_sent_date` datetime NOT NULL,
+  `dr_message_sent_date` datetime DEFAULT NULL,
   `dr_message_due_date` date NOT NULL,
   `pid` bigint(20) NOT NULL,
   `message_priority` tinyint(1) NOT NULL,
@@ -1230,7 +1230,7 @@ CREATE TABLE `documents_legal_master` (
   `dlm_sign_height` double NOT NULL,
   `dlm_sign_width` double NOT NULL,
   `dlm_filename` varchar(45) NOT NULL,
-  `dlm_effective_date` datetime NOT NULL,
+  `dlm_effective_date` datetime DEFAULT NULL,
   `dlm_version` int(10) unsigned NOT NULL,
   `content` varchar(255) NOT NULL,
   `dlm_savedsign` varchar(255) DEFAULT NULL COMMENT '0-Yes 1-No',
@@ -1474,7 +1474,7 @@ DROP TABLE IF EXISTS `erx_ttl_touch`;
 CREATE  TABLE `erx_ttl_touch` (
   `patient_id` BIGINT(20) UNSIGNED NOT NULL COMMENT 'Patient record Id' ,
   `process` ENUM('allergies','medications') NOT NULL COMMENT 'NewCrop eRx SOAP process' ,
-  `updated` DATETIME NOT NULL COMMENT 'Date and time of last process update for patient' ,
+  `updated` datetime DEFAULT NULL COMMENT 'Date and time of last process update for patient' ,
   PRIMARY KEY (`patient_id`, `process`)
 ) ENGINE = InnoDB COMMENT = 'Store records last update per patient data process' ;
 
@@ -4865,7 +4865,7 @@ CREATE TABLE `modules` (
   `mod_enc_menu` VARCHAR(10) NOT NULL DEFAULT 'no',
   `permissions_item_table` CHAR(100) DEFAULT NULL,
   `directory` VARCHAR(255) NOT NULL,
-  `date` DATETIME NOT NULL,
+  `date` datetime DEFAULT NULL,
   `sql_run` TINYINT(4) DEFAULT '0',
   `type` TINYINT(4) DEFAULT '0',
   `sql_version` VARCHAR(150) NOT NULL,
@@ -5077,7 +5077,7 @@ CREATE TABLE `onsite_messages` (
   `username` varchar(64) NOT NULL,
   `message` longtext,
   `ip` varchar(15) NOT NULL,
-  `date` datetime NOT NULL,
+  `date` datetime DEFAULT NULL,
   `sender_id` VARCHAR(64) NULL COMMENT 'who sent id',
   `recip_id` varchar(255) NOT NULL COMMENT 'who to id array',
   PRIMARY KEY (`id`)
@@ -5093,7 +5093,7 @@ DROP TABLE IF EXISTS `onsite_online`;
 CREATE TABLE `onsite_online` (
   `hash` varchar(32) NOT NULL,
   `ip` varchar(15) NOT NULL,
-  `last_update` datetime NOT NULL,
+  `last_update` datetime DEFAULT NULL,
   `username` varchar(64) NOT NULL,
   `userid` int(11) UNSIGNED DEFAULT NULL,
   PRIMARY KEY (`hash`)
@@ -5137,7 +5137,7 @@ CREATE TABLE `onsite_signatures` (
   `status` varchar(128) NOT NULL DEFAULT 'waiting',
   `type` varchar(128) NOT NULL,
   `created` int(11) NOT NULL,
-  `lastmod` datetime NOT NULL,
+  `lastmod` datetime DEFAULT NULL,
   `pid` bigint(20) DEFAULT NULL,
   `encounter` int(11) DEFAULT NULL,
   `user` varchar(255) DEFAULT NULL,
@@ -5581,7 +5581,7 @@ DROP TABLE IF EXISTS `payments`;
 CREATE TABLE `payments` (
   `id` bigint(20) NOT NULL auto_increment,
   `pid` bigint(20) NOT NULL default '0',
-  `dtime` datetime NOT NULL,
+  `dtime` datetime DEFAULT NULL,
   `encounter` bigint(20) NOT NULL default '0',
   `user` varchar(255) default NULL,
   `method` varchar(255) default NULL,
@@ -5753,14 +5753,14 @@ CREATE TABLE `pro_assessments` (
   `form_oid` varchar(255) NOT NULL COMMENT 'unique id for specific instrument, pulled from assessment center API',
   `form_name` varchar (255) NOT NULL COMMENT 'pulled from assessment center API',
   `user_id` int(11) NOT NULL COMMENT 'ID for user that orders the form',
-  `deadline` datetime NOT NULL COMMENT 'deadline to complete the form, will be used when sending notification and reminders',
+  `deadline` datetime DEFAULT NULL COMMENT 'deadline to complete the form, will be used when sending notification and reminders',
   `patient_id` int(11) NOT NULL COMMENT 'ID for patient to order the form for',
   `assessment_oid` varchar(255) NOT NULL COMMENT 'unique id for this specific assessment, pulled from assessment center API',
   `status` varchar(255) NOT NULL COMMENT 'ordered or completed',
   `score` double NOT NULL COMMENT 'T-Score for the assessment',
   `error` double NOT NULL COMMENT 'Standard error for the score',
-  `created_at` datetime NOT NULL COMMENT 'timestamp recording the creation time of this assessment',
-  `updated_at` datetime NOT NULL COMMENT 'this field indicates the completion time when the status is completed',
+  `created_at` datetime DEFAULT NULL COMMENT 'timestamp recording the creation time of this assessment',
+  `updated_at` datetime DEFAULT NULL COMMENT 'this field indicates the completion time when the status is completed',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
@@ -6876,7 +6876,7 @@ CREATE TABLE `automatic_notification` (
   `email_sender` varchar(100) NOT NULL,
   `email_subject` varchar(100) NOT NULL,
   `type` enum('SMS','Email') NOT NULL default 'SMS',
-  `notification_sent_date` datetime NOT NULL,
+  `notification_sent_date` datetime DEFAULT NULL,
   PRIMARY KEY  (`notification_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 ;
 
@@ -6909,7 +6909,7 @@ CREATE TABLE `notification_log` (
   `pc_endDate` date NOT NULL,
   `pc_startTime` time NOT NULL,
   `pc_endTime` time NOT NULL,
-  `dSentDateTime` datetime NOT NULL,
+  `dSentDateTime` datetime DEFAULT NULL,
   PRIMARY KEY  (`iLogId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 ;
 
@@ -6969,7 +6969,7 @@ CREATE TABLE ar_session (
   deposit_date   date          DEFAULT NULL,
   pay_total      decimal(12,2) NOT NULL DEFAULT 0,
   created_time timestamp NOT NULL default CURRENT_TIMESTAMP,
-  modified_time datetime NOT NULL,
+  modified_time datetime DEFAULT NULL,
   global_amount decimal( 12, 2 ) NOT NULL ,
   payment_type varchar( 50 ) NOT NULL ,
   description text,
@@ -7003,7 +7003,7 @@ CREATE TABLE ar_activity (
   memo           varchar(255)  NOT NULL DEFAULT '' COMMENT 'adjustment reasons go here',
   pay_amount     decimal(12,2) NOT NULL DEFAULT 0  COMMENT 'either pay or adj will always be 0',
   adj_amount     decimal(12,2) NOT NULL DEFAULT 0,
-  modified_time datetime NOT NULL,
+  modified_time datetime DEFAULT NULL,
   follow_up char(1) NOT NULL,
   follow_up_note text,
   account_code varchar(15) NOT NULL,
@@ -9063,7 +9063,7 @@ CREATE TABLE `esign_signatures` (
   `tid` int(11) NOT NULL COMMENT 'Table row ID for signature',
   `table` varchar(255) NOT NULL COMMENT 'table name for the signature',
   `uid` int(11) NOT NULL COMMENT 'user id for the signing user',
-  `datetime` datetime NOT NULL COMMENT 'datetime of the signature action',
+  `datetime` datetime DEFAULT NULL COMMENT 'datetime of the signature action',
   `is_lock` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'sig, lock or amendment',
   `amendment` text COMMENT 'amendment text, if any',
   `hash` varchar(255) NOT NULL COMMENT 'hash of signed data',
@@ -9691,7 +9691,7 @@ CREATE TABLE `form_eye_mag_wearing` (
 DROP TABLE IF EXISTS `form_taskman`;
 CREATE TABLE `form_taskman` (
     `ID` bigint(20) NOT NULL AUTO_INCREMENT,
-    `REQ_DATE` datetime NOT NULL,
+    `REQ_DATE` datetime DEFAULT NULL,
     `FROM_ID` bigint(20) NOT NULL,
     `TO_ID` bigint(20) NOT NULL,
     `PATIENT_ID` bigint(20) NOT NULL, `DOC_TYPE` varchar(20) DEFAULT NULL,
@@ -10654,8 +10654,8 @@ CREATE TABLE `fhir_resource` (
      `res_deleted_at` datetime DEFAULT NULL,
      `res_version` varchar(7) DEFAULT NULL,
      `has_tags` bit(1) NOT NULL,
-     `res_published` datetime NOT NULL,
-     `res_updated` datetime NOT NULL,
+     `res_published` datetime DEFAULT NULL,
+     `res_updated` datetime DEFAULT NULL,
      `sp_has_links` bit(1) DEFAULT NULL,
      `hash_sha256` varchar(64) DEFAULT NULL,
      `sp_index_status` bigint(20) DEFAULT NULL,
@@ -10693,8 +10693,8 @@ CREATE TABLE `fhir_res_ver` (
     `res_deleted_at` datetime DEFAULT NULL,
     `res_version` varchar(7) DEFAULT NULL,
     `has_tags` bit(1) NOT NULL,
-    `res_published` datetime NOT NULL,
-    `res_updated` datetime NOT NULL,
+    `res_published` datetime DEFAULT NULL,
+    `res_updated` datetime DEFAULT NULL,
     `res_encoding` varchar(5) NOT NULL,
     `res_text` longblob,
     `res_id` bigint(20) DEFAULT NULL,
