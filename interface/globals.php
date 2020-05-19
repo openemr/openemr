@@ -521,7 +521,7 @@ if (!empty($version)) {
 
 $srcdir = $GLOBALS['srcdir'];
 $login_screen = $GLOBALS['login_screen'];
-$GLOBALS['backpic'] = $backpic;
+$GLOBALS['backpic'] = $backpic ?? '';
 
 // 1 = send email message to given id for Emergency Login user activation,
 // else 0.

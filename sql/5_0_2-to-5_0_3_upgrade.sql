@@ -66,6 +66,10 @@
 --    arguments: table_name colname
 --    behavior:  If the index does not exist, it will be created
 
+--  #IfUuidNeedUpdate
+--    argument: table_name
+--    behavior: this will add and populate a uuid column into table
+
 --  #EndIf
 --    all blocks are terminated with a #EndIf statement.
 
@@ -585,3 +589,24 @@ ALTER TABLE `api_resource`
 ALTER TABLE `api_res_ver`
     ADD CONSTRAINT `fk_resver_forcedid` FOREIGN KEY (`forced_id_pid`) REFERENCES `api_forced_id` (`pid`);
 #EndIf
+
+#IfNotTable uuid_registry
+CREATE TABLE `uuid_registry` (
+  `uuid` varchar(64) NOT NULL DEFAULT '',
+  `table_name` varchar(255) NOT NULL DEFAULT '',
+  `created` timestamp NULL,
+  PRIMARY KEY (`uuid`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfMissingColumn patient_data uuid
+ALTER TABLE `patient_data` ADD `uuid` varchar(64) NOT NULL default '';
+#EndIf
+
+#IfUuidNeedUpdate patient_data
+#EndIf
+
+#IfNotIndex patient_data uuid
+CREATE UNIQUE INDEX `uuid` ON `patient_data` (`uuid`);
+#EndIf
+

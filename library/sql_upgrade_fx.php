@@ -26,6 +26,8 @@
 * @link      https://www.open-emr.org
 */
 
+use OpenEMR\Common\Uuid\UuidRegistry;
+
 /**
 * Check if a Sql table exists.
 *
@@ -607,6 +609,10 @@ function convertLayoutProperties()
 *   arguments: table_name colname
 *   behavior:  If the index does not exist, it will be created
 *
+* #IfUuidNeedUpdate
+*   argument: table_name
+*   behavior: this will add and populate a uuid column into table
+*
 * #IfNotMigrateClickOptions
 *   Custom function for the importing of the Clickoptions settings (if exist) from the codebase into the database
 *
@@ -969,6 +975,19 @@ function upgradeFromSqlFile($filename, $path = '')
                 }
             }
 
+            if ($skipping) {
+                echo "<font color='green'>Skipping section $line</font><br />\n";
+            }
+        } elseif (preg_match('/^#IfUuidNeedUpdate\s+(\S+)/', $line, $matches)) {
+            $uuidRegistry = new UuidRegistry(['table_name' => $matches[1]]);
+            if (tableExists($matches[1]) && $uuidRegistry->tableNeedsUuidCreation()) {
+                $skipping = false;
+                echo "<font color='black'>Going to add UUIDs to " . $matches[1] . " table</font><br />\n";
+                $uuidRegistry->createMissingUuids();
+                echo "<font color='green'>Successfully completed adding UUIDs to " . $matches[1] . " table</font><br />\n";
+            } else {
+                $skipping = true;
+            }
             if ($skipping) {
                 echo "<font color='green'>Skipping section $line</font><br />\n";
             }

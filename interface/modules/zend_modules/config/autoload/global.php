@@ -80,10 +80,10 @@ if ($GLOBALS['allow_multiple_databases']) {
 return array(
     'db' => array(
         'driver'         => 'Pdo',
-        'dsn'            => 'mysql:dbname=' . $GLOBALS['dbase'] . ';host=' . $GLOBALS['host'],
-        'username'       => $GLOBALS['login'],
-        'password'       => $GLOBALS['pass'],
-        'port'           => $GLOBALS['port'],
+        'dsn'            => 'mysql:dbname=' . ($GLOBALS['dbase'] ?? '') . ';host=' . ($GLOBALS['host'] ?? ''),
+        'username'       => $GLOBALS['login'] ?? '',
+        'password'       => $GLOBALS['pass'] ?? '',
+        'port'           => $GLOBALS['port'] ?? '',
         'driver_options' => $utf8,
         'adapters' => $adapters
 
