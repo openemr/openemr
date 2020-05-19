@@ -1,0 +1,202 @@
+{% extends 'layout.html.twig' %}
+{% block title %}{{ tabtitle }}{% endblock %}
+{% block body %}
+
+    <div class="container">
+    <h3>{{ pagetitle }}</h3>
+
+            <form name="sendcc" method="post" action="<?php echo $GLOBALS['assets_static_relative'] . $url; ?>" onsubmit="return formValidation()">
+                <div class="row">
+                    <?php if(!empty($formInfo['customerid'])){ ?>
+                    <div class="form-group col-md-4">
+                        <label for="customerid">Customer ID</label>
+                        <input type="text" class="form-control" id="customerid" name="customerid" value="<?php echo text($formInfo['customerid']); ?>"
+                        <?php //echo ($formInfo['customerid']) ? "readonly": ""; ?> readonly>
+                    </div>
+                    <p>If changing card expiration date, re-enter entire number along with the date change.</p>
+                    <?php } ?>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-4">
+                        <label for="ccnumber">Credit Card Number</label>
+                        <input type="text" class="form-control" id="ccnumber" name="ccnumber" value="<?php echo text($formInfo['last4']) ?>" title="CC Number may be updated alone">
+                    </div>
+                    <div class="form-group col-md-1">
+                        <label for="expDate">Exp Mo.</label>
+                        <select type="text" class="form-control" id="expDateMo" name="expMo" value="" />
+                        <?php $days = range(01,12);
+                    $formInfo['ex_mo'];
+                      foreach ($days as $day){
+                          if (strlen($day) == 1) {
+                              echo "<option ";
+                              if($day == $formInfo['ex_mo']) {echo "selected='selected'";}
+                              echo "value='$day'>0$day</option>";
+                        } else {
+                        echo "<option ";
+                        if($day == $formInfo['ex_mo']) {echo "selected='selected'";}
+                        echo "value='$day'>$day</option>";
+                        }
+                        }
+                        ?>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-1">
+                        <label for="expDate">Exp Yr</label>
+                        <select type="text" class="form-control" id="expDateYr" name="expYr" value="" />
+                        <?php
+                    $currentYear = date("y");
+                    $future = date("y") + 7;
+                    $years = range($currentYear,$future);
+                    foreach ($years as $year){
+                        echo "<option ";
+                        if($year == $formInfo['ex_yr']) {echo "selected='selected'";}
+                        echo "value='$year'>$year</option>";
+                        }
+                        ?>
+                        </select>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-3">
+                        <label>First Name:</label>
+                        <input type="text" class="form-control" id="fname" name="fname" value="<?php echo text($formInfo['fname']) ?>" title="Always change name and address together">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>Last Name:</label>
+                        <input type="text" class="form-control" id="lname" name="lname" value="<?php echo text($formInfo['lname']) ?>">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-3">
+                        <label>Address 1:</label>
+                        <input type="text" class="form-control" id="address1" name="address1" value="<?php echo text($formInfo['address']) ?>" title="Address can be updated without name change">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>Address 2:</label>
+                        <input type="text" class="form-control" id="address2" name="address2" value="<?php echo text($formInfo['address2']) ?>">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-3">
+                        <label>City:</label>
+                        <input type="text" class="form-control" id="city" name="city" value="<?php echo text($formInfo['city']) ?>">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label>State:</label>
+                        <?php
+                $state = $formInfo['state'];
+                echo generate_form_field(array('data_type'=>$GLOBALS['state_data_type'], 'field_id'=>('state'),'list_id'=>$GLOBALS['state_list']), $state);
+                        //generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'field_id'=>('i'.$i.'subscriber_employer_state'),'list_id'=>$GLOBALS['state_list'],'fld_length'=>'15','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_employer_state']);
+                        ?>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-3">
+                        <label>Zip:</label>
+                        <input type="text" class="form-control" id="zip" name="zip" value="<?php
+                $zzip = strlen($formInfo['zip']);
+                if ($zzip == 3){
+                    $zip = "00".$formInfo['zip'];
+                        echo text($zip);
+                        } elseif ($zzip == 4) {
+                        $zip = "0".$formInfo['zip'];
+                        echo text($zip);
+                        } else {
+                        echo text($formInfo['zip']);
+                        }
+                        ?>">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-3">
+                        <label>Email</label>
+                        <input type="text" class="form-control" id="email" name="email" value="<?php echo text($formInfo['email']) ?>">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-3">
+                        <label>Phone:</label>
+                        <input type="text" class="form-control" id="phone" name="phone" value="<?php if ($formInfo['phone'] != 0) { echo text($formInfo['phone']); } ?>">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-2">
+                        <label>Receipt Preference</label>
+                        <?php $form_receipt = $formInfo['receipt'];
+                generate_form_field(array('data_type' => 1, 'field_id' => 'receipt', 'list_id' => 'CC_Receipt', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'), $form_receipt); ?>
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-2">
+                        <label>Relationship to Patient</label>
+                        <?php $form_relationship = $formInfo['relationship'];
+                generate_form_field(array('data_type' => 1, 'field_id' => 'relationship', 'list_id' => 'CC_Patient_Relationship', 'empty_title' => 'SKIP', 'order_by' => 'title', 'class' => 'form-control'), $form_relationship); ?>
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-3">
+                        <input type="checkbox" class="" name="skip" value="1" title="">  <label> Leave All Fields Blank - Store card only </label>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-default"><?php echo ($formInfo['last4'] ? 'Update' : 'Save') ?></button>
+            </form>
+
+
+            <?php
+            if ($formInfo['last4']) { ?>
+            <div class="col-lg-7" id="delete" style="float: right">
+                <button id="deleteCustomer" class="btn primary-btn" >Delete Stored Card</button>
+            </div>
+            <?php } ?>
+            <br><br><br><br>
+
+        </div>
+        <script>
+            $("#deleteCustomer").click(function(){
+                var checkstr = confirm('Deleting this card will remove all payer data as well and will need to be re-entered. Are you sure you wish to delete this entry?');
+                if(checkstr == true){
+                    document.location.href ="<?php echo $GLOBALS['assets_static_relative']; ?>/paytrace/PhpJsonApiSamples/DeleteCustomerJson.php";
+                }else{
+                    return false;
+                }
+            });
+            function formValidation(){
+                var cv = document.forms['sendcc']['cv'].value;
+                if (cv.length < 3) {
+                    alert('Please check CV#');
+                    return false;
+                }
+                var ccnumber = document.forms['sendcc']['ccnumber'].value;
+                if (ccnumber.length < 16){
+                    alert('There are not enough number, please check entry');
+                    return false;
+                }
+                if (ccnumber.length > 16){
+                    alert('Remove any dashes from number, digits only');
+                    return false;
+                }
+                var visaRegEx = /^(?:4[0-9]{12}(?:[0-9]{3})?)$/;
+                var mastercardRegEx = /^(?:5[1-5][0-9]{14})$/;
+                var amexpRegEx = /^(?:3[47][0-9]{13})$/;
+                var discovRegEx = /^(?:6(?:011|5[0-9][0-9])[0-9]{12})$/;
+
+                if (visaRegEx.test(ccnumber) === true ||  mastercardRegEx.test(ccnumber) === true || amexpRegEx.test(ccnumber) === true || discovRegEx.test(ccnumber) === true){
+
+                    return true
+                } else {
+                    alert("Please provide a valid number!");
+                    return false;
+                }
+
+            }
+        </script>
+
+    </div>{# --end of container div--  #}
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript" src="../../library/js/weno/sendRx.js"></script>
+{% endblock %}
