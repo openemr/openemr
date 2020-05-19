@@ -515,3 +515,82 @@ ALTER TABLE `api_token` ADD `token_api` varchar(40);
 #IfMissingColumn api_token patient_id
 ALTER TABLE `api_token` ADD `patient_id` bigint(20) NOT NULL;
 #EndIf
+
+#IfNotTable fhir_forced_id
+CREATE TABLE `fhir_forced_id` (
+    `pid` bigint(20) NOT NULL,
+    `forced_id` varchar(100) NOT NULL,
+    `resource_pid` bigint(20) NOT NULL,
+    `resource_type` varchar(100) DEFAULT '',
+    PRIMARY KEY (`pid`),
+    UNIQUE KEY `idx_forcedid_resid` (`resource_pid`),
+    UNIQUE KEY `idx_forcedid_type_resid` (`resource_type`,`resource_pid`),
+    KEY `idx_forcedid_type_forcedid` (`resource_type`,`forced_id`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotTable fhir_resource
+CREATE TABLE `fhir_resource` (
+    `res_id` bigint(20) NOT NULL,
+    `res_deleted_at` datetime DEFAULT NULL,
+    `res_version` varchar(7) DEFAULT NULL,
+    `has_tags` bit(1) NOT NULL,
+    `res_published` datetime NOT NULL,
+    `res_updated` datetime NOT NULL,
+    `sp_has_links` bit(1) DEFAULT NULL,
+    `hash_sha256` varchar(64) DEFAULT NULL,
+    `sp_index_status` bigint(20) DEFAULT NULL,
+    `res_language` varchar(20) DEFAULT NULL,
+    `sp_cmpstr_uniq_present` bit(1) DEFAULT NULL,
+    `sp_coords_present` bit(1) DEFAULT NULL,
+    `sp_date_present` bit(1) DEFAULT NULL,
+    `sp_number_present` bit(1) DEFAULT NULL,
+    `sp_quantity_present` bit(1) DEFAULT NULL,
+    `sp_string_present` bit(1) DEFAULT NULL,
+    `sp_token_present` bit(1) DEFAULT NULL,
+    `sp_uri_present` bit(1) DEFAULT NULL,
+    `res_profile` varchar(200) DEFAULT NULL,
+    `res_type` varchar(30) DEFAULT NULL,
+    `res_ver` bigint(20) DEFAULT NULL,
+    `forced_id_pid` bigint(20) DEFAULT NULL,
+    PRIMARY KEY (`res_id`),
+    KEY `idx_res_date` (`res_updated`),
+    KEY `idx_res_lang` (`res_type`,`res_language`),
+    KEY `idx_res_profile` (`res_profile`),
+    KEY `idx_res_type` (`res_type`),
+    KEY `idx_indexstatus` (`sp_index_status`),
+    KEY `fk_resource_forcedid` (`forced_id_pid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+#EndIf
+
+#IfNotTable fhir_res_ver
+CREATE TABLE `fhir_res_ver` (
+    `pid` bigint(20) NOT NULL,
+    `res_deleted_at` datetime DEFAULT NULL,
+    `res_version` varchar(7) DEFAULT NULL,
+    `has_tags` bit(1) NOT NULL,
+    `res_published` datetime NOT NULL,
+    `res_updated` datetime NOT NULL,
+    `res_encoding` varchar(5) NOT NULL,
+    `res_text` longblob,
+    `res_id` bigint(20) DEFAULT NULL,
+    `res_type` varchar(30) NOT NULL,
+    `res_ver` bigint(20) NOT NULL,
+    `forced_id_pid` bigint(20) DEFAULT NULL,
+    PRIMARY KEY (`pid`),
+    UNIQUE KEY `idx_resver_id_ver` (`res_id`,`res_ver`),
+    KEY `idx_resver_type_date` (`res_type`,`res_updated`),
+    KEY `idx_resver_id_date` (`res_id`,`res_updated`),
+    KEY `idx_resver_date` (`res_updated`),
+    KEY `fk_resver_forcedid` (`forced_id_pid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `fhir_forced_id`
+    ADD CONSTRAINT `fk_forcedid_resource` FOREIGN KEY (`resource_pid`) REFERENCES `fhir_resource` (`res_id`);
+
+ALTER TABLE `fhir_resource`
+    ADD CONSTRAINT `fk_resource_forcedid` FOREIGN KEY (`forced_id_pid`) REFERENCES `fhir_forced_id` (`pid`);
+
+ALTER TABLE `fhir_res_ver`
+    ADD CONSTRAINT `fk_resver_forcedid` FOREIGN KEY (`forced_id_pid`) REFERENCES `fhir_forced_id` (`pid`);
+#EndIf
