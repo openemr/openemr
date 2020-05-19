@@ -2,16 +2,19 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Validators\ProcessingResult;
+
 /**
  * Base class for FHIR Service implementations.
  *
  * Implementations are required to override the following methods:
+ * - loadSearchParameters
  * - parseOpenEMRRecord
  * - parseFhirResource
  * - insertOpenEMRRecord
  * - updateOpenEMRRecord
  * - getOne
- * - getAll
+ * - searchForOpenEMRRecords
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
@@ -20,6 +23,22 @@ namespace OpenEMR\Services\FHIR;
  */
 abstract class FhirServiceBase
 {
+
+    /**
+     * Maps FHIR Resource search parameters to OpenEMR parameters
+     */
+    protected $resourceSearchParameters = array();
+
+    public function __construct()
+    {
+        $this->resourceSearchParameters = $this->loadSearchParameters();
+    }
+
+    /**
+     * Returns an array mapping FHIR Resource search parameters to OpenEMR search parameters
+     */
+    abstract protected function loadSearchParameters();
+
     /**
      * Parses an OpenEMR data record, returning the equivalent FHIR Resource
      *
@@ -50,65 +69,76 @@ abstract class FhirServiceBase
 
     /**
      * Inserts an OpenEMR record into the sytem.
-     * @return The OpenEMR service result.
+     * @return The OpenEMR processing result.
      */
-    abstract function insertOpenEMRRecord($openEmrRecord);
+    abstract protected function insertOpenEMRRecord($openEmrRecord);
 
     /**
      * Inserts a FHIR resource into the system.
-     * @param $openEMRLookupId The ID field used to lookup the OpenEMR record for update.
+     * @param $fhirResourceId The FHIR Resource ID used to lookup the existing FHIR resource/OpenEMR record
      * @param $fhirResource The FHIR resource.
      * @return The OpenEMR Service Result
      */
-    public function update($openEMRLookupId, $fhirResource)
+    public function update($fhirResourceId, $fhirResource)
     {
         $openEmrRecord = $this->parseFhirResource($fhirResource);
-        return $this->updateOpenEMRRecord($openEMRLookupId, $openEmrRecord);
+        return $this->updateOpenEMRRecord($fhirResourceId, $openEmrRecord);
     }
 
     /**
      * Updates an existing OpenEMR record.
-     * @param $openEMRLookupId The OpenEMR ID used to lookup the OpenEMR record.
+     * NOT YET IMPLEMENTED - requires updates to support associating a fhir resource id to an openemr record
+     * @param $fhirResourceId The OpenEMR record's FHIR Resource ID.
      * @param $updatedOpenEMRRecord The "updated" OpenEMR record.
      * @return The OpenEMR Service Result
      */
-    abstract function updateOpenEMRRecord($openEMRLookupId, $updatedOpenEMRRecord);
+    abstract protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord);
 
     /**
-     * Performs a FHIR R4 Resource lookup by FHIR Resource ID
+     * Performs a FHIR Resource lookup by FHIR Resource ID
      * NOT YET IMPLEMENTED - requires updates to support associating a fhir resource id to an openemr record
+     * @param $fhirResourceId The OpenEMR record's FHIR Resource ID.
+     * @throws Exception since this method is not yet implemented
      */
-    abstract function getOne($fhirResourceId);
+    abstract protected function getOne($fhirResourceId);
 
     /**
-     * Executes a FHIR Resource search
+     * Executes a FHIR Resource search given a set of parameters.
+     * @param $fhirSearchParameters The FHIR resource search parameters
+     * @return processing result
      */
     public function getAll($fhirSearchParameters)
     {
-        $fhirSearchResults = array();
+        $oeSearchParameters = array();
 
-        $openEMRSearchParameters = $this->mapSearchParameters($fhirSearchParameters);
-        $openEMRSearchResults = $this->searchForOpenEMRRecords($openEMRSearchParameters);
-
-        foreach ($openEMRSearchResults as $index => $openEMRSearchResult) {
-            $fhirResource = $this->parseOpenEMRRecord($openEMRSearchResult);
-            array_push($fhirSearchResults, $fhirResource);
+        foreach ($fhirSearchParameters as $fhirSearchField => $searchValue) {
+            if (isset($this->resourceSearchParameters[$fhirSearchField])) {
+                $oeSearchFields = $this->resourceSearchParameters[$fhirSearchField];
+                foreach ($oeSearchFields as $index => $oeSearchField) {
+                    $oeSearchParameters[$oeSearchField] = $searchValue;
+                }
+            }
         }
 
-        return $fhirSearchResults;
-    }
+        $oeSearchResult = $this->searchForOpenEMRRecords($oeSearchParameters);
 
-    /**
-     * Maps FHIR R4 Search Parameters/Terms to OpenEMR Fields
-     * @param $fhirSearchParameters The FHIR R4 Search parameters
-     * @return OpenEMR Search parameters
-     */
-    abstract function mapSearchParameters($fhirSearchParameters);
+        $fhirSearchResult = new ProcessingResult();
+        $fhirSearchResult->setInternalErrors($oeSearchResult->getInternalErrors());
+        $fhirSearchResult->setValidationMessages($oeSearchResult->getValidationMessages());
+
+        if ($oeSearchResult->isValid()) {
+            foreach ($oeSearchResult->getData() as $index => $oeRecord) {
+                $fhirResource = $this->parseOpenEMRRecord($oeRecord, false);
+                $fhirSearchResult->addData($fhirResource);
+            }
+        }
+        return $fhirSearchResult;
+    }
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
      * @param openEMRSearchParameters OpenEMR search fields
      * @return OpenEMR records
      */
-    abstract function searchForOpenEMRRecords($openEMRSearchParameters);
+    abstract protected function searchForOpenEMRRecords($openEMRSearchParameters);
 }

@@ -61,16 +61,16 @@ class FixtureManagerTest extends TestCase
         $this->assertEquals('Patient', $fhirPatientFixture['resourceType']);
 
         $actualIdentifiers = $fhirPatientFixture['identifier'];
-        $this->assertEquals(1, count($actualIdentifiers));
+        $this->assertEquals(2, count($actualIdentifiers));
 
-        $actualIdentifier = $actualIdentifiers[0];
-        $this->assertEquals('http://hl7.org/fhir/sid/us-ssn', $actualIdentifier['system']);
-        $this->assertNotNull($actualIdentifier['value']);
+        $actualIdentifierCodes = array();
+        foreach ($actualIdentifiers as $index => $actualIdentifier) {
+            $actualCode = $actualIdentifier['type']['coding'][0]['code'];
+            array_push($actualIdentifierCodes, $actualCode);
+        }
 
-        $actualIdentifierCoding = $actualIdentifier['type']['coding'];
-        $this->assertEquals(1, count($actualIdentifierCoding));
-        $this->assertEquals('SS', $actualIdentifierCoding[0]['code']);
-        $this->assertEquals('http://terminology.hl7.org/CodeSystem/v2-0203', $actualIdentifierCoding[0]['system']);
+        $this->assertContains('SS', $actualIdentifierCodes);
+        $this->assertContains('PT', $actualIdentifierCodes);
 
         $this->assertTrue($fhirPatientFixture['active']);
 

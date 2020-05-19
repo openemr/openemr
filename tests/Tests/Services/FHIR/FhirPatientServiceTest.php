@@ -62,7 +62,6 @@ class FhirPatientServiceTest extends TestCase
                 break;
             }
         }
-
         $this->assertTrue($matchFound);
     }
 
@@ -260,40 +259,50 @@ class FhirPatientServiceTest extends TestCase
     }
 
     /**
+     * Tests a successful insert operation
      * @covers ::insert
      * @covers ::insertOpenEMRRecord
      */
     public function testInsert()
     {
-        $this->markTestSkipped();
-        // $processResult = $this->fhirPatientService->insert($this->fhirPatientFixture);
+        $processingResult = $this->fhirPatientService->insert($this->fhirPatientFixture);
+        $this->assertTrue($processingResult->isValid());
+        $this->assertGreaterThan(0, $processingResult->getData()[0]['pid']);
     }
 
     /**
+     * Tests an insert operation where an error occurs
      * @covers ::insert
      * @covers ::insertOpenEMRRecord
      */
     public function testInsertWithErrors()
     {
-        $this->markTestSkipped();
+        unset($this->fhirPatientFixture['name']);
+        $processingResult = $this->fhirPatientService->insert($this->fhirPatientFixture);
+        $this->assertFalse($processingResult->isValid());
+        $this->assertEquals(0, count($processingResult->getData()));
     }
 
     /**
+     * Tests a successful update operation
      * @covers ::update
      * @covers ::updateOpenEMRRecord
      */
     public function testUpdate()
     {
-        $this->markTestSkipped();
+        $this->expectException(\Exception::class);
+        $this->fhirPatientService->update('a-fhir-resource-id', $this->fhirPatientFixture);
     }
 
     /**
+     * Tests an update operation where an error occurs
      * @covers ::update
      * @covers ::updateOpenEMRRecord
      */
     public function testUpdateWithErrors()
     {
-        $this->markTestSkipped();
+        $this->expectException(\Exception::class);
+        $this->fhirPatientService->update('a-fhir-resource-id', $this->fhirPatientFixture);
     }
 
     /**
@@ -302,29 +311,237 @@ class FhirPatientServiceTest extends TestCase
     public function testGetOne()
     {
         $this->expectException(\Exception::class);
-        $this->fhirPatientService->getOne("a-fhir-resource-id");
+        $this->fhirPatientService->getOne('a-fhir-resource-id');
     }
 
     /**
-     * @covers ::mapSearchParameters
+     * Executes assertions against a 'GetAll' Patient Search processing result
+     * @param $processingResult The OpenEMR Processing Result
+     * @param $isExpectedToHaveAResult Indicates if the result is expected to have at least one search result
      */
-    public function testMapSearchParameters()
+    private function assertGetAllSearchResults($processingResult, $isExpectedToHaveAResult = true)
     {
-        $this->markTestSkipped();
+        $this->assertTrue($processingResult->isValid());
+
+        if ($isExpectedToHaveAResult) {
+            $this->assertGreaterThan(0, count($processingResult->getData()));
+        } else {
+            $this->assertEquals(0, count($processingResult->getData()));
+        }
     }
 
     /**
+     * Tests getAll queries with the address parameter
      * @covers ::getAll
      * @covers ::searchForOpenEMRRecords
      */
-    public function testSearchForOpenEMRRecords()
+    public function testGetAllAddress()
     {
-        $this->markTestSkipped();
+        $this->fixtureManager->installPatientFixtures();
+
+        $fhirSearchParameters = array('address' => 'Avenue');
+
+        $processingResult = $this->fhirPatientService->getAll($fhirSearchParameters);
+        $this->assertGetAllSearchResults($processingResult);
+
+        foreach ($processingResult->getData() as $index => $fhirResource) {
+            $this->assertStringContainsString('Avenue', $fhirResource->getAddress()[0]->getLine()[0]);
+        }
+
+        $fhirSearchParameters = array('address' => '90210');
+        $processingResult = $this->fhirPatientService->getAll($fhirSearchParameters);
+        $this->assertGetAllSearchResults($processingResult);
+
+        foreach ($processingResult->getData() as $index => $fhirResource) {
+            $this->assertEquals('90210', $fhirResource->getAddress()[0]->getPostalCode());
+        }
+
+        $fhirSearchParameters = array('address' => 'San Diego');
+        $processingResult = $this->fhirPatientService->getAll($fhirSearchParameters);
+        $this->assertGetAllSearchResults($processingResult);
+
+        foreach ($processingResult->getData() as $index => $fhirResource) {
+            $this->assertEquals('San Diego', $fhirResource->getAddress()[0]->getCity());
+        }
+
+        $fhirSearchParameters = array('address' => 'CA');
+        $processingResult = $this->fhirPatientService->getAll($fhirSearchParameters);
+        $this->assertGetAllSearchResults($processingResult);
+
+        foreach ($processingResult->getData() as $index => $fhirResource) {
+            $this->assertEquals('CA', $fhirResource->getAddress()[0]->getState());
+        }
     }
 
+    /**
+     * Tests getAll queries with the address-city parameter
+     * @covers ::getAll
+     * @covers ::searchForOpenEMRRecords
+     */
+    public function testGetAllAddressCity()
+    {
+        $this->fixtureManager->installPatientFixtures();
+
+        $fhirSearchParameters = array('address-city' => 'San Diego');
+        $processingResult = $this->fhirPatientService->getAll($fhirSearchParameters);
+
+        $this->assertGetAllSearchResults($processingResult);
+
+        foreach ($processingResult->getData() as $index => $fhirResource) {
+            $this->assertEquals('San Diego', $fhirResource->getAddress()[0]->getCity());
+        }
+    }
 
     /**
-     * Utility function used to generate resources used as "FHIR Patient Fixtures"
+     * Tests getAll queries with the address-postalcode parameter
+     * @covers ::getAll
+     * @covers ::searchForOpenEMRRecords
+     */
+    public function testGetAllAddressPostalCode()
+    {
+        $this->fixtureManager->installPatientFixtures();
+
+        $fhirSearchParameters = array('address-postalcode' => '90210');
+        $processingResult = $this->fhirPatientService->getAll($fhirSearchParameters);
+
+        $this->assertGetAllSearchResults($processingResult);
+
+        foreach ($processingResult->getData() as $index => $fhirResource) {
+            $this->assertEquals('90210', $fhirResource->getAddress()[0]->getPostalCode());
+        }
+    }
+
+    /**
+     * Tests getAll queries with the address-state parameter
+     * @covers ::getAll
+     * @covers ::searchForOpenEMRRecords
+     */
+    public function testGetAllAddressState()
+    {
+        $this->fixtureManager->installPatientFixtures();
+
+        $fhirSearchParameters = array('address-state' => 'CA');
+        $processingResult = $this->fhirPatientService->getAll($fhirSearchParameters);
+
+        $this->assertGetAllSearchResults($processingResult);
+
+        foreach ($processingResult->getData() as $index => $fhirResource) {
+            $this->assertEquals('CA', $fhirResource->getAddress()[0]->getState());
+        }
+    }
+
+    /**
+     * Tests getAll queries with the birthdate parameter
+     * @covers ::getAll
+     * @covers ::searchForOpenEMRRecords
+     */
+    public function testGetAllBirthDate()
+    {
+        $this->fixtureManager->installPatientFixtures();
+
+        $fhirSearchParameters = array('birthdate' => '1960-01-01');
+        $processingResult = $this->fhirPatientService->getAll($fhirSearchParameters);
+
+        $this->assertGetAllSearchResults($processingResult);
+
+        foreach ($processingResult->getData() as $index => $fhirResource) {
+            $this->assertEquals('1960-01-01', $fhirResource->getBirthDate());
+        }
+    }
+
+    /**
+     * Tests getAll queries with the email parameter
+     * @covers ::getAll
+     * @covers ::searchForOpenEMRRecords
+     */
+    public function testGetAllEmail()
+    {
+        $this->fixtureManager->installPatientFixtures();
+
+        $fhirSearchParameters = array('email' => 'info@pennfirm.com');
+        $processingResult = $this->fhirPatientService->getAll($fhirSearchParameters);
+
+        $this->assertGetAllSearchResults($processingResult);
+
+        $isMatched = false;
+        foreach ($processingResult->getData() as $index => $fhirResource) {
+            foreach ($fhirResource->getTelecom() as $index => $telecom) {
+                if ($telecom['system'] == 'email' && $telecom['value'] == 'info@pennfirm.com') {
+                    $isMatched = true;
+                    break;
+                }
+            }
+            $this->assertTrue($isMatched);
+            $isMatched = false;
+        }
+    }
+
+    /**
+     * Tests getAll queries with the family name parameter
+     * @covers ::getAll
+     * @covers ::searchForOpenEMRRecords
+     */
+    public function testGetAllFamily()
+    {
+        $this->fixtureManager->installPatientFixtures();
+
+        $fhirSearchParameters = array('family' => 'Moses');
+        $processingResult = $this->fhirPatientService->getAll($fhirSearchParameters);
+
+        $this->assertGetAllSearchResults($processingResult);
+
+        foreach ($processingResult->getData() as $index => $fhirResource) {
+            $this->assertEquals('Moses', $fhirResource->getName()[0]->getFamily());
+        }
+    }
+
+    /**
+     * Tests getAll queries with the gender parameter
+     * @covers ::getAll
+     * @covers ::searchForOpenEMRRecords
+     */
+    public function testGetAllGender()
+    {
+        $this->fixtureManager->installPatientFixtures();
+
+        $fhirSearchParameters = array('gender' => 'male');
+        $processingResult = $this->fhirPatientService->getAll($fhirSearchParameters);
+
+        $this->assertGetAllSearchResults($processingResult);
+
+        foreach ($processingResult->getData() as $index => $fhirResource) {
+            $this->assertEquals('male', $fhirResource->getGender());
+        }
+    }
+
+    /**
+     * Tests getAll queries with the given name parameter
+     * @covers ::getAll
+     * @covers ::searchForOpenEMRRecords
+     */
+    public function testGetAllGivenName()
+    {
+        $this->fixtureManager->installPatientFixtures();
+
+        $fhirSearchParameters = array('given' => 'Eduardo');
+        $processingResult = $this->fhirPatientService->getAll($fhirSearchParameters);
+
+        $this->assertGetAllSearchResults($processingResult);
+
+        $isMatched = false;
+        foreach ($processingResult->getData() as $index => $fhirResource) {
+            foreach ($fhirResource->getName()[0]->getGiven() as $index => $givenName) {
+                if ($givenName == 'Eduardo') {
+                    $isMatched = true;
+                    break;
+                }
+            }
+            $this->assertTrue($isMatched);
+        }
+    }
+
+    /**
+     * Utility function used to generate resources used as 'FHIR Patient Fixtures'
      */
     public function generateFhirPatientFixtures()
     {

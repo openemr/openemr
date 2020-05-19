@@ -170,10 +170,11 @@ class PatientService extends BaseService
      * If no search criteria is provided, all records are returned.
      *
      * @param  $search search array parameters
+     * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array())
+    public function getAll($search = array(), $isAndCondition = true)
     {
         $sqlBindArray = array();
 
@@ -211,7 +212,7 @@ class PatientService extends BaseService
 
             foreach ($search as $fieldName => $fieldValue) {
                 // support wildcard match on specific fields
-                if (in_array($fieldName, array('fname', 'lname', 'street'))) {
+                if (in_array($fieldName, array('fname', 'mname', 'lname', 'street', 'city'))) {
                     array_push($whereClauses, $fieldName . ' LIKE ?');
                     array_push($sqlBindArray, '%' . $fieldValue . '%');
                 } else {
@@ -220,7 +221,8 @@ class PatientService extends BaseService
                     array_push($sqlBindArray, $fieldValue);
                 }
             }
-            $sql .= implode(" AND ", $whereClauses);
+            $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
+            $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
         }
 
         $statementResults = sqlStatement($sql, $sqlBindArray);
