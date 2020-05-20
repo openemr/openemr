@@ -53,7 +53,7 @@ class FhirPatientServiceQueryTest extends TestCase
     }
 
     /**
-     * PHPUnit Data Provider for FHIR patient address searches
+     * PHPUnit Data Provider for FHIR patient searches
      */
     public function searchParameterDataProvider()
     {
