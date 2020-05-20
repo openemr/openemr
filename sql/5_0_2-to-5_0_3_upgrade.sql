@@ -357,7 +357,7 @@ ALTER TABLE users DROP COLUMN `pwd_history2`;
 #EndIf
 
 #IfMissingColumn users_secure last_update_password
-ALTER TABLE `users_secure` ADD `last_update_password` datetime NOT NULL;
+ALTER TABLE `users_secure` ADD `last_update_password` datetime DEFAULT NULL;
 UPDATE `users_secure` SET `last_update_password` = NOW();
 #EndIf
 
