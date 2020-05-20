@@ -8,9 +8,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2010 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2016-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
+ * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -18,7 +20,7 @@ require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/globals.inc.php");
 require_once("$srcdir/user.inc");
-require_once(dirname(__FILE__) . "/../../myportal/soap_service/portal_connectivity.php");
+require_once(__DIR__ . "/../../myportal/soap_service/portal_connectivity.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
@@ -715,7 +717,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                         // Only show files that contain tabs_style_ or style_ as options
                                                         if ($fldtype == 'tabs_css') {
                                                             $patternStyle = 'tabs_style_';
-                                                        } else { // $fldtype == 'css'
+                                                        } else {
+                                                            // $fldtype == 'css'
                                                             $patternStyle = 'style_';
                                                         }
                                                         if (
@@ -810,8 +813,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         }
                                     }
 
-                                    echo "<div><div class='oe-pull-away oe-margin-t-10' style=''>" . xlt($grpname) . " &nbsp;<a href='#' class='text-dark text-decoration-none fa fa-lg fa-arrow-circle-up oe-help-redirect scroll' aria-hidden='true'></a></div><div class='clearfix'></div></div>";
-                                    echo " </div>\n";
+                                    echo "<div class='btn-group oe-margin-b-10'>" .
+                                        "<button type='submit' class='btn btn-secondary btn-save oe-pull-toward' name='form_save'" .
+                                        "value='" . xla('Save') . "'>" . xlt('Save') . "</button></div>";
+                                    echo "<div class='oe-pull-away oe-margin-t-10' style=''>" . xlt($grpname) . " &nbsp;<a href='#' class='text-dark text-decoration-none fa fa-lg fa-arrow-circle-up oe-help-redirect scroll' aria-hidden='true'></a></div><div class='clearfix'></div></div>";
                                     echo " </div>\n";
                                 }
                             }
@@ -857,50 +862,6 @@ $(function () {
     }
     ?>
 });
-</script>
-<script>
-// TODO: We shouldn't even need this code! Probably need to redo this entire file
-var userMode = <?php echo json_encode($userMode); ?>;
-$(window).on('resize', function() {
-    var win = $(this);
-    var winWidth = $(this).width();
-    if (winWidth <= 750) {
-        $("#oe-nav-ul").removeClass("tabWidthVertical tabWidthUser tabWidthWide tabWidthFull");
-        if (userMode) {
-            $("#oe-nav-ul").addClass("tabWidthUser");
-        } else {
-            $("#oe-nav-ul").addClass("tabWidthVertical");
-        }
-    } else if (winWidth > 750 && winWidth <= 1024) {
-        $("#oe-nav-ul").removeClass("tabWidthVertical tabWidthUser tabWidthWide tabWidthFull");
-        if (userMode) {
-            $("#oe-nav-ul").addClass("tabWidthUser");
-        } else {
-            $("#oe-nav-ul").addClass("tabWidthWide");
-        }
-    } else if (winWidth > 1024) {
-        $("#oe-nav-ul").removeClass("tabWidthVertical tabWidthUser tabWidthWide tabWidthFull");
-        $("#oe-nav-ul").addClass("tabWidthFull");
-    }
-    if (winWidth > 1024) {
-        if (!userMode) {
-            $('.row  .control-label, .row  .oe-input').removeClass('col-sm-6');
-            $('.row  .control-label').addClass('col-sm-4 offset-sm-1');
-            $('.row  .oe-input').addClass('col-sm-4');
-        }
-    } else {
-        if (!userMode) {
-            $('.row  .control-label, .row  .oe-input').addClass('col-sm-6');
-            $('.row  .control-label').removeClass('col-sm-4 offset-sm-1');
-            $('.row  .oe-input').removeClass('col-sm-4');
-        }
-    }
-});
-$(function () {
-    $(window).trigger('resize'); // to avoid repeating code triggers above on page open
-});
-</script>
-<script>
 $('.scroll').click(function() {
     if ($(window).scrollTop() == 0) {
         alert(<?php echo xlj("Already at the top of the page"); ?>);

@@ -152,6 +152,7 @@ foreach ($msgs as $i) {
                         {text: <?php echo xlj('Revert Edits'); ?>, close: false, style: 'danger', id: 'replaceAllButton'},
                         {text: <?php echo xlj('Send for Review'); ?>, close: false, style: 'success', id: 'donePatientButton'}
                     ],
+                    sizeHeight: 'full',
                     allowDrag: false,
                     onClosed: 'reload',
                     resolvePromiseOn: 'init',
@@ -395,7 +396,7 @@ foreach ($msgs as $i) {
     </header>
     <div class="wrapper d-flex">
         <!-- Left side column. contains the logo and sidebar -->
-        <aside class="left-side sidebar-offcanvas collapse collapse-md mt-3" id="left-collapse">
+        <aside class="fixed-top left-side sidebar-offcanvas collapse collapse-md mt-5" id="left-collapse">
             <nav class="sidebar">
                 <!-- Sidebar user panel -->
                 <div class="user-panel">
