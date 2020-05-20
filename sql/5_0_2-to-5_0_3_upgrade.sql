@@ -524,7 +524,7 @@ UPDATE `openemr_postcalendar_events` SET `pc_eventDate` = NULL WHERE `pc_eventDa
 SET sql_mode = @currentSQLMode;
 #EndIf
 
-#IfNotColumnTypeDefault openemr_postcalendar_events pc_eventDate date NULL
+#IfNotColumnTypeDefault openemr_postcalendar_events pc_endDate date NULL
 ALTER TABLE `openemr_postcalendar_events` MODIFY `pc_endDate` date NULL;
 SET @currentSQLMode = (SELECT @@sql_mode);
 SET sql_mode = '';
