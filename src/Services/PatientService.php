@@ -224,7 +224,6 @@ class PatientService extends BaseService
             $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
             $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
         }
-
         $statementResults = sqlStatement($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();
