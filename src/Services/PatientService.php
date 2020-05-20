@@ -16,6 +16,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -109,6 +110,7 @@ class PatientService extends BaseService
 
         $freshPid = $this->getFreshPid();
         $data['pid'] = $freshPid;
+        $data['uuid'] = (new UuidRegistry(['table_name' => 'patient_data']))->createUuid();
         $data['date'] = date("Y-m-d H:i:s");
         $data['regdate'] = date("Y-m-d H:i:s");
 
@@ -126,7 +128,7 @@ class PatientService extends BaseService
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
         }
-        
+
         return $processingResult;
     }
 
@@ -151,7 +153,7 @@ class PatientService extends BaseService
         $sql = " UPDATE patient_data SET ";
         $sql .= $query['set'];
         $sql .= " WHERE pid = ?";
-        
+
         array_push($query['bind'], $pid);
         $sqlResult = sqlStatement($sql, $query['bind']);
 
@@ -160,7 +162,7 @@ class PatientService extends BaseService
         } else {
             $processingResult = $this->getOne($pid);
         }
-        
+
         return $processingResult;
     }
 

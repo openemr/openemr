@@ -5352,6 +5352,7 @@ CREATE TABLE `patient_access_onsite`(
 DROP TABLE IF EXISTS `patient_data`;
 CREATE TABLE `patient_data` (
   `id` bigint(20) NOT NULL auto_increment,
+  `uuid` varchar(64) NOT NULL default '',
   `title` varchar(255) NOT NULL default '',
   `language` varchar(255) NOT NULL default '',
   `financial` varchar(255) NOT NULL default '',
@@ -5459,6 +5460,7 @@ CREATE TABLE `patient_data` (
   `guardianworkphone` TEXT,
   `guardianemail` TEXT,
   UNIQUE KEY `pid` (`pid`),
+  UNIQUE KEY `uuid` (`uuid`),
   KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 -- --------------------------------------------------------
@@ -6807,6 +6809,20 @@ INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES 
 INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'vitals_ps_expand', '1');
 INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (0, 'gacl_protect', '0');
 INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES (1, 'gacl_protect', '1');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `uuid_registry`
+--
+
+DROP TABLE IF EXISTS `uuid_registry`;
+CREATE TABLE `uuid_registry` (
+  `uuid` varchar(64) NOT NULL DEFAULT '',
+  `table_name` varchar(255) NOT NULL DEFAULT '',
+  `created` timestamp NULL,
+  PRIMARY KEY (`uuid`)
+) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
