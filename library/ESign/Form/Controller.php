@@ -85,7 +85,7 @@ class Form_Controller extends Abstract_Controller
 
         $amendment = $this->getRequest()->getParam('amendment', '');
 
-        $valid = (new AuthUtils())->confirmUserPassword($_SESSION['authUser'], $password);
+        $valid = (new AuthUtils())->confirmPassword($_SESSION['authUser'], $password);
 
         if ($valid) {
             $factory = new Form_Factory($formId, $formDir, $encounterId);

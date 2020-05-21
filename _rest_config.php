@@ -33,6 +33,12 @@ class RestConfig
     /** @var fhir routemap is an array of patterns and routes */
     public static $FHIR_ROUTE_MAP;
 
+    /** @var portal routemap is an array of patterns and routes */
+    public static $PORTAL_ROUTE_MAP;
+
+    /** @var portal fhir routemap is an array of patterns and routes */
+    public static $PORTAL_FHIR_ROUTE_MAP;
+
     /** @var app root is the root directory of the application */
     public static $APP_ROOT;
 
@@ -167,7 +173,7 @@ class RestConfig
 
     static function is_authentication($resource)
     {
-        return ($resource === "/api/auth" || $resource === "/fhir/auth");
+        return ($resource === "/api/auth" || $resource === "/fhir/auth" || $resource === "/portal/auth" || $resource === "/portalfhir/auth");
     }
 
     static function get_bearer_token()
@@ -180,9 +186,24 @@ class RestConfig
         return trim($parse[1]);
     }
 
+    static function is_api_request($resource)
+    {
+        return (stripos(strtolower($resource), "/api/") !== false) ? true : false;
+    }
+
     static function is_fhir_request($resource)
     {
         return (stripos(strtolower($resource), "/fhir/") !== false) ? true : false;
+    }
+
+    static function is_portal_request($resource)
+    {
+        return (stripos(strtolower($resource), "/portal/") !== false) ? true : false;
+    }
+
+    static function is_portal_fhir_request($resource)
+    {
+        return (stripos(strtolower($resource), "/portalfhir/") !== false) ? true : false;
     }
 
     static function verify_api_request($resource, $api)
@@ -193,7 +214,23 @@ class RestConfig
                 http_response_code(401);
                 exit();
             }
-        } elseif ($api !== 'oemr') {
+        } elseif (self::is_portal_request($resource)) {
+            if ($api !== 'port') {
+                http_response_code(401);
+                exit();
+            }
+        } elseif (self::is_portal_fhir_request($resource)) {
+            if ($api !== 'pofh') {
+                http_response_code(401);
+                exit();
+            }
+        } elseif (self::is_api_request($resource)) {
+            if ($api !== 'oemr') {
+                http_response_code(401);
+                exit();
+            }
+        } else {
+            // somebody is up to no good
             http_response_code(401);
             exit();
         }
@@ -211,7 +248,8 @@ class RestConfig
                 http_response_code(401);
                 exit();
             } else {
-                // Note the isValidToken() set the _SESSION['authUser'] and $_SESSION['authUserId']
+                // Note the isValidToken() set the $_SESSION['authUser'] and $_SESSION['authUserId'] for core/fhir api
+                //  or $_SESSION['pid'] for patient portal api/fhir
                 $authRestController->optionallyAddMoreTokenTime($token);
             }
         }

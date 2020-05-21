@@ -2,6 +2,8 @@
 
 namespace OpenEMR\Tests\Fixtures;
 
+use OpenEMR\Common\Uuid\UuidRegistry;
+
 /**
  * Provides OpenEMR Fixtures/Sample Records to test cases as Objects or Database Records.
  *
@@ -45,6 +47,18 @@ class FixtureManager
     }
 
     /**
+     *
+     * This will return a recorded uuid (recorded in uuid_registry)
+     *
+     * @param $tableName The target OpenEMR DB table name.
+     * @return uuid.
+     */
+    private function getUuid($tableName)
+    {
+        return (new UuidRegistry(['table_name' => $tableName]))->createUuid();
+    }
+
+    /**
      * @return the next available patient pid/identifier.
      */
     private function getNextPid()
@@ -77,9 +91,14 @@ class FixtureManager
             }
 
             if ($tableName == "patient_data") {
-                $sqlColumnValues .= 'pid = ?';
+                // add pid
+                $sqlColumnValues .= 'pid = ? ,';
                 $nextPidValue = $this->getNextPid();
                 array_push($sqlBinds, $nextPidValue);
+                // add uuid
+                $sqlColumnValues .= '`uuid` = ?';
+                $uuidPatient = $this->getUuid("patient_data");
+                array_push($sqlBinds, $uuidPatient);
             }
 
             $sqlColumnValues = rtrim($sqlColumnValues, " ,");
@@ -156,8 +175,17 @@ class FixtureManager
      */
     public function removePatientFixtures()
     {
-        $delete = "DELETE FROM patient_data WHERE pubpid LIKE ?";
         $bindVariable = self::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
+
+        // remove the related uuids from uuid_registry
+        $select = "SELECT `uuid` FROM `patient_data` WHERE `pubpid` LIKE ?";
+        $sel = sqlStatement($select, [$bindVariable]);
+        while ($row = sqlFetchArray($sel)) {
+            sqlQuery("DELETE FROM `uuid_registry` WHERE `table_name` = 'patient_data' AND `uuid` = ?", [$row['uuid']]);
+        }
+
+        // remove the patients
+        $delete = "DELETE FROM patient_data WHERE pubpid LIKE ?";
         sqlStatement($delete, array($bindVariable));
     }
 }

@@ -272,9 +272,8 @@ class OemrUI
                         <div class="modal-body" style="height:80%;">
                             $modal_body
                         </div>
-                        <div class="modal-footer" class='mt-0'>
+                        <div class="modal-footer mt-0">
                            <button class="btn btn-link btn-cancel oe-pull-away" data-dismiss="modal" type="button">$close</button>
-                           <!--<button class="btn btn-secondary btn-print oe-pull-away" data-dismiss="modal" id="print-help-href" type="button">$print</button>-->
                         </div>
                     </div>
                 </div>

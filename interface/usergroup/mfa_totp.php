@@ -139,7 +139,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                             }
 
                             // Redirect back to step 1 if user password is incorrect
-                            if (!(new AuthUtils())->confirmUserPassword($_SESSION['authUser'], $_POST['clearPass'])) {
+                            if (!(new AuthUtils())->confirmPassword($_SESSION['authUser'], $_POST['clearPass'])) {
                                 header("Location: mfa_totp.php?action=reg1&error=auth");
                                 exit();
                             }

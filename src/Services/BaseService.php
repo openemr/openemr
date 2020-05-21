@@ -80,7 +80,7 @@ class BaseService
                 $value = "";
             }
             $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
-            $bind[] = ($value === null || $value === false) ? '' : add_escape_custom($value);
+            $bind[] = ($value === null || $value === false) ? '' : $value;
         }
 
         $result['set'] = $keyset;
@@ -119,7 +119,7 @@ class BaseService
                 continue;
             }
             $keyset .= ($keyset) ? ", `$key` = ? " : "`$key` = ? ";
-            $bind[] = ($value == 'NULL') ? "" : add_escape_custom($value);
+            $bind[] = ($value == 'NULL') ? "" : $value;
         }
 
         $result['set'] = $keyset;

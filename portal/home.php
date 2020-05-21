@@ -152,6 +152,7 @@ foreach ($msgs as $i) {
                         {text: <?php echo xlj('Revert Edits'); ?>, close: false, style: 'danger', id: 'replaceAllButton'},
                         {text: <?php echo xlj('Send for Review'); ?>, close: false, style: 'success', id: 'donePatientButton'}
                     ],
+                    sizeHeight: 'full',
                     allowDrag: false,
                     onClosed: 'reload',
                     resolvePromiseOn: 'init',
@@ -395,7 +396,7 @@ foreach ($msgs as $i) {
     </header>
     <div class="wrapper d-flex">
         <!-- Left side column. contains the logo and sidebar -->
-        <aside class="left-side sidebar-offcanvas collapse collapse-md mt-3" id="left-collapse">
+        <aside class="fixed-top left-side sidebar-offcanvas collapse collapse-md mt-5" id="left-collapse">
             <nav class="sidebar">
                 <!-- Sidebar user panel -->
                 <div class="user-panel">
@@ -517,7 +518,7 @@ foreach ($msgs as $i) {
                                     echo '<div class="card p-2">';
                                     $mode = (int)$row['pc_recurrtype'] > 0 ? text("recurring") : $row['pc_recurrtype'];
                                     $appt_type_icon = (int)$row['pc_recurrtype'] > 0 ? "<i class='float-right fa fa-edit text-danger bg-light'></i>" : "<i class='float-right fa fa-edit text-success bg-light'></i>";
-                                    echo "<div class='card-header clearfix'><a href='#' onclick='editAppointment(" . attr_js($mode) . "," . attr_js($row ['pc_eid']) . ")'" . "title='" . attr($etitle) . "'>" . $appt_type_icon . "</a></div>";
+                                    echo "<div class='card-header clearfix'><a href='#' onclick='editAppointment(" . attr_js($mode) . "," . attr_js($row ['pc_eid']) . ")'" . " title='" . attr($etitle) . "'>" . $appt_type_icon . "</a></div>";
                                     echo "<div class='body font-weight-bold'><p>" . text($dayname . ", " . $row ['pc_eventDate']) . "&nbsp;";
                                     echo text($disphour . ":" . $dispmin . " " . $dispampm) . "<br />";
                                     echo xlt("Type") . ": " . text($row ['pc_catname']) . "<br />";
@@ -531,12 +532,11 @@ foreach ($msgs as $i) {
                             } else { // if no appts
                                 echo "<h3 class='text-center'>" . xlt('No Appointments') . "</h3>";
                             }
-                                echo '</div>'; ?>
+                            echo '</div>'; ?>
                             <span><a class='btn btn-primary btn-block' href='#' onclick="editAppointment('add',<?php echo attr_js($pid); ?>)"><?php echo xlt('Schedule A New Appointment'); ?></a>
                             </span>
                         </div>
                     </div><!-- /.row -->
-                </div>
                     <?php
                 } ?>
                     <?php if ($GLOBALS['portal_two_payments']) {

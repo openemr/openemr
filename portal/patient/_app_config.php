@@ -88,28 +88,6 @@ GlobalConfig::$ROUTE_MAP = array(
         'p_acl' => 'p_all'
     ),
 
-    // authentication routes
-    'GET:loginform' => array(
-        'route' => 'SecureApp.LoginForm',
-        'p_acl' => 'p_all'
-    ),
-    'POST:login' => array(
-        'route' => 'SecureApp.Login',
-        'p_acl' => 'p_all'
-    ),
-    'GET:secureuser' => array(
-        'route' => 'SecureApp.UserPage',
-        'p_acl' => 'p_all'
-    ),
-    'GET:secureadmin' => array(
-        'route' => 'SecureApp.AdminPage',
-        'p_acl' => 'p_all'
-    ),
-    'GET:logout' => array(
-        'route' => 'SecureApp.Logout',
-        'p_acl' => 'p_all'
-    ),
-
     // Patient
     'GET:patientdata' => array(
         'route' => 'Patient.ListView',

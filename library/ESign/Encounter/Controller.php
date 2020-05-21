@@ -85,7 +85,7 @@ class Encounter_Controller extends Abstract_Controller
         }
 
         $amendment = $this->getRequest()->getParam('amendment', '');
-        if ((new AuthUtils())->confirmUserPassword($_SESSION['authUser'], $password)) {
+        if ((new AuthUtils())->confirmPassword($_SESSION['authUser'], $password)) {
             $signable = new Encounter_Signable($encounterId);
             if ($signable->sign($_SESSION['authUserID'], $lock, $amendment)) {
                 $message = xlt("Form signed successfully");

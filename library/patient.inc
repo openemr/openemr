@@ -12,6 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -982,7 +983,13 @@ function newPatientData(
         $db_id = $id;
     }
 
-    $foo = sqlQuery("select pid from patient_data where id=? order by date limit 0,1", array($id));
+    $foo = sqlQuery("select `pid`, `uuid` from `patient_data` where `id` = ? order by `date` limit 0,1", array($id));
+
+    // set uuid if not set yet (if this was an insert and not an update)
+    if (empty($foo['uuid'])) {
+        $uuid = (new UuidRegistry(['table_name' => 'patient_data']))->createUuid();
+        sqlStatementNoLog("UPDATE `patient_data` SET `uuid` = ? WHERE `id` = ?", [$uuid, $id]);
+    }
 
     return $foo['pid'];
 }
@@ -1067,6 +1074,9 @@ function updatePatientData($pid, $new, $create = false)
 
             $sql .= ", `$key` = " . pdValueOrNull($key, $value);
         }
+
+        // add a uuid for the new patient
+        $sql .= ", `uuid` ='" . add_escape_custom((new UuidRegistry(['table_name' => 'patient_data']))->createUuid()) . "'";
 
         $db_id = sqlInsert($sql);
     } else {
