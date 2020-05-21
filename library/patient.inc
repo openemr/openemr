@@ -382,7 +382,7 @@ function getInsuranceDataByDate(
   // but not records enterred after the given date
     $sql = "select $given from insurance_data as insd " .
     "left join insurance_companies as ic on ic.id = provider " .
-    "where pid = ? and date_format(date,'%Y-%m-%d') <= ? and " .
+    "where pid = ? and (date_format(date,'%Y-%m-%d') <= ? OR date IS NULL) and " .
     "type=? order by date DESC limit 1";
     return sqlQuery($sql, array($pid,$date,$type));
 }
@@ -1644,7 +1644,7 @@ function getEffectiveInsurances($patient_id, $encdate)
         $tmp = sqlQuery(
             "SELECT * FROM insurance_data " .
             "WHERE pid = ? AND type = ? " .
-            "AND date <= ? ORDER BY date DESC LIMIT 1",
+            "AND (date <= ? OR date IS NULL) AND provider != '' AND provider IS NOT NULL ORDER BY date DESC LIMIT 1",
             array($patient_id, $instype, $encdate)
         );
         if (empty($tmp['provider'])) {

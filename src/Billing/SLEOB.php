@@ -213,7 +213,7 @@ class SLEOB
         $tmp = array(1 => 'primary', 2 => 'secondary', 3 => 'tertiary');
         $value = $tmp[$payer_type];
         $query = "SELECT provider FROM insurance_data WHERE " .
-            "pid = ? AND type = ? AND date <= ? " .
+            "pid = ? AND type = ? AND (date <= ? OR date IS NULL) " .
             "ORDER BY date DESC LIMIT 1";
         $nprow = sqlQuery($query, array($patient_id, $value, $date_of_service));
         if (empty($nprow)) {

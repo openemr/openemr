@@ -200,7 +200,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         "FROM insurance_data, insurance_companies WHERE " .
         "insurance_data.pid = ? AND " .
         "insurance_data.type = 'primary' AND " .
-        "insurance_data.date <= ? AND " .
+        "(insurance_data.date <= ? OR insurance_data.date IS NULL) AND insurance_data.provider != '' AND insurance_data.provider IS NOT NULL AND " .
         "insurance_companies.id = insurance_data.provider " .
         "ORDER BY insurance_data.date DESC LIMIT 1", array($patient_id, $encounter_date));
         $plan = $irow['name'] ? $irow['name'] : '-- No Insurance --';

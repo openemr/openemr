@@ -116,7 +116,7 @@ function GenerateTheQueryPart()
                 $SplitArray[1] = substr($SplitArray[1], 0, -1);//comes like 781,780
                 $query_part .= ' AND form_encounter.encounter in (' . $SplitArray[1] . ')';
             } elseif (strpos($criteria_value, "insurance_data.provider = '1'") !== false) {
-                $query_part .= ' AND ' . "insurance_data.provider > '0' and insurance_data.date <= form_encounter.date";
+                $query_part .= ' AND ' . "insurance_data.provider > '0' and (insurance_data.date <= form_encounter.date OR insurance_data.date IS NULL)";
             } elseif (strpos($criteria_value, "insurance_data.provider = '0'") !== false) {
                 $query_part .= ' AND ' . "(insurance_data.provider = '0' or insurance_data.date > form_encounter.date)";
             } else {

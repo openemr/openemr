@@ -148,7 +148,7 @@ function getHistoryReport($pid)
 
 function getInsuranceReport($pid, $type = "primary")
 {
-    $sql = "select * from insurance_data where pid=? and type=? order by date ASC";
+    $sql = "select * from insurance_data where pid=? and type=? AND provider != '' AND provider IS NOT NULL order by date ASC";
     $res = sqlStatement($sql, array($pid, $type));
     while ($list = sqlFetchArray($res)) {
         while (list($key, $value) = each($list)) {

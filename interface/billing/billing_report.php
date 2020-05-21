@@ -1092,7 +1092,8 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
                                     "FROM insurance_data AS id, insurance_companies AS ic WHERE " .
                                     "ic.id = id.provider AND " .
                                     "id.pid = ? AND " .
-                                    "id.date <= ? " .
+                                    "(id.date <= ? OR id.date IS NULL) AND " .
+                                    "id.provider != '' AND id.provider IS NOT NULL " .
                                     "ORDER BY id.type ASC, id.date DESC";
 
                                     $result = sqlStatement(
@@ -1165,7 +1166,7 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
                                             "FROM insurance_data AS id, insurance_companies AS ic WHERE " .
                                             "id.pid = ? AND " .
                                             "id.provider = ? AND " .
-                                            "id.date <= ? AND " .
+                                            "(id.date <= ? OR id.date IS NULL) AND " .
                                             "ic.id = id.provider " .
                                             "ORDER BY id.type ASC, id.date DESC";
 
