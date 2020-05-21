@@ -1212,27 +1212,27 @@ function newInsuranceData(
     "pid = ? AND type = ? ORDER BY date DESC", array($pid,$type));
     $idrow = sqlFetchArray($idres);
 
-  // Replace the most recent entry in any of the following cases:
-  // * Its effective date is >= this effective date.
-  // * It is the first entry and it has no (insurance) provider.
-  // * There is no encounter that is earlier than the new effective date but
-  //   on or after the old effective date.
-  // Otherwise insert a new entry.
+    // Replace the most recent entry in any of the following cases:
+    // * Its effective date is >= this effective date.
+    // * It is the first entry and it has no (insurance) provider.
+    // * There is no encounter that is earlier than the new effective date but
+    //   on or after the old effective date.
+    // Otherwise insert a new entry.
 
     $replace = false;
     if ($idrow) {
-        if (strcmp($idrow['date'], $effective_date) > 0) {
+        // convert date from null to "0000-00-00" for below strcmp and query
+        $temp_idrow_date = (!empty($idrow['date'])) ? $idrow['date'] : "0000-00-00";
+        $temp_effective_date = (!empty($effective_date)) ? $effective_date : "0000-00-00";
+        if (strcmp($temp_idrow_date, $temp_effective_date) > 0) {
             $replace = true;
         } else {
             if (!$idrow['provider'] && !sqlFetchArray($idres)) {
                 $replace = true;
             } else {
-                if (empty($effective_date)) {
-                    $temp_effective_date = "0000-00-00";
-                }
                 $ferow = sqlQuery("SELECT count(*) AS count FROM form_encounter " .
                 "WHERE pid = ? AND date < ? AND " .
-                "date >= ?", array($pid, $temp_effective_date . " 00:00:00", $idrow['date'] . " 00:00:00"));
+                "date >= ?", array($pid, $temp_effective_date . " 00:00:00", $temp_idrow_date . " 00:00:00"));
                 if ($ferow['count'] == 0) {
                     $replace = true;
                 }
@@ -1244,9 +1244,15 @@ function newInsuranceData(
         // TBD: This is a bit dangerous in that a typo in entering the effective
         // date can wipe out previous insurance history.  So we want some data
         // entry validation somewhere.
-        sqlStatement("DELETE FROM insurance_data WHERE " .
-        "pid = ? AND type = ? AND date >= ? AND " .
-        "id != ?", array($pid, $type, $effective_date, $idrow['id']));
+        if ($effective_date === null) {
+            sqlStatement("DELETE FROM insurance_data WHERE " .
+                "pid = ? AND type = ? AND " .
+                "id != ?", array($pid, $type, $idrow['id']));
+        } else {
+            sqlStatement("DELETE FROM insurance_data WHERE " .
+                "pid = ? AND type = ? AND date >= ? AND " .
+                "id != ?", array($pid, $type, $effective_date, $idrow['id']));
+        }
 
         $data = array();
         $data['type'] = $type;
