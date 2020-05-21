@@ -1211,7 +1211,7 @@ function build_DX_list(obj) {
                if (obj.Clinical[key][0].diagnosis > '') { //so we are just showing this first item of each Dx (Eg bilateral, x4 pterygium, only first shows up)
                diagnosis = "<code class='float-right ICD_CODE'>"+obj.Clinical[key][0].code+"</code>";
                }
-               out += "<li class='ui-widget-content'><span name='DX_Clinical_"+key+"' id='DX_Clinical_"+key+"'>"+obj.Clinical[key][0].title+"</span> "+diagnosis+"</li> ";
+               out += "<div class='droppable'><li class='ui-widget-content draggable'><span name='DX_Clinical_"+key+"' id='DX_Clinical_"+key+"'>"+obj.Clinical[key][0].title+"</span> "+diagnosis+"</li></div>";
                });
     }
 
@@ -1221,14 +1221,14 @@ function build_DX_list(obj) {
                if (obj.PMSFH['POH'][key].diagnosis > '' ) {
                diagnosis = "<code class='float-right ICD_CODE'>"+obj.PMSFH['POH'][key].code+"</code>";
                }
-               out += "<li class='ui-widget-content'><span name='DX_POH_"+key+"' id='DX_POH_"+key+"'>"+obj.PMSFH['POH'][key].title+"</span> "+diagnosis+"</li>";
+               out += "<div class='droppable'><li class='ui-widget-content draggable'><span name='DX_POH_"+key+"' id='DX_POH_"+key+"'>"+obj.PMSFH['POH'][key].title+"</span> "+diagnosis+"</li></div>";
                });
         $.each(obj.PMSFH['POS'], function(key, value) {
                diagnosis='';
                if (obj.PMSFH['POS'][key].diagnosis > '' ) {
                diagnosis = "<code class='float-right ICD_CODE'>"+obj.PMSFH['POS'][key].code+"</code>";
                }
-               out += "<li class='ui-widget-content'><span name='DX_POS_"+key+"' id='DX_POS_"+key+"'>"+obj.PMSFH['POS'][key].title+"</span> "+diagnosis+"</li>";
+               out += "<div class='droppable'><li class='ui-widget-content draggable'><span name='DX_POS_"+key+"' id='DX_POS_"+key+"'>"+obj.PMSFH['POS'][key].title+"</span> "+diagnosis+"</li></div>";
                });
     }
     if ($('#inc_PMH').is(':checked') && obj.PMSFH['PMH']) {
@@ -1237,17 +1237,15 @@ function build_DX_list(obj) {
                if (obj.PMSFH['PMH'][key].diagnosis > '') {
                diagnosis = "<code class='float-right ICD_CODE'>"+obj.PMSFH['PMH'][key].code+"</code>";
                }
-               out += "<li class='ui-widget-content'><span name='DX_PMH_"+key+"' id='DX_PMH_"+key+"'>"+obj.PMSFH['PMH'][key].title+"</span>"+diagnosis+"</li> ";
+               out += "<div class='droppable'><li class='ui-widget-content draggable'><span name='DX_PMH_"+key+"' id='DX_PMH_"+key+"'>"+obj.PMSFH['PMH'][key].title+"</span>"+diagnosis+"</li></div>";
                });
     }
         //add in inc_FIELDCODES culled from the datafields
     if (out !="") {
         rebuild_IMP($( "#build_DX_list" ));
         $( "#build_DX_list" )
-        .html(out).sortable({ handle: ".handle",stop: function(event, ui){ rebuild_IMP($( "#build_DX_list" )) } })
-        .selectable({ filter: "li", cancel: ".handle",stop: function(event, ui){ rebuild_IMP($( "#build_DX_list" )) } })
+        .html(out)
         .find( "li" )
-        .addClass( "ui-corner-all  ui-selected" )
         .dblclick(function(){
                   rebuild_IMP($( "#build_DX_list" ));
                   $('#make_new_IMP').trigger('click'); //any items selected are sent to IMPPLAN directly.

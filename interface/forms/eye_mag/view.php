@@ -188,7 +188,7 @@ if ($refresh and $refresh != 'fullscreen') {
       <meta name="description" content="OpenEMR: Eye Exam" />
       <meta name="author" content="OpenEMR: Ophthalmology" />
 
-      <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor' ]); ?>
+      <?php Header::setupHeader(['datetime-picker', 'dialog' ,'jscolor' ]); ?>
 
       <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
   </head>
@@ -4048,6 +4048,7 @@ if ($refresh and $refresh != 'fullscreen') {
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/undone.js-0-0-1/undone.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/undone.js-0-0-1/jquery.undone.js"></script>
     <script language="JavaScript">
+        oeSortable();
         function openNewForm(sel, label) {
             top.restoreSession();
             FormNameValueArray = sel.split('formname=');
