@@ -134,8 +134,6 @@ assets:
     fontawesome:
         basePath: '%assets_static_relative%/@fortawesome/fontawesome-free/css/'
         link: all.min.css
-        autoload: true
-        allowNoLoad: true
     datetime-picker:
         basePath: '%assets_static_relative%/jquery-datetimepicker/build/'
         script: jquery.datetimepicker.full.min.js

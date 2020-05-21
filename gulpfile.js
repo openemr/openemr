@@ -205,8 +205,8 @@ function install(done) {
                     .pipe(gulp.dest(config.dist.assets + key + '/decoders'));
                 gulp.src('node_modules/' + key + '/locales/**/*')
                     .pipe(gulp.dest(config.dist.assets + key + '/locales'));
-            } else if (key == 'bootstrap' || key == 'bootstrap-rtl' || key == 'bootswatch') {
-                // bootstrap, bootstrap-v4-rtl, and bootswatch are special and need to copy dist and scss
+            } else if (key == 'bootstrap' || key == 'bootstrap-rtl' || key == 'bootswatch' || key == '@fortawesome/fontawesome-free') {
+                // bootstrap, bootstrap-v4-rtl, bootswatch, and fontawesome are special and need to copy dist and scss
                 gulp.src('node_modules/' + key + '/dist/**/*')
                     .pipe(gulp.dest(config.dist.assets + key + '/dist'));
                 gulp.src('node_modules/' + key + '/scss/**/*')
