@@ -1524,10 +1524,13 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                             echo "&nbsp;&nbsp;";
                         }
                         ?>
-                        <button type="submit" class="btn btn-primary btn-save" name="bn_save">
+                        <button type="submit" class="btn btn-primary btn-save" name="bn_save"
+                                value="<?php echo xla('Save'); ?>">
                             <?php echo xlt('Save'); ?>
                         </button>
-                        <button type='submit' class="btn btn-secondary" name='bn_save_continue'>
+
+                        <button type='submit' class="btn btn-secondary" name='bn_save_continue'
+                                value='<?php echo xla('Save and Continue') ?>'>
                             <?php echo xlt('Save and Continue'); ?>
                         </button>
                         <?php
