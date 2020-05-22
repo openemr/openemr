@@ -1037,7 +1037,6 @@ function editScripts(url) {
                 {text: 'List', close: false, style: 'primary  btn-sm', click: ListScripts},
                 {text: 'Done', close: true, style: 'default btn-sm'}
             ],
-            onClosed: 'refreshme',
             allowResize: true,
             allowDrag: true,
             dialogId: 'editscripts',
