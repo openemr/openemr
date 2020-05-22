@@ -616,9 +616,9 @@ for ($i = 0; $i < $blank_lines; ++$i) {
 
 </table>
 <div class="btn-group">
-    <button type='submit' class="btn btn-primary btn-save" name='form_save'><?php echo  $drug_id ? xla('Update') : xla('Add') ; ?></button>
+    <input type='submit' class="btn btn-primary" name='form_save' value='<?php echo  $drug_id ? xla('Update') : xla('Add') ; ?>' />
     <?php if (AclMain::aclCheckCore('admin', 'super') && $drug_id) { ?>
-    <button class="btn btn-danger btn-delete" type='submit' name='form_delete'><?php echo xla('Delete'); ?></button>
+    <input class="btn btn-danger" type='submit' name='form_delete' value='<?php echo xla('Delete'); ?>' />
     <?php } ?>
     <button type='button' class="btn btn-secondary btn-cancel" onclick='window.close()'><?php echo xla('Cancel'); ?></button>
 </div>
