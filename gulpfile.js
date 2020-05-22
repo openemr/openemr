@@ -211,6 +211,8 @@ function install(done) {
                     .pipe(gulp.dest(config.dist.assets + key + '/dist'));
                 gulp.src('node_modules/' + key + '/scss/**/*')
                     .pipe(gulp.dest(config.dist.assets + key + '/scss'));
+                gulp.src('node_modules/' + key + '/webfonts/**/*')
+                    .pipe(gulp.dest(config.dist.assets + key + '/webfonts'));
             } else if (key == '@ttskch/select2-bootstrap4-theme') {
                 // @ttskch/select2-bootstrap4-theme is special and need to copy dist and src
                 //  modify src/layout.scss in order for sass build to work by removing:
