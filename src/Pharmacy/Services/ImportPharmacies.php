@@ -64,7 +64,7 @@ class ImportPharmacies
          * apparently still used by the CMS server.  Once CMS updates their encryption it may be possible to
          * revert this back to the original call.
          */
-         $response = oeHttpRequest::getCurlOptions(
+         $response = oeHttp::getCurlOptions(
              'https://npiregistry.cms.hhs.gov/api/',
              $query,
              [CURLOPT_SSL_CIPHER_LIST => 'ECDHE-RSA-AES256-GCM-SHA384']
