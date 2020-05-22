@@ -1093,7 +1093,6 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
                                     "ic.id = id.provider AND " .
                                     "id.pid = ? AND " .
                                     "(id.date <= ? OR id.date IS NULL) AND " .
-                                    "id.provider != '' AND id.provider IS NOT NULL " .
                                     "ORDER BY id.type ASC, id.date DESC";
 
                                     $result = sqlStatement(

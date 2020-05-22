@@ -908,7 +908,7 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
         if ($form_cb_policy) {
             $instype = ($insposition == 2) ? 'secondary' : (($insposition == 3) ? 'tertiary' : 'primary');
             $insrow = sqlQuery("SELECT policy_number FROM insurance_data WHERE " .
-            "pid = ? AND type = ? AND (date <= ? OR date IS NULL) AND provider != '' AND provider IS NOT NULL " .
+            "pid = ? AND type = ? AND (date <= ? OR date IS NULL) " .
             "ORDER BY date DESC LIMIT 1", array($patient_id, $instype, $svcdate));
             $row['policy'] = $insrow['policy_number'];
         }
