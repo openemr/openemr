@@ -16,7 +16,7 @@ use OpenEMR\Core\Header;
         <meta charset="utf-8">
         <?php echo $this->headTitle($this->translate()->xl('CCDA'))->setSeparator(' - ')->setAutoEscape(false) ?>
 
-                <?php Header::setupHeader(); ?>
+        <?php Header::setupHeader(['datetime-picker']); ?>
 
         <!-- styles -->
         <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))
@@ -36,6 +36,6 @@ use OpenEMR\Core\Header;
         <div class="container-fluid">
             <?php echo $this->content; ?>
         </div>
-        <?php echo $this->inlineScript() ?>
+        <?php echo $this->inlineScript(); ?>
     </body>
 </html>

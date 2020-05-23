@@ -14,7 +14,7 @@ echo $this->headLink()->prependStylesheet($this->basePath() . '/css/autosuggest/
 echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autosuggest.js');
 ?>
 <style>
-  #patient_select{
+  #patient_select {
     width     : 410px;
     height    : 110px;
     display   : none;
@@ -312,18 +312,18 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
 </script>
 <body id="dragandrophandler" style="min-height: 600px">
     <form method="post" enctype="multipart/form-data" id="form_ccda_import">
-        <input type="hidden" name="action" id="action">
-        <input type="hidden" name="am_id" id="am_id">
-        <input type="hidden" name="document_id" id="document_id">
+        <input type="hidden" name="action" id="action" />
+        <input type="hidden" name="am_id" id="am_id" />
+        <input type="hidden" name="document_id" id="document_id" />
         <!--Patient search for merging data in case of no match-->
         <div id="patient_select">
           <div class="w-100 text-right" style="background: none repeat scroll 0 0 #F1F1F1; height: 25px; margin-bottom: 20px; border-bottom: 1px solid #CCCCCC;">
             <img title="Close" id="close_patient_select" style="height: 25px; cursor: pointer;" src="<?php echo $this->basePath();?>/images/close.png" />
           </div>
-          <input type="hidden" name="amid" id="amid">
-          <input type="hidden" name="pid" id="pid">
+          <input type="hidden" name="amid" id="amid" />
+          <input type="hidden" name="pid" id="pid" />
           <!-- Auto suggest -->
-          <div id="autosuggest1" style="float: left; clear: right; margin-left: 10px; font-size: 12px;">
+          <div id="autosuggest1" class="float-left" style="clear: right; margin-left: 10px;">
               <?php echo $this->listenerObject->z_xlt('Patient');?>
               <input type="text" class="lookup" id="inputString1"
                 onKeyDown="PreventIt(event);" onkeyup="lookup(this.value.trim(), 'patient', '1', 'single');"
@@ -332,7 +332,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
               <input type="hidden" id="string_value1" name="string_value" value="" />
               <input type="text" id="string_id1" name="string_id" value="" class="string_id" />
             <!-- Start Records display area -->
-            <div class="suggestions" id="suggestions1" style="display: none; float: left; position: absolute; width: 450px; left: 60px;">
+            <div class="suggestions float-left position-absolute" id="suggestions1" style="display: none; width: 450px; left: 60px;">
               <div class="autoSuggestionsList" id="autoSuggestionsList1">&nbsp;</div>
             </div>
             <!-- End Records display area -->
@@ -346,22 +346,23 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
         <div class="body_inner_wrapper">
             <div class="header_wrap">
               <div id="uploader">
-                <input type="file" id="file_uploader" multiple>
+                <input type="file" id="file_uploader" multiple />
               </div>
               <div id="refresh" onclick="javascript:document.getElementById('form_ccda_import').submit();">&nbsp;</div>
             </div>
-            <div class="clear"></div>
+            <div class="clearfix"></div>
 
             <!--Display upload status-->
             <div class="d-none" id="status1"></div>
             <!---->
 
-            <div class="clear"></div>
+            <div class="clearfix"></div>
             <div class="se_in_8">
                 <?php
                 if (count($this->records) > 0) {
                     ?>
-                    <table class="responsive">
+                    <div class="table-responsive">
+                    <table class="table">
                         <tr class="se_in_9">
                             <th>&nbsp;</th>
                             <th style="height: 20px;">#</th>
@@ -438,6 +439,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                     }
                     ?>
                     </table>
+                  </div>
                     <?php
                 } else {
                     ?>

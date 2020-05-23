@@ -16,7 +16,7 @@
     <head>
         <meta charset="utf-8">
         <?php echo $this->headTitle($this->translate()->xl('Care Coordination'))->setSeparator(' - ')->setAutoEscape(false); ?>
-        <?php Header::setupHeader(); ?>
+        <?php Header::setupHeader(['datetime-picker']); ?>
         <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/images/favicon.ico'))
         ->prependStylesheet($this->basePath() . '/css/carecoordination_style.css')
         ->prependStylesheet($this->basePath() . '/css/style.css')

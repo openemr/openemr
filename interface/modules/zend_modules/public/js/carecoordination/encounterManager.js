@@ -56,9 +56,8 @@ function isNumber(evt) {
 // Hide Menu if clicked outside
 $(document).mouseup(function(e) {
     var container = $(".se_in_15");
-    var calendar = $(".ui-datepicker");
     var buttons = $(".search_button");
-    if (!container.is(e.target) && container.has(e.target).length === 0 && !buttons.is(e.target) && calendar.has(e.target).length === 0) {
+    if (!container.is(e.target) && container.has(e.target).length === 0 && !buttons.is(e.target)) {
         $(".se_in_15").css("display", "none");
     }
 });
@@ -73,12 +72,12 @@ $(function() {
     });
 
     //date picker
-    $(".dateClass").datepicker({
+    $(".dateClass").datetimepicker({
         changeMonth: true,
         changeYear: true
     });
-    $(".dateClass").datepicker("option", "dayNamesMin", ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
-    $(".rangeClass").datepicker();
+    $(".dateClass").datetimepicker("option", "dayNamesMin", ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
+    $(".rangeClass").datetimepicker();
 
     $('.expand').click(function() {
         $('#patient_' + this.id).toggle('slow');

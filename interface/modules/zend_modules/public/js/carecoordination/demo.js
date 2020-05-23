@@ -2,17 +2,17 @@
 
 $(function() {
     // first example
-    $("#browser").treeview();
+    $("#browser").tree();
 
     // second example
-    $("#navigation").treeview({
+    $("#navigation").tree({
         persist: "location",
         collapsed: true,
         unique: true
     });
 
     // third example
-    $("#red").treeview({
+    $("#red").tree({
         animated: "fast",
         collapsed: true,
         unique: true,
@@ -23,7 +23,7 @@ $(function() {
     });
 
     // fourth example
-    $("#black, #gray").treeview({
+    $("#black, #gray").tree({
         control: "#treecontrol",
         persist: "cookie",
         cookieId: "treeview-black"

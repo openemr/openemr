@@ -10,7 +10,7 @@
 
 // Ready Events Ends
 $(function() {
-    $(".date_field").datepicker({
+    $(".date_field").datetimepicker({
         changeMonth: true,
         changeYear: true,
         //dateFormat:'yy-mm-dd'
@@ -101,9 +101,8 @@ function isNumber(evt) {
 
 $(document).mouseup(function(e) {
     var container = $(".se_in_15");
-    var calendar = $(".ui-datepicker");
     var buttons = $(".search_button");
-    if (!container.is(e.target) && container.has(e.target).length === 0 && !buttons.is(e.target) && calendar.has(e.target).length === 0) {
+    if (!container.is(e.target) && container.has(e.target).length === 0 && !buttons.is(e.target)) {
         $(".se_in_15").css("display", "none");
     }
 });

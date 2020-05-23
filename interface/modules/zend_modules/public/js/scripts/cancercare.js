@@ -10,19 +10,18 @@
 
 $(document).mouseup(function(e) {
     var container = $(".se_in_15");
-    var calendar = $(".ui-datepicker");
     var buttons = $(".search_button");
-    if (!container.is(e.target) && container.has(e.target).length === 0 && !buttons.is(e.target) && calendar.has(e.target).length === 0) {
+    if (!container.is(e.target) && container.has(e.target).length === 0 && !buttons.is(e.target)) {
         $(".se_in_15").css("display", "none");
     }
 });
 
 $(function() {
-    $(".dateClass").datepicker({
+    $(".dateClass").datetimepicker({
         changeMonth: true,
         changeYear: true,
     });
-    $(".dateClass").datepicker("option", "dayNamesMin", ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
+    $(".dateClass").datetimepicker("option", "dayNamesMin", ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
     //	$( ".dateClass" ).datepicker("option", "dateFormat", date_format );
 
     $('.header_wrap_left').on("click", "#searchbutton", function() {
@@ -56,7 +55,7 @@ function isNumber(evt) {
 
 function pagination(action) {
     if (action == "first") {
-        document.getElementById('form_current_page').value = 1
+        document.getElementById('form_current_page').value = 1;
     } else if (action == "last") {
         document.getElementById('form_current_page').value = document.getElementById('form_total_pages').value;
     } else if (action == "next") {

@@ -17,10 +17,8 @@ var denied_array = new Array();
 //
 
 function createtree() {
-    $("#td_componets,#td_users,#td_allowed_users,#td_denied_users").treeview({
-        animated: "fast",
-        collapsed: true,
-        control: "#control_div"
+    $("#td_componets, #td_users, #td_allowed_users, #td_denied_users").tree({
+      collapsed: true
     });
 }
 

@@ -4,116 +4,12 @@
 *	TODO: Consolidate with core themes in GSoC
 *
 */
-body {
-    font-size: 0.875rem;
-    color: var(--gray500) !important;
-    background-color: var(--white) !important;
-    margin: 0;
-    background-repeat: repeat-x;
-}
-
-table.imagetable {
-    font-family: "Bookman Old Style", Verdana, Arial, sans-serif;
-    font-size: 0.8125rem;
-    color: var(--black);
-    border-spacing: 1px;
-    width: 100%;
-}
-
-table.imagetable th {
-    padding: 3px;
-    border-bottom: 2px solid var(--gray300);
-    color: var(--gray600);
-    border-bottom: 1px dotted black;
-    margin-bottom: 1px;
-    text-align: left;
-}
-
-table.imagetable td {
-    background: var(--gray200);
-    padding: 3px;
-    color: var(--gray600);
-    border-bottom: 1px solid var(--gray300);
-    margin-bottom: 1px;
-}
-
-table.imagetable td a,
-table.imagetable td a:visited {
-    color: #800000;
-}
-
-div.installer {
-    color: var(--black);
-    background-color: var(--light);
-    border-top: 1px solid var(--gray300);
-}
-
-div.installer_code {
-    background-color: var(--white);
-    font-size: 110%;
-}
 
 div.installer_result {
     background-color: var(--white);
     padding: 4px;
     border: 1px solid var(--gray300);
     width: 606px;
-}
-
-h1 {
-    font-size: 120%;
-    margin-top: 0;
-    font-weight: bold;
-}
-
-h2 {
-    font-size: 120%;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    font-weight: normal;
-}
-
-h3 {
-    font-size: 110%;
-    font-weight: normal;
-}
-
-h4 {
-    font-size: 100%;
-}
-
-h5 {
-    font-size: 90%;
-}
-
-h6 {
-    font-size: 80%;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    background-color: transparent;
-    color: var(--primary);
-}
-
-div {
-    width: 100%;
-}
-
-table,
-th,
-td,
-input,
-textarea {
-    font-size: 100%;
-}
-
-img {
-    border: 0;
 }
 
 .installerHead {
@@ -126,18 +22,9 @@ img {
     text-align: center;
 }
 
-.groupReg {
-    background: var(--gray300) !important;
-    color: var(--success);
-    padding-left: 10px !important;
-    text-align: left !important;
-}
-
 .groupRegUn {
     background: var(--gray300) !important;
-    color: #800000;
-    padding-left: 10px !important;
-    text-align: left !important;
+    color: var(--danger);
 }
 
 .hide {

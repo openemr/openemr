@@ -31,13 +31,13 @@ $confirmationMSG = $listener->z_xlt("Do you really want to delete?");
 <div class="container">
 
 <?php if (count($TabSettings) > 0) {?>
-    <div class="easyui-tabs h-auto" id="tab<?php echo $this->escapeHtml($mod_id); ?>">
+    <div class="easyui-tabs" id="tab<?php echo $this->escapeHtml($mod_id); ?>">
         <?php
         if (isset($TabSettings[1]) && $TabSettings[1] > 0) {
             ?>
             <div title="<?php echo $listener->z_xla('Access Control'); ?>" id="tab_acl<?php echo $this->escapeHtml($mod_id); ?>" iconCls="icon-acl">
-                <div class="easyui-accordion h-auto" id="configaccord<?php echo $this->escapeHtml($mod_id); ?>" style="margin: 0.3125rem;">
-                    <iframe src="<?php echo $GLOBALS['webroot']; ?>/interface/modules/zend_modules/public/acl/acltab?module_id=<?php echo $this->escapeHtml($this->mod_id); ?>" class="w-100" style="height: 43.75rem; overflow: hidden;" frameborder="0"></iframe>
+                <div class="easyui-accordion" id="configaccord<?php echo $this->escapeHtml($mod_id); ?>">
+                    <iframe src="<?php echo $GLOBALS['webroot']; ?>/interface/modules/zend_modules/public/acl/acltab?module_id=<?php echo $this->escapeHtml($this->mod_id); ?>" class="w-100" style="height: 300px;" frameborder="0"></iframe>
                 </div>
             </div>
             <?php

@@ -40,8 +40,8 @@ foreach ($this->status_details as $row_status) {
 
     /* Main tab click function **/
     $('.main-tab-head li').on("click",function(){
-      $('.main-tab-head li').removeClass("main_active");
-      $(this).addClass("main_active");
+      $('.main-tab-head li').removeClass("active");
+      $(this).addClass("active");
       $('.child-all').hide();
       data_type = $(this).data('type');
           if(data_type == 'import') {
@@ -70,8 +70,8 @@ foreach ($this->status_details as $row_status) {
 
     /* Child tab Click function */
     $('.child-tab-head li').not('.disabled_child').click(function(){
-      $('.child-tab-head li').removeClass("child_active");
-      $(this).addClass("child_active");
+      $('.child-tab-head li').removeClass("active");
+      $(this).addClass("active");
       var mainIndex = $(this).index() + 1;
       $('.child-all').hide();
       var div = document.getElementsByClassName("child-tab-"+mainIndex)[0];
@@ -123,108 +123,93 @@ foreach ($this->status_details as $row_status) {
     document.getElementById('documents_iframe').src=document.getElementById('documents_iframe').src;
   }
 </script>
-
-    <style>
-      .ap-st-st-12 {
-        display: none;
-        width: 550px;
-      }
-    </style>
-    <div class="new_wrapper">
-  <ul class="main-tab-head">
-    <li class="main_active" data-type="export"><?php echo $this->listenerObject->z_xlt('Export');?></li>
-    <li class="" data-type="import"><?php echo $this->listenerObject->z_xlt('Import');?></li>
+<style>
+.ap-st-st-12 {
+  display: none;
+  width: 550px;
+}
+</style>
+<div class="container">
+  <ul class="main-tab-head nav nav-tabs">
+    <li class="nav-link active" data-type="export"><?php echo $this->listenerObject->z_xlt('Export');?></li>
+    <li class="nav-link" data-type="import"><?php echo $this->listenerObject->z_xlt('Import');?></li>
   </ul>
-  <div class="clear"></div>
+  <div class="clearfix"></div>
   <div class="main-tab-1 main-all d-block">
-    <ul class="child-tab-head">
-      <li class="child_active"><?php echo $this->listenerObject->z_xlt('Transition Of Care');?></li>
-      <li><?php echo $this->listenerObject->z_xlt('Immunization');?></li>
-      <li><?php echo $this->listenerObject->z_xlt('Syndromic Surveillance');?></li>
+    <ul class="child-tab-head nav nav-tabs">
+      <li class="nav-link active"><?php echo $this->listenerObject->z_xlt('Transition Of Care');?></li>
+      <li class="nav-link"><?php echo $this->listenerObject->z_xlt('Immunization');?></li>
+      <li class="nav-link"><?php echo $this->listenerObject->z_xlt('Syndromic Surveillance');?></li>
     </ul>
-    <div class="clear"></div>
+    <div class="clearfix"></div>
     <div class="child-tab-1 child-all">
-      <!-- -->
       <div>
         <form method="post" id="theform" style="font-size: 0.75rem;">
-        <div class="se_in_15 se_in_16">
-                <table>
-                    <tr>
-                        <td class="se_in_16_label"><label><?php echo $this->listenerObject->z_xlt('Date'); ?></label></td>
-                        <td class="text-nowrap">
-                                <input readonly maxlength="10" style="width: 42%" type="text" name="form_date_from" id="form_date_from" class="dateClass"/>
-                                <input readonly maxlength="10" style="width: 42%" type="text" name="form_date_to" id="form_date_to" class="dateClass"/>
-                                <script>
-                                        $(function () {
-                                                $( "#form_date_from" ).datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['from_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>' );
-                                                $( "#form_date_to" ).datepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['to_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>');
-                                        });
-                                </script>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="text-nowrap"><label><?php echo $this->listenerObject->z_xlt('Patient Name/ID'); ?></label></td>
-                        <td><input maxlength="25" type="text" name="form_pid" value="<?php echo $this->escapeHtml($this->form_data['pid']);?>" /><br/></td>
-                    </tr>
-                    <tr>
-                        <td><label><?php echo $this->listenerObject->z_xlt('Encounter'); ?></label></td>
-                        <td><input maxlength="10" type="text" onkeypress="return isNumber(event)" name="form_encounter" value="<?php echo $this->escapeHtml($this->form_data['encounter']);?>" /><br/></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td><input type="submit" onclick="clearCount();return validate_search();"  value="<?php echo $this->listenerObject->z_xlt('SEARCH'); ?>" name="search" id="search_encounter" /></td>
-                    </tr>
-                </table> <!-- table -->
+        <div class="se_in_15 se_in_16 p-3">
+          <div class="form-group">
+            <label><?php echo $this->listenerObject->z_xlt('Date'); ?></label>
+            <input maxlength="10" type="text" class="form-control" name="form_date_from" id="form_date_from" class="dateClass"/>
+            <input maxlength="10" type="text" class="form-control" name="form_date_to" id="form_date_to" class="dateClass"/>
+            <script>
+                    $(function () {
+                            $("#form_date_from").datetimepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['from_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>' );
+                            $("#form_date_to").datetimepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['to_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>');
+                    });
+            </script>
+          </div>
+          <div class="form-group">
+            <label><?php echo $this->listenerObject->z_xlt('Patient Name/ID'); ?></label>
+            <input maxlength="25" type="text" class="form-control" name="form_pid" value="<?php echo $this->escapeHtml($this->form_data['pid']);?>" />
+          </div>
+          <div class="form-group">
+            <label><?php echo $this->listenerObject->z_xlt('Encounter'); ?></label>
+            <input maxlength="10" type="text" class="form-control" onkeypress="return isNumber(event)" name="form_encounter" value="<?php echo $this->escapeHtml($this->form_data['encounter']);?>" />
+          </div>
+          <input type="submit" class="btn btn-primary" onclick="clearCount();return validate_search();"  value="<?php echo $this->listenerObject->z_xlt('SEARCH'); ?>" name="search" id="search_encounter" />
         </div><!-- se in 15 -->
-
-        <div class="body_inner_wrapper">
-            <div class="header_wrap">
-                <div class="header_wrap_left">
-                    <div class="search_button" title="Search"><?php echo $this->listenerObject->z_xlt('SEARCH'); ?></div>&nbsp;&nbsp;
-                    <div id="download_ccda" class="d-none"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
-                    <input type="hidden" name="downloadccda" id="downloadccda" value="">
-                    <input type="hidden" name="components" id="components" value="">
-                    <div class="d-none" id="download_ccr"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
-                    <input type="hidden" name="downloadccr" id="downloadccr" value="">
-                    <div class="d-none" id="download_ccd"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>&nbsp;&nbsp;
-                    <input type="hidden" name="downloadccd" id="downloadccd" value="">
-                    <input type="hidden" name="pid_ccda" id="pid_ccda" value="">
-                    <input type="hidden" name="latestccda" id="latestccda" value="">
-                    <?php
-                    // @see Application view_helpers for this functionality.
-                    $this->sendToHie('carecoordination/layout/encountermanager', array('hie','emr_direct','download_all'), 'hie');
-                    ?>
-                    <div class="se_in_3" title="<?php echo $this->listenerObject->z_xlt('Reload');?>" onclick="javascript:clearCount();document.getElementById('theform').submit();"></div>
-                </div><!-- header_wrap_left -->
-                <div class="header_wrap_right <?php if (count($this->details) == 0) {
-                    ?>d-none<?php
-                                              } ?>">
-                    <div class="se_in_4">
-                        <label><?php echo $this->listenerObject->z_xlt('Show');?>&nbsp;</label>&nbsp;<input maxlength="3" type="text" onkeypress="return isNumber(event)" name="form_results" value="<?php echo $this->escapeHtml($this->form_data['results']);?>" />&nbsp;<label>&nbsp;<?php echo $this->listenerObject->z_xlt('Encounters'); ?></label>
+        <div class="clearfix"></div>
+            <div class="row no-gutter">
+              <div class="col">
+                <div class="btn btn-primary" title="Search"><?php echo $this->listenerObject->z_xlt('SEARCH'); ?></div>
+                <div id="download_ccda" class="d-none"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>
+                <input type="hidden" name="downloadccda" id="downloadccda" value="" />
+                <input type="hidden" name="components" id="components" value="" />
+                <div class="d-none" id="download_ccr"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>
+                <input type="hidden" name="downloadccr" id="downloadccr" value="" />
+                <div class="d-none" id="download_ccd"><?php echo $this->listenerObject->z_xlt('DOWNLOAD'); ?></div>
+                <input type="hidden" name="downloadccd" id="downloadccd" value="" />
+                <input type="hidden" name="pid_ccda" id="pid_ccda" value="" />
+                <input type="hidden" name="latestccda" id="latestccda" value="" />
+              </div>
+              <div class="col">
+                <?php
+                // @see Application view_helpers for this functionality.
+                $this->sendToHie('carecoordination/layout/encountermanager', array('hie','emr_direct','download_all'), 'hie');
+                ?>
+                <div class="btn btn-primary btn-refresh" title="<?php echo $this->listenerObject->z_xlt('Reload');?>" onclick="javascript:clearCount();document.getElementById('theform').submit();"></div>
+              </div>
+                <span class="<?php if (count($this->details) == 0) { ?>d-none<?php } ?>">
+                    <label class="col-form-label col"><?php echo $this->listenerObject->z_xlt('Show');?></label>
+                    <div class="col">
+                        <input maxlength="3" type="text" class="form-control" onkeypress="return isNumber(event)" name="form_results" value="<?php echo $this->escapeHtml($this->form_data['results']);?>" />
+                        <label><?php echo $this->listenerObject->z_xlt('Encounters'); ?></label>
                     </div>
-                    <div class="se_in_6">
-                        <div class="se_in_5">
-                            <div class="se_in_5-1" onclick="pagination('first');"></div>
-                            <div class="se_in_5-2" onclick="<?php if ($this->form_data['current_page']>1) {
-                                ?>pagination('previous');<?php
-                                                            }?>"></div>
-                            <div class="se_in_5-3" onclick="<?php if ($this->form_data['current_page']<$this->form_data['total_pages']) {
-                                ?>pagination('next');<?php
-                                                            }?>"></div>
-                            <div class="se_in_5-4" onclick="pagination('last');"></div>
-                        </div>
-                        <div class="clear"></div>
-                        <div class="se_in_7">
-                            <label><?php echo $this->listenerObject->z_xlt('Page');?> <?php echo $this->escapeHtml($this->form_data['current_page']);?> - <?php echo $this->listenerObject->z_xlt('of');?> <?php echo $this->escapeHtml($this->form_data['total_pages']);?></label>
-                        </div><!-- se_in_7 -->
-                    </div><!-- se_in_6 -->
-                </div>
+                    <div class="col">
+                        <span class="btn btn-outline-dark" onclick="pagination('first');"><i class="fas fa-step-backward fa-lg"></i></span>
+                        <span class="btn btn-outline-dark" onclick="<?php if ($this->form_data['current_page']>1) { ?>pagination('previous');<?php } ?>"><i class="fas fa-caret-left fa-lg"></i></span>
+                        <span class="btn btn-outline-dark" onclick="<?php if ($this->form_data['current_page']<$this->form_data['total_pages']) { ?>pagination('next');<?php } ?>"><i class="fas fa-caret-right fa-lg"></i></span>
+                        <span class="btn btn-outline-dark" onclick="pagination('last');"><i class="fas fa-step-forward fa-lg"></i></span>
+                    </div>
+                    <div class="col">
+                      <label><?php echo $this->listenerObject->z_xlt('Page');?> <?php echo $this->escapeHtml($this->form_data['current_page']);?> - <?php echo $this->listenerObject->z_xlt('of');?> <?php echo $this->escapeHtml($this->form_data['total_pages']);?></label>
+                    </div>
+                </span>
             </div><!-- header_wrap  -->
             <!-- body content  -->
-            <div class="clear"></div>
+            <div class="clearfix"></div>
             <div class="se_in_8">
                 <style>
-                select{
+                select {
                         line-height: 17px !important;
                 }
                 </style>
@@ -273,10 +258,9 @@ foreach ($this->status_details as $row_status) {
                         }
                 }
                 </script>
-                <table class="responsive <?php if (count($this->details) == 0) {
-                    ?>d-none <?php
-                                         } ?>">
-                    <tr class="se_in_9">
+                <div class="table-responsive">
+                <table class="table <?php if (count($this->details) == 0) { ?>d-none <?php } ?>">
+                    <tr class="table-light">
                         <th width="1%" id="expand_all" class="expand_all se_in_23">&nbsp;</th>
                         <th width="3%"><label><?php echo $this->escapeHtml('#'); ?></label></th>
                         <th width="5%"><label><?php echo $this->listenerObject->z_xlt('PID'); ?></label></th>
@@ -319,7 +303,7 @@ foreach ($this->status_details as $row_status) {
                                 <tr>
                                         <td colspan="9" id="hide_<?php echo $this->escapeHtml($row['pid']); ?>" class="ccda_details d-none">
                                                 <table class="mx-auto" style="width: 85% !important;">
-                                                        <tr class="se_in_9">
+                                                        <tr class="table-light">
                                                                 <th width="1%"><?php echo '#'; ?></th>
                                                                 <th><label><?php echo $this->listenerObject->z_xlt('Encounter'); ?></label></th>
                                                                 <th><label><?php echo $this->listenerObject->z_xlt('DOS'); ?></label></th>
@@ -380,6 +364,7 @@ foreach ($this->status_details as $row_status) {
                     }
                     ?>
                 </table>
+              </div>
                 <div class="mx-auto text-center font-weight-bold" style="width: 60%; border: 1px solid #CCCCCC; padding: 30px; font-size: 0.9375rem; background: #f7f7f7;<?php if (count($this->details) > 0) {
                     ?>display: none; <?php
                                                                                                                                                                          } ?>">
@@ -387,7 +372,6 @@ foreach ($this->status_details as $row_status) {
                 </div>
             </div>
             <!-- body contents  -->
-        </div><!-- body_inner_wrapper -->
         <input type="hidden" name="form_current_page" id="form_current_page" value="<?php echo $this->escapeHtml($this->form_data['current_page']);?>" />
         <input type="hidden" name="form_total_pages" id="form_total_pages" value="<?php echo $this->escapeHtml($this->form_data['total_pages']);?>" />
         <input type="hidden" name="form_count" id="form_count" value="<?php echo $this->escapeHtml($this->form_data['res_count']);?>" />
@@ -410,7 +394,7 @@ foreach ($this->status_details as $row_status) {
                 <li class="child_active"><?php echo $this->listenerObject->z_xlt('CCD');?></li>
                 <li><?php echo $this->listenerObject->z_xlt('CCR');?></li>
                 <li><?php echo $this->listenerObject->z_xlt('CCDA');?></li>
-          </ul><div class="clear"></div>
+          </ul><div class="clearfix"></div>
                 <!--CCD Tab-->
           <div class="import-child-tab-1 child-all-import">
                <iframe id="ccd_iframe" class="w-100 border-0" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/ccd/upload"></iframe>
@@ -424,5 +408,5 @@ foreach ($this->status_details as $row_status) {
                 <iframe id="ccda_iframe" class="w-100 border-0" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/carecoordination/upload?id=1"></iframe>
            </div>
         </div>
-        <div class="clear"></div>
+        <div class="clearfix"></div>
     </div> <!-- New Wrapper ends-->

@@ -17,7 +17,7 @@ $(document).mouseup(function(e) {
     if (!container.is(e.target) && container.has(e.target).length === 0 && !buttons.is(e.target)) {
         $(".ap-st-st-12").css("display", "none");
     }
-})
+});
 //
 
 var check_count = 0;
@@ -71,8 +71,7 @@ $(function() {
             var sendCss = {
                 right: ((cleintwidth - pos.left) - 74) + "px",
                 top: (pos.top + 35) + "px"
-
-            }
+            };
             $('.ap-st-st-12:after').addRule({
                 left: "98%"
             });
@@ -83,7 +82,7 @@ $(function() {
             var sendCss = {
                 left: (pos.left + 5) + "px",
                 top: (pos.top + 35) + "px"
-            }
+            };
         }
         $('.ap-st-st-12').fadeToggle().css(sendCss);
     });
@@ -230,7 +229,7 @@ function getComponents(val) {
 
             checkBox = "";
             components = JSON.parse(json);
-            for (form_id in components) {
+            for (var form_id in components) {
                 check_count++;
                 checkBox += "<div class='option_wrap'><input checked name='componentcheckbox[]' class='check_component' type='checkbox' value='" + form_id + "' ref='" + components[form_id] + "' >&nbsp;&nbsp;" + components[form_id] + "</div>";
             }
@@ -338,7 +337,7 @@ function send() {
             combination = document.getElementById('ccda_pid').value;
         } else {
             pid_encounter = document.getElementsByName('ccda_pid[]');
-            for (i = 0; i < pid_encounter.length; i++) {
+            for (var i = 0; i < pid_encounter.length; i++) {
                 if (pid_encounter[i].checked) {
                     if (combination) combination += '|';
                     combination += pid_encounter[i].value;
@@ -381,8 +380,8 @@ function send() {
             "display": "none"
         });
         obj = document.getElementsByName('download_format');
-        count = 0;
-        for (i = 0; i < obj.length; i++) {
+        var count = 0;
+        for (var i = 0; i < obj.length; i++) {
             if (obj[i].disabled == false && obj[i].checked == true) {
                 count++;
             }
@@ -395,13 +394,13 @@ function send() {
         $('#hl7button').trigger('click');
     } else if (send_to == "emr_direct") {
         format = $('input:radio[name="phimail_format"]:checked').val();
-        combination = '';
+        var combination = '';
         components = '';
         if ($("#ccda_pid").val()) {
             combination = $("#ccda_pid").val();
         } else {
             pid_encounter = document.getElementsByName('ccda_pid[]');
-            for (i = 0; i < pid_encounter.length; i++) {
+            for (var i = 0; i < pid_encounter.length; i++) {
                 if (pid_encounter[i].checked) {
                     if (combination) combination += '|';
                     combination += pid_encounter[i].value;
@@ -471,7 +470,7 @@ function send() {
             count++;
         } else {
             pids = document.getElementsByName('ccda_pid[]');
-            for (i = 0; i < pids.length; i++) {
+            for (var i = 0; i < pids.length; i++) {
                 if (pids[i].checked) {
                     count++;
                 }

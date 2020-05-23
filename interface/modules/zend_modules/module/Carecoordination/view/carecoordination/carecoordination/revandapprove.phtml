@@ -34,7 +34,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
 <style>
     .demo_old {
         color: var(--danger);
-        padding-left:25px;
+        padding-left: 25px;
     }
     select,
     textarea,
@@ -57,15 +57,12 @@ $insert = $this->listenerObject->z_xlt('Insert');
         width: 100px !important;
     }
     .styled_chkbox input[type=checkbox] + label {
-        display:inline-block;
+        display: inline-block;
         width: 82%;
         padding: 2px 10px;
         background-color: #F7F7F7;
-        /*font-weight: normal !important;*/
-        /*color:black;*/
         color: #444444 !important;
         font-size: 0.8125rem !important;
-
         text-align: center;
         border-radius: 5px;
         border: thin solid #DDDDDD;
@@ -1826,9 +1823,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
         <tr class="se_in_9 se_in_25">
             <th colspan="9"><?php echo $this->listenerObject->z_xlt('Functional Cognitive Status'); ?></th>
         </tr>
-        <?php
-        foreach ($this->functional_cognitive_status as $res_existing_functional_cognitive_status) {
-            ?>
+        <?php foreach ($this->functional_cognitive_status as $res_existing_functional_cognitive_status) { ?>
             <tr>
                 <td><?php echo $this->listenerObject->z_xlt('Code Text'); ?></td>
                 <td><?php echo $this->listenerObject->z_xlt($res_existing_functional_cognitive_status['codetext']); ?></td>
@@ -1847,9 +1842,9 @@ $insert = $this->listenerObject->z_xlt('Insert');
                 <td><input type='text' class="form-control w-100" name='functional_cognitive_status-description[]' value='<?php echo $this->listenerObject->z_xlt($val['description']); ?>' ></td>
                 <td colspan="4">&nbsp;</td>
                 <td>
-                    <select name='functional_cognitive_status-sel[]' class="chkall_I">
-                        <option value='ignore' ><?php echo $ignore; ?></option>
-                        <option value='insert' ><?php echo $insert; ?></option>
+                    <select name='functional_cognitive_status-sel[]' class="form-control chkall_I">
+                        <option value='ignore'><?php echo $ignore; ?></option>
+                        <option value='insert'><?php echo $insert; ?></option>
                     </select>
                 </td>
             <input type="hidden" name="functional_cognitive_status-extension[]" value="<?php echo $this->escapeHtml($val['extension']); ?>">
@@ -1882,12 +1877,12 @@ $insert = $this->listenerObject->z_xlt('Insert');
                 ?>
             <tr>
                 <td><?php echo $this->listenerObject->z_xlt('Body'); ?></td>
-                <td><textarea class="mw-100" style='min-height:100px;' name='referral-body[]'><?php echo $this->escapeHtml($v); ?></textarea></td>
+                <td><textarea class="form-control" name='referral-body[]'><?php echo $this->escapeHtml($v); ?></textarea></td>
                 <td colspan="6">&nbsp;</td>
                 <td>
-                    <select name='referral-sel[]' class="styled_select_light chkall_I">
-                        <option value='ignore' ><?php echo $this->listenerObject->z_xlt('Ignore'); ?></option>
-                        <option value='insert' ><?php echo $this->listenerObject->z_xlt('Insert'); ?></option>
+                    <select name='referral-sel[]' class="form-control styled_select_light chkall_I">
+                        <option value='ignore'><?php echo $this->listenerObject->z_xlt('Ignore'); ?></option>
+                        <option value='insert'><?php echo $this->listenerObject->z_xlt('Insert'); ?></option>
                     </select>
                 </td>
             <input type="hidden" name="referral-root[]" value="<?php echo $this->escapeHtml($val['root']); ?>">
@@ -1918,15 +1913,15 @@ $insert = $this->listenerObject->z_xlt('Insert');
                     } ?>
                     <tr class="border-bottom-0">
                         <td><?php echo $this->listenerObject->z_xlt('Date'); ?></td>
-                        <td><input type='text' name='discharge_medication-date_added[]' value='<?php if ($beg_date) {
+                        <td><input type='text' class="form-control" name='discharge_medication-date_added[]' value='<?php if ($beg_date) {
                             echo $beg_date;
                                                                                                } ?>' ></td>
                         <td><?php echo $this->listenerObject->z_xlt('Name'); ?></td>
-                        <td><input type='text' name='discharge_medication-drug[]' value='<?php echo $this->escapeHtml($val['drug_text']); ?>' ></td>
+                        <td><input type='text' class="form-control" name='discharge_medication-drug[]' value='<?php echo $this->escapeHtml($val['drug_text']); ?>' ></td>
                         <td><?php echo $this->listenerObject->z_xlt('Dose'); ?></td>
-                        <td><input type='text' name='discharge_medication-dose[]' value='<?php echo $this->escapeHtml($val['dose']); ?>' ></td>
+                        <td><input type='text' class="form-control" name='discharge_medication-dose[]' value='<?php echo $this->escapeHtml($val['dose']); ?>' ></td>
                         <td><?php echo $this->listenerObject->z_xlt('Strength'); ?></td>
-                        <td> <input style="" type='text' size='7' name='discharge_medication-size[]' value='<?php echo $this->escapeHtml($val['rate']); ?>' ></td>
+                        <td> <input style="" class="form-control" type='text' size='7' name='discharge_medication-size[]' value='<?php echo $this->escapeHtml($val['rate']); ?>' ></td>
                         <td><?php if ($val['enddate'] && $val['enddate'] != 0) {
                             echo "<span class='text-danger'>".$this->listenerObject->z_xlt('Inactive').'</span>';
                             } else {

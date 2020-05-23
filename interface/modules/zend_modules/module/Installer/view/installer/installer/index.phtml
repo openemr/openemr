@@ -25,27 +25,27 @@ $depObj = $this->dependencyObject;
 <div class="container-fluid">
 <h1><img src="<?php echo $this->basePath() ?>/images/module.png" class="nav-menu-img mr-2"><?php echo xlt("Manage Modules"); ?></h1>
 
-<ul class="tabNav">
-    <li class="current divMenu" onclick="$('.registered').show();$('.unregistered').hide();$('.divMenu').removeClass('current');$(this).addClass('current');">
-        <a href="javascript:void(0)" id="header_tab_.htmlspecialchars(Registered,ENT_QUOTES).">
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link active" href="javascript:void(0)" onclick="$('.registered').show();$('.unregistered').hide();$('.nav-link').removeClass('active');$(this).addClass('active');" id="header_tab_.htmlspecialchars(Registered,ENT_QUOTES).">
             <?php echo $listener->z_xlt('Registered'); ?>
         </a>
     </li>
-    <li class="divMenu" onclick="$('.registered').hide(); $('.unregistered').show(); $('.divMenu').removeClass('current'); $(this).addClass('current');">
-        <a href="javascript:void(0)" id="header_tab_.htmlspecialchars(UnReg,ENT_QUOTES).">
+    <li class="nav-item">
+        <a class="nav-link" href="javascript:void(0)" onclick="$('.registered').hide(); $('.unregistered').show(); $('.nav-link').removeClass('active'); $(this).addClass('active');" id="header_tab_.htmlspecialchars(UnReg,ENT_QUOTES).">
             <?php echo $listener->z_xlt('Unregistered'); ?> <span id='ct'></span>
         </a>
     </li>
 </ul>
-<div class="installer">
+<div>
     <div id='err' class='font-weight-bold'></div>
-    <div class="installer_code notranslate registered">
+    <div class="notranslate registered">
         <?php //REGISTERED SECTION?>
             <div class="table-responsive">
                 <table class="table" id="table-6">
                     <thead>
                     <tr>
-                        <th colspan="10" class="groupReg">
+                        <th colspan="10" class="bg-light text-success">
                             <?php echo $listener->z_xlt('Registered Modules'); ?>
                         </th>
                     <tr>
@@ -202,7 +202,7 @@ $depObj = $this->dependencyObject;
             border: 1px solid #c9c6c6;
             padding: 5px;
             width: 95%;
-            border-top: 0px;
+            border-top: 0;
         }
 
         .modal {
@@ -222,9 +222,9 @@ $depObj = $this->dependencyObject;
     <div id="install_upgrade_log" style="overflow-y: auto; height: 31.25rem; display: none;"></div>
 
     <div class="installer_code notranslate unregistered table-responsive" style="display: none;">
-        <table class="table imagetable" id="unregistered">
+        <table class="table" id="unregistered">
             <tr>
-                <th colspan="4" class="groupRegUn">
+                <th colspan="4" class="bg-light text-danger">
                     <?php echo $listener->z_xlt('Unregistered Modules'); ?>
                 </th>
             <tr>

@@ -26,51 +26,49 @@ $listener           = $this->listenerObject;
 ?>
 
 <div class="text-left mt-1" style="color: #466837;">&nbsp;<span id="messages_div"></span></div>
-        <div class="scrollable default-skin mx-auto" style="width: 800px; height: 600px;">
-      <div class="table-responsive">
-                <table class="table" id="table_acl" align="center">
-                        <tr class="tr_head">
-                                <td><?php echo $listener->z_xlt('Components'); ?></td>
-                                <?php foreach ($USER_GROUPS as $KEY => $VAL) { ?>
-                                <td class="text-center"><?php echo $listener->z_xlt($VAL);?></td>
-              <?php } ?>
-                        </tr>
-                        <tr class="tr_module">
-                                <td><?php echo $listener->z_xlt($MODULE_DATA['module_name']['name']); ?></td>
-                                <?php foreach ($USER_GROUPS as $KEY => $VAL) {?>
-                                    <?php
-                                    $selected = "";
-                                    if (is_array($ACL_DATA[$MODULE_DATA['module_name']['id']]) && in_array($KEY, $ACL_DATA[$MODULE_DATA['module_name']['id']])) {
-                                        $selected = "checked";
-                                    }
-                                    ?>
-                                <td class="text-center"><input <?php echo $selected; ?> class="module_check" type="checkbox" name="<?php echo $this->escapeHtml($MODULE_DATA['module_name']['id']).'_'.$this->escapeHtml($KEY); ?>" id="<?php echo $this->escapeHtml($MODULE_DATA['module_name']['id']).'_'.$this->escapeHtml($KEY); ?>" ></td>
-              <?php } ?>
-                        </tr>
-
-                        <?php foreach ($MODULE_DATA['module_components'] as $KEY => $VAL) { ?>
-                                <?php
-                                $count++;
-                                if ($count % 2 == 0) {
-                                    $class ="tr_section_1";
-                                } else {
-                                    $class ="tr_section_2";
-                                }
-                                ?>
-                                <tr class="<?php echo $class; ?>">
-                                <td><?php echo $listener->z_xlt($VAL); ?></td>
-                            <?php foreach ($USER_GROUPS as $KEY_GROUP => $VAL_GROUP) { ?>
-                                    <?php
-                                    $selected = "";
-                                    if (!empty($ACL_DATA[$KEY]) && in_array($KEY_GROUP, $ACL_DATA[$KEY])) {
-                                        $selected = "checked";
-                                    }
-                                    ?>
-                                    <td class="text-center"><input <?php echo $selected; ?> class="component_check group_<?php echo $this->escapeHtml($KEY_GROUP); ?>" type="checkbox" name="<?php echo $this->escapeHtml($KEY).'_'.$this->escapeHtml($KEY_GROUP); ?>" id="<?php echo $this->escapeHtml($KEY).'_'.$this->escapeHtml($KEY_GROUP); ?>" ></td>
-                            <?php } ?>
-                                </tr>
-                        <?php } ?>
-
-                </table>
-      </div>
-        </div>
+<div class="default-skin mx-auto">
+  <div class="table-responsive">
+    <table class="table" id="table_acl">
+      <tr class="tr_head">
+        <td><?php echo $listener->z_xlt('Components'); ?></td>
+        <?php foreach ($USER_GROUPS as $KEY => $VAL) { ?>
+          <td class="text-center"><?php echo $listener->z_xlt($VAL);?></td>
+        <?php } ?>
+      </tr>
+      <tr class="tr_module">
+        <td><?php echo $listener->z_xlt($MODULE_DATA['module_name']['name']); ?></td>
+        <?php foreach ($USER_GROUPS as $KEY => $VAL) {?>
+          <?php
+          $selected = "";
+          if (is_array($ACL_DATA[$MODULE_DATA['module_name']['id']]) && in_array($KEY, $ACL_DATA[$MODULE_DATA['module_name']['id']])) {
+            $selected = "checked";
+          }
+          ?>
+          <td class="text-center"><input <?php echo $selected; ?> class="module_check" type="checkbox" name="<?php echo $this->escapeHtml($MODULE_DATA['module_name']['id']).'_'.$this->escapeHtml($KEY); ?>" id="<?php echo $this->escapeHtml($MODULE_DATA['module_name']['id']).'_'.$this->escapeHtml($KEY); ?>" ></td>
+        <?php } ?>
+      </tr>
+      <?php foreach ($MODULE_DATA['module_components'] as $KEY => $VAL) { ?>
+        <?php
+        $count++;
+        if ($count % 2 == 0) {
+          $class ="tr_section_1";
+        } else {
+          $class ="tr_section_2";
+        }
+        ?>
+        <tr class="<?php echo $class; ?>">
+          <td><?php echo $listener->z_xlt($VAL); ?></td>
+          <?php foreach ($USER_GROUPS as $KEY_GROUP => $VAL_GROUP) { ?>
+            <?php
+            $selected = "";
+            if (!empty($ACL_DATA[$KEY]) && in_array($KEY_GROUP, $ACL_DATA[$KEY])) {
+              $selected = "checked";
+            }
+            ?>
+            <td class="text-center"><input <?php echo $selected; ?> class="component_check group_<?php echo $this->escapeHtml($KEY_GROUP); ?>" type="checkbox" name="<?php echo $this->escapeHtml($KEY).'_'.$this->escapeHtml($KEY_GROUP); ?>" id="<?php echo $this->escapeHtml($KEY).'_'.$this->escapeHtml($KEY_GROUP); ?>" ></td>
+          <?php } ?>
+        </tr>
+      <?php } ?>
+    </table>
+  </div>
+</div>
