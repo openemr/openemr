@@ -51,7 +51,7 @@ class UuidRegistry
 
             // Create uuid
             $uuid4 = Uuid::uuid4();
-            $uuid = $uuid4->toString();
+            $uuid = $uuid4->getBytes();
 
             // Check to ensure uuid is unique in uuid_registry
             $checkUniqueRegistry = sqlQueryNoLog("SELECT * FROM `uuid_registry` WHERE `uuid` = ?", [$uuid]);
