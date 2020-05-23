@@ -5352,7 +5352,7 @@ CREATE TABLE `patient_access_onsite`(
 DROP TABLE IF EXISTS `patient_data`;
 CREATE TABLE `patient_data` (
   `id` bigint(20) NOT NULL auto_increment,
-  `uuid` varchar(64) NOT NULL default '',
+  `uuid` char(36) NOT NULL default '',
   `title` varchar(255) NOT NULL default '',
   `language` varchar(255) NOT NULL default '',
   `financial` varchar(255) NOT NULL default '',
@@ -6818,7 +6818,7 @@ INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES 
 
 DROP TABLE IF EXISTS `uuid_registry`;
 CREATE TABLE `uuid_registry` (
-  `uuid` varchar(64) NOT NULL DEFAULT '',
+  `uuid` char(36) NOT NULL DEFAULT '',
   `table_name` varchar(255) NOT NULL DEFAULT '',
   `created` timestamp NULL,
   PRIMARY KEY (`uuid`)
