@@ -797,10 +797,10 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 
 
 <div class="btn-group">
-    <button type='submit' class='btn btn-primary btn-save' name='form_save'><?php echo xla('OK'); ?></button>
-    <button type='button' class='btn btn-secondary btn-cancel' onclick='window.close()'><?php echo xla('Cancel'); ?></button>
-    <button type='button' class='btn btn-secondary' onclick='allCheckboxes(true)'><?php echo xla('Select All'); ?></button>
-    <button type='button' class='btn btn-secondary' onclick='allCheckboxes(false)'><?php echo xla('Clear All'); ?></button>
+    <button type='submit' class='btn btn-primary btn-save' name='form_save' value='<?php echo xla('OK'); ?>'><?php echo xla('OK'); ?></button>
+    <button type='button' class='btn btn-secondary btn-cancel' value='<?php echo xla('Cancel'); ?>' onclick='window.close()'><?php echo xla('Cancel'); ?></button>
+    <button type='button' class='btn btn-secondary' value='<?php echo xla('Select All'); ?>' onclick='allCheckboxes(true)'><?php echo xla('Select All'); ?></button>
+    <button type='button' class='btn btn-secondary' value='<?php echo xla('Clear All'); ?>' onclick='allCheckboxes(false)'><?php echo xla('Clear All'); ?></button>
 </div>
 
 <p><br /><span class="font-weight-bold"><?php echo xlt('Please select the desired pages to copy or forward:'); ?></span></p>
