@@ -4014,7 +4014,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                   echo str_replace("form-control", "", $select_pharm);
                                                 ?>
                                               </td><td class="top">
-                                                  <button onclick="editScripts('/openemr/controller.php?prescription&list&id=<?php echo attr($pat_data['pid']); ?>');"><?php echo xlt('eRx'); ?></button>
+                                                  <button onclick="editScripts(<?php echo $GLOBALS['web_root'] ?>'/openemr/controller.php?prescription&list&id=<?php echo attr($pat_data['pid']); ?>');"><?php echo xlt('eRx'); ?></button>
                                               </td></tr>
 
                                       </table>
