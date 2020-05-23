@@ -135,8 +135,15 @@ $font-family-base: $font-family-sans-serif;
 $close-color: $black;
 $close-text-shadow: 0 1 0 $black;
 
-@import "core";
+// Fix Font Awesome fonts path
+$fa-font-path: "../../public/assets/@fortawesome/fontawesome-free/webfonts";
+// Font Awesome Import
+@import "../../public/assets/@fortawesome/fontawesome-free/scss/fontawesome";
+@import "../../public/assets/@fortawesome/fontawesome-free/scss/brands";
+@import "../../public/assets/@fortawesome/fontawesome-free/scss/regular";
+@import "../../public/assets/@fortawesome/fontawesome-free/scss/solid";
 
+@import "core";
 
 @import "theme-defaults";
 
