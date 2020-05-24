@@ -95,7 +95,7 @@ abstract class FhirServiceBase
 
             $processingResult->setData([]);
             $processingResult->addData($fhirRecord);
-        } 
+        }
         return $processingResult;
     }
 
