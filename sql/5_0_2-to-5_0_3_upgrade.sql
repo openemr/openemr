@@ -592,7 +592,7 @@ ALTER TABLE `api_res_ver`
 
 #IfNotTable uuid_registry
 CREATE TABLE `uuid_registry` (
-  `uuid` char(36) NOT NULL DEFAULT '',
+  `uuid` binary(16) NOT NULL DEFAULT '',
   `table_name` varchar(255) NOT NULL DEFAULT '',
   `created` timestamp NULL,
   PRIMARY KEY (`uuid`)
@@ -600,7 +600,7 @@ CREATE TABLE `uuid_registry` (
 #EndIf
 
 #IfMissingColumn patient_data uuid
-ALTER TABLE `patient_data` ADD `uuid` char(36) NOT NULL default '';
+ALTER TABLE `patient_data` ADD `uuid` binary(16) NOT NULL default '';
 #EndIf
 
 #IfUuidNeedUpdate patient_data
