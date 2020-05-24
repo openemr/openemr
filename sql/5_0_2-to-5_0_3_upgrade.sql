@@ -610,3 +610,10 @@ ALTER TABLE `patient_data` ADD `uuid` char(36) NOT NULL default '';
 CREATE UNIQUE INDEX `uuid` ON `patient_data` (`uuid`);
 #EndIf
 
+#IfNotColumnTypeDefault insurance_data subscriber_DOB date NULL
+ALTER TABLE `insurance_data` MODIFY `subscriber_DOB` date NULL;
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `insurance_data` SET `subscriber_DOB` = NULL WHERE `subscriber_DOB` = '0000-00-00';
+SET sql_mode = @currentSQLMode;
+#EndIf

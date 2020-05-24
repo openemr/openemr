@@ -1176,7 +1176,7 @@ function newInsuranceData(
     $subscriber_fname = "",
     $subscriber_relationship = "",
     $subscriber_ss = "",
-    $subscriber_DOB = "",
+    $subscriber_DOB = null,
     $subscriber_street = "",
     $subscriber_postal_code = "",
     $subscriber_city = "",
@@ -1205,7 +1205,7 @@ function newInsuranceData(
         $effective_date = null;
     }
     if (empty($subscriber_DOB)) {
-        $subscriber_DOB = '0000-00-00';
+        $subscriber_DOB = null;
     }
 
     $idres = sqlStatement("SELECT * FROM insurance_data WHERE " .

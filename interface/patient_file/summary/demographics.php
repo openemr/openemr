@@ -1017,7 +1017,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                             <?php echo text($row['subscriber_ss']); ?><br />
                                                             <?php echo xlt('D.O.B.'); ?>:
                                                             <?php
-                                                            if ($row['subscriber_DOB'] != "0000-00-00 00:00:00") {
+                                                            if ($row['subscriber_DOB'] != null) {
                                                                 echo text($row['subscriber_DOB']);
                                                             }
                                                             ?><br />
