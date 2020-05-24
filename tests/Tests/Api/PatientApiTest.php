@@ -131,40 +131,23 @@ class PatientApiTest extends TestCase
     }
 
     /**
-     * Data provider for getOne resource lookup tests.
-     * Provides "lookup type" parameters
-     * - the lookup key, pid or uuid
+     * @covers ::getOne with a valid pid
      */
-    public function getOneProvider()
-    {
-        return [
-            ["pid"],
-            ["uuid"]
-        ];
-    }
-
-    /**
-     * @covers ::getOne with an invalid lookup type
-     * @dataProvider getOneProvider
-     * @param $lookupType the type - pid or uuid
-     */
-    public function testGetOne($lookupType)
+    public function testGetOne()
     {
         $actualResponse = $this->testClient->post(self::PATIENT_API_ENDPOINT, $this->patientRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
 
         $responseBody = json_decode($actualResponse->getBody(), true);
-        var_dump($responseBody);
-        $patientLookupKey = $responseBody["data"][$lookupType];
+        $patientPid = $responseBody["data"]["pid"];
 
-        $isUuidLookup = ($lookupType == "uuid");
-        $actualResponse = $this->testClient->getOne(self::PATIENT_API_ENDPOINT, $patientLookupKey, $isUuidLookup);
+        $actualResponse = $this->testClient->getOne(self::PATIENT_API_ENDPOINT, $patientPid);
         $this->assertEquals(200, $actualResponse->getStatusCode());
 
         $responseBody = json_decode($actualResponse->getBody(), true);
         $this->assertEquals(0, count($responseBody["validationErrors"]));
         $this->assertEquals(0, count($responseBody["internalErrors"]));
-        $this->assertEquals($patientPid, $responseBody["data"][$lookupType]);
+        $this->assertEquals($patientPid, $responseBody["data"]["pid"]);
     }
 
 

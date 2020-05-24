@@ -45,7 +45,6 @@ class FhirPatientServiceCrudTest extends TestCase
     public function testInsert()
     {
         unset($this->fhirPatientFixture['id']);
-
         $processingResult = $this->fhirPatientService->insert($this->fhirPatientFixture);
         $this->assertTrue($processingResult->isValid());
 
@@ -74,6 +73,22 @@ class FhirPatientServiceCrudTest extends TestCase
      */
     public function testUpdate()
     {
+        unset($this->fhirPatientFixture['id']);
+        $processingResult = $this->fhirPatientService->insert($this->fhirPatientFixture);
+        $this->assertTrue($processingResult->isValid());
+
+        $dataResult = $processingResult->getData()[0];
+        $fhirId = $dataResult['uuid'];
+        
+        $this->fhirPatientFixture['name'][0]['family'] = 'Smith';
+        $actualResult = $this->fhirPatientService->update($fhirId, $this->fhirPatientFixture);
+        $this->assertTrue($actualResult->isValid());
+        
+        $actualFhirRecord = $actualResult->getData()[0];
+        $actualName = $actualFhirRecord->getName();
+        $this->assertEquals('Smith', $actualName[0]->getFamily());
+
+        $this->assertEquals($fhirId, $actualFhirRecord->getId());
     }
 
     /**
@@ -83,5 +98,10 @@ class FhirPatientServiceCrudTest extends TestCase
      */
     public function testUpdateWithErrors()
     {
+        $actualResult = $this->fhirPatientService->update('bad-uuid', $this->fhirPatientFixture);
+        $this->assertFalse($actualResult->isValid());
+        $this->assertGreaterThan(0, count($actualResult->getValidationMessages()));
+        $this->assertEquals(0, count($actualResult->getInternalErrors()));
+        $this->assertEquals(0, count($actualResult->getData()));
     }
 }

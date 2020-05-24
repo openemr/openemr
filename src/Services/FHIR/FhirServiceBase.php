@@ -82,7 +82,21 @@ abstract class FhirServiceBase
     public function update($fhirResourceId, $fhirResource)
     {
         $openEmrRecord = $this->parseFhirResource($fhirResource);
-        return $this->updateOpenEMRRecord($fhirResourceId, $openEmrRecord);
+        $openEmrRecord['uuid'] = $fhirResourceId;
+        $processingResult =  $this->updateOpenEMRRecord($fhirResourceId, $openEmrRecord);
+
+        if ($processingResult->hasErrors()) {
+            return $processingResult;
+        }
+
+        if (isset($processingResult->getData()[0])) {
+            $openEmrRecord = $processingResult->getData()[0];
+            $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord, false);
+
+            $processingResult->setData([]);
+            $processingResult->addData($fhirRecord);
+        } 
+        return $processingResult;
     }
 
     /**

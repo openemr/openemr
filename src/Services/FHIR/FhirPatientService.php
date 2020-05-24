@@ -10,6 +10,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\Validators\ProcessingResult;
 
 /**
  * FHIR Patient Service
@@ -331,14 +332,24 @@ class FhirPatientService extends FhirServiceBase
 
     /**
      * Updates an existing OpenEMR record.
-     * NOT YET IMPLEMENTED - requires updates to support associating a fhir resource id to an openemr record
      * @param $fhirResourceId The OpenEMR record's FHIR Resource ID.
      * @param $updatedOpenEMRRecord The "updated" OpenEMR record.
      * @return The OpenEMR Service Result
      */
     public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
     {
-        $updatedOpenEMRRecord['uuid'] = $fhirResourceId;
+        $processingResult = $this->patientService->getOne($fhirResourceId, true);
+
+        if ($processingResult->hasErrors()) {
+            return $processingResult;
+        }
+
+        $existingPid = null;
+        if (isset($processingResult->getData()[0])) {
+            $existingPid = intval($processingResult->getData()[0]['pid']);
+        }
+
+        return $this->patientService->update($existingPid, $updatedOpenEMRRecord);
     }
 
     /**
