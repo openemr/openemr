@@ -44,6 +44,10 @@ class UuidRegistry
         $i = 0;
         while (!$isUnique) {
             $i++;
+            if ($i > 1) {
+                // There was a uuid creation collision, so need to try again.
+                error_log("OpenEMR Warning: There was a collision when creating a unique UUID. This is try number " . $i . ". Will try again.");
+            }
             if ($i > self::MAX_TRIES) {
                 // This error should never happen. If so, then the random generation of the
                 //  OS is compromised and no use continuing to run OpenEMR.
@@ -64,6 +68,15 @@ class UuidRegistry
             ));
             $timestampFirstComb = $factory->uuid4();
             $uuid = $timestampFirstComb->getBytes();
+
+            /** temp debug stuff
+            error_log(bin2hex($uuid));
+            error_log(bin2hex($timestampFirstComb->getBytes()));
+            error_log($timestampFirstComb->toString());
+            $test_uuid = (\Ramsey\Uuid\Uuid::fromBytes($uuid))->toString();
+            error_log($test_uuid);
+            error_log(bin2hex((\Ramsey\Uuid\Uuid::fromString($test_uuid))->getBytes()));
+            */
 
             // Check to ensure uuid is unique in uuid_registry
             $checkUniqueRegistry = sqlQueryNoLog("SELECT * FROM `uuid_registry` WHERE `uuid` = ?", [$uuid]);
