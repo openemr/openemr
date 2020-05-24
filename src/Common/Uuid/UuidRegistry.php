@@ -18,7 +18,9 @@
 
 namespace OpenEMR\Common\Uuid;
 
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\Codec\TimestampFirstCombCodec;
+use Ramsey\Uuid\Generator\CombGenerator;
+use Ramsey\Uuid\UuidFactory;
 
 class UuidRegistry
 {
@@ -49,9 +51,19 @@ class UuidRegistry
                 exit;
             }
 
-            // Create uuid
-            $uuid4 = Uuid::uuid4();
-            $uuid = $uuid4->getBytes();
+            // Create uuid using the Timestamp-first COMB Codec, so can use for primary keys
+            //  (since first part is timestamp, it is naturally ordered)
+            //  reference:
+            //    https://uuid.ramsey.dev/en/latest/customize/timestamp-first-comb-codec.html#customize-timestamp-first-comb-codec
+            $factory = new UuidFactory();
+            $codec = new TimestampFirstCombCodec($factory->getUuidBuilder());
+            $factory->setCodec($codec);
+            $factory->setRandomGenerator(new CombGenerator(
+                $factory->getRandomGenerator(),
+                $factory->getNumberConverter()
+            ));
+            $timestampFirstComb = $factory->uuid4();
+            $uuid = $timestampFirstComb->getBytes();
 
             // Check to ensure uuid is unique in uuid_registry
             $checkUniqueRegistry = sqlQueryNoLog("SELECT * FROM `uuid_registry` WHERE `uuid` = ?", [$uuid]);
