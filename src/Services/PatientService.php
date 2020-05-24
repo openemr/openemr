@@ -124,7 +124,10 @@ class PatientService extends BaseService
         );
 
         if ($results) {
-            $processingResult->addData(array("pid" => $freshPid));
+            $processingResult->addData(array(
+                'pid' => $freshPid,
+                'uuid' => $data['uuid']
+            ));
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
         }
@@ -182,6 +185,7 @@ class PatientService extends BaseService
 
         $sql = 'SELECT  id,
                         pid,
+                        uuid,
                         pubpid,
                         title,
                         fname,
@@ -238,17 +242,25 @@ class PatientService extends BaseService
 
     /**
      * Returns a single patient record by patient id.
-     * @param $pid - The patient identifier used to lookup the patient record.
+     * @param $lookupId - The patient identifier used to lookup the patient record.
+     * @param $isUuidLookup - true for patient.uuid lookups, false for patient.pid lookups
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getOne($pid)
+    public function getOne($lookupId, $isUuidLookup = false)
     {
         $processingResult = new ProcessingResult();
 
-        if (!$this->patientValidator->isExistingPid($pid)) {
+        if ($isUuidLookup) {
+            $isValid = $this->patientValidator->isExistingUuid($lookupId);
+        } else {
+            $isValid = $this->patientValidator->isExistingPid($lookupId);
+        }
+
+        if (!$isValid) {
+            $validationKey = $isUuidLookup ? "uuid" : "pid";
             $validationMessages = [
-                "pid" => ["invalid or nonexisting pid" => "pid value " . $pid]
+                $validationKey => ["invalid or nonexisting value" => " value " . $lookupId]
             ];
             $processingResult->setValidationMessages($validationMessages);
             return $processingResult;
@@ -256,6 +268,7 @@ class PatientService extends BaseService
 
         $sql = "SELECT  id,
                         pid,
+                        uuid,
                         pubpid,
                         title,
                         fname,
@@ -281,9 +294,15 @@ class PatientService extends BaseService
                         ethnicity,
                         status
                 FROM patient_data
-                WHERE pid = ?";
+                WHERE ";
 
-        $sqlResult = sqlQuery($sql, $pid);
+        if ($isUuidLookup) {
+            $sql .= " uuid = ?";
+        } else {
+            $sql .= " pid = ?";
+        }
+
+        $sqlResult = sqlQuery($sql, $lookupId);
         $processingResult->addData($sqlResult);
         return $processingResult;
     }

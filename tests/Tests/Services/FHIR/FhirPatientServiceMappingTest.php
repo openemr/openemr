@@ -20,15 +20,16 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 class FhirPatientServiceMappingTest extends TestCase
 {
 
+    private $fixtureManager;
     private $patientFixture;
     private $fhirPatientFixture;
     private $fhirPatientService;
 
     protected function setUp(): void
     {
-        $fixtureManager = new FixtureManager();
-        $this->patientFixture = (array) $fixtureManager->getSinglePatientFixture();
-        $this->fhirPatientFixture = (array) $fixtureManager->getSingleFhirPatientFixture();
+        $this->fixtureManager = new FixtureManager();
+        $this->patientFixture = (array) $this->fixtureManager->getSinglePatientFixture();
+        $this->fhirPatientFixture = (array) $this->fixtureManager->getSingleFhirPatientFixture();
         $this->fhirPatientService = new FhirPatientService();
     }
 
@@ -39,6 +40,7 @@ class FhirPatientServiceMappingTest extends TestCase
      */
     private function assertFhirPatientResource($fhirPatientResource, $sourcePatientRecord)
     {
+        $this->assertEquals($sourcePatientRecord['uuid'], $fhirPatientResource->getId());
         $this->assertEquals(1, $fhirPatientResource->getMeta()['versionId']);
         $this->assertNotEmpty($fhirPatientResource->getMeta()['lastUpdated']);
 
@@ -138,6 +140,7 @@ class FhirPatientServiceMappingTest extends TestCase
      */
     public function testParseOpenEMRRecord()
     {
+        $this->patientFixture['uuid'] = $this->fixtureManager->getUnregisteredUuid();
         $actualResult = $this->fhirPatientService->parseOpenEMRRecord($this->patientFixture, false);
         $this->assertFhirPatientResource($actualResult, $this->patientFixture);
 
@@ -196,6 +199,9 @@ class FhirPatientServiceMappingTest extends TestCase
     public function testParseFhirResource()
     {
         $actualResult = $this->fhirPatientService->parseFhirResource($this->fhirPatientFixture);
+
+        $id = $this->fhirPatientFixture['id'];
+        $this->assertEquals($id, $actualResult['uuid']);
 
         $title = $this->fhirPatientFixture['name'][0]['prefix'][0];
         $this->assertEquals($title, $actualResult['title']);

@@ -17,6 +17,22 @@ use Particle\Validator\Exception\InvalidValueException;
  */
 class PatientValidator extends BaseValidator
 {
+    /**
+     * Validates that a patient UUID exists in the database
+     */
+    public function isExistingUuid($uuid)
+    {
+        if (!is_string($uuid) && strlen($uuid) != 36) {
+            return false;
+        }
+        $result = sqlQuery(
+            'SELECT uuid AS uuid FROM patient_data WHERE uuid = ?',
+            array($uuid)
+        );
+
+        $uuidValue = $result['uuid'] ?? '';
+        return strlen($uuidValue) == 36;
+    }
 
    /**
      * Validates that a PID exists in the database.
@@ -70,7 +86,7 @@ class PatientValidator extends BaseValidator
                         }
                     }
                 );
-                // additional pid validation
+                // additional pid and uuid validations
                 $context->required("pid", "pid")->callback(function ($value) {
                     if (!$this->isExistingPid($value)) {
                         $message = "PID " . $value . " does not exist";
@@ -78,6 +94,14 @@ class PatientValidator extends BaseValidator
                     }
                     return true;
                 })->integer();
+
+                $context->required("uuid", "uuid")->callback(function ($value) {
+                    if (!$this->isExistingUuid($value)) {
+                        $message = "UUID " . $value . " does not exist";
+                        throw new InvalidValueException($message, $value);
+                    }
+                    return true;
+                })->string();
             }
         );
     }

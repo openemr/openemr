@@ -84,9 +84,8 @@ class FhirPatientService extends FhirServiceBase
         );
         $patientResource->setText($text);
 
-        $fhirId = Uuid::uuid4()->toString();
         $id = new FhirId();
-        $id->setValue($fhirId);
+        $id->setValue($dataRecord['uuid']);
         $patientResource->setId($id);
 
         $name = new FHIRHumanName();
@@ -226,6 +225,10 @@ class FhirPatientService extends FhirServiceBase
     {
         $data = array();
 
+        if (isset($fhirResource['id'])) {
+            $data['uuid'] = $fhirResource['id'];
+        }
+
         if (isset($fhirResource['name'])) {
             $name = [];
             foreach ($fhirResource['name'] as $sub_name) {
@@ -335,7 +338,7 @@ class FhirPatientService extends FhirServiceBase
      */
     public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
     {
-        throw new \Exception("not implemented");
+        $updatedOpenEMRRecord['uuid'] = $fhirResourceId;
     }
 
     /**
@@ -346,7 +349,8 @@ class FhirPatientService extends FhirServiceBase
      */
     public function getOne($fhirResourceId)
     {
-        throw new \Exception("not implemented");
+        $openEmrRecord = $this->patientService->getOne($fhirResourceId, true);
+        // $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
     }
     
     /**

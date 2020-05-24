@@ -3,6 +3,7 @@
 namespace OpenEMR\Tests\Fixtures;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Provides OpenEMR Fixtures/Sample Records to test cases as Objects or Database Records.
@@ -187,5 +188,15 @@ class FixtureManager
         // remove the patients
         $delete = "DELETE FROM patient_data WHERE pubpid LIKE ?";
         sqlStatement($delete, array($bindVariable));
+    }
+
+    /**
+     * Returns an unregistered/unlogged UUID for use in testing fixtures
+     * @return uuid4 string value
+     */
+    public function getUnregisteredUuid()
+    {
+        $uuid4 = Uuid::uuid4();
+        return $uuid4->toString();
     }
 }

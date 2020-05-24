@@ -71,7 +71,7 @@ class PatientApiTest extends TestCase
     }
 
     /**
-     * @covers ::put with an invalid pid
+     * @covers ::put with an invalid pid and uuid
      */
     public function testInvalidPut()
     {
@@ -83,7 +83,7 @@ class PatientApiTest extends TestCase
 
         $this->assertEquals(400, $actualResponse->getStatusCode());
         $responseBody = json_decode($actualResponse->getBody(), true);
-        $this->assertEquals(1, count($responseBody["validationErrors"]));
+        $this->assertEquals(2, count($responseBody["validationErrors"]));
         $this->assertEquals(0, count($responseBody["internalErrors"]));
         $this->assertEquals(0, count($responseBody["data"]));
     }
@@ -98,7 +98,10 @@ class PatientApiTest extends TestCase
         $responseBody = json_decode($actualResponse->getBody(), true);
 
         $patientPid = $responseBody["data"]["pid"];
+        $patientUuid = $responseBody["data"]["uuid"];
+
         $this->patientRecord["phone_home"] = "222-222-2222";
+        $this->patientRecord["uuid"] =  $patientUuid;
         $actualResponse = $this->testClient->put(self::PATIENT_API_ENDPOINT, $patientPid, $this->patientRecord);
 
         $this->assertEquals(200, $actualResponse->getStatusCode());
