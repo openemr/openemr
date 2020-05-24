@@ -56,7 +56,7 @@ class UuidRegistry
             }
 
             // Create uuid using the Timestamp-first COMB Codec, so can use for primary keys
-            //  (since first part is timestamp, it is naturally ordered)
+            //  (since first part is timestamp, it is naturally ordered; the rest is from uuid4, so is random)
             //  reference:
             //    https://uuid.ramsey.dev/en/latest/customize/timestamp-first-comb-codec.html#customize-timestamp-first-comb-codec
             $factory = new UuidFactory();
