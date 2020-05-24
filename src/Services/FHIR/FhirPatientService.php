@@ -343,14 +343,21 @@ class FhirPatientService extends FhirServiceBase
 
     /**
      * Performs a FHIR Patient Resource lookup by FHIR Resource ID
-     * NOT YET IMPLEMENTED - requires updates to support associating a fhir resource id to an openemr record
      * @param $fhirResourceId The OpenEMR record's FHIR Patient Resource ID.
      * @throws Exception since this method is not yet implemented
      */
     public function getOne($fhirResourceId)
     {
-        $openEmrRecord = $this->patientService->getOne($fhirResourceId, true);
-        // $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
+        $processingResult = $this->patientService->getOne($fhirResourceId, true);
+        if (!$processingResult->hasErrors()) {
+            if (count($processingResult->getData()) > 0) {
+                $openEmrRecord = $processingResult->getData()[0];
+                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord, false);
+                $processingResult->setData([]);
+                $processingResult->addData($fhirRecord);
+            }
+        }
+        return $processingResult;
     }
     
     /**

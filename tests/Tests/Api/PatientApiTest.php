@@ -68,6 +68,9 @@ class PatientApiTest extends TestCase
         $newPatientPid = $responseBody["data"]["pid"];
         $this->assertIsInt($newPatientPid);
         $this->assertGreaterThan(0, $newPatientPid);
+
+        $newPatientUuid = $responseBody["data"]["uuid"];
+        $this->assertIsString($newPatientUuid);
     }
 
     /**
@@ -128,24 +131,42 @@ class PatientApiTest extends TestCase
     }
 
     /**
-     * @covers ::getOne with a valid pid
+     * Data provider for getOne resource lookup tests.
+     * Provides "lookup type" parameters
+     * - the lookup key, pid or uuid
      */
-    public function testGetOne()
+    public function getOneProvider()
+    {
+        return [
+            ["pid"],
+            ["uuid"]
+        ];
+    }
+
+    /**
+     * @covers ::getOne with an invalid lookup type
+     * @dataProvider getOneProvider
+     * @param $lookupType the type - pid or uuid
+     */
+    public function testGetOne($lookupType)
     {
         $actualResponse = $this->testClient->post(self::PATIENT_API_ENDPOINT, $this->patientRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
 
         $responseBody = json_decode($actualResponse->getBody(), true);
-        $patientPid = $responseBody["data"]["pid"];
+        var_dump($responseBody);
+        $patientLookupKey = $responseBody["data"][$lookupType];
 
-        $actualResponse = $this->testClient->getOne(self::PATIENT_API_ENDPOINT, $patientPid);
+        $isUuidLookup = ($lookupType == "uuid");
+        $actualResponse = $this->testClient->getOne(self::PATIENT_API_ENDPOINT, $patientLookupKey, $isUuidLookup);
         $this->assertEquals(200, $actualResponse->getStatusCode());
 
         $responseBody = json_decode($actualResponse->getBody(), true);
         $this->assertEquals(0, count($responseBody["validationErrors"]));
         $this->assertEquals(0, count($responseBody["internalErrors"]));
-        $this->assertEquals($patientPid, $responseBody["data"]["pid"]);
+        $this->assertEquals($patientPid, $responseBody["data"][$lookupType]);
     }
+
 
     /**
      * @covers ::getAll

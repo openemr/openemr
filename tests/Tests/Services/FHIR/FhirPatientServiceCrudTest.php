@@ -74,8 +74,6 @@ class FhirPatientServiceCrudTest extends TestCase
      */
     public function testUpdate()
     {
-        // $this->expectException(\Exception::class);
-        // $this->fhirPatientService->update('a-fhir-resource-id', $this->fhirPatientFixture);
     }
 
     /**
@@ -85,7 +83,5 @@ class FhirPatientServiceCrudTest extends TestCase
      */
     public function testUpdateWithErrors()
     {
-        // $this->expectException(\Exception::class);
-        // $this->fhirPatientService->update('a-fhir-resource-id', $this->fhirPatientFixture);
     }
 }

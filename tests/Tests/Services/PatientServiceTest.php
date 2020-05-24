@@ -87,8 +87,11 @@ class PatientServiceTest extends TestCase
      */
     public function testUpdateFailure()
     {
-        $this->patientService->insert($this->patientFixture);
+        $actualResult = $this->patientService->insert($this->patientFixture);
+        $actualUuid = $actualResult->getData()[0]["uuid"];
+
         $this->patientFixture["fname"] = "A";
+        $this->patientFixture["uuid"] = $actualUuid;
 
         $actualResult = $this->patientService->update("not-a-pid", $this->patientFixture);
 
@@ -96,8 +99,7 @@ class PatientServiceTest extends TestCase
 
         $this->assertArrayHasKey("fname", $actualResult->getValidationMessages());
         $this->assertArrayHasKey("pid", $actualResult->getValidationMessages());
-        $this->assertArrayHasKey("uuid", $actualResult->getValidationMessages());
-        $this->assertEquals(3, count($actualResult->getValidationMessages()));
+        $this->assertEquals(2, count($actualResult->getValidationMessages()));
     }
 
     /**
@@ -148,6 +150,7 @@ class PatientServiceTest extends TestCase
         $this->assertArrayHasKey("sex", $resultData);
         $this->assertArrayHasKey("DOB", $resultData);
         $this->assertArrayHasKey("uuid", $resultData);
+
         // getOne - validate uuid
         $expectedUuid = $resultData["uuid"];
         $actualResult = $this->patientService->getOne($expectedUuid, true);
@@ -158,6 +161,12 @@ class PatientServiceTest extends TestCase
 
         // getOne - with an invalid pid
         $actualResult = $this->patientService->getOne("not-a-pid");
+        $this->assertEquals(1, count($actualResult->getValidationMessages()));
+        $this->assertEquals(0, count($actualResult->getInternalErrors()));
+        $this->assertEquals(0, count($actualResult->getData()));
+
+        // getOne - with an invalid uuid
+        $actualResult = $this->patientService->getOne("not-a-uuid", true);
         $this->assertEquals(1, count($actualResult->getValidationMessages()));
         $this->assertEquals(0, count($actualResult->getInternalErrors()));
         $this->assertEquals(0, count($actualResult->getData()));

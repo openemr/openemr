@@ -92,9 +92,36 @@ class FhirPatientServiceQueryTest extends TestCase
      */
     public function testGetAll($parameterName, $parameterValue)
     {
-
         $fhirSearchParameters = [$parameterName => $parameterValue];
         $processingResult = $this->fhirPatientService->getAll($fhirSearchParameters);
         $this->assertGetAllSearchResults($processingResult);
+    }
+
+    /**
+     * @covers ::getOne
+     */
+    public function testGetOne()
+    {
+        $actualResult = $this->fhirPatientService->getAll(['state' => 'CA']);
+        $this->assertGreaterThan(0, $actualResult->getData());
+
+        $expectedId = $actualResult->getData()[0]->getId();
+        
+        $actualResult = $this->fhirPatientService->getOne($expectedId);
+        $this->assertGreaterThan(0, $actualResult->getData());
+        $actualId = $actualResult->getData()[0]->getId();
+
+        $this->assertEquals($expectedId, $actualId);
+    }
+
+       /**
+     * @covers ::getOne with an invalid uuid
+     */
+    public function testGetOneInvalidUuid()
+    {
+        $actualResult = $this->fhirPatientService->getOne('not-a-uuid');
+        $this->assertGreaterThan(0, count($actualResult->getValidationMessages()));
+        $this->assertEquals(0, count($actualResult->getInternalErrors()));
+        $this->assertEquals(0, count($actualResult->getData()));
     }
 }
