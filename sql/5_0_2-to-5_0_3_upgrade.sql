@@ -592,10 +592,12 @@ ALTER TABLE `api_res_ver`
 
 #IfNotTable uuid_registry
 CREATE TABLE `uuid_registry` (
+  `id` bigint(20) NOT NULL auto_increment,
   `uuid` binary(16) NOT NULL DEFAULT '',
   `table_name` varchar(255) NOT NULL DEFAULT '',
   `created` timestamp NULL,
-  PRIMARY KEY (`uuid`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB;
 #EndIf
 
