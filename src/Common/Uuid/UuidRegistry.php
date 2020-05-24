@@ -70,12 +70,12 @@ class UuidRegistry
             $uuid = $timestampFirstComb->getBytes();
 
             /** temp debug stuff
-            error_log(bin2hex($uuid));
-            error_log(bin2hex($timestampFirstComb->getBytes()));
-            error_log($timestampFirstComb->toString());
-            $test_uuid = (\Ramsey\Uuid\Uuid::fromBytes($uuid))->toString();
+            error_log(bin2hex($uuid)); // log hex uuid
+            error_log(bin2hex($timestampFirstComb->getBytes())); // log hex uuid
+            error_log($timestampFirstComb->toString()); // log string uuid
+            $test_uuid = (\Ramsey\Uuid\Uuid::fromBytes($uuid))->toString(); // convert byte uuid to string and log below
             error_log($test_uuid);
-            error_log(bin2hex((\Ramsey\Uuid\Uuid::fromString($test_uuid))->getBytes()));
+            error_log(bin2hex((\Ramsey\Uuid\Uuid::fromString($test_uuid))->getBytes())); // convert string uuid to byte and log hex
             */
 
             // Check to ensure uuid is unique in uuid_registry
