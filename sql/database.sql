@@ -6818,12 +6818,10 @@ INSERT INTO user_settings ( setting_user, setting_label, setting_value ) VALUES 
 
 DROP TABLE IF EXISTS `uuid_registry`;
 CREATE TABLE `uuid_registry` (
-  `id` bigint(20) NOT NULL auto_increment,
   `uuid` binary(16) NOT NULL DEFAULT '',
   `table_name` varchar(255) NOT NULL DEFAULT '',
   `created` timestamp NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uuid` (`uuid`)
+  PRIMARY KEY (`uuid`)
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
