@@ -46,7 +46,7 @@ abstract class FhirServiceBase
      * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
      * @return the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    abstract public function parseOpenEMRRecord($dataRecord = array(), $encode = true);
+    abstract public function parseOpenEMRRecord($dataRecord = array(), $encode = false);
 
     /**
      * Parses a FHIR Resource, returning the equivalent OpenEMR record.
@@ -91,7 +91,7 @@ abstract class FhirServiceBase
 
         if (isset($processingResult->getData()[0])) {
             $openEmrRecord = $processingResult->getData()[0];
-            $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord, false);
+            $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
 
             $processingResult->setData([]);
             $processingResult->addData($fhirRecord);
@@ -142,7 +142,7 @@ abstract class FhirServiceBase
 
         if ($oeSearchResult->isValid()) {
             foreach ($oeSearchResult->getData() as $index => $oeRecord) {
-                $fhirResource = $this->parseOpenEMRRecord($oeRecord, false);
+                $fhirResource = $this->parseOpenEMRRecord($oeRecord);
                 $fhirSearchResult->addData($fhirResource);
             }
         }

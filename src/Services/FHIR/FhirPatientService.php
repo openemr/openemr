@@ -60,10 +60,10 @@ class FhirPatientService extends FhirServiceBase
      * Parses an OpenEMR patient record, returning the equivalent FHIR Patient Resource
      *
      * @param $dataRecord The source OpenEMR data record
-     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to True.
+     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function parseOpenEMRRecord($dataRecord = array(), $encode = true)
+    public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
     {
         $patientResource = new FHIRPatient();
 
@@ -363,7 +363,7 @@ class FhirPatientService extends FhirServiceBase
         if (!$processingResult->hasErrors()) {
             if (count($processingResult->getData()) > 0) {
                 $openEmrRecord = $processingResult->getData()[0];
-                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord, false);
+                $fhirRecord = $this->parseOpenEMRRecord($openEmrRecord);
                 $processingResult->setData([]);
                 $processingResult->addData($fhirRecord);
             }

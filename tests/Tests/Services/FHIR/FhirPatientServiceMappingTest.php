@@ -141,7 +141,7 @@ class FhirPatientServiceMappingTest extends TestCase
     public function testParseOpenEMRRecord()
     {
         $this->patientFixture['uuid'] = $this->fixtureManager->getUnregisteredUuid();
-        $actualResult = $this->fhirPatientService->parseOpenEMRRecord($this->patientFixture, false);
+        $actualResult = $this->fhirPatientService->parseOpenEMRRecord($this->patientFixture);
         $this->assertFhirPatientResource($actualResult, $this->patientFixture);
 
         $actualResult = $this->fhirPatientService->parseOpenEMRRecord($this->patientFixture, true);
