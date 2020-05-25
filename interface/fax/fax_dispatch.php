@@ -607,7 +607,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 <!-- Copy Pages to Patient Chart Section -->
 <div id='div_copy' class='jumbotron' style='display:none;'>
     <!-- Patient Section -->
-    <div class="form-row">
+    <div class="form-row mt-2">
         <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Patient'); ?></label>
         <div class="col-10">
             <input type='text' size='10' name='form_patient' class='form-control bg-light'
@@ -618,7 +618,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
         </div>
     </div>
     <!-- Patient Document Section -->
-    <div class="form-row">
+    <div class="form-row mt-2">
         <div class="col-12 col-form-label">
             <input type='radio' name='form_cb_copy_type' value='1'
                 onclick='return divclick(this,"div_copy_doc");' checked />
@@ -631,7 +631,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
             <!-- div_copy_doc Section -->
             <div id='div_copy_doc' class='bg-secondary border rounded p-2'>
                 <!-- Category Section -->
-                <div class="form-row">
+                <div class="form-row mt-2">
                     <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Category'); ?></label>
                     <div class="col-10">
                         <select name='form_category' class='form-control'>
@@ -645,7 +645,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
                     </div>
                 </div>
                 <!-- Filename Section -->
-                <div class="form-row">
+                <div class="form-row mt-2">
                     <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Filename'); ?></label>
                     <div class="col-10">
                         <input type='text' size='10' name='form_filename' class='form-control'
@@ -655,7 +655,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
                     </div>
                 </div>
                 <!-- Document Date Section -->
-                <div class="form-row">
+                <div class="form-row mt-2">
                     <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Document Date'); ?></label>
                     <div class="col-10">
                         <input type='text' class='datepicker form-control' size='10' name='form_docdate' id='form_docdate'
@@ -668,7 +668,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
             <!-- div_copy_sn Section -->
             <div id='div_copy_sn' class='bg-secondary border rounded p-2' style='display:none;margin-top:0.5em;'>
                 <!-- Visit Date Section -->
-                <div class="form-row">
+                <div class="form-row mt-2">
                     <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Visit Date'); ?></label>
                     <div class="col-10">
                         <select name='form_copy_sn_visit' class='form-control'>
@@ -676,7 +676,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
                     </div>
                 </div>
                 <!-- Comments Section -->
-                <div class="form-row">
+                <div class="form-row mt-2">
                     <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Comments'); ?></label>
                     <div class="col-10">
                         <textarea name='form_copy_sn_comments' rows='3' cols='30' class='form-control'
@@ -697,7 +697,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
             <!-- div_note Section -->
             <div id='div_note' class='bg-secondary border rounded p-2' style='display:none;'>
                 <!-- Type Section -->
-                <div class="form-row">
+                <div class="form-row mt-2">
                     <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Type'); ?></label>
                     <div class="col-10">
                         <?php
@@ -707,7 +707,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
                     </div>
                 </div>
                 <!-- To Section -->
-                <div class="form-row">
+                <div class="form-row mt-2">
                     <label class="col-2 col-form-label font-weight-bold">To</label>
                     <div class="col-10">
                     <select name='form_note_to' class='form-control'>
@@ -727,7 +727,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
                     </div>
                 </div>
                 <!-- Message Section -->
-                <div class="form-row">
+                <div class="form-row mt-2">
                     <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Message'); ?></label>
                     <div class="col-10">
                         <textarea name='form_note_message' rows='3' cols='30' class='form-control'
@@ -748,28 +748,28 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 <!-- Forward Pages via Fax Section -->
 <div id='div_forward' class='jumbotron' style='display:none;'>
     <!-- From Section -->
-    <div class="form-row">
+    <div class="form-row mt-2">
         <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('From'); ?></label>
         <div class="col-10">
             <input type='text' size='10' name='form_from' class='form-control' data-toggle='tooltip' data-placement='top' title='Type your name here'>
         </div>
     </div>
     <!-- To Section -->
-    <div class="form-row">
+    <div class="form-row mt-2">
         <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('To{{Destination}}'); ?></label>
         <div class="col-10">
             <input type='text' size='10' name='form_to' class='form-control' data-toggle='tooltip' data-placement='top' title='Type the recipient name here'>
         </div>
     </div>
     <!-- Fax Section -->
-    <div class="form-row">
+    <div class="form-row mt-2">
         <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Fax'); ?></label>
         <div class="col-10">
             <input type='text' size='10' name='form_fax' class='form-control' data-toggle='tooltip' data-placement='top' title='The fax phone number to send this to'>
         </div>
     </div>
     <!-- Message Section -->
-    <div class="form-row">
+    <div class="form-row mt-2">
         <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Message'); ?></label>
         <div class="col-10">
             <textarea name='form_message' rows='3' cols='30' class='form-control'
@@ -779,7 +779,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
         </div>
     </div>
     <!-- Quality Section -->
-    <div class="form-row">
+    <div class="form-row mt-2">
         <label class="col-2 col-form-label font-weight-bold"><?php echo xlt('Quality'); ?></label>
         <div class="col-10">
             <input type='radio' name='form_finemode' value=''><?php echo xlt('Normal'); ?>
