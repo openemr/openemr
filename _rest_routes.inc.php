@@ -360,12 +360,12 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         $data = (array)(json_decode(file_get_contents("php://input"), true));
         return (new FhirPatientRestController())->post($data);
     },
-    "PUT /fhir/Patient/:id" => function ($pid) {
+    "PUT /fhir/Patient/:id" => function ($id) {
         RestConfig::authorization_check("patients", "demo");
         $data = (array)(json_decode(file_get_contents("php://input"), true));
         return (new FhirPatientRestController())->put($id, $data);
     },
-    "PATCH /fhir/Patient/:pid" => function ($id) {
+    "PATCH /fhir/Patient/:id" => function ($id) {
         RestConfig::authorization_check("patients", "demo");
         $data = (array)(json_decode(file_get_contents("php://input"), true));
         return (new FhirPatientRestController())->put($id, $data);
