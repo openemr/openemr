@@ -348,7 +348,7 @@ class FhirPatientService extends FhirServiceBase
         if (isset($processingResult->getData()[0])) {
             $existingPid = intval($processingResult->getData()[0]['pid']);
         }
-        
+
         $processingResult = $this->patientService->update($existingPid, $updatedOpenEMRRecord);
         return $processingResult;
     }
@@ -356,7 +356,6 @@ class FhirPatientService extends FhirServiceBase
     /**
      * Performs a FHIR Patient Resource lookup by FHIR Resource ID
      * @param $fhirResourceId The OpenEMR record's FHIR Patient Resource ID.
-     * @throws Exception since this method is not yet implemented
      */
     public function getOne($fhirResourceId)
     {

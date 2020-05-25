@@ -101,7 +101,6 @@ abstract class FhirServiceBase
 
     /**
      * Updates an existing OpenEMR record.
-     * NOT YET IMPLEMENTED - requires updates to support associating a fhir resource id to an openemr record
      * @param $fhirResourceId The OpenEMR record's FHIR Resource ID.
      * @param $updatedOpenEMRRecord The "updated" OpenEMR record.
      * @return The OpenEMR Service Result
@@ -110,9 +109,7 @@ abstract class FhirServiceBase
 
     /**
      * Performs a FHIR Resource lookup by FHIR Resource ID
-     * NOT YET IMPLEMENTED - requires updates to support associating a fhir resource id to an openemr record
      * @param $fhirResourceId The OpenEMR record's FHIR Resource ID.
-     * @throws Exception since this method is not yet implemented
      */
     abstract protected function getOne($fhirResourceId);
 
