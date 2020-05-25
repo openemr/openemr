@@ -1016,11 +1016,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                             <?php echo xlt('S.S.'); ?>:
                                                             <?php echo text($row['subscriber_ss']); ?><br />
                                                             <?php echo xlt('D.O.B.'); ?>:
-                                                            <?php
-                                                            if ($row['subscriber_DOB'] != null) {
-                                                                echo text($row['subscriber_DOB']);
-                                                            }
-                                                            ?><br />
+                                                            <?php echo text($row['subscriber_DOB']); ?><br />
                                                             <?php echo xlt('Phone'); ?>:
                                                             <?php echo text($row['subscriber_phone']); ?>
                                                           </span>
