@@ -13,6 +13,13 @@
 require_once "../interface/globals.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Acl\AclMain;
+
+//ensure user has proper access
+if (!AclMain::aclCheckCore('admin', 'acl', 'super', 'patients')) {
+    echo xlt('ACL Administration Not Authorized');
+    exit;
+}
 
 $id = filter_input(INPUT_POST, 'drugId', FILTER_VALIDATE_INT);
 $id = trim($id);

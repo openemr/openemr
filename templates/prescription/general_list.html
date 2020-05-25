@@ -84,31 +84,25 @@ function Check(chk) {
 }
 
 function deleteDrug(d) {
-    let isPromise = top.jsFetchGlobals('e_rx');
-    isPromise.then(
-        msg => {
-            top.restoreSession();
-            alert('msg.e_rx.deleteWarn');
-            if (choice == true) {
-                $.ajax({
-                    url: "./library/deletedrug.php",
-                    type: 'POST',
-                    data: {
-                        drugId: d,
-                        csrf_token_form: {$CSRF_TOKEN_FORM|js_escape}
-                    },
-                    success: function(data) {
-                        console.log(data);
-                        location.reload();
-                    },
-                    error: function(error) {
-                        console.log(error)
-                    },
-                });
-            }
-        }).catch(error => {
-        console.log(error.message)
+    let msg = {/literal}{xlj t='Do you really want to delete?'}{literal};
+    let choice = confirm(msg + d);
+    if (choice == true) {
+        $.ajax({
+                url: "./library/deleteDrug.php",
+                type: 'POST',
+                data: {
+                    drugId: d,
+                    csrf_token_form: {$CSRF_TOKEN_FORM|js_url}
+            },
+            success: function(data) {
+            console.log(data);
+            location.reload();
+        },
+        error: function(error) {
+            console.log(error)
+        },
     });
+    }
 }
 
 function Uncheck(chk) {
