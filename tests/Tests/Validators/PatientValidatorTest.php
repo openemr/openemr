@@ -5,6 +5,7 @@ namespace OpenEMR\Tests\Validators;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Validators\PatientValidator;
+use OpenEMR\Common\Uuid\UuidRegistry;
 
 /**
  * @coversDefaultClass OpenEMR\Validators\PatientValidator
@@ -102,6 +103,8 @@ class PatientValidatorTest extends TestCase
             array($patientFixture['pubpid'])
         )['uuid'];
 
+        $fixtureUuid = UuidRegistry::uuidToString($fixtureUuid);
+
         $this->patientFixture['uuid'] = $fixtureUuid;
 
         // updates do not require all fields
@@ -154,6 +157,8 @@ class PatientValidatorTest extends TestCase
             array($patientFixture['pubpid'])
         )['uuid'];
 
+        $fixtureUuid = UuidRegistry::uuidToString($fixtureUuid);
+
         $this->assertEquals(36, strlen($fixtureUuid));
 
         $actualResult = $this->patientValidator->isExistingUuid($fixtureUuid);
@@ -161,9 +166,6 @@ class PatientValidatorTest extends TestCase
 
         $unregisteredUuid = $this->fixtureManager->getUnregisteredUuid();
         $actualResult = $this->patientValidator->isExistingUuid($unregisteredUuid);
-        $this->assertFalse($actualResult);
-
-        $actualResult = $this->patientValidator->isExistingPid('invalid-uuid');
         $this->assertFalse($actualResult);
     }
 }

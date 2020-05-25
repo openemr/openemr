@@ -4,6 +4,8 @@ namespace OpenEMR\Validators;
 
 use Particle\Validator\Validator;
 use Particle\Validator\Exception\InvalidValueException;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use Ramsey\Uuid\Exception\InvalidUuidStringException;
 
 /**
  * Supports Patient Record Validation.
@@ -22,16 +24,19 @@ class PatientValidator extends BaseValidator
      */
     public function isExistingUuid($uuid)
     {
-        if (!is_string($uuid) && strlen($uuid) != 36) {
+        try {
+            $uuidLookup = UuidRegistry::uuidToBytes($uuid);
+        } catch (InvalidUuidStringException $e) {
             return false;
         }
+        
         $result = sqlQuery(
             'SELECT uuid AS uuid FROM patient_data WHERE uuid = ?',
-            array($uuid)
+            array($uuidLookup)
         );
 
-        $uuidValue = $result['uuid'] ?? '';
-        return strlen($uuidValue) == 36;
+        $existingUuid = $result['uuid'];
+        return $existingUuid != null;
     }
 
    /**

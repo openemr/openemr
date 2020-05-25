@@ -348,8 +348,9 @@ class FhirPatientService extends FhirServiceBase
         if (isset($processingResult->getData()[0])) {
             $existingPid = intval($processingResult->getData()[0]['pid']);
         }
-
-        return $this->patientService->update($existingPid, $updatedOpenEMRRecord);
+        
+        $processingResult = $this->patientService->update($existingPid, $updatedOpenEMRRecord);
+        return $processingResult;
     }
 
     /**

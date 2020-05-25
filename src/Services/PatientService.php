@@ -126,7 +126,7 @@ class PatientService extends BaseService
         if ($results) {
             $processingResult->addData(array(
                 'pid' => $freshPid,
-                'uuid' => $data['uuid']
+                'uuid' => UuidRegistry::uuidToString($data['uuid'])
             ));
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
@@ -165,7 +165,6 @@ class PatientService extends BaseService
         } else {
             $processingResult = $this->getOne($pid);
         }
-
         return $processingResult;
     }
 
@@ -234,6 +233,7 @@ class PatientService extends BaseService
 
         $processingResult = new ProcessingResult();
         while ($row = sqlFetchArray($statementResults)) {
+            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
             $processingResult->addData($row);
         }
 
@@ -298,11 +298,13 @@ class PatientService extends BaseService
 
         if ($isUuidLookup) {
             $sql .= " uuid = ?";
+            $lookupId = UuidRegistry::uuidToBytes($lookupId);
         } else {
             $sql .= " pid = ?";
         }
 
         $sqlResult = sqlQuery($sql, $lookupId);
+        $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
         $processingResult->addData($sqlResult);
         return $processingResult;
     }
