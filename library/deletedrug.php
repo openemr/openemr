@@ -25,7 +25,7 @@ if (isset($id)) {
         $sql = "delete from prescriptions where id = ?";
         sqlQuery($sql, [$id]);
         echo xlt("Done");
-    } catch(Exception $e) {
-        echo 'Error Message: ' .text($e->getMessage());
+    } catch (Exception $e) {
+        echo 'Error Message: ' . text($e->getMessage());
     }
 }
