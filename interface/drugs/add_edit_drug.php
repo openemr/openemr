@@ -627,8 +627,8 @@ for ($i = 0; $i < $blank_lines; ++$i) {
 
 <script>
 $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-})
+  $('[data-toggle="tooltip"]').tooltip();
+});
 <?php
 if ($alertmsg) {
     echo "alert('" . addslashes($alertmsg) . "');\n";

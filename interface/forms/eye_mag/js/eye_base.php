@@ -1210,7 +1210,7 @@ function build_DX_list(obj) {
                if (obj.Clinical[key][0].diagnosis > '') { //so we are just showing this first item of each Dx (Eg bilateral, x4 pterygium, only first shows up)
                diagnosis = "<code class='float-right ICD_CODE'>"+obj.Clinical[key][0].code+"</code>";
                }
-               out += "<div class='droppable'><li class='ui-widget-content draggable'><span name='DX_Clinical_"+key+"' id='DX_Clinical_"+key+"'>"+obj.Clinical[key][0].title+"</span> "+diagnosis+"</li></div>";
+               out += "<div class='droppable'><li class='draggable'><span name='DX_Clinical_"+key+"' id='DX_Clinical_"+key+"'>"+obj.Clinical[key][0].title+"</span> "+diagnosis+"</li></div>";
                });
     }
 
@@ -1220,14 +1220,14 @@ function build_DX_list(obj) {
                if (obj.PMSFH['POH'][key].diagnosis > '' ) {
                diagnosis = "<code class='float-right ICD_CODE'>"+obj.PMSFH['POH'][key].code+"</code>";
                }
-               out += "<div class='droppable'><li class='ui-widget-content draggable'><span name='DX_POH_"+key+"' id='DX_POH_"+key+"'>"+obj.PMSFH['POH'][key].title+"</span> "+diagnosis+"</li></div>";
+               out += "<div class='droppable'><li class='draggable'><span name='DX_POH_"+key+"' id='DX_POH_"+key+"'>"+obj.PMSFH['POH'][key].title+"</span> "+diagnosis+"</li></div>";
                });
         $.each(obj.PMSFH['POS'], function(key, value) {
                diagnosis='';
                if (obj.PMSFH['POS'][key].diagnosis > '' ) {
                diagnosis = "<code class='float-right ICD_CODE'>"+obj.PMSFH['POS'][key].code+"</code>";
                }
-               out += "<div class='droppable'><li class='ui-widget-content draggable'><span name='DX_POS_"+key+"' id='DX_POS_"+key+"'>"+obj.PMSFH['POS'][key].title+"</span> "+diagnosis+"</li></div>";
+               out += "<div class='droppable'><li class='draggable'><span name='DX_POS_"+key+"' id='DX_POS_"+key+"'>"+obj.PMSFH['POS'][key].title+"</span> "+diagnosis+"</li></div>";
                });
     }
     if ($('#inc_PMH').is(':checked') && obj.PMSFH['PMH']) {
@@ -1236,7 +1236,7 @@ function build_DX_list(obj) {
                if (obj.PMSFH['PMH'][key].diagnosis > '') {
                diagnosis = "<code class='float-right ICD_CODE'>"+obj.PMSFH['PMH'][key].code+"</code>";
                }
-               out += "<div class='droppable'><li class='ui-widget-content draggable'><span name='DX_PMH_"+key+"' id='DX_PMH_"+key+"'>"+obj.PMSFH['PMH'][key].title+"</span>"+diagnosis+"</li></div>";
+               out += "<div class='droppable'><li class='draggable'><span name='DX_PMH_"+key+"' id='DX_PMH_"+key+"'>"+obj.PMSFH['PMH'][key].title+"</span>"+diagnosis+"</li></div>";
                });
     }
         //add in inc_FIELDCODES culled from the datafields
@@ -1250,7 +1250,7 @@ function build_DX_list(obj) {
             $('#make_new_IMP').trigger('click'); //any items selected are sent to IMPPLAN directly.
         })
         //this places the handle for the user to drag the item around.
-        .prepend( "<div class='handle'><i class='fas fa-arrows-alt fa-1'></i></div>" );
+        .prepend( "<div class='handle'><i class='fas fa-arrows-alt'></i></div>" );
     } else {
         out = '<br /><span class="bold"><?php echo xlt("Build Your Plan") . "."; ?></span><br /><br />';
         out += '<?php echo xlt('Suggestions for the Imp/Plan are built from the Exam, the Past Ocular History (POH and POS) and the Past Medical History (PMH)') . "."; ?><br />';
@@ -1388,7 +1388,7 @@ function build_IMPPLAN(items,nodisplay) {
                "<span contenteditable class='float-right' onclick='sel_diagnosis("+index+",\""+title2+"\");' title='"+value.codetext+"' id='CODE_"+index+"'>"+
                value.code + "</span>&nbsp;"+
                "<br /><textarea id='PLAN_"+index+"' name='PLAN_"+index+
-               "' style='width:100%;max-width:100%;height:auto;min-height:3em;overflow-y: hidden;padding-top: 1.1em; '>"+
+               "' class='w-100 mw-100 h-auto' style='min-height:3em;overflow-y: hidden;padding-top: 1.1em; '>"+
                value.plan +"</textarea><br /></li>";
                $('#IMPPLAN_zone').append('<div id="IMPPLAN_zone_'+index+'" class="IMPPLAN_class">'+
                                          '<i class="float-right fas fa-times" id="BUTTON_IMPPLAN_'+index+'"></i>'+
