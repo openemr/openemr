@@ -99,7 +99,7 @@ $enable-responsive-font-sizes: true;
 // bs4import
 
 // Fix Font Awesome fonts path
-$fa-font-path: "../../public/assets/@fortawesome/fontawesome-free/webfonts";
+$fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 // Font Awesome Import
 @import "../../public/assets/@fortawesome/fontawesome-free/scss/fontawesome";
 @import "../../public/assets/@fortawesome/fontawesome-free/scss/brands";
