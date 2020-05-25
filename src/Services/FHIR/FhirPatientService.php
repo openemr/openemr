@@ -2,7 +2,6 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use Ramsey\Uuid\Uuid;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\PatientService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
