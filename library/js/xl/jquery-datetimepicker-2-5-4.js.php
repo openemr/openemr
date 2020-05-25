@@ -54,6 +54,9 @@
             ]
         },
     },
+    <?php if (isset($datetimepicker_value)) { ?>
+      value: '<?php echo $datetimepicker_value; ?>',
+    <?php } ?>
     <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
     /**
      * In RTL languages a datepicker popup is opened in left and it's cutted by the edge of the window
@@ -102,7 +105,9 @@
     <?php } else { ?>
         <?php if ($datetimepicker_formatInput) { ?>
             format: '<?php echo DateFormatRead("jquery-datetimepicker"); ?>',
-        <?php } else { ?>
+          <?php } else if (isset($datetimepicker_datelayout) && !$datetimepicker_formatInput) { ?>
+            format: '<?php echo $datetimepicker_datelayout; ?>',
+          <?php } else { ?>
             format: 'Y-m-d',
         <?php } ?>
         timepicker:false

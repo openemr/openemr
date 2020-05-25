@@ -66,9 +66,9 @@ $(function() {
         var cleintwidth = $(window).width();
         var pos = $(this).position();
         var sendLeft = $('.ap-st-st-12').width() + pos.left;
-
+        var sendCss;
         if (sendLeft > cleintwidth) {
-            var sendCss = {
+            sendCss = {
                 right: ((cleintwidth - pos.left) - 74) + "px",
                 top: (pos.top + 35) + "px"
             };
@@ -79,7 +79,7 @@ $(function() {
                 left: "98%"
             });
         } else {
-            var sendCss = {
+            sendCss = {
                 left: (pos.left + 5) + "px",
                 top: (pos.top + 35) + "px"
             };
@@ -109,21 +109,21 @@ $(function() {
     $('[name="send_to"]').click(function() {
         if ($(this).attr("id") == "send_to_fax") {
             $(".ap-st-st-8").show();
-            $(".display_block").removeClass("display_block");
-            $("#combination_form_div").addClass("display_block");
+            $(".d-block").removeClass("d-block");
+            $("#combination_form_div").addClass("d-block");
         } else if ($(this).attr("id") == "send_to_printer") {
             $(".ap-st-st-8").hide();
-            $(".display_block").removeClass("display_block");
-            $("#combination_form_div").addClass("display_block");
+            $(".d-block").removeClass("d-block");
+            $("#combination_form_div").addClass("d-block");
         } else if ($(this).attr("id") == "send_to_hie") {
-            $(".display_block").removeClass("display_block");
-            $("#hie_div").addClass("display_block");
+            $(".d-block").removeClass("d-block");
+            $("#hie_div").addClass("d-block");
         } else if ($(this).attr("id") == "send_to_emrdirect") {
-            $(".display_block").removeClass("display_block");
-            $("#emrDirect_div").addClass("display_block");
+            $(".d-block").removeClass("d-block");
+            $("#emrDirect_div").addClass("d-block");
         } else if ($(this).attr("id") == "download_all") {
-            $(".display_block").removeClass("display_block");
-            $("#download_all_div").addClass("display_block");
+            $(".d-block").removeClass("d-block");
+            $("#download_all_div").addClass("d-block");
         }
     });
 

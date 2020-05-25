@@ -177,6 +177,9 @@ assets:
     jscolor:
         basePath: '%assets_static_relative%/jscolor/'
         script: jscolor.js
+    modernizr:
+        basePath: '%assets_static_relative%/modernizr/build/'
+        script: modernizr.js
     esign:
         basePath: '%webroot%/library/ESign/'
         script: js/jquery.esign.js

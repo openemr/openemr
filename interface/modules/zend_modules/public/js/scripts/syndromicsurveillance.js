@@ -1,19 +1,12 @@
 $(document).mouseup(function(e) {
     var container = $(".se_in_15");
-    var calendar = $(".ui-datepicker");
-    var buttons = $(".search_button");
-    if (!container.is(e.target) && container.has(e.target).length === 0 && !buttons.is(e.target) && calendar.has(e.target).length === 0) {
+    var buttons = $("#search_button");
+    if (!container.is(e.target) && container.has(e.target).length === 0 && !buttons.is(e.target)) {
         $(".se_in_15").css("display", "none");
     }
 });
 
 $(function() {
-    $(".dateClass_syndrome").datetimepicker({
-        changeMonth: true,
-        changeYear: true,
-    });
-    $(".dateClass_syndrome").datepicker("option", "dayNamesMin", ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
-
     $('.header_wrap_left').on("click", "#searchbutton", function() {
         var pos = $(this).position();
         $('.se_in_15').fadeToggle().css({

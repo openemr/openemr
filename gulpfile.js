@@ -17,7 +17,7 @@ const sass = require('gulp-sass');
 const sourcemaps = require('gulp-sourcemaps');
 const gulp_watch = require('gulp-watch');
 const injector = require('gulp-inject-string');
-
+const modernizr = require('gulp-modernizr');
 // package.json
 const packages = require('./package.json');
 
@@ -256,6 +256,71 @@ function install(done) {
     done();
 }
 
+// Builds modernizr found in laminas modules
+function build_modernizr() {
+  return gulp.src('./public/assets/modernizr/src/*.js')
+    .pipe(modernizr({
+      "minify": true,
+      "options": [
+        "domPrefixes",
+        "prefixes",
+        "addTest",
+        "hasEvent",
+        "mq",
+        "prefixed",
+        "testAllProps",
+        "testProp",
+        "testStyles",
+        "html5shiv",
+        "setClasses"
+      ],
+      "feature-detects": [
+        "test/applicationcache",
+        "test/audio",
+        "test/canvas",
+        "test/canvastext",
+        "test/geolocation",
+        "test/hashchange",
+        "test/history",
+        "test/indexeddb",
+        "test/input",
+        "test/inputtypes",
+        "test/postmessage",
+        "test/svg",
+        "test/video",
+        "test/webgl",
+        "test/websockets",
+        "test/css/animations",
+        "test/css/backgroundsize",
+        "test/css/borderimage",
+        "test/css/borderradius",
+        "test/css/boxshadow",
+        "test/css/columns",
+        "test/css/flexbox",
+        "test/css/fontface",
+        "test/css/generatedcontent",
+        "test/css/gradients",
+        "test/css/hsla",
+        "test/css/multiplebgs",
+        "test/css/opacity",
+        "test/css/reflections",
+        "test/css/rgba",
+        "test/css/textshadow",
+        "test/css/transforms",
+        "test/css/transforms3d",
+        "test/css/transitions",
+        "test/storage/localstorage",
+        "test/storage/sessionstorage",
+        "test/storage/websqldatabase",
+        "test/svg/clippaths",
+        "test/svg/inline",
+        "test/svg/smil",
+        "test/workers/webworkers"
+      ]}))
+      .pipe(gulpif(!config.dev, csso()))
+      .pipe(gulp.dest('./public/assets/modernizr/build/'));
+}
+
 function watch() {
     // watch all changes and re-run styles
     gulp.watch('./interface/**/*.scss', { interval: 1000, mode: 'poll' }, styles);
@@ -292,7 +357,7 @@ exports.watch = watch;
 //    which is generally how this script is always used (except in
 //    rare case where the user is running the watch task).
 if (config.install) {
-    exports.default = gulp.series(install)
+    exports.default = gulp.series(install);
 } else {
-    exports.default = gulp.series(clean, ingest, styles, sync);
+    exports.default = gulp.series(clean, ingest, styles, build_modernizr, sync);
 }

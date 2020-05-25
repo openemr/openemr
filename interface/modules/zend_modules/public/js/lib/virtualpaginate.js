@@ -7,17 +7,17 @@
 // ** Ability to select a page using a URL parameter (ie: target.htm?virtualpiececlass=index).
 
 // Updated: Oct 19th, 2009 to v2.1
-// ** New wraparound:true/false option added, which when false disables moving back/forth beyond first and last content, respectively 
+// ** New wraparound:true/false option added, which when false disables moving back/forth beyond first and last content, respectively
 //
 // PUBLIC: virtualpaginate()
 // Main Virtual Paginate Object function.
 // -------------------------------------------------------------------
 
-document.write('<style type="text/css">' //write out CSS for class ".hidepeice" that hides pieces of contents within pages
+document.write('<style>' //write out CSS for class ".hidepeice" that hides pieces of contents within pages
 	+'.hidepiece{display:none}\n'
 	+'@media print{.hidepiece{display:block !important;}}\n'
 	+'</style>')
-	
+
 function virtualpaginate(config){ //config: {piececlass:, piececontainer:, pieces_per_page:, defaultpage:, wraparound:, persist}
 	this.piececlass=config.piececlass
 	var elementType=(typeof config.piececontainer=="undefined")? "div" : config.piececontainer //The type of element used to divide up content into pieces. Defaults to "div"
@@ -125,7 +125,7 @@ virtualpaginate.urlparamselect=function(vpclass){
 	return (result==null)? null : parseInt(RegExp.$1) //returns null or index, where index (int) is the selected virtual page's index
 }
 
-virtualpaginate.getCookie=function(Name){ 
+virtualpaginate.getCookie=function(Name){
 	var re=new RegExp(Name+"=[^;]+", "i"); //construct RE to search for target name/value pair
 	if (document.cookie.match(re)) //if cookie found
 		return document.cookie.match(re)[0].split("=")[1] //return its value
@@ -149,7 +149,7 @@ virtualpaginate.prototype.showpage=function(pagenumber){
 			//this.pieces[i].style.display="block";
 			var a = this.pieces[i];
 			$(a).fadeIn();
-			
+
 		}
 		else
 			this.pieces[i].style.display="none"
@@ -263,7 +263,7 @@ virtualpaginate.prototype.paginate_build_regularlinks=function(paginatelinks){
 				virtualpaginate.setcssclass(paginatelinks[i], "disabled", "add")
 			this.nextlinks.push(paginatelinks[i])
 		}
-		
+
 	}
 }
 

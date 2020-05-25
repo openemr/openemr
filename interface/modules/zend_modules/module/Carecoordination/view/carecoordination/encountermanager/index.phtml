@@ -118,9 +118,8 @@ foreach ($this->status_details as $row_status) {
     });
 
   });
-  function reloadIframe()
-  {
-    document.getElementById('documents_iframe').src=document.getElementById('documents_iframe').src;
+  function reloadIframe() {
+    document.getElementById('documents_iframe').src = document.getElementById('documents_iframe').src;
   }
 </script>
 <style>
@@ -148,12 +147,28 @@ foreach ($this->status_details as $row_status) {
         <div class="se_in_15 se_in_16 p-3">
           <div class="form-group">
             <label><?php echo $this->listenerObject->z_xlt('Date'); ?></label>
-            <input maxlength="10" type="text" class="form-control" name="form_date_from" id="form_date_from" class="dateClass"/>
-            <input maxlength="10" type="text" class="form-control" name="form_date_to" id="form_date_to" class="dateClass"/>
+            <input maxlength="10" type="text" class="form-control" name="form_date_from" id="form_date_from" class="dateClass" />
+            <input maxlength="10" type="text" class="form-control" name="form_date_to" id="form_date_to" class="dateClass" />
             <script>
                     $(function () {
-                            $("#form_date_from").datetimepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['from_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>' );
-                            $("#form_date_to").datetimepicker("setDate", '<?php echo $this->commonplugin->date_format($this->form_data['to_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');?>');
+                            $("#form_date_from").datetimepicker({
+                              <?php
+                              $datetimepicker_timepicker = false;
+                              $datetimepicker_showseconds = false;
+                              $datetimepicker_formatInput = true;
+                              $datetimepicker_datelayout = 'yyyy-mm-dd';
+                              $datetimepicker_value = $this->commonplugin->date_format($this->form_data['from_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');
+                              require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                            });
+                            $("#form_date_to").datetimepicker({
+                              <?php
+                              $datetimepicker_timepicker = false;
+                              $datetimepicker_showseconds = false;
+                              $datetimepicker_formatInput = false;
+                              $datetimepicker_datelayout = 'yyyy-mm-dd';
+                              $datetimepicker_value = $this->commonplugin->date_format($this->form_data['to_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');
+                              require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                            });
                     });
             </script>
           </div>
@@ -165,7 +180,7 @@ foreach ($this->status_details as $row_status) {
             <label><?php echo $this->listenerObject->z_xlt('Encounter'); ?></label>
             <input maxlength="10" type="text" class="form-control" onkeypress="return isNumber(event)" name="form_encounter" value="<?php echo $this->escapeHtml($this->form_data['encounter']);?>" />
           </div>
-          <input type="submit" class="btn btn-primary" onclick="clearCount();return validate_search();"  value="<?php echo $this->listenerObject->z_xlt('SEARCH'); ?>" name="search" id="search_encounter" />
+          <input type="submit" class="btn btn-primary" onclick="clearCount(); return validate_search();"  value="<?php echo $this->listenerObject->z_xlt('SEARCH'); ?>" name="search" id="search_encounter" />
         </div><!-- se in 15 -->
         <div class="clearfix"></div>
             <div class="row no-gutter">
@@ -221,28 +236,27 @@ foreach ($this->status_details as $row_status) {
                                 if($('#'+this.id).hasClass('se_in_23')){
                                         $('#'+this.id).addClass("se_in_24");
                                         $('#'+this.id).removeClass("se_in_23");
-                                        $('#hide_'+arr[arr.length-1]).show('slow');
+                                        $('#hide_'+arr[arr.length-1]).removeClass('d-none');
                                 }
                                 else if($('#'+this.id).hasClass('se_in_24')){
                                         $('#'+this.id).addClass("se_in_23");
                                         $('#'+this.id).removeClass("se_in_24");
-                                        $('#hide_'+arr[arr.length-1]).hide('slow');
+                                        $('#hide_'+arr[arr.length-1]).addClass('d-none');
                                 }
                         });
                         $('#expand_all').click(function(){
-                                if($('#expand_all').hasClass('se_in_23')){
+                                if($('#expand_all').hasClass('se_in_23')) {
                                         $('.expand_details').addClass("se_in_24");
                                         $('.expand_details').removeClass("se_in_23");
                                         $('.expand_all').addClass("se_in_24");
                                         $('.expand_all').removeClass("se_in_23");
-                                        $('.ccda_details').show('slow');
-                                }
-                                else if($('#expand_all').hasClass('se_in_24')){
+                                        $('.ccda_details').removeClass('d-none');
+                                } else if($('#expand_all').hasClass('se_in_24')) {
                                         $('.expand_details').addClass("se_in_23");
                                         $('.expand_details').removeClass("se_in_24");
                                         $('.expand_all').addClass("se_in_23");
                                         $('.expand_all').removeClass("se_in_24");
-                                        $('.ccda_details').hide('slow');
+                                        $('.ccda_details').addClass('d-none');
                                 }
                         });
                 });
@@ -288,9 +302,7 @@ foreach ($this->status_details as $row_status) {
                                 <td><label><?php echo $this->escapeHtml($row['ccda_successfull_transfer_count']); ?></label></td>
                                 <td><label><?php echo $this->commonplugin->date_format($row['last_visit_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd'); ?></label></td>
                                 <td class="text-nowrap">
-                                        <input class="check_pid check_pid_<?php echo $this->escapeHtml($row['pid']); ?>" type="checkbox" name="ccda_pid[]" value="<?php echo $this->escapeHtml($row['pid']); ?>" <?php if ($this->form_data['select_all'] ==1) {
-                                            echo "checked";
-                                                                          } ?>>
+                                        <input class="check_pid check_pid_<?php echo $this->escapeHtml($row['pid']); ?>" type="checkbox" name="ccda_pid[]" value="<?php echo $this->escapeHtml($row['pid']); ?>" <?php if ($this->form_data['select_all'] ==1) { echo "checked"; } ?>>
                                 </td>
                                 <td style="padding: 5px;">
                                         <a href="<?php echo $this->basePath(); ?>/encounterccdadispatch/index?combination=<?php echo $this->escapeHtml($row['pid']); ?>&view=1&recipient=self&param=<?php echo $_SESSION['authUserID']; ?>" rel="noopener" target="_blank" class="text-decoration-none">
@@ -347,10 +359,8 @@ foreach ($this->status_details as $row_status) {
                                                                                                         } ?>
                                                                     </td>
                                                                     <td title="<?php echo $this->listenerObject->z_xlt('Download CCDA file'); ?>">
-                                                                        <a rel="noopener" target="_blank"
-                                                                           href="<?php echo $this->basePath(); ?>/encountermanager/download?id=<?php echo $this->escapeHtml($row_status['id']); ?>">
-                                                                            <img src="<?php echo $this->basePath(); ?>/css/icons/request.png"
-                                                                                 width="17px">
+                                                                        <a rel="noopener" target="_blank" href="<?php echo $this->basePath(); ?>/encountermanager/download?id=<?php echo $this->escapeHtml($row_status['id']); ?>">
+                                                                            <img src="<?php echo $this->basePath(); ?>/css/icons/request.png" width="17px" />
                                                                         </a>
                                                                     </td>
                                                                 </tr>
@@ -365,9 +375,7 @@ foreach ($this->status_details as $row_status) {
                     ?>
                 </table>
               </div>
-                <div class="mx-auto text-center font-weight-bold" style="width: 60%; border: 1px solid #CCCCCC; padding: 30px; font-size: 0.9375rem; background: #f7f7f7;<?php if (count($this->details) > 0) {
-                    ?>display: none; <?php
-                                                                                                                                                                         } ?>">
+                <div class="mx-auto text-center font-weight-bold <?php if (count($this->details) > 0) { ?>d-none<?php } ?>" style="width: 60%; border: 1px solid var(--gray400); padding: 30px; font-size: 0.9375rem; background: #f7f7f7;">
                         <?php echo $this->listenerObject->z_xlt('Nothing to display');?>
                 </div>
             </div>
@@ -384,10 +392,10 @@ foreach ($this->status_details as $row_status) {
           </div>
           </div><!-- Immunization Tab -->
           <div class="child-tab-2 child-all">
-                <iframe id="immunization_iframe" class="w-100 border-0" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/immunization/index"></iframe>
+                <iframe id="immunization_iframe" class="w-100 h-auto border-0" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/immunization/index"></iframe>
           </div><!-- Syndromic Surveillance Tab -->
           <div class="child-tab-3 child-all">
-                <iframe id="syndromicsurveillance_iframe" class="w-100 border-0" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/syndromicsurveillance/index"></iframe>
+                <iframe id="syndromicsurveillance_iframe" class="w-100 h-auto border-0" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/syndromicsurveillance/index"></iframe>
             </div><!-- third tab -->
         <div class="main-tab-2 main-all d-none">
             <ul class="child-tab-head-import">
@@ -397,15 +405,15 @@ foreach ($this->status_details as $row_status) {
           </ul><div class="clearfix"></div>
                 <!--CCD Tab-->
           <div class="import-child-tab-1 child-all-import">
-               <iframe id="ccd_iframe" class="w-100 border-0" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/ccd/upload"></iframe>
+               <iframe id="ccd_iframe" class="w-100 h-auto border-0" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/ccd/upload"></iframe>
            </div>
                 <!--CCR Tab-->
           <div class="import-child-tab-2 child-all-import">
-                <iframe id="ccr_iframe" class="w-100 border-0" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/ccr/index"></iframe>
+                <iframe id="ccr_iframe" class="w-100 h-auto border-0" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/ccr/index"></iframe>
           </div>
                 <!--CCDA Tab-->
           <div class="import-child-tab-3 child-all-import">
-                <iframe id="ccda_iframe" class="w-100 border-0" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/carecoordination/upload?id=1"></iframe>
+                <iframe id="ccda_iframe" class="w-100 h-auto border-0" src="" data-src="<?php echo $GLOBALS['web_root']?>/interface/modules/zend_modules/public/carecoordination/upload?id=1"></iframe>
            </div>
         </div>
         <div class="clearfix"></div>

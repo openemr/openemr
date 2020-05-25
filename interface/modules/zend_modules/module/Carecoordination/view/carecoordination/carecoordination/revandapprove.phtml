@@ -258,30 +258,30 @@ $insert = $this->listenerObject->z_xlt('Insert');
     <input type="hidden" name="allergy2check" id="allergy2check" />
     <input type="hidden" name="allergy3check" id="allergy3check" />
     <div class="body_inner_wrapper">
-        <div class="header_wrap" style="height: 110px!important;">
+        <div class="header_wrap" style="height: 110px !important;">
             <a class="text-decoration-none position-absolute" style="top: 25px; left: 20px;" href="<?php echo $this->basePath(); ?>/carecoordination/upload" title="<?php echo $this->listenerObject->z_xlt('Go Back') ?>">
                 <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath(); ?>/css/icons/go_back.png" />
             </a>
-        <input type="submit" class="search_button position-absolute" value="<?php echo $this->listenerObject->z_xlt('Approve'); ?>" onclick="submit_form('approve');" style="left: 45%; top: 25px;" />
-        <input type="submit" class="search_button position-absolute" value="<?php echo $this->listenerObject->z_xlt('Discard'); ?>" onclick="submit_form('discard');" style="left: 52%; top: 25px;" />
+        <input type="submit" class="btn btn-primary position-absolute" id="searchbutton" value="<?php echo $this->listenerObject->z_xlt('Approve'); ?>" onclick="submit_form('approve');" style="left: 45%; top: 25px;" />
+        <input type="submit" class="btn btn-primary position-absolute" id="searchbutton" value="<?php echo $this->listenerObject->z_xlt('Discard'); ?>" onclick="submit_form('discard');" style="left: 52%; top: 25px;" />
             <div class="styled_chkbox position-absolute" style="left: 90%; top: 25px;">
                 <input type="checkbox" class="d-none" id="checkall" value=""/>
                 <label style="line-height:24px;" for="checkall"><?php echo $this->listenerObject->z_xlt('Import All'); ?></label>
             </div>
         </div>
-        <div class="clear"></div>
+        <div class="clearfix"></div>
           <div class="position-absolute" style="left: 1%;top: 80px;">
               <label><?php if ($this->documentationOf) {
                     echo $this->listenerObject->z_xlt("Source of the document") . ": " . $this->escapeHtml($this->documentationOf);
                      }?></label>
           </div>
-        <div class="clear"></div>
+        <div class="clearfix"></div>
 
         <div id="status1"></div>
 
-        <div class="clear"></div>
+        <div class="clearfix"></div>
         <div class="se_in_8">
-            <table class="responsive">
+            <table class="table">
                 <tr class="se_in_9 se_in_25">
                     <th colspan="7"><?php echo $this->listenerObject->z_xlt('Demographics'); ?></th>
                 </tr>
@@ -295,7 +295,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                             ?>
                             <td><?php echo $this->listenerObject->z_xlt($patient_data[$row_dem['field_name']]); ?></td>
                             <td class="text-nowrap">
-                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>">
+                                <select class="form-control" name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>">
                                     <?php foreach ($this->gender_list as $value) {
                                         ?>
                                         <option value="<?php echo $this->escapeHtml($value['option_id']); ?>" <?php if ($value['option_id'] == $row_dem['field_value']) {
@@ -307,7 +307,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                                 <span class="demo_old"><?php echo $this->listenerObject->z_xlt($this->demographics_old[0][$row_dem['field_name']]); ?></span>
                             </td>
                             <td>
-                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="chkall_U">
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="form-control chkall_U">
                                     <option value="ignore"><?php echo $ignore; ?></option>
                                     <option value="update"><?php echo $update; ?></option>
                                 </select>
@@ -317,7 +317,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                             ?>
                             <td><?php echo $this->listenerObject->z_xlt($patient_data[$row_dem['field_name']]); ?></td>
                             <td class="text-nowrap">
-                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>">
+                                <select class="form-control" name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>">
                                     <?php foreach ($this->state_list as $value) {
                                         ?>
                                         <option value="<?php echo $this->escapeHtml($value['option_id']); ?>" <?php if ($value['option_id'] == $row_dem['field_value']) {
@@ -329,7 +329,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                                 <span class="demo_old"><?php echo $this->listenerObject->z_xlt($this->demographics_old[0][$row_dem['field_name']]); ?></span>
                             </td>
                             <td>
-                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="chkall_U">
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="form-control chkall_U">
                                     <option value="ignore"><?php echo $ignore; ?></option>
                                     <option value="update"><?php echo $update; ?></option>
                                 </select>
@@ -339,7 +339,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                             ?>
                             <td><?php echo $this->listenerObject->z_xlt($patient_data[$row_dem['field_name']]); ?></td>
                             <td class="text-nowrap">
-                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>">
+                                <select class="form-control" name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>">
                                     <?php foreach ($this->country_list as $value) {
                                         ?>
                                         <option value="<?php echo $this->escapeHtml($value['option_id']); ?>" <?php if ($value['option_id'] == $row_dem['field_value']) {
@@ -351,7 +351,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                                 <span class="demo_old"><?php echo $this->listenerObject->z_xlt($this->demographics_old[0][$row_dem['field_name']]); ?></span>
                             </td>
                             <td>
-                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="chkall_U">
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="form-control chkall_U">
                                     <option value="ignore"><?php echo $ignore; ?></option>
                                     <option value="update"><?php echo $update; ?></option>
                                 </select>
@@ -361,7 +361,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                             ?>
                             <td><?php echo $this->listenerObject->z_xlt($patient_data[$row_dem['field_name']]); ?></td>
                             <td class="text-nowrap">
-                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>">
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>" class="form-control">
                                     <?php foreach ($this->marital_status_list as $value) {
                                         ?>
                                         <option value="<?php echo $this->escapeHtml($value['option_id']); ?>" <?php if ($value['option_id'] == $row_dem['field_value'] || $value['title'] == $row_dem['field_value']) {
@@ -373,7 +373,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                                 <span class="demo_old"><?php echo $this->listenerObject->z_xlt($this->demographics_old[0][$row_dem['field_name']]); ?></span>
                             </td>
                             <td>
-                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="chkall_U">
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="form-control chkall_U">
                                     <option value="ignore"><?php echo $ignore; ?></option>
                                     <option value="update"><?php echo $update; ?></option>
                                 </select>
@@ -383,7 +383,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                             ?>
                             <td><?php echo $this->listenerObject->z_xlt($patient_data[$row_dem['field_name']]); ?></td>
                             <td class="text-nowrap">
-                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>">
+                                <select class="form-control" name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>">
                                     <?php foreach ($this->religion_list as $value) {
                                         ?>
                                         <option value="<?php echo $this->escapeHtml($value['option_id']); ?>" <?php if ($value['option_id'] == $row_dem['field_value'] || $value['title'] == $row_dem['field_value']) {
@@ -395,7 +395,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                                 <span class="demo_old"><?php echo $this->listenerObject->z_xlt($this->demographics_old[0][$row_dem['field_name']]); ?></span>
                             </td>
                             <td>
-                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="chkall_U">
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="form-control chkall_U">
                                     <option value="ignore"><?php echo $ignore; ?></option>
                                     <option value="update"><?php echo $update; ?></option>
                                 </select>
@@ -405,7 +405,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                             ?>
                             <td><?php echo $this->listenerObject->z_xlt($patient_data[$row_dem['field_name']]); ?></td>
                             <td class="text-nowrap">
-                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>">
+                                <select class="form-control" name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>">
                                     <?php foreach ($this->race_list as $value) {
                                         ?>
                                         <option value="<?php echo $this->escapeHtml($value['option_id']); ?>" <?php if ($value['option_id'] == $row_dem['field_value'] || $value['title'] == $row_dem['field_value']) {
@@ -417,7 +417,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                                 <span class="demo_old"><?php echo $this->listenerObject->z_xlt($this->demographics_old[0][$row_dem['field_name']]); ?></span>
                             </td>
                             <td>
-                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="chkall_U">
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="form-control chkall_U">
                                     <option value="ignore"><?php echo $ignore; ?></option>
                                     <option value="update"><?php echo $update; ?></option>
                                 </select>
@@ -427,7 +427,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                             ?>
                             <td><?php echo $this->listenerObject->z_xlt($patient_data[$row_dem['field_name']]); ?></td>
                             <td class="text-nowrap">
-                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>">
+                                <select class="form-control" name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>">
                                     <?php foreach ($this->ethnicity_list as $value) {
                                         ?>
                                         <option value="<?php echo $this->escapeHtml($value['option_id']); ?>" <?php if ($value['option_id'] == $row_dem['field_value'] || $value['title'] == $row_dem['field_value']) {
@@ -439,7 +439,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                                 <span class="demo_old"><?php echo $this->listenerObject->z_xlt($this->demographics_old[0][$row_dem['field_name']]); ?></span>
                             </td>
                             <td>
-                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="chkall_U">
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="form-control chkall_U">
                                     <option value="ignore"><?php echo $ignore; ?></option>
                                     <option value="update"><?php echo $update; ?></option>
                                 </select>
@@ -449,11 +449,11 @@ $insert = $this->listenerObject->z_xlt('Insert');
                             ?>
                             <td><?php echo $this->listenerObject->z_xlt($patient_data[$row_dem['field_name']]); ?></td>
                             <td class="text-nowrap">
-                                <input name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>" type="text" value="<?php echo $this->listenerObject->z_xlt($row_dem['field_value']); ?>" style="width: 150px;">
+                                <input class="form-controol" name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']); ?>" type="text" value="<?php echo $this->listenerObject->z_xlt($row_dem['field_value']); ?>">
                                 <span class="demo_old"><?php echo $this->listenerObject->z_xlt($this->demographics_old[0][$row_dem['field_name']]); ?></span>
                             </td>
                             <td>
-                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="chkall_U">
+                                <select name="<?php echo $this->escapeHtml($row_dem['table_name']) . "-" . $this->escapeHtml($row_dem['field_name']) . "-sel"; ?>" class="form-control chkall_U">
                                     <option value="ignore"><?php echo $ignore; ?></option>
                                     <option value="update"><?php echo $update; ?></option>
                                 </select>
@@ -481,7 +481,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
        <td colspan="3">&nbsp;</td> </tr>
     </table>
     <br/>
-    <table class="responsive">
+    <table class="table">
         <tr class="se_in_9 se_in_25">
             <th colspan="9"><?php echo $this->listenerObject->z_xlt('Social History'); ?></th>
         </tr>
@@ -542,7 +542,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
             } ?>
             <tr class="border-bottom-0">
                 <td><?php echo $this->listenerObject->z_xlt('Alcohol'); ?></td>
-                <td><input type='text' name='social_history-alcohol_note[]' value='<?php echo $this->listenerObject->z_xlt(ucfirst($array_his_alcohol[0])); ?>' ></td>
+                <td><input type='text' class="form-control" name='social_history-alcohol_note[]' value='<?php echo $this->listenerObject->z_xlt(ucfirst($array_his_alcohol[0])); ?>' ></td>
                 <td><?php echo $this->listenerObject->z_xlt('Status'); ?></td>
                 <td>
                     <?php foreach ($alcohol_status as $key => $value) {
@@ -554,7 +554,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                     } ?>
                 </td>
                 <td><?php echo $this->listenerObject->z_xlt('Date'); ?></td>
-                <td><input type='text' name='social_history-alcohol_date[]' value='<?php if ($his_alc_date) {
+                <td><input type='text' class="form-control" name='social_history-alcohol_date[]' value='<?php if ($his_alc_date) {
                     echo $his_alc_date;
                                                                                    } ?>' ></td>
                 <td colspan="3">&nbsp;</td>
@@ -562,10 +562,10 @@ $insert = $this->listenerObject->z_xlt('Insert');
             <tr>
                 <td><?php echo $this->listenerObject->z_xlt('Tobacco'); ?></td>
                 <td>
-                    <select name='social_history-tobacco_snomed[]'>
+                    <select class="form-control" name='social_history-tobacco_snomed[]'>
                         <?php foreach ($this->tobacco as $value) {
                             ?>
-                            <option value ='<?php echo $this->escapeHtml($value['option_id']) ?>' <?php if ($value['codes'] == "SNOMED-CT:" . $array_his_tobacco[1]) {
+                            <option value='<?php echo $this->escapeHtml($value['option_id']) ?>' <?php if ($value['codes'] == "SNOMED-CT:" . $array_his_tobacco[1]) {
                                 echo "selected";
                                             } ?> ><?php echo $this->listenerObject->z_xlt($value['title']); ?></option>
                             <?php
@@ -582,7 +582,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                     } ?>
                 </td>
                 <td><?php echo $this->listenerObject->z_xlt('Date'); ?></td>
-                <td><input type='text' name='social_history-tobacco_date[]' value='<?php if ($his_tob_date) {
+                <td><input type='text' class="form-control" name='social_history-tobacco_date[]' value='<?php if ($his_tob_date) {
                     echo $his_tob_date;
                                                                                    } ?>' ></td>
                 <td colspan="2">&nbsp;</td>
@@ -664,7 +664,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
         ?>
     </table>
     <br/>
-    <table class="responsive">
+    <table class="table">
         <tr class="se_in_9 se_in_25">
             <th colspan="9"><?php echo $this->listenerObject->z_xlt('Problems'); ?></th>
         </tr>
@@ -686,7 +686,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
         }
         if (count($this->problems)>0) {
             ?>
-            <tr style="background:#DAF2FB;">
+            <tr class="table-light">
                 <td colspan="9"><?php echo $this->listenerObject->z_xlt('Internal Problems'); ?></td>
             </tr>
             <?php
@@ -716,9 +716,9 @@ $insert = $this->listenerObject->z_xlt('Insert');
                     <td><?php echo $this->escapeHtml($res_existing_prob['diagnosis']); ?></td>
                     <td><?php echo $this->listenerObject->z_xlt('Status'); ?></td>
                     <td><?php if ($activity == 1) {
-                        echo "<span style='color: #13D813'>".$this->listenerObject->z_xlt('Active').'</span>';
+                        echo "<span class='text-success'>".$this->listenerObject->z_xlt('Active').'</span>';
                         } else {
-                            echo "<span style='color: red'>".$this->listenerObject->z_xlt('Inactive').'</span>';
+                            echo "<span class='text-danger'>".$this->listenerObject->z_xlt('Inactive').'</span>';
                         } ?></td>
                     <td>&nbsp;</td>
                 </tr>
@@ -743,9 +743,9 @@ $insert = $this->listenerObject->z_xlt('Insert');
                     </td>
                     <td colspan="2">&nbsp;</td>
                     <td>
-                     <select name='lists1_exist-sel[]' class="chkall_U">
-                       <option value='ignore' ><?php echo $ignore; ?></option>
-                       <option value='update' ><?php echo $update; ?></option>
+                     <select name='lists1_exist-sel[]' class="form-control chkall_U">
+                       <option value='ignore'><?php echo $ignore; ?></option>
+                       <option value='update'><?php echo $update; ?></option>
                      </select>
                     </td>
                 </tr>
@@ -753,7 +753,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
         }
         if (count($internal_conflicted_problems_Arr)>0) {
             ?>
-            <tr style="background:#DAF2FB;">
+            <tr class="table-light">
                 <td colspan="9"><?php echo $this->listenerObject->z_xlt('Conflicted Problems'); ?></td>
             </tr>
             <?php
@@ -785,7 +785,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                                                                                   } ?>' ></td>
                         <td colspan="2">&nbsp;</td>
                         <td>
-                            <select name='lists1-con-sel[]' class="chkall_U">
+                            <select name='lists1-con-sel[]' class="form-control chkall_U">
                                 <option value='ignore' ><?php echo $ignore; ?></option>
                                 <option value='update' ><?php echo $update; ?></option>
                             </select>
@@ -800,7 +800,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
                     <input type="hidden" name="lists1-observation_text-con[]" value="<?php echo $this->escapeHtml($v['observation_text']); ?>">
                     <input type="hidden" name="lists1-observation-con[]" value="<?php echo $this->escapeHtml($v['observation']); ?>">
                     </tr>
-                    <tr style='color:red' >
+                    <tr class="text-danger">
                         <td>&nbsp;</td>
                         <td><?php echo $this->listenerObject->z_xlt($res_existing_prob['title']); ?></td>
                         <td>&nbsp;</td>
@@ -823,7 +823,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
         }
         if (count($this->problems_audit['lists1'])>0) {
             ?>
-            <tr style="background:#DAF2FB;">
+            <tr class="table-light">
                 <td colspan="9"><?php echo $this->listenerObject->z_xlt('Imported Problems'); ?></td>
             </tr>
             <?php
@@ -840,20 +840,20 @@ $insert = $this->listenerObject->z_xlt('Insert');
             if ($val['begdate'] != 0 && $val['begdate'] != '') {
                 $problem_begdate = $this->carecoordinationTable->formatDate($val['begdate'], 0);
             } ?>
-            <tr style='border-bottom: 0px'>
+            <tr class="border-bottom-0">
                 <td><?php echo $this->listenerObject->z_xlt('Title'); ?></td>
-                <td><input type='text' name='lists1-title[]' value='<?php echo $this->listenerObject->z_xlt($val['list_code_text']); ?>' ></td>
+                <td><input type='text' class="form-control" name='lists1-title[]' value='<?php echo $this->listenerObject->z_xlt($val['list_code_text']); ?>' ></td>
                 <td><?php echo $this->listenerObject->z_xlt('Begin Date'); ?></td>
-                <td><input type='text' name='lists1-begdate[]' value='<?php if ($problem_begdate) {
+                <td><input type='text' class="form-control" name='lists1-begdate[]' value='<?php if ($problem_begdate) {
                     echo $problem_begdate;
                                                                       } ?>' ></td>
                 <td><?php echo $this->listenerObject->z_xlt('Code'); ?></td>
-                <td><input type='text' name='lists1-diagnosis[]' value='<?php echo $this->escapeHtml($val['list_code']); ?>' ></td>
+                <td><input type='text' class="form-control" name='lists1-diagnosis[]' value='<?php echo $this->escapeHtml($val['list_code']); ?>' ></td>
                 <td><?php echo $this->listenerObject->z_xlt('Status'); ?></td>
                 <td><?php if ($problem_enddate) {
-                    echo "<span style='color: red'>".$this->listenerObject->z_xlt('Inactive').'</span>';
+                    echo "<span class='text-danger'>".$this->listenerObject->z_xlt('Inactive').'</span>';
                     } else {
-                        echo "<span style='color: #13D813'>".$this->listenerObject->z_xlt('Active').'</span>';
+                        echo "<span class='text-success'>".$this->listenerObject->z_xlt('Active').'</span>';
                     } ?></td>
                 <td>&nbsp;</td>
             </tr>
@@ -874,7 +874,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
         </td>
              <td colspan='4'>&nbsp;</td>
              <td>
-                    <select name='lists1-sel[]' class="chkall_I">
+                    <select name='lists1-sel[]' class="form-control chkall_I">
                         <option value='ignore' ><?php echo $ignore; ?></option>
                         <option value='insert' ><?php echo $insert; ?></option>
                     </select>
@@ -895,7 +895,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
         ?>
     </table>
     <br/>
-    <table class="responsive">
+    <table class="table">
         <tr class="se_in_9 se_in_25">
             <th colspan="9"><?php echo $this->listenerObject->z_xlt('Allergy'); ?></th>
         </tr>
@@ -917,7 +917,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
         }
         if (count($this->allergies)>0) {
             ?>
-            <tr style="background:#DAF2FB;">
+            <tr class="table-light">
                 <td colspan="9"><?php echo $this->listenerObject->z_xlt('Internal Allergies'); ?></td>
             </tr>
             <?php
@@ -952,9 +952,9 @@ $insert = $this->listenerObject->z_xlt('Insert');
             <tr>
                 <td><?php echo $this->listenerObject->z_xlt('Status'); ?></td>
                 <td><?php if ($activity == 1) {
-                    echo "<span style='color: #13D813'>".$this->listenerObject->z_xlt('Active').'</span>';
+                    echo "<span class='text-success'>".$this->listenerObject->z_xlt('Active').'</span>';
                     } else {
-                        echo "<span style='color: red'>".$this->listenerObject->z_xlt('Inactive').'</span>';
+                        echo "<span class='text-danger'>".$this->listenerObject->z_xlt('Inactive').'</span>';
                     } ?></td>
                 <td><?php echo $this->listenerObject->z_xlt('End Date'); ?></td>
                 <td><?php if ($end_date) {
@@ -975,7 +975,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
             echo \Application\Model\ApplicationTable::fixDate(substr($res_existing_allergies['modifydate'], 0, 10), $date_format, 'yyyy-mm-dd'); ?>
         </td>
                 <td>
-                  <select name='lists2_exist-sel[]' class="chkall_U">
+                  <select name='lists2_exist-sel[]' class="form-control chkall_U">
                     <option value='ignore' ><?php echo $ignore; ?></option>
                     <option value='update' ><?php echo $update; ?></option>
                   </select>
@@ -985,7 +985,7 @@ $insert = $this->listenerObject->z_xlt('Insert');
         }
         if (count($internal_conflicted_allergies_Arr)>0) {
             ?>
-         <tr style="background:#DAF2FB;">
+         <tr class="table-light">
                 <td colspan="9"><?php echo $this->listenerObject->z_xlt('Conflicted Allergies'); ?></td>
             </tr>
             <?php

@@ -16,31 +16,25 @@ $faxRecievers           = $this->faxRecievers;
 $required_buttons       = $this->required_butons;
 $download_format        = $this->download_format;
 ?>
- <div class="header_wrap_left">
-        <div class="send-to" title="<?php  echo $this->listenerObject->z_xlt('Send To');?>"><?php echo $this->listenerObject->z_xlt('SEND TO');?></div>
- </div><!-- header_wrap_left -->
+<div class="btn btn-primary send-to" title="<?php  echo $this->listenerObject->z_xlt('Send To');?>"><?php echo $this->listenerObject->z_xlt('Send To');?></div>
 <div class="ap-st-st-12">
-    <div class="ap-st-st-2">
-        <div class="ap-st-st-1 <?php if (!in_array('hie', $required_buttons)) {
-            echo "d-none";
-                               }?>"><input class="ap-st-st-3" type="radio" name="send_to" id="send_to_hie" value="hie" <?php if ($this->send_via == "hie") {
-    echo "checked";
-                               } ?>>&nbsp;<span><?php echo $this->listenerObject->z_xlt('HIE')?></span></div>
-        <div class="ap-st-st-1 <?php if (!in_array('emr_direct', $required_buttons)) {
-            echo "d-none";
-                               }?>"><input class="ap-st-st-3" type="radio" name="send_to" id="send_to_emrdirect" value="emr_direct" <?php if ($this->send_via == "emr_direct") {
-    echo "checked";
-                               } ?>>&nbsp;<span><?php echo $this->listenerObject->z_xlt('EMR Direct')?></span></div>
-        <div class="ap-st-st-1 <?php if (!in_array('download', $required_buttons)) {
-            echo "d-none";
-                               }?>"><input class="ap-st-st-3" type="radio" name="send_to" id="download" value="download" <?php if ($this->send_via == "download") {
-    echo "checked";
-                               } ?>>&nbsp;<span><?php echo $this->listenerObject->z_xlt('Print To')?></span></div>
-    <div class="ap-st-st-1 <?php if (!in_array('download_all', $required_buttons)) {
-        echo "d-none";
-                           }?>"><input class="ap-st-st-3" type="radio" name="send_to" id="download_all" value="download_all" <?php if ($this->send_via == "download_all") {
-    echo "checked";
-                           } ?>>&nbsp;<span><?php echo $this->listenerObject->z_xlt('Download')?></span></div>
+    <div class="bg-light">
+        <div class="form-check form-check-inline <?php if (!in_array('hie', $required_buttons)) { echo "d-none"; }?>">
+          <input class="form-check-input" type="radio" name="send_to" id="send_to_hie" value="hie" <?php if ($this->send_via == "hie") { echo "checked"; } ?> />
+          <label><?php echo $this->listenerObject->z_xlt('HIE')?></label>
+        </div>
+        <div class="form-check form-check-inline <?php if (!in_array('emr_direct', $required_buttons)) { echo "d-none"; }?>">
+          <input class="form-check-input" type="radio" name="send_to" id="send_to_emrdirect" value="emr_direct" <?php if ($this->send_via == "emr_direct") { echo "checked"; } ?> />
+          <label class="form-check-label"><?php echo $this->listenerObject->z_xlt('EMR Direct')?></label>
+        </div>
+        <div class="form-check form-check-inline <?php if (!in_array('download', $required_buttons)) { echo "d-none"; }?>">
+          <input class="form-check-input" type="radio" name="send_to" id="download" value="download" <?php if ($this->send_via == "download") { echo "checked"; } ?> />
+          <label class="form-check-label"><?php echo $this->listenerObject->z_xlt('Print To')?></label>
+        </div>
+        <div class="form-check form-check-inline <?php if (!in_array('download_all', $required_buttons)) { echo "d-none"; }?>">
+          <input class="form-check-input" type="radio" name="send_to" id="download_all" value="download_all" <?php if ($this->send_via == "download_all") { echo "checked"; } ?> />
+          <label class="form-check-label"><?php echo $this->listenerObject->z_xlt('Download')?></label>
+        </div>
     </div>
     <div style="padding-left: 10px; padding-top: 1%;" id="adv-op-div" class="ap-st-st-13">
            <div class="float-left"><span class="showcomponentsForCCDA-div"><?php echo $this->listenerObject->z_xlt('Advance Options')?></span></div>
@@ -206,12 +200,8 @@ $download_format        = $this->download_format;
            }?>
         </div>
   <!--End Download All-->
-    <div class="ap-st-st-6">
-            <div class="activity_indicator"><img src="<?php echo $this->basePath(); ?>/css/images/gl.gif" alt="" /></div>
-        <div class="ap-st-st-7" onclick="send();"><?php echo $this->listenerObject->z_xlt('SEND');?></div>
+    <div class="bg-light">
+      <div class="activity_indicator"><img src="<?php echo $this->basePath(); ?>/css/images/gl.gif" alt="" /></div>
+      <div class="btn btn-primary" onclick="send();"><?php echo $this->listenerObject->z_xlt('SEND');?></div>
     </div>
 </div>
-<?php $this->headScript()->captureStart() ?>
-    var APP_URL     = "<?php echo $this->basePath(); ?>";
-    var WEB_ROOT    = "<?php echo $GLOBALS['webroot']; ?>";
-<?php $this->headScript()->captureEnd() ?>

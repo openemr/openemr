@@ -186,14 +186,14 @@ function handleFileUpload(files, obj, settings) {
         if (settings.progress_bar) {
             var status = new createStatusbar(obj);
             status.setFileNameSize(files[i].name, files[i].size);
-        }
-        fd.append('file_location', settings.file_location);
-        fd.append('patient_specific', settings.patient_specific.toString());
-        fd.append('encounter_specific', settings.encounter_specific.toString());
-        fd.append('user_specific', settings.user_specific.toString());
-        fd.append('batch_upload', (files.length > 1 && settings.batch_upload) ? 1 : 0);
+            fd.append('file_location', settings.file_location);
+            fd.append('patient_specific', settings.patient_specific.toString());
+            fd.append('encounter_specific', settings.encounter_specific.toString());
+            fd.append('user_specific', settings.user_specific.toString());
+            fd.append('batch_upload', (files.length > 1 && settings.batch_upload) ? 1 : 0);
 
-        sendFileToServer(fd, status, settings.progress_bar, settings.success_function);
+            sendFileToServer(fd, status, settings.progress_bar, settings.success_function);
+      }
     }
 }
 
@@ -263,7 +263,8 @@ function createStatusbar(obj) {
 
         this.filename.html(name);
         this.size.html(sizeStr);
-    }
+    };
+
     this.setProgress = function(progress) {
         var progressBarWidth = progress * this.progressBar.width() / 100;
         this.progressBar.find('div').animate({
@@ -272,12 +273,13 @@ function createStatusbar(obj) {
         if (parseInt(progress) >= 100) {
             this.abort.hide();
         }
-    }
+    };
+
     this.setAbort = function(jqxhr) {
         var sb = this.statusbar;
         this.abort.click(function() {
             jqxhr.abort();
             sb.hide();
         });
-    }
+    };
 }

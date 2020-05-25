@@ -10,7 +10,7 @@
 
 $(document).mouseup(function(e) {
     var container = $(".se_in_15");
-    var buttons = $(".search_button");
+    var buttons = $("#searchbutton");
     if (!container.is(e.target) && container.has(e.target).length === 0 && !buttons.is(e.target)) {
         $(".se_in_15").css("display", "none");
     }
@@ -21,8 +21,6 @@ $(function() {
         changeMonth: true,
         changeYear: true,
     });
-    $(".dateClass").datetimepicker("option", "dayNamesMin", ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
-    //	$( ".dateClass" ).datepicker("option", "dateFormat", date_format );
 
     $('.header_wrap_left').on("click", "#searchbutton", function() {
         var pos = $(this).position();

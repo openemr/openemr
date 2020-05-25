@@ -10,12 +10,6 @@
 
 // Ready Events Ends
 $(function() {
-    $(".date_field").datetimepicker({
-        changeMonth: true,
-        changeYear: true,
-        //dateFormat:'yy-mm-dd'
-    });
-
     $('#immunization').keypress(function(e) {
         if (e.keyCode == '13') {
             e.preventDefault(); //Stops the default action for the key pressed
@@ -51,7 +45,7 @@ $(function() {
 
 function pagination(action) {
     if (action == "first") {
-        document.getElementById('form_current_page').value = 1
+        document.getElementById('form_current_page').value = 1;
     } else if (action == "last") {
         document.getElementById('form_current_page').value = document.getElementById('form_total_pages').value;
     } else if (action == "next") {
@@ -101,7 +95,7 @@ function isNumber(evt) {
 
 $(document).mouseup(function(e) {
     var container = $(".se_in_15");
-    var buttons = $(".search_button");
+    var buttons = $("#searchbutton");
     if (!container.is(e.target) && container.has(e.target).length === 0 && !buttons.is(e.target)) {
         $(".se_in_15").css("display", "none");
     }
@@ -116,11 +110,11 @@ function validate_search() {
 
     var from_year = from_date_arr[2];
     var from_month = from_date_arr[0];
-    var from_date = from_date_arr[1];
+    from_date = from_date_arr[1];
 
     var to_year = to_date_arr[2];
     var to_month = to_date_arr[0];
-    var to_date = to_date_arr[1];
+    to_date = to_date_arr[1];
 
     //alert(to_year+" | "+from_year+"\n"+to_month+" | "+from_month+"\n"+to_date+" | "+from_date);
 

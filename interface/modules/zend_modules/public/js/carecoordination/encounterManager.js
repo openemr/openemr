@@ -16,11 +16,11 @@ function validate_search() {
 
     var from_year = from_date_arr[2];
     var from_month = from_date_arr[0];
-    var from_date = from_date_arr[1];
+    from_date = from_date_arr[1];
 
     var to_year = to_date_arr[2];
     var to_month = to_date_arr[0];
-    var to_date = to_date_arr[1];
+    to_date = to_date_arr[1];
 
     //alert(to_year+" | "+from_year+"\n"+to_month+" | "+from_month+"\n"+to_date+" | "+from_date);
 
@@ -56,14 +56,14 @@ function isNumber(evt) {
 // Hide Menu if clicked outside
 $(document).mouseup(function(e) {
     var container = $(".se_in_15");
-    var buttons = $(".search_button");
+    var buttons = $("#searchbutton");
     if (!container.is(e.target) && container.has(e.target).length === 0 && !buttons.is(e.target)) {
         $(".se_in_15").css("display", "none");
     }
 });
 
 $(function() {
-    $('.header_wrap_left').on("click", ".search_button", function() {
+    $('.header_wrap_left').on("click", "#searchbutton", function() {
         var pos = $(this).position();
         $('.se_in_15').fadeToggle().css({
             "left": (pos.left + 5) + "px",
@@ -72,12 +72,6 @@ $(function() {
     });
 
     //date picker
-    $(".dateClass").datetimepicker({
-        changeMonth: true,
-        changeYear: true
-    });
-    $(".dateClass").datetimepicker("option", "dayNamesMin", ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
-    $(".rangeClass").datetimepicker();
 
     $('.expand').click(function() {
         $('#patient_' + this.id).toggle('slow');

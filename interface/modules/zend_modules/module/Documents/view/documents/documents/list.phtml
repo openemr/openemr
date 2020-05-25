@@ -39,7 +39,7 @@ $pid            = $this->pid;
         </div>
     </div>
 </div>
-<div class="clear">&nbsp;</div>
+<div class="clearfix">&nbsp;</div>
 <div class="container doc-doc-ls-4 doc-doc-ls-15">
     <div class="row">
         <div class="disable-select three columns disable_margin doc-doc-ls-5">
@@ -56,7 +56,7 @@ $pid            = $this->pid;
                     <div class="doc-doc-ls-10"></div>
                     <div class="doc-doc-ls-11" ng-click="updateNavigation('prev',index);getDocuments(navigation[index].id);">{{navigation[index].name}}</div>
                 </div>
-                <div class="clear"></div>
+                <div class="clearfix"></div>
             </div>
             <ul class="doc-doc-ls-7">
                 <li ng-repeat="category_id in unSorted(right_menu_directory)" ng-click="updateNavigation('next',category_id);getDocuments(category_id);">
@@ -137,4 +137,4 @@ $pid            = $this->pid;
         </div>
     </div>
 </div>
-<div class="clear"></div>
+<div class="clearfix"></div>

@@ -27,29 +27,12 @@ use OpenEMR\Core\Header;
 
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-
+    <meta charset="utf-8" />
     <?php echo $this->headMeta(); ?>
     <?php Header::setupHeader(); ?>
-
-    <!-- css files -->
-    <?php foreach ($this->cssFiles as $file) {
-        $this->headLink()->appendStylesheet($GLOBALS['assets_static_relative'] . $file);
-    }
-    echo $this->headLink();
-    ?>
-
-    <!-- Scripts -->
-    <?php
-    foreach ($this->jsFiles as $file) {
-        $this->headScript()->appendFile($GLOBALS['assets_static_relative'] . $file);
-    }
-    echo $this->headScript();
-    ?>
-
 </head>
 
-<body class="body_top" dir="<?php echo $language_direction?>" >
+<body class="body_top" dir="<?php echo $language_direction?>">
 <nav class="navbar navbar-light navbar-expand">
     <div class="container-fluid">
         <div class="navbar-header">

@@ -1,6 +1,6 @@
 <?php
 /**
- * interface/modules/zend_modules/module/Application/view/application/404.phtml
+ * interface/modules/zend_modules/module/Application/view/application/error/404.phtml
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -10,9 +10,10 @@
  */
 ?>
 <h1>A 404 error occurred</h1>
-<h2><?php $this->message; ?></h2>
+<h2><?= $this->message; ?></h2>
 
 <?php if (isset($this->reason) && $this->reason) { ?>
+
     <?php
     $reasonMessage= '';
     switch ($this->reason) {
@@ -34,40 +35,43 @@
     }
     ?>
 
-    <p><?php $reasonMessage; ?></p>
+    <p><?= $reasonMessage ?></p>
 
 <?php } ?>
 
-<?php if (isset($this->controller) && $this->controller) { ?>
+<?php if (isset($this->controller) && $this->controller){ ?>
+
     <dl>
         <dt>Controller:</dt>
-        <dd><?php $this->escapeHtml($this->controller);
-        if (isset($this->controller_class) && $this->controller_class && $this->controller_class != $this->controller) {
-            echo '(' . sprintf('resolves to %s', $this->escapeHtml($this->controller_class)) . ')';
-        }
-        ?>
+        <dd><?= $this->escapeHtml($this->controller); ?>
+            <?php
+            if (isset($this->controller_class) && $this->controller_class && $this->controller_class != $this->controller) {
+                echo '(' . sprintf('resolves to %s', $this->escapeHtml($this->controller_class)) . ')';
+            }
+            ?>
         </dd>
     </dl>
 
 <?php } ?>
 
 <?php if (isset($this->display_exceptions) && $this->display_exceptions) { ?>
-    <?php if (isset($this->exception) && ($this->exception instanceof Exception || $this->exception instanceof Error)) { ?>
+
+    <?php if(isset($this->exception) && ($this->exception instanceof Exception || $this->exception instanceof Error)) { ?>
         <hr/>
         <h2>Additional information:</h2>
-        <h3><?php get_class($this->exception); ?></h3>
+        <h3><?= get_class($this->exception) ?></h3>
         <dl>
             <dt>File:</dt>
             <dd>
-                <pre class="prettyprint linenums"><?php $this->exception->getFile(); ?>:<?php $this->exception->getLine(); ?></pre>
+                <pre class="prettyprint linenums"><?= $this->exception->getFile() ?>:<?= $this->exception->getLine() ?></pre>
             </dd>
             <dt>Message:</dt>
             <dd>
-                <pre class="prettyprint linenums"><?php $this->exception->getMessage(); ?></pre>
+                <pre class="prettyprint linenums"><?= $this->exception->getMessage() ?></pre>
             </dd>
             <dt>Stack trace:</dt>
             <dd>
-                <pre class="prettyprint linenums"><?php $this->exception->getTraceAsString(); ?></pre>
+                <pre class="prettyprint linenums"><?= $this->exception->getTraceAsString() ?></pre>
             </dd>
         </dl>
         <?php
@@ -78,21 +82,21 @@
             <hr/>
             <h2>Previous exceptions:</h2>
             <ul class="unstyled">
-                <?php while ($e) { ?>
+                <?php while($e) { ?>
                     <li>
-                        <h3><?php get_class($e); ?></h3>
+                        <h3><?= get_class($e); ?></h3>
                         <dl>
                             <dt>File:</dt>
                             <dd>
-                                <pre class="prettyprint linenums"><?php $e->getFile(); ?>:<?php $e->getLine(); ?></pre>
+                                <pre class="prettyprint linenums"><?= $e->getFile() ?>:<?= $e->getLine() ?></pre>
                             </dd>
                             <dt>Message:</dt>
                             <dd>
-                                <pre class="prettyprint linenums"><?php $e->getMessage(); ?></pre>
+                                <pre class="prettyprint linenums"><?= $e->getMessage() ?></pre>
                             </dd>
                             <dt>Stack trace:</dt>
                             <dd>
-                                <pre class="prettyprint linenums"><?php $e->getTraceAsString(); ?></pre>
+                                <pre class="prettyprint linenums"><?= $e->getTraceAsString() ?></pre>
                             </dd>
                         </dl>
                     </li>
@@ -108,7 +112,10 @@
             </ul>
         <?php } ?>
 
-        <?php else { ?>
+    <?php } else { ?>
+
         <h3>No Exception available</h3>
 
-    <?php } } } ?>
+    <?php } ?>
+
+<?php } ?>

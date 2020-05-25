@@ -19,18 +19,16 @@ use OpenEMR\Core\Header;
     <head>
         <meta charset="utf-8">
         <?php Header::setupHeader(['jquery-easyui', 'fontawesome']); ?>
-        <?php echo $this->headTitle(xl('Manage Modules'))->setSeparator(' - ')->setAutoEscape(false) ?>
+        <?php echo $this->headTitle(xl('Manage Modules'))->setSeparator(' - ')->setAutoEscape(false); ?>
                 <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/images/favicon.ico'))
                         ->prependStylesheet($this->basePath() . '/css/icon.css')
                         ->prependStylesheet($this->basePath() . '/css/demo.css')
-                                                ->prependStylesheet($this->basePath() . '/css/style.css')
-                                                ->prependStylesheet($this->basePath() . '/css/suggestion.css')
-                                                ->prependStylesheet($this->basePath() . '/css/emr.css'); ?>
+                        ->prependStylesheet($this->basePath() . '/css/style.css')
+                        ->prependStylesheet($this->basePath() . '/css/suggestion.css')
+                        ->prependStylesheet($this->basePath() . '/css/emr.css'); ?>
 
         <!-- Scripts -->
-        <?php echo $this->headScript()
-                    ->prependFile($this->basePath() . '/js/application/common.js')
-                    ->prependFile($this->basePath() . '/js/lib/jquery.easyui.overrider.js');
+        <?php echo $this->headScript()->prependFile($this->basePath() . '/js/application/common.js')->prependFile($this->basePath() . '/js/lib/jquery.easyui.overrider.js');
         ?>
 
     </head>

@@ -27,27 +27,9 @@ use OpenEMR\Core\Header;
 
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-
-    <?php echo $this->headMeta(); ?>
+    <meta charset="utf-8" />
     <?php Header::setupHeader(); ?>
-
-    <!-- css files -->
-    <?php foreach ($this->cssFiles as $file) {
-        $this->headLink()->appendStylesheet($GLOBALS['assets_static_relative']  . $file);
-    }
-    $this->headLink()->appendStylesheet($this->basePath() . '/css/multipledb/multipledb.css');
-    echo $this->headLink();
-    ?>
-
-    <!-- Scripts -->
-    <?php
-    foreach ($this->jsFiles as $file) {
-        $this->headScript()->appendFile($GLOBALS['assets_static_relative']   . $file);
-    }
-    echo $this->headScript();
-    ?>
-
+    <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/multipledb/multipledb.css" />
 </head>
 
 <body class="container-fluid body_top" dir="<?php echo $language_direction; ?>">

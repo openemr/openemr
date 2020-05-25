@@ -14,23 +14,39 @@
 
 <html lang="en">
     <head>
-        <meta charset="utf-8">
+        <meta charset="utf-8" />
         <?php echo $this->headTitle($this->translate()->xl('Care Coordination'))->setSeparator(' - ')->setAutoEscape(false); ?>
         <?php Header::setupHeader(['datetime-picker']); ?>
-        <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/images/favicon.ico'))
-        ->prependStylesheet($this->basePath() . '/css/carecoordination_style.css')
-        ->prependStylesheet($this->basePath() . '/css/style.css')
-        ->prependStylesheet($this->basePath() . '/css/sendTo.css')
-        ->prependStylesheet($this->basePath() . '/css/autosuggest/autosuggest.css');
-        ?>
+        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/carecoordination_style.css" />
+        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/style.css" />
+        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/sendTo.css" />
+        <link rel="stylesheet" href="<?php echo $this->basePath(); ?>/css/autosuggest/autosuggest.css" />
 
-        <?php echo $this->headScript()
-        ->prependFile($this->basePath() . '/js/autosuggest/autosuggest.js')
-        ->prependFile($this->basePath() . '/js/application/sendTo.js')
-        ->prependFile($this->basePath() . '/js/carecoordination/encounterManager.js')
-        ->prependFile($this->basePath() . '/js/application/common.js');
-        ?>
+        <script>
+        var APP_URL = "<?php echo $this->basePath(); ?>";
+        var WEB_ROOT = "<?php echo $GLOBALS['webroot']; ?>";
+        </script>
 
+        <script src="<?php echo $this->basePath(); ?>/js/autosuggest/autosuggest.js"></script>
+        <script src="<?php echo $this->basePath(); ?>/js/application/sendTo.js"></script>
+        <script src="<?php echo $this->basePath(); ?>/js/carecoordination/encounterManager.js"></script>
+        <script src="<?php echo $this->basePath(); ?>/js/application/common.js"></script>
+        <script>
+        $(function() {
+          $(".dateClass").datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = false; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+          });
+          $(".rangeClass").datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = false; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+          });
+        });
+        </script>
     </head>
     <body class="body_top">
         <div class="container-fluid">

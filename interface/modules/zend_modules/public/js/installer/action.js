@@ -113,7 +113,7 @@ var blockInput = function(element) {
     $(element).closest("a").click(function() {
         return false;
     });
-}
+};
 
 function configure(id, imgpath) {
     if ($("#ConfigRow_" + id).css("display") != "none") {
@@ -126,7 +126,7 @@ function configure(id, imgpath) {
             function(data) {
                 $(".config").hide();
                 $("#ConfigRow_" + id).hide();
-                $("#ConfigRow_" + id).html('<td colspan="10" align="center">' + data + '</td>').fadeIn();
+                $("#ConfigRow_" + id).html('<td colspan="10" class="text-center">' + data + '</td>').fadeIn();
             }
         );
     }

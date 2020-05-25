@@ -65,16 +65,16 @@ $update = $this->listenerObject->z_xlt('Update');
             <a class="text-decoration-none position-absolute" style="top: 25px; left: 20px;" href="<?php echo $this->basePath();?>/ccr/index" title="<?php echo $this->listenerObject->z_xlt('Go Back');?>">
                 <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath();?>/css/icons/go_back.png">
             </a>
-            <input type="submit" class="search_button btn btn-primary position-absolute" value="<?php echo $this->listenerObject->z_xlt('Approve');?>" onclick="submit_form('approve');" style="left: 45%; top: 25px;">
-            <input type="submit" class="search_button btn btn-danger position-absolute" value="<?php echo $this->listenerObject->z_xlt('Discard');?>" onclick="submit_form('discard');" style="left: 52%; top: 25px;">
+            <input type="submit" class="btn btn-primary position-absolute" id="searchbutton" value="<?php echo $this->listenerObject->z_xlt('Approve');?>" onclick="submit_form('approve');" style="left: 45%; top: 25px;">
+            <input type="submit" class="btn btn-danger position-absolute" id="searchbutton" value="<?php echo $this->listenerObject->z_xlt('Discard');?>" onclick="submit_form('discard');" style="left: 52%; top: 25px;">
         </div>
-        <div class="clear"></div>
+        <div class="clearfix"></div>
 
         <div id="status1"></div>
 
-        <div class="clear"></div>
+        <div class="clearfix"></div>
         <div class="se_in_8">
-            <table class="responsive">
+            <table class="table">
                 <tr class="se_in_9">
                     <th colspan="7"><?php echo $this->listenerObject->z_xlt('Demographics'); ?></th>
                 </tr>
@@ -238,7 +238,7 @@ $update = $this->listenerObject->z_xlt('Update');
                 ?>
             </table>
             <br/>
-            <table class="responsive">
+            <table class="table">
                 <tr class="se_in_9">
                     <th colspan="9"><?php echo $this->listenerObject->z_xlt('Allergy'); ?></th>
                 </tr>
@@ -289,7 +289,7 @@ $update = $this->listenerObject->z_xlt('Update');
                 ?>
             </table>
             <br/>
-            <table class="responsive">
+            <table class="table">
                 <tr class="se_in_9">
                     <th colspan="9"><?php echo $this->listenerObject->z_xlt('Medications'); ?></th>
                 </tr>
@@ -345,7 +345,7 @@ $update = $this->listenerObject->z_xlt('Update');
                     </tr>
                     <tr>
                         <td><?php echo $this->listenerObject->z_xlt('Form'); ?></td>
-                        <td nowrap>
+                        <td class="text-nowrap">
                             <input style="width: 90px;" type='text' class="form-control" size='8' name='prescriptions-form[]' value='<?php echo $this->escapeHtml($this->listenerObject->z_xlt($val['form'])); ?>' >&nbsp;&nbsp;&nbsp;
                             <?php echo $this->listenerObject->z_xlt('Strength'); ?>&nbsp;&nbsp;&nbsp;
                             <input style="width: 90px;" type='text' class="form-control" size='7' name='prescriptions-size[]' value='<?php echo $this->escapeHtml($val['size']); ?>' >
@@ -360,7 +360,7 @@ $update = $this->listenerObject->z_xlt('Update');
                 ?>
             </table>
             <br/>
-            <table class="responsive">
+            <table class="table">
                 <tr class="se_in_9">
                     <th colspan="9"><?php echo $this->listenerObject->z_xlt('Immunization'); ?></th>
                 </tr>
@@ -385,8 +385,8 @@ $update = $this->listenerObject->z_xlt('Update');
                         <td><input type='text' name='immunizations-note[]' class="form-control" value='<?php echo $this->escapeHtml($this->listenerObject->z_xlt($val['note'])); ?>' ></td>
                         <td>
                             <select name='immunizations-sel[]' class="form-control">
-                                <option value='ignore' ><?php echo $ignore; ?></option>
-                                <option value='insert' ><?php echo $insert; ?></option>
+                                <option value='ignore'><?php echo $ignore; ?></option>
+                                <option value='insert'><?php echo $insert; ?></option>
                             </select>
                         </td>
                     </tr>
@@ -395,7 +395,7 @@ $update = $this->listenerObject->z_xlt('Update');
                 ?>
             </table>
             <br/>
-            <table class="responsive">
+            <table class="table">
                 <tr class="se_in_9">
                     <th colspan="9"><?php echo $this->listenerObject->z_xlt('Lab Results'); ?></th>
                 </tr>
@@ -428,8 +428,8 @@ $update = $this->listenerObject->z_xlt('Update');
                         <td><input type='text' name='procedure_result-abnormal[]' class="form-control" value='<?php echo $this->escapeHtml($this->listenerObject->z_xlt($val['abnormal'])); ?>' ></td>
                         <td>
                             <select name='procedure_result-sel[]' class="form-control">
-                                <option value='ignore' ><?php echo $ignore; ?></option>
-                                <option value='insert' ><?php echo $insert; ?></option>
+                                <option value='ignore'><?php echo $ignore; ?></option>
+                                <option value='insert'><?php echo $insert; ?></option>
                             </select>
                         </td>
                     </tr>

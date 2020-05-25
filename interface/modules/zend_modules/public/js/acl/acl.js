@@ -12,8 +12,8 @@
 // Global variables
 var selected_user = '';
 var selected_component = '';
-var allowed_array = new Array();
-var denied_array = new Array();
+var allowed_array = [];
+var denied_array = [];
 //
 
 function createtree() {
@@ -499,7 +499,7 @@ function saveGroupAcl() {
                 $("#messages_div").html("");
             }, 3000);
         },
-    })
+    });
 }
 
 function addNewItem(section) {

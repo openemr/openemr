@@ -14,7 +14,7 @@ echo $this->headLink()->prependStylesheet($this->basePath() . '/css/autosuggest/
 echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autosuggest.js');
 ?>
 <style>
-  #patient_select{
+  #patient_select {
     width     : 410px;
     height    : 110px;
     display   : none;
@@ -28,9 +28,8 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
   }
 </style>
 <script>
-  $(function ()
-  {
-    height_value = parent.window.innerHeight-100;
+  $(function () {
+    var height_value = parent.window.innerHeight-100;
     if(height_value < 600){ height_value = 600 };
     if (parent.document.getElementById('ccr_iframe')) {
         parent.iframeLoaded(height_value, 'ccr_iframe');
@@ -234,12 +233,12 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
     <!-- Auto suggest -->
     <div id="autosuggest1" class="float-left" style="clear: right; margin-left: 10px; font-size: 0.75rem;">
         <?php echo $this->listenerObject->z_xlt('Patient');?>
-        <input type="text" class="lookup" id="inputString1"
+        <input type="text" class="form-control lookup" id="inputString1"
           onKeyDown="PreventIt(event)" onkeyup="lookup(this.value.trim(), 'patient', '1', 'single');"
           value=""
           autocomplete="off" />
         <input type="hidden" id="string_value1" name="string_value" value="" />
-        <input type="text" id="string_id1" name="string_id" value="" class="string_id" />
+        <input type="text" id="string_id1" name="string_id" value="" class="form-control string_id" />
       <!-- Start Records display area -->
       <div class="suggestions d-none float-left position-absolute" id="suggestions1" style="width: 450px; left: 60px;">
         <div class="autoSuggestionsList" id="autoSuggestionsList1">&nbsp;</div>
@@ -259,12 +258,12 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
       </div>
       <div id="refresh" onclick="javascript:document.getElementById('form_ccr_import').submit();">&nbsp;</div>
     </div>
-    <div class="clear"></div>
+    <div class="clearfix"></div>
     <!--Display upload status-->
     <div class="d-none" id="status1">
     </div>
     <!---->
-    <div class="clear"></div>
+    <div class="clearfix"></div>
     <div class="se_in_8">
       <?php
         if (count($this->records) > 0) {

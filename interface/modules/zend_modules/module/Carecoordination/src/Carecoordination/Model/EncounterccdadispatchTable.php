@@ -27,6 +27,199 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
     }
 
+    public function validcredential($credentials)
+    {
+        $appTable   = new ApplicationTable();
+        $tim = strtotime(gmdate("Y-m-d H:m"));
+        if ($credentials[6]) {
+            $pres = $appTable->zQuery("SELECT * FROM patient_access_offsite WHERE portal_username=?", array($credentials[6]));
+            $prow = $pres->current();
+
+            $newpatient_to_approve = 0;
+            if (!$prow['portal_pwd']) {
+                $newpatient_to_approve = 1;
+                $pres = $appTable->zQuery("
+					SELECT
+						ad2.field_value AS portal_pwd
+					FROM
+						audit_master am
+						JOIN audit_details ad
+							ON ad.audit_master_id = am.id
+							AND ad.table_name = 'patient_access_offsite'
+							AND ad.field_name = 'portal_username'
+						JOIN audit_details ad2
+							ON ad2.audit_master_id = am.id
+							AND ad2.table_name = 'patient_access_offsite'
+							AND ad2.field_name = 'portal_pwd'
+					WHERE am.approval_status = 1
+						AND ad.field_value = ?
+				", array($credentials[6]));
+                $prow = $pres->current();
+            }
+
+            if (sha1($prow['portal_pwd'] . date("Y-m-d H", $tim) . $credentials[8]) == $credentials[7]) {
+                if ($newpatient_to_approve) {
+                    return 2;
+                } else {
+                    return true;
+                }
+            } elseif (sha1($prow['portal_pwd'] . date("Y-m-d H", ($tim - 3600)) . $credentials[8]) == $credentials[7]) {
+                if ($newpatient_to_approve) {
+                    return 2;
+                } else {
+                    return true;
+                }
+            } elseif (sha1($prow['portal_pwd'] . date("Y-m-d H", ($tim + 3600)) . $credentials[8]) == $credentials[7]) {
+                if ($newpatient_to_approve) {
+                    return 2;
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public function getPatientId($portalUserName = '')
+    {
+        $appTable   = new ApplicationTable();
+        $pres = $appTable->zQuery("SELECT * FROM patient_access_offsite WHERE portal_username=?", array($portalUserName));
+        $prow = $pres->current();
+        return !empty($prow) ? $prow['pid'] : 0;
+    }
+
+    public function valid($credentials)
+    {
+        $appTable   = new ApplicationTable();
+
+        $timminus = date("Y-m-d H:m", (strtotime(date("Y-m-d H:m")) - 7200)) . ":00";
+        $appTable->zQuery("DELETE FROM audit_details WHERE audit_master_id IN(SELECT id FROM audit_master WHERE type=5 AND created_time<=?)", array($timminus));
+        $appTable->zQuery("DELETE FROM audit_master WHERE type=5 AND created_time<=?", array($timminus));
+        global $pid;
+        $ok = 0;
+        $okE = 0;
+        $okN = 0;
+        $okO = 0;
+        $okP = 0;
+        $tim = strtotime(gmdate("Y-m-d H:m"));
+        $res = $appTable->zQuery("SELECT * FROM audit_details WHERE field_value=?", array($credentials[3]));
+        if ($res->count() > 0) {
+            if ($GLOBALS['validated_offsite_portal'] != true) {
+                return false;
+            }
+        } else {
+            $grpID = $appTable->zQuery("INSERT INTO audit_master SET type=5");
+            $appTable->zQuery("INSERT INTO audit_details SET field_value=? , audit_master_id=? ", array($credentials[3],$grpID));
+        }
+
+        if (sha1($GLOBALS['portal_offsite_password'] . date("Y-m-d H", $tim) . $credentials[3]) == $credentials[2]) {
+            $ok = 1;
+        } elseif (sha1($GLOBALS['portal_offsite_password'] . date("Y-m-d H", ($tim - 3600)) . $credentials[3]) == $credentials[2]) {
+            $ok = 1;
+        } elseif (sha1($GLOBALS['portal_offsite_password'] . date("Y-m-d H", ($tim + 3600)) . $credentials[3]) == $credentials[2]) {
+            $ok = 1;
+        }
+
+        if (($credentials[1] == $GLOBALS['portal_offsite_username'] && $ok == 1 && $GLOBALS['portal_offsite_enable'] == 1) || $GLOBALS['validated_offsite_portal'] == true) {
+            $pres = $appTable->zQuery("SELECT * FROM patient_access_offsite WHERE portal_username=?", array($credentials[6]));
+            $prow = $pres->current();
+            if ($credentials[4] == 'existingpatient') {
+                if ($this->validcredential($credentials) === 2) {
+                    $okE = 2;
+                } elseif ($this->validcredential($credentials) == true) {
+                    $okE = 1;
+                } else {
+                    return false;
+                }
+            } elseif ($credentials[4] == 'oemruser') {
+                if ($credentials[9]) {
+                    $pres = $appTable->zQuery("SELECT pid FROM audit_master WHERE id=?", array($credentials[9]));
+                }
+
+                $prow = $pres->current();
+                $okO = 1;
+            } elseif ($credentials[4] == 'newpatient') {
+                if ($this->validcredential($credentials) === 2) {
+                    $okN = 3;
+                } elseif ($this->validcredential($credentials)) {
+                    $okN = 2;
+                } else {
+                    $okN = 1;
+                    $pres = $appTable->zQuery("SELECT IFNULL(MAX(pid)+1,1) AS pid FROM patient_data");
+                    $prow = $pres->current();
+                }
+            }
+
+            if ($okE == 1 || $okN == 2 || $okN == 1 || $okO == 1) {
+                $pid = $prow['pid'];
+                $GLOBALS['pid'] = $prow['pid'];
+            } elseif ($okE == 2 || $okN == 3) {
+                $pres = $appTable->zQuery("
+                    SELECT
+                        ad.audit_master_id
+                    FROM
+                        audit_details ad
+                        JOIN audit_details ad2
+                            ON ad2.audit_master_id = ad.audit_master_id
+                            AND ad2.table_name = 'patient_access_offsite'
+                            AND ad2.field_name = 'portal_pwd'
+                    WHERE ad.table_name = 'patient_access_offsite'
+                        AND ad.field_name = 'portal_username'
+                        AND ad.field_value = ?
+                ", array($credentials[6]));
+                $arow = $pres->current();
+                $auditmasterid = $arow['audit_master_id'];
+                $GLOBALS['auditmasterid'] = $arow['audit_master_id'];
+                $pid = 0;
+                $GLOBALS['pid'] = 0;
+            }
+
+            $_GET['site'] = $credentials[0];
+            if ($okE) {
+                if ($okE == 1) {
+                    $pres = $appTable->zQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?", array($pid));
+                    $portal = $pres->current();
+                } elseif ($okE == 2) {
+                    $pres = $appTable->zQuery("
+                        SELECT
+                            IF(COUNT(*),'yes','no') AS allow_patient_portal
+                        FROM
+                            audit_master am
+                            JOIN audit_details ad
+                                ON ad.audit_master_id = am.id
+                                AND ad.table_name = 'patient_access_offsite'
+                                AND ad.field_name = 'portal_username'
+                        WHERE am.approval_status = 1
+                            AND ad.field_value = ?
+                    ", array($credentials[6]));
+                    $portal = $pres->current();
+                }
+
+                if (strtolower($portal['allow_patient_portal']) != 'yes') {
+                    return false;
+                }
+            }
+
+            $GLOBALS['validated_offsite_portal'] = true;
+            if ($okO) {
+                return 'oemruser';
+            } elseif ($okE == 1) {
+                return 'existingpatient';
+            } elseif ($okE == 2) {
+                return 'newpatienttoapprove';
+            } elseif ($okN == 1 || $okN == 2) {
+                return 'newpatient';
+            } elseif ($okN == 3) {
+                return 'newpatienttoapprove';
+            }
+
+            return false;
+        } else {
+            return false;
+        }
+    }
+
     /*Fetch Patient data from EMR
 
     * @param    $pid
@@ -106,7 +299,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $query      = "SELECT * FROM form_encounter as fe
                         JOIN users AS u ON u.id =  fe.provider_id
-                        JOIN facility AS f ON f.id = u.facility_id 
+                        JOIN facility AS f ON f.id = u.facility_id
                         WHERE fe.pid = ? AND fe.encounter = ?";
         $appTable   = new ApplicationTable();
         $row        = $appTable->zQuery($query, array($pid,$encounter));
@@ -361,7 +554,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getAllergies($pid, $encounter)
     {
         $allergies  = '';
-        $query      = "SELECT l.id, l.title, l.begdate, l.enddate, lo.title AS observation, 
+        $query      = "SELECT l.id, l.title, l.begdate, l.enddate, lo.title AS observation,
             SUBSTRING(lo.codes, LOCATE(':',lo.codes)+1, LENGTH(lo.codes)) AS observation_code,
 						SUBSTRING(l.`diagnosis`,1,LOCATE(':',l.diagnosis)-1) AS code_type_real,
 						l.reaction, l.diagnosis, l.diagnosis AS code
@@ -753,7 +946,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 		<root>' . htmlspecialchars("7d5a02b0-67a4-11db-bd13-0800200c9a66", ENT_QUOTES) . '</root>
 		<date_ordered>' . htmlspecialchars($row['date_ordered'], ENT_QUOTES) . '</date_ordered>
 		<date_ordered_table>' . htmlspecialchars($row['date_ordered_table'], ENT_QUOTES) . '</date_ordered_table>
-        <title>' . htmlspecialchars($row['order_title'], ENT_QUOTES) . '</title>		
+        <title>' . htmlspecialchars($row['order_title'], ENT_QUOTES) . '</title>
 		<test_code>' . htmlspecialchars($row['procedure_code'], ENT_QUOTES) . '</test_code>
 		<test_name>' . htmlspecialchars($row['procedure_name'], ENT_QUOTES) . '</test_name>
         <order_status_table>' . htmlspecialchars($order_status_table, ENT_QUOTES) . '</order_status_table>
@@ -872,7 +1065,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 		<location>" . htmlspecialchars($row['name'], ENT_QUOTES) . "</location>
         <location_details>" . htmlspecialchars($location_details, ENT_QUOTES) . "</location_details>
 		<date>" . htmlspecialchars($this->date_format(substr($row['date'], 0, 10)), ENT_QUOTES) . "</date>
-		<date_formatted>" . htmlspecialchars(preg_replace('/-/', '', substr($row['date'], 0, 10)), ENT_QUOTES) . "</date_formatted>		
+		<date_formatted>" . htmlspecialchars(preg_replace('/-/', '', substr($row['date'], 0, 10)), ENT_QUOTES) . "</date_formatted>
 		<facility_extension>" . htmlspecialchars(base64_encode($_SESSION['site_id'] . $row['fid']), ENT_QUOTES) . "</facility_extension>
 		<facility_sha_extension>" . htmlspecialchars(sha1($_SESSION['site_id'] . $row['fid']), ENT_QUOTES) . "</facility_sha_extension>
 		<facility_npi>" . htmlspecialchars($row['fnpi'], ENT_QUOTES) . "</facility_npi>
@@ -1497,7 +1690,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                                   <sha_extension>" . htmlspecialchars("37f76c51-6411-4e1d-8a37-957fd49d2cef", ENT_QUOTES) . "</sha_extension>
                                   <element>" . htmlspecialchars('Alcohol', ENT_QUOTES) . "</element>
                                   <description>" . htmlspecialchars($alcohol[0], ENT_QUOTES) . "</description>
-                                  <status_code>" . htmlspecialchars(($alcohol_status_codes[$alcohol[1]] ? $alcohol_status_codes[$alcohol[1]] : 0), ENT_QUOTES) . "</status_code> 
+                                  <status_code>" . htmlspecialchars(($alcohol_status_codes[$alcohol[1]] ? $alcohol_status_codes[$alcohol[1]] : 0), ENT_QUOTES) . "</status_code>
                                   <status>" . htmlspecialchars(($alcohol_status[$alcohol[1]] ? $alcohol_status[$alcohol[1]] : 'completed'), ENT_QUOTES) . "</status>
                                   <date>" . ($alcohol[2] ? htmlspecialchars($this->date_format($alcohol[2]), ENT_QUOTES) : 0) . "</date>
                                   <date_formatted>" . ($alcohol[2] ? htmlspecialchars(preg_replace('/-/', '', $alcohol[2]), ENT_QUOTES) : 0) . "</date_formatted>
@@ -1796,7 +1989,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     */
     public function getSettings($module_directory, $field_name)
     {
-        $query = "SELECT mo_conf.field_value FROM modules AS mo 
+        $query = "SELECT mo_conf.field_value FROM modules AS mo
         LEFT JOIN module_configuration AS mo_conf ON mo_conf.module_id = mo.mod_id
         WHERE mo.mod_directory = ? AND mo_conf.field_name = ?";
         $appTable   = new ApplicationTable();
@@ -2134,26 +2327,26 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $care_plan_query_data = ['Plan_of_Care_Type',$pid,'care_plan',0,$pid];
         if ($this->is_snomed_codes_installed($appTable)) {
             $fcp_code_type = "IF(sct_descriptions.ConceptId,'SNOMED-CT',ct.`ct_key`) AS fcp_code_type";
-            $sct_descriptions_join = ' LEFT JOIN sct_descriptions ON sct_descriptions.ConceptId = fcp.`code` 
+            $sct_descriptions_join = ' LEFT JOIN sct_descriptions ON sct_descriptions.ConceptId = fcp.`code`
             AND sct_descriptions.DescriptionStatus = ? AND sct_descriptions.DescriptionType = ?
             LEFT JOIN sct_concepts ON sct_descriptions.ConceptId = sct_concepts.ConceptId ';
             $care_plan_query_data = array_merge([0,1], $care_plan_query_data);
         }
 
         $query  = "SELECT 'care_plan' AS source,fcp.code,fcp.codetext,fcp.description,fcp.date," . $fcp_code_type . " , l.`notes` AS moodCode
-                 FROM forms AS f 
+                 FROM forms AS f
                 LEFT JOIN form_care_plan AS fcp ON fcp.id = f.form_id
-                 LEFT JOIN codes AS c ON c.code = fcp.code 
-                 LEFT JOIN code_types AS ct ON c.`code_type` = ct.ct_id 
+                 LEFT JOIN codes AS c ON c.code = fcp.code
+                 LEFT JOIN code_types AS ct ON c.`code_type` = ct.ct_id
                 " . $sct_descriptions_join . "
                  LEFT JOIN `list_options` l ON l.`option_id` = fcp.`care_plan_type` AND l.`list_id`=?
                  WHERE f.pid = ? AND f.formdir = ? AND f.deleted = ? $wherCon
                  UNION
                  SELECT 'referal' AS source,0 AS CODE,'NULL' AS codetext,CONCAT_WS(', ',l1.field_value,CONCAT_WS(' ',u.fname,u.lname),CONCAT('Tel:',u.phonew1),u.street,u.city,CONCAT_WS(' ',u.state,u.zip),CONCAT('Schedule Date: ',l2.field_value)) AS description,l2.field_value AS DATE,'' AS fcp_code_type,'' moodCode
                  FROM transactions AS t
-                 LEFT JOIN lbt_data AS l1 ON l1.form_id=t.id AND l1.field_id = 'body' 
-                 LEFT JOIN lbt_data AS l2 ON l2.form_id=t.id AND l2.field_id = 'refer_date' 
-                 LEFT JOIN lbt_data AS l3 ON l3.form_id=t.id AND l3.field_id = 'refer_to' 
+                 LEFT JOIN lbt_data AS l1 ON l1.form_id=t.id AND l1.field_id = 'body'
+                 LEFT JOIN lbt_data AS l2 ON l2.form_id=t.id AND l2.field_id = 'refer_date'
+                 LEFT JOIN lbt_data AS l3 ON l3.form_id=t.id AND l3.field_id = 'refer_to'
                  LEFT JOIN users AS u ON u.id = l3.field_value
                  WHERE t.pid = ?";
         $res        = $appTable->zQuery($query, $care_plan_query_data);

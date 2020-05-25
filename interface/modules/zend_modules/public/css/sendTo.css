@@ -1,20 +1,6 @@
-.ap-st-st-1 {
-    float: left;
-    width: 25%;
-    margin-top: 6px;
-    font-size: 13px;
-}
-
 .ap-st-st-2 {
-    width: 96%;
-    height: 30px;
     background: #F1F1F1;
-    padding: 1% 2%;
     border-bottom: 1px solid #CCC;
-}
-
-.ap-st-st-3 {
-    margin: 0 !important;
 }
 
 .ap-st-st-4 {
@@ -23,14 +9,6 @@
 
 .ap-st-st-5 {
     min-height: 100px;
-}
-
-.ap-st-st-6 {
-    background: #F1F1F1;
-    height: 31px;
-    border-top: solid thin #CCCCCC;
-    padding: 5px;
-    position: relative;
 }
 
 .ap-st-st-7 {
@@ -79,39 +57,12 @@
     margin: 0;
 }
 
-.clear {
-    clear: both;
-}
-
 #combination_form_div, #hie_div, #emrDirect_div, #download_div, #download_all_div {
     display: none;
 }
 
-.display_block {
-    display: block !important;
-}
-
-.send-to {
-    background: none repeat scroll 0 0 #4285F4;
-    border: medium none;
-    border-radius: 2px 2px 2px 2px;
-    box-shadow: none;
-    color: #FFFFFF !important;
-    cursor: pointer;
-    float: left;
-    height: 26px;
-    line-height: 27px;
-    margin-right: 10px;
-    outline: medium none;
-    padding: 2px 6px;
-    font-size: 12px;
-}
-
 .ap-st-st-12 {
-    width: 50%;
-}
-
-.ap-st-st-12 {
+	width: 50%;
     position: absolute;
     z-index: 10;
     background: #FFF;

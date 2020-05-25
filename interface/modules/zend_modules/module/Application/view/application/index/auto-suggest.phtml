@@ -104,7 +104,7 @@ if ($rows >= 1 && round($rows / $limit) == 0) {
     $i = $limitStart + 1;
     $lineNo = 1;
     if ($rows > 0) {
-        foreach ($result as $value) :
+        foreach ($result as $value) {
             if ($this->searchType == 'emrdirect') {
                 $name       = $CommonPlugin->hightlight($this->escapeHtml($value['fname']), $keyword) . ' ' . $CommonPlugin->hightlight($this->escapeHtml($value['lname']), $keyword);
                 $d_adress   = $CommonPlugin->hightlight($this->escapeHtml($value['email']), $keyword);
@@ -150,10 +150,8 @@ if ($rows >= 1 && round($rows / $limit) == 0) {
       </ul>
       </span>
             <?php } else {
-                if ($this->searchType == 'patient') { ?>
-          <span class="float-left"
-              id="<?php echo $fill . '_' . $this->searchEleNo . '_' . $lineNo; ?>"
-              onClick='fill("<?php echo $this->escapeHtml($value['fname']) . ' ' . $this->escapeHtml($value['lname']) . '|' . $this->escapeHtml($value['pid']); ?>", "<?php echo $this->searchType; ?>", "<?php echo $this->searchEleNo;?>" , "<?php echo $this->searchMode; ?>");'>
+              if ($this->searchType == 'patient') { ?>
+          <span class="float-left" id="<?php echo $fill . '_' . $this->searchEleNo . '_' . $lineNo; ?>" onClick='fill("<?php echo $this->escapeHtml($value['fname']) . ' ' . $this->escapeHtml($value['lname']) . '|' . $this->escapeHtml($value['pid']); ?>", "<?php echo $this->searchType; ?>", "<?php echo $this->searchEleNo;?>" , "<?php echo $this->searchMode; ?>");'>
             <?php } ?>
       <div class="itemBox" style="width:30px;"><?php echo $i; ?></div>
       <div class="itemBox h-auto" style="width: 232px;">
@@ -162,7 +160,7 @@ if ($rows >= 1 && round($rows / $limit) == 0) {
                 ?>
       </div>
       <div class="itemBox" style="width:40px;"><?php echo $this->escapeHtml($patient_id); ?></div>
-      <div class="itemBox" style="width:60px; border-right:none;"><?php echo $this->escapeHtml($dob); ?></div>
+      <div class="itemBox border-right-0" style="width:60px;"><?php echo $this->escapeHtml($dob); ?></div>
       </li>
       </ul>
       </span>
@@ -178,7 +176,7 @@ if ($rows >= 1 && round($rows / $limit) == 0) {
             if ($lineNo >= count($result)) {
                 break;
             }
-      endforeach;
+      }
     }
     ?>
   </div>
