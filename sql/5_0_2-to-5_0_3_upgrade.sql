@@ -48,6 +48,10 @@
 --               1) The table table_name does not have a row where colname = value AND colname2 = value2.
 --               2) The table table_name does not have a row where colname = value AND colname3 = value3.
 
+--  #IfRow
+--    arguments: table_name colname value
+--    behavior:  If the table table_name does have a row where colname = value, the block will be executed.
+
 --  #IfRow2D
 --    arguments: table_name colname value colname2 value2
 --    behavior:  If the table table_name does have a row where colname = value AND colname2 = value2, the block will be executed.
@@ -590,6 +594,12 @@ ALTER TABLE `api_res_ver`
     ADD CONSTRAINT `fk_resver_forcedid` FOREIGN KEY (`forced_id_pid`) REFERENCES `api_forced_id` (`pid`);
 #EndIf
 
+-- Note the below block will also be skipped if the uuid_registry table does not yet exist
+#IfNotColumnType uuid_registry binary(16)
+DROP TABLE `uuid_registry`;
+ALTER TABLE `patient_data` DROP `uuid`;
+#EndIf
+
 #IfNotTable uuid_registry
 CREATE TABLE `uuid_registry` (
   `uuid` binary(16) NOT NULL DEFAULT '',
@@ -617,3 +627,11 @@ SET sql_mode = '';
 UPDATE `insurance_data` SET `subscriber_DOB` = NULL WHERE `subscriber_DOB` = '0000-00-00';
 SET sql_mode = @currentSQLMode;
 #EndIf
+
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+#IfRow insurance_data date 0000-00-00
+UPDATE `insurance_data` SET `date` = NULL WHERE `date` = '0000-00-00';
+#EndIf
+SET sql_mode = @currentSQLMode;
+

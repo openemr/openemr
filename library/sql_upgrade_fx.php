@@ -591,6 +591,10 @@ function convertLayoutProperties()
 *              1) The table table_name does not have a row where colname = value AND colname2 = value2.
 *              2) The table table_name does not have a row where colname = value AND colname3 = value3.
 *
+* #IfRow
+*   arguments: table_name colname value
+*   behavior:  If the table table_name does have a row where colname = value, the block will be executed.
+*
 * #IfRow2D
 *   arguments: table_name colname value colname2 value2
 *   behavior:  If the table table_name does have a row where colname = value AND colname2 = value2, the block will be executed.
@@ -842,6 +846,17 @@ function upgradeFromSqlFile($filename, $path = '')
         } elseif (preg_match('/^#IfRow3D\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
             if (tableExists($matches[1])) {
                 $skipping = !(tableHasRow3D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5], $matches[6], $matches[7]));
+            } else {
+                // If no such table then should skip.
+                $skipping = true;
+            }
+
+            if ($skipping) {
+                echo "<font color='green'>Skipping section $line</font><br />\n";
+            }
+        } elseif (preg_match('/^#IfRow\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+            if (tableExists($matches[1])) {
+                $skipping = !(tableHasRow($matches[1], $matches[2], $matches[3]));
             } else {
                 // If no such table then should skip.
                 $skipping = true;
