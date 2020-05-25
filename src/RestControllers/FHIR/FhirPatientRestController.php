@@ -9,7 +9,7 @@
  * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
+ 
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\Services\FHIR\FhirResourcesService;
@@ -17,110 +17,101 @@ use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
+use OpenEMR\Validators\ProcessingResult;
 
+require_once('_rest_config.php');
+
+/**
+ * Supports REST interactions with the FHIR patient resource
+ */
 class FhirPatientRestController
 {
     private $fhirPatientService;
     private $fhirService;
     private $fhirValidate;
 
-    public function __construct($pid)
+    public function __construct()
     {
         $this->fhirService = new FhirResourcesService();
         $this->fhirPatientService = new FhirPatientService();
         $this->fhirValidate = new FhirValidationService();
     }
 
+    /**
+     * Creates a new FHIR patient resource
+     * @param $fhirJson The FHIR patient resource
+     * @returns 201 if the resource is created, 400 if the resource is invalid
+     */
     public function post($fhirJson)
     {
         $fhirValidate = $this->fhirValidate->validate($fhirJson);
         if (!empty($fhirValidate)) {
-            return RestControllerHelper::responseHandler($fhirValidate, null, 404);
-        }
-        $data = $this->fhirPatientService->parsePatientResource($fhirJson);
-
-        $validationResult = $this->fhirPatientService->validate($data);
-        $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
-        if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult;
+            return RestControllerHelper::responseHandler($fhirValidate, null, 400);
         }
 
-        $fhirserviceResult = $this->fhirPatientService->insert($data);
-        return RestControllerHelper::responseHandler($fhirserviceResult, array("pid" => $fhirserviceResult), 201);
+        $processingResult = $this->fhirPatientService->insert($fhirJson);
+        return RestControllerHelper::handleProcessingResult($processingResult, 201);
     }
 
-    public function put($pid, $fhirJson)
+    /**
+     * Updates an existing FHIR patient resource
+     * @param $fhirId The FHIR patient resource id (uuid)
+     * @param $fhirJson The updated FHIR patient resource (complete resource)
+     * @returns 200 if the resource is created, 400 if the resource is invalid
+     */
+    public function put($fhirId, $fhirJson)
     {
         $fhirValidate = $this->fhirValidate->validate($fhirJson);
         if (!empty($fhirValidate)) {
-            return RestControllerHelper::responseHandler($fhirValidate, null, 404);
-        }
-        $data = $this->fhirPatientService->parsePatientResource($fhirJson);
-
-        $validationResult = $this->fhirPatientService->validateUpdate($pid, $data);
-        $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
-        if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult;
+            return RestControllerHelper::responseHandler($fhirValidate, null, 400);
         }
 
-        $fhirserviceResult = $this->fhirPatientService->update($pid, $data);
-        return RestControllerHelper::responseHandler($fhirserviceResult, array("pid" => $pid), 200);
+        $processingResult = $this->fhirPatientService->update($fhirId, $fhirJson);
+        return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 
-    public function getOne()
+    /**
+     * Queries for a single FHIR patient resource by FHIR id
+     * @param $fhirId The FHIR patient resource id (uuid)
+     * @returns 200 if the operation completes successfully
+     */
+    public function getOne($fhirId)
     {
-        $oept = $this->fhirPatientService->getOne();
-        $pid = $this->fhirPatientService->getId();
-        if ($oept) {
-            $resource = $this->fhirPatientService->createPatientResource($pid, $oept, false);
-            $statusCode = 200;
-        } else {
-            $statusCode = 404;
-            $resource = $this->fhirValidate->operationOutcomeResourceService(
-                'error',
-                'invalid',
-                false,
-                "Resource Id $pid does not exist"
-            );
-        }
-
-        return RestControllerHelper::responseHandler($resource, null, $statusCode);
+        $processingResult = $this->fhirPatientService->getOne($fhirId, true);
+        return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 
-    public function getAll($search)
+    /**
+     * Queries for FHIR patient resources using various search parameters.
+     * Search parameters include:
+     * - address (stree, postal code, city, or state)
+     * - address-city
+     * - address-postalcode
+     * - address-state
+     * - birthdate
+     * - email
+     * - family
+     * - gender
+     * - given (first name or middle name)
+     * - name (title, first name, middle name, last name)
+     * - phone (home, business, cell)
+     * - telecom (email, phone)
+     * @return FHIR bundle with query results, if found
+     */
+    public function getAll($searchParams)
     {
-        $resourceURL = \RestConfig::$REST_FULL_URL;
-        if (strpos($resourceURL, '?') > 0) {
-            $resourceURL = strstr($resourceURL, '?', true);
+        $processingResult = $this->fhirPatientService->getAll($searchParams);
+        $bundleEntries = array();
+        foreach ($processingResult->getData() as $index => $searchResult) {
+            $bundleEntry = [
+                'fullUrl' =>  \RestConfig::$REST_FULL_URL . '/fhir/Patient/' . $searchResult->getId(),
+                'resource' => $searchResult
+            ];
+            $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);
+            array_push($bundleEntries, $fhirBundleEntry);
         }
-
-        $searchParam = array(
-            'name' => $search['name'],
-            'DOB' => $search['birthdate'],
-            'city' => $search['address-city'],
-            'state' => $search['address-state'],
-            'postal_code' => $search['address-postalcode'],
-            'phone_contact' => $search['phone'],
-            'address' => $search['address'],
-            'sex' => $search['gender'],
-            'country_code' => $search['address-country']
-        );
-
-        $searchResult = $this->fhirPatientService->getAll($searchParam);
-        if ($searchResult === false) {
-            http_response_code(404);
-            exit;
-        }
-        $entries = array();
-        foreach ($searchResult as $oept) {
-            $entryResource = $this->fhirPatientService->createPatientResource($oept['pid'], $oept, false);
-            $entry = array(
-                'fullUrl' => $resourceURL . "/" . $oept['pid'],
-                'resource' => $entryResource
-            );
-            $entries[] = new FHIRBundleEntry($entry);
-        }
-        $searchResult = $this->fhirService->createBundle('Patient', $entries, false);
-        return RestControllerHelper::responseHandler($searchResult, null, 200);
+        $bundleSearchResult = $this->fhirService->createBundle('Patient', $bundleEntries, false);
+        $searchResponseBody = RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
+        return $searchResponseBody;
     }
 }

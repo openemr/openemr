@@ -16,6 +16,8 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleLink;
 use OpenEMR\FHIR\R4\PHPFHIRResponseParser;
 
+require_once('_rest_config.php');
+
 class FhirResourcesService
 {
     public function createBundle($resource = '', $resource_array = [], $encode = true)

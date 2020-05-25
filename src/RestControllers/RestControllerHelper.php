@@ -25,7 +25,6 @@ class RestControllerHelper
             if ($customRespPayload) {
                 return $customRespPayload;
             }
-
             return $serviceResult;
         }
 
@@ -38,7 +37,13 @@ class RestControllerHelper
     {
         if (property_exists($validationResult, 'isValid') && !$validationResult->isValid()) {
             http_response_code(400);
-            return $validationResult->getMessages();
+
+            if (property_exists($validationResult, 'getValidationMessages')) {
+                $validationMessages = $validationResult->getValidationMessages();
+            } else {
+                $validationMesssages = $validationResult->getMessages();
+            }
+            return $validationMesssages;
         }
     }
 
