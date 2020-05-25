@@ -3,9 +3,13 @@
 /**
  * UuidRegistry class
  *
- *    Generic support for UUID creation and use. Goal is to support uuid for both fhir, future offsite
- *    support, and other future use cases. The construct accepts an associative array in order to allow
- *    easy addition of fields and new sql columns in the uuid_registry table.
+ *    Generic support for UUID creation and use. Goal is to support:
+ *     1. uuid for fhir resources
+ *     2. uuid for future offsite support (using Timestamp-first COMB Codec for uuid,
+ *        so can use for primary keys)
+ *     3. other future use cases.
+ *    The construct accepts an associative array in order to allow easy addition of
+ *    fields and new sql columns in the uuid_registry table.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
