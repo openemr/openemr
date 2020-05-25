@@ -205,17 +205,20 @@ function install(done) {
                     .pipe(gulp.dest(config.dist.assets + key + '/decoders'));
                 gulp.src('node_modules/' + key + '/locales/**/*')
                     .pipe(gulp.dest(config.dist.assets + key + '/locales'));
-            } else if (key == 'bootstrap' || key == 'bootstrap-rtl' || key == 'bootswatch' || key == '@fortawesome/fontawesome-free') {
-                // bootstrap, bootstrap-v4-rtl, bootswatch, and fontawesome are special and need to copy dist and scss
+            } else if (key == 'bootstrap' || key == 'bootstrap-rtl') {
+                // bootstrap and bootstrap-v4-rtl are special and need to copy dist and scss
                 gulp.src('node_modules/' + key + '/dist/**/*')
                     .pipe(gulp.dest(config.dist.assets + key + '/dist'));
                 gulp.src('node_modules/' + key + '/scss/**/*')
                     .pipe(gulp.dest(config.dist.assets + key + '/scss'));
-                if (key == '@fortawesome/fontawesome-free') {
-                    // fontawesome needs to also copy webfonts
-                    gulp.src('node_modules/' + key + '/webfonts/**/*')
-                        .pipe(gulp.dest(config.dist.assets + key + '/webfonts'));
-                }
+            } else if (key == '@fortawesome/fontawesome-free') {
+                // @fortawesome/fontawesome-free is special and need to copy css, scss, and webfonts
+                gulp.src('node_modules/' + key + '/css/**/*')
+                    .pipe(gulp.dest(config.dist.assets + key + '/css'));
+                gulp.src('node_modules/' + key + '/scss/**/*')
+                    .pipe(gulp.dest(config.dist.assets + key + '/scss'));
+                gulp.src('node_modules/' + key + '/webfonts/**/*')
+                    .pipe(gulp.dest(config.dist.assets + key + '/webfonts'));
             } else if (key == '@ttskch/select2-bootstrap4-theme') {
                 // @ttskch/select2-bootstrap4-theme is special and need to copy dist and src
                 //  modify src/layout.scss in order for sass build to work by removing:
