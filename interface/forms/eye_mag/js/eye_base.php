@@ -1246,11 +1246,11 @@ function build_DX_list(obj) {
         .html(out)
         .find( "li" )
         .dblclick(function(){
-                  rebuild_IMP($( "#build_DX_list" ));
-                  $('#make_new_IMP').trigger('click'); //any items selected are sent to IMPPLAN directly.
-                  })
-            //this places the handle for the user to drag the item around.
-        .prepend( "<div class='handle '><i class='fas fa-arrows-alt fa-1'></i></div>" );
+            rebuild_IMP($( "#build_DX_list" ));
+            $('#make_new_IMP').trigger('click'); //any items selected are sent to IMPPLAN directly.
+        })
+        //this places the handle for the user to drag the item around.
+        .prepend( "<div class='handle'><i class='fas fa-arrows-alt fa-1'></i></div>" );
     } else {
         out = '<br /><span class="bold"><?php echo xlt("Build Your Plan") . "."; ?></span><br /><br />';
         out += '<?php echo xlt('Suggestions for the Imp/Plan are built from the Exam, the Past Ocular History (POH and POS) and the Past Medical History (PMH)') . "."; ?><br />';
@@ -1268,7 +1268,7 @@ function rebuild_IMP(obj2) {
     var surface;
     IMP_order=[];
     k='0';
-    $( ".ui-selected", obj2 ).each(function() {
+    $( ".draggable", obj2 ).each(function() {
                                    var index = $( "#build_DX_list li" ).index( this );
                                    if ($('#build_DX_list li span')[index].id.match(/DX_POH_(.*)/)) {
                                    surface = 'POH_' + $( "#build_DX_list li span" )[index].id.match(/DX_POH_(.*)/)[1];
