@@ -595,7 +595,7 @@ ALTER TABLE `api_res_ver`
 #EndIf
 
 -- Note the below block will also be skipped if the uuid_registry table does not yet exist
-#IfNotColumnType uuid_registry binary(16)
+#IfNotColumnType uuid_registry uuid binary(16)
 DROP TABLE `uuid_registry`;
 ALTER TABLE `patient_data` DROP `uuid`;
 #EndIf
