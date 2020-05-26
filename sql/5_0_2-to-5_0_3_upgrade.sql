@@ -639,6 +639,10 @@ SET sql_mode = @currentSQLMode;
 ALTER TABLE `api_token` MODIFY `token_api` varchar(4);
 #EndIf
 
+#IfNotColumnType api_token token varchar(40)
+ALTER TABLE `api_token` MODIFY `token` varchar(40) DEFAULT NULL;
+#EndIf
+
 #IfNotIndex api_token token
 CREATE UNIQUE INDEX `token` ON `api_token` (`token`);
 #EndIf

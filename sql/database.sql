@@ -10614,7 +10614,7 @@ CREATE TABLE `api_token` (
     `token_api`    varchar(4),
     `user_id`      bigint(20) NOT NULL,
     `patient_id`   bigint(20) NOT NULL,
-    `token`        varchar(256) DEFAULT NULL,
+    `token`        varchar(40) DEFAULT NULL,
     `token_auth`   varchar(255),
     `expiry`       datetime NULL,
     PRIMARY KEY (`id`),
