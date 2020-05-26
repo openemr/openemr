@@ -384,6 +384,7 @@ jobs:
         - *build_test_services
         - *build_test_validators
         - *build_test_controllers
+        - *build_test_common
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -407,6 +408,7 @@ jobs:
         - *build_test_services
         - *build_test_validators
         - *build_test_controllers
+        - *build_test_common
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -430,6 +432,7 @@ jobs:
         - *build_test_services
         - *build_test_validators
         - *build_test_controllers
+        - *build_test_common
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -453,6 +456,7 @@ jobs:
         - *build_test_services
         - *build_test_validators
         - *build_test_controllers
+        - *build_test_common
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -476,6 +480,7 @@ jobs:
         - *build_test_services
         - *build_test_validators
         - *build_test_controllers
+        - *build_test_common
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -499,6 +504,7 @@ jobs:
         - *build_test_services
         - *build_test_validators
         - *build_test_controllers
+        - *build_test_common
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -522,6 +528,7 @@ jobs:
         - *build_test_services
         - *build_test_validators
         - *build_test_controllers
+        - *build_test_common
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -545,6 +552,7 @@ jobs:
         - *build_test_services
         - *build_test_validators
         - *build_test_controllers
+        - *build_test_common
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -567,6 +575,7 @@ jobs:
         - *build_test_services
         - *build_test_validators
         - *build_test_controllers
+        - *build_test_common
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -589,6 +598,7 @@ jobs:
         - *build_test_services
         - *build_test_validators
         - *build_test_controllers
+        - *build_test_common
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -611,6 +621,7 @@ jobs:
         - *build_test_services
         - *build_test_validators
         - *build_test_controllers
+        - *build_test_common
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi
@@ -633,6 +644,7 @@ jobs:
         - *build_test_services
         - *build_test_validators
         - *build_test_controllers
+        - *build_test_common
         - *job_summary_prep
         - echo -e "${jobSummary}"
         - if $failJob; then travis_terminate 1; fi

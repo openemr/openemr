@@ -473,7 +473,6 @@ RestConfig::$PORTAL_FHIR_ROUTE_MAP = array(
         return (new AuthRestController())->authenticate($data);
     },
     "GET /portalfhir/Patient" => function () {
-        // TODO - Will replace below with working call when it is fixed
-        return (new FhirPatientRestController($_SESSION['pid']))->getOne();
+        return (new FhirPatientRestController())->getOne($_SESSION['string_puuid']);
     }
 );
