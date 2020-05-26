@@ -9,7 +9,7 @@
  * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
- 
+
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\Services\FHIR\FhirResourcesService;
@@ -19,7 +19,7 @@ use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\Validators\ProcessingResult;
 
-require_once('_rest_config.php');
+require_once(__DIR__ . '/../../../_rest_config.php');
 
 /**
  * Supports REST interactions with the FHIR patient resource
