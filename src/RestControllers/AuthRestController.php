@@ -232,7 +232,12 @@ class AuthRestController
             return false;
         }
 
+        // SUCCESS
         EventAuditLogger::instance()->newEvent($event, $genericUserName, '', 1, "API success for API token use: " . $ip['ip_string'], $logPid);
+
+        // Maintenance - remove all tokens that have been expired for more than a day
+        $currentDateTimePlusDay = date("Y-m-d H:i:s", strtotime('-1 day'));
+        sqlStatementNoLog("DELETE FROM `api_token` WHERE `expiry` < ?", [$currentDateTimePlusDay]);
 
         // Set needed session variables
         if (($_SESSION['api'] == "port") || ($_SESSION['api'] == "pofh")) {
