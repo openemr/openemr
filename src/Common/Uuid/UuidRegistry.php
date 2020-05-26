@@ -25,6 +25,7 @@ namespace OpenEMR\Common\Uuid;
 use Ramsey\Uuid\Codec\TimestampFirstCombCodec;
 use Ramsey\Uuid\Generator\CombGenerator;
 use Ramsey\Uuid\UuidFactory;
+use Ramsey\Uuid\Uuid;
 
 class UuidRegistry
 {
@@ -123,5 +124,23 @@ class UuidRegistry
             return true;
         }
         return false;
+    }
+
+    /**
+     * Converts a UUID byte value to a string representation
+     * @return the UUID string value
+     */
+    public static function uuidToString($uuidBytes)
+    {
+        return Uuid::fromBytes($uuidBytes)->toString();
+    }
+
+    /**
+     * Converts a UUID string to a bytes representation
+     * @return the UUID bytes value
+     */
+    public static function uuidToBytes($uuidString)
+    {
+        return Uuid::fromString($uuidString)->getBytes();
     }
 }

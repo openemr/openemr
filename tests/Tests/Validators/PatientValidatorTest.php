@@ -5,6 +5,7 @@ namespace OpenEMR\Tests\Validators;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Validators\PatientValidator;
+use OpenEMR\Common\Uuid\UuidRegistry;
 
 /**
  * @coversDefaultClass OpenEMR\Validators\PatientValidator
@@ -67,16 +68,19 @@ class PatientValidatorTest extends TestCase
      */
     public function testValidationUpdateFailure()
     {
+        $this->patientFixture["uuid"] = $this->fixtureManager->getUnregisteredUuid();
         $this->patientFixture["fname"] = "A";
         $this->patientFixture["sex"] = "M";
 
         $actualResult = $this->patientValidator->validate($this->patientFixture, PatientValidator::DATABASE_UPDATE_CONTEXT);
 
         $this->assertFalse($actualResult->isValid());
+
         $this->assertArrayHasKey("fname", $actualResult->getValidationMessages());
         $this->assertArrayHasKey("sex", $actualResult->getValidationMessages());
         $this->assertArrayHasKey("pid", $actualResult->getValidationMessages());
-        $this->assertEquals(3, count($actualResult->getValidationMessages()));
+        $this->assertArrayHasKey("uuid", $actualResult->getValidationMessages());
+        $this->assertEquals(4, count($actualResult->getValidationMessages()));
     }
 
     /**
@@ -89,10 +93,20 @@ class PatientValidatorTest extends TestCase
 
         $fixturePid = sqlQuery(
             "SELECT pid FROM patient_data WHERE pubpid = ?",
-            array($patientFixture->pubpid)
+            array($patientFixture['pubpid'])
         )['pid'];
 
         $this->patientFixture['pid'] = intval($fixturePid);
+
+        $fixtureUuid = sqlQuery(
+            "SELECT uuid FROM patient_data WHERE pubpid = ?",
+            array($patientFixture['pubpid'])
+        )['uuid'];
+
+        $fixtureUuid = UuidRegistry::uuidToString($fixtureUuid);
+
+        $this->patientFixture['uuid'] = $fixtureUuid;
+
         // updates do not require all fields
         unset($this->patientFixture["fname"]);
 
@@ -113,7 +127,7 @@ class PatientValidatorTest extends TestCase
 
         $fixturePid = sqlQuery(
             "SELECT pid FROM patient_data WHERE pubpid = ?",
-            array($patientFixture->pubpid)
+            array($patientFixture['pubpid'])
         )['pid'];
         $fixturePid = intval($fixturePid);
 
@@ -126,6 +140,32 @@ class PatientValidatorTest extends TestCase
         $this->assertFalse($actualResult);
 
         $actualResult = $this->patientValidator->isExistingPid("not-a-pid");
+        $this->assertFalse($actualResult);
+    }
+
+    /**
+     * @covers ::isExistingUuid for success and failure use-cases
+     */
+    public function testIsExistingUuid()
+    {
+        // ensure we have an installed record/patient
+        $patientFixture = $this->fixtureManager->getSinglePatientFixture();
+        $this->fixtureManager->installSinglePatientFixture($patientFixture);
+
+        $fixtureUuid = sqlQuery(
+            "SELECT uuid FROM patient_data WHERE pubpid = ?",
+            array($patientFixture['pubpid'])
+        )['uuid'];
+
+        $fixtureUuid = UuidRegistry::uuidToString($fixtureUuid);
+
+        $this->assertEquals(36, strlen($fixtureUuid));
+
+        $actualResult = $this->patientValidator->isExistingUuid($fixtureUuid);
+        $this->assertTrue($actualResult);
+
+        $unregisteredUuid = $this->fixtureManager->getUnregisteredUuid();
+        $actualResult = $this->patientValidator->isExistingUuid($unregisteredUuid);
         $this->assertFalse($actualResult);
     }
 }

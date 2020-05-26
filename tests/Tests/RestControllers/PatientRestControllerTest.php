@@ -71,7 +71,7 @@ class PatientRestControllerTest extends TestCase
         $this->assertEquals(201, http_response_code());
         $this->assertEquals(0, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
-        $this->assertEquals(1, count($actualResult["data"]));
+        $this->assertEquals(2, count($actualResult["data"]));
 
         $patientPid = $actualResult["data"]["pid"];
         $this->assertIsInt($patientPid);
@@ -85,7 +85,10 @@ class PatientRestControllerTest extends TestCase
     {
         $actualResult = $this->patientController->post($this->patientData);
         $this->assertEquals(201, http_response_code());
-        $this->assertEquals(1, count($actualResult["data"]));
+        $this->assertEquals(2, count($actualResult["data"]));
+
+        $actualUuid = $actualResult["data"]["uuid"];
+        $this->patientData["uuid"] = $actualUuid;
 
         $actualResult = $this->patientController->put("not-a-pid", $this->patientData);
         $this->assertEquals(400, http_response_code());
@@ -101,10 +104,12 @@ class PatientRestControllerTest extends TestCase
     {
         $actualResult = $this->patientController->post($this->patientData);
         $this->assertEquals(201, http_response_code());
-        $this->assertEquals(1, count($actualResult["data"]));
+        $this->assertEquals(2, count($actualResult["data"]));
 
         $patientPid = $actualResult["data"]["pid"];
+        $patientUuid = $actualResult["data"]["uuid"];
         $this->patientData["phone_home"] = "111-111-1111";
+        $this->patientData["uuid"] = $patientUuid;
         $actualResult = $this->patientController->put($patientPid, $this->patientData);
 
         $this->assertEquals(200, http_response_code());

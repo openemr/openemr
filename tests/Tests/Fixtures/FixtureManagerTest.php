@@ -39,11 +39,67 @@ class FixtureManagerTest extends TestCase
 
         $message = "Patient is missing";
         foreach ($expectedFields as $index => $expectedField) {
-            $this->assertObjectHasAttribute($expectedField, $patientFixture, $message . " " . $expectedField);
+            $this->assertArrayHasKey($expectedField, $patientFixture, $message . " " . $expectedField);
         }
 
         $message = "Patient does not have a test pubpid ";
-        $this->assertStringStartsWith("test-fixture", $patientFixture->pubpid, $message . $patientFixture->pubpid);
+        $this->assertStringStartsWith("test-fixture", $patientFixture['pubpid'], $message . $patientFixture['pubpid']);
+    }
+
+    /**
+     * Executes assertions on FHIR Patient resource fields
+     * @param $fhirPatientFixture The FHIR patient fixture to validate
+     */
+    private function assertFhirPatientFields($fhirPatientFixture)
+    {
+        $this->assertNotNull($fhirPatientFixture);
+
+        $actualMeta = $fhirPatientFixture['meta'];
+        $this->assertNotNull($actualMeta['versionId']);
+        $this->assertNotNull($actualMeta['lastUpdated']);
+
+        $this->assertEquals('Patient', $fhirPatientFixture['resourceType']);
+
+        $actualIdentifiers = $fhirPatientFixture['identifier'];
+        $this->assertEquals(2, count($actualIdentifiers));
+
+        $actualIdentifierCodes = array();
+        foreach ($actualIdentifiers as $index => $actualIdentifier) {
+            $actualCode = $actualIdentifier['type']['coding'][0]['code'];
+            array_push($actualIdentifierCodes, $actualCode);
+        }
+
+        $this->assertContains('SS', $actualIdentifierCodes);
+        $this->assertContains('PT', $actualIdentifierCodes);
+
+        $this->assertTrue($fhirPatientFixture['active']);
+
+        $actualNames = $fhirPatientFixture['name'];
+        $this->assertEquals(1, count($actualNames));
+        
+        $actualName = $actualNames[0];
+        $this->assertEquals('official', $actualName['use']);
+        $this->assertNotNull($actualName['family']);
+        $this->assertGreaterThanOrEqual(1, count($actualName['given']));
+        $this->assertGreaterThanOrEqual(1, count($actualName['prefix']));
+
+        $this->assertGreaterThanOrEqual(1, count($fhirPatientFixture['telecom']));
+        foreach ($fhirPatientFixture['telecom'] as $index => $telecom) {
+            $this->assertNotNull($telecom['system']);
+            $this->assertNotNull($telecom['value']);
+            $this->assertNotNull($telecom['use']);
+        }
+
+        $this->assertNotNull($fhirPatientFixture['gender']);
+        $this->assertNotNull($fhirPatientFixture['birthDate']);
+
+        $this->assertGreaterThanOrEqual(1, count($fhirPatientFixture['address']));
+        foreach ($fhirPatientFixture['address'] as $index => $address) {
+            $this->assertGreaterThanOrEqual(1, count($address['line']));
+            $this->assertNotNull($address['city']);
+            $this->assertNotNull($address['state']);
+            $this->assertNotNull($address['postalCode']);
+        }
     }
 
     /**
@@ -85,5 +141,21 @@ class FixtureManagerTest extends TestCase
         $recordCount = array_values($recordCountResult)[0];
 
         $this->assertEquals(0, $recordCount);
+    }
+
+    /**
+     * @covers ::getFhirPatientFixtures
+     */
+    public function testGetFhirPatientFixtures()
+    {
+        $fhirPatientFixtures = $this->fixtureManager->getFhirPatientFixtures();
+        $this->assertIsArray($fhirPatientFixtures);
+
+        $actualCount = count($fhirPatientFixtures);
+        $this->assertGreaterThanOrEqual(0, $actualCount);
+
+        foreach ($fhirPatientFixtures as $index => $fhirPatientFixture) {
+            $this->assertFhirPatientFields($fhirPatientFixture);
+        }
     }
 }

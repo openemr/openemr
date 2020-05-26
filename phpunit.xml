@@ -29,7 +29,8 @@
             <directory>tests/Tests/Fixtures</directory>
             <directory>tests/Tests/Services</directory>
             <directory>tests/Tests/Validators</directory>
-            <directory>tests/Tests/RestControllers</directory>            
+            <directory>tests/Tests/RestControllers</directory>
+            <directory>tests/Tests/Common</directory>               
         </testsuite>
         <testsuite name="unit">
             <directory>tests/Tests/Unit</directory>
@@ -51,6 +52,9 @@
         </testsuite>
         <testsuite name="controllers">
             <directory>tests/Tests/RestControllers</directory>
+        </testsuite>
+        <testsuite name="common">
+            <directory>tests/Tests/Common</directory>
         </testsuite>
     </testsuites>
 </phpunit>

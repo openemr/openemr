@@ -124,7 +124,10 @@ class PatientService extends BaseService
         );
 
         if ($results) {
-            $processingResult->addData(array("pid" => $freshPid));
+            $processingResult->addData(array(
+                'pid' => $freshPid,
+                'uuid' => UuidRegistry::uuidToString($data['uuid'])
+            ));
         } else {
             $processingResult->addInternalError("error processing SQL Insert");
         }
@@ -162,7 +165,6 @@ class PatientService extends BaseService
         } else {
             $processingResult = $this->getOne($pid);
         }
-
         return $processingResult;
     }
 
@@ -172,15 +174,17 @@ class PatientService extends BaseService
      * If no search criteria is provided, all records are returned.
      *
      * @param  $search search array parameters
+     * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array())
+    public function getAll($search = array(), $isAndCondition = true)
     {
         $sqlBindArray = array();
 
         $sql = 'SELECT  id,
                         pid,
+                        uuid,
                         pubpid,
                         title,
                         fname,
@@ -213,7 +217,7 @@ class PatientService extends BaseService
 
             foreach ($search as $fieldName => $fieldValue) {
                 // support wildcard match on specific fields
-                if (in_array($fieldName, array('fname', 'lname', 'street'))) {
+                if (in_array($fieldName, array('fname', 'mname', 'lname', 'street', 'city'))) {
                     array_push($whereClauses, $fieldName . ' LIKE ?');
                     array_push($sqlBindArray, '%' . $fieldValue . '%');
                 } else {
@@ -222,13 +226,14 @@ class PatientService extends BaseService
                     array_push($sqlBindArray, $fieldValue);
                 }
             }
-            $sql .= implode(" AND ", $whereClauses);
+            $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
+            $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
         }
-
         $statementResults = sqlStatement($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();
         while ($row = sqlFetchArray($statementResults)) {
+            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
             $processingResult->addData($row);
         }
 
@@ -237,17 +242,25 @@ class PatientService extends BaseService
 
     /**
      * Returns a single patient record by patient id.
-     * @param $pid - The patient identifier used to lookup the patient record.
+     * @param $lookupId - The patient identifier used to lookup the patient record.
+     * @param $isUuidLookup - true for patient.uuid lookups, false for patient.pid lookups
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getOne($pid)
+    public function getOne($lookupId, $isUuidLookup = false)
     {
         $processingResult = new ProcessingResult();
 
-        if (!$this->patientValidator->isExistingPid($pid)) {
+        if ($isUuidLookup) {
+            $isValid = $this->patientValidator->isExistingUuid($lookupId);
+        } else {
+            $isValid = $this->patientValidator->isExistingPid($lookupId);
+        }
+
+        if (!$isValid) {
+            $validationKey = $isUuidLookup ? "uuid" : "pid";
             $validationMessages = [
-                "pid" => ["invalid or nonexisting pid" => "pid value " . $pid]
+                $validationKey => ["invalid or nonexisting value" => " value " . $lookupId]
             ];
             $processingResult->setValidationMessages($validationMessages);
             return $processingResult;
@@ -255,6 +268,7 @@ class PatientService extends BaseService
 
         $sql = "SELECT  id,
                         pid,
+                        uuid,
                         pubpid,
                         title,
                         fname,
@@ -280,9 +294,17 @@ class PatientService extends BaseService
                         ethnicity,
                         status
                 FROM patient_data
-                WHERE pid = ?";
+                WHERE ";
 
-        $sqlResult = sqlQuery($sql, $pid);
+        if ($isUuidLookup) {
+            $sql .= " uuid = ?";
+            $lookupId = UuidRegistry::uuidToBytes($lookupId);
+        } else {
+            $sql .= " pid = ?";
+        }
+
+        $sqlResult = sqlQuery($sql, $lookupId);
+        $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
         $processingResult->addData($sqlResult);
         return $processingResult;
     }
