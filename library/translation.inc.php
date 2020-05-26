@@ -35,7 +35,7 @@ if (!(function_exists('xl'))) {
         "lang_id=? AND constant_name = ? LIMIT 1";
         $res = sqlStatementNoLog($sql, array($lang_id,$constant));
         $row = SqlFetchArray($res);
-        $string = $row['definition'];
+        $string = $row['definition'] ?? '';
         if ($string == '') {
             $string = "$constant";
         }

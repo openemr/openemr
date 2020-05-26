@@ -29,13 +29,13 @@ class PatientValidator extends BaseValidator
         } catch (InvalidUuidStringException $e) {
             return false;
         }
-        
+
         $result = sqlQuery(
             'SELECT uuid AS uuid FROM patient_data WHERE uuid = ?',
             array($uuidLookup)
         );
 
-        $existingUuid = $result['uuid'];
+        $existingUuid = $result['uuid'] ?? null;
         return $existingUuid != null;
     }
 
