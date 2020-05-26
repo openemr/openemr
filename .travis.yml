@@ -280,7 +280,7 @@ language: php
       jobTests+="${jobTest}\n"
       echo "${jobTest}"
       echo "----------------------"
-    - &build_test_common |
+  - &build_test_common |
       failTest=false
       echo "-------------"
       echo "Run Common Tests"
