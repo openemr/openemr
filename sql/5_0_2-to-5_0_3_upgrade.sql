@@ -639,7 +639,10 @@ SET sql_mode = @currentSQLMode;
 ALTER TABLE `api_token` MODIFY `token_api` varchar(4);
 #EndIf
 
+-- Note removing all data from api_token table in case legacy stuff gets in way
+--  and to ensure will not break when add the unique index below
 #IfNotColumnType api_token token varchar(40)
+TRUNCATE TABLE api_token;
 ALTER TABLE `api_token` MODIFY `token` varchar(40) DEFAULT NULL;
 #EndIf
 
