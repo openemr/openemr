@@ -20,7 +20,6 @@ use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Utils\RandomGenUtils;
-use OpenEMR\Common\Uuid\UuidRegistry;
 
 class AuthRestController
 {
@@ -240,7 +239,6 @@ class AuthRestController
             // For patient portal api
             $_SESSION['pid'] = $tokenResult['pid'];
             $_SESSION['puuid'] = $tokenResult['uuid'];
-            $_SESSION['string_puuid'] = UuidRegistry::uuidToString($tokenResult['uuid']);
         } else { // $_SESSION['api'] == "oemr" || $_SESSION['api'] == "fhir"
             // For core api or fhir api
             $_SESSION['authUser'] = $tokenResult['username'];
