@@ -5340,7 +5340,8 @@ CREATE TABLE `patient_access_onsite`(
   `portal_pwd_status` TINYINT DEFAULT '1' COMMENT '0=>Password Created Through Demographics by The provider or staff. Patient Should Change it at first time it.1=>Pwd updated or created by patient itself',
   `portal_login_username` VARCHAR(100) DEFAULT NULL COMMENT 'User entered username',
   `portal_onetime`  VARCHAR(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `pid` (`pid`)
 )ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -10610,13 +10611,17 @@ CREATE TABLE `login_mfa_registrations` (
 DROP TABLE IF EXISTS `api_token`;
 CREATE TABLE `api_token` (
     `id`           bigint(20) NOT NULL AUTO_INCREMENT,
-    `token_api`    varchar(40),
+    `token_api`    varchar(4),
     `user_id`      bigint(20) NOT NULL,
     `patient_id`   bigint(20) NOT NULL,
     `token`        varchar(256) DEFAULT NULL,
     `token_auth`   varchar(255),
     `expiry`       datetime NULL,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `token` (`token`),
+    KEY `token_api` (`token_api`),
+    KEY `user_id` (`user_id`),
+    KEY `patient_id` (`patient_id`)
 ) ENGINE = InnoDB;
 
 DROP TABLE IF EXISTS `benefit_eligibility`;
