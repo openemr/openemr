@@ -174,7 +174,14 @@ class AuthRestController
         // Query with first part of token
         if (($_SESSION['api'] == "port") || ($_SESSION['api'] == "pofh")) {
             // For patient portal api
-            $tokenResult = sqlQueryNoLog("SELECT pd.`uuid`, p.`pid`, p.`portal_username`, p.`portal_login_username`, a.`token`, a.`token_auth`, a.`expiry` FROM `api_token` a JOIN `patient_access_onsite` p ON p.`pid` = a.`patient_id` JOIN `patient_data` pd ON pd.`pid` = a.`patient_id` WHERE BINARY a.`token` = ? AND a.`token_api` = ?", array($token_a, $_SESSION['api']));
+            $tokenResult = sqlQueryNoLog(
+                "SELECT pd.`uuid`, p.`pid`, p.`portal_username`, p.`portal_login_username`, a.`token`, a.`token_auth`, a.`expiry`
+                FROM `api_token` a
+                JOIN `patient_access_onsite` p ON p.`pid` = a.`patient_id`
+                JOIN `patient_data` pd ON pd.`pid` = a.`patient_id`
+                WHERE BINARY a.`token` = ? AND a.`token_api` = ?",
+                array($token_a, $_SESSION['api'])
+            );
             if (!$tokenResult || empty($tokenResult['uuid']) || empty($tokenResult['pid']) || empty($tokenResult['portal_username']) || empty($tokenResult['portal_login_username']) || empty($tokenResult['token']) || empty($tokenResult['token_auth']) || empty($tokenResult['expiry'])) {
                 EventAuditLogger::instance()->newEvent('portalapi', $tokenResult['portal_login_username'], '', 0, "API failure: " . $ip['ip_string'] . ". token not found", $tokenResult['pid']);
                 return false;
@@ -184,7 +191,13 @@ class AuthRestController
             $logPid = $tokenResult['pid'];
         } else { // $_SESSION['api'] == "oemr" || $_SESSION['api'] == "fhir"
             // For core api or fhir api
-            $tokenResult = sqlQueryNoLog("SELECT u.`username`, a.`user_id`, a.`token`, a.`token_auth`, a.`expiry` FROM `api_token` a JOIN `users_secure` u ON u.`id` = a.`user_id` WHERE BINARY `token` = ? AND `token_api` = ?", array($token_a, $_SESSION['api']));
+            $tokenResult = sqlQueryNoLog(
+                "SELECT u.`username`, a.`user_id`, a.`token`, a.`token_auth`, a.`expiry`
+                FROM `api_token` a
+                JOIN `users_secure` u ON u.`id` = a.`user_id`
+                WHERE BINARY a.`token` = ? AND a.`token_api` = ?",
+                array($token_a, $_SESSION['api'])
+            );
             if (!$tokenResult || empty($tokenResult['username']) || empty($tokenResult['user_id']) || empty($tokenResult['token']) || empty($tokenResult['token_auth']) || empty($tokenResult['expiry'])) {
                 EventAuditLogger::instance()->newEvent('api', $tokenResult['username'], '', 0, "API failure: " . $ip['ip_string'] . ". token not found");
                 return false;
