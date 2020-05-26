@@ -643,18 +643,6 @@ ALTER TABLE `api_token` MODIFY `token_api` varchar(4);
 CREATE UNIQUE INDEX `token` ON `api_token` (`token`);
 #EndIf
 
-#IfNotIndex api_token token_api
-CREATE INDEX `token_api` ON `api_token` (`token_api`);
-#EndIf
-
-#IfNotIndex api_token user_id
-CREATE INDEX `user_id` ON `api_token` (`user_id`);
-#EndIf
-
-#IfNotIndex api_token patient_id
-CREATE INDEX `patient_id` ON `api_token` (`patient_id`);
-#EndIf
-
 #IfNotIndex patient_access_onsite pid
 CREATE UNIQUE INDEX `pid` ON `patient_access_onsite` (`pid`);
 #EndIf

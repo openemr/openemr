@@ -10618,10 +10618,7 @@ CREATE TABLE `api_token` (
     `token_auth`   varchar(255),
     `expiry`       datetime NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `token` (`token`),
-    KEY `token_api` (`token_api`),
-    KEY `user_id` (`user_id`),
-    KEY `patient_id` (`patient_id`)
+    UNIQUE KEY `token` (`token`)
 ) ENGINE = InnoDB;
 
 DROP TABLE IF EXISTS `benefit_eligibility`;
