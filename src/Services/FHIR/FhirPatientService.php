@@ -25,6 +25,9 @@ use OpenEMR\Validators\ProcessingResult;
  */
 class FhirPatientService extends FhirServiceBase
 {
+    /**
+     * @var PatientService
+     */
     private $patientService;
 
     public function __construct()
@@ -35,7 +38,7 @@ class FhirPatientService extends FhirServiceBase
 
     /**
      * Returns an array mapping FHIR Patient Resource search parameters to OpenEMR Patient search parameters
-     * @return The search parameters
+     * @return array The search parameters
      */
     protected function loadSearchParameters()
     {
@@ -58,9 +61,9 @@ class FhirPatientService extends FhirServiceBase
     /**
      * Parses an OpenEMR patient record, returning the equivalent FHIR Patient Resource
      *
-     * @param $dataRecord The source OpenEMR data record
-     * @param $encode Indicates if the returned resource is encoded into a string. Defaults to false.
-     * @return the FHIR Resource. Returned format is defined using $encode parameter.
+     * @param array $dataRecord The source OpenEMR data record
+     * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @return FHIRPatient
      */
     public function parseOpenEMRRecord($dataRecord = array(), $encode = false)
     {
@@ -218,8 +221,8 @@ class FhirPatientService extends FhirServiceBase
     /**
      * Parses a FHIR Patient Resource, returning the equivalent OpenEMR patient record.
      *
-     * @param $fhirResource The source FHIR resource
-     * @return a mapped OpenEMR data record (array)
+     * @param array $fhirResource The source FHIR resource
+     * @return array a mapped OpenEMR data record (array)
      */
     public function parseFhirResource($fhirResource = array())
     {
@@ -232,7 +235,7 @@ class FhirPatientService extends FhirServiceBase
         if (isset($fhirResource['name'])) {
             $name = [];
             foreach ($fhirResource['name'] as $sub_name) {
-                if ($sub_name['use'] == 'official') {
+                if ($sub_name['use'] === 'official') {
                     $name = $sub_name;
                     break;
                 }
@@ -264,7 +267,7 @@ class FhirPatientService extends FhirServiceBase
                 $data['state'] = $fhirResource['address'][0]['state'];
             }
             if (isset($fhirResource['address'][0]['country'][0])) {
-                $data['country'] = $fhirResource['address'][0]['country'];
+                $data['country_code'] = $fhirResource['address'][0]['country'];
             }
         }
         if (isset($fhirResource['telecom'])) {
@@ -319,21 +322,22 @@ class FhirPatientService extends FhirServiceBase
 
     /**
      * Inserts an OpenEMR record into the sytem.
-     * @param $openEmrRecord OpenEMR patient record
-     * @return The OpenEMR processing result.
+     *
+     * @param array $openEmrRecord OpenEMR patient record
+     * @return ProcessingResult
      */
     public function insertOpenEMRRecord($openEmrRecord)
     {
-        $processingResult = $this->patientService->insert($openEmrRecord);
-        return $processingResult;
+        return $this->patientService->insert($openEmrRecord);
     }
 
 
     /**
      * Updates an existing OpenEMR record.
-     * @param $fhirResourceId The OpenEMR record's FHIR Resource ID.
-     * @param $updatedOpenEMRRecord The "updated" OpenEMR record.
-     * @return The OpenEMR Service Result
+     *
+     * @param $fhirResourceId //The OpenEMR record's FHIR Resource ID.
+     * @param $updatedOpenEMRRecord //The "updated" OpenEMR record.
+     * @return ProcessingResult
      */
     public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
     {
@@ -345,7 +349,7 @@ class FhirPatientService extends FhirServiceBase
 
         $existingPid = null;
         if (isset($processingResult->getData()[0])) {
-            $existingPid = intval($processingResult->getData()[0]['pid']);
+            $existingPid = (int)$processingResult->getData()[0]['pid'];
         }
 
         $processingResult = $this->patientService->update($existingPid, $updatedOpenEMRRecord);
@@ -354,7 +358,7 @@ class FhirPatientService extends FhirServiceBase
 
     /**
      * Performs a FHIR Patient Resource lookup by FHIR Resource ID
-     * @param $fhirResourceId The OpenEMR record's FHIR Patient Resource ID.
+     * @param $fhirResourceId //The OpenEMR record's FHIR Patient Resource ID.
      */
     public function getOne($fhirResourceId)
     {
@@ -369,11 +373,12 @@ class FhirPatientService extends FhirServiceBase
         }
         return $processingResult;
     }
-    
+
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param openEMRSearchParameters OpenEMR search fields
-     * @return OpenEMR records
+     *
+     * @param array openEMRSearchParameters OpenEMR search fields
+     * @return ProcessingResult
      */
     public function searchForOpenEMRRecords($openEMRSearchParameters)
     {
