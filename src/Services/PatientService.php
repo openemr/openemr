@@ -138,14 +138,14 @@ class PatientService extends BaseService
     /**
      * Updates an existing patient record.
      *
-     * @param $pid - The patient identifier (PID) used for update.
+     * @param $puuidString - The patient uuid identifier in string format used for update.
      * @param $data - The updated patient data fields
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function update($pid, $data)
+    public function update($puuidString, $data)
     {
-        $data["pid"] = $pid;
+        $data["puuid"] = $puuidString;
         $processingResult = $this->patientValidator->validate($data, PatientValidator::DATABASE_UPDATE_CONTEXT);
         if (!$processingResult->isValid()) {
             return $processingResult;
@@ -155,15 +155,16 @@ class PatientService extends BaseService
         $query = $this->buildUpdateColumns($data);
         $sql = " UPDATE patient_data SET ";
         $sql .= $query['set'];
-        $sql .= " WHERE pid = ?";
+        $sql .= " WHERE `uuid` = ?";
 
-        array_push($query['bind'], $pid);
+        $puuidBinary = UuidRegistry::uuidToBytes($puuidString);
+        array_push($query['bind'], $puuidBinary);
         $sqlResult = sqlStatement($sql, $query['bind']);
 
         if (!$sqlResult) {
             $processingResult->addErrorMessage("error processing SQL Update");
         } else {
-            $processingResult = $this->getOne($pid);
+            $processingResult = $this->getOne($puuidString);
         }
         return $processingResult;
     }
@@ -242,34 +243,19 @@ class PatientService extends BaseService
 
     /**
      * Returns a single patient record by patient id.
-     * @param $lookupId - The patient identifier (either pid or uuid) used to lookup the patient record.
+     * @param $puuidString - The patient uuid identifier in string format.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getOne($lookupId)
+    public function getOne($puuidString)
     {
-        // Figure out if $lookupId is uuid or pid
-        if (strpos($lookupId, '-') === false) {
-            // use pid
-            $lookupId = intval($lookupId);
-            $isUuidLookup = false;
-        } else {
-            // use uuid
-            $isUuidLookup = true;
-        }
-
         $processingResult = new ProcessingResult();
 
-        if ($isUuidLookup) {
-            $isValid = $this->patientValidator->isExistingUuid($lookupId);
-        } else {
-            $isValid = $this->patientValidator->isExistingPid($lookupId);
-        }
+        $isValid = $this->patientValidator->isExistingUuid($puuidString);
 
         if (!$isValid) {
-            $validationKey = $isUuidLookup ? "uuid" : "pid";
             $validationMessages = [
-                $validationKey => ["invalid or nonexisting value" => " value " . $lookupId]
+                'uuid' => ["invalid or nonexisting value" => " value " . $puuidString]
             ];
             $processingResult->setValidationMessages($validationMessages);
             return $processingResult;
@@ -303,16 +289,11 @@ class PatientService extends BaseService
                         ethnicity,
                         status
                 FROM patient_data
-                WHERE ";
+                WHERE uuid = ?";
 
-        if ($isUuidLookup) {
-            $sql .= " uuid = ?";
-            $lookupId = UuidRegistry::uuidToBytes($lookupId);
-        } else {
-            $sql .= " pid = ?";
-        }
+        $puuidBinary = UuidRegistry::uuidToBytes($puuidString);
+        $sqlResult = sqlQuery($sql, [$puuidBinary]);
 
-        $sqlResult = sqlQuery($sql, $lookupId);
         $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
         $processingResult->addData($sqlResult);
         return $processingResult;

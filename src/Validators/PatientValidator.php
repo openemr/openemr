@@ -39,26 +39,6 @@ class PatientValidator extends BaseValidator
         return $existingUuid != null;
     }
 
-   /**
-     * Validates that a PID exists in the database.
-     *
-     * @param $pid The pid/patient identifier to verify
-     * @return true if the pid is a valid existing pid, otherwise false
-     */
-    public function isExistingPid($pid)
-    {
-        if (!is_int($pid)) {
-            return false;
-        }
-        $result = sqlQuery(
-            "SELECT pid AS pid FROM patient_data WHERE pid = ?",
-            array($pid)
-        );
-
-        $pidValue = $result["pid"] ?? 0;
-        return $pidValue > 0;
-    }
-
     /**
      * Configures validations for the Patient DB Insert and Update use-case.
      * The update use-case is comprised of the same fields as the insert use-case.
@@ -91,15 +71,7 @@ class PatientValidator extends BaseValidator
                         }
                     }
                 );
-                // additional pid and uuid validations
-                $context->required("pid", "pid")->callback(function ($value) {
-                    if (!$this->isExistingPid($value)) {
-                        $message = "PID " . $value . " does not exist";
-                        throw new InvalidValueException($message, $value);
-                    }
-                    return true;
-                })->integer();
-
+                // additional uuid validations
                 $context->required("uuid", "uuid")->callback(function ($value) {
                     if (!$this->isExistingUuid($value)) {
                         $message = "UUID " . $value . " does not exist";

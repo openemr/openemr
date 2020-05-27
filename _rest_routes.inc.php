@@ -77,14 +77,14 @@ RestConfig::$ROUTE_MAP = array(
         $data = (array)(json_decode(file_get_contents("php://input")));
         return (new PatientRestController())->post($data);
     },
-    "PUT /api/patient/:pid" => function ($pid) {
+    "PUT /api/patient/:puuid" => function ($puuid) {
         RestConfig::authorization_check("patients", "demo");
         $data = (array)(json_decode(file_get_contents("php://input")));
-        return (new PatientRestController())->put($pid, $data);
+        return (new PatientRestController())->put($puuid, $data);
     },
-    "GET /api/patient/:pid" => function ($pid) {
+    "GET /api/patient/:puuid" => function ($puuid) {
         RestConfig::authorization_check("patients", "demo");
-        return (new PatientRestController())->getOne($pid);
+        return (new PatientRestController())->getOne($puuid);
     },
     "GET /api/patient/:pid/encounter" => function ($pid) {
         RestConfig::authorization_check("encounters", "auth_a");
@@ -463,7 +463,7 @@ RestConfig::$PORTAL_ROUTE_MAP = array(
         return (new AuthRestController())->authenticate($data);
     },
     "GET /portal/patient" => function () {
-        return (new PatientRestController())->getOne($_SESSION['pid']);
+        return (new PatientRestController())->getOne(UuidRegistry::uuidToString($_SESSION['puuid']));
     }
 );
 

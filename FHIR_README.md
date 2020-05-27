@@ -57,10 +57,10 @@ curl -X GET 'http://localhost:8300/apis/fhir/Patient' \
 curl -X GET 'http://localhost:8300/apis/fhir/Patient'
 ```
 
-#### GET /fhir/Patient/:pid
+#### GET /fhir/Patient/:puuid
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/fhir/Patient/1'
+curl -X GET 'http://localhost:8300/apis/fhir/Patient/90a8923c-0b1c-4d0a-9981-994b143381a7'
 ```
 
 #### POST /fhir/Patient
@@ -79,10 +79,10 @@ curl -X POST -H 'Content-Type: application/fhir+json' 'http://localhost:8300/api
 }'
 ```
 
-#### PUT /fhir/Patient/:pid
+#### PUT /fhir/Patient/:puuid
 
 ```sh
-curl -X PUT -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/fhir/Patient/1' -d \ 
+curl -X PUT -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/fhir/Patient/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \ 
 '{
   "resourceType": "Patient",
   "id": "1",
@@ -102,10 +102,10 @@ curl -X PUT -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis
 }'
 ```
 
-#### PATCH /fhir/Patient/:pid
+#### PATCH /fhir/Patient/:puuid
 
 ```sh
-curl -X PATCH -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/fhir/Patient/1' -d \ 
+curl -X PATCH -H 'Content-Type: application/fhir+json' 'http://localhost:8300/apis/fhir/Patient/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \ 
 '[
  { 
    "op": "replace", 
