@@ -145,7 +145,7 @@ class PatientService extends BaseService
      */
     public function update($puuidString, $data)
     {
-        $data["puuid"] = $puuidString;
+        $data["uuid"] = $puuidString;
         $processingResult = $this->patientValidator->validate($data, PatientValidator::DATABASE_UPDATE_CONTEXT);
         if (!$processingResult->isValid()) {
             return $processingResult;
