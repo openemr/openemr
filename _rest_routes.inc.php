@@ -383,15 +383,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         RestConfig::authorization_check("encounters", "auth_a");
         return (new FhirEncounterRestController(null))->getAll($_GET);
     },
-    "GET /fhir/Encounter/:eid" => function ($eid) {
+    "GET /fhir/Encounter/:id" => function ($id) {
         RestConfig::authorization_check("encounters", "auth_a");
-        return (new FhirEncounterRestController())->getOne($eid);
+        return (new FhirEncounterRestController())->getOne($id);
     },
     "GET /fhir/Organization" => function () {
         return (new FhirOrganizationRestController(null))->getAll($_GET);
     },
-    "GET /fhir/Organization/:oid" => function ($oid) {
-        return (new FhirOrganizationRestController(null))->getOne($oid);
+    "GET /fhir/Organization/:id" => function ($id) {
+        return (new FhirOrganizationRestController(null))->getOne($id);
     },
     "GET /fhir/AllergyIntolerance" => function () {
         RestConfig::authorization_check("patients", "med");
