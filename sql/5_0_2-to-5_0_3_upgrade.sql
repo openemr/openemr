@@ -653,3 +653,11 @@ CREATE UNIQUE INDEX `token` ON `api_token` (`token`);
 #IfNotIndex patient_access_onsite pid
 CREATE UNIQUE INDEX `pid` ON `patient_access_onsite` (`pid`);
 #EndIf
+
+#IfMissingColumn form_encounter uuid
+ALTER TABLE `form_encounter` ADD `uuid` binary(16) NOT NULL default '';
+#EndIf
+
+#IfNotIndex form_encounter uuid
+CREATE UNIQUE INDEX `uuid` ON `form_encounter` (`uuid`);
+#EndIf

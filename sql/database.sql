@@ -1694,6 +1694,7 @@ CREATE TABLE `form_dictation` (
 DROP TABLE IF EXISTS `form_encounter`;
 CREATE TABLE `form_encounter` (
   `id` bigint(20) NOT NULL auto_increment,
+  `uuid` binary(16) NOT NULL default '',
   `date` datetime default NULL,
   `reason` longtext,
   `facility` longtext,
@@ -1717,6 +1718,7 @@ CREATE TABLE `form_encounter` (
   `pos_code` tinyint(4) default NULL,
   `parent_encounter_id` BIGINT(20) NULL DEFAULT NULL,
   PRIMARY KEY  (`id`),
+  UNIQUE KEY `uuid` (`uuid`),
   KEY `pid_encounter` (`pid`, `encounter`),
   KEY `encounter_date` (`date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
