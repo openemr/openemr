@@ -242,13 +242,22 @@ class PatientService extends BaseService
 
     /**
      * Returns a single patient record by patient id.
-     * @param $lookupId - The patient identifier used to lookup the patient record.
-     * @param $isUuidLookup - true for patient.uuid lookups, false for patient.pid lookups
+     * @param $lookupId - The patient identifier (either pid or uuid) used to lookup the patient record.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getOne($lookupId, $isUuidLookup = false)
+    public function getOne($lookupId)
     {
+        // Figure out if $lookupId is uuid or pid
+        if (strpos($lookupId, '-') === false) {
+            // use pid
+            $lookupId = intval($lookupId);
+            $isUuidLookup = false;
+        } else {
+            // use uuid
+            $isUuidLookup = true;
+        }
+
         $processingResult = new ProcessingResult();
 
         if ($isUuidLookup) {

@@ -341,7 +341,7 @@ class FhirPatientService extends FhirServiceBase
      */
     public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
     {
-        $processingResult = $this->patientService->getOne($fhirResourceId, true);
+        $processingResult = $this->patientService->getOne($fhirResourceId);
 
         if ($processingResult->hasErrors()) {
             return $processingResult;
@@ -362,7 +362,7 @@ class FhirPatientService extends FhirServiceBase
      */
     public function getOne($fhirResourceId)
     {
-        $processingResult = $this->patientService->getOne($fhirResourceId, true);
+        $processingResult = $this->patientService->getOne($fhirResourceId);
         if (!$processingResult->hasErrors()) {
             if (count($processingResult->getData()) > 0) {
                 $openEmrRecord = $processingResult->getData()[0];

@@ -71,7 +71,7 @@ class PatientRestController
      */
     function getOne($pid)
     {
-        $processingResult = $this->patientService->getOne(intval($pid));
+        $processingResult = $this->patientService->getOne($pid);
 
         if (!$processingResult->hasErrors() && count($processingResult->getData()) == 0) {
             return RestControllerHelper::handleProcessingResult($processingResult, 404);
