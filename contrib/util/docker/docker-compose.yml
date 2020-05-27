@@ -400,3 +400,8 @@ services:
   openldap:
     restart: always
     image: osixia/openldap
+  fhir:
+    restart: always
+    image: ibmcom/ibm-fhir-server
+    ports:
+    - 9443:9443
