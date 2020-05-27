@@ -17,6 +17,7 @@
 
 // Lets keep our controller classes with the routes.
 //
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\RestControllers\FacilityRestController;
 use OpenEMR\RestControllers\VersionRestController;
 use OpenEMR\RestControllers\ProductRegistrationRestController;
@@ -473,7 +474,6 @@ RestConfig::$PORTAL_FHIR_ROUTE_MAP = array(
         return (new AuthRestController())->authenticate($data);
     },
     "GET /portalfhir/Patient" => function () {
-        // TODO - Will replace below with working call when it is fixed
-        return (new FhirPatientRestController($_SESSION['pid']))->getOne();
+        return (new FhirPatientRestController())->getOne(UuidRegistry::uuidToString($_SESSION['puuid']));
     }
 );

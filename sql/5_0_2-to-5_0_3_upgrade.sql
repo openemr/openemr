@@ -635,3 +635,21 @@ UPDATE `insurance_data` SET `date` = NULL WHERE `date` = '0000-00-00';
 #EndIf
 SET sql_mode = @currentSQLMode;
 
+#IfNotColumnType api_token token_api varchar(4)
+ALTER TABLE `api_token` MODIFY `token_api` varchar(4);
+#EndIf
+
+-- Note removing all data from api_token table in case legacy stuff gets in way
+--  and to ensure will not break when add the unique index below
+#IfNotColumnType api_token token varchar(40)
+TRUNCATE TABLE api_token;
+ALTER TABLE `api_token` MODIFY `token` varchar(40) DEFAULT NULL;
+#EndIf
+
+#IfNotIndex api_token token
+CREATE UNIQUE INDEX `token` ON `api_token` (`token`);
+#EndIf
+
+#IfNotIndex patient_access_onsite pid
+CREATE UNIQUE INDEX `pid` ON `patient_access_onsite` (`pid`);
+#EndIf
