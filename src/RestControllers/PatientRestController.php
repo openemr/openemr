@@ -55,23 +55,23 @@ class PatientRestController
 
     /**
      * Processes a HTTP PUT request used to update an existing patient record.
-     * @param $pid - The patient identifier used to lookup the existing record.
+     * @param $puuidString - The patient uuid identifier in string format.
      * @param $data - array of patient fields (full resource).
      * @return a 200/Ok status code and the patient resource.
      */
-    function put($pid, $data)
+    function put($puuidString, $data)
     {
-        $processingResult = $this->patientService->update(intval($pid), $data);
+        $processingResult = $this->patientService->update($puuidString, $data);
         return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 
     /**
      * Fetches a single patient resource by id.
-     * @param $pid The patient identifier to fetch.
+     * @param $puuidString - The patient uuid identifier in string format.
      */
-    function getOne($pid)
+    function getOne($puuidString)
     {
-        $processingResult = $this->patientService->getOne($pid);
+        $processingResult = $this->patientService->getOne($puuidString);
 
         if (!$processingResult->hasErrors() && count($processingResult->getData()) == 0) {
             return RestControllerHelper::handleProcessingResult($processingResult, 404);
