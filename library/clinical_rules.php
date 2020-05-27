@@ -473,7 +473,7 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
     }
 
   // Collect total number of pertinent patients (to calculate batching parameters)
-    $totalNumPatients = buildPatientArray('', $provider, $pat_prov_rel, null, null, true);
+    $totalNumPatients = (int)buildPatientArray('', $provider, $pat_prov_rel, null, null, true);
 
   // Cycle through the batches and collect/combine results
     if (($totalNumPatients % $batchSize) > 0) {
@@ -533,6 +533,7 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
         }
 
         $dataSheet_batch = test_rules_clinic($provider, $type, $dateTarget, $mode, '', $plan, $organize_mode, $options_modified, $pat_prov_rel, (($batchSize * $i) + 1), $batchSize);
+        $dataSheet = array();
         if ($i == 0) {
             // For first cycle, simply copy it to dataSheet
             $dataSheet = $dataSheet_batch;
@@ -615,7 +616,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
 
   // If set the $provider to collate_outer (or collate_inner without plans organize mode),
   // then run through this function recursively and return results.
-    if (($provider == "collate_outer") || ($provider == "collate_inner" && $organize_mode != 'plans')) {
+    if (($provider === "collate_outer") || ($provider === "collate_inner" && $organize_mode !== 'plans')) {
         // First, collect an array of all providers
         $query = "SELECT id, lname, fname, npi, federaltaxid FROM users WHERE authorized = 1 ORDER BY lname, fname";
         $ures = sqlStatementCdrEngine($query);
@@ -628,7 +629,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                 $provider_item['prov_fname'] = $urow['fname'];
                 $provider_item['npi'] = $urow['npi'];
                 $provider_item['federaltaxid'] = $urow['federaltaxid'];
-                array_push($results, $provider_item);
+                $results[] = $provider_item;
                 $results = array_merge($results, $newResults);
             }
         }
@@ -639,13 +640,13 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
 
   // If set organize-mode to plans, then collects active plans and run through this
   // function recursively and return results.
-    if ($organize_mode == "plans") {
+    if ($organize_mode === "plans") {
         // First, collect active plans
         $plans_resolve = resolve_plans_sql($plan, $patient_id);
         // Second, run through function recursively
         foreach ($plans_resolve as $plan_item) {
             //  (if collate_inner, then nest a collation of providers within each plan)
-            if ($provider == "collate_inner") {
+            if ($provider === "collate_inner") {
                 // First, collect an array of all providers
                 $query = "SELECT id, lname, fname, npi, federaltaxid FROM users WHERE authorized = 1 ORDER BY lname, fname";
                 $ures = sqlStatementCdrEngine($query);
@@ -659,14 +660,14 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         $provider_item['prov_fname'] = $urow['fname'];
                         $provider_item['npi'] = $urow['npi'];
                         $provider_item['federaltaxid'] = $urow['federaltaxid'];
-                        array_push($provider_results, $provider_item);
+                        $provider_results[] = $provider_item;
                         $provider_results = array_merge($provider_results, $newResults);
                     }
                 }
 
                 if (!empty($provider_results)) {
                     $plan_item['is_plan'] = true;
-                    array_push($results, $plan_item);
+                    $results[] = $plan_item;
                     $results = array_merge($results, $provider_results);
                 }
             } else {
@@ -674,7 +675,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                 $newResults = test_rules_clinic($provider, $type, $dateTarget, $mode, $patient_id, $plan_item['id'], 'default', $options, $pat_prov_rel, $start, $batchSize, $user);
                 if (!empty($newResults)) {
                     $plan_item['is_plan'] = true;
-                    array_push($results, $plan_item);
+                    $results[] = $plan_item;
                     $results = array_merge($results, $newResults);
                 }
             }
@@ -685,7 +686,6 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
     }
 
   // Collect applicable patient pids
-    $patientData = array();
     $patientData = buildPatientArray($patient_id, $provider, $pat_prov_rel, $start, $batchSize);
 
   // Go through each patient(s)
@@ -889,7 +889,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                 $newRow = array_merge($newRow, array('itemized_test_id' => $GLOBALS['report_itemized_test_id_iterator']));
             }
 
-            array_push($results, $newRow);
+            $results[] = $newRow;
         }
 
         // Now run through the target groups if more than one
@@ -1014,7 +1014,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         $newRow = array_merge($newRow, array('itemized_test_id' => $GLOBALS['report_itemized_test_id_iterator']));
                     }
 
-                    array_push($results, $newRow);
+                    $results[] = $newRow;
                 }
             }
         }
@@ -1226,7 +1226,7 @@ function returnTargetGroups($rule)
 
     $groups = array();
     for ($iter = 0; $row = sqlFetchArray($sql); $iter++) {
-        array_push($groups, $row['group_id']);
+        $groups[] = $row['group_id'];
     }
 
     return $groups;
@@ -1241,7 +1241,7 @@ function returnTargetGroups($rule)
  * @param  string   $dateTarget  target date (format Y-m-d H:i:s).
  * @return boolean               if target passes then true, otherwise false
  */
-function test_targets($patient_id, $rule, string $group_id = null, $dateTarget)
+function test_targets($patient_id, $rule, string $group_id = null, $dateTarget = null)
 {
 
   // -------- Interval Target ----
@@ -1264,12 +1264,8 @@ function test_targets($patient_id, $rule, string $group_id = null, $dateTarget)
   // -------- Appointment Target ----
   // Appointment Target (includes) (Specialized functionality for appointment reminders)
     $target = resolve_target_sql($rule, $group_id, 'target_appt');
-    if ((!empty($target)) && appointment_check($patient_id, $dateTarget)) {
-        return false;
-    }
 
-  // Passed all target tests, so return true.
-    return true;
+    return !((!empty($target)) && appointment_check($patient_id, $dateTarget));
 }
 
 /**
@@ -1294,7 +1290,7 @@ function resolve_plans_sql($type = '', $patient_id = '0', $configurableOnly = fa
 
     $returnArray = array();
     for ($iter = 0; $row = sqlFetchArray($sql); $iter++) {
-        array_push($returnArray, $row);
+        $returnArray[] = $row;
     }
 
   // Now collect the pertinent plans
@@ -1332,7 +1328,7 @@ function resolve_plans_sql($type = '', $patient_id = '0', $configurableOnly = fa
         if (!empty($type)) {
             if ($goPlan["${type}_flag"] == 1) {
                 // active, so use the plan
-                array_push($newReturnArray, $goPlan);
+                $newReturnArray[] = $goPlan;
             }
         } else {
             if (
@@ -1340,7 +1336,7 @@ function resolve_plans_sql($type = '', $patient_id = '0', $configurableOnly = fa
                 $goPlan['cqm_flag'] == 1
             ) {
                 // active, so use the plan
-                array_push($newReturnArray, $goPlan);
+                $newReturnArray[] = $goPlan;
             }
         }
     }
@@ -1428,7 +1424,7 @@ function resolve_rules_sql($type = '', $patient_id = '0', $configurableOnly = fa
 
     $returnArray = array();
     for ($iter = 0; $row = sqlFetchArray($sql); $iter++) {
-        array_push($returnArray, $row);
+        $returnArray[] = $row;
     }
 
   // Now filter rules for plan (if applicable)
@@ -1438,7 +1434,7 @@ function resolve_rules_sql($type = '', $patient_id = '0', $configurableOnly = fa
             $standardRule = sqlQueryCdrEngine("SELECT * FROM `clinical_plans_rules` " .
                                "WHERE `plan_id`=? AND `rule_id`=?", array($plan,$rule['id']));
             if (!empty($standardRule)) {
-                  array_push($planReturnArray, $rule);
+                  $planReturnArray[] = $rule;
             }
         }
 
@@ -1498,11 +1494,11 @@ function resolve_rules_sql($type = '', $patient_id = '0', $configurableOnly = fa
         if (!empty($type)) {
             if ($goRule["${type}_flag"] == 1) {
                 // active, so use the rule
-                array_push($newReturnArray, $goRule);
+                $newReturnArray[] = $goRule;
             }
         } else {
             // no filter, so return the rule
-            array_push($newReturnArray, $goRule);
+            $newReturnArray[] = $goRule;
         }
     }
 
@@ -1582,7 +1578,7 @@ function resolve_reminder_sql($rule, $reminder_method)
 
     $returnArray = array();
     for ($iter = 0; $row = sqlFetchArray($sql); $iter++) {
-        array_push($returnArray, $row);
+        $returnArray[] = $row;
     }
 
     return $returnArray;
@@ -1603,7 +1599,7 @@ function resolve_filter_sql($rule, $filter_method, $include_flag = 1)
 
     $returnArray = array();
     for ($iter = 0; $row = sqlFetchArray($sql); $iter++) {
-        array_push($returnArray, $row);
+        $returnArray[] = $row;
     }
 
     return $returnArray;
@@ -1618,7 +1614,7 @@ function resolve_filter_sql($rule, $filter_method, $include_flag = 1)
  * @param  string   $include_flag   to allow selection for included or excluded targets
  * @return array                    targets
  */
-function resolve_target_sql($rule, string $group_id = null, $target_method, $include_flag = 1)
+function resolve_target_sql($rule, string $group_id = null, $target_method = '', $include_flag = 1)
 {
 
     if ($group_id) {
@@ -1631,7 +1627,7 @@ function resolve_target_sql($rule, string $group_id = null, $target_method, $inc
 
     $returnArray = array();
     for ($iter = 0; $row = sqlFetchArray($sql); $iter++) {
-        array_push($returnArray, $row);
+        $returnArray[] = $row;
     }
 
     return $returnArray;
@@ -1663,7 +1659,7 @@ function resolve_action_sql($rule, $group_id = '')
 
     $returnArray = array();
     for ($iter = 0; $row = sqlFetchArray($sql); $iter++) {
-        array_push($returnArray, $row);
+        $returnArray[] = $row;
     }
 
     return $returnArray;
@@ -1731,7 +1727,7 @@ function database_check($patient_id, $filter, $interval = '', $dateTarget = '')
             if (exist_database_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $temp_df[6], $intervalType, $intervalValue, $dateTarget)) {
                 // Record the match
                 if ($cond_loop > 0) { // For multiple condition check
-                    $isMatch = $isMatch && true;
+                    $isMatch = $isMatch && 1;
                 } else {
                     $isMatch = true;
                 }
@@ -1814,7 +1810,6 @@ function appointment_check($patient_id, $dateTarget = '')
 
   // Set current date
     $currentDate = date('Y-m-d H:i:s');
-    $currentDateRound = date('Y-m-d', $dateCurrent);
 
   // Basically, if the appointment is within the current date to the target date,
   //  then return true. (will not send reminders on same day as appointment)
@@ -1890,7 +1885,7 @@ function lists_check($patient_id, $filter, $dateTarget)
  * (2) If $data contains '#CURDATE#', then it will be converted to the current date.
  *
  */
-function exist_database_item($patient_id, $table, string $column = null, $data_comp, string $data = null, $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget = '')
+function exist_database_item($patient_id, $table, string $column = null, $data_comp = '', string $data = null, $num_items_comp = null, $num_items_thres = null, $intervalType = '', $intervalValue = '', $dateTarget = '')
 {
 
   // Set date to current if not set
@@ -1998,7 +1993,7 @@ function exist_database_item($patient_id, $table, string $column = null, $data_c
  * (1) If result_data ends with **, operators ne/eq are replaced by (NOT)LIKE operators
  *
  */
-function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp, stirng $result_data = null, $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget = '')
+function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp, string $result_data = null, $num_items_comp = null, $num_items_thres = null, $intervalType = '', $intervalValue = '', $dateTarget = '')
 {
 
   // Set date to current if not set
@@ -2090,7 +2085,7 @@ function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp
  * @param  string   $dateTarget       target date(format Y-m-d H:i:s).
  * @return boolean                    true if check passed, otherwise false
  */
-function exist_custom_item($patient_id, $category, $item, $complete, $num_items_comp, $num_items_thres, string $intervalType = null, string $intervalValue = null, $dateTarget)
+function exist_custom_item($patient_id, $category, $item, $complete, $num_items_comp, $num_items_thres, string $intervalType = null, string $intervalValue = null, $dateTarget = null)
 {
 
   // Set the table
@@ -2142,15 +2137,9 @@ function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget)
         $stringFlag = true;
     }
 
-    if (
-        $history[$lifestyle] &&
+    return $history[$lifestyle] &&
         $history[$lifestyle] != '|0|' &&
-        $stringFlag
-    ) {
-        return true;
-    } else {
-        return false;
-    }
+        $stringFlag;
 }
 
 /**
@@ -2414,8 +2403,8 @@ function collect_database_label($label, $table)
 /**
  * Simple function to avoid processing of duplicate actions
  *
- * @param  string  $actions  2-dimensional array with all current active targets
- * @param  string  $action   array of selected target to test for duplicate
+ * @param  array  $actions  2-dimensional array with all current active targets
+ * @param  array  $action   array of selected target to test for duplicate
  * @return boolean           true if duplicate, false if not duplicate
  */
 function is_duplicate_action($actions, $action)
@@ -2450,7 +2439,7 @@ function is_duplicate_action($actions, $action)
  * @param  string  $type        either 'patient_reminder' or 'clinical_reminder'
  * @return array                see above for description of returned array
  */
-function calculate_reminder_dates($rule, string $dateTarget = null, $type)
+function calculate_reminder_dates($rule, string $dateTarget = null, $type = null)
 {
 
   // Set date to current if not set
@@ -2533,7 +2522,7 @@ function reminder_results_integrate($reminderOldArray, $reminderNew)
 
   // If reminderArray is empty, then insert new reminder
     if (empty($reminderOldArray)) {
-        array_push($results, $reminderNew);
+        $results[] = $reminderNew;
         return $results;
     }
 
@@ -2545,16 +2534,16 @@ function reminder_results_integrate($reminderOldArray, $reminderNew)
             $reminderOld['category'] == $reminderNew['category'] &&
             $reminderOld['item'] == $reminderNew['item']
         ) {
-            array_push($results, $reminderNew);
+            $results[] = $reminderNew;
             $duplicate = true;
         } else {
-            array_push($results, $reminderOld);
+            $results[] = $reminderOld;
         }
     }
 
   // If a new reminder, then insert the new reminder
     if (!$duplicate) {
-        array_push($results, $reminderNew);
+        $results[] = $reminderNew;
     }
 
     return $results;

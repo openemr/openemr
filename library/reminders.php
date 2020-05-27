@@ -115,7 +115,7 @@ function update_reminders_batch_method($dateTarget = '', $batchSize = 25, $repor
     }
 
   // Collect total number of pertinent patients (to calculate batching parameters)
-    $totalNumPatients = buildPatientArray('', '', '', null, null, true);
+    $totalNumPatients = (int)buildPatientArray('', '', '', null, null, true);
 
   // Cycle through the batches and collect/combine results
     if (($totalNumPatients % $batchSize) > 0) {
@@ -141,6 +141,7 @@ function update_reminders_batch_method($dateTarget = '', $batchSize = 25, $repor
         }
 
         $update_rem_log_batch = update_reminders($dateTarget, '', (($batchSize * $i) + 1), $batchSize);
+        $update_rem_log = array();
         if ($i == 0) {
             // For first cycle, simply copy it to update_rem_log
             $update_rem_log = $update_rem_log_batch;
@@ -227,15 +228,15 @@ function update_reminders($dateTarget = '', $patient_id = '', $start = null, $ba
         // as described above, need to pass in each patient_id
         // Collect all patient ids
         $patientData = buildPatientArray('', '', '', $start, $batchSize);
-        for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+        // comment below as doesn't make sense. where's $rez? sjp 05/27/20
+        /*for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
             $patientData[$iter] = $row;
-        }
+        }*/
 
         $first_flag = true;
         foreach ($patientData as $patient) {
             // collect reminders
-            $tempCollectReminders = test_rules_clinic('', 'patient_reminder', $dateTarget, 'reminders-due', $patient['pid']);
-            $collectedReminders = array_merge($collectedReminders, $tempCollectReminders);
+            $tempCollectReminders[] = test_rules_clinic('', 'patient_reminder', $dateTarget, 'reminders-due', $patient['pid']);
             // build the $patient_id_complete variable
             if ($first_flag) {
                 $patient_id_complete .= $patient['pid'];
@@ -244,6 +245,7 @@ function update_reminders($dateTarget = '', $patient_id = '', $start = null, $ba
                 $patient_id_complete .= "," . $patient['pid'];
             }
         }
+        $collectedReminders = array_merge([], $collectedReminders, $tempCollectReminders);
     }
 
     $logging['total_active_actions'] = count($collectedReminders);
@@ -453,12 +455,12 @@ function fetch_reminders($patient_id = '', $type = '', $due_status = '', $select
     if (!empty($patient_id)) {
         // check the specified pid(s)
         $where = "`pid` IN (?) AND ";
-        array_push($arraySqlBind, $patient_id);
+        $arraySqlBind[] = $patient_id;
     }
 
     if (!empty($due_status)) {
         $where .= "`due_status`=? AND ";
-        array_push($arraySqlBind, $due_status);
+        $arraySqlBind[] = $due_status;
     }
 
     if (empty($type)) {
