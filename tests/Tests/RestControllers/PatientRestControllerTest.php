@@ -106,11 +106,9 @@ class PatientRestControllerTest extends TestCase
         $this->assertEquals(201, http_response_code());
         $this->assertEquals(2, count($actualResult["data"]));
 
-        $patientPid = $actualResult["data"]["pid"];
         $patientUuid = $actualResult["data"]["uuid"];
         $this->patientData["phone_home"] = "111-111-1111";
-        $this->patientData["uuid"] = $patientUuid;
-        $actualResult = $this->patientController->put($patientPid, $this->patientData);
+        $actualResult = $this->patientController->put($patientUuid, $this->patientData);
 
         $this->assertEquals(200, http_response_code());
         $this->assertEquals(0, count($actualResult["validationErrors"]));
@@ -123,11 +121,11 @@ class PatientRestControllerTest extends TestCase
     }
 
     /**
-     * @cover ::getOne with an invalid pid
+     * @cover ::getOne with an invalid uuid
      */
-    public function testGetOneInvalidPid()
+    public function testGetOneInvalidUuid()
     {
-        $actualResult = $this->patientController->getOne("not-a-pid");
+        $actualResult = $this->patientController->getOne("not-a-uuid");
         $this->assertEquals(400, http_response_code());
         $this->assertEquals(1, count($actualResult["validationErrors"]));
         $this->assertEquals(0, count($actualResult["internalErrors"]));
@@ -135,19 +133,17 @@ class PatientRestControllerTest extends TestCase
     }
 
     /**
-     * @cover ::getOne with a valid pid
+     * @cover ::getOne with a valid uuid
      */
     public function testGetOne()
     {
         // create a record
         $postResult = $this->patientController->post($this->patientData);
-        $postedPid = $postResult["data"]["pid"];
-        $this->assertIsInt($postedPid);
-        $this->assertGreaterThan(0, $postedPid);
+        $postedUuid = $postResult["data"]["uuid"];
 
         // confirm the pid matches what was requested
-        $actualResult = $this->patientController->getOne($postedPid);
-        $this->assertEquals($postedPid, $actualResult["data"]["pid"]);
+        $actualResult = $this->patientController->getOne($postedUuid);
+        $this->assertEquals($postedUuid, $actualResult["data"]["uuid"]);
     }
 
     /**
@@ -157,7 +153,7 @@ class PatientRestControllerTest extends TestCase
     {
         $this->fixtureManager->installPatientFixtures();
         $searchResult = $this->patientController->getAll(array("state" => "CA"));
-        
+
         $this->assertEquals(200, http_response_code());
         $this->assertEquals(0, count($searchResult["validationErrors"]));
         $this->assertEquals(0, count($searchResult["internalErrors"]));

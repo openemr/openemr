@@ -45,7 +45,7 @@ class PatientApiTest extends TestCase
     {
         unset($this->patientRecord["fname"]);
         $actualResponse = $this->testClient->post(self::PATIENT_API_ENDPOINT, $this->patientRecord);
-        
+
         $this->assertEquals(400, $actualResponse->getStatusCode());
         $responseBody = json_decode($actualResponse->getBody(), true);
         $this->assertEquals(1, count($responseBody["validationErrors"]));
@@ -59,7 +59,7 @@ class PatientApiTest extends TestCase
     public function testPost()
     {
         $actualResponse = $this->testClient->post(self::PATIENT_API_ENDPOINT, $this->patientRecord);
-        
+
         $this->assertEquals(201, $actualResponse->getStatusCode());
         $responseBody = json_decode($actualResponse->getBody(), true);
         $this->assertEquals(0, count($responseBody["validationErrors"]));
@@ -82,11 +82,11 @@ class PatientApiTest extends TestCase
         $this->assertEquals(201, $actualResponse->getStatusCode());
 
         $this->patientRecord["phone_home"] = "222-222-2222";
-        $actualResponse = $this->testClient->put(self::PATIENT_API_ENDPOINT, "not-a-pid", $this->patientRecord);
+        $actualResponse = $this->testClient->put(self::PATIENT_API_ENDPOINT, "not-a-uuid", $this->patientRecord);
 
         $this->assertEquals(400, $actualResponse->getStatusCode());
         $responseBody = json_decode($actualResponse->getBody(), true);
-        $this->assertEquals(2, count($responseBody["validationErrors"]));
+        $this->assertEquals(1, count($responseBody["validationErrors"]));
         $this->assertEquals(0, count($responseBody["internalErrors"]));
         $this->assertEquals(0, count($responseBody["data"]));
     }
@@ -100,12 +100,10 @@ class PatientApiTest extends TestCase
         $this->assertEquals(201, $actualResponse->getStatusCode());
         $responseBody = json_decode($actualResponse->getBody(), true);
 
-        $patientPid = $responseBody["data"]["pid"];
         $patientUuid = $responseBody["data"]["uuid"];
 
         $this->patientRecord["phone_home"] = "222-222-2222";
-        $this->patientRecord["uuid"] =  $patientUuid;
-        $actualResponse = $this->testClient->put(self::PATIENT_API_ENDPOINT, $patientPid, $this->patientRecord);
+        $actualResponse = $this->testClient->put(self::PATIENT_API_ENDPOINT, $patientUuid, $this->patientRecord);
 
         $this->assertEquals(200, $actualResponse->getStatusCode());
         $responseBody = json_decode($actualResponse->getBody(), true);
@@ -121,7 +119,7 @@ class PatientApiTest extends TestCase
      */
     public function testGetOneInvalidPid()
     {
-        $actualResponse = $this->testClient->getOne(self::PATIENT_API_ENDPOINT, "not-a-pid");
+        $actualResponse = $this->testClient->getOne(self::PATIENT_API_ENDPOINT, "not-a-uuid");
         $this->assertEquals(400, $actualResponse->getStatusCode());
 
         $responseBody = json_decode($actualResponse->getBody(), true);
@@ -139,14 +137,16 @@ class PatientApiTest extends TestCase
         $this->assertEquals(201, $actualResponse->getStatusCode());
 
         $responseBody = json_decode($actualResponse->getBody(), true);
+        $patientUuid = $responseBody["data"]["uuid"];
         $patientPid = $responseBody["data"]["pid"];
 
-        $actualResponse = $this->testClient->getOne(self::PATIENT_API_ENDPOINT, $patientPid);
+        $actualResponse = $this->testClient->getOne(self::PATIENT_API_ENDPOINT, $patientUuid);
         $this->assertEquals(200, $actualResponse->getStatusCode());
 
         $responseBody = json_decode($actualResponse->getBody(), true);
         $this->assertEquals(0, count($responseBody["validationErrors"]));
         $this->assertEquals(0, count($responseBody["internalErrors"]));
+        $this->assertEquals($patientUuid, $responseBody["data"]["uuid"]);
         $this->assertEquals($patientPid, $responseBody["data"]["pid"]);
     }
 

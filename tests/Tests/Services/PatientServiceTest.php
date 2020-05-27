@@ -3,6 +3,7 @@
 namespace OpenEMR\Tests\Services;
 
 use PHPUnit\Framework\TestCase;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 
@@ -87,18 +88,16 @@ class PatientServiceTest extends TestCase
      */
     public function testUpdateFailure()
     {
-        $actualResult = $this->patientService->insert($this->patientFixture);
-        $actualUuid = $actualResult->getData()[0]["uuid"];
+        $this->patientService->insert($this->patientFixture);
 
         $this->patientFixture["fname"] = "A";
-        $this->patientFixture["uuid"] = $actualUuid;
 
-        $actualResult = $this->patientService->update("not-a-pid", $this->patientFixture);
+        $actualResult = $this->patientService->update("not-a-uuid", $this->patientFixture);
 
         $this->assertFalse($actualResult->isValid());
 
         $this->assertArrayHasKey("fname", $actualResult->getValidationMessages());
-        $this->assertArrayHasKey("pid", $actualResult->getValidationMessages());
+        $this->assertArrayHasKey("uuid", $actualResult->getValidationMessages());
         $this->assertEquals(2, count($actualResult->getValidationMessages()));
     }
 
@@ -116,18 +115,15 @@ class PatientServiceTest extends TestCase
         $this->assertArrayHasKey("pid", $dataResult);
         $this->assertGreaterThan(0, $dataResult["pid"]);
         $this->assertArrayHasKey("uuid", $dataResult);
-        
-        $actualPid = $dataResult["pid"];
+
         $actualUuid = $dataResult["uuid"];
-        $this->patientFixture["pid"] = $actualPid;
-        $this->patientFixture["uuid"] = $actualUuid;
+
         $this->patientFixture["phone_home"] = "555-111-4444";
-        $actualResult = $this->patientService->update($actualPid, $this->patientFixture);
+        $this->patientService->update($actualUuid, $this->patientFixture);
 
-        $sql = "SELECT pid, phone_home FROM patient_data WHERE pid = ?";
-        $result = sqlQuery($sql, array($actualPid));
-
-        $this->assertEquals($actualPid, intval($result["pid"]));
+        $sql = "SELECT `uuid`, `phone_home` FROM `patient_data` WHERE `uuid` = ?";
+        $result = sqlQuery($sql, [UuidRegistry::uuidToBytes($actualUuid)]);
+        $this->assertEquals($actualUuid, UuidRegistry::uuidToString($result["uuid"]));
         $this->assertEquals("555-111-4444", $result["phone_home"]);
     }
 
@@ -138,13 +134,15 @@ class PatientServiceTest extends TestCase
     public function testPatientQueries()
     {
         $this->fixtureManager->installPatientFixtures();
-        $existingPid = $this->patientService->getFreshPid() - 1;
+
+        $result = sqlQuery("SELECT `uuid` FROM `patient_data`");
+        $existingUuid = UuidRegistry::uuidToString($result['uuid']);
 
         // getOne
-        $actualResult = $this->patientService->getOne($existingPid);
+        $actualResult = $this->patientService->getOne($existingUuid);
         $resultData = $actualResult->getData()[0];
         $this->assertNotNull($resultData);
-        $this->assertEquals($existingPid, intval($resultData["pid"]));
+        $this->assertEquals($existingUuid, $resultData["uuid"]);
         $this->assertArrayHasKey("fname", $resultData);
         $this->assertArrayHasKey("lname", $resultData);
         $this->assertArrayHasKey("sex", $resultData);
@@ -153,20 +151,13 @@ class PatientServiceTest extends TestCase
 
         // getOne - validate uuid
         $expectedUuid = $resultData["uuid"];
-        $actualResult = $this->patientService->getOne($expectedUuid, true);
+        $actualResult = $this->patientService->getOne($expectedUuid);
         $resultData = $actualResult->getData()[0];
         $this->assertNotNull($resultData);
-        $this->assertEquals($existingPid, intval($resultData["pid"]));
         $this->assertEquals($expectedUuid, $resultData["uuid"]);
 
-        // getOne - with an invalid pid
-        $actualResult = $this->patientService->getOne("not-a-pid");
-        $this->assertEquals(1, count($actualResult->getValidationMessages()));
-        $this->assertEquals(0, count($actualResult->getInternalErrors()));
-        $this->assertEquals(0, count($actualResult->getData()));
-
         // getOne - with an invalid uuid
-        $actualResult = $this->patientService->getOne("not-a-uuid", true);
+        $actualResult = $this->patientService->getOne("not-a-uuid");
         $this->assertEquals(1, count($actualResult->getValidationMessages()));
         $this->assertEquals(0, count($actualResult->getInternalErrors()));
         $this->assertEquals(0, count($actualResult->getData()));
