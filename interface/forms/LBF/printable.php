@@ -202,7 +202,7 @@ div.section td.stuff {
 
 <?php
 // Generate widths for the various numbers of label columns and data columns.
-for ($lcols = 1; $lcols < $CPR; ++$lcols) {
+for ($lcols = 2; $lcols < $CPR; ++$lcols) {
     $dcols = $CPR - $lcols;
     $lpct = intval(100 * $lcols / $CPR);
     $dpct = 100 - $lpct;
