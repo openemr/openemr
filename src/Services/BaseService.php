@@ -111,9 +111,13 @@ class BaseService
             if ($key == 'uuid') {
                 continue;
             }
+            // exclude pid columns
+            if ($key == 'pid') {
+                continue;
+            }
             if (!in_array($key, $this->fields)) {
                 // placeholder. could be for where clauses
-                $bind[] = ($value == 'NULL') ? "" : add_escape_custom($value);
+                $bind[] = ($value == 'NULL') ? "" : $value;
                 continue;
             }
             if ($value == 'YYYY-MM-DD' || $value == 'MM/DD/YYYY') {

@@ -199,10 +199,10 @@ Response
 }
 ```
 
-#### PUT /api/patient/:pid
+#### PUT /api/patient/:puuid
 
 ```sh
-curl -X PUT 'http://localhost:8300/apis/api/patient/1' -d \
+curl -X PUT 'http://localhost:8300/apis/api/patient/90a8923c-0b1c-4d0a-9981-994b143381a7' -d \
 '{
     "title": "Mr",
     "fname": "Baz",
@@ -294,10 +294,10 @@ Response
 ```
 
 
-#### GET /api/patient/:pid
+#### GET /api/patient/:puuid
 
 ```sh
-curl -X GET 'http://localhost:8300/apis/api/patient/1'
+curl -X GET 'http://localhost:8300/apis/api/patient/90a8923c-0b1c-4d0a-9981-994b143381a7'
 ```
 
 Response

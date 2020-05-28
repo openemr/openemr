@@ -78,9 +78,8 @@ class PatientValidatorTest extends TestCase
 
         $this->assertArrayHasKey("fname", $actualResult->getValidationMessages());
         $this->assertArrayHasKey("sex", $actualResult->getValidationMessages());
-        $this->assertArrayHasKey("pid", $actualResult->getValidationMessages());
         $this->assertArrayHasKey("uuid", $actualResult->getValidationMessages());
-        $this->assertEquals(4, count($actualResult->getValidationMessages()));
+        $this->assertEquals(3, count($actualResult->getValidationMessages()));
     }
 
     /**
@@ -114,33 +113,6 @@ class PatientValidatorTest extends TestCase
 
         $this->assertTrue($actualResult->isValid());
         $this->assertEquals(0, count($actualResult->getValidationMessages()));
-    }
-    
-    /**
-     * @covers ::isExistingPid for success and failure use-cases
-     */
-    public function testIsExistingPid()
-    {
-        // ensure we have an installed record/patient
-        $patientFixture = $this->fixtureManager->getSinglePatientFixture();
-        $this->fixtureManager->installSinglePatientFixture($patientFixture);
-
-        $fixturePid = sqlQuery(
-            "SELECT pid FROM patient_data WHERE pubpid = ?",
-            array($patientFixture['pubpid'])
-        )['pid'];
-        $fixturePid = intval($fixturePid);
-
-        $this->assertGreaterThan(0, $fixturePid);
-
-        $actualResult = $this->patientValidator->isExistingPid($fixturePid);
-        $this->assertTrue($actualResult);
-
-        $actualResult = $this->patientValidator->isExistingPid(0);
-        $this->assertFalse($actualResult);
-
-        $actualResult = $this->patientValidator->isExistingPid("not-a-pid");
-        $this->assertFalse($actualResult);
     }
 
     /**
