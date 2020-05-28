@@ -45,10 +45,10 @@ if ($showit == 'ext') {
                     <img src="<?php echo $GLOBALS['webroot']; ?>/sites/default/images/login_logo.gif" width="30" height="30" alt="">
                     OpenEMR: Eye Exam <span class="font-weight-bold">Shorthand Help</span>
                 </a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="collapse navbar-collapse" id="navbar">
                     <div class="navbar-nav">
                         <a class="nav-item nav-link active" id="general_button" href="#">Introduction<span class="sr-only">(current)</span></a>
                         <a class="nav-item nav-link" id="hpi_button" href="#">HPI</a>
@@ -69,12 +69,12 @@ if ($showit == 'ext') {
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <button class="btn btn-link text-decoration-none" data-toggle="collapse" data-target="#introduction" aria-expanded="true" aria-controls="collapseOne">
+                            <button class="btn btn-link text-decoration-none" data-toggle="collapse" data-target="#introduction">
                                 Introduction: Paper vs. EHR
                             </button>
                         </h5>
                     </div>
-                    <div id="introduction" class="collapse show" aria-labelledby="Introduction" data-parent="#introductionAccordion">
+                    <div id="introduction" class="collapse show" data-parent="#introductionAccordion">
                         <div class="card-body">
                             <p class="font-weight-bold">"Documenting an exam on paper is faster because we develop our own shorthand."</p>
                             <p>
@@ -152,7 +152,7 @@ if ($showit == 'ext') {
                             </p>
                             <hr />
 
-                            <textarea class="form-control" style="height:2.3in;">CC:"My eyes are tearing and there is a yellow discharge";hpi:The symptoms began last week and the discharged turned yellow yesterday.  No photophobia.  The redness spread from the right to the left eye two days ago.;
+                            <textarea class="form-control" style="height: 13.8rem;">CC:"My eyes are tearing and there is a yellow discharge";hpi:The symptoms began last week and the discharged turned yellow yesterday.  No photophobia.  The redness spread from the right to the left eye two days ago.;
                                 POH:POAG. Myopia. Dry Eye; POS: Phaco/IOL OD 4/4/1994.Phaco/IOL OS 4/24/1995. Yag/PCO OD 6/5/1999;Meds:Timolol 0.5% GFS QHS OU. Latanoprost 0.01% QHS OU.
                                 Trazadone 50mg PO QHS.Famvir 500mg PO TID;Surg:Appendectomy 1998. Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;
                                 D;bll:+2 meibomitis;rll:frank ect, 7x6mm lid margin bcc lat.a;bul:2mm ptosis;rul:+3 dermato.a
@@ -172,12 +172,12 @@ if ($showit == 'ext') {
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <button class="btn btn-link text-decoration-none collapsed" data-toggle="collapse" data-target="#shorthand" aria-expanded="false" aria-controls="collapseTwo">
+                            <button class="btn btn-link text-decoration-none collapsed" data-toggle="collapse" data-target="#shorthand">
                                 Shorthand Structure
                             </button>
                         </h5>
                     </div>
-                    <div id="shorthand" class="collapse" aria-labelledby="Shorthand" data-parent="#introductionAccordion">
+                    <div id="shorthand" class="collapse" data-parent="#introductionAccordion">
                         <div class="card-body">
                             <h4>
                                 <span class="font-weight-bold">Usage:</span>  field:text(.a)(;)
@@ -213,15 +213,15 @@ if ($showit == 'ext') {
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <button class="btn btn-link text-decoration-none" data-toggle="collapse" data-target="#hpi" aria-expanded="true" aria-controls="collapseOne">
+                            <button class="btn btn-link text-decoration-none" data-toggle="collapse" data-target="#hpi">
                                 History of Present Illness: Shorthand Walk Through
                             </button>
                         </h5>
                     </div>
-                    <div id="hpi" class="collapse show" aria-labelledby="HPI" data-parent="#hpiAccordion">
+                    <div id="hpi" class="collapse show" data-parent="#hpiAccordion">
                         <div class="card-body">
                             <h4><u>Shorthand</u></h4>
-                            <textarea class="form-control" style="min-height:1in;">CC:"My eyes are tearing and there is a yellow discharge";hpi:The symptoms began last week and the discharged turned yellow yesterday.  No photophobia.  The redness spread from the right to the left eye two days ago.;
+                            <textarea class="form-control" style="min-height: 6rem;">CC:"My eyes are tearing and there is a yellow discharge";hpi:The symptoms began last week and the discharged turned yellow yesterday.  No photophobia.  The redness spread from the right to the left eye two days ago.;
                             </textarea>
                             <br />
                             <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_hpi.png" class="img-fluid" alt="Shorthand Example: Anterior Segment" />
@@ -235,15 +235,15 @@ if ($showit == 'ext') {
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <button class="btn btn-link text-decoration-none" data-toggle="collapse" data-target="#pmh" aria-expanded="true" aria-controls="collapseOne">
+                            <button class="btn btn-link text-decoration-none" data-toggle="collapse" data-target="#pmh">
                                 Past Medical History: Shorthand Walk Through
                             </button>
                         </h5>
                     </div>
-                    <div id="pmh" class="collapse show" aria-labelledby="PMH" data-parent="#pmhAccordion">
+                    <div id="pmh" class="collapse show" data-parent="#pmhAccordion">
                         <div class="card-body">
                             <h4><u>Shorthand</u></h4>
-                            <textarea class="form-control" style="height:1in;">POH:POAG. Myopia. Dry Eye; POS:Phaco/IOL OD 4/4/1994.Phaco/IOL OS 4/24/1995.
+                            <textarea class="form-control" style="height: 6rem;">POH:POAG. Myopia. Dry Eye; POS:Phaco/IOL OD 4/4/1994.Phaco/IOL OS 4/24/1995.
                                 Yag/PCO OD 6/5/1999;Meds:Timolol 0.5% GFS QHS OU. Latanoprost 0.01% QHS OU.
                                 Trazadone 50mg PO QHS.Famvir 500mg PO TID;Surg:Appendectomy 1998.
                                 Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;
@@ -260,12 +260,12 @@ if ($showit == 'ext') {
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <button class="btn btn-link text-decoration-none" data-toggle="collapse" data-target="#externalShorthandWalkThrough" aria-expanded="true" aria-controls="collapseOne">
+                            <button class="btn btn-link text-decoration-none" data-toggle="collapse" data-target="#externalShorthandWalkThrough">
                                 External: Shorthand Walk Through
                             </button>
                         </h5>
                     </div>
-                    <div id="externalShorthandWalkThrough" class="collapse show" aria-labelledby="Shorthand Walk Through" data-parent="#externalAccordion">
+                    <div id="externalShorthandWalkThrough" class="collapse show" data-parent="#externalAccordion">
                       <div class="card-body">
                         <h4><u>Shorthand</u></h4>
                         <textarea class="form-control">D;bll:+2 meibomitis;rll:frank ect, 7x6mm lid margin bcc lat.a;bul:2mm ptosis;rul.+3 dermato.a
@@ -279,12 +279,12 @@ if ($showit == 'ext') {
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <button class="btn btn-link text-decoration-none collapsed" data-toggle="collapse" data-target="#externalExampleOutput" aria-expanded="false" aria-controls="collapseTwo">
+                            <button class="btn btn-link text-decoration-none collapsed" data-toggle="collapse" data-target="#externalExampleOutput">
                                 External: Example Output
                             </button>
                         </h5>
                     </div>
-                    <div id="externalExampleOutput" class="collapse" aria-labelledby="Example Output" data-parent="#externalAccordion">
+                    <div id="externalExampleOutput" class="collapse" data-parent="#externalAccordion">
                         <div class="card-body">
                             <p>
                                 Input:
@@ -318,12 +318,12 @@ if ($showit == 'ext') {
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <button class="btn btn-link text-decoration-none collapsed" data-toggle="collapse" data-target="#externalFieldCodesAndShorthand" aria-expanded="false" aria-controls="collapseTwo">
+                            <button class="btn btn-link text-decoration-none collapsed" data-toggle="collapse" data-target="#externalFieldCodesAndShorthand">
                                 External: Field Codes and Shorthand/Abbreviations
                             </button>
                         </h5>
                     </div>
-                    <div id="externalFieldCodesAndShorthand" class="collapse" aria-labelledby="Field Codes and Shorthand/Abbreviations" data-parent="#externalAccordion">
+                    <div id="externalFieldCodesAndShorthand" class="collapse" data-parent="#externalAccordion">
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-bordered">
@@ -628,12 +628,12 @@ if ($showit == 'ext') {
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <button class="btn btn-link text-decoration-none" data-toggle="collapse" data-target="#anteriorSegmentShorthandWalkThrough" aria-expanded="true" aria-controls="collapseOne">
+                            <button class="btn btn-link text-decoration-none" data-toggle="collapse" data-target="#anteriorSegmentShorthandWalkThrough">
                                 Anterior Segment: Shorthand Walk Through
                             </button>
                         </h5>
                     </div>
-                    <div id="anteriorSegmentShorthandWalkThrough" class="collapse show" aria-labelledby="Anterior Segment Shorthand Walk Through" data-parent="#anteriorSegmentAccordion">
+                    <div id="anteriorSegmentShorthandWalkThrough" class="collapse show" data-parent="#anteriorSegmentAccordion">
                         <div class="card-body">
                             <h4><u>Shorthand</u></h4>
                             <textarea class="form-control">D;bc:+2 inj;bk:med pter;rk:mod endo gut.a;bac:+1 fc, +1 pig cells
@@ -647,12 +647,12 @@ if ($showit == 'ext') {
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <button class="btn btn-link text-decoration-none collapsed" data-toggle="collapse" data-target="#anteriorSegmentExampleOutput" aria-expanded="false" aria-controls="collapseTwo">
+                            <button class="btn btn-link text-decoration-none collapsed" data-toggle="collapse" data-target="#anteriorSegmentExampleOutput">
                                 Anterior Segment: Example Output
                             </button>
                         </h5>
                     </div>
-                    <div id="anteriorSegmentExampleOutput" class="collapse" aria-labelledby="Anterior Segment Example Output" data-parent="#anteriorSegmentAccordion">
+                    <div id="anteriorSegmentExampleOutput" class="collapse" data-parent="#anteriorSegmentAccordion">
                         <div class="card-body">
                             <p>
                                 Input:
@@ -686,12 +686,12 @@ if ($showit == 'ext') {
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <button class="btn btn-link text-decoration-none collapsed" data-toggle="collapse" data-target="#anteriorSegmentFieldCodesAndShorthand" aria-expanded="false" aria-controls="collapseTwo">
+                            <button class="btn btn-link text-decoration-none collapsed" data-toggle="collapse" data-target="#anteriorSegmentFieldCodesAndShorthand">
                                 Anterior Segment: Field Codes and Shorthand/Abbreviations
                             </button>
                         </h5>
                     </div>
-                    <div id="anteriorSegmentFieldCodesAndShorthand" class="collapse" aria-labelledby="Anterior Segment Field Codes And Shorthand" data-parent="#anteriorSegmentAccordion">
+                    <div id="anteriorSegmentFieldCodesAndShorthand" class="collapse" data-parent="#anteriorSegmentAccordion">
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-bordered">
@@ -821,7 +821,7 @@ if ($showit == 'ext') {
                                         <td>
                                             <span class="font-weight-bold text-danger">bi.</span>12 0 iridotomy
                                             <br />
-                                            <span class="font-weight-light text-danger">ri:</span>+2 TI defects<span class="font-weight-bold text-success">.a</span><span style="color:navy">;</span><span class="font-weight-light text-danger">li</span>.round
+                                            <span class="font-weight-light text-danger">ri:</span>+2 TI defects<span class="font-weight-bold text-success">.a</span>;<span class="font-weight-light text-danger">li</span>.round
                                         </td>
                                         <td>
                                             "12 o'clock iriditomy" (both iris fields)
@@ -978,12 +978,12 @@ if ($showit == 'ext') {
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <button class="btn btn-link text-decoration-none" data-toggle="collapse" data-target="#retinaShorthandWalkThrough" aria-expanded="true" aria-controls="collapseOne">
+                            <button class="btn btn-link text-decoration-none" data-toggle="collapse" data-target="#retinaShorthandWalkThrough">
                                 Retina: Shorthand Walk Through
                             </button>
                         </h5>
                     </div>
-                    <div id="retinaShorthandWalkThrough" class="collapse show" aria-labelledby="Anterior Segment Shorthand Walk Through" data-parent="#retinaAccordion">
+                    <div id="retinaShorthandWalkThrough" class="collapse show" data-parent="#retinaAccordion">
                         <div class="card-body">
                             <h4><u>Shorthand</u></h4>
                             <textarea class="form-control">D;bd.+2 bowtie pallor;rcup.0.6Vx0.4H w/ inf notch;lcup.0.5;rmac.+2 BDR, +CSME;lmac.flat, tr BDR;v.+PPDR, ++venous beading;rp.ht 1 o,no vh;
@@ -997,12 +997,12 @@ if ($showit == 'ext') {
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <button class="btn btn-link text-decoration-none collapsed" data-toggle="collapse" data-target="#retinaExampleOutput" aria-expanded="false" aria-controls="collapseTwo">
+                            <button class="btn btn-link text-decoration-none collapsed" data-toggle="collapse" data-target="#retinaExampleOutput">
                                 Retina: Example Output
                             </button>
                         </h5>
                     </div>
-                    <div id="retinaExampleOutput" class="collapse" aria-labelledby="Anterior Segment Example Output" data-parent="#retinaAccordion">
+                    <div id="retinaExampleOutput" class="collapse" data-parent="#retinaAccordion">
                         <div class="card-body">
                             <p>
                                 Input:
@@ -1036,12 +1036,12 @@ if ($showit == 'ext') {
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <button class="btn btn-link text-decoration-none collapsed" data-toggle="collapse" data-target="#retinaFieldCodesAndShorthand" aria-expanded="false" aria-controls="collapseTwo">
+                            <button class="btn btn-link text-decoration-none collapsed" data-toggle="collapse" data-target="#retinaFieldCodesAndShorthand">
                                 Retina: Field Codes and Shorthand/Abbreviations
                             </button>
                         </h5>
                     </div>
-                    <div id="retinaFieldCodesAndShorthand" class="collapse" aria-labelledby="Anterior Segment Field Codes And Shorthand" data-parent="#retinaAccordion">
+                    <div id="retinaFieldCodesAndShorthand" class="collapse" data-parent="#retinaAccordion">
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-bordered">
@@ -1363,12 +1363,12 @@ if ($showit == 'ext') {
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <button class="btn btn-link text-decoration-none" data-toggle="collapse" data-target="#neuroShorthandWalkThrough" aria-expanded="true" aria-controls="collapseOne">
+                            <button class="btn btn-link text-decoration-none" data-toggle="collapse" data-target="#neuroShorthandWalkThrough">
                                 Neuro: Shorthand Walk Through
                             </button>
                         </h5>
                     </div>
-                    <div id="neuroShorthandWalkThrough" class="collapse show" aria-labelledby="Neuro Shorthand Walk Through" data-parent="#neuroAccordion">
+                    <div id="neuroShorthandWalkThrough" class="collapse show" data-parent="#neuroAccordion">
                         <div class="card-body">
                             <h4><u>Shorthand</u></h4>
                             <textarea class="form-control">scDist;5:8ix 1rht;4:10ix;6:6ix;2:15xt;8:5ix;ccDist;4:5ix;5:ortho;6:ortho;
@@ -1382,12 +1382,12 @@ if ($showit == 'ext') {
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <button class="btn btn-link text-decoration-none collapsed" data-toggle="collapse" data-target="#neuroExampleOutput" aria-expanded="false" aria-controls="collapseTwo">
+                            <button class="btn btn-link text-decoration-none collapsed" data-toggle="collapse" data-target="#neuroExampleOutput">
                                 Neuro: Example Output
                             </button>
                         </h5>
                     </div>
-                    <div id="neuroExampleOutput" class="collapse" aria-labelledby="Neuro Example Output" data-parent="#neuroAccordion">
+                    <div id="neuroExampleOutput" class="collapse" data-parent="#neuroAccordion">
                         <div class="card-body">
                             <p>
                                 Input:
@@ -1428,12 +1428,12 @@ if ($showit == 'ext') {
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <button class="btn btn-link text-decoration-none collapsed" data-toggle="collapse" data-target="#neuroFieldCodesAndShorthand" aria-expanded="false" aria-controls="collapseTwo">
+                            <button class="btn btn-link text-decoration-none collapsed" data-toggle="collapse" data-target="#neuroFieldCodesAndShorthand">
                                 Neuro: Field Codes and Shorthand/Abbreviations
                             </button>
                         </h5>
                     </div>
-                    <div id="neuroFieldCodesAndShorthand" class="collapse" aria-labelledby="Neuro Field Codes And Shorthand" data-parent="#neuroAccordion">
+                    <div id="neuroFieldCodesAndShorthand" class="collapse" data-parent="#neuroAccordion">
                         <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-bordered">
