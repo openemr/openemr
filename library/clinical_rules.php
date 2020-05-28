@@ -41,10 +41,10 @@ function listingCDRReminderLog($begin_date = '', $end_date = '')
 
     $sqlArray = array();
     $sql = "SELECT `date`, `pid`, `uid`, `category`, `value`, `new_value` FROM `clinical_rules_log` WHERE `date` <= ?";
-    array_push($sqlArray, $end_date);
+    $sqlArray[] = $end_date;
     if (!empty($begin_date)) {
         $sql .= " AND `date` >= ?";
-        array_push($sqlArray, $begin_date);
+        $sqlArray[] = $begin_date;
     }
 
     $sql .= " ORDER BY `date` DESC";
@@ -304,7 +304,7 @@ function allergy_conflict($patient_id, $mode, $user, $test = false)
 
   // Collect allergies
     $sqlParam = array();
-    array_push($sqlParam, $patient_id);
+    $sqlParam[] = $patient_id;
     $res_allergies = sqlStatement("SELECT `title` FROM `lists` WHERE `type`='allergy' " .
                                 "AND `activity`=1 " .
                                 "AND ( " .
@@ -321,7 +321,7 @@ function allergy_conflict($patient_id, $mode, $user, $test = false)
     $sqlIN = '';
     $firstFlag = true;
     foreach ($allergies as $allergy) {
-        array_push($sqlParam, $allergy);
+        $sqlParam[] = $allergy;
         if ($firstFlag) {
             $sqlIN .= "?";
             $firstFlag = false;
@@ -334,7 +334,7 @@ function allergy_conflict($patient_id, $mode, $user, $test = false)
     $conflicts_unique = array();
     if (!empty($sqlParam)) {
         $conflicts = array();
-        array_push($sqlParam, $patient_id);
+        $sqlParam[] = $patient_id;
         $res_meds = sqlStatement("SELECT `title` FROM `lists` WHERE `type`='medication' " .
                              "AND `activity`=1 " .
                              "AND ( " .
@@ -342,13 +342,13 @@ function allergy_conflict($patient_id, $mode, $user, $test = false)
                              "OR `enddate` > NOW() )" .
                              "AND `title` IN (" . $sqlIN . ") AND `pid`=?", $sqlParam);
         while ($urow = sqlFetchArray($res_meds)) {
-              array_push($conflicts, $urow['title']);
+              $conflicts[] = $urow['title'];
         }
 
         $res_rx = sqlStatement("SELECT `drug` FROM `prescriptions` WHERE `active`=1 " .
                            "AND `drug` IN (" . $sqlIN . ") AND `patient_id`=?", $sqlParam);
         while ($urow = sqlFetchArray($res_rx)) {
-              array_push($conflicts, $urow['drug']);
+              $conflicts[] = $urow['drug'];
         }
 
         if (!empty($conflicts)) {
@@ -730,7 +730,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
 
             if (!empty($tempResults)) {
                 foreach ($tempResults as $tempResult) {
-                    array_push($results, $tempResult);
+                    $results[] = $tempResult;
                 }
             }
 

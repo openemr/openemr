@@ -228,10 +228,6 @@ function update_reminders($dateTarget = '', $patient_id = '', $start = null, $ba
         // as described above, need to pass in each patient_id
         // Collect all patient ids
         $patientData = buildPatientArray('', '', '', $start, $batchSize);
-        // comment below as doesn't make sense. where's $rez? sjp 05/27/20
-        /*for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
-            $patientData[$iter] = $row;
-        }*/
 
         $first_flag = true;
         foreach ($patientData as $patient) {
