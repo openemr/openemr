@@ -320,7 +320,7 @@ if ($_POST['form_csvexport']) {
 
     <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-    <style type="text/css">
+    <style>
         @media print {
             #report_parameters {
                 visibility: hidden;

@@ -49,7 +49,7 @@ if ($status == 0) {
 
     <?php Header::setupHeader(); ?>
 
-<style type="text/css">
+<style>
 .style1 {
     text-align: center;
 }

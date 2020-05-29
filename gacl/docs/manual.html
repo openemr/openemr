@@ -9,7 +9,7 @@
 	<META NAME="CHANGED" CONTENT="20060903;16430300">
 	<META NAME="SDFOOTNOTE" CONTENT=";;;;P">
 	<META NAME="SDENDNOTE" CONTENT="ARABIC">
-	<STYLE TYPE="text/css">
+	<STYLE>
 	<!--
 		@page { size: 8.27in 11.69in; margin: 1.18in }
 		P { margin-top: 0.08in; margin-bottom: 0.08in; color: #000000; line-height: 0.17in; widows: 2; orphans: 2 }
@@ -554,7 +554,7 @@ ship, and the rest of them are just passengers:</FONT></FONT></P>
 Falcon Passengers		Group<BR>&#9500;&#9472;Crew					Group<BR>&#9474;
 &#9500;&#9472;Han					ARO<BR>&#9474;
 &#9492;&#9472;Chewie					ARO<BR>&#9492;&#9472;Passengers				Group<BR>
- &#9500;&#9472;Obi-wan					ARO<BR>  &#9500;&#9472;Luke					ARO<BR> 
+ &#9500;&#9472;Obi-wan					ARO<BR>  &#9500;&#9472;Luke					ARO<BR>
 &#9500;&#9472;R2D2					ARO<BR>  &#9492;&#9472;C3PO					ARO</FONT></FONT></P>
 <P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>This
 tree by itself doesn't specify any access policy; it just shows how
@@ -568,7 +568,7 @@ Passengers should only have access to the Lounge.&quot;</FONT></P>
 <P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Times New Roman, serif"><FONT SIZE=3><FONT SIZE=2><FONT FACE="Courier New, monospace"><FONT COLOR="#000000"><SPAN LANG="en-US">Millennium
 Falcon Passengers<BR>&#9500;&#9472;Crew		</SPAN><B>[ALLOW: ALL]</B><SPAN LANG="en-US"><BR>&#9474;
 &#9500;&#9472;Han<BR>&#9474; &#9492;&#9472;Chewie<BR>&#9492;&#9472;Passengers	</SPAN><B>[ALLOW:
-Lounge]</B><SPAN LANG="en-US"><BR>  &#9500;&#9472;Obi-wan<BR> 
+Lounge]</B><SPAN LANG="en-US"><BR>  &#9500;&#9472;Obi-wan<BR>
 &#9500;&#9472;Luke<BR>  &#9500;&#9472;R2D2<BR>  &#9492;&#9472;C3PO</SPAN></FONT></FONT></FONT></FONT></FONT></P>
 <P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>To
 interpret this ARO tree, we start from the top and work our way down.</FONT></FONT></P>
@@ -616,7 +616,7 @@ to disallow this:</FONT></FONT></P>
 Falcon Passengers<BR>&#9500;&#9472;Crew		[ALLOW: ALL]<BR>&#9474;
 &#9500;&#9472;Han<BR>&#9474; &#9492;&#9472;Chewie		</SPAN><B>[DENY:
 Engines]</B><SPAN LANG="en-US"><BR>&#9492;&#9472;Passengers	[ALLOW:
-Lounge]<BR>  &#9500;&#9472;Obi-wan<BR>  &#9500;&#9472;Luke<BR> 
+Lounge]<BR>  &#9500;&#9472;Obi-wan<BR>  &#9500;&#9472;Luke<BR>
 &#9500;&#9472;R2D2<BR>  &#9492;&#9472;C3PO</SPAN></FONT></FONT></FONT></FONT></FONT></P>
 <P CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Bitstream Vera Sans Mono, sans-serif"><FONT SIZE=2>This
 is an example of the way you can control access policy in a
@@ -645,9 +645,9 @@ be extended extra privileges (like access to the Cockpit):</FONT></FONT></P>
 <P LANG="en-GB" CLASS="western" STYLE="line-height: 0.17in"><FONT FACE="Times New Roman, serif"><FONT SIZE=3><FONT SIZE=2><FONT FACE="Courier New, monospace"><FONT COLOR="#000000"><SPAN LANG="en-US">Millennium
 Falcon Passengers<BR>&#9500;&#9472;Crew		[ALLOW: ALL]<BR>&#9474;
 &#9500;&#9472;Han<BR>&#9474; &#9492;&#9472;Chewie		[DENY:
-Engines]<BR>&#9492;&#9472;Passengers	[ALLOW: Lounge]<BR> 
+Engines]<BR>&#9492;&#9472;Passengers	[ALLOW: Lounge]<BR>
 &#9500;&#9472;</SPAN><B>Jedi		[ALLOW: Cockpit]</B><SPAN LANG="en-US"><BR>
- &#9474; &#9500;&#9472;</SPAN><B>Obi-wan</B><SPAN LANG="en-US"><BR> 
+ &#9474; &#9500;&#9472;</SPAN><B>Obi-wan</B><SPAN LANG="en-US"><BR>
 &#9474; &#9492;&#9472;</SPAN><B>Luke</B><SPAN LANG="en-US">		[ALLOW:
 Guns] <BR>  &#9500;&#9472;R2D2		[ALLOW: Engines]<BR>  &#9492;&#9472;C3PO</SPAN></FONT></FONT></FONT></FONT></FONT></P>
 <H2 CLASS="western"><FONT FACE="Bitstream Vera Sans Mono, sans-serif">How
@@ -1264,7 +1264,7 @@ suits your purposes.</P>
 <H3 LANG="en-GB" CLASS="western">Extended Return Value</H3>
 <P CLASS="western">Typically a call to the acl_check method will
 return a boolean value.  However, you may specify a different value
-or evan a string to be returned.  
+or evan a string to be returned.
 </P>
 <P CLASS="western">For example, you may negotiate for a user to login
 at a cost of $0.20 per time by default and another for $0.18 per time

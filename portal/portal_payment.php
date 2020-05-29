@@ -531,7 +531,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
 //
     ?>
     <title><?php echo xlt('Record Payment'); ?></title>
-    <style type="text/css">
+    <style>
         .dehead {
             color: #000000;
             font-weight: bold
