@@ -47,8 +47,8 @@ $normalurl = "patient_file/encounter/encounter_top.php";
 
 $nexturl = $normalurl;
 
-$provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
-$provider_id = $provider_id ? $encounter_provider : $provider_id;
+$provider_id = $_SESSION['authUserID'] ? $_SESSION['authUserID'] : 0;
+$provider_id = $encounter_provider ? $encounter_provider : $provider_id;
 
 if ($mode == 'new') {
     $encounter = generate_id();

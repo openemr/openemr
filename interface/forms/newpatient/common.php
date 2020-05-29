@@ -135,27 +135,29 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
         });
     });
 
-    function getPOS(){
+    const isPosEnabled = "" + <?php echo js_escape($GLOBALS['set_pos_code_encounter']); ?>;
+
+    function getPOS() {
+        if (!isPosEnabled) {
+            return false;
+        }
         let facility = document.forms[0].facility_id.value;
-        <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
-            $.ajax({
-                url: "./../../../library/ajax/facility_ajax_code.php",
-                method: "GET",
-                data: {
-                    mode: "get_pos",
-                    facility_id: facility,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-                }})
-                .done(function (fid) {
-                    document.forms[0].pos_code.value = JSON.parse(fid);
-                })
-                .fail(function (xhr) {
-                    console.log('error', xhr);
-                });
-        <?php } ?>
+        $.ajax({
+            url: "./../../../library/ajax/facility_ajax_code.php",
+            method: "GET",
+            data: {
+                mode: "get_pos",
+                facility_id: facility,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            }
+        }).done(function (fid) {
+            document.forms[0].pos_code.value = JSON.parse(fid);
+        }).fail(function (xhr) {
+            console.log('error', xhr);
+        });
     }
 
-    function newUserSelected(){
+    function newUserSelected() {
         let provider = document.getElementById('provider_id').value;
         $.ajax({
             url: "./../../../library/ajax/facility_ajax_code.php",
@@ -164,16 +166,17 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
                 mode: "get_user_data",
                 provider_id: provider,
                 csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
-            }})
-        .done(function (data) {
+            }
+        }).done(function (data) {
             let rtn = JSON.parse(data);
             document.forms[0].facility_id.value = rtn[0];
-            document.forms[0].pos_code.value = rtn[1];
+            if (isPosEnabled) {
+                document.forms[0].pos_code.value = rtn[1];
+            }
             if (Number(rtn[2]) === 1) {
                 document.forms[0]['billing_facility'].value = rtn[0];
             }
-        })
-        .fail(function (xhr) {
+        }).fail(function (xhr) {
             console.log('error', xhr);
         });
     }
@@ -438,6 +441,9 @@ if (!$viewmode) {
                                         $userService = new UserService();
                                         $users = $userService->getActiveUsers();
                                         foreach ($users as $activeUser) {
+                                            if ($activeUser->getAuthorized() !== true) {
+                                                continue;
+                                            }
                                             echo "<option value='" . attr($activeUser->getId()) . "'";
                                             if ((int)$provider_id === $activeUser->getId()) {
                                                 echo "selected";
