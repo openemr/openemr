@@ -122,25 +122,25 @@ div.tiny {
 }
 
 #bigCal table {
-  border: 0;
-  border-collapse: collapse;
-  margin-top: 45px;
-  vertical-align: middle;
-  width: 100%;
+    border: 0;
+    border-collapse: collapse;
+    margin-top: 2.75rem;
+    vertical-align: middle;
+    width: 100%;
 }
 
 #bigCal td {
-  margin: 0;
-  padding: 0.0625rem;
+    margin: 0;
+    padding: 0.0625rem;
 }
 
 #bottomLeft {
-  clear: $left;
-  float: $left;
-  min-width: 130px;
-  position: fixed;
-  top: 45px;
-  width: 15%;
+    clear: $left;
+    float: $left;
+    min-width: 8.125rem;
+    position: fixed;
+    top: 2.75rem;
+    width: 15%;
 }
 
 /* these are for the small datepicker DIV */
