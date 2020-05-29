@@ -25,9 +25,9 @@ $alertmsg = '';
 <html>
 <head>
     <?php Header::setupHeader(['opener']); ?>
-    <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/AnchorPosition.js"></script>
-    <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/PopupWindow.js"></script>
-    <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/ColorPicker2.js"></script>
+    <script src="../main/calendar/modules/PostCalendar/pnincludes/AnchorPosition.js"></script>
+    <script src="../main/calendar/modules/PostCalendar/pnincludes/PopupWindow.js"></script>
+    <script src="../main/calendar/modules/PostCalendar/pnincludes/ColorPicker2.js"></script>
 
 <!-- validation library -->
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
@@ -47,7 +47,7 @@ if (empty($collectthis)) {
 
 if (isset($_POST["mode"]) && $_POST["mode"] == "facility") {
     echo '
-<script type="text/javascript">
+<script>
 <!--
 dlgclose();
 //-->
@@ -56,7 +56,7 @@ dlgclose();
 	';
 }
 ?>
-<script type="text/javascript">
+<script>
 /// todo, move this to a common library
 
 var collectvalidation = <?php echo $collectthis; ?>;
@@ -361,7 +361,7 @@ function displayAlert() {
             </div>
         </div>
     </div>
-    <script type="text/javascript">
+    <script>
     <?php
     if ($alertmsg = trim($alertmsg)) {
         echo "alert(" . js_escape($alertmsg) . ");\n";
