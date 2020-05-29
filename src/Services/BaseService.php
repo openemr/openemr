@@ -138,23 +138,6 @@ class BaseService
     }
 
     /**
-     * Verify pid exist
-     * @param $pid
-     * @return mixed
-     */
-    public function verifyPid($pid)
-    {
-        $rtn = sqlQuery(
-            "Select pid From patient_data Where pid = ?",
-            array($pid)
-        )['pid'];
-        if (!$rtn) {
-            $this->throwException('Unable to find the user with id ' . $pid, 'error');
-        }
-        return true;
-    }
-
-    /**
      * @param $table
      * @return array
      */
@@ -246,5 +229,34 @@ class BaseService
     public static function isValidDate($dateString)
     {
         return (bool) strtotime($dateString);
+    }
+
+    /**
+     * Check and Return SQl (AND | OR) Operators
+     *
+     * @param $condition              - Boolean to check AND | OR
+     * @return string of (AND | OR) Operator
+     */
+    public static function sqlCondition($condition)
+    {
+        return (string) $condition ? ' AND ' : ' OR ';
+    }
+
+
+    /**
+     * Check and Return SQl (AND | OR) Operators
+     *
+     * @param $condition              - Boolean to check AND | OR
+     * @return string of (AND | OR) Operator
+     */
+    public static function getIdByUuid($uuid, $table, $field)
+    {
+        $sql = "SELECT $field from $table WHERE uuid = ?";
+        $result = sqlQuery($sql, array($uuid));
+        $rtn = $result[$field];
+        $validationMessages = [
+            $field => ["invalid or nonexisting value" => " value " . $uuid],
+        ];
+        return $rtn > 0 ? $rtn : $validationMessages;
     }
 }

@@ -2,8 +2,10 @@
 
 namespace OpenEMR\Validators;
 
-use Particle\Validator\Validator;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Validators\ProcessingResult;
+use Particle\Validator\Validator;
+use Ramsey\Uuid\Exception\InvalidUuidStringException;
 
 /**
  * Base class for OpenEMR object validation.
@@ -66,12 +68,50 @@ abstract class BaseValidator
         if (!$this->isValidContext($context)) {
             throw new \RuntimeException("unsupported context: " . $context);
         }
-        
+
         $validationResult = $this->validator->validate($dataFields, $context);
 
         $result = new ProcessingResult();
         $result->setValidationMessages($validationResult->getMessages());
 
         return $result;
+    }
+
+    /**
+     * Validates that a ID exists in the database.
+     *
+     * @param $field The identifier field in database
+     * @param $table The table in database
+     * @param $id The identifier to validateId
+     * @return true if the id is a valid existing id, otherwise Validation Message
+     */
+    public function validateId($field, $table, $lookupId, $isUuid = false)
+    {
+        // Error Message
+        $validationMessages = [
+            $field => ["invalid or nonexisting value" => "value " . $lookupId],
+        ];
+
+        // Check if $id is not UUID and a Valid Integer
+        if ($isUuid) {
+            try {
+                $lookupId = UuidRegistry::uuidToBytes($lookupId);
+            } catch (InvalidUuidStringException $e) {
+                $validationMessages = [
+                    $field => $e->getMessage(),
+                ];
+                return $validationMessages;
+            }
+        } elseif (!is_int($lookupId)) {
+            return $validationMessages;
+        }
+
+        $result = sqlQuery(
+            "SELECT $field FROM $table WHERE $field = ?",
+            array($lookupId)
+        );
+
+        $rtn = $result[$field] ?? $validationMessages;
+        return $rtn;
     }
 }

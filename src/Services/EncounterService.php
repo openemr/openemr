@@ -17,75 +17,134 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Validators\EncounterValidator;
+use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Validator;
 
-require_once(dirname(__FILE__) . "/../../library/forms.inc");
-require_once(dirname(__FILE__) . "/../../library/encounter.inc");
+require_once dirname(__FILE__) . "/../../library/forms.inc";
+require_once dirname(__FILE__) . "/../../library/encounter.inc";
 
-
-class EncounterService
+class EncounterService extends BaseService
 {
+    private $encounterValidator;
+    private $uuidRegistery;
+    private const ENCOUNTER_TABLE = "form_encounter";
+    private const PATIENT_TABLE = "patient_data";
 
-  /**
-   * Default constructor.
-   */
+    /**
+     * Default constructor.
+     */
     public function __construct()
     {
+        parent::__construct('form_encounter');
+        $this->uuidRegistery = new UuidRegistry(['table_name' => self::ENCOUNTER_TABLE]);
+        $this->uuidRegistery->createMissingUuids();
+        $this->encounterValidator = new EncounterValidator();
     }
 
-    public function validateEncounter($encounter)
+    /**
+     * Returns a single encounter record by encounter id and patient id.
+     * @param $puuid - The patient identifier of particular encounter
+     * @param $euuid - The encounter identifier used to lookup the encounter record.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function getEncounterForPatient($puuid, $euuid)
     {
-        $validator = new Validator();
-        $validator->required('date')->datetime('Y-m-d');
-        $validator->required('pc_catid');
 
+        $processingResult = new ProcessingResult();
 
-        return $validator->validate($encounter);
-    }
-    public function validateSoapNote($soapNote)
-    {
-        $validator = new Validator();
+        $isValidPatient = $this->encounterValidator->validateId('uuid', self::PATIENT_TABLE, $puuid, true);
+        if (is_array($isValidPatient)) {
+            $processingResult->setValidationMessages($isValidPatient);
+            return $processingResult;
+        }
+        $puuidBytes = UuidRegistry::uuidToBytes($puuid);
 
-        $validator->optional('subjective')->lengthBetween(2, 65535);
-        $validator->optional('objective')->lengthBetween(2, 65535);
-        $validator->optional('assessment')->lengthBetween(2, 65535);
-        $validator->optional('plan')->lengthBetween(2, 65535);
+        $pid = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
+        if (is_array($pid)) {
+            $processingResult->setValidationMessages($pid);
+            return $processingResult;
+        }
 
-        return $validator->validate($soapNote);
-    }
+        $isValidEncounter = $this->encounterValidator->validateId('uuid', self::ENCOUNTER_TABLE, $euuid, true);
+        if (is_array($isValidEncounter)) {
+            $processingResult->setValidationMessages($isValidEncounter);
+            return $processingResult;
+        }
+        $euuidBytes = UuidRegistry::uuidToBytes($euuid);
 
-    public function validateVital($vital)
-    {
-        $validator = new Validator();
-
-        $validator->optional('temp_method')->lengthBetween(1, 255);
-        $validator->optional('note')->lengthBetween(1, 255);
-        $validator->optional('BMI_status')->lengthBetween(1, 255);
-        $validator->optional('bps')->numeric();
-        $validator->optional('bpd')->numeric();
-        $validator->optional('weight')->numeric();
-        $validator->optional('height')->numeric();
-        $validator->optional('temperature')->numeric();
-        $validator->optional('pulse')->numeric();
-        $validator->optional('respiration')->numeric();
-        $validator->optional('BMI')->numeric();
-        $validator->optional('waist_circ')->numeric();
-        $validator->optional('head_circ')->numeric();
-        $validator->optional('oxygen_saturation')->numeric();
-
-        return $validator->validate($vital);
-    }
-
-    public function getEncountersForPatient($pid)
-    {
         $sql = "SELECT fe.encounter as id,
+                       fe.uuid as uuid,
                        fe.date,
                        fe.reason,
                        fe.facility,
                        fe.facility_id,
                        fe.pid,
-                       fe.encounter as id,
+                       fe.onset_date,
+                       fe.sensitivity,
+                       fe.billing_note,
+                       fe.pc_catid,
+                       fe.last_level_billed,
+                       fe.last_level_closed,
+                       fe.last_stmt_date,
+                       fe.stmt_count,
+                       fe.provider_id,
+                       fe.supervisor_id,
+                       fe.invoice_refno,
+                       fe.referral_source,
+                       fe.billing_facility,
+                       fe.external_id,
+                       fe.pos_code,
+                       opc.pc_catname,
+                       fa.name AS billing_facility_name
+                       FROM form_encounter as fe
+                       LEFT JOIN openemr_postcalendar_categories as opc
+                       ON opc.pc_catid = fe.pc_catid
+                       LEFT JOIN facility as fa ON fa.id = fe.billing_facility
+                       WHERE pid=? and fe.uuid=?
+                       ORDER BY fe.id
+                       DESC";
+
+        $sqlResult = sqlQuery($sql, array($pid, $euuidBytes));
+        $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
+        $processingResult->addData($sqlResult);
+        return $processingResult;
+    }
+
+    /**
+     * Returns a list of encounters matching the patient indentifier.
+     *
+     * @param  $puuid The patient identifier of particular encounter
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function getEncountersForPatient($puuid)
+    {
+        $processingResult = new ProcessingResult();
+
+        $isValidPatient = $this->encounterValidator->validateId('uuid', self::PATIENT_TABLE, $puuid, true);
+        if (is_array($isValidPatient)) {
+            $processingResult->setValidationMessages($isValidPatient);
+            return $processingResult;
+        }
+
+        $puuidBytes = UuidRegistry::uuidToBytes($puuid);
+        $pid = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
+        if (is_array($pid)) {
+            $processingResult->setValidationMessages($pid);
+            return $processingResult;
+        }
+
+        $sql = "SELECT fe.encounter as id,
+                       fe.uuid as uuid,
+                       fe.date,
+                       fe.reason,
+                       fe.facility,
+                       fe.facility_id,
+                       fe.pid,
                        fe.onset_date,
                        fe.sensitivity,
                        fe.billing_note,
@@ -112,74 +171,12 @@ class EncounterService
                        DESC";
 
         $statementResults = sqlStatement($sql, array($pid));
-
-        $results = array();
         while ($row = sqlFetchArray($statementResults)) {
-            array_push($results, $row);
+            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
+            $processingResult->addData($row);
         }
 
-        return $results;
-    }
-
-    public function getEncountersBySearch($search)
-    {
-        $sqlBindArray = array();
-
-        $sql = "SELECT fe.encounter as id,
-                       fe.date,
-                       fe.reason,
-                       fe.facility,
-                       fe.facility_id,
-                       fe.pid,
-                       fe.encounter,
-                       fe.onset_date,
-                       fe.sensitivity,
-                       fe.billing_note,
-                       fe.pc_catid,
-                       fe.last_level_billed,
-                       fe.last_level_closed,
-                       fe.last_stmt_date,
-                       fe.stmt_count,
-                       fe.provider_id,
-                       fe.supervisor_id,
-                       fe.invoice_refno,
-                       fe.referral_source,
-                       fe.billing_facility,
-                       fe.external_id,
-                       fe.pos_code,
-                       opc.pc_catname,
-                       fa.name AS billing_facility_name
-                       FROM form_encounter as fe
-                       LEFT JOIN openemr_postcalendar_categories as opc
-                       ON opc.pc_catid = fe.pc_catid
-                       LEFT JOIN facility as fa ON fa.id = fe.billing_facility";
-
-        if ($search['pid'] || $search['provider_id']) {
-            $sql .= " WHERE ";
-
-            $whereClauses = array();
-            if ($search['pid']) {
-                array_push($whereClauses, "pid=?");
-                array_push($sqlBindArray, $search['pid']);
-            }
-            if ($search['provider_id']) {
-                array_push($whereClauses, "provider_id=?");
-                array_push($sqlBindArray, $search['provider_id']);
-            }
-
-            $sql .= implode(" AND ", $whereClauses);
-        } else {
-            return false;
-        }
-        $sql .= " ORDER BY fe.id DESC";
-        $statementResults = sqlStatement($sql, $sqlBindArray);
-
-        $results = array();
-        while ($row = sqlFetchArray($statementResults)) {
-            array_push($results, $row);
-        }
-
-        return $results;
+        return $processingResult;
     }
 
     public function getEncounter($eid)
