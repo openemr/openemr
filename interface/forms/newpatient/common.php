@@ -103,7 +103,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 
     <?php include_once("{$GLOBALS['srcdir']}/ajax/facility_ajax_jav.inc.php"); ?>
     <script language="JavaScript">
-        const mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+        const mypcc = '' + <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
         // Process click on issue title.
         function newissue() {
@@ -131,7 +131,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             $collectthis = json_sanitize($collectthis["new_encounter"]["rules"]);
         }
         ?>
-        const collectvalidation = <?php echo $collectthis; ?>;
+        let collectvalidation = <?php echo $collectthis; ?>;
         $(function () {
             window.saveClicked = function (event) {
                 const submit = submitme(1, event, 'new-encounter-form', collectvalidation);
@@ -165,9 +165,13 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             });
         });
 
+        const isPosEnabled = "" + <?php echo js_escape($GLOBALS['set_pos_code_encounter']); ?>;
+
         function getPOS() {
+            if (!isPosEnabled) {
+                return false;
+            }
             let facility = document.forms[0].facility_id.value;
-            <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
             $.ajax({
                 url: "./../../../library/ajax/facility_ajax_code.php",
                 method: "GET",
@@ -181,7 +185,6 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             }).fail(function (xhr) {
                 console.log('error', xhr);
             });
-            <?php } ?>
         }
 
         function newUserSelected() {
@@ -197,7 +200,9 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             }).done(function (data) {
                 let rtn = JSON.parse(data);
                 document.forms[0].facility_id.value = rtn[0];
-                document.forms[0].pos_code.value = rtn[1];
+                if (isPosEnabled) {
+                    document.forms[0].pos_code.value = rtn[1];
+                }
                 if (Number(rtn[2]) === 1) {
                     document.forms[0]['billing_facility'].value = rtn[0];
                 }
@@ -464,6 +469,9 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 $userService = new UserService();
                                 $users = $userService->getActiveUsers();
                                 foreach ($users as $activeUser) {
+                                    if ($activeUser->getAuthorized() !== true) {
+                                        continue;
+                                    }
                                     echo "<option value='" . attr($activeUser->getId()) . "'";
                                     if ((int)$provider_id === $activeUser->getId()) {
                                         echo " selected";
@@ -661,14 +669,14 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
     <?php
     if ($GLOBALS['enable_group_therapy']) { ?>
     /* hide / show group name input */
-    const groupCategories = <?php echo json_encode($therapyGroupCategories); ?>;
+    let groupCategories = <?php echo json_encode($therapyGroupCategories); ?>;
     $('#pc_catid').on('change', function () {
         if (groupCategories.indexOf($(this).val()) > -1) {
             $('#therapy_group_name').show();
         } else {
             $('#therapy_group_name').hide();
         }
-    })
+    });
 
     function sel_group() {
         top.restoreSession();
