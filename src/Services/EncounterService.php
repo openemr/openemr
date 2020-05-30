@@ -215,10 +215,17 @@ class EncounterService extends BaseService
         return sqlQuery($sql, array($eid));
     }
 
-    // @todo recm changing routes
-    // encounter id is system unique so pid is not needed
-    // resources should be independent where possible
-    public function getEncounterForPatient($pid, $eid)
+    /**
+     * Returns a list of encounters matching optional search criteria.
+     * Search criteria is conveyed by array where key = field/column name, value = field value.
+     * If no search criteria is provided, all records are returned.
+     *
+     * @param  $search search array parameters
+     * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function getEncountersBySearch($search = array(), $isAndCondition = true)
     {
         $sql = "SELECT fe.encounter as id,
                        fe.date,

@@ -658,6 +658,9 @@ CREATE UNIQUE INDEX `pid` ON `patient_access_onsite` (`pid`);
 ALTER TABLE `form_encounter` ADD `uuid` binary(16) NOT NULL default '';
 #EndIf
 
+#IfUuidNeedUpdate form_encounter
+#EndIf
+
 #IfNotIndex form_encounter uuid
 CREATE UNIQUE INDEX `uuid` ON `form_encounter` (`uuid`);
 #EndIf
