@@ -45,7 +45,7 @@ class EncounterService extends BaseService
     }
 
     /**
-     * Returns a single encounter record by encounter id and patient id.
+     * Returns a single encounter record by encounter uuid and patient uuid.
      * @param $puuid - The patient identifier of particular encounter
      * @param $euuid - The encounter identifier used to lookup the encounter record.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
@@ -261,111 +261,134 @@ class EncounterService extends BaseService
         return sqlQuery($sql, array($pid, $eid));
     }
 
-    public function insertEncounter($pid, $data)
+    /**
+     * Inserts a new Encounter record.
+     *
+     * @param $puuid The patient identifier of particular encounter
+     * @param $data The encounter fields (array) to insert.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function insertEncounter($puuid, $data)
     {
+        $processingResult = new ProcessingResult();
+
+        $isValidPatient = $this->encounterValidator->validateId('uuid', self::PATIENT_TABLE, $puuid, true);
+        if (is_array($isValidPatient)) {
+            $processingResult->setValidationMessages($isValidPatient);
+            return $processingResult;
+        }
+
         $encounter = generate_id();
+        $data['encounter'] = $encounter;
+        $data['uuid'] = $this->uuidRegistery->createUuid();
+        $data['date'] = date("Y-m-d");
+        $puuidBytes = UuidRegistry::uuidToBytes($puuid);
+        $data['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
+        $processingResult = $this->encounterValidator->validate($data, EncounterValidator::DATABASE_INSERT_CONTEXT);
 
-        $sql .= " INSERT INTO form_encounter SET";
-        $sql .= "     date = ?,";
-        $sql .= "     onset_date = ?,";
-        $sql .= "     reason = ?,";
-        $sql .= "     facility = ?,";
-        $sql .= "     pc_catid = ?,";
-        $sql .= "     facility_id = ?,";
-        $sql .= "     billing_facility = ?,";
-        $sql .= "     sensitivity = ?,";
-        $sql .= "     referral_source = ?,";
-        $sql .= "     pid = ?,";
-        $sql .= "     encounter = ?,";
-        $sql .= "     pos_code = ?,";
-        $sql .= "     external_id = ?,";
-        $sql .= "     provider_id = ?,";
-        $sql .= "     parent_encounter_id = ?";
+        if ($processingResult->isValid()) {
+            $query = $this->buildInsertColumns($data);
+            $sql = " INSERT INTO form_encounter SET ";
+            $sql .= $query['set'];
 
-        $results;
-        addForm(
-            $encounter,
-            "New Patient Encounter",
             $results = sqlInsert(
                 $sql,
-                [
-                $data["date"],
-                $data["onset_date"],
-                $data["reason"],
-                $data["facility"],
-                $data["pc_catid"],
-                $data["facility_id"],
-                $data["billing_facility"],
-                $data["sensitivity"],
-                $data["referral_source"],
-                $pid,
-                $encounter,
-                $data["pos_code"],
-                $data["external_id"],
-                $data["provider_id"],
-                $data["parent_enc_id"]
-                ]
-            ),
-            "newpatient",
-            $pid,
-            $data["provider_id"],
-            $data["date"]
-        );
+                $query['bind']
+            );
 
-        if ($results) {
-            return $encounter;
+            addForm(
+                $encounter,
+                "New Patient Encounter",
+                $results,
+                "newpatient",
+                $data['pid'],
+                $data["provider_id"],
+                $data["date"]
+            );
+
+            if ($results) {
+                $processingResult->addData(array(
+                    'encounter' => $encounter,
+                    'uuid' => UuidRegistry::uuidToString($data['uuid']),
+                ));
+            } else {
+                $processingResult->addProcessingError("error processing SQL Insert");
+            }
         }
+
+        return $processingResult;
     }
 
-    public function updateEncounter($pid, $eid, $data)
+    /**
+     * Updates an existing Encounter record.
+     *
+     * @param $puuid The patient identifier of particular encounter.
+     * @param $euuid - The Encounter identifier used for update.
+     * @param $data - The updated Encounter data fields
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function updateEncounter($puuid, $euuid, $data)
     {
-        $facilityService = new FacilityService();
+        $processingResult = new ProcessingResult();
 
+        $isValidPatient = $this->encounterValidator->validateId('uuid', self::PATIENT_TABLE, $puuid, true);
+        if (is_array($isValidPatient)) {
+            $processingResult->setValidationMessages($isValidPatient);
+            return $processingResult;
+        }
+        $isValidEncounter = $this->encounterValidator->validateId('uuid', self::ENCOUNTER_TABLE, $euuid, true);
+        if (is_array($isValidEncounter)) {
+            $processingResult->setValidationMessages($isValidEncounter);
+            return $processingResult;
+        }
+
+        $puuidBytes = UuidRegistry::uuidToBytes($puuid);
+        $euuidBytes = UuidRegistry::uuidToBytes($euuid);
+        $data['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
+        $data['encounter'] = $this->getIdByUuid($euuidBytes, self::ENCOUNTER_TABLE, "encounter");
+
+        $facilityService = new FacilityService();
         $facilityresult = $facilityService->getById($data["facility_id"]);
         $facility = $facilityresult['name'];
-
-        $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE encounter = ?", array($eid));
+        $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE encounter = ?", array($data['encounter']));
         if ($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) {
             return "You are not authorized to see this encounter.";
         }
 
         // See view.php to allow or disallow updates of the encounter date.
-        $datepart = "";
-        $sqlBindArray = array();
-        if (AclMain::aclCheckCore('encounters', 'date_a')) {
-            $datepart = "date = ?, ";
-            $sqlBindArray[] = $data["date"];
+        if (!AclMain::aclCheckCore('encounters', 'date_a')) {
+            unset($data["date"]);
         }
 
-        array_push(
-            $sqlBindArray,
-            $data["onset_date"],
-            $data["reason"],
-            $facility,
-            $data["pc_catid"],
-            $data["facility_id"],
-            $data["billing_facility"],
-            $data["sensitivity"],
-            $data["referral_source"],
-            $data["pos_code"],
-            $eid
-        );
+        $data['facility'] = $facility;
+        $processingResult = $this->encounterValidator->validate($data, EncounterValidator::DATABASE_UPDATE_CONTEXT);
 
-        $sql .= "  UPDATE form_encounter SET $datepart";
-        $sql .= "     onset_date = ?, ";
-        $sql .= "     reason = ?, ";
-        $sql .= "     facility = ?, ";
-        $sql .= "     pc_catid = ?, ";
-        $sql .= "     facility_id = ?, ";
-        $sql .= "     billing_facility = ?, ";
-        $sql .= "     sensitivity = ?, ";
-        $sql .= "     referral_source = ?, ";
-        $sql .= "     pos_code = ? WHERE encounter = ?";
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
 
-        return sqlStatement(
+        $query = $this->buildUpdateColumns($data);
+        $sql = " UPDATE form_encounter SET ";
+        $sql .= $query['set'];
+        $sql .= " WHERE encounter = ?";
+        $sql .= " AND pid = ?";
+
+        array_push($query['bind'], $data['encounter']);
+        array_push($query['bind'], $data['pid']);
+        $results = sqlStatement(
             $sql,
-            $sqlBindArray
+            $query['bind']
         );
+
+        if ($results) {
+            $processingResult = $this->getEncounterForPatient($puuid, $euuid);
+        } else {
+            $processingResult->addProcessingError("error processing SQL Update");
+        }
+
+        return $processingResult;
     }
 
     public function insertSoapNote($pid, $eid, $data)

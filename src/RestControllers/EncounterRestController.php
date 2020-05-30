@@ -34,26 +34,26 @@ class EncounterRestController
 
     /**
      * Process a HTTP POST request used to create a encounter record.
-     * @param $pid - The patient identifier used to lookup the existing record.
+     * @param $puuid - The patient identifier used to lookup the existing record.
      * @param $data - array of encounter fields.
      * @return a 201/Created status code and the encounter identifier if successful.
      */
-    public function post($pid, $data)
+    public function post($puuid, $data)
     {
-        $processingResult = $this->encounterService->insertEncounter(intval($pid), $data);
+        $processingResult = $this->encounterService->insertEncounter($puuid, $data);
         return RestControllerHelper::handleProcessingResult($processingResult, 201);
     }
 
     /**
      * Processes a HTTP PUT request used to update an existing encounter record.
-     * @param $pid - The patient identifier used to lookup the existing record.
-     * @param $eid - The encounter identifier used to lookup the existing record.
+     * @param $puuid - The patient identifier used to lookup the existing record.
+     * @param $euuid - The encounter identifier used to lookup the existing record.
      * @param $data - array of encounter fields (full resource).
      * @return a 200/Ok status code and the encounter resource.
      */
-    public function put($pid, $eid, $data)
+    public function put($puuid, $euuid, $data)
     {
-        $processingResult = $this->encounterService->updateEncounter(intval($pid), intval($eid), $data);
+        $processingResult = $this->encounterService->updateEncounter($puuid, $euuid, $data);
         return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 

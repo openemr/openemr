@@ -86,23 +86,23 @@ RestConfig::$ROUTE_MAP = array(
         RestConfig::authorization_check("patients", "demo");
         return (new PatientRestController())->getOne($puuid);
     },
-    "GET /api/patient/:pid/encounter" => function ($pid) {
+    "GET /api/patient/:puuid/encounter" => function ($puuid) {
         RestConfig::authorization_check("encounters", "auth_a");
-        return (new EncounterRestController())->getAll($pid);
+        return (new EncounterRestController())->getAll($puuid);
     },
-    "POST /api/patient/:pid/encounter" => function ($pid) {
+    "POST /api/patient/:puuid/encounter" => function ($puuid) {
         RestConfig::authorization_check("encounters", "auth_a");
         $data = (array)(json_decode(file_get_contents("php://input")));
-        return (new EncounterRestController())->post($pid, $data);
+        return (new EncounterRestController())->post($puuid, $data);
     },
-    "PUT /api/patient/:pid/encounter/:eid" => function ($pid, $eid) {
+    "PUT /api/patient/:puuid/encounter/:eid" => function ($puuid, $euuid) {
         RestConfig::authorization_check("encounters", "auth_a");
         $data = (array)(json_decode(file_get_contents("php://input")));
-        return (new EncounterRestController())->put($pid, $eid, $data);
+        return (new EncounterRestController())->put($puuid, $euuid, $data);
     },
-    "GET /api/patient/:pid/encounter/:eid" => function ($pid, $eid) {
+    "GET /api/patient/:puuid/encounter/:euuid" => function ($puuid, $euuid) {
         RestConfig::authorization_check("encounters", "auth_a");
-        return (new EncounterRestController())->getOne($pid, $eid);
+        return (new EncounterRestController())->getOne($puuid, $euuid);
     },
     "GET /api/patient/:pid/encounter/:eid/soap_note" => function ($pid, $eid) {
         RestConfig::authorization_check("encounters", "notes");
