@@ -1036,7 +1036,7 @@ function writeITLine($it_array)
             <div class="collapse navbar-collapse" id="navbar-list">
                 <ul class="nav navbar-nav">
                     <li class="nav-item"><a class="nav-link" href="#" data-toggle="modal" data-target="#modal-new-list"><i class="fa fa-plus"></i>&nbsp;<?php echo xlt('New List'); ?></a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" class="deletelist" id="<?php echo attr($list_id); ?>"><i class="fa fa-trash"></i>&nbsp;<?php echo xlt('Delete List'); ?></a></li>
+                    <li class="nav-item"><a class="nav-link deletelist" href="#" id="<?php echo attr($list_id); ?>"><i class="fa fa-trash"></i>&nbsp;<?php echo xlt('Delete List'); ?></a></li>
                 </ul>
                 <input type="hidden" name="formaction" id="formaction">
                 <div class="form-group navbar-left">
