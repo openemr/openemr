@@ -441,15 +441,23 @@ if (!$viewmode) {
                                         $userService = new UserService();
                                         $users = $userService->getActiveUsers();
                                         foreach ($users as $activeUser) {
+                                            $p_id = (int)$activeUser->getId();
+                                            // Check for the case where an encounter is created by non-auth user
+                                            // but has permissions to create/edit encounter.
+                                            $flag_it = "";
                                             if ($activeUser->getAuthorized() !== true) {
-                                                continue;
+                                                if ($p_id === (int)$result['provider_id']) {
+                                                    $flag_it = " (" . xlt("Non Provider") . ")";
+                                                } else {
+                                                    continue;
+                                                }
                                             }
-                                            echo "<option value='" . attr($activeUser->getId()) . "'";
-                                            if ((int)$provider_id === $activeUser->getId()) {
+                                            echo "<option value='" . attr($p_id) . "'";
+                                            if ((int)$provider_id === $p_id) {
                                                 echo "selected";
                                             }
                                             echo ">" . text($activeUser->getLname()) . ' ' .
-                                                text($activeUser->getFname()) . ' ' . text($activeUser->getMname()) . "</option>\n";
+                                                text($activeUser->getFname()) . ' ' . text($activeUser->getMname()) . $flag_it . "</option>\n";
                                         }
                                         ?>
                                     </select>

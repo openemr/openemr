@@ -234,12 +234,17 @@ if ($_POST['formaction'] == 'save' && $list_id) {
 
     // determine the position of this new list
     $row = sqlQuery("SELECT max(seq) AS maxseq FROM list_options WHERE list_id= 'lists'");
-
-    // add the new list to the list-of-lists
-    sqlStatement("INSERT INTO list_options ( " .
-        "list_id, option_id, title, seq, is_default, option_value " .
-        ") VALUES ( 'lists', ?, ?, ?, '1', '0')", array($newlistID, $_POST['newlistname'], ($row['maxseq'] + 1)));
-    $list_id = $newlistID;
+    $dup_cnt = sqlQuery("SELECT count(seq) as validate FROM list_options WHERE list_id= 'lists' AND option_id = ?", array($newlistID))['validate'];
+    if ((int)$dup_cnt === 0) {
+        // add the new list to the list-of-lists
+        sqlStatement("INSERT INTO list_options ( " .
+            "list_id, option_id, title, seq, is_default, option_value " .
+            ") VALUES ( 'lists', ?, ?, ?, '1', '0')", array($newlistID, $_POST['newlistname'], ($row['maxseq'] + 1)));
+        $list_id = $newlistID;
+    } else {
+        // send error and continue.
+        echo "<script>let error=" . js_escape(xlt("The new list") . " [" . $_POST['newlistname'] . "] " . xlt("already exists! Please try again.")) . ";</script>";
+    }
 } elseif ($_POST['formaction'] == 'deletelist') {
     // delete the lists options
     sqlStatement("DELETE FROM list_options WHERE list_id = ?", array($_POST['list_id']));
@@ -764,12 +769,17 @@ function writeITLine($it_array)
             color: green;
         }
     </style>
-    <script type="text/javascript">
+    <script>
         $(function () {
             $(".select-dropdown").select2({
                 theme: "bootstrap",
                 <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
             });
+            if (typeof error !== 'undefined') {
+                if (error) {
+                    alertMsg(error);
+                }
+            }
         });
 
         // Keeping track of code picker requests.
