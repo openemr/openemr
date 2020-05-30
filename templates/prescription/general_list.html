@@ -87,6 +87,7 @@ function deleteDrug(d) {
     let msg = {/literal}{xlj t='Do you really want to delete?'}{literal};
     let choice = confirm(msg + d);
     if (choice == true) {
+        top.restoreSession();
         $.ajax({
                 url: "./library/deleteDrug.php",
                 type: 'POST',

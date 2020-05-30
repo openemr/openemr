@@ -26,7 +26,6 @@ $id = trim($id);
 if (isset($id)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
-        throw new Exception("Form validation failed");
     }
     try {
         $sql = "delete from prescriptions where id = ?";
