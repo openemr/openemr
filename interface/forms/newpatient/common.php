@@ -7,6 +7,7 @@
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -469,15 +470,23 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 $userService = new UserService();
                                 $users = $userService->getActiveUsers();
                                 foreach ($users as $activeUser) {
+                                    $p_id = (int)$activeUser->getId();
+                                    // Check for the case where an encounter is created by non-auth user
+                                    // but has permissions to create/edit encounter.
+                                    $flag_it = "";
                                     if ($activeUser->getAuthorized() !== true) {
-                                        continue;
+                                        if ($p_id === (int)$result['provider_id']) {
+                                            $flag_it = " (" . xlt("Non Provider") . ")";
+                                        } else {
+                                            continue;
+                                        }
                                     }
-                                    echo "<option value='" . attr($activeUser->getId()) . "'";
-                                    if ((int)$provider_id === $activeUser->getId()) {
-                                        echo " selected";
+                                    echo "<option value='" . attr($p_id) . "'";
+                                    if ((int)$provider_id === $p_id) {
+                                        echo "selected";
                                     }
                                     echo ">" . text($activeUser->getLname()) . ' ' .
-                                        text($activeUser->getFname()) . ' ' . text($activeUser->getMname()) . "</option>\n";
+                                        text($activeUser->getFname()) . ' ' . text($activeUser->getMname()) . $flag_it . "</option>\n";
                                 }
                                 ?>
                             </select>
