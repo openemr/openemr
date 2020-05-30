@@ -441,11 +441,14 @@ if (!$viewmode) {
                                         $userService = new UserService();
                                         $users = $userService->getActiveUsers();
                                         foreach ($users as $activeUser) {
-                                            if ($activeUser->getAuthorized() !== true) {
+                                            $p_id = (int)$activeUser->getId();
+                                            // Check for the case where an encounter is created by non-auth user
+                                            // but has permissions to create/edit encounter.
+                                            if (($activeUser->getAuthorized()) !== true && ($p_id !== (int)$result['provider_id'])) {
                                                 continue;
                                             }
-                                            echo "<option value='" . attr($activeUser->getId()) . "'";
-                                            if ((int)$provider_id === $activeUser->getId()) {
+                                            echo "<option value='" . attr($p_id) . "'";
+                                            if ((int)$provider_id === $p_id) {
                                                 echo "selected";
                                             }
                                             echo ">" . text($activeUser->getLname()) . ' ' .
