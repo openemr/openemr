@@ -243,7 +243,8 @@ if ($_POST['formaction'] == 'save' && $list_id) {
         $list_id = $newlistID;
     } else {
         // send error and continue.
-        echo "<script>let error=" . js_escape(xlt("The new list") . " [" . $_POST['newlistname'] . "] " . xlt("already exists! Please try again.")) . ";</script>";}
+        echo "<script>let error=" . js_escape(xlt("The new list") . " [" . $_POST['newlistname'] . "] " . xlt("already exists! Please try again.")) . ";</script>";
+    }
 } elseif ($_POST['formaction'] == 'deletelist') {
     // delete the lists options
     sqlStatement("DELETE FROM list_options WHERE list_id = ?", array($_POST['list_id']));
