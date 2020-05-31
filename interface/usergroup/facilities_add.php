@@ -24,10 +24,10 @@ $alertmsg = '';
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['opener', 'jquery-ui']); ?>
-    <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/AnchorPosition.js"></script>
-    <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/PopupWindow.js"></script>
-    <script type="text/javascript" src="../main/calendar/modules/PostCalendar/pnincludes/ColorPicker2.js"></script>
+    <?php Header::setupHeader(['opener']); ?>
+    <script src="../main/calendar/modules/PostCalendar/pnincludes/AnchorPosition.js"></script>
+    <script src="../main/calendar/modules/PostCalendar/pnincludes/PopupWindow.js"></script>
+    <script src="../main/calendar/modules/PostCalendar/pnincludes/ColorPicker2.js"></script>
 
 <!-- validation library -->
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
@@ -47,7 +47,7 @@ if (empty($collectthis)) {
 
 if (isset($_POST["mode"]) && $_POST["mode"] == "facility") {
     echo '
-<script type="text/javascript">
+<script>
 <!--
 dlgclose();
 //-->
@@ -56,7 +56,7 @@ dlgclose();
 	';
 }
 ?>
-<script type="text/javascript">
+<script>
 /// todo, move this to a common library
 
 var collectvalidation = <?php echo $collectthis; ?>;
@@ -172,8 +172,10 @@ function displayAlert() {
     <div class="container">
         <h5 class="title"><?php echo xlt('Add Facility'); ?></h5>
         <div class="py-3">
-            <a onclick="submitform();" class="btn btn-primary" name='form_save' id='form_save' href='#'><?php echo xlt('Save'); ?></a>
-            <a onclick="dlgclose();" class="btn btn-secondary" id='cancel' href='#'><?php echo xlt('Cancel'); ?></a>
+            <div class="btn-group">
+                <button class="btn btn-primary btn-save" name='form_save' id='form_save' onclick="submitform();"><?php echo xlt('Save'); ?></button>
+                <button class="btn btn-secondary btn-cancel" onclick="dlgclose();"><?php echo xlt('Cancel'); ?></button>
+            </div>
         </div>
 
         <form name='facility-add' id='facility-add' method='post' action="facilities.php">
@@ -353,11 +355,13 @@ function displayAlert() {
             <p class="text"><span class="mandatory">*</span> <?php echo xlt('Required'); ?></p>
         </form>
         <div class="py-3">
-            <a onclick="submitform();" class="btn btn-primary" name='form_save' id='form_save' href='#'><?php echo xlt('Save'); ?></a>
-            <a onclick="dlgclose();" class="btn btn-secondary" href='#'><?php echo xlt('Cancel'); ?></a>
+            <div class="btn-group">
+                <button class="btn btn-primary btn-save" name='form_save' id='form_save' onclick="submitform();"><?php echo xlt('Save'); ?></button>
+                <button class="btn btn-secondary btn-cancel" onclick="dlgclose();"><?php echo xlt('Cancel'); ?></button>
+            </div>
         </div>
     </div>
-    <script type="text/javascript">
+    <script>
     <?php
     if ($alertmsg = trim($alertmsg)) {
         echo "alert(" . js_escape($alertmsg) . ");\n";
