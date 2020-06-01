@@ -1,5 +1,4 @@
 <?php
-
 /**
  * PortalPatientController.php
  *
@@ -48,11 +47,11 @@ class PortalPatientController extends AppBaseController
     {
         $rid = $pid = $user = $encounter = 0;
         if (isset($_GET['id'])) {
-            $rid = (int) $_GET['id'];
+            $rid = (int)$_GET['id'];
         }
 
         if (isset($_GET['pid'])) {
-            $pid = (int) $_GET['pid'];
+            $pid = (int)$_GET['pid'];
         }
 
         if (isset($_GET['user'])) {
@@ -246,9 +245,13 @@ class PortalPatientController extends AppBaseController
             $audit['action_taken_time'] = "";
             $audit['checksum'] = "0";
 
+            // returns false for new audit
             $edata = $appsql->getPortalAudit($ja['pid'], 'review');
-            $audit['date'] = $edata['date'];
-            if ($edata['id'] > 0) {
+            if ($edata) {
+                if (empty($edata['id'])) {
+                    throw new Exception("Invalid ID on Save!");
+                }
+                $audit['date'] = $edata['date'] ?? null;
                 $appsql->portalAudit('update', $edata['id'], $audit);
             } else {
                 $appsql->portalAudit('insert', '', $audit);
