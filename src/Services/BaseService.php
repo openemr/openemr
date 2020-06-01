@@ -254,9 +254,6 @@ class BaseService
         $sql = "SELECT $field from $table WHERE uuid = ?";
         $result = sqlQuery($sql, array($uuid));
         $rtn = $result[$field];
-        $validationMessages = [
-            $field => ["invalid or nonexisting value" => " value " . $uuid],
-        ];
-        return $rtn > 0 ? $rtn : $validationMessages;
+        return $rtn > 0 ? $rtn : false;
     }
 }

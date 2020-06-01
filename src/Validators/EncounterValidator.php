@@ -24,15 +24,10 @@ class EncounterValidator extends BaseValidator
         $this->validator->context(
             self::DATABASE_INSERT_CONTEXT,
             function (Validator $context) {
-                $context->required('date')->datetime('Y-m-d');
                 $context->required('pc_catid');
-                $context->required("pid", "pid")->callback(function ($value) {
-                    if (!$this->validateId('pid', "patient_data", $value)) {
-                        $message = "PID " . $value . " does not exist";
-                        throw new InvalidValueException($message, $value);
-                    }
-                    return true;
-                })->integer();
+                $context->required("puuid", "Patient UUID")->callback(function ($value) {
+                    return $this->validateId('uuid', "patient_data", $value, true);
+                })->uuid();
             }
         );
 
@@ -48,22 +43,14 @@ class EncounterValidator extends BaseValidator
                         }
                     }
                 );
-                // additional eid validation
-                $context->required("encounter", "encounter")->callback(function ($value) {
-                    if (!$this->validateId("encounter", "form_encounter", $value)) {
-                        $message = "EID " . $value . " does not exist";
-                        throw new InvalidValueException($message, $value);
-                    }
-                    return true;
-                })->integer();
-                // additional pid validation
-                $context->required("pid", "pid")->callback(function ($value) {
-                    if (!$this->validateId('pid', "patient_data", $value)) {
-                        $message = "PID " . $value . " does not exist";
-                        throw new InvalidValueException($message, $value);
-                    }
-                    return true;
-                })->integer();
+                // additional euuid validation
+                $context->required("euuid", "Encounter UUID")->callback(function ($value) {
+                    return $this->validateId("uuid", "form_encounter", $value, true);
+                })->uuid();
+                // additional puuid validation
+                $context->required("puuid", "Patient UUID")->callback(function ($value) {
+                    return $this->validateId('uuid', "patient_data", $value, true);
+                })->uuid();
             }
         );
     }

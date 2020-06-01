@@ -82,28 +82,29 @@ abstract class BaseValidator
      *
      * @param $field The identifier field in database
      * @param $table The table in database
-     * @param $id The identifier to validateId
-     * @return true if the id is a valid existing id, otherwise Validation Message
+     * @param $lookupId The identifier to validateId
+     * @param $isUuid true if the lookupId is UUID, otherwise false
+     * @return true if the lookupId is a valid existing id, otherwise Validation Message
      */
     public function validateId($field, $table, $lookupId, $isUuid = false)
     {
+        $validationResult = new ProcessingResult();
+
         // Error Message
         $validationMessages = [
             $field => ["invalid or nonexisting value" => "value " . $lookupId],
         ];
+        $validationResult->setValidationMessages($validationMessages);
 
-        // Check if $id is not UUID and a Valid Integer
+        // Check if $id is not UUID or a Valid Integer
         if ($isUuid) {
             try {
                 $lookupId = UuidRegistry::uuidToBytes($lookupId);
             } catch (InvalidUuidStringException $e) {
-                $validationMessages = [
-                    $field => $e->getMessage(),
-                ];
-                return $validationMessages;
+                return $validationResult;
             }
         } elseif (!is_int($lookupId)) {
-            return $validationMessages;
+            return $validationResult;
         }
 
         $result = sqlQuery(
@@ -111,7 +112,6 @@ abstract class BaseValidator
             array($lookupId)
         );
 
-        $rtn = $result[$field] ?? $validationMessages;
-        return $rtn;
+        return $result[$field] ? true : $validationResult;
     }
 }

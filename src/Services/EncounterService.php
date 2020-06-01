@@ -57,24 +57,18 @@ class EncounterService extends BaseService
         $processingResult = new ProcessingResult();
 
         $isValidPatient = $this->encounterValidator->validateId('uuid', self::PATIENT_TABLE, $puuid, true);
-        if (is_array($isValidPatient)) {
-            $processingResult->setValidationMessages($isValidPatient);
-            return $processingResult;
+        if ($isValidPatient != true) {
+            return $isValidPatient;
         }
+        $isValidEncounter = $this->encounterValidator->validateId('uuid', self::ENCOUNTER_TABLE, $euuid, true);
+        if ($isValidEncounter != true) {
+            return $isValidEncounter;
+        }
+
         $puuidBytes = UuidRegistry::uuidToBytes($puuid);
+        $euuidBytes = UuidRegistry::uuidToBytes($euuid);
 
         $pid = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
-        if (is_array($pid)) {
-            $processingResult->setValidationMessages($pid);
-            return $processingResult;
-        }
-
-        $isValidEncounter = $this->encounterValidator->validateId('uuid', self::ENCOUNTER_TABLE, $euuid, true);
-        if (is_array($isValidEncounter)) {
-            $processingResult->setValidationMessages($isValidEncounter);
-            return $processingResult;
-        }
-        $euuidBytes = UuidRegistry::uuidToBytes($euuid);
 
         $sql = "SELECT fe.encounter as id,
                        fe.uuid as uuid,
@@ -104,7 +98,7 @@ class EncounterService extends BaseService
                        LEFT JOIN openemr_postcalendar_categories as opc
                        ON opc.pc_catid = fe.pc_catid
                        LEFT JOIN facility as fa ON fa.id = fe.billing_facility
-                       WHERE pid=? and fe.uuid=?
+                       WHERE fe.pid=? and fe.uuid=?
                        ORDER BY fe.id
                        DESC";
 
@@ -126,17 +120,12 @@ class EncounterService extends BaseService
         $processingResult = new ProcessingResult();
 
         $isValidPatient = $this->encounterValidator->validateId('uuid', self::PATIENT_TABLE, $puuid, true);
-        if (is_array($isValidPatient)) {
-            $processingResult->setValidationMessages($isValidPatient);
-            return $processingResult;
+        if ($isValidPatient != true) {
+            return $isValidPatient;
         }
 
         $puuidBytes = UuidRegistry::uuidToBytes($puuid);
         $pid = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
-        if (is_array($pid)) {
-            $processingResult->setValidationMessages($pid);
-            return $processingResult;
-        }
 
         $sql = "SELECT fe.encounter as id,
                        fe.uuid as uuid,
@@ -272,10 +261,12 @@ class EncounterService extends BaseService
     public function insertEncounter($puuid, $data)
     {
         $processingResult = new ProcessingResult();
+        $processingResult = $this->encounterValidator->validate(
+            array_merge($data, ["puuid" => $puuid]),
+            EncounterValidator::DATABASE_INSERT_CONTEXT
+        );
 
-        $isValidPatient = $this->encounterValidator->validateId('uuid', self::PATIENT_TABLE, $puuid, true);
-        if (is_array($isValidPatient)) {
-            $processingResult->setValidationMessages($isValidPatient);
+        if (!$processingResult->isValid()) {
             return $processingResult;
         }
 
@@ -285,36 +276,32 @@ class EncounterService extends BaseService
         $data['date'] = date("Y-m-d");
         $puuidBytes = UuidRegistry::uuidToBytes($puuid);
         $data['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
-        $processingResult = $this->encounterValidator->validate($data, EncounterValidator::DATABASE_INSERT_CONTEXT);
+        $query = $this->buildInsertColumns($data);
+        $sql = " INSERT INTO form_encounter SET ";
+        $sql .= $query['set'];
 
-        if ($processingResult->isValid()) {
-            $query = $this->buildInsertColumns($data);
-            $sql = " INSERT INTO form_encounter SET ";
-            $sql .= $query['set'];
+        $results = sqlInsert(
+            $sql,
+            $query['bind']
+        );
 
-            $results = sqlInsert(
-                $sql,
-                $query['bind']
-            );
+        addForm(
+            $encounter,
+            "New Patient Encounter",
+            $results,
+            "newpatient",
+            $data['pid'],
+            $data["provider_id"],
+            $data["date"]
+        );
 
-            addForm(
-                $encounter,
-                "New Patient Encounter",
-                $results,
-                "newpatient",
-                $data['pid'],
-                $data["provider_id"],
-                $data["date"]
-            );
-
-            if ($results) {
-                $processingResult->addData(array(
-                    'encounter' => $encounter,
-                    'uuid' => UuidRegistry::uuidToString($data['uuid']),
-                ));
-            } else {
-                $processingResult->addProcessingError("error processing SQL Insert");
-            }
+        if ($results) {
+            $processingResult->addData(array(
+                'encounter' => $encounter,
+                'uuid' => UuidRegistry::uuidToString($data['uuid']),
+            ));
+        } else {
+            $processingResult->addProcessingError("error processing SQL Insert");
         }
 
         return $processingResult;
@@ -332,27 +319,24 @@ class EncounterService extends BaseService
     public function updateEncounter($puuid, $euuid, $data)
     {
         $processingResult = new ProcessingResult();
+        $processingResult = $this->encounterValidator->validate(
+            array_merge($data, ["puuid" => $puuid, "euuid" => $euuid]),
+            EncounterValidator::DATABASE_UPDATE_CONTEXT
+        );
 
-        $isValidPatient = $this->encounterValidator->validateId('uuid', self::PATIENT_TABLE, $puuid, true);
-        if (is_array($isValidPatient)) {
-            $processingResult->setValidationMessages($isValidPatient);
-            return $processingResult;
-        }
-        $isValidEncounter = $this->encounterValidator->validateId('uuid', self::ENCOUNTER_TABLE, $euuid, true);
-        if (is_array($isValidEncounter)) {
-            $processingResult->setValidationMessages($isValidEncounter);
+        if (!$processingResult->isValid()) {
             return $processingResult;
         }
 
         $puuidBytes = UuidRegistry::uuidToBytes($puuid);
         $euuidBytes = UuidRegistry::uuidToBytes($euuid);
-        $data['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
-        $data['encounter'] = $this->getIdByUuid($euuidBytes, self::ENCOUNTER_TABLE, "encounter");
+        $pid = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
+        $encounter = $this->getIdByUuid($euuidBytes, self::ENCOUNTER_TABLE, "encounter");
 
         $facilityService = new FacilityService();
         $facilityresult = $facilityService->getById($data["facility_id"]);
         $facility = $facilityresult['name'];
-        $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE encounter = ?", array($data['encounter']));
+        $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE encounter = ?", array($encounter));
         if ($result['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $result['sensitivity'])) {
             return "You are not authorized to see this encounter.";
         }
@@ -363,11 +347,6 @@ class EncounterService extends BaseService
         }
 
         $data['facility'] = $facility;
-        $processingResult = $this->encounterValidator->validate($data, EncounterValidator::DATABASE_UPDATE_CONTEXT);
-
-        if (!$processingResult->isValid()) {
-            return $processingResult;
-        }
 
         $query = $this->buildUpdateColumns($data);
         $sql = " UPDATE form_encounter SET ";
@@ -375,8 +354,8 @@ class EncounterService extends BaseService
         $sql .= " WHERE encounter = ?";
         $sql .= " AND pid = ?";
 
-        array_push($query['bind'], $data['encounter']);
-        array_push($query['bind'], $data['pid']);
+        array_push($query['bind'], $encounter);
+        array_push($query['bind'], $pid);
         $results = sqlStatement(
             $sql,
             $query['bind']
@@ -625,5 +604,39 @@ class EncounterService extends BaseService
         $sql .= "    AND fs.pid = ?";
 
         return sqlQuery($sql, array($eid, $sid, $pid));
+    }
+
+    public function validateSoapNote($soapNote)
+    {
+        $validator = new Validator();
+
+        $validator->optional('subjective')->lengthBetween(2, 65535);
+        $validator->optional('objective')->lengthBetween(2, 65535);
+        $validator->optional('assessment')->lengthBetween(2, 65535);
+        $validator->optional('plan')->lengthBetween(2, 65535);
+
+        return $validator->validate($soapNote);
+    }
+
+    public function validateVital($vital)
+    {
+        $validator = new Validator();
+
+        $validator->optional('temp_method')->lengthBetween(1, 255);
+        $validator->optional('note')->lengthBetween(1, 255);
+        $validator->optional('BMI_status')->lengthBetween(1, 255);
+        $validator->optional('bps')->numeric();
+        $validator->optional('bpd')->numeric();
+        $validator->optional('weight')->numeric();
+        $validator->optional('height')->numeric();
+        $validator->optional('temperature')->numeric();
+        $validator->optional('pulse')->numeric();
+        $validator->optional('respiration')->numeric();
+        $validator->optional('BMI')->numeric();
+        $validator->optional('waist_circ')->numeric();
+        $validator->optional('head_circ')->numeric();
+        $validator->optional('oxygen_saturation')->numeric();
+
+        return $validator->validate($vital);
     }
 }
