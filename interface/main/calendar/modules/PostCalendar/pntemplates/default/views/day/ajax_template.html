@@ -33,8 +33,16 @@ $timeslotHeightUnit="px";
  function newEvt(startampm, starttimeh, starttimem, eventdate, providerid, catid) {
   dlgopen('add_edit_event.php?startampm=' + encodeURIComponent(startampm) +
    '&starttimeh=' + encodeURIComponent(starttimeh) + '&userid=' + encodeURIComponent(providerid) + '&starttimem=' + encodeURIComponent(starttimem) +
-   '&date=' + encodeURIComponent(eventdate) + '&catid=' + encodeURIComponent(catid)
-   ,'_blank', 780, 675, '', '', {onClosed: 'refreshme'});
+   '&date=' + encodeURIComponent(eventdate) + '&catid=' + encodeURIComponent(catid)[-php-]
+    if(isset($_SESSION['pid']))
+        {
+            if($_SESSION['pid'] > 0)
+                {
+                    echo "+'&patientid=" . attr_url($_SESSION['pid']) . "'";
+                }
+        }
+    [-/php-]
+   ,'_blank', 780, 675);
  }
 
  function oldEvt(eventdate, eventid, pccattype) {
@@ -844,7 +852,7 @@ foreach ($providers as $provider) {
                    "' title='" . attr($divTitle) . "'".
                    " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'".
                    ">";
-               $content = text($dispstarth) . ':' . text($startm) . " " . text($content);
+               $content = text($dispstarth) . ':' . text($startm) . " " . $content;
                echo $content;
                echo "</div>\n";
            }
