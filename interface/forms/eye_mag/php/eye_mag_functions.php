@@ -258,7 +258,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton float-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-right fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
             <div name="prior_selector">
                     <?php
                     echo $output;//prior visit selector - already sanitized
@@ -381,7 +381,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton float-right fa  fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-right fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
         <div name="prior_selector">
                 <?php
                 echo $output;
@@ -538,7 +538,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton float-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-right fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
         <div name="prior_selector">
                 <?php
                 echo $output;
@@ -638,7 +638,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton float-right fa fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-right fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
         <div name="prior_selector">
                 <?php
                 echo $output;
@@ -1530,7 +1530,7 @@ margin: 2px 0 2px 2px;">
         }
         ?>
         <input disabled type="hidden" id="PRIORS_<?php echo attr($zone); ?>_prefix" name="PRIORS_<?php echo attr($zone); ?>_prefix" value="">
-        <span class="closeButton float-right fa  fa-close" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
+        <span class="closeButton float-right fas fa-times" id="Close_PRIORS_<?php echo attr($zone); ?>" name="Close_PRIORS_<?php echo attr($zone); ?>"></span>
         <div name="prior_selector" class="PRIORS">
                 <?php
                 echo $output;
@@ -4981,7 +4981,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
     ?> <b> <?php echo xlt('Glaucoma Zone'); ?>:</b>
         <br /><br />
-       <span class="closeButton fa fa-close" id="Close_IOP" name="Close_IOP"></span>
+       <span class="closeButton fas fa-times" id="Close_IOP" name="Close_IOP"></span>
         <div id="GFS_table" name="GFS_table" class="table-responsive borderShadow" style="position:relative;display:table;float:left;margin-top:10px;padding:15px;text-align:left;vertical-align:center;width:30%;">
             <table class="GFS_table">
                 <tr >
@@ -5710,9 +5710,9 @@ function generate_specRx($W)
     <input type="hidden" id="W_<?php echo attr($W); ?>" name="W_<?php echo attr($W); ?>" value="<?php echo attr($RX_VALUE); ?>">
 
     <div id="LayerVision_W_<?php echo attr($W); ?>" name="currentRX" class="refraction current_W borderShadow <?php echo attr($display_W); ?> <?php echo $display_W_width; ?>">
-                      <i class="closeButton fa fa-close" id="Close_W_<?php echo attr($W); ?>" name="Close_W_<?php echo attr($W); ?>"
+                      <i class="closeButton fas fa-times" id="Close_W_<?php echo attr($W); ?>" name="Close_W_<?php echo attr($W); ?>"
                         title="<?php echo xla('Close this panel and delete this Rx'); ?>"></i>
-                      <i class="closeButton_2 fa fa-arrows-h " id="W_width_display_<?php echo attr($W); ?>" name="W_width_display"
+                      <i class="closeButton_2 fas fa-arrows-alt" id="W_width_display_<?php echo attr($W); ?>" name="W_width_display"
                         title="<?php echo xla("Rx Details"); ?>" ></i>
                       <i onclick="top.restoreSession();  doscript('W','<?php echo attr($pid); ?>','<?php echo attr($encounter); ?>','<?php echo attr($W); ?>'); return false;"
                        title="<?php echo xla("Dispense Rx"); ?>" class="closeButton_3 fa fa-print"></i>

@@ -78,7 +78,7 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
 <title><?php echo $drug_id ? xlt("Edit") : xlt("Add New");
 echo ' ' . xlt('Drug'); ?></title>
 
-<?php Header::setupHeader(["jquery-ui","opener"]); ?>
+<?php Header::setupHeader(["opener"]); ?>
 
 <style>
 td {
@@ -374,7 +374,6 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
 <h3 class="ml-1"><?php echo text($title);?></h3>
 <form class="form" method='post' name='theform' action='add_edit_drug.php?drug=<?php echo attr_url($drug_id); ?>'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-<center>
 
 <table class="table table-borderless w-100">
 
@@ -460,7 +459,7 @@ while ($pwrow = sqlFetchArray($pwres)) {
     <tr>
      <td class="align-top text-nowrap"><?php echo xlt('Min'); ?>&nbsp;</td>
      <td class="align-top">
-      <input class="form-control" size='5' name='form_reorder_point' maxlength='7' value='<?php echo attr($row['reorder_point']) ?>' title='<?php echo xla('Reorder point, 0 if not applicable'); ?>' />&nbsp;&nbsp;
+     <input class="form-control" size='5' name='form_reorder_point' maxlength='7' value='<?php echo attr($row['reorder_point']) ?>' title='<?php echo xla('Reorder point, 0 if not applicable'); ?>' data-toggle="tooltip" data-placement="top" />&nbsp;&nbsp;
      </td>
 <?php
 foreach ($pwarr as $pwrow) {
@@ -468,7 +467,7 @@ foreach ($pwarr as $pwrow) {
     echo "<input class='form-control' name='form_wh_min[" .
     attr($pwrow['option_id']) .
     "]' value='" . attr(0 + $pwrow['pw_min_level']) . "' size='5' " .
-    "title='" . xla('Warehouse minimum, 0 if not applicable') . "' />";
+    "title='" . xla('Warehouse minimum, 0 if not applicable') . "' data-toggle='tooltip' data-placement='top' />";
     echo "&nbsp;&nbsp;</td>\n";
 }
 ?>
@@ -476,7 +475,7 @@ foreach ($pwarr as $pwrow) {
     <tr>
      <td class="align-top text-nowrap"><?php echo xlt('Max'); ?>&nbsp;</td>
      <td>
-      <input class='form-control' size='5' name='form_max_level' maxlength='7' value='<?php echo attr($row['max_level']) ?>' title='<?php echo xla('Maximum reasonable inventory, 0 if not applicable'); ?>' />
+     <input class='form-control' size='5' name='form_max_level' maxlength='7' value='<?php echo attr($row['max_level']) ?>' title='<?php echo xla('Maximum reasonable inventory, 0 if not applicable'); ?>' data-toggle="tooltip" data-placement="top" />
      </td>
 <?php
 foreach ($pwarr as $pwrow) {
@@ -484,7 +483,7 @@ foreach ($pwarr as $pwrow) {
     echo "<input class='form-control' name='form_wh_max[" .
     attr($pwrow['option_id']) .
     "]' value='" . attr(0 + $pwrow['pw_max_level']) . "' size='5' " .
-    "title='" . xla('Warehouse maximum, 0 if not applicable') . "' />";
+    "title='" . xla('Warehouse maximum, 0 if not applicable') . "' data-toggle='tooltip' data-placement='top' />";
     echo "</td>\n";
 }
 ?>
@@ -617,18 +616,19 @@ for ($i = 0; $i < $blank_lines; ++$i) {
 
 </table>
 <div class="btn-group">
-<input type='submit' class="btn btn-primary" name='form_save' value='<?php echo  $drug_id ? xla('Update') : xla('Add') ; ?>' />
-
-<?php if (AclMain::aclCheckCore('admin', 'super') && $drug_id) { ?>
-<input class="btn btn-danger" type='submit' name='form_delete' value='<?php echo xla('Delete'); ?>' />
-<?php } ?>
-<input type='button' class="btn btn-secondary" value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
+    <button type='submit' class="btn btn-primary btn-save" name='form_save' value='<?php echo  $drug_id ? xla('Update') : xla('Add') ; ?>'><?php echo  $drug_id ? xla('Update') : xla('Add') ; ?></button>
+    <?php if (AclMain::aclCheckCore('admin', 'super') && $drug_id) { ?>
+    <button class="btn btn-danger" type='submit' name='form_delete' value='<?php echo xla('Delete'); ?>'><?php echo xla('Delete'); ?></button>
+    <?php } ?>
+    <button type='button' class="btn btn-secondary btn-cancel" onclick='window.close()'><?php echo xla('Cancel'); ?></button>
 </div>
 
-</center>
 </form>
 
 <script>
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip();
+});
 <?php
 if ($alertmsg) {
     echo "alert('" . addslashes($alertmsg) . "');\n";

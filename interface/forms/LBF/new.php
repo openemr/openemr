@@ -321,43 +321,24 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['opener', 'common', 'datetime-picker', 'jquery-ui',]); ?>
+    <?php Header::setupHeader(['opener', 'common', 'datetime-picker']); ?>
 
     <style>
 
-        td, input, select, textarea {
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 10pt;
-        }
-
-        .table > tbody > tr > td {
-            border-top: 0;
-        }
-
         div.section {
-            border: solid;
-            border-width: 1px;
-            border-color: #0000ff;
-            margin: 0 0 0 10pt;
-            padding: 5pt;
-        }
-
-        .form-control {
-            width: auto;
-            display: inline;
-            height: auto;
+            border: 1px solid var(--primary);
+            margin: 0 0 0 0.8125rem;
+            padding: 0.4375rem;
         }
 
         .RS {
             border-style: solid;
             border-width: 0 0 1px 0;
-            border-color: #999999;
+            border-color: var(--gray600);
         }
 
         .RO {
-            border-style: solid;
-            border-width: 1px 1px 1px 1px !important;
-            border-color: #999999;
+            border-width: 1px solid var(--gray600) !important;
         }
 
     </style>
@@ -368,7 +349,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
     <?php echo lbf_canvas_head(); ?>
     <?php echo signer_head(); ?>
 
-    <script language="JavaScript">
+    <script>
 
         // Support for beforeunload handler.
         var somethingChanged = false;
@@ -796,7 +777,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
         "f.formdir = 'newpatient' AND f.deleted = 0 AND " .
         "fe.id = f.form_id LIMIT 1", array($pid, $visitid)); ?>
 
-    <div class="container-responsive">
+    <div class="container">
         <div class="row">
             <div class="col-12">
                 <div class="page-header">
@@ -1515,7 +1496,6 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
 
             <div class="col-12">
                 <div class="btn-group">
-
                     <?php
                     if (!$from_trend_form && !$from_lbf_edit) {
                         // Generate price level selector if we are doing services or products.
@@ -1525,21 +1505,19 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                             echo "&nbsp;&nbsp;";
                         }
                         ?>
-                        <button type="submit" class="btn btn-secondary btn-save" name="bn_save"
+                        <button type="submit" class="btn btn-primary btn-save" name="bn_save"
                                 value="<?php echo xla('Save'); ?>">
                             <?php echo xlt('Save'); ?>
                         </button>
 
-                        &nbsp;
-                        <button type='submit' class="btn btn-link" name='bn_save_continue'
+                        <button type='submit' class="btn btn-secondary" name='bn_save_continue'
                                 value='<?php echo xla('Save and Continue') ?>'>
                             <?php echo xlt('Save and Continue'); ?>
                         </button>
                         <?php
                         if (!$from_issue_form) {
                             ?>
-                            &nbsp;
-                            <button type='submit' class="btn btn-link" name='bn_save_print'
+                            <button type='submit' class="btn btn-secondary" name='bn_save_print'
                                     value='<?php echo xla('Save and Print') ?>'>
                                 <?php echo xlt('Save and Print'); ?>
                             </button>
@@ -1559,7 +1537,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                                 <?php
                             } // end form is graphable
                             ?>
-                            <button type='button' class="btn btn-link btn-cancel" onclick="verifyCancel()">
+                            <button type='button' class="btn btn-secondary btn-cancel" onclick="verifyCancel()">
                                 <?php echo xlt('Cancel'); ?>
                             </button>
                             <?php
