@@ -149,7 +149,9 @@ var app = {
 			if (parts.length > 1) {
 				var parts2 = parts[1].split(app.errorLandmarkEnd);
 				msg = parts2[0];
-			}
+			} else {
+                msg = resp.responseText;
+            }
 		}
 
 		return msg ? msg : 'Unknown server error';
@@ -158,3 +160,4 @@ var app = {
 	version: 1.1
 
 }
+
