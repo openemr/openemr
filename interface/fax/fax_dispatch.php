@@ -788,21 +788,6 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
     </div>
 </div>
 
-<div class="form-check">
-  <label class="form-check-label">
-    <input type="checkbox" class="form-check-input" value="">Option 1
-  </label>
-</div>
-<div class="form-check">
-  <label class="form-check-label">
-    <input type="checkbox" class="form-check-input" value="">Option 2
-  </label>
-</div>
-<div class="form-check">
-  <label class="form-check-label">
-    <input type="checkbox" class="form-check-input" value="" disabled>Option 3
-  </label>
-</div>
 <p><span class="font-weight-bold"><?php echo xlt('Delete Pages'); ?>:</span>&nbsp;
 <input type='radio' name='form_cb_delete' value='2' />All&nbsp;
 <input type='radio' name='form_cb_delete' value='1' checked />Selected&nbsp;
