@@ -45,7 +45,7 @@ $layout_id = empty($_GET['layout_id']) ? '' : $_GET['layout_id'];
 <head>
 <title><?php echo xlt('Code Finder'); ?></title>
 
-<?php Header::setupHeader(['opener', 'datatables', 'datatables-bs', 'datatables-colreorder']); ?>
+<?php Header::setupHeader(['opener', 'datatables', 'datatables-dt', 'datatables-bs', 'datatables-colreorder']); ?>
 
 <script>
 
@@ -269,7 +269,7 @@ var SelectItem = function(jobj) {
                 echo "</div>";
             }
             if ($what == 'lists') {
-                echo "<button class='btn btn-secondary btn-sm btn-delete' value='" . xla('Delete') . "' onclick='SelectList({\"code\":\"\"})'>" . xla('Delete') . "\n";
+                echo "<button class='btn btn-secondary btn-sm btn-delete' value='" . xla('Delete') . "' onclick='SelectList({\"code\":\"\"})'>" . xla('Delete') . "</button>\n";
             }
             echo "</div>\n";
             ?>
