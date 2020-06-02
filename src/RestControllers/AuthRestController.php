@@ -247,7 +247,7 @@ class AuthRestController
         } else { // $_SESSION['api'] == "oemr" || $_SESSION['api'] == "fhir"
             // For core api or fhir api
             $_SESSION['authUser'] = $tokenResult['username'];
-            $_SESSION['authUserId'] = $tokenResult['user_id'];
+            $_SESSION['authUserID'] = $tokenResult['user_id'];
         }
 
         return true;

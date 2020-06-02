@@ -308,6 +308,9 @@ function postcalendar_userapi_buildView($args)
                 //FACILITY FILTERING (CHEMED)
         if ($_SESSION['pc_facility']) {
             $provinfo = getProviderInfo('%', true, $_SESSION['pc_facility']);
+            if (!$provinfo) {
+                $provinfo = getProviderInfo($_SESSION['authUserID'], 'any', '');
+            }
         } else {
             $provinfo = getProviderInfo();
         }

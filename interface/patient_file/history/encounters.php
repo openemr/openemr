@@ -622,7 +622,7 @@ while ($result4 = sqlFetchArray($res4)) {
 
         if ($attendant_type == 'pid') {
             // show user (Provider) for the encounter
-            $provname = '&nbsp;';
+            $provname = 'Unknown';
             if (!empty($result4['lname']) || !empty($result4['fname'])) {
                 $provname = $result4['lname'];
                 if (!empty($result4['fname']) || !empty($result4['mname'])) {
