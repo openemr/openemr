@@ -46,7 +46,7 @@ endforeach;
 
         <?php Header::setupHeader(['datetime-picker']);?>
 
-        <style title="mystyles" media="all">
+        <style>
             @media only screen and (max-width: 768px) {
                 [class*="col-"] {
                 width: 100%;
