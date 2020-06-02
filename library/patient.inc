@@ -1076,7 +1076,7 @@ function updatePatientData($pid, $new, $create = false)
         }
 
         // add a uuid for the new patient
-        //$sql .= ", `uuid` ='" . add_escape_custom((new UuidRegistry(['table_name' => 'patient_data']))->createUuid()) . "'";
+        $sql .= ", `uuid` ='" . add_escape_custom((new UuidRegistry(['table_name' => 'patient_data']))->createUuid()) . "'";
 
         $db_id = sqlInsert($sql);
     } else {
