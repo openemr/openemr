@@ -408,7 +408,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     } else { // if frames u.i, this will search for the first body node so we have a landing place for stackable's
         let wframe = window;
         if (wframe.name !== 'left_nav') {
-            for (let i = 0; wframe.name !== 'RTop' && wframe.name !== 'RBot' && i < 6; wframe = wframe.parent) {
+            for (let i = 0; wframe.name !== 'Calendar' && wframe.name !== 'RTop' && wframe.name !== 'RBot' && i < 6; wframe = wframe.parent) {
                 if (i === 5) {
                     wframe = window;
                 }
@@ -424,7 +424,11 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             }
         }
 
-        where = wframe; // A moving target for Frames UI.
+        if (typeof wframe.dialogID !== 'undefined') {
+            where = wframe; // A moving target for Frames UI.
+        } else {
+            where = wframe[0];
+        }
     }
 
     // get url straight...
