@@ -399,12 +399,6 @@ $title = text(getPatientName($patient_id));
     <input type='hidden' name='form_doc_only' id="form_doc_only" value="<?php echo attr($form_doc_only); ?>">
 </form>
 
-<?php if ($GLOBALS['portal_offsite_enable']) { ?>
-<ul class="tabNav">
-  <li class="<?php echo $inbox; ?>" ><a onclick="show_div('inbox')" href="#"><?php echo xlt('Inbox'); ?></a></li>
-  <li class="<?php echo $outbox; ?>" ><a onclick="show_div('outbox')" href="#"><?php echo xlt('Sent Items'); ?></a></li>
-</ul>
-<?php } ?>
 <div class='tabContainer' >
   <div id='inbox_div' <?php echo $inbox_style; ?> >
 <form border='0' method='post' name='update_activity' id='update_activity'
