@@ -600,6 +600,11 @@ DROP TABLE `uuid_registry`;
 ALTER TABLE `patient_data` DROP `uuid`;
 #EndIf
 
+-- Note the below block will also be skipped if the patient_data uuid does not yet exist
+#IfNotColumnTypeDefault patient_data uuid binary(16) NULL
+ALTER TABLE `patient_data` DROP `uuid`;
+#EndIf
+
 #IfNotTable uuid_registry
 CREATE TABLE `uuid_registry` (
   `uuid` binary(16) NOT NULL DEFAULT '',
@@ -610,7 +615,7 @@ CREATE TABLE `uuid_registry` (
 #EndIf
 
 #IfMissingColumn patient_data uuid
-ALTER TABLE `patient_data` ADD `uuid` binary(16) NOT NULL default '';
+ALTER TABLE `patient_data` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
 
 #IfUuidNeedUpdate patient_data

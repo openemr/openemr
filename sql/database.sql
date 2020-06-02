@@ -5353,7 +5353,7 @@ CREATE TABLE `patient_access_onsite`(
 DROP TABLE IF EXISTS `patient_data`;
 CREATE TABLE `patient_data` (
   `id` bigint(20) NOT NULL auto_increment,
-  `uuid` binary(16) NOT NULL default '',
+  `uuid` binary(16) DEFAULT NULL,
   `title` varchar(255) NOT NULL default '',
   `language` varchar(255) NOT NULL default '',
   `financial` varchar(255) NOT NULL default '',

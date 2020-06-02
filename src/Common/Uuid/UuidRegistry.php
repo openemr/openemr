@@ -108,8 +108,8 @@ class UuidRegistry
     // Generic function to create missing uuids in a sql table (table needs an `id` column to work)
     public function createMissingUuids()
     {
-        // Note needed the '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' to check for empty in binary(16) field
-        $resultSet = sqlStatementNoLog("SELECT `id` FROM `" . $this->table_name . "` WHERE `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'");
+        // Empty should be NULL, but to be safe also checking for empty and null bytes
+        $resultSet = sqlStatementNoLog("SELECT `id` FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'");
         while ($row = sqlFetchArray($resultSet)) {
             sqlQuery("UPDATE " . $this->table_name . " SET `uuid` = ? WHERE `id` = ?", [$this->createUuid(), $row['id']]);
         }
@@ -118,8 +118,8 @@ class UuidRegistry
     // Generic function to see if there are missing uuids in a sql table (table needs an `id` column to work)
     public function tableNeedsUuidCreation()
     {
-        // Note needed the '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0' to check for empty in binary(16) field
-        $resultSet = sqlQueryNoLog("SELECT count(`id`) as `total` FROM `" . $this->table_name . "` WHERE `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'");
+        // Empty should be NULL, but to be safe also checking for empty and null bytes
+        $resultSet = sqlQueryNoLog("SELECT count(`id`) as `total` FROM `" . $this->table_name . "` WHERE `uuid` IS NULL OR `uuid` = '' OR `uuid` = '\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'");
         if ($resultSet['total'] > 0) {
             return true;
         }
