@@ -255,16 +255,16 @@ var SelectItem = function(jobj) {
                     echo ">" . xlt("Product") . "</option>\n";
                     echo "   </select></div>\n";
                 }
-                echo "&nbsp;&nbsp;\n";
+                echo "\n";
                 echo "<div class='col'>";
                 echo "<input type='checkbox' name='form_include_inactive' value='1' onclick='oTable.fnDraw()' />" .
                 xlt('Include Inactive') . "\n";
-                echo "&nbsp;&nbsp;\n";
+                echo "\n";
                 echo "<button class='btn btn-secondary btn-sm btn-delete' value='" . xla('Delete') . "' onclick='delcode()'>" . xla('Delete') . "</button>\n";
                 echo "<select name='form_delcodes'>\n";
                 echo " <option value=''>" . xlt('All') . "</option>\n";
                 echo "</select>\n";
-                echo "&nbsp;&nbsp;\n";
+                echo "\n";
                 echo "<button class='btn btn-secondary btn-sm btn-cancel' value='" . xla('Close') . "' onclick='dlgclose()'>" . xla('Close') . "</button>\n";
                 echo "</div>";
             }
@@ -292,7 +292,7 @@ var SelectItem = function(jobj) {
         <?php if ($what == 'fields' && $source == 'E') { ?>
             <div class="row">
                 <div class="col">
-                    <input type='text' class="form-control" name='new_field_id' size='20' />&nbsp;
+                    <input type='text' class="form-control" name='new_field_id' size='20' />
                 </div>
                 <div class="col">
                     <button class="btn btn-secondary" value='<?php echo xla('Or create this new field ID') ?>' onclick='newField()'>
