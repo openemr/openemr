@@ -90,12 +90,11 @@ class ORDataObject
                     $func = "set_history_" . $field_name;
                     if (is_callable(array($this, $func))) {
                         if (!empty($field)) {
-                            call_user_func(array(&$this, $func),$results['date'] . " - " . $field . "\r\n");
+                            call_user_func(array(&$this, $func), $results['date'] . " - " . $field . "\r\n");
                         }
                     }
                 }
             }
-
         }
     }
     protected function populate_array($results)
