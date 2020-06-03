@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OpenEMR About Page
  *
@@ -14,6 +15,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// TODO: jQuery UI Removal
+
 
 require_once("../globals.php");
 
@@ -24,7 +27,7 @@ use OpenEMR\Services\VersionService;
 <html>
 <head>
 
-    <?php Header::setupHeader(["jquery-ui","jquery-ui-darkness"]); ?>
+    <?php Header::setupHeader(); ?>
     <title><?php echo xlt("About");?> OpenEMR</title>
     <style>
         .donations-needed {
@@ -80,7 +83,7 @@ use OpenEMR\Services\VersionService;
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_controller.js?v=<?php echo $v_js_includes; ?>"></script>
 
     <script type="text/javascript">
-        $(function() {
+        $(function () {
             var productRegistrationController = new ProductRegistrationController();
             productRegistrationController.getProductRegistrationStatus(function(err, data) {
                 if (err) { return; }
@@ -105,7 +108,7 @@ $version = $versionService->fetch();
                 <div class="page-header">
                     <h1><?php echo xlt("About");?>&nbsp;OpenEMR</h1>
                 </div>
-                <h4><?php echo xlt('Version Number'); ?>: <?php echo "v".text($openemr_version); ?></h4>
+                <h4><?php echo xlt('Version Number'); ?>: <?php echo "v" . text($openemr_version); ?></h4>
                 <span class="text product-registration"><span class="email"></span> <span class="id"></span></span><br />
                 <?php if (!empty($GLOBALS['support_phone_number'])) { ?>
                     <span class="text"><?php  echo xlt('Support Phone Number'); ?>: <?php echo text($GLOBALS['support_phone_number']); ?></span><br />
@@ -127,11 +130,21 @@ $version = $versionService->fetch();
         </div>
     </div>
 
-
-    <div class="product-registration-modal" style="display: none">
-        <p class="context"><?php echo xlt("Register your installation with OEMR to receive important notifications, such as security fixes and new release announcements."); ?></p>
-        <input placeholder="<?php echo xla('email'); ?>" type="email" class="email w-100" style="color: var(--black)" />
-        <p class="message" style="font-style: italic"></p>
+    <div class="product-registration-modal modal fade">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header"></div>
+                <div class="modal-body">
+                    <p class="context"><?php echo xlt("Register your installation with OEMR to receive important notifications, such as security fixes and new release announcements."); ?></p>
+                    <input placeholder="<?php echo xlt('email'); ?>" type="email" class="email w-100 text-body form-control" />
+                    <p class="message font-italic"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary submit" ><?php echo xlt("Submit"); ?></button>
+                    <button type="button" class="btn btn-secondary nothanks" ><?php echo xlt("No Thanks"); ?></button>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>

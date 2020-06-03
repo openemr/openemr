@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Viewing of office notes.
  *
@@ -49,7 +50,7 @@ if ($notes) {
             //we have more active notes to print, but we've reached our display maximum (defined at top of this file)
             $notice  = '';
             $notice .= '<div class="alert alert-info">';
-            $notice .= '  <a href=\'office_comments_full.php?active=-1\' onclick=\'top.restoreSession()\'>'.xlt("Some office notes were not displayed. Click here to view all.").'</a>';
+            $notice .= '  <a href=\'office_comments_full.php?active=-1\' onclick=\'top.restoreSession()\'>' . xlt("Some office notes were not displayed. Click here to view all.") . '</a>';
             $notice .= '</div>';
             print $notice;
             break;
@@ -67,7 +68,7 @@ if ($notes) {
             $card  = '';
             $card .= '<div class="card panel-default">';
             $card .= '    <div class="card-heading">';
-            $card .= '        <h3 class="card-title">'.text($date_string).' <strong>('.text($note->getUser()->getUsername()).')</strong></h3>';
+            $card .= '        <h3 class="card-title">' . text($date_string) . ' <strong>(' . text($note->getUser()->getUsername()) . ')</strong></h3>';
             $card .= '    </div>';
             $card .= '    <div class="card-body">';
             $card .=          nl2br(text($note->getBody()));

@@ -1,5 +1,6 @@
 <?php
 
+use OpenEMR\Common\ORDataObject\ORDataObject;
 
 define("EVENT_VEHICLE", 1);
 define("EVENT_WORK_RELATED", 2);
@@ -155,7 +156,7 @@ class FormHpTjePrimary extends ORDataObject
         if (is_numeric($year)) {
             $ymd = explode("-", $this->date_of_onset);
             $ymd[0] = $year;
-            $this->date_of_onset = $ymd[0] ."-" . $ymd[1] ."-" . $ymd[2];
+            $this->date_of_onset = $ymd[0] . "-" . $ymd[1] . "-" . $ymd[2];
         }
     }
 
@@ -170,7 +171,7 @@ class FormHpTjePrimary extends ORDataObject
         if (is_numeric($month)) {
             $ymd = explode("-", $this->date_of_onset);
             $ymd[1] = $month;
-            $this->date_of_onset = $ymd[0] ."-" . $ymd[1] ."-" . $ymd[2];
+            $this->date_of_onset = $ymd[0] . "-" . $ymd[1] . "-" . $ymd[2];
         }
     }
 
@@ -185,7 +186,7 @@ class FormHpTjePrimary extends ORDataObject
         if (is_numeric($day)) {
             $ymd = explode("-", $this->date_of_onset);
             $ymd[2] = $day;
-            $this->date_of_onset = $ymd[0] ."-" . $ymd[1] ."-" . $ymd[2];
+            $this->date_of_onset = $ymd[0] . "-" . $ymd[1] . "-" . $ymd[2];
         }
     }
 

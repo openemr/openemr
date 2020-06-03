@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Billing process Program
  *
@@ -21,8 +22,9 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 
 use OpenEMR\Billing\BillingUtilities;
-use OpenEMR\Billing\HCFA_1500;
-use OpenEMR\Billing\X12_5010_837P;
+use OpenEMR\Billing\Hcfa1500;
+use OpenEMR\Billing\X125010837I;
+use OpenEMR\Billing\X125010837P;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -108,7 +110,7 @@ function append_claim(&$segs)
         }
 
         if ($elems[0] == 'BHT') {
-            // needle is set in OpenEMR\Billing\X12_5010_837P
+            // needle is set in OpenEMR\Billing\X125010837P
             $bat_content .= substr_replace($seg, '*' . $bat_icn . $bat_st_02 . '*', strpos($seg, '*0123*'), 6);
             $bat_content .= "~";
             continue;
@@ -176,8 +178,10 @@ function process_form($ar)
     // Set up crypto object
     $cryptoGen = new CryptoGen();
 
-    if (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter']) || isset($ar['bn_process_hcfa']) || isset($ar['bn_hcfa_txt_file']) || isset($ar['bn_process_hcfa_form'])
-        || isset($ar['bn_process_ub04_form']) || isset($ar['bn_process_ub04']) || isset($ar['bn_ub04_x12'])) {
+    if (
+        isset($ar['bn_x12']) || isset($ar['bn_x12_encounter']) || isset($ar['bn_process_hcfa']) || isset($ar['bn_hcfa_txt_file']) || isset($ar['bn_process_hcfa_form'])
+        || isset($ar['bn_process_ub04_form']) || isset($ar['bn_process_ub04']) || isset($ar['bn_ub04_x12'])
+    ) {
         if ($GLOBALS['billing_log_option'] == 1) {
             if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log")) {
                 $hlog = file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log");
@@ -283,7 +287,7 @@ function process_form($ar)
                     $bill_info[] = xl("Claim ") . $claimid . xl(" has been re-opened.") . "\n";
                 } elseif (isset($ar['bn_x12']) || isset($ar['bn_x12_encounter'])) {
                     $log = '';
-                    $segs = explode("~\n", X12_5010_837P::gen_x12_837($patient_id, $encounter, $log, isset($ar['bn_x12_encounter'])));
+                    $segs = explode("~\n", X125010837P::genX12837P($patient_id, $encounter, $log, isset($ar['bn_x12_encounter'])));
                     $hlog .= $log;
                     append_claim($segs);
                     if ($validatePass) {
@@ -295,7 +299,7 @@ function process_form($ar)
                     }
                 } elseif (isset($ar['bn_ub04_x12'])) {
                     $log = '';
-                    $segs = explode("~\n", generate_x12_837I($patient_id, $encounter, $log, $ub04id));
+                    $segs = explode("~\n", X125010837I::generateX12837I($patient_id, $encounter, $log, $ub04id));
                     $hlog .= $log;
                     append_claim($segs);
                     if ($validatePass) {
@@ -307,8 +311,8 @@ function process_form($ar)
                     }
                 } elseif (isset($ar['bn_process_hcfa'])) {
                     $log = '';
-                    $hcfa = new HCFA_1500();
-                    $lines = $hcfa->gen_hcfa_1500($patient_id, $encounter, $log);
+                    $hcfa = new Hcfa1500();
+                    $lines = $hcfa->genHcfa1500($patient_id, $encounter, $log);
                     $hlog .= $log;
                     $alines = explode("\014", $lines); // form feeds may separate pages
                     foreach ($alines as $tmplines) {
@@ -330,8 +334,8 @@ function process_form($ar)
                     }
                 } elseif (isset($ar['bn_process_hcfa_form'])) {
                     $log = '';
-                    $hcfa = new HCFA_1500();
-                    $lines = $hcfa->gen_hcfa_1500($patient_id, $encounter, $log);
+                    $hcfa = new Hcfa1500();
+                    $lines = $hcfa->genHcfa1500($patient_id, $encounter, $log);
                     $hcfa_image = $GLOBALS['images_static_absolute'] . "/cms1500.png";
                     $hlog .= $log;
                     $alines = explode("\014", $lines); // form feeds may separate pages
@@ -367,8 +371,8 @@ function process_form($ar)
                     }
                 } elseif (isset($ar['bn_hcfa_txt_file'])) {
                     $log = '';
-                    $hcfa = new HCFA_1500();
-                    $lines = $hcfa->gen_hcfa_1500($patient_id, $encounter, $log);
+                    $hcfa = new Hcfa1500();
+                    $lines = $hcfa->genHcfa1500($patient_id, $encounter, $log);
                     $hlog .= $log;
                     $bat_content .= $lines;
                     if ($validatePass) {

@@ -55,10 +55,12 @@ var actpage = {
                     { text: 'Revert Edits', close: false, style: 'success btn-sm', id:'replaceAllButton'},
                     { text: 'Commit to Chart', style: 'danger btn-sm', close: false, id:'savePatientButton'}],
                 onClosed: 'reload',
+                sizeHeight: 'full',
+                allowDrag: false,
                 type: 'GET',
                 url: top.webroot_url + '/portal/patient/patientdata?pid=' + encodeURIComponent(cpid) + '&user=' + encodeURIComponent(cuser)
             };
-            dlgopen('','','modal-xl', 525, '', title, params);
+            dlgopen('','','modal-xl', '', '', title, params);
         }
         function showDocumentModal(cpid, recid) {
             var title = 'Audit Document';

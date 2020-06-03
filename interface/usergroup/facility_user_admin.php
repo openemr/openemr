@@ -1,4 +1,5 @@
 <?php
+
 /**
  * edit per-facility user information.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -36,10 +36,10 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
 
     <title><?php echo xlt("Edit Facility Specific User Information"); ?></title>
 
-    <?php Header::setupHeader(['common','jquery-ui','datetime-picker','opener']); ?>
+    <?php Header::setupHeader(['common','datetime-picker','opener']); ?>
 
     <script language="JavaScript">
-        $(function(){
+        $(function () {
             $("#form_facility_user").submit(function (event) {
                 top.restoreSession();
                 event.preventDefault();
@@ -63,6 +63,8 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = false; ?>
+                <?php $datetimepicker_maxDate = false; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
@@ -70,6 +72,44 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = false; ?>
+                <?php $datetimepicker_maxDate = false; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+            $('.datepicker-past').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = false; ?>
+                <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+            $('.datetimepicker-past').datetimepicker({
+                <?php $datetimepicker_timepicker = true; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = false; ?>
+                <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+            $('.datepicker-future').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = '-1970/01/01'; ?>
+                <?php $datetimepicker_maxDate = false; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+            $('.datetimepicker-future').datetimepicker({
+                <?php $datetimepicker_timepicker = true; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = '-1970/01/01'; ?>
+                <?php $datetimepicker_maxDate = false; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
@@ -90,8 +130,8 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                           "WHERE form_id = 'FACUSR' AND uor > 0 AND field_id != '' " .
                           "ORDER BY group_id, seq");
     $l_arr = array();
-    for ($i=0; $row=sqlFetchArray($l_res); $i++) {
-        $l_arr[$i]=$row;
+    for ($i = 0; $row = sqlFetchArray($l_res); $i++) {
+        $l_arr[$i] = $row;
     }
     ?>
 

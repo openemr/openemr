@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OpenEMR.
  *
@@ -9,7 +10,7 @@
 namespace RestApiEventHookExample;
 
 use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
-use \RestConfig;
+use RestConfig;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Laminas\ModuleManager\ModuleManager;
 use Laminas\Mvc\MvcEvent;

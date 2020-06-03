@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Fee Sheet Program used to create charges, copays and add diagnosis codes to the encounter
  *
@@ -80,7 +81,7 @@ function genDiagJS($code_type, $code)
 {
     global $code_types;
     if ($code_types[$code_type]['diag']) {
-        echo "diags.push(" . js_escape($code_type."|".$code) . ");\n";
+        echo "diags.push(" . js_escape($code_type . "|" . $code) . ");\n";
     }
 }
 
@@ -127,7 +128,7 @@ function echoServiceLines()
 
         echo "<input type='hidden' name='bill[" . attr($lino) . "][code_type]' value='" . attr($codetype) . "' />";
         echo "<input type='hidden' name='bill[" . attr($lino) . "][code]' value='" . attr($code) . "' />";
-        echo "<input type='hidden' name='bill[" . attr($lino)."][billed]' value='" . attr($billed)."' />";
+        echo "<input type='hidden' name='bill[" . attr($lino) . "][billed]' value='" . attr($billed) . "' />";
         if (isset($li['hidden']['method'])) {
             echo "<input type='hidden' name='bill[" . attr($lino) . "][method]'   value='" . attr($li['hidden']['method'  ]) . "' />";
             echo "<input type='hidden' name='bill[" . attr($lino) . "][cyp]'      value='" . attr($li['hidden']['cyp'     ]) . "' />";
@@ -175,7 +176,7 @@ function echoServiceLines()
 
             // Show provider for this line.
             echo "  <td class='billcell' align='center' $liprovstyle>";
-            echo $fs->genProviderSelect('', '-- ' .xl("Default"). ' --', $li['provid'], true);
+            echo $fs->genProviderSelect('', '-- ' . xl("Default") . ' --', $li['provid'], true);
             echo "</td>\n";
 
             if ($code_types[$codetype]['claim'] && !$code_types[$codetype]['diag']) {
@@ -197,9 +198,9 @@ function echoServiceLines()
         } else { // not billed
             if ($institutional) {
                 if ($codetype != 'COPAY' && $codetype != 'ICD10') {
-                    echo "  <td class='billcell'><input type='text' class='revcode' name='bill[" . attr($lino) . "][revenue_code]' " .
-                        "title='" . xla("Revenue Code for this item. Type to search or double click for list") . "' " .
-                        "value='" . attr($revenue_code) . "' size='4'></td>\n";
+                    echo "  <td class='billcell'><select style='width:150px' type='text' class='revcode' name='bill[" . attr($lino) . "][revenue_code]' " .
+                        "title='" . xla("Revenue Code for this item. Type to search") . "' " .
+                        "value='" . attr($revenue_code) . "' size='4'></select></td>\n";
                 } else {
                     echo "  <td class='billcell'>&nbsp;</td>\n";
                 }
@@ -265,7 +266,7 @@ function echoServiceLines()
 
             // Provider drop-list for this line.
             echo "  <td class='billcell' align='center' $liprovstyle>";
-            echo $fs->genProviderSelect("bill[$lino][provid]", '-- '.xl("Default").' --', $li['provid']);
+            echo $fs->genProviderSelect("bill[$lino][provid]", '-- ' . xl("Default") . ' --', $li['provid']);
             echo "</td>\n";
 
             if ($code_types[$codetype]['claim'] && !$code_types[$codetype]['diag']) {
@@ -275,7 +276,7 @@ function echoServiceLines()
                 echo "  <td class='billcell' align='center'$usbillstyle></td>\n";
             }
 
-            echo "  <td class='billcell' align='center'$usbillstyle><input type='checkbox' name='bill[".attr($lino) . "][auth]' " .
+            echo "  <td class='billcell' align='center'$usbillstyle><input type='checkbox' name='bill[" . attr($lino) . "][auth]' " .
             "value='1'" . ($li['auth'] ? " checked" : "") . " /></td>\n";
 
             if ($GLOBALS['gbl_auto_create_rx']) {
@@ -572,7 +573,7 @@ $billresult = BillingUtilities::getBillingByEncounter($fs->pid, $fs->encounter, 
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['knockout', 'jquery-ui', 'jquery-ui-base']);?>
+<?php Header::setupHeader(['knockout', 'select2']);?>
 <style>
 /*.billcell { font-family: sans-serif; font-size: 10pt }*/
 .ui-autocomplete {
@@ -621,24 +622,31 @@ if ($_POST['newcodes']) {
 }
 ?>
 function reinitForm(){
-    var cache = {};
-    $( ".revcode" ).autocomplete({
-        minLength: 1,
-        source: function( request, response ) {
-            var term = request.term;
-            request.code_group = "revenue_code";
-            if ( term in cache ) {
-              response( cache[ term ] );
-              return;
-            }
-            $.getJSON( "<?php echo $GLOBALS['web_root'] ?>/interface/billing/ub04_helpers.php", request, function( data, status, xhr ) {
-              cache[ term ] = data;
-              response( data );
-            })
+    $(".revcode").select2({
+        ajax: {
+            url: "<?php echo $GLOBALS['web_root'] ?>/interface/billing/ub04_helpers.php",
+            dataType: 'json',
+            data: function(params) {
+                return {
+                  code_group: "revenue_code",
+                  term: params.term
+                };
+            },
+            processResults: function(data) {
+                return  {
+                    results: $.map(data, function(item, index) {
+                        return {
+                            text: item.label,
+                            id: index,
+                            value: item.value
+                        }
+                    })
+                };
+                return x;
+            },
+            cache: true
         }
-    }).dblclick(function(event) {
-        $(this).autocomplete('search'," ");
-       });
+    })
 }
 
 // This is invoked by <select onchange> for the various dropdowns,
@@ -861,7 +869,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <?php
                         // Allow the patient price level to be fixed here.
                         echo "<fieldset>";
-                        echo "<legend>".xlt('Set Price Level')."</legend>";
+                        echo "<legend>" . xlt('Set Price Level') . "</legend>";
                         echo "<div class='form-group mx-5 text-center'>";
                         $plres = sqlStatement("SELECT option_id, title FROM list_options " .
                         "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq, title");
@@ -939,7 +947,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         continue;
                                     }
                                     echo "    <option value='" . attr($ctkey) . "|" .
-                                    attr($row['code']) . ':'. attr($row['modifier']) . "|'>" . text($row['code_text']) . "</option>\n";
+                                    attr($row['code']) . ':' . attr($row['modifier']) . "|'>" . text($row['code_text']) . "</option>\n";
                                 }
                                 echo "   </select>\n";
                                 echo "  </td>\n";
@@ -1043,7 +1051,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         }
                                     }
                                     if (! $numrows) {
-                                        echo "   <select name='search_results' class='form-control' style='color: var(--danger);' " .
+                                        echo "   <select name='search_results' class='form-control text-danger' " .
                                         "onchange='codeselect(this)' disabled >\n";
                                     } else {
                                         echo "   <select name='search_results' style='width: 98%; background: var(--yellow)' " .
@@ -1078,7 +1086,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <?php
                                     if ($fs->ALLOW_COPAYS) {
                                         echo "<td class='col-md-6 float-right'>";
-                                        echo "<input type='button' class='btn btn-primary' value='".  xla('Add Copay')."'";
+                                        echo "<input type='button' class='btn btn-primary' value='" .  xla('Add Copay') . "'";
                                         echo "onclick='copayselect()' />";
                                         echo "</td>";
                                     } ?>
@@ -1195,13 +1203,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
 
                                     $resMoneyGot = sqlStatement(
-                                        "SELECT pay_amount as PatientPay,session_id as id,date(post_time) as date ".
+                                        "SELECT pay_amount as PatientPay,session_id as id,date(post_time) as date " .
                                         "FROM ar_activity where pid =? and encounter =? and payer_type=0 and account_code='PCP'",
                                         array($fs->pid, $fs->encounter)
                                     ); //new fees screen copay gives account_code='PCP'
                                     while ($rowMoneyGot = sqlFetchArray($resMoneyGot)) {
-                                        $PatientPay=$rowMoneyGot['PatientPay']*-1;
-                                        $id=$rowMoneyGot['id'];
+                                        $PatientPay = $rowMoneyGot['PatientPay'] * -1;
+                                        $id = $rowMoneyGot['id'];
                                         $fs->addServiceLineItem(array(
                                         'codetype'    => 'COPAY',
                                         'code'        => '',
@@ -1442,7 +1450,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 if (!$GLOBALS['ippf_specific']) { ?>
                                     <label class='col-form-label col-2'><?php echo xlt('Supervising'); ?></label>
                                     <div class="col-10">
-                                    <?php echo $fs->genProviderSelect('SupervisorID', '-- '.xl("N/A").' --', $fs->supervisor_id, $isBilled); ?>
+                                    <?php echo $fs->genProviderSelect('SupervisorID', '-- ' . xl("N/A") . ' --', $fs->supervisor_id, $isBilled); ?>
                                     </div>
                                     <?php
                                 }
@@ -1508,7 +1516,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     </div><!--End of div container -->
     <?php $oemr_ui->oeBelowContainerDiv();?>
     <script>
-    $(function() {
+    $(function () {
         $('select').addClass("form-control");
     });
     </script>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * addrbook_edit.php
  *
@@ -222,7 +223,7 @@ if ($_POST['form_save']) {
         invalue('form_abook_type')    . " "  .
         ")");
     }
-} else if ($_POST['form_delete']) {
+} elseif ($_POST['form_delete']) {
     if ($userid) {
        // Be careful not to delete internal users.
         sqlStatement("DELETE FROM users WHERE id = ? AND username = ''", array($userid));
@@ -233,7 +234,7 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
   // Close this window and redisplay the updated list.
     echo "<script>\n";
     if ($info_msg) {
-        echo " alert(".js_escape($info_msg).");\n";
+        echo " alert(" . js_escape($info_msg) . ");\n";
     }
 
     echo " window.close();\n";
@@ -254,7 +255,7 @@ if ($type) { // note this only happens when its new
 ?>
 
 <script>
- $(function() {
+ $(function () {
   // customize the form via the type options
   typeSelect(<?php echo js_escape($row['abook_type']); ?>);
   if(typeof abook_type != 'undefined' && abook_type == 'ord_lab') {
@@ -281,7 +282,7 @@ if ($type) { // note this only happens when its new
         <label for="title" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Name'); ?>:</label>
     </div>
     <div class="col-auto">
-        <?php generate_form_field(array('data_type'=>1,'field_id'=>'title','smallform'=>'true','list_id'=>'titles','empty_title'=>' '), $row['title']); ?>
+        <?php generate_form_field(array('data_type' => 1,'field_id' => 'title','smallform' => 'true','list_id' => 'titles','empty_title' => ' '), $row['title']); ?>
     </div>
     <div class="col-auto">
         <label for="form_lname" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Last{{Name}}'); ?>:</label>
@@ -325,7 +326,7 @@ if ($type) { // note this only happens when its new
     <div class="col">
         <input type='text' size='40' name='form_organization' maxlength='250' value='<?php echo attr($row['organization']); ?>' class='form-control form-control-sm inputtext' />
     <span id='cpoe_span' style="display:none;">
-        <input type='checkbox' title="<?php echo xla('CPOE'); ?>" name='form_cpoe' id='form_cpoe' value='1' <?php echo ($row['cpoe']=='1') ? "CHECKED" : ""; ?>/>
+        <input type='checkbox' title="<?php echo xla('CPOE'); ?>" name='form_cpoe' id='form_cpoe' value='1' <?php echo ($row['cpoe'] == '1') ? "CHECKED" : ""; ?>/>
         <label for='form_cpoe' class="font-weight-bold"><?php echo xlt('CPOE'); ?></label>
    </span>
     </div>
@@ -335,7 +336,7 @@ if ($type) { // note this only happens when its new
     <div class="form-row my-1">
         <div class="col-auto">
             <?php
-            generate_form_field(array('data_type'=>1,'field_id'=>'director_title','smallform'=>'true','list_id'=>'titles','empty_title'=>' '), $row['title']);
+            generate_form_field(array('data_type' => 1,'field_id' => 'director_title','smallform' => 'true','list_id' => 'titles','empty_title' => ' '), $row['title']);
             ?>
         </div>
         <div class="col-auto">
@@ -463,10 +464,10 @@ if ($type) { // note this only happens when its new
         <input type='text' size='10' name='form_city' maxlength='30' value='<?php echo attr($row['city']); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('City'); ?>" />
     </div>
     <div class="col-2">
-        <label for="form_state" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('State')."/".xlt('county'); ?>:</label>
+        <label for="form_state" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('State') . "/" . xlt('county'); ?>:</label>
     </div>
     <div class="col">
-        <input type='text' size='10' name='form_state' maxlength='30' value='<?php echo attr($row['state']); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('State')."/".xla('county'); ?>" />
+        <input type='text' size='10' name='form_state' maxlength='30' value='<?php echo attr($row['state']); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('State') . "/" . xla('county'); ?>" />
     </div>
     <div class="col-2">
         <label for="form_zip" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Postal code'); ?>:</label>
@@ -494,10 +495,10 @@ if ($type) { // note this only happens when its new
         <input type='text' size='10' name='form_city2' maxlength='30' value='<?php echo attr($row['city2']); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('Alt City'); ?>" />
     </div>
     <div class="col-auto">
-        <label for="form_state2" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Alt State')."/".xlt('county'); ?>:</label>
+        <label for="form_state2" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Alt State') . "/" . xlt('county'); ?>:</label>
     </div>
     <div class="col-auto">
-        <input type='text' size='10' name='form_state2' maxlength='30' value='<?php echo attr($row['state2']); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('Alt State')."/".xla('county'); ?>" />
+        <input type='text' size='10' name='form_state2' maxlength='30' value='<?php echo attr($row['state2']); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('Alt State') . "/" . xla('county'); ?>" />
     </div>
     <div class="col-auto">
         <label for="form_zip2" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Alt Postal code'); ?>:</label>

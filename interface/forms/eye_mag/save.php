@@ -1,4 +1,5 @@
 <?php
+
 /**
  * forms/eye_mag/save.php
  *
@@ -22,7 +23,6 @@
  * @copyright Copyright (c) 2016- Raymond Magauran <rmagauran@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 $table_name = "form_eye_mag";
 $form_name = "eye_mag";
@@ -354,9 +354,9 @@ if ($_REQUEST["mode"] == "new") {
         }
 
         $sql = "DELETE from categories_to_documents where document_id IN (SELECT id from documents where documents.url like ?)";
-        sqlQuery($sql, ['%'.$filename]);
+        sqlQuery($sql, ['%' . $filename]);
         $sql = "DELETE from documents where documents.url like ?";
-        sqlQuery($sql, ['%'.$filename]);
+        sqlQuery($sql, ['%' . $filename]);
         // We want to overwrite so only one PDF is stored per form/encounter
         $config_mpdf = array(
             'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
@@ -407,8 +407,10 @@ if ($_REQUEST["mode"] == "new") {
                 break;
             }
 
-            if (substr($content, $i+6, $wrlen) === $web_root &&
-              substr($content, $i+6, $wsrlen) !== $webserver_root) {
+            if (
+                substr($content, $i + 6, $wrlen) === $web_root &&
+                substr($content, $i + 6, $wsrlen) !== $webserver_root
+            ) {
                 $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
             }
         }
@@ -634,7 +636,7 @@ if ($_REQUEST["mode"] == "new") {
                 } elseif ($form_type == "POS") {
                     $form_type = "surgery";
                     $subtype = "eye";
-                } elseif (($form_type == "Medication")||($form_type == "Eye Meds")) {
+                } elseif (($form_type == "Medication") || ($form_type == "Eye Meds")) {
                     $form_type = "medication";
                     if ($_REQUEST['form_eye_subtype']) {
                         $subtype = "eye";
@@ -777,13 +779,13 @@ if ($_REQUEST["mode"] == "new") {
 
             $dups[$item["code"]] = "1";
             $sql = "SELECT codes.*, prices.pr_price FROM codes " .
-                "LEFT OUTER JOIN patient_data ON patient_data.pid = '$pid' " .
+                "LEFT OUTER JOIN patient_data ON patient_data.pid = ? " .
                 "LEFT OUTER JOIN prices ON prices.pr_id = codes.id AND " .
                 "prices.pr_selector = '' AND " .
                 "prices.pr_level = patient_data.pricelevel " .
                 "WHERE code =?" .
                 " LIMIT 1";
-            $result = sqlStatement($sql, array($item['code']));
+            $result = sqlStatement($sql, array($pid, $item['code']));
             while ($res = sqlFetchArray($result)) {
                 $item["codedesc"] = $res["code_text"];// eg. = "NP EYE intermediate exam"
                 if (!$item["modifier"]) {
@@ -859,7 +861,7 @@ if ($_REQUEST["mode"] == "new") {
     sqlQuery($sql_clear, array($pid, $providerID, $visit_date));
     if ($N > '0') {
         for ($i = 0; $i < $N; $i++) {
-            if ($_POST['PLAN'][$i] =='') {
+            if ($_POST['PLAN'][$i] == '') {
                 continue;
             }
             $fields['PLAN'] .= $_POST['PLAN'][$i] . "|"; //this makes an entry for form_eyemag: PLAN
@@ -989,11 +991,12 @@ if ($_REQUEST["mode"] == "new") {
         }
 
         $fields = array();
-        $sql2 ='';
+        $sql2 = '';
         if (sqlNumRows($result) > 0) {
             while ($row = sqlFetchArray($result)) {
                 //exclude critical columns/fields and those needing special processing from update
-                if ($row['Field'] == 'id' or
+                if (
+                    $row['Field'] == 'id' or
                     $row['Field'] == 'date' or
                     $row['Field'] == 'pid' or
                     $row['Field'] == 'user' or
@@ -1003,13 +1006,14 @@ if ($_REQUEST["mode"] == "new") {
                     $row['Field'] == 'LOCKEDBY' or
                     $row['Field'] == 'activity' or
                     $row['Field'] == 'PLAN' or
-                    $row['Field'] == 'Resource') {
+                    $row['Field'] == 'Resource'
+                ) {
                     continue;
                 }
-                $fields[] = $_POST[$row['Field']]?:'';
-                $sql2 .= " ". add_escape_custom($row['Field']) ." = ?,";
+                $fields[] = $_POST[$row['Field']] ?: '';
+                $sql2 .= " " . add_escape_custom($row['Field']) . " = ?,";
             }
-            $sql = "update " . escape_table_name($table_name) . " set pid ='".add_escape_custom($_SESSION['pid'])."',".$sql2;
+            $sql = "update " . escape_table_name($table_name) . " set pid ='" . add_escape_custom($_SESSION['pid']) . "'," . $sql2;
 
             $sql = substr($sql, 0, -1);
             $sql .= " where id=?";
@@ -1209,9 +1213,9 @@ if ($_REQUEST['canvas']) {
     }
 
     $sql = "DELETE from categories_to_documents where document_id IN (SELECT id from documents where documents.url like ?)";
-    sqlQuery($sql, ['%'.$filename]);
+    sqlQuery($sql, ['%' . $filename]);
     $sql = "DELETE from documents where documents.url like ?";
-    sqlQuery($sql, ['%'.$filename]);
+    sqlQuery($sql, ['%' . $filename]);
     $return = addNewDocument($filename, $type, $_POST["imgBase64"], 0, $size, $_SESSION['authUserID'], $pid, $category_id);
     $doc_id = $return['doc_id'];
     $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter

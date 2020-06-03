@@ -1,13 +1,15 @@
 <?php
+
 /**
  * AuthUtils class.
  *
  *   Authentication:
- *     1. This class can be run in 1 of 3 modes:
- *       -login: Authentication of users during standard login.
- *       -api:   Authentication of users when requesting api token.
- *       -other: Default setting. Other Authentication when already logged into OpenEMR such as when
- *                doing Esign or changing mfa setting.
+ *     1. This class can be run in 1 of 4 modes:
+ *       -login:      Authentication of users during standard login.
+ *       -api:        Authentication of users when requesting api token.
+ *       -portal-api: Authentication of patients when requesting api token.
+ *       -other:      Default setting. Other Authentication when already logged into OpenEMR such as when
+ *                     doing Esign or changing mfa setting.
  *     2. LDAP (Active Directory) is also supported. In these cases, the login counter and
  *         expired password mechanisms are ignored.
  *     3. Timing attack prevention. The time will be the same for a user that does not exist versus a user
@@ -29,7 +31,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 namespace OpenEMR\Common\Auth;
 
 use OpenEMR\Common\Acl\AclExtended;
@@ -42,14 +43,16 @@ class AuthUtils
 {
     private $loginAuth = false; // standard login authentication
     private $apiAuth = false;   // api login authentication
+    private $portalApiAuth = false;   // patient portal api login authentication
     private $otherAuth = false; // other use
 
     private $authHashAuth; // Store the private AuthHash instance.
 
     private $errorMessage; // Error messages (in updatePassword() function)
 
-    private $userId;       // Stores user id for api to retrieve (in confirmUserPassword() function)
-    private $userGroup;    // Stores user group for api to retrieve (in confirmUserPassword() function)
+    private $userId;       // Stores user id for api to retrieve (in confirmPassword() function)
+    private $userGroup;    // Stores user group for api to retrieve (in confirmPassword() function)
+    private $patientId;    // Stores patient pid for api to retrieve (in confirmPassword() function)
 
     private $dummyHash;     // Used to prevent timing attacks
 
@@ -58,8 +61,10 @@ class AuthUtils
         // Set mode
         if ($mode == 'login') {
             $this->loginAuth = true;
-        } else if ($mode == 'api') {
+        } elseif ($mode == 'api') {
             $this->apiAuth = true;
+        } elseif ($mode == 'portal-api') {
+            $this->portalApiAuth = true;
         } else {
             $this->otherAuth = true;
         }
@@ -78,7 +83,7 @@ class AuthUtils
             // Create and store a new dummy hash globals entry
             $this->dummyHash = $this->authHashAuth->passwordHash($dummyPassword);
             privStatement("INSERT INTO `globals` (`gl_name`, `gl_value`) VALUES ('hidden_auth_dummy_hash', ?)", [$this->dummyHash]);
-        } else if (empty($timing['gl_value'])) {
+        } elseif (empty($timing['gl_value'])) {
             // Create and store a dummy rehash in existing globals entry
             $this->dummyHash = $this->authHashAuth->passwordHash($dummyPassword);
             privStatement("UPDATE `globals` SET `gl_value` = ? WHERE `gl_name` = 'hidden_auth_dummy_hash'", [$this->dummyHash]);
@@ -98,15 +103,163 @@ class AuthUtils
      *
      * @param type $username
      * @param type $password - password is passed by reference so that it can be "cleared out" as soon as we are done with it.
+     * @param type $email    - used in case of portal auth when a email address is required
      * @return boolean  returns true if the password for the given user is correct, false otherwise.
      */
-    public function confirmUserPassword($username, &$password)
+    public function confirmPassword($username, &$password, $email = '')
+    {
+        if ($this->portalApiAuth) {
+            return $this->confirmPatientPassword($username, $password, $email);
+        } else { // $this->loginAuth || $this->apiAuth || $this->otherAuth
+            return $this->confirmUserPassword($username, $password);
+        }
+    }
+
+    /**
+     *
+     * @param type $username
+     * @param type $password - password is passed by reference so that it can be "cleared out" as soon as we are done with it.
+     * @param type $email    - used when a email address is required
+     * @return boolean  returns true if the password for the given user is correct, false otherwise.
+     */
+    private function confirmPatientPassword($username, &$password, $email = '')
+    {
+        // Set variables for log
+        $event = 'portalapi';
+        $beginLog = 'Portal API failure';
+
+        // Collect ip address for log
+        $ip = collectIpAddresses();
+
+        // Check to ensure username and password are not empty
+        if (empty($username) || empty($password)) {
+            EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". empty username or password");
+            $this->clearFromMemory($password);
+            $this->preventTimingAttack();
+            return false;
+        }
+
+        // Perform checks from patient_access_onsite
+        $getPatientSQL = "select `id`, `pid`, `portal_username`, `portal_login_username`, `portal_pwd`, `portal_pwd_status`, `portal_onetime`  from `patient_access_onsite` where BINARY `portal_login_username` = ?";
+        $patientInfo = privQuery($getPatientSQL, [$username]);
+        if (empty($patientInfo) || empty($patientInfo['id']) || empty($patientInfo['pid'])) {
+            // Patient portal information not found
+            EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient portal information not found", $patientInfo['pid']);
+            $this->clearFromMemory($password);
+            $this->preventTimingAttack();
+            return false;
+        } elseif (empty($patientInfo['portal_username']) || empty($patientInfo['portal_login_username']) || empty($patientInfo['portal_pwd'])) {
+            // Patient missing username, login username, or password
+            EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient missing username, login username, or password", $patientInfo['pid']);
+            $this->clearFromMemory($password);
+            $this->preventTimingAttack();
+            return false;
+        } elseif (!empty($patientInfo['portal_onetime'])) {
+            // Patient onetime is set, so still in process of verifying account
+            EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient account not yet verified (portal_onetime set)", $patientInfo['pid']);
+            $this->clearFromMemory($password);
+            $this->preventTimingAttack();
+            return false;
+        } elseif ($patientInfo['portal_pwd_status'] != 1) {
+            // Patient portal_pwd_status is not 1, so still in process of verifying account
+            EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient account not yet verified (portal_pwd_status is not 1)", $patientInfo['pid']);
+            $this->clearFromMemory($password);
+            $this->preventTimingAttack();
+            return false;
+        }
+
+        // Perform checks from patient_data
+        $getPatientDataSQL = "select `pid`, `email`, `allow_patient_portal` FROM `patient_data` WHERE `pid` = ?";
+        $patientDataInfo = privQuery($getPatientDataSQL, [$patientInfo['pid']]);
+        if (empty($patientDataInfo) || empty($patientDataInfo['pid'])) {
+            // Patient not found
+            EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient not found");
+            $this->clearFromMemory($password);
+            $this->preventTimingAttack();
+            return false;
+        } elseif ($patientDataInfo['allow_patient_portal'] != "YES") {
+            // Patient does not permit portal access
+            EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient does not permit portal access", $patientDataInfo['pid']);
+            $this->clearFromMemory($password);
+            $this->preventTimingAttack();
+            return false;
+        } elseif ($GLOBALS['enforce_signin_email']) {
+            // Need to enforce email in credentials
+            if (empty($email)) {
+                // Patient email was not included in credentials
+                EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient email was not included in credentials", $patientDataInfo['pid']);
+                $this->clearFromMemory($password);
+                $this->preventTimingAttack();
+                return false;
+            } elseif (empty($patientDataInfo['email'])) {
+                // Patient email missing from demographics
+                EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient does not have an email in demographics", $patientDataInfo['pid']);
+                $this->clearFromMemory($password);
+                $this->preventTimingAttack();
+                return false;
+            } elseif ($patientDataInfo['email'] != $email) {
+                // Email not correct
+                EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient email not correct", $patientDataInfo['pid']);
+                $this->clearFromMemory($password);
+                $this->preventTimingAttack();
+                return false;
+            }
+        }
+
+        // This error should never happen, but still gotta check for it
+        if ($patientInfo['pid'] != $patientDataInfo['pid']) {
+            EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient pid comparison with very unusual error");
+            $this->clearFromMemory($password);
+            $this->preventTimingAttack();
+            return false;
+        }
+
+        // Authentication
+        // First, ensure the user hash is a valid hash
+        //  (note need to preg_match for \$2a\$05\$ for backward compatibility since
+        //   password_get_info() call can not identify older bcrypt hashes)
+        $hash_info = password_get_info($patientInfo['portal_pwd']);
+        if (empty($hash_info['algo']) && empty(preg_match('/^\$2a\$05\$/', $patientInfo['portal_pwd']))) {
+            EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient stored password hash is invalid", $patientDataInfo['pid']);
+            $this->clearFromMemory($password);
+            $this->preventTimingAttack();
+            return false;
+        }
+        // Second, authentication
+        if (!AuthHash::passwordVerify($password, $patientInfo['portal_pwd'])) {
+            EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient password incorrect", $patientDataInfo['pid']);
+            $this->clearFromMemory($password);
+            return false;
+        }
+
+        // Check for rehash
+        if ($this->authHashAuth->passwordNeedsRehash($patientInfo['portal_pwd'])) {
+            // Hash needs updating, so create a new hash, and replace the old one
+            $newHash = $this->rehashPassword($username, $password);
+            // store the rehash
+            privStatement("UPDATE `patient_access_onsite` SET `portal_pwd` = ? WHERE `id` = ?", [$newHash, $patientInfo['id']]);
+        }
+
+        // PASSED auth for the portal api
+        $this->clearFromMemory($password);
+        //  Set up class variable that the api will need to collect (log for API is done outside)
+        $this->patientId = $patientDataInfo['pid'];
+        return true;
+    }
+
+    /**
+     *
+     * @param type $username
+     * @param type $password - password is passed by reference so that it can be "cleared out" as soon as we are done with it.
+     * @return boolean  returns true if the password for the given user is correct, false otherwise.
+     */
+    private function confirmUserPassword($username, &$password)
     {
         // Set variables for log
         if ($this->loginAuth) {
             $event = 'login';
             $beginLog = 'failure';
-        } else if ($this->apiAuth) {
+        } elseif ($this->apiAuth) {
             $event = 'api';
             $beginLog = 'API failure';
         } else { // $this->otherAuth
@@ -133,7 +286,7 @@ class AuthUtils
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
-        } else if ($userInfo['active'] != 1) {
+        } elseif ($userInfo['active'] != 1) {
             EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". user not active");
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
@@ -161,7 +314,7 @@ class AuthUtils
         $getUserSecureSQL = " SELECT `id`, `password`" .
             " FROM `users_secure`" .
             " WHERE BINARY `username` = ?";
-        $userSecure=privQuery($getUserSecureSQL, [$username]);
+        $userSecure = privQuery($getUserSecureSQL, [$username]);
         if (empty($userSecure) || empty($userSecure['id']) || empty($userSecure['password'])) {
             EventAuditLogger::instance()->newEvent($event, $username, $authGroup['name'], 0, $beginLog . ": " . $ip['ip_string'] . ". user credentials not found");
             $this->clearFromMemory($password);
@@ -261,7 +414,7 @@ class AuthUtils
                 $_SESSION['userauthorized'] = '1';
             }
             EventAuditLogger::instance()->newEvent('login', $username, $authGroup['name'], 1, "success: " . $ip['ip_string']);
-        } else if ($this->apiAuth) {
+        } elseif ($this->apiAuth) {
             // Set up class variables that the api will need to collect (log for API is done outside)
             $this->userId = $userInfo['id'];
             $this->userGroup = $authGroup['name'];
@@ -301,7 +454,7 @@ class AuthUtils
         $userInfo = privQuery($userSQL, [$targetUser]);
 
         // Verify the active user's password
-        $changingOwnPassword = $activeUser==$targetUser;
+        $changingOwnPassword = $activeUser == $targetUser;
         // True if this is the current user changing their own password
         if ($changingOwnPassword) {
             if ($create) {
@@ -350,7 +503,7 @@ class AuthUtils
                 $adminSQL = "SELECT `password`" .
                     " FROM `users_secure`" .
                     " WHERE `id` = ?";
-                $adminInfo=privQuery($adminSQL, [$activeUser]);
+                $adminInfo = privQuery($adminSQL, [$activeUser]);
                 if (empty($adminInfo) || empty($adminInfo['password'])) {
                     $this->errorMessage = xl("Password update error!");
                     $this->clearFromMemory($currentPwd);
@@ -374,7 +527,7 @@ class AuthUtils
         //  and used only for session confirmations; the primary authentication for the new user will be done via
         //  LDAP)
         $ldapDummyPassword = false;
-        if ($create && ($userInfo===false) && (!empty($new_username)) && (self::useActiveDirectory($new_username))) {
+        if ($create && ($userInfo === false) && (!empty($new_username)) && (self::useActiveDirectory($new_username))) {
             $ldapDummyPassword = true;
             $newPwd = RandomGenUtils::produceRandomString(32, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
             if (empty($newPwd)) {
@@ -404,7 +557,7 @@ class AuthUtils
             return false;
         }
 
-        if ($userInfo===false) {
+        if ($userInfo === false) {
             // No userInfo means a new user
             // In these cases don't worry about password history
             if ($create) {
@@ -437,7 +590,7 @@ class AuthUtils
                     " VALUES (?,?,?,NOW()) ";
                 privStatement($passwordSQL, [$user_id['id'], $new_username, $hash]);
             } else {
-                $this->errorMessage = xl("Missing user credentials:".$targetUser);
+                $this->errorMessage = xl("Missing user credentials:" . $targetUser);
                 $this->clearFromMemory($newPwd);
                 return false;
             }
@@ -488,19 +641,19 @@ class AuthUtils
                 die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
             }
 
-            $updateParams=array();
+            $updateParams = array();
             $updateSQL = "UPDATE `users_secure`";
             $updateSQL .= " SET `last_update_password` = NOW()";
             $updateSQL .= ", `password` = ?";
             array_push($updateParams, $newHash);
             if ($GLOBALS['password_history'] != 0) {
-                $updateSQL.=", `password_history1` = ?";
+                $updateSQL .= ", `password_history1` = ?";
                 array_push($updateParams, $userInfo['password']);
-                $updateSQL.=", `password_history2` = ?";
+                $updateSQL .= ", `password_history2` = ?";
                 array_push($updateParams, $userInfo['password_history1']);
-                $updateSQL.=", `password_history3` = ?";
+                $updateSQL .= ", `password_history3` = ?";
                 array_push($updateParams, $userInfo['password_history2']);
-                $updateSQL.=", `password_history4` = ?";
+                $updateSQL .= ", `password_history4` = ?";
                 array_push($updateParams, $userInfo['password_history3']);
             }
 
@@ -535,6 +688,11 @@ class AuthUtils
         return $this->userGroup;
     }
 
+    public function getPatientId()
+    {
+        return $this->patientId;
+    }
+
     // Ensure user hash remains valid (for example, if user is deactivated or password is changed, then
     //  this will not allow the same user in another session continue to use OpenEMR)
     // This function is static since requires no class specific defines
@@ -543,15 +701,17 @@ class AuthUtils
         if ((!empty($_SESSION['authUserID'])) && (!empty($_SESSION['authUser'])) && (!empty($_SESSION['authPass']))) {
             $authDB = privQuery("SELECT `users`.`username`, `users_secure`.`password`" .
                 " FROM `users`, `users_secure`" .
-                " WHERE `users`.`id` = ? ".
-                " AND `users`.`id` = `users_secure`.`id` ".
+                " WHERE `users`.`id` = ? " .
+                " AND `users`.`id` = `users_secure`.`id` " .
                 " AND BINARY `users`.`username` = `users_secure`.`username`" .
                 " AND `users`.`active` = 1", [$_SESSION['authUserID']]);
-            if ((!empty($authDB)) &&
+            if (
+                (!empty($authDB)) &&
                 (!empty($authDB['username'])) &&
                 (!empty($authDB['password'])) &&
                 ($_SESSION['authUser'] == $authDB['username']) &&
-                (hash_equals($_SESSION['authPass'], $authDB['password']))) {
+                (hash_equals($_SESSION['authPass'], $authDB['password']))
+            ) {
                 return true;
             } else {
                 return false;
@@ -671,8 +831,8 @@ class AuthUtils
     private function testPasswordStrength(&$pwd)
     {
         if ($GLOBALS['secure_password']) {
-            $features=0;
-            $reg_security=array("/[a-z]+/","/[A-Z]+/","/\d+/","/[\W_]+/");
+            $features = 0;
+            $reg_security = array("/[a-z]+/","/[A-Z]+/","/\d+/","/[\W_]+/");
             foreach ($reg_security as $expr) {
                 if (preg_match($expr, $pwd)) {
                     $features++;

@@ -7,55 +7,55 @@
 .nav > .active > a,
 .navbar-nav > .active > a:hover,
 .navbar-nav > .active > a:focus {
-    color: $white;
-    background-color: transparent !important;
+  background-color: transparent !important;
+  color: $white;
 }
 
 .navbar-light .navbar-nav > .active > a,
 .navbar-light .navbar-nav > .active > a:focus,
 .navbar-light .navbar-nav > .active > a:hover {
-    background-color: $palepale !important;
+  background-color: $palepale !important;
 }
 
 .dropdown-menu > li > a:focus,
 .dropdown-menu > li > a:hover {
-    background-color: $palepale !important;
+  background-color: $palepale !important;
 }
 
 .dropdown-menu {
-    background-color: $paler !important;
-    border-top: 1px solid $paler !important;
-    border-radius: 0 !important;
+  background-color: $paler !important;
+  border-radius: 0 !important;
+  border-top: 1px solid $paler !important;
 }
 
 .navbar-nav {
-    @include font-size("15px !important");
+  @include font-size("15px !important");
 }
 
 .navbar-light {
-    background-color: $dark !important;
-    border: none;
+  background-color: $dark !important;
+  border: 0;
 }
 
 .navbar-light .navbar-nav > li > a:focus,
 .navbar-light .navbar-nav > li > a:hover {
-    background-color: $palepale !important;
+  background-color: $palepale !important;
 }
 
 .navbar-nav > li > .dropdown-menu {
-    box-shadow: 0 2px 2px $midpale !important;
+  box-shadow: 0 2px 2px $midpale !important;
 }
 
 .navbar-collapse.collapse.in {
-    background-color: $dark !important;
-    font-weight: 700;
-    color: $black !important;
+  background-color: $dark !important;
+  color: $black !important;
+  font-weight: 700;
 }
 
 .navbar-light .navbar-brand {
-    color: $black !important;
+  color: $black !important;
 }
 
 .navbar-light .navbar-nav > li > a {
-    color: $black !important;
+  color: $black !important;
 }

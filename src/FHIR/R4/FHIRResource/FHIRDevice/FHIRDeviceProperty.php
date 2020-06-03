@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRDevice;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRDevice;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -173,7 +175,7 @@ class FHIRDeviceProperty extends FHIRBackboneElement implements \JsonSerializabl
                         $this->addValueQuantity($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"valueQuantity" must be array of objects or null, '.gettype($data['valueQuantity']).' seen.');
+                    throw new \InvalidArgumentException('"valueQuantity" must be array of objects or null, ' . gettype($data['valueQuantity']) . ' seen.');
                 }
             }
             if (isset($data['valueCode'])) {
@@ -182,11 +184,11 @@ class FHIRDeviceProperty extends FHIRBackboneElement implements \JsonSerializabl
                         $this->addValueCode($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"valueCode" must be array of objects or null, '.gettype($data['valueCode']).' seen.');
+                    throw new \InvalidArgumentException('"valueCode" must be array of objects or null, ' . gettype($data['valueCode']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

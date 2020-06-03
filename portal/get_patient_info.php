@@ -1,4 +1,5 @@
 <?php
+
 /**
  * portal/get_patient_info.php
  *
@@ -168,9 +169,7 @@ $_SESSION['portal_login_username'] = $auth[COL_POR_LOGINUSER];
 
 $sql = "SELECT * FROM `patient_data` WHERE `pid` = ?";
 
-if ($userData = sqlQuery($sql, array(
-    $auth['pid']
-))) { // if query gets executed
+if ($userData = sqlQuery($sql, array($auth['pid']))) { // if query gets executed
     if (empty($userData)) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':not active patient'), '', '0');
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
@@ -220,11 +219,7 @@ if ($userData = sqlQuery($sql, array(
                 )
             );
             $authorizedPortal = true;
-            $logit->portalLog(
-                'password update',
-                $auth['pid'],
-                ($_POST['login_uname'] . ': ' . $_SESSION['ptName'] . ':success')
-            );
+            $logit->portalLog('password update', $auth['pid'], ($_POST['login_uname'] . ': ' . $_SESSION['ptName'] . ':success'));
         }
     }
 

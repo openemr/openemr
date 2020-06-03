@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This script merges two patient charts into a single patient chart.
  * It is to correct the error of creating a duplicate patient.
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 set_time_limit(0);
 
@@ -33,7 +33,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 <head>
 <title><?php echo xlt('Merge Patients'); ?></title>
-    <?php Header::setupHeader(['jquery-ui']); ?>
+    <?php Header::setupHeader(); ?>
 
 <script>
 
@@ -203,13 +203,13 @@ if (!empty($_POST['form_submit'])) {
         $tblname = array_shift($trow);
         if ($tblname == 'patient_data' || $tblname == 'history_data' || $tblname == 'insurance_data') {
             deleteRows($tblname, 'pid', $source_pid);
-        } else if ($tblname == 'chart_tracker') {
+        } elseif ($tblname == 'chart_tracker') {
             updateRows($tblname, 'ct_pid', $source_pid, $target_pid);
-        } else if ($tblname == 'documents') {
+        } elseif ($tblname == 'documents') {
             // Documents already handled.
-        } else if ($tblname == 'openemr_postcalendar_events') {
+        } elseif ($tblname == 'openemr_postcalendar_events') {
             updateRows($tblname, 'pc_pid', $source_pid, $target_pid);
-        } else if ($tblname == 'log') {
+        } elseif ($tblname == 'log') {
             // Don't mess with log data.
         } else {
             $crow = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tblname) . "` WHERE " .

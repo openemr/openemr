@@ -1,4 +1,5 @@
 <?php
+
 function csv_like_join($array, $quote_all = false)
 {
     $result = '';
@@ -37,10 +38,12 @@ function maybe_csv_quote($string)
 
 function need_csv_quote($string)
 {
-    if (strpos($string, ',') === false
-     && strpos($string, '"') === false
-     && strpos($string, "\r") === false
-     && strpos($string, "\n") === false) {
+    if (
+        strpos($string, ',') === false
+        && strpos($string, '"') === false
+        && strpos($string, "\r") === false
+        && strpos($string, "\n") === false
+    ) {
         return false;
     }
 
@@ -59,10 +62,12 @@ function split_csv_line($record)
         $first = '';
         $start = 1;
 
-        while ($start < strlen($record)
+        while (
+            $start < strlen($record)
             && ($end = strpos($record, '"', $start)) !== false
             && $end < strlen($record) - 1
-            && $record[$end + 1] !== ',') {
+            && $record[$end + 1] !== ','
+        ) {
             if ($record[$end + 1] !== '"') {
                 die("Found characters between double-quoted field and comma.");
             }

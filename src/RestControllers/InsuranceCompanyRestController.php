@@ -1,4 +1,5 @@
 <?php
+
 /**
  * InsuranceCompanyRestController
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 namespace OpenEMR\RestControllers;
 
@@ -44,12 +44,14 @@ class InsuranceCompanyRestController
         $insuranceCompanyValidationResult = $this->insuranceCompanyService->validate($data);
         $insuranceCompanyValidationHandlerResult = RestControllerHelper::validationHandler($insuranceCompanyValidationResult);
         if (is_array($insuranceCompanyValidationHandlerResult)) {
-            return $insuranceCompanyValidationHandlerResult; }
+            return $insuranceCompanyValidationHandlerResult;
+        }
 
         $addressValidationResult = $this->addressService->validate($data);
         $addressValidationHandlerResult = RestControllerHelper::validationHandler($addressValidationResult);
         if (is_array($addressValidationHandlerResult)) {
-            return $addressValidationHandlerResult; }
+            return $addressValidationHandlerResult;
+        }
 
         $serviceResult = $this->insuranceCompanyService->insert($data);
         return RestControllerHelper::responseHandler($serviceResult, array('iid' => $serviceResult), 201);
@@ -60,12 +62,14 @@ class InsuranceCompanyRestController
         $insuranceCompanyValidationResult = $this->insuranceCompanyService->validate($data);
         $insuranceCompanyValidationHandlerResult = RestControllerHelper::validationHandler($insuranceCompanyValidationResult);
         if (is_array($insuranceCompanyValidationHandlerResult)) {
-            return $insuranceCompanyValidationHandlerResult; }
+            return $insuranceCompanyValidationHandlerResult;
+        }
 
         $addressValidationResult = $this->addressService->validate($data);
         $addressValidationHandlerResult = RestControllerHelper::validationHandler($addressValidationResult);
         if (is_array($addressValidationHandlerResult)) {
-            return $addressValidationHandlerResult; }
+            return $addressValidationHandlerResult;
+        }
 
         $serviceResult = $this->insuranceCompanyService->update($data, $iid);
         return RestControllerHelper::responseHandler($serviceResult, array('iid' => $iid), 200);

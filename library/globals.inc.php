@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This program sets the global variables.
  *
@@ -79,8 +80,8 @@
 //   Urdu                           // xl('Urdu')
 //   Vietnamese                     // xl('Vietnamese')
 
-use \OpenEMR\Services\Globals\GlobalsService;
-use \OpenEMR\Events\Globals\GlobalsInitializedEvent;
+use OpenEMR\Services\Globals\GlobalsService;
+use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
@@ -183,6 +184,7 @@ $GLOBALS_METADATA = array(
         'default_second_tab' => array(
             xl('Default Second Tab'),       // descriptive name
             array(
+                '' => xl('None'),
                 '../../interface/main/messages/messages.php?form_active=1' => xl('Messages Screen'),
                 'main_info.php' => xl('Calendar Screen'),
                 '../new/new.php' => xl('Patient Search/Add Screen'),
@@ -194,7 +196,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'theme_tabs_layout' => array(
-            xl('Tabs Layout Theme').'*',
+            xl('Tabs Layout Theme') . '*',
             'tabs_css',
             'tabs_style_full.css',
             xl('Theme of the tabs layout (need to logout and then login to see this new setting).')
@@ -202,14 +204,14 @@ $GLOBALS_METADATA = array(
 
         'css_header' => array(
             // Note: Do not change this as it is only for theme defaults and adding themes here does nothing
-            xl('General Theme') .'*',
+            xl('General Theme') . '*',
             'css',
             'style_light.css',
             xl('Pick a general theme (need to logout/login after changing this setting).')
         ),
 
         'font-family' => array(
-            xl('Default font') .'*',
+            xl('Default font') . '*',
             array(
                 '__default__' => 'Use Theme Font',
                 '"Arial", "Helvetica", sans-serif' => "Arial",
@@ -226,7 +228,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'font-size' => array(
-            xl('Default font size').'*',
+            xl('Default font size') . '*',
             array(
                 '__default__' => 'Use Theme Font Size',
                 '0.625rem' => '10px',
@@ -237,32 +239,6 @@ $GLOBALS_METADATA = array(
             ),
             '__default__',
             xl("Select the default font size (need to logout/login after changing this setting)."),
-        ),
-
-        'vertical_responsive_menu' => array(
-            xl('Responsive Vertical Menu Style for Tabs')  .'*' ,
-            array(
-                '736' => xl('iPhone 6/7/8 Plus') . " -  736 X 414" . xl('px'),
-                '740' => xl('Galaxy S9/S9 Plus') . " -  740 X 360" . xl('px'),
-                '812' => xl('iPhone X/XS') . " -  812 X 375" . xl('px'),
-                '896' => xl('iPhone XR/XS Max') . " -  896 X 414" . xl('px'),
-                '1024' => xl('iPad/iPad Mini, XGA') . " -  1024 X 768" . xl('px'),
-                '1112' => xl('iPad Pro 10.5 inches') . " -  1112 X 834" . xl('px'),
-                '1280' => xl('Kindle Fire HDX, Laptop MDPI, WXGA') . " -  1280 X 800" . xl('px'),
-                '1336' => xl('iPad Pro 12.5 inches') . " -  1336 X 1024" . xl('px'),
-                '1366' => xl('HD') . " -  1366 X 768" . xl('px'),
-                '1440' => xl('Laptop HiDPI, WXGA+') . " -  1440 X 900" . xl('px'),
-                '1600' => xl('HD+') . " -  1600 X 900" . xl('px'),
-                '1680' => xl('WSXGA+') . " -  1680 X 1050" . xl('px'),
-                '1920' => xl('FHD, WUXGA') . " -  1920 X 1080, 1920 X 1200" . xl('px'),
-                '2048' => xl('QWXGA') . " -  2048 X 1152" . xl('px'),
-                '2560' => xl('QHD') . " -  2560 X 1440" . xl('px'),
-                '3840' => xl('4K UHD') . " -  3840 X 2160" . xl('px'),
-
-            ),
-
-            '1024', //default iPad/iPad mini
-            xl('Selecting the width for responsive vertical style menus in tab based layout (need to logout/login after changing this setting)')
         ),
 
         'menu_styling_vertical' => array(
@@ -365,13 +341,6 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',                              // default = true
             xl('Navigation area includes encounter forms')
-        ),
-
-        'simplified_demographics' => array(
-            xl('Simplified Demographics'),
-            'bool',                           // data type
-            '0',                              // default = false
-            xl('Omit insurance and some other things from the demographics form')
         ),
 
         'simplified_prescriptions' => array(
@@ -487,21 +456,6 @@ $GLOBALS_METADATA = array(
             xl('Special treatment for the Vitals form')
         ),
 
-        'insurance_information' => array(
-            xl('Show Additional Insurance Information'),               // descriptive name
-            array(
-                '0' => xl('None'),
-                '1' => xl('Address Only'),
-                '2' => xl('Address and Postal Code'),
-                '3' => xl('Address and State'),
-                '4' => xl('Address, State and Postal Code'),
-                '5' => xl('Address, City, State and Postal Code'),
-                '6' => xl('Postal Code and Box Number')
-            ),
-            '5',                              // default
-            xl('Show Insurance Address Information in the Insurance Panel of Demographics.')
-        ),
-
         'gb_how_sort_list' => array(
             xl('How to sort a drop-lists'),
             array(
@@ -541,7 +495,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'prevent_browser_refresh' => array(
-            xl('Prevent Web Browser Refresh').'*',
+            xl('Prevent Web Browser Refresh') . '*',
             array(
                 '0' => xl('Do not warn or prevent web browser refresh'),
                 '1' => xl('Warn, but do not prevent web browser refresh'),
@@ -801,13 +755,6 @@ $GLOBALS_METADATA = array(
             xl('Enable follow-up encounters feature')
         ),
 
-        'disable_eligibility_log' => array(
-            xl('Disable Insurance Eligibility Reports Download'),
-            'bool',
-            '0',
-            xl('Do not allow insurance eligibility report log download')
-        ),
-
         'disable_chart_tracker' => array(
             xl('Disable Chart Tracker'),
             'bool',                           // data type
@@ -1034,7 +981,8 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',                              // default false
             xl('Open all expandable forms in expanded state')
-        )
+        ),
+
     ),
     // Report Tab
     //
@@ -1806,7 +1754,7 @@ $GLOBALS_METADATA = array(
             xl('This Allows a Date Range to be Selected in Patient Flow Board.')
         ),
 
-        'ptkr_start_date'=> array(
+        'ptkr_start_date' => array(
             xl('Flow Board: Default Starting Date'),
             array(
                 'D0' => xl('Current Day'),
@@ -1886,7 +1834,51 @@ $GLOBALS_METADATA = array(
 
 
     ),
+    // Insurance Tab
+    'Insurance' => array(
+        'enable_oa' => array(
+            xl('Enable Office Ally Insurance Eligibility'),
+            'bool',
+            '0',
+            xl('Allow insurance eligibility checks using Office Ally')
+        ),
 
+        'simplified_demographics' => array(
+            xl('Simplified Demographics'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Omit insurance and some other things from the demographics form')
+        ),
+
+        'insurance_information' => array(
+            xl('Show Additional Insurance Information'),               // descriptive name
+            array(
+                '0' => xl('None'),
+                '1' => xl('Address Only'),
+                '2' => xl('Address and Postal Code'),
+                '3' => xl('Address and State'),
+                '4' => xl('Address, State and Postal Code'),
+                '5' => xl('Address, City, State and Postal Code'),
+                '6' => xl('Postal Code and Box Number')
+            ),
+            '5',                              // default
+            xl('Show Insurance Address Information in the Insurance Panel of Demographics.')
+        ),
+
+        'disable_eligibility_log' => array(
+            xl('Disable Insurance Eligibility Reports Download'),
+            'bool',
+            '0',
+            xl('Do not allow insurance eligibility report log download')
+        ),
+
+        'insurance_only_one' => array(
+            xl('Allow only one insurance'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Allow more than one insurance')
+        ),
+    ),
     // Security Tab
     //
     'Security' => array(
@@ -3068,6 +3060,34 @@ $GLOBALS_METADATA = array(
     //
     'Connectors' => array(
 
+        'rest_api' => array(
+            xl('Enable OpenEMR Standard REST API'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR Standard RESTful API.')
+        ),
+
+        'rest_fhir_api' => array(
+            xl('Enable OpenEMR Standard FHIR REST API'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR Standard FHIR RESTful API.')
+        ),
+
+        'rest_portal_api' => array(
+            xl('Enable OpenEMR Patient Portal REST API'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR Patient Portal RESTful API.')
+        ),
+
+        'rest_portal_fhir_api' => array(
+            xl('Enable OpenEMR Patient Portal FHIR REST API'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR Patient Portal FHIR RESTful API.')
+        ),
+
         'fhir_enable' => array(
             xl('Enable FHIR Provider Client Service'),
             array(
@@ -3084,20 +3104,6 @@ $GLOBALS_METADATA = array(
             'text',
             'https://hapi.fhir.org/baseDstu3/',
             xl('Base URL for FHIR Server.')
-        ),
-
-        'rest_api' => array(
-            xl('Enable OpenEMR REST API'),
-            'bool',
-            '0',
-            xl('Enable OpenEMR RESTful API. SSL Required')
-        ),
-
-        'enable_oa' => array(
-            xl('Enable Office Ally Insurance Eligibility'),
-            'bool',
-            '0',
-            xl('Allow insurance eligibility checks using Office Ally')
         ),
 
         'payment_gateway' => array(
@@ -3362,7 +3368,7 @@ $GLOBALS_METADATA = array(
             xl('Enable Easipro'),
             'bool',                           // data type
             '0',
-            xl('Enable Easipro. For licensing options for this feature, please contact').' api@assessmentcenter.net'
+            xl('Enable Easipro. For licensing options for this feature, please contact') . ' api@assessmentcenter.net'
         ),
 
         'easipro_server' => array(

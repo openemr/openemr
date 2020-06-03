@@ -1255,9 +1255,9 @@ function build_DX_list(obj) {
             //this places the handle for the user to drag the item around.
         .prepend( "<div class='handle '><i class='fa fa-arrows fa-1'></i></div>" );
     } else {
-        out = '<br /><span class="bold"><?php echo xlt("Build Your Plan")."."; ?></span><br /><br />';
-        out += '<?php echo xlt('Suggestions for the Imp/Plan are built from the Exam, the Past Ocular History (POH and POS) and the Past Medical History (PMH)')."."; ?><br />';
-        out += '<?php echo xlt('Update the chart to build this list')."."; ?><br />';
+        out = '<br /><span class="bold"><?php echo xlt("Build Your Plan") . "."; ?></span><br /><br />';
+        out += '<?php echo xlt('Suggestions for the Imp/Plan are built from the Exam, the Past Ocular History (POH and POS) and the Past Medical History (PMH)') . "."; ?><br />';
+        out += '<?php echo xlt('Update the chart to build this list') . "."; ?><br />';
         $( "#build_DX_list" ).html(out);
     }
 }
@@ -1931,7 +1931,7 @@ shortcut.add("Control+K",function() {
 shortcut.add("Meta+K",function() {
              show_KB();
              });
-$(function(){
+$(function () {
   /*
    * this swallows backspace keys on the "rx" elements.
    * stops backspace -> back a page in the browser, a very annoying thing indeed.
@@ -2207,7 +2207,7 @@ show_left();
     return true;
 }
 
-$(function() {
+$(function () {
                   check_lock();
 
                   var allPanels = $('.building_blocks > dd').hide();
@@ -3401,38 +3401,38 @@ $("body").on("click","[name^='old_canvas']", function() {
                                               // Let's see if the public likes the form itself before developing these subspecialty lists...
 
                                                 //Copy the Eye_Defaults_for_GENERAL to Eye_defaults_$providerID
-                                                $sql="SELECT * from list_options where list_id = 'Eye_Defaults_for_GENERAL'";
-                                                $start= sqlStatement($sql);
+                                                $sql = "SELECT * from list_options where list_id = 'Eye_Defaults_for_GENERAL'";
+                                                $start = sqlStatement($sql);
                                                 $add_fields = array();
-                                                while ($val= sqlFetchArray($start)) {
+                                                while ($val = sqlFetchArray($start)) {
                                                     $parameters .= "(?, ?, ?, ?, ?, ?),";
-                                                    array_push($add_fields, "Eye_defaults_".$providerID, $val['option_id'], $val['title'], $val['notes'], '1', $val['seq']);
+                                                    array_push($add_fields, "Eye_defaults_" . $providerID, $val['option_id'], $val['title'], $val['notes'], '1', $val['seq']);
                                                 }
                                                 $parameters = rtrim($parameters, ",");
                                                 $query = "SELECT max(seq) as maxseq FROM list_options WHERE list_id= 'lists'";
                                                 $pres = sqlStatement($query);
                                                 $maxseq = sqlFetchArray($pres);
 
-                                                $seq=$maxseq['maxseq'];
+                                                $seq = $maxseq['maxseq'];
                                                 $query = "INSERT INTO `list_options`
                                                     (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES
                                                     ('lists', ?, ?, ?, '1', '0', '', '', '')";
                                                 $providerNAME = getProviderName($providerID);
 
                                                 sqlStatement($query, array("Eye_defaults_$providerID","Eye Exam Defaults $providerNAME ",$seq));
-                                                $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`,`notes`,`activity`,`seq`) VALUES ".$parameters;
+                                                $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`,`notes`,`activity`,`seq`) VALUES " . $parameters;
                                                 sqlStatement($query, $add_fields);
                                             }
 
                                             $query = "select * from list_options where list_id =? and activity='1' order by seq";
 
-                                            $DEFAULT_data =sqlStatement($query, array("Eye_defaults_$providerID"));
+                                            $DEFAULT_data = sqlStatement($query, array("Eye_defaults_$providerID"));
                                             while ($row = sqlFetchArray($DEFAULT_data)) {
                                             //$row['notes'] is the clinical zone (EXT,ANTSEG,RETINA,NEURO)
                                             //$row['option_id'] is the field name
                                             //$row['title'] is the default value to use for this provider
                                                 ${$row['notes']}[$row['option_id']] = $row['title']; //This builds each clinical section into its own array (used below)
-                                                echo '$("#'.$row['option_id'].'").val("'.$row['title'].'").css("background-color","beige");
+                                                echo '$("#' . $row['option_id'] . '").val("' . $row['title'] . '").css("background-color","beige");
                                             ';
                                             }
                                             ?>
@@ -3442,7 +3442,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                   $("#EXT_defaults").on("click", function() {
                                             <?php
                                             foreach ($EXT as $item => $value) {
-                                                echo '$("#'.$item.'").val("'.$value.'").css("background-color","beige");
+                                                echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
                                            ';
                                             }
                                             ?>
@@ -3452,7 +3452,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                   $("#ANTSEG_defaults").on("click", function() {
                                                 <?php
                                                 foreach ($ANTSEG as $item => $value) {
-                                                    echo '$("#'.$item.'").val("'.$value.'").css("background-color","beige");
+                                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
                                               ';
                                                 }
                                                 ?>
@@ -3461,7 +3461,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                   $("#RETINA_defaults").on("click", function() {
                                                 <?php
                                                 foreach ($RETINA as $item => $value) {
-                                                    echo '$("#'.$item.'").val("'.$value.'").css("background-color","beige");
+                                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
                                               ';
                                                 }
                                                 ?>
@@ -3470,7 +3470,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                   $("#NEURO_defaults").on("click", function() {
                                                 <?php
                                                 foreach ($NEURO as $item => $value) {
-                                                    echo '$("#'.$item.'").val("'.$value.'").css("background-color","beige");
+                                                    echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
                                              ';
                                                 }
                                                 ?>

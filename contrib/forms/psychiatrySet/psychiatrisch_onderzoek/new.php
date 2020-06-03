@@ -1,4 +1,5 @@
 <?php
+
 /*
  * PSYCHIATRISCH ONDERZOEK
  * Report of Research psihiatric - Dutch specific form
@@ -182,7 +183,7 @@ if ($vectAutosavePO['id']) {
 
 ?>
 <script type="text/javascript">
-$(function(){
+$(function () {
         autosave();
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>

@@ -1,5 +1,7 @@
 <?php
+
 /** @package    verysimple::DB::Reflection */
+
 require_once('verysimple/Phreeze/FieldMap.php');
 
 /**

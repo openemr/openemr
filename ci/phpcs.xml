@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <ruleset name="OpenEMR Standard">
-  <description>PSR2 (permissive)</description>
+  <description>PSR-12 (permissive)</description>
   <arg name="tab-width" value="4" />
-  <rule ref="PSR2">
+  <rule ref="PSR12">
     <exclude name="PSR1.Classes.ClassDeclaration"/>
     <exclude name="Squiz.Classes.ValidClassName"/>
     <exclude name="PSR1.Methods.CamelCapsMethodName"/>
@@ -11,10 +11,13 @@
     <exclude name="PSR2.Classes.PropertyDeclaration"/>
     <exclude name="Generic.NamingConventions.UpperCaseConstantName"/>
     <exclude name="Squiz.WhiteSpace.ScopeClosingBrace"/> <!-- ~100 files need fixing from this -->
+    <exclude name="PSR12.Classes.ClosingBrace"/> <!-- similar to above comment -->
+    <exclude name="PSR2.Methods.MethodDeclaration.Underscore"/> <!-- added until ~94 methods are cleaned -->
   </rule>
 
   <!-- Checks that the opening PHP tag is the first content in a file. -->
   <rule ref="Generic.PHP.CharacterBeforePHPOpeningTag" />
+
   <!-- Indenting -->
   <!-- Code MUST use an indent of 4 spaces, and MUST NOT use tabs for indenting. -->
   <rule ref="Generic.WhiteSpace.ScopeIndent">
@@ -26,8 +29,9 @@
     </properties>
   </rule>
 
+  <exclude-pattern>*/sites/default/sqlconf.php</exclude-pattern>
+  <exclude-pattern>*/sites/default/documents/*</exclude-pattern>
   <exclude-pattern>*/vendor/*</exclude-pattern>
-  <exclude-pattern>*/bower_components/*</exclude-pattern>
   <exclude-pattern>*/node_modules/*</exclude-pattern>
   <exclude-pattern>*/public/assets/*</exclude-pattern>
   <exclude-pattern>*/gacl/*</exclude-pattern>

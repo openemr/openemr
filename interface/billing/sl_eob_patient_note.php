@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This allows entry and editing of a "billing note" for the patient.
  *
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2019-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
@@ -71,7 +71,7 @@ $info_msg = "";
                 <div class="row">
                     <div class="col-12" style="padding-bottom:5px">
                         <div class="form-group">
-                            <i class="fa fa-pencil prefix"></i>
+                            <i class="fa fa-pencil-alt prefix"></i>
                             <textarea type='text' name='form_note' class='textarea form-control' rows="3" maxlength="255" placeholder='<?php echo xla('Max 255 characters') ?>'><?php echo attr($row['billing_note']) ?></textarea>
                             <label><?php echo xlt('Max 255 characters') ?></label>
                         </div>

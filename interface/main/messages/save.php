@@ -1,4 +1,5 @@
 <?php
+
 /**
  * /interface/main/messages/save.php
  *
@@ -126,7 +127,7 @@ if ($_REQUEST['MedEx'] == "start") {
 								PHONE_country_code,LABELS_local,LABELS_choice)
 							VALUES (?,?,?,?,?,?,?,?,?,?)";
             sqlStatement($sqlINSERT, array($response['customer_id'], $response['API_key'], $_POST['new_email'], $facilities, $providers, "1", "1", "1", "1", "5160"));
-            sqlQuery("UPDATE `background_services` SET `active`='1',`execute_interval`='5', `require_once`='library/MedEx/MedEx_background.php' WHERE `name`='MedEx'");
+            sqlQuery("UPDATE `background_services` SET `active`='1',`execute_interval`='5', `require_once`='/library/MedEx/MedEx_background.php' WHERE `name`='MedEx'");
 
             $info = $MedEx->login('1');
 
@@ -138,8 +139,8 @@ if ($_REQUEST['MedEx'] == "start") {
         } else {
             $response_prob = array();
             $response_prob['show'] = xlt("We ran into some problems connecting your EHR to the MedEx servers") . ".<br >
-				" .xlt('Most often this is due to a Username/Password mismatch')."<br />"
-                .xlt('Run Setup again or contact support for assistance').
+				" . xlt('Most often this is due to a Username/Password mismatch') . "<br />"
+                . xlt('Run Setup again or contact support for assistance') .
                 " <a href='https://medexbank.com/cart/upload/'>MedEx Bank</a>.<br />";
             echo json_encode($response_prob);
             sqlQuery("UPDATE `background_services` SET `active`='0' WHERE `name`='MedEx'");

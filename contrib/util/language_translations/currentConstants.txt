@@ -1313,7 +1313,7 @@ cash
 Cash
 Cash Rec
 Cash Receipts by Provider
-Catalan- Valencian
+Catalan- Valencian
 Cataract
 Cataract Surgery
 Cataracts
@@ -4289,7 +4289,7 @@ Heat or Cold
 Heat Or Cold
 Heavy tobacco smoker
 Hebrew
-Hebrew (modern)
+Hebrew (modern)
 HEENT
 Height
 Height/Length
@@ -6554,7 +6554,7 @@ OK
 OK to close this other popup window?
 OK to link the GCAC issue dated
 Old
-Old Church Slavonic, Church Slavonic, Old Bulgarian
+Old Church Slavonic, Church Slavonic, Old Bulgarian
 Old Clients
 Old fracture non / malunion
 Old style layout with no left menu
@@ -7244,7 +7244,7 @@ Periph{{peripheral retina}}
 Periph{{periphery}}
 Permit unsalted passwords
 Persian
-Persian (Farsi)
+Persian (Farsi)
 Person
 Personalize
 Persons needing a recall, no appt scheduled yet
@@ -10488,7 +10488,7 @@ Toggle the Patient Panel
 Toggle the right-sided PMSFH panel
 Token ID for the Medical Information Integration, LLC Lab Exchange Service.
 Token ID for the OpenEMR Support LLC Lab Exchange Service.
-Tonga (Tonga Islands)
+Tonga (Tonga Islands)
 Tonsillectomy
 tonsillectomy
 Tooltips

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Signature form view script for form module
  *
@@ -20,6 +21,7 @@
  * @author  Medical Information Integration, LLC
  * @link    http://www.open-emr.org
  **/
+
 ?>
 <div id='esign-form-container'>
     <form id='esign-signature-form' method='post' action='<?php echo attr($this->form->action); ?>'>

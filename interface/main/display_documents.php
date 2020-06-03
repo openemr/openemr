@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Displays the documents
  * Only Lab documents for now.
@@ -13,7 +14,6 @@
  * @copyright Copyright (c) 2018 Harshal Lele <harshallele97@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once('../globals.php');
 require_once("$srcdir/patient.inc");
@@ -204,7 +204,7 @@ $display_collapse_msg = "display:inline;";
         array_unshift($query_array, $catID);
     $resultSet = sqlStatement($query, $query_array);
     ?>
-    
+
     <div class="table-responsive">
     <table class="table table-bordered" cellpadding="3" cellspacing="0">
     <thead class='thead-light'>

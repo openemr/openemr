@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * QRDA Functions
@@ -84,7 +85,7 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
     $xml->unique_id = getUuid();
     $xml->self_id();
 
-    $arr = array('code'=>'55182-0', 'displayName'=>'Quality Measure Report', 'codeSystem'=>'2.16.840.1.113883.6.1', 'codeSystemName'=>'LOINC');
+    $arr = array('code' => '55182-0', 'displayName' => 'Quality Measure Report', 'codeSystem' => '2.16.840.1.113883.6.1', 'codeSystemName' => 'LOINC');
     $xml->self_codeCustom($arr);
 
     //Main Title Display to XML
@@ -106,37 +107,37 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
     //patientRole Open
     $xml->open_customTag('patientRole');
 
-    $xml->self_customTag('id', array('root' => '2.16.840.1.113883.4.572', 'extension' =>'112233'));
+    $xml->self_customTag('id', array('root' => '2.16.840.1.113883.4.572', 'extension' => '112233'));
 
     $xml->add_patientAddress($patientRow);
 
     if ($patientRow['phone_home'] != "") {
-        $xml->self_customTag('telecom', array('value' => $patientRow['phone_home'], 'use'=>'HP'));
+        $xml->self_customTag('telecom', array('value' => $patientRow['phone_home'], 'use' => 'HP'));
     } else {
         $xml->self_customTag('telecom', array('nullFlavor' => "UNK"));
     }
 
     $xml->open_customTag('patient');
 
-    $patNameArr = array('fname' =>$patientRow['fname'], 'lname'=>$patientRow['lname']);
+    $patNameArr = array('fname' => $patientRow['fname'], 'lname' => $patientRow['lname']);
     $xml->add_patName($patNameArr);
 
     if ($patientRow['sex'] == "Male") {
         $gender = "M";
-    } else if ($patientRow['sex'] == "Female") {
+    } elseif ($patientRow['sex'] == "Female") {
         $gender = "F";
     }
 
-    $xml->self_customTag('administrativeGenderCode', array('codeSystem' => '2.16.840.1.113883.18.2', 'code' =>$gender));
+    $xml->self_customTag('administrativeGenderCode', array('codeSystem' => '2.16.840.1.113883.18.2', 'code' => $gender));
 
-    $xml->self_customTag('birthTime', array('value' =>date('Ymd', strtotime($patientRow['DOB']))));
+    $xml->self_customTag('birthTime', array('value' => date('Ymd', strtotime($patientRow['DOB']))));
 
     if ($mainQrdaRaceCodeArr[$patientRow['race']] == "") {
         $mainQrdaRaceCodeArr[$patientRow['race']] = "2131-1";
     }
 
-    $xml->self_customTag('raceCode', array('codeSystem' =>'2.16.840.1.113883.6.238', 'code' => $mainQrdaRaceCodeArr[$patientRow['race']]));
-    $xml->self_customTag('ethnicGroupCode', array('codeSystem' =>'2.16.840.1.113883.6.238', 'code' => $mainEthiCodeArr[$patientRow['ethnicity']]));
+    $xml->self_customTag('raceCode', array('codeSystem' => '2.16.840.1.113883.6.238', 'code' => $mainQrdaRaceCodeArr[$patientRow['race']]));
+    $xml->self_customTag('ethnicGroupCode', array('codeSystem' => '2.16.840.1.113883.6.238', 'code' => $mainEthiCodeArr[$patientRow['ethnicity']]));
 
     //patient Close
     $xml->close_customTag();
@@ -156,10 +157,10 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
     //Assigned Author
     $xml->open_assignAuthor();
     $npi_provider = empty($userRow['npi']) ? "FakeNPI" : $userRow['npi'];
-    $xml->self_customTag('id', array('root' =>'2.16.840.1.113883.4.6', 'extension' => $npi_provider));
+    $xml->self_customTag('id', array('root' => '2.16.840.1.113883.4.6', 'extension' => $npi_provider));
     $xml->add_patientAddress($facilResRow);
     if (!empty($userRow['phone'])) {
-        $xml->self_customTag('telecom', array('value' => $userRow['phone'], 'use'=>'WP'));
+        $xml->self_customTag('telecom', array('value' => $userRow['phone'], 'use' => 'WP'));
     } else {
         $xml->self_customTag('telecom', array("nullFlavor" => "UNK"));
     }
@@ -199,7 +200,7 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
     $xml->self_customId($assignedEntityId);
     $xml->add_facilAddress($facilResRow);
     if (!empty($facilResRow['phone'])) {
-        $xml->self_customTag('telecom', array('value' => $facilResRow['phone'], 'use'=>'WP'));
+        $xml->self_customTag('telecom', array('value' => $facilResRow['phone'], 'use' => 'WP'));
     } else {
         $xml->self_customTag('telecom', array("nullFlavor" => "UNK"));
     }
@@ -207,7 +208,7 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
     $xml->open_customTag('assignedPerson');
 
     //Provider Name
-    $userNameArr = array('fname' =>$userRow['fname'], 'lname'=>$userRow['lname']);
+    $userNameArr = array('fname' => $userRow['fname'], 'lname' => $userRow['lname']);
     $xml->add_providerName($userNameArr);
 
     //assignedPerson Close
@@ -223,23 +224,23 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
     ############### documentationOf  START  #######################
     $xml->open_customTag('documentationOf');
 
-    $xml->open_customTag('serviceEvent', array('classCode'=>'PCPR'));
+    $xml->open_customTag('serviceEvent', array('classCode' => 'PCPR'));
 
-    $timeArr = array('low'=>date('Ymdhis', strtotime($from_date)), 'high'=>date('Ymdhis', strtotime($to_date)));
+    $timeArr = array('low' => date('Ymdhis', strtotime($from_date)), 'high' => date('Ymdhis', strtotime($to_date)));
     $xml->add_entryEffectTime($timeArr);
 
-    $xml->open_customTag('performer', array('typeCode'=>'PRF'));
+    $xml->open_customTag('performer', array('typeCode' => 'PRF'));
 
-    $timeArr = array('low'=>date('Ymdhis', strtotime($from_date)), 'high'=>date('Ymdhis', strtotime($to_date)));
+    $timeArr = array('low' => date('Ymdhis', strtotime($from_date)), 'high' => date('Ymdhis', strtotime($to_date)));
     $xml->add_entryTime($timeArr);
 
     $xml->open_customTag('assignedEntity');
 
-    $npi_provider = empty($userRow['npi']) ? "FakeNPI" :$userRow['npi'] ;
-    $xml->self_customTag('id', array('root' => '2.16.840.1.113883.4.6', 'extension' =>$npi_provider));
+    $npi_provider = empty($userRow['npi']) ? "FakeNPI" : $userRow['npi'] ;
+    $xml->self_customTag('id', array('root' => '2.16.840.1.113883.4.6', 'extension' => $npi_provider));
 
     if ($userRow['phone'] != "") {
-        $xml->self_customTag('telecom', array('value' => $userRow['phone'], 'use'=>'WP'));
+        $xml->self_customTag('telecom', array('value' => $userRow['phone'], 'use' => 'WP'));
     } else {
         $xml->self_customTag('telecom', array("nullFlavor" => "UNK"));
     }
@@ -247,7 +248,7 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
     $xml->open_customTag('assignedPerson');
 
     //Provider Name
-    $userNameArr = array('fname' =>$userRow['fname'], 'lname'=>$userRow['lname']);
+    $userNameArr = array('fname' => $userRow['fname'], 'lname' => $userRow['lname']);
     $xml->add_providerName($userNameArr);
 
     //assignedPerson Close
@@ -257,7 +258,7 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
 
     $tin_provider = $userRow['federaltaxid'];
     if ($tin_provider != "") {
-        $xml->self_customTag('id', array('root' => '2.16.840.1.113883.4.2', 'extension' =>$tin_provider));
+        $xml->self_customTag('id', array('root' => '2.16.840.1.113883.4.2', 'extension' => $tin_provider));
     }
 
     $xml->add_facilName($facility_name);
@@ -319,7 +320,7 @@ function getQRDACat1PatientData($xml, $patient_id)
     $tempID = '2.16.840.1.113883.10.20.24.2.1';
     $xml->self_templateid($tempID);
 
-    $arr = array('code'=>'55188-7', 'codeSystem'=>'2.16.840.1.113883.6.1');
+    $arr = array('code' => '55188-7', 'codeSystem' => '2.16.840.1.113883.6.1');
     $xml->self_codeCustom($arr);
 
     $title = "Patient Data";
@@ -381,7 +382,7 @@ function getAllImmunization($xml, $patient_id)
                 $xml->open_entry();
 
             //act open
-                $xml->open_customTag('act', array('classCode'=>'ACT', 'moodCode'=>'EVN'));
+                $xml->open_customTag('act', array('classCode' => 'ACT', 'moodCode' => 'EVN'));
 
                 $tempID = "2.16.840.1.113883.10.20.24.3.42";
                 $xml->self_templateid($tempID);
@@ -389,7 +390,7 @@ function getAllImmunization($xml, $patient_id)
                 $refID = getUuid();
                 $xml->self_customId($refID);
 
-                $arr = array('code'=>'416118004', 'codeSystemName'=>'SNOMED CT', 'codeSystem'=>'2.16.840.1.113883.6.96', 'displayName' => 'Administration');
+                $arr = array('code' => '416118004', 'codeSystemName' => 'SNOMED CT', 'codeSystem' => '2.16.840.1.113883.6.96', 'displayName' => 'Administration');
                 $xml->self_codeCustom($arr);
 
                 if ($medRow['status'] == "" || $medRow['status'] == "not_completed") {
@@ -398,16 +399,16 @@ function getAllImmunization($xml, $patient_id)
                     $statusChk = "completed";
                 }
 
-                $arr = array('code'=>"completed");
+                $arr = array('code' => "completed");
                 $xml->self_customTag('statusCode', $arr);
 
-                $timeArr = array('low'=>date('Ymdhis', strtotime($medRow['administered_date'])), 'high'=>date('Ymdhis', strtotime($medRow['administered_date'])));
+                $timeArr = array('low' => date('Ymdhis', strtotime($medRow['administered_date'])), 'high' => date('Ymdhis', strtotime($medRow['administered_date'])));
                 $xml->add_entryEffectTimeQRDAMed($timeArr);
 
-                $xml->open_customTag('entryRelationship', array('typeCode'=>'COMP'));
+                $xml->open_customTag('entryRelationship', array('typeCode' => 'COMP'));
 
             //substanceAdministration Open
-                $xml->open_customTag('substanceAdministration', array('classCode'=>'SBADM', 'moodCode'=>'EVN'));
+                $xml->open_customTag('substanceAdministration', array('classCode' => 'SBADM', 'moodCode' => 'EVN'));
 
                 $tempID = "2.16.840.1.113883.10.20.22.4.16";
                 $xml->self_templateid($tempID);
@@ -418,17 +419,17 @@ function getAllImmunization($xml, $patient_id)
                 $refID = getUuid();
                 $xml->self_customId($refID);
 
-                $arr = array('code'=>$statusChk);
+                $arr = array('code' => $statusChk);
                 $xml->self_customTag('statusCode', $arr);
 
-                $timeArr = array('low'=>date('Ymdhis', strtotime($medRow['administered_date'])), 'high'=>date('Ymdhis', strtotime($medRow['administered_date'])));
+                $timeArr = array('low' => date('Ymdhis', strtotime($medRow['administered_date'])), 'high' => date('Ymdhis', strtotime($medRow['administered_date'])));
                 $xml->add_entryEffectTimeQRDAMed($timeArr);
 
             //consumable open
                 $xml->open_customTag('consumable');
 
             //manufacturedProduct Open
-                $xml->open_customTag('manufacturedProduct', array('classCode'=>'MANU'));
+                $xml->open_customTag('manufacturedProduct', array('classCode' => 'MANU'));
 
                 $tempID = "2.16.840.1.113883.10.20.22.4.23";
                 $xml->self_templateid($tempID);
@@ -439,7 +440,7 @@ function getAllImmunization($xml, $patient_id)
             //manufacturedMaterial open
                 $xml->open_customTag('manufacturedMaterial');
 
-                $arr = array('code'=>$v['code'], 'codeSystem'=>$v['code_system'],'sdtc:valueSet' => $v['valueset']);
+                $arr = array('code' => $v['code'], 'codeSystem' => $v['code_system'],'sdtc:valueSet' => $v['valueset']);
                 $xml->self_codeCustom($arr);
 
             //manufacturerOrganization open
@@ -481,7 +482,7 @@ function getAllPhysicalExams($xml, $patient_id)
 
     $vitArr   = allVitalsPat($patient_id, $from_date, $to_date);
     $measures = array('bps' => array('name' => 'Blood Pressure Systolic','category' => 'Blood Pressure','unit' => 'mmHg','code' => '8480-6'),
-                  'bpd' => array('name' => 'Blood Pressure Diastolic','category'=> 'Blood Pressure','unit' => 'mmHg','code' => '8462-4'),
+                  'bpd' => array('name' => 'Blood Pressure Diastolic','category' => 'Blood Pressure','unit' => 'mmHg','code' => '8462-4'),
                   'bmi' => array('name' => 'Body Mass Index','category' => 'Body Mass Index', 'unit' => 'kg/m2','code' => '39156-5'));
 
     foreach ($vitArr as $vitRow) {
@@ -492,7 +493,7 @@ function getAllPhysicalExams($xml, $patient_id)
                 $xml->open_entry();
 
             //observation Open
-                $xml->open_customTag('observation', array('classCode'=>'OBS', 'moodCode'=>'EVN'));
+                $xml->open_customTag('observation', array('classCode' => 'OBS', 'moodCode' => 'EVN'));
 
                 $tempID = "2.16.840.1.113883.10.20.22.4.2";
                 $xml->self_templateid($tempID);
@@ -504,23 +505,23 @@ function getAllPhysicalExams($xml, $patient_id)
                 $refID = $encCheckUniqId[$vitRow['encounter']];
                 $xml->self_customId($refID);
 
-                $arr = array('code'=>$measure['code'], 'codeSystem'=>$vset['code_system'],'sdtc:valueSet' => $vset['valueset']);
+                $arr = array('code' => $measure['code'], 'codeSystem' => $vset['code_system'],'sdtc:valueSet' => $vset['valueset']);
 
             //code Open
                 $xml->open_customTag('code', $arr);
-                $xml->element('originalText', "Physical Exam, Finding: ".$measure['measure']);
+                $xml->element('originalText', "Physical Exam, Finding: " . $measure['measure']);
             //code Close
                 $xml->close_customTag();
 
-                $xml->element('text', "Physical Exam, Finding: ".$measure['category']);
+                $xml->element('text', "Physical Exam, Finding: " . $measure['category']);
 
-                $arr = array('code'=>'completed');
+                $arr = array('code' => 'completed');
                 $xml->self_customTag('statusCode', $arr);
 
-                $timeArr = array('low'=>date('Ymdhis', strtotime($vitRow['date'])), 'high'=>date('Ymdhis', strtotime($vitRow['date'])));
+                $timeArr = array('low' => date('Ymdhis', strtotime($vitRow['date'])), 'high' => date('Ymdhis', strtotime($vitRow['date'])));
                 $xml->add_entryEffectTimeQRDA($timeArr);
 
-                $xml->self_customTag('value', array('xsi:type'=>'PQ', 'value'=>$vitRow[$measure_key], 'unit' => $measure['unit']));
+                $xml->self_customTag('value', array('xsi:type' => 'PQ', 'value' => $vitRow[$measure_key], 'unit' => $measure['unit']));
 
             //observation Close
                 $xml->close_customTag();
@@ -543,7 +544,7 @@ function getAllRiskCatAssessment($xml, $patient_id)
             $xml->open_entry();
 
             //observation Open
-            $xml->open_customTag('observation', array('classCode'=>'OBS', 'moodCode'=>'EVN'));
+            $xml->open_customTag('observation', array('classCode' => 'OBS', 'moodCode' => 'EVN'));
 
             $tempID = "2.16.840.1.113883.10.20.22.4.69";
             $xml->self_templateid($tempID);
@@ -555,7 +556,7 @@ function getAllRiskCatAssessment($xml, $patient_id)
             $refID = $encCheckUniqId[$procRow['encounter']];
             $xml->self_customId($refID);
 
-            $arr = array('code'=>$vset['code'], 'codeSystem'=>$vset['code_system'],'sdtc:valueSet' => $vset['valueset']);
+            $arr = array('code' => $vset['code'], 'codeSystem' => $vset['code_system'],'sdtc:valueSet' => $vset['valueset']);
             //code Open
             $xml->open_customTag('code', $arr);
             $xml->element('originalText', $procRow['procedure_name']);
@@ -564,13 +565,13 @@ function getAllRiskCatAssessment($xml, $patient_id)
 
             $xml->element('text', $procRow['procedure_name']);
 
-            $arr = array('code'=>'completed');
+            $arr = array('code' => 'completed');
             $xml->self_customTag('statusCode', $arr);
 
-            $timeArr = array('low'=>date('Ymdhis', strtotime($procRow['date_ordered'])), 'high'=>date('Ymdhis', strtotime($procRow['date_ordered'])));
+            $timeArr = array('low' => date('Ymdhis', strtotime($procRow['date_ordered'])), 'high' => date('Ymdhis', strtotime($procRow['date_ordered'])));
             $xml->add_entryEffectTimeQRDA($timeArr);
 
-            $xml->self_customTag('value', array('xsi:type'=>'CD', 'nullFlavor'=>'UNK'));
+            $xml->self_customTag('value', array('xsi:type' => 'CD', 'nullFlavor' => 'UNK'));
 
             //observation Close
             $xml->close_customTag();
@@ -592,7 +593,7 @@ function getAllProcedures($xml, $patient_id)
             $xml->open_entry();
 
             //procedure Open
-            $xml->open_customTag('procedure', array('classCode'=>'PROC', 'moodCode'=>'EVN'));
+            $xml->open_customTag('procedure', array('classCode' => 'PROC', 'moodCode' => 'EVN'));
 
             $tempID = "2.16.840.1.113883.10.20.24.3.64";
             $xml->self_templateid($tempID);
@@ -611,7 +612,7 @@ function getAllProcedures($xml, $patient_id)
             $xml->self_customId($refID);
 
 
-            $arr = array('code'=>$procRow['procedure_code'], 'codeSystem'=> $vset['code_system'],'sdtc:valueSet' => $vset['valueset']);
+            $arr = array('code' => $procRow['procedure_code'], 'codeSystem' => $vset['code_system'],'sdtc:valueSet' => $vset['valueset']);
             //code Open
             $xml->open_customTag('code', $arr);
             $xml->element('originalText', $procRow['procedure_name']);
@@ -620,10 +621,10 @@ function getAllProcedures($xml, $patient_id)
 
             $xml->element('text', $procRow['procedure_name']);
 
-            $arr = array('code'=>'completed');
+            $arr = array('code' => 'completed');
             $xml->self_customTag('statusCode', $arr);
 
-            $timeArr = array('low'=>date('Ymdhis', strtotime($procRow['date_ordered'])), 'high'=>date('Ymdhis', strtotime($procRow['date_ordered'])));
+            $timeArr = array('low' => date('Ymdhis', strtotime($procRow['date_ordered'])), 'high' => date('Ymdhis', strtotime($procRow['date_ordered'])));
             $xml->add_entryEffectTimeQRDA($timeArr);
 
             //procedure Close
@@ -646,7 +647,7 @@ function getAllLabTests($xml, $patient_id)
             $xml->open_entry();
 
             //procedure Open
-            $xml->open_customTag('procedure', array('classCode'=>'PROC', 'moodCode'=>'EVN'));
+            $xml->open_customTag('procedure', array('classCode' => 'PROC', 'moodCode' => 'EVN'));
 
             $tempID = "2.16.840.1.113883.10.20.24.3.38";
             $xml->self_templateid($tempID);
@@ -656,7 +657,7 @@ function getAllLabTests($xml, $patient_id)
             $xml->self_customId($refID);
 
 
-            $arr = array('code'=>$procRow['procedure_code'], 'codeSystem'=> $vset['code_system'],'sdtc:valueSet' => $vset['valueset']);
+            $arr = array('code' => $procRow['procedure_code'], 'codeSystem' => $vset['code_system'],'sdtc:valueSet' => $vset['valueset']);
             //code Open
             $xml->open_customTag('code', $arr);
             $xml->element('originalText', $procRow['procedure_name']);
@@ -665,10 +666,10 @@ function getAllLabTests($xml, $patient_id)
 
             $xml->element('text', $procRow['procedure_name']);
 
-            $arr = array('code'=>'completed');
+            $arr = array('code' => 'completed');
             $xml->self_customTag('statusCode', $arr);
 
-            $timeArr = array('low'=>date('Ymdhis', strtotime($procRow['date_ordered'])), 'high'=>date('Ymdhis', strtotime($procRow['date_ordered'])));
+            $timeArr = array('low' => date('Ymdhis', strtotime($procRow['date_ordered'])), 'high' => date('Ymdhis', strtotime($procRow['date_ordered'])));
             $xml->add_entryEffectTimeQRDA($timeArr);
 
             //procedure Close
@@ -692,7 +693,7 @@ function getAllInterventionProcedures($xml, $patient_id)
             $xml->open_entry();
 
             //act Open
-            $xml->open_customTag('act', array('classCode'=>'ACT', 'moodCode'=>'EVN'));
+            $xml->open_customTag('act', array('classCode' => 'ACT', 'moodCode' => 'EVN'));
 
             $tempID = "2.16.840.1.113883.10.20.22.4.12";
             $xml->self_templateid($tempID);
@@ -705,7 +706,7 @@ function getAllInterventionProcedures($xml, $patient_id)
             $xml->self_customId($refID);
 
 
-            $arr = array('code'=>$procRow['procedure_code'], 'codeSystem'=> $vset['code_system'],'sdtc:valueSet' => $vset['valueset']);
+            $arr = array('code' => $procRow['procedure_code'], 'codeSystem' => $vset['code_system'],'sdtc:valueSet' => $vset['valueset']);
             //code Open
             $xml->open_customTag('code', $arr);
             $xml->element('originalText', $procRow['procedure_name']);
@@ -714,10 +715,10 @@ function getAllInterventionProcedures($xml, $patient_id)
 
             $xml->element('text', $procRow['procedure_name']);
 
-            $arr = array('code'=>'completed');
+            $arr = array('code' => 'completed');
             $xml->self_customTag('statusCode', $arr);
 
-            $timeArr = array('low'=>date('Ymdhis', strtotime($procRow['date_ordered'])), 'high'=>date('Ymdhis', strtotime($procRow['date_ordered'])));
+            $timeArr = array('low' => date('Ymdhis', strtotime($procRow['date_ordered'])), 'high' => date('Ymdhis', strtotime($procRow['date_ordered'])));
             $xml->add_entryEffectTimeQRDA($timeArr);
 
             //act Close
@@ -741,7 +742,7 @@ function getAllOrderMedications($xml, $patient_id)
             $xml->open_entry();
 
             //substanceAdministration Open
-            $xml->open_customTag('substanceAdministration', array('classCode'=>'SBADM', 'moodCode'=>'RQO'));
+            $xml->open_customTag('substanceAdministration', array('classCode' => 'SBADM', 'moodCode' => 'RQO'));
 
             $tempID = "2.16.840.1.113883.10.20.22.4.42";
             $xml->self_templateid($tempID);
@@ -753,10 +754,10 @@ function getAllOrderMedications($xml, $patient_id)
             $xml->self_customId($refID);
 
 
-            $arr = array('code'=>'new');
+            $arr = array('code' => 'new');
             $xml->self_customTag('statusCode', $arr);
 
-            $timeArr = array('low'=>date('Ymdhis', strtotime($medRow['start_date'])), 'high'=>date('Ymdhis', strtotime($medRow['end_date'])));
+            $timeArr = array('low' => date('Ymdhis', strtotime($medRow['start_date'])), 'high' => date('Ymdhis', strtotime($medRow['end_date'])));
             $xml->add_entryEffectTimeQRDAMed($timeArr);
 
             /*if($medRow['enddate'] == ""){
@@ -774,7 +775,7 @@ function getAllOrderMedications($xml, $patient_id)
             $xml->open_customTag('consumable');
 
             //manufacturedProduct Open
-            $xml->open_customTag('manufacturedProduct', array('classCode'=>'MANU'));
+            $xml->open_customTag('manufacturedProduct', array('classCode' => 'MANU'));
 
             $tempID = "2.16.840.1.113883.10.20.22.4.23";
             $xml->self_templateid($tempID);
@@ -785,7 +786,7 @@ function getAllOrderMedications($xml, $patient_id)
             //manufacturedMaterial open
             $xml->open_customTag('manufacturedMaterial');
 
-            $arr = array('code'=>$vset['code'], 'codeSystem'=>$vset['code_system'],'sdtc:valueSet' => $vset['valueset']);
+            $arr = array('code' => $vset['code'], 'codeSystem' => $vset['code_system'],'sdtc:valueSet' => $vset['valueset']);
             $xml->self_codeCustom($arr);
 
             //manufacturerOrganization open
@@ -826,7 +827,7 @@ function getAllActiveMedications($xml, $patient_id)
             $xml->open_entry();
 
             //substanceAdministration Open
-            $xml->open_customTag('substanceAdministration', array('classCode'=>'SBADM', 'moodCode'=>'EVN'));
+            $xml->open_customTag('substanceAdministration', array('classCode' => 'SBADM', 'moodCode' => 'EVN'));
 
             $tempID = "2.16.840.1.113883.10.20.22.4.16";
             $xml->self_templateid($tempID);
@@ -838,10 +839,10 @@ function getAllActiveMedications($xml, $patient_id)
             $xml->self_customId($refID);
 
 
-            $arr = array('code'=>'active');
+            $arr = array('code' => 'active');
             $xml->self_customTag('statusCode', $arr);
 
-            $timeArr = array('low'=>date('Ymdhis', strtotime($medRow['start_date'])), 'high'=>date('Ymdhis', strtotime($medRow['end_date'])));
+            $timeArr = array('low' => date('Ymdhis', strtotime($medRow['start_date'])), 'high' => date('Ymdhis', strtotime($medRow['end_date'])));
             $xml->add_entryEffectTimeQRDAMed($timeArr);
 
             /*if($medRow['enddate'] == ""){
@@ -859,7 +860,7 @@ function getAllActiveMedications($xml, $patient_id)
             $xml->open_customTag('consumable');
 
             //manufacturedProduct Open
-            $xml->open_customTag('manufacturedProduct', array('classCode'=>'MANU'));
+            $xml->open_customTag('manufacturedProduct', array('classCode' => 'MANU'));
 
             $tempID = "2.16.840.1.113883.10.20.22.4.23";
             $xml->self_templateid($tempID);
@@ -870,7 +871,7 @@ function getAllActiveMedications($xml, $patient_id)
             //manufacturedMaterial open
             $xml->open_customTag('manufacturedMaterial');
 
-            $arr = array('code'=>$vset['code'], 'codeSystem'=>$vset['code_system'],'sdtc:valueSet' => $vset['valueset']);
+            $arr = array('code' => $vset['code'], 'codeSystem' => $vset['code_system'],'sdtc:valueSet' => $vset['valueset']);
             $xml->self_codeCustom($arr);
 
             //manufacturerOrganization open
@@ -922,7 +923,7 @@ function getAllMedicalProbs($xml, $patient_id)
             $xml->open_entry();
 
             //observation Open
-            $xml->open_customTag('observation', array('classCode'=>'OBS', 'moodCode'=>'EVN'));
+            $xml->open_customTag('observation', array('classCode' => 'OBS', 'moodCode' => 'EVN'));
 
             $tempID = "2.16.840.1.113883.10.20.22.4.4";
             $xml->self_templateid($tempID);
@@ -933,33 +934,33 @@ function getAllMedicalProbs($xml, $patient_id)
             $refID = getUuid();
             $xml->self_customId($refID);
 
-            $arr = array('code'=>'282291009', 'codeSystemName'=>'SNOMED-CT', 'codeSystem'=>'2.16.840.1.113883.6.96', 'displayName' => 'diagnosis');
+            $arr = array('code' => '282291009', 'codeSystemName' => 'SNOMED-CT', 'codeSystem' => '2.16.840.1.113883.6.96', 'displayName' => 'diagnosis');
             $xml->self_codeCustom($arr);
 
             $xml->textDispContent($diagRow['title']);
 
             $activeChk = "active";
             $endate = $diagRow['begdate'];
-            if ($diagRow['enddate']!= "") {
+            if ($diagRow['enddate'] != "") {
                 $activeChk = "completed";
                 $endate = $diagRow['enddate'];
             }
 
             //$arr = array('code'=>$activeChk);
-            $arr = array('code'=> "completed");
+            $arr = array('code' => "completed");
             $xml->self_customTag('statusCode', $arr);
 
-            $timeArr = array('low'=>date('Ymdhis', strtotime($diagRow['begdate'])), 'high'=>date('Ymdhis', strtotime($endate)));
+            $timeArr = array('low' => date('Ymdhis', strtotime($diagRow['begdate'])), 'high' => date('Ymdhis', strtotime($endate)));
             $xml->add_entryEffectTime($timeArr);
 
 
-            $xml->self_customTag('value', array('xsi:type'=>'CD', 'code'=>$diagDispCode, 'codeSystem'=>'2.16.840.1.113883.6.96', 'sdtc:valueSet' => $vset['valueset']));
+            $xml->self_customTag('value', array('xsi:type' => 'CD', 'code' => $diagDispCode, 'codeSystem' => '2.16.840.1.113883.6.96', 'sdtc:valueSet' => $vset['valueset']));
 
             //entryRelationship Open
-            $xml->open_customTag('entryRelationship', array('typeCode'=>'REFR'));
+            $xml->open_customTag('entryRelationship', array('typeCode' => 'REFR'));
 
             //observation Open
-            $xml->open_customTag('observation', array('classCode'=>'OBS', 'moodCode'=>'EVN'));
+            $xml->open_customTag('observation', array('classCode' => 'OBS', 'moodCode' => 'EVN'));
 
             $tempID = "2.16.840.1.113883.10.20.22.4.6";
             $xml->self_templateid($tempID);
@@ -970,14 +971,14 @@ function getAllMedicalProbs($xml, $patient_id)
             $refID = getUuid();
             $xml->self_customId($refID);
 
-            $arr = array('code'=>'33999-4', 'codeSystem'=>'2.16.840.1.113883.6.1', 'codeSystemName' => 'LOINC', 'displayName' => 'status');
+            $arr = array('code' => '33999-4', 'codeSystem' => '2.16.840.1.113883.6.1', 'codeSystemName' => 'LOINC', 'displayName' => 'status');
             $xml->self_codeCustom($arr);
 
             //$arr = array('code'=>$activeChk);
-            $arr = array('code'=> "completed");
+            $arr = array('code' => "completed");
             $xml->self_customTag('statusCode', $arr);
 
-            $xml->self_customTag('value', array('xsi:type'=>'CD', 'code'=>'55561003', 'displayName' => 'active', 'codeSystem' => '2.16.840.1.113883.6.96', 'codeSystemName' => 'SNOMED CT'));
+            $xml->self_customTag('value', array('xsi:type' => 'CD', 'code' => '55561003', 'displayName' => 'active', 'codeSystem' => '2.16.840.1.113883.6.96', 'codeSystemName' => 'SNOMED CT'));
 
             //observation Close
             $xml->close_customTag();
@@ -1010,7 +1011,7 @@ function getAllPatientEncounters($xml, $patient_id)
             $xml->open_entry();
 
             //Encounter Open
-            $xml->open_customTag('encounter', array('classCode'=>'ENC', 'moodCode'=>'EVN'));
+            $xml->open_customTag('encounter', array('classCode' => 'ENC', 'moodCode' => 'EVN'));
 
             $tempID = "2.16.840.1.113883.10.20.22.4.49";
             $xml->self_templateid($tempID);
@@ -1023,13 +1024,13 @@ function getAllPatientEncounters($xml, $patient_id)
             $encCheckUniqId[$encRow['encounter']] = $refID;
 
 
-            $arr = array('code'=>$cpt_code, 'codeSystem'=>$v['code_system'],'sdtc:valueSet' => $v['valueset']);
+            $arr = array('code' => $cpt_code, 'codeSystem' => $v['code_system'],'sdtc:valueSet' => $v['valueset']);
             $xml->self_codeCustom($arr);
 
-            $arr = array('code'=>'completed');
+            $arr = array('code' => 'completed');
             $xml->self_customTag('statusCode', $arr);
 
-            $timeArr = array('low'=>date('Ymdhis', strtotime($encRow['date'])), 'high'=>date('Ymdhis', strtotime($encRow['date'])));
+            $timeArr = array('low' => date('Ymdhis', strtotime($encRow['date'])), 'high' => date('Ymdhis', strtotime($encRow['date'])));
             $xml->add_entryEffectTime($timeArr);
 
             //Encounter Close
@@ -1049,7 +1050,7 @@ function getAllPatientEncounters($xml, $patient_id)
             $xml->open_entry();
 
             //Encounter Open
-            $xml->open_customTag('encounter', array('classCode'=>'ENC', 'moodCode'=>'EVN'));
+            $xml->open_customTag('encounter', array('classCode' => 'ENC', 'moodCode' => 'EVN'));
 
             $tempID = "2.16.840.1.113883.10.20.22.4.49";
             $xml->self_templateid($tempID);
@@ -1062,13 +1063,13 @@ function getAllPatientEncounters($xml, $patient_id)
             $encCheckUniqId[$encRow['encounter']] = $refID;
 
 
-            $arr = array('code'=>$v['code'], 'codeSystem'=>$v['code_system'],'sdtc:valueSet' => $v['valueset']);
+            $arr = array('code' => $v['code'], 'codeSystem' => $v['code_system'],'sdtc:valueSet' => $v['valueset']);
             $xml->self_codeCustom($arr);
 
-            $arr = array('code'=>'completed');
+            $arr = array('code' => 'completed');
             $xml->self_customTag('statusCode', $arr);
 
-            $timeArr = array('low'=>date('Ymdhis', strtotime($encRow['date'])), 'high'=>date('Ymdhis', strtotime($encRow['date'])));
+            $timeArr = array('low' => date('Ymdhis', strtotime($encRow['date'])), 'high' => date('Ymdhis', strtotime($encRow['date'])));
             $xml->add_entryEffectTime($timeArr);
 
             //Encounter Close
@@ -1092,7 +1093,7 @@ function payerQRDA($xml, $patient_id)
     $xml->open_entry();
 
     //observation Open
-    $xml->open_customTag('observation', array('classCode'=>'OBS', 'moodCode'=>'EVN'));
+    $xml->open_customTag('observation', array('classCode' => 'OBS', 'moodCode' => 'EVN'));
 
     $tempID = "2.16.840.1.113883.10.20.24.3.55";
     $xml->self_templateid($tempID);
@@ -1100,16 +1101,16 @@ function payerQRDA($xml, $patient_id)
     $actId = getUuid();
     $xml->self_customId($actId);
 
-    $arr = array('code'=>'48768-6', 'displayName'=>'Payment source', 'codeSystem'=>'2.16.840.1.113883.6.1', 'codeSystemName'=>'LOINC');
+    $arr = array('code' => '48768-6', 'displayName' => 'Payment source', 'codeSystem' => '2.16.840.1.113883.6.1', 'codeSystemName' => 'LOINC');
     $xml->self_codeCustom($arr);
 
-    $arr = array('code'=>'completed');
+    $arr = array('code' => 'completed');
     $xml->self_customTag('statusCode', $arr);
 
-    $timeArr = array('low'=>date('Ymdhis', strtotime($from_date)), 'high'=>date('Ymdhis', strtotime($to_date)));
+    $timeArr = array('low' => date('Ymdhis', strtotime($from_date)), 'high' => date('Ymdhis', strtotime($to_date)));
     $xml->add_entryEffectTime($timeArr);
 
-    $xml->self_customTag('value', array('xsi:type'=>'CD', 'code'=>$mainQrdaPayerCodeSendArr[$payer], 'codeSystem'=>'2.16.840.1.113883.3.221.5' , 'codeSystemName'=>'Source of Payment Typology', 'displayName'=>$payer));
+    $xml->self_customTag('value', array('xsi:type' => 'CD', 'code' => $mainQrdaPayerCodeSendArr[$payer], 'codeSystem' => '2.16.840.1.113883.3.221.5' , 'codeSystemName' => 'Source of Payment Typology', 'displayName' => $payer));
 
     //observation Close
     $xml->close_customTag();
@@ -1129,7 +1130,7 @@ function getReportingParam($xml)
     $tempID = '2.16.840.1.113883.10.20.17.2.1';
     $xml->self_templateid($tempID);
 
-    $arr = array('code'=>'55187-9', 'codeSystem'=>'2.16.840.1.113883.6.1');
+    $arr = array('code' => '55187-9', 'codeSystem' => '2.16.840.1.113883.6.1');
     $xml->self_codeCustom($arr);
 
     $title = "Reporting Parameters";
@@ -1138,26 +1139,26 @@ function getReportingParam($xml)
     //Main Reporting Parameters display
     $xml->open_text();
     $xml->open_list();
-    $item_title = "Reporting period: ".date('d M Y', strtotime($from_date))." - ".date('d M Y', strtotime($to_date));
+    $item_title = "Reporting period: " . date('d M Y', strtotime($from_date)) . " - " . date('d M Y', strtotime($to_date));
     $xml->add_item($item_title);
     $xml->close_list();
     $xml->close_text();
 
     $typeCode = 'DRIV';
     $xml->open_entry($typeCode);
-    $arr = array('classCode'=>'ACT', 'moodCode'=>'EVN');
+    $arr = array('classCode' => 'ACT', 'moodCode' => 'EVN');
     $xml->open_act($arr);
 
     $tempID = '2.16.840.1.113883.10.20.17.3.8';
     $xml->self_templateid($tempID);
 
-    $arr = array('extension'=>getUuid());
+    $arr = array('extension' => getUuid());
     $xml->self_customTag('id', $arr);
 
-    $arr = array('code'=>'252116004', 'codeSystem'=>'2.16.840.1.113883.6.96', 'displayName'=>'Observation Parameters');
+    $arr = array('code' => '252116004', 'codeSystem' => '2.16.840.1.113883.6.96', 'displayName' => 'Observation Parameters');
     $xml->self_codeCustom($arr);
 
-    $timeArr = array('low'=>date('Ymdhis', strtotime($from_date)), 'high'=>date('Ymdhis', strtotime($to_date)));
+    $timeArr = array('low' => date('Ymdhis', strtotime($from_date)), 'high' => date('Ymdhis', strtotime($to_date)));
     $xml->add_entryEffectTime($timeArr);
 
     $xml->close_act();
@@ -1181,7 +1182,7 @@ function getMeasureSection($xml, $rule_id)
     $tempID = '2.16.840.1.113883.10.20.24.2.3';
     $xml->self_templateid($tempID);
 
-    $arr = array('code'=>'55186-1', 'codeSystem'=>'2.16.840.1.113883.6.1');
+    $arr = array('code' => '55186-1', 'codeSystem' => '2.16.840.1.113883.6.1');
     $xml->self_codeCustom($arr);
 
     $title = "Measure Section";
@@ -1209,14 +1210,14 @@ function getMeasureSection($xml, $rule_id)
     $xml->open_customTag('tr');
 
     if (!empty($rule_id)) {
-        $tdTitle = "NQF:". $rule_id;
+        $tdTitle = "NQF:" . $rule_id;
     }
 
     $tdVersionNeutral = getUuid();
     $tdVersionSpecific = $preDefinedUniqIDRules[$rule_id];
     $uniqIdArr[] = $tdVersionSpecific;
 
-    $dataArr = array(0=>$tdTitle, 1=>$tdVersionNeutral, 2=>$tdVersionSpecific);
+    $dataArr = array(0 => $tdTitle, 1 => $tdVersionNeutral, 2 => $tdVersionSpecific);
     $xml->add_trElementsValues($dataArr);
 
     //TR close
@@ -1232,7 +1233,7 @@ function getMeasureSection($xml, $rule_id)
     $xml->open_entry();
 
     //Organizer Start
-    $arr = array('classCode'=>'CLUSTER', 'moodCode'=>'EVN');
+    $arr = array('classCode' => 'CLUSTER', 'moodCode' => 'EVN');
     $xml->open_customTag('organizer', $arr);
 
     $tempID = "2.16.840.1.113883.10.20.24.3.98";
@@ -1241,29 +1242,29 @@ function getMeasureSection($xml, $rule_id)
     $tempID = "2.16.840.1.113883.10.20.24.3.97";
     $xml->self_templateid($tempID);
 
-    $arr = array('extension'=>$uniqIdArr[0]);
+    $arr = array('extension' => $uniqIdArr[0]);
     $xml->self_customTag('id', $arr);
 
-    $arr = array('code'=>'completed');
+    $arr = array('code' => 'completed');
     $xml->self_customTag('statusCode', $arr);
 
     //reference Start
-    $arr = array('typeCode'=>'REFR');
+    $arr = array('typeCode' => 'REFR');
     $xml->open_customTag('reference', $arr);
 
     //externalDocument Start
-    $arr = array('classCode'=>'DOC', 'moodCode'=>'EVN');
+    $arr = array('classCode' => 'DOC', 'moodCode' => 'EVN');
     $xml->open_customTag('externalDocument', $arr);
 
     $exDocID = $uniqIdArr[0];
-    $xml->self_customTag('id', array('root' => '2.16.840.1.113883.4.738', 'extension' =>$exDocID));
+    $xml->self_customTag('id', array('root' => '2.16.840.1.113883.4.738', 'extension' => $exDocID));
 
-    $xml->element('text', "NQF# ".$rule_id);
+    $xml->element('text', "NQF# " . $rule_id);
 
-    $setidVal =getUuid();
+    $setidVal = getUuid();
     $xml->self_setid($setidVal);
 
-    $arr = array('value'=>'3');
+    $arr = array('value' => '3');
     $xml->self_customTag('versionNumber', $arr);
 
     //externalDocument Close
@@ -1293,13 +1294,13 @@ function downloadQRDACat1($xml, $patient_id, $rule_id)
     }
 
     //QRDA File Download Folder in site/cqm_qrda folder
-    $qrda_fname = $patFname."_".$patLname."_NQF_".$rule_id.".xml";
+    $qrda_fname = $patFname . "_" . $patLname . "_NQF_" . $rule_id . ".xml";
     global $qrda_file_path;
     if (!file_exists($qrda_file_path)) {
         mkdir($qrda_file_path, 0777, true);
     }
 
-    $qrda_file_name = $qrda_file_path.$qrda_fname;
+    $qrda_file_name = $qrda_file_path . $qrda_fname;
     $fileQRDAOPen = fopen($qrda_file_name, "w");
     fwrite($fileQRDAOPen, trim($xml->getXml()));
     fclose($fileQRDAOPen);
@@ -1324,7 +1325,7 @@ function patCharactersticQRDA($xml, $patient_id)
         $xml->open_entry();
 
         //observation Open
-        $xml->open_customTag('observation', array('classCode'=>'OBS', 'moodCode'=>'EVN'));
+        $xml->open_customTag('observation', array('classCode' => 'OBS', 'moodCode' => 'EVN'));
 
         $tempID = "2.16.840.1.113883.10.20.22.4.85";
         $xml->self_templateid($tempID);
@@ -1332,16 +1333,16 @@ function patCharactersticQRDA($xml, $patient_id)
         $actId = getUuid();
         $xml->self_customId($actId);
 
-        $arr = array('code'=>'ASSERTION', 'displayName'=>'Assertion', 'codeSystem'=>'2.16.840.1.113883.5.4', 'codeSystemName'=>'ActCode');
+        $arr = array('code' => 'ASSERTION', 'displayName' => 'Assertion', 'codeSystem' => '2.16.840.1.113883.5.4', 'codeSystemName' => 'ActCode');
         $xml->self_codeCustom($arr);
 
-        $arr = array('code'=>'completed');
+        $arr = array('code' => 'completed');
         $xml->self_customTag('statusCode', $arr);
 
-        $timeArr = array('low'=>date('Ymdhis', strtotime($patHist['date'])), 'high'=>date('Ymdhis', strtotime($patHist['date'])));
+        $timeArr = array('low' => date('Ymdhis', strtotime($patHist['date'])), 'high' => date('Ymdhis', strtotime($patHist['date'])));
         $xml->add_entryEffectTime($timeArr);
 
-        $xml->self_customTag('value', array('xsi:type'=>'CD', 'code'=> $vset['code'], 'codeSystem'=>$vset['code_system'],'sdtc:valueSet' => $vset['valueset']));
+        $xml->self_customTag('value', array('xsi:type' => 'CD', 'code' => $vset['code'], 'codeSystem' => $vset['code_system'],'sdtc:valueSet' => $vset['valueset']));
 
         //observation Close
         $xml->close_customTag();

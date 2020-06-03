@@ -1,4 +1,5 @@
 <?php
+
 /**
  * example2 report.php
  *
@@ -9,9 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
-require_once($GLOBALS["srcdir"]."/api.inc");
+require_once($GLOBALS["srcdir"] . "/api.inc");
 
 /** CHANGE THIS, the name of the function is significant and  **
  **              must be changed to match the folder name     **/
@@ -28,16 +28,18 @@ function example_report($pid, $encounter, $cols, $id)
         print "<table><tr>";
 
         foreach ($data as $key => $value) {
-            if ($key == "id" || $key == "pid" || $key == "user" ||
+            if (
+                $key == "id" || $key == "pid" || $key == "user" ||
                 $key == "groupname" || $key == "authorized" ||
                 $key == "activity" || $key == "date" ||
                 $value == "" || $value == "0000-00-00 00:00:00" ||
-                $value == "n") {
+                $value == "n"
+            ) {
                 // skip certain fields and blank data
                 continue;
             }
 
-            $key=ucwords(str_replace("_", " ", $key));
+            $key = ucwords(str_replace("_", " ", $key));
             print("<tr>\n");
             print("<tr>\n");
             print "<td><span class=bold>" . text($key) . ": </span><span class=text>" . text($value) . "</span></td>";

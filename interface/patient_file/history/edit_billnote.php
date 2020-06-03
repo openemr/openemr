@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Billing notes.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 
@@ -57,7 +57,7 @@ if ($_POST['form_submit'] || $_POST['form_cancel']) {
     $fenote = str_replace("\r\n", "<br />", $fenote);
     $fenote = str_replace("\n", "<br />", $fenote);
     if (! $fenote) {
-        $fenote = '['. xl('Add') . ']';
+        $fenote = '[' . xl('Add') . ']';
     }
 
     echo "<script language='JavaScript'>\n";

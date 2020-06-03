@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Advance directives gui.
  *
@@ -57,7 +58,7 @@ use OpenEMR\Core\Header;
             return true;
         }
 
-        $(function(){
+        $(function () {
             $("#cancel").click(function() { dlgclose(); });
 
             $('.datepicker').datetimepicker({
@@ -86,11 +87,11 @@ use OpenEMR\Core\Header;
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <div class="form-group">
                         <label for="form_yesno"><?php echo xlt('Completed'); ?></label>
-                        <?php generate_form_field(array('data_type'=>1,'field_id'=>'yesno','list_id'=>'yesno','empty_title'=>'SKIP'), $form_completedad); ?>
+                        <?php generate_form_field(array('data_type' => 1,'field_id' => 'yesno','list_id' => 'yesno','empty_title' => 'SKIP'), $form_completedad); ?>
                     </div>
                     <div class="form-group">
                         <label for="form_adreviewed"><?php echo xlt('Last Reviewed'); ?></label>
-                        <?php generate_form_field(array('data_type'=>4,'field_id'=>'adreviewed'), oeFormatShortDate($form_adreviewed)); ?>
+                        <?php generate_form_field(array('data_type' => 4,'field_id' => 'adreviewed'), oeFormatShortDate($form_adreviewed)); ?>
                     </div>
                     <div class="form-group">
                         <div class="btn-group" role="group">

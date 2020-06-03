@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient selector for insurance gui
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
@@ -35,7 +35,7 @@ $browsenum = (is_numeric($_REQUEST['browsenum'])) ? $_REQUEST['browsenum'] : 1;
     <?php Header::setupHeader(['datetime-picker', 'opener']); ?>
 
     <script>
-        $(function(){
+        $(function () {
             $('[name="findBy"').on('change', function () {
                 if($(this).val() === 'DOB'){
                     $('#searchparm').datetimepicker({
@@ -167,7 +167,7 @@ function auto_populate_employer_address(){
 <td><span class='text'>
     <?php
   //Modified 7/2009 by BM to incorporate data types
-    echo generate_display_field(array('data_type'=>$GLOBALS['state_data_type'],'list_id'=>$GLOBALS['state_list']), $result3['subscriber_state']);
+    echo generate_display_field(array('data_type' => $GLOBALS['state_data_type'],'list_id' => $GLOBALS['state_list']), $result3['subscriber_state']);
     ?>
 </span></td>
 </tr>
@@ -180,7 +180,7 @@ function auto_populate_employer_address(){
 <td><span class='text'>
     <?php
   //Modified 7/2009 by BM to incorporate data types
-    echo generate_display_field(array('data_type'=>$GLOBALS['country_data_type'],'list_id'=>$GLOBALS['country_list']), $result3['subscriber_country']);
+    echo generate_display_field(array('data_type' => $GLOBALS['country_data_type'],'list_id' => $GLOBALS['country_list']), $result3['subscriber_country']);
     ?>
 </span></td>
 </tr>
@@ -236,7 +236,7 @@ function auto_populate_employer_address(){
 <td><span class='text'>
         <?php
       //Modified 7/2009 by BM to incorporate data types
-        echo generate_display_field(array('data_type'=>$GLOBALS['state_data_type'],'list_id'=>$GLOBALS['state_list']), $result3['subscriber_employer_state']);
+        echo generate_display_field(array('data_type' => $GLOBALS['state_data_type'],'list_id' => $GLOBALS['state_list']), $result3['subscriber_employer_state']);
         ?>
 </span></td>
 </tr>
@@ -245,7 +245,7 @@ function auto_populate_employer_address(){
 <td><span class='text'>
         <?php
        //Modified 7/2009 by BM to incorporate data types
-        echo generate_display_field(array('data_type'=>$GLOBALS['country_data_type'],'list_id'=>$GLOBALS['country_list']), $result3['subscriber_employer_country']);
+        echo generate_display_field(array('data_type' => $GLOBALS['country_data_type'],'list_id' => $GLOBALS['country_list']), $result3['subscriber_employer_country']);
         ?>
 </span></td>
 </tr>
@@ -254,7 +254,7 @@ function auto_populate_employer_address(){
 
 <tr>
 <td><span class='text'><?php echo xlt('Subscriber Sex'); ?>:</span></td>
-<td><span class='text'><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'sex'), $result3['subscriber_sex']); ?></span></td>
+<td><span class='text'><?php echo generate_display_field(array('data_type' => '1','list_id' => 'sex'), $result3['subscriber_sex']); ?></span></td>
 </tr>
 </table>
 
@@ -284,8 +284,8 @@ function auto_populate_employer_address(){
 </tr>
     <?php
 
-    $count=0;
-    $total=0;
+    $count = 0;
+    $total = 0;
 
     $findby = $_POST['findBy'];
     $patient = $_POST['patient'];
@@ -298,7 +298,7 @@ function auto_populate_employer_address(){
             print "<tr><td><a class='text' target='_top' href='browse.php?browsenum=" .
                     attr_url($browsenum) . "&set_pid=" .
                     attr_url($iter["pid"]) . "'>" .
-                    text($iter["lname"].", ".$iter["fname"]) .
+                    text($iter["lname"] . ", " . $iter["fname"]) .
                     "</td></a>\n";
             print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                     attr_url($browsenum) . "&set_pid=" .
@@ -333,7 +333,7 @@ function auto_populate_employer_address(){
             print "<tr><td><a class='text' target='_top' href='browse.php?browsenum=" .
                     attr_url($browsenum) . "&set_pid=" .
                     attr_url($iter["pid"]) . "'>" .
-                    text($iter["lname"].", ".$iter["fname"]) .
+                    text($iter["lname"] . ", " . $iter["fname"]) .
                     "</td></a>\n";
             print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                     attr_url($browsenum) . "&set_pid=" .
@@ -368,7 +368,7 @@ function auto_populate_employer_address(){
                 print "<tr><td><a class='text' target='_top' href='browse.php?browsenum=" .
                         attr_url($browsenum) . "&set_pid=" .
                         attr_url($iter["pid"]) . "'>" .
-                        text($iter["lname"].", ".$iter["fname"]) .
+                        text($iter["lname"] . ", " . $iter["fname"]) .
                         "</td></a>\n";
                 print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                         attr_url($browsenum) . "&set_pid=" .
@@ -403,7 +403,7 @@ function auto_populate_employer_address(){
                 print "<tr><td><a class='text' target='_top' href='browse.php?browsenum=" .
                         attr_url($browsenum) . "&set_pid=" .
                         attr_url($iter["pid"]) . "'>" .
-                        text($iter["lname"].", ".$iter["fname"]) .
+                        text($iter["lname"] . ", " . $iter["fname"]) .
                         "</td></a>\n";
                 print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                         attr_url($browsenum) . "&set_pid=" .

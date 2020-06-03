@@ -1,4 +1,5 @@
 <?php
+
 namespace Carecoordination;
 
 use Carecoordination\Model\CarecoordinationTable;

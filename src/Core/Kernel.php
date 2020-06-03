@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OpenEMR <https://open-emr.org>.
  *

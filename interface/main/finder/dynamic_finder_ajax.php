@@ -1,4 +1,5 @@
 <?php
+
 /**
  * dynamic_finder_ajax.php
  *
@@ -16,7 +17,7 @@
  */
 
 require_once(dirname(__FILE__) . "/../../globals.php");
-require_once($GLOBALS['srcdir']."/options.inc.php");
+require_once($GLOBALS['srcdir'] . "/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Events\BoundFilter;
@@ -59,7 +60,7 @@ if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
 }
 // Search parameter.  -1 means .
 //
-$searchMethodInPatientList = isset($_GET['searchType' ]) && $_GET['searchType' ]==="true" ?  true : false;
+$searchMethodInPatientList = isset($_GET['searchType' ]) && $_GET['searchType' ] === "true" ?  true : false;
 
 // Column sorting parameters.
 //

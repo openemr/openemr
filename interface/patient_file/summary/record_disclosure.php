@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient disclosures main screen.
  *
@@ -11,7 +12,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
@@ -20,7 +20,7 @@ use OpenEMR\Core\Header;
 
 //if the edit button for editing disclosure is set.
 if (isset($_GET['editlid'])) {
-    $editlid=$_GET['editlid'];
+    $editlid = $_GET['editlid'];
 }
 ?>
 <!DOCTYPE html>
@@ -51,7 +51,7 @@ function submitform() {
     }
 }
 
-$(function() {
+$(function () {
     $("#disclosure_form").submit(function (event) {
         event.preventDefault(); //prevent default action
         var post_url = $(this).attr("action");
@@ -105,11 +105,11 @@ if ($editlid) {
         <td><!--retrieve disclosures from extended_log table for modifications-->
         <?php
         if ($editlid) {
-            $dres=sqlQuery("select date,recipient,description,event from extended_log where id=?", array($editlid));
-            $description=$dres["description"];
-            $app_event=$dres["event"];
-            $disc_date=$dres["date"];
-            $recipient_name=$dres["recipient"];
+            $dres = sqlQuery("select date,recipient,description,event from extended_log where id=?", array($editlid));
+            $description = $dres["description"];
+            $app_event = $dres["event"];
+            $disc_date = $dres["date"];
+            $recipient_name = $dres["recipient"];
             ?>
             <input type=hidden name=disclosure_id value="<?php echo attr($editlid); ?>">
             <input type=hidden name=updatemode value="disclosure_update">
@@ -123,10 +123,10 @@ if ($editlid) {
         <td><?php
         if ($editlid) {
             //To incorporate the disclosure types  into the list_options listings
-            generate_form_field(array('data_type'=>1,'field_id'=>'disclosure_type','list_id'=>'disclosure_type','fld_length'=>'10','max_length'=>'63','empty_title'=>'SKIP'), $app_event);
+            generate_form_field(array('data_type' => 1,'field_id' => 'disclosure_type','list_id' => 'disclosure_type','fld_length' => '10','max_length' => '63','empty_title' => 'SKIP'), $app_event);
         } else {
             //To incorporate the disclosure types  into the list_options listings
-            generate_form_field(array('data_type'=>1,'field_id'=>'disclosure_type','list_id'=>'disclosure_type','fld_length'=>'10','max_length'=>'63','empty_title'=>'SKIP'), $title);
+            generate_form_field(array('data_type' => 1,'field_id' => 'disclosure_type','list_id' => 'disclosure_type','fld_length' => '10','max_length' => '63','empty_title' => 'SKIP'), $title);
         } ?>
         </td>
     </tr>

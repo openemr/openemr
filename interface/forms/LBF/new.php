@@ -1,4 +1,5 @@
 <?php
+
 /**
  * LBF form.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
@@ -212,7 +212,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             if ($source == 'H') {
                 $new = array($field_id => $value);
                 updateHistoryData($pid, $new);
-            } else if (strpos($field_id, 'em_') === 0) {
+            } elseif (strpos($field_id, 'em_') === 0) {
                 $field_id = substr($field_id, 3);
                 $new = array($field_id => $value);
                 updateEmployerData($pid, $new);
@@ -225,7 +225,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
             }
 
             continue;
-        } else if ($source == 'E') {
+        } elseif ($source == 'E') {
             // Save to shared_attributes. Can't delete entries for empty fields because with the P option
             // it's important to know when a current empty value overrides a previous value.
             sqlStatement(
@@ -235,7 +235,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 array($pid, $visitid, $field_id, $_SESSION['authUserID'], $value)
             );
             continue;
-        } else if ($source == 'V') {
+        } elseif ($source == 'V') {
             // Save to form_encounter.
             $esc_field_id = escape_sql_column_name($field_id, array('form_encounter'));
             sqlStatement(
@@ -422,6 +422,8 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = false; ?>
+                <?php $datetimepicker_maxDate = false; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
@@ -429,6 +431,44 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = false; ?>
+                <?php $datetimepicker_maxDate = false; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+            $('.datepicker-past').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = false; ?>
+                <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+            $('.datetimepicker-past').datetimepicker({
+                <?php $datetimepicker_timepicker = true; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = false; ?>
+                <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+            $('.datepicker-future').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = '-1970/01/01'; ?>
+                <?php $datetimepicker_maxDate = false; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+            $('.datetimepicker-future').datetimepicker({
+                <?php $datetimepicker_timepicker = true; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_minDate = '-1970/01/01'; ?>
+                <?php $datetimepicker_maxDate = false; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
@@ -910,7 +950,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                             if (!empty($tmp['encounter'])) {
                                 $currvalue = lbf_current_value($frow, $tmp['form_id'], $tmp['encounter']);
                             }
-                        } else if ($source == 'E') {
+                        } elseif ($source == 'E') {
                             // Visit attribute, get most recent value as of this visit.
                             // Even if the form already exists for this visit it may have a readonly value that only
                             // exists in a previous visit and was created from a different form.
@@ -979,7 +1019,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     // If group name is blank, no checkbox or div.
                     if (strlen($gname)) {
                         echo "<br /><span class='bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " .
-                            "onclick='return divclick(this," . attr_js('div_'.$group_seq) . ");'";
+                            "onclick='return divclick(this," . attr_js('div_' . $group_seq) . ");'";
                         if ($display_style == 'block') {
                             echo " checked";
                         }
@@ -1042,7 +1082,7 @@ if (!empty($_POST['bn_save']) || !empty($_POST['bn_save_print']) || !empty($_POS
                     }
                     if (isOption($edit_options, 'RS')) {
                         echo " <tr class='RS'>";
-                    } else if (isOption($edit_options, 'RO')) {
+                    } elseif (isOption($edit_options, 'RO')) {
                         echo " <tr class='RO'>";
                     } else {
                         echo " <tr>";

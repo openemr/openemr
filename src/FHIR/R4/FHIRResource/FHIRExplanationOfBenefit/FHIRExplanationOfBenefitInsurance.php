@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRExplanationOfBenefit;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRExplanationOfBenefit;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -176,11 +178,11 @@ class FHIRExplanationOfBenefitInsurance extends FHIRBackboneElement implements \
                         $this->addPreAuthRef($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"preAuthRef" must be array of objects or null, '.gettype($data['preAuthRef']).' seen.');
+                    throw new \InvalidArgumentException('"preAuthRef" must be array of objects or null, ' . gettype($data['preAuthRef']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

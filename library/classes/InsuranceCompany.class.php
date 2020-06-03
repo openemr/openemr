@@ -1,4 +1,5 @@
 <?php
+
 /************************************************************************
             InsuranceCompany.php - Copyright duhlman
 
@@ -35,6 +36,7 @@ define("INS_TYPE_VETERANS_ADMINISTRATION_PLAN", 24);
 define("INS_TYPE_WORKERS_COMPENSATION_HEALTH_PLAN", 25);
 define("INS_TYPE_MUTUALLY_DEFINED", 26);
 
+use OpenEMR\Common\ORDataObject\ORDataObject;
 
 /**
  * class Insurance Company
@@ -270,7 +272,7 @@ class InsuranceCompany extends ORDataObject
     function _set_number($num, $type)
     {
         $found = false;
-        for ($i=0; $i<count($this->phone_numbers); $i++) {
+        for ($i = 0; $i < count($this->phone_numbers); $i++) {
             if ($this->phone_numbers[$i]->type == $type) {
                 $found = true;
                 $this->phone_numbers[$i]->set_phone($num);
@@ -355,7 +357,7 @@ class InsuranceCompany extends ORDataObject
     function utility_insurance_companies_array()
     {
         $pharmacy_array = array();
-        $sql = "SELECT p.id, p.name, a.city, a.state FROM " . escape_table_name($this->_table) ." AS p INNER JOIN addresses AS a ON  p.id = a.foreign_id";
+        $sql = "SELECT p.id, p.name, a.city, a.state FROM " . escape_table_name($this->_table) . " AS p INNER JOIN addresses AS a ON  p.id = a.foreign_id";
         $res = sqlQ($sql);
         while ($row = sqlFetchArray($res)) {
                 $d_string = $row['city'];
@@ -373,7 +375,7 @@ class InsuranceCompany extends ORDataObject
     function insurance_companies_factory($city = "", $sort = "ORDER BY name, id")
     {
         if (empty($city)) {
-             $city= "";
+             $city = "";
         } else {
             $city = " WHERE city = '" . add_escape_custom($foreign_id) . "'";
         }
@@ -382,7 +384,7 @@ class InsuranceCompany extends ORDataObject
         $icompanies = array();
         $sql = "SELECT p.id, a.city " .
             "FROM " . escape_table_name($p->_table) . " AS p " .
-            "INNER JOIN addresses as a on p.id = a.foreign_id " .$city . " " . add_escape_custom($sort);
+            "INNER JOIN addresses as a on p.id = a.foreign_id " . $city . " " . add_escape_custom($sort);
 
         //echo $sql . "<bR />";
         $results = sqlQ($sql);
@@ -398,8 +400,8 @@ class InsuranceCompany extends ORDataObject
     function toString($html = false)
     {
         $string .= "\n"
-        . "ID: " . $this->id."\n"
-        . "Name: " . $this->name ."\n"
+        . "ID: " . $this->id . "\n"
+        . "Name: " . $this->name . "\n"
         . "Attn:" . $this->attn . "\n"
         . "Payer ID:" . $this->cms_id . "\n"
         . "ALT Payer ID:" . $this->alt_cms_id . "\n"

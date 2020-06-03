@@ -1,11 +1,12 @@
 <?php
 
-
 /**
  * class Note
  * This class offers functionality to store sequential comments/notes about an external object or anything with a unique id.
  * It is not intended that once a note is save it can be editied or changed.
  */
+
+use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class Note extends ORDataObject
 {
@@ -105,12 +106,12 @@ class Note extends ORDataObject
     function toString($html = false)
     {
         $string .= "\n"
-        . "ID: " . $this->id."\n"
-        . "FID: " . $this->foreign_id."\n"
+        . "ID: " . $this->id . "\n"
+        . "FID: " . $this->foreign_id . "\n"
         . "note: " . $this->note . "\n"
         . "date: " . $this->date . "\n"
         . "owner: " . $this->owner . "\n"
-        . "revision: " . $this->revision. "\n";
+        . "revision: " . $this->revision . "\n";
 
         if ($html) {
             return nl2br($string);

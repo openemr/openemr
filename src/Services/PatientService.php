@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient Service
  *
@@ -6,19 +7,21 @@
  * @link      http://www.open-emr.org
  * @author    Victor Kofia <victor.kofia@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017 Victor Kofia <victor.kofia@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 namespace OpenEMR\Services;
 
-use Particle\Validator\Validator;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Validators\PatientValidator;
+use OpenEMR\Validators\ProcessingResult;
 
-class PatientService
+class PatientService extends BaseService
 {
-
     /**
      * In the case where a patient doesn't have a picture uploaded,
      * this value will be returned so that the document controller
@@ -26,41 +29,21 @@ class PatientService
      */
     private $patient_picture_fallback_id = -1;
 
-    private $pid;
+    private $patientValidator;
 
     /**
      * Default constructor.
      */
     public function __construct()
     {
-    }
-
-    public function validate($patient)
-    {
-        $validator = new Validator();
-
-        $validator->required('fname')->lengthBetween(2, 255);
-        $validator->required('lname')->lengthBetween(2, 255);
-        $validator->required('sex')->lengthBetween(4, 30);
-        $validator->required('dob')->datetime('Y-m-d');
-
-
-        return $validator->validate($patient);
-    }
-
-    public function setPid($pid)
-    {
-        $this->pid = $pid;
-    }
-
-    public function getPid()
-    {
-        return $this->pid;
+        parent::__construct('patient_data');
+        $this->patientValidator = new PatientValidator();
     }
 
     /**
      * TODO: This should go in the ChartTrackerService and doesn't have to be static.
-     * @param $pid unique patient id
+     *
+     * @param  $pid unique patient id
      * @return recordset
      */
     public static function getChartTrackerInformationActivity($pid)
@@ -81,6 +64,7 @@ class PatientService
 
     /**
      * TODO: This should go in the ChartTrackerService and doesn't have to be static.
+     *
      * @return recordset
      */
     public static function getChartTrackerInformation()
@@ -106,190 +90,219 @@ class PatientService
     public function getFreshPid()
     {
         $pid = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
-
-        return $pid['pid'] === null ? 1 : $pid['pid'];
+        return $pid['pid'] === null ? 1 : intval($pid['pid']);
     }
 
+    /**
+     * Inserts a new patient record.
+     *
+     * @param $data The patient fields (array) to insert.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
     public function insert($data)
     {
-        $fresh_pid = $this->getFreshPid();
+        $processingResult = $this->patientValidator->validate($data, PatientValidator::DATABASE_INSERT_CONTEXT);
 
-        $sql = " INSERT INTO patient_data SET";
-        $sql .= "     pid=?,";
-        $sql .= "     title=?,";
-        $sql .= "     fname=?,";
-        $sql .= "     mname=?,";
-        $sql .= "     lname=?,";
-        $sql .= "     street=?,";
-        $sql .= "     postal_code=?,";
-        $sql .= "     city=?,";
-        $sql .= "     state=?,";
-        $sql .= "     country_code=?,";
-        $sql .= "     phone_contact=?,";
-        $sql .= "     dob=?,";
-        $sql .= "     sex=?,";
-        $sql .= "     race=?,";
-        $sql .= "     ethnicity=?";
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        $freshPid = $this->getFreshPid();
+        $data['pid'] = $freshPid;
+        $data['uuid'] = (new UuidRegistry(['table_name' => 'patient_data']))->createUuid();
+        $data['date'] = date("Y-m-d H:i:s");
+        $data['regdate'] = date("Y-m-d H:i:s");
+
+        $query = $this->buildInsertColumns($data);
+        $sql = " INSERT INTO patient_data SET ";
+        $sql .= $query['set'];
 
         $results = sqlInsert(
             $sql,
-            array(
-                $fresh_pid,
-                $data["title"],
-                $data["fname"],
-                $data["mname"],
-                $data["lname"],
-                $data["street"],
-                $data["postal_code"],
-                $data["city"],
-                $data["state"],
-                $data["country_code"],
-                $data["phone_contact"],
-                $data["dob"],
-                $data["sex"],
-                $data["race"],
-                $data["ethnicity"]
-            )
+            $query['bind']
         );
 
         if ($results) {
-            return $fresh_pid;
+            $processingResult->addData(array(
+                'pid' => $freshPid,
+                'uuid' => UuidRegistry::uuidToString($data['uuid'])
+            ));
+        } else {
+            $processingResult->addInternalError("error processing SQL Insert");
         }
 
-        return $results;
+        return $processingResult;
     }
 
-    public function update($pid, $data)
+    /**
+     * Updates an existing patient record.
+     *
+     * @param $puuidString - The patient uuid identifier in string format used for update.
+     * @param $data - The updated patient data fields
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function update($puuidString, $data)
     {
-        $sql = " UPDATE patient_data SET";
-        $sql .= "     title=?,";
-        $sql .= "     fname=?,";
-        $sql .= "     mname=?,";
-        $sql .= "     lname=?,";
-        $sql .= "     street=?,";
-        $sql .= "     postal_code=?,";
-        $sql .= "     city=?,";
-        $sql .= "     state=?,";
-        $sql .= "     country_code=?,";
-        $sql .= "     phone_contact=?,";
-        $sql .= "     dob=?,";
-        $sql .= "     sex=?,";
-        $sql .= "     race=?,";
-        $sql .= "     ethnicity=?";
-        $sql .= "     where pid=?";
+        $data["uuid"] = $puuidString;
+        $processingResult = $this->patientValidator->validate($data, PatientValidator::DATABASE_UPDATE_CONTEXT);
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+        $data['date'] = date("Y-m-d H:i:s");
 
-        return sqlStatement(
-            $sql,
-            array(
-                $data["title"],
-                $data["fname"],
-                $data["mname"],
-                $data["lname"],
-                $data["street"],
-                $data["postal_code"],
-                $data["city"],
-                $data["state"],
-                $data["country_code"],
-                $data["phone_contact"],
-                $data["dob"],
-                $data["sex"],
-                $data["race"],
-                $data["ethnicity"],
-                $pid
-            )
-        );
+        $query = $this->buildUpdateColumns($data);
+        $sql = " UPDATE patient_data SET ";
+        $sql .= $query['set'];
+        $sql .= " WHERE `uuid` = ?";
+
+        $puuidBinary = UuidRegistry::uuidToBytes($puuidString);
+        array_push($query['bind'], $puuidBinary);
+        $sqlResult = sqlStatement($sql, $query['bind']);
+
+        if (!$sqlResult) {
+            $processingResult->addErrorMessage("error processing SQL Update");
+        } else {
+            $processingResult = $this->getOne($puuidString);
+        }
+        return $processingResult;
     }
 
-    public function getAll($search)
+    /**
+     * Returns a list of patients matching optional search criteria.
+     * Search criteria is conveyed by array where key = field/column name, value = field value.
+     * If no search criteria is provided, all records are returned.
+     *
+     * @param  $search search array parameters
+     * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function getAll($search = array(), $isAndCondition = true)
     {
         $sqlBindArray = array();
 
-        $sql = "SELECT id,
-                   pid,
-                   pubpid,
-                   title, 
-                   fname,
-                   mname,
-                   lname,
-                   street, 
-                   postal_code, 
-                   city, 
-                   state, 
-                   country_code, 
-                   phone_contact,
-                   email
-                   dob,
-                   sex,
-                   race,
-                   ethnicity
-                FROM patient_data";
+        $sql = 'SELECT  id,
+                        pid,
+                        uuid,
+                        pubpid,
+                        title,
+                        fname,
+                        mname,
+                        lname,
+                        ss,
+                        street,
+                        postal_code,
+                        city,
+                        state,
+                        county,
+                        country_code,
+                        drivers_license,
+                        contact_relationship,
+                        phone_contact,
+                        phone_home,
+                        phone_biz,
+                        phone_cell,
+                        email,
+                        DOB,
+                        sex,
+                        race,
+                        ethnicity,
+                        status
+                FROM patient_data';
 
-        if ($search['name'] || $search['fname'] || $search['lname'] || $search['dob']) {
-            $sql .= " WHERE ";
-
+        if (!empty($search)) {
+            $sql .= ' WHERE ';
             $whereClauses = array();
-            if ($search['name']) {
-                $search['name'] = '%' . $search['name'] . '%';
-                array_push($whereClauses, "CONCAT(lname,' ', fname) LIKE ?");
-                array_push($sqlBindArray, $search['name']);
-            }
-            if ($search['fname']) {
-                array_push($whereClauses, "fname=?");
-                array_push($sqlBindArray, $search['fname']);
-            }
-            if ($search['lname']) {
-                array_push($whereClauses, "lname=?");
-                array_push($sqlBindArray, $search['lname']);
-            }
-            if ($search['dob'] || $search['birthdate']) {
-                $search['dob'] = !empty($search['dob']) ? $search['dob'] : $search['birthdate'];
-                array_push($whereClauses, "dob=?");
-                array_push($sqlBindArray, $search['dob']);
-            }
 
-            $sql .= implode(" AND ", $whereClauses);
+            foreach ($search as $fieldName => $fieldValue) {
+                // support wildcard match on specific fields
+                if (in_array($fieldName, array('fname', 'mname', 'lname', 'street', 'city'))) {
+                    array_push($whereClauses, $fieldName . ' LIKE ?');
+                    array_push($sqlBindArray, '%' . $fieldValue . '%');
+                } else {
+                    // equality match
+                    array_push($whereClauses, $fieldName . ' = ?');
+                    array_push($sqlBindArray, $fieldValue);
+                }
+            }
+            $sqlCondition = ($isAndCondition == true) ? 'AND' : 'OR';
+            $sql .= implode(' ' . $sqlCondition . ' ', $whereClauses);
         }
-
         $statementResults = sqlStatement($sql, $sqlBindArray);
 
-        $results = array();
+        $processingResult = new ProcessingResult();
         while ($row = sqlFetchArray($statementResults)) {
-            array_push($results, $row);
+            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
+            $processingResult->addData($row);
         }
 
-        return $results;
+        return $processingResult;
     }
 
-    public function getOne()
+    /**
+     * Returns a single patient record by patient id.
+     * @param $puuidString - The patient uuid identifier in string format.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function getOne($puuidString)
     {
-        $sql = "SELECT id,
-                   pid,
-                   pubpid,
-                   title, 
-                   fname,
-                   mname,
-                   lname,
-                   street, 
-                   postal_code, 
-                   city, 
-                   state, 
-                   country_code, 
-                   phone_contact,
-                   email,
-                   dob,
-                   sex,
-                   race,
-                   ethnicity
-                FROM patient_data
-                WHERE pid = ?";
+        $processingResult = new ProcessingResult();
 
-        return sqlQuery($sql, $this->pid);
+        $isValid = $this->patientValidator->isExistingUuid($puuidString);
+
+        if (!$isValid) {
+            $validationMessages = [
+                'uuid' => ["invalid or nonexisting value" => " value " . $puuidString]
+            ];
+            $processingResult->setValidationMessages($validationMessages);
+            return $processingResult;
+        }
+
+        $sql = "SELECT  id,
+                        pid,
+                        uuid,
+                        pubpid,
+                        title,
+                        fname,
+                        mname,
+                        lname,
+                        ss,
+                        street,
+                        postal_code,
+                        city,
+                        state,
+                        county,
+                        country_code,
+                        drivers_license,
+                        contact_relationship,
+                        phone_contact,
+                        phone_home,
+                        phone_biz,
+                        phone_cell,
+                        email,
+                        DOB,
+                        sex,
+                        race,
+                        ethnicity,
+                        status
+                FROM patient_data
+                WHERE uuid = ?";
+
+        $puuidBinary = UuidRegistry::uuidToBytes($puuidString);
+        $sqlResult = sqlQuery($sql, [$puuidBinary]);
+
+        $sqlResult['uuid'] = UuidRegistry::uuidToString($sqlResult['uuid']);
+        $processingResult->addData($sqlResult);
+        return $processingResult;
     }
 
     /**
      * @return number
      */
-    public function getPatientPictureDocumentId()
+    public function getPatientPictureDocumentId($pid)
     {
         $sql = "SELECT doc.id AS id
                  FROM documents doc
@@ -299,7 +312,7 @@ class PatientService
                    ON cate.id = cate_to_doc.category_id
                 WHERE cate.name LIKE ? and doc.foreign_id = ?";
 
-        $result = sqlQuery($sql, array($GLOBALS['patient_photo_category_name'], $this->pid));
+        $result = sqlQuery($sql, array($GLOBALS['patient_photo_category_name'], $pid));
 
         if (empty($result) || empty($result['id'])) {
             return $this->patient_picture_fallback_id;

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -301,7 +303,7 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['status'])) {
@@ -328,11 +330,11 @@ class FHIRVisionPrescription extends FHIRDomainResource implements \JsonSerializ
                         $this->addLensSpecification($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"lensSpecification" must be array of objects or null, '.gettype($data['lensSpecification']).' seen.');
+                    throw new \InvalidArgumentException('"lensSpecification" must be array of objects or null, ' . gettype($data['lensSpecification']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

@@ -40,7 +40,7 @@ $(document).one("mouseover", function() {
   $("#expand_tree").click();
 });
 
-$(function() {
+$(function () {
   $(".popup_items").draggable();
   createtree();
   $(".draggable2").draggable({

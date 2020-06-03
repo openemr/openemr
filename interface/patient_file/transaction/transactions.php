@@ -1,4 +1,5 @@
 <?php
+
 /**
  * transactions.php
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/transactions.inc");
@@ -169,7 +169,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <?php $oemr_ui->oeBelowContainerDiv();?>
     <script>
         var listId = '#' + <?php echo js_escape($list_id); ?>;
-        $(function(){
+        $(function () {
             $(listId).addClass("active");
         });
     </script>

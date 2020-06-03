@@ -1,4 +1,5 @@
 <?php
+
 /**
  * How to present clinical parameter.
  *
@@ -31,7 +32,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("../../../library/options.inc.php");
@@ -154,7 +154,7 @@ if (!$printable) {
         $tab++;
         if ($tab == 10) {
             echo "</td><td>";
-            $tab=0;
+            $tab = 0;
         }
     }
 
@@ -203,7 +203,7 @@ $value_select = $_POST['value_code'];
 // are some Items selected?
 if ($value_select) {
     // print in List-Mode
-    if ($mode=='list') {
+    if ($mode == 'list') {
         $i = 0;
         $item_graph = 0;
         $rowspan = count($value_select);
@@ -262,7 +262,7 @@ if ($value_select) {
                 echo "<td class='list_log'>"  . text($myrow['review_status']) . "</td>";
                 echo "<td class='list_log'>";
                 if (!$printable) {
-                    echo "<a href='../../patient_file/encounter/encounter_top.php?set_encounter=". attr_url($myrow['encounter_id']) . "' target='RBot'>";
+                    echo "<a href='../../patient_file/encounter/encounter_top.php?set_encounter=" . attr_url($myrow['encounter_id']) . "' target='RBot'>";
                     echo text($myrow['encounter_id']);
                     echo "</a>";
                 } else {
@@ -302,7 +302,7 @@ if ($value_select) {
                         dataType: "json",
                         success: function(returnData){
                             g2 = new Dygraph(
-                                document.getElementById(<?php echo js_escape('graph_item_'.$item_graph) ?>),
+                                document.getElementById(<?php echo js_escape('graph_item_' . $item_graph) ?>),
                                 returnData.data_final,
                                 {
                                     title: returnData.title,
@@ -329,7 +329,7 @@ if ($value_select) {
     }// end if mode = list
 
     //##########################################################################################################################
-    if ($mode=='matrix') {
+    if ($mode == 'matrix') {
         $value_matrix = array();
         $datelist = array();
         $i = 0;
@@ -386,9 +386,9 @@ if ($value_select) {
 
         echo "</tr>";
 
-        $i=0;
-        $a=true;
-        while ($a==true) {
+        $i = 0;
+        $a = true;
+        while ($a == true) {
             echo "<tr>";
             #echo "<td class='matrix_item'>" . text($value_matrix[$i]['result_code']) . "</td>";
             echo "<td class='matrix_item'>" . text($value_matrix[$i]['result_text']) . "</td>";
@@ -396,7 +396,7 @@ if ($value_select) {
             echo "<td class='matrix_item'>" . text($value_matrix[$i]['units']) . "</td>";
             echo "<td class='matrix_spacer'> | </td>";
 
-            $z=0;
+            $z = 0;
             while ($z < $cellcount) {
                 if ($value_matrix[$i]['date_collected'] == $datelist[$z]) {
                     if ($value_matrix[$i]['result'] == null) {
@@ -430,7 +430,7 @@ if ($value_select) {
             }
 
             if ($i == $itemcount) {
-                $a=false;
+                $a = false;
             }
         }
 
@@ -446,9 +446,9 @@ if (!$printable) {
     if (!$nothing) {
         echo "<p>";
         echo "<form method='post' action='" . attr($path_to_this_script) . "' target='_new' onsubmit='return top.restoreSession()'>";
-        echo "<input type='hidden' name='mode' value='". attr($mode) . "'>";
+        echo "<input type='hidden' name='mode' value='" . attr($mode) . "'>";
         foreach ($_POST['value_code'] as $this_valuecode) {
-            echo "<input type='hidden' name='value_code[]' value='". attr($this_valuecode) . "'>";
+            echo "<input type='hidden' name='value_code[]' value='" . attr($this_valuecode) . "'>";
         }
 
         echo "<input type='submit' name='print' value='" . xla('View Printable Version') . "' />";

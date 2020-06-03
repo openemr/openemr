@@ -1,4 +1,5 @@
 <?php
+
 /**
  * add or edit a medical problem.
  *
@@ -11,13 +12,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'].'/lists.inc');
-require_once($GLOBALS['srcdir'].'/patient.inc');
-require_once($GLOBALS['srcdir'].'/options.inc.php');
-require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
-require_once($GLOBALS['srcdir'].'/csv_like_join.php');
+require_once($GLOBALS['srcdir'] . '/lists.inc');
+require_once($GLOBALS['srcdir'] . '/patient.inc');
+require_once($GLOBALS['srcdir'] . '/options.inc.php');
+require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -49,7 +49,7 @@ if ($_POST['form_save']) {
 if (isset($ISSUE_TYPES['ippf_gcac'])) {
     if ($ISSUE_TYPES['ippf_gcac']) {
         // Similarly for IPPF issues.
-        require_once($GLOBALS['srcdir'].'/ippf_issues.inc.php');
+        require_once($GLOBALS['srcdir'] . '/ippf_issues.inc.php');
     }
 }
 
@@ -70,7 +70,7 @@ if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
 function QuotedOrNull($fld)
 {
     if ($fld) {
-        return "'".add_escape_custom($fld)."'";
+        return "'" . add_escape_custom($fld) . "'";
     }
 
     return "NULL";
@@ -79,12 +79,12 @@ function QuotedOrNull($fld)
 function rbinput($name, $value, $desc, $colname)
 {
     global $irow;
-    $ret  = "<input type='radio' name='".attr($name)."' value='".attr($value)."'";
+    $ret  = "<input type='radio' name='" . attr($name) . "' value='" . attr($value) . "'";
     if ($irow[$colname] == $value) {
         $ret .= " checked";
     }
 
-    $ret .= " />".text($desc);
+    $ret .= " />" . text($desc);
     return $ret;
 }
 
@@ -175,7 +175,7 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2)
         if ($displayCodeSet) {
             foreach ($displayCodeSet as $dispCode2) {
                 $codeDesc2 = lookup_code_descriptions($dispCode2);
-                echo "listBoxOptionSets[" . attr($akey) . "][listBoxOptionSets[" . attr($akey) . "].length] = new Option(" . js_escape($dispCode2." (".trim($codeDesc2).") ") . ", " . js_escape($dispCode2) . ", false, false);\n";
+                echo "listBoxOptionSets[" . attr($akey) . "][listBoxOptionSets[" . attr($akey) . "].length] = new Option(" . js_escape($dispCode2 . " (" . trim($codeDesc2) . ") ") . ", " . js_escape($dispCode2) . ", false, false);\n";
             }
         }
     }
@@ -359,7 +359,7 @@ if (!empty($irow['type'])) {
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['common', 'jquery-ui', 'datetime-picker', 'select2']); ?>
+<?php Header::setupHeader(['common', 'datetime-picker', 'select2']); ?>
 <title><?php echo ($issue) ? xlt('Edit Issue') : xlt('Add New Issue'); ?></title>
 
 <style>
@@ -392,7 +392,7 @@ ul.tabNav li.current a {
 foreach ($ISSUE_TYPES as $key => $value) {
     echo " aitypes[" . attr($i) . "] = " . js_escape($value[3]) . ";\n";
     echo " aopts[" . attr($i) . "] = new Array();\n";
-    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1", array($key."_issue_list"));
+    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1", array($key . "_issue_list"));
     while ($res = sqlFetchArray($qry)) {
         echo " aopts[" . attr($i) . "][aopts[" . attr($i) . "].length] = new Option(" . js_escape(xl_list_label(trim($res['title']))) . ", " . js_escape(trim($res['option_id'])) . ", false, false);\n";
         if ($res['codes']) {
@@ -450,7 +450,7 @@ ActiveIssueCodeRecycleFn($thispid, $ISSUE_TYPES);
   // Show or hide various rows depending on issue type, except do not
   // hide the comments or referred-by fields if they have data.
 
- $(function(){
+ $(function () {
  var comdisp = (aitypes[index] == 1) ? 'none' : '';
   var revdisp = (aitypes[index] == 1) ? '' : 'none';
   var injdisp = (aitypes[index] == 2) ? '' : 'none';
@@ -623,7 +623,7 @@ function divclick(cb, divid) {
  return true;
 }
 
-$(function() {
+$(function () {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -678,7 +678,7 @@ if ($issue) {
                 <?php
                 // action setting not required in html5.  By default form will submit to itself.
                 // Provide key values previously passed as part of action string.
-                foreach (array('issue'=>$issue, 'thispid'=>$thispid, 'thisenc'=>$thisenc) as $fldName => $fldVal) {
+                foreach (array('issue' => $issue, 'thispid' => $thispid, 'thisenc' => $thisenc) as $fldName => $fldVal) {
                     printf('<input name="%s" type="hidden" value="%s"/>%s', attr($fldName), attr($fldVal), PHP_EOL);
                 }
                 ?>
@@ -776,7 +776,7 @@ if ($issue) {
                     <div class="col-10">
                         <?php
                         // Modified 6/2009 by BM to incorporate the occurrence items into the list_options listings
-                        generate_form_field(array('data_type'=>1,'field_id'=>'occur','list_id'=>'occurrence','empty_title'=>'SKIP'), $irow['occurrence']);
+                        generate_form_field(array('data_type' => 1,'field_id' => 'occur','list_id' => 'occurrence','empty_title' => 'SKIP'), $irow['occurrence']);
                         ?>
                     </div>
                 </div>
@@ -801,8 +801,8 @@ if ($issue) {
                     <label class="control-label col-2" for="form_severity_id"><?php echo xlt('Severity'); ?>:</label>
                     <div class="col-10">
                         <?php
-                            $severity=$irow['severity_al'];
-                            generate_form_field(array('data_type'=>1,'field_id'=>'severity_id','list_id'=>'severity_ccda','empty_title'=>'SKIP'), $severity);
+                            $severity = $irow['severity_al'];
+                            generate_form_field(array('data_type' => 1,'field_id' => 'severity_id','list_id' => 'severity_ccda','empty_title' => 'SKIP'), $severity);
                         ?>
                     </div>
                 </div>
@@ -896,7 +896,7 @@ if ($issue) {
  // Set up the tabbed UI.
  tabbify();
 
-$(function() {
+$(function () {
     // Include bs3 / bs4 classes here.  Keep html tags functional.
     $('table').addClass('table table-sm');
 });

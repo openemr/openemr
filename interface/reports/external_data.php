@@ -1,4 +1,5 @@
 <?php
+
 /**
  * external_data.php
  *
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -29,7 +29,7 @@ $records2 = array();
         <?php Header::setupHeader();?>
         <title><?php echo xlt('External Data'); ?></title>
         <script>
-            $(function() {
+            $(function () {
                 $('.ext-tab-head li').click(function() {
                     $('.ext-tab-head li').removeClass("child-active");
                     $(this).addClass("child-active");
@@ -225,7 +225,7 @@ $records2 = array();
         <?php $oemr_ui->oeBelowContainerDiv();?>
     <script>
         var listId = '#' + <?php echo js_escape($list_id); ?>;
-        $(function(){
+        $(function () {
             $(listId).addClass("active");
         });
     </script>

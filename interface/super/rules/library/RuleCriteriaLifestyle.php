@@ -1,4 +1,5 @@
 <?php
+
  // Copyright (C) 2010-2011 Aron Racho <aron@mi-squred.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -55,10 +56,10 @@ class RuleCriteriaLifestyle extends RuleCriteria
 
         $options = array();
 
-        for ($iter=0; $row=sqlFetchArray($stmt); $iter++) {
+        for ($iter = 0; $row = sqlFetchArray($stmt); $iter++) {
             $id = $row['field_id'];
             $label = xl_layout_label($row['title']);
-            $option = array( "id"=>$id, "label"=>$label );
+            $option = array( "id" => $id, "label" => $label );
             array_push($options, $option);
         }
 

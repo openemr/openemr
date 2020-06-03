@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRExplanationOfBenefit;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRExplanationOfBenefit;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -756,7 +758,7 @@ class FHIRExplanationOfBenefitItem extends FHIRBackboneElement implements \JsonS
                         $this->addCareTeamSequence($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"careTeamSequence" must be array of objects or null, '.gettype($data['careTeamSequence']).' seen.');
+                    throw new \InvalidArgumentException('"careTeamSequence" must be array of objects or null, ' . gettype($data['careTeamSequence']) . ' seen.');
                 }
             }
             if (isset($data['diagnosisSequence'])) {
@@ -765,7 +767,7 @@ class FHIRExplanationOfBenefitItem extends FHIRBackboneElement implements \JsonS
                         $this->addDiagnosisSequence($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"diagnosisSequence" must be array of objects or null, '.gettype($data['diagnosisSequence']).' seen.');
+                    throw new \InvalidArgumentException('"diagnosisSequence" must be array of objects or null, ' . gettype($data['diagnosisSequence']) . ' seen.');
                 }
             }
             if (isset($data['procedureSequence'])) {
@@ -774,7 +776,7 @@ class FHIRExplanationOfBenefitItem extends FHIRBackboneElement implements \JsonS
                         $this->addProcedureSequence($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"procedureSequence" must be array of objects or null, '.gettype($data['procedureSequence']).' seen.');
+                    throw new \InvalidArgumentException('"procedureSequence" must be array of objects or null, ' . gettype($data['procedureSequence']) . ' seen.');
                 }
             }
             if (isset($data['informationSequence'])) {
@@ -783,7 +785,7 @@ class FHIRExplanationOfBenefitItem extends FHIRBackboneElement implements \JsonS
                         $this->addInformationSequence($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"informationSequence" must be array of objects or null, '.gettype($data['informationSequence']).' seen.');
+                    throw new \InvalidArgumentException('"informationSequence" must be array of objects or null, ' . gettype($data['informationSequence']) . ' seen.');
                 }
             }
             if (isset($data['revenue'])) {
@@ -801,7 +803,7 @@ class FHIRExplanationOfBenefitItem extends FHIRBackboneElement implements \JsonS
                         $this->addModifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"modifier" must be array of objects or null, '.gettype($data['modifier']).' seen.');
+                    throw new \InvalidArgumentException('"modifier" must be array of objects or null, ' . gettype($data['modifier']) . ' seen.');
                 }
             }
             if (isset($data['programCode'])) {
@@ -810,7 +812,7 @@ class FHIRExplanationOfBenefitItem extends FHIRBackboneElement implements \JsonS
                         $this->addProgramCode($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"programCode" must be array of objects or null, '.gettype($data['programCode']).' seen.');
+                    throw new \InvalidArgumentException('"programCode" must be array of objects or null, ' . gettype($data['programCode']) . ' seen.');
                 }
             }
             if (isset($data['servicedDate'])) {
@@ -846,7 +848,7 @@ class FHIRExplanationOfBenefitItem extends FHIRBackboneElement implements \JsonS
                         $this->addUdi($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"udi" must be array of objects or null, '.gettype($data['udi']).' seen.');
+                    throw new \InvalidArgumentException('"udi" must be array of objects or null, ' . gettype($data['udi']) . ' seen.');
                 }
             }
             if (isset($data['bodySite'])) {
@@ -858,7 +860,7 @@ class FHIRExplanationOfBenefitItem extends FHIRBackboneElement implements \JsonS
                         $this->addSubSite($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"subSite" must be array of objects or null, '.gettype($data['subSite']).' seen.');
+                    throw new \InvalidArgumentException('"subSite" must be array of objects or null, ' . gettype($data['subSite']) . ' seen.');
                 }
             }
             if (isset($data['encounter'])) {
@@ -867,7 +869,7 @@ class FHIRExplanationOfBenefitItem extends FHIRBackboneElement implements \JsonS
                         $this->addEncounter($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"encounter" must be array of objects or null, '.gettype($data['encounter']).' seen.');
+                    throw new \InvalidArgumentException('"encounter" must be array of objects or null, ' . gettype($data['encounter']) . ' seen.');
                 }
             }
             if (isset($data['noteNumber'])) {
@@ -876,7 +878,7 @@ class FHIRExplanationOfBenefitItem extends FHIRBackboneElement implements \JsonS
                         $this->addNoteNumber($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"noteNumber" must be array of objects or null, '.gettype($data['noteNumber']).' seen.');
+                    throw new \InvalidArgumentException('"noteNumber" must be array of objects or null, ' . gettype($data['noteNumber']) . ' seen.');
                 }
             }
             if (isset($data['adjudication'])) {
@@ -885,7 +887,7 @@ class FHIRExplanationOfBenefitItem extends FHIRBackboneElement implements \JsonS
                         $this->addAdjudication($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"adjudication" must be array of objects or null, '.gettype($data['adjudication']).' seen.');
+                    throw new \InvalidArgumentException('"adjudication" must be array of objects or null, ' . gettype($data['adjudication']) . ' seen.');
                 }
             }
             if (isset($data['detail'])) {
@@ -894,11 +896,11 @@ class FHIRExplanationOfBenefitItem extends FHIRBackboneElement implements \JsonS
                         $this->addDetail($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"detail" must be array of objects or null, '.gettype($data['detail']).' seen.');
+                    throw new \InvalidArgumentException('"detail" must be array of objects or null, ' . gettype($data['detail']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Ajax Library for Register
  *
@@ -10,6 +11,7 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 /* Library functions for register*/
 
 use OpenEMR\Common\Auth\AuthHash;
@@ -129,9 +131,6 @@ function messageCreate($uname, $pass, $encoded_link = '')
 
 function doCredentials($pid)
 {
-    global $srcdir;
-    require_once("$srcdir/authentication/common_operations.php");
-
     $newpd = sqlQuery("SELECT id,fname,mname,lname,email,email_direct FROM `patient_data` WHERE `pid`=?", array(
         $pid
     ));

@@ -1,6 +1,5 @@
 <?php
 
-
 class C_PracticeSettings extends Controller
 {
 

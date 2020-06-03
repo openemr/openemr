@@ -1,4 +1,5 @@
 <?php
+
 /**
  * The address book entry editor.
  * Available from Administration->Addr Book in the concurrent layout.
@@ -13,7 +14,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -48,22 +48,22 @@ $query = "SELECT u.*, lo.option_id AS ab_name, lo.option_value as ab_option FROM
   "WHERE u.active = 1 AND ( u.authorized = 1 OR u.username = '' ) ";
 if ($form_organization) {
     $query .= "AND u.organization LIKE ? ";
-    array_push($sqlBindArray, $form_organization."%");
+    array_push($sqlBindArray, $form_organization . "%");
 }
 
 if ($form_lname) {
     $query .= "AND u.lname LIKE ? ";
-    array_push($sqlBindArray, $form_lname."%");
+    array_push($sqlBindArray, $form_lname . "%");
 }
 
 if ($form_fname) {
     $query .= "AND u.fname LIKE ? ";
-    array_push($sqlBindArray, $form_fname."%");
+    array_push($sqlBindArray, $form_fname . "%");
 }
 
 if ($form_specialty) {
     $query .= "AND u.specialty LIKE ? ";
-    array_push($sqlBindArray, "%".$form_specialty."%");
+    array_push($sqlBindArray, "%" . $form_specialty . "%");
 }
 
 if ($form_abook_type) {
@@ -77,7 +77,7 @@ if ($form_external) {
 
 if ($form_lname) {
     $query .= "ORDER BY u.lname, u.fname, u.mname";
-} else if ($form_organization) {
+} elseif ($form_organization) {
     $query .= "ORDER BY u.organization";
 } else {
     $query .= "ORDER BY u.organization, u.lname, u.fname";
@@ -110,27 +110,38 @@ $res = sqlStatement($query, $sqlBindArray);
         <form class='navbar-form' method='post' action='addrbook_list.php' onsubmit='return top.restoreSession()'>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-            <div class="text-center">
+            
                 <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-2">
                     <label for="form_organization"><?php echo xlt('Organization') ?>:</label>
-                    <input type='text' name='form_organization' size='10' value='<?php echo attr($_POST['form_organization']); ?>' class='inputtext' title='<?php echo xla("All or part of the organization") ?>'/>&nbsp;
+                    <input type='text' class="form-control inputtext" name='form_organization' size='10' value='<?php echo attr($_POST['form_organization']); ?>'  title='<?php echo xla("All or part of the organization") ?>'/>&nbsp;
+                    </div>
+                    <div class="col-sm-2">
                     <label for="form_fname"><?php echo xlt('First Name') ?>:</label>
-                    <input type='text' name='form_fname' size='10' value='<?php echo attr($_POST['form_fname']); ?>' class='inputtext' title='<?php echo xla("All or part of the first name") ?>'/>&nbsp;
+                    <input type='text' class="form-control inputtext" name='form_fname' size='10' value='<?php echo attr($_POST['form_fname']); ?>'  title='<?php echo xla("All or part of the first name") ?>'/>&nbsp;
+                    </div>
+                    <div class="col-sm-2">
                     <label for="form_lname"><?php echo xlt('Last Name') ?>:</label>
-                    <input type='text' name='form_lname' size='10' value='<?php echo attr($_POST['form_lname']); ?>' class='inputtext' title='<?php echo xla("All or part of the last name") ?>'/>&nbsp;
+                    <input type='text' class="form-control inputtext" name='form_lname' size='10' value='<?php echo attr($_POST['form_lname']); ?>'  title='<?php echo xla("All or part of the last name") ?>'/>&nbsp;
+                    </div>
+                    <div class="col-sm-2">
                     <label for="form_specialty"><?php echo xlt('Specialty') ?>:</label>
-                    <input type='text' name='form_specialty' size='10' value='<?php echo attr($_POST['form_specialty']); ?>' class='inputtext' title='<?php echo xla("Any part of the desired specialty") ?>'/>&nbsp;
+                    <input type='text' class="form-control inputtext" name='form_specialty' size='10' value='<?php echo attr($_POST['form_specialty']); ?>' title='<?php echo xla("Any part of the desired specialty") ?>'/>&nbsp;
+                    </div>
+                    <div class="col-sm-2">
                     <?php
-                    echo xlt('Type') . ": ";
+                    echo '<label>' . xlt('Type') . ": " . '</label>';
                     // Generates a select list named form_abook_type:
                     echo generate_select_list("form_abook_type", "abook_type", $_REQUEST['form_abook_type'], '', 'All');
                     ?>
-                    <input type='checkbox' name='form_external' value='1'<?php echo ($form_external) ? ' checked ' : ''; ?> title='<?php echo xla("Omit internal users?") ?>' />
-                    <?php echo xlt('External Only') ?>
+                    </div>
+                    </div>
+                    <input type='checkbox' id="formExternal" name='form_external' value='1'<?php echo ($form_external) ? ' checked ' : ''; ?> title='<?php echo xla("Omit internal users?") ?>' />
+                    <label for="formExternal"><?php echo xlt('External Only') ?></label>
                     <input type='button' class='btn btn-primary' value='<?php echo xla("Add New"); ?>' onclick='doedclick_add(document.forms[0].form_abook_type.value)' />&nbsp;&nbsp;
-                    <input type='submit' title='<?php echo xla("Use % alone in a field to just sort on that column") ?>' class='btn btn-primary' name='form_search' value='<?php echo xla("Search") ?>'/>
-                </div>
-            </div>
+                    <input type='submit' title='<?php echo xla("Use % alone in a field to just sort on that column") ?>' class='btn btn-primary btn-search' name='form_search' value='<?php echo xla("Search") ?>'/>
+                    </div>
         </form>
     </div>
     </div>
@@ -161,25 +172,25 @@ while ($row = sqlFetchArray($res)) {
     }
 
     $displayName = $row['fname'] . ' ' . $row['mname'] . ' ' . $row['lname']; // Person Name
-    if ($row['suffix'] >'') {
-        $displayName .=", ".$row['suffix'];
+    if ($row['suffix'] > '') {
+        $displayName .= ", " . $row['suffix'];
     }
 
     if (AclMain::aclCheckCore('admin', 'practice') || (empty($username) && empty($row['ab_name']))) {
        // Allow edit, since have access or (no item type and not a local user)
-        $trTitle = xl('Edit'). ' ' . $displayName;
+        $trTitle = xl('Edit') . ' ' . $displayName;
         echo " <tr class='address_names detail' style='cursor:pointer' " .
-        "onclick='doedclick_edit(" . attr_js($row['id']) . ")' title='".attr($trTitle)."'>\n";
+        "onclick='doedclick_edit(" . attr_js($row['id']) . ")' title='" . attr($trTitle) . "'>\n";
     } else {
        // Do not allow edit, since no access and (item is a type or is a local user)
         $trTitle = $displayName . " (" . xl("Not Allowed to Edit") . ")";
-        echo " <tr class='address_names detail' title='".attr($trTitle)."'>\n";
+        echo " <tr class='address_names detail' title='" . attr($trTitle) . "'>\n";
     }
 
     echo "  <td>" . text($row['organization']) . "</td>\n";
     echo "  <td>" . text($displayName) . "</td>\n";
     echo "  <td>" . ($username ? '*' : '') . "</td>\n";
-    echo "  <td>" . generate_display_field(array('data_type'=>'1','list_id'=>'abook_type'), $row['ab_name']) . "</td>\n";
+    echo "  <td>" . generate_display_field(array('data_type' => '1','list_id' => 'abook_type'), $row['ab_name']) . "</td>\n";
     echo "  <td>" . text($row['specialty']) . "</td>\n";
     echo "  <td>" . text($row['phonew1'])   . "</td>\n";
     echo "  <td>" . text($row['phonecell']) . "</td>\n";

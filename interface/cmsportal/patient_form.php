@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient matching and selection for the WordPress Patient Portal.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -88,14 +88,23 @@ if ($postid) {
 <?php Header::setupHeader('datetime-picker'); ?>
 
 <style>
+tr.head {
+  font-size: 0.8125rem;
+  background-color: var(--gray400);
+  text-align: center;
+}
 
-tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
-tr.detail { font-size:10pt; background-color:#ddddff; }
-td input  { background-color:transparent; }
+tr.detail {
+  font-size: 0.8125rem;
+  background-color: var(--gray300);
+}
 
+td input {
+  background-color: transparent;
+}
 </style>
 
-<script language="JavaScript">
+<script>
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
@@ -178,21 +187,61 @@ function validate() {
  return true;
 }
 
-$(function() {
-    $('.datepicker').datetimepicker({
-        <?php $datetimepicker_timepicker = false; ?>
-        <?php $datetimepicker_showseconds = false; ?>
-        <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-    });
-    $('.datetimepicker').datetimepicker({
-        <?php $datetimepicker_timepicker = true; ?>
-        <?php $datetimepicker_showseconds = false; ?>
-        <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-    });
+$(function () {
+  $('.datepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
+    <?php $datetimepicker_minDate = false; ?>
+    <?php $datetimepicker_maxDate = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+  $('.datetimepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = true; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
+    <?php $datetimepicker_minDate = false; ?>
+    <?php $datetimepicker_maxDate = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+  $('.datepicker-past').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
+    <?php $datetimepicker_minDate = false; ?>
+    <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+  $('.datetimepicker-past').datetimepicker({
+    <?php $datetimepicker_timepicker = true; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
+    <?php $datetimepicker_minDate = false; ?>
+    <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+  $('.datepicker-future').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
+    <?php $datetimepicker_minDate = '-1970/01/01'; ?>
+    <?php $datetimepicker_maxDate = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+  $('.datetimepicker-future').datetimepicker({
+    <?php $datetimepicker_timepicker = true; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
+    <?php $datetimepicker_minDate = '-1970/01/01'; ?>
+    <?php $datetimepicker_maxDate = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
 });
 
 </script>
@@ -203,11 +252,11 @@ $(function() {
 
 <form method='post' action='patient_form.php' onsubmit='return validate()'>
 
-<input type='hidden' name='db_id'  value="<?php echo attr($db_id);  ?>" />
-<input type='hidden' name='ptid'   value="<?php echo attr($ptid);   ?>" />
+<input type='hidden' name='db_id' value="<?php echo attr($db_id);  ?>" />
+<input type='hidden' name='ptid' value="<?php echo attr($ptid);   ?>" />
 <input type='hidden' name='postid' value="<?php echo attr($postid); ?>" />
 
-<table width='100%' cellpadding='1' cellspacing='2'>
+<table class='w-100' cellpadding='1' cellspacing='2'>
  <tr class='head'>
   <th align='left'><?php echo xlt('Field'); ?></th>
   <th align='left'><?php echo xlt('Current Value'); ?></th>
@@ -284,7 +333,7 @@ if (empty($ptrow[$field_id])) {
         // Portal registration is needed.
         $newvalue = isset($result['fields']['email']) ? trim($result['fields']['email']) : '';
         echo " <tr class='detail'>\n";
-        echo "  <td class='bold' style='color:red;'>" . xlt('New Portal Login') . "</td>\n";
+        echo "  <td class='font-weight-bold text-danger'>" . xlt('New Portal Login') . "</td>\n";
         echo "  <td>&nbsp;</td>\n";
         echo "  <td>";
         echo "<input type='text' name='form_$field_id' size='10' maxlength='60' value='" . attr($newvalue) . "' />";
@@ -301,16 +350,15 @@ if (empty($ptrow[$field_id])) {
 }
 ?>
 
-<p>
-<input type='submit' name='bn_save' value='<?php echo xla('Save and Delete Request'); ?>' />
-&nbsp;
-<input type='button' value='<?php echo xla('Back'); ?>' onclick="window.history.back()" />
+<div class='btn-group'>
+<input type='submit' class='btn btn-primary' name='bn_save' value='<?php echo xla('Save and Delete Request'); ?>' />
+<input type='button' class='btn btn-secondary' value='<?php echo xla('Back'); ?>' onclick="window.history.back()" />
 <!-- Was: onclick="myRestoreSession();location='list_requests.php'" -->
-</p>
+</div>
 
 </form>
 
-<script language="JavaScript">
+<script>
 
 // hard code validation for old validation, in the new validation possible to add match rules
 <?php if ($GLOBALS['new_validate'] == 0) { ?>
@@ -336,4 +384,3 @@ randompass();
 </center>
 </body>
 </html>
-

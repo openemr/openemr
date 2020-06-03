@@ -1,4 +1,5 @@
 <?php
+
 /**
  * easipro_util.php
  *
@@ -41,26 +42,26 @@ if ($_POST['function'] == 'request_assessment') {
     // Request assessment
     $expiration = date_format(date_create_from_format('n/j/Y g:i:s A', $_POST['expiration']), 'Y-m-d H:i:s');
     Easipro::requestAssessment($pid, $_SESSION['authUserID'], $_POST['formOID'], $_POST['formName'], $expiration, $_POST['assessmentOID'], $_POST['status']);
-} else if ($_POST['function'] == 'start_assessment') {
+} elseif ($_POST['function'] == 'start_assessment') {
     // Start assessment
     header('Content-Type: application/json');
     echo Easipro::startAssessment($_POST['assessmentOID']);
-} else if ($_POST['function'] == 'select_response') {
+} elseif ($_POST['function'] == 'select_response') {
     // Render screen during assessment
     header('Content-Type: application/json');
     echo Easipro::selectResponse($_POST['assessmentOID'], $_POST['ItemResponseOID'], $_POST['Response']);
-} else if ($_POST['function'] == 'collect_results') {
+} elseif ($_POST['function'] == 'collect_results') {
     // Collect results after completing assessment
     header('Content-Type: application/json');
     echo Easipro::collectResults($_POST['assessmentOID']);
-} else if ($_POST['function'] == 'record_result') {
+} elseif ($_POST['function'] == 'record_result') {
     // Record result of assessment
     Easipro::recordResult($pid, $_POST['score'], $_POST['assessmentOID'], $_POST['stdErr']);
-} else if ($_POST['function'] == 'list_forms') {
+} elseif ($_POST['function'] == 'list_forms') {
     // Provide list of forms
     header('Content-Type: application/json');
     echo Easipro::listForms();
-} else if ($_POST['function'] == 'order_form') {
+} elseif ($_POST['function'] == 'order_form') {
     // Order form
     header('Content-Type: application/json');
     echo Easipro::orderForm($_POST['formOID']);

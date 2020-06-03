@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Adding thumbnails to all files
  *
@@ -127,7 +128,7 @@ class ThumbnailGenerator
         $from_all = explode("/", $url);
         $from_filename = array_pop($from_all);
         $from_pathname_array = array();
-        for ($i=0; $i<$path_depth; $i++) {
+        for ($i = 0; $i < $path_depth; $i++) {
             $from_pathname_array[] = array_pop($from_all);
         }
 

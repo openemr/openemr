@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CDR reports.
  *
@@ -120,7 +121,7 @@ if (!empty($report_id)) {
 
     <?php require $GLOBALS['srcdir'] . "/formatting_DateToYYYYMMDD_js.js.php" ?>
 
- $(function() {
+ $(function () {
   var win = top.printLogSetup ? top : opener.top;
   win.printLogSetup(document.getElementById('printbutton'));
 
@@ -490,7 +491,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
                  // Build a drop-down list of providers.
                  //
 
-                 $query = "SELECT id, lname, fname FROM users WHERE ".
+                 $query = "SELECT id, lname, fname FROM users WHERE " .
                   "authorized = 1 $provider_facility_filter ORDER BY lname, fname"; //(CHEMED) facility filter
 
                  $ures = sqlStatement($query);
@@ -514,7 +515,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
 
                 while ($urow = sqlFetchArray($ures)) {
                     $provid = $urow['id'];
-                    echo "    <option value='".attr($provid)."'";
+                    echo "    <option value='" . attr($provid) . "'";
                     if ($provid == $provider) {
                         echo " selected";
                     }
@@ -537,7 +538,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
 
                                  // Build a drop-down list of of patient provider relationships.
                                  //
-                                 echo "   <select ". $dis_text ." id='form_pat_prov_rel' name='form_pat_prov_rel' class='form-control' title='" . xla('Only applicable if a provider or collated list was chosen above. PRIMARY only selects patients that the provider is the primary provider. ENCOUNTER selects all patients that the provider has seen.') . "'>\n";
+                                 echo "   <select " . $dis_text . " id='form_pat_prov_rel' name='form_pat_prov_rel' class='form-control' title='" . xla('Only applicable if a provider or collated list was chosen above. PRIMARY only selects patients that the provider is the primary provider. ENCOUNTER selects all patients that the provider has seen.') . "'>\n";
                                  echo "    <option value='primary'";
                                 if ($pat_prov_rel == 'primary') {
                                     echo " selected";
@@ -639,7 +640,7 @@ if (!empty($report_id)) {
     <?php if ($type_report == "amc") { ?>
         <?php echo xlt('Denominator'); ?></a>
     <?php } else { ?>
-        <?php echo xlt('Applicable Patients') .' (' . xlt('Denominator') . ')'; ?></a>
+        <?php echo xlt('Applicable Patients') . ' (' . xlt('Denominator') . ')'; ?></a>
     <?php } ?>
   </th>
 
@@ -697,7 +698,7 @@ if (!empty($report_id)) {
                 // as is in the cqm/amc rules.
                 $main_pass_filter = $row['pass_filter'];
 
-                echo "<b>".generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $row['id'])."</b>";
+                echo "<b>" . generate_display_field(array('data_type' => '1','list_id' => 'clinical_rules'), $row['id']) . "</b>";
 
                 $tempCqmAmcString = "";
                 if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) {
@@ -733,15 +734,15 @@ if (!empty($report_id)) {
                 }
 
                 if (!empty($tempCqmAmcString)) {
-                    echo "(".$tempCqmAmcString.")";
+                    echo "(" . $tempCqmAmcString . ")";
                 }
 
                 if (!(empty($row['concatenated_label']))) {
                     echo ", " . xlt($row['concatenated_label']) . " ";
                 }
             } else { // isset($row['is_sub'])
-                echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $row['action_category']);
-                echo ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $row['action_item']);
+                echo generate_display_field(array('data_type' => '1','list_id' => 'rule_action_category'), $row['action_category']);
+                echo ": " . generate_display_field(array('data_type' => '1','list_id' => 'rule_action'), $row['action_item']);
             }
 
             echo "</td>";
@@ -804,14 +805,14 @@ if (!empty($report_id)) {
             }
 
             echo "<td align='center'>" . text($row['percentage']) . "</td>";
-        } else if (isset($row['is_provider'])) {
+        } elseif (isset($row['is_provider'])) {
            // Display the provider information
             if (!$firstProviderFlag && $_POST['form_provider'] == 'collate_outer') {
                 echo "<tr><td>&nbsp</td></tr>";
             }
 
             echo "<td class='detail' align='center'><b>";
-            echo xlt("Provider").": " . text($row['prov_lname']) . "," . text($row['prov_fname']);
+            echo xlt("Provider") . ": " . text($row['prov_lname']) . "," . text($row['prov_fname']);
             if (!empty($row['npi']) || !empty($row['federaltaxid'])) {
                 echo " (";
                 if (!empty($row['npi'])) {
@@ -835,9 +836,9 @@ if (!empty($report_id)) {
 
             echo "<td class='detail' align='center'><b>";
             echo xlt("Plan") . ": ";
-            echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'), $row['id']);
+            echo generate_display_field(array('data_type' => '1','list_id' => 'clinical_plans'), $row['id']);
             if (!empty($row['cqm_measure_group'])) {
-                echo " (". xlt('Measure Group Code') . ": " . text($row['cqm_measure_group']) . ")";
+                echo " (" . xlt('Measure Group Code') . ": " . text($row['cqm_measure_group']) . ")";
             }
 
             echo "</b></td>";

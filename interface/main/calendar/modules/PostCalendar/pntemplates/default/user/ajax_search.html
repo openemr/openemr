@@ -2,7 +2,6 @@
 [-include file="$TPL_NAME/views/header.html"-]
 
 [-* we want to include our stylesheet for this view*-]
-<link rel="stylesheet" href="[-$TPL_STYLE_PATH-]/ajax_search.css" type="text/css">
 <link rel="stylesheet" href="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery-datetimepicker/build/jquery.datetimepicker.min.css" type="text/css">
 
 <!--<script type="text/javascript" src="[-php-] echo $GLOBALS['assets_static_relative'] [-/php-]/jquery/dist/jquery.min.js"></script>-->
@@ -12,144 +11,181 @@
 [-*Load the Language Definitions*-]
 [-config_load file="lang.$USER_LANG"-]
 
-<!-- search parameters -->
-<h3>[-xlt t='Searching for appointments'-]</h3>
-&nbsp;
-[-php-]
-    echo "<a href='".$GLOBALS['webroot']."/interface/main/main_info.php' class='menu' onclick='top.restoreSession()'>";
-[-/php-]
-[-xlt t='Return to calendar'-]</a>
-<div id="calsearch_params">
-<form name="theform" id="theform" action="[-$FORM_ACTION-]" method="POST"> <!-- onsubmit="return top.restoreSession()"> -->
-[-xlt t='Keywords'-]: <input type="text" name="pc_keywords" id="pc_keywords" value="[-php-]echo attr($_POST['pc_keywords']);[-/php-]" />
-<select name="pc_keywords_andor">
-    <option value="AND">[-xlt t='AND'-]</option>
-    <option value="OR">[-xlt t='OR'-]</option>
-</select>
-[-xlt t='IN'-]:
-<select name="pc_category">
-    <option value="">[-xlt t='Any Category'-]</option>
-    [-$CATEGORY_OPTIONS-]
-</select>
-[-if $USE_TOPICS-]
-<select name="pc_topic">
-    <option value="">[-#_PC_SEARCH_ANY_TOPIC#-]</option>
-    [-$TOPIC_OPTIONS-]
-</select>
-[-/if-]
-<br />
-[-xlt t='between'-]
-<input type="text" class='datepicker' name="start" id="start" value="[-$DATE_START|attr-]" size="10"/>
-<input type="text" class='datepicker' name="end" id="end" value="[-$DATE_END|attr-]" size="10"/>
-<br />
-[-xlt t='for'-]
-<select name="provider_id" id="provider_id">
-[-$PROVIDER_OPTIONS-]
-</select>
-[-xlt t='at'-]
-<select name="pc_facility" id="pc_facility">
-[-$FACILITY_OPTIONS-]
-</select>
-<input type="submit" name="submit" id="submit" value="[-xla t='Submit'-]" />
-<div id="calsearch_status"><img src='[-php-] echo $GLOBALS['webroot'] [-/php-]/interface/pic/ajax-loader.gif'> [-xlt t='Searching...'-]</div>
-</form>
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header">
+                <h2>[-xlt t='Searching for appointments'-]</h2>
+            </div>
+        </div>
+        <div class="col-12">
+            <!-- search parameters -->
+            &nbsp;
+            [-php-]
+                echo "<a href='".$GLOBALS['webroot']."/interface/main/main_info.php' class='menu text-decoration-none' onclick='top.restoreSession()'>";
+            [-/php-]
+            [-xlt t='Return to calendar'-]</a>
+                <form name="theform" id="theform" action="[-$FORM_ACTION-]" method="post"> <!-- onsubmit="return top.restoreSession()"> -->
+                    <!-- Keywords -->
+                    <div class="form-group">
+                        <label for="pc_keywords">[-xlt t='Keywords'-]:</label>
+                        <input type="text" class="form-control" name="pc_keywords" id="pc_keywords" value="[-php-]echo attr($_POST['pc_keywords']);[-/php-]" />
+                    </div>
+                    <!-- Condition -->
+                    <div class="form-row">
+                        <div class="col">
+                            <select class="form-control" name="pc_keywords_andor">
+                                <option value="AND">[-xlt t='AND'-]</option>
+                                <option value="OR">[-xlt t='OR'-]</option>
+                            </select>
+                        </div>
+                        <div class="col-1">
+                            [-xlt t='In'-]:
+                        </div>
+                        <div class="col">
+                            <select class="form-control" name="pc_category">
+                                <option value="">[-xlt t='Any Category'-]</option>
+                                [-$CATEGORY_OPTIONS-]
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Topic -->
+                    [-if $USE_TOPICS-]
+                    <div class="form-group">
+                        <select name="pc_topic">
+                            <option value="">[-#_PC_SEARCH_ANY_TOPIC#-]</option>
+                            [-$TOPIC_OPTIONS-]
+                        </select>
+                    </div>
+                    [-/if-]
+                    <br />
+                    <!-- Between -->
+                    <div class="form-row">
+                        <div class="col">
+                            <label for="start">[-xlt t='Between'-]:</label>
+                            <input type="text" class='form-control datepicker' name="start" id="start" value="[-$DATE_START|attr-]" size="10"/>
+                        </div>
+                        <div class="col">
+                            <label for="end">&nbsp;</label>
+                            <input type="text" class='form-control datepicker' name="end" id="end" value="[-$DATE_END|attr-]" size="10"/>
+                        </div>
+                    </div>
+                    <br />
+                    <!-- For At -->
+                    <div class="form-row">
+                        <div class="col">
+                            <label for="provider_id">[-xlt t='For'-]</label>
+                            <select class="form-control" name="provider_id" id="provider_id">
+                                [-$PROVIDER_OPTIONS-]
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="pc_facility">[-xlt t='At'-]</label>
+                            <select class="form-control" name="pc_facility" id="pc_facility">
+                                [-$FACILITY_OPTIONS-]
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Submit -->
+                    <button class="btn btn-primary mt-2 btn-search" type="submit" name="submit" id="submit" value="[-xla t='Submit'-]">[-xlt t='Search'-]</button>
+                    <div class="d-none" id="calsearch_status">
+                        <img src='[-php-] echo $GLOBALS['webroot'] [-/php-]/interface/pic/ajax-loader.gif'> [-xlt t='Searching...'-]
+                    </div>
+                </form>
+            <!-- end of search parameters -->
+
+            [-if $SEARCH_PERFORMED-]
+            <div class="mt-3">
+                <!-- Table Header -->
+                <div class="table-responsive" class="head">
+                    <table class="table">
+                        <tr class="table-active">
+                            <th>[-xlt t='Date'-]-[-xlt t='Time'-]</th>
+                            <th>[-xlt t='Provider'-]</th>
+                            <th>[-xlt t='Category'-]</th>
+                            <th>[-xlt t='Patient'-]</th>
+                        </tr>
+                    </table>
+                </div>
+                <!-- Table Result -->
+                <div class="table-responsive">
+                    <table class="table">
+                    [-php-]
+                    /* I've given up on playing nice with the Smarty tag crap, it's pointlessly used
+                    * in the original search. I mean, there's no clean separation between the code
+                    * and HTML so we may as well just go full-bore PHP here -- JRM March 2008
+                    */
+
+                    $eventCount = 0;
+                    foreach ($this->get_template_vars('A_EVENTS') as $eDate => $date_events) {
+                        $eventdate = substr($eDate, 0, 4) . substr($eDate, 5, 2) . substr($eDate, 8, 2);
+
+                        foreach ($date_events as $event) {
+                            // pick up some demographic info about the provider
+                            $provquery = "SELECT * FROM users WHERE id=?";
+                            $res = sqlStatement($provquery, [$event['aid']]);
+                            $provinfo = sqlFetchArray($res);
+
+                            $eData = $event['eid']."~".$eventdate;
+                            $trTitle = xl('Click to edit this event');
+                            echo "<tr class='calsearch_event' id='" . attr($eData) . "' title='" . attr($trTitle) . "'>";
+
+                            // date and time
+                            $eDatetime = strtotime($eDate." ".$event['startTime']);
+                            echo "<td>";
+                            echo text(date("Y-m-d h:i a", $eDatetime));
+                            echo "</td>";
+
+                            // provider
+                            echo "<td>" . text($event['provider_name']);
+                            $imgtitle = $provinfo['fname'] . " " . xl('contact info') . ":\n";
+                            $imgtitle .= $provinfo['phonew1']."\n".$provinfo['street']."\n".$provinfo['city']." ".$provinfo['state'];
+                            echo " <img class'provinfo' src='". $GLOBALS['images_static_relative'] . "/info.png' title=\"" . attr($imgtitle) . "\" />";
+                            echo "</td>";
+
+                            // category
+                            echo "<td>";
+                            echo text($event['catname']);
+                            echo " </td>";
+
+                            // patient
+                            echo "<td>";
+                            echo text($event['patient_name']);
+                            echo "</td>";
+                    /*
+                            echo "<td>";
+                            echo text(print_r($event, true));
+                            echo "</td>";
+                    */
+                            echo "</tr>\n";
+
+                            $eventCount++;
+                        }
+                    }
+
+                    /* the A_EVENTS array holds an array of dates, which in turn hold the array of events
+                    * so it will always be non-zero, so we need to count the events as they are
+                    * displayed and if the count is zero, then we have no search results
+                    */
+                    if ($eventCount == 0) {
+                        echo "<tr><td colspan='4' class='text-center'>" . xlt('No Results') . "</td></tr>";
+                    }
+
+                    [-/php-]
+                    </table>
+                </div>  <!-- end results-data DIV -->
+            </div>  <!-- end outer results DIV -->
+            [-/if-]  [-*end of SEARCH_PERFORMED*-]
+        </div>
+    </div>
 </div>
-<!-- end of search parameters -->
 
-[-if $SEARCH_PERFORMED-]
-<div id="calsearch_results">
-
-<div id="calsearch_results_header" class="head">
-<table>
-<tr>
-<th class="calsearch_datetime">[-xlt t='Date'-]-[-xlt t='Time'-]</th>
-<th class="calsearch_provider">[-xlt t='Provider'-]</th>
-<th class="calsearch_category">[-xlt t='Category'-]</th>
-<th class="calsearch_patient">[-xlt t='Patient'-]</th>
-</tr>
-</table>
-</div>
-
-<div id="calsearch_results_data">
-<table>
-[-php-]
-/* I've given up on playing nice with the Smarty tag crap, it's pointlessly used
- * in the original search. I mean, there's no clean separation between the code
- * and HTML so we may as well just go full-bore PHP here -- JRM March 2008
- */
-
-$eventCount = 0;
-foreach ($this->get_template_vars('A_EVENTS') as $eDate => $date_events) {
-    $eventdate = substr($eDate, 0, 4) . substr($eDate, 5, 2) . substr($eDate, 8, 2);
-
-    foreach ($date_events as $event) {
-        // pick up some demographic info about the provider
-        $provquery = "SELECT * FROM users WHERE id=?";
-        $res = sqlStatement($provquery, [$event['aid']]);
-        $provinfo = sqlFetchArray($res);
-
-        $eData = $event['eid']."~".$eventdate;
-        $trTitle = xl('Click to edit this event');
-        echo "<tr class='calsearch_event' id='" . attr($eData) . "' title='" . attr($trTitle) . "'>";
-
-        // date and time
-        $eDatetime = strtotime($eDate." ".$event['startTime']);
-        echo "<td class='calsearch_datetime'>";
-        echo text(date("Y-m-d h:i a", $eDatetime));
-        echo "</td>";
-
-        // provider
-        echo "<td class='calsearch_provider'>" . text($event['provider_name']);
-        $imgtitle = $provinfo['fname'] . " " . xl('contact info') . ":\n";
-        $imgtitle .= $provinfo['phonew1']."\n".$provinfo['street']."\n".$provinfo['city']." ".$provinfo['state'];
-        echo " <img class'provinfo' src='". $GLOBALS['images_static_relative'] . "/info.png' title=\"" . attr($imgtitle) . "\" />";
-        echo "</td>";
-
-        // category
-        echo "<td class='calsearch_category'>";
-        echo text($event['catname']);
-        echo " </td>";
-
-        // patient
-        echo "<td class='calsearch_patient'>";
-        echo text($event['patient_name']);
-        echo "</td>";
-/*
-        echo "<td>";
-        echo text(print_r($event, true));
-        echo "</td>";
-*/
-        echo "</tr>\n";
-
-        $eventCount++;
-    }
-}
-
-
-/* the A_EVENTS array holds an array of dates, which in turn hold the array of events
- * so it will always be non-zero, so we need to count the events as they are
- * displayed and if the count is zero, then we have no search results
- */
-if ($eventCount == 0) {
-    echo "<tr><td colspan='4' style='text-align: center'>" . xlt('No Results') . "</td></tr>";
-}
-
-[-/php-]
-</table>
-</div>  <!-- end results-data DIV -->
-
-</div>  <!-- end outer results DIV -->
-
-[-/if-]  [-*end of SEARCH_PERFORMED*-]
-
-<script language="javascript">
+<script>
 // jQuery stuff to make the page a little easier to use
 
-$(function(){
+$(function () {
     $("#pc_keywords").focus();
     $("#theform").submit(function() { SubmitForm(this); });
-    $(".calsearch_event").mouseover(function() { $(this).toggleClass("highlight"); });
-    $(".calsearch_event").mouseout(function() { $(this).toggleClass("highlight"); });
     $(".calsearch_event").click(function() { EditEvent(this); });
 
     $('.datepicker').datetimepicker({
@@ -164,16 +200,16 @@ $(function(){
 
 // open a pop up to edit the event
 // parts[] ==>  0=eventID
-var EditEvent = function (eObj) {
+const EditEvent = function (eObj) {
     objID = eObj.id;
-    var parts = objID.split("~");
+    const parts = objID.split("~");
     dlgopen('add_edit_event.php?date=' + encodeURIComponent(parts[1]) + '&eid=' + encodeURIComponent(parts[0]), '_blank', 780, 675);
 }
 
 // show the 'searching...' status and submit the form
-var SubmitForm = function(eObj) {
+const SubmitForm = function(eObj) {
     $("submit").css("disabled", "true");
-    $("#calsearch_status").css("visibility", "visible");
+    $("#calsearch_status").removeClass('d-none')
     return top.restoreSession();
 }
 

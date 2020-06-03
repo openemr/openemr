@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OnsiteDocumentController.php
  *
@@ -46,7 +47,12 @@ class OnsiteDocumentController extends AppBaseController
         $docid = $new_filename = "";
 
         if (isset($_GET['pid'])) {
-            $pid = ( int ) $_GET['pid'];
+            $pid = (int) $_GET['pid'];
+        }
+
+        // only allow patient to see themself
+        if (!empty($GLOBALS['bootstrap_pid'])) {
+            $pid = $GLOBALS['bootstrap_pid'];
         }
 
         if (isset($_GET['user'])) {
@@ -58,11 +64,11 @@ class OnsiteDocumentController extends AppBaseController
         }
 
         if (isset($_GET['enc'])) {
-            $encounter = ( int ) $_GET['enc'];
+            $encounter = (int) $_GET['enc'];
         }
 
         if (isset($_GET['recid'])) {
-            $recid = ( int ) $_GET['recid'];
+            $recid = (int) $_GET['recid'];
         }
 
         if (isset($_GET['is_module'])) {
@@ -95,6 +101,12 @@ class OnsiteDocumentController extends AppBaseController
         try {
             $criteria = new OnsiteDocumentCriteria();
             $pid = RequestUtil::Get('patientId');
+
+            // only allow patient to see themself
+            if (!empty($GLOBALS['bootstrap_pid'])) {
+                $pid = $GLOBALS['bootstrap_pid'];
+            }
+
             $criteria->Pid_Equals = $pid;
             $recid = RequestUtil::Get('recid');
             if ($recid > 0) {
@@ -105,14 +117,14 @@ class OnsiteDocumentController extends AppBaseController
             if ($filter) {
                 $criteria->AddFilter(
                     new CriteriaFilter('Id,Pid,Facility,Provider,Encounter,CreateDate,DocType,PatientSignedStatus,PatientSignedTime,AuthorizeSignedTime,
-						AcceptSignedStatus,AuthorizingSignator,ReviewDate,DenialReason,AuthorizedSignature,PatientSignature,FullDocument,FileName,FilePath', '%'.$filter.'%')
+						AcceptSignedStatus,AuthorizingSignator,ReviewDate,DenialReason,AuthorizedSignature,PatientSignature,FullDocument,FileName,FilePath', '%' . $filter . '%')
                 );
             }
 
             // TODO: this is generic query filtering based only on criteria properties
             foreach (array_keys($_REQUEST) as $prop) {
                 $prop_normal = ucfirst($prop);
-                $prop_equals = $prop_normal.'_Equals';
+                $prop_equals = $prop_normal . '_Equals';
 
                 if (property_exists($criteria, $prop_normal)) {
                     $criteria->$prop_normal = RequestUtil::Get($prop);
@@ -163,11 +175,16 @@ class OnsiteDocumentController extends AppBaseController
     {
         $rid = $pid = $user = $encounter = 0;
         if (isset($_GET['id'])) {
-            $rid = ( int ) $_GET['id'];
+            $rid = (int) $_GET['id'];
         }
 
         if (isset($_GET['pid'])) {
-            $pid = ( int ) $_GET['pid'];
+            $pid = (int) $_GET['pid'];
+        }
+
+        // only allow patient to see themself
+        if (!empty($GLOBALS['bootstrap_pid'])) {
+            $pid = $GLOBALS['bootstrap_pid'];
         }
 
         if (isset($_GET['user'])) {
@@ -192,6 +209,15 @@ class OnsiteDocumentController extends AppBaseController
         try {
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
+
+            // only allow patient to see themself
+            if (!empty($GLOBALS['bootstrap_pid'])) {
+                if ($GLOBALS['bootstrap_pid'] !== $onsitedocument->Pid) {
+                    $error = 'Unauthorized';
+                    throw new Exception($error);
+                }
+            }
+
             $this->RenderJSON($onsitedocument, $this->JSONPCallback(), true, $this->SimpleObjectParams());
         } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
@@ -217,7 +243,13 @@ class OnsiteDocumentController extends AppBaseController
             // this is an auto-increment.  uncomment if updating is allowed
             // $onsitedocument->Id = $this->SafeGetVal($json, 'id');
 
-            $onsitedocument->Pid = $this->SafeGetVal($json, 'pid');
+            // only allow patient to add to themself
+            if (!empty($GLOBALS['bootstrap_pid'])) {
+                $onsitedocument->Pid = $GLOBALS['bootstrap_pid'];
+            } else {
+                $onsitedocument->Pid = $this->SafeGetVal($json, 'pid');
+            }
+
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility');
             $onsitedocument->Provider = $this->SafeGetVal($json, 'provider');
             $onsitedocument->Encounter = $this->SafeGetVal($json, 'encounter');
@@ -265,12 +297,26 @@ class OnsiteDocumentController extends AppBaseController
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
 
+            // only allow patient to update themself (part 1)
+            if (!empty($GLOBALS['bootstrap_pid'])) {
+                if ($GLOBALS['bootstrap_pid'] !== $onsitedocument->Pid) {
+                    $error = 'Unauthorized';
+                    throw new Exception($error);
+                }
+            }
+
             // TODO: any fields that should not be updated by the user should be commented out
 
             // this is a primary key.  uncomment if updating is allowed
             // $onsitedocument->Id = $this->SafeGetVal($json, 'id', $onsitedocument->Id);
 
-            $onsitedocument->Pid = $this->SafeGetVal($json, 'pid', $onsitedocument->Pid);
+            // only allow patient to update themself (part 2)
+            if (!empty($GLOBALS['bootstrap_pid'])) {
+                $onsitedocument->Pid = $GLOBALS['bootstrap_pid'];
+            } else {
+                $onsitedocument->Pid = $this->SafeGetVal($json, 'pid', $onsitedocument->Pid);
+            }
+
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility', $onsitedocument->Facility);
             $onsitedocument->Provider = $this->SafeGetVal($json, 'provider', $onsitedocument->Provider);
             $onsitedocument->Encounter = $this->SafeGetVal($json, 'encounter', $onsitedocument->Encounter);
@@ -313,6 +359,14 @@ class OnsiteDocumentController extends AppBaseController
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
+
+            // only allow patient to delete themself
+            if (!empty($GLOBALS['bootstrap_pid'])) {
+                if ($GLOBALS['bootstrap_pid'] !== $onsitedocument->Pid) {
+                    $error = 'Unauthorized';
+                    throw new Exception($error);
+                }
+            }
 
             $onsitedocument->Delete();
 

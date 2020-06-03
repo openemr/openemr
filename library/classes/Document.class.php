@@ -4,6 +4,7 @@ require_once(dirname(__FILE__) . "/../pnotes.inc");
 require_once(dirname(__FILE__) . "/../gprelations.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\ORDataObject\ORDataObject;
 
 /**
  * class Document
@@ -246,8 +247,8 @@ class Document extends ORDataObject
     function toString($html = false)
     {
         $string .= "\n"
-        . "ID: " . $this->id."\n"
-        . "FID: " . $this->foreign_id."\n"
+        . "ID: " . $this->id . "\n"
+        . "FID: " . $this->foreign_id . "\n"
         . "type: " . $this->type . "\n"
         . "type_array: " . print_r($this->type_array, true) . "\n"
         . "size: " . $this->size . "\n"
@@ -364,7 +365,7 @@ class Document extends ORDataObject
     */
     function get_url_path()
     {
-        return dirname(preg_replace("|^(.*)://|", "", $this->url)) ."/";
+        return dirname(preg_replace("|^(.*)://|", "", $this->url)) . "/";
     }
     function get_path_depth()
     {
@@ -653,12 +654,12 @@ class Document extends ORDataObject
             if ((!empty($higher_level_path)) && (is_numeric($patient_id) && $patient_id > 0)) {
                 // Allow higher level directory structure in documents directory and a patient is mapped.
                 $filepath = $repository . $higher_level_path . "/";
-            } else if (!empty($higher_level_path)) {
+            } elseif (!empty($higher_level_path)) {
                 // Allow higher level directory structure in documents directory and there is no patient mapping
                 // (will create up to 10000 random directories and increment the path_depth by 1).
                 $filepath = $repository . $higher_level_path . '/' . rand(1, 10000)  . '/';
                 ++$path_depth;
-            } else if (!(is_numeric($patient_id)) || !($patient_id > 0)) {
+            } elseif (!(is_numeric($patient_id)) || !($patient_id > 0)) {
                 // This is the default action except there is no patient mapping (when patient_id is 00 or direct)
                 // (will create up to 10000 random directories and set the path_depth to 2).
                 $filepath = $repository . $patient_id . '/' . rand(1, 10000)  . '/';

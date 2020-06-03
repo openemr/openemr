@@ -1,4 +1,5 @@
 <?php
+
 /************************************************************************
             pharmacy.php - Copyright duhlman
 
@@ -8,7 +9,6 @@ This file was generated on %date% at %time%
 The original location of this file is /home/duhlman/uml-generated-code/prescription.php
 **************************************************************************/
 
-
 define("TRANSMIT_PRINT", 1);
 define("TRANSMIT_EMAIL", 2);
 define("TRANSMIT_FAX", 3);
@@ -17,6 +17,9 @@ define("TRANSMIT_FAX", 3);
  * class Pharmacy
  *
  */
+
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 class Pharmacy extends ORDataObject
 {
     var $id;
@@ -155,7 +158,7 @@ class Pharmacy extends ORDataObject
     function _set_number($num, $type)
     {
         $found = false;
-        for ($i=0; $i<count($this->phone_numbers); $i++) {
+        for ($i = 0; $i < count($this->phone_numbers); $i++) {
             if ($this->phone_numbers[$i]->type == $type) {
                 $found = true;
                 $this->phone_numbers[$i]->set_phone($num);
@@ -211,7 +214,7 @@ class Pharmacy extends ORDataObject
     {
         $pharmacy_array = array();
         $sql = "SELECT p.id, p.name, a.city, a.state " .
-            "FROM " . escape_table_name($this->_table) ." AS p INNER JOIN addresses AS a ON  p.id = a.foreign_id";
+            "FROM " . escape_table_name($this->_table) . " AS p INNER JOIN addresses AS a ON  p.id = a.foreign_id";
         $res = sqlQ($sql);
         while ($row = sqlFetchArray($res)) {
                 $d_string = $row['city'];
@@ -229,7 +232,7 @@ class Pharmacy extends ORDataObject
     function pharmacies_factory($city = "", $sort = "ORDER BY name")
     {
         if (empty($city)) {
-             $city= "";
+             $city = "";
         } else {
             $city = " WHERE city = '" . add_escape_custom($foreign_id) . "'";
         }
@@ -237,8 +240,8 @@ class Pharmacy extends ORDataObject
         $p = new Pharmacy();
         $pharmacies = array();
         $sql = "SELECT p.id, a.city " .
-            "FROM " . escape_table_name($p->_table) . " AS p ".
-            "INNER JOIN addresses AS a ON p.id = a.foreign_id " .$city . " " . add_escape_custom($sort);
+            "FROM " . escape_table_name($p->_table) . " AS p " .
+            "INNER JOIN addresses AS a ON p.id = a.foreign_id " . $city . " " . add_escape_custom($sort);
 
         //echo $sql . "<bR />";
         $results = sqlQ($sql);
@@ -254,8 +257,8 @@ class Pharmacy extends ORDataObject
     function toString($html = false)
     {
         $string .= "\n"
-        . "ID: " . $this->id."\n"
-        . "Name: " . $this->name ."\n"
+        . "ID: " . $this->id . "\n"
+        . "Name: " . $this->name . "\n"
         . "Phone: " . $this->phone_numbers[0]->toString($html) . "\n"
         . "Email:" . $this->email . "\n"
         . "Address: " . $this->address->toString($html) . "\n"

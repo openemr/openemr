@@ -1,4 +1,5 @@
 <?php
+
 /**
  * import_template.php
  *
@@ -35,7 +36,7 @@ if ($this->trow) {
     <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4-alternate.js.php'); ?>
 
     $LAB.script("scripts/app/patientdata.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
-        $(function(){
+        $(function () {
             page.init();
         });
         // hack for browsers or slow sessions which may respond inconsistently with document.ready-second chance at init

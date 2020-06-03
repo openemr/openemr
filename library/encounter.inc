@@ -1,5 +1,6 @@
 <?php
-require_once(__DIR__."/forms.inc");
+
+require_once(__DIR__ . "/forms.inc");
 
 //function called to set the global session variable for encounter number
 function setencounter($enc)
@@ -24,8 +25,8 @@ function setencounter($enc)
         }
     }
 
-    $_SESSION['encounter']=$enc;
-    $encounter=$enc;
+    $_SESSION['encounter'] = $enc;
+    $encounter = $enc;
 
 
     //returns 1 on successful global set, or 0 if there was no

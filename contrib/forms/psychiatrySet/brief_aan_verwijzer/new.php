@@ -1,4 +1,5 @@
 <?php
+
 /*
  * brief_aan_verwijzer
  * letter to verwijzer - Dutch specific form
@@ -184,7 +185,7 @@ if ($vectAutosaveBAV['id']) {
 
 ?>
 <script type="text/javascript">
-$(function(){
+$(function () {
         autosave();
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>

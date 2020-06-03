@@ -1,16 +1,22 @@
 $colorname: "Red";
 
-$darkest: #68171A;
-$darker: #A7252A;
-$dark: #D95459;
-$mid: #E4878A;
-$midpale: #ECACAE;
-$pale: #ECA9AC;
-$midpalepale: #F5D6D8;
-$palepale: #FBE5E6;
-$palepurple: #E7E6F9;
-$paler: #F9F3F3;
-$midnightblue: #2F2F7D;
-$white: #FFFFFF;
+$darkest: #68171a;
+$darker: #a7252a;
+$dark: #d95459;
+$mid: #e4878a;
+$midpale: #ecacae;
+$pale: #eca9ac;
+$midpalepale: #f5d6d8;
+$palepale: #fbe5e6;
+$palepurple: #e7e6f9;
+$paler: #f9f3f3;
+$midnightblue: #2f2f7d;
+$white: #fff;
+
+// Enables responsive text for Bootstrap
+$enable-responsive-font-sizes: true;
+// Import Bootstrap 4 SCSS Files before doing anything
+// This gets replaced in gulp now -- do not touch
+// bs4import
 
 @import "../color_base";

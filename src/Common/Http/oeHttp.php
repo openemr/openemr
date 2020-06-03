@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Http Rest and OAuth 2 Clients
  *
@@ -138,6 +139,6 @@ class oeHttp extends oeOAuth
 
     public static function client()
     {
-        return static::$client ?: static::$client = new Client;
+        return static::$client ?: static::$client = new Client();
     }
 }

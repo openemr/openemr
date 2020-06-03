@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This module creates statistical reports related to lab tests and
  * other procedure orders.
@@ -13,7 +14,6 @@
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
@@ -266,7 +266,7 @@ function process_result_code($row)
     if ($form_by === '4') {
         $key = $row['order_name'] . ' / ' . $row['result_name'];
         loadColumnData($key, $row);
-    } else if ($form_by === '5') {  // Recommended followup services.
+    } elseif ($form_by === '5') {  // Recommended followup services.
         if (!empty($row['related_code'])) {
             $relcodes = explode(';', $row['related_code']);
             foreach ($relcodes as $codestring) {
@@ -309,7 +309,7 @@ if ($form_output == 3) {
 </style>
 
 <script>
-$(function() {
+$(function () {
     $('.datepicker').datetimepicker({
     <?php $datetimepicker_timepicker = false; ?>
     <?php $datetimepicker_showseconds = false; ?>
@@ -331,118 +331,113 @@ $(function() {
 <form name='theform' method='post' action='procedure_stats.php' onsubmit='return top.restoreSession()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
-<table class='border-0' cellspacing='5' cellpadding='1'>
+<div class="col-8 col-md-8">
+    <div class="row">
+        <div class="col">
+            <?php echo xlt('Facility'); ?>:
+            <?php dropdown_facility($form_facility, 'form_facility', false); ?>
+        </div>
+        <div class="col">
+            <?php echo xlt('From'); ?>
+            <input type='text' class='form-control datepicker' name='form_from_date' id='form_from_date' size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>' />
+        </div>
+        <div class="col">
+            <?php echo xlt('To{{Range}}'); ?>
+            <input type='text' class='form-control datepicker' name='form_to_date' id='form_to_date' size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>' />
+        </div>
+    </div>
+</div>
+<br>
+<div class="col-8 col-md-8">
+    <div class="row">
+        <div class="col">
+            <?php echo xlt('Rows'); ?>:
+        </div>
+        <div class="col">
+            <select name='form_by' class='form-control' title='Left column of report'>
+                <?php
+                foreach ($arr_by as $key => $value) {
+                    echo "    <option value='" . attr($key) . "'";
+                    if ($key == $form_by) {
+                        echo " selected";
+                    }
 
-<tr>
-<td valign='top' class='dehead' nowrap>
-    <?php echo xlt('Rows'); ?>:
-</td>
-<td valign='top' class='detail'>
- <select name='form_by' class='form-control' title='Left column of report'>
-    <?php
-    foreach ($arr_by as $key => $value) {
-        echo "    <option value='" . attr($key) . "'";
-        if ($key == $form_by) {
-            echo " selected";
-        }
+                    echo ">" . text($value) . "</option>\n";
+                }
+                ?>
+            </select>
+        </div>
+        <div class="col">
+            <?php echo xlt('Sex'); ?>:
+        </div>
+        <div class="col">
+            <select class='form-control' name='form_sexes' title='<?php echo xla('To filter by sex'); ?>'>
+                <?php
+                foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Only')) as $key => $value) {
+                    echo "       <option value='" . attr($key) . "'";
+                    if ($key == $form_sexes) {
+                        echo " selected";
+                    }
 
-        echo ">" . text($value) . "</option>\n";
-    }
-    ?>
- </select>
-</td>
-<td valign='top' class='dehead' nowrap>
-    <?php echo xlt('Filters'); ?>:
-</td>
-<td rowspan='2' colspan='2' class='detail'>
- <table>
-  <tr>
-   <td valign='top' class='detail' nowrap>
-    <?php echo xlt('Sex'); ?>:
-   </td>
-   <td class='detail' valign='top'>
-  <select class='form-control' name='form_sexes' title='<?php echo xla('To filter by sex'); ?>'>
-    <?php
-    foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Only')) as $key => $value) {
-        echo "       <option value='" . attr($key) . "'";
-        if ($key == $form_sexes) {
-            echo " selected";
-        }
+                    echo ">" . text($value) . "</option>\n";
+                }
+                ?>
+            </select>
+        </div>
+    </div>
+</div>
+<br>
+<div class="col-8 col-md-8">
+    <div class="row">
+        <div class="col">
+            <?php echo xlt('Columns'); ?>:
+            <select class='form-control' name='form_show[]' size='4' multiple title='<?php echo xla('Hold down Ctrl to select multiple items'); ?>'>
+                <?php
+                foreach ($arr_show as $key => $value) {
+                    $title = $value['title'];
+                    if (empty($title) || $key == 'title') {
+                        $title = $value['description'];
+                    }
 
-        echo ">" . text($value) . "</option>\n";
-    }
-    ?>
-    </select>
-   </td>
-  </tr>
-  <tr>
-   <td valign='top' class='detail' nowrap>
-    <?php echo xlt('Facility'); ?>:
-   </td>
-   <td valign='top' class='detail'>
-    <?php dropdown_facility($form_facility, 'form_facility', false); ?>
-   </td>
-  </tr>
-  <tr>
-   <td colspan='2' class='detail' nowrap>
-    <?php echo xlt('From'); ?>
-  <input type='text' class='form-control datepicker' name='form_from_date' id='form_from_date' size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>' />
-    <?php echo xlt('To{{Range}}'); ?>
-  <input type='text' class='form-control datepicker' name='form_to_date' id='form_to_date' size='10' value='<?php echo attr(oeFormatShortDate($to_date)); ?>' />
-   </td>
-  </tr>
- </table>
-</td>
-</tr>
-<tr>
-<td valign='top' class='form-control dehead' nowrap>
-    <?php echo xlt('Columns'); ?>:
-</td>
-<td valign='top' class='detail'>
- <select class='form-control' name='form_show[]' size='4' multiple title='<?php echo xla('Hold down Ctrl to select multiple items'); ?>'>
-    <?php
-    foreach ($arr_show as $key => $value) {
-        $title = $value['title'];
-        if (empty($title) || $key == 'title') {
-            $title = $value['description'];
-        }
+                    echo "    <option value='" . attr($key) . "'";
+                    if (is_array($form_show) && in_array($key, $form_show)) {
+                        echo " selected";
+                    }
 
-        echo "    <option value='" . attr($key) . "'";
-        if (is_array($form_show) && in_array($key, $form_show)) {
-            echo " selected";
-        }
+                    echo ">" . text($title) . "</option>\n";
+                }
+                ?>
+            </select>
+        </div>
+    </div>
+</div>
+<br>
+<div class="col-8 col-md-8">
+    <div class="row">
+        <div class="col">
+            <?php echo xlt('To{{Destination}}'); ?>:
 
-        echo ">" . text($title) . "</option>\n";
-    }
-    ?>
- </select>
-</td>
-</tr>
-<tr>
-<td valign='top' class='dehead' nowrap>
-    <?php echo xlt('To{{Destination}}'); ?>:
-</td>
-<td colspan='3' valign='top' class='detail' nowrap>
-    <?php
-    foreach (array(1 => xl('Screen'), 2 => xl('Printer'), 3 => xl('Export File')) as $key => $value) {
-        echo "   <input type='radio' name='form_output' value='" . attr($key) . "'";
-        if ($key == $form_output) {
-            echo ' checked';
-        }
+            <?php
+            foreach (array(1 => xl('Screen'), 2 => xl('Printer'), 3 => xl('Export File')) as $key => $value) {
+                echo "   <input type='radio' name='form_output' value='" . attr($key) . "'";
+                if ($key == $form_output) {
+                    echo ' checked';
+                }
 
-        echo " />" . text($value) . " &nbsp;";
-    }
-    ?>
-</td>
-<td align='right' valign='top' class='detail' nowrap>
-<input type='submit' class='btn btn-primary' name='form_submit' value='<?php echo xla('Submit'); ?>' title='<?php echo xla('Click to generate the report'); ?>' />
-</td>
-</tr>
-<tr>
-<td colspan='5' height="1">
-</td>
-</tr>
-</table>
+                echo " />" . text($value) . " &nbsp;";
+            }
+            ?>
+        </div>
+    </div>
+</div>
+<br>
+<div class="col-4 col-md-4">
+    <div class="col">
+         <button type='submit' class='btn btn-primary btn-save' name='form_submit' value='form_submit' title='<?php echo xla('Click to generate the report'); ?>'><?php echo xla('Submit') ?></button>
+    </div>
+</div>
+<br>
+   
     <?php
 } // end not export
 
@@ -457,9 +452,11 @@ if ($_POST['form_submit']) {
             continue;
         }
 
-        if ($askey == 'regdate' || $askey == 'sex' || $askey == 'DOB' ||
-        $askey == 'lname' || $askey == 'fname' || $askey == 'mname' ||
-        $askey == 'contrastart' || $askey == 'referral_source') {
+        if (
+            $askey == 'regdate' || $askey == 'sex' || $askey == 'DOB' ||
+            $askey == 'lname' || $askey == 'fname' || $askey == 'mname' ||
+            $askey == 'contrastart' || $askey == 'referral_source'
+        ) {
             continue;
         }
 
@@ -469,7 +466,7 @@ if ($_POST['form_submit']) {
     $sexcond = '';
     if ($form_sexes == '1') {
         $sexcond = "AND pd.sex NOT LIKE 'Male' ";
-    } else if ($form_sexes == '2') {
+    } elseif ($form_sexes == '2') {
         $sexcond = "AND pd.sex LIKE 'Male' ";
     }
 
@@ -543,7 +540,7 @@ if ($_POST['form_submit']) {
       // }
         if ($value == '.tneg') { // Total Negatives
             genHeadCell(xl('Negatives'));
-        } else if ($value == '.age') { // Age
+        } elseif ($value == '.age') { // Age
             genHeadCell(xl('0-10'), true);
             genHeadCell(xl('11-14'), true);
             genHeadCell(xl('15-19'), true);
@@ -553,11 +550,11 @@ if ($_POST['form_submit']) {
             genHeadCell(xl('35-39'), true);
             genHeadCell(xl('40-44'), true);
             genHeadCell(xl('45+'), true);
-        } else if ($arr_show[$value]['list_id']) {
+        } elseif ($arr_show[$value]['list_id']) {
             foreach ($arr_titles[$value] as $key => $dummy) {
                 genHeadCell(getListTitle($arr_show[$value]['list_id'], $key), true);
             }
-        } else if (!empty($arr_titles[$value])) {
+        } elseif (!empty($arr_titles[$value])) {
             foreach ($arr_titles[$value] as $key => $dummy) {
                 genHeadCell($key, true);
             }
@@ -604,11 +601,11 @@ if ($_POST['form_submit']) {
             // }
             if ($value == '.tneg') { // Total Negatives
                 genNumCell($areport[$key]['.neg'], $cnum++);
-            } else if ($value == '.age') { // Age
+            } elseif ($value == '.age') { // Age
                 for ($i = 0; $i < 9; ++$i) {
                     genNumCell($areport[$key]['.age'][$i], $cnum++);
                 }
-            } else if (!empty($arr_titles[$value])) {
+            } elseif (!empty($arr_titles[$value])) {
                 foreach ($arr_titles[$value] as $title => $dummy) {
                     genNumCell($areport[$key][$value][$title], $cnum++);
                 }

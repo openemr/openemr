@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Message and Reminder Center UI
  *
@@ -57,8 +58,10 @@ $rcb_selectors = prevSetting($uspfx, 'rcb_selectors', 'rcb_selectors', 'block');
 $rcb_facility = prevSetting($uspfx, 'form_facility', 'form_facility', '');
 $rcb_provider = prevSetting($uspfx, 'form_provider', 'form_provider', $_SESSION['authUserID']);
 
-if (($_POST['setting_bootstrap_submenu']) ||
-    ($_POST['rcb_selectors'])) {
+if (
+    ($_POST['setting_bootstrap_submenu']) ||
+    ($_POST['rcb_selectors'])
+) {
     // These are not form elements. We only ever change them via ajax, so exit now.
     exit();
 }
@@ -75,9 +78,9 @@ if (($_POST['setting_bootstrap_submenu']) ||
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="description" content="MedEx Bank" />
     <meta name="author" content="OpenEMR: MedExBank" />
-    <?php Header::setupHeader(['datetime-picker', 'jquery-ui', 'jquery-ui-redmond', 'opener', 'moment']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'opener', 'moment', 'select2']); ?>
     <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>" type="text/css" />
-    
+
     <script>
         var xljs1 = '<?php echo xla('Preferences updated successfully'); ?>';
         var format_date_moment_js = '<?php echo attr(DateFormatRead("validateJS")); ?>';
@@ -163,7 +166,7 @@ if (!empty($_REQUEST['go'])) { ?>
         'help_file_name' => "message_center_help.php"
     );
     $oemr_ui = new OemrUI($arrOeUiSettings);
-    
+
     echo "<title>" .  xlt('Message Center') . "</title>";
     ?>
 </head>
@@ -353,8 +356,8 @@ if (!empty($_REQUEST['go'])) { ?>
                         if ($task == "addnew" or $task == "edit") {
                             // Display the Messages page layout.
                             echo "<form name='form_patient' id='new_note'
-                                    class='form-horizontal' 
-                                    action=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&$activity_string_html\" 
+                                    class='form-horizontal'
+                                    action=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&$activity_string_html\"
                                     method='post'>
                                     <input type='hidden' name='noteid' id='noteid' value='" . attr($noteid) . "' />
                                     <input type='hidden' name='task' id='task' value='add' />";
@@ -371,7 +374,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 <div class="jumbotron jumbotron-fluid py-3">
                                 <h4><?php echo text($message_legend); ?></h4>
                                     <div class="row">
-                                        <div class="col-12 col-sm-12 col-md-12 col-lg-10 oe-custom-line offset-lg-1">
+                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 oe-custom-line">
                                             <div class="row">
                                                 <div class="col-3 col-sm-3">
                                                     <label for="form_note_type"><?php echo xlt('Type'); ?>:</label>
@@ -398,7 +401,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                             <a class="patLink" onclick="goPid('<?php echo attr(addslashes($result['pid'])); ?>')"><?php echo xlt('Patient'); ?>:</a>
                                                             <?php
                                                         } else { ?>
-                                                            <span class='font-weight-bold <?php echo($task == "addnew" ? "required" : "") ?>'><?php echo xlt('Patient'); ?>:</span>
+                                                            <span class='font-weight-bold <?php echo($task == "addnew" ? "text-danger" : "") ?>'><?php echo xlt('Patient'); ?>:</span>
                                                             <?php
                                                         }
                                                         ?>
@@ -409,7 +412,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                             "FROM patient_data WHERE pid = ?", array($reply_to));
                                                         $patientname = $prow['lname'] . ", " . $prow['fname'];
                                                     }
-                                                    if ($task == "addnew" || $result['pid']==0) {
+                                                    if ($task == "addnew" || $result['pid'] == 0) {
                                                         $cursor = "oe-cursor-add";
                                                         $background = "oe-patient-background";
                                                     } elseif ($task == "edit") {
@@ -417,21 +420,21 @@ if (!empty($_REQUEST['go'])) { ?>
                                                         $background = '';
                                                     }
                                                     ?>
-                                                    <input type='text' id='form_patient' name='form_patient' class='form-control <?php echo $cursor . " " .$background;?>' onclick="multi_sel_patient()" placeholder='<?php echo xla("Click to add patient"); ?>' value='<?php echo attr($patientname); ?>' readonly />
+                                                    <input type='text' id='form_patient' name='form_patient' class='form-control <?php echo $cursor . " " . $background;?>' onclick="multi_sel_patient()" placeholder='<?php echo xla("Click to add patient"); ?>' value='<?php echo attr($patientname); ?>' readonly />
                                                     <input type='hidden' class="form-control" name='reply_to' id='reply_to' value='<?php echo attr($reply_to); ?>'/>
                                                 </div>
-                                                <div class="col-2">
+                                                <div class="col-2 d-flex flex-wrap">
                                                     <?php
-                                                    if ($task=="addnew" || $result['pid']==0) {
+                                                    if ($task == "addnew" || $result['pid'] == 0) {
                                                         echo "<label class='oe-empty-label' for='clear_patients'></label>";
-                                                        echo '<button type="button" id="clear_patients"  class="btn btn-secondary btn-undo float-left flip" value="' . xla('Clear') .'">' . xlt("Clear") . '</button>';
+                                                        echo '<button type="button" id="clear_patients"  class="btn btn-secondary btn-undo float-left flip" value="' . xla('Clear') . '">' . xlt("Clear") . '</button>';
                                                     } ?>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-12 col-sm-12 col-md-12 col-lg-10 oe-custom-line offset-lg-1">
+                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 oe-custom-line">
                                             <div class="row">
                                                 <?php if ($GLOBALS['messages_due_date']) { ?>
                                                 <div class="col-6 col-sm-2">
@@ -439,7 +442,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     <?php generate_form_field(array('data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'), empty($datetime) ? date('Y-m-d H:i') : $datetime) ?>
                                                 </div>
                                                 <?php } ?>
-                                                <div class="col-6 col-sm-4">
+                                                <div class="col-6 col-sm-4 d-flex align-items-end flex-wrap">
                                                     <label for="assigned_to_text"><?php echo xlt('To{{Destination}}'); ?>:</label>
                                                     <input type='text' name='assigned_to_text' class='form-control oe-cursor-stop' id='assigned_to_text' readonly='readonly' value='' placeholder='<?php echo xla("SELECT Users FROM The Dropdown LIST"); ?>' />
                                                     <input type='hidden' name='assigned_to' id='assigned_to' />
@@ -471,7 +474,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                         ?>
                                                     </select>
                                                 </div>
-                                                <div class="col-6 col-sm-2">
+                                                <div class="col-6 col-sm-2  d-flex align-items-end flex-wrap">
                                                     <label class="oe-empty-label" for="users"></label>
                                                     <button type="button" name="clear_user" id="clear_user" class="btn btn-secondary btn-undo float-left flip" value="<?php echo xla('Clear'); ?>"><?php echo xlt('Clear'); ?></button>
                                                 </div>
@@ -487,8 +490,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             );
                                             if (sqlNumRows($tmp)) {
                                                 echo " <tr>\n";
-                                                echo "  <td class='text'><strong>";
-                                                echo xlt('Linked document') . ":</strong>\n";
+                                                echo "  <td class='text'><span class='font-weight-bold'>" . xlt('Linked document') . ":</span>\n";
                                                 while ($gprow = sqlFetchArray($tmp)) {
                                                     $d = new Document($gprow['id1']);
                                                     $enc_list = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
@@ -511,8 +513,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             );
                                             if (sqlNumRows($tmp)) {
                                                 echo " <tr>\n";
-                                                echo "  <td class='text'><strong>";
-                                                echo xlt('Linked procedure order') . ":</strong>\n";
+                                                echo "  <td class='text'><span class='font-weight-bold'>" . xlt('Linked procedure order') . ":</span>\n";
                                                 while ($gprow = sqlFetchArray($tmp)) {
                                                     echo "   <a href='";
                                                     echo $GLOBALS['webroot'] . "/interface/orders/single_order_results.php?orderid=";
@@ -535,12 +536,12 @@ if (!empty($_REQUEST['go'])) { ?>
                                             if ($noteid) {
                                                 $body = preg_replace('/(:\d{2}\s\()' . $result['pid'] . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
                                                 $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
-                                                $body =nl2br(text(oeFormatPatientNote($body)));
-                                                echo "<div class='text oe-margin-t-3' style='border: 1px solid var(--gray); padding: 5px;'>" . $body . "</div>";
+                                                $body = nl2br(text(oeFormatPatientNote($body)));
+                                                echo "<div class='text oe-margin-t-3 p-2' style='border: 1px solid var(--gray);'>" . $body . "</div>";
                                             }
 
                                             ?>
-                                            <textarea name='note' id='note' class='form-control oe-margin-t-3' style='margin-left: -1px !important; border: 1px solid var(--gray); padding: 5px; height: 100px !important;'><?php echo nl2br(text($note)); ?></textarea>
+                                            <textarea name='note' id='note' class='form-control oe-margin-t-3 p-1' style='margin-left: -1px !important; border: 1px solid var(--gray); height: 100px !important;'><?php echo nl2br(text($note)); ?></textarea>
                                         </div>
                                         <div class="col-12 position-override oe-margin-t-10">
                                             <?php if ($noteid) { ?>
@@ -550,8 +551,8 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" id="cancel" value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
                                             <?php } else { ?>
                                                 <!-- This is for displaying a new note. -->
-                                                <button type="button" class="btn btn-secondary btn-send-msg" id="newnote" value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
-                                                <button type="button" class="btn btn-link btn-cancel oe-opt-btn-separate-left" id="cancel" value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
+                                                <button type="button" class="btn btn-primary btn-send-msg" id="newnote" value="<?php echo xla('Send message'); ?>"><?php echo xlt('Send message'); ?></button>
+                                                <button type="button" class="btn btn-cancel btn-secondary oe-opt-btn-separate-left" id="cancel" value="<?php echo xla('Cancel'); ?>"><?php echo xlt('Cancel'); ?></button>
                                             <?php }
                                             ?>
                                         </div>
@@ -568,16 +569,16 @@ if (!empty($_REQUEST['go'])) { ?>
                             $begin = isset($_REQUEST['begin']) ? $_REQUEST['begin'] : 0;
 
                             for ($i = 0; $i < count($sort); $i++) {
-                                $sortlink[$i] = "<a  class='arrowhead' href=\"messages.php?show_all=".attr($showall)."&sortby=".attr($sort[$i])."&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\" alt=\"" . xla('Sort Up') . "\"><i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
+                                $sortlink[$i] = "<a  class='arrowhead' href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sort[$i]) . "&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\" alt=\"" . xla('Sort Up') . "\"><i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
                             }
                             for ($i = 0; $i < count($sort); $i++) {
                                 if ($sortby == $sort[$i]) {
                                     switch ($sortorder) {
                                         case "asc":
-                                            $sortlink[$i] = "<a class='arrowhead' href=\"messages.php?show_all=".attr($showall)."&sortby=".attr($sortby)."&sortorder=desc&$activity_string_html\" onclick=\"top.restoreSession()\" alt=\"" . xla('Sort Up') . "\"><i class='fa fa-sort-asc fa-lg' aria-hidden='true'></i></a>";
+                                            $sortlink[$i] = "<a class='arrowhead' href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=desc&$activity_string_html\" onclick=\"top.restoreSession()\" alt=\"" . xla('Sort Up') . "\"><i class='fa fa-sort-asc fa-lg' aria-hidden='true'></i></a>";
                                             break;
                                         case "desc":
-                                            $sortlink[$i] = "<a class='arrowhead' href=\"messages.php?show_all=".attr($showall)."&sortby=".attr($sortby)."&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\"  alt=\"" . xla('Sort Down') . "\"><i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
+                                            $sortlink[$i] = "<a class='arrowhead' href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\"  alt=\"" . xla('Sort Down') . "\"><i class='fa fa-sort-desc fa-lg' aria-hidden='true'></i></a>";
                                             break;
                                     } break;
                                 }
@@ -605,13 +606,13 @@ if (!empty($_REQUEST['go'])) { ?>
                             if ($prev >= 0) {
                                 $prevlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($prev) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><i class=\"fa " . $chevron_icon_left . " chevron_color\" aria-hidden=\"true\"></i></a>";
                             } else {
-                                $prevlink = "<i class=\"fa ". $chevron_icon_left ." \" style=\"color:var(--gray)\" aria-hidden=\"true\" title=\"". xla("On first page") . "\"></i>";
+                                $prevlink = "<i class=\"fa " . $chevron_icon_left . " text-muted\" aria-hidden=\"true\" title=\"" . xla("On first page") . "\"></i>";
                             }
 
                             if ($next < $total) {
                                 $nextlink = "<a href=\"messages.php?show_all=" . attr($showall) . "&sortby=" . attr($sortby) . "&sortorder=" . attr($sortorder) . "&begin=" . attr($next) . "&$activity_string_html\" onclick=\"top.restoreSession()\"><i class=\"fa . $chevron_icon_right . chevron_color\" aria-hidden=\"true\"></i></a>";
                             } else {
-                                $nextlink = "<i class=\"fa . $chevron_icon_right .\" style=\"color:var(--gray)\" aria-hidden=\"true\" title=\"". xla("On first page") . "\"></i>";
+                                $nextlink = "<i class=\"fa " . $chevron_icon_right . " text-muted\" aria-hidden=\"true\" title=\"" . xla("On first page") . "\"></i>";
                             }
                             // Display the Messages table header.
                             echo "
@@ -622,14 +623,15 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 <table class='table table-sm w-100'>
                                                     <input type='hidden' name='task' value='delete' />
                                                     <thead class='table-primary'>
-                                                    <tr height='24'>
-                                                        <th align='center' width='25'><input type='checkbox' id='checkAll' onclick='selectAll()'></th>
-                                                        <th width='20%' class='font-weight-bold'>&nbsp;<strong>" .
-                                                        xlt('From') . "</strong> $sortlink[0]</th><th width='20%'  class='font-weightbold'>&nbsp;<strong>" .
-                                                        xlt('Patient') . "</strong> $sortlink[1]</th><th class='font-weight-bold'>&nbsp;<strong>" .
-                                                        xlt('Type') . "</strong> $sortlink[2]</th><th width='15%' class='font-weight-bold'>&nbsp;<strong>" . xlt($GLOBALS['messages_due_date'] ? 'Due date' : 'Date') . "</strong> $sortlink[3]</th><th width=\"15%\" class='font-weight-bold'>&nbsp;<strong>" .
-                                                        xlt('Status') . "</strong> $sortlink[4]</th>
-                                                    </tr></thead>";
+                                                      <tr height='24'>
+                                                          <th align='center' width='25'><input type='checkbox' id='checkAll' onclick='selectAll()'></th>
+                                                          <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('From') . " $sortlink[0]</th>
+                                                          <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('Patient') . " $sortlink[1]</th>
+                                                          <th class='font-weight-bold'>&nbsp;" . xlt('Type') . " $sortlink[2]</th>
+                                                          <th width='15%' class='font-weight-bold'>&nbsp;" . xlt($GLOBALS['messages_due_date'] ? 'Due date' : 'Date') . " $sortlink[3]</th>
+                                                          <th width='15%' class='font-weight-bold'>&nbsp;" . xlt('Status') . " $sortlink[4]</th>
+                                                      </tr>
+                                                    </thead>";
                             // Display the Messages table body.
                             $count = 0;
                             $result = getPnotesByUser($active, $show_all, $_SESSION['authUser'], false, $sortby, $sortorder, $begin, $listnumber);
@@ -678,9 +680,9 @@ if (!empty($_REQUEST['go'])) { ?>
                             echo "  </table>
                                             </form>
                                             <div class='row oe-margin-t-10'>
-                                                
-                                                <div class=\"col-12 col-md-12 col-lg-12\"><a href=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&task=addnew&$activity_string_html\" class=\"btn btn-secondary btn-add\" onclick=\"top.restoreSession()\">" .
-                                                xlt('Add New{{Message}}') . "</a> &nbsp; <a href=\"javascript:confirmDeleteSelected()\" class=\"btn btn-secondary btn-delete\" onclick=\"top.restoreSession()\">" .
+
+                                                <div class=\"col-12 col-md-12 col-lg-12\"><a href=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&task=addnew&$activity_string_html\" class=\"btn btn-primary btn-add\" onclick=\"top.restoreSession()\">" .
+                                                xlt('Add New{{Message}}') . "</a> &nbsp; <a href=\"javascript:confirmDeleteSelected()\" class=\"btn btn-danger btn-delete\" onclick=\"top.restoreSession()\">" .
                                                 xlt('Delete') . "</a>
                                                 <div  class=\"text-right\">$prevlink &nbsp; " . text($end) . " " . xlt('of') . " " . text($total) . " &nbsp; $nextlink</div>
                                                 </div>
@@ -717,23 +719,23 @@ if (!empty($_REQUEST['go'])) { ?>
                                     if (document.getElementById("checkAll").checked === true) {
                                         document.getElementById("checkAll").checked = true;<?php
                                         for ($i = 1; $i <= $count; $i++) {
-                                            echo "document.getElementById(\"check$i\").checked=true; document.getElementById(\"row$i\").style.background='#E7E7E7';  ";
+                                            echo "document.getElementById(\"check$i\").checked=true; document.getElementById(\"row$i\").style.background='var(--gray200)';  ";
                                         } ?>
                                     } else {
                                         document.getElementById("checkAll").checked = false;<?php
                                         for ($i = 1; $i <= $count; $i++) {
-                                            echo "document.getElementById(\"check$i\").checked=false; document.getElementById(\"row$i\").style.background='#F7F7F7';  ";
+                                            echo "document.getElementById(\"check$i\").checked=false; document.getElementById(\"row$i\").style.background='var(--light)';  ";
                                         } ?>
                                     }
                                 }
 
                                 // The two functions below are for managing row styles in Messages table.
                                 function selectRow(row) {
-                                    document.getElementById(row).style.background = "#E7E7E7";
+                                    document.getElementById(row).style.background = "var(--gray200)";
                                 }
 
                                 function deselectRow(row) {
-                                    document.getElementById(row).style.background = "#F7F7F7";
+                                    document.getElementById(row).style.background = "var(--light)";
                                 }
                             </script>
                             <?php
@@ -786,8 +788,8 @@ if (!empty($_REQUEST['go'])) { ?>
                         <span class="title"><?php echo xlt('SMS Zone'); ?></span>
                         <br/><br/>
                         <form id="smsForm" class="input-group">
-                            <input id="SMS_patient" type="text" style="margin:0;max-width:100%;" class="form-control" placeholder="<?php echo xla("Patient Name"); ?>" />
-                            <span class="input-group-addon" onclick="SMS_direct();"><i class="glyphicon glyphicon-phone"></i></span>
+                            <select id="SMS_patient" type="text" class="form-control m-0 w-100" placeholder="<?php echo xla("Patient Name"); ?>" > </select>
+                            <span class="input-group-addon" onclick="SMS_direct();"><i class="fas fa-phone"></i></span>
                             <input type="hidden" id="sms_pid" />
                             <input type="hidden" id="sms_mobile" value="" />
                             <input type="hidden" id="sms_allow" value="" />
@@ -812,7 +814,7 @@ if (!empty($_REQUEST['go'])) { ?>
 
         var collectvalidation = <?php echo $collectthis; ?>;
 
-        $(function (){
+        $(function () {
             $("#reminders-div").hide();
             $("#recalls-div").hide();
             $("#sms-div").hide();
@@ -867,37 +869,55 @@ if (!empty($_REQUEST['go'])) { ?>
             })
 
         });
-        $(function (){
+        $(function () {
             $( "ul.navbar-nav" ).children().click(function(){
                 $(".collapse").collapse('hide');
             });
         });
-        $(function (){
-            //for jquery tooltip to function if jquery 1.12.1.js is called via jquery-ui in the Header::setupHeader
-            // the relevant css file needs to be called i.e. jquery-ui-darkness
-            $('#see-all-tooltip').attr( "title", "<?php echo xla('Click to show messages for all users'); ?>" );
-            $('#see-all-tooltip').tooltip();
-            $('#just-mine-tooltip').attr( "title", "<?php echo xla('Click to show messages for only the current user'); ?>" );
-            $('#just-mine-tooltip').tooltip();
+        $(function () {
+            $('#see-all-tooltip').attr({"title": <?php echo xlj('Click to show messages for all users'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+            $('#just-mine-tooltip').attr({"title": <?php echo xlj('Click to show messages for only the current user'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
         });
         $(function () {
             var f = $("#smsForm");
-            $("#SMS_patient").autocomplete({
-                source: "save.php?go=sms_search",
-                minLength: 2,
-                select: function (event, ui) {
-                    event.preventDefault();
-                    $("#SMS_patient").val(ui.item.label + ' ' + ui.item.mobile);
-                    $("#sms_pid").val(ui.item.pid);
-                    $("#sms_mobile").val(ui.item.mobile);
-                    $("#sms_allow").val(ui.item.allow);
+            $("#SMS_patient").select2({
+                ajax: {
+                    url: "save.php",
+                    dataType: 'json',
+                    data: function(params) {
+                        return {
+                        go: "sms_search",
+                        term: params.term
+                        };
+                    },
+                    processResults: function(data) {
+                        return  {
+                            results: $.map(data, function(item, index) {
+                                return {
+                                    text: item.value,
+                                    id: index,
+                                    value: item.Label + ' ' + item.mobile,
+                                    pid: item.pid,
+                                    mobile: item.mobile,
+                                    allow: item.allow
+                                }
+                            })
+                        };
+                        return x;
+                    },
+                    cache: true
                 }
+            })
+
+            $('#SMS_patient').on('select2:select', function (e) {
+                        e.preventDefault();
+                        $("#SMS_patient").val(e.params.data.value);
+                        $("#sms_pid").val(e.params.data.pid);
+                        $("#sms_mobile").val(e.params.data.mobile);
+                        $("#sms_allow").val(e.params.data.allow);
             });
-        });
-        jQuery.ui.autocomplete.prototype._resizeMenu = function () {
-            var ul = this.menu.element;
-            ul.outerWidth(this.element.outerWidth());
-        };
+        })
+
         $(function () {
             $("#newnote").click(function (event) {
                 NewNote(event);

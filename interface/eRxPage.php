@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/eRxPage.php Functions for redirecting to NewCrop pages.
  *
@@ -173,7 +174,7 @@ class eRxPage
 
         foreach ($extensions as $extension) {
             if (!extension_loaded(strtolower($extension))) {
-                $messages[] = xl('Enable Extension').' '.$extension;
+                $messages[] = xl('Enable Extension') . ' ' . $extension;
             }
         }
 
@@ -234,15 +235,15 @@ class eRxPage
     {
         $date = date('Y-m-d');
         $path = $this->getXMLBuilder()->getGlobals()
-            ->getOpenEMRSiteDirectory().'/documents/erx_error';
+            ->getOpenEMRSiteDirectory() . '/documents/erx_error';
 
         if (!is_dir($path)) {
             mkdir($path, 0777, true);
         }
 
-        $fileHandler = fopen($path.'/erx_error'.'-'.$date.'.log', 'a');
+        $fileHandler = fopen($path . '/erx_error' . '-' . $date . '.log', 'a');
 
-        fwrite($fileHandler, date('Y-m-d H:i:s').' ==========> '.$message.PHP_EOL);
+        fwrite($fileHandler, date('Y-m-d H:i:s') . ' ==========> ' . $message . PHP_EOL);
 
         fclose($fileHandler);
     }
@@ -270,14 +271,14 @@ class eRxPage
                 $errorMessages[] = xl('An undefined error occurred, please contact your systems administrator.');
             }
         } elseif ($XMLBuilder->getGlobals()->getDebugSetting() !== 0) {
-            $debugString = '( '.xl('DEBUG OUTPUT').' )'.PHP_EOL;
+            $debugString = '( ' . xl('DEBUG OUTPUT') . ' )' . PHP_EOL;
 
             if ($XMLBuilder->getGlobals()->getDebugSetting() & self::DEBUG_XML) {
-                $this->errorLog($debugString.$xml);
+                $this->errorLog($debugString . $xml);
             }
 
             if ($XMLBuilder->getGlobals()->getDebugSetting() & self::DEBUG_RESULT) {
-                $this->errorLog($debugString.$result);
+                $this->errorLog($debugString . $result);
             }
         }
 

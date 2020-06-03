@@ -8,21 +8,21 @@ $(document).mouseup(function (e){
 	}
 });
 
-$(function (){
+$(function () {
 	$( ".dateClass_syndrome" ).datepicker({
 		changeMonth: true,
 		changeYear: true,
 	});
 	$( ".dateClass_syndrome" ).datepicker("option", "dayNamesMin", ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'] );
-    
-	$('.header_wrap_left').on("click","#searchbutton",function(){                    
+
+	$('.header_wrap_left').on("click","#searchbutton",function(){
 		var pos  = $(this).position();
 		$('.se_in_15').fadeToggle().css({
 			"left" : (pos.left+5)+"px",
 			"top"  : (pos.top+35)+"px"
-		});              
+		});
 	});
-    
+
 	$('#hl7button').click(function(){
 		hl7button();
 	});
@@ -64,7 +64,7 @@ function isNumber(evt)
 
 function pagination(action){
 	if(action == "first") {
-		document.getElementById('form_current_page').value=1   
+		document.getElementById('form_current_page').value=1
 	}else if (action == "last") {
 		document.getElementById('form_current_page').value=document.getElementById('form_total_pages').value;
 	}

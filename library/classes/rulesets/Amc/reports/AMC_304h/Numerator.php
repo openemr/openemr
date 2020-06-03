@@ -1,4 +1,5 @@
 <?php
+
 /**
  * class AMC_304h_Numerator
  *

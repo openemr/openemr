@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/therapy_groups/therapy_groups_views/groupDetailsGeneralData.php contains group details view.
  *
@@ -198,7 +199,7 @@ use OpenEMR\Common\Acl\AclMain;
     </div>
 </main>
 <script>
-    $(function(){
+    $(function () {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
@@ -232,7 +233,7 @@ use OpenEMR\Common\Acl\AclMain;
     $(parent.Title.document.getElementById('clear_active')).hide();
     /* show the encounters menu in the title menu (code like interface/forms/newGroupEncounter/save.php) */
     <?php
-    $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_groups_encounter AS fe ".
+    $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_groups_encounter AS fe " .
     " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.group_id = ? order by fe.date desc", array($groupData['group_id']));
     ?>
 
@@ -241,7 +242,7 @@ use OpenEMR\Common\Acl\AclMain;
     EncounterIdArray=new Array;
     Count=0;
     <?php
-    if (sqlNumRows($result4)>0) {
+    if (sqlNumRows($result4) > 0) {
         while ($rowresult4 = sqlFetchArray($result4)) {
             ?>
         EncounterIdArray[Count]=<?php echo js_escape($rowresult4['encounter']); ?>;

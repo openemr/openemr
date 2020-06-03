@@ -1,4 +1,5 @@
 <?php
+
 // +-----------------------------------------------------------------------------+
 // Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
@@ -22,7 +23,7 @@
 //
 // Author:   Eldho Chacko <eldho@zhservices.com>
 //           Jacob T Paul <jacob@zhservices.com>
-//           Jerry Padgett <sjpadgett@gmail.com> 2019
+//           Jerry Padgett <sjpadgett@gmail.com> 2019-2020
 //
 // +------------------------------------------------------------------------------+
 
@@ -37,12 +38,12 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 function listitemCode($strDisp, $strInsert)
 {
     if ($strInsert) {
-        echo '<li><span><a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('.
-             "'" . htmlspecialchars($strInsert, ENT_QUOTES) . "'" .');">'. htmlspecialchars($strDisp, ENT_QUOTES) . '</a></span></li>';
+        echo '<li><span><a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText(' .
+             "'" . htmlspecialchars($strInsert, ENT_QUOTES) . "'" . ');">' . htmlspecialchars($strDisp, ENT_QUOTES) . '</a></span></li>';
     }
 }
 $allowTemplateWarning = checkUserSetting('disable_template_warning', '1') === true ? 0 : 1;
-$contextName = !empty($_GET['contextName']) ? $_GET['contextName'] : 'Plan';
+$contextName = !empty($_GET['contextName']) ? $_GET['contextName'] : '';
 $type = isset($_GET['type']) ? $_GET['type'] : '';
 $cc_flag = isset($_GET['ccFlag']) ? $_GET['ccFlag'] : '';
 $isNN = empty($cc_flag) ? 1 : 0;
@@ -50,7 +51,15 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['common', 'opener', 'jquery-ui', 'select2', 'ckeditor']); ?>
+<style>
+    .draggable {
+        cursor: pointer !important
+    }
+    .is-dragging {
+        cursor: move !important
+    }
+</style>
+<?php Header::setupHeader(['common', 'opener', 'select2', 'ckeditor']); ?>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajax_functions_writer.js"></script>
 
 <script>
@@ -141,14 +150,17 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
 </script>
 <script type="text/javascript">
     $(function () {
-        $(function () {
-            $("#menu5 div").sortable({
-                opacity: 0.3, cursor: 'move', update: function () {
-                    var order = $(this).sortable("serialize") + '&action=updateRecordsListings';
-                    $.post("updateDB.php", order);
+        function sortableCallback(elem){
+            let clorder  = [];
+            for (let i=0; i< elem.length; i++) {
+                let ele = elem[i];
+                if(ele.tagName == "DIV"){
+                    clorder.push("clorder[]="+ele.firstElementChild.id.split("_")[1]);
                 }
-            });
-        });
+            }
+            $.post("updateDB.php", clorder.join('&')+"&action=updateRecordsListings");
+        }
+        oeSortable(sortableCallback);
     });
     <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 </script>
@@ -157,7 +169,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
 <input type="hidden" name="list_id" id="list_id" value="<?php echo $rowContext['cl_list_id']; ?>" />
 <table class="ml-0 w-100" align='left' cellpadding='0' cellspacing='0'>
     <?php
-    if ($rowContext['cl_list_item_long']) {
+    if ($rowContext['cl_list_item_long'] || !$isNN) {
         ?>
         <tr class="text">
             <th colspan="2" align="center"><?php echo strtoupper(text($rowContext['cl_list_item_long'])); ?></th>
@@ -177,9 +189,9 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
                                 <?php if (!$isNN) { ?>
                                     <td>
                                         <div id="searchCriteria">
-                                            <div class="select-box form-inline" style="margin-bottom:5px;">
+                                            <div class="select-box form-inline mb-1">
                                                 <label><?php echo xlt('Context') . ':'; ?></label>
-                                                <select id="contextSearch" name="contextId" class="form-control" style="width:50%;">
+                                                <select id="contextSearch" name="contextId" class="form-control w-50">
                                                     <option value=""></option>
                                                 </select>
                                             </div>
@@ -289,6 +301,7 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
         <?php
     } else {
         echo htmlspecialchars(xl('NO SUCH CONTEXT NAME') . $contextName, ENT_QUOTES);
+        exit();
     }
     ?>
 </table>
@@ -297,7 +310,9 @@ $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_li
         <?php if (!$isNN) { ?>
             CKEDITOR.on('instanceReady', function(){$("#cke_1_toolbar_collapser").click();});
         <?php } ?>
-        edit(<?php echo js_escape($type); ?>, <?php echo js_escape($cc_flag); ?>);
+        $(function () {
+            edit(<?php echo js_escape($type); ?>, <?php echo js_escape($cc_flag); ?>);
+        });
         <?php if ($allowTemplateWarning && !$isNN) { ?>
         let isPromise = top.jsFetchGlobals('custom_template');
         isPromise.then(msg => {

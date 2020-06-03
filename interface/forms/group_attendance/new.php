@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/forms/group_attendance/new.php
  *
@@ -12,7 +13,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("functions.php");
@@ -60,7 +60,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
 
 <head>
 
-    <?php Header::setupHeader(['datatables', 'datatables-jqui-theme', 'jquery-ui']); ?>
+    <?php Header::setupHeader(['datatables', 'datatables-dt', 'datatables-bs']); ?>
 
 </head>
 

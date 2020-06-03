@@ -21,6 +21,10 @@
 --    arguments: table_name colname value
 --    behavior:  If the table table_name does not have a column colname with a data type equal to value, then the block will be executed
 
+--  #IfNotColumnTypeDefault
+--    arguments: table_name colname value value2
+--    behavior:  If the table table_name does not have a column colname with a data type equal to value and a default equal to value2, then the block will be executed
+
 --  #IfNotRow
 --    arguments: table_name colname value
 --    behavior:  If the table table_name does not have a row where colname = value, the block will be executed.
@@ -44,6 +48,10 @@
 --               1) The table table_name does not have a row where colname = value AND colname2 = value2.
 --               2) The table table_name does not have a row where colname = value AND colname3 = value3.
 
+--  #IfRow
+--    arguments: table_name colname value
+--    behavior:  If the table table_name does have a row where colname = value, the block will be executed.
+
 --  #IfRow2D
 --    arguments: table_name colname value colname2 value2
 --    behavior:  If the table table_name does have a row where colname = value AND colname2 = value2, the block will be executed.
@@ -61,6 +69,10 @@
 --    desc:      This function will allow adding of indexes/keys.
 --    arguments: table_name colname
 --    behavior:  If the index does not exist, it will be created
+
+--  #IfUuidNeedUpdate
+--    argument: table_name
+--    behavior: this will add and populate a uuid column into table
 
 --  #EndIf
 --    all blocks are terminated with a #EndIf statement.
@@ -415,4 +427,229 @@ CREATE TABLE `pro_assessments` (
   `updated_at` datetime NOT NULL COMMENT 'this field indicates the completion time when the status is completed',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
+#EndIf
+
+#IfNotRow2D list_options list_id LBF_Validations option_id future_date
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','future_date','Future Date','{\"futureDate\":{\"message\":\"must be future date\"}}','32');
+
+#IfNotRow2D list_options list_id lists option_id Sort_Direction
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('lists', 'Sort_Direction', 'Sort Direction', 1, 0, 1);
+#EndIf
+
+#IfNotRow2D list_options list_id Sort_Direction option_id 0
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('Sort_Direction', '0', 'asc', 10, 1, 1);
+#EndIf
+
+#IfNotRow2D list_options list_id Sort_Direction option_id 1
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('Sort_Direction', '1', 'desc', 20, 0, 1);
+#EndIf
+
+#IfNotColumnType form_eye_mag_prefs ordering smallint(6)
+ALTER TABLE `form_eye_mag_prefs` MODIFY `ordering` smallint(6) DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType codes code_text_short varchar(255)
+ALTER TABLE `codes` MODIFY `code_text_short` varchar(255) NOT NULL default '';
+#EndIf
+
+#IfNotColumnTypeDefault amendments created_time timestamp NULL
+ALTER TABLE `amendments` MODIFY `created_time` timestamp NULL COMMENT 'created time';
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `amendments` SET `created_time` = NULL WHERE `created_time` = '0000-00-00 00:00:00';
+SET sql_mode = @currentSQLMode;
+#EndIf
+
+#IfNotColumnTypeDefault amendments_history created_time timestamp NULL
+ALTER TABLE `amendments_history` MODIFY `created_time` timestamp NULL COMMENT 'created time';
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `amendments_history` SET `created_time` = NULL WHERE `created_time` = '0000-00-00 00:00:00';
+SET sql_mode = @currentSQLMode;
+#EndIf
+
+#IfNotColumnTypeDefault batchcom msg_date_sent datetime NULL
+ALTER TABLE `batchcom` MODIFY `msg_date_sent` datetime NULL;
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `batchcom` SET `msg_date_sent` = NULL WHERE `msg_date_sent` = '0000-00-00 00:00:00';
+SET sql_mode = @currentSQLMode;
+#EndIf
+
+#IfNotColumnTypeDefault drug_inventory last_notify date NULL
+ALTER TABLE `drug_inventory` MODIFY `last_notify` date NULL;
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `drug_inventory` SET `last_notify` = NULL WHERE `last_notify` = '0000-00-00';
+SET sql_mode = @currentSQLMode;
+#EndIf
+
+#IfNotColumnTypeDefault drugs last_notify date NULL
+ALTER TABLE `drugs` MODIFY `last_notify` date NULL;
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `drugs` SET `last_notify` = NULL WHERE `last_notify` = '0000-00-00';
+SET sql_mode = @currentSQLMode;
+#EndIf
+
+#IfNotColumnTypeDefault insurance_data date date NULL
+ALTER TABLE `insurance_data` MODIFY `date` date NULL;
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `insurance_data` SET `date` = NULL WHERE `date` = '0000-00-00';
+SET sql_mode = @currentSQLMode;
+#EndIf
+
+#IfNotColumnTypeDefault onsite_documents patient_signed_time datetime NULL
+ALTER TABLE `onsite_documents` MODIFY `patient_signed_time` datetime NULL;
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `onsite_documents` SET `patient_signed_time` = NULL WHERE `patient_signed_time` = '0000-00-00 00:00:00';
+SET sql_mode = @currentSQLMode;
+#EndIf
+
+#IfNotColumnTypeDefault onsite_documents review_date datetime NULL
+ALTER TABLE `onsite_documents` MODIFY `review_date` datetime NULL;
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `onsite_documents` SET `review_date` = NULL WHERE `review_date` = '0000-00-00 00:00:00';
+SET sql_mode = @currentSQLMode;
+#EndIf
+
+#IfMissingColumn api_token token_api
+ALTER TABLE `api_token` ADD `token_api` varchar(40);
+#EndIf
+
+#IfMissingColumn api_token patient_id
+ALTER TABLE `api_token` ADD `patient_id` bigint(20) NOT NULL;
+#EndIf
+
+#IfNotTable api_forced_id
+CREATE TABLE `api_forced_id` (
+    `pid` bigint(20) NOT NULL,
+    `forced_id` varchar(100) NOT NULL,
+    `resource_pid` bigint(20) NOT NULL,
+    `resource_type` varchar(100) DEFAULT NULL,
+    PRIMARY KEY (`pid`),
+    UNIQUE KEY `idx_forcedid_resid` (`resource_pid`),
+    UNIQUE KEY `idx_forcedid_type_resid` (`resource_type`,`resource_pid`),
+    KEY `idx_forcedid_type_forcedid` (`resource_type`,`forced_id`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotTable api_resource
+CREATE TABLE `api_resource` (
+     `res_id` bigint(20) NOT NULL,
+     `res_deleted_at` datetime DEFAULT NULL,
+     `res_version` varchar(7) DEFAULT NULL,
+     `has_tags` bit(1) NOT NULL,
+     `res_published` datetime DEFAULT NULL,
+     `res_updated` datetime DEFAULT NULL,
+     `reviewed_date` datetime DEFAULT NULL,
+     `hash_sha256` varchar(64) DEFAULT NULL,
+     `res_language` varchar(20) DEFAULT NULL,
+     `res_profile` varchar(200) DEFAULT NULL,
+     `res_type` varchar(30) DEFAULT NULL,
+     `res_ver` bigint(20) DEFAULT NULL,
+     `forced_id_pid` bigint(20) DEFAULT NULL,
+     PRIMARY KEY (`res_id`),
+     KEY `idx_res_date` (`res_updated`),
+     KEY `idx_res_lang` (`res_type`,`res_language`),
+     KEY `idx_res_profile` (`res_profile`),
+     KEY `idx_res_type` (`res_type`),
+     KEY `idx_reviewed_date` (`reviewed_date`),
+     KEY `fk_resource_forcedid` (`forced_id_pid`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotTable api_res_ver
+CREATE TABLE `api_res_ver` (
+    `pid` bigint(20) NOT NULL,
+    `res_deleted_at` datetime DEFAULT NULL,
+    `res_version` varchar(7) DEFAULT NULL,
+    `has_tags` bit(1) NOT NULL,
+    `res_published` datetime DEFAULT NULL,
+    `res_updated` datetime DEFAULT NULL,
+    `res_encoding` varchar(5) NOT NULL,
+    `res_text` longblob,
+    `res_id` bigint(20) DEFAULT NULL,
+    `res_type` varchar(30) NOT NULL,
+    `res_ver` bigint(20) NOT NULL,
+    `forced_id_pid` bigint(20) DEFAULT NULL,
+    PRIMARY KEY (`pid`),
+    UNIQUE KEY `idx_resver_id_ver` (`res_id`,`res_ver`),
+    KEY `idx_resver_type_date` (`res_type`,`res_updated`),
+    KEY `idx_resver_id_date` (`res_id`,`res_updated`),
+    KEY `idx_resver_date` (`res_updated`),
+    KEY `fk_resver_forcedid` (`forced_id_pid`)
+) ENGINE=InnoDB;
+
+ALTER TABLE `api_forced_id`
+    ADD CONSTRAINT `fk_forcedid_resource` FOREIGN KEY (`resource_pid`) REFERENCES `api_resource` (`res_id`);
+
+ALTER TABLE `api_resource`
+    ADD CONSTRAINT `fk_resource_forcedid` FOREIGN KEY (`forced_id_pid`) REFERENCES `api_forced_id` (`pid`);
+
+ALTER TABLE `api_res_ver`
+    ADD CONSTRAINT `fk_resver_forcedid` FOREIGN KEY (`forced_id_pid`) REFERENCES `api_forced_id` (`pid`);
+#EndIf
+
+-- Note the below block will also be skipped if the uuid_registry table does not yet exist
+#IfNotColumnType uuid_registry uuid binary(16)
+DROP TABLE `uuid_registry`;
+ALTER TABLE `patient_data` DROP `uuid`;
+#EndIf
+
+#IfNotTable uuid_registry
+CREATE TABLE `uuid_registry` (
+  `uuid` binary(16) NOT NULL DEFAULT '',
+  `table_name` varchar(255) NOT NULL DEFAULT '',
+  `created` timestamp NULL,
+  PRIMARY KEY (`uuid`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfMissingColumn patient_data uuid
+ALTER TABLE `patient_data` ADD `uuid` binary(16) NOT NULL default '';
+#EndIf
+
+#IfUuidNeedUpdate patient_data
+#EndIf
+
+#IfNotIndex patient_data uuid
+CREATE UNIQUE INDEX `uuid` ON `patient_data` (`uuid`);
+#EndIf
+
+#IfNotColumnTypeDefault insurance_data subscriber_DOB date NULL
+ALTER TABLE `insurance_data` MODIFY `subscriber_DOB` date NULL;
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `insurance_data` SET `subscriber_DOB` = NULL WHERE `subscriber_DOB` = '0000-00-00';
+SET sql_mode = @currentSQLMode;
+#EndIf
+
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+#IfRow insurance_data date 0000-00-00
+UPDATE `insurance_data` SET `date` = NULL WHERE `date` = '0000-00-00';
+#EndIf
+SET sql_mode = @currentSQLMode;
+
+#IfNotColumnType api_token token_api varchar(4)
+ALTER TABLE `api_token` MODIFY `token_api` varchar(4);
+#EndIf
+
+-- Note removing all data from api_token table in case legacy stuff gets in way
+--  and to ensure will not break when add the unique index below
+#IfNotColumnType api_token token varchar(40)
+TRUNCATE TABLE api_token;
+ALTER TABLE `api_token` MODIFY `token` varchar(40) DEFAULT NULL;
+#EndIf
+
+#IfNotIndex api_token token
+CREATE UNIQUE INDEX `token` ON `api_token` (`token`);
+#EndIf
+
+#IfNotIndex patient_access_onsite pid
+CREATE UNIQUE INDEX `pid` ON `patient_access_onsite` (`pid`);
 #EndIf

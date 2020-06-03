@@ -1,4 +1,5 @@
 <?php
+
 /**
  * find_code_popup.php
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -186,7 +186,7 @@ if ($codetype) {
         "dt.selector LIKE ? ) " .
         "AND d.drug_id = dt.drug_id " .
         "ORDER BY d.name, dt.selector, dt.drug_id";
-        $res = sqlStatement($query, array('%'.$search_term.'%', '%'.$search_term.'%'));
+        $res = sqlStatement($query, array('%' . $search_term . '%', '%' . $search_term . '%'));
         $row_count = 0;
         while ($row = sqlFetchArray($res)) {
             $row_count = $row_count + 1;
@@ -200,7 +200,7 @@ if ($codetype) {
         $query = "SELECT count(*) as count FROM codes " .
         "WHERE (code_text LIKE ? OR " .
         "code LIKE ?) " ;
-        $res = sqlStatement($query, array('%'.$search_term.'%', '%'.$search_term.'%'));
+        $res = sqlStatement($query, array('%' . $search_term . '%', '%' . $search_term . '%'));
         if ($row = sqlFetchArray($res)) {
             $no_of_items = $row['count'];
             if ($no_of_items < 1) {
@@ -218,7 +218,7 @@ if ($codetype) {
             "code LIKE ?) " .
             "ORDER BY code";
           // echo "\n<!-- $query -->\n"; // debugging
-            $res = sqlStatement($query, array('%'.$search_term.'%', '%'.$search_term.'%'));
+            $res = sqlStatement($query, array('%' . $search_term . '%', '%' . $search_term . '%'));
             $row_count = 0;
             while ($row = sqlFetchArray($res)) {
                 $row_count = $row_count + 1;

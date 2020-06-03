@@ -9,15 +9,17 @@
  */
 
 body {
+  background-color: #fff;
   font: 1em, Verdana, Geneva, Arial, Helvetica, sans-serif;
-  background-color: #FFFFFF;
 }
+
 h1 {
   text-decoration: underline;
 }
+
 .box {
-  background-color: #ccffcc;
-  border: 1px solid #00ff00;
+  background-color: #cfc;
+  border: 1px solid #0f0;
   width: 75%;
 }
 
@@ -32,25 +34,30 @@ h1 {
 
 #myheader {
   background-color: #c9c3ed;
-  text-align: center;
   font-size: 2em;
+  text-align: center;
 }
-a:link, a:visited {
-  background-color: #ffffff;
+
+a:link,
+a:visited {
+  background-color: #fff;
+  color: #6a5acd;
   text-decoration: none;
-  color: #6A5ACD;
 }
+
 a:hover {
   background-color: #c9c3ed;
 }
+
 #mymenu {
   font-size: 1em;
   text-align: center;
 }
+
 img {
   display: block;
+  margin-bottom: 10px;
   margin-left: auto;
   margin-right: auto;
   margin-top: 10px;
-  margin-bottom: 10px;
 }

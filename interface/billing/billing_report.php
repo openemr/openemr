@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Billing Report Program
  *
@@ -53,7 +54,7 @@ if (isset($_POST['mode'])) {
     }
 
     if ($_POST['mode'] == 'export') {
-        $sql = BillingReport::ReturnOFXSql();
+        $sql = BillingReport::returnOFXSql();
         $db = get_db();
         $results = $db->Execute($sql);
         $billings = array();
@@ -386,7 +387,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
         function SubmitTheScreen() { //Action on Update List link
             if (!ProcessBeforeSubmitting()) return false;
-            $("#update-tooltip").replaceWith("<i class='fa fa-refresh fa-spin fa-1x' style=\"color:red\"></i>");
+            $("#update-tooltip").replaceWith("<i class='fa fa-sync fa-spin fa-1x' style=\"color:red\"></i>");
             top.restoreSession();
             document.the_form.mode.value = 'change';
             document.the_form.target = '_self';
@@ -536,7 +537,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         .table td {
             border-top: none !important;
         }
-        
+
         a,
         a:visited,
         a:hover {
@@ -682,7 +683,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         // The below section is needed if there is any 'include' type in the $TPSCriteriaDataTypeMaster
                         // Function name is added here.Corresponding include files need to be included in the respective pages as done in this page.
                         // It is labled(Included for Insurance ajax criteria)(Line:-279-299).
-                        $TPSCriteriaIncludeMaster[1] = "OpenEMR\Billing\BillingReport::InsuranceCompanyDisplay";
+                        $TPSCriteriaIncludeMaster[1] = "OpenEMR\Billing\BillingReport::insuranceCompanyDisplay";
                         if (!isset($_REQUEST['mode'])) {// default case
                             $_REQUEST['final_this_page_criteria'][0] = "(form_encounter.date between '" . date("Y-m-d 00:00:00") . "' and '" . date("Y-m-d 23:59:59") . "')";
                             $_REQUEST['final_this_page_criteria'][1] = "billing.billed = '0'";
@@ -702,7 +703,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             </div>
         </div>
     </div>
-    <div class="container mt-1">
+    <div class="container-fluid mt-1">
         <form class="form-inline" name='update_form' method='post' action='billing_process.php'>
             <nav class="nav navbar-expand-md navbar-light bg-light px-3 py-2">
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#billing-nav-detail" aria-controls="" aria-expanded="false" aria-label="Actions">
@@ -1091,7 +1092,7 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
                                     "FROM insurance_data AS id, insurance_companies AS ic WHERE " .
                                     "ic.id = id.provider AND " .
                                     "id.pid = ? AND " .
-                                    "id.date <= ? " .
+                                    "(id.date <= ? OR id.date IS NULL) " .
                                     "ORDER BY id.type ASC, id.date DESC";
 
                                     $result = sqlStatement(
@@ -1164,7 +1165,7 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
                                             "FROM insurance_data AS id, insurance_companies AS ic WHERE " .
                                             "id.pid = ? AND " .
                                             "id.provider = ? AND " .
-                                            "id.date <= ? AND " .
+                                            "(id.date <= ? OR id.date IS NULL) AND " .
                                             "ic.id = id.provider " .
                                             "ORDER BY id.type ASC, id.date DESC";
 
@@ -1233,7 +1234,7 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
                             if ($skipping) {
                                 continue;
                             }
-                            
+
                             // Collect info related to the missing modifiers test.
                             if ($iter['fee'] > 0) {
                                 ++$mmo_num_charges;
@@ -1405,7 +1406,7 @@ top.window.parent.left_nav.setPatientEncounter(EncounterIdArray[" . attr($iter['
             echo "alert(" . js_escape($alertmsg) . ");\n";
         }
         ?>
-        $(function() {
+        $(function () {
             $("#view-log-link").click(function() {
                 top.restoreSession();
                 dlgopen('customize_log.php', '_blank', 750, 400);

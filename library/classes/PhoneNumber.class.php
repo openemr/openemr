@@ -1,4 +1,5 @@
 <?php
+
 /************************************************************************
             phone_number.php - Copyright duhlman
 
@@ -19,6 +20,9 @@ define("TYPE_FAX", 5);
  * class Address
  *
  */
+
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 class PhoneNumber extends ORDataObject
 {
     var $id;
@@ -185,8 +189,8 @@ class PhoneNumber extends ORDataObject
     function toString($html = false)
     {
         $string .= "\n"
-        . "ID: " . $this->id."\n"
-        . "FID: " . $this->foreign_id."\n"
+        . "ID: " . $this->id . "\n"
+        . "FID: " . $this->foreign_id . "\n"
         . $this->country_code . " (" . $this->area_code . ") " . $this->prefix . "-" . $this->number . " " . $this->type_array[$this->type];
         if ($html) {
             return nl2br($string);

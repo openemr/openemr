@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Work/School Note Form save.php
  *

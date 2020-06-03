@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRClaim;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRClaim;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -416,7 +418,7 @@ class FHIRClaimDetail extends FHIRBackboneElement implements \JsonSerializable
                         $this->addModifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"modifier" must be array of objects or null, '.gettype($data['modifier']).' seen.');
+                    throw new \InvalidArgumentException('"modifier" must be array of objects or null, ' . gettype($data['modifier']) . ' seen.');
                 }
             }
             if (isset($data['programCode'])) {
@@ -425,7 +427,7 @@ class FHIRClaimDetail extends FHIRBackboneElement implements \JsonSerializable
                         $this->addProgramCode($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"programCode" must be array of objects or null, '.gettype($data['programCode']).' seen.');
+                    throw new \InvalidArgumentException('"programCode" must be array of objects or null, ' . gettype($data['programCode']) . ' seen.');
                 }
             }
             if (isset($data['quantity'])) {
@@ -446,7 +448,7 @@ class FHIRClaimDetail extends FHIRBackboneElement implements \JsonSerializable
                         $this->addUdi($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"udi" must be array of objects or null, '.gettype($data['udi']).' seen.');
+                    throw new \InvalidArgumentException('"udi" must be array of objects or null, ' . gettype($data['udi']) . ' seen.');
                 }
             }
             if (isset($data['subDetail'])) {
@@ -455,11 +457,11 @@ class FHIRClaimDetail extends FHIRBackboneElement implements \JsonSerializable
                         $this->addSubDetail($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"subDetail" must be array of objects or null, '.gettype($data['subDetail']).' seen.');
+                    throw new \InvalidArgumentException('"subDetail" must be array of objects or null, ' . gettype($data['subDetail']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

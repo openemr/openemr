@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Handles file uploads from the WordPress Patient Portal.
  *
@@ -18,9 +19,6 @@
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
  */
-
-
-
 
 require_once("../globals.php");
 require_once("portal.inc.php");
@@ -98,7 +96,7 @@ if ($_POST['bn_save']) {
         die(text($result['errmsg']));
     }
 
-    echo "<script language='JavaScript'>\n";
+    echo "<script>\n";
     echo "if (top.restoreSession) top.restoreSession(); else opener.top.restoreSession();\n";
     echo "document.location.href = 'list_requests.php';\n";
     echo "</script></body></html>\n";
@@ -134,13 +132,22 @@ $ptid = lookup_openemr_patient($userlogin);
 
 <style>
 
-tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
-tr.detail { font-size:10pt; background-color:#ddddff; }
-td input  { background-color:transparent; }
+tr.head {
+  font-size: 0.8125rem;
+  background-color: var(--gray400);
+  text-align: center;
+}
 
+tr.detail {
+  font-size: 0.8125rem;
+  background-color: var(--gray300);
+}
+td input {
+  background-color: transparent;
+}
 </style>
 
-<script language="JavaScript">
+<script>
 
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
@@ -159,10 +166,10 @@ function myRestoreSession() {
 
 <?php
 if ($messageid) {
-    echo "<p class='text'><b>" . xlt('Message Title') . ":</b> ";
+    echo "<p class='text'><span class='font-weight-bold'>" . xlt('Message Title') . ":</span> ";
     echo htmlspecialchars($result['message']['title']);
     echo "</p>\n";
-    echo "<textarea style='width:90%;height:144pt;' readonly>";
+    echo "<textarea style='width:90%; height: 192px;' readonly>";
     echo htmlspecialchars($result['message']['contents']);
     echo "</textarea>\n";
     echo "<p class='text'><i>";
@@ -171,11 +178,11 @@ if ($messageid) {
 }
 ?>
 
-<input type='hidden' name='ptid'      value='<?php echo attr($ptid);      ?>' />
-<input type='hidden' name='postid'    value='<?php echo attr($postid);    ?>' />
+<input type='hidden' name='ptid' value='<?php echo attr($ptid); ?>' />
+<input type='hidden' name='postid' value='<?php echo attr($postid); ?>' />
 <input type='hidden' name='messageid' value='<?php echo attr($messageid); ?>' />
 
-<table width='100%' cellpadding='1' cellspacing='2'>
+<table class='w-100' cellpadding='1' cellspacing='2'>
  <tr class='head'>
   <th align='left'><?php echo xlt('MIME Type'); ?></th>
   <th align='left'><?php echo xlt('Desired Filename'); ?></th>
@@ -213,15 +220,12 @@ if (is_array($result['uploads'])) {
 ?>
 </table>
 
-<p>
-<input type='submit' name='bn_save' value='<?php echo xla('Submit and Delete Request'); ?>' />
-&nbsp;
-<input type='button' value='<?php echo xla('Back'); ?>'
- onclick="myRestoreSession();location='list_requests.php'" />
-</p>
+<div class='btn-group'>
+  <input type='submit' class='btn btn-primary' name='bn_save' value='<?php echo xla('Submit and Delete Request'); ?>' />
+  <input type='button' class='btn btn-secondary' value='<?php echo xla('Back'); ?>' onclick="myRestoreSession();location='list_requests.php'" />
+</div>
 
 </form>
 </center>
 </body>
 </html>
-

@@ -1,4 +1,5 @@
 <?php
+
 /* Copyright (C) 2005-2007 Rod Roark <rod@sunsetsystems.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -76,9 +77,9 @@ form {
     /*font-size: 0.7em;*/
     border-bottom: 1px solid var(--light);
 }
-.billing { 
+.billing {
     color: var(--danger);
-    font-weight: bold; 
+    font-weight: bold;
 }
 
 /* for search results or 'searching' notification */
@@ -165,9 +166,9 @@ if (isset($_GET["res"])) {
     ?>  >
     <?php echo htmlspecialchars(xl('Click Here to add a new patient.'), ENT_NOQUOTES); ?></a>
 </div>
-<?php elseif (count($result)>=100) : ?>
+<?php elseif (count($result) >= 100) : ?>
 <div id="searchstatus" class="alert alert-danger rounded-0"><?php echo htmlspecialchars(xl('More than 100 records found. Please narrow your search criteria.'), ENT_NOQUOTES); ?></div>
-<?php elseif (count($result)<100) : ?>
+<?php elseif (count($result) < 100) : ?>
 <div id="searchstatus" class="alert alert-success rounded-0"><?php echo htmlspecialchars(count($result), ENT_NOQUOTES); ?> <?php echo htmlspecialchars(xl('records found.'), ENT_NOQUOTES); ?></div>
 <?php endif; ?>
 
@@ -198,9 +199,9 @@ if (isset($_GET["res"])) {
             $trClass .= " billing";
         }
 
-        echo " <tr class='".$trClass."' id='" .
-        htmlspecialchars($iterpid."~".$iterlname."~".$iterfname."~".$iterdob, ENT_QUOTES) . "'>";
-        echo "  <td class='srName'>" . htmlspecialchars($iterlname.", ".$iterfname." ".$itermname, ENT_NOQUOTES);
+        echo " <tr class='" . $trClass . "' id='" .
+        htmlspecialchars($iterpid . "~" . $iterlname . "~" . $iterfname . "~" . $iterdob, ENT_QUOTES) . "'>";
+        echo "  <td class='srName'>" . htmlspecialchars($iterlname . ", " . $iterfname . " " . $itermname, ENT_NOQUOTES);
         if (!empty($iter['billing_note'])) {
             echo "<br />" . htmlspecialchars($iter['billing_note'], ENT_NOQUOTES);
         }
@@ -222,7 +223,7 @@ if (isset($_GET["res"])) {
 
 // jQuery stuff to make the page a little easier to use
 
-$(function(){
+$(function () {
     $("#searchparm").focus();
     $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
@@ -233,7 +234,7 @@ $(function(){
     //$(".event").dblclick(function() { EditEvent(this); });
     $("#theform").submit(function() { SubmitForm(this); });
 
-    $('select[name="searchby"').on('change', function () {
+    $('select[name="searchby"]').on('change', function () {
         if($(this).val() === 'DOB'){
             $('#searchparm').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>

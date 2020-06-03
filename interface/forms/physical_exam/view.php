@@ -1,4 +1,5 @@
 <?php
+
 /**
  * physical_exam view.php
  *

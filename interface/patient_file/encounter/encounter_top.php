@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This contains the tab set for encounter forms.
  *
@@ -11,8 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-require_once(dirname(__FILE__).'/../../globals.php');
+require_once(dirname(__FILE__) . '/../../globals.php');
 require_once("$srcdir/pid.inc");
 require_once("$srcdir/encounter.inc");
 require_once("$srcdir/forms.inc");
@@ -23,11 +23,11 @@ use OpenEMR\Core\Header;
 if (isset($_GET["set_encounter"])) {
     // The billing page might also be setting a new pid.
     if (isset($_GET["set_pid"])) {
-        $set_pid=$_GET["set_pid"];
-    } else if (isset($_GET["pid"])) {
-        $set_pid=$_GET["pid"];
+        $set_pid = $_GET["set_pid"];
+    } elseif (isset($_GET["pid"])) {
+        $set_pid = $_GET["pid"];
     } else {
-        $set_pid=false;
+        $set_pid = false;
     }
 
     if ($set_pid && $set_pid != $_SESSION["pid"]) {
@@ -40,7 +40,7 @@ if (isset($_GET["set_encounter"])) {
 $tabset = new TabsWrapper('enctabs');
 $tabset->declareInitialTab(
     xl('Summary'),
-    "<iframe frameborder='0' style='height:95.3%;width:100%;' src='forms.php'>Oops</iframe>"
+    "<iframe frameborder='0' class='w-100' style='height:94.5%' src='forms.php'>Oops</iframe>"
 );
 // We might have been invoked to load a particular encounter form.
 // In that case it will be the second tab, and removable.
@@ -48,7 +48,7 @@ if (!empty($_GET['formname'])) {
     $url = $rootdir . "/patient_file/encounter/load_form.php?formname=" . attr_url($_GET['formname']);
     $tabset->declareInitialTab(
         $_GET['formdesc'],
-        "<iframe name='enctabs-2' frameborder='0' style='height:95.3%;width:100%;' src='$url'>Oops</iframe>",
+        "<iframe name='enctabs-2' frameborder='0' class='w-100' style='height:94.5%' src='$url'>Oops</iframe>",
         true
     );
 }
@@ -66,7 +66,7 @@ $encounter_date = date("Y-m-d", strtotime($dateres["date"]));
 <?php echo $tabset->genJavaScript(); ?>
 <script>
 
-$(function() {
+$(function () {
   // Initialize support for the tab set.
   twSetup('enctabs');
 });
@@ -93,7 +93,7 @@ function closeTab(winname, refresh) {
 
 </script>
 </head>
-<body style="margin: 0px;">
+<body class='m-0'>
 <?php echo $tabset->genHtml(); ?>
 </body>
 </html>

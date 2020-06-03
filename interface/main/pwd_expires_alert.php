@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Display a message indicating that the user's password has/will expire.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 
@@ -46,7 +46,7 @@ if (strtotime($current_date) > strtotime($pwd_expires)) {
 
 <html>
 <head>
-    <?php Header::setupHeader(["jquery-ui","jquery-ui-darkness"]); ?>
+    <?php Header::setupHeader(); ?>
     <title><?php echo xlt('Password Expiration'); ?></title>
 </head>
 <body class="body_top">

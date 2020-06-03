@@ -75,53 +75,55 @@ $gray: $gray-600;
 
 /* Array of theme colors that can be added to */
 $theme-colors: (
-    primary: $blue,
-    secondary: $gray-100,
-    success: $green,
-    info: $cyan,
-    warning: $yellow,
-    danger: $red,
-    light: $gray-100,
-    dark: $gray-800,
-    /* Addition of alternating colors to bootstrap (will come up as new classes) */
-    oe-darkest: $darkest,
-    oe-darker: $darker,
-    oe-dark: $dark,
-    oe-mid: $mid,
-    oe-midpale: $midpale,
-    oe-pale: $pale,
-    oe-midpalepale: $midpalepale,
-    oe-palepale: $palepale,
-    oe-palepurple: $palepurple,
-    oe-paler: $paler,
-    oe-midnightblue: $midnightblue
+  primary: $blue,
+  secondary: $gray-100,
+  success: $green,
+  info: $cyan,
+  warning: $yellow,
+  danger: $red,
+  light: $gray-100,
+  dark: $gray-800,
+  oe-darkest: $darkest,
+  oe-darker: $darker,
+  oe-dark: $dark,
+  oe-mid: $mid,
+  oe-midpale: $midpale,
+  oe-pale: $pale,
+  oe-midpalepale: $midpalepale,
+  oe-palepale: $palepale,
+  oe-palepurple: $palepurple,
+  oe-paler: $paler,
+  oe-midnightblue: $midnightblue
 );
+/* Above has addition of alternating colors to bootstrap (will come up as new classes) */
+
 
 /* Array of random colors that can be added to */
 $colors: (
-    "blue": $blue,
-    "indigo": $indigo,
-    "purple": $purple,
-    "pink": $pink,
-    "red": $red,
-    "orange": $orange,
-    "yellow": $yellow,
-    "green": $green,
-    "teal": $teal,
-    "cyan": $cyan,
-    "white": $white,
-    "gray": $gray-600,
-    "gray-dark": $gray-800,
-    /* Overrides to allow regular CSS coloring */
-    "black": $black,
-    "gray100": $gray-100,
-    "gray200": $gray-200,
-    "gray300": $gray-300,
-    "gray400": $gray-400,
-    "gray500": $gray-500,
-    "gray700": $gray-700,
-    "gray900": $gray-900
+  "blue": $blue,
+  "indigo": $indigo,
+  "purple": $purple,
+  "pink": $pink,
+  "red": $red,
+  "orange": $orange,
+  "yellow": $yellow,
+  "green": $green,
+  "teal": $teal,
+  "cyan": $cyan,
+  "white": $white,
+  "gray": $gray-600,
+  "gray-dark": $gray-800,
+  "black": $black,
+  "gray100": $gray-100,
+  "gray200": $gray-200,
+  "gray300": $gray-300,
+  "gray400": $gray-400,
+  "gray500": $gray-500,
+  "gray700": $gray-700,
+  "gray900": $gray-900
 );
+
+/* Above has overrides to allow regular CSS coloring */
 
 $body-bg: $white;
 $body-color: $black;
@@ -133,8 +135,15 @@ $font-family-base: $font-family-sans-serif;
 $close-color: $black;
 $close-text-shadow: 0 1 0 $black;
 
-@import "core";
+// Fix Font Awesome fonts path
+$fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
+// Font Awesome Import
+@import "../../public/assets/@fortawesome/fontawesome-free/scss/fontawesome";
+@import "../../public/assets/@fortawesome/fontawesome-free/scss/brands";
+@import "../../public/assets/@fortawesome/fontawesome-free/scss/regular";
+@import "../../public/assets/@fortawesome/fontawesome-free/scss/solid";
 
+@import "core";
 
 @import "theme-defaults";
 
@@ -142,8 +151,8 @@ $close-text-shadow: 0 1 0 $black;
 .menu,
 .menu_selected,
 .logout {
-    font-style: italic !important;
-    @include font-size("0.9375rem !important");
+  @include font-size("0.9375rem !important");
+  font-style: italic !important;
 }
 
 .text,
@@ -155,18 +164,18 @@ $close-text-shadow: 0 1 0 $black;
 .redtext,
 #patient_stats .head,
 #patient_stats .detail {
-    @include font-size("0.8125rem !important");
+  @include font-size("0.8125rem !important");
 }
 
 .alert,
 .alert-custom {
-    font-size: 70%;
-    color: $danger;
-    text-decoration: none;
+  color: $danger;
+  font-size: 70%;
+  text-decoration: none;
 }
 
 .small {
-    font-size: 80%;
+  font-size: 80%;
 }
 
 .link,
@@ -175,108 +184,108 @@ $close-text-shadow: 0 1 0 $black;
 .link_selected,
 .link_selected:visited,
 .example_menu {
-    font-size: 70% !important;
+  font-size: 70% !important;
 }
 
 .items {
-    @include font-size("8px !important");
+  @include font-size("8px !important");
 }
 
 .title {
-    @include font-size("16px !important");
-    font-weight: bold;
-    text-decoration: none;
+  @include font-size("16px !important");
+  font-weight: bold;
+  text-decoration: none;
 }
 
 .title_bar {
-    @include font-size("16px !important");
+  @include font-size("16px !important");
 }
 
 .title_bar_top {
-    @include font-size("13px !important");
+  @include font-size("13px !important");
 }
 
 .body_main {
-    background-color: $midpale !important;
-    border-top: solid 8px $dark;
+  background-color: $midpale !important;
+  border-top: solid 8px $dark;
 }
 
 .body_main_widescreen {
-    background-color: $midpale !important;
-    border-top: solid 14px $dark;
+  background-color: $midpale !important;
+  border-top: solid 14px $dark;
 }
 
 .body_top,
 .bgcolor2,
 .body_nav {
-    background-color: $paler !important;
+  background-color: $paler !important;
 }
 
 .body_title {
-    background-color: $dark !important;
+  background-color: $dark !important;
 }
 
 .logobar {
-    background-color: $midnightblue;
+  background-color: $midnightblue;
 }
 
 /* style taken out of the addressbook code and put here instead */
 
 #addressbook_list td {
-    font-family: "Arial", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-family: "Arial", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 #addressbook_list tr.search {
-    @include font-size("12px !important");
+  @include font-size("12px !important");
 }
 
 #addressbook_list tr.head {
-    @include font-size("0.8125rem !important");
-    background-color: inherit;
+  @include font-size("0.8125rem !important");
+  background-color: inherit;
 }
 
 #addressbook_list .inputtext {
-    font-family: inherit;
-    font-size: inherit;
-    font-weight: inherit;
-    border-style: inherit;
-    border-width: inherit;
-    border-color: inherit;
-    background-color: inherit;
+  background-color: inherit;
+  border-color: inherit;
+  border-style: inherit;
+  border-width: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
 }
 
 #addressbook_list .button {
-    font-family: sans-serif;
-    @include font-size("11px !important");
-    font-weight: bold;
+  @include font-size("11px !important");
+  font-family: sans-serif;
+  font-weight: bold;
 }
 
 .address_names:hover {
-    color: #ff00ff !important;
+  color: #f0f !important;
 }
 
 .highlight {
-    color: #ff00ff !important;
+  color: #f0f !important;
 }
 
 #reports_list td,
 #reports_list a {
-    @include font-size("11px !important");
-    font-family: "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+  @include font-size("11px !important");
+  font-family: "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
 }
 
 #documents_list td,
 #documents_list a {
-    font-family: "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+  font-family: "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
 }
 
 #documents_list .treeMenuDefault {
-    font-style: italic;
+  font-style: italic;
 }
 
 #documents_list .treeMenuBold {
-    font-style: italic;
-    font-weight: bold;
+  font-style: italic;
+  font-weight: bold;
 }
 
 /*=============================================================
@@ -284,18 +293,18 @@ $close-text-shadow: 0 1 0 $black;
  * seen in the patient encounter screen
  *============================================================*/
 #patient_pastenc #tooltipdiv {
-    @include font-size("12px !important");
+  @include font-size("12px !important");
 }
 
 #addressbook_list tr.evenrow,
 #searchResults tr:nth-child(even) {
-    background-color: $white;
+  background-color: $white;
 }
 
 #addressbook_list tr.oddrow,
 #searchResults tr:nth-child(odd),
 .signout-restore-subheading {
-    background-color: $palepale;
+  background-color: $palepale;
 }
 
 /*
@@ -303,47 +312,47 @@ $close-text-shadow: 0 1 0 $black;
 */
 
 ul.tabNav {
-    margin: 0 0 -4 0;
-    padding: 0;
+  margin: 0 0 -4;
+  padding: 0;
 }
 
 ul.tabNav li {
-    margin: 0 1px 0 0;
-    padding: 6px 0 0;
-    @include font-size("0.8rem !important");
+  @include font-size("0.8rem !important");
+  margin: 0 1px 0 0;
+  padding: 6px 0 0;
 }
 
 ul.tabNav li.current {
-    padding-top: 0;
-    font-weight: bold;
-    @include font-size("0.8rem !important");
-    vertical-align: bottom;
-    text-align: left;
+  @include font-size("0.8rem !important");
+  font-weight: bold;
+  padding-top: 0;
+  text-align: left;
+  vertical-align: bottom;
 }
 
 ul.tabNav a {
-    background: $palepale;
-    border: solid $dark;
-    border-width: 3px 1px 0 1px;
-    color: $bs-dark;
-    padding: 4px 4px 5px 4px;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
+  background: $palepale;
+  border: solid $dark;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  border-width: 3px 1px 0;
+  color: $bs-dark;
+  padding: 4px 4px 5px;
 }
 
 ul.tabNav a:hover {
-    background-color: $dark;
-    color: $black;
+  background-color: $dark;
+  color: $black;
 }
 
 div.tabContainer div.current {
-    border: 1px solid $pale;
-    background: $pale;
+  background: $pale;
+  border: 1px solid $pale;
 }
 
 ul.tabNav li.current a {
-    background: $pale;
-    padding: 8px;
+  background: $pale;
+  padding: 8px;
 }
 
 /*
@@ -351,46 +360,46 @@ ul.tabNav li.current a {
 */
 
 #report_parameters {
-    background-color: $palepale;
-    margin: 10px 0 5px 0;
+  background-color: $palepale;
+  margin: 10px 0 5px;
 }
 
 #report_parameters table {
-    border: solid 1px $darkest;
+  border: solid 1px $darkest;
 }
 
 #report_parameters > table > tbody > tr > td > table {
-    border-left: 1px solid $darkest !important;
-    /*openemr5*/
+  border-left: 1px solid $darkest !important;
+  /*openemr5*/
 }
 
 #report_parameters .form-control {
-    width: auto;
+  width: auto;
 }
 
 #report_results table {
-    margin-top: 1px;
+  margin-top: 1px;
 }
 
 #report_results table thead {
-    border: solid 1px $darkest;
-    background-color: inherit;
+  background-color: inherit;
+  border: solid 1px $darkest;
 }
 
 #report_results table th {
-    border-bottom: 2px solid $darkest;
-    background-color: inherit;
+  background-color: inherit;
+  border-bottom: 2px solid $darkest;
 }
 
 #report_results table td {
-    padding: 5px;
-    border-bottom: 1px dashed;
-    @include font-size("0.8rem !important");
+  @include font-size("0.8rem !important");
+  border-bottom: 1px dashed;
+  padding: 5px;
 }
 
 .report_totals td {
-    background-color: $palepale;
-    font-weight: bold;
+  background-color: $palepale;
+  font-weight: bold;
 }
 
 /**
@@ -401,7 +410,7 @@ ul.tabNav li.current a {
 .showborder_head th,
 .shownoborder td,
 .showborder_long tr td {
-    @include font-size("12px !important");
+  @include font-size("12px !important");
 }
 
 /**
@@ -409,91 +418,91 @@ ul.tabNav li.current a {
 **/
 
 .drug_lookup {
-    font-family: "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    @include font-size("11px !important");
-    border: 2px outset rgb(102, 102, 102);
-    background-color: $paler;
+  @include font-size("11px !important");
+  background-color: $paler;
+  border: 2px outset rgb(102, 102, 102);
+  font-family: "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 
 /* Style for red font */
 
-@import "navigation-slide/_color";
+@import "navigation-slide/color";
 
 #sddm li {
-    padding: 0;
-    border: 1px solid $paler;
-    background: $dark;
-    filter: unquote("progid:DXImageTransform.Microsoft.gradient(startColorstr='$dark', endColorstr='$dark')");
-    background: -webkit-gradient(linear, left top, left bottom, from($dark), to($dark));
-    background: -moz-linear-gradient(top, $dark, $dark);
+  background: $dark;
+  background: -webkit-gradient(linear, left top, left bottom, from($dark), to($dark));
+  background: linear-gradient(to top, $dark, $dark);
+  border: 1px solid $paler;
+  filter: unquote("progid:DXImageTransform.Microsoft.gradient(startColorstr='$dark', endColorstr='$dark')");
+  padding: 0;
 }
 
 #sddm li a {
-    padding: 4px 10px;
-    color: darken($primary, 15%) !important;
-    @include font-size("0.8rem !important");
-    font-weight: bold;
+  @include font-size("0.8rem !important");
+  color: darken($primary, 15%) !important;
+  font-weight: bold;
+  padding: 4px 10px;
 }
 
 #sddm li a:hover {
-    background: $palepale;
+  background: $palepale;
 }
 
 #sddm div {
-    display: none;
-    margin: 0;
-    padding: 0;
-    background: #C9F1B5;
-    border-left: 1px solid $black;
-    border-right: 1px solid $black;
-    border-bottom: 1px solid $black;
+  background: #c9f1b5;
+  border-bottom: 1px solid $black;
+  border-left: 1px solid $black;
+  border-right: 1px solid $black;
+  display: none;
+  margin: 0;
+  padding: 0;
 }
 
 #sddm div a {
-    background: $paler;
-    color: $primary;
-    z-index: 10;
+  background: $paler;
+  color: $primary;
+  z-index: 10;
 }
 
 #sddm div a:hover {
-    background: $palepale;
-    color: $black;
+  background: $palepale;
+  color: $black;
 }
 
 .encounter-form-category-li {
-    z-index: 100;
-    background-color: $paler !important;
+  background-color: $paler !important;
+  z-index: 100;
 }
 
 .example_menu ul a:Subjective {
-    font-weight: normal;
+  font-weight: normal;
 }
 
 .example_menu ul a:hover {
-    background: #f5f5f5;
-    text-decoration: underline;
+  background: #f5f5f5;
+  text-decoration: underline;
 }
 
 .div-message {
-    background-color: $white;
-    color: $gray;
-    margin: 5 0 5 0;
-    border: 1px solid $darker;
-    padding: 5px;
-    width: 648px;
+  background-color: $white;
+  border: 1px solid $darker;
+  color: $gray;
+  margin: 5 0;
+  padding: 5px;
+  width: 648px;
 }
 
 .signout-content {
-    background: $paler !important;
+  background: $paler !important;
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~search div ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 div.section,
 div.borderbox {
-    border-color: $darkest !important;
-    background-color: $palepale;
+  background-color: $palepale;
+  border-color: $darkest !important;
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~search div ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -505,38 +514,38 @@ div.borderbox {
 /* Form styles */
 
 .formtable {
-    @include font-size("13px !important");
+  @include font-size("13px !important");
 }
 
 .report_search_bar {
-    background-color: $palepale;
+  background-color: $palepale;
 }
 
 .error-message {
-    @include font-size("11px !important");
+  @include font-size("11px !important");
 }
 
 /* flow board filters*/
 
 #flow_board_parameters {
-    width: 1041px;
-    background-color: $palepale;
+  background-color: $palepale;
+  width: 1041px;
 }
 
 #flow_board_parameters table {
-    border: solid 1px $darkest;
+  border: solid 1px $darkest;
 }
 
 .divider {
-    border-color: $darkest !important;
+  border-color: $darkest !important;
 }
 
 /* flow board filters*/
 /*openemr 5 patient-finder*/
 @media screen and (max-width: 750px) {
-    #pt_table {
-        @include font-size("0.9rem !important");
-    }
+  #pt_table {
+    @include font-size("0.9rem !important");
+  }
 }
 
 /*openemr 5 patient-finder*/
@@ -544,15 +553,15 @@ div.borderbox {
 /*vertical main menu */
 
 .appMenu_small .menuSection > .menuEntries {
-    left: 40px;
-    box-shadow: 3px 5px 8px $darker !important;
+  box-shadow: 3px 5px 8px $darker !important;
+  left: 40px;
 }
 
 /*vertical main menu */
 
 /*search any*/
 *.oe-expandable-search .any-search-legacy {
-    background: $paler !important;
+  background: $paler !important;
 }
 
 /*search any*/
@@ -564,35 +573,35 @@ div.borderbox {
 
 th.currentvalues,
 th.historicalvalues {
-    background: $dark !important;
+  background: $dark !important;
 }
 
 #create_patient_btn {
-    float: right;
-    margin-top: 35px;
+  float: right;
+  margin-top: 35px;
 }
 
 /*search any*/
 *.oe-expandable-search .any-search-legacy {
-    background: $paler !important;
+  background: $paler !important;
 }
 
 /* SVG Color Customization */
 .login-emr-logo > #red-color {
-    fill: $darkest !important;
+  fill: $darkest !important;
 }
 
 .login-emr-logo > #blue-color {
-    fill: $dark !important;
+  fill: $dark !important;
 }
 
 #mainBox .logo .emr-menu-logo > #blue-color,
 #mainBox_vertical .logo .emr-menu-logo > #blue-color {
-    fill: $pale !important;
+  fill: $pale !important;
 }
 
 .about-review-image > #color {
-    fill: $darkest !important;
+  fill: $darkest !important;
 }
 
 /* search any */

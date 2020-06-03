@@ -1,7 +1,5 @@
 <?php
 
-namespace ESign;
-
 /**
  * SignatureIF interface
  *
@@ -24,7 +22,9 @@ namespace ESign;
  * @link    http://www.open-emr.org
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/VerifiableIF.php';
+namespace ESign;
+
+require_once $GLOBALS['srcdir'] . '/ESign/VerifiableIF.php';
 
 interface SignatureIF extends VerifiableIF
 {

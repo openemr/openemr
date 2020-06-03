@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Functional cognitive status form.
  *
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc");
@@ -114,7 +114,7 @@ $check_res = $formid ? $check_res : array();
                 id = id.split('tb_row_');
                 var checkId = '_' + id[1];
                 document.getElementById('clickId').value = checkId;
-                dlgopen('<?php echo $GLOBALS['webroot'] . "/interface/patient_file/encounter/" ?>find_code_popup.php?codetype=LOINC,PHIN Questions', '_blank', 700, 400);
+                dlgopen('<?php echo $GLOBALS['webroot'] . "/interface/patient_file/encounter/" ?>find_code_popup.php?codetype=' + encodeURIComponent('LOINC,PHIN Questions'), '_blank', 700, 400);
             }
 
             function set_related(codetype, code, selector, codedesc) {

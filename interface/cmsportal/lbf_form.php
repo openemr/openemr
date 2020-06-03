@@ -1,4 +1,5 @@
 <?php
+
 /**
  * LBF form handling for the WordPress Patient Portal.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -39,14 +39,23 @@ $ptid = lookup_openemr_patient($result['post']['user']);
 <?php Header::setupHeader('datetime-picker'); ?>
 
 <style>
+tr.head {
+  font-size: 0.8125rem;
+  background-color: var(--gray400);
+  text-align: center;
+}
 
-tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
-tr.detail { font-size:10pt; background-color:#ddddff; }
-td input  { background-color:transparent; }
+tr.detail {
+  font-size: 0.8125rem;
+  background-color: var(--gray300);
+}
 
+td input {
+  background-color: transparent;
+}
 </style>
 
-<script language="JavaScript">
+<script>
 
 function myRestoreSession() {
  if (top.restoreSession) top.restoreSession(); else opener.top.restoreSession();
@@ -64,7 +73,7 @@ function openPatient() {
  opener.top.RTop.document.location.href = '../patient_file/summary/demographics.php?set_pid=<?php echo attr($ptid); ?>';
 }
 
-$(function() {
+$(function () {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
@@ -94,7 +103,7 @@ echo " -->\n"; // debugging ?>
 
 <form method='post' action='lbf_form.php' onsubmit='return validate()'>
 
-<table width='100%' cellpadding='1' cellspacing='2'>
+<table class='w-100' cellpadding='1' cellspacing='2'>
  <tr class='head'>
   <th align='left'><?php echo xlt('Field'); ?></th>
   <th align='left'><?php echo xlt('Value'); ?></th>
@@ -118,7 +127,7 @@ foreach ($result['fields'] as $field_id => $newvalue) {
     $newvalue = trim($newvalue);
     $field_title = $result['labels'][$field_id];
     echo " <tr class='detail'>\n";
-    echo "  <td class='bold'>" . text($field_title) . "</td>\n";
+    echo "  <td class='font-weight-bold'>" . text($field_title) . "</td>\n";
     echo "  <td>";
     echo text($newvalue);
     echo "</td>\n";
@@ -128,11 +137,10 @@ foreach ($result['fields'] as $field_id => $newvalue) {
 
 </table>
 
-<p>
-<input type='button' value='<?php echo xla('Open Patient'); ?>' onclick="openPatient()" />
-&nbsp;
-<input type='button' value='<?php echo xla('Back'); ?>' onclick="myRestoreSession();location='list_requests.php'" />
-</p>
+<div class='btn-group'>
+<input type='button' class='btn btn-primary' value='<?php echo xla('Open Patient'); ?>' onclick="openPatient()" />
+<input type='button' class='btn btn-secondary' value='<?php echo xla('Back'); ?>' onclick="myRestoreSession();location='list_requests.php'" />
+</div>
 
 </form>
 </center>

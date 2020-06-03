@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  $Id$
  *
@@ -51,11 +52,21 @@ define('REPEAT_EVERY_OTHER', 2);
 define('REPEAT_EVERY_THIRD', 3);
 define('REPEAT_EVERY_FOURTH', 4);
 // $event_repeat_freq_type
-define('REPEAT_EVERY_DAY', 0);
-define('REPEAT_EVERY_WEEK', 1);
-define('REPEAT_EVERY_MONTH', 2);
-define('REPEAT_EVERY_YEAR', 3);
-define('REPEAT_EVERY_WORK_DAY', 4);
+if (!defined('REPEAT_EVERY_DAY')) {
+    define('REPEAT_EVERY_DAY', 0);
+}
+if (!defined('REPEAT_EVERY_WEEK')) {
+    define('REPEAT_EVERY_WEEK', 1);
+}
+if (!defined('REPEAT_EVERY_MONTH')) {
+    define('REPEAT_EVERY_MONTH', 2);
+}
+if (!defined('REPEAT_EVERY_YEAR')) {
+    define('REPEAT_EVERY_YEAR', 3);
+}
+if (!defined('REPEAT_EVERY_WORK_DAY')) {
+    define('REPEAT_EVERY_WORK_DAY', 4);
+}
 // $event_repeat_on_num
 define('REPEAT_ON_1ST', 1);
 define('REPEAT_ON_2ND', 2);
@@ -169,7 +180,7 @@ function &postcalendar_makeValidURL($s)
     }
 
     if (!preg_match('|^http[s]?:\/\/|i', $s)) {
-        $s = 'http://'.$s;
+        $s = 'http://' . $s;
     }
 
     return $s;
@@ -263,7 +274,7 @@ function postcalendar_userapi_jsPopup()
     define('_POSTCALENDAR_JSPOPUPS_LOADED', true);
 
     // build the correct link
-    $js_link = "'index.php?module=".__POSTCALENDAR__."&type=user&func=view&viewtype=details&eid='+eid+'&Date='+date+'&popup=1'";
+    $js_link = "'index.php?module=" . __POSTCALENDAR__ . "&type=user&func=view&viewtype=details&eid='+eid+'&Date='+date+'&popup=1'";
     $js_window_options = 'toolbar=no,'
                        . 'location=no,'
                        . 'directories=no,'
@@ -398,7 +409,7 @@ function postcalendar_userapi_buildMonthSelect($args)
         $selected = '';
     }
 
-    for ($c=0,$i=1; $i<=12; $i++,$c++) {
+    for ($c = 0,$i = 1; $i <= 12; $i++,$c++) {
         if ($selected) {
             $sel = $selected == $i ? true : false;
         } elseif ($i == $pc_month) {
@@ -409,7 +420,7 @@ function postcalendar_userapi_buildMonthSelect($args)
 
             $output[$c]['id']       = sprintf('%02d', $i);
             $output[$c]['selected'] = $sel;
-            $output[$c]['name']     = postcalendar_userapi_getmonthname(array('Date'=>mktime(0, 0, 0, $i, 15)));
+            $output[$c]['name']     = postcalendar_userapi_getmonthname(array('Date' => mktime(0, 0, 0, $i, 15)));
     }
 
     return $output;
@@ -432,7 +443,7 @@ function postcalendar_userapi_buildDaySelect($args)
         $selected = '';
     }
 
-    for ($c=0,$i=1; $i<=31; $i++,$c++) {
+    for ($c = 0,$i = 1; $i <= 31; $i++,$c++) {
         if ($selected) {
             $sel = $selected == $i ? true : false;
         } elseif ($i == $pc_day) {
@@ -470,7 +481,7 @@ function postcalendar_userapi_buildYearSelect($args)
         $selected = '';
     }
 
-    for ($c=0,$i=$pc_start_year; $i<=$pc_end_year; $i++,$c++) {
+    for ($c = 0,$i = $pc_start_year; $i <= $pc_end_year; $i++,$c++) {
         if ($selected) {
             $sel = $selected == $i ? true : false;
         } elseif ($i == $pc_year) {
@@ -508,7 +519,7 @@ function &postcalendar_userapi_getCategories()
     }
 
     $categories = array();
-    for ($i=0; !$result->EOF; $result->MoveNext()) {
+    for ($i = 0; !$result->EOF; $result->MoveNext()) {
         list($catid,$catname,$constantid,$catcolor,$catdesc,
             $rtype,$rspec,$rfreq,$duration,$limit,$end_date_flag,
             $end_date_type,$end_date_freq,$end_all_day,$cattype,$active,$seq,$aco) = $result->fields;
@@ -530,8 +541,8 @@ function &postcalendar_userapi_getCategories()
         $categories[$i]['event_repeat_on_freq'] = $rspecs['event_repeat_on_freq'];
         $categories[$i]['event_recurrspec'] = $rspecs;
         $categories[$i]['event_duration'] = $duration;
-        $categories[$i]['event_durationh'] = (int)($duration/(60 * 60));    //seconds divided by 60 seconds * 60 minutes;
-        $categories[$i]['event_durationm'] = ($duration%(60 * 60))/60;
+        $categories[$i]['event_durationh'] = (int)($duration / (60 * 60));    //seconds divided by 60 seconds * 60 minutes;
+        $categories[$i]['event_durationm'] = ($duration % (60 * 60)) / 60;
         $categories[$i]['end_date_flag'] = $end_date_flag;
         $categories[$i]['end_date_type'] = $end_date_type;
         $categories[$i]['end_date_freq'] = $end_date_freq;
@@ -559,7 +570,7 @@ function &postcalendar_userapi_getTopics()
     }
 
     $data = array();
-    $i=0;
+    $i = 0;
     for (; !$topiclist->EOF; $topiclist->MoveNext()) {
         list($data[$i]['id'], $data[$i]['text'], $data[$i++]['name']) = $topiclist->fields;
     }
@@ -682,7 +693,7 @@ function findFirstInDay($day, $date)
             //length blocks so that won't be seen
             $date_sec = strtotime($date);
             if ($duration > 0) {
-                $times[] = array ("startTime" => $free_time, "endTime" => ($date_sec+$duration));
+                $times[] = array ("startTime" => $free_time, "endTime" => ($date_sec + $duration));
             }
         }
     }

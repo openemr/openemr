@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This report lists front office receipts for a given date range.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -43,7 +43,7 @@ function bucks($amt)
     <script>
         <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
-        $(function() {
+        $(function () {
             var win = top.printLogSetup ? top : opener.top;
             win.printLogSetup(document.getElementById('printbutton'));
 
@@ -99,7 +99,7 @@ function bucks($amt)
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Front Office Receipts'); ?></span>
 
 <div id="report_parameters_daterange">
-<?php echo text(oeFormatShortDate($from_date)) ." &nbsp; " . xlt("to{{Range}}") . " &nbsp; ". text(oeFormatShortDate($to_date)); ?>
+<?php echo text(oeFormatShortDate($from_date)) . " &nbsp; " . xlt("to{{Range}}") . " &nbsp; " . text(oeFormatShortDate($to_date)); ?>
 </div>
 
 <form name='theform' method='post' action='front_receipts_report.php' id='theform' onsubmit='return top.restoreSession()'>
@@ -121,7 +121,7 @@ function bucks($amt)
             </td>
             <td>
                 <?php
-                $form_facility=$_POST['form_facility'];
+                $form_facility = $_POST['form_facility'];
                 dropdown_facility($form_facility, 'form_facility', false);
                 ?>
             </td>
@@ -132,7 +132,7 @@ function bucks($amt)
             <?php  # Build a drop-down list of providers.
                     # Added (TLH)
 
-                    $query = "SELECT id, lname, fname FROM users WHERE ".
+                    $query = "SELECT id, lname, fname FROM users WHERE " .
                     "authorized = 1  ORDER BY lname, fname"; #(CHEMED) facility filter
 
                     $ures = sqlStatement($query);
@@ -221,7 +221,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
         $total1 = 0.00;
         $total2 = 0.00;
 
-        $inputArray=array($from_date.' 00:00:00', $to_date.' 23:59:59');
+        $inputArray = array($from_date . ' 00:00:00', $to_date . ' 23:59:59');
         $query = "SELECT r.pid, r.dtime, " .
         "SUM(r.amount1) AS amount1, " .
         "SUM(r.amount2) AS amount2, " .
@@ -236,15 +236,15 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
         "WHERE " .
         "r.dtime >= ? AND " .
         "r.dtime <= ? AND ";
-        if ($_POST['form_facility']!="") {
-            $inputArray[]=$_POST['form_facility'];
-            $query.="fe.facility_id = ? AND ";
+        if ($_POST['form_facility'] != "") {
+            $inputArray[] = $_POST['form_facility'];
+            $query .= "fe.facility_id = ? AND ";
         }
-        if ($_POST['form_provider']!="") {
-            $inputArray[]=$_POST['form_provider'];
-            $query.="fe.provider_id = ? AND ";
+        if ($_POST['form_provider'] != "") {
+            $inputArray[] = $_POST['form_provider'];
+            $query .= "fe.provider_id = ? AND ";
         }
-        $query.="1 GROUP BY r.dtime, r.pid ORDER BY r.dtime, r.pid";
+        $query .= "1 GROUP BY r.dtime, r.pid ORDER BY r.dtime, r.pid";
 
         // echo " $query \n"; // debugging
         $res = sqlStatement($query, $inputArray);

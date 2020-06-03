@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Fetch and list pending requests from the WordPress portal.
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
@@ -123,11 +123,16 @@ if (!empty($_POST['bn_delete'])) {
 <title><?php echo xlt('Portal Requests'); ?></title>
 
 <style>
+tr.head {
+  font-size: 0.8125rem;
+  background-color: var(--gray400);
+  text-align: center;
+}
 
-tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
-tr.detail { font-size:10pt; }
-a, a:visited, a:hover { color:#0000cc; }
-
+tr.detail {
+  font-size: 0.8125rem;
+  background-color: var(--gray300);
+}
 </style>
 
 <script language="JavaScript">
@@ -183,7 +188,7 @@ function openMessage(messageid) {
  document.location.href = 'upload_form.php?messageid=' + messageid;
 }
 
-$(function() {
+$(function () {
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>

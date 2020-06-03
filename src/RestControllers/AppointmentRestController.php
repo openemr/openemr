@@ -1,4 +1,5 @@
 <?php
+
 /**
  * AppointmentRestController
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 namespace OpenEMR\RestControllers;
 
@@ -48,7 +48,8 @@ class AppointmentRestController
 
         $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
         if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult; }
+            return $validationHandlerResult;
+        }
 
         $serviceResult = $this->appointmentService->insert($pid, $data);
         return RestControllerHelper::responseHandler(array("id" => $serviceResult), null, 200);

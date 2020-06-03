@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CAMOS ajax_save.php
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("../../../library/api.inc");
@@ -27,7 +27,7 @@ $field_names = array('category' => $_POST["category"], 'subcategory' => $_POST["
 $camos_array = array();
 process_commands($field_names['content'], $camos_array);
 
-$CAMOS_form_name = "CAMOS-".$field_names['category'].'-'.$field_names['subcategory'].'-'.$field_names['item'];
+$CAMOS_form_name = "CAMOS-" . $field_names['category'] . '-' . $field_names['subcategory'] . '-' . $field_names['item'];
 
 if ($encounter == "") {
     $encounter = date("Ymd");
@@ -57,7 +57,7 @@ foreach ($camos_array as $val) {
             $val[$k] = trim(replace($pid, $encounter, $v));
         }
 
-        $CAMOS_form_name = "CAMOS-".$val['category'].'-'.$val['subcategory'].'-'.$val['item'];
+        $CAMOS_form_name = "CAMOS-" . $val['category'] . '-' . $val['subcategory'] . '-' . $val['item'];
         reset($val);
         $newid = formSubmit("form_CAMOS", $val, $_GET["id"], $userauthorized);
         addForm($encounter, $CAMOS_form_name, $newid, "CAMOS", $pid, $userauthorized);

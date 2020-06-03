@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -202,7 +204,7 @@ class FHIRValueSetCompose extends FHIRBackboneElement implements \JsonSerializab
                         $this->addInclude($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"include" must be array of objects or null, '.gettype($data['include']).' seen.');
+                    throw new \InvalidArgumentException('"include" must be array of objects or null, ' . gettype($data['include']) . ' seen.');
                 }
             }
             if (isset($data['exclude'])) {
@@ -211,11 +213,11 @@ class FHIRValueSetCompose extends FHIRBackboneElement implements \JsonSerializab
                         $this->addExclude($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"exclude" must be array of objects or null, '.gettype($data['exclude']).' seen.');
+                    throw new \InvalidArgumentException('"exclude" must be array of objects or null, ' . gettype($data['exclude']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

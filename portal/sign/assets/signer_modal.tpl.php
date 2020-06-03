@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient Portal Signer Modal Dynamic Template
  *

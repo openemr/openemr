@@ -1,4 +1,5 @@
 <?php
+
 /**
  * evaluation report.php
  *
@@ -10,9 +11,10 @@
  * @copyright Copyright (c) 2018 Daniel Ehrlich <daniel.ehrlich1@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 //------------Forms generated from formsWiz
 require_once("../../globals.php");
-require_once($GLOBALS["srcdir"]."/api.inc");
+require_once($GLOBALS["srcdir"] . "/api.inc");
 function evaluation_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
@@ -36,7 +38,7 @@ function evaluation_report($pid, $encounter, $cols, $id)
                 $value = "yes";
             }
 
-            $key=ucwords(str_replace("_", " ", $key));
+            $key = ucwords(str_replace("_", " ", $key));
             if (is_numeric($key)) {
                 $key = "check";
             }

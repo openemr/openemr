@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/controllers/edit/view/add_criteria.php
  *
@@ -10,6 +11,7 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 <?php $allowed = $viewBean->allowed?>
 <?php $ruleId = $viewBean->id;?>

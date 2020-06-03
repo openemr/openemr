@@ -1,15 +1,15 @@
 /* OpenEMR Login CSS Override */
 
 .login div.container {
-    margin-top: 5%;
-    max-width: 500px;
-    background: $paler !important;
-    border-top: solid $dark 40px;
-    border-left: solid $palepale 1px;
-    border-right: solid $palepale 1px;
-    border-bottom: solid $palepale 1px;
+  background: $paler !important;
+  border-bottom: solid $palepale 1px;
+  border-left: solid $palepale 1px;
+  border-right: solid $palepale 1px;
+  border-top: solid $dark 40px;
+  margin-top: 5%;
+  max-width: 500px;
 }
 
 body.login {
-    background: $light !important;
+  background: $light !important;
 }

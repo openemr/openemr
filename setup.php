@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * Installation script.
@@ -94,7 +95,7 @@ function recursive_writable_directory_test($dir)
 }
 
 // Include standard libraries/classes
-require_once dirname(__FILE__) ."/vendor/autoload.php";
+require_once dirname(__FILE__) . "/vendor/autoload.php";
 
 use OpenEMR\Common\Utils\RandomGenUtils;
 
@@ -122,12 +123,10 @@ if (!$COMMAND_LINE && empty($_REQUEST['site'])) {
         <title>OpenEMR Setup Tool</title>
         <!--<link rel=stylesheet href="interface/themes/style_blue.css">-->
         <link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css" type="text/css">
-        <link rel="stylesheet" href="public/assets/jquery-ui/jquery-ui.css" type="text/css">
         <script type="text/javascript" src="public/assets/jquery/dist/jquery.min.js"></script>
         <script type="text/javascript" src="public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-        <link rel="stylesheet" href="public/assets/font-awesome/css/font-awesome.min.css" type="text/css">
+        <link rel="stylesheet" href="public/assets/@fortawesome/fontawesome-free/css/all.min.css" type="text/css">
         <link rel="shortcut icon" href="public/images/favicon.ico" />
-        <script type="text/javascript" src="public/assets/jquery-ui/jquery-ui.js"></script>
         <style>
         .oe-pull-away {
             float:right;
@@ -178,8 +177,8 @@ if (!$COMMAND_LINE && empty($_REQUEST['site'])) {
 SITEID;
     echo $site_id . "\r\n";
     $installer->setupHelpModal();
-    echo "</body>". "\r\n";
-    echo "</html>". "\r\n";
+    echo "</body>" . "\r\n";
+    echo "</html>" . "\r\n";
 
     exit();
 }
@@ -192,7 +191,7 @@ if (!$COMMAND_LINE && !empty($_REQUEST['site'])) {
 
 // Die if site ID is empty or has invalid characters.
 if (empty($site_id) || preg_match('/[^A-Za-z0-9\\-.]/', $site_id)) {
-    die("Site ID '".htmlspecialchars($site_id, ENT_NOQUOTES)."' contains invalid characters.");
+    die("Site ID '" . htmlspecialchars($site_id, ENT_NOQUOTES) . "' contains invalid characters.");
 }
 
 // If multisite is turned off, then only allow default for site.
@@ -232,11 +231,9 @@ if (file_exists($OE_SITE_DIR)) {
 <title>OpenEMR Setup Tool</title>
 <!--<link rel=stylesheet href="interface/themes/style_blue.css">-->
 <link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css" type="text/css">
-<link rel="stylesheet" href="public/assets/jquery-ui/jquery-ui.css" type="text/css">
 <script type="text/javascript" src="public/assets/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript" src="public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script type="text/javascript" src="public/assets/jquery-ui/jquery-ui.js"></script>
-<link rel="stylesheet" href="public/assets/font-awesome/css/font-awesome.min.css" type="text/css">
+<link rel="stylesheet" href="public/assets/@fortawesome/fontawesome-free/css/all.min.css" type="text/css">
 <link rel="shortcut icon" href="public/images/favicon.ico" />
 
 <style>
@@ -397,16 +394,16 @@ function cloneClicked() {
                 echo "<p> The selected theme is :</p>";
                 $installer->displayNewThemeDiv();
                 if (empty($installer->clone_database)) {
-                    echo "<p><b>The initial OpenEMR user is <span class='text-primary'>'".$installer->iuser."'</span> and the password is <span class='text-primary'>'".$installer->iuserpass."'</span></b></p>";
+                    echo "<p><b>The initial OpenEMR user is <span class='text-primary'>'" . $installer->iuser . "'</span> and the password is <span class='text-primary'>'" . $installer->iuserpass . "'</span></b></p>";
                 } else {
-                    echo "<p>The initial OpenEMR user name and password is the same as that of source site <b>'". $installer->source_site_id ."'</span></b></p>";
+                    echo "<p>The initial OpenEMR user name and password is the same as that of source site <b>'" . $installer->source_site_id . "'</span></b></p>";
                 }
                 echo "<p>If you edited the PHP or Apache configuration files during this installation process, then we recommend you restart your Apache server before following below OpenEMR link.</p>";
                 echo "<p>In Linux use the following command:</p>";
                 echo "<p><code>sudo apachectl -k restart</code></p>";
 
                 ?>
-            <p>
+            <p class='mb-5'>
              <a href='./?site=<?php echo $site_id; ?>'>Click here to start using OpenEMR. </a>
             </p>
             </fieldset>
@@ -420,8 +417,8 @@ function cloneClicked() {
 ENDDIV;
                 echo $end_div . "\r\n";
                 $installer->setupHelpModal();
-                echo "</body>". "\r\n";
-                echo "</html>". "\r\n";
+                echo "</body>" . "\r\n";
+                echo "</html>" . "\r\n";
 
                 exit();
             }
@@ -457,7 +454,7 @@ ENDDIV;
                             </form><br />
                         </fieldset>
 STP1;
-                        echo $step1 ."\r\n";
+                        echo $step1 . "\r\n";
                         break;
 
                     case 2:
@@ -471,7 +468,7 @@ STP1;
                             <input name='site' type='hidden' value='$site_id'>
                             <input name='inst' type='hidden' value='$inst'>
 STP2TOP;
-                        echo $step2top ."\r\n";
+                        echo $step2top . "\r\n";
 
 
                         $step2tabletop1 = <<<STP2TBLTOP1
@@ -560,7 +557,7 @@ STP2TOP;
                                 </div>
                             </div>
 STP2TBLTOP1;
-                        echo $step2tabletop1 ."\r\n";
+                        echo $step2tabletop1 . "\r\n";
                         if ($inst != 2) {
                             $step2tabletop2 = <<<STP2TBLTOP2
                             <div class="col-sm-4">
@@ -697,7 +694,7 @@ STP2TBLTOP1;
                             </div>
                         </div>
 STP2TBLTOP2;
-                            echo $step2tabletop2 ."\r\n";
+                            echo $step2tabletop2 . "\r\n";
                         }
                         // Include a "source" site ID drop-list and a checkbox to indicate
                         // if cloning its database.  When checked, do not display initial user
@@ -782,7 +779,7 @@ SOURCESITETOP;
                             </div>
                         </div>
 SOURCESITEBOT;
-                            echo $source_site_bot ."\r\n";
+                            echo $source_site_bot . "\r\n";
                         }
 
                         $randomusernamepre = RandomGenUtils::produceRandomString(3, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
@@ -930,13 +927,12 @@ SOURCESITEBOT;
                         </div>
                     </fieldset>
                             <p class='mt-4 mark'>Click the <b>Create DB and User</b> button below to create the database and first user <a href='#create_db_button' title='Click me'><i class="fa fa-arrow-circle-down" aria-hidden="true"></i></a>. $note: This process will take a few minutes.</p>
-                            <!--<p class='p-1 bg-success text-white'>Upon successful completion will automatically take you to the next step.</p>-->
                              <p class='p-1 bg-success text-white oe-spinner' style = 'visibility:hidden;'>Upon successful completion will automatically take you to the next step.<i class='fa fa-spinner fa-pulse fa-fw'></i></p>
                             <button type='submit' id='create_db_button' value='Continue' class='wait'><b>Create DB and User</b></button>
                         </form>
                         </fieldset>
 STP2TBLBOT;
-                        echo $step2tablebot ."\r\n";
+                        echo $step2tablebot . "\r\n";
                         break;
 
                     case 3:
@@ -1251,7 +1247,7 @@ STP4TOP;
                         }
                         $btn_text = 'Proceed to Step 5';
                         $step4_bottom = <<<STP4BOT
-                        <p>Gave the '{$installer->iuser}' user (password is '{$installer->iuserpass}') administrator access.</p>
+                        <p><b>Gave the <span class='text-primary'>$installer->iuser</span> user (password is <span class='text-primary'>$installer->iuserpass</span>) administrator access.</b></p>
                         <p>Done installing and configuring access controls (php-gacl).</p>
                         <p>The next step will configure php.</p>
                         <p class='mark'>Click <strong>$btn_text</strong> to continue.</p>
@@ -1287,19 +1283,28 @@ STP5TOP;
                         $gotFileFlag = 0;
                         $phpINIfile  = php_ini_loaded_file();
                         if ($phpINIfile) {
-                            echo "<li><font color='green'>Your php.ini file can be found at ".$phpINIfile."</font></li>\n";
+                            echo "<li><font color='green'>Your php.ini file can be found at " . $phpINIfile . "</font></li>\n";
                             $gotFileFlag = 1;
                         }
 
-                        $short_tag = ini_get('short_open_tag')?'On':'Off';
-                        $display_errors = ini_get('display_errors')?'On':'Off';
-                        $register_globals = ini_get('register_globals')?'On':'Off';
+                        $short_tag = ini_get('short_open_tag') ? 'On' : 'Off';
+                        $short_tag_style = (strcmp($short_tag, 'Off') === 0) ? '' : 'text-danger';
+                        $display_errors = ini_get('display_errors') ? 'On' : 'Off';
+                        $display_errors_style = (strcmp($display_errors, "Off")  === 0) ? '' : 'text-danger';
+                        $register_globals = ini_get('register_globals') ? 'On' : 'Off';
+                        $register_globals_style = (strcmp($register_globals, 'Off')  === 0) ? '' : 'text-danger';
                         $max_input_vars = ini_get('max_input_vars');
-                        $max_execution_time = ini_get('max_execution_time');
+                        $max_input_vars_style = $max_input_vars < 3000 ? 'text-danger' : '';
+                        $max_execution_time = (int)ini_get('max_execution_time');
+                        $max_execution_time_style = $max_execution_time >= 60 || $max_execution_time === 0 ? '' : 'text-danger';
                         $max_input_time = ini_get('max_input_time');
+                        $max_input_time_style = (strcmp($max_input_time, '-1')  === 0) ? '' : 'text-danger';
                         $post_max_size = ini_get('post_max_size');
+                        $post_max_size_style = $post_max_size < 30 ? 'text-danger' : '';
                         $memory_limit = ini_get('memory_limit');
-                        $mysqli_allow_local_infile = ini_get('mysqli.allow_local_infile')?'On':'Off';
+                        $memory_limit_style = $memory_limit < 256 ? 'text-danger' : '';
+                        $mysqli_allow_local_infile = ini_get('mysqli.allow_local_infile') ? 'On' : 'Off';
+                        $mysqli_allow_local_infile_style = (strcmp($mysqli_allow_local_infile, 'On')  === 0) ? '' : 'text-danger';
 
                         $step5_table = <<<STP5TAB
                             <li>To ensure proper functioning of OpenEMR you must make sure that PHP settings include:
@@ -1312,47 +1317,47 @@ STP5TOP;
                                     <tr>
                                         <td>short_open_tag</td>
                                         <td>Off</td>
-                                        <td>$short_tag</td>
+                                        <td class='$short_tag_style'>$short_tag</td>
                                     </tr>
                                     <tr>
                                         <td>display_errors</td>
                                         <td>Off</td>
-                                        <td>$display_errors</td>
+                                        <td class='$display_errors_style'>$display_errors</td>
                                     </tr>
                                     <tr>
                                         <td>register_globals</td>
                                         <td>Off</td>
-                                        <td>$register_globals</td>
+                                        <td class='$register_globals_style'>$register_globals</td>
                                     </tr>
                                     <tr>
                                         <td>max_input_vars</td>
                                         <td>at least 3000</td>
-                                        <td>$max_input_vars</td>
+                                        <td class='$max_input_vars_style'>$max_input_vars</td>
                                     </tr>
                                     <tr>
                                         <td>max_execution_time</td>
                                         <td>at least 60</td>
-                                        <td>$max_execution_time</td>
+                                        <td class='$max_execution_time_style'>$max_execution_time</td>
                                     </tr>
                                     <tr>
                                         <td>max_input_time</td>
                                         <td>-1</td>
-                                        <td>$max_input_time</td>
+                                        <td class='$max_input_time_style'>$max_input_time</td>
                                     </tr>
                                     <tr>
                                         <td>post_max_size</td>
                                         <td>at least 30M</td>
-                                        <td>$post_max_size</td>
+                                        <td class='$post_max_size_style'>$post_max_size</td>
                                     </tr>
                                     <tr>
                                         <td>memory_limit</td>
                                         <td>at least 256M</td>
-                                        <td>$memory_limit</td>
+                                        <td class='$memory_limit_style'>$memory_limit</td>
                                     </tr>
                                     <tr>
                                         <td>mysqli.allow_local_infile</td>
                                         <td>On</td>
-                                        <td>$mysqli_allow_local_infile</td>
+                                        <td class='$mysqli_allow_local_infile_style'>$mysqli_allow_local_infile</td>
                                     </tr>
                                 </table>
                             </li>
@@ -1395,16 +1400,16 @@ STP5BOT;
                         echo "<fieldset>";
                         echo "<legend class='mb-3 border-bottom'>Step $state - Configure Apache Web Server</legend>";
                         echo "<p>Configuration of Apache web server...</p><br />\n";
-                        echo "The <strong>\"".preg_replace("/${site_id}/", "*", realpath($docsDirectory))."\"</strong> directory contain patient information, and
+                        echo "The <strong>\"" . preg_replace("/${site_id}/", "*", realpath($docsDirectory)) . "\"</strong> directory contain patient information, and
                         it is important to secure these directories. Additionally, some settings are required for the Zend Framework to work in OpenEMR. This can be done by pasting the below to end of your apache configuration file:<br /><br />
-                        &nbsp;&nbsp;&lt;Directory \"".realpath(dirname(__FILE__))."\"&gt;<br />
+                        &nbsp;&nbsp;&lt;Directory \"" . realpath(dirname(__FILE__)) . "\"&gt;<br />
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride FileInfo<br />
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all granted<br />
                         &nbsp;&nbsp;&lt;/Directory&gt;<br />
-                        &nbsp;&nbsp;&lt;Directory \"".realpath(dirname(__FILE__))."/sites\"&gt;<br />
+                        &nbsp;&nbsp;&lt;Directory \"" . realpath(dirname(__FILE__)) . "/sites\"&gt;<br />
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride None<br />
                         &nbsp;&nbsp;&lt;/Directory&gt;<br />
-                        &nbsp;&nbsp;&lt;Directory \"".preg_replace("/${site_id}/", "*", realpath($docsDirectory))."\"&gt;<br />
+                        &nbsp;&nbsp;&lt;Directory \"" . preg_replace("/${site_id}/", "*", realpath($docsDirectory)) . "\"&gt;<br />
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all denied<br />
                         &nbsp;&nbsp;&lt;/Directory&gt;<br /><br />";
 
@@ -1470,11 +1475,11 @@ STP6BOT;
 					</div>
                     </fieldset>
 TMF;
-                        echo $theme_form ."\r\n";
-                        echo '<div class="row hideaway" style="display:none;">'."\r\n";
-                        echo '<div class="col-sm-12">'."\r\n";
-                        echo '    <h4>Select New Theme: <h5>(scroll down to view all)</h5></h4>'."\r\n";
-                        echo '    <br />'."\r\n";
+                        echo $theme_form . "\r\n";
+                        echo '<div class="row hideaway" style="display:none;">' . "\r\n";
+                        echo '<div class="col-sm-12">' . "\r\n";
+                        echo '    <h4>Select New Theme: <h5>(scroll down to view all)</h5></h4>' . "\r\n";
+                        echo '    <br />' . "\r\n";
                         $installer->displayThemesDivs();
                         break;
 
@@ -1498,9 +1503,9 @@ TOP;
                             $errorWritable = 0;
                             foreach ($writableFileList as $tempFile) {
                                 if (is_writable($tempFile)) {
-                                        echo "'".realpath($tempFile)."' file is <FONT COLOR='green'><b>ready</b></FONT>.<br />\n";
+                                        echo "'" . realpath($tempFile) . "' file is <FONT COLOR='green'><b>ready</b></FONT>.<br />\n";
                                 } else {
-                                        echo "<p><FONT COLOR='red'>UNABLE</FONT> to open file '".realpath($tempFile)."' for writing.<br />\n";
+                                        echo "<p><FONT COLOR='red'>UNABLE</FONT> to open file '" . realpath($tempFile) . "' for writing.<br />\n";
                                         echo "(configure file permissions; see below for further instructions)</p>\n";
                                         $errorWritable = 1;
                                 }
@@ -1555,17 +1560,17 @@ CHKDIR;
                                             <button type='submit' value='Continue'><b>Proceed to Step 1</b></button>
                                         </form>
 FRM;
-                            echo $form ."\r\n";
+                            echo $form . "\r\n";
                         } else {
                             echo "<br />Click to continue installation.<br />\n";
                         }
                 }
             }
-                        $bot=<<<BOT
+                        $bot = <<<BOT
                                 </div>
                             </div>
 BOT;
-                        echo $bot ."\r\n";
+                        echo $bot . "\r\n";
             ?>
 
 
@@ -1573,7 +1578,7 @@ BOT;
     <?php $installer->setupHelpModal();?>
     <script>
         //jquery-ui tooltip
-        $(function() {
+        $(function () {
             $('.icon-tooltip').prop( "title", "Click to see more information").tooltip({
                 show: {
                     delay: 700,
@@ -1587,7 +1592,7 @@ BOT;
         });
     </script>
     <script type = "text/javascript" >
-        $(function() {
+        $(function () {
             $("input[type='radio']").click(function() {
                 var radioValue = $("input[name='stylesheet']:checked").val();
                 var imgPath = "public/images/stylesheets/";

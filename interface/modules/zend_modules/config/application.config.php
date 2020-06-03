@@ -1,10 +1,12 @@
 <?php
+
 /**
  *  You can see the default application configuration options here
  *  as well as how the individual module.config.php files should operate.
  *  @see https://docs.laminas.dev/laminas-mvc/services/
  *
  */
+
 // The required application modules we need to load all the time are listed here.
 $core_modules = [
     'Laminas\Router', // this was separated from the MVC module into it's own module.  Handles the routing layers.

@@ -1,5 +1,7 @@
 <?php
 
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 /*
  * Copyright Medical Information Integration,LLC info@mi-squared.com
  * This program is free software; you can redistribute it and/or
@@ -15,7 +17,7 @@
 
 /* for $GLOBALS['srcdir','pid'] */
 /* remember that include paths are calculated relative to the including script, not this file. */
-require_once(dirname(__FILE__).'/../globals.php');
+require_once(dirname(__FILE__) . '/../globals.php');
 
 /**
  * @class AbstractClickmapModel

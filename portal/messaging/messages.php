@@ -1,4 +1,5 @@
 <?php
+
 /**
  * messages.php
  *
@@ -92,7 +93,7 @@ function getAuthPortalUsers()
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <?php Header::setupHeader(['no_main-theme', 'summernote', 'fontawesome', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model']); ?>
+    <?php Header::setupHeader(['no_main-theme', 'patientportal-style', 'summernote', 'angular', 'angular-summernote', 'angular-sanitize', 'checklist-model']); ?>
     <title><?php echo xlt("Secure Messaging"); ?></title>
     <meta name="description" content="Mail Application" />
 </head>
@@ -511,7 +512,7 @@ function getAuthPortalUsers()
 </script>
     <ng ng-app="emrMessageApp">
     <div class="container" id='main' style="display: none">
-        <div class='header logo my-3'>
+        <div class='my-3'>
             <h2><i class='fa fa-envelope w-auto h-auto'></i><?php echo xlt('Patient Secure Mail'); ?></h2>
         </div>
         <div class="row" ng-controller="inboxCtrl">
@@ -542,16 +543,14 @@ function getAuthPortalUsers()
                 <!--inbox toolbar-->
                 <div class="row" ng-show="!isMessageSelected()">
                     <div class="col-12 mb-2">
-                        <a class="btn btn-secondary" data-toggle="tooltip" title="Refresh" id="refreshInbox" href="javascript:;" onclick='window.location.replace("./messages.php")'> <span class="fa fa-refresh fa-lg"></span>
+                        <a class="btn btn-secondary" data-toggle="tooltip" title="Refresh" id="refreshInbox" href="javascript:;" onclick='window.location.replace("./messages.php")'> <span class="fa fa-sync fa-lg"></span>
                         </a>
                         <button class="btn btn-secondary" title="<?php echo xla("New Note"); ?>" data-mode="add" data-toggle="modal" data-target="#modalCompose">
                             <span class="fa fa-edit fa-lg"></span>
                         </button>
                         <div class="btn-group btn-group float-right">
-                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                            <?php echo xlt('Actions'); ?> <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" role="menu">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><?php echo xlt('Actions'); ?></button>
+                            <ul class="dropdown-menu dropdown-menu-right">
                                 <li>
                                     <a class="dropdown-item" href="javascript:;" ng-click="readAll()"><?php echo xlt('Mark all as read'); ?></a>
                                 </li>
@@ -733,7 +732,7 @@ function getAuthPortalUsers()
                                     <input type='hidden' name='replyid' id='replyid' ng-value='selected.reply_mail_chain' />
                                     <input type='hidden' name='owner' ng-value='compose.owner' />
                                     <input type='hidden' name='recipient_id' ng-value='compose.selrecip' />
-                                    <input type='hidden' name='recipient_name' ng-value='compose.recipient_name' /> 
+                                    <input type='hidden' name='recipient_name' ng-value='compose.recipient_name' />
                                     <input type='hidden' name='sender_id' ng-value='compose.sender_id' />
                                     <input type='hidden' name='sender_name' ng-value='compose.sender_name' />
                                     <input type='hidden' name='task' ng-value='compose.task' />

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This is the Indigent Patients Report.  It displays a summary of
  * encounters within the specified time period for patients without
@@ -12,7 +13,6 @@
  * @copyright Copyright (c) 2017-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -71,7 +71,7 @@ $form_end_date  = (!empty($_POST['form_end_date'])) ? DateToYYYYMMDD($_POST['for
 
 <script>
 
-    $(function() {
+    $(function () {
         var win = top.printLogSetup ? top : opener.top;
         win.printLogSetup(document.getElementById('printbutton'));
 

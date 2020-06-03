@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Login screen.
  *
@@ -15,8 +16,6 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-
 
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
@@ -37,7 +36,7 @@ $rs = sqlStatement(
 if (sqlNumRows($rs)) {
     while ($app = sqlFetchArray($rs)) {
         $app_req = explode('?', trim($app['title']));
-        if (! file_exists('../'.$app_req[0])) {
+        if (! file_exists('../' . $app_req[0])) {
             continue;
         }
 
@@ -88,7 +87,7 @@ if (count($emr_app)) {
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <?php Header::setupHeader(['jquery-ui', 'jquery-ui-darkness']); ?>
+    <?php Header::setupHeader(); ?>
 
     <title><?php echo text($openemr_name) . " " . xlt('Login'); ?></title>
 
@@ -117,7 +116,7 @@ if (count($emr_app)) {
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/product_registration/product_registration_controller.js?v=<?php echo $v_js_includes; ?>"></script>
 
     <script type="text/javascript">
-        $(function() {
+        $(function () {
             init();
 
             var productRegistrationController = new ProductRegistrationController();
@@ -138,7 +137,7 @@ if (count($emr_app)) {
             // disable submit button to insert a notification of working
             element.disabled = true;
             // nothing fancy. mainly for mobile.
-            element.innerHTML = '<i class="fa fa-refresh fa-spin"></i> <?php echo xlt("Authenticating"); ?>';
+            element.innerHTML = '<i class="fa fa-sync fa-spin"></i> <?php echo xlt("Authenticating"); ?>';
             <?php if (!empty($GLOBALS['restore_sessions'])) { ?>
                 // Delete the session cookie by setting its expiration date in the past.
                 // This forces the server to create a new session ID.
@@ -156,10 +155,10 @@ if (count($emr_app)) {
             <div class="row">
                 <div class="col-sm-12">
                     <div>
-                        <div style="width: 50%;" class="mx-auto m-4">
+                        <div class="mx-auto m-4 w-50">
                             <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?>
                         </div>
-                        
+
                         <input type='hidden' name='new_login_session_management' value='1' />
 
                         <?php
@@ -184,21 +183,16 @@ if (count($emr_app)) {
                         if ($GLOBALS['language_menu_login']) {
                             // sorting order of language titles depends on language translation options.
                             $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
-                            if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation'])) {
-                                $sql = "SELECT *,lang_description as trans_lang_description FROM lang_languages ORDER BY lang_description, lang_id";
-                                  $res3=SqlStatement($sql);
-                            } else {
-                                // Use and sort by the translated language name.
-                                $sql = "SELECT ll.lang_id, " .
-                                    "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
-                                      "ll.lang_description " .
-                                    "FROM lang_languages AS ll " .
-                                    "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
-                                    "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
-                                    "ld.lang_id = ? " .
-                                    "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-                                $res3=SqlStatement($sql, array($mainLangID));
-                            }
+                            // Use and sort by the translated language name.
+                            $sql = "SELECT ll.lang_id, " .
+                                "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
+                                "ll.lang_description " .
+                                "FROM lang_languages AS ll " .
+                                "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
+                                "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
+                                "ld.lang_id = ? " .
+                                "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
+                            $res3 = SqlStatement($sql, array($mainLangID));
 
                             for ($iter = 0; $row = sqlFetchArray($res3); $iter++) {
                                 $result3[$iter] = $row;
@@ -209,7 +203,7 @@ if (count($emr_app)) {
                                 echo "<input type='hidden' name='languageChoice' value='1' />\n";
                             }
                         } else {
-                            echo "<input type='hidden' name='languageChoice' value='".attr($defaultLangID)."' />\n";
+                            echo "<input type='hidden' name='languageChoice' value='" . attr($defaultLangID) . "' />\n";
                         }
 
                         if ($GLOBALS['login_into_facility']) {
@@ -225,7 +219,7 @@ if (count($emr_app)) {
                 <div class="col-sm-12">
                     <?php if (isset($_SESSION['relogin']) && ($_SESSION['relogin'] == 1)) : // Begin relogin dialog ?>
                     <div class="alert alert-info m-1 font-weight-bold">
-                        <?php echo xlt('Password security has recently been upgraded.').'&nbsp;&nbsp;'.xlt('Please login again.'); ?>
+                        <?php echo xlt('Password security has recently been upgraded.') . '&nbsp;&nbsp;' . xlt('Please login again.'); ?>
                     </div>
                         <?php unset($_SESSION['relogin']);
                     endif;
@@ -298,14 +292,14 @@ if (count($emr_app)) {
                                                 continue; // skip the dummy language
                                             }
 
-                                                echo "<option value='".attr($iter['lang_id'])."'>".text($iter['trans_lang_description'])."</option>\n";
+                                                echo "<option value='" . attr($iter['lang_id']) . "'>" . text($iter['trans_lang_description']) . "</option>\n";
                                         } else {
                                             if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
                                                 if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
                                                     continue; // skip the dummy language
                                                 }
 
-                                                    echo "<option value='".attr($iter['lang_id'])."'>" . text($iter['trans_lang_description']) . "</option>\n";
+                                                    echo "<option value='" . attr($iter['lang_id']) . "'>" . text($iter['trans_lang_description']) . "</option>\n";
                                             }
                                         }
                                     endforeach; ?>
@@ -331,7 +325,7 @@ if (count($emr_app)) {
                         </div>
                     <?php endif; // End facilities menu block ?>
                     <div class="form-group oe-pull-away">
-                        <button type="submit" class="btn btn-secondary btn-lg" onClick="transmit_form(this)"><i class="fa fa-sign-in"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
+                        <button type="submit" class="btn btn-secondary btn-lg" onClick="transmit_form(this)"><i class="fa fa-sign-in-alt"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
                     </div>
                 </div>
             </div>
@@ -341,10 +335,21 @@ if (count($emr_app)) {
                         <a href="../../acknowledge_license_cert.html" target="main"><?php echo xlt('Acknowledgments, Licensing and Certification'); ?></a>
                     </p>
                 </div>
-                <div class="product-registration-modal" style="display: none">
-                    <p class="context"><?php echo xlt("Register your installation with OEMR to receive important notifications, such as security fixes and new release announcements."); ?></p>
-                    <input placeholder="<?php echo xlt('email'); ?>" type="email" class="email w-100 text-body" />
-                    <p class="message font-italic"></p>
+                <div class="product-registration-modal modal fade">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header"></div>
+                            <div class="modal-body">
+                                <p class="context"><?php echo xlt("Register your installation with OEMR to receive important notifications, such as security fixes and new release announcements."); ?></p>
+                                <input placeholder="<?php echo xlt('email'); ?>" type="email" class="email w-100 text-body form-control" />
+                                <p class="message font-italic"></p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary submit" ><?php echo xlt("Submit"); ?></button>
+                                <button type="button" class="btn btn-secondary nothanks" ><?php echo xlt("No Thanks"); ?></button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>

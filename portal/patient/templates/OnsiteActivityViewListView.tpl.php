@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OnsiteActivityViewListView.tpl.php
  *
@@ -17,7 +18,7 @@
 ?>
 <script type="text/javascript">
     $LAB.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsiteactivityviews.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){
-        $(function(){
+        $(function () {
             actpage.init();
         });
         setTimeout(function(){

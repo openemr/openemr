@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -509,7 +511,7 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['subject'])) {
@@ -521,7 +523,7 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
                         $this->addCountry($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"country" must be array of objects or null, '.gettype($data['country']).' seen.');
+                    throw new \InvalidArgumentException('"country" must be array of objects or null, ' . gettype($data['country']) . ' seen.');
                 }
             }
             if (isset($data['jurisdiction'])) {
@@ -530,7 +532,7 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
                         $this->addJurisdiction($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"jurisdiction" must be array of objects or null, '.gettype($data['jurisdiction']).' seen.');
+                    throw new \InvalidArgumentException('"jurisdiction" must be array of objects or null, ' . gettype($data['jurisdiction']) . ' seen.');
                 }
             }
             if (isset($data['status'])) {
@@ -563,7 +565,7 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
                         $this->addJurisdictionalAuthorization($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"jurisdictionalAuthorization" must be array of objects or null, '.gettype($data['jurisdictionalAuthorization']).' seen.');
+                    throw new \InvalidArgumentException('"jurisdictionalAuthorization" must be array of objects or null, ' . gettype($data['jurisdictionalAuthorization']) . ' seen.');
                 }
             }
             if (isset($data['holder'])) {
@@ -575,8 +577,8 @@ class FHIRMedicinalProductAuthorization extends FHIRDomainResource implements \J
             if (isset($data['procedure'])) {
                 $this->setProcedure($data['procedure']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DocumentService
  *
@@ -13,7 +14,7 @@
 
 namespace OpenEMR\Services;
 
-require_once(dirname(__FILE__)."/../../controllers/C_Document.class.php");
+require_once(dirname(__FILE__) . "/../../controllers/C_Document.class.php");
 
 use Document;
 
@@ -146,6 +147,6 @@ class DocumentService
             return false;
         }
 
-        return ['filename'=>$filename, 'mimetype'=>$filenameSql['mimetype'], 'file'=>$document];
+        return ['filename' => $filename, 'mimetype' => $filenameSql['mimetype'], 'file' => $document];
     }
 }

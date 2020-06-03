@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ESign button view script for form module
  *
@@ -20,5 +21,6 @@
  * @author  Medical Information Integration, LLC
  * @link    http://www.open-emr.org
  **/
+
 ?>
 <a target="<?php echo $this->target; ?>" href="#esign-mask-content" class="esign-button-form btn btn-primary btn-sm" data-formdir="<?php echo attr($this->formDir); ?>" data-formid="<?php echo attr($this->formId); ?>" data-encounterid="<?php echo attr($this->encounterId); ?>"><?php echo xlt('eSign'); ?></a>

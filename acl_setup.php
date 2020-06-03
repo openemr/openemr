@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This program is run by the OpenEMR setup.php script to install phpGACL
  * and creates the Access Control Objects and their sections.
@@ -257,16 +258,16 @@ if (isset($this) && isset($this->iuser)) {
 //
 $gacl->add_acl(
     array(
-        'acct'=>array('bill', 'disc', 'eob', 'rep', 'rep_a'),
-        'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'),
-        'encounters'=>array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
-        'lists'=>array('default','state','country','language','ethrace'),
-        'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'),
-        'sensitivities'=>array('normal', 'high'),
-        'nationnotes'=>array('nn_configure'),
-        'patientportal'=>array('portal'),
-        'menus'=>array('modle'),
-        'groups'=>array('gadd','gcalendar','glog','gdlog','gm')
+        'acct' => array('bill', 'disc', 'eob', 'rep', 'rep_a'),
+        'admin' => array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'),
+        'encounters' => array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
+        'lists' => array('default','state','country','language','ethrace'),
+        'patients' => array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'),
+        'sensitivities' => array('normal', 'high'),
+        'nationnotes' => array('nn_configure'),
+        'patientportal' => array('portal'),
+        'menus' => array('modle'),
+        'groups' => array('gadd','gcalendar','glog','gdlog','gm')
     ),
     null,
     array($admin),
@@ -283,7 +284,7 @@ $gacl->add_acl(
 //
 $gacl->add_acl(
     array(
-        'patients'=>array('pat_rep')
+        'patients' => array('pat_rep')
     ),
     null,
     array($doc),
@@ -297,7 +298,7 @@ $gacl->add_acl(
 // xl('Things that physicians can only read')
 $gacl->add_acl(
     array(
-        'placeholder'=>array('filler')
+        'placeholder' => array('filler')
     ),
     null,
     array($doc),
@@ -311,7 +312,7 @@ $gacl->add_acl(
 // xl('Things that physicians can read and enter but not modify')
 $gacl->add_acl(
     array(
-        'placeholder'=>array('filler')
+        'placeholder' => array('filler')
     ),
     null,
     array($doc),
@@ -325,13 +326,13 @@ $gacl->add_acl(
 // xl('Things that physicians can read and partly modify')
 $gacl->add_acl(
     array(
-        'acct'=>array('disc', 'rep'),
-        'admin'=>array('drugs'),
-        'encounters'=>array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
+        'acct' => array('disc', 'rep'),
+        'admin' => array('drugs'),
+        'encounters' => array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
         'patients' => array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert',
         'disclosure', 'rx', 'amendment', 'lab'),
-        'sensitivities'=>array('normal', 'high'),
-        'groups'=>array('gcalendar','glog')
+        'sensitivities' => array('normal', 'high'),
+        'groups' => array('gcalendar','glog')
     ),
     null,
     array($doc),
@@ -348,7 +349,7 @@ $gacl->add_acl(
 //
 $gacl->add_acl(
     array(
-        'patients'=>array('pat_rep')
+        'patients' => array('pat_rep')
     ),
     null,
     array($clin),
@@ -362,9 +363,9 @@ $gacl->add_acl(
 // xl('Things that clinicians can only read')
 $gacl->add_acl(
     array(
-        'encounters'=>array('notes', 'relaxed'),
-        'patients'=>array('demo', 'med', 'docs', 'notes','trans', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab'),
-        'sensitivities'=>array('normal')
+        'encounters' => array('notes', 'relaxed'),
+        'patients' => array('demo', 'med', 'docs', 'notes','trans', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab'),
+        'sensitivities' => array('normal')
     ),
     null,
     array($clin),
@@ -378,7 +379,7 @@ $gacl->add_acl(
 // xl('Things that clinicians can read and enter but not modify')
 $gacl->add_acl(
     array(
-        'placeholder'=>array('filler')
+        'placeholder' => array('filler')
     ),
     null,
     array($clin),
@@ -392,10 +393,10 @@ $gacl->add_acl(
 // xl('Things that clinicians can read and partly modify')
 $gacl->add_acl(
     array(
-        'admin'=>array('drugs'),
-        'encounters'=>array('coding'),
-        'patients'=>array('appt'),
-        'groups'=>array('gcalendar','glog')
+        'admin' => array('drugs'),
+        'encounters' => array('coding'),
+        'patients' => array('appt'),
+        'groups' => array('gcalendar','glog')
     ),
     null,
     array($clin),
@@ -412,7 +413,7 @@ $gacl->add_acl(
 //
 $gacl->add_acl(
     array(
-        'patients'=>array('alert','pat_rep')
+        'patients' => array('alert','pat_rep')
     ),
     null,
     array($front),
@@ -426,7 +427,7 @@ $gacl->add_acl(
 // xl('Things that front office can only read')
 $gacl->add_acl(
     array(
-        'placeholder'=>array('filler')
+        'placeholder' => array('filler')
     ),
     null,
     array($front),
@@ -440,7 +441,7 @@ $gacl->add_acl(
 // xl('Things that front office can read and enter but not modify')
 $gacl->add_acl(
     array(
-        'placeholder'=>array('filler')
+        'placeholder' => array('filler')
     ),
     null,
     array($front),
@@ -454,8 +455,8 @@ $gacl->add_acl(
 // xl('Things that front office can read and partly modify')
 $gacl->add_acl(
     array(
-        'patients'=>array('appt', 'demo', 'trans', 'notes'),
-        'groups'=>array('gcalendar')
+        'patients' => array('appt', 'demo', 'trans', 'notes'),
+        'groups' => array('gcalendar')
     ),
     null,
     array($front),
@@ -472,7 +473,7 @@ $gacl->add_acl(
 //
 $gacl->add_acl(
     array(
-        'patients'=>array('alert','pat_rep')
+        'patients' => array('alert','pat_rep')
     ),
     null,
     array($back),
@@ -486,7 +487,7 @@ $gacl->add_acl(
 // xl('Things that back office can only read')
 $gacl->add_acl(
     array(
-        'placeholder'=>array('filler')
+        'placeholder' => array('filler')
     ),
     null,
     array($back),
@@ -500,7 +501,7 @@ $gacl->add_acl(
 // xl('Things that back office can read and enter but not modify')
 $gacl->add_acl(
     array(
-        'placeholder'=>array('filler')
+        'placeholder' => array('filler')
     ),
     null,
     array($back),
@@ -514,10 +515,10 @@ $gacl->add_acl(
 // xl('Things that back office can read and partly modify')
 $gacl->add_acl(
     array(
-        'acct'=>array('bill', 'disc', 'eob', 'rep', 'rep_a'),
-        'admin'=>array('practice', 'superbill'),
-        'encounters'=>array('auth_a', 'coding_a', 'date_a'),
-        'patients'=>array('appt', 'demo')
+        'acct' => array('bill', 'disc', 'eob', 'rep', 'rep_a'),
+        'admin' => array('practice', 'superbill'),
+        'encounters' => array('auth_a', 'coding_a', 'date_a'),
+        'patients' => array('appt', 'demo')
     ),
     null,
     array($back),
@@ -534,16 +535,16 @@ $gacl->add_acl(
 //
 $gacl->add_acl(
     array(
-        'acct'=>array('bill', 'disc', 'eob', 'rep', 'rep_a'),
-        'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'),
-        'encounters'=>array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
-        'lists'=>array('default','state','country','language','ethrace'),
-        'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'),
-        'sensitivities'=>array('normal', 'high'),
-        'nationnotes'=>array('nn_configure'),
-        'patientportal'=>array('portal'),
-        'menus'=>array('modle'),
-        'groups'=>array('gadd','gcalendar','glog','gdlog','gm')
+        'acct' => array('bill', 'disc', 'eob', 'rep', 'rep_a'),
+        'admin' => array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'),
+        'encounters' => array('auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'),
+        'lists' => array('default','state','country','language','ethrace'),
+        'patients' => array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab', 'docs_rm','pat_rep'),
+        'sensitivities' => array('normal', 'high'),
+        'nationnotes' => array('nn_configure'),
+        'patientportal' => array('portal'),
+        'menus' => array('modle'),
+        'groups' => array('gadd','gcalendar','glog','gdlog','gm')
     ),
     null,
     array($breakglass),

@@ -8,12 +8,8 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE General Public License 3
  */
 
-// Enables responsive text for Bootstrap
-$enable-responsive-font-sizes: true;
-// Import Bootstrap 4 SCSS Files before doing anything
-@import "../../public/assets/bootstrap/scss/bootstrap";
 // Import Select2 BS4 Theme
-@import "../../public/assets/select2-bootstrap4-theme/src/layout";
+@import "../../public/assets/@ttskch/select2-bootstrap4-theme/src/layout";
 
 @import "directional";
 

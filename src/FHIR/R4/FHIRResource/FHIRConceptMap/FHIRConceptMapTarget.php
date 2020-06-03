@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRConceptMap;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRConceptMap;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -260,7 +262,7 @@ class FHIRConceptMapTarget extends FHIRBackboneElement implements \JsonSerializa
                         $this->addDependsOn($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"dependsOn" must be array of objects or null, '.gettype($data['dependsOn']).' seen.');
+                    throw new \InvalidArgumentException('"dependsOn" must be array of objects or null, ' . gettype($data['dependsOn']) . ' seen.');
                 }
             }
             if (isset($data['product'])) {
@@ -269,11 +271,11 @@ class FHIRConceptMapTarget extends FHIRBackboneElement implements \JsonSerializa
                         $this->addProduct($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"product" must be array of objects or null, '.gettype($data['product']).' seen.');
+                    throw new \InvalidArgumentException('"product" must be array of objects or null, ' . gettype($data['product']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

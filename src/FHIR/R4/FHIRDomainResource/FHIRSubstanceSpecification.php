@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -602,7 +604,7 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
                         $this->addSource($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"source" must be array of objects or null, '.gettype($data['source']).' seen.');
+                    throw new \InvalidArgumentException('"source" must be array of objects or null, ' . gettype($data['source']) . ' seen.');
                 }
             }
             if (isset($data['comment'])) {
@@ -614,7 +616,7 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
                         $this->addMoiety($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"moiety" must be array of objects or null, '.gettype($data['moiety']).' seen.');
+                    throw new \InvalidArgumentException('"moiety" must be array of objects or null, ' . gettype($data['moiety']) . ' seen.');
                 }
             }
             if (isset($data['property'])) {
@@ -623,7 +625,7 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
                         $this->addProperty($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"property" must be array of objects or null, '.gettype($data['property']).' seen.');
+                    throw new \InvalidArgumentException('"property" must be array of objects or null, ' . gettype($data['property']) . ' seen.');
                 }
             }
             if (isset($data['referenceInformation'])) {
@@ -638,7 +640,7 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
                         $this->addCode($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"code" must be array of objects or null, '.gettype($data['code']).' seen.');
+                    throw new \InvalidArgumentException('"code" must be array of objects or null, ' . gettype($data['code']) . ' seen.');
                 }
             }
             if (isset($data['name'])) {
@@ -647,7 +649,7 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
                         $this->addName($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"name" must be array of objects or null, '.gettype($data['name']).' seen.');
+                    throw new \InvalidArgumentException('"name" must be array of objects or null, ' . gettype($data['name']) . ' seen.');
                 }
             }
             if (isset($data['molecularWeight'])) {
@@ -656,7 +658,7 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
                         $this->addMolecularWeight($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"molecularWeight" must be array of objects or null, '.gettype($data['molecularWeight']).' seen.');
+                    throw new \InvalidArgumentException('"molecularWeight" must be array of objects or null, ' . gettype($data['molecularWeight']) . ' seen.');
                 }
             }
             if (isset($data['relationship'])) {
@@ -665,7 +667,7 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
                         $this->addRelationship($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"relationship" must be array of objects or null, '.gettype($data['relationship']).' seen.');
+                    throw new \InvalidArgumentException('"relationship" must be array of objects or null, ' . gettype($data['relationship']) . ' seen.');
                 }
             }
             if (isset($data['nucleicAcid'])) {
@@ -680,8 +682,8 @@ class FHIRSubstanceSpecification extends FHIRDomainResource implements \JsonSeri
             if (isset($data['sourceMaterial'])) {
                 $this->setSourceMaterial($data['sourceMaterial']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Functions to globally validate and prepare data for sql database insertion.
  *
@@ -13,13 +14,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__file__)."/../globals.php");
+require_once(dirname(__file__) . "/../globals.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/report.inc");
 require_once("$srcdir/calendar.inc");
 
-use OpenEMR\Billing\EDI_270;
+use OpenEMR\Billing\EDI270;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -34,13 +35,13 @@ $target = $GLOBALS['edi_271_file_path'];
 $batch_log = '';
 
 if (isset($_FILES) && !empty($_FILES)) {
-    $target = $target .time().basename($_FILES['uploaded']['name']);
+    $target = $target . time() . basename($_FILES['uploaded']['name']);
 
     if ($_FILES['uploaded']['size'] > 350000) {
-        $message .=  xlt('Your file is too large')."<br />";
+        $message .=  xlt('Your file is too large') . "<br />";
     }
     if ($_FILES['uploaded']['type'] != "text/plain") {
-        $message .= xlt('You may only upload .txt files')."<br />";
+        $message .= xlt('You may only upload .txt files') . "<br />";
     }
     if (!isset($message)) {
         $file_moved = move_uploaded_file($_FILES['uploaded']['tmp_name'], $target);
@@ -48,7 +49,7 @@ if (isset($_FILES) && !empty($_FILES)) {
             $message = xlt('The following EDI file has been uploaded') . ': "' . text(basename($_FILES['uploaded']['name'])) . '"';
             $Response271 = file($target);
             if ($Response271) {
-                $batch_log = EDI_270::parseEdi271($Response271);
+                $batch_log = EDI270::parseEdi271($Response271);
             } else {
                 $message = xlt('The following EDI file upload failed to open') . ': "' . text(basename($_FILES['uploaded']['name'])) . '"';
             }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * View a file upload from the CMS Patient Portal.
  *
@@ -18,9 +19,6 @@
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
  */
-
-
-
 
 require_once("../globals.php");
 require_once("portal.inc.php");

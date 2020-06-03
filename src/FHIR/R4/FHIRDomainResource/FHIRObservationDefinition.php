@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -431,7 +433,7 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
                         $this->addCategory($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"category" must be array of objects or null, '.gettype($data['category']).' seen.');
+                    throw new \InvalidArgumentException('"category" must be array of objects or null, ' . gettype($data['category']) . ' seen.');
                 }
             }
             if (isset($data['code'])) {
@@ -443,7 +445,7 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['permittedDataType'])) {
@@ -452,7 +454,7 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
                         $this->addPermittedDataType($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"permittedDataType" must be array of objects or null, '.gettype($data['permittedDataType']).' seen.');
+                    throw new \InvalidArgumentException('"permittedDataType" must be array of objects or null, ' . gettype($data['permittedDataType']) . ' seen.');
                 }
             }
             if (isset($data['multipleResultsAllowed'])) {
@@ -473,7 +475,7 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
                         $this->addQualifiedInterval($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"qualifiedInterval" must be array of objects or null, '.gettype($data['qualifiedInterval']).' seen.');
+                    throw new \InvalidArgumentException('"qualifiedInterval" must be array of objects or null, ' . gettype($data['qualifiedInterval']) . ' seen.');
                 }
             }
             if (isset($data['validCodedValueSet'])) {
@@ -488,8 +490,8 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
             if (isset($data['criticalCodedValueSet'])) {
                 $this->setCriticalCodedValueSet($data['criticalCodedValueSet']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

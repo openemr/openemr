@@ -1,4 +1,5 @@
 <?php
+
 /**
  * report.inc
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
@@ -264,7 +264,7 @@ function printPatientTransactions($pid)
         echo "<p><span class='bold'>" .
         text(oeFormatSDFT(strtotime($row['date']))) .
         " (" .
-        generate_display_field(array('data_type'=>'1','list_id'=>'transactions'), $row['title']) .
+        generate_display_field(array('data_type' => '1','list_id' => 'transactions'), $row['title']) .
         ")</span><br />\n";
         lbt_report($row['id'], $row['title']);
         echo "</p>\n";
@@ -278,7 +278,7 @@ function printPatientBilling($pid)
         echo "<span class='bold'>" . text(oeFormatSDFT(strtotime($result["date"]))) . " : </span>";
         echo "<span class='text'>(" . text($result["code_type"]) . ") ";
         echo $result['code_type'] == 'COPAY' ? text(oeFormatMoney($result['code'])) : text($result['code']);
-        echo " - ". wordwrap(text($result['code_text']), 70, "\n", true)."</span>";
+        echo " - " . wordwrap(text($result['code_text']), 70, "\n", true) . "</span>";
         echo "<br />\n";
     }
 }
@@ -327,9 +327,9 @@ function printPatientForms($pid, $cols)
                                     "FROM forms AS f, users AS u WHERE " .
                                     "f.pid = ? AND f.encounter = ? AND " .
                                     "f.formdir = 'newpatient' AND u.username = f.user " .
-                                    " AND f.deleted=0 ". //--JRM--
+                                    " AND f.deleted=0 " . //--JRM--
                                     "ORDER BY f.id LIMIT 1", array($pid, $result['encounter']));
-            echo " ".xlt('Provider') . ": " . text($tmp['title']) . " " .
+            echo " " . xlt('Provider') . ": " . text($tmp['title']) . " " .
                 text($tmp['fname']) . " " . text($tmp['mname']) . " " . text($tmp['lname']);
             echo "<br/>";
         } else {
@@ -354,7 +354,7 @@ function printPatientForms($pid, $cols)
                     "ORDER BY b.date",
                     array($pid, $result['encounter'])
                 );
-                while ($brow=sqlFetchArray($bres)) {
+                while ($brow = sqlFetchArray($bres)) {
                     echo "<span class='bold'>&nbsp;" . xlt('Procedure') . ": </span><span class='text'>" .
                         text($brow['code']) . " " . text($brow['code_text']) . "</span><br />\n";
                 }
@@ -502,7 +502,7 @@ function printData($retar, $key, $sep, $date_format)
     //$retar[$key]
     if (@array_key_exists($key, $retar)) {
         $length = sizeof($retar[$key]);
-        for ($iter = $length; $iter>=1; $iter--) {
+        for ($iter = $length; $iter >= 1; $iter--) {
             if ($retar[$key][$iter]["value"] != "0000-00-00 00:00:00") {
                 print text($retar[$key][$iter]["value"]) . " (" . text(oeFormatSDFT(strtotime($retar[$key][$iter]["date"]))) . ")$sep";
             }
@@ -523,7 +523,7 @@ function printRecDataOne($data_array, $recres, $N)
     print "<table><tr>\n";
     $count = 0;
     foreach ($data_array as $akey => $aval) {
-        if (!empty($recres[$akey]) && sizeof($recres[$akey])>0 && ($recres[$akey][1]["value"]!="0000-00-00 00:00:00")) {
+        if (!empty($recres[$akey]) && sizeof($recres[$akey]) > 0 && ($recres[$akey][1]["value"] != "0000-00-00 00:00:00")) {
             if ($count == $N) {
                 print "</tr><tr>\n";
                 $count = 0;

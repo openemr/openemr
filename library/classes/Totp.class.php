@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Totp class used to generated MultiFactor App Based 2FA
  *

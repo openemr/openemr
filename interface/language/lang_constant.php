@@ -1,4 +1,5 @@
 <?php
+
 /**
  * lang_constant.php script
  *
@@ -9,16 +10,17 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("language.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 // Ensure this script is not called separately
-if ((empty($_SESSION['lang_module_unique_id'])) ||
+if (
+    (empty($_SESSION['lang_module_unique_id'])) ||
     (empty($unique_id)) ||
-    ($unique_id != $_SESSION['lang_module_unique_id'])) {
+    ($unique_id != $_SESSION['lang_module_unique_id'])
+) {
     die(xlt('Authentication Error'));
 }
 unset($_SESSION['lang_module_unique_id']);
@@ -39,22 +41,22 @@ if ($_POST['add']) {
 
     //validate
     if ($_POST['constant_name'] == "") {
-            echo xlt('Constant name is blank').'<br />';
-            $err='y';
+            echo xlt('Constant name is blank') . '<br />';
+            $err = 'y';
     }
 
-    $sql="SELECT * FROM lang_constants WHERE constant_name=? limit 1" ;
-    $res=SqlQuery($sql, array($_POST['constant_name']));
+    $sql = "SELECT * FROM lang_constants WHERE constant_name=? limit 1" ;
+    $res = SqlQuery($sql, array($_POST['constant_name']));
     if ($res) {
-        echo xlt('Data Alike is already in database, please change constant name').'<br />';
-        $err='y';
+        echo xlt('Data Alike is already in database, please change constant name') . '<br />';
+        $err = 'y';
     }
 
-    if ($err=='y') {
-        $val_constant=$_POST['constant_name'];
+    if ($err == 'y') {
+        $val_constant = $_POST['constant_name'];
     } else {
             //insert into the main table
-        $sql="INSERT INTO lang_constants SET constant_name=?";
+        $sql = "INSERT INTO lang_constants SET constant_name=?";
         SqlStatement($sql, array($_POST['constant_name']));
 
                 //insert into the log table - to allow persistant customizations
@@ -70,19 +72,19 @@ if ($_POST['add']) {
 
 ?>
 
-<table>
 <form name="cons_form" method="post" action="?m=constant&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" onsubmit="return top.restoreSession()">
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-    <tr>
-        <td><?php echo xlt('constant name'); ?></td>
-        <td><input type="text" name="constant_name" size="100" value="<?php echo attr($val_constant); ?>"></td>
-    </tr>
-    <tr>
-        <td></td>
-        <td><input type="submit" name="add" value="<?php echo xla('Add'); ?>"></td>
-    </tr>
+    <!-- Constant Name -->
+    <div class="form-group">
+        <label for="constantName"><?php  echo xlt('Constant Name'); ?>:</label>
+        <input type="text" class="form-control" id="constantName" name="constant_name" size="100" value="<?php echo attr($val_constant); ?>">
+    </div>
+    <!-- Submit Button -->
+    <div class="form-group">
+        <input type="submit" class="btn btn-primary" name="add" value="<?php echo xla('Add'); ?>">
+    </div>
 </form>
-</table>
+
 <span class="text"><?php echo xlt('Please Note: constants are case sensitive and any string is allowed.'); ?></span>
 <script>
     $("#constant-link").addClass("active");

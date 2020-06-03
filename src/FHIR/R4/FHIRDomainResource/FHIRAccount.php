@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -379,7 +381,7 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['status'])) {
@@ -397,7 +399,7 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
                         $this->addSubject($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"subject" must be array of objects or null, '.gettype($data['subject']).' seen.');
+                    throw new \InvalidArgumentException('"subject" must be array of objects or null, ' . gettype($data['subject']) . ' seen.');
                 }
             }
             if (isset($data['servicePeriod'])) {
@@ -409,7 +411,7 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
                         $this->addCoverage($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"coverage" must be array of objects or null, '.gettype($data['coverage']).' seen.');
+                    throw new \InvalidArgumentException('"coverage" must be array of objects or null, ' . gettype($data['coverage']) . ' seen.');
                 }
             }
             if (isset($data['owner'])) {
@@ -424,14 +426,14 @@ class FHIRAccount extends FHIRDomainResource implements \JsonSerializable
                         $this->addGuarantor($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"guarantor" must be array of objects or null, '.gettype($data['guarantor']).' seen.');
+                    throw new \InvalidArgumentException('"guarantor" must be array of objects or null, ' . gettype($data['guarantor']) . ' seen.');
                 }
             }
             if (isset($data['partOf'])) {
                 $this->setPartOf($data['partOf']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Imports patient demographics from our custom XML format.
  *
@@ -101,17 +102,17 @@ if ($_POST['form_import']) {
 
             if ($probeix == 1 && $probearr[$probeix] == 'patient') {
                 $apatient[$tag] = $tagval;
-            } else if ($probeix == 2 && $probearr[$probeix] == 'pcp') {
+            } elseif ($probeix == 2 && $probearr[$probeix] == 'pcp') {
                 $apcp[$tag] = $tagval;
-            } else if ($probeix == 2 && $probearr[$probeix] == 'employer') {
+            } elseif ($probeix == 2 && $probearr[$probeix] == 'employer') {
                 $aemployer[$tag] = $tagval;
-            } else if ($probeix == 2 && $probearr[$probeix] == 'insurance') {
+            } elseif ($probeix == 2 && $probearr[$probeix] == 'insurance') {
                 if ($tag == 'priority') {
                     $inspriority = $tagval;
                 } else {
                     $ainsurance["$tag$inspriority"] = $tagval;
                 }
-            } else if ($probeix == 3 && $probearr[$probeix] == 'subscriber') {
+            } elseif ($probeix == 3 && $probearr[$probeix] == 'subscriber') {
                 $asubscriber["$tag$inspriority"] = $tagval;
             } else {
                 $alertmsg = "Invalid tag \"" . $probearr[$probeix] . "\" at level $probeix";

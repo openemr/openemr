@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIROperationDefinition;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIROperationDefinition;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -144,14 +146,14 @@ class FHIROperationDefinitionOverload extends FHIRBackboneElement implements \Js
                         $this->addParameterName($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"parameterName" must be array of objects or null, '.gettype($data['parameterName']).' seen.');
+                    throw new \InvalidArgumentException('"parameterName" must be array of objects or null, ' . gettype($data['parameterName']) . ' seen.');
                 }
             }
             if (isset($data['comment'])) {
                 $this->setComment($data['comment']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

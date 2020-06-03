@@ -1,4 +1,5 @@
 <?php
+
 /**
  * view/plans_config.php  UI for CDR admin rules plan
  *
@@ -14,6 +15,7 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 
 <link type="text/css" rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] . '/jquery-ui-themes/themes/ui-lightness/jquery-ui.min.css'; ?>" />
@@ -39,7 +41,7 @@ $.extend($.ui.multiselect.locale, {
 <script language="javascript" src="<?php js_src('jQuery.fn.sortElements.js') ?>"></script>
 
 <script type="text/javascript">
-    $(function() {
+    $(function () {
         //load plans
         $("#cdr-plans").load('<?php library_src('RulesPlanMappingEventHandlers_ajax.php') ?>');
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Product Registration entity.
  *

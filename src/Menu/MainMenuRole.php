@@ -1,4 +1,5 @@
 <?php
+
 /**
  * MainMenuRole class.
  *
@@ -32,7 +33,7 @@ class MainMenuRole extends MenuRole
         //   constructor. Adding to this array will link special menu items
         //   to functions in this class.
         parent::__construct();
-        $this->menu_update_map["Visit Forms"]="updateVisitForms";
+        $this->menu_update_map["Visit Forms"] = "updateVisitForms";
         $this->dispatcher = $dispatcher;
     }
 
@@ -63,7 +64,7 @@ class MainMenuRole extends MenuRole
         $this->menuUpdateEntries($menu_parsed);
         $updatedMenuEvent = $this->dispatcher->dispatch(MenuEvent::MENU_UPDATE, new MenuEvent($menu_parsed));
 
-        $menu_restrictions=array();
+        $menu_restrictions = array();
         $this->menuApplyRestrictions($updatedMenuEvent->getMenu(), $menu_restrictions);
         $updatedRestrictions = $this->dispatcher->dispatch(MenuEvent::MENU_RESTRICT, new MenuEvent($menu_restrictions));
 

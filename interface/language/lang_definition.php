@@ -1,4 +1,5 @@
 <?php
+
 /**
  * lang_definition.php
  *
@@ -21,9 +22,11 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 // Ensure this script is not called separately
-if ((empty($_SESSION['lang_module_unique_id'])) ||
+if (
+    (empty($_SESSION['lang_module_unique_id'])) ||
     (empty($unique_id)) ||
-    ($unique_id != $_SESSION['lang_module_unique_id'])) {
+    ($unique_id != $_SESSION['lang_module_unique_id'])
+) {
     die(xlt('Authentication Error'));
 }
 unset($_SESSION['lang_module_unique_id']);
@@ -39,61 +42,65 @@ if (!$thisauth) {
 
 ?>
 
-  <table>
-    <form name='filterform' id='filterform' method='post' action='?m=definition&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>' onsubmit="return top.restoreSession()">
+<form name='filterform' id='filterform' method='post'
+      action='?m=definition&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>'
+      onsubmit="return top.restoreSession()">
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-
-    <tr>
-      <td><?php echo xlt('Filter for Constants'); ?>:</td>
-      <td><input type='text' name='filter_cons' size='8' value='<?php echo attr($_POST['filter_cons']); ?>' />
-        <span class="text"><?php echo xlt('(% matches any string, _ matches any character)'); ?></span></td>
-    </tr>
-    <tr>
-      <td><?php echo xlt('Filter for Definitions'); ?>:</td>
-      <td><input type='text' name='filter_def' size='8' value='<?php echo attr($_POST['filter_def']); ?>' />
-        <span class="text"><?php echo xlt('(% matches any string, _ matches any character)'); ?></span></td>
-    </tr>
-    <tr>
-      <td><?php echo xlt('Select Language').":"; ?></td>
-      <td>
-    <select name='language_select'>
+    <!-- Filter for Constants -->
+    <div class="form-group">
+        <label for="filterForConstants"><?php echo xlt('Filter for Constants'); ?>:</label>
+        <input type='text' class="form-control" id="filterForConstants" name='filter_cons'
+               size='8' value='<?php echo attr($_POST['filter_cons']); ?>' />
+        <small class="form-text text-muted">
+            <?php echo xlt('(% matches any string, _ matches any character)'); ?>
+        </small>
+    </div>
+    <!-- Filter for Definitions -->
+    <div class="form-group">
+        <label for="filterForDefinitions"><?php echo xlt('Filter for Definitions'); ?>:</label>
+        <input type='text' class="form-control" id="filterForDefinitions" name='filter_def'
+               size='8' value='<?php echo attr($_POST['filter_def']); ?>' />
+        <small class="form-text text-muted">
+            <?php echo xlt('(% matches any string, _ matches any character)'); ?>
+        </small>
+    </div>
+    <!-- Select Language -->
+    <div class="form-group">
+        <label for="selectLanguage"><?php echo xlt('Select Language') . ":"; ?></label>
+        <select class="form-control" name='language_select' id="selectLanguage">
             <?php
           // sorting order of language titles depends on language translation options.
             $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
-            if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation'])) {
-                $sql = "SELECT * FROM lang_languages ORDER BY lang_description, lang_id";
-                $res=SqlStatement($sql);
-            } else {
-                // Use and sort by the translated language name.
-                $sql = "SELECT ll.lang_id, " .
+            // Use and sort by the translated language name.
+            $sql = "SELECT ll.lang_id, " .
                 "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS lang_description " .
                 "FROM lang_languages AS ll " .
                 "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
                 "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
                 "ld.lang_id=? " .
                 "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-                $res=SqlStatement($sql, array($mainLangID));
-            }
+            $res = SqlStatement($sql, array($mainLangID));
 
           // collect the default selected language id, and then display list
             $tempLangID = isset($_POST['language_select']) ? $_POST['language_select'] : $mainLangID;
-            while ($row=SqlFetchArray($res)) {
+            while ($row = SqlFetchArray($res)) {
                 if ($tempLangID == $row['lang_id']) {
-                    echo "<option value='" . attr($row['lang_id']) . "' selected>" . text($row['lang_description']) . "</option>";
+                    echo "<option value='" . attr($row['lang_id']) . "' selected>" .
+                        text($row['lang_description']) . "</option>";
                 } else {
-                      echo "<option value='" . attr($row['lang_id']) . "'>" . text($row['lang_description']) . "</option>";
+                      echo "<option value='" . attr($row['lang_id']) . "'>" .
+                          text($row['lang_description']) . "</option>";
                 }
             }
             ?>
         </select>
-      </td>
-    </tr>
-    <tr>
-      <td colspan=2><INPUT TYPE="submit" name="edit" value="<?php echo xla('Search'); ?>"></td>
-    </tr>
-    </form>
-  </table>
-  <br />
+    </div>
+    <!-- Submit Button -->
+    <div class="form-group">
+        <input type="submit" class="btn btn-primary" name="edit" value="<?php echo xla('Search'); ?>">
+    </div>
+</form>
+<br />
 <?php
 
 // set up the mysql collation string to ensure case is sensitive (or insensitive) in the mysql queries
@@ -144,7 +151,7 @@ if ($_POST['load']) {
             $value = trim($value);
 
             // only continue if the definition is new
-            $sql = "SELECT * FROM lang_definitions WHERE def_id=? AND definition=? ".$case_sensitive_collation;
+            $sql = "SELECT * FROM lang_definitions WHERE def_id=? AND definition=? " . $case_sensitive_collation;
             $res_test = SqlStatement($sql, array($key, $value));
             if (!SqlFetchArray($res_test)) {
                 // insert into the main language tables
@@ -165,7 +172,7 @@ if ($_POST['load']) {
         }
     }
 
-    if ($go=='yes') {
+    if ($go == 'yes') {
         echo xlt("New Definition set added");
     }
 }
@@ -193,7 +200,7 @@ if ($_POST['edit']) {
     "FROM lang_definitions AS ld " .
     "RIGHT JOIN ( lang_constants AS lc, lang_languages AS ll ) ON " .
     "( lc.cons_id = ld.cons_id AND ll.lang_id = ld.lang_id ) " .
-    "WHERE lc.constant_name ".$case_insensitive_collation." LIKE ? AND ( ll.lang_id = 1 ";
+    "WHERE lc.constant_name " . $case_insensitive_collation . " LIKE ? AND ( ll.lang_id = 1 ";
     if ($lang_id != 1) {
                 array_push($bind_sql_array, $lang_id);
         $sql .= "OR ll.lang_id=? ";
@@ -203,21 +210,22 @@ if ($_POST['edit']) {
         $lang_name = $row['lang_description'];
     }
 
-    $sql .= ") ORDER BY lc.constant_name ".$case_insensitive_collation;
+    $sql .= ") ORDER BY lc.constant_name " . $case_insensitive_collation;
     $res = SqlStatement($sql, $bind_sql_array);
 
         $isResults = false; //flag to record whether there are any results
-    echo ('<table><form method="post" action="?m=definition&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken()) . '" onsubmit="return top.restoreSession()">');
+    echo ('<table><form method="post" action="?m=definition&csrf_token_form='
+        . attr_url(CsrfUtils::collectCsrfToken()) . '" onsubmit="return top.restoreSession()">');
     echo ('<input type="hidden" name="csrf_token_form" value="' . attr(CsrfUtils::collectCsrfToken()) . '" />');
     // only english definitions
-    if ($lang_id==1) {
-        while ($row=SqlFetchArray($res)) {
+    if ($lang_id == 1) {
+        while ($row = SqlFetchArray($res)) {
                 $isShow = false; //flag if passes the definition filter
-                $stringTemp = '<tr><td>'.text($row['constant_name']).'</td>';
+                $stringTemp = '<tr><td>' . text($row['constant_name']) . '</td>';
             // if there is no definition
             if (empty($row['def_id'])) {
                 $cons_name = "cons_id[" . $row['cons_id'] . "]";
-                if ($lang_filter_def=='%') {
+                if ($lang_filter_def == '%') {
                     $isShow = true;
                 }
 
@@ -231,7 +239,8 @@ if ($_POST['edit']) {
                 }
             }
 
-            $stringTemp .= '<td><input type="text" size="50" NAME="' . attr($cons_name) . '" value="' . attr($row['definition']) . '">';
+            $stringTemp .= '<td><input type="text" size="50" NAME="' . attr($cons_name) .
+                '" value="' . attr($row['definition']) . '">';
             $stringTemp .= '</td><td></td></tr>';
             if ($isShow) {
                 //definition filter passed, so show
@@ -240,10 +249,10 @@ if ($_POST['edit']) {
             }
         }
 
-        echo ('<input type="hidden" name="lang_id" value="'.attr($lang_id).'">');
+        echo ('<input type="hidden" name="lang_id" value="' . attr($lang_id) . '">');
     // english plus the other
     } else {
-        while ($row=SqlFetchArray($res)) {
+        while ($row = SqlFetchArray($res)) {
             if (!empty($row['lang_id']) && $row['lang_id'] != '1') {
                     // This should not happen, if it does that must mean that this
                     // constant has more than one definition for the same language!
@@ -251,24 +260,24 @@ if ($_POST['edit']) {
             }
 
                 $isShow = false; //flag if passes the definition filter
-            $stringTemp = '<tr><td>'.text($row['constant_name']).'</td>';
-            if ($row['definition']=='' or $row['definition']=='NULL') {
-                $def=" " ;
+            $stringTemp = '<tr><td>' . text($row['constant_name']) . '</td>';
+            if ($row['definition'] == '' or $row['definition'] == 'NULL') {
+                $def = " " ;
             } else {
-                $def=$row['definition'];
+                $def = $row['definition'];
             }
 
-            $stringTemp .= '<td>'.text($def).'</td>';
-            $row=SqlFetchArray($res); // jump one to get the second language selected
-            if ($row['def_id']=='' or $row['def_id']=='NULL') {
-                $cons_name="cons_id[".$row['cons_id']."]";
-                if ($lang_filter_def=='%') {
+            $stringTemp .= '<td>' . text($def) . '</td>';
+            $row = SqlFetchArray($res); // jump one to get the second language selected
+            if ($row['def_id'] == '' or $row['def_id'] == 'NULL') {
+                $cons_name = "cons_id[" . $row['cons_id'] . "]";
+                if ($lang_filter_def == '%') {
                     $isShow = true;
                 }
 
             // if there is a previous definition
             } else {
-                $cons_name="def_id[".$row['def_id']."]";
+                $cons_name = "def_id[" . $row['def_id'] . "]";
                 ;
                     $sql = "SELECT definition FROM lang_definitions WHERE def_id=? AND definition LIKE ?";
                     $res2 = SqlStatement($sql, array($row['def_id'], $lang_filter_def));
@@ -277,8 +286,9 @@ if ($_POST['edit']) {
                 }
             }
 
-            $stringTemp .= '<td><input type="text" size="50" name="'.attr($cons_name).'" value="'.attr($row['definition']).'">';
-            $stringTemp .='</td></tr>';
+            $stringTemp .= '<td><input type="text" size="50" name="' . attr($cons_name) . '" value="' .
+                attr($row['definition']) . '">';
+            $stringTemp .= '</td></tr>';
             if ($isShow) {
         //definition filter passed, so show
                 echo $stringTemp;
@@ -286,11 +296,12 @@ if ($_POST['edit']) {
             }
         }
 
-        echo ('<input type="hidden" name="lang_id" value="'.attr($lang_id).'">');
+        echo ('<input type="hidden" name="lang_id" value="' . attr($lang_id) . '">');
     }
 
     if ($isResults) {
-            echo ('<tr><td colspan=3><input type="submit" name="load" Value="' . xla('Load Definitions') . '"></td></tr>');
+            echo ('<tr><td colspan=3><input type="submit" name="load" Value="' .
+                xla('Load Definitions') . '"></td></tr>');
         ?>
             <input type="hidden" name="filter_cons" value="<?php echo attr($_POST['filter_cons']); ?>">
             <input type="hidden" name="filter_def" value="<?php echo attr($_POST['filter_def']); ?>">

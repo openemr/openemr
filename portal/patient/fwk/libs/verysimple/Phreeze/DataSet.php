@@ -1,4 +1,5 @@
 <?php
+
 /** @package    verysimple::Phreeze */
 
 /**
@@ -275,7 +276,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
             
             $i = 0;
             while ($object = $this->Next()) {
-                $arr [$i ++] = $asSimpleObject ? $object->ToObject($options) : $object;
+                $arr [$i++] = $asSimpleObject ? $object->ToObject($options) : $object;
             }
             
             $this->_phreezer->SetValueCache($cachekey, $arr, $this->_cache_timeout);
@@ -412,7 +413,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
                 // we know we just have one page
                 if ($page->TotalPages > 0 && $page->TotalPages <= $page->PageSize) {
                     $page->TotalPages = 1;
-                } else if ($pagesize == 0) {
+                } elseif ($pagesize == 0) {
                     // we don't want paging to occur in this case
                     $page->TotalPages = 1;
                 } else {
@@ -430,7 +431,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
             // decrement the requested pagenum here so that we will be
             // using a zero-based array - which saves us from having to
             // decrement on every iteration
-            $pagenum --;
+            $pagenum--;
             
             $start = $pagesize * $pagenum;
             
@@ -449,7 +450,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
             // transfer all of the results into the page object
             $i = 0;
             while ($obj = $this->Next()) {
-                $page->Rows [$i ++] = $obj;
+                $page->Rows [$i++] = $obj;
             }
             
             if (! $countrecords) {
@@ -486,7 +487,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
             $this->_phreezer->Observe("(DataSet.GetDelayedCache: flood prevention. delayed attempt " . $counter . " of 3...) " . $cachekey, OBSERVE_DEBUG);
             usleep(50000); // 5/100th of a second
             $obj = $this->_phreezer->GetValueCache($cachekey);
-            $counter ++;
+            $counter++;
         }
         
         return $obj;

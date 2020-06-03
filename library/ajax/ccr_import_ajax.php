@@ -1,4 +1,5 @@
 <?php
+
 /**
  * library/ccr_import_ajax.php Functions related to patient CCR/CCD/CCDA parsing.
  *
@@ -13,7 +14,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 require_once(dirname(__FILE__) . "/../parse_patient_xml.php");
@@ -37,13 +37,13 @@ if ($_REQUEST["ccr_ajax"] == "yes") {
         $data = array($GLOBALS['couchdb_dbase'],$couch_docid);
         $resp = $couch->retrieve_doc($data);
         $content = $resp->data;
-        if ($content=='' && $GLOBALS['couchdb_log']==1) {
-            $log_content = date('Y-m-d H:i:s')." ==> Retrieving document\r\n";
-            $log_content = date('Y-m-d H:i:s')." ==> URL: ".$url."\r\n";
-            $log_content .= date('Y-m-d H:i:s')." ==> CouchDB Document Id: ".$couch_docid."\r\n";
-            $log_content .= date('Y-m-d H:i:s')." ==> CouchDB Revision Id: ".$couch_revid."\r\n";
-            $log_content .= date('Y-m-d H:i:s')." ==> Failed to fetch document content from CouchDB.\r\n";
-            $log_content .= date('Y-m-d H:i:s')." ==> Will try to download file from HardDisk if exists.\r\n\r\n";
+        if ($content == '' && $GLOBALS['couchdb_log'] == 1) {
+            $log_content = date('Y-m-d H:i:s') . " ==> Retrieving document\r\n";
+            $log_content = date('Y-m-d H:i:s') . " ==> URL: " . $url . "\r\n";
+            $log_content .= date('Y-m-d H:i:s') . " ==> CouchDB Document Id: " . $couch_docid . "\r\n";
+            $log_content .= date('Y-m-d H:i:s') . " ==> CouchDB Revision Id: " . $couch_revid . "\r\n";
+            $log_content .= date('Y-m-d H:i:s') . " ==> Failed to fetch document content from CouchDB.\r\n";
+            $log_content .= date('Y-m-d H:i:s') . " ==> Will try to download file from HardDisk if exists.\r\n\r\n";
             $this->document_upload_download_log($d->get_foreign_id(), $log_content);
             die(xlt("File retrieval from CouchDB failed"));
         }
@@ -54,7 +54,7 @@ if ($_REQUEST["ccr_ajax"] == "yes") {
         $from_all = explode("/", $url);
         $from_filename = array_pop($from_all);
         $from_pathname_array = array();
-        for ($i=0; $i<$d->get_path_depth(); $i++) {
+        for ($i = 0; $i < $d->get_path_depth(); $i++) {
             $from_pathname_array[] = array_pop($from_all);
         }
 
@@ -193,7 +193,7 @@ if ($_REQUEST["ccr_ajax"] == "yes") {
         $var['field_name_value_array']['documents'][0]['id'] = $doc_id;
         insert_ccr_into_audit_data($var);
         $d->update_imported($doc_id);
-        echo xlt('Successfully Imported the details. Please approve the patient from the Pending Approval Screen').'.';
+        echo xlt('Successfully Imported the details. Please approve the patient from the Pending Approval Screen') . '.';
     } else {
         exit(xlt('Could not read the file'));
     }

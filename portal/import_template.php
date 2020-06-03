@@ -1,4 +1,5 @@
 <?php
+
 /**
  * import_template.php
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../interface/globals.php");
 
@@ -20,7 +20,7 @@ if ($_POST['mode'] == 'get') {
     } else {
         die(xlt('Invalid File'));
     }
-} else if ($_POST['mode'] == 'save') {
+} elseif ($_POST['mode'] == 'save') {
     $rebuilt = validateFile($_POST['docid']);
     if ($rebuilt) {
         if (stripos($_POST['content'], "<?php") === false) {
@@ -32,7 +32,7 @@ if ($_POST['mode'] == 'get') {
     } else {
         die(xlt('Invalid File'));
     }
-} else if ($_POST['mode'] == 'delete') {
+} elseif ($_POST['mode'] == 'delete') {
     $rebuilt = validateFile($_POST['docid']);
     if ($rebuilt) {
         unlink($rebuilt);

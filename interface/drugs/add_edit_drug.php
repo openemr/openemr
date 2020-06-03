@@ -1,4 +1,5 @@
 <?php
+
  // Copyright (C) 2006-2017 Rod Roark <rod@sunsetsystems.com>
  //
  // This program is free software; you can redistribute it and/or
@@ -147,25 +148,30 @@ if ($_POST['form_save']) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $crow = sqlQuery(
-        "SELECT COUNT(*) AS count FROM drugs WHERE " .
-        "name = ? AND " .
-        "form = ? AND " .
-        "size = ? AND " .
-        "unit = ? AND " .
-        "route = ? AND " .
-        "drug_id != ?",
-        array(
-            trim($_POST['form_name']),
-            trim($_POST['form_form']),
-            trim($_POST['form_size']),
-            trim($_POST['form_unit']),
-            trim($_POST['form_route']),
-            $drug_id
-        )
-    );
-    if ($crow['count']) {
-        $alertmsg = xl('Cannot add this entry because it already exists!');
+    $drugName = trim($_POST['form_name']);
+    if ($drugName === '') {
+        $alertmsg = xl('Drug name is required');
+    } else {
+        $crow = sqlQuery(
+            "SELECT COUNT(*) AS count FROM drugs WHERE " .
+            "name = ? AND " .
+            "form = ? AND " .
+            "size = ? AND " .
+            "unit = ? AND " .
+            "route = ? AND " .
+            "drug_id != ?",
+            array(
+                trim($_POST['form_name']),
+                trim($_POST['form_form']),
+                trim($_POST['form_size']),
+                trim($_POST['form_unit']),
+                trim($_POST['form_route']),
+                $drug_id
+            )
+        );
+        if ($crow['count']) {
+            $alertmsg = xl('Cannot add this entry because it already exists!');
+        }
     }
 }
 
@@ -223,7 +229,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
                 sqlStatement("DELETE FROM prices WHERE pr_id = ? AND pr_selector != ''", array($drug_id));
             }
         }
-    } else if ($_POST['form_save']) { // saving a new drug
+    } elseif ($_POST['form_save']) { // saving a new drug
         $new_drug = true;
         $drug_id = sqlInsert(
             "INSERT INTO drugs ( " .
@@ -363,8 +369,9 @@ if ($drug_id) {
     'related_code' => '',
     );
 }
+$title = $drug_id ? xl("Update Drug") : xl("Add Drug");
 ?>
-
+<h3 class="ml-1"><?php echo text($title);?></h3>
 <form class="form" method='post' name='theform' action='add_edit_drug.php?drug=<?php echo attr_url($drug_id); ?>'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <center>
@@ -372,14 +379,14 @@ if ($drug_id) {
 <table class="table table-borderless w-100">
 
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('Name'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Name'); ?>:</td>
   <td>
    <input class="form-control w-100" size='40' name='form_name' maxlength='80' value='<?php echo attr($row['name']) ?>' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('Active{{Drug}}'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Active{{Drug}}'); ?>:</td>
   <td>
    <input type='checkbox' name='form_active' value='1'<?php
     if ($row['active']) {
@@ -389,7 +396,7 @@ if ($drug_id) {
  </tr>
 
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('Allow'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Allow'); ?>:</td>
   <td>
    <input type='checkbox' name='form_allow_multiple' value='1'<?php
     if ($row['allow_multiple']) {
@@ -405,32 +412,32 @@ if ($drug_id) {
  </tr>
 
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('NDC Number'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('NDC Number'); ?>:</td>
   <td>
    <input class="form-control w-100" size='40' name='form_ndc_number' maxlength='20' value='<?php echo attr($row['ndc_number']) ?>' onkeyup='maskkeyup(this,"<?php echo attr(addslashes($GLOBALS['gbl_mask_product_id'])); ?>")' onblur='maskblur(this,"<?php echo attr(addslashes($GLOBALS['gbl_mask_product_id'])); ?>")' />
   </td>
  </tr>
 <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('Drug Code'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Drug Code'); ?>:</td>
   <td>
    <input class="form-control" size='5' name='form_drug_code' maxlength='10'
     value='<?php echo attr($row['drug_code']) ?>' />
   </td>
 </tr>
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('On Order'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('On Order'); ?>:</td>
   <td>
    <input class="form-control" size='5' name='form_on_order' maxlength='7' value='<?php echo attr($row['on_order']) ?>' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('Limits'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Limits'); ?>:</td>
   <td>
    <table>
     <tr>
-     <td valign='top' nowrap>&nbsp;</td>
-     <td valign='top' nowrap><?php echo xlt('Global'); ?></td>
+     <td class="align-top text-nowrap">&nbsp;</td>
+     <td class="align-top text-nowrap"><?php echo xlt('Global'); ?></td>
 <?php
 // One column header per warehouse title.
 $pwarr = array();
@@ -446,19 +453,18 @@ $pwres = sqlStatement(
 );
 while ($pwrow = sqlFetchArray($pwres)) {
     $pwarr[] = $pwrow;
-    echo "     <td valign='top' nowrap>" .
-    text($pwrow['title']) . "</td>\n";
+    echo "     <td class='align-top text-nowrap'>" . text($pwrow['title']) . "</td>\n";
 }
 ?>
     </tr>
     <tr>
-     <td valign='top' nowrap><?php echo xlt('Min'); ?>&nbsp;</td>
-     <td valign='top'>
+     <td class="align-top text-nowrap"><?php echo xlt('Min'); ?>&nbsp;</td>
+     <td class="align-top">
       <input class="form-control" size='5' name='form_reorder_point' maxlength='7' value='<?php echo attr($row['reorder_point']) ?>' title='<?php echo xla('Reorder point, 0 if not applicable'); ?>' />&nbsp;&nbsp;
      </td>
 <?php
 foreach ($pwarr as $pwrow) {
-    echo "     <td valign='top'>";
+    echo "     <td class='align-top'>";
     echo "<input class='form-control' name='form_wh_min[" .
     attr($pwrow['option_id']) .
     "]' value='" . attr(0 + $pwrow['pw_min_level']) . "' size='5' " .
@@ -468,13 +474,13 @@ foreach ($pwarr as $pwrow) {
 ?>
     </tr>
     <tr>
-     <td valign='top' nowrap><?php echo xlt('Max'); ?>&nbsp;</td>
+     <td class="align-top text-nowrap"><?php echo xlt('Max'); ?>&nbsp;</td>
      <td>
       <input class='form-control' size='5' name='form_max_level' maxlength='7' value='<?php echo attr($row['max_level']) ?>' title='<?php echo xla('Maximum reasonable inventory, 0 if not applicable'); ?>' />
      </td>
 <?php
 foreach ($pwarr as $pwrow) {
-    echo "     <td valign='top'>";
+    echo "     <td class='align-top'>";
     echo "<input class='form-control' name='form_wh_max[" .
     attr($pwrow['option_id']) .
     "]' value='" . attr(0 + $pwrow['pw_max_level']) . "' size='5' " .
@@ -488,65 +494,63 @@ foreach ($pwarr as $pwrow) {
  </tr>
 
  <tr class='drugsonly'>
-  <td valign='top' nowrap><strong><?php echo xlt('Form'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Form'); ?>:</td>
   <td>
 <?php
- generate_form_field(array('data_type'=>1,'field_id'=>'form','list_id'=>'drug_form','empty_title'=>'SKIP'), $row['form']);
+ generate_form_field(array('data_type' => 1,'field_id' => 'form','list_id' => 'drug_form','empty_title' => 'SKIP'), $row['form']);
 ?>
   </td>
  </tr>
 
  <tr class='drugsonly'>
-  <td valign='top' nowrap><strong><?php echo xlt('Pill Size'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Pill Size'); ?>:</td>
   <td>
    <input class="form-control" size='5' name='form_size' maxlength='7' value='<?php echo attr($row['size']) ?>' />
   </td>
  </tr>
 
  <tr class='drugsonly'>
-  <td valign='top' nowrap><strong><?php echo xlt('Units'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Units'); ?>:</td>
   <td>
 <?php
- generate_form_field(array('data_type'=>1,'field_id'=>'unit','list_id'=>'drug_units','empty_title'=>'SKIP'), $row['unit']);
+ generate_form_field(array('data_type' => 1,'field_id' => 'unit','list_id' => 'drug_units','empty_title' => 'SKIP'), $row['unit']);
 ?>
   </td>
  </tr>
 
  <tr class='drugsonly'>
-  <td valign='top' nowrap><strong><?php echo xlt('Route'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Route'); ?>:</td>
   <td>
 <?php
- generate_form_field(array('data_type'=>1,'field_id'=>'route','list_id'=>'drug_route','empty_title'=>'SKIP'), $row['route']);
+ generate_form_field(array('data_type' => 1,'field_id' => 'route','list_id' => 'drug_route','empty_title' => 'SKIP'), $row['route']);
 ?>
   </td>
  </tr>
 
  <tr class='ippfonly'>
-  <td valign='top' nowrap><strong><?php echo xlt('CYP Factor'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('CYP Factor'); ?>:</td>
   <td>
    <input class="form-control" size='10' name='form_cyp_factor' maxlength='20' value='<?php echo attr($row['cyp_factor']) ?>' />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><strong><?php echo xlt('Relate To'); ?>:</strong></td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo xlt('Relate To'); ?>:</td>
   <td>
    <input class="form-control w-100" type='text' size='50' name='form_related_code' value='<?php echo attr($row['related_code']) ?>' onclick='sel_related()' title='<?php echo xla('Click to select related code'); ?>' readonly />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap>
-   <strong><?php echo $GLOBALS['sell_non_drug_products'] == 2 ? xlt('Fees') : xlt('Templates'); ?>:</strong>
-  </td>
+  <td class="align-top text-nowrap font-weight-bold"><?php echo $GLOBALS['sell_non_drug_products'] == 2 ? xlt('Fees') : xlt('Templates'); ?>:</td>
   <td>
    <table class='border-0 w-100'>
     <tr>
-     <td class='drugsonly'><strong><?php echo xlt('Name'); ?></strong></td>
-     <td class='drugsonly'><strong><?php echo xlt('Schedule'); ?></strong></td>
-     <td class='drugsonly'><strong><?php echo xlt('Interval'); ?></strong></td>
-     <td class='drugsonly'><strong><?php echo xlt('Qty'); ?></strong></td>
-     <td class='drugsonly'><strong><?php echo xlt('Refills'); ?></strong></td>
+     <td class='drugsonly font-weight-bold'><?php echo xlt('Name'); ?></td>
+     <td class='drugsonly font-weight-bold'><?php echo xlt('Schedule'); ?></td>
+     <td class='drugsonly font-weight-bold'><?php echo xlt('Interval'); ?></td>
+     <td class='drugsonly font-weight-bold'><?php echo xlt('Qty'); ?></td>
+     <td class='drugsonly font-weight-bold'><?php echo xlt('Refills'); ?></td>
 <?php
 // Show a heading for each price level.  Also create an array of prices
 // for new template lines.
@@ -555,18 +559,18 @@ $pres = sqlStatement("SELECT option_id, title FROM list_options " .
     "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq");
 while ($prow = sqlFetchArray($pres)) {
     $emptyPrices[$prow['option_id']] = '';
-    echo "     <td><strong>" .
-    generate_display_field(array('data_type'=>'1','list_id'=>'pricelevel'), $prow['option_id']) .
-    "</strong></td>\n";
+    echo "     <td class='font-weight-bold'>" .
+    generate_display_field(array('data_type' => '1','list_id' => 'pricelevel'), $prow['option_id']) .
+    "</td>\n";
 }
 
 // Show a heading for each tax rate.
 $pres = sqlStatement("SELECT option_id, title FROM list_options " .
     "WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq");
 while ($prow = sqlFetchArray($pres)) {
-    echo "     <td><strong>" .
-        generate_display_field(array('data_type'=>'1','list_id'=>'taxrate'), $prow['option_id']) .
-        "</strong></td>\n";
+    echo "     <td class='font-weight-bold'>" .
+        generate_display_field(array('data_type' => '1','list_id' => 'taxrate'), $prow['option_id']) .
+        "</td>\n";
 }
 ?>
     </tr>
@@ -613,9 +617,9 @@ for ($i = 0; $i < $blank_lines; ++$i) {
 
 </table>
 <div class="btn-group">
-<input type='submit' class="btn btn-primary" name='form_save' value='<?php echo xla('Save'); ?>' />
+<input type='submit' class="btn btn-primary" name='form_save' value='<?php echo  $drug_id ? xla('Update') : xla('Add') ; ?>' />
 
-<?php if (AclMain::aclCheckCore('admin', 'super')) { ?>
+<?php if (AclMain::aclCheckCore('admin', 'super') && $drug_id) { ?>
 <input class="btn btn-danger" type='submit' name='form_delete' value='<?php echo xla('Delete'); ?>' />
 <?php } ?>
 <input type='button' class="btn btn-secondary" value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />

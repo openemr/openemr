@@ -1,4 +1,5 @@
 <?php
+
 /**
  * language.php script
  *
@@ -9,15 +10,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
 require_once("../globals.php");
 require_once("$srcdir/registry.inc");
 require_once("language.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Utils\RandomGenUtils;
 
 //START OUT OUR PAGE....
 ?>
@@ -88,14 +88,14 @@ use OpenEMR\Core\Header;
                             endswitch;
                         } else {
                             // If m is parameter empty, To autoload Edit Definitions page content
-                            echo('<script>$(function() {$("#definition-link").get(0).click();});</script>');
+                            echo('<script>$(function () {$("#definition-link").get(0).click();});</script>');
                         }
                         ?>
                 </div>
             </div>
         </div><!--end of page content div-->
         <br>
-        <a href="lang.info.html" target="_blank"><?php echo xlt('Info'); ?></a>
+        <a href="lang.info.html" class="text-decoration-none" target="_blank"><?php echo xlt('Info'); ?></a>
     </div>
 
 </body>

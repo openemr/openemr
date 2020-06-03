@@ -1,4 +1,5 @@
 <?php
+
 /************************************************************************
             address.php - Copyright duhlman
 
@@ -12,6 +13,9 @@ The original location of this file is /home/duhlman/uml-generated-code/prescript
  * class Address
  *
  */
+
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 class Address extends ORDataObject
 {
     var $id;
@@ -71,12 +75,12 @@ class Address extends ORDataObject
     function toString($html = false)
     {
         $string .= "\n"
-        . "ID: " . $this->id."\n"
-        . "FID: " . $this->foreign_id."\n"
-        .$this->line1 . "\n"
-        .$this->line2 . "\n"
-        .$this->city . ", " . strtoupper($this->state) . " " . $this->zip . "-" . $this->plus_four. "\n"
-        .$this->country. "\n";
+        . "ID: " . $this->id . "\n"
+        . "FID: " . $this->foreign_id . "\n"
+        . $this->line1 . "\n"
+        . $this->line2 . "\n"
+        . $this->city . ", " . strtoupper($this->state) . " " . $this->zip . "-" . $this->plus_four . "\n"
+        . $this->country . "\n";
 
         if ($html) {
             return nl2br($string);

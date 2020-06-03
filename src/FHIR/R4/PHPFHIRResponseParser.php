@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4;
+<?php
+
+namespace OpenEMR\FHIR\R4;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -140,7 +142,7 @@ class PHPFHIRResponseParser
         $fullClassName = $map['fullClassName'];
         $properties = $map['properties'];
 
-        $object = new $fullClassName;
+        $object = new $fullClassName();
 
         // This indicates we are at a primitive value...
         if (is_scalar($jsonEntry)) {
@@ -157,7 +159,7 @@ class PHPFHIRResponseParser
             } else {
                 $this->_triggerPropertyNotFoundError($fhirElementName, 'value');
             }
-        } else if (isset($jsonEntry['resourceType']) && $jsonEntry['resourceType'] !== $fhirElementName) { // TODO:
+        } elseif (isset($jsonEntry['resourceType']) && $jsonEntry['resourceType'] !== $fhirElementName) { // TODO:
             // This is probably very not ok...
             $propertyMap = $properties[$jsonEntry['resourceType']];
             $setter = $propertyMap['setter'];
@@ -219,7 +221,7 @@ class PHPFHIRResponseParser
         $fullClassName = $map['fullClassName'];
         $properties = $map['properties'];
 
-        $object = new $fullClassName;
+        $object = new $fullClassName();
 
         /** @var \SimpleXMLElement $attribute */
         foreach ($element->attributes() as $attribute) {
@@ -298,8 +300,8 @@ class PHPFHIRResponseParser
 
     private static function _registerAutoloader()
     {
-        $autoloaderClass = __NAMESPACE__.'\PHPFHIRAutoloader';
-        $autoloaderClassFile = __DIR__.'/PHPFHIRAutoloader.php';
+        $autoloaderClass = __NAMESPACE__ . '\PHPFHIRAutoloader';
+        $autoloaderClassFile = __DIR__ . '/PHPFHIRAutoloader.php';
 
         if (!class_exists($autoloaderClass, false)) {
             if (!file_exists($autoloaderClassFile)) {

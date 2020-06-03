@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRHealthcareService;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRHealthcareService;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -196,7 +198,7 @@ class FHIRHealthcareServiceAvailableTime extends FHIRBackboneElement implements 
                         $this->addDaysOfWeek($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"daysOfWeek" must be array of objects or null, '.gettype($data['daysOfWeek']).' seen.');
+                    throw new \InvalidArgumentException('"daysOfWeek" must be array of objects or null, ' . gettype($data['daysOfWeek']) . ' seen.');
                 }
             }
             if (isset($data['allDay'])) {
@@ -208,8 +210,8 @@ class FHIRHealthcareServiceAvailableTime extends FHIRBackboneElement implements 
             if (isset($data['availableEndTime'])) {
                 $this->setAvailableEndTime($data['availableEndTime']);
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

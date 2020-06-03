@@ -1,8 +1,8 @@
 /*
- * 
+ *
  */
 var rule_detail = function( args ) {
- 
+
     var editable = args.editable;
 
     var fn_create_row = function( rowData ) {
@@ -31,7 +31,7 @@ var rule_detail = function( args ) {
 
     return {
             init: function() {
-                $( document ).ready( function() {
+                $(function () {
                     fn_wire_events();
                     fn_work();
                 });

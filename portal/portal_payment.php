@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * namespace OnsitePortal
@@ -232,7 +233,7 @@ if ($_POST['form_save']) {
                 //----------------------------------------------------------------------------------------------------
                 //Fetching the existing code and modifier
                 $ResultSearchNew = sqlStatement(
-                    "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key ".
+                    "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key " .
                     "WHERE code_types.ct_fee=1 AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier",
                     array($form_pid, $enc)
                 );
@@ -257,8 +258,8 @@ if ($_POST['form_save']) {
 
                     sqlBeginTrans();
                     $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM       ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $enc));
-                    $insrt_id=sqlInsert(
-                        "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)".
+                    $insrt_id = sqlInsert(
+                        "INSERT INTO ar_activity (pid,encounter,sequence_no,code_type,code,modifier,payer_type,post_time,post_user,session_id,pay_amount,account_code)" .
                         " VALUES (?,?,?,?,?,?,0,now(),?,?,?,'PCP')",
                         array($form_pid, $enc, $sequence_no['increment'], $Codetype, $Code, $Modifier, $_SESSION['authUserID'], $session_id, $amount)
                     );
@@ -375,7 +376,7 @@ if ($_POST['form_save']) {
                             sqlCommitTrans();
                         }//if
                     }//while
-                    if ($amount!=0) {//if any excess is there.
+                    if ($amount != 0) {//if any excess is there.
                         sqlBeginTrans();
                         $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $enc));
                         sqlStatement(
@@ -991,7 +992,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                     </td>
                     <td colspan='2'>
                         <?php if ($ccdata['authCode'] && empty($payrow['source'])) {
-                            $payrow['source'] = $ccdata['authCode'] . " : " .$ccdata['transId'];
+                            $payrow['source'] = $ccdata['authCode'] . " : " . $ccdata['transId'];
                         }
                         ?>
                         <input class="form-control form-control-sm" id='check_number' name='form_source' style='' value='<?php echo attr($payrow['source']) ?>' />
@@ -1422,7 +1423,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                         <?php
                         if ($GLOBALS['payment_gateway'] == 'InHouse') { ?>
                             <button id="paySubmit" class="btn btn-primary"><?php echo xlt('Send Payment'); ?></button>
-                        <?php } else if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') { ?>
+                        <?php } elseif ($GLOBALS['payment_gateway'] == 'AuthorizeNet') { ?>
                             <button id="payAurhorizeNet" class="btn btn-primary"
                                     onclick="sendPaymentDataToAnet(event)"><?php echo xlt('Pay Now'); ?></button>
                         <?php }

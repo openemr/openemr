@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Main info frame.
  *

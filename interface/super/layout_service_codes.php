@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Upload designated service codes as "services=" attributes for designated layouts.
  * This supports specifying related codes to determine the service codes to be used.
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once('../globals.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
@@ -42,9 +42,19 @@ function applyCode($layoutid, $codetype, $code, $description)
 <title><?php echo xlt('Install Layout Service Codes'); ?></title>
 <?php Header::setupHeader(); ?>
 
-<style type="text/css">
- .dehead { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold }
- .detail { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal }
+<style>
+ .dehead {
+   color: var(--black);
+   font-family: sans-serif;
+   font-size: 0.8125rem;
+   font-weight: bold;
+  }
+ .detail {
+   color: var(--black);
+   font-family: sans-serif;
+   font-size: 0.8125rem;
+   font-weight:normal;
+ }
 </style>
 
 </head>

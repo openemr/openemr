@@ -26,8 +26,6 @@ services:
     ports:
     - 8300:80
     - 9300:443
-    - 3000:3000 # browsersync
-    - 3001:3001 # browsersync-admin
     volumes:
     - .:/openemr:ro
     - .:/var/www/localhost/htdocs/openemr:rw
@@ -46,6 +44,13 @@ services:
       OE_PASS: pass
       EASY_DEV_MODE: "yes"
       EASY_DEV_MODE_NEW: "yes"
+      DEVELOPER_TOOLS: "yes"
+      OPENEMR_SETTING_rest_api: 1
+      OPENEMR_SETTING_rest_fhir_api: 1
+      OPENEMR_SETTING_rest_portal_api: 1
+      OPENEMR_SETTING_rest_portal_fhir_api: 1
+      OPENEMR_SETTING_portal_onsite_two_enable: 1
+      GITHUB_COMPOSER_TOKEN: c313de1ed5a00eb6ff9309559ec9ad01fcc553f0
     depends_on:
     - mysql
   phpmyadmin:

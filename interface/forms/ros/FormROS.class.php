@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ROS form
  *
@@ -9,11 +10,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 /**
  * class
  *
  */
+
+use OpenEMR\Common\ORDataObject\ORDataObject;
+
 class FormROS extends ORDataObject
 {
 
@@ -1646,7 +1649,7 @@ class FormROS extends ORDataObject
     function toString($html = false)
     {
         $string .= "\n"
-            ."ID: " . $this->id . "\n";
+            . "ID: " . $this->id . "\n";
 
         if ($html) {
             return nl2br($string);

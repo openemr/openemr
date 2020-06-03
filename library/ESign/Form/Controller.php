@@ -1,7 +1,5 @@
 <?php
 
-namespace ESign;
-
 /**
  * Form controller implementation
  *
@@ -16,10 +14,12 @@ namespace ESign;
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  **/
 
-require_once $GLOBALS['srcdir'].'/ESign/Abstract/Controller.php';
-require_once $GLOBALS['srcdir'].'/ESign/Form/Configuration.php';
-require_once $GLOBALS['srcdir'].'/ESign/Form/Factory.php';
-require_once $GLOBALS['srcdir'].'/ESign/Form/Log.php';
+namespace ESign;
+
+require_once $GLOBALS['srcdir'] . '/ESign/Abstract/Controller.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Form/Configuration.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Form/Factory.php';
+require_once $GLOBALS['srcdir'] . '/ESign/Form/Log.php';
 
 use OpenEMR\Common\Auth\AuthUtils;
 
@@ -39,9 +39,11 @@ class Form_Controller extends Abstract_Controller
         $form->action = '#';
         $signable = new Form_Signable($form->formId, $form->formDir, $form->encounterId);
         $form->showLock = false;
-        if ($signable->isLocked() === false &&
+        if (
+            $signable->isLocked() === false &&
             $GLOBALS['lock_esign_individual'] &&
-            $GLOBALS['esign_lock_toggle']) {
+            $GLOBALS['esign_lock_toggle']
+        ) {
             $form->showLock = true;
         }
 
@@ -83,7 +85,7 @@ class Form_Controller extends Abstract_Controller
 
         $amendment = $this->getRequest()->getParam('amendment', '');
 
-        $valid = (new AuthUtils)->confirmUserPassword($_SESSION['authUser'], $password);
+        $valid = (new AuthUtils())->confirmPassword($_SESSION['authUser'], $password);
 
         if ($valid) {
             $factory = new Form_Factory($formId, $formDir, $encounterId);
@@ -106,7 +108,7 @@ class Form_Controller extends Abstract_Controller
         $response->editButtonHtml = "";
         if ($lock) {
             // If we're locking the form, replace the edit button with a "disabled" lock button
-            $response->editButtonHtml = "<a href=# class='btn btn-secondary btn-sm form-edit-button-locked' id='form-edit-button-'".attr($formDir)."-".attr($formId).">".xlt('Locked')."</a>";
+            $response->editButtonHtml = "<a href=# class='btn btn-secondary btn-sm form-edit-button-locked' id='form-edit-button-'" . attr($formDir) . "-" . attr($formId) . ">" . xlt('Locked') . "</a>";
         }
 
         echo json_encode($response);

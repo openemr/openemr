@@ -1,57 +1,65 @@
-body {
-	background-color: lightblue;		
-}
-
 .outer-container {
-	margin: 20px;
+  margin: 20px;
 }
 
 #container {
-	position: relative;
-	margin: 20px;	
-	border: 2px dashed;
+  border: 2px dashed;
+  margin: 20px;
+  position: relative;
 }
 
 .marker {
-	position: absolute;
-	border: 1px solid; 
-	background-color: red;
-	min-width:12px; 
-	min-height: 12px;
-	text-align:center;
-}	
+  background-color: var(--danger);
+  border: 1px solid;
+  min-height: 12px;
+  min-width: 12px;
+  position: absolute;
+  text-align: center;
+}
 
 .count {
-	font-size: 12px;
-	font-weight: bold;
-	color: white;
-	margin:2px;
+  color: var(--white);
+  font-size: 12px;
+  font-weight: bold;
+  margin: 2px;
 }
 
 .nav {
-	margin-left:40px;
+  margin-left: 40px;
 }
 
 .legend {
-	margin-left:20px;
+  margin-left: 20px;
 }
 
 .legend header {
-	font-weight: bold;
+  font-weight: bold;
 }
 
-.legend, .container { float: left; }
+.legend,
+.container {
+  float: left;
+}
 
-p { width: 400px; }
+p {
+  width: 400px;
+}
 
 .dialog-form .label {
-	width: 60px;
+  width: 60px;
 }
+
 .dialog-form .detail {
-	width: 310px;
-	height: 100px;
+  height: 100px;
+  width: 310px;
 }
 
-label, input { display:block; }
-fieldset { padding:0; border:0; }
+label,
+input {
+  display: block;
+}
 
+fieldset {
+  border: 0;
+  padding: 0;
+}

@@ -43,17 +43,23 @@ function ProductRegistrationController() {
         var buttonObject = {};
         buttonObject[registrationTranslations.submit] = _formSubmissionHandler;
         buttonObject[registrationTranslations.noThanks] = _formCancellationHandler;
+    
+        $('.product-registration-modal .modal-header').text(registrationTranslations.title);
 
-        $('.product-registration-modal').dialog({
-            resizable: false,
-            height: "auto",
-            width: 400,
-            draggable: false,
-            title: registrationTranslations.title,
-            modal: true,
-            buttons: buttonObject,
-            closeText: registrationTranslations.closeTooltip
+        $('.product-registration-modal .submit').on('click', function(e){
+                _formSubmissionHandler();
+                return false;
+            });
+    
+        $('.product-registration-modal .nothanks').on('click', function(e){
+            _formCancellationHandler();
+            return false;
         });
+
+        $('.product-registration-modal').modal('toggle');
+            
+        
+        
 
         // Wire up "enter key" handler in case user doesn't click the modal buttons manually
         $('.product-registration-modal .email').on('keypress', function (event) {
@@ -84,7 +90,7 @@ function ProductRegistrationController() {
 
     // If we are on the about_page, show the registration data.
     self.displayRegistrationInformationIfDivExists = function (data) {
-        if ($('.product-registration').size() > 0) {
+        if ($('.product-registration').length > 0) {
             $('.product-registration .email').text(registrationTranslations.registeredEmail + ' ' + data.email);
             $('.product-registration .id').text(registrationTranslations.registeredId + ' ' + data.registrationId);
         }
@@ -101,12 +107,7 @@ function ProductRegistrationController() {
         _productRegistrationService.submitRegistration(false, _noop);
     };
 
-    var _registrationCreatedHandler = function (data) {
-        $('.product-registration-modal').dialog('option', {
-            buttons: {},
-            title: registrationTranslations.success
-        });
-
+     var _registrationCreatedHandler = function (data) {
         $('.product-registration-modal .context').remove();
         $('.product-registration-modal .email').remove();
         $('.product-registration-modal .message').text(registrationTranslations.registeredSuccess);
@@ -120,7 +121,7 @@ function ProductRegistrationController() {
 
     var _closeModal = function (closeWaitTimeMilliseconds) {
         setTimeout(function () {
-            $('.product-registration-modal').dialog('close');
+            $('.product-registration-modal').modal('toggle');
         }, closeWaitTimeMilliseconds || 0);
     };
 }

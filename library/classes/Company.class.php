@@ -1,4 +1,5 @@
 <?php
+
 /************************************************************************
             address.php - Copyright duhlman
 
@@ -7,6 +8,8 @@
 This file was generated on %date% at %time%
 The original location of this file is /home/duhlman/uml-generated-code/prescription.php
 **************************************************************************/
+
+use OpenEMR\Common\ORDataObject\ORDataObject;
 
 /**
  * class Address
@@ -72,12 +75,12 @@ class Company extends ORDataObject
     function toString($html = false)
     {
         $string .= "\n"
-        . "ID: " . $this->id."\n"
-        . "FID: " . $this->foreign_id."\n"
-        .$this->line1 . "\n"
-        .$this->line2 . "\n"
-        .$this->city . ", " . strtoupper($this->state) . " " . $this->zip . "-" . $this->plus_four. "\n"
-        .$this->country. "\n";
+        . "ID: " . $this->id . "\n"
+        . "FID: " . $this->foreign_id . "\n"
+        . $this->line1 . "\n"
+        . $this->line2 . "\n"
+        . $this->city . ", " . strtoupper($this->state) . " " . $this->zip . "-" . $this->plus_four . "\n"
+        . $this->country . "\n";
 
         if ($html) {
             return nl2br($string);

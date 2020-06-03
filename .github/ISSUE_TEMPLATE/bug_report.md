@@ -6,25 +6,26 @@ about: Report a bug and help us improve
 
 ### Describe the bug
 
-- write concise description of what the bug is.
+write concise description of what the bug is.
 
 ### To Reproduce
 <!-- if Applicable add screenshots -->
 
 Steps to reproduce the behavior:
 1. Add a '....'
-1. Click on '....'
-2. Scroll down to '....'
-3. See error
+2. Click on '....'
+3. Scroll down to '....'
+4. See error
 
 ### Expected behavior
 
-- 
+
 
 
 ### Client configuration
 
 - Browser:
+- OpenEMR version:
 - Operating system:
 
 <!-- Love openemr? Please consider supporting our collective:

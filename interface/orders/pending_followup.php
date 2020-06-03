@@ -1,4 +1,5 @@
 <?php
+
 /**
  * pending followup
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
@@ -100,7 +100,7 @@ if ($_POST['form_csvexport']) {
 <title><?php echo xlt('Pending Followup from Results') ?></title>
 
 <script language="JavaScript">
-    $(function() {
+    $(function () {
         var win = top.printLogSetup ? top : opener.top;
         win.printLogSetup(document.getElementById('printbutton'));
 
@@ -244,7 +244,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             "b.code = ? AND " .
             "b.activity = 1 AND " .
             "fe.pid = b.pid AND fe.encounter = b.encounter AND " .
-            "fe.date >= ?", array($patient_id, $codetype, $code, $date_ordered.' 00:00:00'));
+            "fe.date >= ?", array($patient_id, $codetype, $code, $date_ordered . ' 00:00:00'));
 
             // If there was such a service, then this followup is not pending.
             if (!empty($brow['count'])) {

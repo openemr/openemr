@@ -1,4 +1,5 @@
 <?php
+
 // $Id$
 // ----------------------------------------------------------------------
 // PostNuke Content Management System
@@ -119,8 +120,10 @@ function pnConfigInit()
     while (!$dbresult->EOF) {
         list($k, $v) = $dbresult->fields;
         $dbresult->MoveNext();
-        if (($k != 'dbtype') && ($k != 'dbhost') && ($k != 'dbuname') && ($k != 'dbpass')
-                && ($k != 'dbname') && ($k != 'system') && ($k != 'prefix') && ($k != 'encoded')) {
+        if (
+            ($k != 'dbtype') && ($k != 'dbhost') && ($k != 'dbuname') && ($k != 'dbpass')
+                && ($k != 'dbname') && ($k != 'system') && ($k != 'prefix') && ($k != 'encoded')
+        ) {
             $pnconfig[$k] = $v;
         }
     }
@@ -601,8 +604,10 @@ function pnGetBaseURI()
         $path = getenv('REQUEST_URI');
     }
 
-    if ((empty($path)) ||
-        (substr($path, -1, 1) == '/')) {
+    if (
+        (empty($path)) ||
+        (substr($path, -1, 1) == '/')
+    ) {
         // REQUEST_URI was empty or pointed to a path
         // Try looking at PATH_INFO
         $path = getenv('PATH_INFO');

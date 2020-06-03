@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Display patient notes.
  *
@@ -8,7 +9,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/pnotes.inc");
@@ -28,7 +28,7 @@ $patient_id = $pid;
 if ($docid) {
     $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid));
     $patient_id = intval($row['foreign_id']);
-} else if ($orderid) {
+} elseif ($orderid) {
     $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid));
     $patient_id = intval($row['patient_id']);
 }
@@ -68,7 +68,7 @@ if (!$thisauth) {
         echo " " . xlt("linked to document") . " ";
         $d = new Document($docid);
         echo text($d->get_url_file());
-    } else if ($orderid) {
+    } elseif ($orderid) {
         echo " " . xlt("linked to procedure order") . " " . text($orderid);
     }
     ?>
@@ -99,11 +99,11 @@ if (!empty($resnote['billing_note'])) {
 //Display what the patient owes
 $balance = get_patient_balance($patient_id);
 if ($balance != "0") {
-    $formatted = sprintf((xl('$').'%01.2f'), $balance);
+    $formatted = sprintf((xl('$') . '%01.2f'), $balance);
     echo " <tr class='text billing'>\n";
     echo "  <td>" . $colorbeg . xlt('Balance Due') .
     $colorend . "</td><td>" . $colorbeg .
-    text($formatted) . $colorend."</td>\n";
+    text($formatted) . $colorend . "</td>\n";
     echo " </tr>\n";
 }
 
@@ -158,7 +158,7 @@ if ($result != null) {
 
         // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
         echo "  <td valign='top' class='bold'>";
-        echo generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $iter['title']);
+        echo generate_display_field(array('data_type' => '1','list_id' => 'note_type'), $iter['title']);
         echo "</td>\n";
 
         echo "  <td valign='top'>$body</td>\n";
@@ -178,7 +178,7 @@ if ($result != null) {
 <script language="javascript">
 // jQuery stuff to make the page a little easier to use
 
-$(function(){
+$(function () {
     $(".noterow").on("mouseover", function() { $(this).toggleClass("highlight"); });
     $(".noterow").on("mouseout", function() { $(this).toggleClass("highlight"); });
 });

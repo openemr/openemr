@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Reusable data entries for new Box 14 and Box 15 date qualifiers that are part of
  * HCFA 1500 02/12 format
@@ -17,14 +18,14 @@
 
 function generateDateQualifierSelect($name, $options, $obj)
 {
-    echo     "<select name='".attr($name)."'>";
-    for ($idx=0; $idx<count($options); $idx++) {
-        echo "<option value='".attr($options[$idx][1])."'";
-        if ($obj[$name]==$options[$idx][1]) {
+    echo     "<select name='" . attr($name) . "'>";
+    for ($idx = 0; $idx < count($options); $idx++) {
+        echo "<option value='" . attr($options[$idx][1]) . "'";
+        if ($obj[$name] == $options[$idx][1]) {
             echo " selected";
         }
 
-        echo ">".text($options[$idx][0])."</option>";
+        echo ">" . text($options[$idx][0]) . "</option>";
     }
 
     echo     "</select>";
@@ -54,10 +55,10 @@ function genReferringProviderSelect($selname, $toptext, $default = 0, $disabled 
     echo "</select>\n";
 }
 
-$box_14_qualifier_options=array(array(xl("Onset of Current Symptoms or Illness"),"431"),
+$box_14_qualifier_options = array(array(xl("Onset of Current Symptoms or Illness"),"431"),
                                             array(xl("Last Menstrual Period"),"484"));
 
-$box_15_qualifier_options=array(array(xl("Initial Treatment"),"454"),
+$box_15_qualifier_options = array(array(xl("Initial Treatment"),"454"),
                                            array(xl("Latest Visit or Consultation"),"304"),
                                            array(xl("Acute Manifestation of a Chronic Condition"),"453"),
                                            array(xl("Accident"),"439"),
@@ -67,13 +68,13 @@ $box_15_qualifier_options=array(array(xl("Initial Treatment"),"454"),
                                            array(xl("Report End (Relinquished Care Date)"),"091"),
                                            array(xl("First Visit or Consultation"),"444")
                                             );
-$hcfa_date_quals=array("box_14_date_qual"=>$box_14_qualifier_options,"box_15_date_qual"=>$box_15_qualifier_options);
+$hcfa_date_quals = array("box_14_date_qual" => $box_14_qualifier_options,"box_15_date_qual" => $box_15_qualifier_options);
 
 function qual_id_to_description($qual_type, $value)
 {
-    $options=$GLOBALS['hcfa_date_quals'][$qual_type];
-    for ($idx=0; $idx<count($options); $idx++) {
-        if ($options[$idx][1]==$value) {
+    $options = $GLOBALS['hcfa_date_quals'][$qual_type];
+    for ($idx = 0; $idx < count($options); $idx++) {
+        if ($options[$idx][1] == $value) {
             return $options[$idx][0];
         }
     }

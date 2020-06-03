@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Work/School Note Form print.php
  *
@@ -25,7 +26,7 @@ $form_name = "note";
 
 // get the record from the database
 if ($_GET['id'] != "") {
-    $obj = formFetch("form_".$form_name, $_GET["id"]);
+    $obj = formFetch("form_" . $form_name, $_GET["id"]);
 }
 
 /* remove the time-of-day from the date fields */
@@ -47,10 +48,10 @@ if ($obj['date_of_signature'] != "") {
 <?php echo xlt('Printed'); ?> <?php echo text(dateformat()); ?>
 <br /><br />
 <select name="note_type">
-<option value="WORK NOTE" <?php if ($obj['note_type']=="WORK NOTE") {
+<option value="WORK NOTE" <?php if ($obj['note_type'] == "WORK NOTE") {
     echo " SELECTED";
                           } ?>><?php echo xlt('WORK NOTE'); ?></option>
-<option value="SCHOOL NOTE" <?php if ($obj['note_type']=="SCHOOL NOTE") {
+<option value="SCHOOL NOTE" <?php if ($obj['note_type'] == "SCHOOL NOTE") {
     echo " SELECTED";
                             } ?>><?php echo xlt('SCHOOL NOTE'); ?></option>
 </select>
@@ -78,7 +79,7 @@ if ($obj['date_of_signature'] != "") {
 <script language="javascript">
 // jQuery stuff to make the page a little easier to use
 
-$(function(){
+$(function () {
     var win = top.printLogPrint ? top : opener.top;
     win.printLogPrint(window);
 });

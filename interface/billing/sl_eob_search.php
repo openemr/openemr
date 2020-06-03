@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This the first of two pages to support posting of EOBs.
  * The second is sl_eob_invoice.php.
@@ -136,7 +137,7 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
     }
 }
 
-// This is called back by ParseERA::parse_era() if we are processing X12 835's.
+// This is called back by ParseERA::parseERA() if we are processing X12 835's.
 function era_callback(&$out)
 {
     global $where, $eracount, $eraname;
@@ -307,8 +308,10 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
                 break;
             }
 
-            if (substr($content, $i + 6, $wrlen) === $web_root &&
-                substr($content, $i + 6, $wsrlen) !== $webserver_root) {
+            if (
+                substr($content, $i + 6, $wrlen) === $web_root &&
+                substr($content, $i + 6, $wsrlen) !== $webserver_root
+            ) {
                 $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
             }
         }
@@ -508,7 +511,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
         // Recompute age at each invoice.
         $stmt['age'] = round((strtotime($today) - strtotime($stmt['duedate'])) / (24 * 60 * 60));
 
-        $invlines = InvoiceSummary::ar_get_invoice_summary($row['pid'], $row['encounter'], true);
+        $invlines = InvoiceSummary::arGetInvoiceSummary($row['pid'], $row['encounter'], true);
         foreach ($invlines as $key => $value) {
             $line = array();
             $line['dos'] = $svcdate;
@@ -889,7 +892,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                                 }
 
                                 echo "<!-- Notes from ERA upload processing:\n";
-                                $alertmsg .= ParseERA::parse_era($tmp_name, 'era_callback');
+                                $alertmsg .= ParseERA::parseERA($tmp_name, 'era_callback');
                                 echo "-->\n";
                                 $erafullname = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi";
 
@@ -905,7 +908,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
                             } // End 835 upload
 
                             if ($eracount) {
-                                // Note that ParseERA::parse_era() modified $eracount and $where.
+                                // Note that ParseERA::parseERA() modified $eracount and $where.
                                 if (!$where) {
                                     $where = '1 = 2';
                                 }
@@ -1245,8 +1248,7 @@ if (($_REQUEST['form_print'] || $_REQUEST['form_download'] || $_REQUEST['form_em
 
     ?>
     $(function () {
-//using jquery-ui-1-12-1 tooltip instead of bootstrap tooltip
-        $('#select-method-tooltip').attr("title", <?php echo xlj('Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>).tooltip();
+        $('#select-method-tooltip').attr({"title": <?php echo xlj('Click on either the Invoice Search button on the far right, for manual entry or ERA Upload button for uploading an entire electronic remittance advice ERA file'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
     });
 </script>
 <?php

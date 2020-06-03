@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CAMOS content_parser.php
  *
@@ -10,7 +11,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../../library/api.inc");
 
@@ -38,8 +38,11 @@ function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp)
 }
 
 //This function was copied from BillingUtilities class and altered to support 'justify'
-function addBilling2($encounter, $code_type, $code, $code_text, $modifier = "", $units = "", $fee = "0.00", $justify)
+function addBilling2($encounter, $code_type, $code, $code_text, string $modifier = null, string $units = null, string $fee = null, $justify)
 {
+    if (!$fee) {
+        $fee = "0.00";
+    }
     $justify_string = '';
     if ($justify) {
         //trim eahc entry
@@ -48,13 +51,13 @@ function addBilling2($encounter, $code_type, $code, $code_text, $modifier = "", 
         }
 
         //format it
-        $justify_string = implode(":", $justify_trimmed).":";
+        $justify_string = implode(":", $justify_trimmed) . ":";
     }
 
   // set to authorize billing codes as default - bm
   //  could place logic here via acls to control who
   //  can authorize as a feature in the future
-    $authorized=1;
+    $authorized = 1;
 
     $sql = "insert into billing (date, encounter, code_type, code, code_text, pid, authorized, user, groupname,activity,billed,provider_id,modifier,units,fee,justify) values (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?, ?, ?, ?)";
 
@@ -143,7 +146,7 @@ function process_commands(&$string_to_process, &$camos_return_data)
     $return_value = 0;
     $camos_return_data = array(); // to be filled with additional camos form submissions if any embedded
     $command_array = array();  //to be filled with potential commands
-    $matches= array();  //to be filled with potential commands
+    $matches = array();  //to be filled with potential commands
     if (!preg_match_all("/\/\*.*?\*\//s", $string_to_process, $matches)) {
         return $return_value;
     }
@@ -154,7 +157,7 @@ function process_commands(&$string_to_process, &$camos_return_data)
         $comm = preg_replace("/(\/\*)|(\*\/)/", "", $val);
         $comm_array = explode('::', $comm); //array where first element is command and rest are args
         //Here is where we process particular commands
-        if (trim($comm_array[0])== 'billing') {
+        if (trim($comm_array[0]) == 'billing') {
             array_shift($comm_array); //couldn't do it in 'if' or would lose element 0 for next if
             //insert data into the billing table, see, easy!
             $type = trim(array_shift($comm_array));
@@ -177,14 +180,14 @@ function process_commands(&$string_to_process, &$camos_return_data)
             addBilling2($encounter, $type, $code, $text, $modifier, $units, $fee, $comm_array);
         }
 
-        if (trim($comm_array[0])== 'appt') {
+        if (trim($comm_array[0]) == 'appt') {
             array_shift($comm_array);
             $days = trim(array_shift($comm_array));
             $time = trim(array_shift($comm_array));
             addAppt($days, $time);
         }
 
-        if (trim($comm_array[0])== 'vitals') {
+        if (trim($comm_array[0]) == 'vitals') {
             array_shift($comm_array);
             $weight = trim(array_shift($comm_array));
             $height = trim(array_shift($comm_array));
@@ -221,7 +224,7 @@ function process_commands(&$string_to_process, &$camos_return_data)
 function replace($pid, $enc, $content)
 {
  //replace placeholders with values
-    $name= '';
+    $name = '';
     $fname = '';
     $mname = '';
     $lname = '';
@@ -245,9 +248,9 @@ function replace($pid, $enc, $content)
         $mname = $results['mname'];
         $lname = $results['lname'];
         if ($mname) {
-            $name = $fname.' '.$mname.' '.$lname;
+            $name = $fname . ' ' . $mname . ' ' . $lname;
         } else {
-            $name = $fname.' '.$lname;
+            $name = $fname . ' ' . $lname;
         }
 
             $dob = $results['DOB'];
@@ -259,7 +262,7 @@ function replace($pid, $enc, $content)
     $query1 = sqlStatement("select t1.lname from users as t1 join forms as " .
     "t2 on (t1.username like t2.user) where t2.encounter = ?", array($enc));
     if ($results = sqlFetchArray($query1)) {
-        $doctorname = "Dr. ".$results['lname'];
+        $doctorname = "Dr. " . $results['lname'];
     }
 
     $ret = preg_replace(
@@ -280,7 +283,7 @@ function patient_age($birthday, $date)
     $day_diff   = $date_day - $birth_day;
     if ($month_diff < 0) {
         $year_diff--;
-    } elseif (($month_diff==0) && ($day_diff < 0)) {
+    } elseif (($month_diff == 0) && ($day_diff < 0)) {
         $year_diff--;
     }
 

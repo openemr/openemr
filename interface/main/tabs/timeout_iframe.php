@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This script runs in a hidden iframe and reloads itself periodically
  * to support auto logout timeout.
@@ -11,7 +12,6 @@
  * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 // Tell auth.inc that this is the daemon script; this is so that
 // inactivity timeouts will still work, and to avoid logging an

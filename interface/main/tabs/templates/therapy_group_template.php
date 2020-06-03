@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Therapy group data template.
  *
@@ -14,12 +15,13 @@
  * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 
 <script type="text/html" id="therapy-group-template">
     <div>
         <span class="patientDataColumn">
-            <span style="float:left;"><a data-bind="click: viewTgFinder" href="#" class="btn btn-secondary btn-sm">
+            <span class="float-left"><a data-bind="click: viewTgFinder" href="#" class="btn btn-secondary btn-sm">
                 <i class="fa fa-search" aria-hidden="true"></i>
             </a></span>
             <div class="patientInfo">
@@ -61,18 +63,14 @@
             <!-- ko if: encounterArray().length > 0 -->
             <br />
             <div class="btn-group dropdown">
-                <button class="btn btn-secondary btn-sm dropdown-toggle"
-                        type="button" id="pastEncounters"
-                        data-toggle="dropdown"
-                        aria-haspopup="true"
-                        aria-expanded="true">
+                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="pastEncounters" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                     <?php echo xlt("View Past Encounters"); ?>&nbsp;
                     (<span data-bind="text:encounterArray().length"></span>)
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="pastEncounters">
                     <!-- ko foreach:encounterArray -->
-                    <li style="display: inline-flex;">
+                    <li class="d-inline-flex">
                         <a href="#" data-bind="click:chooseEncounterEvent">
                             <span data-bind="text:date"></span>
                             <span data-bind="text:category"></span>
@@ -93,7 +91,7 @@
         <!-- ko if:messages() -->
             <span class="messagesColumn">
                 <a class="btn btn-secondary" href="#" data-bind="click: viewMessages" title="<?php echo xla("View Messages");?>">
-                    <i class="fa fa-envelope"></i>&nbsp;<span style="display:inline" data-bind="text: messages()"></span>
+                    <i class="fa fa-envelope"></i>&nbsp;<span class="d-inline" data-bind="text: messages()"></span>
                 </a>
             </span>
         <!-- /ko -->

@@ -1,4 +1,6 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRResource\FHIRStructureMap;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRResource\FHIRStructureMap;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
@@ -312,7 +314,7 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
                         $this->addListMode($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"listMode" must be array of objects or null, '.gettype($data['listMode']).' seen.');
+                    throw new \InvalidArgumentException('"listMode" must be array of objects or null, ' . gettype($data['listMode']) . ' seen.');
                 }
             }
             if (isset($data['listRuleId'])) {
@@ -327,11 +329,11 @@ class FHIRStructureMapTarget extends FHIRBackboneElement implements \JsonSeriali
                         $this->addParameter($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"parameter" must be array of objects or null, '.gettype($data['parameter']).' seen.');
+                    throw new \InvalidArgumentException('"parameter" must be array of objects or null, ' . gettype($data['parameter']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

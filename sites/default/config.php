@@ -1,4 +1,5 @@
 <?php
+
 //used differently by different applications, intuit programs only like numbers
 $GLOBALS['oer_config']['ofx']['bankid']     = "123456789";
 

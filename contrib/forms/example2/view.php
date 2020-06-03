@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Sports Physical Form
  *
@@ -9,7 +10,6 @@
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
@@ -26,7 +26,7 @@ $form_name = "My Example Form";
 /** CHANGE THIS to match the folder you created for this form **/
 $form_folder = "example";
 
-formHeader("Form: ".$form_name);
+formHeader("Form: " . $form_name);
 $returnurl = 'encounter_top.php';
 
 /* load the saved record */
@@ -57,7 +57,7 @@ if ($record['sig_date'] != "") {
 
 <script language="JavaScript">
 function PrintForm() {
-    newwin = window.open("<?php echo "http://".$_SERVER['SERVER_NAME'].$rootdir."/forms/".$form_folder."/print.php?id=" ?>" + <?php echo js_url($_GET["id"]); ?>,"mywin");
+    newwin = window.open("<?php echo "http://" . $_SERVER['SERVER_NAME'] . $rootdir . "/forms/" . $form_folder . "/print.php?id=" ?>" + <?php echo js_url($_GET["id"]); ?>,"mywin");
 }
 </script>
 
@@ -139,7 +139,7 @@ Date of signature:
 <script language="javascript">
 // jQuery stuff to make the page a little easier to use
 
-$(function(){
+$(function () {
     $(".save").click(function() { top.restoreSession(); document.my_form.submit(); });
     $(".dontsave").click(function() { parent.closeTab(window.name, false); });
     $(".printform").click(function() { PrintForm(); });
