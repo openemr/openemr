@@ -54,7 +54,9 @@ function sqlQuery($statement, $link)
             <div class="col-12">
                 <div class="page-header d-flex justify-content-between align-items-center">
                     <h2>OpenEMR Multi Site Administration</h2>
-                    <a class="text-secondary" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" title="Click to view Help"><i class="fa fa-question-circle fa-lg" aria-hidden="true"></i></a>
+                    <a class="text-secondary" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href">
+                        <i class="fa fa-question-circle fa-lg" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Click to view Help"></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -165,7 +167,7 @@ function sqlQuery($statement, $link)
                                     echo "  <td><i class='fa fa-check fa-lg text-success' aria-hidden='true' ></i></a></td>\n";
                                 }
                                 if (($v_database == $database_version) && ($v_acl <= $database_acl) && ($v_realpatch == $database_patch)) {
-                                    echo "  <td><a href='interface/login/login.php?site=$sfname' title ='Login to site $sfname' class='text-decoration-none'><i class='fa fa-sign-in fa-lg' aria-hidden='true'></i></a></td>\n";
+                                    echo "  <td><a href='interface/login/login.php?site=$sfname' class='text-decoration-none'><i class='fa fa-sign-in fa-lg' aria-hidden='true' data-toggle='tooltip' data-placement='top' title ='Login to site $sfname'></i></a></td>\n";
                                 } else {
                                     echo "  <td><i class='fa fa-ban fa-lg text-secondary' aria-hidden='true'></i></td>\n";
                                 }
@@ -217,6 +219,9 @@ function sqlQuery($statement, $link)
             $('#print-help-href').click (function(){
                 $("#targetiframe").get(0).contentWindow.print();
             });
+        });
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
         });
         // Jquery draggable
         $(".modal-dialog").addClass('drag-action');
