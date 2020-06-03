@@ -33,6 +33,7 @@ if ($showit == 'ext') {
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="description" content="Eye Exam Help" />
     <meta name="author" content="openEMR: ophthalmology help" />
+    <?php Header::setupHeader(); ?>
     </head>
     <body>
         <!-- Navbar Section -->
